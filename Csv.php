@@ -1,6 +1,6 @@
 <?php
 
-namespace Bakame;
+namespace Bakame\Csv;
 
 use InvalidArgumentException;
 use SplFileInfo;
