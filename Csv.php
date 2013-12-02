@@ -170,6 +170,7 @@ class Csv
             if (is_string($row)) {
                 $row = explode($this->delimiter, $row);
             }
+            //TODO make sure $row is actually an array
             array_walk($row, function (&$value) {
                 $value = trim($value);
             });
