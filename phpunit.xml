@@ -12,7 +12,7 @@
          stopOnFailure="false">
     
     <testsuites>
-        <testsuite name="Bakame Url Test Suite">
+        <testsuite name="Bakame CSV Test Suite">
             <directory>test/Bakame</directory>
         </testsuite>
     </testsuites>
