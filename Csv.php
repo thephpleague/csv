@@ -122,27 +122,22 @@ class Csv
 
     /**
      * Parse a CSV string
-     * @param  string             $str the csv content string
-     * @return \SplTempFileObject
-     */
-    public function parseString($str)
-    {
-        $file = new SplTempFileObject();
-        $file->fwrite($str);
-        $file->setFlags(SplFileObject::READ_CSV|SplFileObject::READ_AHEAD|SplFileObject::SKIP_EMPTY);
-        $file->setCsvControls($this->delimiter, $this->enclosure, $this->escape);
-
-        return $file;
-    }
-
-    /**
-     * Parse a given CSV file
-     * @param  string         $path the path to the file
+     * @param  string $type can be "string" or "file"
+     * @param  string $str the csv content string or the file path
+     * 
      * @return \SplFileObject
      */
-    public function parseFile($path)
+    public function load($type, $str)
     {
-        $file = new SplFileObject($path, 'r+');
+        if (! in_array($type, ['string', 'file'])) {
+            throw new InvalidArgumentException('$type must be equals to "string" OR "file"');
+        }
+        if ('string' == $type) {
+            $file = new SplTempFileObject();
+            $file->fwrite($str);
+        } else {
+            $file = new SplFileObject($str, 'r+');
+        }
         $file->setFlags(SplFileObject::READ_CSV|SplFileObject::READ_AHEAD|SplFileObject::SKIP_EMPTY);
         $file->setCsvControls($this->delimiter, $this->enclosure, $this->escape);
 
