@@ -62,7 +62,7 @@ class WrapperTest extends \PHPUnit_Framework_TestCase
     /**
      * @expectedException InvalidArgumentException
      */
-    public function testCreateCsv()
+    public function testCreate()
     {
          $this->wrapper->create(__DIR__.'/foo.csv', 'z');
     }
