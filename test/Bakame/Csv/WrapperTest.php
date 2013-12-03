@@ -16,7 +16,7 @@ class WrapperTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException Bakame\Csv\WrapperException
+     * @expectedException InvalidArgumentException
      */
     public function testDelimeter()
     {
@@ -27,7 +27,7 @@ class WrapperTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException Bakame\Csv\WrapperException
+     * @expectedException InvalidArgumentException
      */
     public function testEscape()
     {
@@ -38,7 +38,7 @@ class WrapperTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException Bakame\Csv\WrapperException
+     * @expectedException InvalidArgumentException
      */
     public function testEnclosure()
     {
@@ -110,7 +110,7 @@ class WrapperTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException Bakame\Csv\WrapperException
+     * @expectedException InvalidArgumentException
      */
     public function testSaveExceptionBadData()
     {
@@ -118,7 +118,15 @@ class WrapperTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException \RuntimeException
+     * @expectedException InvalidArgumentException
+     */
+    public function testSaveExceptionBadMode()
+    {
+        $this->wrapper->save('foo', 'php://temp', 'x');
+    }
+
+    /**
+     * @expectedException RuntimeException
      */
     public function testSaveExceptionBadPath()
     {

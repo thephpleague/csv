@@ -6,9 +6,17 @@ use SplFileInfo;
 use SplFileObject;
 use SplTempFileObject;
 use Traversable;
+use InvalidArgumentException;
+use RuntimeException;
 
 class Wrapper
 {
+    /**
+     * File access type supported
+     * @var [type]
+     */
+    private $mode_list = ['r+', 'w', 'w+', 'a', 'a+', 'c', 'c+'];
+
     /**
      * the field delimiter (one character only)
      * @var string
@@ -32,11 +40,13 @@ class Wrapper
      * @param string $delimiter
      *
      * @return self
+     *
+     * @throws \InvalidArgumentException If $delimeter is not a single character
      */
     public function setDelimiter($delimiter = ',')
     {
         if (1 != mb_strlen($delimiter)) {
-            throw new WrapperException('The delimiter must be a single character');
+            throw new InvalidArgumentException('The delimiter must be a single character');
         }
         $this->delimiter = $delimiter;
 
@@ -48,11 +58,13 @@ class Wrapper
      * @param string $enclosure
      *
      * @return self
+     *
+     * @throws \InvalidArgumentException If $enclosure is not a single character
      */
     public function setEnclosure($enclosure = '"')
     {
         if (1 != mb_strlen($enclosure)) {
-            throw new WrapperException('The enclosure must be a single character');
+            throw new InvalidArgumentException('The enclosure must be a single character');
         }
         $this->enclosure = $enclosure;
 
@@ -64,11 +76,13 @@ class Wrapper
      * @param string $escape
      *
      * @return self
+     *
+     * @throws \InvalidArgumentException If $escape is not a single character
      */
     public function setEscape($escape = "\\")
     {
         if (1 != mb_strlen($escape)) {
-            throw new WrapperException('The escape character must be a single character');
+            throw new InvalidArgumentException('The escape character must be a single character');
         }
         $this->escape = $escape;
 
@@ -146,7 +160,7 @@ class Wrapper
      */
     public function loadFile($str)
     {
-        $file = new SplFileObject($str, 'r+');
+        $file = new SplFileObject($str, 'r');
         $file->setFlags(SplFileObject::READ_CSV);
         $file->setCsvControl($this->delimiter, $this->enclosure, $this->escape);
 
@@ -155,21 +169,30 @@ class Wrapper
 
     /**
      * Save the given data into a CSV
-     * @param array|Traversable  $data the Data to be saved
+     * @param array|Traversable  $data the data to be saved
      * @param string|SplFileInfo $path where to save the data
+     * @param string             $mode specifies the type of access you require to the file
      *
      * @return \SplFileObject
      *
-     * @throws \Bakame\Csv\WrapperException If $data is not an array or a Traversable object
-     * @throws \RuntimeException            If the $file can not be instantiate
+     * @throws \InvalidArgumentException If $data is not an array or a Traversable object
+     * @throws \RuntimeException         If the $file can not be instantiate
      */
-    public function save($data, $path)
+    public function save($data, $path, $mode = 'w')
     {
-        if (! is_array($data) && ! $data instanceof Traversable) {
-            throw new WrapperException('$data must be an Array or a Traversable object');
+        $mode = strtolower($mode);
+        if (! in_array($mode, $this->mode_list)) {
+            throw new InvalidArgumentException(
+                'Invalid $mode, available mode are : "'.implode('", "', $this->mode_list).'".
+                Please refer to PHP built-in fopen function documentation for more information.'
+            );
         }
 
-        $file = ($path instanceof SplFileInfo) ? $path->openFile('w') : new SplFileObject($path, 'w');
+        if (! is_array($data) && ! $data instanceof Traversable) {
+            throw new InvalidArgumentException('$data must be an Array or a Traversable object');
+        }
+
+        $file = ($path instanceof SplFileInfo) ? $path->openFile($mode) : new SplFileObject($path, $mode);
         $file->setCsvControl($this->delimiter, $this->enclosure, $this->escape);
         foreach ($data as $row) {
             if (is_string($row)) {
