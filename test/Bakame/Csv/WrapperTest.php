@@ -50,25 +50,28 @@ class WrapperTest extends \PHPUnit_Framework_TestCase
 
     public function testloadString()
     {
+        $expected = ['foo', 'bar', 'baz'];
         $str = "foo,bar,baz\nfoo,bar,baz";
         $res = $this->wrapper->loadString($str);
         $this->assertInstanceof('SplTempFileObject', $res);
         foreach ($res as $row) {
-            $this->assertSame(['foo', 'bar', 'baz'], $row);
+            $this->assertSame($expected, $row);
         }
     }
 
     public function testloadFile()
     {
+        $expected = ['foo', 'bar', 'baz'];
         $file = __DIR__.'/foo.csv';
         $res = $this->wrapper->loadFile($file);
         $this->assertInstanceof('SplFileObject', $res);
         $this->assertSame($file, $res->getRealPath());
+        $res->setFlags(SplFileObject::READ_CSV|SplFileObject::READ_AHEAD|SplFileObject::SKIP_EMPTY);
         foreach ($res as $row) {
             array_walk($row, function (&$value) {
                 $value = trim($value);
             });
-            $this->assertSame(['foo', 'bar', 'baz'], $row);
+            $this->assertSame($expected, $row);
         }
     }
 
@@ -78,6 +81,7 @@ class WrapperTest extends \PHPUnit_Framework_TestCase
             ['foo', 'bar', '  baz '],
             'foo,bar, baz  ',
         ];
+        $expected = ['foo', 'bar', 'baz'];
         $this->wrapper
             ->setDelimiter(',')
             ->setEnclosure('"')
@@ -86,7 +90,7 @@ class WrapperTest extends \PHPUnit_Framework_TestCase
         $res = $this->wrapper->save($arr, 'php://temp');
         $this->assertInstanceof('SplFileObject', $res);
         foreach ($res as $row) {
-            $this->assertSame(['foo', 'bar', 'baz'], $row);
+            $this->assertSame($expected, $row);
         }
     }
 
@@ -96,11 +100,12 @@ class WrapperTest extends \PHPUnit_Framework_TestCase
             ['foo', 'bar', '  baz '],
             'foo,bar, baz  ',
         ];
+        $expected = ['foo', 'bar', 'baz'];
         $obj = new \ArrayObject($arr);
         $res = $this->wrapper->save($obj, 'php://temp');
         $this->assertInstanceof('\SplFileObject', $res);
         foreach ($res as $row) {
-            $this->assertSame(['foo', 'bar', 'baz'], $row);
+            $this->assertSame($expected, $row);
         }
     }
 

@@ -130,7 +130,7 @@ class Wrapper
 
         $file = new SplTempFileObject();
         $file->fwrite($str);
-        $file->setFlags(SplFileObject::READ_CSV|SplFileObject::READ_AHEAD|SplFileObject::SKIP_EMPTY);
+        $file->setFlags(SplFileObject::READ_CSV);
         $file->setCsvControl($this->delimiter, $this->enclosure, $this->escape);
 
         return $file;
@@ -145,7 +145,7 @@ class Wrapper
     public function loadFile($str)
     {
         $file = new SplFileObject($str, 'r+');
-        $file->setFlags(SplFileObject::READ_CSV|SplFileObject::READ_AHEAD|SplFileObject::SKIP_EMPTY);
+        $file->setFlags(SplFileObject::READ_CSV);
         $file->setCsvControl($this->delimiter, $this->enclosure, $this->escape);
 
         return $file;
@@ -183,7 +183,7 @@ class Wrapper
             });
             $file->fputcsv($row);
         }
-        $file->setFlags(SplFileObject::READ_CSV|SplFileObject::READ_AHEAD|SplFileObject::SKIP_EMPTY);
+        $file->setFlags(SplFileObject::READ_CSV);
 
         return $file;
     }
