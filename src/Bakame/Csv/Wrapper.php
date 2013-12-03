@@ -12,19 +12,22 @@ use RuntimeException;
 class Wrapper
 {
     /**
-     * File access type supported
+     * file access type supported
+     *
      * @var [type]
      */
-    private $mode_list = ['r+', 'w', 'w+', 'a', 'a+', 'c', 'c+'];
+    private $mode_list = ['r', 'r+', 'w', 'w+', 'x', 'x+', 'a', 'a+', 'c', 'c+'];
 
     /**
      * the field delimiter (one character only)
+     *
      * @var string
      */
     private $delimiter = ',';
 
     /**
      * the field enclosure character (one character only)
+     *
      * @var string
      */
     private $enclosure = '"';
@@ -37,6 +40,7 @@ class Wrapper
 
     /**
      * set the field delimeter
+     *
      * @param string $delimiter
      *
      * @return self
@@ -55,6 +59,7 @@ class Wrapper
 
     /**
      * set the field enclosure
+     *
      * @param string $enclosure
      *
      * @return self
@@ -73,6 +78,7 @@ class Wrapper
 
     /**
      * set the field escape character
+     *
      * @param string $escape
      *
      * @return self
@@ -135,6 +141,7 @@ class Wrapper
 
     /**
      * Load a CSV string
+     *
      * @param string $str the csv content string
      *
      * @return \SplTempFileObject
@@ -152,15 +159,42 @@ class Wrapper
 
     /**
      * Load a CSV File
+     *
      * @param string $str the file path
      *
      * @return \SplFileObject
      *
      * @throws \RuntimeException if the $file can not be instantiate
      */
-    public function loadFile($str)
+    public function loadFile($path, $mode = 'r')
     {
-        $file = new SplFileObject($str, 'r');
+        $this->filterMode($mode, ['w', 'a', 'x', 'c']);
+
+        return $this->create($path, $mode);
+    }
+
+    /**
+     * Return a new \SplFileObject
+     *
+     * @param string|SplFileInfo $path where to save the data
+     * @param string             $mode specifies the type of access you require to the file
+     *
+     * @return \SplFileObject
+     *
+     * @throws \InvalidArgumentException If the $mode is invalid
+     * @throws \InvalidArgumentException If the $file is not set
+     */
+    public function create($path, $mode)
+    {
+        $this->filterMode($mode);
+        if ($path instanceof SplFileInfo) {
+            $file = $path->openFile($mode);
+        } elseif (is_string($path)) {
+            $file = new SplFileObject($path, $mode);
+        }
+        if (! isset($file)) {
+            throw new InvalidArgumentException('$path must be a SplFileInfo object or a valid file path.');
+        }
         $file->setFlags(SplFileObject::READ_CSV);
         $file->setCsvControl($this->delimiter, $this->enclosure, $this->escape);
 
@@ -168,7 +202,23 @@ class Wrapper
     }
 
     /**
+     * validate the type of access you require for a given file
+     *
+     * @param string $mode    specifies the type of access you require to the file
+     * @param array  $options non valid type of access
+     */
+    private function filterMode(&$mode, array $options = [])
+    {
+        $mode = strtolower($mode);
+        $mode_list = array_diff($this->mode_list, $options);
+        if (! in_array($mode, $mode_list)) {
+            throw new InvalidArgumentException('$mode can not be equal to "'.$mode.'"');
+        }
+    }
+
+    /**
      * Save the given data into a CSV
+     *
      * @param array|Traversable  $data the data to be saved
      * @param string|SplFileInfo $path where to save the data
      * @param string             $mode specifies the type of access you require to the file
@@ -176,24 +226,16 @@ class Wrapper
      * @return \SplFileObject
      *
      * @throws \InvalidArgumentException If $data is not an array or a Traversable object
-     * @throws \RuntimeException         If the $file can not be instantiate
+     * @throws \InvalidArgumentException If the $mode is invalid
      */
     public function save($data, $path, $mode = 'w')
     {
-        $mode = strtolower($mode);
-        if (! in_array($mode, $this->mode_list)) {
-            throw new InvalidArgumentException(
-                'Invalid $mode, available mode are : "'.implode('", "', $this->mode_list).'".
-                Please refer to PHP built-in fopen function documentation for more information.'
-            );
-        }
-
         if (! is_array($data) && ! $data instanceof Traversable) {
             throw new InvalidArgumentException('$data must be an Array or a Traversable object');
         }
 
-        $file = ($path instanceof SplFileInfo) ? $path->openFile($mode) : new SplFileObject($path, $mode);
-        $file->setCsvControl($this->delimiter, $this->enclosure, $this->escape);
+        $this->filterMode($mode, ['r']);
+        $file = $this->create($path, $mode);
         foreach ($data as $row) {
             if (is_string($row)) {
                 $row = explode($this->delimiter, $row);
@@ -205,7 +247,6 @@ class Wrapper
             });
             $file->fputcsv($row);
         }
-        $file->setFlags(SplFileObject::READ_CSV);
 
         return $file;
     }

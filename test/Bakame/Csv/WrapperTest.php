@@ -59,6 +59,14 @@ class WrapperTest extends \PHPUnit_Framework_TestCase
         }
     }
 
+    /**
+     * @expectedException InvalidArgumentException
+     */
+    public function testCreateCsv()
+    {
+         $this->wrapper->create(__DIR__.'/foo.csv', 'z');
+    }
+
     public function testloadFile()
     {
         $expected = ['foo', 'bar', 'baz'];
@@ -73,6 +81,14 @@ class WrapperTest extends \PHPUnit_Framework_TestCase
             });
             $this->assertSame($expected, $row);
         }
+    }
+
+    /**
+     * @expectedException InvalidArgumentException
+     */
+    public function testloadFileException()
+    {
+        $this->wrapper->loadFile(__DIR__.'/foo.csv', 'w');
     }
 
     public function testSaveArray()
@@ -122,11 +138,11 @@ class WrapperTest extends \PHPUnit_Framework_TestCase
      */
     public function testSaveExceptionBadMode()
     {
-        $this->wrapper->save('foo', 'php://temp', 'x');
+        $this->wrapper->save(['foo'], 'php://temp', 'r');
     }
 
     /**
-     * @expectedException RuntimeException
+     * @expectedException InvalidArgumentException
      */
     public function testSaveExceptionBadPath()
     {
