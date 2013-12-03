@@ -26,7 +26,7 @@ You may install the Bakame Url package with Composer (recommended) or manually.
 System Requirements
 -------
 
-You need **PHP >= 5.4.0** to use Bakame Csv but the latest stable version of PHP is recommended.
+You need **PHP >= 5.4.0** and the `mbstring` extension to use `Bakame\Csv` but the latest stable version of PHP is recommended.
 
 Instantiation
 -------
@@ -36,7 +36,8 @@ The easiest way to get started is to add `'/path/to/Bakame/Csv/src'` to your PSR
 Usage
 -------
 
-The wrapper serves 2 main functions, loading and saving data in CSV formats. To do that, the wrapper will always returns a SplFileObject instance with flags set to SplFileObject::READ_CSV so that you can use it to further manipulate your data.
+The wrapper serves 2 main functions loading and saving data in CSV formats. To do that, the wrapper always returns a `SplFileObject` instance with flags set to `SplFileObject::READ_CSV` so that you can use it to further manipulate your data.
+Of course, since a `SplFileObject` is returned you are free to modify the flags to satisfy your application needs.
 
 ```php
 <?php
@@ -64,8 +65,9 @@ The method accepts:
 
 The path to where the data must saved can be given as:
 * a simple string
-* an splFileInfo instance
+* an `SplFileInfo` instance
 
+If for any reason the 
 
 ```php
 
