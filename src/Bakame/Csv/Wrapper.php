@@ -2,7 +2,6 @@
 
 namespace Bakame\Csv;
 
-use InvalidArgumentException;
 use SplFileInfo;
 use SplFileObject;
 use SplTempFileObject;
@@ -37,7 +36,7 @@ class Wrapper
     public function setDelimiter($delimiter = ',')
     {
         if (1 != mb_strlen($delimiter)) {
-            throw new InvalidArgumentException('The delimiter must be a single character');
+            throw new WrapperException('The delimiter must be a single character');
         }
         $this->delimiter = $delimiter;
 
@@ -53,7 +52,7 @@ class Wrapper
     public function setEnclosure($enclosure = '"')
     {
         if (1 != mb_strlen($enclosure)) {
-            throw new InvalidArgumentException('The enclosure must be a single character');
+            throw new WrapperException('The enclosure must be a single character');
         }
         $this->enclosure = $enclosure;
 
@@ -69,7 +68,7 @@ class Wrapper
     public function setEscape($escape = "\\")
     {
         if (1 != mb_strlen($escape)) {
-            throw new InvalidArgumentException('The escape character must be a single character');
+            throw new WrapperException('The escape character must be a single character');
         }
         $this->escape = $escape;
 
@@ -162,7 +161,7 @@ class Wrapper
     public function save($data, $path)
     {
         if (! is_array($data) && ! $data instanceof Traversable) {
-            throw new InvalidArgumentException('$data must be an Array or a Traversable instance');
+            throw new WrapperException('$data must be an Array or a Traversable instance');
         }
         $file = null;
         if ($path instanceof SplFileInfo) {
@@ -171,7 +170,7 @@ class Wrapper
             $file = new SplFileObject($path, 'w');
         }
         if (! $file instanceof SplFileObject) {
-            throw new InvalidArgumentException('You must specify a SplFileInfo Object or a valid File Path');
+            throw new WrapperException('You must specify a SplFileInfo Object or a valid File Path');
         }
         $file->setCsvControl($this->delimiter, $this->enclosure, $this->escape);
         foreach ($data as $row) {

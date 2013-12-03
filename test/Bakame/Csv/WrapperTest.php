@@ -16,7 +16,7 @@ class WrapperTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException \InvalidArgumentException
+     * @expectedException Bakame\Csv\WrapperException
      */
     public function testDelimeter()
     {
@@ -27,7 +27,7 @@ class WrapperTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException \InvalidArgumentException
+     * @expectedException Bakame\Csv\WrapperException
      */
     public function testEscape()
     {
@@ -38,7 +38,7 @@ class WrapperTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException \InvalidArgumentException
+     * @expectedException Bakame\Csv\WrapperException
      */
     public function testEnclosure()
     {
@@ -105,7 +105,7 @@ class WrapperTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException \InvalidArgumentException
+     * @expectedException Bakame\Csv\WrapperException
      */
     public function testSaveExceptionBadData()
     {
@@ -113,7 +113,7 @@ class WrapperTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException \InvalidArgumentException
+     * @expectedException Bakame\Csv\WrapperException
      */
     public function testSaveExceptionBadPath()
     {
