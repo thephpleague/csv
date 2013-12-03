@@ -2,7 +2,7 @@
     "name": "bakame/csv",
     "type": "library",
     "description" : "Bakame / csv is a lightweight PHP CSV Manipultion library",
-    "keywords": ["php", "splfileinfo", "splfileobject", "splfiletmpobject", "csv", "traversable"],
+    "keywords": ["php", "splfileinfo", "splfileobject", "spltmpfileobject", "csv", "traversable", "mb_string"],
     "license": "MIT",
     "authors": [
         {
@@ -13,7 +13,8 @@
         }
     ],
     "require": {
-        "php" : ">=5.4.0"
+        "php" : ">=5.4.0",
+        "ext-mbstring" : "*"
     },
     "autoload": {
         "psr-0": {
