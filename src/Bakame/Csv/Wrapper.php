@@ -120,7 +120,7 @@ class Wrapper
     }
 
     /**
-     * Parse a CSV string
+     * Load a CSV string
      * @param string $str the csv content string
      *
      * @return \SplTempFileObject
@@ -137,10 +137,12 @@ class Wrapper
     }
 
     /**
-     * Parse a CSV File
+     * Load a CSV File
      * @param string $str the file path
      *
      * @return \SplFileObject
+     *
+     * @throws \RuntimeException if the $file can not be instantiate
      */
     public function loadFile($str)
     {
@@ -153,25 +155,21 @@ class Wrapper
 
     /**
      * Save the given data into a CSV
-     * @param mixed $data (Can be an array OR an Traversable object)
-     * @param mixed $path (Can be a file path OR an SplFileInfo object)
+     * @param array|Traversable  $data the Data to be saved
+     * @param string|SplFileInfo $path where to save the data
      *
      * @return \SplFileObject
+     *
+     * @throws \Bakame\Csv\WrapperException If $data is not an array or a Traversable object
+     * @throws \RuntimeException            If the $file can not be instantiate
      */
     public function save($data, $path)
     {
         if (! is_array($data) && ! $data instanceof Traversable) {
-            throw new WrapperException('$data must be an Array or a Traversable instance');
+            throw new WrapperException('$data must be an Array or a Traversable object');
         }
-        $file = null;
-        if ($path instanceof SplFileInfo) {
-            $file = $path->openFile('w');
-        } elseif (is_string($path)) {
-            $file = new SplFileObject($path, 'w');
-        }
-        if (! $file instanceof SplFileObject) {
-            throw new WrapperException('You must specify a SplFileInfo Object or a valid File Path');
-        }
+
+        $file = ($path instanceof SplFileInfo) ? $path->openFile('w') : new SplFileObject($path, 'w');
         $file->setCsvControl($this->delimiter, $this->enclosure, $this->escape);
         foreach ($data as $row) {
             if (is_string($row)) {
@@ -179,6 +177,7 @@ class Wrapper
             }
             $row = (array) $row;
             array_walk($row, function (&$value) {
+                $value = (string) $value;
                 $value = trim($value);
             });
             $file->fputcsv($row);

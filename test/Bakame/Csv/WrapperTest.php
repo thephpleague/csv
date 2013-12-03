@@ -118,7 +118,7 @@ class WrapperTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException Bakame\Csv\WrapperException
+     * @expectedException \RuntimeException
      */
     public function testSaveExceptionBadPath()
     {
