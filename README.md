@@ -47,17 +47,17 @@ Of course, since a `SplFileObject` is returned you are free to modify the flags 
 <?php
 
 
-use Bakame\Csv\Wrapper;
+use Bakame\Csv\CsvCodec;
 
-$csv = new Wrapper;
-$csv->setDelimeter(',');
-$csv->setEnclosure('"');
-$csv->setEscape('\\');
+$codec = new CsvCodec;
+$codec->setDelimeter(',');
+$codec->setEnclosure('"');
+$codec->setEscape('\\');
 
-$file = $csv->loadFile('path/to/my/csv/file.csv');
+$file = $codec->loadFile('path/to/my/csv/file.csv');
 //returns a SplFileObject object you can use to iterate throught your CSV data
 
-$file = $csv->loadString(['foo,bar,baz', ['foo', 'bar', 'baz']]);
+$file = $codec->loadString(['foo,bar,baz', ['foo', 'bar', 'baz']]);
 //returns a SplTempFileObject object you can use to iterate throught your CSV data
 
 ```
@@ -75,7 +75,7 @@ If for any reason the
 
 ```php
 
-$file = $csv->save([1,2,3,4], '/path/to/my/saved/csv/file.csv');
+$file = $codec->save([1,2,3,4], '/path/to/my/saved/csv/file.csv');
 //returns a SplFileObject object to manage the newly saved data
 
 ```

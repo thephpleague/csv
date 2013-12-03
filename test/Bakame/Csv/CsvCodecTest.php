@@ -5,14 +5,14 @@ namespace Bakame\Csv;
 use SplFileObject;
 use SplFileInfo;
 
-class WrapperTest extends \PHPUnit_Framework_TestCase
+class CsvCodecTest extends \PHPUnit_Framework_TestCase
 {
 
-    private $wrapper;
+    private $codec;
 
     public function setUp()
     {
-        $this->wrapper = new Wrapper;
+        $this->codec = new CsvCodec;
     }
 
     /**
@@ -20,10 +20,10 @@ class WrapperTest extends \PHPUnit_Framework_TestCase
      */
     public function testDelimeter()
     {
-        $this->wrapper->setDelimiter('o');
-        $this->assertSame('o', $this->wrapper->getDelimiter());
+        $this->codec->setDelimiter('o');
+        $this->assertSame('o', $this->codec->getDelimiter());
 
-        $this->wrapper->setDelimiter('foo');
+        $this->codec->setDelimiter('foo');
     }
 
     /**
@@ -31,10 +31,10 @@ class WrapperTest extends \PHPUnit_Framework_TestCase
      */
     public function testEscape()
     {
-        $this->wrapper->setEscape('o');
-        $this->assertSame('o', $this->wrapper->getEscape());
+        $this->codec->setEscape('o');
+        $this->assertSame('o', $this->codec->getEscape());
 
-        $this->wrapper->setEscape('foo');
+        $this->codec->setEscape('foo');
     }
 
     /**
@@ -42,17 +42,17 @@ class WrapperTest extends \PHPUnit_Framework_TestCase
      */
     public function testEnclosure()
     {
-        $this->wrapper->setEnclosure('o');
-        $this->assertSame('o', $this->wrapper->getEnclosure());
+        $this->codec->setEnclosure('o');
+        $this->assertSame('o', $this->codec->getEnclosure());
 
-        $this->wrapper->setEnclosure('foo');
+        $this->codec->setEnclosure('foo');
     }
 
     public function testloadString()
     {
         $expected = ['foo', 'bar', 'baz'];
         $str = "foo,bar,baz\nfoo,bar,baz";
-        $res = $this->wrapper->loadString($str);
+        $res = $this->codec->loadString($str);
         $this->assertInstanceof('SplTempFileObject', $res);
         foreach ($res as $row) {
             $this->assertSame($expected, $row);
@@ -64,7 +64,7 @@ class WrapperTest extends \PHPUnit_Framework_TestCase
      */
     public function testCreateException()
     {
-        $this->wrapper->create(__DIR__.'/bar.csv', 'z');
+        $this->codec->create(__DIR__.'/bar.csv', 'z');
     }
 
     /**
@@ -72,14 +72,14 @@ class WrapperTest extends \PHPUnit_Framework_TestCase
      */
     public function testCreateException2()
     {
-        $this->wrapper->create('/etc/foo.csv', 'w');
+        $this->codec->create('/etc/foo.csv', 'w');
     }
 
     public function testloadFile()
     {
         $expected = ['foo', 'bar', 'baz'];
         $file = __DIR__.'/foo.csv';
-        $res = $this->wrapper->loadFile($file);
+        $res = $this->codec->loadFile($file);
         $this->assertInstanceof('SplFileObject', $res);
         $this->assertSame($file, $res->getRealPath());
         $res->setFlags(SplFileObject::READ_CSV|SplFileObject::READ_AHEAD|SplFileObject::SKIP_EMPTY);
@@ -96,7 +96,7 @@ class WrapperTest extends \PHPUnit_Framework_TestCase
      */
     public function testloadFileException()
     {
-        $this->wrapper->loadFile(__DIR__.'/foo.csv', 'w');
+        $this->codec->loadFile(__DIR__.'/foo.csv', 'w');
     }
 
     public function testSaveArray()
@@ -106,12 +106,12 @@ class WrapperTest extends \PHPUnit_Framework_TestCase
             'foo,bar, baz  ',
         ];
         $expected = ['foo', 'bar', 'baz'];
-        $this->wrapper
+        $this->codec
             ->setDelimiter(',')
             ->setEnclosure('"')
             ->setEscape("\\");
 
-        $res = $this->wrapper->save($arr, 'php://temp');
+        $res = $this->codec->save($arr, 'php://temp');
         $this->assertInstanceof('SplFileObject', $res);
         foreach ($res as $row) {
             $this->assertSame($expected, $row);
@@ -126,7 +126,7 @@ class WrapperTest extends \PHPUnit_Framework_TestCase
         ];
         $expected = ['foo', 'bar', 'baz'];
         $obj = new \ArrayObject($arr);
-        $res = $this->wrapper->save($obj, 'php://temp');
+        $res = $this->codec->save($obj, 'php://temp');
         $this->assertInstanceof('\SplFileObject', $res);
         foreach ($res as $row) {
             $this->assertSame($expected, $row);
@@ -138,7 +138,7 @@ class WrapperTest extends \PHPUnit_Framework_TestCase
      */
     public function testSaveExceptionBadData()
     {
-        $this->wrapper->save('foo', 'php://temp');
+        $this->codec->save('foo', 'php://temp');
     }
 
     /**
@@ -146,7 +146,7 @@ class WrapperTest extends \PHPUnit_Framework_TestCase
      */
     public function testSaveExceptionBadMode()
     {
-        $this->wrapper->save(['foo'], 'php://temp', 'r');
+        $this->codec->save(['foo'], 'php://temp', 'r');
     }
 
     /**
@@ -154,13 +154,13 @@ class WrapperTest extends \PHPUnit_Framework_TestCase
      */
     public function testSaveExceptionBadPath()
     {
-        $this->wrapper->save(['foo'], ['bar']);
+        $this->codec->save(['foo'], ['bar']);
     }
 
     public function testSaveSplFileInfo()
     {
         $obj = new SplFileInfo('php://temp');
-        $res = $this->wrapper->save(['foo'], $obj);
+        $res = $this->codec->save(['foo'], $obj);
         $this->assertInstanceof('\SplFileObject', $res);
     }
 }
