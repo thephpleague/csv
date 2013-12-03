@@ -141,7 +141,6 @@ class Wrapper
      */
     public function loadString($str)
     {
-
         $file = new SplTempFileObject();
         $file->fwrite($str);
         $file->setFlags(SplFileObject::READ_CSV);
@@ -179,7 +178,6 @@ class Wrapper
     {
         $include += ['r', 'r+', 'w', 'w+', 'x', 'x+', 'a', 'a+', 'c', 'c+'];
         $mode = $this->filterMode($mode, $include);
-        $file = null;
         if ($path instanceof SplFileInfo) {
             $file = $path->openFile($mode);
             $file->setFlags(SplFileObject::READ_CSV);
@@ -193,7 +191,7 @@ class Wrapper
 
             return $file;
         }
-        throw new InvalidArgumentException('$path must be a SplFileInfo object or a valid file path.');
+        throw new InvalidArgumentException('$path must be a `SplFileInfo` object or a valid file path.');
     }
 
     /**
@@ -205,15 +203,18 @@ class Wrapper
      *
      * @return \SplFileObject
      *
-     * @throws \InvalidArgumentException If $data is not an array or a Traversable object
+     * @throws \InvalidArgumentException If $data is not an array or does not implement the \Traversable interface
      * @throws \InvalidArgumentException If the $mode is invalid
      */
     public function save($data, $path, $mode = 'w')
     {
         $file = $this->create($path, $mode, ['r+', 'w', 'w+', 'x', 'x+', 'a', 'a+', 'c', 'c+']);
         if (! is_array($data) && ! $data instanceof Traversable) {
-            throw new InvalidArgumentException('$data must be an Array or a Traversable object');
+            throw new InvalidArgumentException(
+                '$data must be an Array or an object implementing the `Traversable` interface'
+            );
         }
+
         foreach ($data as $row) {
             if (is_string($row)) {
                 $row = explode($this->delimiter, $row);
@@ -233,7 +234,7 @@ class Wrapper
      * validate the type of access you require for a given file
      *
      * @param string $mode    specifies the type of access you require to the file
-     * @param array  $include non valid type of access
+     * @param array  $include valid type of access
      *
      * @return string
      *
