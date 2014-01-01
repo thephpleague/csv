@@ -2,9 +2,13 @@ language: php
 
 # list any PHP version you want to test against
 php:
-  - hhvm
   - 5.4
   - 5.5
+  - hhvm
+
+matrix:
+  allow_failures:
+    - php: hhvm
 
 before_script:
   - composer self-update
