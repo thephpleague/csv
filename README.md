@@ -47,9 +47,9 @@ Of course, since a `SplFileObject` is returned you are free to modify the flags 
 <?php
 
 
-use Bakame\Csv\CsvCodec;
+use Bakame\Csv\Codec;
 
-$codec = new CsvCodec;
+$codec = new Codec;
 $codec->setDelimeter(',');
 $codec->setEnclosure('"');
 $codec->setEscape('\\');
@@ -71,7 +71,7 @@ The path to where the data must saved can be given as:
 * a simple string
 * an `SplFileInfo` instance
 
-If for any reason the 
+If for any reason the data or the file does not exist an `InvalidArgumentException` will be thrown by the class
 
 ```php
 
