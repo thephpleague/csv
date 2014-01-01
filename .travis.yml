@@ -2,6 +2,7 @@ language: php
 
 # list any PHP version you want to test against
 php:
+  - hhvm
   - 5.4
   - 5.5
 
