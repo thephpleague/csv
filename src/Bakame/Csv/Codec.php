@@ -270,6 +270,7 @@ class Codec
             }
             unset($value);
         }
+        unset($row);
     }
 
     /**
