@@ -37,14 +37,13 @@ use SplFileObject;
 use SplTempFileObject;
 use Traversable;
 use InvalidArgumentException;
-use RuntimeException;
 
 /**
  *  A simple Coder/Decoder to ease CSV management in PHP 5.4+
  *
  * @package Bakame.csv
  */
-class CsvCodec
+class Codec
 {
     /**
      * the field delimiter (one character only)
@@ -190,8 +189,6 @@ class CsvCodec
      * @param string $str the file path
      *
      * @return \SplFileObject
-     *
-     * @throws \RuntimeException if the $file can not be instantiate
      */
     public function loadFile($path, $mode = 'r')
     {
@@ -239,7 +236,6 @@ class CsvCodec
      * @return \SplFileObject
      *
      * @throws \InvalidArgumentException If $data is not an array or does not implement the \Traversable interface
-     * @throws \InvalidArgumentException If the $mode is invalid
      */
     public function save($data, $path, $mode = 'w')
     {
@@ -250,19 +246,30 @@ class CsvCodec
             );
         }
 
+        $this->formatData($data);
         foreach ($data as $row) {
-            if (is_string($row)) {
-                $row = explode($this->delimiter, $row);
-            }
-            $row = (array) $row;
-            array_walk($row, function (&$value) {
-                $value = (string) $value;
-                $value = trim($value);
-            });
             $file->fputcsv($row);
         }
 
         return $file;
+    }
+
+    /**
+     * format the data before inclusion into the CSV
+     * @param array|\Traversable $data the data to be saved passed by reference
+     */
+    private function formatData(&$data)
+    {
+        foreach ($data as &$row) {
+            if (is_string($row)) {
+                $row = explode($this->delimiter, $row);
+            }
+            $row = (array) $row;
+            foreach ($row as &$value) {
+                $value = (string) $value;
+            }
+            unset($value);
+        }
     }
 
     /**

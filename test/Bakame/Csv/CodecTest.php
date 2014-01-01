@@ -5,14 +5,14 @@ namespace Bakame\Csv;
 use SplFileObject;
 use SplFileInfo;
 
-class CsvCodecTest extends \PHPUnit_Framework_TestCase
+class CodecTest extends \PHPUnit_Framework_TestCase
 {
 
     private $codec;
 
     public function setUp()
     {
-        $this->codec = new CsvCodec;
+        $this->codec = new Codec;
     }
 
     /**
@@ -105,7 +105,7 @@ class CsvCodecTest extends \PHPUnit_Framework_TestCase
             ['foo', 'bar', '  baz '],
             'foo,bar, baz  ',
         ];
-        $expected = ['foo', 'bar', 'baz'];
+        $expected = [['foo', 'bar', '  baz '],['foo','bar',' baz  ']];
         $this->codec
             ->setDelimiter(',')
             ->setEnclosure('"')
@@ -113,8 +113,8 @@ class CsvCodecTest extends \PHPUnit_Framework_TestCase
 
         $res = $this->codec->save($arr, 'php://temp');
         $this->assertInstanceof('SplFileObject', $res);
-        foreach ($res as $row) {
-            $this->assertSame($expected, $row);
+        foreach ($res as $key => $row) {
+            $this->assertSame($expected[$key], $row);
         }
     }
 
@@ -124,12 +124,12 @@ class CsvCodecTest extends \PHPUnit_Framework_TestCase
             ['foo', 'bar', '  baz '],
             'foo,bar, baz  ',
         ];
-        $expected = ['foo', 'bar', 'baz'];
+        $expected = [['foo', 'bar', '  baz '],['foo','bar',' baz  ']];
         $obj = new \ArrayObject($arr);
         $res = $this->codec->save($obj, 'php://temp');
         $this->assertInstanceof('\SplFileObject', $res);
-        foreach ($res as $row) {
-            $this->assertSame($expected, $row);
+        foreach ($res as $key => $row) {
+            $this->assertSame($expected[$key], $row);
         }
     }
 
