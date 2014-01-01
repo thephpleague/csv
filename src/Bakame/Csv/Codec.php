@@ -198,9 +198,9 @@ class Codec
     /**
      * Return a new \SplFileObject
      *
-     * @param string|\SplFileInfo $path    where to save the data
-     * @param string              $mode    specifies the type of access you require to the file
-     * @param array               $include non valid type of access
+     * @param mixed  $path    where to save the data (String or SplFileInfo Instance)
+     * @param string $mode    specifies the type of access you require to the file
+     * @param array  $include non valid type of access
      *
      * @return \SplFileObject
      *
@@ -229,9 +229,9 @@ class Codec
     /**
      * Save the given data into a CSV
      *
-     * @param array|\Traversable  $data the data to be saved
-     * @param string|\SplFileInfo $path where to save the data
-     * @param string              $mode specifies the type of access you require to the file
+     * @param mixed  $data the data to be saved (Array or Traversable Interface)
+     * @param mixed  $path where to save the data (String or SplFileInfo Instance)
+     * @param string $mode specifies the type of access you require to the file
      *
      * @return \SplFileObject
      *
@@ -256,11 +256,11 @@ class Codec
 
     /**
      * format the data before inclusion into the CSV
-     * @param array|\Traversable $data the data to be saved passed by reference
+     * @param mixed $traversable the data to be saved passed by reference
      */
-    private function formatData(&$data)
+    private function formatData(&$traversable)
     {
-        foreach ($data as &$row) {
+        foreach ($traversable as &$row) {
             if (is_string($row)) {
                 $row = explode($this->delimiter, $row);
             }
