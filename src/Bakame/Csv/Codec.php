@@ -85,6 +85,16 @@ class Codec
     }
 
     /**
+     * return the current field delimiter
+     *
+     * @return string
+     */
+    public function getDelimiter()
+    {
+        return $this->delimiter;
+    }
+
+    /**
      * set the field enclosure
      *
      * @param string $enclosure
@@ -104,6 +114,16 @@ class Codec
     }
 
     /**
+     * return the current field enclosure
+     *
+     * @return string
+     */
+    public function getEnclosure()
+    {
+        return $this->enclosure;
+    }
+
+    /**
      * set the field escape character
      *
      * @param string $escape
@@ -120,26 +140,6 @@ class Codec
         $this->escape = $escape;
 
         return $this;
-    }
-
-    /**
-     * return the current field delimiter
-     *
-     * @return string
-     */
-    public function getDelimiter()
-    {
-        return $this->delimiter;
-    }
-
-    /**
-     * return the current field enclosure
-     *
-     * @return string
-     */
-    public function getEnclosure()
-    {
-        return $this->enclosure;
     }
 
     /**
@@ -234,43 +234,58 @@ class Codec
      * @param string $mode specifies the type of access you require to the file
      *
      * @return \SplFileObject
-     *
-     * @throws \InvalidArgumentException If $data is not an array or does not implement the \Traversable interface
      */
     public function save($data, $path, $mode = 'w')
     {
         $file = $this->create($path, $mode, ['r+', 'w', 'w+', 'x', 'x+', 'a', 'a+', 'c', 'c+']);
-        if (! is_array($data) && ! $data instanceof Traversable) {
-            throw new InvalidArgumentException(
-                '$data must be an Array or an object implementing the `Traversable` interface'
-            );
-        }
-
-        $this->formatData($data);
-        foreach ($data as $row) {
+        $data = $this->formatData($data);
+        array_walk($data, function ($row) use ($file) {
             $file->fputcsv($row);
-        }
+        });
 
         return $file;
     }
 
     /**
      * format the data before inclusion into the CSV
+     *
      * @param mixed $traversable the data to be saved passed by reference
+     *
+     * @return array
+     *
+     * @throws \InvalidArgumentException If $data is not an array or does not implement the \Traversable interface
      */
-    private function formatData(&$traversable)
+    private function formatData($traversable)
     {
-        foreach ($traversable as &$row) {
-            if (is_string($row)) {
-                $row = explode($this->delimiter, $row);
-            }
-            $row = (array) $row;
-            foreach ($row as &$value) {
-                $value = (string) $value;
-            }
-            unset($value);
+        if (! is_array($traversable) && ! $traversable instanceof Traversable) {
+            throw new InvalidArgumentException(
+                'The provided data must be an Array or an object implementing the `Traversable` interface'
+            );
         }
-        unset($row);
+        $res = [];
+        foreach ($traversable as $row) {
+            $res[] = $this->extractRowData($row);
+        }
+
+        return $res;
+    }
+
+    /**
+     * extract and format row field data to be string
+     *
+     * @param mixed $row the data for One CSV line
+     *
+     * @return array
+     */
+    private function extractRowData($row)
+    {
+        if (is_array($row)) {
+            return array_map(function ($value) {
+                return (string) $value;
+            }, $row);
+        }
+
+        return explode($this->delimiter, (string) $row);
     }
 
     /**
