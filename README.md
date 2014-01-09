@@ -21,7 +21,7 @@ You may install the Bakame Url package with Composer (recommended) or manually.
 ```json
 {
     "require": {
-        "bakame/csv": "1.*"
+        "bakame/csv": "2.*"
     }
 }
 ```
