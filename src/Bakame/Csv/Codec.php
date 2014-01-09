@@ -6,7 +6,7 @@
 * @copyright 2013 Ignace Nyamagana Butera
 * @link https://github.com/nyamsprod/Bakame.csv
 * @license http://opensource.org/licenses/MIT
-* @version 1.0.0
+* @version 2.0.0
 * @package Bakame.csv
 *
 * MIT LICENSE
@@ -37,14 +37,13 @@ use SplFileObject;
 use SplTempFileObject;
 use Traversable;
 use InvalidArgumentException;
-use RuntimeException;
 
 /**
  *  A simple Coder/Decoder to ease CSV management in PHP 5.4+
  *
  * @package Bakame.csv
  */
-class CsvCodec
+class Codec
 {
     /**
      * the field delimiter (one character only)
@@ -67,6 +66,20 @@ class CsvCodec
     private $escape = '\\';
 
     /**
+     * The constructor
+     *
+     * @param string $delimiter
+     * @param string $enclosure
+     * @param string $escape
+     */
+    public function __construct($delimiter = ',', $enclosure = '"', $escape = "\\")
+    {
+        $this->setDelimiter($delimiter);
+        $this->setEnclosure($enclosure);
+        $this->setEscape($escape);
+    }
+
+    /**
      * set the field delimeter
      *
      * @param string $delimiter
@@ -83,6 +96,16 @@ class CsvCodec
         $this->delimiter = $delimiter;
 
         return $this;
+    }
+
+    /**
+     * return the current field delimiter
+     *
+     * @return string
+     */
+    public function getDelimiter()
+    {
+        return $this->delimiter;
     }
 
     /**
@@ -105,6 +128,16 @@ class CsvCodec
     }
 
     /**
+     * return the current field enclosure
+     *
+     * @return string
+     */
+    public function getEnclosure()
+    {
+        return $this->enclosure;
+    }
+
+    /**
      * set the field escape character
      *
      * @param string $escape
@@ -124,26 +157,6 @@ class CsvCodec
     }
 
     /**
-     * return the current field delimiter
-     *
-     * @return string
-     */
-    public function getDelimiter()
-    {
-        return $this->delimiter;
-    }
-
-    /**
-     * return the current field enclosure
-     *
-     * @return string
-     */
-    public function getEnclosure()
-    {
-        return $this->enclosure;
-    }
-
-    /**
      * return the current field escape character
      *
      * @return string
@@ -151,20 +164,6 @@ class CsvCodec
     public function getEscape()
     {
         return $this->escape;
-    }
-
-    /**
-     * The constructor
-     *
-     * @param string $delimiter
-     * @param string $enclosure
-     * @param string $escape
-     */
-    public function __construct($delimiter = ',', $enclosure = '"', $escape = "\\")
-    {
-        $this->setDelimiter($delimiter);
-        $this->setEnclosure($enclosure);
-        $this->setEscape($escape);
     }
 
     /**
@@ -190,8 +189,6 @@ class CsvCodec
      * @param string $str the file path
      *
      * @return \SplFileObject
-     *
-     * @throws \RuntimeException if the $file can not be instantiate
      */
     public function loadFile($path, $mode = 'r')
     {
@@ -199,17 +196,79 @@ class CsvCodec
     }
 
     /**
+     * Save the given data into a CSV
+     *
+     * @param array|\Traversable  $data the data to be saved (Array or Traversable Interface)
+     * @param string|\SplFileInfo $path where to save the data (String Path or SplFileInfo Instance)
+     * @param string              $mode specifies the type of access you require to the file
+     *
+     * @return \SplFileObject
+     */
+    public function save($data, $path, $mode = 'w')
+    {
+        $file = $this->create($path, $mode, ['r+', 'w', 'w+', 'x', 'x+', 'a', 'a+', 'c', 'c+']);
+        $data = $this->formatData($data);
+        array_walk($data, function ($row) use ($file) {
+            $file->fputcsv($row);
+        });
+
+        return $file;
+    }
+
+    /**
+     * format the data before inclusion into the CSV
+     *
+     * @param array|\Traversable $traversable the data to be formatted (Array or Traversable Interface)
+     *
+     * @return array
+     *
+     * @throws \InvalidArgumentException If $data is not an array or does not implement the \Traversable interface
+     */
+    private function formatData($traversable)
+    {
+        if (! is_array($traversable) && ! $traversable instanceof Traversable) {
+            throw new InvalidArgumentException(
+                'The provided data must be an Array or an object implementing the `Traversable` interface'
+            );
+        }
+        $res = [];
+        foreach ($traversable as $row) {
+            $res[] = $this->extractRowData($row);
+        }
+
+        return $res;
+    }
+
+    /**
+     * extract and format row field data to be string
+     *
+     * @param mixed $row the data for One CSV line
+     *
+     * @return array
+     */
+    private function extractRowData($row)
+    {
+        if (is_array($row)) {
+            return array_map(function ($value) {
+                return (string) $value;
+            }, $row);
+        }
+
+        return explode($this->delimiter, (string) $row);
+    }
+
+    /**
      * Return a new \SplFileObject
      *
-     * @param string|\SplFileInfo $path    where to save the data
-     * @param string              $mode    specifies the type of access you require to the file
-     * @param array               $include non valid type of access
+     * @param mixed  $path    where to save the data (String or SplFileInfo Instance)
+     * @param string $mode    specifies the type of access you require to the file
+     * @param array  $include non valid type of access
      *
      * @return \SplFileObject
      *
      * @throws \InvalidArgumentException If the $file is not set
      */
-    public function create($path, $mode, array $include = [])
+    private function create($path, $mode, array $include = [])
     {
         $include += ['r', 'r+', 'w', 'w+', 'x', 'x+', 'a', 'a+', 'c', 'c+'];
         $mode = $this->filterMode($mode, $include);
@@ -227,42 +286,6 @@ class CsvCodec
             return $file;
         }
         throw new InvalidArgumentException('$path must be a `SplFileInfo` object or a valid file path.');
-    }
-
-    /**
-     * Save the given data into a CSV
-     *
-     * @param array|\Traversable  $data the data to be saved
-     * @param string|\SplFileInfo $path where to save the data
-     * @param string              $mode specifies the type of access you require to the file
-     *
-     * @return \SplFileObject
-     *
-     * @throws \InvalidArgumentException If $data is not an array or does not implement the \Traversable interface
-     * @throws \InvalidArgumentException If the $mode is invalid
-     */
-    public function save($data, $path, $mode = 'w')
-    {
-        $file = $this->create($path, $mode, ['r+', 'w', 'w+', 'x', 'x+', 'a', 'a+', 'c', 'c+']);
-        if (! is_array($data) && ! $data instanceof Traversable) {
-            throw new InvalidArgumentException(
-                '$data must be an Array or an object implementing the `Traversable` interface'
-            );
-        }
-
-        foreach ($data as $row) {
-            if (is_string($row)) {
-                $row = explode($this->delimiter, $row);
-            }
-            $row = (array) $row;
-            array_walk($row, function (&$value) {
-                $value = (string) $value;
-                $value = trim($value);
-            });
-            $file->fputcsv($row);
-        }
-
-        return $file;
     }
 
     /**
