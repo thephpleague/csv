@@ -66,6 +66,20 @@ class Codec
     private $escape = '\\';
 
     /**
+     * The constructor
+     *
+     * @param string $delimiter
+     * @param string $enclosure
+     * @param string $escape
+     */
+    public function __construct($delimiter = ',', $enclosure = '"', $escape = "\\")
+    {
+        $this->setDelimiter($delimiter);
+        $this->setEnclosure($enclosure);
+        $this->setEscape($escape);
+    }
+
+    /**
      * set the field delimeter
      *
      * @param string $delimiter
@@ -153,20 +167,6 @@ class Codec
     }
 
     /**
-     * The constructor
-     *
-     * @param string $delimiter
-     * @param string $enclosure
-     * @param string $escape
-     */
-    public function __construct($delimiter = ',', $enclosure = '"', $escape = "\\")
-    {
-        $this->setDelimiter($delimiter);
-        $this->setEnclosure($enclosure);
-        $this->setEscape($escape);
-    }
-
-    /**
      * Load a CSV string
      *
      * @param string $str the csv content string
@@ -196,42 +196,11 @@ class Codec
     }
 
     /**
-     * Return a new \SplFileObject
-     *
-     * @param mixed  $path    where to save the data (String or SplFileInfo Instance)
-     * @param string $mode    specifies the type of access you require to the file
-     * @param array  $include non valid type of access
-     *
-     * @return \SplFileObject
-     *
-     * @throws \InvalidArgumentException If the $file is not set
-     */
-    public function create($path, $mode, array $include = [])
-    {
-        $include += ['r', 'r+', 'w', 'w+', 'x', 'x+', 'a', 'a+', 'c', 'c+'];
-        $mode = $this->filterMode($mode, $include);
-        if ($path instanceof SplFileInfo) {
-            $file = $path->openFile($mode);
-            $file->setFlags(SplFileObject::READ_CSV);
-            $file->setCsvControl($this->delimiter, $this->enclosure, $this->escape);
-
-            return $file;
-        } elseif (is_string($path)) {
-            $file = new SplFileObject($path, $mode);
-            $file->setFlags(SplFileObject::READ_CSV);
-            $file->setCsvControl($this->delimiter, $this->enclosure, $this->escape);
-
-            return $file;
-        }
-        throw new InvalidArgumentException('$path must be a `SplFileInfo` object or a valid file path.');
-    }
-
-    /**
      * Save the given data into a CSV
      *
-     * @param mixed  $data the data to be saved (Array or Traversable Interface)
-     * @param mixed  $path where to save the data (String or SplFileInfo Instance)
-     * @param string $mode specifies the type of access you require to the file
+     * @param array|\Traversable  $data the data to be saved (Array or Traversable Interface)
+     * @param string|\SplFileInfo $path where to save the data (String Path or SplFileInfo Instance)
+     * @param string              $mode specifies the type of access you require to the file
      *
      * @return \SplFileObject
      */
@@ -249,7 +218,7 @@ class Codec
     /**
      * format the data before inclusion into the CSV
      *
-     * @param mixed $traversable the data to be saved passed by reference
+     * @param array|\Traversable $traversable the data to be formatted (Array or Traversable Interface)
      *
      * @return array
      *
@@ -286,6 +255,37 @@ class Codec
         }
 
         return explode($this->delimiter, (string) $row);
+    }
+
+    /**
+     * Return a new \SplFileObject
+     *
+     * @param mixed  $path    where to save the data (String or SplFileInfo Instance)
+     * @param string $mode    specifies the type of access you require to the file
+     * @param array  $include non valid type of access
+     *
+     * @return \SplFileObject
+     *
+     * @throws \InvalidArgumentException If the $file is not set
+     */
+    private function create($path, $mode, array $include = [])
+    {
+        $include += ['r', 'r+', 'w', 'w+', 'x', 'x+', 'a', 'a+', 'c', 'c+'];
+        $mode = $this->filterMode($mode, $include);
+        if ($path instanceof SplFileInfo) {
+            $file = $path->openFile($mode);
+            $file->setFlags(SplFileObject::READ_CSV);
+            $file->setCsvControl($this->delimiter, $this->enclosure, $this->escape);
+
+            return $file;
+        } elseif (is_string($path)) {
+            $file = new SplFileObject($path, $mode);
+            $file->setFlags(SplFileObject::READ_CSV);
+            $file->setCsvControl($this->delimiter, $this->enclosure, $this->escape);
+
+            return $file;
+        }
+        throw new InvalidArgumentException('$path must be a `SplFileInfo` object or a valid file path.');
     }
 
     /**
