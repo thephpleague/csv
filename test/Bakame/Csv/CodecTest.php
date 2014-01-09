@@ -59,22 +59,6 @@ class CodecTest extends \PHPUnit_Framework_TestCase
         }
     }
 
-    /**
-     * @expectedException InvalidArgumentException
-     */
-    public function testCreateException()
-    {
-        $this->codec->create(__DIR__.'/bar.csv', 'z');
-    }
-
-    /**
-     * @expectedException RuntimeException
-     */
-    public function testCreateException2()
-    {
-        $this->codec->create('/etc/foo.csv', 'w');
-    }
-
     public function testloadFile()
     {
         $expected = ['foo', 'bar', 'baz'];
