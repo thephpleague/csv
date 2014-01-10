@@ -6,7 +6,7 @@
 * @copyright 2013 Ignace Nyamagana Butera
 * @link https://github.com/nyamsprod/Bakame.csv
 * @license http://opensource.org/licenses/MIT
-* @version 3.0.0
+* @version 3.0.1
 * @package Bakame.csv
 *
 * MIT LICENSE
@@ -144,6 +144,27 @@ class Reader implements ReaderInterface
     }
 
     /**
+     * Intelligent Array Combine
+     *
+     * @param array $keys
+     * @param array $value
+     *
+     * @return array
+     */
+    private static function combineKeyValue(array $keys, array $value)
+    {
+        $nbKeys = count($keys);
+        $diff = $nbKeys - count($value);
+        if ($diff > 0) {
+            $value = array_merge($value, array_fill(0, $diff, null));
+        } elseif ($diff < 0) {
+            $value = array_slice($value, 0, $nbKeys);
+        }
+
+        return array_combine($keys, $value);
+    }
+
+    /**
      * {@inheritdoc}
      */
     public function fetchAssoc(array $keys, callable $callable = null)
@@ -153,13 +174,13 @@ class Reader implements ReaderInterface
         $this->file->setCsvControl($this->delimiter, $this->enclosure, $this->escape);
         if (is_null($callable)) {
             foreach ($this->file as $row) {
-                $res[] = array_combine($keys, $row);
+                $res[] = self::combineKeyValue($keys, $row);
             }
 
             return $res;
         }
         foreach ($this->file as $row) {
-            $res[] = array_combine($keys, $callable($row));
+            $res[] = self::combineKeyValue($keys, $callable($row));
         }
 
         return $res;
