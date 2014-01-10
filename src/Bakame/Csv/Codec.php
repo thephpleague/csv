@@ -6,7 +6,7 @@
 * @copyright 2013 Ignace Nyamagana Butera
 * @link https://github.com/nyamsprod/Bakame.csv
 * @license http://opensource.org/licenses/MIT
-* @version 2.0.0
+* @version 3.0.0
 * @package Bakame.csv
 *
 * MIT LICENSE
@@ -42,28 +42,12 @@ use InvalidArgumentException;
  *  A simple Coder/Decoder to ease CSV management in PHP 5.4+
  *
  * @package Bakame.csv
+ * @since  2.0
+ *
  */
 class Codec
 {
-    /**
-     * the field delimiter (one character only)
-     *
-     * @var string
-     */
-    private $delimiter = ',';
-
-    /**
-     * the field enclosure character (one character only)
-     *
-     * @var string
-     */
-    private $enclosure = '"';
-
-    /**
-     * the field escape character (one character only)
-     * @var string
-     */
-    private $escape = '\\';
+    use CsvControlsTrait;
 
     /**
      * The constructor
@@ -80,93 +64,6 @@ class Codec
     }
 
     /**
-     * set the field delimeter
-     *
-     * @param string $delimiter
-     *
-     * @return self
-     *
-     * @throws \InvalidArgumentException If $delimeter is not a single character
-     */
-    public function setDelimiter($delimiter = ',')
-    {
-        if (1 != mb_strlen($delimiter)) {
-            throw new InvalidArgumentException('The delimiter must be a single character');
-        }
-        $this->delimiter = $delimiter;
-
-        return $this;
-    }
-
-    /**
-     * return the current field delimiter
-     *
-     * @return string
-     */
-    public function getDelimiter()
-    {
-        return $this->delimiter;
-    }
-
-    /**
-     * set the field enclosure
-     *
-     * @param string $enclosure
-     *
-     * @return self
-     *
-     * @throws \InvalidArgumentException If $enclosure is not a single character
-     */
-    public function setEnclosure($enclosure = '"')
-    {
-        if (1 != mb_strlen($enclosure)) {
-            throw new InvalidArgumentException('The enclosure must be a single character');
-        }
-        $this->enclosure = $enclosure;
-
-        return $this;
-    }
-
-    /**
-     * return the current field enclosure
-     *
-     * @return string
-     */
-    public function getEnclosure()
-    {
-        return $this->enclosure;
-    }
-
-    /**
-     * set the field escape character
-     *
-     * @param string $escape
-     *
-     * @return self
-     *
-     * @throws \InvalidArgumentException If $escape is not a single character
-     */
-    public function setEscape($escape = "\\")
-    {
-        if (1 != mb_strlen($escape)) {
-            throw new InvalidArgumentException('The escape character must be a single character');
-        }
-        $this->escape = $escape;
-
-        return $this;
-    }
-
-    /**
-     * return the current field escape character
-     *
-     * @return string
-     */
-    public function getEscape()
-    {
-        return $this->escape;
-    }
-
-    /**
      * Load a CSV string
      *
      * @param string $str the csv content string
@@ -177,10 +74,8 @@ class Codec
     {
         $file = new SplTempFileObject();
         $file->fwrite($str);
-        $file->setFlags(SplFileObject::READ_CSV);
-        $file->setCsvControl($this->delimiter, $this->enclosure, $this->escape);
 
-        return $file;
+        return new Reader($file, $this->delimiter, $this->enclosure, $this->escape);
     }
 
     /**
@@ -192,7 +87,12 @@ class Codec
      */
     public function loadFile($path, $mode = 'r')
     {
-        return $this->create($path, $mode, ['r', 'r+', 'w+', 'x+', 'a+', 'c+']);
+        return new Reader(
+            $this->create($path, $mode, ['r', 'r+', 'w+', 'x+', 'a+', 'c+']),
+            $this->delimiter,
+            $this->enclosure,
+            $this->escape
+        );
     }
 
     /**
@@ -212,7 +112,7 @@ class Codec
             $file->fputcsv($row);
         });
 
-        return $file;
+        return new Reader($file, $this->delimiter, $this->enclosure, $this->escape);
     }
 
     /**
