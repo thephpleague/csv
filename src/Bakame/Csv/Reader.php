@@ -6,7 +6,7 @@
 * @copyright 2013 Ignace Nyamagana Butera
 * @link https://github.com/nyamsprod/Bakame.csv
 * @license http://opensource.org/licenses/MIT
-* @version 2.1.0
+* @version 3.0.0
 * @package Bakame.csv
 *
 * MIT LICENSE
@@ -39,6 +39,8 @@ use InvalidArgumentException;
  *  A Reader to ease CSV parsing in PHP 5.4+
  *
  * @package Bakame.csv
+ * @since  3.0.0
+ *
  */
 class Reader implements ReaderInterface
 {

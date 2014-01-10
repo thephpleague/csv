@@ -6,7 +6,7 @@
 * @copyright 2013 Ignace Nyamagana Butera
 * @link https://github.com/nyamsprod/Bakame.csv
 * @license http://opensource.org/licenses/MIT
-* @version 2.1.0
+* @version 3.0.0
 * @package Bakame.csv
 *
 * MIT LICENSE
@@ -37,7 +37,7 @@ namespace Bakame\Csv;
  * Interface of CSV Reading
  *
  * @package Bakame.csv
- *
+ * @since  3.0.0
  */
 interface ReaderInterface
 {
