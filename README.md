@@ -146,6 +146,10 @@ $data = $reader->fetchAll(function ($value) {
 
 This method returns a sequentials array of all CSV rows. the rows are associative arrays where the key are given to the method using a array.
 
+**Of Note:** 
+* If the number of values in a CSV row is lesser than the number of named keys, the method will add `null` values to compensate for the missing values.
+* If the number of values in a CSV row is greater that the number of named keys the exceeding values will be drop from the result set.
+
 ```php
 $data = $reader->fetchAssoc(['firstname', 'lastname', 'email']);
 // will return something like this :
@@ -172,6 +176,8 @@ $data = $reader->fetchAssoc(['firstname', 'lastname', 'email'], function ($value
 // ]
 //
 ```
+
+
 
 #### `Reader::fetchCol`
 
