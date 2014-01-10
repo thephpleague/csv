@@ -40,12 +40,12 @@ The easiest way to get started is to add `'/path/to/Bakame/Csv/src'` to your PSR
 Usage
 -------
 
-The wrapper serves 2 main functions loading and saving data in CSV formats. To do that, the wrapper always returns a `SplFileObject` instance with flags set to `SplFileObject::READ_CSV` so that you can use it to further manipulate your data.
-Of course, since a `SplFileObject` is returned you are free to modify the flags to satisfy your application needs.
+### The Codec Class.
+
+The `Codec` class serves 2 main functions loading and saving data in CSV formats. To do that, the class always returns a `Reader` class to use to further manipulate your data.
 
 ```php
 <?php
-
 
 use Bakame\Csv\Codec;
 
@@ -54,11 +54,11 @@ $codec->setDelimeter(',');
 $codec->setEnclosure('"');
 $codec->setEscape('\\');
 
-$file = $codec->loadFile('path/to/my/csv/file.csv');
-//returns a SplFileObject object you can use to iterate throught your CSV data
+$reader = $codec->loadFile('path/to/my/csv/file.csv');
+//returns a Reader object
 
-$file = $codec->loadString(['foo,bar,baz', ['foo', 'bar', 'baz']]);
-//returns a SplTempFileObject object you can use to iterate throught your CSV data
+$reader = $codec->loadString(['foo,bar,baz', ['foo', 'bar', 'baz']]);
+//returns a Reader object
 
 ```
 
@@ -75,10 +75,149 @@ If for any reason the data or the file does not exist an `InvalidArgumentExcepti
 
 ```php
 
-$file = $codec->save([1,2,3,4], '/path/to/my/saved/csv/file.csv');
-//returns a SplFileObject object to manage the newly saved data
+$reader = $codec->save([1,2,3,4], '/path/to/my/saved/csv/file.csv');
+//returns a Reader object
 
 ```
+
+### The Reader Class
+
+
+The `Reader` main job is to facilitate manipulating CSV data that are stored in a `SplFileObject` object.
+To instantiate the class you must provide at leat a `SplFileObject` object like below:
+
+```php
+
+use Bakame\Csv\Reader;
+
+$file = new \SpliFileObject('/path/to/your/csv/file.csv');
+$reader = new Reader($file, $delimiter, $enclosure, $escape);
+
+```
+You can optionally set CSV delimiter, enclosure and/or escape characters.
+
+
+The class comes with several fetching methods to help you deal with your data:
+
+#### `Reader::fetchAll` 
+
+This methods returns a sequentials array of all CSV rows.
+
+```php
+$data = $reader->fetchAll();
+// will return something like this :
+// 
+// [ 
+//   ['john', 'doe', 'john.doe@example.com'],
+//   ['jane', 'doe', 'jane.doe@example.com'],
+//   ...
+// ]
+//
+```
+This method can take an optional callable variable to further manipulate each row before being returned. This callable expected an array as its sole argument.
+
+```php
+$data = $reader->fetchAll(function ($value) {
+	return array_map('strtoupper', $value);
+});
+// will return something like this :
+// 
+// [ 
+//   ['JOHN', 'DOE', 'JOHN.DOE@EXAMPLE.COM'],
+//   ['JANE', 'DOE', 'JANE.DOE@EXAMPLE.COM'],
+//   ...
+// ]
+//
+```
+
+#### `Reader::fetchAssoc` 
+
+This method returns a sequentials array of all CSV rows. the rows are associative arrays where the key are given to the method using a array.
+
+```php
+$data = $reader->fetchAssoc(['firstname', 'lastname', 'email']);
+// will return something like this :
+// 
+// [ 
+//   ['firstname' => 'john', 'lastname' => 'doe', 'email' => 'john.doe@example.com'],
+//   ['firstname' => 'jane', 'lastname' => 'doe', 'email' => 'jane.doe@example.com'],
+//   ...
+// ]
+// 
+```
+This method can take an optional callable variable to further manipulate each row before being returned. This callable expected an array as its sole argument.
+
+```php
+$data = $reader->fetchAssoc(['firstname', 'lastname', 'email'], function ($value) {
+	return array_map('strtoupper', $value);
+});
+// will return something like this :
+// 
+// [ 
+//   ['firstname' => 'JOHN', 'lastname' => 'DOE', 'email' => 'JOHN.DOE@EXAMPLE.COM'],
+//   ['firstname' => 'JANE', 'lastname' => 'DOE', 'email' => 'JANE.DOE@EXAMPLE.COM'],
+//   ...
+// ]
+//
+```
+
+#### `Reader::fetchCol`
+
+This method returns an sequentials array for a given CSV column.
+
+```php
+$data = $reader->fetchCol(2);
+// will return something like this :
+// 
+// ['john.doe@example.com', 'jane.doe@example.com', ...]
+// 
+```
+This method can take an optional callable variable to further manipulate each value before being returned. This callable expected an array as its sole argument.
+
+```php
+$data = $reader->fetchCol(2, function ($value) {
+	return array_map('strtoupper', $value);
+});
+// will return something like this :
+// 
+// ['JOHN.DOE@EXAMPLE.COM', 'JANE.DOE@EXAMPLE.COM', ...]
+//
+```
+
+#### `Reader::fetchOne`
+
+This method returns an array representing one CSV row given the row Index. the index starts at 0.
+
+```php
+$data = $reader->fetchOne(1);
+// will return something like this :
+// 
+// ['jane', 'doe', 'jane.doe@example.com']
+// 
+```
+
+#### `Reader::fetchValue`
+
+This method returns the value of a given field in a given row. If the value is not found it will return null.
+The first argument represents the row and the second represents the column index. the 2 indexes starts at 0;
+```php
+$data = $reader->fetchValue(1, 2);
+// will return something like this :
+// 
+// 'jane.doe@example.com'
+// 
+```
+
+#### `Reader::setFlags`
+
+Sometimes you may wish to change the SplFileObject Flags. You can do so using the following method:
+
+```php
+$reader->setFlags(SplFileObject::READ_AHEAD|SplFileObject::SKIP_EMPTY);
+```
+
+It is important to used the reader method and **not** the file method as the `Reader` will always append the `SplFileObject::READ_CSV` flag.
+
 
 Testing
 -------
