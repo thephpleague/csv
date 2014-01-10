@@ -126,6 +126,7 @@ class Reader implements ReaderInterface
     {
         $res = [];
         $this->file->rewind();
+        $this->file->setCsvControl($this->delimiter, $this->enclosure, $this->escape);
         if (is_null($callable)) {
             foreach ($this->file as $row) {
                 $res[] = $row;
@@ -147,6 +148,7 @@ class Reader implements ReaderInterface
     {
         $res = [];
         $this->file->rewind();
+        $this->file->setCsvControl($this->delimiter, $this->enclosure, $this->escape);
         if (is_null($callable)) {
             foreach ($this->file as $row) {
                 $res[] = array_combine($keys, $row);
@@ -168,6 +170,7 @@ class Reader implements ReaderInterface
     {
         $res = [];
         $this->file->rewind();
+        $this->file->setCsvControl($this->delimiter, $this->enclosure, $this->escape);
         if (is_null($callable)) {
             foreach ($this->file as $row) {
                 if (array_key_exists($fieldIndex, $row)) {
