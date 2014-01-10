@@ -2,7 +2,6 @@
 
 namespace Bakame\Csv;
 
-use SplFileObject;
 use SplFileInfo;
 
 class CodecTest extends \PHPUnit_Framework_TestCase
@@ -53,8 +52,8 @@ class CodecTest extends \PHPUnit_Framework_TestCase
         $expected = ['foo', 'bar', 'baz'];
         $str = "foo,bar,baz\nfoo,bar,baz";
         $res = $this->codec->loadString($str);
-        $this->assertInstanceof('SplTempFileObject', $res);
-        foreach ($res as $row) {
+        $this->assertInstanceof('\Bakame\Csv\Reader', $res);
+        foreach ($res->getFile() as $row) {
             $this->assertSame($expected, $row);
         }
     }
@@ -64,15 +63,8 @@ class CodecTest extends \PHPUnit_Framework_TestCase
         $expected = ['foo', 'bar', 'baz'];
         $file = __DIR__.'/foo.csv';
         $res = $this->codec->loadFile($file);
-        $this->assertInstanceof('SplFileObject', $res);
-        $this->assertSame($file, $res->getRealPath());
-        $res->setFlags(SplFileObject::READ_CSV|SplFileObject::READ_AHEAD|SplFileObject::SKIP_EMPTY);
-        foreach ($res as $row) {
-            array_walk($row, function (&$value) {
-                $value = trim($value);
-            });
-            $this->assertSame($expected, $row);
-        }
+        $this->assertInstanceof('\Bakame\Csv\Reader', $res);
+        $this->assertSame($file, $res->getFile()->getRealPath());
     }
 
     /**
@@ -96,10 +88,8 @@ class CodecTest extends \PHPUnit_Framework_TestCase
             ->setEscape("\\");
 
         $res = $this->codec->save($arr, 'php://temp');
-        $this->assertInstanceof('SplFileObject', $res);
-        foreach ($res as $key => $row) {
-            $this->assertSame($expected[$key], $row);
-        }
+        $this->assertInstanceof('\Bakame\Csv\Reader', $res);
+        $this->assertSame($res->fetchAll(), $expected);
     }
 
     public function testSaveTransversable()
@@ -111,10 +101,8 @@ class CodecTest extends \PHPUnit_Framework_TestCase
         $expected = [['foo', 'bar', '  baz '],['foo','bar',' baz  ']];
         $obj = new \ArrayObject($arr);
         $res = $this->codec->save($obj, 'php://temp');
-        $this->assertInstanceof('\SplFileObject', $res);
-        foreach ($res as $key => $row) {
-            $this->assertSame($expected[$key], $row);
-        }
+        $this->assertInstanceof('\Bakame\Csv\Reader', $res);
+        $this->assertSame($res->fetchAll(), $expected);
     }
 
     /**
@@ -145,6 +133,6 @@ class CodecTest extends \PHPUnit_Framework_TestCase
     {
         $obj = new SplFileInfo('php://temp');
         $res = $this->codec->save(['foo'], $obj);
-        $this->assertInstanceof('\SplFileObject', $res);
+        $this->assertInstanceof('\Bakame\Csv\Reader', $res);
     }
 }
