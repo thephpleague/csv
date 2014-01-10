@@ -21,7 +21,7 @@ You may install the Bakame Url package with Composer (recommended) or manually.
 ```json
 {
     "require": {
-        "bakame/csv": "2.*"
+        "bakame/csv": "3.*"
     }
 }
 ```
@@ -42,7 +42,7 @@ Usage
 
 ### The Codec Class.
 
-The `Codec` class serves 2 main functions loading and saving data in CSV formats. To do that, the class always returns a `Reader` class to use to further manipulate your data.
+The `Codec` class enable loading and saving data in CSV formats. The class returns a `Reader` class to use to further manipulate your data.
 
 ```php
 <?php
@@ -53,17 +53,26 @@ $codec = new Codec;
 $codec->setDelimeter(',');
 $codec->setEnclosure('"');
 $codec->setEscape('\\');
+```
 
+#### `Codec::loadFile` and `Codec::loadString`
+
+Depending on your CSV source you may choose `Codec::loadFile` method or `Codec::loadString` to enable reading your CSV. Whatever source you chose both methods will return a `Bakame\Csv\Reader` object to help you manipulate your data.
+
+```php
 $reader = $codec->loadFile('path/to/my/csv/file.csv');
-//returns a Reader object
+//$reader is a Reader object
 
 $reader = $codec->loadString(['foo,bar,baz', ['foo', 'bar', 'baz']]);
-//returns a Reader object
+//$reader is a Reader object
 
 ```
 
-To Save your data you can use the `save` method as shown below. 
-The method accepts:
+#### `Codec::save`
+
+This methods help you save you CSV data. 
+It accepts:
+
 * an `array` of data
 * any object that implements the `Traversable` interface.
 
@@ -71,7 +80,8 @@ The path to where the data must saved can be given as:
 * a simple string
 * an `SplFileInfo` instance
 
-If for any reason the data or the file does not exist an `InvalidArgumentException` will be thrown by the class
+If the data is invalid or the file does not exist or is not writable an `InvalidArgumentException` will be thrown by the class. 
+Just like the loading methods, the `Codec::save` returns a `Bakame\Csv\Reader` object.
 
 ```php
 
@@ -83,7 +93,7 @@ $reader = $codec->save([1,2,3,4], '/path/to/my/saved/csv/file.csv');
 ### The Reader Class
 
 
-The `Reader` main job is to facilitate manipulating CSV data that are stored in a `SplFileObject` object.
+The `Reader` facilitates manipulating CSV data that are stored in a `SplFileObject` object.
 To instantiate the class you must provide at leat a `SplFileObject` object like below:
 
 ```php
@@ -91,13 +101,15 @@ To instantiate the class you must provide at leat a `SplFileObject` object like 
 use Bakame\Csv\Reader;
 
 $file = new \SpliFileObject('/path/to/your/csv/file.csv');
-$reader = new Reader($file, $delimiter, $enclosure, $escape);
+$reader = new Reader($file);
+$reader->setDelimeter(',');
+$reader->setEnclosure('"');
+$reader->setEscape('\\');
 
 ```
 You can optionally set CSV delimiter, enclosure and/or escape characters.
 
-
-The class comes with several fetching methods to help you deal with your data:
+The `Bakame\Csv\Reader` object let you access the `SplFileObject` used to instantiate it when using the method `Reader::getFile`. This method comes handy if, for instance, you want to download your data. But it also exposes several fetching methods to help you easily extract you CSV data:
 
 #### `Reader::fetchAll` 
 
