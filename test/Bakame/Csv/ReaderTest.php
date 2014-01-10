@@ -57,6 +57,18 @@ class ReaderTest extends \PHPUnit_Framework_TestCase
         foreach ($res as $index => $row) {
             $this->assertSame($keys, array_keys($row));
         }
+
+        $keys = ['firstname'];
+        $res = $this->reader->fetchAssoc($keys);
+        $this->assertSame([['firstname' => 'foo'], ['firstname' => 'foo']], $res);
+
+        $keys = ['firstname', 'lastname', 'email', 'age'];
+        $res = $this->reader->fetchAssoc($keys);
+        foreach ($res as $index => $row) {
+            $this->assertCount(4, array_values($row));
+            $this->assertNull($row['age']);
+        }
+
     }
 
     public function testFetchCol()
