@@ -74,8 +74,7 @@ interface ReaderInterface
     /**
      * Return a sequential array of all CSV lines; the rows are presented as associated arrays
      *
-     * @param array $keys the name for each key member
-     *
+     * @param array    $keys     the name for each key member
      * @param callable $callable a callable function to be applied to each row to be return
      *
      * @return array
@@ -85,9 +84,8 @@ interface ReaderInterface
     /**
      * Return a single column from the CSV data
      *
-     * @param integer $fieldIndex field Index
-     *
-     * @param callable $callable a callable function to be applied to each value to be return
+     * @param integer  $fieldIndex field Index
+     * @param callable $callable   a callable function to be applied to each value to be return
      *
      * @return array
      */

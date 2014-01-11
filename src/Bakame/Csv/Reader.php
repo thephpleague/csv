@@ -94,13 +94,40 @@ class Reader implements ReaderInterface
         return $this->file->getFlags();
     }
 
+    private static function isRowExists($rowIndex)
+    {
+        $rowIndex = filter_var($rowIndex, FILTER_VALIDATE_INT, ['options' => ['min_range' => 0]]);
+
+        return false !== $rowIndex;
+    }
+
+    /**
+     * Intelligent Array Combine
+     *
+     * @param array $keys
+     * @param array $value
+     *
+     * @return array
+     */
+    private static function combineKeyValue(array $keys, array $value)
+    {
+        $nbKeys = count($keys);
+        $diff = $nbKeys - count($value);
+        if ($diff > 0) {
+            $value = array_merge($value, array_fill(0, $diff, null));
+        } elseif ($diff < 0) {
+            $value = array_slice($value, 0, $nbKeys);
+        }
+
+        return array_combine($keys, $value);
+    }
+
     /**
      * {@inheritdoc}
      */
     public function fetchOne($rowIndex)
     {
-        $rowIndex = filter_var($rowIndex, FILTER_VALIDATE_INT, ['options' => ['min_range' => 0]]);
-        if (false === $rowIndex) {
+        if (! self::isRowExists($rowIndex)) {
             throw new InvalidArgumentException('the index can not be negative');
         }
         $this->file->seek($rowIndex);
@@ -128,6 +155,7 @@ class Reader implements ReaderInterface
     {
         $res = [];
         $this->file->rewind();
+        $this->file->rewind();
         $this->file->setCsvControl($this->delimiter, $this->enclosure, $this->escape);
         if (is_null($callable)) {
             foreach ($this->file as $row) {
@@ -141,27 +169,6 @@ class Reader implements ReaderInterface
         }
 
         return $res;
-    }
-
-    /**
-     * Intelligent Array Combine
-     *
-     * @param array $keys
-     * @param array $value
-     *
-     * @return array
-     */
-    private static function combineKeyValue(array $keys, array $value)
-    {
-        $nbKeys = count($keys);
-        $diff = $nbKeys - count($value);
-        if ($diff > 0) {
-            $value = array_merge($value, array_fill(0, $diff, null));
-        } elseif ($diff < 0) {
-            $value = array_slice($value, 0, $nbKeys);
-        }
-
-        return array_combine($keys, $value);
     }
 
     /**
@@ -210,5 +217,27 @@ class Reader implements ReaderInterface
         }
 
         return $res;
+    }
+
+    /**
+     * Output all data on the CSV file
+     */
+    public function render()
+    {
+        $this->file->rewind();
+        $this->file->fpassthru();
+    }
+
+    /**
+     * Retrieves the CSV content
+     *
+     * @return string
+     */
+    public function __toString()
+    {
+        ob_start();
+        $this->render();
+
+        return ob_get_clean();
     }
 }
