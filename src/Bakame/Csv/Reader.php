@@ -46,8 +46,21 @@ class Reader implements ReaderInterface
 {
     use CsvControlsTrait;
 
+    /**
+     * The CSV file Object
+     *
+     * @var SplFileObject
+     */
     private $file;
 
+    /**
+     * The constructor
+     *
+     * @param SplFileObject $file      The CSV file Object
+     * @param string        $delimiter Optional CSV file delimiter character
+     * @param string        $enclosure Optional CSV file enclosure character
+     * @param string        $escape    Optional CSV file escape character
+     */
     public function __construct(SplFileObject $file, $delimiter = ',', $enclosure = '"', $escape = "\\")
     {
         $this->setDelimiter($delimiter);
@@ -55,7 +68,7 @@ class Reader implements ReaderInterface
         $this->setEscape($escape);
         $this->file = $file;
         $this->file->setCsvControl($this->delimiter, $this->enclosure, $this->escape);
-        $this->setFlags(SplFileObject::READ_CSV|SplFileObject::DROP_NEW_LINE);
+        $this->setFlags(0);
     }
 
     /**
@@ -75,11 +88,10 @@ class Reader implements ReaderInterface
      */
     public function setFlags($flags)
     {
-        $flags = filter_var($flags, FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]);
-        if (false === $flags) {
-            throw new InvalidArgumentException('you should use SplFileObject Constant');
+        if (! self::isValidInteger($flags)) {
+            throw new InvalidArgumentException('you should use a `SplFileObject` Constant');
         }
-        $this->file->setFlags(SplFileObject::READ_CSV|SplFileObject::DROP_NEW_LINE|$flags);
+        $this->file->setFlags($flags|SplFileObject::READ_CSV|SplFileObject::DROP_NEW_LINE);
 
         return $this;
     }
@@ -94,11 +106,15 @@ class Reader implements ReaderInterface
         return $this->file->getFlags();
     }
 
-    private static function isRowExists($rowIndex)
+    /**
+     * Validate a variable to be a positive integer or 0
+     * @param integer $rowIndex
+     *
+     * @return boolean
+     */
+    private static function isValidInteger($value)
     {
-        $rowIndex = filter_var($rowIndex, FILTER_VALIDATE_INT, ['options' => ['min_range' => 0]]);
-
-        return false !== $rowIndex;
+        return false !== filter_var($value, FILTER_VALIDATE_INT, ['options' => ['min_range' => 0]]);
     }
 
     /**
@@ -127,25 +143,33 @@ class Reader implements ReaderInterface
      */
     public function fetchOne($rowIndex)
     {
-        if (! self::isRowExists($rowIndex)) {
-            throw new InvalidArgumentException('the index can not be negative');
+        if (! self::isValidInteger($rowIndex)) {
+            throw new InvalidArgumentException('the row index must be a positive integer or 0');
         }
+        $this->file->setCsvControl($this->delimiter, $this->enclosure, $this->escape);
         $this->file->seek($rowIndex);
+        $res = $this->file->fgetcsv();
+        if (is_null($res)) {
+            return [];
+        }
 
-        return $this->file->fgetcsv($this->delimiter, $this->enclosure, $this->escape);
+        return $res;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function fetchValue($rowIndex, $fieldIndex)
+    public function fetchValue($rowIndex, $columnIndex)
     {
+        if (! self::isValidInteger($columnIndex)) {
+            throw new InvalidArgumentException('the column index must be a positive integer or 0');
+        }
         $res = $this->fetchOne($rowIndex);
-        if (is_null($res) || ! array_key_exists($fieldIndex, $res)) {
+        if (! array_key_exists($columnIndex, $res)) {
             return null;
         }
 
-        return $res[$fieldIndex];
+        return $res[$columnIndex];
     }
 
     /**
@@ -155,14 +179,11 @@ class Reader implements ReaderInterface
     {
         $res = [];
         $this->file->rewind();
-        $this->file->rewind();
         $this->file->setCsvControl($this->delimiter, $this->enclosure, $this->escape);
         if (is_null($callable)) {
-            foreach ($this->file as $row) {
-                $res[] = $row;
-            }
-
-            return $res;
+            $callable = function ($value) {
+                return $value;
+            };
         }
         foreach ($this->file as $row) {
             $res[] = $callable($row);
@@ -176,15 +197,22 @@ class Reader implements ReaderInterface
      */
     public function fetchAssoc(array $keys, callable $callable = null)
     {
+        $nbKeys = count($keys);
+        $keys = array_filter($keys, function ($value) {
+            return is_scalar($value);
+        });
+        $keys = array_unique($keys);
+        if (count($keys) != $nbKeys) {
+            throw new InvalidArgumentException('The named keys should be unique strings');
+        }
+
         $res = [];
         $this->file->rewind();
         $this->file->setCsvControl($this->delimiter, $this->enclosure, $this->escape);
         if (is_null($callable)) {
-            foreach ($this->file as $row) {
-                $res[] = self::combineKeyValue($keys, $row);
-            }
-
-            return $res;
+            $callable = function ($value) {
+                return $value;
+            };
         }
         foreach ($this->file as $row) {
             $res[] = self::combineKeyValue($keys, $callable($row));
@@ -196,24 +224,25 @@ class Reader implements ReaderInterface
     /**
      * {@inheritdoc}
      */
-    public function fetchCol($fieldIndex, callable $callable = null)
+    public function fetchCol($columnIndex, callable $callable = null)
     {
+        if (! self::isValidInteger($columnIndex)) {
+            throw new InvalidArgumentException('the column index must be a positive integer or 0');
+        }
         $res = [];
         $this->file->rewind();
         $this->file->setCsvControl($this->delimiter, $this->enclosure, $this->escape);
         if (is_null($callable)) {
-            foreach ($this->file as $row) {
-                if (array_key_exists($fieldIndex, $row)) {
-                    $res[] = $row[$fieldIndex];
-                }
-            }
-
-            return $res;
+            $callable = function ($value) {
+                return $value;
+            };
         }
         foreach ($this->file as $row) {
-            if (array_key_exists($fieldIndex, $row)) {
-                $res[] = $callable($row[$fieldIndex]);
+            $value = null;
+            if (array_key_exists($columnIndex, $row)) {
+                $value = $callable($row[$columnIndex]);
             }
+            $res[] = $value;
         }
 
         return $res;
@@ -222,7 +251,7 @@ class Reader implements ReaderInterface
     /**
      * Output all data on the CSV file
      */
-    public function render()
+    public function output()
     {
         $this->file->rewind();
         $this->file->fpassthru();
@@ -236,7 +265,7 @@ class Reader implements ReaderInterface
     public function __toString()
     {
         ob_start();
-        $this->render();
+        $this->output();
 
         return ob_get_clean();
     }
