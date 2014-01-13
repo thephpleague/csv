@@ -69,15 +69,18 @@ class ReaderTest extends \PHPUnit_Framework_TestCase
         }
 
         $keys = ['firstname'];
+
         $res = $this->csv->fetchAssoc($keys);
         $this->assertSame([['firstname' => 'john'], ['firstname' => 'jane']], $res);
 
         $keys = ['firstname', 'lastname', 'email', 'age'];
         $res = $this->csv->fetchAssoc($keys);
+
         foreach ($res as $index => $row) {
             $this->assertCount(4, array_values($row));
             $this->assertNull($row['age']);
         }
+
         $this->csv->fetchAssoc([['firstname', 'lastname', 'email', 'age']]);
     }
 

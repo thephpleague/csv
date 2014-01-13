@@ -176,6 +176,8 @@ $data = $csv->fetchAssoc(['firstname', 'lastname', 'email'], function ($value) {
 //
 ```
 
+
+
 #### `Reader::fetchCol`
 
 This method returns an sequentials array for a given CSV column.
