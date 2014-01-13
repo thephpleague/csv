@@ -248,9 +248,9 @@ echo $csv; // or $csv->__toString();
 // 
 ```
 
-#### `Reader::render`
+#### `Reader::output`
 
-The render method returns to the output buffer the CSV content. This method can be use if you want the CSV to be downloaded by your user.
+The output method returns to the output buffer the CSV content. This method can be use if you want the CSV to be downloaded by your user.
 
 
 Testing

@@ -28,11 +28,15 @@ class ReaderTest extends \PHPUnit_Framework_TestCase
         $this->csv->fetchOne(-3);
     }
 
+    /**
+     * @expectedException InvalidArgumentException
+     */
     public function testFetchValue()
     {
         $this->assertSame($this->expected[0][2], $this->csv->fetchValue(0, 2));
         $this->assertNull($this->csv->fetchValue(0, 23));
         $this->assertNull($this->csv->fetchValue(8, 23));
+        $this->csv->fetchValue(8, 'toto');
     }
 
     public function testFetchAll()
@@ -45,6 +49,9 @@ class ReaderTest extends \PHPUnit_Framework_TestCase
         $this->assertSame(array_map($func, $this->expected), $this->csv->fetchAll($func));
     }
 
+    /**
+     * @expectedException InvalidArgumentException
+     */
     public function testFetchAssoc()
     {
         $func = function ($value) {
@@ -71,9 +78,12 @@ class ReaderTest extends \PHPUnit_Framework_TestCase
             $this->assertCount(4, array_values($row));
             $this->assertNull($row['age']);
         }
-
+        $this->csv->fetchAssoc([['firstname', 'lastname', 'email', 'age']]);
     }
 
+    /**
+     * @expectedException InvalidArgumentException
+     */
     public function testFetchCol()
     {
         $func = function ($value) {
@@ -82,6 +92,7 @@ class ReaderTest extends \PHPUnit_Framework_TestCase
 
         $this->assertSame(['john', 'jane'], $this->csv->fetchCol(0));
         $this->assertSame(['JOHN', 'JANE'], $this->csv->fetchCol(0, $func));
+        $this->csv->fetchCol('toto');
     }
 
     /**
