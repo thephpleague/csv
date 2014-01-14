@@ -2,9 +2,10 @@
 
 namespace Bakame\Csv;
 
-use SplFileObject;
+use PHPUnit_Framework_TestCase;
+use SplTempFileObject;
 
-class ReaderTest extends \PHPUnit_Framework_TestCase
+class ReaderTest extends PHPUnit_Framework_TestCase
 {
     private $csv;
 
@@ -15,17 +16,7 @@ class ReaderTest extends \PHPUnit_Framework_TestCase
 
     public function setUp()
     {
-        $codec = new Codec;
-        $this->csv = $codec->save($this->expected, new SplFileObject('php://temp'));
-    }
-
-    /**
-     * @expectedException InvalidArgumentException
-     */
-    public function testFetchOne()
-    {
-        $this->assertSame($this->expected[0], $this->csv->fetchOne(0));
-        $this->csv->fetchOne(-3);
+        $this->csv = (new Codec)->save($this->expected, new SplTempFileObject);
     }
 
     /**
@@ -119,17 +110,6 @@ class ReaderTest extends \PHPUnit_Framework_TestCase
         $this->csv->fetchCol('toto');
     }
 
-    /**
-     * @expectedException InvalidArgumentException
-     */
-    public function testSetFlags()
-    {
-        $this->csv->setFlags(SplFileObject::SKIP_EMPTY);
-        $this->assertSame(SplFileObject::SKIP_EMPTY, $this->csv->getFlags() & SplFileObject::SKIP_EMPTY);
-        $this->assertSame(SplFileObject::READ_CSV, $this->csv->getFlags() & SplFileObject::READ_CSV);
-        $this->csv->setFlags(-3);
-    }
-
     public function testToString()
     {
         $expected = "john,doe,john.doe@example.com".PHP_EOL
@@ -140,76 +120,95 @@ class ReaderTest extends \PHPUnit_Framework_TestCase
     /**
      * @expectedException \InvalidArgumentException
      */
-    public function testFailureSettingOffset()
-    {
-        $this->csv->setOffset(3);
-        $this->assertSame(3, $this->csv->getOffset());
-        $this->csv->setOffset('toto');
-    }
-
-    /**
-     * @expectedException \InvalidArgumentException
-     */
-    public function testFailureSettingLimit()
-    {
-        $this->csv->setLimit(3);
-        $this->assertSame(3, $this->csv->getLimit());
-        $this->csv->setLimit(-4);
-    }
-
     public function testSetLimit()
     {
         $res = $this->csv->setLimit(1)->fetchAll();
         $this->assertCount(1, $res);
         $this->assertSame($this->expected[0], $res[0]);
-        $this->assertSame(0, $this->csv->getOffset());
-        $this->assertSame(0, $this->csv->getLimit());
+        $this->csv->setLimit(-4);
     }
 
+    /**
+     * @expectedException \InvalidArgumentException
+     */
     public function testSetOffset()
     {
         $res = $this->csv->setOffset(1)->fetchAll();
+        $this->assertInternalType('array', $res);
         $this->assertCount(1, $res);
         $this->assertSame($this->expected[1], $res[0]);
-        $this->assertSame(0, $this->csv->getOffset());
-        $this->assertSame(0, $this->csv->getLimit());
+        $this->csv->setOffset('toto');
     }
 
-    public function testFetchFilters()
+    public function testInterval()
     {
         $res = $this->csv->setOffset(0)->setLimit(1)->fetchAll();
         $this->assertCount(1, $res);
         $this->assertSame($this->expected[0], $res[0]);
-
         $res = $this->csv->setOffset(0)->setLimit(20)->fetchAll();
         $this->assertCount(2, $res);
         $this->assertSame($this->expected, $res);
-
         $res = $this->csv->setOffset(1)->setLimit(20)->fetchAll();
         $this->assertCount(1, $res);
         $this->assertSame($this->expected[1], $res[0]);
     }
 
-    public function testCountable()
+    public function testOffsetGet()
     {
-        $this->assertCount(count($this->expected), $this->csv);
+        $this->assertSame($this->expected[0], $this->csv->fetchOne(0));
+        //$this->assertSame($this->expected[1], $this->csv[1]);
+    }
+
+    /**
+     * @expectedException InvalidArgumentException
+     */
+    public function testOffsetGetFailure()
+    {
+        $this->csv[-3];
+    }
+
+    public function testOffsetExists()
+    {
+        $this->assertFalse(isset($this->csv[32]));
     }
 
     /**
      * @expectedException \RuntimeException
      */
-    public function testArrayAccess()
+    public function testOffsetSet()
     {
-        $this->assertSame($this->expected[0], $this->csv[0]);
-        $this->assertTrue(isset($this->csv[0]));
-        $this->csv[3] = "fdsfqsfdsf";
+        $this->csv[1] = ['toto', 'le', 'herisson'];
     }
 
     /**
      * @expectedException \RuntimeException
      */
-    public function testArrayAccessFailure()
+    public function testArrayOffsetUnset()
     {
-        unset($this->csv[3]);
+        unset($this->csv[32]);
+    }
+
+    public function testFilter()
+    {
+        $func = function ($row) {
+            return is_array($row) && $row[0] == 'john';
+        };
+        $res = $this->csv->setFilter($func)->fetchAll();
+        $this->assertCount(1, $res);
+        $this->assertSame($this->expected[0], $res[0]);
+    }
+
+    public function testSortBy()
+    {
+        $func = function ($row1, $row2) {
+            if ($row1[0] == $row2[0]) {
+                return 0;
+            }
+
+            return ($row1[0] < $row2[0]) ? -1 : 1;
+        };
+        $res = $this->csv->setSortBy($func)->fetchAll();
+        $this->assertCount(2, $res);
+        $this->assertSame($this->expected[1], $res[0]);
     }
 }

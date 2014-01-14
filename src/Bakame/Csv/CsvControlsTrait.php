@@ -33,6 +33,7 @@
 namespace Bakame\Csv;
 
 use InvalidArgumentException;
+use SplFileObject;
 
 /**
  * A trait for setting and getting CSV controls properties
@@ -59,9 +60,17 @@ trait CsvControlsTrait
 
     /**
      * the field escape character (one character only)
+     *
      * @var string
      */
     private $escape = '\\';
+
+    /**
+     * the SplFileObject flas
+     *
+     * @var integer
+     */
+    private $flags = 0;
 
      /**
      * set the field delimeter
@@ -148,5 +157,31 @@ trait CsvControlsTrait
     public function getEscape()
     {
         return $this->escape;
+    }
+
+    /**
+     * Set the Flags associated to the CSV SplFileObject
+     *
+     * @return self
+     */
+    public function setFlags($flags)
+    {
+        if (false === filter_var($flags, FILTER_VALIDATE_INT, ['options' => ['min_range' => 0]])) {
+            throw new InvalidArgumentException('you should use a `SplFileObject` Constant');
+        }
+
+        $this->flags = $flags|SplFileObject::READ_CSV|SplFileObject::DROP_NEW_LINE;
+
+        return $this;
+    }
+
+    /**
+     * Returns the file Flags
+     *
+     * @return integer
+     */
+    public function getFlags()
+    {
+        return $this->flags;
     }
 }

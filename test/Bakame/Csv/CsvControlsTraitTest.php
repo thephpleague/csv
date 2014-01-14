@@ -2,6 +2,8 @@
 
 namespace Bakame\Csv;
 
+use SplFileObject;
+
 class CsvControlsTraitTest extends \PHPUnit_Framework_TestCase
 {
 
@@ -39,5 +41,18 @@ class CsvControlsTraitTest extends \PHPUnit_Framework_TestCase
         $this->assertSame('o', $control->getEnclosure());
 
         $control->setEnclosure('foo');
+    }
+
+    /**
+     * @expectedException InvalidArgumentException
+     */
+    public function testSetFlags()
+    {
+        $control = $this->getObjectForTrait('\Bakame\Csv\CsvControlsTrait');
+        $control->setFlags(SplFileObject::SKIP_EMPTY);
+        $this->assertSame(SplFileObject::SKIP_EMPTY, $control->getFlags() & SplFileObject::SKIP_EMPTY);
+        $this->assertSame(SplFileObject::READ_CSV, $control->getFlags() & SplFileObject::READ_CSV);
+
+        $control->setFlags(-3);
     }
 }
