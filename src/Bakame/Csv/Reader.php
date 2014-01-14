@@ -32,9 +32,12 @@
 */
 namespace Bakame\Csv;
 
-use SplFileObject;
-use InvalidArgumentException;
+use ArrayAccess;
 use CallbackFilterIterator;
+use Countable;
+use InvalidArgumentException;
+use RuntimeException;
+use SplFileObject;
 
 /**
  *  A Reader to ease CSV parsing in PHP 5.4+
@@ -43,7 +46,7 @@ use CallbackFilterIterator;
  * @since  3.0.0
  *
  */
-class Reader implements ReaderInterface
+class Reader implements ReaderInterface, Countable, ArrayAccess
 {
     use CsvControlsTrait;
 
@@ -67,6 +70,13 @@ class Reader implements ReaderInterface
      * @var integer
      */
     private $limit = 0;
+
+    /**
+     * Total numbers of Row
+     *
+     * @var integer
+     */
+    private $rowCount = 0;
 
     /**
      * The constructor
@@ -295,13 +305,12 @@ class Reader implements ReaderInterface
      */
     public function fetchAssoc(array $keys, callable $callable = null)
     {
-        $nbKeys = count($keys);
-        $keys = array_unique(array_filter($keys, function ($value) {
-            return is_scalar($value);
+        $validKeys = array_unique(array_filter($keys, function ($value) {
+            return is_string($value) || is_integer($value);
         }));
 
-        if (count($keys) != $nbKeys) {
-            throw new InvalidArgumentException('The named keys should be unique strings');
+        if ($keys !== $validKeys) {
+            throw new InvalidArgumentException('The named keys should be unique strings Or integer');
         }
 
         $res = [];
@@ -368,5 +377,66 @@ class Reader implements ReaderInterface
         $this->output();
 
         return ob_get_clean();
+    }
+
+    /**
+     * Countable Interface - Returns the numbers of rows
+     *
+     * @return integer
+     */
+    public function count()
+    {
+        if (! $this->rowCount) {
+            foreach ($this->file as $key => $value) {
+
+            }
+            $this->rowCount = $key + 1;
+        }
+
+        return $this->rowCount;
+    }
+
+    /**
+     * Array Access Interface - Return a given row
+     *
+     * @param integer $offset
+     *
+     * @return array
+     */
+    public function offsetGet($offset)
+    {
+        return $this->fetchOne($offset);
+    }
+
+    /**
+     * Array Access Interface - Is the row exists
+     *
+     * @param integer $offset
+     *
+     * @return boolean
+     */
+    public function offsetExists($offset)
+    {
+        return ! is_null($this->fetchOne($offset));
+    }
+
+    /**
+     * Array Access Interface - set row
+     *
+     * @throws RuntimeException Not implemented in a reader
+     */
+    public function offsetSet($offset, $value)
+    {
+        throw new RuntimeException('This is a Reader, setting data is forbidden');
+    }
+
+    /**
+     * Array Access Interface - remove a row
+     *
+     * @throws RuntimeException Not implemented in a reader
+     */
+    public function offsetUnset($offset)
+    {
+        throw new RuntimeException('This is a Reader, deleting data is forbidden');
     }
 }

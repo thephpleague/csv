@@ -189,4 +189,27 @@ class ReaderTest extends \PHPUnit_Framework_TestCase
         $this->assertCount(1, $res);
         $this->assertSame($this->expected[1], $res[0]);
     }
+
+    public function testCountable()
+    {
+        $this->assertCount(count($this->expected), $this->csv);
+    }
+
+    /**
+     * @expectedException \RuntimeException
+     */
+    public function testArrayAccess()
+    {
+        $this->assertSame($this->expected[0], $this->csv[0]);
+        $this->assertTrue(isset($this->csv[0]));
+        $this->csv[3] = "fdsfqsfdsf";
+    }
+
+    /**
+     * @expectedException \RuntimeException
+     */
+    public function testArrayAccessFailure()
+    {
+        unset($this->csv[3]);
+    }
 }
