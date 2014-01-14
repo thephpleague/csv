@@ -34,6 +34,7 @@ namespace Bakame\Csv;
 
 use SplFileObject;
 use InvalidArgumentException;
+use CallbackFilterIterator;
 
 /**
  *  A Reader to ease CSV parsing in PHP 5.4+
@@ -54,6 +55,20 @@ class Reader implements ReaderInterface
     private $file;
 
     /**
+     * CSV data Offset
+     *
+     * @var integer
+     */
+    private $offset = 0;
+
+    /**
+     * Result set maximum length
+     *
+     * @var integer
+     */
+    private $limit = 0;
+
+    /**
      * The constructor
      *
      * @param SplFileObject $file      The CSV file Object
@@ -69,6 +84,38 @@ class Reader implements ReaderInterface
         $this->file = $file;
         $this->file->setCsvControl($this->delimiter, $this->enclosure, $this->escape);
         $this->setFlags(0);
+    }
+
+    /**
+     * Validate a variable to be a positive integer or 0
+     * @param integer $rowIndex
+     *
+     * @return boolean
+     */
+    private static function isValidInteger($value)
+    {
+        return false !== filter_var($value, FILTER_VALIDATE_INT, ['options' => ['min_range' => 0]]);
+    }
+
+    /**
+     * Intelligent Array Combine
+     *
+     * @param array $keys
+     * @param array $value
+     *
+     * @return array
+     */
+    private static function combineKeyValue(array $keys, array $value)
+    {
+        $nbKeys = count($keys);
+        $diff = $nbKeys - count($value);
+        if ($diff > 0) {
+            $value = array_merge($value, array_fill(0, $diff, null));
+        } elseif ($diff < 0) {
+            $value = array_slice($value, 0, $nbKeys);
+        }
+
+        return array_combine($keys, $value);
     }
 
     /**
@@ -107,35 +154,83 @@ class Reader implements ReaderInterface
     }
 
     /**
-     * Validate a variable to be a positive integer or 0
-     * @param integer $rowIndex
+     * Set Result Offset
      *
-     * @return boolean
+     * @param $offset
+     *
+     * @return self
      */
-    private static function isValidInteger($value)
+    public function setOffset($offset)
     {
-        return false !== filter_var($value, FILTER_VALIDATE_INT, ['options' => ['min_range' => 0]]);
+        if (! $this->isValidInteger($offset)) {
+            throw new InvalidArgumentException('the offset must be a positive integer or 0');
+        }
+        $this->offset = $offset;
+
+        return $this;
     }
 
     /**
-     * Intelligent Array Combine
+     * Return the result set offset
      *
-     * @param array $keys
-     * @param array $value
-     *
-     * @return array
+     * @return integer
      */
-    private static function combineKeyValue(array $keys, array $value)
+    public function getOffset()
     {
-        $nbKeys = count($keys);
-        $diff = $nbKeys - count($value);
-        if ($diff > 0) {
-            $value = array_merge($value, array_fill(0, $diff, null));
-        } elseif ($diff < 0) {
-            $value = array_slice($value, 0, $nbKeys);
+        return $this->offset;
+    }
+
+    /**
+     * Set maximum result length
+     *
+     * @param integer $limit
+     *
+     * @return self
+     */
+    public function setLimit($limit)
+    {
+        if (! $this->isValidInteger($limit)) {
+            throw new InvalidArgumentException('the limit must be a positive integer or 0');
+        }
+        $this->limit = $limit;
+
+        return $this;
+    }
+
+    /**
+     * return the Result set maximun length
+     *
+     * @return integer
+     */
+    public function getLimit()
+    {
+        return $this->limit;
+    }
+
+    /**
+     * Return the valid Iterator to operates search on
+     *
+     * @return Iterator
+     */
+    private function fetchIterator()
+    {
+        $this->file->setCsvControl($this->delimiter, $this->enclosure, $this->escape);
+
+        if (! $this->offset && ! $this->limit) {
+            return $this->file;
         }
 
-        return array_combine($keys, $value);
+        $offset = $this->offset;
+        $interval = 0;
+        if ($this->limit > 0) {
+            $interval = $offset + $this->limit;
+        }
+        $this->limit = 0;
+        $this->offset = 0;
+
+        return new CallbackFilterIterator($this->file, function ($row, $key) use ($offset, $interval) {
+            return $key >= $offset && (! $interval || $key < $interval);
+        });
     }
 
     /**
@@ -178,14 +273,17 @@ class Reader implements ReaderInterface
     public function fetchAll(callable $callable = null)
     {
         $res = [];
-        $this->file->rewind();
-        $this->file->setCsvControl($this->delimiter, $this->enclosure, $this->escape);
+        $iterator = $this->fetchIterator();
+
         if (is_null($callable)) {
-            $callable = function ($value) {
-                return $value;
-            };
+            foreach ($iterator as $row) {
+                $res[] = $row;
+            }
+
+            return $res;
         }
-        foreach ($this->file as $row) {
+
+        foreach ($iterator as $row) {
             $res[] = $callable($row);
         }
 
@@ -198,23 +296,26 @@ class Reader implements ReaderInterface
     public function fetchAssoc(array $keys, callable $callable = null)
     {
         $nbKeys = count($keys);
-        $keys = array_filter($keys, function ($value) {
+        $keys = array_unique(array_filter($keys, function ($value) {
             return is_scalar($value);
-        });
-        $keys = array_unique($keys);
+        }));
+
         if (count($keys) != $nbKeys) {
             throw new InvalidArgumentException('The named keys should be unique strings');
         }
 
         $res = [];
-        $this->file->rewind();
-        $this->file->setCsvControl($this->delimiter, $this->enclosure, $this->escape);
+        $iterator = $this->fetchIterator();
+
         if (is_null($callable)) {
-            $callable = function ($value) {
-                return $value;
-            };
+            foreach ($iterator as $row) {
+                $res[] = self::combineKeyValue($keys, $row);
+            }
+
+            return $res;
         }
-        foreach ($this->file as $row) {
+
+        foreach ($iterator as $row) {
             $res[] = self::combineKeyValue($keys, $callable($row));
         }
 
@@ -229,20 +330,19 @@ class Reader implements ReaderInterface
         if (! self::isValidInteger($columnIndex)) {
             throw new InvalidArgumentException('the column index must be a positive integer or 0');
         }
-        $res = [];
-        $this->file->rewind();
-        $this->file->setCsvControl($this->delimiter, $this->enclosure, $this->escape);
+
+        $iterator = $this->fetchIterator();
+
         if (is_null($callable)) {
-            $callable = function ($value) {
-                return $value;
-            };
-        }
-        foreach ($this->file as $row) {
-            $value = null;
-            if (array_key_exists($columnIndex, $row)) {
-                $value = $callable($row[$columnIndex]);
+            foreach ($iterator as $row) {
+                $res[] = array_key_exists($columnIndex, $row) ? $row[$columnIndex] : null;
             }
-            $res[] = $value;
+
+            return $res;
+        }
+
+        foreach ($iterator as $row) {
+            $res[] = array_key_exists($columnIndex, $row) ? $callable($row[$columnIndex]) : null;
         }
 
         return $res;
