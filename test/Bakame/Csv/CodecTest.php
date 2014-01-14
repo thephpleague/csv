@@ -14,39 +14,6 @@ class CodecTest extends \PHPUnit_Framework_TestCase
         $this->codec = new Codec;
     }
 
-    /**
-     * @expectedException InvalidArgumentException
-     */
-    public function testDelimeter()
-    {
-        $this->codec->setDelimiter('o');
-        $this->assertSame('o', $this->codec->getDelimiter());
-
-        $this->codec->setDelimiter('foo');
-    }
-
-    /**
-     * @expectedException InvalidArgumentException
-     */
-    public function testEscape()
-    {
-        $this->codec->setEscape('o');
-        $this->assertSame('o', $this->codec->getEscape());
-
-        $this->codec->setEscape('foo');
-    }
-
-    /**
-     * @expectedException InvalidArgumentException
-     */
-    public function testEnclosure()
-    {
-        $this->codec->setEnclosure('o');
-        $this->assertSame('o', $this->codec->getEnclosure());
-
-        $this->codec->setEnclosure('foo');
-    }
-
     public function testloadString()
     {
         $expected = ['foo', 'bar', 'baz'];
@@ -60,7 +27,6 @@ class CodecTest extends \PHPUnit_Framework_TestCase
 
     public function testloadFile()
     {
-        $expected = ['foo', 'bar', 'baz'];
         $file = __DIR__.'/foo.csv';
         $res = $this->codec->loadFile($file);
         $this->assertInstanceof('\Bakame\Csv\Reader', $res);
