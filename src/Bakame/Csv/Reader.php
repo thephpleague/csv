@@ -85,15 +85,16 @@ class Reader implements ReaderInterface, Countable, ArrayAccess
      * @param string        $delimiter Optional CSV file delimiter character
      * @param string        $enclosure Optional CSV file enclosure character
      * @param string        $escape    Optional CSV file escape character
+     * @param integer       $flags     Optional SplFileObject constant flags
      */
-    public function __construct(SplFileObject $file, $delimiter = ',', $enclosure = '"', $escape = "\\")
+    public function __construct(SplFileObject $file, $delimiter = ',', $enclosure = '"', $escape = "\\", $flags = 0)
     {
         $this->setDelimiter($delimiter);
         $this->setEnclosure($enclosure);
         $this->setEscape($escape);
         $this->file = $file;
         $this->file->setCsvControl($this->delimiter, $this->enclosure, $this->escape);
-        $this->setFlags(0);
+        $this->setFlags($flags);
     }
 
     /**
