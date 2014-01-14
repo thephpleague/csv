@@ -6,7 +6,7 @@
 * @copyright 2013 Ignace Nyamagana Butera
 * @link https://github.com/nyamsprod/Bakame.csv
 * @license http://opensource.org/licenses/MIT
-* @version 3.0.1
+* @version 3.2.0
 * @package Bakame.csv
 *
 * MIT LICENSE
