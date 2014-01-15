@@ -4,8 +4,7 @@ Bakame.csv
 [![Scrutinizer Quality Score](https://scrutinizer-ci.com/g/nyamsprod/Bakame.csv/badges/quality-score.png?s=e4619fba277f07a7a81e057756a51791d19abdf2)](https://scrutinizer-ci.com/g/nyamsprod/Bakame.csv/)
 [![Code Coverage](https://scrutinizer-ci.com/g/nyamsprod/Bakame.csv/badges/coverage.png?s=7ad9740c0ed5fd5d389abfe92d7af04d7f4f542e)](https://scrutinizer-ci.com/g/nyamsprod/Bakame.csv/)
 
-
-A simple wrapper to parse and save csv files in PHP 5.4+
+A simple library to easily load, manipulate and save CSV files in PHP 5.4+
 
 This package is compliant with [PSR-0][], [PSR-1][], and [PSR-2][].
 
@@ -37,14 +36,10 @@ Instantiation
 
 The easiest way to get started is to add `'/path/to/Bakame/Csv/src'` to your PSR-0 compliant Autoloader. Once added to the autoloader you can start manipulating CSV files as explain below:
 
-Usage
+Loading and Saving CSV
 -------
 
-Before manipulating you CSV data, you must first be able to load and save you CSV. In order to do so, the library provides you the `Bakame\Csv\Codec` class.
-
-### The Codec Class.
-
-Before using the class you may need to set the csv controls characters. You can do it on the class constructor or use the appropriate setter method like below:
+Before manipulating you CSV data, you must first be able to load and save you CSV. In order to do so, the library provides you the `Bakame\Csv\Codec` class. Using this class is quiet straight forward and you can optionally set the CSV delimiter, enclosure and/or escape characters as well as the file flags on the constructor or by using the appropriate setter method.
 
 ```php
 <?php
@@ -55,13 +50,13 @@ $codec = new Codec;
 $codec->setDelimeter(',');
 $codec->setEnclosure('"');
 $codec->setEscape('\\');
-
+$codec->setFlags(SplFileObject::READ_AHEAD|SplFileObject::SKIP_EMPTY);
 //or
 
-$codec = new Codec(',', '"', '\\');
+$codec = new Codec(',', '"', '\\', SplFileObject::READ_AHEAD|SplFileObject::SKIP_EMPTY);
 ```
 
-#### Loading CSV data
+### Loading CSV data
 
 Once instantiated and depending on your CSV source you may choose:
 
@@ -79,7 +74,7 @@ $csv = $codec->loadString(['foo,bar,baz', ['foo', 'bar', 'baz']]);
 
 ```
 
-#### Saving CSV data
+### Saving CSV data
 
 The `Codec::save` method help you save you CSV data.
 
@@ -101,12 +96,14 @@ $csv = $codec->save([1,2,3,4], '/path/to/my/saved/csv/file.csv');
 
 ```
 
-### The Reader Class
+Manipulating the loaded CSV
+-------
 
-The `Bakame\Csv\Reader` manipulates CSV data that are stored in a `SplFileObject` object. 
-> **The class does not modify the CSV data, it just helps you accessing them more easily**
 
-To instantiate the class you must provide at least a `SplFileObject` object like below:
+The `Bakame\Csv\Reader` class manipulates CSV data that are stored in a `SplFileObject` object. 
+**The class does not modify the CSV data, it just helps you accessing them more easily!**
+
+To instantiate the class you may use the `Bakame\Csv\Codec` class or you can provide a `SplFileObject` object like below:
 
 ```php
 
@@ -129,27 +126,27 @@ $csv = new Reader(
 );
 
 ```
-You can optionally set the CSV delimiter, enclosure and/or escape characters as well as the file flags.
+Just like for the `Bakame\Csv\Codec` class you can optionally set the CSV delimiter, enclosure and/or escape characters as well as the file flags.
 
-The `Bakame\Csv\Reader` lets you access the `SplFileObject` by using the `Bakame\Csv\Reader::getFile` method.
+If you still need to get access to the original `SplFileObject`, the `Bakame\Csv\Reader` lets you access it using the `Bakame\Csv\Reader::getFile` method.
 
-#### Displaying the CSV
+### Displaying the CSV
 
 * The `Bakame\Csv\Reader::__toString` method returns the CSV content as it is written in the file.
 * The `Bakame\Csv\Reader::output` method returns to the output buffer the CSV content. This method can be use if you want the CSV to be downloaded by your user.
 
-#### Traversing the CSV
+### Traversing the CSV
 
 The `Bakame\Csv\Reader` implements the `ArrayAccess` so if you want to access a given row you can do so using an array like syntax:
 
 ```php
 $row = $csv[5]; //accessing the 6th row;
 ``` 
-** The `Bakame\Csv\Reader` can not modify the CSV content so if you try to set/delete/update a row you'll get a `RuntimeException` exception **
+**The `Bakame\Csv\Reader` can not modify the CSV content so if you try to set/delete/update a row you'll get a `RuntimeException` exception!**
 
-Aside from the Extracting CSV data is made easy using the following methods: 
+Extracting data is also made easy using the following methods: 
 
-##### fetchAll
+#### fetchAll
 
  `fetchAll` returns a sequential array of all rows.
 
@@ -164,7 +161,7 @@ $data = $csv->fetchAll();
 // ]
 //
 ```
-##### fetchAssoc
+#### fetchAssoc
 
 `fetchAssoc` returns a sequential array of all rows. The rows themselves are associative arrays where the keys are given directly to the method using an one dimension array. This array should only contain unique `string` and/or `integer` values.
 
@@ -183,7 +180,7 @@ $data = $csv->fetchAssoc(['firstname', 'lastname', 'email']);
 > * If the number of values in a CSV row is lesser than the number of named keys, the method will add `null` values to compensate for the missing values.
 > * If the number of values in a CSV row is greater that the number of named keys the exceeding values will be drop from the result set.
 
-##### fetchCol
+#### fetchCol
 
 `fetchCol` returns a sequential array of all values in a given column from the CSV data.
 
@@ -196,10 +193,9 @@ $data = $csv->fetchCol(2);
 
 ```
 
-The methods listed above (`fetchAll`, `fetchAssoc`, `fetchCol`) can all:
-* Take a optional `callable` argument to further manipulate each row before being returned.
+**The methods listed above (`fetchAll`, `fetchAssoc`, `fetchCol`) can all take a optional `callable` argument to further manipulate each row before being returned.**
 
-#### Filtering the CSV data
+### Filtering the CSV data
 
 In order to filter the CSV data you can modify the `fetch*` methods output by specifying filtering options using the following methods:
 
@@ -213,27 +209,37 @@ In order to filter the CSV data you can modify the `fetch*` methods output by sp
 Here's an example:
 
 ```php
+function filterByEmail(array $row) 
+{
+	return filer_var($row[2], FILTER_VALIDATE_EMAIL);
+}
+
+function sortByLastName(array $rowA, array $rowB)
+{
+	return strcmp($rowB[1], $rowA[1]);
+}
+
 $data = $csv
     ->setOffset(3)
-    ->setLimit(5)
+    ->setLimit(2)
+    ->setFilter('filterByEmail')
+    ->setSortBy('sortByLastName')
 	->fetchAssoc(['firstname', 'lastname', 'email'], function ($value) {
 	return array_map('strtoupper', $value);
 });
-// data length will be equals or lesser that 5 starting from the row index 3.
+// data length will be equals or lesser that 2 starting from the row index 3.
 // will return something like this :
 // 
 // [ 
+//   ['firstname' => 'JANE', 'lastname' => 'RAMANOV', 'email' => 'JANE.RAMANOV@EXAMPLE.COM'],
 //   ['firstname' => 'JOHN', 'lastname' => 'DOE', 'email' => 'JOHN.DOE@EXAMPLE.COM'],
-//   ['firstname' => 'JANE', 'lastname' => 'DOE', 'email' => 'JANE.DOE@EXAMPLE.COM'],
-//   ...
 // ]
 // 
 ```
-***Of note**:
+**Of note:**
 
-* After a call the the `fetch*` methods, the filtering data are flushed.
-* the filtering methods can be used in any sort of order.
-
+* After `fetch*` method call, the `offset`, `limit` properties as well as the filtering `callable` functions are cleared.
+* The methods can be call in any sort of order before any `fetch*` method call.
 
 Testing
 -------
