@@ -6,7 +6,7 @@
 * @copyright 2013 Ignace Nyamagana Butera
 * @link https://github.com/nyamsprod/Bakame.csv
 * @license http://opensource.org/licenses/MIT
-* @version 3.0.1
+* @version 3.2.0
 * @package Bakame.csv
 *
 * MIT LICENSE
@@ -41,27 +41,6 @@ namespace Bakame\Csv;
  */
 interface ReaderInterface
 {
-    /**
-     * Fetch on line of a CSV file as an array
-     *
-     * @param integer $rowIndex
-     *
-     * @return array
-     *
-     * @throws InvalidArgumentException If the $rowIndex is negative
-     */
-    public function fetchOne($rowIndex);
-
-    /**
-     * Return a single value from a given CSV line
-     *
-     * @param integer $rowIndex
-     * @param integer $fieldIndex
-     *
-     * @return string
-     */
-    public function fetchValue($rowIndex, $fieldIndex);
-
     /**
      * Return a sequential array of all CSV lines
      *

@@ -2,9 +2,10 @@
 
 namespace Bakame\Csv;
 
-use SplFileObject;
+use PHPUnit_Framework_TestCase;
+use SplTempFileObject;
 
-class ReaderTest extends \PHPUnit_Framework_TestCase
+class ReaderTest extends PHPUnit_Framework_TestCase
 {
     private $csv;
 
@@ -15,17 +16,7 @@ class ReaderTest extends \PHPUnit_Framework_TestCase
 
     public function setUp()
     {
-        $codec = new Codec;
-        $this->csv = $codec->save($this->expected, new SplFileObject('php://temp'));
-    }
-
-    /**
-     * @expectedException InvalidArgumentException
-     */
-    public function testFetchOne()
-    {
-        $this->assertSame($this->expected[0], $this->csv->fetchOne(0));
-        $this->csv->fetchOne(-3);
+        $this->csv = (new Codec)->save($this->expected, new SplTempFileObject);
     }
 
     /**
@@ -49,64 +40,74 @@ class ReaderTest extends \PHPUnit_Framework_TestCase
         $this->assertSame(array_map($func, $this->expected), $this->csv->fetchAll($func));
     }
 
-    /**
-     * @expectedException InvalidArgumentException
-     */
     public function testFetchAssoc()
     {
-        $func = function ($value) {
-            return array_map('strtoupper', $value);
-        };
         $keys = ['firstname', 'lastname', 'email'];
         $res = $this->csv->fetchAssoc($keys);
         foreach ($res as $index => $row) {
             $this->assertSame($keys, array_keys($row));
             $this->assertSame($this->expected[$index], array_values($row));
         }
+    }
+
+    public function testFetchAssocCallback()
+    {
+        $keys = ['firstname', 'lastname', 'email'];
+        $func = function ($value) {
+            return array_map('strtoupper', $value);
+        };
         $res = $this->csv->fetchAssoc($keys, $func);
-        foreach ($res as $index => $row) {
+        foreach ($res as $row) {
             $this->assertSame($keys, array_keys($row));
         }
+    }
 
+    public function testFetchAssocLessKeys()
+    {
         $keys = ['firstname'];
-
         $res = $this->csv->fetchAssoc($keys);
         $this->assertSame([['firstname' => 'john'], ['firstname' => 'jane']], $res);
+    }
 
+    public function testFetchAssocMoreKeys()
+    {
         $keys = ['firstname', 'lastname', 'email', 'age'];
         $res = $this->csv->fetchAssoc($keys);
 
-        foreach ($res as $index => $row) {
+        foreach ($res as $row) {
             $this->assertCount(4, array_values($row));
             $this->assertNull($row['age']);
         }
-
-        $this->csv->fetchAssoc([['firstname', 'lastname', 'email', 'age']]);
     }
 
     /**
      * @expectedException InvalidArgumentException
      */
+    public function testFetchKeyFailure()
+    {
+        $this->csv->fetchAssoc([['firstname', 'lastname', 'email', 'age']]);
+    }
+
     public function testFetchCol()
+    {
+        $this->assertSame(['john', 'jane'], $this->csv->fetchCol(0));
+    }
+
+    public function testFetchColCallback()
     {
         $func = function ($value) {
             return strtoupper($value);
         };
 
-        $this->assertSame(['john', 'jane'], $this->csv->fetchCol(0));
         $this->assertSame(['JOHN', 'JANE'], $this->csv->fetchCol(0, $func));
-        $this->csv->fetchCol('toto');
     }
 
     /**
      * @expectedException InvalidArgumentException
      */
-    public function testSetFlags()
+    public function testFetchColFailure()
     {
-        $this->csv->setFlags(SplFileObject::SKIP_EMPTY);
-        $this->assertSame(SplFileObject::SKIP_EMPTY, $this->csv->getFlags() & SplFileObject::SKIP_EMPTY);
-        $this->assertSame(SplFileObject::READ_CSV, $this->csv->getFlags() & SplFileObject::READ_CSV);
-        $this->csv->setFlags(-3);
+        $this->csv->fetchCol('toto');
     }
 
     public function testToString()
@@ -114,5 +115,124 @@ class ReaderTest extends \PHPUnit_Framework_TestCase
         $expected = "john,doe,john.doe@example.com".PHP_EOL
             ."jane,doe,jane.doe@example.com".PHP_EOL;
         $this->assertSame($expected, $this->csv->__toString());
+    }
+
+    /**
+     * @expectedException \InvalidArgumentException
+     */
+    public function testSetLimit()
+    {
+        $res = $this->csv->setLimit(1)->fetchAll();
+        $this->assertCount(1, $res);
+        $this->assertSame($this->expected[0], $res[0]);
+        $this->csv->setLimit(-4);
+    }
+
+    /**
+     * @expectedException \InvalidArgumentException
+     */
+    public function testSetOffset()
+    {
+        $res = $this->csv->setOffset(1)->fetchAll();
+        $this->assertInternalType('array', $res);
+        $this->assertCount(1, $res);
+        $this->assertSame($this->expected[1], $res[0]);
+        $this->csv->setOffset('toto');
+    }
+
+    public function testInterval()
+    {
+        $res = $this->csv->setOffset(0)->setLimit(1)->fetchAll();
+        $this->assertCount(1, $res);
+        $this->assertSame($this->expected[0], $res[0]);
+        $res = $this->csv->setOffset(0)->setLimit(20)->fetchAll();
+        $this->assertCount(2, $res);
+        $this->assertSame($this->expected, $res);
+        $res = $this->csv->setOffset(1)->setLimit(20)->fetchAll();
+        $this->assertCount(1, $res);
+        $this->assertSame($this->expected[1], $res[0]);
+    }
+
+    public function testOffsetGet()
+    {
+        $this->assertSame($this->expected[0], $this->csv->fetchOne(0));
+        //$this->assertSame($this->expected[1], $this->csv[1]);
+    }
+
+    /**
+     * @expectedException InvalidArgumentException
+     */
+    public function testOffsetGetFailure()
+    {
+        $this->csv[-3];
+    }
+
+    public function testOffsetExists()
+    {
+        $this->assertFalse(isset($this->csv[32]));
+    }
+
+    /**
+     * @expectedException \RuntimeException
+     */
+    public function testOffsetSet()
+    {
+        $this->csv[1] = ['toto', 'le', 'herisson'];
+    }
+
+    /**
+     * @expectedException \RuntimeException
+     */
+    public function testArrayOffsetUnset()
+    {
+        unset($this->csv[32]);
+    }
+
+    public function testFilter()
+    {
+        $func = function ($row) {
+            return is_array($row) && $row[0] == 'john';
+        };
+        $res = $this->csv->setFilter($func)->fetchAll();
+        $this->assertCount(1, $res);
+        $this->assertSame($this->expected[0], $res[0]);
+    }
+
+    public function testSortBy()
+    {
+        $func = function ($row1, $row2) {
+            if ($row1[0] == $row2[0]) {
+                return 0;
+            }
+
+            return ($row1[0] < $row2[0]) ? -1 : 1;
+        };
+        $res = $this->csv->setSortBy($func)->fetchAll();
+        $this->assertCount(2, $res);
+        $this->assertSame($this->expected[1], $res[0]);
+    }
+
+    public function testToHTML()
+    {
+        $expected = <<<EOF
+<table class="csv-data">
+<tr>
+<td>john</td>
+<td>doe</td>
+<td>john.doe@example.com</td>
+</tr>
+<tr>
+<td>jane</td>
+<td>doe</td>
+<td>jane.doe@example.com</td>
+</tr>
+</table>
+EOF;
+        $this->assertSame($expected, $this->csv->toHTML());
+    }
+
+    public function testJsonInterface()
+    {
+        $this->assertSame(json_encode($this->expected), json_encode($this->csv));
     }
 }

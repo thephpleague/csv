@@ -6,7 +6,7 @@
 * @copyright 2013 Ignace Nyamagana Butera
 * @link https://github.com/nyamsprod/Bakame.csv
 * @license http://opensource.org/licenses/MIT
-* @version 3.0.1
+* @version 3.2.0
 * @package Bakame.csv
 *
 * MIT LICENSE
@@ -56,11 +56,12 @@ class Codec
      * @param string $enclosure
      * @param string $escape
      */
-    public function __construct($delimiter = ',', $enclosure = '"', $escape = "\\")
+    public function __construct($delimiter = ',', $enclosure = '"', $escape = "\\", $flags = 0)
     {
         $this->setDelimiter($delimiter);
         $this->setEnclosure($enclosure);
         $this->setEscape($escape);
+        $this->setFlags($flags);
     }
 
     /**
@@ -75,7 +76,7 @@ class Codec
         $file = new SplTempFileObject();
         $file->fwrite($str);
 
-        return new Reader($file, $this->delimiter, $this->enclosure, $this->escape);
+        return new Reader($file, $this->delimiter, $this->enclosure, $this->escape, $this->flags);
     }
 
     /**
@@ -91,7 +92,8 @@ class Codec
             $this->create($path, $mode, ['r', 'r+', 'w+', 'x+', 'a+', 'c+']),
             $this->delimiter,
             $this->enclosure,
-            $this->escape
+            $this->escape,
+            $this->flags
         );
     }
 
@@ -112,7 +114,7 @@ class Codec
             $file->fputcsv($row);
         });
 
-        return new Reader($file, $this->delimiter, $this->enclosure, $this->escape);
+        return new Reader($file, $this->delimiter, $this->enclosure, $this->escape, $this->flags);
     }
 
     /**
@@ -174,13 +176,13 @@ class Codec
         $mode = $this->filterMode($mode, $include);
         if ($path instanceof SplFileInfo) {
             $file = $path->openFile($mode);
-            $file->setFlags(SplFileObject::READ_CSV);
+            $file->setFlags($this->flags);
             $file->setCsvControl($this->delimiter, $this->enclosure, $this->escape);
 
             return $file;
         } elseif (is_string($path)) {
             $file = new SplFileObject($path, $mode);
-            $file->setFlags(SplFileObject::READ_CSV);
+            $file->setFlags($this->flags);
             $file->setCsvControl($this->delimiter, $this->enclosure, $this->escape);
 
             return $file;
