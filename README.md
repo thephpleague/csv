@@ -35,7 +35,7 @@ Instantiation
 
 The easiest way to get started is to add `'/path/to/Bakame/Csv/src'` to your PSR-0 compliant Autoloader. Once added to the autoloader you can start manipulating CSV files as explain below:
 
-Loading and Saving CSV
+Loading and saving CSV
 -------
 
 Before manipulating you CSV data, you must first be able to load and save you CSV. In order to do so, the library provides you the `Bakame\Csv\Codec` class. Using this class is quiet straight forward and you can optionally set the CSV delimiter, enclosure and/or escape characters as well as the file flags on the constructor or by using the appropriate setter method.
