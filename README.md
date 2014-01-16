@@ -129,7 +129,7 @@ Just like for the `Bakame\Csv\Codec` class you can optionally set the CSV delimi
 
 If you still need to get access to the original `SplFileObject`, the `Bakame\Csv\Reader` lets you access it using the `Bakame\Csv\Reader::getFile` method.
 
-### Displaying the CSV
+### Displaying the data
 
 * The `Bakame\Csv\Reader::__toString` method returns the CSV content as it is written in the file.
 * The `Bakame\Csv\Reader::output` method returns to the output buffer the CSV content. This method can be use if you want the CSV to be downloaded by your user.
@@ -196,7 +196,7 @@ $data = $csv->fetchCol(2);
 
 **The methods listed above (`fetchAll`, `fetchAssoc`, `fetchCol`) can all take a optional `callable` argument to further manipulate each row before being returned.**
 
-### Filtering the CSV data
+### Filtering the data
 
 In order to filter the CSV data you can modify the `fetch*` methods output by specifying filtering options using the following methods:
 
