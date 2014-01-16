@@ -33,12 +33,10 @@
 namespace Bakame\Csv;
 
 use ArrayAccess;
-use ArrayObject;
 use CallbackFilterIterator;
 use DomDocument;
 use InvalidArgumentException;
 use JsonSerializable;
-use LimitIterator;
 use RuntimeException;
 use SplFileObject;
 
@@ -49,7 +47,7 @@ use SplFileObject;
  * @since  3.0.0
  *
  */
-class Reader implements ReaderInterface, ArrayAccess, JsonSerializable
+class Reader extends AbstractIteratorFilter implements ArrayAccess, JsonSerializable
 {
     use CsvControlsTrait;
 
@@ -59,34 +57,6 @@ class Reader implements ReaderInterface, ArrayAccess, JsonSerializable
      * @var SplFileObject
      */
     private $file;
-
-    /**
-     * CSV data Offset
-     *
-     * @var integer
-     */
-    private $offset = 0;
-
-    /**
-     * Result set maximum length
-     *
-     * @var integer
-     */
-    private $limit = -1;
-
-    /**
-     * Callable function to filter the CSV data
-     *
-     * @var callable
-     */
-    private $filter;
-
-    /**
-     * Callable function to sort the CSV data
-     *
-     * @var callable
-     */
-    private $sortBy;
 
     /**
      * The constructor
@@ -109,35 +79,15 @@ class Reader implements ReaderInterface, ArrayAccess, JsonSerializable
     }
 
     /**
-     * Validate a variable to be a positive integer or 0
-     * @param integer $rowIndex
-     *
-     * @return boolean
-     */
+    * Validate a variable to be a positive integer or 0
+    *
+    * @param integer $rowIndex
+    *
+    * @return boolean
+    */
     private static function isValidInteger($value)
     {
         return false !== filter_var($value, FILTER_VALIDATE_INT, ['options' => ['min_range' => 0]]);
-    }
-
-    /**
-     * Intelligent Array Combine
-     *
-     * @param array $keys
-     * @param array $value
-     *
-     * @return array
-     */
-    private static function combineKeyValue(array $keys, array $value)
-    {
-        $nbKeys = count($keys);
-        $diff = $nbKeys - count($value);
-        if ($diff > 0) {
-            $value = array_merge($value, array_fill(0, $diff, null));
-        } elseif ($diff < 0) {
-            $value = array_slice($value, 0, $nbKeys);
-        }
-
-        return array_combine($keys, $value);
     }
 
     /**
@@ -240,107 +190,9 @@ class Reader implements ReaderInterface, ArrayAccess, JsonSerializable
     }
 
     /**
-     * Set the CSV filter method
-     *
-     * @param callable $filter
-     *
-     * @return self
-     */
-    public function setFilter(callable $filter)
-    {
-        $this->filter = $filter;
-
-        return $this;
-    }
-
-    /**
-     * Set the CSV search result sort method
-     *
-     * @param callable $sort
-     *
-     * @return self
-     */
-    public function setSortBy(callable $sortBy)
-    {
-        $this->sortBy = $sortBy;
-
-        return $this;
-    }
-
-    /**
-     * Set Result Offset
-     *
-     * @param $offset
-     *
-     * @return self
-     */
-    public function setOffset($offset)
-    {
-        if (! self::isValidInteger($offset)) {
-            throw new InvalidArgumentException('the offset must be a positive integer or 0');
-        }
-        $this->offset = $offset;
-
-        return $this;
-    }
-
-    /**
-     * Set maximum result length
-     *
-     * @param integer $limit
-     *
-     * @return self
-     */
-    public function setLimit($limit)
-    {
-        if (false === filter_var($limit, FILTER_VALIDATE_INT, ['options' => ['min_range' => -1]])) {
-            throw new InvalidArgumentException('the limit must an integer greater or equals to -1');
-        }
-        $this->limit = $limit;
-
-        return $this;
-    }
-
-    /**
-     * result from fetching data from the CSV file
-     *
-     * @return Iterator
-     */
-    public function query()
-    {
-        $this->file->setCsvControl($this->delimiter, $this->enclosure, $this->escape);
-        $this->file->setFlags($this->flags);
-        $iterator = new CallbackFilterIterator($this->file, function ($row) {
-            return is_array($row);
-        });
-        if ($this->filter) {
-            $iterator = new CallbackFilterIterator($iterator, $this->filter);
-        }
-
-        if ($this->sortBy) {
-            $res = new ArrayObject(iterator_to_array($iterator));
-            $res->uasort($this->sortBy);
-            $iterator = $res->getIterator();
-            unset($res);
-        }
-
-        $offset = $this->offset;
-        $limit = ($this->limit > 0) ? $this->limit : -1;
-
-        $this->filter = null;
-        $this->sortBy = null;
-        $this->limit = -1;
-        $this->offset = 0;
-
-        return new LimitIterator($iterator, $offset, $limit);
-    }
-
-    /**
      * DEPRECATION WARNING! This method will be removed in the next major point release
      *
      * @deprecated  deprecated since version 3.2
-     *
-     * {@inheritdoc}
      */
     public function fetchOne($rowIndex)
     {
@@ -351,8 +203,6 @@ class Reader implements ReaderInterface, ArrayAccess, JsonSerializable
      * DEPRECATION WARNING! This method will be removed in the next major point release
      *
      * @deprecated  deprecated since version 3.2
-     *
-     * {@inheritdoc}
      */
     public function fetchValue($rowIndex, $columnIndex)
     {
@@ -365,6 +215,40 @@ class Reader implements ReaderInterface, ArrayAccess, JsonSerializable
         }
 
         return $res[$columnIndex];
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function prepare()
+    {
+        $this->file->setCsvControl($this->delimiter, $this->enclosure, $this->escape);
+        $this->file->setFlags($this->flags);
+
+        return new CallbackFilterIterator($this->file, function ($row) {
+            return is_array($row);
+        });
+    }
+
+    /**
+     * Intelligent Array Combine
+     *
+     * @param array $keys
+     * @param array $value
+     *
+     * @return array
+     */
+    private static function combineKeyValue(array $keys, array $value)
+    {
+        $nbKeys = count($keys);
+        $diff = $nbKeys - count($value);
+        if ($diff > 0) {
+            $value = array_merge($value, array_fill(0, $diff, null));
+        } elseif ($diff < 0) {
+            $value = array_slice($value, 0, $nbKeys);
+        }
+
+        return array_combine($keys, $value);
     }
 
     /**
