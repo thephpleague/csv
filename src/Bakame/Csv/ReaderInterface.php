@@ -42,27 +42,6 @@ namespace Bakame\Csv;
 interface ReaderInterface
 {
     /**
-     * Fetch on line of a CSV file as an array
-     *
-     * @param integer $rowIndex
-     *
-     * @return array
-     *
-     * @throws InvalidArgumentException If the $rowIndex is negative
-     */
-    public function fetchOne($rowIndex);
-
-    /**
-     * Return a single value from a given CSV line
-     *
-     * @param integer $rowIndex
-     * @param integer $fieldIndex
-     *
-     * @return string
-     */
-    public function fetchValue($rowIndex, $fieldIndex);
-
-    /**
      * Return a sequential array of all CSV lines
      *
      * @param callable $callable a callable function to be applied to each row to be return
