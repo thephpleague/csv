@@ -211,4 +211,28 @@ class ReaderTest extends PHPUnit_Framework_TestCase
         $this->assertCount(2, $res);
         $this->assertSame($this->expected[1], $res[0]);
     }
+
+    public function testToHTML()
+    {
+        $expected = <<<EOF
+<table class="csv-data">
+<tr>
+<td>john</td>
+<td>doe</td>
+<td>john.doe@example.com</td>
+</tr>
+<tr>
+<td>jane</td>
+<td>doe</td>
+<td>jane.doe@example.com</td>
+</tr>
+</table>
+EOF;
+        $this->assertSame($expected, $this->csv->toHTML());
+    }
+
+    public function testJsonInterface()
+    {
+        $this->assertSame(json_encode($this->expected), json_encode($this->csv));
+    }
 }

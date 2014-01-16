@@ -134,6 +134,8 @@ If you still need to get access to the original `SplFileObject`, the `Bakame\Csv
 
 * The `Bakame\Csv\Reader::__toString` method returns the CSV content as it is written in the file.
 * The `Bakame\Csv\Reader::output` method returns to the output buffer the CSV content. This method can be use if you want the CSV to be downloaded by your user.
+* The `Bakame\Csv\Reader::toHTML` method returns the CSV content formatted in a HTML Table, This methods accept an optional `classname` to help you customize the table rendering, by defaut the classname given to the table is `csv-data`.
+* The `Bakame\Csv\Reader` also implements the `jsonSerializable` interface so you can transform you CSV into a Json string using the `json_encode` function directly on the instantiated object.
 
 ### Traversing the CSV
 
@@ -209,12 +211,12 @@ In order to filter the CSV data you can modify the `fetch*` methods output by sp
 Here's an example:
 
 ```php
-function filterByEmail(array $row) 
+function filterByEmail($row) 
 {
 	return filer_var($row[2], FILTER_VALIDATE_EMAIL);
 }
 
-function sortByLastName(array $rowA, array $rowB)
+function sortByLastName($rowA, $rowB)
 {
 	return strcmp($rowB[1], $rowA[1]);
 }
@@ -240,6 +242,33 @@ $data = $csv
 
 * After `fetch*` method call, the `offset`, `limit` properties as well as the filtering `callable` functions are cleared.
 * The methods can be call in any sort of order before any `fetch*` method call.
+
+### Manual Filtering
+
+If you want to output differently you data you can use the `query` method. It works like the `fetch*` method but does not take any callable arguments and returns an `Iterator`.
+
+```php
+function filterByEmail($row) 
+{
+	return filer_var($row[2], FILTER_VALIDATE_EMAIL);
+}
+
+function sortByLastName($rowA, $rowB)
+{
+	return strcmp($rowB[1], $rowA[1]);
+}
+
+$iterator = $csv
+    ->setFilter('filterByEmail')
+    ->setSortBy('sortByLastName')
+    ->setOffset(3)
+    ->setLimit(2)
+	->query();
+```
+
+The return `$iterator` is a [Iterator][] that you may manipulate as you wish.
+
+[Iterator]: http://php.net/manual/en/class.iterator.php
 
 Testing
 -------

@@ -35,7 +35,10 @@ namespace Bakame\Csv;
 use ArrayAccess;
 use ArrayObject;
 use CallbackFilterIterator;
+use DomDocument;
 use InvalidArgumentException;
+use JsonSerializable;
+use LimitIterator;
 use RuntimeException;
 use SplFileObject;
 
@@ -46,7 +49,7 @@ use SplFileObject;
  * @since  3.0.0
  *
  */
-class Reader implements ReaderInterface, ArrayAccess
+class Reader implements ReaderInterface, ArrayAccess, JsonSerializable
 {
     use CsvControlsTrait;
 
@@ -148,6 +151,95 @@ class Reader implements ReaderInterface, ArrayAccess
     }
 
     /**
+     * Output all data on the CSV file
+     */
+    public function output()
+    {
+        $this->file->rewind();
+        $this->file->fpassthru();
+    }
+
+    /**
+     * Retrieves the CSV content
+     *
+     * @return string
+     */
+    public function __toString()
+    {
+        ob_start();
+        $this->output();
+
+        return ob_get_clean();
+    }
+
+    /**
+     * Return a HTML table representation of the CSV Table
+     *
+     * @param string $classname optional classname
+     *
+     * @return string
+     */
+    public function toHTML($classname = 'csv-data')
+    {
+        $doc = new DomDocument('1.0');
+        $table = $doc->createElement('table');
+        $table->setAttribute('class', $classname);
+        foreach ($this->file as $row) {
+            $tr = $doc->createElement('tr');
+            foreach ($row as $value) {
+                $tr->appendChild($doc->createElement('td', $value));
+            }
+            $table->appendChild($tr);
+        }
+
+        return $doc->saveHTML($table);
+    }
+
+    /**
+     * Json Serializable
+     */
+
+    public function jsonSerialize()
+    {
+        return iterator_to_array($this->file);
+    }
+
+    /**
+     *  Array Access
+     */
+
+    public function offsetGet($offset)
+    {
+        if (! self::isValidInteger($offset)) {
+            throw new InvalidArgumentException('the row index must be a positive integer or 0');
+        }
+        $this->file->setCsvControl($this->delimiter, $this->enclosure, $this->escape);
+        $this->file->setFlags($this->flags);
+        $this->file->seek($offset);
+        $res = $this->file->fgetcsv();
+        if (! is_array($res)) {
+            return [];
+        }
+
+        return $res;
+    }
+
+    public function offsetExists($offset)
+    {
+        return (bool) count($this->offsetGet($offset));
+    }
+
+    public function offsetSet($offset, $value)
+    {
+        throw new RuntimeException(__CLASS__ . ' can not modify the CSV data');
+    }
+
+    public function offsetUnset($offset)
+    {
+        throw new RuntimeException(__CLASS__ . ' can not modify the CSV data');
+    }
+
+    /**
      * Set the CSV filter method
      *
      * @param callable $filter
@@ -201,8 +293,8 @@ class Reader implements ReaderInterface, ArrayAccess
      */
     public function setLimit($limit)
     {
-        if (! self::isValidInteger($limit)) {
-            throw new InvalidArgumentException('the limit must be a positive integer or 0');
+        if (false === filter_var($limit, FILTER_VALIDATE_INT, ['options' => ['min_range' => -1]])) {
+            throw new InvalidArgumentException('the limit must an integer greater or equals to -1');
         }
         $this->limit = $limit;
 
@@ -210,17 +302,19 @@ class Reader implements ReaderInterface, ArrayAccess
     }
 
     /**
-     * Return the valid Iterator to operates search on
+     * result from fetching data from the CSV file
      *
      * @return Iterator
      */
-    private function fetchIterator()
+    public function query()
     {
         $this->file->setCsvControl($this->delimiter, $this->enclosure, $this->escape);
         $this->file->setFlags($this->flags);
-        $iterator = $this->file;
+        $iterator = new CallbackFilterIterator($this->file, function ($row) {
+            return is_array($row);
+        });
         if ($this->filter) {
-            $iterator = new CallbackFilterIterator($this->file, $this->filter);
+            $iterator = new CallbackFilterIterator($iterator, $this->filter);
         }
 
         if ($this->sortBy) {
@@ -231,47 +325,14 @@ class Reader implements ReaderInterface, ArrayAccess
         }
 
         $offset = $this->offset;
-        $limit = ($this->limit > 0) ? $this->limit + $offset : 0;
+        $limit = ($this->limit > 0) ? $this->limit : -1;
 
         $this->filter = null;
         $this->sortBy = null;
-        $this->limit = 0;
+        $this->limit = -1;
         $this->offset = 0;
 
-        return new CallbackFilterIterator($iterator, function ($row, $key) use ($offset, $limit) {
-            return is_array($row) && $key >= $offset && (! $limit || $key < $limit);
-        });
-    }
-
-    public function offsetGet($offset)
-    {
-        if (! self::isValidInteger($offset)) {
-            throw new InvalidArgumentException('the row index must be a positive integer or 0');
-        }
-        $this->file->setCsvControl($this->delimiter, $this->enclosure, $this->escape);
-        $this->file->setFlags($this->flags);
-        $this->file->seek($offset);
-        $res = $this->file->fgetcsv();
-        if (! is_array($res)) {
-            return [];
-        }
-
-        return $res;
-    }
-
-    public function offsetExists($offset)
-    {
-        return (bool) count($this->offsetGet($offset));
-    }
-
-    public function offsetSet($offset, $value)
-    {
-        throw new RuntimeException(__CLASS__ . ' can not modify the CSV data');
-    }
-
-    public function offsetUnset($offset)
-    {
-        throw new RuntimeException(__CLASS__ . ' can not modify the CSV data');
+        return new LimitIterator($iterator, $offset, $limit);
     }
 
     /**
@@ -312,15 +373,16 @@ class Reader implements ReaderInterface, ArrayAccess
     public function fetchAll(callable $callable = null)
     {
         $res = [];
+        $iterator = $this->query();
         if (is_null($callable)) {
-            foreach ($this->fetchIterator() as $row) {
+            foreach ($iterator as $row) {
                 $res[] = $row;
             }
 
             return $res;
         }
 
-        foreach ($this->fetchIterator() as $row) {
+        foreach ($iterator as $row) {
             $res[] = $callable($row);
         }
 
@@ -341,15 +403,16 @@ class Reader implements ReaderInterface, ArrayAccess
         }
 
         $res = [];
+        $iterator = $this->query();
         if (is_null($callable)) {
-            foreach ($this->fetchIterator() as $row) {
+            foreach ($iterator as $row) {
                 $res[] = self::combineKeyValue($keys, $row);
             }
 
             return $res;
         }
 
-        foreach ($this->fetchIterator() as $row) {
+        foreach ($iterator as $row) {
             $res[] = self::combineKeyValue($keys, $callable($row));
         }
 
@@ -365,40 +428,19 @@ class Reader implements ReaderInterface, ArrayAccess
             throw new InvalidArgumentException('the column index must be a positive integer or 0');
         }
 
+        $iterator = $this->query();
         if (is_null($callable)) {
-            foreach ($this->fetchIterator() as $row) {
+            foreach ($iterator as $row) {
                 $res[] = array_key_exists($columnIndex, $row) ? $row[$columnIndex] : null;
             }
 
             return $res;
         }
 
-        foreach ($this->fetchIterator() as $row) {
+        foreach ($iterator as $row) {
             $res[] = array_key_exists($columnIndex, $row) ? $callable($row[$columnIndex]) : null;
         }
 
         return $res;
-    }
-
-    /**
-     * Output all data on the CSV file
-     */
-    public function output()
-    {
-        $this->file->rewind();
-        $this->file->fpassthru();
-    }
-
-    /**
-     * Retrieves the CSV content
-     *
-     * @return string
-     */
-    public function __toString()
-    {
-        ob_start();
-        $this->output();
-
-        return ob_get_clean();
     }
 }
