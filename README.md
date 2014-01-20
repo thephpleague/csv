@@ -205,7 +205,7 @@ This callable function can take three parameters at most:
 In order to filter the CSV data you can modify the `fetch*` methods output by specifying filtering options using the following methods:
 
 * the `setFilter`method specifies an optional `callable` function to filter the CSV data. This function takes three parameters at most (see [CallbackFilterIterator][] for more informations)
-* the `setSortBy`method specifies an optional `callable` function to sort the CSV data. The function takes two parameters which will be filled by pairs of rows.***Beware when using this filter that you will be using `iterator_to_array` which could lead to performance penalty if you have a heavy CSV file to sort**
+* the `setSortBy`method specifies an optional `callable` function to sort the CSV data. The function takes two parameters which will be filled by pairs of rows. **Beware when using this filter that you will be using `iterator_to_array` which could lead to performance penalty if you have a heavy CSV file to sort**
 * the `setOffset` method specifies an optional offset for the return results.
 * the `setLimit` method specifies an optional maximum rows count for the return results.
 
