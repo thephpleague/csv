@@ -93,10 +93,23 @@ class ReaderTest extends PHPUnit_Framework_TestCase
         $this->assertSame(['john', 'jane'], $this->csv->fetchCol(0));
     }
 
+    public function testFetchColEmptyCol()
+    {
+        $raw = [
+            ['john', 'doe'],
+            ['lara', 'croft', 'lara.croft@example.com']
+        ];
+        $csv = (new Codec)->save($raw, new SplTempFileObject);
+        $res = $csv->fetchCol(2);
+        $this->assertInternalType('array', $res);
+        $this->assertCount(1, $res);
+        $this->assertSame(['lara.croft@example.com'], $res);
+    }
+
     public function testFetchColCallback()
     {
         $func = function ($value) {
-            return strtoupper($value);
+            return array_map('strtoupper', $value);
         };
 
         $this->assertSame(['JOHN', 'JANE'], $this->csv->fetchCol(0, $func));

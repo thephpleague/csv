@@ -1,5 +1,5 @@
 <?php
-/*
+/**
 * Bakame.csv - A lightweight CSV Coder/Decoder library
 *
 * @author Ignace Nyamagana Butera <nyamsprod@gmail.com>
@@ -36,6 +36,7 @@ use ArrayObject;
 use CallbackFilterIterator;
 use InvalidArgumentException;
 use LimitIterator;
+use Bakame\Csv\Iterator\MapIterator;
 
 /**
  *  A Reader to ease CSV parsing in PHP 5.4+
@@ -149,7 +150,7 @@ abstract class AbstractIteratorFilter
      *
      * @return Iterator
      */
-    public function query()
+    public function query(callable $callable = null)
     {
         $iterator = $this->prepare();
         if ($this->filter) {
@@ -171,6 +172,11 @@ abstract class AbstractIteratorFilter
         $this->limit = -1;
         $this->offset = 0;
 
-        return new LimitIterator($iterator, $offset, $limit);
+        $iterator = new LimitIterator($iterator, $offset, $limit);
+        if (! is_null($callable)) {
+            $iterator = new MapIterator($iterator, $callable);
+        }
+
+        return $iterator;
     }
 }

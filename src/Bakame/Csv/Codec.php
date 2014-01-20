@@ -109,10 +109,9 @@ class Codec
     public function save($data, $path, $mode = 'w')
     {
         $file = $this->create($path, $mode, ['r+', 'w', 'w+', 'x', 'x+', 'a', 'a+', 'c', 'c+']);
-        $data = $this->formatData($data);
-        array_walk($data, function ($row) use ($file) {
+        foreach ($this->formatData($data) as $row) {
             $file->fputcsv($row);
-        });
+        }
 
         return new Reader($file, $this->delimiter, $this->enclosure, $this->escape, $this->flags);
     }

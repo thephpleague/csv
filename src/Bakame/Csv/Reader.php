@@ -1,5 +1,5 @@
 <?php
-/*
+/**
 * Bakame.csv - A lightweight CSV Coder/Decoder library
 *
 * @author Ignace Nyamagana Butera <nyamsprod@gmail.com>
@@ -238,7 +238,7 @@ class Reader extends AbstractIteratorFilter implements ArrayAccess, JsonSerializ
      *
      * @return array
      */
-    private static function combineKeyValue(array $keys, array $value)
+    private static function combineArray(array $keys, array $value)
     {
         $nbKeys = count($keys);
         $diff = $nbKeys - count($value);
@@ -252,34 +252,36 @@ class Reader extends AbstractIteratorFilter implements ArrayAccess, JsonSerializ
     }
 
     /**
-     * {@inheritdoc}
+     * Return a sequential array of all CSV lines
+     *
+     * @param callable $callable a callable function to be applied to each row to be return
+     *
+     * @return array
      */
     public function fetchAll(callable $callable = null)
     {
         $res = [];
-        $iterator = $this->query();
-        if (is_null($callable)) {
-            foreach ($iterator as $row) {
-                $res[] = $row;
-            }
-
-            return $res;
-        }
-
-        foreach ($iterator as $row) {
-            $res[] = $callable($row);
+        foreach ($this->query($callable) as $row) {
+            $res[] = $row;
         }
 
         return $res;
     }
 
     /**
-     * {@inheritdoc}
+     * Return a sequential array of all CSV lines; the rows are presented as associated arrays
+     *
+     * @param array    $keys     the name for each key member
+     * @param callable $callable a callable function to be applied to each row to be return
+     *
+     * @return array
+     *
+     * @throws InvalidArgumentException If the submitted keys are not integer or strng
      */
     public function fetchAssoc(array $keys, callable $callable = null)
     {
         $validKeys = array_unique(array_filter($keys, function ($value) {
-            return is_string($value) || is_integer($value);
+            return is_scalar($value) || (is_object($value) && method_exists($value, '__toString'));
         }));
 
         if ($keys !== $validKeys) {
@@ -287,24 +289,22 @@ class Reader extends AbstractIteratorFilter implements ArrayAccess, JsonSerializ
         }
 
         $res = [];
-        $iterator = $this->query();
-        if (is_null($callable)) {
-            foreach ($iterator as $row) {
-                $res[] = self::combineKeyValue($keys, $row);
-            }
-
-            return $res;
-        }
-
-        foreach ($iterator as $row) {
-            $res[] = self::combineKeyValue($keys, $callable($row));
+        foreach ($this->query($callable) as $row) {
+            $res[] = self::combineArray($keys, $row);
         }
 
         return $res;
     }
 
     /**
-     * {@inheritdoc}
+     * Return a single column from the CSV data
+     *
+     * @param integer  $fieldIndex field Index
+     * @param callable $callable   a callable function to be applied to each value to be return
+     *
+     * @return array
+     *
+     * @throws InvalidArgumentException If the column index is not a positive integer or 0
      */
     public function fetchCol($columnIndex, callable $callable = null)
     {
@@ -312,17 +312,13 @@ class Reader extends AbstractIteratorFilter implements ArrayAccess, JsonSerializ
             throw new InvalidArgumentException('the column index must be a positive integer or 0');
         }
 
-        $iterator = $this->query();
-        if (is_null($callable)) {
-            foreach ($iterator as $row) {
-                $res[] = array_key_exists($columnIndex, $row) ? $row[$columnIndex] : null;
-            }
+        $iterator = new CallbackFilterIterator($this->query($callable), function ($row) use ($columnIndex) {
+            return array_key_exists($columnIndex, $row);
+        });
 
-            return $res;
-        }
-
+        $res = [];
         foreach ($iterator as $row) {
-            $res[] = array_key_exists($columnIndex, $row) ? $callable($row[$columnIndex]) : null;
+            $res[] = $row[$columnIndex];
         }
 
         return $res;
