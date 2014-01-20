@@ -70,6 +70,6 @@ class MapIterator extends IteratorIterator
     {
         $iterator = $this->getInnerIterator();
 
-        return call_user_func_array($this->callable, [$iterator->current(), $iterator->key(), $iterator]);
+        return $this->callable->__invoke($iterator->current(), $iterator->key(), $iterator);
     }
 }
