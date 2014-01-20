@@ -65,8 +65,6 @@ class MapIterator extends IteratorIterator
 
     /**
      * Get the value of the current element
-     *
-     * @return mixed
      */
     public function current()
     {

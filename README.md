@@ -117,11 +117,11 @@ $csv->setFlags(SplFileObject::READ_AHEAD|SplFileObject::SKIP_EMPTY);
 //or 
 
 $csv = new Reader(
-	new SpliFileObject('/path/to/your/csv/file.csv'), 
-	',',
-	'"',
-	'\\',
-	SplFileObject::READ_AHEAD|SplFileObject::SKIP_EMPTY
+    new SpliFileObject('/path/to/your/csv/file.csv'), 
+    ',',
+    '"',
+    '\\',
+    SplFileObject::READ_AHEAD|SplFileObject::SKIP_EMPTY
 );
 
 ```
@@ -194,7 +194,11 @@ $data = $csv->fetchCol(2);
 
 ```
 
-**The methods listed above (`fetchAll`, `fetchAssoc`, `fetchCol`) can all take a optional `callable` argument to further manipulate each row before being returned.**
+The methods listed above (`fetchAll`, `fetchAssoc`, `fetchCol`) can all take a optional `callable` argument to further manipulate each row before being returned. 
+This callable function can take three parameters at most:
+* the current inner iterator item
+* the current inner iterator key
+* and current inner iterator
 
 ### Filtering the data
 
@@ -212,12 +216,12 @@ Here's an example:
 ```php
 function filterByEmail($row) 
 {
-	return filer_var($row[2], FILTER_VALIDATE_EMAIL);
+    return filer_var($row[2], FILTER_VALIDATE_EMAIL);
 }
 
 function sortByLastName($rowA, $rowB)
 {
-	return strcmp($rowB[1], $rowA[1]);
+    return strcmp($rowB[1], $rowA[1]);
 }
 
 $data = $csv
@@ -225,8 +229,8 @@ $data = $csv
     ->setLimit(2)
     ->setFilter('filterByEmail')
     ->setSortBy('sortByLastName')
-	->fetchAssoc(['firstname', 'lastname', 'email'], function ($value) {
-	return array_map('strtoupper', $value);
+    ->fetchAssoc(['firstname', 'lastname', 'email'], function ($value) {
+    return array_map('strtoupper', $value);
 });
 // data length will be equals or lesser that 2 starting from the row index 3.
 // will return something like this :
@@ -239,22 +243,24 @@ $data = $csv
 ```
 **Of note:**
 
-* After `fetch*` method call, the `offset`, `limit` properties as well as the filtering `callable` functions are cleared.
+* After a `fetch*` method call, the `offset`, `limit` properties as well as all the `callable` functions are cleared.
 * The methods can be call in any sort of order before any `fetch*` method call.
 
 ### Manual Filtering
 
-If you want to output differently you data you can use the `query` method. It works like the `fetch*` method but does not take any callable arguments and returns an `Iterator`.
+If you want to output differently you data you can use the `query` method. It works like the `fetch*` method but returns an [Iterator][] that you may manipulate as you wish.
+
+[Iterator]: http://php.net/manual/en/class.iterator.php
 
 ```php
 function filterByEmail($row) 
 {
-	return filer_var($row[2], FILTER_VALIDATE_EMAIL);
+    return filer_var($row[2], FILTER_VALIDATE_EMAIL);
 }
 
 function sortByLastName($rowA, $rowB)
 {
-	return strcmp($rowB[1], $rowA[1]);
+    return strcmp($rowB[1], $rowA[1]);
 }
 
 $iterator = $csv
@@ -262,12 +268,10 @@ $iterator = $csv
     ->setSortBy('sortByLastName')
     ->setOffset(3)
     ->setLimit(2)
-	->query();
+    ->query(function ($value) {
+        return array_map('strtoupper', $value);
+    });
 ```
-
-The return `$iterator` is a [Iterator][] that you may manipulate as you wish.
-
-[Iterator]: http://php.net/manual/en/class.iterator.php
 
 Testing
 -------

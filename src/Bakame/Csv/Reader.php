@@ -39,6 +39,7 @@ use InvalidArgumentException;
 use JsonSerializable;
 use RuntimeException;
 use SplFileObject;
+use Bakame\Csv\Iterator\AbstractIteratorFilter;
 
 /**
  *  A Reader to ease CSV parsing in PHP 5.4+

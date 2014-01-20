@@ -30,13 +30,12 @@
 * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
-namespace Bakame\Csv;
+namespace Bakame\Csv\Iterator;
 
 use ArrayObject;
 use CallbackFilterIterator;
 use InvalidArgumentException;
 use LimitIterator;
-use Bakame\Csv\Iterator\MapIterator;
 
 /**
  *  A Reader to ease CSV parsing in PHP 5.4+
