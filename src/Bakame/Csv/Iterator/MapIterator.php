@@ -47,7 +47,7 @@ class MapIterator extends IteratorIterator
     /**
      * The function to be apply on all InnerIterator element
      *
-     * @var $callable
+     * @var callable
      */
     private $callable;
 
