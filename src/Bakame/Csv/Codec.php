@@ -155,7 +155,7 @@ class Codec
             }, $row);
         }
 
-        return explode($this->delimiter, (string) $row);
+        return str_getcsv((string) $row, $this->delimiter, $this->enclosure, $this->escape);
     }
 
     /**
