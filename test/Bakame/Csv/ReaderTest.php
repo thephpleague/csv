@@ -169,7 +169,7 @@ class ReaderTest extends PHPUnit_Framework_TestCase
     public function testOffsetGet()
     {
         $this->assertSame($this->expected[0], $this->csv->fetchOne(0));
-        //$this->assertSame($this->expected[1], $this->csv[1]);
+        $this->assertSame($this->expected[1], $this->csv[1]);
     }
 
     /**
@@ -228,7 +228,7 @@ class ReaderTest extends PHPUnit_Framework_TestCase
     public function testToHTML()
     {
         $expected = <<<EOF
-<table class="csv-data">
+<table class="table-csv-data">
 <tr>
 <td>john</td>
 <td>doe</td>

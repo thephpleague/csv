@@ -37,6 +37,7 @@ use SplFileObject;
 use SplTempFileObject;
 use Traversable;
 use InvalidArgumentException;
+use Bakame\Csv\Traits\CsvControls;
 
 /**
  *  A simple Coder/Decoder to ease CSV management in PHP 5.4+
@@ -47,7 +48,7 @@ use InvalidArgumentException;
  */
 class Codec
 {
-    use CsvControlsTrait;
+    use CsvControls;
 
     /**
      * The constructor

@@ -6,7 +6,7 @@
 * @copyright 2013 Ignace Nyamagana Butera
 * @link https://github.com/nyamsprod/Bakame.csv
 * @license http://opensource.org/licenses/MIT
-* @version 3.2.0
+* @version 3.3.0
 * @package Bakame.csv
 *
 * MIT LICENSE
@@ -41,7 +41,7 @@ use LimitIterator;
  *  A Reader to ease CSV parsing in PHP 5.4+
  *
  * @package Bakame.csv
- * @since  3.0.0
+ * @since  3.3.0
  *
  */
 abstract class AbstractIteratorFilter
@@ -154,6 +154,7 @@ abstract class AbstractIteratorFilter
         $iterator = $this->prepare();
         if ($this->filter) {
             $iterator = new CallbackFilterIterator($iterator, $this->filter);
+            $this->filter = null;
         }
 
         if ($this->sortBy) {
@@ -161,13 +162,14 @@ abstract class AbstractIteratorFilter
             $res->uasort($this->sortBy);
             $iterator = $res->getIterator();
             unset($res);
+            $this->sortBy = null;
         }
 
         $offset = $this->offset;
-        $limit = ($this->limit > 0) ? $this->limit : -1;
-
-        $this->filter = null;
-        $this->sortBy = null;
+        $limit = -1;
+        if ($this->limit > 0) {
+            $limit = $this->limit;
+        }
         $this->limit = -1;
         $this->offset = 0;
 

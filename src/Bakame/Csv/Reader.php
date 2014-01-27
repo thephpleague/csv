@@ -34,12 +34,14 @@ namespace Bakame\Csv;
 
 use ArrayAccess;
 use CallbackFilterIterator;
-use DomDocument;
 use InvalidArgumentException;
 use JsonSerializable;
+use LimitIterator;
 use RuntimeException;
 use SplFileObject;
 use Bakame\Csv\Iterator\AbstractIteratorFilter;
+use Bakame\Csv\Traits\CsvControls;
+use Bakame\Csv\Traits\CsvOutput;
 
 /**
  *  A Reader to ease CSV parsing in PHP 5.4+
@@ -50,14 +52,8 @@ use Bakame\Csv\Iterator\AbstractIteratorFilter;
  */
 class Reader extends AbstractIteratorFilter implements ArrayAccess, JsonSerializable
 {
-    use CsvControlsTrait;
-
-    /**
-     * The CSV file Object
-     *
-     * @var SplFileObject
-     */
-    private $file;
+    use CsvControls;
+    use CsvOutput;
 
     /**
      * The constructor
@@ -92,70 +88,6 @@ class Reader extends AbstractIteratorFilter implements ArrayAccess, JsonSerializ
     }
 
     /**
-     * Return the current associated file
-     *
-     * @return SplFileObject
-     */
-    public function getFile()
-    {
-        return $this->file;
-    }
-
-    /**
-     * Output all data on the CSV file
-     */
-    public function output()
-    {
-        $this->file->rewind();
-        $this->file->fpassthru();
-    }
-
-    /**
-     * Retrieves the CSV content
-     *
-     * @return string
-     */
-    public function __toString()
-    {
-        ob_start();
-        $this->output();
-
-        return ob_get_clean();
-    }
-
-    /**
-     * Return a HTML table representation of the CSV Table
-     *
-     * @param string $classname optional classname
-     *
-     * @return string
-     */
-    public function toHTML($classname = 'csv-data')
-    {
-        $doc = new DomDocument('1.0');
-        $table = $doc->createElement('table');
-        $table->setAttribute('class', $classname);
-        foreach ($this->file as $row) {
-            $tr = $doc->createElement('tr');
-            foreach ($row as $value) {
-                $tr->appendChild($doc->createElement('td', $value));
-            }
-            $table->appendChild($tr);
-        }
-
-        return $doc->saveHTML($table);
-    }
-
-    /**
-     * Json Serializable
-     */
-
-    public function jsonSerialize()
-    {
-        return iterator_to_array($this->file);
-    }
-
-    /**
      *  Array Access
      */
 
@@ -164,10 +96,10 @@ class Reader extends AbstractIteratorFilter implements ArrayAccess, JsonSerializ
         if (! self::isValidInteger($offset)) {
             throw new InvalidArgumentException('the row index must be a positive integer or 0');
         }
-        $this->file->setCsvControl($this->delimiter, $this->enclosure, $this->escape);
-        $this->file->setFlags($this->flags);
-        $this->file->seek($offset);
-        $res = $this->file->fgetcsv();
+        $iterator = $this->prepare();
+        $iterator = new LimitIterator($iterator, $offset, 1);
+        $iterator->rewind();
+        $res = $iterator->getInnerIterator()->current();
         if (! is_array($res)) {
             return [];
         }
@@ -313,7 +245,8 @@ class Reader extends AbstractIteratorFilter implements ArrayAccess, JsonSerializ
             throw new InvalidArgumentException('the column index must be a positive integer or 0');
         }
 
-        $iterator = new CallbackFilterIterator($this->query($callable), function ($row) use ($columnIndex) {
+        $iterator = $this->query($callable);
+        $iterator = new CallbackFilterIterator($iterator, function ($row) use ($columnIndex) {
             return array_key_exists($columnIndex, $row);
         });
 

@@ -30,7 +30,7 @@
 * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
-namespace Bakame\Csv;
+namespace Bakame\Csv\Traits;
 
 use InvalidArgumentException;
 use SplFileObject;
@@ -42,7 +42,7 @@ use SplFileObject;
  * @since  3.0.0
  *
  */
-trait CsvControlsTrait
+trait CsvControls
 {
     /**
      * the field delimiter (one character only)
