@@ -115,6 +115,14 @@ class ReaderTest extends PHPUnit_Framework_TestCase
         $this->assertNull($res[0][2]);
     }
 
+    /**
+     * @expectedException InvalidArgumentException
+     */
+    public function testFailCreateFromString()
+    {
+        Reader::createFromString(new \DateTime);
+    }
+
     public function testFetchColCallback()
     {
         $func = function ($value) {

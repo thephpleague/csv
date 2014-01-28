@@ -98,13 +98,20 @@ class Reader extends AbstractIteratorFilter implements
      * @param integer $flags     Optional \SplFileObject constant flags
      *
      * @return self
+     *
+     * @throws \InvalidArgumentException If the data provided is invalid
      */
     public static function createFromString($str, $delimiter = ',', $enclosure = '"', $escape = "\\", $flags = 0)
     {
-        $csv = new SplTempFileObject;
-        $csv->fwrite($str);
+        if (is_string($str) || (is_object($str) && method_exists($str, '__toString'))) {
+            $csv = new SplTempFileObject;
+            $csv->fwrite((string) $str);
 
-        return new static($csv, $delimiter, $enclosure, $escape, $flags);
+            return new static($csv, $delimiter, $enclosure, $escape, $flags);
+        }
+        throw new InvalidArgumentException(
+            'the submitted data must be a string or an object implementing the `__toString` method'
+        );
     }
 
     /**
