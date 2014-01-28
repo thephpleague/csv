@@ -19,6 +19,11 @@ class ReaderTest extends PHPUnit_Framework_TestCase
         $this->csv = (new Codec)->save($this->expected, new SplTempFileObject);
     }
 
+    public function testIterator()
+    {
+        $this->assertEquals($this->csv->getIterator(), $this->csv->getFile());
+    }
+
     /**
      * @expectedException InvalidArgumentException
      */
@@ -93,10 +98,35 @@ class ReaderTest extends PHPUnit_Framework_TestCase
         $this->assertSame(['john', 'jane'], $this->csv->fetchCol(0));
     }
 
+    public function testFetchColEmptyCol()
+    {
+        $raw = [
+            ['john', 'doe'],
+            ['lara', 'croft', 'lara.croft@example.com']
+        ];
+        $csv = (new Codec)->save($raw, new SplTempFileObject);
+        $res = $csv->fetchCol(2, null, true);
+        $this->assertInternalType('array', $res);
+        $this->assertCount(1, $res);
+        $this->assertSame(['lara.croft@example.com'], $res);
+        $res = $csv->fetchCol(2);
+        $this->assertInternalType('array', $res);
+        $this->assertCount(2, $res);
+        $this->assertNull($res[0][2]);
+    }
+
+    /**
+     * @expectedException InvalidArgumentException
+     */
+    public function testFailCreateFromString()
+    {
+        Reader::createFromString(new \DateTime);
+    }
+
     public function testFetchColCallback()
     {
         $func = function ($value) {
-            return strtoupper($value);
+            return array_map('strtoupper', $value);
         };
 
         $this->assertSame(['JOHN', 'JANE'], $this->csv->fetchCol(0, $func));
@@ -156,7 +186,7 @@ class ReaderTest extends PHPUnit_Framework_TestCase
     public function testOffsetGet()
     {
         $this->assertSame($this->expected[0], $this->csv->fetchOne(0));
-        //$this->assertSame($this->expected[1], $this->csv[1]);
+        $this->assertSame($this->expected[1], $this->csv[1]);
     }
 
     /**
@@ -215,7 +245,7 @@ class ReaderTest extends PHPUnit_Framework_TestCase
     public function testToHTML()
     {
         $expected = <<<EOF
-<table class="csv-data">
+<table class="table-csv-data">
 <tr>
 <td>john</td>
 <td>doe</td>

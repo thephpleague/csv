@@ -3,10 +3,10 @@
 * Bakame.csv - A lightweight CSV Coder/Decoder library
 *
 * @author Ignace Nyamagana Butera <nyamsprod@gmail.com>
-* @copyright 2013 Ignace Nyamagana Butera
+* @copyright 2014 Ignace Nyamagana Butera
 * @link https://github.com/nyamsprod/Bakame.csv
 * @license http://opensource.org/licenses/MIT
-* @version 3.2.0
+* @version 3.3.0
 * @package Bakame.csv
 *
 * MIT LICENSE
@@ -34,9 +34,9 @@ namespace Bakame\Csv;
 
 use SplFileInfo;
 use SplFileObject;
-use SplTempFileObject;
 use Traversable;
 use InvalidArgumentException;
+use Bakame\Csv\Traits\CsvControls;
 
 /**
  *  A simple Coder/Decoder to ease CSV management in PHP 5.4+
@@ -47,7 +47,7 @@ use InvalidArgumentException;
  */
 class Codec
 {
-    use CsvControlsTrait;
+    use CsvControls;
 
     /**
      * The constructor
@@ -69,14 +69,17 @@ class Codec
      *
      * @param string $str the csv content string
      *
-     * @return \SplTempFileObject
+     * @return \Bakame\Csv\Reader
      */
     public function loadString($str)
     {
-        $file = new SplTempFileObject();
-        $file->fwrite($str);
-
-        return new Reader($file, $this->delimiter, $this->enclosure, $this->escape, $this->flags);
+        return Reader::createFromString(
+            $str,
+            $this->delimiter,
+            $this->enclosure,
+            $this->escape,
+            $this->flags
+        );
     }
 
     /**
@@ -84,7 +87,7 @@ class Codec
      *
      * @param string $str the file path
      *
-     * @return \SplFileObject
+     * @return \Bakame\Csv\Reader
      */
     public function loadFile($path, $mode = 'r')
     {
@@ -104,15 +107,14 @@ class Codec
      * @param string|\SplFileInfo $path where to save the data (String Path or SplFileInfo Instance)
      * @param string              $mode specifies the type of access you require to the file
      *
-     * @return \SplFileObject
+     * @return \Bakame\Csv\Reader
      */
     public function save($data, $path, $mode = 'w')
     {
         $file = $this->create($path, $mode, ['r+', 'w', 'w+', 'x', 'x+', 'a', 'a+', 'c', 'c+']);
-        $data = $this->formatData($data);
-        array_walk($data, function ($row) use ($file) {
+        foreach ($this->formatData($data) as $row) {
             $file->fputcsv($row);
-        });
+        }
 
         return new Reader($file, $this->delimiter, $this->enclosure, $this->escape, $this->flags);
     }
@@ -156,7 +158,7 @@ class Codec
             }, $row);
         }
 
-        return explode($this->delimiter, (string) $row);
+        return str_getcsv((string) $row, $this->delimiter, $this->enclosure, $this->escape);
     }
 
     /**

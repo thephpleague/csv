@@ -1,12 +1,12 @@
 <?php
-/*
+/**
 * Bakame.csv - A lightweight CSV Coder/Decoder library
 *
 * @author Ignace Nyamagana Butera <nyamsprod@gmail.com>
-* @copyright 2013 Ignace Nyamagana Butera
+* @copyright 2014 Ignace Nyamagana Butera
 * @link https://github.com/nyamsprod/Bakame.csv
 * @license http://opensource.org/licenses/MIT
-* @version 3.2.0
+* @version 3.3.0
 * @package Bakame.csv
 *
 * MIT LICENSE
@@ -30,43 +30,71 @@
 * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
-namespace Bakame\Csv;
+namespace Bakame\Csv\Traits;
+
+use DomDocument;
 
 /**
- *
- * Interface of CSV Reading
+ *  A Reader to ease CSV parsing in PHP 5.4+
  *
  * @package Bakame.csv
- * @since  3.0.0
+ * @since  3.3.0
+ *
  */
-interface ReaderInterface
+trait CsvOutput
 {
-    /**
-     * Return a sequential array of all CSV lines
-     *
-     * @param callable $callable a callable function to be applied to each row to be return
-     *
-     * @return array
-     */
-    public function fetchAll(callable $callable = null);
 
     /**
-     * Return a sequential array of all CSV lines; the rows are presented as associated arrays
-     *
-     * @param array    $keys     the name for each key member
-     * @param callable $callable a callable function to be applied to each row to be return
-     *
-     * @return array
+     * Output all data on the CSV file
      */
-    public function fetchAssoc(array $keys, callable $callable = null);
+    public function output()
+    {
+        $this->csv->rewind();
+        $this->csv->fpassthru();
+    }
 
     /**
-     * Return a single column from the CSV data
+     * Retrieves the CSV content
      *
-     * @param integer  $fieldIndex field Index
-     * @param callable $callable   a callable function to be applied to each value to be return
-     *
-     * @return array
+     * @return string
      */
-    public function fetchCol($fieldIndex, callable $callable = null);
+    public function __toString()
+    {
+        ob_start();
+        $this->output();
+
+        return ob_get_clean();
+    }
+
+    /**
+     * Return a HTML table representation of the CSV Table
+     *
+     * @param string $classname optional classname
+     *
+     * @return string
+     */
+    public function toHTML($classname = 'table-csv-data')
+    {
+        $doc = new DomDocument('1.0');
+        $table = $doc->createElement('table');
+        $table->setAttribute('class', $classname);
+        foreach ($this->csv as $row) {
+            $tr = $doc->createElement('tr');
+            foreach ($row as $value) {
+                $tr->appendChild($doc->createElement('td', $value));
+            }
+            $table->appendChild($tr);
+        }
+
+        return $doc->saveHTML($table);
+    }
+
+    /**
+     * Json Serializable
+     */
+
+    public function jsonSerialize()
+    {
+        return iterator_to_array($this->csv);
+    }
 }
