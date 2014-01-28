@@ -19,6 +19,11 @@ class ReaderTest extends PHPUnit_Framework_TestCase
         $this->csv = (new Codec)->save($this->expected, new SplTempFileObject);
     }
 
+    public function testIterator()
+    {
+        $this->assertEquals($this->csv->getIterator(), $this->csv->getFile());
+    }
+
     /**
      * @expectedException InvalidArgumentException
      */
@@ -100,10 +105,14 @@ class ReaderTest extends PHPUnit_Framework_TestCase
             ['lara', 'croft', 'lara.croft@example.com']
         ];
         $csv = (new Codec)->save($raw, new SplTempFileObject);
-        $res = $csv->fetchCol(2);
+        $res = $csv->fetchCol(2, null, true);
         $this->assertInternalType('array', $res);
         $this->assertCount(1, $res);
         $this->assertSame(['lara.croft@example.com'], $res);
+        $res = $csv->fetchCol(2);
+        $this->assertInternalType('array', $res);
+        $this->assertCount(2, $res);
+        $this->assertNull($res[0][2]);
     }
 
     public function testFetchColCallback()

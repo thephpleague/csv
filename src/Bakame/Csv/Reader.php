@@ -3,10 +3,10 @@
 * Bakame.csv - A lightweight CSV Coder/Decoder library
 *
 * @author Ignace Nyamagana Butera <nyamsprod@gmail.com>
-* @copyright 2013 Ignace Nyamagana Butera
+* @copyright 2014 Ignace Nyamagana Butera
 * @link https://github.com/nyamsprod/Bakame.csv
 * @license http://opensource.org/licenses/MIT
-* @version 3.2.0
+* @version 3.3.0
 * @package Bakame.csv
 *
 * MIT LICENSE
@@ -35,11 +35,14 @@ namespace Bakame\Csv;
 use ArrayAccess;
 use CallbackFilterIterator;
 use InvalidArgumentException;
+use IteratorAggregate;
 use JsonSerializable;
 use LimitIterator;
 use RuntimeException;
 use SplFileObject;
+use SplTempFileObject;
 use Bakame\Csv\Iterator\AbstractIteratorFilter;
+use Bakame\Csv\Iterator\MapIterator;
 use Bakame\Csv\Traits\CsvControls;
 use Bakame\Csv\Traits\CsvOutput;
 
@@ -50,19 +53,29 @@ use Bakame\Csv\Traits\CsvOutput;
  * @since  3.0.0
  *
  */
-class Reader extends AbstractIteratorFilter implements ArrayAccess, JsonSerializable
+class Reader extends AbstractIteratorFilter implements
+    IteratorAggregate,
+    ArrayAccess,
+    JsonSerializable
 {
     use CsvControls;
     use CsvOutput;
 
     /**
+     * The CSV file Object
+     *
+     * @var \SplFileObject
+     */
+    private $csv;
+
+    /**
      * The constructor
      *
-     * @param SplFileObject $file      The CSV file Object
-     * @param string        $delimiter Optional CSV file delimiter character
-     * @param string        $enclosure Optional CSV file enclosure character
-     * @param string        $escape    Optional CSV file escape character
-     * @param integer       $flags     Optional SplFileObject constant flags
+     * @param \SplFileObject $file      The CSV file Object
+     * @param string         $delimiter Optional CSV file delimiter character
+     * @param string         $enclosure Optional CSV file enclosure character
+     * @param string         $escape    Optional CSV file escape character
+     * @param integer        $flags     Optional \SplFileObject constant flags
      */
     public function __construct(SplFileObject $file, $delimiter = ',', $enclosure = '"', $escape = "\\", $flags = 0)
     {
@@ -70,9 +83,28 @@ class Reader extends AbstractIteratorFilter implements ArrayAccess, JsonSerializ
         $this->setEnclosure($enclosure);
         $this->setEscape($escape);
         $this->setFlags($flags);
-        $this->file = $file;
-        $this->file->setCsvControl($this->delimiter, $this->enclosure, $this->escape);
-        $this->file->setFlags($this->flags);
+        $this->csv = $file;
+        $this->csv->setCsvControl($this->delimiter, $this->enclosure, $this->escape);
+        $this->csv->setFlags($this->flags);
+    }
+
+    /**
+     * Create a \Bakame\Csv\Reader from a string
+     *
+     * @param string  $str       The CSV data as string
+     * @param string  $delimiter Optional CSV file delimiter character
+     * @param string  $enclosure Optional CSV file enclosure character
+     * @param string  $escape    Optional CSV file escape character
+     * @param integer $flags     Optional \SplFileObject constant flags
+     *
+     * @return self
+     */
+    public static function createFromString($str, $delimiter = ',', $enclosure = '"', $escape = "\\", $flags = 0)
+    {
+        $csv = new SplTempFileObject;
+        $csv->fwrite($str);
+
+        return new static($csv, $delimiter, $enclosure, $escape, $flags);
     }
 
     /**
@@ -88,7 +120,16 @@ class Reader extends AbstractIteratorFilter implements ArrayAccess, JsonSerializ
     }
 
     /**
-     *  Array Access
+     *  \IteratorAggregate Interface
+     */
+
+    public function getIterator()
+    {
+        return $this->csv;
+    }
+
+    /**
+     *  \ArrayAccess Interface
      */
 
     public function offsetGet($offset)
@@ -125,6 +166,18 @@ class Reader extends AbstractIteratorFilter implements ArrayAccess, JsonSerializ
     /**
      * DEPRECATION WARNING! This method will be removed in the next major point release
      *
+     * @deprecated  deprecated since version 3.3
+     *
+     * @return \SplFileObject
+     */
+    public function getFile()
+    {
+        return $this->csv;
+    }
+
+    /**
+     * DEPRECATION WARNING! This method will be removed in the next major point release
+     *
      * @deprecated  deprecated since version 3.2
      */
     public function fetchOne($rowIndex)
@@ -155,10 +208,10 @@ class Reader extends AbstractIteratorFilter implements ArrayAccess, JsonSerializ
      */
     protected function prepare()
     {
-        $this->file->setCsvControl($this->delimiter, $this->enclosure, $this->escape);
-        $this->file->setFlags($this->flags);
+        $this->csv->setCsvControl($this->delimiter, $this->enclosure, $this->escape);
+        $this->csv->setFlags($this->flags);
 
-        return new CallbackFilterIterator($this->file, function ($row) {
+        return new CallbackFilterIterator($this->csv, function ($row) {
             return is_array($row);
         });
     }
@@ -209,7 +262,7 @@ class Reader extends AbstractIteratorFilter implements ArrayAccess, JsonSerializ
      *
      * @return array
      *
-     * @throws InvalidArgumentException If the submitted keys are not integer or strng
+     * @throws \InvalidArgumentException If the submitted keys are not integer or strng
      */
     public function fetchAssoc(array $keys, callable $callable = null)
     {
@@ -234,21 +287,32 @@ class Reader extends AbstractIteratorFilter implements ArrayAccess, JsonSerializ
      *
      * @param integer  $fieldIndex field Index
      * @param callable $callable   a callable function to be applied to each value to be return
+     * @param boolean  $strict     if true will remove undefined column from result set
      *
      * @return array
      *
-     * @throws InvalidArgumentException If the column index is not a positive integer or 0
+     * @throws \InvalidArgumentException If the column index is not a positive integer or 0
      */
-    public function fetchCol($columnIndex, callable $callable = null)
+    public function fetchCol($columnIndex, callable $callable = null, $strict = false)
     {
         if (! self::isValidInteger($columnIndex)) {
             throw new InvalidArgumentException('the column index must be a positive integer or 0');
         }
 
         $iterator = $this->query($callable);
-        $iterator = new CallbackFilterIterator($iterator, function ($row) use ($columnIndex) {
-            return array_key_exists($columnIndex, $row);
-        });
+        if ($strict) {
+            $iterator = new CallbackFilterIterator($iterator, function ($row) use ($columnIndex) {
+                return array_key_exists($columnIndex, $row);
+            });
+        } else {
+            $iterator = new MapIterator($iterator, function ($row) use ($columnIndex) {
+                if (! array_key_exists($columnIndex, $row)) {
+                    $row[$columnIndex] = null;
+                }
+
+                return $row;
+            });
+        }
 
         $res = [];
         foreach ($iterator as $row) {
