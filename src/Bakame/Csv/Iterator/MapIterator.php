@@ -3,7 +3,7 @@
 * Bakame.csv - A lightweight CSV Coder/Decoder library
 *
 * @author Ignace Nyamagana Butera <nyamsprod@gmail.com>
-* @copyright 2013 Ignace Nyamagana Butera
+* @copyright 2014 Ignace Nyamagana Butera
 * @link https://github.com/nyamsprod/Bakame.csv
 * @license http://opensource.org/licenses/MIT
 * @version 3.3.0
@@ -69,7 +69,8 @@ class MapIterator extends IteratorIterator
     public function current()
     {
         $iterator = $this->getInnerIterator();
+        $callable = $this->callable;
 
-        return $this->callable->__invoke($iterator->current(), $iterator->key(), $iterator);
+        return $callable($iterator->current(), $iterator->key(), $iterator);
     }
 }

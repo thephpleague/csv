@@ -20,7 +20,7 @@ class CodecTest extends \PHPUnit_Framework_TestCase
         $str = "foo,bar,baz\nfoo,bar,baz";
         $res = $this->codec->loadString($str);
         $this->assertInstanceof('\Bakame\Csv\Reader', $res);
-        foreach ($res->getFile() as $row) {
+        foreach ($res as $row) {
             $this->assertSame($expected, $row);
         }
     }
@@ -30,7 +30,7 @@ class CodecTest extends \PHPUnit_Framework_TestCase
         $file = __DIR__.'/foo.csv';
         $res = $this->codec->loadFile($file);
         $this->assertInstanceof('\Bakame\Csv\Reader', $res);
-        $this->assertSame($file, $res->getFile()->getRealPath());
+        $this->assertSame($file, $res->getIterator()->getRealPath());
     }
 
     /**

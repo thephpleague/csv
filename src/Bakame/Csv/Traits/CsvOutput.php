@@ -3,7 +3,7 @@
 * Bakame.csv - A lightweight CSV Coder/Decoder library
 *
 * @author Ignace Nyamagana Butera <nyamsprod@gmail.com>
-* @copyright 2013 Ignace Nyamagana Butera
+* @copyright 2014 Ignace Nyamagana Butera
 * @link https://github.com/nyamsprod/Bakame.csv
 * @license http://opensource.org/licenses/MIT
 * @version 3.3.0
@@ -33,7 +33,6 @@
 namespace Bakame\Csv\Traits;
 
 use DomDocument;
-use SplFileObject;
 
 /**
  *  A Reader to ease CSV parsing in PHP 5.4+
@@ -44,30 +43,14 @@ use SplFileObject;
  */
 trait CsvOutput
 {
-    /**
-     * The CSV file Object
-     *
-     * @var \SplFileObject
-     */
-    protected $file;
-
-    /**
-     * Return the current associated file
-     *
-     * @return \SplFileObject
-     */
-    public function getFile()
-    {
-        return $this->file;
-    }
 
     /**
      * Output all data on the CSV file
      */
     public function output()
     {
-        $this->file->rewind();
-        $this->file->fpassthru();
+        $this->csv->rewind();
+        $this->csv->fpassthru();
     }
 
     /**
@@ -95,7 +78,7 @@ trait CsvOutput
         $doc = new DomDocument('1.0');
         $table = $doc->createElement('table');
         $table->setAttribute('class', $classname);
-        foreach ($this->file as $row) {
+        foreach ($this->csv as $row) {
             $tr = $doc->createElement('tr');
             foreach ($row as $value) {
                 $tr->appendChild($doc->createElement('td', $value));
@@ -112,6 +95,6 @@ trait CsvOutput
 
     public function jsonSerialize()
     {
-        return iterator_to_array($this->file);
+        return iterator_to_array($this->csv);
     }
 }

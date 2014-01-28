@@ -3,7 +3,7 @@
 * Bakame.csv - A lightweight CSV Coder/Decoder library
 *
 * @author Ignace Nyamagana Butera <nyamsprod@gmail.com>
-* @copyright 2013 Ignace Nyamagana Butera
+* @copyright 2014 Ignace Nyamagana Butera
 * @link https://github.com/nyamsprod/Bakame.csv
 * @license http://opensource.org/licenses/MIT
 * @version 3.2.0

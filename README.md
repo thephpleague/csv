@@ -145,6 +145,14 @@ $row = $csv[5]; //accessing the 6th row;
 ``` 
 **The `Bakame\Csv\Reader` can not modify the CSV content so if you try to set/delete/update a row you'll get a `RuntimeException` exception!**
 
+The `Bakame\Csv\Reader` also implements the `IteratorAggregate` interface so you can easily iterate over your csv as follow:
+
+```php
+foreach ($csv as $row) {
+    //do something meaningfull here!!
+}
+```
+
 Extracting data is also made easy using the following methods: 
 
 #### fetchAll
