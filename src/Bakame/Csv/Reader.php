@@ -307,17 +307,16 @@ class Reader extends AbstractIteratorFilter implements
         }
 
         $iterator = $this->query($callable);
+        $iterator = new MapIterator($iterator, function ($row) use ($columnIndex) {
+            if (! array_key_exists($columnIndex, $row)) {
+                $row[$columnIndex] = null;
+            }
+
+            return $row;
+        });
         if ($strict) {
             $iterator = new CallbackFilterIterator($iterator, function ($row) use ($columnIndex) {
-                return array_key_exists($columnIndex, $row);
-            });
-        } else {
-            $iterator = new MapIterator($iterator, function ($row) use ($columnIndex) {
-                if (! array_key_exists($columnIndex, $row)) {
-                    $row[$columnIndex] = null;
-                }
-
-                return $row;
+                return array_key_exists($columnIndex, $row) && ! is_null($row[$columnIndex]);
             });
         }
 
