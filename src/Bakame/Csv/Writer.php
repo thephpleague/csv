@@ -52,13 +52,13 @@ class Writer extends Csv
     /**
      * Add a new CSV row to the generated CSV
      *
-     * @param string|array|object $row the line to be added to the CSV
+     * @param mixed|object $row the line to be added to the CSV
      *
      * @return integer
      *
      * @throws InvalidArgumentException If the given row format is invalid
      */
-    public function append($row)
+    public function insert($row)
     {
         if (self::isValidString($row)) {
             $row = str_getcsv((string) $row, $this->delimiter, $this->enclosure, $this->escape);
@@ -90,7 +90,7 @@ class Writer extends Csv
      *
      * @throws InvalidArgumentException If the given rows format is invalid
      */
-    public function save($rows)
+    public function insertMany($rows)
     {
         if (! is_array($rows) && ! $rows instanceof Traversable) {
             throw new InvalidArgumentException(
@@ -99,7 +99,7 @@ class Writer extends Csv
         }
 
         foreach ($rows as $row) {
-            $this->append($row);
+            $this->insert($row);
         }
 
         return $this;

@@ -23,7 +23,7 @@ class WriterTest extends PHPUnit_Framework_TestCase
             'john,doe,john.doe@example.com',
         ];
         foreach ($expected as $row) {
-            $this->csv->append($row);
+            $this->csv->insert($row);
         }
 
         foreach ($this->csv as $row) {
@@ -36,7 +36,7 @@ class WriterTest extends PHPUnit_Framework_TestCase
      */
     public function testFailedAppendWithWrongData()
     {
-        $this->csv->append(new \DateTime);
+        $this->csv->insert(new \DateTime);
     }
 
     /**
@@ -44,7 +44,7 @@ class WriterTest extends PHPUnit_Framework_TestCase
      */
     public function testFailedAppendWithMultiDimensionArray()
     {
-        $this->csv->append(['john', new \DateTime]);
+        $this->csv->insert(['john', new \DateTime]);
     }
 
     public function testSave()
@@ -53,8 +53,8 @@ class WriterTest extends PHPUnit_Framework_TestCase
             ['john', 'doe', 'john.doe@example.com'],
             'jane,doe,jane.doe@example.com',
         ];
-        $this->csv->save($multipleArray);
-        $this->csv->save(new ArrayIterator($multipleArray));
+        $this->csv->insertMany($multipleArray);
+        $this->csv->insertMany(new ArrayIterator($multipleArray));
         foreach ($this->csv as $key => $row) {
             $expected = ['jane', 'doe', 'jane.doe@example.com'];
             if ($key%2 == 0) {
@@ -69,7 +69,7 @@ class WriterTest extends PHPUnit_Framework_TestCase
      */
     public function testFailedSaveWithWrongType()
     {
-        $this->csv->save(new \DateTime);
+        $this->csv->insertMany(new \DateTime);
     }
 
     public function testGetReader()
@@ -79,7 +79,7 @@ class WriterTest extends PHPUnit_Framework_TestCase
             'john,doe,john.doe@example.com',
         ];
         foreach ($expected as $row) {
-            $this->csv->append($row);
+            $this->csv->insert($row);
         }
 
         $reader = $this->csv->getReader();

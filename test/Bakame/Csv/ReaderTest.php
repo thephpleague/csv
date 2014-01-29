@@ -220,7 +220,7 @@ class ReaderTest extends PHPUnit_Framework_TestCase
     public function testGetWriter()
     {
         $writer = $this->csv->getWriter();
-        $writer->append(['toto', 'le', 'herisson']);
+        $writer->insert(['toto', 'le', 'herisson']);
         $expected = <<<EOF
 <table class="table-csv-data">
 <tr>
