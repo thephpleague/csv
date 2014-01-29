@@ -162,7 +162,7 @@ class Reader extends Csv implements ArrayAccess
     public function fetchAssoc(array $keys, callable $callable = null)
     {
         $validKeys = array_unique(array_filter($keys, function ($value) {
-            return is_scalar($value) || (is_object($value) && method_exists($value, '__toString'));
+            return self::isValidString($value);
         }));
 
         if ($keys !== $validKeys) {

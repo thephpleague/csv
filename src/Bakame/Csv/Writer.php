@@ -69,7 +69,7 @@ class Writer extends Csv
             );
         }
         $check = array_filter($row, function ($value) {
-            return $this->isValidString($value);
+            return self::isValidString($value);
         });
         if (count($check) == count($row)) {
             $this->csv->fputcsv($row);
