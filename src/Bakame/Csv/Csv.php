@@ -128,6 +128,7 @@ class Csv implements jsonSerializable, IteratorAggregate
      * @return \SplFileObject
      *
      * @throws \InvalidArgumentException If the $file is not set
+     * @throws \RuntimeException         If the $file could not be created and/or opened
      */
     protected function fetchFile($path)
     {
@@ -136,14 +137,7 @@ class Csv implements jsonSerializable, IteratorAggregate
         } elseif ($path instanceof SplFileInfo) {
             return $path->openFile($this->mode);
         } elseif (is_string($path)) {
-            try {
-                return new SplFileObject($path, $this->mode);
-            } catch (\Exception $e) {
-                throw new InvalidArgumentException(
-                    '$path must be a `SplFileInfo` object or a valid file path.'
-                );
-            }
-
+            return new SplFileObject($path, $this->mode);
         }
         throw new InvalidArgumentException(
             '$path must be a `SplFileInfo` object or a valid file path.'
