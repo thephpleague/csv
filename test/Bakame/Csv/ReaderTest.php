@@ -16,23 +16,12 @@ class ReaderTest extends PHPUnit_Framework_TestCase
 
     public function setUp()
     {
-        $this->csv = (new Codec)->save($this->expected, new SplTempFileObject);
-    }
+        $csv = new SplTempFileObject;
+        foreach ($this->expected as $row) {
+            $csv->fputcsv($row);
+        }
 
-    public function testIterator()
-    {
-        $this->assertEquals($this->csv->getIterator(), $this->csv->getFile());
-    }
-
-    /**
-     * @expectedException InvalidArgumentException
-     */
-    public function testFetchValue()
-    {
-        $this->assertSame($this->expected[0][2], $this->csv->fetchValue(0, 2));
-        $this->assertNull($this->csv->fetchValue(0, 23));
-        $this->assertNull($this->csv->fetchValue(8, 23));
-        $this->csv->fetchValue(8, 'toto');
+        $this->csv = new Reader($csv);
     }
 
     public function testFetchAll()
@@ -104,7 +93,13 @@ class ReaderTest extends PHPUnit_Framework_TestCase
             ['john', 'doe'],
             ['lara', 'croft', 'lara.croft@example.com']
         ];
-        $csv = (new Codec)->save($raw, new SplTempFileObject);
+
+        $file = new SplTempFileObject;
+        foreach ($raw as $row) {
+            $file->fputcsv($row);
+        }
+        $csv = new Reader($file);
+
         $res = $csv->fetchCol(2, null, true);
         $this->assertInternalType('array', $res);
         $this->assertCount(1, $res);
@@ -113,14 +108,6 @@ class ReaderTest extends PHPUnit_Framework_TestCase
         $this->assertInternalType('array', $res);
         $this->assertCount(2, $res);
         $this->assertNull($res[0][2]);
-    }
-
-    /**
-     * @expectedException InvalidArgumentException
-     */
-    public function testFailCreateFromString()
-    {
-        Reader::createFromString(new \DateTime);
     }
 
     public function testFetchColCallback()
@@ -133,18 +120,11 @@ class ReaderTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException InvalidArgumentException
+     * @expectedException \InvalidArgumentException
      */
     public function testFetchColFailure()
     {
         $this->csv->fetchCol('toto');
-    }
-
-    public function testToString()
-    {
-        $expected = "john,doe,john.doe@example.com".PHP_EOL
-            ."jane,doe,jane.doe@example.com".PHP_EOL;
-        $this->assertSame($expected, $this->csv->__toString());
     }
 
     /**
@@ -185,12 +165,12 @@ class ReaderTest extends PHPUnit_Framework_TestCase
 
     public function testOffsetGet()
     {
-        $this->assertSame($this->expected[0], $this->csv->fetchOne(0));
+        $this->assertSame($this->expected[0], $this->csv[0]);
         $this->assertSame($this->expected[1], $this->csv[1]);
     }
 
     /**
-     * @expectedException InvalidArgumentException
+     * @expectedException \InvalidArgumentException
      */
     public function testOffsetGetFailure()
     {
@@ -242,8 +222,10 @@ class ReaderTest extends PHPUnit_Framework_TestCase
         $this->assertSame($this->expected[1], $res[0]);
     }
 
-    public function testToHTML()
+    public function testGetWriter()
     {
+        $writer = $this->csv->getWriter();
+        $writer->append(['toto', 'le', 'herisson']);
         $expected = <<<EOF
 <table class="table-csv-data">
 <tr>
@@ -256,13 +238,13 @@ class ReaderTest extends PHPUnit_Framework_TestCase
 <td>doe</td>
 <td>jane.doe@example.com</td>
 </tr>
+<tr>
+<td>toto</td>
+<td>le</td>
+<td>herisson</td>
+</tr>
 </table>
 EOF;
-        $this->assertSame($expected, $this->csv->toHTML());
-    }
-
-    public function testJsonInterface()
-    {
-        $this->assertSame(json_encode($this->expected), json_encode($this->csv));
+        $this->assertSame($expected, $writer->toHTML());
     }
 }

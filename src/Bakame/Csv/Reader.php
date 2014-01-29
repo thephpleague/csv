@@ -35,16 +35,10 @@ namespace Bakame\Csv;
 use ArrayAccess;
 use CallbackFilterIterator;
 use InvalidArgumentException;
-use IteratorAggregate;
-use JsonSerializable;
 use LimitIterator;
 use RuntimeException;
-use SplFileObject;
-use SplTempFileObject;
-use Bakame\Csv\Iterator\AbstractIteratorFilter;
 use Bakame\Csv\Iterator\MapIterator;
-use Bakame\Csv\Traits\CsvControls;
-use Bakame\Csv\Traits\CsvOutput;
+use Bakame\Csv\Traits\IteratorQuery;
 
 /**
  *  A Reader to ease CSV parsing in PHP 5.4+
@@ -53,66 +47,9 @@ use Bakame\Csv\Traits\CsvOutput;
  * @since  3.0.0
  *
  */
-class Reader extends AbstractIteratorFilter implements
-    IteratorAggregate,
-    ArrayAccess,
-    JsonSerializable
+class Reader extends Csv implements ArrayAccess
 {
-    use CsvControls;
-    use CsvOutput;
-
-    /**
-     * The CSV file Object
-     *
-     * @var \SplFileObject
-     */
-    private $csv;
-
-    /**
-     * The constructor
-     *
-     * @param \SplFileObject $file      The CSV file Object
-     * @param string         $delimiter Optional CSV file delimiter character
-     * @param string         $enclosure Optional CSV file enclosure character
-     * @param string         $escape    Optional CSV file escape character
-     * @param integer        $flags     Optional \SplFileObject constant flags
-     */
-    public function __construct(SplFileObject $file, $delimiter = ',', $enclosure = '"', $escape = "\\", $flags = 0)
-    {
-        $this->setDelimiter($delimiter);
-        $this->setEnclosure($enclosure);
-        $this->setEscape($escape);
-        $this->setFlags($flags);
-        $this->csv = $file;
-        $this->csv->setCsvControl($this->delimiter, $this->enclosure, $this->escape);
-        $this->csv->setFlags($this->flags);
-    }
-
-    /**
-     * Create a \Bakame\Csv\Reader from a string
-     *
-     * @param string  $str       The CSV data as string
-     * @param string  $delimiter Optional CSV file delimiter character
-     * @param string  $enclosure Optional CSV file enclosure character
-     * @param string  $escape    Optional CSV file escape character
-     * @param integer $flags     Optional \SplFileObject constant flags
-     *
-     * @return self
-     *
-     * @throws \InvalidArgumentException If the data provided is invalid
-     */
-    public static function createFromString($str, $delimiter = ',', $enclosure = '"', $escape = "\\", $flags = 0)
-    {
-        if (is_string($str) || (is_object($str) && method_exists($str, '__toString'))) {
-            $csv = new SplTempFileObject;
-            $csv->fwrite((string) $str);
-
-            return new static($csv, $delimiter, $enclosure, $escape, $flags);
-        }
-        throw new InvalidArgumentException(
-            'the submitted data must be a string or an object implementing the `__toString` method'
-        );
-    }
+    use IteratorQuery;
 
     /**
     * Validate a variable to be a positive integer or 0
@@ -124,15 +61,6 @@ class Reader extends AbstractIteratorFilter implements
     private static function isValidInteger($value)
     {
         return false !== filter_var($value, FILTER_VALIDATE_INT, ['options' => ['min_range' => 0]]);
-    }
-
-    /**
-     *  \IteratorAggregate Interface
-     */
-
-    public function getIterator()
-    {
-        return $this->csv;
     }
 
     /**
@@ -171,47 +99,7 @@ class Reader extends AbstractIteratorFilter implements
     }
 
     /**
-     * DEPRECATION WARNING! This method will be removed in the next major point release
-     *
-     * @deprecated  deprecated since version 3.3
-     *
-     * @return \SplFileObject
-     */
-    public function getFile()
-    {
-        return $this->csv;
-    }
-
-    /**
-     * DEPRECATION WARNING! This method will be removed in the next major point release
-     *
-     * @deprecated  deprecated since version 3.2
-     */
-    public function fetchOne($rowIndex)
-    {
-        return $this->offsetGet($rowIndex);
-    }
-
-    /**
-     * DEPRECATION WARNING! This method will be removed in the next major point release
-     *
-     * @deprecated  deprecated since version 3.2
-     */
-    public function fetchValue($rowIndex, $columnIndex)
-    {
-        if (! self::isValidInteger($columnIndex)) {
-            throw new InvalidArgumentException('the column index must be a positive integer or 0');
-        }
-        $res = $this->offsetGet($rowIndex);
-        if (! array_key_exists($columnIndex, $res)) {
-            return null;
-        }
-
-        return $res[$columnIndex];
-    }
-
-    /**
-     * {@inheritdoc}
+     * Prepare the CSV to be filter by removing unwanted rows
      */
     protected function prepare()
     {
@@ -326,5 +214,21 @@ class Reader extends AbstractIteratorFilter implements
         }
 
         return $res;
+    }
+
+    /**
+     * Return a Writer CSV class for the current reader
+     *
+     * @return \Bakame\Csv\Writer
+     */
+    public function getWriter()
+    {
+        return new Writer(
+            $this->csv,
+            $this->delimiter,
+            $this->enclosure,
+            $this->escape,
+            $this->flags
+        );
     }
 }
