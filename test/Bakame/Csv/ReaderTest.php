@@ -99,11 +99,6 @@ class ReaderTest extends PHPUnit_Framework_TestCase
             $file->fputcsv($row);
         }
         $csv = new Reader($file);
-
-        $res = $csv->fetchCol(2, null, true);
-        $this->assertInternalType('array', $res);
-        $this->assertCount(1, $res);
-        $this->assertSame(['lara.croft@example.com'], $res);
         $res = $csv->fetchCol(2);
         $this->assertInternalType('array', $res);
         $this->assertCount(2, $res);

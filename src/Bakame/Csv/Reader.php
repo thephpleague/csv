@@ -182,13 +182,12 @@ class Reader extends Csv implements ArrayAccess
      *
      * @param integer  $fieldIndex field Index
      * @param callable $callable   a callable function to be applied to each value to be return
-     * @param boolean  $strict     if true will remove undefined column from result set
      *
      * @return array
      *
      * @throws \InvalidArgumentException If the column index is not a positive integer or 0
      */
-    public function fetchCol($columnIndex, callable $callable = null, $strict = false)
+    public function fetchCol($columnIndex, callable $callable = null)
     {
         if (! self::isValidInteger($columnIndex)) {
             throw new InvalidArgumentException('the column index must be a positive integer or 0');
@@ -202,11 +201,6 @@ class Reader extends Csv implements ArrayAccess
 
             return $row;
         });
-        if ($strict) {
-            $iterator = new CallbackFilterIterator($iterator, function ($row) use ($columnIndex) {
-                return array_key_exists($columnIndex, $row) && ! is_null($row[$columnIndex]);
-            });
-        }
 
         $res = [];
         foreach ($iterator as $row) {
