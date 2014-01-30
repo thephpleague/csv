@@ -94,6 +94,6 @@ class WriterTest extends PHPUnit_Framework_TestCase
         }
 
         $reader = $this->csv->getReader();
-        $this->assertSame(['john', 'doe', 'john.doe@example.com'], $reader[0]);
+        $this->assertSame(['john', 'doe', 'john.doe@example.com'], $reader->fetchOne(0));
     }
 }

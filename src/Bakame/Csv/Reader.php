@@ -32,11 +32,9 @@
 */
 namespace Bakame\Csv;
 
-use ArrayAccess;
-use CallbackFilterIterator;
 use InvalidArgumentException;
+use CallbackFilterIterator;
 use LimitIterator;
-use RuntimeException;
 use Bakame\Csv\Iterator\MapIterator;
 use Bakame\Csv\Traits\IteratorQuery;
 
@@ -47,7 +45,7 @@ use Bakame\Csv\Traits\IteratorQuery;
  * @since  3.0.0
  *
  */
-class Reader extends AbstractCsv implements ArrayAccess
+class Reader extends AbstractCsv
 {
     /**
      * Iterator Filtering Trait depends on self::prepare method
@@ -62,63 +60,13 @@ class Reader extends AbstractCsv implements ArrayAccess
     /**
     * Validate a variable to be a positive integer or 0
     *
-    * @param integer $rowIndex
+    * @param integer $value
     *
     * @return boolean
     */
-    private static function isValidInteger($value)
+    protected static function isValidInteger($value)
     {
         return false !== filter_var($value, FILTER_VALIDATE_INT, ['options' => ['min_range' => 0]]);
-    }
-
-    /**
-     *  \ArrayAccess Interface
-     */
-
-    public function offsetGet($offset)
-    {
-        if (! self::isValidInteger($offset)) {
-            throw new InvalidArgumentException('the row index must be a positive integer or 0');
-        }
-        $iterator = $this->prepare();
-        $iterator = new LimitIterator($iterator, $offset, 1);
-        $iterator->rewind();
-        $res = $iterator->getInnerIterator()->current();
-        if (! is_array($res)) {
-            return [];
-        }
-
-        return $res;
-    }
-
-    public function offsetExists($offset)
-    {
-        return (bool) count($this->offsetGet($offset));
-    }
-
-    public function offsetSet($offset, $value)
-    {
-        throw new RuntimeException(__CLASS__ . ' can not modify the CSV data');
-    }
-
-    public function offsetUnset($offset)
-    {
-        throw new RuntimeException(__CLASS__ . ' can not modify the CSV data');
-    }
-
-    /**
-     * Prepare the CSV to be filter by removing unwanted rows
-     *
-     * @return \Iterator
-     */
-    protected function prepare()
-    {
-        $this->csv->setCsvControl($this->delimiter, $this->enclosure, $this->escape);
-        $this->csv->setFlags($this->flags);
-
-        return new CallbackFilterIterator($this->csv, function ($row) {
-            return is_array($row);
-        });
     }
 
     /**
@@ -140,6 +88,46 @@ class Reader extends AbstractCsv implements ArrayAccess
         }
 
         return array_combine($keys, $value);
+    }
+
+    /**
+     * Prepare the CSV to be filter by removing unwanted rows
+     *
+     * @return \Iterator
+     */
+    protected function prepare()
+    {
+        $this->csv->setCsvControl($this->delimiter, $this->enclosure, $this->escape);
+        $this->csv->setFlags($this->flags);
+
+        return new CallbackFilterIterator($this->csv, function ($row) {
+            return is_array($row);
+        });
+    }
+
+    /**
+     * Return a single row from the CSV
+     *
+     * @param integer $offset
+     *
+     * @return array
+     *
+     * @throws InvalidArgumentException If the $offset is not a valid Integer
+     */
+    public function fetchOne($offset)
+    {
+        if (! self::isValidInteger($offset)) {
+            throw new InvalidArgumentException('the row index must be a positive integer or 0');
+        }
+        $iterator = $this->prepare();
+        $iterator = new LimitIterator($iterator, $offset, 1);
+        $iterator->rewind();
+        $res = $iterator->getInnerIterator()->current();
+        if (! is_array($res)) {
+            return [];
+        }
+
+        return $res;
     }
 
     /**

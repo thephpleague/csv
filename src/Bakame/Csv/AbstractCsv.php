@@ -35,6 +35,7 @@ namespace Bakame\Csv;
 use IteratorAggregate;
 use DomDocument;
 use jsonSerializable;
+use RuntimeException;
 use SplFileInfo;
 use SplFileObject;
 use SplTempFileObject;
@@ -132,6 +133,18 @@ class AbstractCsv implements jsonSerializable, IteratorAggregate
         throw new InvalidArgumentException(
             'the submitted data must be a string or an object implementing the `__toString` method'
         );
+    }
+
+    /**
+    * Validate a variable to be stringable
+    *
+    * @param mixed $str
+    *
+    * @return boolean
+    */
+    protected static function isValidString($str)
+    {
+        return (is_scalar($str) || (is_object($str) && method_exists($str, '__toString')));
     }
 
     /**
@@ -342,10 +355,5 @@ class AbstractCsv implements jsonSerializable, IteratorAggregate
     public function jsonSerialize()
     {
         return iterator_to_array($this->csv);
-    }
-
-    protected static function isValidString($str)
-    {
-        return is_scalar($str) || (is_object($str) && method_exists($str, '__toString'));
     }
 }

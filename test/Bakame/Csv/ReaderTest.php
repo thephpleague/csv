@@ -163,8 +163,9 @@ class ReaderTest extends PHPUnit_Framework_TestCase
 
     public function testOffsetGet()
     {
-        $this->assertSame($this->expected[0], $this->csv[0]);
-        $this->assertSame($this->expected[1], $this->csv[1]);
+        $this->assertSame($this->expected[0], $this->csv->fetchOne(0));
+        $this->assertSame($this->expected[1], $this->csv->fetchOne(1));
+        $this->assertSame([], $this->csv->fetchOne(35));
     }
 
     /**
@@ -172,28 +173,7 @@ class ReaderTest extends PHPUnit_Framework_TestCase
      */
     public function testOffsetGetFailure()
     {
-        $this->csv[-3];
-    }
-
-    public function testOffsetExists()
-    {
-        $this->assertFalse(isset($this->csv[32]));
-    }
-
-    /**
-     * @expectedException \RuntimeException
-     */
-    public function testOffsetSet()
-    {
-        $this->csv[1] = ['toto', 'le', 'herisson'];
-    }
-
-    /**
-     * @expectedException \RuntimeException
-     */
-    public function testArrayOffsetUnset()
-    {
-        unset($this->csv[32]);
+        $this->csv->fetchOne(-3);
     }
 
     public function testFilter()
