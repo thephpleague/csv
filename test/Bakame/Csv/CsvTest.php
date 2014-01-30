@@ -7,6 +7,9 @@ use SplFileObject;
 use SplTempFileObject;
 use PHPUnit_Framework_TestCase;
 
+/**
+ * @group csv
+ */
 class CsvTest extends PHPUnit_Framework_TestCase
 {
     private $csv;
@@ -23,14 +26,14 @@ class CsvTest extends PHPUnit_Framework_TestCase
             $csv->fputcsv($row);
         }
 
-        $this->csv = new Csv($csv);
+        $this->csv = new Reader($csv);
     }
 
     public function testConstructorWithFileObject()
     {
         $path = __DIR__.'/foo.csv';
 
-        $csv = new Csv(new SplFileInfo($path));
+        $csv = new Reader(new SplFileInfo($path));
         $this->assertSame($path, $csv->getIterator()->getRealPath());
     }
 
@@ -38,7 +41,7 @@ class CsvTest extends PHPUnit_Framework_TestCase
     {
         $path = __DIR__.'/foo.csv';
 
-        $csv = new Csv($path);
+        $csv = new Reader($path);
         $this->assertSame($path, $csv->getIterator()->getRealPath());
     }
 
@@ -47,7 +50,7 @@ class CsvTest extends PHPUnit_Framework_TestCase
      */
     public function testConstructorWithNotWritablePath()
     {
-        new Csv('/usr/bin/foo.csv');
+        new Reader('/usr/bin/foo.csv');
     }
 
     /**
@@ -55,14 +58,14 @@ class CsvTest extends PHPUnit_Framework_TestCase
      */
     public function testConstructorWithWrongType()
     {
-        new Csv(['/usr/bin/foo.csv']);
+        new Reader(['/usr/bin/foo.csv']);
     }
 
     public function testCreateFromString()
     {
         $expected = "john,doe,john.doe@example.com".PHP_EOL
             ."jane,doe,jane.doe@example.com".PHP_EOL;
-        foreach (Csv::createFromString($expected) as $key => $row) {
+        foreach (Reader::createFromString($expected) as $key => $row) {
             $this->assertSame($this->expected[$key], $row);
         }
     }

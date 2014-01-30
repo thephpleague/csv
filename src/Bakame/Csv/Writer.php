@@ -42,12 +42,20 @@ use Traversable;
  * @since  4.0.0
  *
  */
-class Writer extends Csv
+class Writer extends AbstractCsv
 {
     /**
      * {@inheritdoc}
      */
-    protected $mode = 'w';
+    protected $available_open_mode = ['r+', 'w', 'w+', 'x', 'x+', 'a', 'a+', 'c', 'c+'];
+
+    /**
+     * {@inheritdoc}
+     */
+    public function __construct($path, $open_mode = 'w')
+    {
+        parent::__construct($path, $open_mode);
+    }
 
     /**
      * Add a new CSV row to the generated CSV
@@ -58,7 +66,7 @@ class Writer extends Csv
      *
      * @throws InvalidArgumentException If the given row format is invalid
      */
-    public function insert($row)
+    public function insertOne($row)
     {
         if (self::isValidString($row)) {
             $row = str_getcsv((string) $row, $this->delimiter, $this->enclosure, $this->escape);
@@ -99,7 +107,7 @@ class Writer extends Csv
         }
 
         foreach ($rows as $row) {
-            $this->insert($row);
+            $this->insertOne($row);
         }
 
         return $this;
@@ -112,12 +120,12 @@ class Writer extends Csv
      */
     public function getReader()
     {
-        return new Reader(
-            $this->csv,
-            $this->delimiter,
-            $this->enclosure,
-            $this->escape,
-            $this->flags
-        );
+        $csv = new Reader($this->csv);
+        $csv->setDelimiter($this->delimiter);
+        $csv->setEnclosure($this->enclosure);
+        $csv->setEscape($this->escape);
+        $csv->setFlags($this->flags);
+
+        return $csv;
     }
 }

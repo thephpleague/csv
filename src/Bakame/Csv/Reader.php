@@ -47,9 +47,14 @@ use Bakame\Csv\Traits\IteratorQuery;
  * @since  3.0.0
  *
  */
-class Reader extends Csv implements ArrayAccess
+class Reader extends AbstractCsv implements ArrayAccess
 {
     use IteratorQuery;
+
+    /**
+     * {@inheritdoc}
+     */
+    protected $available_open_mode = ['r'];
 
     /**
     * Validate a variable to be a positive integer or 0
@@ -215,14 +220,14 @@ class Reader extends Csv implements ArrayAccess
      *
      * @return \Bakame\Csv\Writer
      */
-    public function getWriter()
+    public function getWriter($open_mode = 'w')
     {
-        return new Writer(
-            $this->csv,
-            $this->delimiter,
-            $this->enclosure,
-            $this->escape,
-            $this->flags
-        );
+        $csv = new Writer($this->csv, $open_mode);
+        $csv->setDelimiter($this->delimiter);
+        $csv->setEnclosure($this->enclosure);
+        $csv->setEscape($this->escape);
+        $csv->setFlags($this->flags);
+
+        return $csv;
     }
 }

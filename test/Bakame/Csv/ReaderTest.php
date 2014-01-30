@@ -5,6 +5,9 @@ namespace Bakame\Csv;
 use PHPUnit_Framework_TestCase;
 use SplTempFileObject;
 
+/**
+ * @group reader
+ */
 class ReaderTest extends PHPUnit_Framework_TestCase
 {
     private $csv;
@@ -220,7 +223,7 @@ class ReaderTest extends PHPUnit_Framework_TestCase
     public function testGetWriter()
     {
         $writer = $this->csv->getWriter();
-        $writer->insert(['toto', 'le', 'herisson']);
+        $writer->insertOne(['toto', 'le', 'herisson']);
         $expected = <<<EOF
 <table class="table-csv-data">
 <tr>

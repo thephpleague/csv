@@ -6,6 +6,9 @@ use SplTempFileObject;
 use ArrayIterator;
 use PHPUnit_Framework_TestCase;
 
+/**
+ * @group writer
+ */
 class WriterTest extends PHPUnit_Framework_TestCase
 {
 
@@ -16,14 +19,22 @@ class WriterTest extends PHPUnit_Framework_TestCase
         $this->csv = new Writer(new SplTempFileObject);
     }
 
-    public function testAppend()
+    /**
+     * @expectedException InvalidArgumentException
+     */
+    public function testConstructorWithWrongOpenMode()
+    {
+        new Writer('foo.csv', 'r');
+    }
+
+    public function testInsert()
     {
         $expected = [
             ['john', 'doe', 'john.doe@example.com'],
             'john,doe,john.doe@example.com',
         ];
         foreach ($expected as $row) {
-            $this->csv->insert($row);
+            $this->csv->insertOne($row);
         }
 
         foreach ($this->csv as $row) {
@@ -34,17 +45,17 @@ class WriterTest extends PHPUnit_Framework_TestCase
     /**
      * @expectedException InvalidArgumentException
      */
-    public function testFailedAppendWithWrongData()
+    public function testFailedInsertWithWrongData()
     {
-        $this->csv->insert(new \DateTime);
+        $this->csv->insertOne(new \DateTime);
     }
 
     /**
      * @expectedException InvalidArgumentException
      */
-    public function testFailedAppendWithMultiDimensionArray()
+    public function testFailedInsertWithMultiDimensionArray()
     {
-        $this->csv->insert(['john', new \DateTime]);
+        $this->csv->insertOne(['john', new \DateTime]);
     }
 
     public function testSave()
@@ -79,7 +90,7 @@ class WriterTest extends PHPUnit_Framework_TestCase
             'john,doe,john.doe@example.com',
         ];
         foreach ($expected as $row) {
-            $this->csv->insert($row);
+            $this->csv->insertOne($row);
         }
 
         $reader = $this->csv->getReader();
