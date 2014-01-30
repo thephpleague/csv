@@ -96,7 +96,7 @@ class Writer extends AbstractCsv
      *
      * @return self
      *
-     * @throws InvalidArgumentException If the given rows format is invalid
+     * @throws \InvalidArgumentException If the given rows format is invalid
      */
     public function insertMany($rows)
     {

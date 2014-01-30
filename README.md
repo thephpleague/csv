@@ -11,6 +11,11 @@ This package is compliant with [PSR-0][], [PSR-1][], and [PSR-2][].
 [PSR-1]: https://github.com/php-fig/fig-standards/blob/master/accepted/PSR-1-basic-coding-standard.md
 [PSR-2]: https://github.com/php-fig/fig-standards/blob/master/accepted/PSR-2-coding-style-guide.md
 
+System Requirements
+-------
+
+You need **PHP >= 5.4.0** and the `mbstring` extension to use `Bakame\Csv` but the latest stable version of PHP is recommended.
+
 Install
 -------
 
@@ -19,139 +24,65 @@ You may install the Bakame Url package with Composer (recommended) or manually.
 ```json
 {
     "require": {
-        "bakame/csv": "~3.*"
+        "bakame/csv": "~4.*"
     }
 }
 ```
 
-
-System Requirements
+Manual Install
 -------
+Download, extract the library then add `'/path/to/Bakame/Csv/src'` to your PSR-0 compliant autoloader.
 
-You need **PHP >= 5.4.0** and the `mbstring` extension to use `Bakame\Csv` but the latest stable version of PHP is recommended.
 
-Instantiation
+Reading a CSV
 -------
-
-The easiest way to get started is to add `'/path/to/Bakame/Csv/src'` to your PSR-0 compliant Autoloader. Once added to the autoloader you can start manipulating CSV files as explain below:
-
-Loading and saving CSV
--------
-
-Before manipulating you CSV data, you must first be able to load and save you CSV. In order to do so, the library provides you the `Bakame\Csv\Codec` class. Using this class is quiet straight forward and you can optionally set the CSV delimiter, enclosure and/or escape characters as well as the file flags on the constructor or by using the appropriate setter method.
-
-```php
-<?php
-
-use Bakame\Csv\Codec;
-
-$codec = new Codec;
-$codec->setDelimeter(',');
-$codec->setEnclosure('"');
-$codec->setEscape('\\');
-$codec->setFlags(SplFileObject::READ_AHEAD|SplFileObject::SKIP_EMPTY);
-//or
-
-$codec = new Codec(',', '"', '\\', SplFileObject::READ_AHEAD|SplFileObject::SKIP_EMPTY);
-```
-
-### Loading CSV data
-
-Once instantiated and depending on your CSV source you may choose:
-
-* the `Codec::loadFile` method to load the CSV from a file;
-* the `Codec::loadString` method to enable reading your CSV from a string;
-
-Both methods will return a `Bakame\Csv\Reader` object to help you manipulate your data.
-
-```php
-$csv = $codec->loadFile('path/to/my/csv/file.csv');
-//$csv is a \Bakame\Csv\Reader object
-
-$csv = $codec->loadString(['foo,bar,baz', ['foo', 'bar', 'baz']]);
-//$csv is a \Bakame\Csv\Reader object
-
-```
-
-### Saving CSV data
-
-The `Codec::save` method help you save you CSV data.
-
-It accepts:
-* an `array` of data
-* any object that implements the `Traversable` interface.
-
-The path to where the data must saved can be given as:
-* a simple string
-* an `SplFileInfo` instance
-
-If the data is invalid or the file does not exist or is not writable an `InvalidArgumentException` exception will be thrown.
-
-Just like the loading methods, the `Codec::save` returns a `Bakame\Csv\Reader` object.
-
-```php
-$csv = $codec->save([1,2,3,4], '/path/to/my/saved/csv/file.csv');
-//$csv is a \Bakame\Csv\Reader object
-
-```
-
-Manipulating the loaded CSV
--------
-
 
 The `Bakame\Csv\Reader` class manipulates CSV data that are stored in a `SplFileObject` object. 
-**The class does not modify the CSV data, it just helps you accessing them more easily!**
+**The class does not modify the CSV data, it just helps you access the data more easily!**
 
-To instantiate the class you may use the `Bakame\Csv\Codec` class or you can provide a `SplFileObject` object like below:
+There's several ways to instantiate the class:
 
 ```php
-
 use Bakame\Csv\Reader;
 
+$csv = new Reader('/path/to/your/csv/file.csv');
+
+//or 
+
 $csv = new Reader(new SpliFileObject('/path/to/your/csv/file.csv'));
+
+```
+
+If you have a string representing a CSV data you can use the static method `Bakame\Csv\Reader::createFromString` to instantiate a new `Bakame\Csv\Reader` instance:
+
+
+```php
+$csv = new Reader::createFromString('john,doe,john.doe@example.com');
+
+```
+
+You can optionally set the CSV delimiter, enclosure and/or escape characters as well as the file flags.
+
+```php
 $csv->setDelimeter(',');
 $csv->setEnclosure('"');
 $csv->setEscape('\\');
 $csv->setFlags(SplFileObject::READ_AHEAD|SplFileObject::SKIP_EMPTY);
-
-//or 
-
-$csv = new Reader(
-    new SpliFileObject('/path/to/your/csv/file.csv'), 
-    ',',
-    '"',
-    '\\',
-    SplFileObject::READ_AHEAD|SplFileObject::SKIP_EMPTY
-);
-
 ```
-Just like for the `Bakame\Csv\Codec` class you can optionally set the CSV delimiter, enclosure and/or escape characters as well as the file flags.
-
-If you still need to get access to the original `SplFileObject`, the `Bakame\Csv\Reader` lets you access it using the `Bakame\Csv\Reader::getFile` method.
-
-### Displaying the data
-
-* The `Bakame\Csv\Reader::__toString` method returns the CSV content as it is written in the file.
-* The `Bakame\Csv\Reader::output` method returns to the output buffer the CSV content. This method can be use if you want the CSV to be downloaded by your user.
-* The `Bakame\Csv\Reader::toHTML` method returns the CSV content formatted in a HTML Table, This methods accept an optional `classname` to help you customize the table rendering, by defaut the classname given to the table is `csv-data`.
-* The `Bakame\Csv\Reader` also implements the `jsonSerializable` interface so you can transform you CSV into a Json string using the `json_encode` function directly on the instantiated object.
 
 ### Traversing the CSV
 
-The `Bakame\Csv\Reader` implements the `ArrayAccess` so if you want to access a given row you can do so using an array like syntax:
+The `Bakame\Csv\Reader` implements the `ArrayAccess` and the `IteratorAggregate` Interfaces so you can access a given row using an array like syntax or easily iterate over your csv:
 
 ```php
 $row = $csv[5]; //accessing the 6th row;
-``` 
-**The `Bakame\Csv\Reader` can not modify the CSV content so if you try to set/delete/update a row you'll get a `RuntimeException` exception!**
 
-The `Bakame\Csv\Reader` also implements the `IteratorAggregate` interface so you can easily iterate over your csv as follow:
-
-```php
 foreach ($csv as $row) {
     //do something meaningfull here!!
 }
-```
+``` 
+
+**The `Bakame\Csv\Reader` can not modify the CSV content so if you try to set/delete/update a row you'll get a `RuntimeException` exception!**
 
 Extracting data is also made easy using the following methods: 
 
@@ -202,15 +133,15 @@ $data = $csv->fetchCol(2);
 
 ```
 
-The methods listed above (`fetchAll`, `fetchAssoc`, `fetchCol`) can all take a optional `callable` argument to further manipulate each row before being returned. 
-This callable function can take three parameters at most:
-* the current inner iterator item
-* the current inner iterator key
-* and current inner iterator
+The methods listed above (`fetchAll`, `fetchAssoc`, `fetchCol`) can all take a optional `callable` argument to further manipulate each row before being returned. This callable function can take three parameters at most:
+
+* the current csv row data
+* the current csv key
+* the current csv object
 
 ### Filtering the data
 
-In order to filter the CSV data you can modify the `fetch*` methods output by specifying filtering options using the following methods:
+You can further manipulate the CSV `fetch*` methods output by specifying the following filtering options:
 
 * the `setFilter`method specifies an optional `callable` function to filter the CSV data. This function takes three parameters at most (see [CallbackFilterIterator][] for more informations)
 * the `setSortBy`method specifies an optional `callable` function to sort the CSV data. The function takes two parameters which will be filled by pairs of rows. **Beware when using this filter that you will be using `iterator_to_array` which could lead to performance penalty if you have a heavy CSV file to sort**
@@ -251,8 +182,9 @@ $data = $csv
 ```
 **Of note:**
 
-* After a `fetch*` method call, the `offset`, `limit` properties as well as all the `callable` functions are cleared.
+* After a `fetch*` method call, all filtering options are cleared.
 * The methods can be call in any sort of order before any `fetch*` method call.
+* The `fetch*` method will only take into account the last filtering options if for some reason you, for example, call twice the `setFilter` method.
 
 ### Manual Filtering
 
@@ -280,6 +212,48 @@ $iterator = $csv
         return array_map('strtoupper', $value);
     });
 ```
+
+Creating or Updating a CSV
+-------
+
+If you want to create or to update a CSV you will use the `Bakame\Csv\Writer` class. This class instantiation
+is similar to that of the `Bakame\Csv\Reader` class. Both class can take an optional parameter representing the file open mode used by the PHP [fopen][] function. In case of the `Bakame\Csv\Writer` the default value is `w`. But you can change this value according to your needs.
+
+[fopen]: http://php.net/manual/en/function.fopen.php
+
+```php
+$writer = new Writer('/path/to/the/csv/file.csv');
+
+//is equivalent to
+
+$writer = new Writer('/path/to/the/csv/file.csv', 'w');
+
+//of course you can too use the Writer::createFromString static method
+
+$writer = Writer::CreateFromString('john,doe,john.doe@example.com');
+
+```
+Once you have a instance of the `Bakame\Csv\Writer` class you can insert new info using two methods:
+* `insertOne` which insert a single CSV row : This method can take an array, a string or an object implementing the `__toString` method.
+* `insertMany` which insert multiple CSV row: this method can take an array or a `Traversable` object to add several row to the CSV data.
+
+
+Switching from Reader to Writer
+--------
+
+Of course at any given time it is possible to switch from one object to the other by using:
+* the `Bakame\Csv\Writer::getReader` method from the `Bakame\Csv\Writer` class
+* the `Bakame\Csv\Reader::getWriter` method from the `Bakame\Csv\Reader` class
+
+Displaying the data
+---------
+
+Both classes implement the `jsonSerializable` interface so you can transform you CSV into a Json string using the `json_encode` function directly on the instantiated object.
+
+Both classes share the following method to enable displaying the CSV easily
+* The `__toString` method returns the CSV content as it is written in the file.
+* The `output` method returns to the output buffer the CSV content. This method can be use if you want the CSV to be downloaded by your user.
+* The `toHTML` method returns the CSV content formatted in a HTML Table, This methods accept an optional `classname` to help you customize the table rendering, by defaut the classname given to the table is `table-csv-data`.
 
 Testing
 -------

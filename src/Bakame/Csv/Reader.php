@@ -49,6 +49,9 @@ use Bakame\Csv\Traits\IteratorQuery;
  */
 class Reader extends AbstractCsv implements ArrayAccess
 {
+    /**
+     * Iterator Filtering Trait depends on self::prepare method
+     */
     use IteratorQuery;
 
     /**
@@ -105,6 +108,8 @@ class Reader extends AbstractCsv implements ArrayAccess
 
     /**
      * Prepare the CSV to be filter by removing unwanted rows
+     *
+     * @return \Iterator
      */
     protected function prepare()
     {
@@ -171,7 +176,9 @@ class Reader extends AbstractCsv implements ArrayAccess
         }));
 
         if ($keys !== $validKeys) {
-            throw new InvalidArgumentException('The named keys should be unique strings Or integer');
+            throw new InvalidArgumentException(
+                'The named keys should be unique strings Or integer'
+            );
         }
 
         $res = [];
@@ -195,7 +202,9 @@ class Reader extends AbstractCsv implements ArrayAccess
     public function fetchCol($columnIndex, callable $callable = null)
     {
         if (! self::isValidInteger($columnIndex)) {
-            throw new InvalidArgumentException('the column index must be a positive integer or 0');
+            throw new InvalidArgumentException(
+                'the column index must be a positive integer or 0'
+            );
         }
 
         $iterator = $this->query($callable);

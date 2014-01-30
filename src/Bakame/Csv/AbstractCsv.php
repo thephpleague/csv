@@ -82,7 +82,7 @@ class AbstractCsv implements jsonSerializable, IteratorAggregate
      *
      * @var integer
      */
-    protected $flags = 0;
+    protected $flags = SplFileObject::READ_CSV;
 
     /**
      * Open mode available flag
@@ -98,7 +98,6 @@ class AbstractCsv implements jsonSerializable, IteratorAggregate
      */
     public function __construct($path, $open_mode = 'r')
     {
-        $this->setFlags(0);
         $this->csv = $this->fetchFile($path, $open_mode);
         $this->csv->setFlags($this->flags);
     }
