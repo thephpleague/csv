@@ -123,14 +123,10 @@ class Reader extends AbstractCsv
      *
      * @return array
      *
-     * @throws InvalidArgumentException If the $offset is not a valid Integer
+     * @throws \InvalidArgumentException If the $offset is not a valid Integer
      */
     public function fetchOne($offset)
     {
-        if (! self::isValidInteger($offset)) {
-            throw new InvalidArgumentException('the row index must be a positive integer or 0');
-        }
-
         $this->setOffset($offset);
         $this->setLimit(1);
         $iterator = $this->query();
