@@ -80,7 +80,7 @@ class ReaderTest extends PHPUnit_Framework_TestCase
     /**
      * @expectedException InvalidArgumentException
      */
-    public function testFetchKeyFailure()
+    public function testFetchAssocKeyFailure()
     {
         $this->csv->fetchAssoc([['firstname', 'lastname', 'email', 'age']]);
     }
@@ -125,42 +125,6 @@ class ReaderTest extends PHPUnit_Framework_TestCase
         $this->csv->fetchCol('toto');
     }
 
-    /**
-     * @expectedException \InvalidArgumentException
-     */
-    public function testSetLimit()
-    {
-        $res = $this->csv->setLimit(1)->fetchAll();
-        $this->assertCount(1, $res);
-        $this->assertSame($this->expected[0], $res[0]);
-        $this->csv->setLimit(-4);
-    }
-
-    /**
-     * @expectedException \InvalidArgumentException
-     */
-    public function testSetOffset()
-    {
-        $res = $this->csv->setOffset(1)->fetchAll();
-        $this->assertInternalType('array', $res);
-        $this->assertCount(1, $res);
-        $this->assertSame($this->expected[1], $res[0]);
-        $this->csv->setOffset('toto');
-    }
-
-    public function testInterval()
-    {
-        $res = $this->csv->setOffset(0)->setLimit(1)->fetchAll();
-        $this->assertCount(1, $res);
-        $this->assertSame($this->expected[0], $res[0]);
-        $res = $this->csv->setOffset(0)->setLimit(20)->fetchAll();
-        $this->assertCount(2, $res);
-        $this->assertSame($this->expected, $res);
-        $res = $this->csv->setOffset(1)->setLimit(20)->fetchAll();
-        $this->assertCount(1, $res);
-        $this->assertSame($this->expected[1], $res[0]);
-    }
-
     public function testOffsetGet()
     {
         $this->assertSame($this->expected[0], $this->csv->fetchOne(0));
@@ -174,30 +138,6 @@ class ReaderTest extends PHPUnit_Framework_TestCase
     public function testOffsetGetFailure()
     {
         $this->csv->fetchOne(-3);
-    }
-
-    public function testFilter()
-    {
-        $func = function ($row) {
-            return is_array($row) && $row[0] == 'john';
-        };
-        $res = $this->csv->setFilter($func)->fetchAll();
-        $this->assertCount(1, $res);
-        $this->assertSame($this->expected[0], $res[0]);
-    }
-
-    public function testSortBy()
-    {
-        $func = function ($row1, $row2) {
-            if ($row1[0] == $row2[0]) {
-                return 0;
-            }
-
-            return ($row1[0] < $row2[0]) ? -1 : 1;
-        };
-        $res = $this->csv->setSortBy($func)->fetchAll();
-        $this->assertCount(2, $res);
-        $this->assertSame($this->expected[1], $res[0]);
     }
 
     public function testGetWriter()

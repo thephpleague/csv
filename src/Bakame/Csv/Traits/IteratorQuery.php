@@ -143,7 +143,7 @@ trait IteratorQuery
      *
      * @return Iterator
      */
-    protected function execute(Iterator $iterator, callable $callable = null)
+    public function execute(Iterator $iterator, callable $callable = null)
     {
         if ($this->filter) {
             $iterator = new CallbackFilterIterator($iterator, $this->filter);
