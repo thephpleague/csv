@@ -6,7 +6,7 @@
 * @copyright 2014 Ignace Nyamagana Butera
 * @link https://github.com/nyamsprod/Bakame.csv
 * @license http://opensource.org/licenses/MIT
-* @version 3.3.0
+* @version 4.0.0
 * @package Bakame.csv
 *
 * MIT LICENSE
@@ -38,7 +38,7 @@ use Bakame\Csv\Iterator\MapIterator;
 use Bakame\Csv\Traits\IteratorQuery;
 
 /**
- *  A Reader to ease CSV parsing in PHP 5.4+
+ *  A class to manage extracting and filtering a CSV
  *
  * @package Bakame.csv
  * @since  3.0.0
@@ -55,18 +55,6 @@ class Reader extends AbstractCsv
      * {@inheritdoc}
      */
     protected $available_open_mode = ['r'];
-
-    /**
-    * Validate a variable to be a positive integer or 0
-    *
-    * @param integer $value
-    *
-    * @return boolean
-    */
-    protected static function isValidInteger($value)
-    {
-        return false !== filter_var($value, FILTER_VALIDATE_INT, ['options' => ['min_range' => 0]]);
-    }
 
     /**
      * Intelligent Array Combine
@@ -90,30 +78,21 @@ class Reader extends AbstractCsv
     }
 
     /**
-     * Prepare the CSV to be filter by removing unwanted rows
-     *
-     * @return \Iterator
-     */
-    protected function prepare()
-    {
-        $this->csv->setCsvControl($this->delimiter, $this->enclosure, $this->escape);
-        $this->csv->setFlags($this->flags);
-
-        return new CallbackFilterIterator($this->csv, function ($row) {
-            return is_array($row);
-        });
-    }
-
-    /**
      * Return a Filtered Iterator
      *
-     * @param callable $callable
+     * @param callable $callable a callable function to be applied to each Iterator item
      *
      * @return \Iterator
      */
     public function query(callable $callable = null)
     {
-        return $this->execute($this->prepare(), $callable);
+        $this->csv->setCsvControl($this->delimiter, $this->enclosure, $this->escape);
+        $this->csv->setFlags($this->flags);
+        $iterator = new CallbackFilterIterator($this->csv, function ($row) {
+            return is_array($row);
+        });
+
+        return $this->execute($iterator, $callable);
     }
 
     /**
@@ -160,7 +139,7 @@ class Reader extends AbstractCsv
      * Return a sequential array of all CSV lines; the rows are presented as associated arrays
      *
      * @param array    $keys     the name for each key member
-     * @param callable $callable a callable function to be applied to each row to be return
+     * @param callable $callable a callable function to be applied to each Iterator item
      *
      * @return array
      *
@@ -198,7 +177,7 @@ class Reader extends AbstractCsv
      */
     public function fetchCol($columnIndex, callable $callable = null)
     {
-        if (! self::isValidInteger($columnIndex)) {
+        if (false === filter_var($columnIndex, FILTER_VALIDATE_INT, ['options' => ['min_range' => 0]])) {
             throw new InvalidArgumentException(
                 'the column index must be a positive integer or 0'
             );
@@ -223,6 +202,8 @@ class Reader extends AbstractCsv
 
     /**
      * Return a Writer CSV class for the current reader
+     *
+     * @param string $open_mode the file open mode flag
      *
      * @return \Bakame\Csv\Writer
      */
