@@ -35,6 +35,7 @@ namespace Bakame\Csv\Traits;
 use ArrayObject;
 use CallbackFilterIterator;
 use InvalidArgumentException;
+use Iterator;
 use LimitIterator;
 use Bakame\Csv\Iterator\MapIterator;
 
@@ -142,9 +143,8 @@ trait IteratorQuery
      *
      * @return Iterator
      */
-    public function query(callable $callable = null)
+    protected function execute(Iterator $iterator, callable $callable = null)
     {
-        $iterator = $this->prepare();
         if ($this->filter) {
             $iterator = new CallbackFilterIterator($iterator, $this->filter);
             $this->filter = null;

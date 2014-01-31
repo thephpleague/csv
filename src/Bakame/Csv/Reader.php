@@ -34,7 +34,6 @@ namespace Bakame\Csv;
 
 use InvalidArgumentException;
 use CallbackFilterIterator;
-use LimitIterator;
 use Bakame\Csv\Iterator\MapIterator;
 use Bakame\Csv\Traits\IteratorQuery;
 
@@ -106,6 +105,18 @@ class Reader extends AbstractCsv
     }
 
     /**
+     * Return a Filtered Iterator
+     *
+     * @param callable $callable
+     *
+     * @return \Iterator
+     */
+    public function query(callable $callable = null)
+    {
+        return $this->execute($this->prepare(), $callable);
+    }
+
+    /**
      * Return a single row from the CSV
      *
      * @param integer $offset
@@ -119,8 +130,10 @@ class Reader extends AbstractCsv
         if (! self::isValidInteger($offset)) {
             throw new InvalidArgumentException('the row index must be a positive integer or 0');
         }
-        $iterator = $this->prepare();
-        $iterator = new LimitIterator($iterator, $offset, 1);
+
+        $this->setOffset($offset);
+        $this->setLimit(1);
+        $iterator = $this->query();
         $iterator->rewind();
         $res = $iterator->getInnerIterator()->current();
         if (! is_array($res)) {
@@ -133,7 +146,7 @@ class Reader extends AbstractCsv
     /**
      * Return a sequential array of all CSV lines
      *
-     * @param callable $callable a callable function to be applied to each row to be return
+     * @param callable $callable a callable function to be applied to each Iterator item
      *
      * @return array
      */
