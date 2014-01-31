@@ -64,8 +64,8 @@ class WriterTest extends PHPUnit_Framework_TestCase
             ['john', 'doe', 'john.doe@example.com'],
             'jane,doe,jane.doe@example.com',
         ];
-        $this->csv->insertMany($multipleArray);
-        $this->csv->insertMany(new ArrayIterator($multipleArray));
+        $this->csv->insertAll($multipleArray);
+        $this->csv->insertAll(new ArrayIterator($multipleArray));
         foreach ($this->csv as $key => $row) {
             $expected = ['jane', 'doe', 'jane.doe@example.com'];
             if ($key%2 == 0) {
@@ -80,7 +80,7 @@ class WriterTest extends PHPUnit_Framework_TestCase
      */
     public function testFailedSaveWithWrongType()
     {
-        $this->csv->insertMany(new \DateTime);
+        $this->csv->insertAll(new \DateTime);
     }
 
     public function testGetReader()

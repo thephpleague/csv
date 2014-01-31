@@ -98,7 +98,7 @@ class Writer extends AbstractCsv
      *
      * @throws \InvalidArgumentException If the given rows format is invalid
      */
-    public function insertMany($rows)
+    public function insertAll($rows)
     {
         if (! is_array($rows) && ! $rows instanceof Traversable) {
             throw new InvalidArgumentException(
