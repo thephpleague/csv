@@ -47,7 +47,7 @@ use Bakame\Csv\Traits\IteratorQuery;
 class Reader extends AbstractCsv
 {
     /**
-     * Iterator Filtering Trait depends on self::prepare method
+     * Iterator Filtering Trait
      */
     use IteratorQuery;
 

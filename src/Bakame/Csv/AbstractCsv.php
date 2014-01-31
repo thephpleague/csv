@@ -42,7 +42,7 @@ use SplTempFileObject;
 use InvalidArgumentException;
 
 /**
- *  A abstract class to enable basic CSV manipulation in PHP 5.4+
+ *  A abstract class to enable basic CSV manipulation
  *
  * @package Bakame.csv
  * @since  4.0.0
