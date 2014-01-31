@@ -349,9 +349,10 @@ class AbstractCsv implements jsonSerializable, IteratorAggregate
     }
 
     /**
-     * Json Serializable
+     * Json Serializable Interface
+     *
+     * @return array
      */
-
     public function jsonSerialize()
     {
         return iterator_to_array($this->csv);
