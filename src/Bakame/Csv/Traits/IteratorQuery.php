@@ -40,7 +40,7 @@ use LimitIterator;
 use Bakame\Csv\Iterator\MapIterator;
 
 /**
- *  A Filtering Trait for Iterator
+ *  A Trait to filter in a SQL-like manner Iterators
  *
  * @package Bakame.csv
  * @since  4.0.0
@@ -139,7 +139,10 @@ trait IteratorQuery
     }
 
     /**
-     * result from fetching data from the CSV file
+     * Return a filtered Iterator based on the filtering settings
+     *
+     * @param Iterator $iterator The iterator to be filtered
+     * @param callable $callable a callable function to be applied to each Iterator item
      *
      * @return Iterator
      */

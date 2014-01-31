@@ -125,19 +125,15 @@ class ReaderTest extends PHPUnit_Framework_TestCase
         $this->csv->fetchCol('toto');
     }
 
-    public function testOffsetGet()
+    /**
+     * @expectedException \InvalidArgumentException
+     */
+    public function testfetchOne()
     {
         $this->assertSame($this->expected[0], $this->csv->fetchOne(0));
         $this->assertSame($this->expected[1], $this->csv->fetchOne(1));
         $this->assertSame([], $this->csv->fetchOne(35));
-    }
-
-    /**
-     * @expectedException \InvalidArgumentException
-     */
-    public function testOffsetGetFailure()
-    {
-        $this->csv->fetchOne(-3);
+        $this->csv->fetchOne(-5);
     }
 
     public function testGetWriter()

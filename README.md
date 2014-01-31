@@ -342,3 +342,4 @@ Credits
 -------
 
 - [ignace nyamagana butera](https://github.com/nyamsprod)
+- [All Contributors](https://github.com/nyamsprod/Bakame.csv/graphs/contributors)

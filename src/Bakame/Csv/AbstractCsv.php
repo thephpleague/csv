@@ -34,7 +34,7 @@ namespace Bakame\Csv;
 
 use IteratorAggregate;
 use DomDocument;
-use jsonSerializable;
+use JsonSerializable;
 use RuntimeException;
 use SplFileInfo;
 use SplFileObject;
@@ -42,13 +42,13 @@ use SplTempFileObject;
 use InvalidArgumentException;
 
 /**
- *  A abstract wrapper to enable CSV manipulation in PHP 5.4+
+ *  A abstract class to enable basic CSV manipulation in PHP 5.4+
  *
  * @package Bakame.csv
  * @since  4.0.0
  *
  */
-class AbstractCsv implements jsonSerializable, IteratorAggregate
+class AbstractCsv implements JsonSerializable, IteratorAggregate
 {
     /**
      * The CSV object holder
@@ -79,7 +79,7 @@ class AbstractCsv implements jsonSerializable, IteratorAggregate
     protected $escape = '\\';
 
     /**
-     * the SplFileObject flas
+     * the \SplFileObject flags holder
      *
      * @var integer
      */
@@ -95,7 +95,8 @@ class AbstractCsv implements jsonSerializable, IteratorAggregate
     /**
      * The constructor
      *
-     * @param string|\SplFileObject $path A SplFileObject Object or the path to a file
+     * @param mixed  $path      an SplFileInfo object or the path to a file
+     * @param string $open_mode the file open mode flag
      */
     public function __construct($path, $open_mode = 'r')
     {
@@ -114,7 +115,7 @@ class AbstractCsv implements jsonSerializable, IteratorAggregate
     }
 
     /**
-     * Create a \Bakame\Csv\AbstractCsv from a string
+     * Create a {@link AbstractCsv} from a string
      *
      * @param string $str The CSV data as string
      *
@@ -148,9 +149,9 @@ class AbstractCsv implements jsonSerializable, IteratorAggregate
     }
 
     /**
-     * Return a new \SplFileObject
+     * Return a new {@link SplFileObject}
      *
-     * @param string|\SplFileInfo $path A SplFileObject Object or the path to a file
+     * @param mixed $path A SplFileInfo object or the path to a file
      *
      * @return \SplFileObject
      *
@@ -349,7 +350,7 @@ class AbstractCsv implements jsonSerializable, IteratorAggregate
     }
 
     /**
-     * Json Serializable Interface
+     * JsonSerializable Interface
      *
      * @return array
      */

@@ -36,7 +36,7 @@ use InvalidArgumentException;
 use Traversable;
 
 /**
- *  A Writer to ease CSV creation in PHP 5.4+
+ *  A class to manage data insertion into a CSV
  *
  * @package Bakame.csv
  * @since  4.0.0
@@ -60,9 +60,9 @@ class Writer extends AbstractCsv
     /**
      * Add a new CSV row to the generated CSV
      *
-     * @param mixed|object $row the line to be added to the CSV
+     * @param mixed $row a string, an array or an object implementing to '__toString' method
      *
-     * @return integer
+     * @return self
      *
      * @throws InvalidArgumentException If the given row format is invalid
      */
@@ -92,7 +92,7 @@ class Writer extends AbstractCsv
     /**
      * Add multiple lines to the CSV your are generating
      *
-     * @param array|\Traversable $rows the lines to be added to the CSV
+     * @param mixed $rows a multidimentional array or a Traversable object
      *
      * @return self
      *
@@ -114,7 +114,7 @@ class Writer extends AbstractCsv
     }
 
     /**
-     * Return a Reader CSV class for the current Writer
+     * Instantiate a {@link Reader} class from the current {@link Writer}
      *
      * @return \Bakame\Csv\Reader
      */

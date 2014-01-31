@@ -201,7 +201,7 @@ class Reader extends AbstractCsv
     }
 
     /**
-     * Return a Writer CSV class for the current reader
+     * Instantiate a {@link Writer} class from the current {@link Reader}
      *
      * @param string $open_mode the file open mode flag
      *
