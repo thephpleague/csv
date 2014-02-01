@@ -19,7 +19,7 @@ You need **PHP >= 5.4.0** and the `mbstring` extension to use `Bakame\Csv` but t
 Install
 -------
 
-You may install the Bakame Url package with Composer (recommended) or manually.
+You may install the Bakame.csv package with Composer (recommended) or manually.
 
 ```json
 {
