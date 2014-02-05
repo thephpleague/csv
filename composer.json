@@ -1,8 +1,8 @@
 {
     "name": "bakame/csv",
     "type": "library",
-    "description" : "A simple library to easily load, manipulate and save CSV files in PHP 5.4+",
-    "keywords": ["php", "splfileinfo", "splfileobject", "spltmpfileobject", "csv", "traversable", "mb_string"],
+    "description" : "Csv data manipulation made easy in PHP 5.4+",
+    "keywords": ["csv", "splfileobject", "iterator", "filtering", "reading", "writing", "import", "export"],
     "license": "MIT",
     "authors": [
         {
