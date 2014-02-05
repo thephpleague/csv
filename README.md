@@ -35,6 +35,10 @@ Download and extract the library in a specific directory, then add `'/path/to/Ba
 
 Manipulating a CSV
 -------
+
+**If you don't want to read the whole documentation just look at the [examples][] directory to see how the library works.**
+[examples]: https://github.com/nyamsprod/Bakame.csv/blob/master/examples/
+
 The library is composed of two main classes:
 * `Bakame\Csv\Reader` to extract and filter data from a CSV
 * `Bakame\Csv\Writer` to insert new data into a CSV. 
