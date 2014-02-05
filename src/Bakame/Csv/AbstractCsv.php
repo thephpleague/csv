@@ -333,11 +333,13 @@ class AbstractCsv implements JsonSerializable, IteratorAggregate
      *
      * @return string
      */
-    public function toHTML($classname = 'table-csv-data')
+    public function toHTML($classname = 'table-csv-data', $encoding = 'utf-8')
     {
-        $doc = new DomDocument('1.0');
+        $doc = new DomDocument('1.0', $encoding);
         $table = $doc->createElement('table');
         $table->setAttribute('class', $classname);
+        $this->csv->setCsvControl($this->delimiter, $this->enclosure, $this->escape);
+        $this->csv->setFlags($this->flags);
         foreach ($this->csv as $row) {
             $tr = $doc->createElement('tr');
             foreach ($row as $value) {
