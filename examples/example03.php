@@ -2,7 +2,6 @@
 
 error_reporting(-1);
 ini_set('display_errors', 'On');
-date_default_timezone_set('Europe/Brussels');
 
 use Bakame\Csv\Reader;
 
@@ -14,10 +13,9 @@ $inputCsv->setEncoding("iso-8859-15");
 
 //get the header
 $headers = $inputCsv->fetchOne(0);
+
 //get all the data without the header
-$res = $inputCsv
-    ->setOffset(1)
-    ->fetchAll();
+$res = $inputCsv->setOffset(1)->fetchAll();
 
 ?>
 <!doctype html>

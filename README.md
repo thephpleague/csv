@@ -36,8 +36,7 @@ Download and extract the library in a specific directory, then add `'/path/to/Ba
 Manipulating a CSV
 -------
 
-**If you don't want to read the whole documentation just look at the [examples][] directory to see how the library works.**
-[examples]: https://github.com/nyamsprod/Bakame.csv/blob/master/examples/
+**If you don't want to read the whole documentation just look at the [examples](examples/README.md) directory to see how the library works.**
 
 The library is composed of two main classes:
 * `Bakame\Csv\Reader` to extract and filter data from a CSV
@@ -341,10 +340,10 @@ $ phpunit
 Contributing
 -------
 
-Please see [CONTRIBUTING](https://github.com/nyamsprod/Bakame.csv/blob/master/CONTRIBUTING.md) for details.
+Please see [CONTRIBUTING](CONTRIBUTING.md) for details.
 
 Credits
 -------
 
 - [ignace nyamagana butera](https://github.com/nyamsprod)
-- [All Contributors](https://github.com/nyamsprod/Bakame.csv/graphs/contributors)
+- [All Contributors](graphs/contributors)

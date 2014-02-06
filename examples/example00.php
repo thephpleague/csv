@@ -2,7 +2,6 @@
 
 error_reporting(-1);
 ini_set('display_errors', 'On');
-date_default_timezone_set('Europe/Brussels');
 
 use Bakame\Csv\Reader;
 
@@ -19,6 +18,6 @@ $inputCsv->setEncoding("iso-8859-15");
     <title>Example 2</title>
 </head>
 <body>
-<?=$inputCsv->toHTML('table-csv-data');?>
+<?=$inputCsv->toHTML();?>
 </body>
 </html>

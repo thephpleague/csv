@@ -2,7 +2,6 @@
 
 error_reporting(-1);
 ini_set('display_errors', 'On');
-date_default_timezone_set('Europe/Brussels');
 
 use Bakame\Csv\Reader;
 use Bakame\Csv\Writer;
@@ -13,12 +12,13 @@ $inputCsv = new Reader('data/prenoms.csv');
 $inputCsv->setDelimiter(';');
 $inputCsv->setEncoding("iso-8859-15");
 
-//we filter only the least name given in 2010 and we don't take into account the header
+//we filter only the least girl firstname given in 2010
 $filter = function ($row, $index) {
-    return $index > 0 && isset($row[1], $row[2], $row[3])
-    && 10 > $row[1]
-    && 2010 == $row[3]
-    && 'F' == $row[2];
+    return $index > 0                   //we don't take into account the header
+    && isset($row[1], $row[2], $row[3]) //we make sure the data are present
+    && 10 > $row[1]                     //the name is used less than 10 times
+    && 2010 == $row[3]                  //we are looking for the year 2010
+    && 'F' == $row[2];                  //we are only interested in girl firstname
 };
 
 //we order the result according to the number of firstname given
@@ -58,12 +58,12 @@ $names = $reader
 <body>
 <h1>Example 4: Using Writer object</h1>
 <h3>The table representation of the csv to be save</h3>
-<?=$writer->toHTML('writer-csv-data');?>
+<?=$writer->toHTML();?>
 <h3>The Raw CSV as it will be saved</h3>
-<p><em>Notice that the delimiter have changed from <code>;</code> to <code>,</code></em></p>
 <pre>
 <?=$writer?>
 </pre>
+<p><em>Notice that the delimiter have changed from <code>;</code> to <code>,</code></em></p>
 <h3>Here's the firstname ordered list</h3>
 <ol>
 <?php foreach ($names as $firstname) : ?>
