@@ -14,7 +14,7 @@ This package is compliant with [PSR-0][], [PSR-1][], and [PSR-2][].
 System Requirements
 -------
 
-You need **PHP >= 5.4.0** and the `mbstring` extension to use `Bakame\Csv` but the latest stable version of PHP is recommended.
+You need the `mbstring` and the `iconv` extension as well as **PHP >= 5.4.0** to use `Bakame\Csv` but the latest stable version of PHP is recommended.
 
 Install
 -------
@@ -75,7 +75,7 @@ Both classes can take one optional parameter `$open_mode` representing the file 
 
 [fopen]: http://php.net/manual/en/function.fopen.php
 
-Once your object is created you can optionally set the CSV delimiter, enclosure and/or escape characters as well as the file `SplFileObject` flags.
+Once your object is created you can optionally set the CSV delimiter, enclosure and/or escape characters as well as the file `SplFileObject` flags and the CSV encoding charset.
 
 ```php
 $reader = new Reader('/path/to/your/csv/file.csv');
@@ -84,6 +84,7 @@ $reader->setDelimeter(',');
 $reader->setEnclosure('"');
 $reader->setEscape('\\');
 $reader->setFlags(SplFileObject::READ_AHEAD|SplFileObject::SKIP_EMPTY);
+$reader->setEncoding('iso-8859-1');
 ```
 
 ### Traversing the CSV

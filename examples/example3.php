@@ -11,7 +11,7 @@ require '../vendor/autoload.php';
 
 $inputCsv = new Reader('data/prenoms.csv');
 $inputCsv->setDelimiter(';');
-$encoding = "iso-8859-15";
+$inputCsv->setEncoding("iso-8859-15");
 
 //we filter only the least name given in 2010 and we don't take into account the header
 $filter = function ($row, $index) {
@@ -52,13 +52,13 @@ $names = $reader
 <!doctype html>
 <html lang="fr">
 <head>
-    <meta charset="<?=$encoding?>">
+    <meta charset="<?=$inputCsv->getEncoding()?>">
     <title>Example 2</title>
 </head>
 <body>
 <h1>Example 4: Using Writer object</h1>
 <h3>The table representation of the csv to be save</h3>
-<?=$writer->toHTML('writer-csv-data', $encoding);?>
+<?=$writer->toHTML('writer-csv-data');?>
 <h3>The Raw CSV as it will be saved</h3>
 <p><em>Notice that the delimiter have changed from <code>;</code> to <code>,</code></em></p>
 <pre>

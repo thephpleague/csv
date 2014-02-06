@@ -111,6 +111,18 @@ class CsvTest extends PHPUnit_Framework_TestCase
         Reader::createFromString(new \DateTime);
     }
 
+    /**
+     * @expectedException InvalidArgumentException
+     */
+    public function testEncoding()
+    {
+        $expected = 'iso-8859-15';
+        $this->csv->setEncoding($expected);
+        $this->assertSame(strtoupper($expected), $this->csv->getEncoding());
+
+        $this->csv->setEncoding('');
+    }
+
     public function testToString()
     {
         $expected = "john,doe,john.doe@example.com".PHP_EOL
@@ -156,8 +168,22 @@ EOF;
         $this->assertSame($expected, $this->csv->toHTML());
     }
 
-    public function testJsonInterface()
+    /**
+     * @param $rawCsv
+     *
+     * @dataProvider getIso8859Csv
+     */
+    public function testJsonInterface($rawCsv)
     {
         $this->assertSame(json_encode($this->expected), json_encode($this->csv));
+        $csv = Reader::createFromString($rawCsv);
+        $csv->setEncoding('iso-8859-15');
+        $this->assertStringStartsWith('[[', json_encode($csv));
+
+    }
+
+    public static function getIso8859Csv()
+    {
+        return [[file_get_contents(__DIR__.'/data/prenoms.csv')]];
     }
 }

@@ -11,7 +11,7 @@ require '../vendor/autoload.php';
  //you can instantiate the Reader class with a SplFileObject object
 $inputCsv = new Reader(new SplFileObject('data/prenoms.csv'));
 $inputCsv->setDelimiter(';');
-$encoding = "iso-8859-15";
+$inputCsv->setEncoding("iso-8859-15");
 
 //we filter only the least name given in 2010 and we don't take into account the header
 $filter = function ($row, $index) {
@@ -38,7 +38,7 @@ $headers = $inputCsv->fetchOne(0);
 <!doctype html>
 <html lang="fr">
 <head>
-    <meta charset="<?=$encoding?>">
+    <meta charset="<?=$inputCsv->getEncoding()?>">
 <title>Example 3</title>
 </head>
 <body>

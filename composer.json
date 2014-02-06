@@ -2,7 +2,7 @@
     "name": "bakame/csv",
     "type": "library",
     "description" : "Csv data manipulation made easy in PHP 5.4+",
-    "keywords": ["csv", "splfileobject", "iterator", "filtering", "reading", "writing", "import", "export"],
+    "keywords": ["csv", "import", "export", "read", "write", "filter"],
     "license": "MIT",
     "authors": [
         {
@@ -14,7 +14,8 @@
     ],
     "require": {
         "php" : ">=5.4.0",
-        "ext-mbstring" : "*"
+        "ext-mbstring" : "*",
+        "ext-iconv" : "*"
     },
     "autoload": {
         "psr-0": {

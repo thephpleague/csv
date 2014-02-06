@@ -10,7 +10,7 @@ require '../vendor/autoload.php';
 
 $inputCsv = new Reader('data/prenoms.csv');
 $inputCsv->setDelimiter(';');
-$encoding = "iso-8859-15";
+$inputCsv->setEncoding("iso-8859-15");
 
 //get the header
 $headers = $inputCsv->fetchOne(0);
@@ -23,7 +23,7 @@ $res = $inputCsv
 <!doctype html>
 <html lang="fr">
 <head>
-    <meta charset="<?=$encoding?>">
+    <meta charset="<?=$inputCsv->getEncoding()?>">
     <title>Example 1</title>
 </head>
 <body>

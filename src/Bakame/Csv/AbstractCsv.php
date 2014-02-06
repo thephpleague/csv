@@ -40,6 +40,7 @@ use SplFileInfo;
 use SplFileObject;
 use SplTempFileObject;
 use InvalidArgumentException;
+use Bakame\Csv\Iterator\MapIterator;
 
 /**
  *  A abstract class to enable basic CSV manipulation
@@ -84,6 +85,13 @@ class AbstractCsv implements JsonSerializable, IteratorAggregate
      * @var integer
      */
     protected $flags = SplFileObject::READ_CSV;
+
+    /**
+     * Charset Encoding for the CSV
+     *
+     * @var string
+     */
+    protected $encoding = 'UTF-8';
 
     /**
      * Open mode available flag
@@ -295,6 +303,35 @@ class AbstractCsv implements JsonSerializable, IteratorAggregate
     }
 
     /**
+     * Set the CSV encoding charset
+     *
+     * @param string $str
+     *
+     * @return self
+     */
+    public function setEncoding($str)
+    {
+        $str = str_replace('_', '-', $str);
+        $str = filter_var($str, FILTER_SANITIZE_STRING, ['flags' => FILTER_FLAG_STRIP_LOW|FILTER_FLAG_STRIP_HIGH]);
+        if (empty($str)) {
+            throw new InvalidArgumentException('you should use a valid charset');
+        }
+        $this->encoding = strtoupper($str);
+
+        return $this;
+    }
+
+    /**
+     * Get the CSV encoding charset
+     *
+     * @return string
+     */
+    public function getEncoding()
+    {
+        return $this->encoding;
+    }
+
+    /**
      * Return the CSV Iterator
      *
      * @return \SplFileObject
@@ -333,9 +370,9 @@ class AbstractCsv implements JsonSerializable, IteratorAggregate
      *
      * @return string
      */
-    public function toHTML($classname = 'table-csv-data', $encoding = 'utf-8')
+    public function toHTML($classname = 'table-csv-data')
     {
-        $doc = new DomDocument('1.0', $encoding);
+        $doc = new DomDocument('1.0', $this->encoding);
         $table = $doc->createElement('table');
         $table->setAttribute('class', $classname);
         $this->csv->setCsvControl($this->delimiter, $this->enclosure, $this->escape);
@@ -358,6 +395,20 @@ class AbstractCsv implements JsonSerializable, IteratorAggregate
      */
     public function jsonSerialize()
     {
-        return iterator_to_array($this->csv);
+        $this->csv->setCsvControl($this->delimiter, $this->enclosure, $this->escape);
+        $this->csv->setFlags($this->flags);
+        $iterator = $this->csv;
+        if ('UTF-8' != $this->encoding) {
+            $iterator = new MapIterator($iterator, function ($row) {
+                foreach ($row as &$value) {
+                    $value = iconv($this->encoding, 'UTF-8//TRANSLIT', $value);
+                }
+                unset($value);
+
+                return $row;
+            });
+        }
+
+        return iterator_to_array($iterator);
     }
 }
