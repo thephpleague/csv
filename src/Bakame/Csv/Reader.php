@@ -214,6 +214,7 @@ class Reader extends AbstractCsv
         $csv->setEnclosure($this->enclosure);
         $csv->setEscape($this->escape);
         $csv->setFlags($this->flags);
+        $csv->setEncoding($this->encoding);
 
         return $csv;
     }
