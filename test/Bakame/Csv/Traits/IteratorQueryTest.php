@@ -3,6 +3,7 @@
 namespace Bakame\Csv\Traits;
 
 use ArrayIterator;
+use ReflectionClass;
 use PHPUnit_Framework_TestCase;
 
 /**
@@ -13,6 +14,15 @@ class IteratorQueryTest extends PHPUnit_Framework_TestCase
     private $traitQuery;
     private $iterator;
     private $data = ['john', 'jane', 'foo', 'bar'];
+
+    public function invokeMethod(&$object, $methodName, array $parameters = [])
+    {
+        $reflection = new ReflectionClass(get_class($object));
+        $method = $reflection->getMethod($methodName);
+        $method->setAccessible(true);
+
+        return $method->invokeArgs($object, $parameters);
+    }
 
     private function createTraitObject()
     {
@@ -31,7 +41,7 @@ class IteratorQueryTest extends PHPUnit_Framework_TestCase
     public function testSetLimit()
     {
         $this->traitQuery->setLimit(1);
-        $iterator = $this->traitQuery->execute($this->iterator);
+        $iterator = $this->invokeMethod($this->traitQuery, 'execute', [$this->iterator]);
         $res = iterator_to_array($iterator);
         $this->assertCount(1, $res);
 
@@ -44,7 +54,7 @@ class IteratorQueryTest extends PHPUnit_Framework_TestCase
     public function testSetOffset()
     {
         $this->traitQuery->setOffset(1);
-        $iterator = $this->traitQuery->execute($this->iterator);
+        $iterator = $this->invokeMethod($this->traitQuery, 'execute', [$this->iterator]);
         $res = iterator_to_array($iterator);
         $this->assertCount(3, $res);
 
@@ -55,7 +65,7 @@ class IteratorQueryTest extends PHPUnit_Framework_TestCase
     {
         $this->traitQuery->setOffset(3);
         $this->traitQuery->setLimit(10);
-        $iterator = $this->traitQuery->execute($this->iterator);
+        $iterator = $this->invokeMethod($this->traitQuery, 'execute', [$this->iterator]);
         $res = iterator_to_array($iterator);
         $this->assertSame([3 => 'bar'], $res);
         $this->assertCount(1, $res);
@@ -65,7 +75,7 @@ class IteratorQueryTest extends PHPUnit_Framework_TestCase
     {
         $this->traitQuery->setOffset(1);
         $this->traitQuery->setLimit(1);
-        $iterator = $this->traitQuery->execute($this->iterator);
+        $iterator = $this->invokeMethod($this->traitQuery, 'execute', [$this->iterator]);
         $res = iterator_to_array($iterator);
         $this->assertCount(1, $res);
     }
@@ -77,7 +87,7 @@ class IteratorQueryTest extends PHPUnit_Framework_TestCase
         };
         $this->traitQuery->setFilter($func);
 
-        $iterator = $this->traitQuery->execute($this->iterator);
+        $iterator = $this->invokeMethod($this->traitQuery, 'execute', [$this->iterator]);
         $res = iterator_to_array($iterator);
         $this->assertCount(1, $res);
     }
@@ -85,7 +95,7 @@ class IteratorQueryTest extends PHPUnit_Framework_TestCase
     public function testSortBy()
     {
         $this->traitQuery->setSortBy('strcmp');
-        $iterator = $this->traitQuery->execute($this->iterator);
+        $iterator = $this->invokeMethod($this->traitQuery, 'execute', [$this->iterator]);
         $res = iterator_to_array($iterator);
 
         $this->assertSame(['bar', 'foo', 'jane', 'john'], array_values($res));
@@ -93,9 +103,9 @@ class IteratorQueryTest extends PHPUnit_Framework_TestCase
 
     public function testExecuteWithCallback()
     {
-        $iterator = $this->traitQuery->execute($this->iterator, function ($value) {
+        $iterator = $this->invokeMethod($this->traitQuery, 'execute', [$this->iterator, function ($value) {
             return strtoupper($value);
-        });
+        }]);
         $this->assertSame(array_map('strtoupper', $this->data), iterator_to_array($iterator));
     }
 }
