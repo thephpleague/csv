@@ -37,17 +37,6 @@ $headers = $inputCsv->fetchOne(0);
 $writer = new Writer(new SplTempFileObject); //because we don't want to create the file
 $writer->insertOne($headers);
 $writer->insertAll($res);
-
-//we create a Reader object from the Writer object to filter the resulting CSV
-$reader = $writer->getReader();
-$names = $reader
-    ->setFilter(function ($row, $index) {
-        return $index > 0; //we don't want to select the header
-    })
-    ->setSortBy(function ($row1, $row2) {
-        return strcmp($row1[0], $row2[0]); //we are sorting the name
-    })
-    ->fetchCol(0); //we only return the name column
 ?>
 <!doctype html>
 <html lang="fr">
@@ -64,13 +53,6 @@ $names = $reader
 <?=$writer?>
 </pre>
 <p><em>Notice that the delimiter have changed from <code>;</code> to <code>,</code></em></p>
-<h3>Here's the firstname ordered list</h3>
-<ol>
-<?php foreach ($names as $firstname) : ?>
-    <li><?=$firstname?>
-    <?php
-endforeach;
-?>
 </ol>
 </body>
 </html>

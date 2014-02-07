@@ -8,6 +8,7 @@ Examples
 * [Selecting a specific row in the CSV](example03.php)
 * [Filtering a CSV](example05.php) using the `Bakame\Csv\Reader` class
 * [Creating a CSV](example05.php) using the `Bakame\Csv\Writer` class
+* [Passing a CSV from writing mode to Reader mode](example06.php)
 
 The CSV use for the example is from [Paris Opendata](http://opendata.paris.fr/opendata/jsp/site/Portal.jsp?document_id=60&portlet_id=121)
 

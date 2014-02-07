@@ -80,7 +80,7 @@ class Writer extends AbstractCsv
             return self::isValidString($value);
         });
         if (count($check) == count($row)) {
-            $this->csv->fputcsv($row);
+            $this->csv->fputcsv($row, $this->delimiter, $this->enclosure);
 
             return $this;
         }

@@ -65,9 +65,9 @@ class CsvTest extends PHPUnit_Framework_TestCase
     {
         $expected = "john,doe,john.doe@example.com".PHP_EOL
             ."jane,doe,jane.doe@example.com".PHP_EOL;
-        foreach (Reader::createFromString($expected) as $key => $row) {
-            $this->assertSame($this->expected[$key], $row);
-        }
+        $reader = Reader::createFromString($expected);
+        $this->assertSame($reader->fetchOne(0), ['john', 'doe', 'john.doe@example.com']);
+        $this->assertSame($reader->fetchOne(1), ['jane', 'doe', 'jane.doe@example.com']);
     }
 
     /**
@@ -178,8 +178,8 @@ EOF;
         $this->assertSame(json_encode($this->expected), json_encode($this->csv));
         $csv = Reader::createFromString($rawCsv);
         $csv->setEncoding('iso-8859-15');
-        $this->assertStringStartsWith('[[', json_encode($csv));
-
+        json_encode($csv);
+        $this->assertEquals(JSON_ERROR_NONE, json_last_error());
     }
 
     public static function getIso8859Csv()

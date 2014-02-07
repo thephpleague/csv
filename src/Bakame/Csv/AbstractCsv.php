@@ -135,7 +135,9 @@ class AbstractCsv implements JsonSerializable, IteratorAggregate
     {
         if (self::isValidString($str)) {
             $csv = new SplTempFileObject;
-            $csv->fwrite((string) $str);
+            $raw = (string) $str;
+            $raw .= PHP_EOL;
+            $csv->fwrite($raw);
 
             return new static($csv);
         }
@@ -401,7 +403,7 @@ class AbstractCsv implements JsonSerializable, IteratorAggregate
         if ('UTF-8' != $this->encoding) {
             $iterator = new MapIterator($iterator, function ($row) {
                 foreach ($row as &$value) {
-                    $value = iconv($this->encoding, 'UTF-8//TRANSLIT', $value);
+                    $value =  mb_convert_encoding($value, 'UTF-8', $this->encoding);
                 }
                 unset($value);
 
