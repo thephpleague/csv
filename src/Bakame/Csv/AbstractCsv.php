@@ -382,7 +382,7 @@ class AbstractCsv implements JsonSerializable, IteratorAggregate
         foreach ($this->csv as $row) {
             $tr = $doc->createElement('tr');
             foreach ($row as $value) {
-                $tr->appendChild($doc->createElement('td', $value));
+                $tr->appendChild($doc->createElement('td', htmlspecialchars($value, ENT_COMPAT, $this->encoding)));
             }
             $table->appendChild($tr);
         }
