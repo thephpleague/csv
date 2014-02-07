@@ -1,8 +1,5 @@
 <?php
 
-error_reporting(-1);
-ini_set('display_errors', 'On');
-
 use Bakame\Csv\Reader;
 
 require '../vendor/autoload.php';
@@ -47,11 +44,7 @@ $headers = $inputCsv->fetchOne(0);
 <caption>Statistics for the 20 least used female name in the year 2010</caption>
 <thead>
     <tr>
-<?php foreach ($headers as $title): ?>
-    <th><?=$title?></th>
-    <?php
-endforeach;
-?>
+        <th><?=implode('</th>'.PHP_EOL.'<th>', $headers), '</th>', PHP_EOL; ?>
     </tr>
 </thead>
 <tbody>

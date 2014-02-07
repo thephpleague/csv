@@ -1,10 +1,7 @@
 <?php
 
-error_reporting(-1);
-ini_set('display_errors', 'On');
-
-use Bakame\Csv\Reader;
 use Bakame\Csv\Writer;
+use Bakame\Csv\Reader;
 
 require '../vendor/autoload.php';
 
@@ -35,6 +32,7 @@ $res = $inputCsv
 $headers = $inputCsv->fetchOne(0);
 
 $writer = new Writer(new SplTempFileObject); //because we don't want to create the file
+$writer->setDelimiter("\t"); //the delimiter will be the tab character
 $writer->insertOne($headers);
 $writer->insertAll($res);
 ?>
@@ -52,7 +50,6 @@ $writer->insertAll($res);
 <pre>
 <?=$writer?>
 </pre>
-<p><em>Notice that the delimiter have changed from <code>;</code> to <code>,</code></em></p>
-</ol>
+<p><em>Notice that the delimiter have changed from <code>;</code> to <code>&lt;tab&gt;</code></em></p>
 </body>
 </html>

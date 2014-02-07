@@ -1,8 +1,5 @@
 <?php
 
-error_reporting(-1);
-ini_set('display_errors', 'On');
-
 use Bakame\Csv\Reader;
 
 require '../vendor/autoload.php';

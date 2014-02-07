@@ -1,8 +1,5 @@
 <?php
 
-error_reporting(-1);
-ini_set('display_errors', 'On');
-
 use Bakame\Csv\Reader;
 
 require '../vendor/autoload.php';
@@ -14,9 +11,8 @@ $inputCsv->setEncoding("iso-8859-15");
 //get the header
 $headers = $inputCsv->fetchOne(0);
 
-//get all the data without the header
-$res = $inputCsv->setOffset(1)->fetchAll();
-
+//get at maximum 40 rows starting from the second 801th row
+$res = $inputCsv->setOffset(800)->setLimit(25)->fetchAll();
 ?>
 <!doctype html>
 <html lang="fr">
@@ -27,14 +23,10 @@ $res = $inputCsv->setOffset(1)->fetchAll();
 <body>
 <h1>Example 1: Simple Reader class usage</h1>
 <table>
-<caption>Full Statistics</caption>
+<caption>Part of the CSV from the 801th row with at most 25 rows</caption>
 <thead>
     <tr>
-<?php foreach ($headers as $title): ?>
-    <th><?=$title?></th>
-    <?php
-endforeach;
-?>
+        <th><?=implode('</th>'.PHP_EOL.'<th>', $headers), '</th>', PHP_EOL; ?>
     </tr>
 </thead>
 <tbody>

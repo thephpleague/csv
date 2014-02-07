@@ -1,8 +1,5 @@
 <?php
 
-error_reporting(-1);
-ini_set('display_errors', 'On');
-
 use Bakame\Csv\Writer;
 
 require '../vendor/autoload.php';
@@ -15,9 +12,11 @@ Andrea;20;F;2004
 Andy;19;M;2004
 Ange;15;M;2004
 Angela;9;F;2004
-Angèle;29;F;2004
-Angelina;8;F;2004
-Angelina;7;F;2004
+Kelyan;6;M;2011
+Kenan;11;M;2011
+Kenny;8;M;2011
+Kenza;33;F;2011
+Kenzi;5;M;2011
 Angelique;13;F;2004
 Angelo;9;M;2004
 Ania;7;F;2004
@@ -32,15 +31,20 @@ Antoine;248;M;2004
 Anton;16;M;2004
 EOF;
 
-$writer = Writer::createFromString($rawCsv); //we are creating a CSV from a raw string
+ //we are creating a CSV from a raw string
+$writer = Writer::createFromString($rawCsv);
+
+//because we raw string delimiter is ";"
+//the string delimiter MUST also be ";"
 $writer->setDelimiter(';');
-$writer->insertOne('Ben;7;M;2004'); //because we specified the delimiter to ";" the string delimiter MUST also be ";"
+
+$writer->insertOne('Ben;7;M;2004');
 $writer->insertAll([
     'Benjamin;118;M;2004',
-    ['Benoit', '6', 'M', '2004'] //because we a inserting an array the delimiter is not necessary
+    ['Benoit', '6', 'M', '2004']
 ]);
 
-//we create a Reader object from the Writer object to filter the resulting CSV
+//we create a Reader object from the Writer object
 $reader = $writer->getReader();
 $names = $reader
     ->setSortBy(function ($row1, $row2) {
