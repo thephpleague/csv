@@ -14,7 +14,7 @@ This package is compliant with [PSR-0][], [PSR-1][], and [PSR-2][].
 System Requirements
 -------
 
-You need the `mbstring` and the `iconv` extension as well as **PHP >= 5.4.0** to use `Bakame\Csv` but the latest stable version of PHP is recommended.
+You need **PHP >= 5.4.0** and the `mbstring` extension to use `Bakame\Csv` but the latest stable version of PHP is recommended.
 
 Install
 -------
@@ -33,10 +33,13 @@ You may install the Bakame.csv package with Composer (recommended) or manually.
 
 Download and extract the library in a specific directory, then add `'/path/to/Bakame/Csv/src'` to your PSR-0 compliant autoloader.
 
-Manipulating a CSV
+Usage
 -------
 
-**If you don't want to read the whole documentation just look at the [examples](examples/README.md) directory to see how the library works.**
+**If you don't want to read the whole documentation just look at the [examples](examples/) directory to see how the library works.**
+
+Manipulating a CSV
+-------
 
 The library is composed of two main classes:
 * `Bakame\Csv\Reader` to extract and filter data from a CSV
@@ -52,16 +55,15 @@ There's several ways to instantiate these classes:
 use Bakame\Csv\Reader;
 use Bakame\Csv\Writer;
 
-$writer = new Writer('/path/to/your/csv/file.csv');
 $reader = new Reader('/path/to/your/csv/file.csv');
+$reader = new Reader(new SpliFileInfo('/path/to/your/csv/file.csv'));
+$reader = Reader::createFromString('john,doe,john.doe@example.com');
+
 //or 
 
-$writer = new Writer(new SpliFileObject('/path/to/your/csv/file.csv'));
-$reader = new Reader(new SpliFileObject('/path/to/your/csv/file.csv'));
-//or 
-
-$writer = new Writer::createFromString('john,doe,john.doe@example.com');
-$reader = new Reader::createFromString('john,doe,john.doe@example.com');
+$writer = new Writer('/path/to/your/csv/file.csv', 'w');
+$writer = new Writer(new SpliFileObject('/path/to/your/csv/file.csv'), 'a+');
+$writer = Writer::createFromString('john,doe,john.doe@example.com');
 ```
 
 The static method `createFromString` is to be use if your data is a string.
@@ -74,7 +76,11 @@ Both classes can take one optional parameter `$open_mode` representing the file 
 
 [fopen]: http://php.net/manual/en/function.fopen.php
 
-Once your object is created you can optionally set the CSV delimiter, enclosure and/or escape characters as well as the file `SplFileObject` flags and the CSV encoding charset.
+Once your object is created you can optionally set:
+
+* the CSV delimiter, enclosure and/or escape characters;
+* the object `SplFileObject` flags;
+* the CSV encoding charset if the CSV is not in `UTF-8`;
 
 ```php
 $reader = new Reader('/path/to/your/csv/file.csv');
@@ -88,57 +94,58 @@ $reader->setEncoding('iso-8859-1');
 
 ### Traversing the CSV
 
-Both classes implement the `IteratorAggregate` Interface so you can iterate over your csv data using the `foreach` construct:
+With both classes you can iterate over your csv data using the `foreach` construct:
 
 ```php
 foreach ($reader as $row) {
-    //do something meaningfull here!!
+    //do something meaningfull here with $row !!
+    //$row is an array where each item represent a CSV data cell
 }
 ```
 
 ### Outputting the CSV
 
-Both classes implement the `jsonSerializable` interface so you can transform you CSV into a Json string using the `json_encode` function directly on the instantiated object.
+With both classes you can:
+
+#### show the CSV content:
+
+You can directly use the `echo` construct on the instantiated object or use the `__toString` method 
 
 ```php
-echo json_encode($reader);
+echo $writer;
+//or
+echo $writer->__toString();
 ```
-
-Both classes share the following methods to enable outputting the CSV:
-
-* The `__toString` method returns the CSV content as it is written in the file.
-* The `output` method returns to the output buffer the CSV content. This method can be use if you want the CSV to be downloaded by your user.
-* The `toHTML` method returns the CSV content formatted in a HTML Table, This methods accept an optional argument `$classname` to help you customize the table rendering, by defaut the classname given to the table is `table-csv-data`.
-
-### Switching from one class to the other
-
-Of course at any given time it is possible to switch from one object to the other by using:
-* the `Bakame\Csv\Writer::getReader` method from the `Bakame\Csv\Writer` class
-* the `Bakame\Csv\Reader::getWriter` method from the `Bakame\Csv\Reader` class this method accept the optional `$open_mode` parameter.
+The CSV data can be formatted into an HTML table using the `toHTML` method. This methods accepts an optional argument `$classname` to help you customize the table rendering, by defaut the classname given to the table is `table-csv-data`.
 
 ```php
-$reader = $writer->getReader();
-$newWriter = $reader->getWriter('a'); 
-//be carefull the $newWriter is not equal to $writer!!
-
+echo $writer->toHTML();
 ```
+
+#### convert the CSV into a Json string:
+
+Use the `json_encode` function directly on the instantiated object.
+
+```php
+echo json_encode($writer);
+```
+
+#### make the CSV downloadable
+
+If you only wish to make your CSV downloadable just use the `output` method to return to the output buffer the CSV content.
+
+```php
+$reader->setEncoding('ISO-8859-15');
+header('Content-Type: text/csv; charset="'.$reader->getEncoding().'"');
+header('Content-Disposition: attachment; filename="name-for-your-file.csv"');
+$reader->output();
+```
+
 
 Extracting data from the CSV
 -------
 
 Extracting data is made easy using the following methods on a `Bakame\Csv\Reader` object: 
-
-#### fetchOne
-
-`fetchOne` return one single row from the CSV data. The required argument `$offset` represent the row index starting at 0.
-
-```php
-$data = $reader->fetchOne(3); ///accessing the 4th row (indexing starts at 0)
-// will return something like this :
-// 
-//   ['john', 'doe', 'john.doe@example.com']
-//
-```
 
 #### fetchAll
 
@@ -192,6 +199,18 @@ The methods listed above (`fetchAll`, `fetchAssoc`, `fetchCol`) can all take a o
 * the current csv row data
 * the current csv key
 * the current csv Iterator Object (usually a `SplFileObject`)
+
+#### fetchOne
+
+`fetchOne` return one single row from the CSV data. The required argument `$offset` represent the row index starting at 0.
+
+```php
+$data = $reader->fetchOne(3); ///accessing the 4th row (indexing starts at 0)
+// will return something like this :
+// 
+//   ['john', 'doe', 'john.doe@example.com']
+//
+```
 
 ### Filtering the data
 
@@ -255,7 +274,7 @@ $data = $reader
 
 ### Manual extracting and filtering
 
-If you want to output differently you data you can use the `query` method. It works like the `fetch*` method but returns an [Iterator][] that you may manipulate as you wish.
+If you want to output differently you data you can use the `query` method. It works like the `fetchAll` method but returns an [Iterator][] that you may manipulate as you wish.
 
 [Iterator]: http://php.net/manual/en/class.iterator.php
 
@@ -329,6 +348,21 @@ $writer->insertAll($arr) //using an array
 $object = new ArrayIterator($arr);
 $writer->insertMany($object); //using a Traversable object
 ```
+
+Switching from one class to the other
+-------
+
+It is possible to switch between modes by using:
+
+* the `Bakame\Csv\Writer::getReader` method from the `Bakame\Csv\Writer` class
+* the `Bakame\Csv\Reader::getWriter` method from the `Bakame\Csv\Reader` class this method accept the optional `$open_mode` parameter.
+
+```php
+$reader = $writer->getReader();
+$newWriter = $reader->getWriter('a'); 
+```
+**be careful the `$newWriter` object is not equal to the `$writer` object!!**
+
 
 Testing
 -------
