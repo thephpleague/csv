@@ -127,12 +127,9 @@ class Reader extends AbstractCsv
      */
     public function fetchAll(callable $callable = null)
     {
-        $res = [];
-        foreach ($this->query($callable) as $row) {
-            $res[] = $row;
-        }
+        $iterator = $this->query($callable);
 
-        return $res;
+        return iterator_to_array($iterator);
     }
 
     /**
@@ -157,12 +154,12 @@ class Reader extends AbstractCsv
             );
         }
 
-        $res = [];
-        foreach ($this->query($callable) as $row) {
-            $res[] = self::combineArray($keys, $row);
-        }
+        $iterator = $this->query($callable);
+        $iterator = new MapIterator($iterator, function ($row) use ($keys) {
+            return self::combineArray($keys, $row);
+        });
 
-        return $res;
+        return iterator_to_array($iterator);
     }
 
     /**
@@ -186,18 +183,13 @@ class Reader extends AbstractCsv
         $iterator = $this->query($callable);
         $iterator = new MapIterator($iterator, function ($row) use ($columnIndex) {
             if (! array_key_exists($columnIndex, $row)) {
-                $row[$columnIndex] = null;
+                return null;
             }
 
-            return $row;
+            return $row[$columnIndex];
         });
 
-        $res = [];
-        foreach ($iterator as $row) {
-            $res[] = $row[$columnIndex];
-        }
-
-        return $res;
+        return iterator_to_array($iterator);
     }
 
     /**
