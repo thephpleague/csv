@@ -6,7 +6,7 @@ Examples
 * [Converting the CSV into a Json String](example01.php) string
 * [Downloading the CSV](example02.php) using the `output` method
 * [Selecting specific rows in the CSV](example03.php)
-* [Filtering a CSV](example05.php) using the `Bakame\Csv\Reader` class
+* [Filtering a CSV](example04.php) using the `Bakame\Csv\Reader` class
 * [Creating a CSV](example05.php) using the `Bakame\Csv\Writer` class
 * [From writing mode to reader mode](example06.php)
 
