@@ -4,17 +4,16 @@ language: php
 php:
   - 5.4
   - 5.5
+  - hhvm
 
 before_script:
   - composer self-update
   - composer require satooshi/php-coveralls:dev-master --no-update --dev
   - composer install --dev --prefer-source
-  - pyrus install pear/PHP_CodeSniffer
   - phpenv rehash
 
 script:
   - mkdir -p build/logs
 
 after_script:
-  - phpcs --standard=psr2 src/
   - php vendor/bin/coveralls
