@@ -24,7 +24,7 @@ You may install the Bakame.csv package with Composer (recommended) or manually.
 ```json
 {
     "require": {
-        "bakame/csv": "~4.*"
+        "bakame/csv": "4.*"
     }
 }
 ```
