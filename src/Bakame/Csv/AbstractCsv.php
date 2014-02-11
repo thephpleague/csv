@@ -411,6 +411,6 @@ class AbstractCsv implements JsonSerializable, IteratorAggregate
             });
         }
 
-        return iterator_to_array($iterator);
+        return \Bakame\Csv\Iterator\iterator2Array($iterator, false);
     }
 }

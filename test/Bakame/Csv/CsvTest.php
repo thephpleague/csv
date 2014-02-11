@@ -186,4 +186,11 @@ EOF;
     {
         return [[file_get_contents(__DIR__.'/data/prenoms.csv')]];
     }
+
+    public function testIterator2Array()
+    {
+        $res = \Bakame\Csv\Iterator\iterator2Array($this->csv);
+        $res2 = \Bakame\Csv\Iterator\iterator2Array($this->csv, false);
+        $this->assertSame($res, $res2);
+    }
 }
