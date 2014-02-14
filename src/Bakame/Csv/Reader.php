@@ -129,7 +129,7 @@ class Reader extends AbstractCsv
     {
         $iterator = $this->query($callable);
 
-        return \Bakame\Csv\Iterator\iterator2Array($iterator, false);
+        return iterator_to_array($iterator, false);
     }
 
     /**
@@ -159,7 +159,7 @@ class Reader extends AbstractCsv
             return self::combineArray($keys, $row);
         });
 
-        return \Bakame\Csv\Iterator\iterator2Array($iterator, false);
+        return iterator_to_array($iterator, false);
     }
 
     /**
@@ -189,7 +189,7 @@ class Reader extends AbstractCsv
             return $row[$columnIndex];
         });
 
-        return \Bakame\Csv\Iterator\iterator2Array($iterator, false);
+        return iterator_to_array($iterator, false);
     }
 
     /**

@@ -403,7 +403,7 @@ class AbstractCsv implements JsonSerializable, IteratorAggregate
         if ('UTF-8' != $this->encoding) {
             $iterator = new MapIterator($iterator, function ($row) {
                 foreach ($row as &$value) {
-                    $value =  mb_convert_encoding($value, 'UTF-8', $this->encoding);
+                    $value = mb_convert_encoding($value, 'UTF-8', $this->encoding);
                 }
                 unset($value);
 
@@ -411,6 +411,6 @@ class AbstractCsv implements JsonSerializable, IteratorAggregate
             });
         }
 
-        return \Bakame\Csv\Iterator\iterator2Array($iterator, false);
+        return iterator_to_array($iterator, false);
     }
 }

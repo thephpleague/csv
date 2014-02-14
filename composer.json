@@ -17,7 +17,6 @@
         "ext-mbstring" : "*"
     },
     "autoload": {
-        "files": ["src/Bakame/Csv/Iterator/functions.php"],
         "psr-0": {
             "Bakame": ["src", "test"]
         }
