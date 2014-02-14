@@ -17,8 +17,9 @@
         "ext-mbstring" : "*"
     },
     "autoload": {
-        "psr-0": {
-            "Bakame": ["src", "test"]
+        "psr-4": {
+            "Bakame\\Csv\\": "src",
+            "Bakame\\CSv\\": "test"
         }
     }
 }

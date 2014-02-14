@@ -13,13 +13,13 @@
     
     <testsuites>
         <testsuite name="Bakame CSV Test Suite">
-            <directory>test/Bakame</directory>
+            <directory>test</directory>
         </testsuite>
     </testsuites>
 
     <filter>
         <whitelist>
-            <directory suffix=".php">src/Bakame</directory>
+            <directory suffix=".php">src/</directory>
         </whitelist>
     </filter>
 
