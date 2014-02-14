@@ -5,21 +5,22 @@ Bakame.csv
 
 A simple library to easily load, manipulate and save CSV files in PHP 5.4+
 
-This package is compliant with [PSR-0][], [PSR-1][], and [PSR-2][].
+This package is compliant with [PSR-1][], [PSR-2][], and [PSR-4][].
 
-[PSR-0]: https://github.com/php-fig/fig-standards/blob/master/accepted/PSR-0.md
 [PSR-1]: https://github.com/php-fig/fig-standards/blob/master/accepted/PSR-1-basic-coding-standard.md
 [PSR-2]: https://github.com/php-fig/fig-standards/blob/master/accepted/PSR-2-coding-style-guide.md
+[PSR-4]: https://github.com/php-fig/fig-standards/blob/master/accepted/PSR-4-autoloader.md
+
 
 System Requirements
 -------
 
 You need **PHP >= 5.4.0** and the `mbstring` extension to use `Bakame\Csv` but the latest stable version of PHP is recommended.
 
-Installation
+Install
 -------
 
-You may install the Bakame.csv package with Composer (recommended) or manually.
+Install the Bakame.csv package with Composer.
 
 ```json
 {
@@ -28,10 +29,6 @@ You may install the Bakame.csv package with Composer (recommended) or manually.
     }
 }
 ```
-
-**Manual Install:**
-
-Download and extract the library in a specific directory, then add `'/path/to/Bakame/Csv/src'` to your PSR-0 compliant autoloader.
 
 Usage
 -------
@@ -197,7 +194,7 @@ $data = $reader->fetchAssoc(['firstname', 'lastname', 'email']);
 // ]
 // 
 ```
-> 
+
 > * If the number of values in a CSV row is lesser than the number of named keys, the method will add `null` values to compensate for the missing values.
 > * If the number of values in a CSV row is greater that the number of named keys the exceeding values will be drop from the result set.
 
@@ -403,3 +400,5 @@ Credits
 
 - [ignace nyamagana butera](https://github.com/nyamsprod)
 - [All Contributors](graphs/contributors)
+
+[![Bitdeli Badge](https://d2weczhvl823v0.cloudfront.net/nyamsprod/bakame.csv/trend.png)](https://bitdeli.com/free "Bitdeli Badge")
