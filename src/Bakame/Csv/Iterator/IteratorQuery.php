@@ -30,14 +30,13 @@
 * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
-namespace Bakame\Csv\Traits;
+namespace Bakame\Csv\Iterator;
 
 use ArrayObject;
 use CallbackFilterIterator;
 use InvalidArgumentException;
 use Iterator;
 use LimitIterator;
-use Bakame\Csv\Iterator\MapIterator;
 
 /**
  *  A Trait to filter in a SQL-like manner Iterators

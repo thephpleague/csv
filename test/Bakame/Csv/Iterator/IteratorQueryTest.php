@@ -1,6 +1,6 @@
 <?php
 
-namespace Bakame\Csv\Traits;
+namespace Bakame\Csv\Iterator;
 
 use ArrayIterator;
 use ReflectionClass;
@@ -26,7 +26,7 @@ class IteratorQueryTest extends PHPUnit_Framework_TestCase
 
     private function createTraitObject()
     {
-        return $this->getObjectForTrait('\Bakame\Csv\Traits\IteratorQuery');
+        return $this->getObjectForTrait('\Bakame\Csv\Iterator\IteratorQuery');
     }
 
     public function setUp()

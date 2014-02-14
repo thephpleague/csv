@@ -35,7 +35,7 @@ namespace Bakame\Csv;
 use InvalidArgumentException;
 use CallbackFilterIterator;
 use Bakame\Csv\Iterator\MapIterator;
-use Bakame\Csv\Traits\IteratorQuery;
+use Bakame\Csv\Iterator\IteratorQuery;
 
 /**
  *  A class to manage extracting and filtering a CSV
