@@ -12,9 +12,10 @@ $inputCsv->setEncoding("iso-8859-15");
 <html lang="fr">
 <head>
     <meta charset="<?=$inputCsv->getEncoding()?>">
-    <title>Example 2</title>
+    <title>Using the toHTML() method</title>
+    <link rel="stylesheet" href="example.css">
 </head>
 <body>
-<?=$inputCsv->toHTML();?>
+<?=$inputCsv->toHTML('table-csv-data with-header');?>
 </body>
 </html>

@@ -16,7 +16,7 @@ System Requirements
 
 You need **PHP >= 5.4.0** and the `mbstring` extension to use `Bakame\Csv` but the latest stable version of PHP is recommended.
 
-Install
+Installation
 -------
 
 You may install the Bakame.csv package with Composer (recommended) or manually.
@@ -36,14 +36,36 @@ Download and extract the library in a specific directory, then add `'/path/to/Ba
 Usage
 -------
 
-**If you don't want to read the whole documentation just look at the [examples](examples/) directory to see how the library works.**
+* [Downloading the CSV](examples/download.php)
+* [Converting the CSV into a Json String](examples/json.php)
+* [Converting the CSV into a HTML Table](examples/table.php)
+* [Selecting specific rows in the CSV](examples/extract.php)
+* [Filtering a CSV](examples/filtering.php)
+* [Creating a CSV](examples/writing.php)
+* [Switching between modes from Writer to Reader mode](examples/switchmode.php)
 
-Manipulating a CSV
+> The CSV file use for the examples is taken from [Paris Opendata](http://opendata.paris.fr/opendata/jsp/site/Portal.jsp?document_id=60&portlet_id=121)
+
+### Tips
+
+* When creating a file using the library, first insert all the data that need to be inserted before starting manipulating the CSV. If you manipulate your data before you may change the file cursor position and get unexpected results.
+
+* If you are dealing with non-unicode data, specify the encoding parameter using the `setEncoding` method otherwise your output conversions may no work.
+
+* **If you are on a Mac OS X Server**, add the following lines before using the library to help [PHP detect line ending in Mac OS X](http://php.net/manual/en/function.fgetcsv.php#refsect1-function.fgetcsv-returnvalues).
+
+```php
+if (! ini_get("auto_detect_line_endings")) {
+    ini_set("auto_detect_line_endings", true);
+}
+```
+
+Documentation
 -------
 
 The library is composed of two main classes:
 * `Bakame\Csv\Reader` to extract and filter data from a CSV
-* `Bakame\Csv\Writer` to insert new data into a CSV. 
+* `Bakame\Csv\Writer` to insert new data into a CSV.
 
 Both classes share methods to instantiate, format and output the CSV.
 
@@ -66,15 +88,11 @@ $writer = new Writer(new SpliFileObject('/path/to/your/csv/file.csv'), 'a+');
 $writer = Writer::createFromString('john,doe,john.doe@example.com');
 ```
 
-The static method `createFromString` is to be use if your data is a string.
+Both classes constructors take one optional parameter `$open_mode` representing the file open mode used by the PHP [fopen](http://php.net/manual/en/function.fopen.php) function. 
+* The `Bakame\Csv\Writer` `$open_mode` default value is `w`.
+* The `Bakame\Csv\Reader` `$open_mode` default value is `r`, and **no other value is possible**. So you don't need to explicitly set it.
 
-Both classes can take one optional parameter `$open_mode` representing the file open mode used by the PHP [fopen][] function. 
-* In case of the `Bakame\Csv\Writer` class `$open_mode` default value is `w`, but you can change this value according to your needs.
-* In case of the `Bakame\Csv\Reader` class `$open_mode` default value is `r`, and **no other value is possible**. So you don't need to explicitly set it.
-* the `$open_mode` argument is not taken into account when creating a object from the static method `createFromString`.
-
-
-[fopen]: http://php.net/manual/en/function.fopen.php
+The static method `createFromString` is to be use if your data is a string. This method takes no optional `$open_mode` parameter.
 
 Once your object is created you can optionally set:
 
@@ -105,21 +123,24 @@ foreach ($reader as $row) {
 
 ### Outputting the CSV
 
+**Don't forget to set the CSV encoding format before using any outputting CSV method if your data is not `UTF-8` encoded.**
+
 With both classes you can:
 
 #### show the CSV content:
 
-You can directly use the `echo` construct on the instantiated object or use the `__toString` method 
+Use the `echo` construct on the instantiated object or use the `__toString` method.
 
 ```php
 echo $writer;
 //or
 echo $writer->__toString();
 ```
-The CSV data can be formatted into an HTML table using the `toHTML` method. This methods accepts an optional argument `$classname` to help you customize the table rendering, by defaut the classname given to the table is `table-csv-data`.
+
+Use the `toHTML` method to format the CSV data into an HTML table. This method accepts an optional argument `$classname` to help you customize the table rendering, by defaut the classname given to the table is `table-csv-data`.
 
 ```php
-echo $writer->toHTML();
+echo $writer->toHTML('table table-bordered table-hover');
 ```
 
 #### convert the CSV into a Json string:
@@ -141,13 +162,12 @@ header('Content-Disposition: attachment; filename="name-for-your-file.csv"');
 $reader->output();
 ```
 
-
 Extracting data from the CSV
 -------
 
-Extracting data is made easy using the following methods on a `Bakame\Csv\Reader` object: 
+To extract data use `Bakame\Csv\Reader` methods.
 
-#### fetchAll
+#### fetchAll($callable = null)
 
  `fetchAll` returns a sequential array of all rows.
 
@@ -162,7 +182,7 @@ $data = $reader->fetchAll();
 // ]
 //
 ```
-#### fetchAssoc
+#### fetchAssoc([], $callable = null)
 
 `fetchAssoc` returns a sequential array of all rows. The rows themselves are associative arrays where the keys are given directly to the method using an one dimension array. This array should only contain unique `string` and/or `integer` values.
 
@@ -181,7 +201,7 @@ $data = $reader->fetchAssoc(['firstname', 'lastname', 'email']);
 > * If the number of values in a CSV row is lesser than the number of named keys, the method will add `null` values to compensate for the missing values.
 > * If the number of values in a CSV row is greater that the number of named keys the exceeding values will be drop from the result set.
 
-#### fetchCol
+#### fetchCol($columnIndex, $callable = null)
 
 `fetchCol` returns a sequential array of all values in a given column from the CSV data.
 
@@ -194,13 +214,13 @@ $data = $reader->fetchCol(2);
 
 ```
 
-The methods listed above (`fetchAll`, `fetchAssoc`, `fetchCol`) can all take a optional `callable` argument to further manipulate each row before being returned. This callable function can take three parameters at most:
+The methods listed above (`fetchAll`, `fetchAssoc`, `fetchCol`) can all take a optional `callable` argument to further manipulate each row before being returned. This callable function can take up to three parameters:
 
 * the current csv row data
 * the current csv key
-* the current csv Iterator Object (usually a `SplFileObject`)
+* the current csv Iterator Object
 
-#### fetchOne
+#### fetchOne($offset)
 
 `fetchOne` return one single row from the CSV data. The required argument `$offset` represent the row index starting at 0.
 
@@ -216,24 +236,24 @@ $data = $reader->fetchOne(3); ///accessing the 4th row (indexing starts at 0)
 
 You can further manipulate the CSV `fetch*` methods output by specifying filtering options using the following methods:
 
-#### setFilter
+#### setFilter($callable = null)
 
 `setFilter` method specifies an optional `callable` function to filter the CSV data. This function takes three parameters at most (see [CallbackFilterIterator][] for more informations)
 
 [CallbackFilterIterator]: http://php.net/manual/en/class.callbackfilteriterator.php#callbackfilteriterator.examples
 
-#### setSortBy
+#### setSortBy($callable = null)
 
 `setSortBy` method specifies an optional `callable` function to sort the CSV data. The function takes two parameters which will be filled by pairs of rows.
 
 **Beware when using this filter that you will be using `iterator_to_array` which could lead to performance penalty if you have a heavy CSV file to sort**
 
-#### setOffset and setLimit
+#### setOffset($offset) and setLimit($limit)
 
 * `setOffset` method specifies an optional offset for the return results.
 * `setLimit` method specifies an optional maximum rows count for the return results. 
 
-**Both methods are ignore by the `fetchOne` method.**
+**Both methods have no effect on the `fetchOne` method output**
 
 Here's an example:
 
@@ -302,7 +322,7 @@ $iterator = $reader
 Inserting data into the CSV
 -------
 
-To insert new data into a CSV use the following methods on a `Bakame\Csv\Writer` object: 
+To create or update a CSV use the following specific `Bakame\Csv\Writer` methods.
 
 #### insertOne
 
@@ -346,8 +366,11 @@ $arr = [
 $writer->insertAll($arr) //using an array 
 
 $object = new ArrayIterator($arr);
-$writer->insertMany($object); //using a Traversable object
+$writer->insertAll($object); //using a Traversable object
 ```
+
+**When inserting strings don't forget to specify the CSV delimiter and enclosure characters that match those use in the string**.
+
 
 Switching from one class to the other
 -------
@@ -362,7 +385,6 @@ $reader = $writer->getReader();
 $newWriter = $reader->getWriter('a'); 
 ```
 **be careful the `$newWriter` object is not equal to the `$writer` object!!**
-
 
 Testing
 -------

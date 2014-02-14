@@ -36,11 +36,12 @@ $headers = $inputCsv->fetchOne(0);
 <html lang="fr">
 <head>
     <meta charset="<?=$inputCsv->getEncoding()?>">
-<title>Example 3</title>
+    <title>\Bakame\Csv\Reader filtering method</title>
+    <link rel="stylesheet" href="example.css">
 </head>
 <body>
-<h1>Example 3: Using the Reader class filtering capabilities</h1>
-<table>
+<h1>Using the Bakame\Csv\Reader class filtering capabilities</h1>
+<table class="table-csv-data">
 <caption>Statistics for the 20 least used female name in the year 2010</caption>
 <thead>
     <tr>

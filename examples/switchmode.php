@@ -56,10 +56,11 @@ $names = $reader
 <html lang="fr">
 <head>
     <meta charset="utf-8">
-    <title>Example 2</title>
+    <title>Bakame\Csv\Writer and Bakame\Csv\Reader switching mode</title>
+    <link rel="stylesheet" href="example.css">
 </head>
 <body>
-<h1>Example 4: Using Writer object with Strings</h1>
+<h1>Using createFromString method and converting the Bakame\Csv\Writer into a Bakame\Csv\Reader</h1>
 <h3>The table representation of the csv to be save</h3>
 <?=$writer->toHTML();?>
 <h3>The Raw CSV as it will be saved</h3>
