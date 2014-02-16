@@ -36,6 +36,7 @@ Usage
 * [Downloading the CSV](examples/download.php)
 * [Converting the CSV into a Json String](examples/json.php)
 * [Converting the CSV into a HTML Table](examples/table.php)
+* [Converting the CSV into a XML file](examples/xml.php)
 * [Selecting specific rows in the CSV](examples/extract.php)
 * [Filtering a CSV](examples/filtering.php)
 * [Creating a CSV](examples/writing.php)
@@ -140,12 +141,26 @@ Use the `toHTML` method to format the CSV data into an HTML table. This method a
 echo $writer->toHTML('table table-bordered table-hover');
 ```
 
+#### convert the CSV into an XML string:
+
+Use the `toXML` method to format the CSV data into an XML String. This methods accepts 3 optionals arguments `$root_name`, `$row_name`, `$cell_name` to help you customize the XML tree. 
+
+By default:
+* `$root_name = 'csv'` 
+* `$row_name = 'row'` 
+* `$cell_name = 'cell'` 
+
+```php
+echo $writer->toXML('data', 'item', 'cell');
+```
+
 #### convert the CSV into a Json string:
 
 Use the `json_encode` function directly on the instantiated object.
 
 ```php
 echo json_encode($writer);
+
 ```
 
 #### make the CSV downloadable
@@ -157,6 +172,12 @@ $reader->setEncoding('ISO-8859-15');
 header('Content-Type: text/csv; charset="'.$reader->getEncoding().'"');
 header('Content-Disposition: attachment; filename="name-for-your-file.csv"');
 $reader->output();
+```
+The output method can take an optional argument `$filename`. When present you can even omit most of the headers.
+
+```php
+$reader->setEncoding('ISO-8859-15');
+$reader->output("name-for-your-file.csv");
 ```
 
 Extracting data from the CSV

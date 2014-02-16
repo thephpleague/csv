@@ -6,7 +6,7 @@
 * @copyright 2014 Ignace Nyamagana Butera
 * @link https://github.com/nyamsprod/Bakame.csv
 * @license http://opensource.org/licenses/MIT
-* @version 4.0.0
+* @version 4.2.0
 * @package Bakame.csv
 *
 * MIT LICENSE
@@ -40,13 +40,36 @@ use Bakame\Csv\Iterator\MapIterator;
  *  A abstract class to enable basic CSV manipulation
  *
  * @package Bakame.csv
- * @since  4.0.0
+ * @since  4.2.0
  *
  */
 trait ConverterTrait
 {
     /**
+     * Convert Csv file into UTF-8
+     *
+     * @return \Iterator
+     */
+    protected function convert2Utf8()
+    {
+        if ('UTF-8' == $this->encoding) {
+            return $this->getIterator();
+        }
+
+        return new MapIterator($this->getIterator(), function ($row) {
+            foreach ($row as &$value) {
+                $value = mb_convert_encoding($value, 'UTF-8', $this->encoding);
+            }
+            unset($value);
+
+            return $row;
+        });
+    }
+
+    /**
      * Output all data on the CSV file
+     *
+     * @param string $filename CSV downloaded name if present adds extra headers
      */
     public function output($filename = null)
     {
@@ -103,23 +126,15 @@ trait ConverterTrait
         return $doc->saveHTML($table);
     }
 
-    protected function convert2Utf8()
-    {
-        $iterator = $this->getIterator();
-        if ('UTF-8' != $this->encoding) {
-            $iterator = new MapIterator($iterator, function ($row) {
-                foreach ($row as &$value) {
-                    $value = mb_convert_encoding($value, 'UTF-8', $this->encoding);
-                }
-                unset($value);
-
-                return $row;
-            });
-        }
-
-        return $iterator;
-    }
-
+    /**
+     * transform a CSV into a XML
+     *
+     * @param string $root_name XML root node name
+     * @param string $row_name  XML row node name
+     * @param string $cell_name XML cell node name
+     *
+     * @return string
+     */
     public function toXML($root_name = 'csv', $row_name = 'row', $cell_name = 'cell')
     {
         $doc = new DomDocument('1.0', 'UTF-8');
