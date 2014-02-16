@@ -171,6 +171,27 @@ EOF;
         $this->assertSame($expected, $this->csv->toHTML());
     }
 
+    public function testToXML()
+    {
+        $expected = <<<EOF
+<?xml version="1.0" encoding="UTF-8"?>
+<csv>
+  <row>
+    <cell>john</cell>
+    <cell>doe</cell>
+    <cell>john.doe@example.com</cell>
+  </row>
+  <row>
+    <cell>jane</cell>
+    <cell>doe</cell>
+    <cell>jane.doe@example.com</cell>
+  </row>
+</csv>
+
+EOF;
+        $this->assertSame($expected, $this->csv->toXML());
+    }
+
     /**
      * @param $rawCsv
      *
