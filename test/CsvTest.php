@@ -189,7 +189,10 @@ EOF;
 </csv>
 
 EOF;
-        $this->assertSame($expected, $this->csv->toXML());
+        $doc = $this->csv->toXML();
+        $this->assertInstanceof('\DomDocument', $doc);
+        $doc->formatOutput = true;
+        $this->assertSame($expected, $doc->saveXML());
     }
 
     /**

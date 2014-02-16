@@ -77,7 +77,7 @@ trait ConverterTrait
         //@codeCoverageIgnoreStart
         if (! is_null($filename) && AbstractCsv::isValidString($filename)) {
             header('Content-Type: text/csv; charset="'.$this->encoding.'"');
-            header('Content-Disposition: attachment; filename="firstname.csv"');
+            header('Content-Disposition: attachment; filename="'.$filename.'"');
             if (! $iterator instanceof SplTempFileObject) {
                 header('Content-Length: '.$iterator->getSize());
             }
@@ -101,6 +101,34 @@ trait ConverterTrait
     }
 
     /**
+     * transform a CSV into a XML
+     *
+     * @param string $root_name XML root node name
+     * @param string $row_name  XML row node name
+     * @param string $cell_name XML cell node name
+     *
+     * @return \DomDocument
+     */
+    public function toXML($root_name = 'csv', $row_name = 'row', $cell_name = 'cell')
+    {
+        $doc = new DomDocument('1.0', 'UTF-8');
+        $root = $doc->createElement($root_name);
+        foreach ($this->convert2Utf8() as $row) {
+            $item = $doc->createElement($row_name);
+            foreach ($row as $value) {
+                $content = $doc->createTextNode($value);
+                $cell = $doc->createElement($cell_name);
+                $cell->appendChild($content);
+                $item->appendChild($cell);
+            }
+            $root->appendChild($item);
+        }
+        $doc->appendChild($root);
+
+        return $doc;
+    }
+
+    /**
      * Return a HTML table representation of the CSV Table
      *
      * @param string $classname optional classname
@@ -109,50 +137,10 @@ trait ConverterTrait
      */
     public function toHTML($classname = 'table-csv-data')
     {
-        $doc = new DomDocument('1.0', $this->encoding);
-        $table = $doc->createElement('table');
-        $table->setAttribute('class', $classname);
-        foreach ($this->getIterator() as $row) {
-            $tr = $doc->createElement('tr');
-            foreach ($row as $value) {
-                $content = $doc->createTextNode($value);
-                $td = $doc->createElement('td');
-                $td->appendChild($content);
-                $tr->appendChild($td);
-            }
-            $table->appendChild($tr);
-        }
+        $doc = $this->toXML('table', 'tr', 'td');
+        $doc->documentElement->setAttribute('class', $classname);
 
-        return $doc->saveHTML($table);
-    }
-
-    /**
-     * transform a CSV into a XML
-     *
-     * @param string $root_name XML root node name
-     * @param string $row_name  XML row node name
-     * @param string $cell_name XML cell node name
-     *
-     * @return string
-     */
-    public function toXML($root_name = 'csv', $row_name = 'row', $cell_name = 'cell')
-    {
-        $doc = new DomDocument('1.0', 'UTF-8');
-        $doc->formatOutput = true;
-        $table = $doc->createElement($root_name);
-        foreach ($this->convert2Utf8() as $row) {
-            $tr = $doc->createElement($row_name);
-            foreach ($row as $value) {
-                $content = $doc->createTextNode($value);
-                $td = $doc->createElement($cell_name);
-                $td->appendChild($content);
-                $tr->appendChild($td);
-            }
-            $table->appendChild($tr);
-        }
-        $doc->appendChild($table);
-
-        return $doc->saveXML();
+        return $doc->saveHTML($doc->documentElement);
     }
 
     /**
