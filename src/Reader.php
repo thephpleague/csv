@@ -86,9 +86,7 @@ class Reader extends AbstractCsv
      */
     public function query(callable $callable = null)
     {
-        $this->csv->setCsvControl($this->delimiter, $this->enclosure, $this->escape);
-        $this->csv->setFlags($this->flags);
-        $iterator = new CallbackFilterIterator($this->csv, function ($row) {
+        $iterator = new CallbackFilterIterator($this->getIterator(), function ($row) {
             return is_array($row);
         });
 

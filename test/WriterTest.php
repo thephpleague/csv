@@ -5,6 +5,9 @@ namespace Bakame\Csv;
 use SplTempFileObject;
 use ArrayIterator;
 use PHPUnit_Framework_TestCase;
+use DateTime;
+
+date_default_timezone_set('UTC');
 
 /**
  * @group writer
@@ -47,7 +50,7 @@ class WriterTest extends PHPUnit_Framework_TestCase
      */
     public function testFailedInsertWithWrongData()
     {
-        $this->csv->insertOne(new \DateTime);
+        $this->csv->insertOne(new DateTime);
     }
 
     /**
@@ -55,7 +58,7 @@ class WriterTest extends PHPUnit_Framework_TestCase
      */
     public function testFailedInsertWithMultiDimensionArray()
     {
-        $this->csv->insertOne(['john', new \DateTime]);
+        $this->csv->insertOne(['john', new DateTime]);
     }
 
     public function testSave()
@@ -80,7 +83,7 @@ class WriterTest extends PHPUnit_Framework_TestCase
      */
     public function testFailedSaveWithWrongType()
     {
-        $this->csv->insertAll(new \DateTime);
+        $this->csv->insertAll(new DateTime);
     }
 
     public function testGetReader()

@@ -340,6 +340,9 @@ class AbstractCsv implements JsonSerializable, IteratorAggregate
      */
     public function getIterator()
     {
+        $this->csv->setCsvControl($this->delimiter, $this->enclosure, $this->escape);
+        $this->csv->setFlags($this->flags);
+
         return $this->csv;
     }
 
@@ -348,8 +351,9 @@ class AbstractCsv implements JsonSerializable, IteratorAggregate
      */
     public function output()
     {
-        $this->csv->rewind();
-        $this->csv->fpassthru();
+        $iterator = $this->getIterator();
+        $iterator->rewind();
+        $iterator->fpassthru();
     }
 
     /**
@@ -377,9 +381,7 @@ class AbstractCsv implements JsonSerializable, IteratorAggregate
         $doc = new DomDocument('1.0', $this->encoding);
         $table = $doc->createElement('table');
         $table->setAttribute('class', $classname);
-        $this->csv->setCsvControl($this->delimiter, $this->enclosure, $this->escape);
-        $this->csv->setFlags($this->flags);
-        foreach ($this->csv as $row) {
+        foreach ($this->getIterator() as $row) {
             $tr = $doc->createElement('tr');
             foreach ($row as $value) {
                 $tr->appendChild($doc->createElement('td', htmlspecialchars($value, ENT_COMPAT, $this->encoding)));
@@ -397,9 +399,7 @@ class AbstractCsv implements JsonSerializable, IteratorAggregate
      */
     public function jsonSerialize()
     {
-        $this->csv->setCsvControl($this->delimiter, $this->enclosure, $this->escape);
-        $this->csv->setFlags($this->flags);
-        $iterator = $this->csv;
+        $iterator = $this->getIterator();
         if ('UTF-8' != $this->encoding) {
             $iterator = new MapIterator($iterator, function ($row) {
                 foreach ($row as &$value) {

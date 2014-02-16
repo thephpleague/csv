@@ -6,6 +6,9 @@ use SplFileInfo;
 use SplFileObject;
 use SplTempFileObject;
 use PHPUnit_Framework_TestCase;
+use DateTime;
+
+date_default_timezone_set('UTC');
 
 /**
  * @group csv
@@ -108,7 +111,7 @@ class CsvTest extends PHPUnit_Framework_TestCase
      */
     public function testFailCreateFromString()
     {
-        Reader::createFromString(new \DateTime);
+        Reader::createFromString(new DateTime);
     }
 
     /**
