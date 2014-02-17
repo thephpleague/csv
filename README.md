@@ -228,9 +228,12 @@ $data = $reader->fetchAssoc(['firstname', 'lastname', 'email']);
 > * If the number of values in a CSV row is lesser than the number of named keys, the method will add `null` values to compensate for the missing values.
 > * If the number of values in a CSV row is greater that the number of named keys the exceeding values will be drop from the result set.
 
-#### fetchCol($columnIndex, $callable = null)
+#### fetchCol($columnIndex = 0, $callable = null)
 
 `fetchCol` returns a sequential array of all values in a given column from the CSV data.
+
+* If no argument is given to the method it will return the first colum from the CSV data.
+* If the column does not exists in the csv data the method will return an array full of null value.
 
 ```php
 $data = $reader->fetchCol(2);
@@ -247,9 +250,9 @@ The methods listed above (`fetchAll`, `fetchAssoc`, `fetchCol`) can all take a o
 * the current csv key
 * the current csv Iterator Object
 
-#### fetchOne($offset)
+#### fetchOne($offset = 0)
 
-`fetchOne` return one single row from the CSV data. The required argument `$offset` represent the row index starting at 0.
+`fetchOne` return one single row from the CSV data. The required argument `$offset` represent the row index starting at 0. If no argument is given to the method it will return the first row from the CSV data.
 
 ```php
 $data = $reader->fetchOne(3); ///accessing the 4th row (indexing starts at 0)
