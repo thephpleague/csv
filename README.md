@@ -33,22 +33,28 @@ Install the Bakame.csv package with Composer.
 Usage
 -------
 
-* [Downloading the CSV](examples/download.php)
-* [Converting the CSV into a Json String](examples/json.php)
-* [Converting the CSV into a HTML Table](examples/table.php)
-* [Converting the CSV into a XML file](examples/xml.php)
 * [Selecting specific rows in the CSV](examples/extract.php)
 * [Filtering a CSV](examples/filtering.php)
 * [Creating a CSV](examples/writing.php)
+* [Merging 2 CSV documents](examples/merge.php)
 * [Switching between modes from Writer to Reader mode](examples/switchmode.php)
+* [Downloading the CSV](examples/download.php)
+* [Converting the CSV into a Json String](examples/json.php)
+* [Converting the CSV into a XML file](examples/xml.php)
+* [Converting the CSV into a HTML Table](examples/table.php)
 
-> The CSV file use for the examples is taken from [Paris Opendata](http://opendata.paris.fr/opendata/jsp/site/Portal.jsp?document_id=60&portlet_id=121)
+> The CSV data use for the examples are taken from [Paris Opendata](http://opendata.paris.fr/opendata/jsp/site/Portal.jsp?document_id=60&portlet_id=121)
 
 ### Tips
 
-* When creating a file using the library, first insert all the data that need to be inserted before starting manipulating the CSV. If you manipulate your data before you may change the file cursor position and get unexpected results.
+* When creating a file using the library, first insert all the data that need to be inserted before starting manipulating the CSV. If you manipulate your data before insertion, you may change the file cursor position and get unexpected results.
 
 * If you are dealing with non-unicode data, specify the encoding parameter using the `setEncoding` method otherwise your output conversions may no work.
+
+* When merging multiples CSV documents don't forget to set the main CSV object
+ as a `Bakame\Csv\Writer` object with the `$open_mode = 'a+'` to preserve its content.
+ This setting is of course not required when your main `Bakame\Csv\Writer` object is 
+ created from String
 
 * **If you are on a Mac OS X Server**, add the following lines before using the library to help [PHP detect line ending in Mac OS X](http://php.net/manual/en/function.fgetcsv.php#refsect1-function.fgetcsv-returnvalues).
 
@@ -135,15 +141,9 @@ echo $writer;
 echo $writer->__toString();
 ```
 
-Use the `toHTML` method to format the CSV data into an HTML table. This method accepts an optional argument `$classname` to help you customize the table rendering, by defaut the classname given to the table is `table-csv-data`.
+#### convert to XML:
 
-```php
-echo $writer->toHTML('table table-bordered table-hover');
-```
-
-#### convert the CSV into an XML string:
-
-Use the `toXML` method to format the CSV data into an XML String. This methods accepts 3 optionals arguments `$root_name`, `$row_name`, `$cell_name` to help you customize the XML tree. 
+Use the `toXML` method to convert the CSV data into a PHP `DomDocument` object. This method accepts 3 optionals arguments `$root_name`, `$row_name`, `$cell_name` to help you customize the XML tree. 
 
 By default:
 * `$root_name = 'csv'` 
@@ -151,19 +151,28 @@ By default:
 * `$cell_name = 'cell'` 
 
 ```php
-echo $writer->toXML('data', 'item', 'cell');
+$dom = $writer->toXML('data', 'item', 'cell');
 ```
 
-#### convert the CSV into a Json string:
+#### convert to HTML table:
+
+Use the `toHTML` method to format the CSV data into an HTML table. This method accepts an optional argument `$classname` to help you customize the table rendering, by defaut the classname given to the table is `table-csv-data`.
+
+```php
+echo $writer->toHTML('table table-bordered table-hover');
+```
+
+#### convert to Json
 
 Use the `json_encode` function directly on the instantiated object.
 
 ```php
 echo json_encode($writer);
-
 ```
 
-#### make the CSV downloadable
+**Of Note:** When using the `toHTML`, `toXML` methods and the `json_encode` function, the data is internally convert if needed into `UTF-8`.
+
+#### download the CSV
 
 If you only wish to make your CSV downloadable just use the `output` method to return to the output buffer the CSV content.
 
