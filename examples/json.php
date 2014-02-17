@@ -12,5 +12,5 @@ $res = json_encode($inputCsv, JSON_PRETTY_PRINT|JSON_HEX_QUOT|JSON_HEX_TAG|JSON_
 if (JSON_ERROR_NONE != json_last_error()) {
     die(json_last_error_msg());
 }
-header('Content-Type: application/json; charset="'.$inputCsv->getEncoding().'"');
+header('Content-Type: application/json; charset="utf-8"');
 die($res);

@@ -33,21 +33,28 @@ Install the Bakame.csv package with Composer.
 Usage
 -------
 
-* [Downloading the CSV](examples/download.php)
-* [Converting the CSV into a Json String](examples/json.php)
-* [Converting the CSV into a HTML Table](examples/table.php)
 * [Selecting specific rows in the CSV](examples/extract.php)
 * [Filtering a CSV](examples/filtering.php)
 * [Creating a CSV](examples/writing.php)
+* [Merging 2 CSV documents](examples/merge.php)
 * [Switching between modes from Writer to Reader mode](examples/switchmode.php)
+* [Downloading the CSV](examples/download.php)
+* [Converting the CSV into a Json String](examples/json.php)
+* [Converting the CSV into a XML file](examples/xml.php)
+* [Converting the CSV into a HTML Table](examples/table.php)
 
-> The CSV file use for the examples is taken from [Paris Opendata](http://opendata.paris.fr/opendata/jsp/site/Portal.jsp?document_id=60&portlet_id=121)
+> The CSV data use for the examples are taken from [Paris Opendata](http://opendata.paris.fr/opendata/jsp/site/Portal.jsp?document_id=60&portlet_id=121)
 
 ### Tips
 
-* When creating a file using the library, first insert all the data that need to be inserted before starting manipulating the CSV. If you manipulate your data before you may change the file cursor position and get unexpected results.
+* When creating a file using the library, first insert all the data that need to be inserted before starting manipulating the CSV. If you manipulate your data before insertion, you may change the file cursor position and get unexpected results.
 
 * If you are dealing with non-unicode data, specify the encoding parameter using the `setEncoding` method otherwise your output conversions may no work.
+
+* When merging multiples CSV documents don't forget to set the main CSV object
+ as a `Bakame\Csv\Writer` object with the `$open_mode = 'a+'` to preserve its content.
+ This setting is of course not required when your main `Bakame\Csv\Writer` object is 
+ created from String
 
 * **If you are on a Mac OS X Server**, add the following lines before using the library to help [PHP detect line ending in Mac OS X](http://php.net/manual/en/function.fgetcsv.php#refsect1-function.fgetcsv-returnvalues).
 
@@ -134,13 +141,28 @@ echo $writer;
 echo $writer->__toString();
 ```
 
+#### convert to XML:
+
+Use the `toXML` method to convert the CSV data into a PHP `DomDocument` object. This method accepts 3 optionals arguments `$root_name`, `$row_name`, `$cell_name` to help you customize the XML tree. 
+
+By default:
+* `$root_name = 'csv'` 
+* `$row_name = 'row'` 
+* `$cell_name = 'cell'` 
+
+```php
+$dom = $writer->toXML('data', 'item', 'cell');
+```
+
+#### convert to HTML table:
+
 Use the `toHTML` method to format the CSV data into an HTML table. This method accepts an optional argument `$classname` to help you customize the table rendering, by defaut the classname given to the table is `table-csv-data`.
 
 ```php
 echo $writer->toHTML('table table-bordered table-hover');
 ```
 
-#### convert the CSV into a Json string:
+#### convert to Json
 
 Use the `json_encode` function directly on the instantiated object.
 
@@ -148,7 +170,9 @@ Use the `json_encode` function directly on the instantiated object.
 echo json_encode($writer);
 ```
 
-#### make the CSV downloadable
+**Of Note:** When using the `toHTML`, `toXML` methods and the `json_encode` function, the data is internally convert if needed into `UTF-8`.
+
+#### download the CSV
 
 If you only wish to make your CSV downloadable just use the `output` method to return to the output buffer the CSV content.
 
@@ -157,6 +181,12 @@ $reader->setEncoding('ISO-8859-15');
 header('Content-Type: text/csv; charset="'.$reader->getEncoding().'"');
 header('Content-Disposition: attachment; filename="name-for-your-file.csv"');
 $reader->output();
+```
+The output method can take an optional argument `$filename`. When present you can even omit most of the headers.
+
+```php
+$reader->setEncoding('ISO-8859-15');
+$reader->output("name-for-your-file.csv");
 ```
 
 Extracting data from the CSV
@@ -198,9 +228,12 @@ $data = $reader->fetchAssoc(['firstname', 'lastname', 'email']);
 > * If the number of values in a CSV row is lesser than the number of named keys, the method will add `null` values to compensate for the missing values.
 > * If the number of values in a CSV row is greater that the number of named keys the exceeding values will be drop from the result set.
 
-#### fetchCol($columnIndex, $callable = null)
+#### fetchCol($columnIndex = 0, $callable = null)
 
 `fetchCol` returns a sequential array of all values in a given column from the CSV data.
+
+* If no argument is given to the method it will return the first colum from the CSV data.
+* If the column does not exists in the csv data the method will return an array full of null value.
 
 ```php
 $data = $reader->fetchCol(2);
@@ -217,9 +250,9 @@ The methods listed above (`fetchAll`, `fetchAssoc`, `fetchCol`) can all take a o
 * the current csv key
 * the current csv Iterator Object
 
-#### fetchOne($offset)
+#### fetchOne($offset = 0)
 
-`fetchOne` return one single row from the CSV data. The required argument `$offset` represent the row index starting at 0.
+`fetchOne` return one single row from the CSV data. The required argument `$offset` represent the row index starting at 0. If no argument is given to the method it will return the first row from the CSV data.
 
 ```php
 $data = $reader->fetchOne(3); ///accessing the 4th row (indexing starts at 0)

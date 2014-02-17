@@ -6,7 +6,7 @@
 * @copyright 2014 Ignace Nyamagana Butera
 * @link https://github.com/nyamsprod/Bakame.csv
 * @license http://opensource.org/licenses/MIT
-* @version 4.0.0
+* @version 4.2.0
 * @package Bakame.csv
 *
 * MIT LICENSE
@@ -86,9 +86,7 @@ class Reader extends AbstractCsv
      */
     public function query(callable $callable = null)
     {
-        $this->csv->setCsvControl($this->delimiter, $this->enclosure, $this->escape);
-        $this->csv->setFlags($this->flags);
-        $iterator = new CallbackFilterIterator($this->csv, function ($row) {
+        $iterator = new CallbackFilterIterator($this->getIterator(), function ($row) {
             return is_array($row);
         });
 
@@ -104,7 +102,7 @@ class Reader extends AbstractCsv
      *
      * @throws \InvalidArgumentException If the $offset is not a valid Integer
      */
-    public function fetchOne($offset)
+    public function fetchOne($offset = 0)
     {
         $this->setOffset($offset);
         $this->setLimit(1);
@@ -172,7 +170,7 @@ class Reader extends AbstractCsv
      *
      * @throws \InvalidArgumentException If the column index is not a positive integer or 0
      */
-    public function fetchCol($columnIndex, callable $callable = null)
+    public function fetchCol($columnIndex = 0, callable $callable = null)
     {
         if (false === filter_var($columnIndex, FILTER_VALIDATE_INT, ['options' => ['min_range' => 0]])) {
             throw new InvalidArgumentException(

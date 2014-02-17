@@ -6,6 +6,9 @@ use SplFileInfo;
 use SplFileObject;
 use SplTempFileObject;
 use PHPUnit_Framework_TestCase;
+use DateTime;
+
+date_default_timezone_set('UTC');
 
 /**
  * @group csv
@@ -108,7 +111,7 @@ class CsvTest extends PHPUnit_Framework_TestCase
      */
     public function testFailCreateFromString()
     {
-        Reader::createFromString(new \DateTime);
+        Reader::createFromString(new DateTime);
     }
 
     /**
@@ -166,6 +169,30 @@ class CsvTest extends PHPUnit_Framework_TestCase
 </table>
 EOF;
         $this->assertSame($expected, $this->csv->toHTML());
+    }
+
+    public function testToXML()
+    {
+        $expected = <<<EOF
+<?xml version="1.0" encoding="UTF-8"?>
+<csv>
+  <row>
+    <cell>john</cell>
+    <cell>doe</cell>
+    <cell>john.doe@example.com</cell>
+  </row>
+  <row>
+    <cell>jane</cell>
+    <cell>doe</cell>
+    <cell>jane.doe@example.com</cell>
+  </row>
+</csv>
+
+EOF;
+        $doc = $this->csv->toXML();
+        $this->assertInstanceof('\DomDocument', $doc);
+        $doc->formatOutput = true;
+        $this->assertSame($expected, $doc->saveXML());
     }
 
     /**

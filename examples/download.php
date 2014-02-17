@@ -6,6 +6,4 @@ require '../vendor/autoload.php';
 
 $inputCsv = new Reader('data/prenoms.csv');
 $inputCsv->setEncoding('ISO-8859-15');
-header('Content-Type: text/csv; charset="'.$inputCsv->getEncoding().'"');
-header('Content-Disposition: attachment; filename="firstname.csv"');
-$inputCsv->output();
+$inputCsv->output('firstname.csv'); //specifying a filename triggers header sending

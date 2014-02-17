@@ -6,7 +6,7 @@
 * @copyright 2014 Ignace Nyamagana Butera
 * @link https://github.com/nyamsprod/Bakame.csv
 * @license http://opensource.org/licenses/MIT
-* @version 4.0.0
+* @version 4.2.0
 * @package Bakame.csv
 *
 * MIT LICENSE
@@ -33,14 +33,12 @@
 namespace Bakame\Csv;
 
 use IteratorAggregate;
-use DomDocument;
 use JsonSerializable;
 use RuntimeException;
 use SplFileInfo;
 use SplFileObject;
 use SplTempFileObject;
 use InvalidArgumentException;
-use Bakame\Csv\Iterator\MapIterator;
 
 /**
  *  A abstract class to enable basic CSV manipulation
@@ -51,6 +49,11 @@ use Bakame\Csv\Iterator\MapIterator;
  */
 class AbstractCsv implements JsonSerializable, IteratorAggregate
 {
+    /**
+     * Trait to output the full CSV data
+     */
+    use ConverterTrait;
+
     /**
      * The CSV object holder
      *
@@ -153,7 +156,7 @@ class AbstractCsv implements JsonSerializable, IteratorAggregate
     *
     * @return boolean
     */
-    protected static function isValidString($str)
+    public static function isValidString($str)
     {
         return (is_scalar($str) || (is_object($str) && method_exists($str, '__toString')));
     }
@@ -340,77 +343,9 @@ class AbstractCsv implements JsonSerializable, IteratorAggregate
      */
     public function getIterator()
     {
+        $this->csv->setCsvControl($this->delimiter, $this->enclosure, $this->escape);
+        $this->csv->setFlags($this->flags);
+
         return $this->csv;
-    }
-
-    /**
-     * Output all data on the CSV file
-     */
-    public function output()
-    {
-        $this->csv->rewind();
-        $this->csv->fpassthru();
-    }
-
-    /**
-     * Retrieves the CSV content
-     *
-     * @return string
-     */
-    public function __toString()
-    {
-        ob_start();
-        $this->output();
-
-        return ob_get_clean();
-    }
-
-    /**
-     * Return a HTML table representation of the CSV Table
-     *
-     * @param string $classname optional classname
-     *
-     * @return string
-     */
-    public function toHTML($classname = 'table-csv-data')
-    {
-        $doc = new DomDocument('1.0', $this->encoding);
-        $table = $doc->createElement('table');
-        $table->setAttribute('class', $classname);
-        $this->csv->setCsvControl($this->delimiter, $this->enclosure, $this->escape);
-        $this->csv->setFlags($this->flags);
-        foreach ($this->csv as $row) {
-            $tr = $doc->createElement('tr');
-            foreach ($row as $value) {
-                $tr->appendChild($doc->createElement('td', htmlspecialchars($value, ENT_COMPAT, $this->encoding)));
-            }
-            $table->appendChild($tr);
-        }
-
-        return $doc->saveHTML($table);
-    }
-
-    /**
-     * JsonSerializable Interface
-     *
-     * @return array
-     */
-    public function jsonSerialize()
-    {
-        $this->csv->setCsvControl($this->delimiter, $this->enclosure, $this->escape);
-        $this->csv->setFlags($this->flags);
-        $iterator = $this->csv;
-        if ('UTF-8' != $this->encoding) {
-            $iterator = new MapIterator($iterator, function ($row) {
-                foreach ($row as &$value) {
-                    $value = mb_convert_encoding($value, 'UTF-8', $this->encoding);
-                }
-                unset($value);
-
-                return $row;
-            });
-        }
-
-        return iterator_to_array($iterator, false);
     }
 }
