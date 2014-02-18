@@ -153,7 +153,7 @@ trait IteratorQuery
         }
 
         if ($this->sortBy) {
-            $res = new ArrayObject(iterator_to_array($iterator));
+            $res = new ArrayObject(iterator_to_array($iterator, false));
             $res->uasort($this->sortBy);
             $iterator = $res->getIterator();
             unset($res);
