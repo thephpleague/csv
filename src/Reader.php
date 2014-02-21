@@ -6,7 +6,7 @@
 * @copyright 2014 Ignace Nyamagana Butera
 * @link https://github.com/nyamsprod/Bakame.csv
 * @license http://opensource.org/licenses/MIT
-* @version 4.2.0
+* @version 4.2.1
 * @package Bakame.csv
 *
 * MIT LICENSE
@@ -47,7 +47,7 @@ use Bakame\Csv\Iterator\IteratorQuery;
 class Reader extends AbstractCsv
 {
     /**
-     * Iterator Filtering Trait
+     * Iterator Query Trait
      */
     use IteratorQuery;
 

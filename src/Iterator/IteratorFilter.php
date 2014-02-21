@@ -32,45 +32,54 @@
 */
 namespace Bakame\Csv\Iterator;
 
-use IteratorIterator;
-use Traversable;
+use CallbackFilterIterator;
+use Iterator;
 
 /**
- *  A simple MapIterator
+ *  A Trait to filter Iterators
  *
  * @package Bakame.csv
- * @since  3.3.0
+ * @since  4.2.1
  *
  */
-class MapIterator extends IteratorIterator
+trait IteratorFilter
 {
     /**
-     * The function to be apply on all InnerIterator element
+     * Callable function to filter the iterator
      *
      * @var callable
      */
-    private $callable;
+    private $filter;
 
     /**
-     * The Constructor
+     * Set the Iterator filter method
      *
-     * @param Traversable $iterator
-     * @param callable    $callable
+     * @param callable $filter
+     *
+     * @return self
      */
-    public function __construct(Traversable $iterator, callable $callable)
+    public function setFilter(callable $filter)
     {
-        parent::__construct($iterator);
-        $this->callable = $callable;
+        $this->filter = $filter;
+
+        return $this;
     }
 
     /**
-     * Get the value of the current element
-     */
-    public function current()
+    * Filter the Iterator
+    *
+    * @param \Iterator $iterator
+    *
+    * @return \CallbackFilterIterator
+    */
+    protected function applyFilter($iterator)
     {
-        $iterator = $this->getInnerIterator();
-        $callable = $this->callable;
+        if (! $this->filter) {
+            return $iterator;
+        }
+        $iterator = new CallbackFilterIterator($iterator, $this->filter);
+        $this->filter = null;
 
-        return $callable($iterator->current(), $iterator->key(), $iterator);
+        return $iterator;
     }
 }

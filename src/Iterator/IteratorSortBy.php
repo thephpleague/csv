@@ -32,45 +32,55 @@
 */
 namespace Bakame\Csv\Iterator;
 
-use IteratorIterator;
-use Traversable;
+use Iterator;
+use ArrayIterator;
 
 /**
- *  A simple MapIterator
+ *  A Trait to sort an Iterator
  *
  * @package Bakame.csv
- * @since  3.3.0
+ * @since  4.2.1
  *
  */
-class MapIterator extends IteratorIterator
+trait IteratorSortBy
 {
     /**
-     * The function to be apply on all InnerIterator element
+     * Callable function to sort the ArrayObject
      *
      * @var callable
      */
-    private $callable;
+    private $sortBy;
 
     /**
-     * The Constructor
+     * Set the ArrayObject sort method
      *
-     * @param Traversable $iterator
-     * @param callable    $callable
+     * @param callable $sort
+     *
+     * @return self
      */
-    public function __construct(Traversable $iterator, callable $callable)
+    public function setSortBy(callable $sortBy)
     {
-        parent::__construct($iterator);
-        $this->callable = $callable;
+        $this->sortBy = $sortBy;
+
+        return $this;
     }
 
     /**
-     * Get the value of the current element
-     */
-    public function current()
+    * Sort the Iterator
+    *
+    * @param \Iterator $iterator
+    *
+    * @return \ArrayIterator
+    */
+    protected function applySortBy(Iterator $iterator)
     {
-        $iterator = $this->getInnerIterator();
-        $callable = $this->callable;
+        if (! $this->sortBy) {
+            return $iterator;
+        }
+        $res = iterator_to_array($iterator, false);
+        uasort($res, $this->sortBy);
+        $this->sortBy  = null;
 
-        return $callable($iterator->current(), $iterator->key(), $iterator);
+        return new ArrayIterator($res);
     }
 }

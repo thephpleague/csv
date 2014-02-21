@@ -6,7 +6,7 @@
 * @copyright 2014 Ignace Nyamagana Butera
 * @link https://github.com/nyamsprod/Bakame.csv
 * @license http://opensource.org/licenses/MIT
-* @version 4.2.0
+* @version 4.2.1
 * @package Bakame.csv
 *
 * MIT LICENSE
@@ -32,14 +32,10 @@
 */
 namespace Bakame\Csv\Iterator;
 
-use ArrayObject;
-use CallbackFilterIterator;
-use InvalidArgumentException;
 use Iterator;
-use LimitIterator;
 
 /**
- *  A Trait to filter in a SQL-like manner Iterators
+ *  A Trait to Query in a SQL-like manner Iterators
  *
  * @package Bakame.csv
  * @since  4.0.0
@@ -48,94 +44,19 @@ use LimitIterator;
 trait IteratorQuery
 {
     /**
-     * iterator Offset
-     *
-     * @var integer
+     *  Iterator Filtering Trait
      */
-    private $offset = 0;
+    use IteratorFilter;
 
     /**
-     * iterator maximum length
-     *
-     * @var integer
+     *  Iterator Sorting Trait
      */
-    private $limit = -1;
+    use IteratorSortBy;
 
     /**
-     * Callable function to filter the iterator
-     *
-     * @var callable
+     *  Iterator Set Interval Trait
      */
-    private $filter;
-
-    /**
-     * Callable function to sort the ArrayObject
-     *
-     * @var callable
-     */
-    private $sortBy;
-
-    /**
-     * Set the Iterator filter method
-     *
-     * @param callable $filter
-     *
-     * @return self
-     */
-    public function setFilter(callable $filter)
-    {
-        $this->filter = $filter;
-
-        return $this;
-    }
-
-    /**
-     * Set the ArrayObject sort method
-     *
-     * @param callable $sort
-     *
-     * @return self
-     */
-    public function setSortBy(callable $sortBy)
-    {
-        $this->sortBy = $sortBy;
-
-        return $this;
-    }
-
-    /**
-     * Set LimitIterator Offset
-     *
-     * @param $offset
-     *
-     * @return self
-     */
-    public function setOffset($offset)
-    {
-        if (false === filter_var($offset, FILTER_VALIDATE_INT, ['options' => ['min_range' => 0]])) {
-            throw new InvalidArgumentException('the offset must be a positive integer or 0');
-        }
-        $this->offset = $offset;
-
-        return $this;
-    }
-
-    /**
-     * Set LimitInterator Count
-     *
-     * @param integer $limit
-     *
-     * @return self
-     */
-    public function setLimit($limit)
-    {
-        if (false === filter_var($limit, FILTER_VALIDATE_INT, ['options' => ['min_range' => -1]])) {
-            throw new InvalidArgumentException('the limit must an integer greater or equals to -1');
-        }
-        $this->limit = $limit;
-
-        return $this;
-    }
+    use IteratorInterval;
 
     /**
      * Return a filtered Iterator based on the filtering settings
@@ -147,28 +68,9 @@ trait IteratorQuery
      */
     protected function execute(Iterator $iterator, callable $callable = null)
     {
-        if ($this->filter) {
-            $iterator = new CallbackFilterIterator($iterator, $this->filter);
-            $this->filter = null;
-        }
-
-        if ($this->sortBy) {
-            $res = new ArrayObject(iterator_to_array($iterator, false));
-            $res->uasort($this->sortBy);
-            $iterator = $res->getIterator();
-            unset($res);
-            $this->sortBy = null;
-        }
-
-        $offset = $this->offset;
-        $limit = -1;
-        if ($this->limit > 0) {
-            $limit = $this->limit;
-        }
-        $this->limit = -1;
-        $this->offset = 0;
-
-        $iterator = new LimitIterator($iterator, $offset, $limit);
+        $iterator = $this->applyFilter($iterator);
+        $iterator = $this->applySortBy($iterator);
+        $iterator = $this->applyInterval($iterator);
         if (! is_null($callable)) {
             $iterator = new MapIterator($iterator, $callable);
         }
