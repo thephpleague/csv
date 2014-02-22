@@ -97,13 +97,6 @@ class AbstractCsv implements JsonSerializable, IteratorAggregate
     protected $encoding = 'UTF-8';
 
     /**
-     * Open mode available flag
-     *
-     * @var array
-     */
-    protected $available_open_mode = ['r', 'r+', 'w', 'w+', 'x', 'x+', 'a', 'a+', 'c', 'c+'];
-
-    /**
      * The constructor
      *
      * @param mixed  $path      an SplFileInfo object or the path to a file
@@ -177,13 +170,6 @@ class AbstractCsv implements JsonSerializable, IteratorAggregate
             return $path;
         }
         $open_mode = strtolower($open_mode);
-        if (! in_array($open_mode, $this->available_open_mode)) {
-            throw new InvalidArgumentException(
-                'Invalid `$open_mode` value. Available values are : "'
-                .implode('", "', $this->available_open_mode).'"'
-            );
-        }
-
         if ($path instanceof SplFileInfo) {
             return $path->openFile($open_mode);
         } elseif (is_string($path)) {

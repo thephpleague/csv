@@ -22,14 +22,6 @@ class WriterTest extends PHPUnit_Framework_TestCase
         $this->csv = new Writer(new SplTempFileObject);
     }
 
-    /**
-     * @expectedException InvalidArgumentException
-     */
-    public function testConstructorWithWrongOpenMode()
-    {
-        new Writer('foo.csv', 'r');
-    }
-
     public function testInsert()
     {
         $expected = [
