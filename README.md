@@ -82,17 +82,30 @@ use Bakame\Csv\Reader;
 use Bakame\Csv\Writer;
 
 $reader = new Reader('/path/to/your/csv/file.csv');
-$reader = new Reader(new SpliFileInfo('/path/to/your/csv/file.csv'));
+$reader = new Reader(new SpliFileInfo('/path/to/your/csv/file.csv'), 'rt');
 $reader = Reader::createFromString('john,doe,john.doe@example.com');
 
 //or 
 
-$writer = new Writer('/path/to/your/csv/file.csv', 'w');
-$writer = new Writer(new SpliFileObject('/path/to/your/csv/file.csv'), 'a+');
+$writer = new Writer('/path/to/your/csv/file.csv', 'ab+');
+$writer = new Writer(new SpliFileObject('/path/to/your/csv/file.csv'));
 $writer = Writer::createFromString('john,doe,john.doe@example.com');
 ```
 
-Both classes constructors take one optional parameter `$open_mode` representing the file open mode used by the PHP [fopen](http://php.net/manual/en/function.fopen.php) function. 
+Both classes constructors take one optional parameter `$open_mode` representing the file open mode used by the PHP [fopen](http://php.net/manual/en/function.fopen.php) function.
+
+The `$open_mode` parameter is taken into account if you instantiate your object with:
+
+* a `SplFileInfo`
+* a string path
+
+The `$open_mode` parameter is **ignore** if you instantiate your object with:
+
+* a `SplFileObject`
+* a `SplTempFileObject`
+
+When not explicitly set:
+
 * The `Bakame\Csv\Writer` `$open_mode` default value is `w`.
 * The `Bakame\Csv\Reader` `$open_mode` default value is `r`.
 

@@ -32,6 +32,8 @@
 */
 namespace Bakame\Csv;
 
+use SplFileObject;
+use SplTempFileObject;
 use InvalidArgumentException;
 use CallbackFilterIterator;
 use Bakame\Csv\Iterator\MapIterator;
@@ -194,7 +196,11 @@ class Reader extends AbstractCsv
      */
     public function getWriter($open_mode = 'w')
     {
-        $csv = new Writer($this->csv, $open_mode);
+        $obj = $this->csv;
+        if (! $obj instanceof SplTempFileObject) {
+            $obj = new SplFileObject($obj->getRealPath(), $open_mode);
+        }
+        $csv = new Writer($obj);
         $csv->setDelimiter($this->delimiter);
         $csv->setEnclosure($this->enclosure);
         $csv->setEscape($this->escape);

@@ -166,7 +166,7 @@ class AbstractCsv implements JsonSerializable, IteratorAggregate
      */
     protected function fetchFile($path, $open_mode)
     {
-        if ($path instanceof SplTempFileObject) {
+        if ($path instanceof SplFileObject) {
             return $path;
         }
         $open_mode = strtolower($open_mode);

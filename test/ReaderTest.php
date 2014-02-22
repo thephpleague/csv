@@ -161,4 +161,10 @@ class ReaderTest extends PHPUnit_Framework_TestCase
 EOF;
         $this->assertSame($expected, $writer->toHTML());
     }
+
+    public function testGetWriter2()
+    {
+        $csv = (new Reader(__DIR__.'/foo.csv'))->getWriter('a+');
+        $this->assertInstanceOf('\Bakame\Csv\Writer', $csv);
+    }
 }
