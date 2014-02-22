@@ -47,11 +47,6 @@ class Writer extends AbstractCsv
     /**
      * {@inheritdoc}
      */
-    protected $available_open_mode = ['r+', 'w', 'w+', 'x', 'x+', 'a', 'a+', 'c', 'c+'];
-
-    /**
-     * {@inheritdoc}
-     */
     public function __construct($path, $open_mode = 'w')
     {
         parent::__construct($path, $open_mode);

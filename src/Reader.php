@@ -52,11 +52,6 @@ class Reader extends AbstractCsv
     use IteratorQuery;
 
     /**
-     * {@inheritdoc}
-     */
-    protected $available_open_mode = ['r'];
-
-    /**
      * Intelligent Array Combine
      *
      * @param array $keys

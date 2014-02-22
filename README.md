@@ -94,7 +94,7 @@ $writer = Writer::createFromString('john,doe,john.doe@example.com');
 
 Both classes constructors take one optional parameter `$open_mode` representing the file open mode used by the PHP [fopen](http://php.net/manual/en/function.fopen.php) function. 
 * The `Bakame\Csv\Writer` `$open_mode` default value is `w`.
-* The `Bakame\Csv\Reader` `$open_mode` default value is `r`, and **no other value is possible**. So you don't need to explicitly set it.
+* The `Bakame\Csv\Reader` `$open_mode` default value is `r`.
 
 The static method `createFromString` is to be use if your data is a string. This method takes no optional `$open_mode` parameter.
 
