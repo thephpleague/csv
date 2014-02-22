@@ -72,7 +72,7 @@ trait IteratorFilter
     *
     * @return \CallbackFilterIterator
     */
-    protected function applyFilter($iterator)
+    protected function applyFilter(Iterator $iterator)
     {
         if (! $this->filter) {
             return $iterator;
