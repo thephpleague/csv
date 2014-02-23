@@ -51,6 +51,8 @@ Usage
 
 * If you are dealing with non-unicode data, specify the encoding parameter using the `setEncoding` method otherwise your output conversions may no work.
 
+* If you have your LC_CTYPE set to a locale that's using UTF-8 and you try to parse a file that's not in UTF-8, PHP will cut your fields the moment it encounters a byte it can't understand (i.e. any outside of ASCII that doesn't happen to be part of a UTF-8 character which it likely isn't). [This gist will show you a possible solution](https://gist.github.com/pilif/9137146) to this problem by using [PHP stream filter](http://www.php.net/manual/en/stream.filters.php). This tip is from [Philip Hofstetter](https://github.com/pilif)
+
 * When merging multiples CSV documents don't forget to set the main CSV object
  as a `Bakame\Csv\Writer` object with the `$open_mode = 'a+'` to preserve its content.
  This setting is of course not required when your main `Bakame\Csv\Writer` object is 
