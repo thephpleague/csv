@@ -1,4 +1,4 @@
-Bakame.csv
+CSV
 ==========
 [![Build Status](https://travis-ci.org/thephpleague/csv.png?branch=master)](https://travis-ci.org/thephpleague/csv)
 [![Code Coverage](https://scrutinizer-ci.com/g/thephpleague/csv/badges/coverage.png?s=7ad9740c0ed5fd5d389abfe92d7af04d7f4f542e)](https://scrutinizer-ci.com/g/thephpleague/csv/)
