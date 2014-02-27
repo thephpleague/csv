@@ -1,0 +1,75 @@
+---
+layout: layout
+title: Examples
+---
+
+# Examples
+
+## Parsing a document
+
+A simple example to show you how to parse a CSV document.
+
+~~~.language-php
+<?php
+use League\Csv;
+
+$csv = new Csv\Reader('/path/to/your/csv/file.csv');
+
+//get the first row, usually the CSV header
+$headers = $csv->fetchOne();
+
+//get 25 rows starting from the 11th row
+$res = $csv->setOffset(10)->setLimit(25)->fetchAll();
+~~~
+		
+## Creating a CSV document
+
+A simple example to show you how to create and download a CSV from a `PDOStatement` object
+
+~~~.language-php
+<?php
+use League\Csv;
+
+//we fetch the info from a DB using a PDO object
+$sth = $dbh->prepare(
+	"SELECT firstname, lastname, email FROM users LIMIT 200"
+);
+//because we don't want to duplicate the rows 
+// PDO::FETCH_NUM could also have been used
+$sth->setFetchMode(PDO::FETCH_ASSOC);
+$sth->execute();
+
+//we create the CSV into memory
+$csv = new Csv\Writer(new SplTempFileObject);
+
+//we insert the CSV header
+$csv->insertOne(['firstname', 'lastname', 'email']);
+
+// The PDOStatement Object implements the Traversable Interface
+// that's why Csv\Writer::insertAll can directly insert
+// the data into the CSV
+$csv->insertAll($sth);
+
+// Because you are providing the filename you don't have to 
+// set the HTTP headers Csv\Writer::output can 
+// directly set them for you
+// The file is downloadable
+$csv->output('users.csv');
+die;
+~~~
+
+## More Examples
+
+* [Selecting specific rows in the CSV](https://github.com/thephpleague/csv/blob/master/examples/extract.php)
+* [Filtering a CSV](https://github.com/thephpleague/csv/blob/master/examples/filtering.php)
+* [Creating a CSV](https://github.com/thephpleague/csv/blob/master/examples/writing.php)
+* [Merging 2 CSV documents](https://github.com/thephpleague/csv/blob/master/examples/merge.php)
+* [Switching between modes from Writer to Reader mode](https://github.com/thephpleague/csv/blob/master/examples/switchmode.php)
+* [Downloading the CSV](https://github.com/thephpleague/csv/blob/master/examples/download.php)
+* [Converting the CSV into a Json String](https://github.com/thephpleague/csv/blob/master/examples/json.php)
+* [Converting the CSV into a XML file](https://github.com/thephpleague/csv/blob/master/examples/xml.php)
+* [Converting the CSV into a HTML Table](https://github.com/thephpleague/csv/blob/master/examples/table.php)
+
+> The CSV data use for the examples are taken from [Paris Opendata](http://opendata.paris.fr/opendata/jsp/site/Portal.jsp?document_id=60&portlet_id=121)
+
+Learn more about how this all works in the [Overview](/overview).
