@@ -14,8 +14,6 @@ before_script:
   - phpenv rehash
 
 script:
-  - mkdir -p build
-  - mkdir -p build/logs
   - phpcs --standard=psr2 src/
   - phpunit --coverage-text
 
