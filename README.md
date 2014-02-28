@@ -1,9 +1,12 @@
 CSV
 ==========
-[![Build Status](https://travis-ci.org/thephpleague/csv.png?branch=master)](https://travis-ci.org/thephpleague/csv)
-[![Code Coverage](https://scrutinizer-ci.com/g/thephpleague/csv/badges/coverage.png?s=7ad9740c0ed5fd5d389abfe92d7af04d7f4f542e)](https://scrutinizer-ci.com/g/thephpleague/csv/)
 
-A simple library to easily load, manipulate and save CSV files in PHP 5.4+
+[![Build Status](https://travis-ci.org/thephpleague/csv.png?branch=master)](https://travis-ci.org/thephpleague/csv)
+[![Coverage Status](https://coveralls.io/repos/thephpleague/csv/badge.png)](https://coveralls.io/r/thephpleague/csv)
+[![Total Downloads](https://poser.pugx.org/league/csv/downloads.png)](https://packagist.org/packages/league/csv)
+[![Latest Stable Version](https://poser.pugx.org/league/csv/v/stable.png)](https://packagist.org/packages/league/csv)
+
+A simple library to easily load, manipulate and save CSV files in PHP.
 
 This package is compliant with [PSR-1], [PSR-2], and [PSR-4].
 
