@@ -22,7 +22,7 @@
             "League\\CSv\\": "test"
         }
     },
-    "replaces": {
+    "replace": {
         "bakame/csv": "*"
     }
 }
