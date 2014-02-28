@@ -1,6 +1,6 @@
 <?php
 
-use Bakame\Csv\Writer;
+use League\Csv\Writer;
 
 require '../vendor/autoload.php';
 
@@ -27,7 +27,7 @@ $writer->insertAll($teams);
 <html lang="fr">
 <head>
     <meta charset="<?=$writer->getEncoding()?>">
-    <title>Using the \Bakame\Writer object</title>
+    <title>Using the \League\Writer object</title>
     <link rel="stylesheet" href="example.css">
 </head>
 <body>

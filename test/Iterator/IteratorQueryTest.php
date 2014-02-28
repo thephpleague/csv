@@ -1,6 +1,6 @@
 <?php
 
-namespace Bakame\Csv\Iterator;
+namespace League\Csv\Iterator;
 
 use ArrayIterator;
 use ReflectionClass;
@@ -26,7 +26,7 @@ class IteratorQueryTest extends PHPUnit_Framework_TestCase
 
     private function createTraitObject()
     {
-        return $this->getObjectForTrait('\Bakame\Csv\Iterator\IteratorQuery');
+        return $this->getObjectForTrait('\League\Csv\Iterator\IteratorQuery');
     }
 
     public function setUp()

@@ -1,6 +1,6 @@
 <?php
 
-use Bakame\Csv\Reader;
+use League\Csv\Reader;
 
 require '../vendor/autoload.php';
 
@@ -18,11 +18,11 @@ $res = $inputCsv->setOffset(800)->setLimit(25)->fetchAll();
 <html lang="fr">
 <head>
     <meta charset="<?=$inputCsv->getEncoding()?>">
-    <title>\Bakame\Csv\Reader simple usage</title>
+    <title>\League\Csv\Reader simple usage</title>
     <link rel="stylesheet" href="example.css">
 </head>
 <body>
-<h1>\Bakame\Csv\Reader simple usage</h1>
+<h1>\League\Csv\Reader simple usage</h1>
 <table class="table-csv-data">
 <caption>Part of the CSV from the 801th row with at most 25 rows</caption>
 <thead>

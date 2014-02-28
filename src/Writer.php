@@ -1,13 +1,13 @@
 <?php
 /**
-* Bakame.csv - A lightweight CSV Coder/Decoder library
+* League.csv - A lightweight CSV Coder/Decoder library
 *
 * @author Ignace Nyamagana Butera <nyamsprod@gmail.com>
 * @copyright 2014 Ignace Nyamagana Butera
-* @link https://github.com/nyamsprod/Bakame.csv
+* @link https://github.com/nyamsprod/League.csv
 * @license http://opensource.org/licenses/MIT
 * @version 4.2.1
-* @package Bakame.csv
+* @package League.csv
 *
 * MIT LICENSE
 *
@@ -30,7 +30,7 @@
 * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
-namespace Bakame\Csv;
+namespace League\Csv;
 
 use InvalidArgumentException;
 use Traversable;
@@ -38,7 +38,7 @@ use Traversable;
 /**
  *  A class to manage data insertion into a CSV
  *
- * @package Bakame.csv
+ * @package League.csv
  * @since  4.0.0
  *
  */
@@ -111,7 +111,7 @@ class Writer extends AbstractCsv
     /**
      * Instantiate a {@link Reader} class from the current {@link Writer}
      *
-     * @return \Bakame\Csv\Reader
+     * @return \League\Csv\Reader
      */
     public function getReader()
     {

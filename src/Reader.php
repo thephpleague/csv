@@ -1,13 +1,13 @@
 <?php
 /**
-* Bakame.csv - A lightweight CSV Coder/Decoder library
+* League.csv - A lightweight CSV Coder/Decoder library
 *
 * @author Ignace Nyamagana Butera <nyamsprod@gmail.com>
 * @copyright 2014 Ignace Nyamagana Butera
-* @link https://github.com/nyamsprod/Bakame.csv
+* @link https://github.com/nyamsprod/League.csv
 * @license http://opensource.org/licenses/MIT
 * @version 4.2.1
-* @package Bakame.csv
+* @package League.csv
 *
 * MIT LICENSE
 *
@@ -30,19 +30,19 @@
 * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
-namespace Bakame\Csv;
+namespace League\Csv;
 
 use SplFileObject;
 use SplTempFileObject;
 use InvalidArgumentException;
 use CallbackFilterIterator;
-use Bakame\Csv\Iterator\MapIterator;
-use Bakame\Csv\Iterator\IteratorQuery;
+use League\Csv\Iterator\MapIterator;
+use League\Csv\Iterator\IteratorQuery;
 
 /**
  *  A class to manage extracting and filtering a CSV
  *
- * @package Bakame.csv
+ * @package League.csv
  * @since  3.0.0
  *
  */
@@ -192,7 +192,7 @@ class Reader extends AbstractCsv
      *
      * @param string $open_mode the file open mode flag
      *
-     * @return \Bakame\Csv\Writer
+     * @return \League\Csv\Writer
      */
     public function getWriter($open_mode = 'w')
     {

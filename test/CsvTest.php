@@ -1,6 +1,6 @@
 <?php
 
-namespace Bakame\Csv;
+namespace League\Csv;
 
 use SplFileInfo;
 use SplFileObject;

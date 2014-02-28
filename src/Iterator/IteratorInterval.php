@@ -1,13 +1,13 @@
 <?php
 /**
-* Bakame.csv - A lightweight CSV Coder/Decoder library
+* League.csv - A lightweight CSV Coder/Decoder library
 *
 * @author Ignace Nyamagana Butera <nyamsprod@gmail.com>
 * @copyright 2014 Ignace Nyamagana Butera
-* @link https://github.com/nyamsprod/Bakame.csv
+* @link https://github.com/nyamsprod/League.csv
 * @license http://opensource.org/licenses/MIT
 * @version 4.2.1
-* @package Bakame.csv
+* @package League.csv
 *
 * MIT LICENSE
 *
@@ -30,7 +30,7 @@
 * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
-namespace Bakame\Csv\Iterator;
+namespace League\Csv\Iterator;
 
 use InvalidArgumentException;
 use Iterator;
@@ -39,7 +39,7 @@ use LimitIterator;
 /**
  *  A Trait to Set a LimitIterator object
  *
- * @package Bakame.csv
+ * @package League.csv
  * @since  4.2.1
  *
  */
