@@ -1,6 +1,5 @@
 language: php
 
-# list any PHP version you want to test against
 php:
   - 5.4
   - 5.5
@@ -14,6 +13,7 @@ before_script:
   - phpenv rehash
 
 script:
+  - mkdir -p build/logs
   - phpcs --standard=psr2 src/
   - phpunit --coverage-text
 
