@@ -6,7 +6,13 @@ CSV
 [![Total Downloads](https://poser.pugx.org/league/csv/downloads.png)](https://packagist.org/packages/league/csv)
 [![Latest Stable Version](https://poser.pugx.org/league/csv/v/stable.png)](https://packagist.org/packages/league/csv)
 
-A simple library to easily load, manipulate and save CSV files in PHP.
+League\Csv is a simple library to ease CSV parsing, writing and filtering in
+PHP. The goal of the library is to be as powerful while remaining lightweight,
+by utilizing PHP native classes whenever possible.
+
+League\Csv was designed for developers who wants to deal with CSV data using
+modern code and without the high levels of bootstrap and low-levels of
+usefulness provided by existing core functions or third party-code.
 
 This package is compliant with [PSR-1], [PSR-2], and [PSR-4].
 
@@ -33,20 +39,12 @@ Install the `csv` package with Composer.
 }
 ```
 
-Usage
--------
+Documentation
+-------------
 
-* [Selecting specific rows in the CSV](examples/extract.php)
-* [Filtering a CSV](examples/filtering.php)
-* [Creating a CSV](examples/writing.php)
-* [Merging 2 CSV documents](examples/merge.php)
-* [Switching between modes from Writer to Reader mode](examples/switchmode.php)
-* [Downloading the CSV](examples/download.php)
-* [Converting the CSV into a Json String](examples/json.php)
-* [Converting the CSV into a XML file](examples/xml.php)
-* [Converting the CSV into a HTML Table](examples/table.php)
+Csv has [full documentation](http://csv.thephpleague.com), powered by [Sculpin](https://sculpin.io).
 
-> The CSV data use for the examples are taken from [Paris Opendata](http://opendata.paris.fr/opendata/jsp/site/Portal.jsp?document_id=60&portlet_id=121)
+Contribute to this documentation in the [sculpin branch](https://github.com/thephpleague/csv/tree/sculpin/source).
 
 ### Tips
 
@@ -68,13 +66,6 @@ if (! ini_get("auto_detect_line_endings")) {
     ini_set("auto_detect_line_endings", true);
 }
 ```
-
-Documentation
--------------
-
-Csv has [full documentation](http://csv.thephpleague.com), powered by [Sculpin](https://sculpin.io).
-
-Contribute to this documentation in the [sculpin branch](https://github.com/thephpleague/csv/tree/sculpin/source).
 
 Testing
 -------
