@@ -5,9 +5,9 @@ layout: layout
 # CSV
 
 [![Build Status](https://travis-ci.org/thephpleague/csv.png)](https://travis-ci.org/thephpleague/csv)
+[![Coverage Status](https://coveralls.io/repos/thephpleague/csv/badge.png)](https://coveralls.io/r/thephpleague/csv)
 [![Latest Stable Version](https://poser.pugx.org/league/csv/v/stable.png)](https://packagist.org/packages/league/csv)
 [![Total Downloads](https://poser.pugx.org/league/csv/downloads.png)](https://packagist.org/packages/league/csv)
-[![Coverage Status](https://coveralls.io/repos/thephpleague/csv/badge.png)](https://coveralls.io/r/thephpleague/csv)
 [![License](https://poser.pugx.org/league/csv/license.png)](https://packagist.org/packages/league/csv)
 
 <ul class="quick_links">
@@ -17,9 +17,9 @@ layout: layout
 
 ## About
 
-League\Csv is a simple library to ease CSV parsing, writing and filtering in 
-PHP. The library goals is to be as lightweight but as powerful as possible using 
-PHP native classes. Bakame.csv was design for developpers who wants to deals with 
+League\Csv is a simple library to ease CSV parsing, writing and filtering in
+PHP. The library goals is to be as lightweight but as powerful as possible using
+PHP native classes. League\Csv was design for developers who wants to deals with
 CSV data using modern code and without the bureaucracy.
 
 [CSV on Packagist](https://packagist.org/packages/league/csv)
@@ -35,5 +35,3 @@ CSV data using modern code and without the bureaucracy.
 ## Questions?
 
 CSV was created by Nyamagana Butera Ignace. Find him on Twitter at [@nyamsprod](https://twitter.com/nyamsprod).
-
-
