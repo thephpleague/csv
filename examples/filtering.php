@@ -1,6 +1,6 @@
 <?php
 
-use Bakame\Csv\Reader;
+use League\Csv\Reader;
 
 require '../vendor/autoload.php';
 
@@ -36,11 +36,11 @@ $headers = $inputCsv->fetchOne(0);
 <html lang="fr">
 <head>
     <meta charset="<?=$inputCsv->getEncoding()?>">
-    <title>\Bakame\Csv\Reader filtering method</title>
+    <title>\League\Csv\Reader filtering method</title>
     <link rel="stylesheet" href="example.css">
 </head>
 <body>
-<h1>Using the Bakame\Csv\Reader class filtering capabilities</h1>
+<h1>Using the League\Csv\Reader class filtering capabilities</h1>
 <table class="table-csv-data">
 <caption>Statistics for the 20 least used female name in the year 2010</caption>
 <thead>

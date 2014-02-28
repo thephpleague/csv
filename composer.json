@@ -1,5 +1,5 @@
 {
-    "name": "bakame/csv",
+    "name": "league/csv",
     "type": "library",
     "description" : "Csv data manipulation made easy in PHP 5.4+",
     "keywords": ["csv", "import", "export", "read", "write", "filter"],
@@ -18,8 +18,11 @@
     },
     "autoload": {
         "psr-4": {
-            "Bakame\\Csv\\": "src",
-            "Bakame\\CSv\\": "test"
+            "League\\Csv\\": "src",
+            "League\\CSv\\": "test"
         }
+    },
+    "replaces": {
+        "bakame/csv": "*"
     }
 }

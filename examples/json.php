@@ -1,6 +1,6 @@
 <?php
 
-use Bakame\Csv\Reader;
+use League\Csv\Reader;
 
 require '../vendor/autoload.php';
 

@@ -1,6 +1,6 @@
 <?php
 
-namespace Bakame\Csv;
+namespace League\Csv;
 
 use PHPUnit_Framework_TestCase;
 use SplTempFileObject;
@@ -165,6 +165,6 @@ EOF;
     public function testGetWriter2()
     {
         $csv = (new Reader(__DIR__.'/foo.csv'))->getWriter('a+');
-        $this->assertInstanceOf('\Bakame\Csv\Writer', $csv);
+        $this->assertInstanceOf('\League\Csv\Writer', $csv);
     }
 }

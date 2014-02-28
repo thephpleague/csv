@@ -1,7 +1,7 @@
 <?php
 
-use Bakame\Csv\Writer;
-use Bakame\Csv\Reader;
+use League\Csv\Writer;
+use League\Csv\Reader;
 
 require '../vendor/autoload.php';
 
@@ -42,7 +42,7 @@ $csv2merge->setDelimiter(',');
 
 /*
  When merging multiples CSV documents don't forget to set the main CSV object
- as a `Bakame\Csv\Writer` object with the $open_mode = 'a+' to preserve its content.
+ as a `League\Csv\Writer` object with the $open_mode = 'a+' to preserve its content.
  This setting is of course not required when your main CSV object is created from String
 */
 
@@ -55,7 +55,7 @@ $csv2merge->setDelimiter(',');
     <link rel="stylesheet" href="example.css">
 </head>
 <body>
-<h1>Using the Bakame\Csv\Writer class to merge two CSV documents</h1>
+<h1>Using the League\Csv\Writer class to merge two CSV documents</h1>
 <h3>The main Raw CSV</h3>
 <p><em>The delimiter is a ";"</em></p>
 <pre>
@@ -74,7 +74,7 @@ $csv2merge->setDelimiter(',');
 </pre>
 <h3>Tips</h3>
 <p> When merging multiples CSV documents don't forget to set the main CSV object
- as a <code>Bakame\Csv\Writer</code> object with the <code>$open_mode = 'a+'</code>
+ as a <code>League\Csv\Writer</code> object with the <code>$open_mode = 'a+'</code>
  to preserve its content. This setting is of course not required when your main CSV object
  is created from String</p>
 </body>

@@ -1,6 +1,6 @@
 <?php
 
-use Bakame\Csv\Writer;
+use League\Csv\Writer;
 
 require '../vendor/autoload.php';
 
@@ -56,11 +56,11 @@ $names = $reader
 <html lang="fr">
 <head>
     <meta charset="utf-8">
-    <title>Bakame\Csv\Writer and Bakame\Csv\Reader switching mode</title>
+    <title>League\Csv\Writer and League\Csv\Reader switching mode</title>
     <link rel="stylesheet" href="example.css">
 </head>
 <body>
-<h1>Using createFromString method and converting the Bakame\Csv\Writer into a Bakame\Csv\Reader</h1>
+<h1>Using createFromString method and converting the League\Csv\Writer into a League\Csv\Reader</h1>
 <h3>The table representation of the csv to be save</h3>
 <?=$writer->toHTML();?>
 <h3>The Raw CSV as it will be saved</h3>
