@@ -28,7 +28,7 @@ Install the `csv` package with Composer.
 ```json
 {
     "require": {
-        "league/csv": "4.*"
+        "league/csv": "5.*"
     }
 }
 ```
