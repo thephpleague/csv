@@ -83,13 +83,30 @@ class IteratorQueryTest extends PHPUnit_Framework_TestCase
     public function testFilter()
     {
         $func = function ($row) {
-            return $row == 'john';
+            return false !== strpos($row, 'o');
         };
         $this->traitQuery->setFilter($func);
 
         $iterator = $this->invokeMethod($this->traitQuery, 'execute', [$this->iterator]);
-        $res = iterator_to_array($iterator);
-        $this->assertCount(1, $res);
+        $this->assertCount(2, iterator_to_array($iterator, false));
+
+        $func2 = function ($row) {
+            return false !== strpos($row, 'j');
+        };
+        $this->traitQuery->addFilter($func2);
+        $this->traitQuery->addFilter($func);
+
+        $iterator = $this->invokeMethod($this->traitQuery, 'execute', [$this->iterator]);
+        $this->assertCount(1, iterator_to_array($iterator, false));
+
+        $this->traitQuery->addFilter($func2);
+        $this->traitQuery->addFilter($func);
+        $this->assertTrue($this->traitQuery->hasFilter($func2));
+        $this->traitQuery->removeFilter($func2);
+        $this->assertFalse($this->traitQuery->hasFilter($func2));
+
+        $iterator = $this->invokeMethod($this->traitQuery, 'execute', [$this->iterator]);
+        $this->assertCount(2, iterator_to_array($iterator, false));
     }
 
     public function testSortBy()
