@@ -39,6 +39,8 @@ use SplFileInfo;
 use SplFileObject;
 use SplTempFileObject;
 use InvalidArgumentException;
+use LimitIterator;
+use CallbackFilterIterator;
 
 /**
  *  A abstract class to enable basic CSV manipulation
@@ -207,6 +209,49 @@ class AbstractCsv implements JsonSerializable, IteratorAggregate
     public function getDelimiter()
     {
         return $this->delimiter;
+    }
+
+    /**
+     * Detect the CSV file delimiter
+     *
+     * @param integer $nbRows
+     * @param array   $delimiters additional delimiters
+     *
+     * @return string
+     *
+     * @throws \InvalidArgumentException If $nbRows value is invalid
+     * @throws \RuntimeException         If too many delimiters are found
+     */
+    public function detectDelimiter($nbRows = 1, array $delimiters = [])
+    {
+        $nbRows = filter_var($nbRows, FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]);
+        if (! $nbRows) {
+            throw new InvalidArgumentException('`$nbRows` must be a valid positive integer');
+        }
+        $delimiters = array_filter($delimiters, function ($str) {
+            return 1 == mb_strlen($str);
+        });
+        $delimiters = array_merge([',', ';', "\t"], $delimiters);
+        $delimiters = array_unique($delimiters);
+        $iterator = new CallbackFilterIterator(
+            new LimitIterator($this->csv, 0, $nbRows),
+            function ($row) {
+                return is_array($row) && count($row) > 1;
+            }
+        );
+        $res = [];
+        foreach ($delimiters as $delim) {
+            $iterator->setCsvControl($delim, $this->enclosure, $this->escape);
+            $res[$delim] = count(iterator_to_array($iterator, false));
+        }
+        arsort($res, SORT_NUMERIC);
+        $res = array_keys(array_filter($res));
+        if (! $res) {
+            return null;
+        } elseif (count($res) == 1) {
+            return $res[0];
+        }
+        throw new RuntimeException('too many delimiters were found: `'.implode('`,`', $res).'`');
     }
 
     /**

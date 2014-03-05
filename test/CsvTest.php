@@ -84,6 +84,45 @@ class CsvTest extends PHPUnit_Framework_TestCase
         $this->csv->setDelimiter('foo');
     }
 
+    public function testDetectDelimiter()
+    {
+        $this->assertSame($this->csv->detectDelimiter(), ',');
+    }
+
+    /**
+     * @expectedException InvalidArgumentException
+     */
+    public function testDetectDelimiterWithInvalidRowLimit()
+    {
+        $this->csv->detectDelimiter(-4);
+    }
+
+    public function testDetectDelimiterWithNoCSV()
+    {
+        $file = new SplTempFileObject;
+        $file->fwrite("How are you today ?\nI'm doing fine thanks!");
+        $csv = new Writer($file);
+        $this->assertNull($csv->detectDelimiter(5, ['toto', '|']));
+    }
+
+    /**
+     * @expectedException RuntimeException
+     */
+    public function testDetectDelimiterWithInconsistentCSV()
+    {
+        $csv = new Writer(new SplTempFileObject);
+        $csv->setDelimiter(';');
+        $csv->insertOne(['toto', 'tata', 'tutu']);
+        $csv->setDelimiter('|');
+        $csv->insertAll([
+            ['toto', 'tata', 'tutu'],
+            ['toto', 'tata', 'tutu'],
+            ['toto', 'tata', 'tutu']
+        ]);
+
+        $csv->detectDelimiter(5, ['toto', '|']);
+    }
+
     /**
      * @expectedException InvalidArgumentException
      */
