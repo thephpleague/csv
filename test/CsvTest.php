@@ -1,12 +1,13 @@
 <?php
 
-namespace League\Csv;
+namespace League\Csv\Test;
 
 use SplFileInfo;
 use SplFileObject;
 use SplTempFileObject;
 use PHPUnit_Framework_TestCase;
 use DateTime;
+use League\Csv\Reader;
 
 date_default_timezone_set('UTC');
 

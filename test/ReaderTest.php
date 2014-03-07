@@ -1,9 +1,10 @@
 <?php
 
-namespace League\Csv;
+namespace League\Csv\Test;
 
 use PHPUnit_Framework_TestCase;
 use SplTempFileObject;
+use League\Csv\Reader;
 
 /**
  * @group reader

@@ -21,8 +21,12 @@
     },    
     "autoload": {
         "psr-4": {
-            "League\\Csv\\": "src",
-            "League\\CSv\\": "test"
+            "League\\Csv\\": "src"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "League\\Csv\\Test\\": "test"
         }
     },
     "replace": {
