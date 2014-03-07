@@ -16,6 +16,9 @@
         "php" : ">=5.4.0",
         "ext-mbstring" : "*"
     },
+    "require-dev": {
+        "phpunit/phpunit" : "*"
+    },    
     "autoload": {
         "psr-4": {
             "League\\Csv\\": "src",
