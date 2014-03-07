@@ -1,10 +1,11 @@
 <?php
 
-namespace League\Csv\Iterator;
+namespace League\Csv\Test\Iterator;
 
 use ArrayIterator;
 use ReflectionClass;
 use PHPUnit_Framework_TestCase;
+use League\Csv\Iterator\IteratorQuery;
 
 /**
  * @group iterator
