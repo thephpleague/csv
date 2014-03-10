@@ -137,6 +137,26 @@ class ReaderTest extends PHPUnit_Framework_TestCase
         $this->csv->fetchOne(-5);
     }
 
+    public function testEach()
+    {
+        $transform = [];
+        $res = $this->csv->each(function ($row) use (&$transform) {
+            $transform[] = array_map('strtoupper', $row);
+
+            return true;
+        });
+        $this->assertSame($res, 2);
+        $this->assertSame(strtoupper($this->expected[0][0]), $transform[0][0]);
+        $res = $this->csv->each(function ($row, $index) {
+            if ($index > 0) {
+                return false;
+            }
+
+            return true;
+        });
+        $this->assertSame($res, 1);
+    }
+
     public function testGetWriter()
     {
         $writer = $this->csv->getWriter();

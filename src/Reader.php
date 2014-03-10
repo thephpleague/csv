@@ -91,6 +91,33 @@ class Reader extends AbstractCsv
     }
 
     /**
+     * Apply a callback function on the CSV
+     *
+     * @param callable $callable The callback function to call on every element.
+     *                           The function must return TRUE in order to continue
+     *                           iterating over the iterator.
+     *
+     * @return integer the iteration count
+     */
+    public function each(callable $callable)
+    {
+        $iterator = new CallbackFilterIterator($this->getIterator(), function ($row) {
+            return is_array($row);
+        });
+
+        $iterator = $this->execute($iterator);
+        $index = 0;
+        foreach ($iterator as $rowIndex => $row) {
+            if (! $callable($row, $rowIndex, $iterator)) {
+                break;
+            }
+            $index++;
+        }
+
+        return $index;
+    }
+
+    /**
      * Return a single row from the CSV
      *
      * @param integer $offset
