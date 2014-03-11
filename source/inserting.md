@@ -39,7 +39,7 @@ $writer->insertOne(new ToStringEnabledClass("john,doe,john.doe@example.com"))
 
 ## insertAll
 
-insertAll inserts multiple rows. This method can take an `array` or a 
+`insertAll` inserts multiple rows. This method can take an `array` or a 
 `Traversable` object to add several rows to the CSV data.
 
 ~~~.language-php

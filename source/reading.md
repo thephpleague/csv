@@ -107,7 +107,7 @@ You can further manipulate the CSV extract methods behavior by specifying filter
 
 `addFilter` method specifies an optional callable function to filter the CSV data. This function takes three parameters at most (see CallbackFilterIterator for more informations). You can add multiple filter to your CSV. The filters will be applied using the First In First Out rule.
 
-<p class="message-warning">For backward compatibility the <code>setFilter</code> method is now a alias of the <code>addFilter</code> method. The <code>setFilter</code> method has been deprecated and will be remove in the next major version release.</p>
+<p class="message-warning">The <code>setFilter</code> method has been deprecated and will be remove in the next major version release. For backward compatibility the <code>setFilter</code> method is now a alias of the <code>addFilter</code> method.</p>
 
 
 ### removeFilter($callable)
@@ -147,7 +147,7 @@ function sortByLastName($rowA, $rowB)
 $data = $reader
     ->setOffset(3)
     ->setLimit(2)
-    ->setFilter('filterByEmail')
+    ->addFilter('filterByEmail')
     ->setSortBy('sortByLastName')
     ->fetchAssoc(['firstname', 'lastname', 'email'], function ($value) {
     return array_map('strtoupper', $value);
@@ -169,7 +169,7 @@ $data = $reader
 * After an extract method call, all filtering options are cleared;
 * Except for the `addFilter` method, only the last filtering settings are taken into account if the same method is called more than once;
 
-### Manual extracting and filtering
+## Manual extracting and filtering
 
 If you want to output differently you data you can use the `query` method. **It works like the `fetchAll` method but returns an Iterator that you may manipulate as you wish**.
 
@@ -185,7 +185,7 @@ function sortByLastName($rowA, $rowB)
 }
 
 $iterator = $reader
-    ->setFilter('filterByEmail')
+    ->addFilter('filterByEmail')
     ->setSortBy('sortByLastName')
     ->setOffset(3)
     ->setLimit(2)
