@@ -82,23 +82,33 @@ $data = $reader->fetchOne(3); ///accessing the 4th row (indexing starts at 0)
 
 `each` apply a callable function on each CSV row. The callable function:
 
+* **must** return true to continue iterating over the CSV;
 * can take up to tree parameters:
-    * the current csv row data
-    * the current csv key
-    * the current csv iterator object
-* **must** return true to continue iterating over the CSV
+    * the current csv row data;
+    * the current csv key;
+    * the current csv iterator object;
 
-This function is to be use if for instance you want to directly import the CSV data into another format.
+~~~.language-php
+<?php
 
+$res = [];
+$nbIteration = $reader->each(function ($row, $index, $iterator) use (&$res, $func)) {
+    $res[] = $func($row, $index, $iterator);
+    return true;
+});
+//implementing the fetchAll method using the each method
+~~~
 
 ## Filtering the data
 
-You can further manipulate the CSV `fetch*` methods output and the `each` method behavior by specifying filtering options using the following methods:
+You can further manipulate the CSV extract methods behavior by specifying filtering options using the following methods:
 
 ### addFilter($callable = null)
 
 `addFilter` method specifies an optional callable function to filter the CSV data. This function takes three parameters at most (see CallbackFilterIterator for more informations). You can add multiple filter to your CSV. The filters will be applied using the First In First Out rule.
-For backward compatibility the `setFilter` method is now a alias of the `addFilter` method. The `setFilter` method will be deprecated in the next major version release (ie: 6.0).
+
+<p class="message-warning">For backward compatibility the <code>setFilter</code> method is now a alias of the <code>addFilter</code> method. The <code>setFilter</code> method has been deprecated and will be remove in the next major version release.</p>
+
 
 ### removeFilter($callable)
 
@@ -154,14 +164,14 @@ $data = $reader
 
 **Of note:**
 
-The filtering methods are chainable;
-The methods can be call in any sort of order before any `fetch*` method call;
-After a `fetch*` method call, all filtering options are cleared;
-Exception for the `addFilter` method, only the last filtering settings are taken into account if the same method is called more than once;
+* The filtering methods are chainable;
+* The methods can be call in any sort of order before any extract method;
+* After an extract method call, all filtering options are cleared;
+* Except for the `addFilter` method, only the last filtering settings are taken into account if the same method is called more than once;
 
 ### Manual extracting and filtering
 
-If you want to output differently you data you can use the `query` method. It works like the `fetchAll` method but returns an Iterator that you may manipulate as you wish.
+If you want to output differently you data you can use the `query` method. **It works like the `fetchAll` method but returns an Iterator that you may manipulate as you wish**.
 
 ~~~.language-php
 function filterByEmail($row) 
