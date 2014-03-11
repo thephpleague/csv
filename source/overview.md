@@ -62,7 +62,9 @@ method takes no optional `$open_mode` parameter.
 
 Once your object is created you can optionally set:
 
-* the CSV delimiter, enclosure and/or escape characters;
+* the CSV delimiter;
+* the CSV enclosure;
+* the CSV escape characters;
 * the object `SplFileObject` flags;
 * the CSV encoding charset if the CSV is not in `UTF-8`;
 
@@ -75,6 +77,19 @@ $reader->setEscape('\\');
 $reader->setFlags(SplFileObject::READ_AHEAD|SplFileObject::SKIP_EMPTY);
 $reader->setEncoding('iso-8859-1');
 ~~~
+
+If you are no sure of the delimiter you can ask the library to detect it for you using the `detectDelimiter` method. **This method will only give you a hint**. 
+
+The method takes two arguments:
+* the number of rows to scan (default to 1);
+* the possible delimiters to check (you don't need to specify the following delimiters as they are already checked by the methid: ",", ";", "\t");
+
+The more rows and delimiters you had, the more time and memory consuming the operation will be.
+
+* If a single delimiter is found the method will return it;
+* If no delimiter is found the method will return `null`;
+* Otherwise a `RuntimeException` will be thrown if multiple delimiters are considered;
+
 
 ## Switching from one class to the other
 

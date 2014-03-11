@@ -78,13 +78,35 @@ $data = $reader->fetchOne(3); ///accessing the 4th row (indexing starts at 0)
 //
 ~~~
 
+### each($callable)
+
+`each` apply a callable function on each CSV row. The callable function:
+
+* can take up to tree parameters:
+    * the current csv row data
+    * the current csv key
+    * the current csv iterator object
+* **must** return true to continue iterating over the CSV
+
+This function is to be use if for instance you want to directly import the CSV data into another format.
+
+
 ## Filtering the data
 
-You can further manipulate the CSV `fetch*` methods output by specifying filtering options using the following methods:
+You can further manipulate the CSV `fetch*` methods output and the `each` method behavior by specifying filtering options using the following methods:
 
-### setFilter($callable = null)
+### addFilter($callable = null)
 
-setFilter method specifies an optional callable function to filter the CSV data. This function takes three parameters at most (see CallbackFilterIterator for more informations)
+`addFilter` method specifies an optional callable function to filter the CSV data. This function takes three parameters at most (see CallbackFilterIterator for more informations). You can add multiple filter to your CSV. The filters will be applied using the First In First Out rule.
+For backward compatibility the `setFilter` method is now a alias of the `addFilter` method. The `setFilter` method will be deprecated in the next major version release (ie: 6.0).
+
+### removeFilter($callable)
+
+`removeFilter` method removes an already registered filter. If the same filter is registered multiple time, you will have to call removeFilter as often as the filter was registered.
+
+### hasFilter($callable)
+
+`hasFilter` method verifies if a `$callable` filter is already registered
 
 ### setSortBy($callable = null)
 
@@ -135,7 +157,7 @@ $data = $reader
 The filtering methods are chainable;
 The methods can be call in any sort of order before any `fetch*` method call;
 After a `fetch*` method call, all filtering options are cleared;
-Only the last filtering settings are taken into account if the same method is called more than once;
+Exception for the `addFilter` method, only the last filtering settings are taken into account if the same method is called more than once;
 
 ### Manual extracting and filtering
 

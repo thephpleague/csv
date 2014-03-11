@@ -34,7 +34,7 @@ use League\Csv;
 $sth = $dbh->prepare(
 	"SELECT firstname, lastname, email FROM users LIMIT 200"
 );
-//because we don't want to duplicate the rows 
+//because we don't want to duplicate the data for each row 
 // PDO::FETCH_NUM could also have been used
 $sth->setFetchMode(PDO::FETCH_ASSOC);
 $sth->execute();
@@ -56,6 +56,30 @@ $csv->insertAll($sth);
 // The file is downloadable
 $csv->output('users.csv');
 die;
+~~~
+
+## Importing a CSV into a Database
+
+A simple example to show you how to import some CSV data into a database using a `PDOStatement` object
+
+~~~.language-php
+<?php
+use League\Csv;
+
+//We are going to insert some data into the users table
+$sth = $dbh->prepare(
+	"INSERT INTO users (firstname, lastname, email) VALUES (:firstname, :lastname, :email)"
+);
+
+$csv = new Csv\Reader('/path/to/your/csv/file.csv');
+$csv->setOffset(1); //because we don't want to insert the header
+$nbInsert = $csv->each(function ($row) use (&$sth)) {
+	$sth->bindValue(':firstname', $row[0], PDO::PARAM_STR);
+	$sth->bindValue(':lastname', $row[1], PDO::PARAM_STR);
+	$sth->bindValue(':email', $row[2], PDO::PARAM_STR);
+
+	return $sth->execute(); //if the function return false then the iteration will stop
+});
 ~~~
 
 ## More Examples
