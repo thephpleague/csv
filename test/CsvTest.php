@@ -1,6 +1,6 @@
 <?php
 
-namespace League\Csv\Test;
+namespace League\Csv\test;
 
 use SplFileInfo;
 use SplFileObject;
@@ -8,6 +8,7 @@ use SplTempFileObject;
 use PHPUnit_Framework_TestCase;
 use DateTime;
 use League\Csv\Reader;
+use League\Csv\Writer;
 
 date_default_timezone_set('UTC');
 
