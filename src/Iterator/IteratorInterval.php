@@ -66,7 +66,7 @@ trait IteratorInterval
      *
      * @return self
      */
-    public function setOffset($offset)
+    public function setOffset($offset = 0)
     {
         if (false === filter_var($offset, FILTER_VALIDATE_INT, ['options' => ['min_range' => 0]])) {
             throw new InvalidArgumentException('the offset must be a positive integer or 0');
@@ -83,7 +83,7 @@ trait IteratorInterval
      *
      * @return self
      */
-    public function setLimit($limit)
+    public function setLimit($limit = -1)
     {
         if (false === filter_var($limit, FILTER_VALIDATE_INT, ['options' => ['min_range' => -1]])) {
             throw new InvalidArgumentException('the limit must an integer greater or equals to -1');
@@ -106,10 +106,8 @@ trait IteratorInterval
             return $iterator;
         }
         $offset = $this->offset;
-        $limit = -1;
-        if ($this->limit > 0) {
-            $limit = $this->limit;
-        }
+        $limit = $this->limit;
+
         $this->limit = -1;
         $this->offset = 0;
 

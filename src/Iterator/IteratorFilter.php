@@ -111,6 +111,18 @@ trait IteratorFilter
     }
 
     /**
+     * Remove all registered callable filter
+     *
+     * @return self
+     */
+    public function clearFilter()
+    {
+        $this->filter = [];
+
+        return $this;
+    }
+
+    /**
     * Filter the Iterator
     *
     * @param \Iterator $iterator
@@ -122,7 +134,7 @@ trait IteratorFilter
         foreach ($this->filter as $callable) {
             $iterator = new CallbackFilterIterator($iterator, $callable);
         }
-        $this->filter = [];
+        $this->clearFilter();
 
         return $iterator;
     }

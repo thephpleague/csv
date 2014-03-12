@@ -1,6 +1,6 @@
 <?php
 
-namespace League\Csv\Test\Iterator;
+namespace League\Csv\test\Iterator;
 
 use ArrayIterator;
 use ReflectionClass;
@@ -114,9 +114,16 @@ class IteratorQueryTest extends PHPUnit_Framework_TestCase
     {
         $this->traitQuery->setSortBy('strcmp');
         $iterator = $this->invokeMethod($this->traitQuery, 'execute', [$this->iterator]);
-        $res = iterator_to_array($iterator);
+        $res = iterator_to_array($iterator, false);
+        $this->assertSame(['bar', 'foo', 'jane', 'john'], $res);
 
-        $this->assertSame(['bar', 'foo', 'jane', 'john'], array_values($res));
+        $this->traitQuery->addSortBy('strcmp');
+        $this->traitQuery->addSortBy('strcmp');
+        $this->traitQuery->removeSortBy('strcmp');
+        $this->assertTrue($this->traitQuery->hasSortBy('strcmp'));
+        $iterator = $this->invokeMethod($this->traitQuery, 'execute', [$this->iterator]);
+        $res = iterator_to_array($iterator, false);
+        $this->assertSame(['bar', 'foo', 'jane', 'john'], $res);
     }
 
     public function testExecuteWithCallback()
