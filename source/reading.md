@@ -9,9 +9,21 @@ title: Reading & Filtering
 
 To extract data use `League\Csv\Reader` methods.
 
+### query($callable = null)
+
+`query` return a Iterator that represents the CSV. This Iterator can further be manipulated as you wish.
+
+~~~.language-php
+$data = $reader->query();
+foreach ($data as $line_index => $row) {
+    //do something here
+}
+~~~
+
 ### fetchAll($callable = null)
 
-`fetchAll` returns a sequential array of all rows.
+`fetchAll` returns a sequential array of all rows. It is a equivalent of the `query` method but it returns
+an array. This means that you can for instance, `count` the CSV rows. 
 
 ~~~.language-php
 $data = $reader->fetchAll();
@@ -23,6 +35,7 @@ $data = $reader->fetchAll();
 //   ...
 // ]
 //
+$nb_rows = count($data);
 ~~~
 
 ### fetchAssoc([], $callable = null)
@@ -60,7 +73,7 @@ $data = $reader->fetchCol(2);
 // 
 ~~~
 
-The methods listed above (`fetchAll`, `fetchAssoc`, `fetchCol`) can all take a optional `callable` argument to further manipulate each row before being returned. This callable function can take up to three parameters:
+The methods listed above (`query`, `fetchAll`, `fetchAssoc`, `fetchCol`) can all take a optional `callable` argument to further manipulate each row before being returned. This callable function can take up to three parameters:
 
 * the current csv row data
 * the current csv key
@@ -88,50 +101,95 @@ $data = $reader->fetchOne(3); ///accessing the 4th row (indexing starts at 0)
     * the current csv key;
     * the current csv iterator object;
 
+The method returns the number of successful iterations.
+
 ~~~.language-php
 <?php
-
+//re-create the fetchAll method using the each method
 $res = [];
 $nbIteration = $reader->each(function ($row, $index, $iterator) use (&$res, $func)) {
     $res[] = $func($row, $index, $iterator);
     return true;
 });
-//implementing the fetchAll method using the each method
 ~~~
 
-## Filtering the data
+## CSV query options
 
-You can further manipulate the CSV extract methods behavior by specifying filtering options using the following methods:
+You can further manipulate the CSV extract methods behavior using the query options. To set those options you will need to use the methods described below. But keep in mind that:
 
-### addFilter($callable = null)
+* The query methods are all chainable *except when they have to return a boolean*;
+* The query methods can be call in any sort of order before any extract method;
+* After an extract method call, all query options are cleared.
 
-`addFilter` method specifies an optional callable function to filter the CSV data. This function takes three parameters at most (see CallbackFilterIterator for more informations). You can add multiple filter to your CSV. The filters will be applied using the First In First Out rule.
+## Filtering methods
 
-<p class="message-warning">The <code>setFilter</code> method has been deprecated and will be remove in the next major version release. For backward compatibility the <code>setFilter</code> method is now a alias of the <code>addFilter</code> method.</p>
+The filtering methods enable adding and/or removing multiple filters to your CSV. The filters follow the First In First Out rule.
 
+### addFilter($callable)
+
+`addFilter` method adds a callable function to filter the CSV data. This function can take up to three parameters:
+
+* the current csv row data;
+* the current csv key;
+* the current csv iterator object;
+
+
+<p class="message-warning">The <code>setFilter</code> method has been deprecated and will be remove in the next major version release. For backward compatibility, the method is now a alias of the <code>addFilter</code> method.</p>
 
 ### removeFilter($callable)
 
-`removeFilter` method removes an already registered filter. If the same filter is registered multiple time, you will have to call removeFilter as often as the filter was registered.
+`removeFilter` method removes an already registered filter. If the same filter is registered multiple times, you will have to call `removeFilter` as often as the filter was registered. **The first registered filter will be the first to be removed.**
 
 ### hasFilter($callable)
 
 `hasFilter` method verifies if a `$callable` filter is already registered
 
-### setSortBy($callable = null)
+### clearFilter()
 
-setSortBy method specifies an optional callable function to sort the CSV data. The function takes two parameters which will be filled by pairs of rows.
+`clearFilter` method removes all registered filter functions.
 
-Beware when using this filter that you will be using `iterator_to_array` which could lead to performance penalty if you have a heavy CSV file to sort
+## Sorting methods
 
-### setOffset($offset) and setLimit($limit)
+The sorting methods enable adding and/or removing multiple sorting functions to your CSV. The sorting follow the First In First Out rule.
 
-setOffset method specifies an optional offset for the return results.
-setLimit method specifies an optional maximum rows count for the return results.
+<p class="message-warning">To sort the data <code>iterator_to_array</code> is used which could lead to performance penalty if you have a heavy CSV file to sort
+</p>
 
-Both methods have no effect on the `fetchOne` method output
+### addSortBy($callable)
 
-Here's an example:
+`addSortBy` method adds a sorting function to sort the CSV data. The function takes exactly two parameters which will be filled by pairs of rows.
+
+<p class="message-warning">The <code>setSortBy</code> method has been deprecated and will be remove in the next major version release. For backward compatibility, the method is now a alias of the <code>addSortBy</code> method.</p>
+
+### removeSortBy($callable)
+
+`removeSortBy` method removes an already registered sorting function. If the same sorting function is registered multiple times, you will have to call removeSortBy as often as the filter was registered.  **The first registered sorting function will be the first to be removed.**
+
+### hasSortBy($callable)
+
+`hasSortBy` method verifies if a sorting function is already registered
+
+### clearSortBy()
+
+`clearSortBy` method removes all registered sorting functions.
+
+## Interval methods
+
+The methods enable returning a specific interval of rows. When called more than once, only the last filtering settings is taken into account.
+
+### setOffset($offset = 0)
+
+`setOffset` method specifies an optional offset for the return results. By default the offset equals `0`.
+
+### setLimit($limit = -1)
+
+`setLimit` method specifies an optional maximum rows count for the return results. By default the offset equals `-1`, which translate to all rows.
+
+<p class="message-warning">Both methods have no effect on the `fetchOne` method output.</p>
+
+## Using the query features
+
+Here's an example on how to use the query features of the `Reader` class to restrict the `fetchAssoc` result:
 
 ~~~.language-php
 function filterByEmail($row) 
@@ -148,7 +206,7 @@ $data = $reader
     ->setOffset(3)
     ->setLimit(2)
     ->addFilter('filterByEmail')
-    ->setSortBy('sortByLastName')
+    ->addSortBy('sortByLastName')
     ->fetchAssoc(['firstname', 'lastname', 'email'], function ($value) {
     return array_map('strtoupper', $value);
 });
@@ -162,34 +220,3 @@ $data = $reader
 // 
 ~~~
 
-**Of note:**
-
-* The filtering methods are chainable;
-* The methods can be call in any sort of order before any extract method;
-* After an extract method call, all filtering options are cleared;
-* Except for the `addFilter` method, only the last filtering settings are taken into account if the same method is called more than once;
-
-## Manual extracting and filtering
-
-If you want to output differently you data you can use the `query` method. **It works like the `fetchAll` method but returns an Iterator that you may manipulate as you wish**.
-
-~~~.language-php
-function filterByEmail($row) 
-{
-    return filer_var($row[2], FILTER_VALIDATE_EMAIL);
-}
-
-function sortByLastName($rowA, $rowB)
-{
-    return strcmp($rowB[1], $rowA[1]);
-}
-
-$iterator = $reader
-    ->addFilter('filterByEmail')
-    ->setSortBy('sortByLastName')
-    ->setOffset(3)
-    ->setLimit(2)
-    ->query(function ($value) {
-        return array_map('strtoupper', $value);
-    });
-~~~

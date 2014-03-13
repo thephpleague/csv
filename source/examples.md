@@ -13,7 +13,7 @@ A simple example to show you how to parse a CSV document.
 <?php
 use League\Csv;
 
-$csv = new Csv\Reader('/path/to/your/csv/file.csv');
+$csv = new Reader('/path/to/your/csv/file.csv');
 
 //get the first row, usually the CSV header
 $headers = $csv->fetchOne();
@@ -40,18 +40,18 @@ $sth->setFetchMode(PDO::FETCH_ASSOC);
 $sth->execute();
 
 //we create the CSV into memory
-$csv = new Csv\Writer(new SplTempFileObject);
+$csv = new Writer(new SplTempFileObject);
 
 //we insert the CSV header
 $csv->insertOne(['firstname', 'lastname', 'email']);
 
 // The PDOStatement Object implements the Traversable Interface
-// that's why Csv\Writer::insertAll can directly insert
+// that's why Writer::insertAll can directly insert
 // the data into the CSV
 $csv->insertAll($sth);
 
 // Because you are providing the filename you don't have to 
-// set the HTTP headers Csv\Writer::output can 
+// set the HTTP headers Writer::output can 
 // directly set them for you
 // The file is downloadable
 $csv->output('users.csv');
@@ -71,7 +71,7 @@ $sth = $dbh->prepare(
 	"INSERT INTO users (firstname, lastname, email) VALUES (:firstname, :lastname, :email)"
 );
 
-$csv = new Csv\Reader('/path/to/your/csv/file.csv');
+$csv = new Reader('/path/to/your/csv/file.csv');
 $csv->setOffset(1); //because we don't want to insert the header
 $nbInsert = $csv->each(function ($row) use (&$sth)) {
 	//Do not forget to validate your data before inserting it in your database
