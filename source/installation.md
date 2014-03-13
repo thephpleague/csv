@@ -16,7 +16,7 @@ CSV is available on [Packagist](https://packagist.org/packages/league/csv) and c
 ~~~.language-javascript
 {
     "require": {
-        "league/csv": "4.*"
+        "league/csv": "5.*"
     }
 }
 ~~~
