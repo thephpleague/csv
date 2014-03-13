@@ -1,17 +1,17 @@
 ---
 layout: layout
-title: Reading & Filtering
+title: Extracting
 ---
 
-# Reading & Filtering
-
-## Extracting data from the CSV
+# Extracting data
 
 To extract data use `League\Csv\Reader` methods.
 
+## Fetching CSV data
+
 ### query($callable = null)
 
-`query` return a Iterator that represents the CSV. This Iterator can further be manipulated as you wish.
+The `query` method prepares and issues queries on the CSV data. It returns an `Iterator` that represents the result that you can further manipulate as you wish.
 
 ~~~.language-php
 $data = $reader->query();
@@ -22,8 +22,7 @@ foreach ($data as $line_index => $row) {
 
 ### fetchAll($callable = null)
 
-`fetchAll` returns a sequential array of all rows. It is a equivalent of the `query` method but it returns
-an array. This means that you can for instance, `count` the CSV rows. 
+`fetchAll` returns a sequential array of all rows.
 
 ~~~.language-php
 $data = $reader->fetchAll();
@@ -62,7 +61,7 @@ If the number of values in a CSV row is greater that the number of named keys th
 
 `fetchCol` returns a sequential array of all values in a given column from the CSV data.
 
-If no argument is given to the method it will return the first colum from the CSV data.
+If no argument is given to the method it will return the first column from the CSV data.
 If the column does not exists in the csv data the method will return an array full of `null` value.
 
 ~~~.language-php
@@ -113,36 +112,37 @@ $nbIteration = $reader->each(function ($row, $index, $iterator) use (&$res, $fun
 });
 ~~~
 
-## CSV query options
+## Querying CSV data
 
-You can further manipulate the CSV extract methods behavior using the query options. To set those options you will need to use the methods described below. But keep in mind that:
+You can restrict CSV extract methods output by setting query options. To set those options you will need to use the methods described below. But keep in mind that:
 
-* The query methods are all chainable *except when they have to return a boolean*;
-* The query methods can be call in any sort of order before any extract method;
-* After an extract method call, all query options are cleared.
+* The query options methods are all chainable *except when they have to return a boolean*;
+* The query options methods can be call in any sort of order before any extract method;
+* After an extract method call, all query options are cleared;
+* The optional extract method callable function is called after all query options have been applied;
 
 ## Filtering methods
 
-The filtering methods enable adding and/or removing multiple filters to your CSV. The filters follow the First In First Out rule.
+The filtering options **are the first settings applied to the CSV before anything else**. The filters follow the *First In First Out* rule.
 
 ### addFilter($callable)
 
-`addFilter` method adds a callable function to filter the CSV data. This function can take up to three parameters:
+The `addFilter` method adds a callable filter function each time it is called. The function can take up to three parameters:
 
 * the current csv row data;
 * the current csv key;
 * the current csv iterator object;
 
 
-<p class="message-warning">The <code>setFilter</code> method has been deprecated and will be remove in the next major version release. For backward compatibility, the method is now a alias of the <code>addFilter</code> method.</p>
+<p class="message-warning">The <code>setFilter</code> method has been deprecated and will be remove in the next major version release. For backward compatibility, the method is now an alias of the <code>addFilter</code> method.</p>
 
 ### removeFilter($callable)
 
-`removeFilter` method removes an already registered filter. If the same filter is registered multiple times, you will have to call `removeFilter` as often as the filter was registered. **The first registered filter will be the first to be removed.**
+`removeFilter` method removes an already registered filter function. If the function was registered multiple times, you will have to call `removeFilter` as often as the filter was registered. **The first registered copy will be the first to be removed.**
 
 ### hasFilter($callable)
 
-`hasFilter` method verifies if a `$callable` filter is already registered
+`hasFilter` method checks if the filter function is already registered
 
 ### clearFilter()
 
@@ -150,24 +150,24 @@ The filtering methods enable adding and/or removing multiple filters to your CSV
 
 ## Sorting methods
 
-The sorting methods enable adding and/or removing multiple sorting functions to your CSV. The sorting follow the First In First Out rule.
+The sorting options are applied **after the CSV filtering options**. The sorting follow the *First In First Out* rule.
 
 <p class="message-warning">To sort the data <code>iterator_to_array</code> is used which could lead to performance penalty if you have a heavy CSV file to sort
 </p>
 
 ### addSortBy($callable)
 
-`addSortBy` method adds a sorting function to sort the CSV data. The function takes exactly two parameters which will be filled by pairs of rows.
+`addSortBy` method adds a sorting function each time it is called. The function takes exactly two parameters which will be filled by pairs of rows.
 
-<p class="message-warning">The <code>setSortBy</code> method has been deprecated and will be remove in the next major version release. For backward compatibility, the method is now a alias of the <code>addSortBy</code> method.</p>
+<p class="message-warning">The <code>setSortBy</code> method has been deprecated and will be remove in the next major version release. For backward compatibility, the method is now an alias of the <code>addSortBy</code> method.</p>
 
 ### removeSortBy($callable)
 
-`removeSortBy` method removes an already registered sorting function. If the same sorting function is registered multiple times, you will have to call removeSortBy as often as the filter was registered.  **The first registered sorting function will be the first to be removed.**
+`removeSortBy` method removes an already registered sorting function. If the function was registered multiple times, you will have to call `removeSortBy` as often as the function was registered. **The first registered copy will be the first to be removed.**
 
 ### hasSortBy($callable)
 
-`hasSortBy` method verifies if a sorting function is already registered
+`hasSortBy` method checks if the sorting function is already registered
 
 ### clearSortBy()
 
@@ -175,19 +175,19 @@ The sorting methods enable adding and/or removing multiple sorting functions to 
 
 ## Interval methods
 
-The methods enable returning a specific interval of rows. When called more than once, only the last filtering settings is taken into account.
+The methods enable returning a specific interval of CSV rows. When called more than once, only the last filtering settings is taken into account. The interval is calculated **after filtering and/or sorting but before extracting the data**.
 
 ### setOffset($offset = 0)
 
-`setOffset` method specifies an optional offset for the return results. By default the offset equals `0`.
+`setOffset` method specifies an optional offset for the return data. By default the offset equals `0`.
 
 ### setLimit($limit = -1)
 
-`setLimit` method specifies an optional maximum rows count for the return results. By default the offset equals `-1`, which translate to all rows.
+`setLimit` method specifies an optional maximum rows count for the return data. By default the offset equals `-1`, which translate to all rows.
 
 <p class="message-warning">Both methods have no effect on the `fetchOne` method output.</p>
 
-## Using the query features
+## A concrete example
 
 Here's an example on how to use the query features of the `Reader` class to restrict the `fetchAssoc` result:
 
