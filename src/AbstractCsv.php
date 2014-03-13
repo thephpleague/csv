@@ -234,7 +234,7 @@ class AbstractCsv implements JsonSerializable, IteratorAggregate
         $delimiters = array_merge([',', ';', "\t"], $delimiters);
         $delimiters = array_unique($delimiters);
         $iterator = new CallbackFilterIterator(
-            new LimitIterator($this->csv, 0, $nbRows),
+            new LimitIterator($this->getIterator(), 0, $nbRows),
             function ($row) {
                 return is_array($row) && count($row) > 1;
             }
