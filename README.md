@@ -83,6 +83,6 @@ Credits
 -------
 
 - [ignace nyamagana butera](https://github.com/nyamsprod)
-- [All Contributors](graphs/contributors)
+- [All Contributors](https://github.com/thephpleague/csv/graphs/contributors)
 
 [![Bitdeli Badge](https://d2weczhvl823v0.cloudfront.net/thephpleague/csv/trend.png)](https://bitdeli.com/free "Bitdeli Badge")
