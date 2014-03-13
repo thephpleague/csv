@@ -231,7 +231,7 @@ class AbstractCsv implements JsonSerializable, IteratorAggregate
         $delimiters = array_filter($delimiters, function ($str) {
             return 1 == mb_strlen($str);
         });
-        $delimiters = array_merge([',', ';', "\t"], $delimiters);
+        $delimiters = array_merge([$this->delimiter, ',', ';', "\t"], $delimiters);
         $delimiters = array_unique($delimiters);
         $iterator = new CallbackFilterIterator(
             new LimitIterator($this->getIterator(), 0, $nbRows),
