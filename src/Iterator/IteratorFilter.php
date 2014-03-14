@@ -58,13 +58,13 @@ trait IteratorFilter
      *
      * @deprecated deprecated since version 5.1
      *
-     * @param callable $filter
+     * @param callable $callable
      *
      * @return self
      */
-    public function setFilter(callable $filter)
+    public function setFilter(callable $callable)
     {
-        return $this->addFilter($filter);
+        return $this->addFilter($callable);
     }
 
     /**
@@ -74,9 +74,9 @@ trait IteratorFilter
      *
      * @return self
      */
-    public function addFilter(callable $filter)
+    public function addFilter(callable $callable)
     {
-        $this->filter[] = $filter;
+        $this->filter[] = $callable;
 
         return $this;
     }
@@ -84,13 +84,13 @@ trait IteratorFilter
     /**
      * Remove a filter from the callable collection
      *
-     * @param callable $filter
+     * @param callable $callable
      *
      * @return self
      */
-    public function removeFilter(callable $filter)
+    public function removeFilter(callable $callable)
     {
-        $res = array_search($filter, $this->filter, true);
+        $res = array_search($callable, $this->filter, true);
         if (false !== $res) {
             unset($this->filter[$res]);
         }
@@ -101,13 +101,13 @@ trait IteratorFilter
     /**
      * Detect if the callable filter is already registered
      *
-     * @param callable $filter
+     * @param callable $callable
      *
      * @return boolean
      */
-    public function hasFilter(callable $filter)
+    public function hasFilter(callable $callable)
     {
-        return false !== array_search($filter, $this->filter, true);
+        return false !== array_search($callable, $this->filter, true);
     }
 
     /**
