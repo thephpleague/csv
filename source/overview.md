@@ -22,6 +22,8 @@ The library is composed of two main classes:
 
 Both classes share methods to instantiate, format and output the CSV.
 
+## Class Instantiation
+
 There's several ways to instantiate these classes:
 
 ~~~.language-php
@@ -59,6 +61,8 @@ When not explicitly set:
 
 The static method `createFromString` is to be use if your data is a string. This
 method takes no optional `$open_mode` parameter.
+
+## CSV properties settings
 
 Once your object is created you can optionally set:
 
