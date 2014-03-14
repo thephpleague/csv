@@ -107,7 +107,6 @@ class AbstractCsv implements JsonSerializable, IteratorAggregate
     public function __construct($path, $open_mode = 'r')
     {
         $this->csv = $this->fetchFile($path, $open_mode);
-        $this->csv->setFlags($this->flags);
     }
 
     /**
