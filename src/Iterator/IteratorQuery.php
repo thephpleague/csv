@@ -68,9 +68,9 @@ trait IteratorQuery
      */
     protected function execute(Iterator $iterator, callable $callable = null)
     {
+        $iterator = $this->applyInterval($iterator);
         $iterator = $this->applyFilter($iterator);
         $iterator = $this->applySortBy($iterator);
-        $iterator = $this->applyInterval($iterator);
         if (! is_null($callable)) {
             $iterator = new MapIterator($iterator, $callable);
         }
