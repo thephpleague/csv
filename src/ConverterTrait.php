@@ -35,6 +35,7 @@ namespace League\Csv;
 use DomDocument;
 use SplTempFileObject;
 use League\Csv\Iterator\MapIterator;
+use InvalidArgumentException;
 
 /**
  *  A abstract class to enable basic CSV manipulation
@@ -45,6 +46,42 @@ use League\Csv\Iterator\MapIterator;
  */
 trait ConverterTrait
 {
+    /**
+     * Charset Encoding for the CSV
+     *
+     * @var string
+     */
+    protected $encoding = 'UTF-8';
+
+    /**
+     * Set the CSV encoding charset
+     *
+     * @param string $str
+     *
+     * @return self
+     */
+    public function setEncoding($str)
+    {
+        $str = str_replace('_', '-', $str);
+        $str = filter_var($str, FILTER_SANITIZE_STRING, ['flags' => FILTER_FLAG_STRIP_LOW|FILTER_FLAG_STRIP_HIGH]);
+        if (empty($str)) {
+            throw new InvalidArgumentException('you should use a valid charset');
+        }
+        $this->encoding = strtoupper($str);
+
+        return $this;
+    }
+
+    /**
+     * Get the CSV encoding charset
+     *
+     * @return string
+     */
+    public function getEncoding()
+    {
+        return $this->encoding;
+    }
+
     /**
      * Convert Csv file into UTF-8
      *
@@ -88,19 +125,6 @@ trait ConverterTrait
     }
 
     /**
-     * Retrieves the CSV content
-     *
-     * @return string
-     */
-    public function __toString()
-    {
-        ob_start();
-        $this->output();
-
-        return ob_get_clean();
-    }
-
-    /**
      * transform a CSV into a XML
      *
      * @param string $root_name XML root node name
@@ -141,17 +165,5 @@ trait ConverterTrait
         $doc->documentElement->setAttribute('class', $classname);
 
         return $doc->saveHTML($doc->documentElement);
-    }
-
-    /**
-     * JsonSerializable Interface
-     *
-     * @return array
-     */
-    public function jsonSerialize()
-    {
-        $iterator = $this->convert2Utf8();
-
-        return iterator_to_array($iterator, false);
     }
 }

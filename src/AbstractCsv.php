@@ -92,13 +92,6 @@ class AbstractCsv implements JsonSerializable, IteratorAggregate
     protected $flags = SplFileObject::READ_CSV;
 
     /**
-     * Charset Encoding for the CSV
-     *
-     * @var string
-     */
-    protected $encoding = 'UTF-8';
-
-    /**
      * The destructor
      *
      * Make sure the class reference is destroy when the class is no longer used
@@ -156,6 +149,7 @@ class AbstractCsv implements JsonSerializable, IteratorAggregate
      */
     protected function fetchFile($path, $open_mode)
     {
+        ini_set("auto_detect_line_endings", true);
         if ($path instanceof SplFileObject) {
             return $path;
         }
@@ -327,35 +321,6 @@ class AbstractCsv implements JsonSerializable, IteratorAggregate
     }
 
     /**
-     * Set the CSV encoding charset
-     *
-     * @param string $str
-     *
-     * @return self
-     */
-    public function setEncoding($str)
-    {
-        $str = str_replace('_', '-', $str);
-        $str = filter_var($str, FILTER_SANITIZE_STRING, ['flags' => FILTER_FLAG_STRIP_LOW|FILTER_FLAG_STRIP_HIGH]);
-        if (empty($str)) {
-            throw new InvalidArgumentException('you should use a valid charset');
-        }
-        $this->encoding = strtoupper($str);
-
-        return $this;
-    }
-
-    /**
-     * Get the CSV encoding charset
-     *
-     * @return string
-     */
-    public function getEncoding()
-    {
-        return $this->encoding;
-    }
-
-    /**
      * Return the CSV Iterator
      *
      * @return \SplFileObject
@@ -366,5 +331,28 @@ class AbstractCsv implements JsonSerializable, IteratorAggregate
         $this->csv->setFlags($this->flags);
 
         return $this->csv;
+    }
+
+    /**
+     * JsonSerializable Interface
+     *
+     * @return array
+     */
+    public function jsonSerialize()
+    {
+        return iterator_to_array($this->convert2Utf8(), false);
+    }
+
+    /**
+     * Retrieves the CSV content
+     *
+     * @return string
+     */
+    public function __toString()
+    {
+        ob_start();
+        $this->output();
+
+        return ob_get_clean();
     }
 }
