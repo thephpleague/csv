@@ -99,18 +99,6 @@ class AbstractCsv implements JsonSerializable, IteratorAggregate
     protected $encoding = 'UTF-8';
 
     /**
-     * The constructor
-     *
-     * @param mixed  $path      an SplFileInfo object or the path to a file
-     * @param string $open_mode the file open mode flag
-     */
-    public function __construct($path, $open_mode = 'r')
-    {
-        $this->csv = $this->fetchFile($path, $open_mode);
-        $this->csv->setFlags($this->flags);
-    }
-
-    /**
      * The destructor
      *
      * Make sure the class reference is destroy when the class is no longer used
