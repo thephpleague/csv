@@ -63,6 +63,7 @@ class Reader extends AbstractCsv
     {
         $this->csv = $this->fetchFile($path, $open_mode);
     }
+
     /**
      * Intelligent Array Combine
      *
