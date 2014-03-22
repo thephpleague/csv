@@ -32,8 +32,9 @@
 */
 namespace League\Csv;
 
-use InvalidArgumentException;
 use Traversable;
+use InvalidArgumentException;
+use OutOfBoundsException;
 
 /**
  *  A class to manage data insertion into a CSV
@@ -44,12 +45,77 @@ use Traversable;
  */
 class Writer extends AbstractCsv
 {
+
+    const NULL_AS_EXCEPTION = 1;
+
+    const NULL_AS_SKIP_CELL = 2;
+
+    const NULL_AS_EMPTY = 3;
+
+    private $null_handling = self::NULL_AS_EXCEPTION;
+
     /**
      * {@inheritdoc}
      */
     public function __construct($path, $open_mode = 'w')
     {
         parent::__construct($path, $open_mode);
+    }
+
+    /**
+     * Tell the class how to handle null value
+     *
+     * @param integer $value a Writer null behavior constant
+     *
+     * @return self
+     *
+     * @throws OutOfBoundsException If the Integer is not valid
+     */
+    public function setNullHandling($value)
+    {
+        if (!in_array($value, [self::NULL_AS_SKIP_CELL, self::NULL_AS_EXCEPTION, self::NULL_AS_EMPTY])) {
+            throw new OutOfBoundsException(
+                'invalid value for null behavior'
+            );
+        }
+        $this->null_handling = $value;
+
+        return $this;
+    }
+
+    /**
+     * null handling getter
+     *
+     * @return integer
+     */
+    public function getNullHandling()
+    {
+        return $this->null_handling;
+    }
+
+    /**
+     * Format the row according to the null handling behavior
+     *
+     * @param array $row
+     *
+     * @return array
+     */
+    private function formatRow(array $row)
+    {
+        if (self::NULL_AS_EMPTY == $this->null_handling) {
+            foreach ($row as &$value) {
+                if (is_null($value)) {
+                    $value = '';
+                }
+            }
+            unset($value);
+
+            return $row;
+        }
+
+        return array_filter($row, function ($value) {
+            return ! is_null($value);
+        });
     }
 
     /**
@@ -72,9 +138,11 @@ class Writer extends AbstractCsv
             );
         }
         $check = array_filter($row, function ($value) {
-            return self::isValidString($value);
+            return (is_null($value) && self::NULL_AS_EXCEPTION != $this->null_handling)
+            || self::isValidString($value);
         });
         if (count($check) == count($row)) {
+            $row = $this->formatRow($row);
             $this->csv->fputcsv($row, $this->delimiter, $this->enclosure);
 
             return $this;
