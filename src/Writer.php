@@ -136,6 +136,62 @@ class Writer extends AbstractCsv
     }
 
     /**
+     * Tell the class how to handle null value
+     *
+     * @param integer $value a Writer null behavior constant
+     *
+     * @return self
+     *
+     * @throws OutOfBoundsException If the Integer is not valid
+     */
+    public function setNullHandling($value)
+    {
+        if (!in_array($value, [self::NULL_AS_SKIP_CELL, self::NULL_AS_EXCEPTION, self::NULL_AS_EMPTY])) {
+            throw new OutOfBoundsException(
+                'invalid value for null behavior'
+            );
+        }
+        $this->null_handling = $value;
+
+        return $this;
+    }
+
+    /**
+     * null handling getter
+     *
+     * @return integer
+     */
+    public function getNullHandling()
+    {
+        return $this->null_handling;
+    }
+
+    /**
+     * Format the row according to the null handling behavior
+     *
+     * @param array $row
+     *
+     * @return array
+     */
+    private function formatRow(array $row)
+    {
+        if (self::NULL_AS_EMPTY == $this->null_handling) {
+            foreach ($row as &$value) {
+                if (is_null($value)) {
+                    $value = '';
+                }
+            }
+            unset($value);
+
+            return $row;
+        }
+
+        return array_filter($row, function ($value) {
+            return ! is_null($value);
+        });
+    }
+
+    /**
      * Add a new CSV row to the generated CSV
      *
      * @param mixed $row a string, an array or an object implementing to '__toString' method
@@ -167,9 +223,7 @@ class Writer extends AbstractCsv
 
             return $this;
         }
-        throw new RuntimeException(
-            'the provided data can not be transform into a single CSV data row'
-        );
+        throw new RuntimeException('the provided data can not be transform into a single CSV data row');
     }
 
     /**
