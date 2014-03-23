@@ -121,6 +121,8 @@ You can restrict CSV extract methods output by setting query options. To set tho
 * After an extract method call, all query options are cleared;
 * The optional extract method callable function is called after all query options have been applied;
 
+<p class="message-info">The options methods are described in the same order as they are applied on the CSV iterator. The order is similar to one found in SQL statement construct.</p>
+
 ## Filtering methods
 
 The filtering options **are the first settings applied to the CSV before anything else**. The filters follow the *First In First Out* rule.

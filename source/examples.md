@@ -42,6 +42,9 @@ $sth->execute();
 //we create the CSV into memory
 $csv = new Writer(new SplTempFileObject);
 
+//the library will automatically convert null value into an '' empty string
+$csv->setNullHandling(Writer::NULL_AS_EMPTY);
+
 //we insert the CSV header
 $csv->insertOne(['firstname', 'lastname', 'email']);
 
