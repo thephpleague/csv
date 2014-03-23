@@ -4,6 +4,7 @@ namespace League\Csv\Test;
 
 use SplTempFileObject;
 use ArrayIterator;
+use LimitIterator;
 use PHPUnit_Framework_TestCase;
 use DateTime;
 use League\Csv\Writer;
@@ -36,6 +37,51 @@ class WriterTest extends PHPUnit_Framework_TestCase
         foreach ($this->csv as $row) {
             $this->assertSame(['john', 'doe', 'john.doe@example.com'], $row);
         }
+    }
+
+    /**
+     * @expectedException OutOfBoundsException
+     */
+    public function testSetterGetterNullBehavior()
+    {
+        $this->csv->setNullHandling(Writer::NULL_AS_SKIP_CELL);
+        $this->assertSame(Writer::NULL_AS_SKIP_CELL, $this->csv->getNullHandling());
+
+        $this->csv->setNullHandling(23);
+    }
+
+    public function testInsertNullToSkipCell()
+    {
+        $expected = [
+            ['john', 'doe', 'john.doe@example.com'],
+            'john,doe,john.doe@example.com',
+            ['john', null, 'john.doe@example.com'],
+        ];
+        $this->csv->setNullHandling(Writer::NULL_AS_SKIP_CELL);
+        foreach ($expected as $row) {
+            $this->csv->insertOne($row);
+        }
+        $iterator = new LimitIterator($this->csv->getIterator(), 2, 1);
+        $iterator->rewind();
+        $res = $iterator->getInnerIterator()->current();
+        $this->assertSame(['john', 'john.doe@example.com'], $res);
+    }
+
+    public function testInsertNullToEmpty()
+    {
+        $expected = [
+            ['john', 'doe', 'john.doe@example.com'],
+            'john,doe,john.doe@example.com',
+            ['john', null, 'john.doe@example.com'],
+        ];
+        $this->csv->setNullHandling(Writer::NULL_AS_EMPTY);
+        foreach ($expected as $row) {
+            $this->csv->insertOne($row);
+        }
+        $iterator = new LimitIterator($this->csv->getIterator(), 2, 1);
+        $iterator->rewind();
+        $res = $iterator->getInnerIterator()->current();
+        $this->assertSame(['john', '', 'john.doe@example.com'], $res);
     }
 
     /**
