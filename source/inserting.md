@@ -62,7 +62,7 @@ $writer->insertAll($object); //using a Traversable object
 
 When importing data containing `null` values you should tell the library how to handle them. 
 
-### setNullHandling($mode)
+### setNullHandling($mode) *- since version 5.3*
 
 To set the `Writer` class handling behavior, you will use the `setNullHandling` method. This method takes one of these constants mode:
 
@@ -78,7 +78,7 @@ $writer->insertOne(["one", "two", null, "four"]);
 
 In the above example, the `null` value will be filter out and the corresponding CSV row will contain only 3 items.
 
-### getNullHandling()
+### getNullHandling() *- since version 5.3*
 
 At any given time you are able to know the class mode using the `getNullHandling` method. By default the Writer mode to handle `null` value is `Writer::NULL_AS_EXCEPTION`, to keep the code backward compatible.
 
