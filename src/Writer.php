@@ -78,7 +78,7 @@ class Writer extends AbstractCsv
     {
         if (!in_array($value, [self::NULL_AS_SKIP_CELL, self::NULL_AS_EXCEPTION, self::NULL_AS_EMPTY])) {
             throw new OutOfBoundsException(
-                'invalid value for null behavior'
+                'invalid value for null handling'
             );
         }
         $this->null_handling = $value;
@@ -105,7 +105,9 @@ class Writer extends AbstractCsv
      */
     private function formatRow(array $row)
     {
-        if (self::NULL_AS_EMPTY == $this->null_handling) {
+        if (self::NULL_AS_EXCEPTION == $this->null_handling) {
+            return $row;
+        } elseif (self::NULL_AS_EMPTY == $this->null_handling) {
             foreach ($row as &$value) {
                 if (is_null($value)) {
                     $value = '';
