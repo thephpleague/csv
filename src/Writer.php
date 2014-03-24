@@ -35,6 +35,7 @@ namespace League\Csv;
 use Traversable;
 use InvalidArgumentException;
 use OutOfBoundsException;
+use RuntimeException;
 
 /**
  *  A class to manage data insertion into a CSV
@@ -45,14 +46,27 @@ use OutOfBoundsException;
  */
 class Writer extends AbstractCsv
 {
-
+    /**
+     * set null handling mode to throw exception
+     */
     const NULL_AS_EXCEPTION = 1;
 
+    /**
+     * set null handling mode to remove cell
+     */
     const NULL_AS_SKIP_CELL = 2;
 
+    /**
+     * set null handling mode to convert null into empty string
+     */
     const NULL_AS_EMPTY = 3;
 
-    private $null_handling = self::NULL_AS_EXCEPTION;
+    /**
+     * the object current null handling mode
+     *
+     * @var integer
+     */
+    private $null_handling_mode = self::NULL_AS_EXCEPTION;
 
     /**
      * The constructor
@@ -74,14 +88,12 @@ class Writer extends AbstractCsv
      *
      * @throws OutOfBoundsException If the Integer is not valid
      */
-    public function setNullHandling($value)
+    public function setNullHandlingMode($value)
     {
         if (!in_array($value, [self::NULL_AS_SKIP_CELL, self::NULL_AS_EXCEPTION, self::NULL_AS_EMPTY])) {
-            throw new OutOfBoundsException(
-                'invalid value for null handling'
-            );
+            throw new OutOfBoundsException('invalid value for null handling');
         }
-        $this->null_handling = $value;
+        $this->null_handling_mode = $value;
 
         return $this;
     }
@@ -91,9 +103,9 @@ class Writer extends AbstractCsv
      *
      * @return integer
      */
-    public function getNullHandling()
+    public function getNullHandlingMode()
     {
-        return $this->null_handling;
+        return $this->null_handling_mode;
     }
 
     /**
@@ -105,9 +117,9 @@ class Writer extends AbstractCsv
      */
     private function formatRow(array $row)
     {
-        if (self::NULL_AS_EXCEPTION == $this->null_handling) {
+        if (self::NULL_AS_EXCEPTION == $this->null_handling_mode) {
             return $row;
-        } elseif (self::NULL_AS_EMPTY == $this->null_handling) {
+        } elseif (self::NULL_AS_EMPTY == $this->null_handling_mode) {
             foreach ($row as &$value) {
                 if (is_null($value)) {
                     $value = '';
@@ -143,16 +155,19 @@ class Writer extends AbstractCsv
             );
         }
         $check = array_filter($row, function ($value) {
-            return (is_null($value) && self::NULL_AS_EXCEPTION != $this->null_handling)
+            return (is_null($value) && self::NULL_AS_EXCEPTION != $this->null_handling_mode)
             || self::isValidString($value);
         });
         if (count($check) == count($row)) {
-            $row = $this->formatRow($row);
-            $this->csv->fputcsv($row, $this->delimiter, $this->enclosure);
+            $this->csv->fputcsv(
+                $this->formatRow($row),
+                $this->delimiter,
+                $this->enclosure
+            );
 
             return $this;
         }
-        throw new InvalidArgumentException(
+        throw new RuntimeException(
             'the provided data can not be transform into a single CSV data row'
         );
     }

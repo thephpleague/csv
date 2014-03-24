@@ -1,6 +1,6 @@
 <?php
 
-namespace League\Csv\Test;
+namespace League\Csv\test;
 
 use SplTempFileObject;
 use ArrayIterator;
@@ -44,10 +44,10 @@ class WriterTest extends PHPUnit_Framework_TestCase
      */
     public function testSetterGetterNullBehavior()
     {
-        $this->csv->setNullHandling(Writer::NULL_AS_SKIP_CELL);
-        $this->assertSame(Writer::NULL_AS_SKIP_CELL, $this->csv->getNullHandling());
+        $this->csv->setNullHandlingMode(Writer::NULL_AS_SKIP_CELL);
+        $this->assertSame(Writer::NULL_AS_SKIP_CELL, $this->csv->getNullHandlingMode());
 
-        $this->csv->setNullHandling(23);
+        $this->csv->setNullHandlingMode(23);
     }
 
     public function testInsertNullToSkipCell()
@@ -57,7 +57,7 @@ class WriterTest extends PHPUnit_Framework_TestCase
             'john,doe,john.doe@example.com',
             ['john', null, 'john.doe@example.com'],
         ];
-        $this->csv->setNullHandling(Writer::NULL_AS_SKIP_CELL);
+        $this->csv->setNullHandlingMode(Writer::NULL_AS_SKIP_CELL);
         foreach ($expected as $row) {
             $this->csv->insertOne($row);
         }
@@ -74,7 +74,7 @@ class WriterTest extends PHPUnit_Framework_TestCase
             'john,doe,john.doe@example.com',
             ['john', null, 'john.doe@example.com'],
         ];
-        $this->csv->setNullHandling(Writer::NULL_AS_EMPTY);
+        $this->csv->setNullHandlingMode(Writer::NULL_AS_EMPTY);
         foreach ($expected as $row) {
             $this->csv->insertOne($row);
         }
@@ -93,7 +93,7 @@ class WriterTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException InvalidArgumentException
+     * @expectedException RuntimeException
      */
     public function testFailedInsertWithMultiDimensionArray()
     {
