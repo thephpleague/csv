@@ -74,7 +74,7 @@ class Writer extends AbstractCsv
      */
     public function __construct($path, $open_mode = 'w', FilterInterface $stream_filter = null)
     {
-        parent::__construct($path, $open_mode, $stream_filter);
+        $this->setIterator($path, $open_mode, $stream_filter);
     }
 
     /**

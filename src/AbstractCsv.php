@@ -97,13 +97,6 @@ abstract class AbstractCsv implements JsonSerializable, IteratorAggregate
     protected $encoding = 'UTF-8';
 
     /**
-     * The Stream Filtering class
-     *
-     * @var \League\Csv\Stream\FilterInterface
-     */
-    protected $stream_filter;
-
-    /**
      * The CSV document original path
      *
      * @var string
@@ -111,20 +104,36 @@ abstract class AbstractCsv implements JsonSerializable, IteratorAggregate
     protected $original_path;
 
     /**
-    * The constructor
+    * Set the {@link SplFileObject} to be use as a CSV container
     *
     * @param mixed                              $path an SplFileInfo object or the path to a file
     * @param string                             $open_mode the file open mode flag
     * @param \League\Csv\Stream\FilterInterface $stream_filter a filtering function to apply on a file path
+    *
+    * @return  self
     */
-    public function __construct($path, $open_mode = 'r', FilterInterface $stream_filter = null)
+    protected function setIterator($path, $open_mode, FilterInterface $stream_filter = null)
     {
         if (is_string($path) && ! is_null($stream_filter)) {
             $this->original_path = $path;
-            $this->stream_filter = $stream_filter;
             $path = $stream_filter->fetchpath($path);
         }
         $this->csv = $this->fetchFile($path, $open_mode);
+
+        return $this;
+    }
+
+    /**
+     * Return the {@link SplFileObject} used as a CSV container
+     *
+     * @return \SplFileObject
+     */
+    public function getIterator()
+    {
+        $this->csv->setCsvControl($this->delimiter, $this->enclosure, $this->escape);
+        $this->csv->setFlags($this->flags);
+
+        return $this->csv;
     }
 
     /**
@@ -421,19 +430,6 @@ abstract class AbstractCsv implements JsonSerializable, IteratorAggregate
     public function getEncoding()
     {
         return $this->encoding;
-    }
-
-    /**
-     * Return the CSV Iterator
-     *
-     * @return \SplFileObject
-     */
-    public function getIterator()
-    {
-        $this->csv->setCsvControl($this->delimiter, $this->enclosure, $this->escape);
-        $this->csv->setFlags($this->flags);
-
-        return $this->csv;
     }
 
     /**

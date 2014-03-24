@@ -53,6 +53,14 @@ class Reader extends AbstractCsv
     use IteratorQuery;
 
     /**
+     * {@inheritdoc}
+     */
+    public function __construct($path, $open_mode = 'r', FilterInterface $stream_filter = null)
+    {
+        $this->setIterator($path, $open_mode, $stream_filter);
+    }
+
+    /**
      * Intelligent Array Combine
      *
      * @param array $keys
