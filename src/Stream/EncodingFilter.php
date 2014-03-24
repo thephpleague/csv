@@ -1,6 +1,6 @@
 <?php
 /**
-* League.csv - A lightweight CSV Coder/Decoder library
+* League.csv - A CSV data manipulation library in PHP
 *
 * @author Ignace Nyamagana Butera <nyamsprod@gmail.com>
 * @copyright 2014 Ignace Nyamagana Butera
@@ -36,7 +36,8 @@ use php_user_filter;
 use InvalidArgumentException;
 
 /**
- *  A Stream Filter Plugin to handle charset conversion
+ *  A Stream Filter Plugin to handle encoding conversion
+ *  This filter only works with the {@link Reader} Class
  *
  * @package League.csv
  * @since  5.4.0
