@@ -106,6 +106,9 @@ class AbstractCsv implements JsonSerializable, IteratorAggregate
      */
     public function __construct($path, $open_mode = 'r')
     {
+        if (! ini_get("auto_detect_line_endings")) {
+            ini_set("auto_detect_line_endings", true);
+        }
         $this->csv = $this->fetchFile($path, $open_mode);
     }
 
@@ -117,6 +120,24 @@ class AbstractCsv implements JsonSerializable, IteratorAggregate
     public function __destruct()
     {
         $this->csv = null;
+    }
+
+    public function storeLocale()
+    {
+        $this->env_locale = setlocate(LC_TYPE, '0');
+        if (stripos($this->env_locale, 'UTF-8') !== false) {
+            return $this;
+        }
+        setlocale(LC_TYPE, 'en_US.UTF-8');
+
+        return $this;
+    }
+
+    public function restoreLocale()
+    {
+        setlocale(LC_TYPE, $this->env_locale);
+
+        return $this;
     }
 
     /**
@@ -141,6 +162,26 @@ class AbstractCsv implements JsonSerializable, IteratorAggregate
         throw new InvalidArgumentException(
             'the submitted data must be a string or an object implementing the `__toString` method'
         );
+    }
+
+    public static function createAsStream($path, $open_mode, $fromCharset, $toCharset = null)
+    {
+        if (! is_string($path)) {
+            throw new InvalidArgumentException('Path must be a valid string');
+        }
+        StreamFilter::registerFilter();
+        $path = StreamFilter::fetchFilterPath($path, $fromCharset, $toCharset);
+
+        var_dump($path);
+
+        $csv = new static(new SplFileInfo($path), $open_mode);
+        if (is_null($toCharset)) {
+            $toCharset = mb_internal_encoding();
+        }
+
+        $csv->setEncoding($toCharset);
+
+        return $csv;
     }
 
     /**
