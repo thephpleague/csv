@@ -30,47 +30,62 @@
 * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
-namespace League\Csv\Iterator;
-
-use IteratorIterator;
-use Traversable;
+namespace League\Csv\Stream;
 
 /**
- *  A simple MapIterator
+ * A CSV Stream Filter Interface to modify a stream prior to its handling
+ * The class that implements this interface MUST extend PHP php_user_filter class
  *
  * @package League.csv
- * @since  3.3.0
+ * @since  5.4.0
  *
  */
-class MapIterator extends IteratorIterator
+interface FilterInterface
 {
     /**
-     * The function to be apply on all InnerIterator element
+     * Tell if the stream filter is already registered
      *
-     * @var callable
+     * @return boolean
      */
-    private $callable;
+    public static function isRegistered();
 
     /**
-     * The Constructor
+     * Return the stream filter registering name
      *
-     * @param Traversable $iterator
-     * @param callable    $callable
+     * @return string
      */
-    public function __construct(Traversable $iterator, callable $callable)
-    {
-        parent::__construct($iterator);
-        $this->callable = $callable;
-    }
+    public static function getName();
 
     /**
-     * Get the value of the current element
+     * set the filter path for a given file path
+     *
+     * @param string $path the original file path
+     *
+     * @return string
      */
-    public function current()
-    {
-        $iterator = $this->getInnerIterator();
-        $callable = $this->callable;
+    public function fetchPath($path);
 
-        return $callable($iterator->current(), $iterator->key(), $iterator);
-    }
+    /**
+     * Called when creating the filter
+     *
+     * @return boolean
+     */
+    public function onCreate();
+
+    /**
+     * Called when closing the filter
+     */
+    public function onClose();
+
+    /**
+     * This method is called whenever data is read from or written to the attached stream
+     *
+     * @param resource $in
+     * @param resource $out
+     * @param integer  $consumed
+     * @param boolean  $closing
+     *
+     * @return integer
+     */
+    public function filter($in, $out, &$consumed, $closing);
 }

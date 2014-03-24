@@ -6,7 +6,7 @@
 * @copyright 2014 Ignace Nyamagana Butera
 * @link https://github.com/nyamsprod/League.csv
 * @license http://opensource.org/licenses/MIT
-* @version 5.3.0
+* @version 5.4.0
 * @package League.csv
 *
 * MIT LICENSE
@@ -32,12 +32,11 @@
 */
 namespace League\Csv;
 
-use SplFileObject;
-use SplTempFileObject;
-use InvalidArgumentException;
 use CallbackFilterIterator;
+use InvalidArgumentException;
 use League\Csv\Iterator\MapIterator;
 use League\Csv\Iterator\IteratorQuery;
+use League\Csv\Stream\FilterInterface;
 
 /**
  *  A class to manage extracting and filtering a CSV
@@ -52,17 +51,6 @@ class Reader extends AbstractCsv
      * Iterator Query Trait
      */
     use IteratorQuery;
-
-    /**
-     * The constructor
-     *
-     * @param mixed  $path      an SplFileInfo object or the path to a file
-     * @param string $open_mode the file open mode flag
-     */
-    public function __construct($path, $open_mode = 'r')
-    {
-        $this->csv = $this->fetchFile($path, $open_mode);
-    }
 
     /**
      * Intelligent Array Combine
@@ -94,11 +82,9 @@ class Reader extends AbstractCsv
      */
     public function query(callable $callable = null)
     {
-        $iterator = new CallbackFilterIterator($this->getIterator(), function ($row) {
+        return $this->execute(new CallbackFilterIterator($this->getIterator(), function ($row) {
             return is_array($row);
-        });
-
-        return $this->execute($iterator, $callable);
+        }), $callable);
     }
 
     /**
@@ -112,11 +98,7 @@ class Reader extends AbstractCsv
      */
     public function each(callable $callable)
     {
-        $iterator = new CallbackFilterIterator($this->getIterator(), function ($row) {
-            return is_array($row);
-        });
-
-        $iterator = $this->execute($iterator);
+        $iterator = $this->query();
         $index = 0;
         foreach ($iterator as $rowIndex => $row) {
             if (! $callable($row, $rowIndex, $iterator)) {
@@ -144,6 +126,7 @@ class Reader extends AbstractCsv
         $iterator = $this->query();
         $iterator->rewind();
         $res = $iterator->getInnerIterator()->current();
+
         if (! is_array($res)) {
             return [];
         }
@@ -160,9 +143,7 @@ class Reader extends AbstractCsv
      */
     public function fetchAll(callable $callable = null)
     {
-        $iterator = $this->query($callable);
-
-        return iterator_to_array($iterator, false);
+        return iterator_to_array($this->query($callable), false);
     }
 
     /**
@@ -187,8 +168,7 @@ class Reader extends AbstractCsv
             );
         }
 
-        $iterator = $this->query($callable);
-        $iterator = new MapIterator($iterator, function ($row) use ($keys) {
+        $iterator = new MapIterator($this->query($callable), function ($row) use ($keys) {
             return self::combineArray($keys, $row);
         });
 
@@ -213,8 +193,7 @@ class Reader extends AbstractCsv
             );
         }
 
-        $iterator = $this->query($callable);
-        $iterator = new MapIterator($iterator, function ($row) use ($columnIndex) {
+        $iterator = new MapIterator($this->query($callable), function ($row) use ($columnIndex) {
             if (! array_key_exists($columnIndex, $row)) {
                 return null;
             }
@@ -228,23 +207,13 @@ class Reader extends AbstractCsv
     /**
      * Instantiate a {@link Writer} class from the current {@link Reader}
      *
-     * @param string $open_mode the file open mode flag
+     * @param string                             $open_mode     the file open mode flag
+     * @param \League\Csv\Stream\FilterInterface $stream_filter a filtering function to apply on a file path
      *
      * @return \League\Csv\Writer
      */
-    public function getWriter($open_mode = 'w')
+    public function getWriter($open_mode = 'w', FilterInterface $stream_filter = null)
     {
-        $obj = $this->csv;
-        if (! $obj instanceof SplTempFileObject) {
-            $obj = new SplFileObject($obj->getRealPath(), $open_mode);
-        }
-        $csv = new Writer($obj);
-        $csv->setDelimiter($this->delimiter);
-        $csv->setEnclosure($this->enclosure);
-        $csv->setEscape($this->escape);
-        $csv->setFlags($this->flags);
-        $csv->setEncoding($this->encoding);
-
-        return $csv;
+        return $this->getInstance('\\League\Csv\Writer', $open_mode, $stream_filter);
     }
 }

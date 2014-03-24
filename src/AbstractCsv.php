@@ -6,7 +6,7 @@
 * @copyright 2014 Ignace Nyamagana Butera
 * @link https://github.com/nyamsprod/League.csv
 * @license http://opensource.org/licenses/MIT
-* @version 5.3.0
+* @version 5.4.0
 * @package League.csv
 *
 * MIT LICENSE
@@ -32,15 +32,18 @@
 */
 namespace League\Csv;
 
-use IteratorAggregate;
-use JsonSerializable;
-use RuntimeException;
 use SplFileInfo;
 use SplFileObject;
 use SplTempFileObject;
-use InvalidArgumentException;
+use IteratorAggregate;
 use LimitIterator;
 use CallbackFilterIterator;
+use JsonSerializable;
+use DomDocument;
+use RuntimeException;
+use InvalidArgumentException;
+use League\Csv\Iterator\MapIterator;
+use League\Csv\Stream\FilterInterface;
 
 /**
  *  A abstract class to enable basic CSV manipulation
@@ -49,13 +52,8 @@ use CallbackFilterIterator;
  * @since  4.0.0
  *
  */
-class AbstractCsv implements JsonSerializable, IteratorAggregate
+abstract class AbstractCsv implements JsonSerializable, IteratorAggregate
 {
-    /**
-     * Trait to output the full CSV data
-     */
-    use ConverterTrait;
-
     /**
      * The CSV object holder
      *
@@ -92,6 +90,44 @@ class AbstractCsv implements JsonSerializable, IteratorAggregate
     protected $flags = SplFileObject::READ_CSV;
 
     /**
+     * Charset Encoding for the CSV
+     *
+     * @var string
+     */
+    protected $encoding = 'UTF-8';
+
+    /**
+     * The Stream Filtering class
+     *
+     * @var \League\Csv\Stream\FilterInterface
+     */
+    protected $stream_filter;
+
+    /**
+     * The CSV document original path
+     *
+     * @var string
+     */
+    protected $original_path;
+
+    /**
+    * The constructor
+    *
+    * @param mixed                              $path an SplFileInfo object or the path to a file
+    * @param string                             $open_mode the file open mode flag
+    * @param \League\Csv\Stream\FilterInterface $stream_filter a filtering function to apply on a file path
+    */
+    public function __construct($path, $open_mode = 'r', FilterInterface $stream_filter = null)
+    {
+        if (is_string($path) && ! is_null($stream_filter)) {
+            $this->original_path = $path;
+            $this->stream_filter = $stream_filter;
+            $path = $stream_filter->fetchpath($path);
+        }
+        $this->csv = $this->fetchFile($path, $open_mode);
+    }
+
+    /**
      * The destructor
      *
      * Make sure the class reference is destroy when the class is no longer used
@@ -99,24 +135,6 @@ class AbstractCsv implements JsonSerializable, IteratorAggregate
     public function __destruct()
     {
         $this->csv = null;
-    }
-
-    public function storeLocale()
-    {
-        $this->env_locale = setlocate(LC_TYPE, '0');
-        if (stripos($this->env_locale, 'UTF-8') !== false) {
-            return $this;
-        }
-        setlocale(LC_TYPE, 'en_US.UTF-8');
-
-        return $this;
-    }
-
-    public function restoreLocale()
-    {
-        setlocale(LC_TYPE, $this->env_locale);
-
-        return $this;
     }
 
     /**
@@ -143,26 +161,6 @@ class AbstractCsv implements JsonSerializable, IteratorAggregate
         );
     }
 
-    public static function createAsStream($path, $open_mode, $fromCharset, $toCharset = null)
-    {
-        if (! is_string($path)) {
-            throw new InvalidArgumentException('Path must be a valid string');
-        }
-        StreamFilter::registerFilter();
-        $path = StreamFilter::fetchFilterPath($path, $fromCharset, $toCharset);
-
-        var_dump($path);
-
-        $csv = new static(new SplFileInfo($path), $open_mode);
-        if (is_null($toCharset)) {
-            $toCharset = mb_internal_encoding();
-        }
-
-        $csv->setEncoding($toCharset);
-
-        return $csv;
-    }
-
     /**
     * Validate a variable to be stringable
     *
@@ -178,7 +176,8 @@ class AbstractCsv implements JsonSerializable, IteratorAggregate
     /**
      * Return a new {@link SplFileObject}
      *
-     * @param mixed $path A SplFileInfo object or the path to a file
+     * @param mixed  $path      A SplFileInfo object or the path to a file
+     * @param string $open_mode the file open mode flag
      *
      * @return \SplFileObject
      *
@@ -200,6 +199,43 @@ class AbstractCsv implements JsonSerializable, IteratorAggregate
         throw new InvalidArgumentException(
             '$path must be a `SplFileInfo` object or a valid file path.'
         );
+    }
+
+    /**
+     * return a Instance of a given {@link AbstractCsv} extended class
+     *
+     * @param string                             $className     the object class name
+     * @param string                             $open_mode     the file open mode flag
+     * @param \League\Csv\Stream\FilterInterface $stream_filter a filtering function to apply on a file path
+     *
+     * @return \League\Csv\AbstractCsv
+     */
+    protected function getInstance($className, $open_mode, FilterInterface $stream_filter = null)
+    {
+        $path = $this->csv->getRealPath();
+        if ($this->csv instanceof SplTempFileObject || is_null($path)) {
+            $csv = new $className($this->csv);
+            $csv->setDelimiter($this->delimiter);
+            $csv->setEnclosure($this->enclosure);
+            $csv->setEscape($this->escape);
+            $csv->setFlags($this->flags);
+            $csv->setEncoding($this->encoding);
+
+            return $csv;
+        }
+
+        if (! is_null($this->original_path)) {
+            $path = $this->original_path;
+        }
+
+        $csv = new $className($path, $open_mode, $stream_filter);
+        $csv->setDelimiter($this->delimiter);
+        $csv->setEnclosure($this->enclosure);
+        $csv->setEscape($this->escape);
+        $csv->setFlags($this->flags);
+        $csv->setEncoding($this->encoding);
+
+        return $csv;
     }
 
     /**
@@ -359,6 +395,35 @@ class AbstractCsv implements JsonSerializable, IteratorAggregate
     }
 
     /**
+     * Set the CSV encoding charset
+     *
+     * @param string $str
+     *
+     * @return self
+     */
+    public function setEncoding($str)
+    {
+        $str = str_replace('_', '-', $str);
+        $str = filter_var($str, FILTER_SANITIZE_STRING, ['flags' => FILTER_FLAG_STRIP_LOW|FILTER_FLAG_STRIP_HIGH]);
+        if (empty($str)) {
+            throw new InvalidArgumentException('you should use a valid charset');
+        }
+        $this->encoding = strtoupper($str);
+
+        return $this;
+    }
+
+    /**
+     * Get the CSV encoding charset
+     *
+     * @return string
+     */
+    public function getEncoding()
+    {
+        return $this->encoding;
+    }
+
+    /**
      * Return the CSV Iterator
      *
      * @return \SplFileObject
@@ -392,5 +457,90 @@ class AbstractCsv implements JsonSerializable, IteratorAggregate
         $this->output();
 
         return ob_get_clean();
+    }
+
+    /**
+     * Convert Csv file into UTF-8
+     *
+     * @return \Iterator
+     */
+    protected function convert2Utf8()
+    {
+        if ('UTF-8' == $this->encoding) {
+            return $this->getIterator();
+        }
+
+        return new MapIterator($this->getIterator(), function ($row) {
+            foreach ($row as &$value) {
+                $value = mb_convert_encoding($value, 'UTF-8', $this->encoding);
+            }
+            unset($value);
+
+            return $row;
+        });
+    }
+
+    /**
+     * Output all data on the CSV file
+     *
+     * @param string $filename CSV downloaded name if present adds extra headers
+     */
+    public function output($filename = null)
+    {
+        $iterator = $this->getIterator();
+        //@codeCoverageIgnoreStart
+        if (! is_null($filename) && AbstractCsv::isValidString($filename)) {
+            header('Content-Type: text/csv; charset="'.$this->encoding.'"');
+            header('Content-Disposition: attachment; filename="'.$filename.'"');
+            if (! $iterator instanceof SplTempFileObject) {
+                header('Content-Length: '.$iterator->getSize());
+            }
+        }
+        //@codeCoverageIgnoreEnd
+        $iterator->rewind();
+        $iterator->fpassthru();
+    }
+
+    /**
+     * transform a CSV into a XML
+     *
+     * @param string $root_name XML root node name
+     * @param string $row_name  XML row node name
+     * @param string $cell_name XML cell node name
+     *
+     * @return \DomDocument
+     */
+    public function toXML($root_name = 'csv', $row_name = 'row', $cell_name = 'cell')
+    {
+        $doc = new DomDocument('1.0', 'UTF-8');
+        $root = $doc->createElement($root_name);
+        foreach ($this->convert2Utf8() as $row) {
+            $item = $doc->createElement($row_name);
+            foreach ($row as $value) {
+                $content = $doc->createTextNode($value);
+                $cell = $doc->createElement($cell_name);
+                $cell->appendChild($content);
+                $item->appendChild($cell);
+            }
+            $root->appendChild($item);
+        }
+        $doc->appendChild($root);
+
+        return $doc;
+    }
+
+    /**
+     * Return a HTML table representation of the CSV Table
+     *
+     * @param string $classname optional classname
+     *
+     * @return string
+     */
+    public function toHTML($classname = 'table-csv-data')
+    {
+        $doc = $this->toXML('table', 'tr', 'td');
+        $doc->documentElement->setAttribute('class', $classname);
+
+        return $doc->saveHTML($doc->documentElement);
     }
 }

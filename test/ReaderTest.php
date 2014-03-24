@@ -1,10 +1,11 @@
 <?php
 
-namespace League\Csv\Test;
+namespace League\Csv\test;
 
 use PHPUnit_Framework_TestCase;
 use SplTempFileObject;
 use League\Csv\Reader;
+use League\Csv\Stream\EncodingFilter;
 
 /**
  * @group reader
@@ -26,6 +27,14 @@ class ReaderTest extends PHPUnit_Framework_TestCase
         }
 
         $this->csv = new Reader($csv);
+    }
+
+    public function testStream()
+    {
+        $stream_filter = new EncodingFilter;
+        $stream_filter->setEncodingFrom('iso-8859-15');
+        $stream_filter->setEncodingTo('utf-8');
+        $csv = new Reader(__DIR__.'/data/prenoms.csv', 'r', $stream_filter);
     }
 
     public function testFetchAll()

@@ -6,7 +6,7 @@
 * @copyright 2014 Ignace Nyamagana Butera
 * @link https://github.com/nyamsprod/League.csv
 * @license http://opensource.org/licenses/MIT
-* @version 5.3.0
+* @version 5.4.0
 * @package League.csv
 *
 * MIT LICENSE
@@ -36,6 +36,7 @@ use Traversable;
 use InvalidArgumentException;
 use OutOfBoundsException;
 use RuntimeException;
+use League\Csv\Stream\FilterInterface;
 
 /**
  *  A class to manage data insertion into a CSV
@@ -69,14 +70,11 @@ class Writer extends AbstractCsv
     protected $null_handling_mode = self::NULL_AS_EXCEPTION;
 
     /**
-     * The constructor
-     *
-     * @param mixed  $path      an SplFileInfo object or the path to a file
-     * @param string $open_mode the file open mode flag
+     * {@inheritdoc}
      */
-    public function __construct($path, $open_mode = 'w')
+    public function __construct($path, $open_mode = 'w', FilterInterface $stream_filter = null)
     {
-        $this->csv = $this->fetchFile($path, $open_mode);
+        parent::__construct($path, $open_mode, $stream_filter);
     }
 
     /**
@@ -255,17 +253,12 @@ class Writer extends AbstractCsv
     /**
      * Instantiate a {@link Reader} class from the current {@link Writer}
      *
+     * @param \League\Csv\Stream\FilterInterface $stream_filter a filtering function to apply on a file path
+     *
      * @return \League\Csv\Reader
      */
-    public function getReader()
+    public function getReader(FilterInterface $stream_filter = null)
     {
-        $csv = new Reader($this->csv);
-        $csv->setDelimiter($this->delimiter);
-        $csv->setEnclosure($this->enclosure);
-        $csv->setEscape($this->escape);
-        $csv->setFlags($this->flags);
-        $csv->setEncoding($this->encoding);
-
-        return $csv;
+        return $this->getInstance('\\League\Csv\Reader', 'r', $stream_filter);
     }
 }

@@ -15,7 +15,7 @@ date_default_timezone_set('UTC');
 /**
  * @group csv
  */
-class CsvTest extends PHPUnit_Framework_TestCase
+class AbstractCsvTest extends PHPUnit_Framework_TestCase
 {
     private $csv;
 
@@ -73,13 +73,6 @@ class CsvTest extends PHPUnit_Framework_TestCase
         $reader = Reader::createFromString($expected);
         $this->assertSame($reader->fetchOne(0), ['john', 'doe', 'john.doe@example.com']);
         $this->assertSame($reader->fetchOne(1), ['jane', 'doe', 'jane.doe@example.com']);
-    }
-
-    public function testCreateAsStream()
-    {
-        $path = __DIR__.'/data/prenoms.csv';
-        $csv = Reader::createAsStream($path, 'r', 'fr_Fr');
-        $this->assertInstanceof('\League\Csv\AbstractCsv', $csv);
     }
 
     /**
