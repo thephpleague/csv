@@ -66,7 +66,7 @@ class Writer extends AbstractCsv
      *
      * @var integer
      */
-    private $null_handling_mode = self::NULL_AS_EXCEPTION;
+    protected $null_handling_mode = self::NULL_AS_EXCEPTION;
 
     /**
      * The constructor
