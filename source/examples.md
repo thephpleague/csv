@@ -43,7 +43,7 @@ $sth->execute();
 $csv = new Writer(new SplTempFileObject);
 
 //the library will automatically convert null value into an '' empty string
-$csv->setNullHandling(Writer::NULL_AS_EMPTY);
+$csv->setNullHandlingMode(Writer::NULL_AS_EMPTY);
 
 //we insert the CSV header
 $csv->insertOne(['firstname', 'lastname', 'email']);

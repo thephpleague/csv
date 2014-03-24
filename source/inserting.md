@@ -62,30 +62,31 @@ $writer->insertAll($object); //using a Traversable object
 
 When importing data containing `null` values you should tell the library how to handle them. 
 
-### setNullHandling($mode) *- since version 5.3*
+### setNullHandlingMode($mode) *- since version 5.3*
 
-To set the `Writer` class handling behavior, you will use the `setNullHandling` method. This method takes one of these constants mode:
+To set the `Writer` class handling behavior, you will use the `setNullHandlingMode` method. This method takes one of these constants mode:
 
-* `Writer::NULL_AS_EXCEPTION`: Inserting methods throw a `RuntimeException` when a `null` value is found **the default behavior**;
+* `Writer::NULL_AS_EXCEPTION`: Inserting methods throw an `InvalidArgumentException` when a `null` value is found;
 * `Writer::NULL_AS_EMPTY`:Inserting methods convert `null` values into empty string;
 * `Writer::NULL_AS_SKIP_CELL`: Inserting methods filter out each `null` item found;
 
+<p class="message-warning">By default the Writer mode to handle <code>null</code> value is <code>Writer::NULL_AS_EXCEPTION</code> to keep the code backward compatible.</p>
 
 ~~~.language-php
-$writer->setNullHandling(Writer::NULL_AS_SKIP_CELL);
+$writer->setNullHandlingMode(Writer::NULL_AS_SKIP_CELL);
 $writer->insertOne(["one", "two", null, "four"]); 
 ~~~
 
 In the above example, the `null` value will be filter out and the corresponding CSV row will contain only 3 items.
 
-### getNullHandling() *- since version 5.3*
+### getNullHandlingMode() *- since version 5.3*
 
-At any given time you are able to know the class mode using the `getNullHandling` method. By default the Writer mode to handle `null` value is `Writer::NULL_AS_EXCEPTION`, to keep the code backward compatible.
+At any given time you are able to know the class mode using the `getNullHandlingMode` method.
 
 ~~~.language-php
-if (Writer::NULL_AS_EXCEPTION == $writer->getNullHandling()) {
-    $writer->setNullHandling(Writer::NULL_AS_EMPTY);
+if (Writer::NULL_AS_EXCEPTION == $writer->getNullHandlingMode()) {
+    $writer->setNullHandlingMode(Writer::NULL_AS_EMPTY);
 }
 $writer->insertOne(["one", "two", null, "four"]); 
 ~~~
-In the above example, the `null` value will be converted into an empty string, only if the current mode handle the value by throwing exception.
+In the above example, the `null` value will be converted into an empty string, only if the current mode handles the value by throwing exception.
