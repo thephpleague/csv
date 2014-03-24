@@ -57,6 +57,7 @@ class WriterTest extends PHPUnit_Framework_TestCase
             'john,doe,john.doe@example.com',
             ['john', null, 'john.doe@example.com'],
         ];
+
         $this->csv->setNullHandlingMode(Writer::NULL_AS_SKIP_CELL);
         foreach ($expected as $row) {
             $this->csv->insertOne($row);

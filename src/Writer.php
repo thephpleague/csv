@@ -119,7 +119,9 @@ class Writer extends AbstractCsv
     {
         if (self::NULL_AS_EXCEPTION == $this->null_handling_mode) {
             return $row;
-        } elseif (self::NULL_AS_EMPTY == $this->null_handling_mode) {
+        }
+
+        if (self::NULL_AS_EMPTY == $this->null_handling_mode) {
             foreach ($row as &$value) {
                 if (is_null($value)) {
                     $value = '';
