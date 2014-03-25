@@ -111,16 +111,35 @@ abstract class AbstractCsv implements JsonSerializable, IteratorAggregate
     * @param \League\Csv\Stream\FilterInterface $stream_filter a filtering function to apply on a file path
     *
     * @return  self
+    *
+    * @throws \InvalidArgumentException If the $file is not set
+    * @throws \RuntimeException         If the $file could not be created and/or opened
     */
     protected function setIterator($path, $open_mode, FilterInterface $stream_filter = null)
     {
-        if (is_string($path) && ! is_null($stream_filter)) {
-            $this->original_path = $path;
-            $path = $stream_filter->fetchpath($path);
-        }
-        $this->csv = $this->fetchFile($path, $open_mode);
+        ini_set("auto_detect_line_endings", true);
+        if ($path instanceof SplFileObject) {
+            $this->csv = $path;
 
-        return $this;
+            return $this;
+        }
+        $open_mode = strtolower($open_mode);
+        if ($path instanceof SplFileInfo) {
+            $this->csv = $path->openFile($open_mode);
+
+            return $this;
+        } elseif (is_string($path)) {
+            if (! is_null($stream_filter)) {
+                $this->original_path = $path;
+                $path = $stream_filter->fetchpath($path);
+            }
+            $this->csv = new SplFileObject($path, $open_mode);
+
+            return $this;
+        }
+        throw new InvalidArgumentException(
+            '$path must be a `SplFileInfo` object or a valid file path.'
+        );
     }
 
     /**
@@ -180,34 +199,6 @@ abstract class AbstractCsv implements JsonSerializable, IteratorAggregate
     public static function isValidString($str)
     {
         return (is_scalar($str) || (is_object($str) && method_exists($str, '__toString')));
-    }
-
-    /**
-     * Return a new {@link SplFileObject}
-     *
-     * @param mixed  $path      A SplFileInfo object or the path to a file
-     * @param string $open_mode the file open mode flag
-     *
-     * @return \SplFileObject
-     *
-     * @throws \InvalidArgumentException If the $file is not set
-     * @throws \RuntimeException         If the $file could not be created and/or opened
-     */
-    protected function fetchFile($path, $open_mode)
-    {
-        ini_set("auto_detect_line_endings", true);
-        if ($path instanceof SplFileObject) {
-            return $path;
-        }
-        $open_mode = strtolower($open_mode);
-        if ($path instanceof SplFileInfo) {
-            return $path->openFile($open_mode);
-        } elseif (is_string($path)) {
-            return new SplFileObject($path, $open_mode);
-        }
-        throw new InvalidArgumentException(
-            '$path must be a `SplFileInfo` object or a valid file path.'
-        );
     }
 
     /**
