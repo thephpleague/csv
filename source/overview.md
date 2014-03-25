@@ -124,7 +124,7 @@ The interface contains the following methods:
 
 * `FilterInterace::isRegistered` : **a static method** that tells if the filter is already registered;
 * `FilterInterace::getName`: **a static method** that return the filter name;
-* `FilterInterace::fetchPath($path)`: **a public method** that return the filter path from a given string path;
+* `FilterInterace::fetchFilterPath($path)`: **a public method** that returns the generated filter path from a given string path;
 
 and redeclare the public methods from `php_user_filter`
 
@@ -132,7 +132,7 @@ and redeclare the public methods from `php_user_filter`
 * `FilterInterace::onClose`: called when closing the filter;
 * `FilterInterace::filter`: called when applying the filter;
 
-A simple example can be found by looking at the source code of the bundle filter class `League\Csv\Stream\EncodingFilter`. This class helps transcode on the fly any given CSV documents from one charset to another. Be careful, this class only works when reading from the CSV data **not** when writting to the CSV.
+An implementation of this interface can be found by looking at the source code of the bundle filter class `League\Csv\Stream\EncodingFilter`. This class helps transcode on the fly any given CSV document from one charset to another. **Be careful, this class only works when reading from the CSV data not when writting to it.**
 
 Once your class is ready you can specify it as an optional `$stream_filter` argument at the end of the following methods signatures:
 
@@ -158,4 +158,4 @@ foreach ($reader as $row) {
 }
 ~~~
 
-There's another implementation example that you can found in the [example folder](https://github.com/thephpleague/csv/blob/master/examples/stream.php "Uppercase Streaming Filter example"). The [Uppercase Stream Filter](https://github.com/thephpleague/csv/blob/master/examples/lib/UppercaseFilter.php) works on reading from and writing to the CSV.
+There's another implementation example that you can found in the [example folder](https://github.com/thephpleague/csv/blob/master/examples/stream.php "Uppercase Streaming Filter example"). This time around, the [Uppercase Stream Filter](https://github.com/thephpleague/csv/blob/master/examples/lib/UppercaseFilter.php) works on reading from and writing to the CSV.
