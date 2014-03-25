@@ -5,8 +5,6 @@ title: Loading
 
 # Overview
 
-<p class="message-info">If you have your LC_CTYPE set to a locale that's using UTF-8 and you try to parse a file that's not in UTF-8, PHP will cut your fields the moment it encounters a byte it can't understand (i.e. any outside of ASCII that doesn't happen to be part of a UTF-8 character which it likely isn't). <a href="https://gist.github.com/pilif/9137146">This gist will show you a possible solution</a> to this problem by using <a href="http://www.php.net/manual/en/stream.filters.php">PHP stream filter</a>. This tip is from <a href="https://github.com/pilif">Philip Hofstetter</a></p>
-
 The library is composed of two main classes:
 
 * `League\Csv\Reader` to extract and filter data from a CSV
@@ -104,12 +102,60 @@ The more rows and delimiters you had, the more time and memory consuming the ope
 It is possible to switch between modes by using:
 
 * the `League\Csv\Writer::getReader` method from the `League\Csv\Writer` class
-* the `League\Csv\Reader::getWriter` method from the `League\Csv\Reader` class this method accept the optional $open_mode parameter.
+* the `League\Csv\Reader::getWriter` method from the `League\Csv\Reader` class 
+
+Both methods accept the optional $open_mode parameter.
 
 ~~~.language-php
-$reader = $writer->getReader();
+$reader = $writer->getReader('r+');
 $newWriter = $reader->getWriter('a'); 
 ~~~
 
-<div class="message-warning"><strong>Warning:</strong> be careful the <code>$newWriter</code>
-object is not equal to the <code>$writer</code> object!</div>
+<p class="message-warning"><strong>Warning:</strong> be careful the <code>$newWriter</code>
+object is not equal to the <code>$writer</code> object!</p>
+
+## CSV stream filtering (since version 5.4)
+
+Sometimes you may want to perform operations on the CSV as it is being read from or written to. This is useful, for instance, when dealing with a CSV encoded with a different charset than the one you are currently using. 
+
+To deal with this issue and to broaden the use of this filtering mechanism, the library introduces the `League\Csv\Stream\FilterInterace` interface. Any object that implements this interface and that extends PHP native `php_user_filter` class will be able to filter on the fly the CSV data.
+
+The interface contains the following methods:
+
+* `FilterInterace::isRegistered` : **a static method** that tells if the filter is already registered;
+* `FilterInterace::getName`: **a static method** that return the filter name;
+* `FilterInterace::fetchPath($path)`: **a public method** that return the filter path from a given string path;
+
+and redeclare the public methods from `php_user_filter`
+
+* `FilterInterace::onCreate`: called when creating the filter;
+* `FilterInterace::onClose`: called when closing the filter;
+* `FilterInterace::filter`: called when applying the filter;
+
+A simple example can be found by looking at the source code of the bundle filter class `League\Csv\Stream\EncodingFilter`. This class helps transcode on the fly any given CSV documents from one charset to another. Be careful, this class only works when reading from the CSV data **not** when writting to the CSV.
+
+Once your class is ready you can specify it as an optional `$stream_filter` argument at the end of the following methods signatures:
+
+* `Reader::__construct`
+* `Writer::__construct`
+* `Reader::getWriter`
+* `Writer::getReader`
+
+<p class="message-warning">The <code>$stream_filter</code> object will only be taken into account when the <code>$path</code> is a valid string.</p>
+
+See below an example using `League\Csv\Stream\EncodingFilter` to illustrate:
+
+~~~.language-php
+
+use \League\Csv\Stream\EncodingFilter;
+
+$encoder = new EncodingFilter;
+$encoder->setEncodingFrom('iso-8859-15');
+$encoder->setEncodingTo('UTF-8');
+$reader = new Reader('/path/to/my/file.csv', 'r', $encoder);
+foreach ($reader as $row) {
+	//the content of row is automatically converted from iso-8859-15 to UTF-8 on the fly 
+}
+~~~
+
+There's another implementation example that you can found in the [example folder](https://github.com/thephpleague/csv/blob/master/examples/stream.php "Uppercase Streaming Filter example"). The [Uppercase Stream Filter](https://github.com/thephpleague/csv/blob/master/examples/lib/UppercaseFilter.php) works on reading from and writing to the CSV.
