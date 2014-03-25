@@ -123,23 +123,25 @@ abstract class AbstractCsv implements JsonSerializable, IteratorAggregate
 
             return $this;
         }
+
         $open_mode = strtolower($open_mode);
         if ($path instanceof SplFileInfo) {
             $this->csv = $path->openFile($open_mode);
 
             return $this;
-        } elseif (is_string($path)) {
-            if (! is_null($stream_filter)) {
-                $this->original_path = $path;
-                $path = $stream_filter->fetchpath($path);
-            }
-            $this->csv = new SplFileObject($path, $open_mode);
-
-            return $this;
         }
-        throw new InvalidArgumentException(
-            '$path must be a `SplFileInfo` object or a valid file path.'
-        );
+
+        if (!is_string($path)) {
+            throw new InvalidArgumentException('$path must be a `SplFileInfo` object or a string.');
+        }
+
+        if (!is_null($stream_filter)) {
+            $this->original_path = $path;
+            $path = $stream_filter->fetchpath($path);
+        }
+        $this->csv = new SplFileObject($path, $open_mode);
+
+        return $this;
     }
 
     /**
@@ -476,10 +478,10 @@ abstract class AbstractCsv implements JsonSerializable, IteratorAggregate
     {
         $iterator = $this->getIterator();
         //@codeCoverageIgnoreStart
-        if (! is_null($filename) && AbstractCsv::isValidString($filename)) {
+        if (!is_null($filename) && AbstractCsv::isValidString($filename)) {
             header('Content-Type: text/csv; charset="'.$this->encoding.'"');
             header('Content-Disposition: attachment; filename="'.$filename.'"');
-            if (! $iterator instanceof SplTempFileObject) {
+            if (!$iterator instanceof SplTempFileObject) {
                 header('Content-Length: '.$iterator->getSize());
             }
         }
