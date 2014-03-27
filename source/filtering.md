@@ -15,15 +15,16 @@ Any object that implements the `League\Csv\Stream\StreamFilterInterace` interfac
 
 The interface contains the following methods:
 
+* `StreamFilterInterace::getName`: **a static method** that returns the filter name;
 * `StreamFilterInterace::registerFilter` : **a static method** that registers the class into PHP Stream Filters;
-* `StreamFilterInterace::getRegisteredName`: **a static method** that returns the filter name;
-* `StreamFilterInterace::getFilterPath`: returns the generated filter path from a given string path;
+* `StreamFilterInterace::getFilterPath`: returns the generated filter path;
 * `StreamFilterInterace::setFilterMode`: sets the stream filter mode using PHP stream constants 
 	* `STREAM_FILTER_READ`: the filter will be use when reading from the CSV;
 	* `STREAM_FILTER_WRITE`: the filter will be use when writing to the CSV;
 	* `STREAM_FILTER_ALL`: the filter will be use when reading from **and**  when writing to the CSV;
 * `StreamFilterInterace::getFilterMode`: returns the current filter mode;
 * `StreamFilterInterace::getFilterModePrefix`: returns the string filter prefix;
+* `StreamFilterInterace::__toString`: returns the full filter path (prefix + path);
 
 and redeclare the public methods from `php_user_filter`
 
@@ -44,11 +45,12 @@ Once your class is ready you can specify it as an optional `$stream_filter` argu
 
 To ease the interface implementation the `League\Csv\Stream\StreamFilterTrait` already implements the following method:
 
+* `StreamFilterInterace::getName`;
 * `StreamFilterInterace::registerFilter`;
 * `StreamFilterInterace::setFilterMode`;
 * `StreamFilterInterace::getFilterMode`;
 * `StreamFilterInterace::getFilterModePrefix`;
-* `StreamFilterInterace::__toString` : a string representation of the full filter path;
+* `StreamFilterInterace::__toString`;
 
 You just need to reference this trait in your object to ease your object implementation.
 
