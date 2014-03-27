@@ -10,5 +10,6 @@ menu:
     The API:
         Overview: '/overview/'
         Outputting: '/outputting/'
+        Filtering: '/filtering/'
         Extracting: '/reading/'
         Inserting: '/inserting/'
