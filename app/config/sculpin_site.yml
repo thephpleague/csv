@@ -9,7 +9,7 @@ menu:
         Installation: '/installation/'
     The API:
         Overview: '/overview/'
-        Outputting: '/outputting/'
         Filtering: '/filtering/'
+        Outputting: '/outputting/'
         Extracting: '/reading/'
         Inserting: '/inserting/'

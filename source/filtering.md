@@ -7,24 +7,23 @@ title: Filtering
 
 *available since version 5.4*
 
-Sometimes you may want to perform operations on the CSV as it is being read from or written to. To ease this type of manipulation is introducing a Stream Filtering Plugin mechanism based on a PHP Interface. 
+Sometimes you may want to perform operations on the CSV as it is being read from or written to. To ease this type of manipulation a Stream Filtering Plugin mechanism has been developped. This mechanism is based on a PHP Interface.
 
 ## StreamFilterInterface
 
-Any object that implements the `League\Csv\Stream\StreamFilterInterace` interface and that extends PHP native `php_user_filter` class will be able to filter on the fly the CSV data.
+Any object that implements the `League\Csv\Stream\StreamFilterInterace` interface and that extends PHP native `php_user_filter` class will be able to filter on the fly a PHP I/O stream.
 
 The interface contains the following methods:
 
-* `StreamFilterInterace::getName`: **a static method** that returns the filter name;
+* `StreamFilterInterace::getFilterName`: **a static method** that returns the filter registration name;
 * `StreamFilterInterace::registerFilter` : **a static method** that registers the class into PHP Stream Filters;
-* `StreamFilterInterace::getFilterPath`: returns the generated filter path;
-* `StreamFilterInterace::setFilterMode`: sets the stream filter mode using PHP stream constants 
+* `StreamFilterInterace::__toString`: returns the generated filter path;
+* `StreamFilterInterace::setFilterMode`: sets the stream filter mode using one of PHP stream filter constants: 
 	* `STREAM_FILTER_READ`: the filter will be use when reading from the CSV;
 	* `STREAM_FILTER_WRITE`: the filter will be use when writing to the CSV;
 	* `STREAM_FILTER_ALL`: the filter will be use when reading from **and**  when writing to the CSV;
 * `StreamFilterInterace::getFilterMode`: returns the current filter mode;
-* `StreamFilterInterace::getFilterModePrefix`: returns the string filter prefix;
-* `StreamFilterInterace::__toString`: returns the full filter path (prefix + path);
+* `StreamFilterInterace::getFilterUri`: returns the PHP full filter meta wrapper string;
 
 and redeclare the public methods from `php_user_filter`
 
@@ -32,56 +31,88 @@ and redeclare the public methods from `php_user_filter`
 * `StreamFilterInterace::onClose`: called when closing the filter;
 * `StreamFilterInterace::filter`: called when applying the filter;
 
-Once your class is ready you can specify it as an optional `$stream_filter` argument at the end of the following methods signatures:
+Once your class is ready you can specify it as an optional argument at the end of the following methods signatures:
 
-* `Reader::__construct`
-* `Writer::__construct`
-* `Reader::getWriter`
-* `Writer::getReader`
+* `Reader::__construct`;
+* `Writer::__construct`;
+* `Reader::getWriter`;
+* `Writer::getReader`;
 
-<p class="message-warning"><strong>warning:</strong> The stream filter plugin is only taken into account when the <code>$path</code> is a valid string.</p>
+During instantiation, the stream filter object is:
+
+* taken into account when `$path` is a string or a `SplFileInfo` object;
+* ignore when `$path` is a `SplFileObject`;
+
+When switching from one class to the other the stream filter object is taken into account whenever the path is valid.
+
 
 ## StreamFilterTrait
 
 To ease the interface implementation the `League\Csv\Stream\StreamFilterTrait` already implements the following method:
 
-* `StreamFilterInterace::getName`;
+* `StreamFilterInterace::getFilterName`;
 * `StreamFilterInterace::registerFilter`;
 * `StreamFilterInterace::setFilterMode`;
 * `StreamFilterInterace::getFilterMode`;
-* `StreamFilterInterace::getFilterModePrefix`;
-* `StreamFilterInterace::__toString`;
+* `StreamFilterInterace::getFilterUri`;
 
 You just need to reference this trait in your object to ease your object implementation.
 
-## Stream Filters Plugin bundled with the library
+<p class="message-warning"><strong>warning:</strong> If <code>setFilterMode</code> is not used the filter mode is set to <code>STREAM_FILTER_ALL</code> when using this trait.</p>
 
-These plugins were added to ease CSV manipulation but you are not required to use them. Nevertheless, they are a good starting point to help you understand and use the feature.
+## Stream Filters Plugins bundled with the library
+
+These plugins/extensions are added to ease CSV manipulations but:
+
+* you are not required to use them;
+* they are not restricted to `League\Csv`;
+* they are a good starting point to help you understand and use the feature;
+
+A simple implementation of the `League\Csv\StreamFilterInteface` using the `League\Csv\Stream\StreamFilterTrait` needs to provide:
+
+* a static `$name` for you plugin. By convention you should prepend you plugin name with `stream.plugin.XXXX` where `XXXX` represents you plugin.
+* implements at least the following methods: 
+	* `__toString`;
+	* `onCreate`;
+	* `filter`;
+
+The following plugins are bundled with the library
 
 ### Transcode
 
-This class helps transcode on the fly any given CSV document from one charset to another.
+This class helps transcode on the fly any given file from one charset to another.
+The following methods were added:
 
-See below an example using `League\Csv\StreamPlugins\TranscodeFilter` to illustrate:
+* `setEncodingFrom($encoding)`: set the file encoding charset;
+* `getEncodingFrom`: get the file encoding charset;
+* `setEncodingTo($encoding)`: set the type of encoding to convert to;
+* `getEncodingTo`: get the type of encoding to convert to;
+
+This plugin requires the multibytes string extension.
+
+See below an example using `League\Csv\StreamPlugins\Transcode` to illustrate:
 
 ~~~.language-php
-
+use \League\Csv\Reader;
 use \League\Csv\StreamPlugins\Transcode;
 
-$transcode = new Transcode;
-$transcode->setEncodingFrom('iso-8859-15');
+$transcode = new Transcode; //registration is done by the constructor
+$transcode->setEncodingFrom('Big5');
 $transcode->setEncodingTo('UTF-8');
-$transcode->setFilterMode(STREAM_FITER_READ);
-$reader = new Reader('/path/to/my/file.csv', 'r', $transcode);
+$transcode->setFilterMode(STREAM_FILTER_READ);
+$reader = new Reader('/path/to/my/chinese.csv', 'r', $transcode);
 foreach ($reader as $row) {
-	//the content of row is automatically converted
-	//from iso-8859-15 to UTF-8 on the fly 
+	//each row cell has been converted
 }
+
+//the class can be use with any PHP function that supports I/O streams
+$path = '/path/to/my/chinese-encoded.txt';
+readfile($transcode->getFilterUri($path));
 ~~~
 
 ### Collection
 
-This filter is a special one as it does not filter the CSV directly even if you register it but enables registering and applying multiple Stream Filter Plugins on a single CSV. the registered filter follow the *the First In First Out* rule.
+This plugin is special as it does not filter the stream directly even if you register it but enables registering and applying multiple stream Filter plugins on a single stream. the registered filters follow the *the First In First Out* rule.
 
 This class implements the following interfaces
 

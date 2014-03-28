@@ -72,6 +72,9 @@ $reader->setFlags(SplFileObject::READ_AHEAD|SplFileObject::SKIP_EMPTY);
 $reader->setEncoding('iso-8859-1');
 ~~~
 
+<p class="message-info">Since version 5.4: it is recommended not to directly set the encoding of the document but to rely on a <a href="/filtering/">Stream Filter Plugin</a> to convert you CSV into an UTF-8 encoded document.</p>
+
+
 If you are no sure about the delimiter you can ask the library to detect it for you using the `detectDelimiter` method. **This method will only give you a hint**. 
 
 The method takes two arguments:
