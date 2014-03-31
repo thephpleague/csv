@@ -34,7 +34,9 @@ namespace League\Csv;
 
 use SplFileObject;
 use SplTempFileObject;
+
 use InvalidArgumentException;
+
 use CallbackFilterIterator;
 use League\Csv\Iterator\MapIterator;
 use League\Csv\Iterator\IteratorQuery;
@@ -52,17 +54,6 @@ class Reader extends AbstractCsv
      * Iterator Query Trait
      */
     use IteratorQuery;
-
-    /**
-     * The constructor
-     *
-     * @param mixed  $path      an SplFileInfo object or the path to a file
-     * @param string $open_mode the file open mode flag
-     */
-    public function __construct($path, $open_mode = 'r')
-    {
-        $this->csv = $this->fetchFile($path, $open_mode);
-    }
 
     /**
      * Intelligent Array Combine

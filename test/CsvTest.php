@@ -75,13 +75,6 @@ class CsvTest extends PHPUnit_Framework_TestCase
         $this->assertSame($reader->fetchOne(1), ['jane', 'doe', 'jane.doe@example.com']);
     }
 
-    public function testCreateAsStream()
-    {
-        $path = __DIR__.'/data/prenoms.csv';
-        $csv = Reader::createAsStream($path, 'r', 'fr_Fr');
-        $this->assertInstanceof('\League\Csv\AbstractCsv', $csv);
-    }
-
     /**
      * @expectedException InvalidArgumentException
      */

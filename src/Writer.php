@@ -33,6 +33,7 @@
 namespace League\Csv;
 
 use Traversable;
+
 use InvalidArgumentException;
 use OutOfBoundsException;
 use RuntimeException;
@@ -76,7 +77,7 @@ class Writer extends AbstractCsv
      */
     public function __construct($path, $open_mode = 'w')
     {
-        $this->csv = $this->fetchFile($path, $open_mode);
+        parent::__construct($path, $open_mode);
     }
 
     /**
@@ -120,64 +121,6 @@ class Writer extends AbstractCsv
         if (self::NULL_AS_EXCEPTION == $this->null_handling_mode) {
             return $row;
         } elseif (self::NULL_AS_EMPTY == $this->null_handling_mode) {
-            foreach ($row as &$value) {
-                if (is_null($value)) {
-                    $value = '';
-                }
-            }
-            unset($value);
-
-            return $row;
-        }
-
-        return array_filter($row, function ($value) {
-            return ! is_null($value);
-        });
-    }
-
-    /**
-     * Tell the class how to handle null value
-     *
-     * @param integer $value a Writer null behavior constant
-     *
-     * @return self
-     *
-     * @throws OutOfBoundsException If the Integer is not valid
-     */
-    public function setNullHandling($value)
-    {
-        if (!in_array($value, [self::NULL_AS_SKIP_CELL, self::NULL_AS_EXCEPTION, self::NULL_AS_EMPTY])) {
-            throw new OutOfBoundsException(
-                'invalid value for null handling'
-            );
-        }
-        $this->null_handling = $value;
-
-        return $this;
-    }
-
-    /**
-     * null handling getter
-     *
-     * @return integer
-     */
-    public function getNullHandling()
-    {
-        return $this->null_handling;
-    }
-
-    /**
-     * Format the row according to the null handling behavior
-     *
-     * @param array $row
-     *
-     * @return array
-     */
-    private function formatRow(array $row)
-    {
-        if (self::NULL_AS_EXCEPTION == $this->null_handling) {
-            return $row;
-        } elseif (self::NULL_AS_EMPTY == $this->null_handling) {
             foreach ($row as &$value) {
                 if (is_null($value)) {
                     $value = '';
