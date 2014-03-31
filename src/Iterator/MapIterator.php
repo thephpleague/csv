@@ -1,6 +1,6 @@
 <?php
 /**
-* League.csv - A lightweight CSV Coder/Decoder library
+* League.csv - A CSV data manipulation library
 *
 * @author Ignace Nyamagana Butera <nyamsprod@gmail.com>
 * @copyright 2014 Ignace Nyamagana Butera

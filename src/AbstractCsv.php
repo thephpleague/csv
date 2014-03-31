@@ -1,6 +1,6 @@
 <?php
 /**
-* League.csv - A lightweight CSV Coder/Decoder library
+* League.csv - A CSV data manipulation library
 *
 * @author Ignace Nyamagana Butera <nyamsprod@gmail.com>
 * @copyright 2014 Ignace Nyamagana Butera
@@ -48,7 +48,7 @@ use CallbackFilterIterator;
 use League\Csv\Iterator\MapIterator;
 
 /**
- *  A abstract class to enable basic CSV manipulation
+ *  An abstract class to enable basic CSV manipulation
  *
  * @package League.csv
  * @since  4.0.0

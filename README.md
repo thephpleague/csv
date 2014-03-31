@@ -48,6 +48,8 @@ Contribute to this documentation in the [sculpin branch](https://github.com/thep
 
 ### Tips
 
+#### Writing to a CSV data
+
 * When creating a file using the library, first insert all the data that need to be inserted before starting manipulating the CSV. If you manipulate your data before insertion, you may change the file cursor position and get unexpected results.
 
 * When merging multiples CSV documents don't forget to set the main CSV object
@@ -55,9 +57,15 @@ Contribute to this documentation in the [sculpin branch](https://github.com/thep
  This setting is of course not required when your main `League\Csv\Writer` object is 
  created from String
 
-* If you are dealing with non-unicode data, specify the encoding parameter using the `setEncoding` method otherwise your output conversions may no work.
+* Even thought you can iterate using the `Writer` class it is recommend to iterate over you CSV using the `Reader` class set with a read only class to avoid any issue.
 
-* If you have your LC_CTYPE set to a locale that's using UTF-8 and you try to parse a file that's not in UTF-8, PHP will cut your fields the moment it encounters a byte it can't understand (i.e. any outside of ASCII that doesn't happen to be part of a UTF-8 character which it likely isn't). [This gist will show you a possible solution](https://gist.github.com/pilif/9137146) to this problem by using [PHP stream filter](http://www.php.net/manual/en/stream.filters.php). This tip is from [Philip Hofstetter](https://github.com/pilif)
+#### CSV encoding charset
+
+The library assumes that your data is UTF-8 encoded. If your are dealing with non-unicode data:
+
+* Specify the encoding parameter using the `setEncoding` method otherwise your output conversions may no work.
+
+* If you have your `LC_CTYPE` set to a locale that's using UTF-8, PHP will cut your fields the moment it encounters a byte it can't understand (i.e. any outside of ASCII that doesn't happen to be part of a UTF-8 character which it likely isn't). To resolve this issue you can use [PHP stream filter](http://www.php.net/manual/en/stream.filters.php) as shown [in the following gist](https://gist.github.com/pilif/9137146). This tip is from [Philip Hofstetter](https://github.com/pilif)
 
 Testing
 -------
