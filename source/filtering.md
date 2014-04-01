@@ -70,7 +70,7 @@ These plugins/extensions are added to ease CSV manipulations but:
 
 A simple implementation of the `League\Csv\StreamFilterInteface` using the `League\Csv\Stream\StreamFilterTrait` needs to provide:
 
-* a static `$name` for you plugin. By convention you should prepend you plugin name with `stream.plugin.XXXX` where `XXXX` represents you plugin.
+* a static `$name` for you plugin. By convention you should prepend you plugin name with `stream.plugin.XXXX` where `XXXX` represents you plugin unique name.
 * implements at least the following methods: 
 	* `__toString`;
 	* `onCreate`;
@@ -105,6 +105,10 @@ foreach ($reader as $row) {
 	//each row cell has been converted
 }
 
+//the class can be use with the League\Csv library directly
+$path = $transcode->getFilterUri('/path/to/my/chinese.csv');
+$reader = new Reader($path);
+
 //the class can be use with any PHP function that supports I/O streams
 $path = '/path/to/my/chinese-encoded.txt';
 readfile($transcode->getFilterUri($path));
@@ -122,7 +126,8 @@ This class implements the following interfaces
 
 It also has the following methods:
 
-* `add(StreamFilterInterace $stream)`: adds a stream to the collection;
+* `addOne(StreamFilterInterace $stream)`: adds a stream filter to the collection;
+* `addMany($pool)`: adds an array or a traversable object of stream filter to the collection;
 * `remove(StreamFilterInterace $stream)`: removes a stream from the collection. if the stream is registerd multiple times you will have to call the method as often as the filter was registerd. **The first registered copy will be the first to be removed**;
 * `has(StreamFilterInterace $stream)`: check to see if a stream filter plugin is already in the collection
 * `clear()`: remove all previously attached stream filter from the objet.
@@ -132,11 +137,11 @@ Because of the way PHP registers internally its stream filters the only filter m
 In the example below, the data is first encrypted and then the encrypted data is uppercased.
 
 ~~~.language-php
-use \League\Csv\StreamPlugins\Collection as StreamFilterCollection;
+use \League\Csv\StreamPlugins\Collection;
 use \MyLib\UpperCaseFilter;
 use \MyLib\EncryptFilter;
 
-$bag = new StreamFilterCollection;
+$bag = new Collection;
 $bag->setFilterMode(STREAM_FILTER_WRITE);
 
 $encrypt_filter = new EncryptFilter;
@@ -145,8 +150,7 @@ $encrypt_filter->setFilterMode(STREAM_FILTER_WRITE); //ignore by $bag
 $upper_filter = new UpperCaseFilter;
 $upper_filter->setFilterMode(STREAM_FILTER_READ); //ignore by $bag
 
-$bag->add($encrypt_filter);
-$bag->add($upper_filter);
+$bag->addMany([$encrypt_filter, $upper_filter]);
 //the data to be added to the CSV
 $data = [
 	[..., ...],
@@ -160,6 +164,11 @@ foreach ($reader as $row) {
 	//nothing will happen as $bag filter mode is STREAM_FILTER_WRITE
 	//so the data is seen as Encrypted + Uppercased 
 }
+
+//The same result can be achieve like this:
+$path = $bag->getFilterUri('/path/to/my/file.csv');
+$writer = new Writer($path, 'w');
+...
 ~~~
 
 Another commented example can be found in the [example folder](https://github.com/thephpleague/csv/blob/master/examples/stream.php "Stream Filter Plugins examples").
