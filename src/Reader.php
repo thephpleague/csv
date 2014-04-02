@@ -32,9 +32,6 @@
 */
 namespace League\Csv;
 
-use SplFileObject;
-use SplTempFileObject;
-
 use InvalidArgumentException;
 
 use CallbackFilterIterator;
@@ -223,19 +220,8 @@ class Reader extends AbstractCsv
      *
      * @return \League\Csv\Writer
      */
-    public function getWriter($open_mode = 'w')
+    public function getWriter($open_mode = 'r+')
     {
-        $obj = $this->csv;
-        if (! $obj instanceof SplTempFileObject) {
-            $obj = new SplFileObject($obj->getRealPath(), $open_mode);
-        }
-        $csv = new Writer($obj);
-        $csv->setDelimiter($this->delimiter);
-        $csv->setEnclosure($this->enclosure);
-        $csv->setEscape($this->escape);
-        $csv->setFlags($this->flags);
-        $csv->setEncoding($this->encoding);
-
-        return $csv;
+        return $this->getInstance('\League\Csv\Writer', $open_mode);
     }
 }

@@ -100,41 +100,12 @@ abstract class AbstractCsv implements JsonSerializable, IteratorAggregate
     protected $encoding = 'UTF-8';
 
     /**
-     * Set the CSV encoding charset
-     *
-     * @param string $str
-     *
-     * @return self
-     */
-    public function setEncoding($str)
-    {
-        $str = str_replace('_', '-', $str);
-        $str = filter_var($str, FILTER_SANITIZE_STRING, ['flags' => FILTER_FLAG_STRIP_LOW|FILTER_FLAG_STRIP_HIGH]);
-        if (empty($str)) {
-            throw new InvalidArgumentException('you should use a valid charset');
-        }
-        $this->encoding = strtoupper($str);
-
-        return $this;
-    }
-
-    /**
-     * Get the CSV encoding charset
-     *
-     * @return string
-     */
-    public function getEncoding()
-    {
-        return $this->encoding;
-    }
-
-    /**
      * The constructor
      *
      * @param mixed  $path      an SplFileInfo object or the path to a file
      * @param string $open_mode the file open mode flag
      */
-    public function __construct($path, $open_mode = 'r')
+    public function __construct($path, $open_mode = 'r+')
     {
         $this->setIterator($path, $open_mode);
     }
@@ -388,26 +359,55 @@ abstract class AbstractCsv implements JsonSerializable, IteratorAggregate
     }
 
     /**
-     * JsonSerializable Interface
+     * Set the CSV encoding charset
      *
-     * @return array
+     * @param string $str
+     *
+     * @return self
      */
-    public function jsonSerialize()
+    public function setEncoding($str)
     {
-        return iterator_to_array($this->convert2Utf8(), false);
+        $str = str_replace('_', '-', $str);
+        $str = filter_var($str, FILTER_SANITIZE_STRING, ['flags' => FILTER_FLAG_STRIP_LOW|FILTER_FLAG_STRIP_HIGH]);
+        if (empty($str)) {
+            throw new InvalidArgumentException('you should use a valid charset');
+        }
+        $this->encoding = strtoupper($str);
+
+        return $this;
     }
 
     /**
-     * Retrieves the CSV content
+     * Get the CSV encoding charset
      *
      * @return string
      */
-    public function __toString()
+    public function getEncoding()
     {
-        ob_start();
-        $this->output();
+        return $this->encoding;
+    }
 
-        return ob_get_clean();
+    /**
+     * Instantiate a {@link Writer} class from the current {@link Reader}
+     *
+     * @param string $open_mode the file open mode flag
+     *
+     * @return \League\Csv\AbstractCSv
+     */
+    protected function getInstance($class_name, $open_mode = 'r+')
+    {
+        $obj = $this->csv;
+        if (! $obj instanceof SplTempFileObject && ($path = $obj->getRealPath()) !== false) {
+            $obj = new SplFileObject($path, $open_mode);
+        }
+        $csv = new $class_name($obj);
+        $csv->setDelimiter($this->delimiter);
+        $csv->setEnclosure($this->enclosure);
+        $csv->setEscape($this->escape);
+        $csv->setFlags($this->flags);
+        $csv->setEncoding($this->encoding);
+
+        return $csv;
     }
 
     /**
@@ -432,6 +432,16 @@ abstract class AbstractCsv implements JsonSerializable, IteratorAggregate
     }
 
     /**
+     * JsonSerializable Interface
+     *
+     * @return array
+     */
+    public function jsonSerialize()
+    {
+        return iterator_to_array($this->convert2Utf8(), false);
+    }
+
+    /**
      * Output all data on the CSV file
      *
      * @param string $filename CSV downloaded name if present adds extra headers
@@ -450,6 +460,19 @@ abstract class AbstractCsv implements JsonSerializable, IteratorAggregate
         //@codeCoverageIgnoreEnd
         $iterator->rewind();
         $iterator->fpassthru();
+    }
+
+    /**
+     * Retrieves the CSV content
+     *
+     * @return string
+     */
+    public function __toString()
+    {
+        ob_start();
+        $this->output();
+
+        return ob_get_clean();
     }
 
     /**

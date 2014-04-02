@@ -70,17 +70,6 @@ class Writer extends AbstractCsv
     protected $null_handling_mode = self::NULL_AS_EXCEPTION;
 
     /**
-     * The constructor
-     *
-     * @param mixed  $path      an SplFileInfo object or the path to a file
-     * @param string $open_mode the file open mode flag
-     */
-    public function __construct($path, $open_mode = 'w')
-    {
-        parent::__construct($path, $open_mode);
-    }
-
-    /**
      * Tell the class how to handle null value
      *
      * @param integer $value a Writer null behavior constant
@@ -198,17 +187,12 @@ class Writer extends AbstractCsv
     /**
      * Instantiate a {@link Reader} class from the current {@link Writer}
      *
+     * @param string $open_mode the file open mode flag
+     *
      * @return \League\Csv\Reader
      */
-    public function getReader()
+    public function getReader($open_mode = 'r+')
     {
-        $csv = new Reader($this->csv);
-        $csv->setDelimiter($this->delimiter);
-        $csv->setEnclosure($this->enclosure);
-        $csv->setEscape($this->escape);
-        $csv->setFlags($this->flags);
-        $csv->setEncoding($this->encoding);
-
-        return $csv;
+        return $this->getInstance('\League\Csv\Reader', $open_mode);
     }
 }
