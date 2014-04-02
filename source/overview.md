@@ -46,8 +46,7 @@ The `$open_mode` parameter is ignore if you instantiate your object with:
 
 When not explicitly set:
 
-* The `League\Csv\Writer` `$open_mode` default value is `w`
-* The `League\Csv\Reader` `$open_mode` default value is `r`
+* The `$open_mode` default value is `r+` for both classes.
 
 The static method `createFromString` is to be use if your data is a string. This
 method takes no optional `$open_mode` parameter.
@@ -107,7 +106,7 @@ It is possible to switch between modes by using:
 * the `League\Csv\Writer::getReader` method from the `League\Csv\Writer` class
 * the `League\Csv\Reader::getWriter` method from the `League\Csv\Reader` class 
 
-Both methods accept the optional $open_mode parameter.
+Both methods accept the optional $open_mode parameter. When not explicitly set, the `$open_mode` default value is `r+` for both methods.
 
 ~~~.language-php
 $reader = $writer->getReader('r+');
