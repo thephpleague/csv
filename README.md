@@ -65,7 +65,7 @@ The library assumes that your data is UTF-8 encoded. If your are dealing with no
 
 * Specify the encoding parameter using the `setEncoding` method otherwise your output conversions may no work.
 
-* If you have your `LC_CTYPE` set to a locale that's using UTF-8, PHP will cut your fields the moment it encounters a byte it can't understand (i.e. any outside of ASCII that doesn't happen to be part of a UTF-8 character which it likely isn't). To resolve this issue you can use [PHP stream filter](http://www.php.net/manual/en/stream.filters.php) as shown [in the following gist](https://gist.github.com/pilif/9137146). This tip is from [Philip Hofstetter](https://github.com/pilif)
+* If you have your `LC_CTYPE` set to a locale that's using UTF-8, PHP will cut your fields the moment it encounters a byte it can't understand (i.e. any outside of ASCII that doesn't happen to be part of a UTF-8 character which it likely isn't). To resolve this issue you can use [PHP stream filter](http://www.php.net/manual/en/stream.filters.php) as shown [in the following gist](https://gist.github.com/nyamsprod/9932158). This tip is from [Philip Hofstetter](https://github.com/pilif)
 
 Testing
 -------
