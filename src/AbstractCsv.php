@@ -4,9 +4,9 @@
 *
 * @author Ignace Nyamagana Butera <nyamsprod@gmail.com>
 * @copyright 2014 Ignace Nyamagana Butera
-* @link https://github.com/nyamsprod/League.csv
+* @link https://github.com/thephpleague/csv/
 * @license http://opensource.org/licenses/MIT
-* @version 5.3.0
+* @version 5.3.1
 * @package League.csv
 *
 * MIT LICENSE
@@ -107,6 +107,7 @@ abstract class AbstractCsv implements JsonSerializable, IteratorAggregate
      */
     public function __construct($path, $open_mode = 'r+')
     {
+        ini_set("auto_detect_line_endings", true);
         $this->setIterator($path, $open_mode);
     }
 
@@ -351,7 +352,6 @@ abstract class AbstractCsv implements JsonSerializable, IteratorAggregate
      */
     public function getIterator()
     {
-        ini_set("auto_detect_line_endings", true);
         $this->csv->setCsvControl($this->delimiter, $this->enclosure, $this->escape);
         $this->csv->setFlags($this->flags);
 
@@ -388,9 +388,10 @@ abstract class AbstractCsv implements JsonSerializable, IteratorAggregate
     }
 
     /**
-     * Instantiate a {@link Writer} class from the current {@link Reader}
+     * Instantiate a AbstractCsv extended class
      *
-     * @param string $open_mode the file open mode flag
+     * @param string $class_name the Class to load {@link Writer} or {@link Reader}
+     * @param string $open_mode  the file open mode flag
      *
      * @return \League\Csv\AbstractCSv
      */
