@@ -64,15 +64,16 @@ Once your object is created you can optionally set:
 ~~~.language-php
 $reader = new Reader('/path/to/your/csv/file.csv');
 
-$reader->setDelimeter(',');
+$reader->setDelimiter(',');
 $reader->setEnclosure('"');
 $reader->setEscape('\\');
 $reader->setFlags(SplFileObject::READ_AHEAD|SplFileObject::SKIP_EMPTY);
 $reader->setEncoding('iso-8859-1');
 ~~~
 
-<p class="message-info">Since version 5.4: it is recommended not to directly set the encoding of the document but to rely on a <a href="/filtering/">Stream Filter Plugin</a> to convert you CSV into an UTF-8 encoded document.</p>
+<p class="message-info"><strong>Tip:</strong> To avoid double encoding and to handle more easily your CSV encoding, instead of setting the encoding using <code>setEncoding</code>, you should use <a href="https://gist.github.com/nyamsprod/9932158#file-stream_filter-php" target="_blank">PHP stream filtering capabilities</a> to directly transcode your CSV into a UTF-8 encoded document. <strong>The linked script is a simple example</strong>, the code may vary depending on your CSV. You may, for instance, use <code>iconv</code> or <code>mb_*</code> functions to achieve the same goal.</p>
 
+### detectDelimiter($nbRows = 1, array $delimiters = []) *since version 5.1*
 
 If you are no sure about the delimiter you can ask the library to detect it for you using the `detectDelimiter` method. **This method will only give you a hint**. 
 
@@ -92,7 +93,7 @@ $reader->setEncoding('iso-8859-1');
 $delimiter = $reader->detectDelimiter(10, [' ', '|']);
 ~~~
 
-The more rows and delimiters you had, the more time and memory consuming the operation will be.
+The more rows and delimiters you add, the more time and memory consuming the operation will be.
 
 * If a single delimiter is found the method will return it;
 * If multiple delimiters are found (ie: your CSV is not consistent) a `RuntimeException` is thrown;

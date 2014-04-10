@@ -49,9 +49,9 @@ $dom = $writer->toXML('data', 'item', 'cell');
 
 ## Convert to HTML table
 
-Use the toHTML method to format the CSV data into an HTML table. This method 
-accepts an optional argument $classname to help you customize the table 
-rendering, by defaut the classname given to the table is table-csv-data.
+Use the `toHTML` method to format the CSV data into an HTML table. This method 
+accepts an optional argument `$classname` to help you customize the table 
+rendering, by defaut the classname given to the table is `table-csv-data`.
 
 ~~~.language-php
 echo $writer->toHTML('table table-bordered table-hover');
@@ -59,14 +59,14 @@ echo $writer->toHTML('table table-bordered table-hover');
 
 ## Convert to JSON
 
-Use the json_encode function directly on the instantiated object.
+Use the `json_encode` function directly on the instantiated object.
 
 ~~~.language-php
 echo json_encode($writer);
 ~~~
 
 When using the `toHTML()`, `toXML()` methods and the `json_encode` function,
-the data is internally converted if needed into UTF-8.
+the data is internally converted into UTF-8 if `setEncoding` is used and the encoding is not UTF-8.
 
 ## Force a file download
 
@@ -74,7 +74,6 @@ If you only wish to make your CSV downloadable just use the output method to
 return to the output buffer the CSV content.
 
 ~~~.language-php
-$reader->setEncoding('ISO-8859-15');
 header('Content-Type: text/csv; charset="'.$reader->getEncoding().'"');
 header('Content-Disposition: attachment; filename="name-for-your-file.csv"');
 $reader->output();
@@ -84,6 +83,5 @@ The output method can take an optional argument `$filename`. When present you
 can even omit most of the headers.
 
 ~~~.language-php
-$reader->setEncoding('ISO-8859-15');
 $reader->output("name-for-your-file.csv");
 ~~~

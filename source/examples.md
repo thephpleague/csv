@@ -11,7 +11,7 @@ A simple example to show you how to parse a CSV document.
 
 ~~~.language-php
 <?php
-use League\Csv;
+use League\Csv\Reader;
 
 $csv = new Reader('/path/to/your/csv/file.csv');
 
@@ -22,13 +22,13 @@ $headers = $csv->fetchOne();
 $res = $csv->setOffset(10)->setLimit(25)->fetchAll();
 ~~~
 		
-## Creating a CSV document
+## Exporting a database table as a CSV document
 
 A simple example to show you how to create and download a CSV from a `PDOStatement` object
 
 ~~~.language-php
 <?php
-use League\Csv;
+use League\Csv\Writer;
 
 //we fetch the info from a DB using a PDO object
 $sth = $dbh->prepare(
@@ -61,13 +61,13 @@ $csv->output('users.csv');
 die;
 ~~~
 
-## Importing a CSV into a Database
+## Importing a CSV into a database table
 
 A simple example to show you how to import some CSV data into a database using a `PDOStatement` object
 
 ~~~.language-php
 <?php
-use League\Csv;
+use League\Csv\Reader;
 
 //We are going to insert some data into the users table
 $sth = $dbh->prepare(
