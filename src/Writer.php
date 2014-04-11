@@ -70,6 +70,20 @@ class Writer extends AbstractCsv
     protected $null_handling_mode = self::NULL_AS_EXCEPTION;
 
     /**
+     * set this to true to check row consistency and throw an exception if inconsistent
+     *
+     * @var boolean
+     */
+    protected $strict_mode = false;
+
+    /**
+     * in case strict_mode is true this variable holds the current column count
+     *
+     * @var integer
+     */
+    private $column_count;
+
+    /**
      * Tell the class how to handle null value
      *
      * @param integer $value a Writer null behavior constant
@@ -96,6 +110,30 @@ class Writer extends AbstractCsv
     public function getNullHandlingMode()
     {
         return $this->null_handling_mode;
+    }
+
+    /**
+     * Tell the class to check row consistency or not
+     *
+     * @param boolean $value
+     *
+     * @return self
+     */
+    public function setStrictMode($value)
+    {
+        $this->strict_mode = (bool) $value;
+
+        return $this;
+    }
+
+    /**
+     * strict mode getter
+     *
+     * @return boolean
+     */
+    public function getStrictMode()
+    {
+        return $this->strict_mode;
     }
 
     /**
@@ -126,6 +164,23 @@ class Writer extends AbstractCsv
     }
 
     /**
+     * Check row consistency
+     *
+     * @param  array   $row
+     * @return boolean
+     */
+    private function checkConsistency(array $row)
+    {
+        if (is_null($this->column_count)) {
+            $this->column_count = count($row);
+
+            return true;
+        }
+
+        return count($row) === $this->column_count;
+    }
+
+    /**
      * Add a new CSV row to the generated CSV
      *
      * @param mixed $row a string, an array or an object implementing to '__toString' method
@@ -143,6 +198,9 @@ class Writer extends AbstractCsv
             throw new InvalidArgumentException(
                 'the row provided must be an array of a valid string that can be converted into an array'
             );
+        }
+        if ($this->strict_mode === true and $this->checkConsistency($row) === false) {
+            throw new InvalidArgumentException('the provided row is inconsistent with the existing data');
         }
         $check = array_filter($row, function ($value) {
             return (is_null($value) && self::NULL_AS_EXCEPTION != $this->null_handling_mode)
