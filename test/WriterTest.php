@@ -87,13 +87,48 @@ class WriterTest extends PHPUnit_Framework_TestCase
     /**
      * @expectedException InvalidArgumentException
      */
+    public function testColumCountSetterGetter()
+    {
+        $this->assertSame(-1, $this->csv->getColumnCount());
+        $this->csv->setColumnCount(3);
+        $this->assertSame(3, $this->csv->getColumnCount());
+        $this->csv->setColumnCount('toto');
+    }
+
+    /**
+     * @expectedException InvalidArgumentException
+     */
+    public function testColumCountConsistency()
+    {
+        $this->csv->insertOne(['john', 'doe', 'john.doe@example.com']);
+        $this->csv->setColumnCount(2);
+        $this->csv->insertOne(['jane', 'jane.doe@example.com']);
+        $this->csv->setColumnCount(3);
+        $this->csv->insertOne(['jane', 'jane.doe@example.com']);
+    }
+
+    /**
+     * @expectedException InvalidArgumentException
+     */
+    public function testAutoDetectColumnCount()
+    {
+        $this->csv->autoDetectColumnCount();
+        $this->assertSame(-1, $this->csv->getColumnCount());
+        $this->csv->insertOne(['john', 'doe', 'john.doe@example.com']);
+        $this->assertSame(3, $this->csv->getColumnCount());
+        $this->csv->insertOne(['jane', 'jane.doe@example.com']);
+    }
+
+    /**
+     * @expectedException InvalidArgumentException
+     */
     public function testFailedInsertWithWrongData()
     {
         $this->csv->insertOne(new DateTime);
     }
 
     /**
-     * @expectedException RuntimeException
+     * @expectedException InvalidArgumentException
      */
     public function testFailedInsertWithMultiDimensionArray()
     {

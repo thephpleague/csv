@@ -36,7 +36,6 @@ use Traversable;
 
 use InvalidArgumentException;
 use OutOfBoundsException;
-use RuntimeException;
 
 /**
  *  A class to manage data insertion into a CSV
@@ -70,6 +69,20 @@ class Writer extends AbstractCsv
     protected $null_handling_mode = self::NULL_AS_EXCEPTION;
 
     /**
+     * The number of column per row
+     *
+     * @var integer
+     */
+    protected $column_count = -1;
+
+    /**
+     * should the class detect the column count based the inserted row
+     *
+     * @var boolean
+     */
+    protected $detect_column_count = false;
+
+    /**
      * Tell the class how to handle null value
      *
      * @param integer $value a Writer null behavior constant
@@ -99,6 +112,95 @@ class Writer extends AbstractCsv
     }
 
     /**
+     * Set Inserted row column count
+     * @param integer $value
+     *
+     * @return self
+     *
+     * @throws \InvalidArgumentException If $value is lesser than -1
+     */
+    public function setColumnCount($value)
+    {
+        if (false === filter_var($value, FILTER_VALIDATE_INT, ['options' => ['min_range' => -1]])) {
+            throw new InvalidArgumentException('the column count must an integer greater or equals to -1');
+        }
+        $this->detect_column_count = false;
+        $this->column_count = $value;
+
+        return $this;
+    }
+
+    /**
+     * Column count getter
+     *
+     * @return integer
+     */
+    public function getColumnCount()
+    {
+        return $this->column_count;
+    }
+
+    /**
+     * The method will set the $column_count property according to the next inserted row
+     * and therefore will also validate the next line whatever length it has no matter
+     * the current $column_count property value.
+     *
+     * @return self
+     */
+    public function autoDetectColumnCount()
+    {
+        $this->detect_column_count = true;
+
+        return $this;
+    }
+
+    /**
+     * Is the submitted row valid
+     *
+     * @param mixed $row
+     *
+     * @return array
+     *
+     * @throws InvalidArgumentException If the given $row is invalid
+     */
+    private function validateRow($row)
+    {
+        if (self::isValidString($row)) {
+            $row = str_getcsv((string) $row, $this->delimiter, $this->enclosure, $this->escape);
+        }
+        if (! is_array($row)) {
+            throw new InvalidArgumentException(
+                'the data provided must be convertible into an array'
+            );
+        }
+        $check = array_filter($row, function ($value) {
+            return (is_null($value) && self::NULL_AS_EXCEPTION != $this->null_handling_mode)
+            || self::isValidString($value);
+        });
+
+        if (count($check) != count($row)) {
+            throw new InvalidArgumentException(
+                'the converted array must contain only data that can be converted into string'
+            );
+        }
+
+        $row = $this->formatRow($row);
+        if ($this->detect_column_count) {
+            $this->column_count = count($row);
+            $this->detect_column_count = false;
+        }
+
+        if (-1 != $this->column_count && count($row) != $this->column_count) {
+            throw new InvalidArgumentException(
+                'You are trying to add '.count($row).' columns to a CSV
+                that requires '.$this->column_count.' columns.'
+            );
+        }
+
+        return $row;
+    }
+
+    /**
      * Format the row according to the null handling behavior
      *
      * @param array $row
@@ -121,7 +223,7 @@ class Writer extends AbstractCsv
         }
 
         return array_filter($row, function ($value) {
-            return ! is_null($value);
+            return !is_null($value);
         });
     }
 
@@ -132,32 +234,13 @@ class Writer extends AbstractCsv
      *
      * @return self
      *
-     * @throws InvalidArgumentException If the given row format is invalid
+     * @throws \InvalidArgumentException If the given row is invalid
      */
     public function insertOne($row)
     {
-        if (self::isValidString($row)) {
-            $row = str_getcsv((string) $row, $this->delimiter, $this->enclosure, $this->escape);
-        }
-        if (! is_array($row)) {
-            throw new InvalidArgumentException(
-                'the row provided must be an array of a valid string that can be converted into an array'
-            );
-        }
-        $check = array_filter($row, function ($value) {
-            return (is_null($value) && self::NULL_AS_EXCEPTION != $this->null_handling_mode)
-            || self::isValidString($value);
-        });
-        if (count($check) == count($row)) {
-            $this->csv->fputcsv(
-                $this->formatRow($row),
-                $this->delimiter,
-                $this->enclosure
-            );
+        $this->csv->fputcsv($this->validateRow($row), $this->delimiter, $this->enclosure);
 
-            return $this;
-        }
-        throw new RuntimeException('the provided data can not be transform into a single CSV data row');
+        return $this;
     }
 
     /**
