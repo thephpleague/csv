@@ -173,4 +173,25 @@ class WriterTest extends PHPUnit_Framework_TestCase
         $reader = $this->csv->getReader();
         $this->assertSame(['john', 'doe', 'john.doe@example.com'], $reader->fetchOne(0));
     }
+
+    public function testStrictMode()
+    {
+        $this->csv->setStrictMode('o');
+        $this->assertTrue($this->csv->getStrictMode());
+    }
+
+    /**
+     * @expectedException InvalidArgumentException
+     */
+    public function testFailedConsistencyCheck()
+    {
+        $expected = [
+            ['john', 'doe', 'john.doe@example.com'],
+            ['john', 'doe'],
+        ];
+        $this->csv->setStrictMode(true);
+        foreach ($expected as $row) {
+            $this->csv->insertOne($row);
+        }
+    }
 }
