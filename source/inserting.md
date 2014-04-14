@@ -90,3 +90,44 @@ if (Writer::NULL_AS_EXCEPTION == $writer->getNullHandlingMode()) {
 $writer->insertOne(["one", "two", null, "four"]); 
 ~~~
 In the above example, the `null` value will be converted into an empty string, only if the current mode handles the value by throwing exception.
+
+## Handling CSV columns count consistency (since version 5.4)
+
+You can optionally asks the Writer class to check the columns count consistency of the newly added rows in you CSV. To do so you need to set the class `$columns_count` property.
+
+### getColumnsCount()
+
+At any given time you can access the `$columns_count` property using the `getColumnsCount` method. 
+
+<p class="message-warning">By default and for backward compatibility, the <code>$columns_count</code>property equals <code>-1</code> which means that column count consistency is not checked.</p>
+
+### setColumnsCount($value)
+
+One way to do enable the columns count check is to use the `setColumnsCount` method to set the property to an integer greater than `-1`.
+
+~~~.language-php
+$writer->setColumnsCount(2);
+$nb_column_count = $writer->getColumnsCount(); // equals to 2;
+$writer->insertAll([
+    ["one", "two"],
+    ["one", "two", "four"],  //this will throw an InvalidArgumentException
+]); 
+~~~
+
+### autodetectColumnsCount()
+
+Another way is to use the `autodetectColumnsCount` method which will set the `$columns_count` property according to the next inserted row.
+
+~~~.language-php
+$writer = new \League\Csv\Writer('path/to/csv', 'w');
+$writer->autodetectColumnsCount();
+$nb_column_count = $writer->getColumnsCount(); // equals to -1 = default value;
+$writer->insertOne(["one", "two", "four"]); 
+$nb_column_count = $writer->getColumnsCount(); // equals to 3;
+$writer->insertOne(["one", "two"]); //this will throw an InvalidArgumentException
+~~~
+
+Keep in mind that:
+
+* the effect of the `autodetectColumnsCount` method will only take place after the next call to `insertOne`.
+* `setColumnsCount` and `autodetectColumnsCount` cancel each other effect when called before `insertOne`;
