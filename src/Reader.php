@@ -193,21 +193,21 @@ class Reader extends AbstractCsv
      *
      * @throws \InvalidArgumentException If the column index is not a positive integer or 0
      */
-    public function fetchCol($columnIndex = 0, callable $callable = null)
+    public function fetchCol($column_index = 0, callable $callable = null)
     {
-        if (false === filter_var($columnIndex, FILTER_VALIDATE_INT, ['options' => ['min_range' => 0]])) {
+        if (false === filter_var($column_index, FILTER_VALIDATE_INT, ['options' => ['min_range' => 0]])) {
             throw new InvalidArgumentException(
                 'the column index must be a positive integer or 0'
             );
         }
 
         $iterator = $this->query($callable);
-        $iterator = new MapIterator($iterator, function ($row) use ($columnIndex) {
-            if (! array_key_exists($columnIndex, $row)) {
+        $iterator = new MapIterator($iterator, function ($row) use ($column_index) {
+            if (! array_key_exists($column_index, $row)) {
                 return null;
             }
 
-            return $row[$columnIndex];
+            return $row[$column_index];
         });
 
         return iterator_to_array($iterator, false);

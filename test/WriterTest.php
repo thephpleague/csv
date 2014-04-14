@@ -87,35 +87,35 @@ class WriterTest extends PHPUnit_Framework_TestCase
     /**
      * @expectedException InvalidArgumentException
      */
-    public function testColumCountSetterGetter()
+    public function testColumsCountSetterGetter()
     {
-        $this->assertSame(-1, $this->csv->getColumnCount());
-        $this->csv->setColumnCount(3);
-        $this->assertSame(3, $this->csv->getColumnCount());
-        $this->csv->setColumnCount('toto');
+        $this->assertSame(-1, $this->csv->getColumnsCount());
+        $this->csv->setColumnsCount(3);
+        $this->assertSame(3, $this->csv->getColumnsCount());
+        $this->csv->setColumnsCount('toto');
     }
 
     /**
      * @expectedException InvalidArgumentException
      */
-    public function testColumCountConsistency()
+    public function testColumsCountConsistency()
     {
         $this->csv->insertOne(['john', 'doe', 'john.doe@example.com']);
-        $this->csv->setColumnCount(2);
+        $this->csv->setColumnsCount(2);
         $this->csv->insertOne(['jane', 'jane.doe@example.com']);
-        $this->csv->setColumnCount(3);
+        $this->csv->setColumnsCount(3);
         $this->csv->insertOne(['jane', 'jane.doe@example.com']);
     }
 
     /**
      * @expectedException InvalidArgumentException
      */
-    public function testAutoDetectColumnCount()
+    public function testAutoDetectColumnsCount()
     {
-        $this->csv->autoDetectColumnCount();
-        $this->assertSame(-1, $this->csv->getColumnCount());
+        $this->csv->autodetectColumnsCount();
+        $this->assertSame(-1, $this->csv->getColumnsCount());
         $this->csv->insertOne(['john', 'doe', 'john.doe@example.com']);
-        $this->assertSame(3, $this->csv->getColumnCount());
+        $this->assertSame(3, $this->csv->getColumnsCount());
         $this->csv->insertOne(['jane', 'jane.doe@example.com']);
     }
 

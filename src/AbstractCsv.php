@@ -189,31 +189,37 @@ abstract class AbstractCsv implements JsonSerializable, IteratorAggregate
     /**
      * Detect the CSV file delimiter
      *
-     * @param integer $nbRows
+     * @param integer $nb_rows
      * @param array   $delimiters additional delimiters
      *
      * @return string
      *
-     * @throws \InvalidArgumentException If $nbRows value is invalid
+     * @throws \InvalidArgumentException If $nb_rows value is invalid
      * @throws \RuntimeException         If too many delimiters are found
      */
-    public function detectDelimiter($nbRows = 1, array $delimiters = [])
+    public function detectDelimiter($nb_rows = 1, array $delimiters = [])
     {
-        $nbRows = filter_var($nbRows, FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]);
-        if (! $nbRows) {
-            throw new InvalidArgumentException('`$nbRows` must be a valid positive integer');
+        $nb_rows = filter_var($nb_rows, FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]);
+        if (! $nb_rows) {
+            throw new InvalidArgumentException('`$nb_rows` must be a valid positive integer');
         }
+
+        //detect and validate the possible delimiters
         $delimiters = array_filter($delimiters, function ($str) {
             return 1 == mb_strlen($str);
         });
         $delimiters = array_merge([$this->delimiter, ',', ';', "\t"], $delimiters);
         $delimiters = array_unique($delimiters);
+
+        //"reduce" the csv length to a maximum of $nb_rows
         $iterator = new CallbackFilterIterator(
-            new LimitIterator($this->getIterator(), 0, $nbRows),
+            new LimitIterator($this->getIterator(), 0, $nb_rows),
             function ($row) {
                 return is_array($row) && count($row) > 1;
             }
         );
+
+        //detecting the possible delimiter
         $res = [];
         foreach ($delimiters as $delim) {
             $iterator->setCsvControl($delim, $this->enclosure, $this->escape);
@@ -507,14 +513,14 @@ abstract class AbstractCsv implements JsonSerializable, IteratorAggregate
     /**
      * Return a HTML table representation of the CSV Table
      *
-     * @param string $classname optional classname
+     * @param string $class_name optional classname
      *
      * @return string
      */
-    public function toHTML($classname = 'table-csv-data')
+    public function toHTML($class_name = 'table-csv-data')
     {
         $doc = $this->toXML('table', 'tr', 'td');
-        $doc->documentElement->setAttribute('class', $classname);
+        $doc->documentElement->setAttribute('class', $class_name);
 
         return $doc->saveHTML($doc->documentElement);
     }

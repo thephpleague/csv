@@ -73,14 +73,14 @@ class Writer extends AbstractCsv
      *
      * @var integer
      */
-    protected $column_count = -1;
+    protected $columns_count = -1;
 
     /**
      * should the class detect the column count based the inserted row
      *
      * @var boolean
      */
-    protected $detect_column_count = false;
+    protected $detect_columns_count = false;
 
     /**
      * Tell the class how to handle null value
@@ -119,13 +119,13 @@ class Writer extends AbstractCsv
      *
      * @throws \InvalidArgumentException If $value is lesser than -1
      */
-    public function setColumnCount($value)
+    public function setColumnsCount($value)
     {
         if (false === filter_var($value, FILTER_VALIDATE_INT, ['options' => ['min_range' => -1]])) {
             throw new InvalidArgumentException('the column count must an integer greater or equals to -1');
         }
-        $this->detect_column_count = false;
-        $this->column_count = $value;
+        $this->detect_columns_count = false;
+        $this->columns_count = $value;
 
         return $this;
     }
@@ -135,21 +135,21 @@ class Writer extends AbstractCsv
      *
      * @return integer
      */
-    public function getColumnCount()
+    public function getColumnsCount()
     {
-        return $this->column_count;
+        return $this->columns_count;
     }
 
     /**
-     * The method will set the $column_count property according to the next inserted row
+     * The method will set the $columns_count property according to the next inserted row
      * and therefore will also validate the next line whatever length it has no matter
-     * the current $column_count property value.
+     * the current $columns_count property value.
      *
      * @return self
      */
-    public function autoDetectColumnCount()
+    public function autodetectColumnsCount()
     {
-        $this->detect_column_count = true;
+        $this->detect_columns_count = true;
 
         return $this;
     }
@@ -185,15 +185,15 @@ class Writer extends AbstractCsv
         }
 
         $row = $this->formatRow($row);
-        if ($this->detect_column_count) {
-            $this->column_count = count($row);
-            $this->detect_column_count = false;
+        if ($this->detect_columns_count) {
+            $this->columns_count = count($row);
+            $this->detect_columns_count = false;
         }
 
-        if (-1 != $this->column_count && count($row) != $this->column_count) {
+        if (-1 != $this->columns_count && count($row) != $this->columns_count) {
             throw new InvalidArgumentException(
                 'You are trying to add '.count($row).' columns to a CSV
-                that requires '.$this->column_count.' columns.'
+                that requires '.$this->columns_count.' columns.'
             );
         }
 
