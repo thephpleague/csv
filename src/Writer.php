@@ -112,6 +112,44 @@ class Writer extends AbstractCsv
     }
 
     /**
+     * Format the row according to the null handling behavior
+     *
+     * @param array $row
+     *
+     * @return array
+     */
+    private function processNullValues(array $row)
+    {
+        $check = array_filter($row, function ($value) {
+            return (is_null($value) && self::NULL_AS_EXCEPTION != $this->null_handling_mode)
+            || self::isValidString($value);
+        });
+
+        if (count($check) != count($row)) {
+            throw new InvalidArgumentException(
+                'the converted array must contain only data that can be converted into string'
+            );
+        }
+
+        if (self::NULL_AS_EXCEPTION == $this->null_handling_mode) {
+            return $row;
+        } elseif (self::NULL_AS_EMPTY == $this->null_handling_mode) {
+            foreach ($row as &$value) {
+                if (is_null($value)) {
+                    $value = '';
+                }
+            }
+            unset($value);
+
+            return $row;
+        }
+
+        return array_filter($row, function ($value) {
+            return !is_null($value);
+        });
+    }
+
+    /**
      * Set Inserted row column count
      * @param integer $value
      *
@@ -155,42 +193,50 @@ class Writer extends AbstractCsv
     }
 
     /**
+     * Check column count consistency
+     *
+     * @param array $row the row to be added to the CSV
+     *
+     * @return boolean
+     */
+    private function isColumnsCountConsistent(array $row)
+    {
+        if ($this->detect_columns_count) {
+            $this->columns_count = count($row);
+            $this->detect_columns_count = false;
+
+            return true;
+        } elseif (-1 == $this->columns_count) {
+            return true;
+        }
+
+        return count($row) == $this->columns_count;
+    }
+
+    /**
      * Is the submitted row valid
      *
      * @param mixed $row
      *
      * @return array
      *
-     * @throws InvalidArgumentException If the given $row is invalid
+     * @throws InvalidArgumentException If the given $row is not valid
      */
     private function validateRow($row)
     {
+        //convert input row into a proper array
         if (self::isValidString($row)) {
             $row = str_getcsv((string) $row, $this->delimiter, $this->enclosure, $this->escape);
         }
+
         if (! is_array($row)) {
             throw new InvalidArgumentException(
                 'the data provided must be convertible into an array'
             );
         }
-        $check = array_filter($row, function ($value) {
-            return (is_null($value) && self::NULL_AS_EXCEPTION != $this->null_handling_mode)
-            || self::isValidString($value);
-        });
 
-        if (count($check) != count($row)) {
-            throw new InvalidArgumentException(
-                'the converted array must contain only data that can be converted into string'
-            );
-        }
-
-        $row = $this->formatRow($row);
-        if ($this->detect_columns_count) {
-            $this->columns_count = count($row);
-            $this->detect_columns_count = false;
-        }
-
-        if (-1 != $this->columns_count && count($row) != $this->columns_count) {
+        $row = $this->processNullValues($row);
+        if (! $this->isColumnsCountConsistent($row)) {
             throw new InvalidArgumentException(
                 'You are trying to add '.count($row).' columns to a CSV
                 that requires '.$this->columns_count.' columns.'
@@ -198,33 +244,6 @@ class Writer extends AbstractCsv
         }
 
         return $row;
-    }
-
-    /**
-     * Format the row according to the null handling behavior
-     *
-     * @param array $row
-     *
-     * @return array
-     */
-    private function formatRow(array $row)
-    {
-        if (self::NULL_AS_EXCEPTION == $this->null_handling_mode) {
-            return $row;
-        } elseif (self::NULL_AS_EMPTY == $this->null_handling_mode) {
-            foreach ($row as &$value) {
-                if (is_null($value)) {
-                    $value = '';
-                }
-            }
-            unset($value);
-
-            return $row;
-        }
-
-        return array_filter($row, function ($value) {
-            return !is_null($value);
-        });
     }
 
     /**
