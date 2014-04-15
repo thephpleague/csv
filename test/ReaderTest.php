@@ -1,6 +1,6 @@
 <?php
 
-namespace League\Csv\Test;
+namespace League\Csv\test;
 
 use PHPUnit_Framework_TestCase;
 use SplTempFileObject;
@@ -89,6 +89,7 @@ class ReaderTest extends PHPUnit_Framework_TestCase
     public function testFetchCol()
     {
         $this->assertSame(['john', 'jane'], $this->csv->fetchCol(0));
+        $this->assertSame(['john', 'jane'], $this->csv->fetchColumn());
     }
 
     public function testFetchColEmptyCol()
@@ -103,7 +104,7 @@ class ReaderTest extends PHPUnit_Framework_TestCase
             $file->fputcsv($row);
         }
         $csv = new Reader($file);
-        $res = $csv->fetchCol(2);
+        $res = $csv->fetchColumn(2);
         $this->assertInternalType('array', $res);
         $this->assertCount(2, $res);
         $this->assertNull($res[0][2]);
