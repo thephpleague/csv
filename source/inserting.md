@@ -130,4 +130,4 @@ $writer->insertOne(["one", "two"]); //this will throw an InvalidArgumentExceptio
 Keep in mind that:
 
 * the effect of the `autodetectColumnsCount` method will only take place after the next call to `insertOne`.
-* `setColumnsCount` and `autodetectColumnsCount` cancel each other effect when called before `insertOne`;
+* `setColumnsCount` and `autodetectColumnsCount` override each other effect when called before `insertOne`;

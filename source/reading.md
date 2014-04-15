@@ -9,7 +9,7 @@ To extract data use `League\Csv\Reader` methods.
 
 ## Fetching CSV data
 
-### query($callable = null)
+### query(callable $callable = null)
 
 The `query` method prepares and issues queries on the CSV data. It returns an `Iterator` that represents the result that you can further manipulate as you wish.
 
@@ -20,7 +20,7 @@ foreach ($data as $line_index => $row) {
 }
 ~~~
 
-### fetchAll($callable = null)
+### fetchAll(callable $callable = null)
 
 `fetchAll` returns a sequential array of all rows.
 
@@ -37,7 +37,7 @@ $data = $reader->fetchAll();
 $nb_rows = count($data);
 ~~~
 
-### fetchAssoc([], $callable = null)
+### fetchAssoc(array [], callable $callable = null)
 
 `fetchAssoc` returns a sequential array of all rows. The rows themselves are associative arrays where the keys are given directly to the method using an one dimension array. This array should only contain unique `string` and/or `integer` values.
 
@@ -57,22 +57,24 @@ If the number of values in a CSV row is lesser than the number of named keys, th
 
 If the number of values in a CSV row is greater that the number of named keys the exceeding values will be drop from the result set.
 
-### fetchCol($columnIndex = 0, $callable = null)
+### fetchColumn($columnIndex = 0, callable $callable = null)
 
-`fetchCol` returns a sequential array of all values in a given column from the CSV data.
+`fetchColumn` returns a sequential array of all values in a given column from the CSV data.
 
 If no argument is given to the method it will return the first column from the CSV data.
 If the column does not exists in the csv data the method will return an array full of `null` value.
 
 ~~~.language-php
-$data = $reader->fetchCol(2);
+$data = $reader->fetchColumn(2);
 // will return something like this :
 // 
 // ['john.doe@example.com', 'jane.doe@example.com', ...]
 // 
 ~~~
 
-The methods listed above (`query`, `fetchAll`, `fetchAssoc`, `fetchCol`) can all take a optional `callable` argument to further manipulate each row before being returned. This callable function can take up to three parameters:
+<p class="message-warning">The <code>fetchCol</code> method has been deprecated and will be remove in the next major version release. For backward compatibility, the method is now an alias of the <code>fetchColumn</code> method.</p>
+
+The methods listed above (`query`, `fetchAll`, `fetchAssoc`, `fetchColumn`) can all take a optional `callable` argument to further manipulate each row before being returned. This callable function can take up to three parameters:
 
 * the current csv row data
 * the current csv key
@@ -90,7 +92,7 @@ $data = $reader->fetchOne(3); ///accessing the 4th row (indexing starts at 0)
 //
 ~~~
 
-### each($callable) *- since version 5.1*
+### each(callable $callable) *- since version 5.1*
 
 `each` apply a callable function on each CSV row. The callable function:
 
@@ -127,7 +129,7 @@ You can restrict CSV extract methods output by setting query options. To set tho
 
 The filtering options **are the first settings applied to the CSV before anything else**. The filters follow the *First In First Out* rule.
 
-### addFilter($callable) *- since version 5.1*
+### addFilter(callable $callable) *- since version 5.1*
 
 The `addFilter` method adds a callable filter function each time it is called. The function can take up to three parameters:
 
@@ -138,11 +140,11 @@ The `addFilter` method adds a callable filter function each time it is called. T
 
 <p class="message-warning">The <code>setFilter</code> method has been deprecated and will be remove in the next major version release. For backward compatibility, the method is now an alias of the <code>addFilter</code> method.</p>
 
-### removeFilter($callable) *- since version 5.1*
+### removeFilter(callable $callable) *- since version 5.1*
 
 `removeFilter` method removes an already registered filter function. If the function was registered multiple times, you will have to call `removeFilter` as often as the filter was registered. **The first registered copy will be the first to be removed.**
 
-### hasFilter($callable) *- since version 5.1*
+### hasFilter(callable $callable) *- since version 5.1*
 
 `hasFilter` method checks if the filter function is already registered
 
@@ -157,17 +159,17 @@ The sorting options are applied **after the CSV filtering options**. The sorting
 <p class="message-warning">To sort the data <code>iterator_to_array</code> is used which could lead to performance penalty if you have a heavy CSV file to sort
 </p>
 
-### addSortBy($callable) *- since version 5.2*
+### addSortBy(callable $callable) *- since version 5.2*
 
 `addSortBy` method adds a sorting function each time it is called. The function takes exactly two parameters which will be filled by pairs of rows.
 
 <p class="message-warning">The <code>setSortBy</code> method has been deprecated and will be remove in the next major version release. For backward compatibility, the method is now an alias of the <code>addSortBy</code> method.</p>
 
-### removeSortBy($callable) *- since version 5.2*
+### removeSortBy(callable $callable) *- since version 5.2*
 
 `removeSortBy` method removes an already registered sorting function. If the function was registered multiple times, you will have to call `removeSortBy` as often as the function was registered. **The first registered copy will be the first to be removed.**
 
-### hasSortBy($callable) *- since version 5.2*
+### hasSortBy(callable $callable) *- since version 5.2*
 
 `hasSortBy` method checks if the sorting function is already registered
 
