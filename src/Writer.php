@@ -118,19 +118,8 @@ class Writer extends AbstractCsv
      *
      * @return array
      */
-    private function processNullValues(array $row)
+    private function sanitizeColumnsContent(array $row)
     {
-        $check = array_filter($row, function ($value) {
-            return (is_null($value) && self::NULL_AS_EXCEPTION != $this->null_handling_mode)
-            || self::isValidString($value);
-        });
-
-        if (count($check) != count($row)) {
-            throw new InvalidArgumentException(
-                'the converted array must contain only data that can be converted into string'
-            );
-        }
-
         if (self::NULL_AS_EXCEPTION == $this->null_handling_mode) {
             return $row;
         } elseif (self::NULL_AS_EMPTY == $this->null_handling_mode) {
@@ -235,11 +224,14 @@ class Writer extends AbstractCsv
             );
         }
 
-        $row = $this->processNullValues($row);
-        if (! $this->isColumnsCountConsistent($row)) {
+        $check = array_filter($row, function ($value) {
+            return (is_null($value) && self::NULL_AS_EXCEPTION != $this->null_handling_mode)
+            || self::isValidString($value);
+        });
+
+        if (count($check) != count($row)) {
             throw new InvalidArgumentException(
-                'You are trying to add '.count($row).' columns to a CSV
-                that requires '.$this->columns_count.' columns.'
+                'the converted array must contain only data that can be converted into string'
             );
         }
 
@@ -249,15 +241,24 @@ class Writer extends AbstractCsv
     /**
      * Add a new CSV row to the generated CSV
      *
-     * @param mixed $row a string, an array or an object implementing to '__toString' method
+     * @param mixed $data a string, an array or an object implementing to '__toString' method
      *
      * @return self
      *
      * @throws \InvalidArgumentException If the given row is invalid
      */
-    public function insertOne($row)
+    public function insertOne($data)
     {
-        $this->csv->fputcsv($this->validateRow($row), $this->delimiter, $this->enclosure);
+        $data = $this->validateRow($data);
+        $data = $this->sanitizeColumnsContent($data);
+        if (! $this->isColumnsCountConsistent($data)) {
+            throw new InvalidArgumentException(
+                'You are trying to add '.count($data).' columns to a CSV
+                that requires '.$this->columns_count.' columns per row.'
+            );
+        }
+
+        $this->csv->fputcsv($data, $this->delimiter, $this->enclosure);
 
         return $this;
     }
