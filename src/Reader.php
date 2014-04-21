@@ -107,7 +107,7 @@ class Reader extends AbstractCsv
         $iterator = $this->execute($iterator);
         $index = 0;
         foreach ($iterator as $rowIndex => $row) {
-            if (! $callable($row, $rowIndex, $iterator)) {
+            if (true !== $callable($row, $rowIndex, $iterator)) {
                 break;
             }
             $index++;
