@@ -55,7 +55,7 @@ class CsvTest extends PHPUnit_Framework_TestCase
      */
     public function testConstructorWithNotWritablePath()
     {
-        new Reader('/usr/bin/foo.csv');
+        (new Reader('/usr/bin/foo.csv'))->getIterator();
     }
 
     /**
@@ -63,7 +63,7 @@ class CsvTest extends PHPUnit_Framework_TestCase
      */
     public function testConstructorWithWrongType()
     {
-        new Reader(['/usr/bin/foo.csv']);
+        (new Reader(['/usr/bin/foo.csv']))->getIterator();
     }
 
     public function testCreateFromString()

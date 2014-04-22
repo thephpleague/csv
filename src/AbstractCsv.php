@@ -100,6 +100,20 @@ abstract class AbstractCsv implements JsonSerializable, IteratorAggregate
     protected $encoding = 'UTF-8';
 
     /**
+     * The constructor path
+     *
+     * @var mixed can be a SplFileInfo object or the path to a file
+     */
+    protected $path;
+
+    /**
+     * The file open mode flag
+     *
+     * @var string
+     */
+    protected $open_mode;
+
+    /**
      * The constructor
      *
      * @param mixed  $path      an SplFileInfo object or the path to a file
@@ -108,7 +122,8 @@ abstract class AbstractCsv implements JsonSerializable, IteratorAggregate
     public function __construct($path, $open_mode = 'r+')
     {
         ini_set("auto_detect_line_endings", true);
-        $this->setIterator($path, $open_mode);
+        $this->path = $path;
+        $this->open_mode = strtolower($open_mode);
     }
 
     /**
@@ -322,27 +337,29 @@ abstract class AbstractCsv implements JsonSerializable, IteratorAggregate
     /**
      * set the csv container as a SplFileObject instance
      *
-     * @param mixed $path A SplFileInfo object or the path to a file
-     *
      * @return self
      *
      * @throws \InvalidArgumentException If the $file is not set
      * @throws \RuntimeException         If the $file could not be created and/or opened
      */
-    protected function setIterator($path, $open_mode)
+    public function setIterator()
     {
-        if ($path instanceof SplFileObject) {
-            $this->csv = $path;
+        if (! is_null($this->csv)) {
+            return $this;
+        }
+
+        if ($this->path instanceof SplFileObject) {
+            $this->csv = $this->path;
 
             return $this;
         }
-        $open_mode = strtolower($open_mode);
-        if ($path instanceof SplFileInfo) {
-            $this->csv = $path->openFile($open_mode);
+
+        if ($this->path instanceof SplFileInfo) {
+            $this->csv = $this->path->openFile($this->open_mode);
 
             return $this;
-        } elseif (is_string($path)) {
-            $this->csv = new SplFileObject($path, $open_mode);
+        } elseif (is_string($this->path)) {
+            $this->csv = new SplFileObject($this->path, $this->open_mode);
 
             return $this;
         }
@@ -358,6 +375,7 @@ abstract class AbstractCsv implements JsonSerializable, IteratorAggregate
      */
     public function getIterator()
     {
+        $this->setIterator();
         $this->csv->setCsvControl($this->delimiter, $this->enclosure, $this->escape);
         $this->csv->setFlags($this->flags);
 
@@ -403,6 +421,7 @@ abstract class AbstractCsv implements JsonSerializable, IteratorAggregate
      */
     protected function getInstance($class_name, $open_mode = 'r+')
     {
+        $this->setIterator();
         $obj = $this->csv;
         if (! $obj instanceof SplTempFileObject && ($path = $obj->getRealPath()) !== false) {
             $obj = new SplFileObject($path, $open_mode);
