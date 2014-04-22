@@ -259,7 +259,9 @@ class Writer extends AbstractCsv
                 that requires '.$this->columns_count.' columns per row.'
             );
         }
-        $this->setIterator();
+        if (is_null($this->csv)) {
+            $this->setIterator();
+        }
         $this->csv->fputcsv($data, $this->delimiter, $this->enclosure);
 
         return $this;

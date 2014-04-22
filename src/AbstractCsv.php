@@ -347,10 +347,6 @@ abstract class AbstractCsv implements JsonSerializable, IteratorAggregate
      */
     protected function setIterator()
     {
-        if (! is_null($this->csv)) {
-            return $this;
-        }
-
         if ($this->path instanceof SplFileObject) {
             $this->csv = $this->path;
 
