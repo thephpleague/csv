@@ -40,6 +40,9 @@ class CsvTest extends PHPUnit_Framework_TestCase
 
         $csv = new Reader(new SplFileInfo($path));
         $this->assertSame($path, $csv->getIterator()->getRealPath());
+
+        $csv = new Reader(new SplFileInfo('php://input'));
+        $this->assertFalse($csv->getIterator()->getRealPath());
     }
 
     public function testConstructorWithFilePath()
@@ -253,5 +256,55 @@ EOF;
     public static function getIso8859Csv()
     {
         return [[file_get_contents(__DIR__.'/data/prenoms.csv')]];
+    }
+
+    /**
+     * @expectedException InvalidArgumentException
+     */
+    public function testaddStreamFilter()
+    {
+        $path = __DIR__.'/foo.csv';
+        $csv = new Reader(new SplFileInfo($path));
+        $csv->appendStreamFilter('string.toupper');
+        foreach ($csv->getIterator() as $row) {
+            $this->assertSame($row, ['JOHN', 'DOE', 'JOHN.DOE@EXAMPLE.COM']);
+        }
+        $csv->appendStreamFilter(new DateTime);
+    }
+
+    public function testaddMultipleStreamFilter()
+    {
+        $path = __DIR__.'/foo.csv';
+        $csv = new Reader(new SplFileInfo($path));
+        $csv->appendStreamFilter('string.rot13');
+        $csv->appendStreamFilter('string.toupper');
+        $this->assertTrue($csv->hasStreamFilter('string.rot13'));
+        $csv->removeStreamFilter('string.rot13');
+        $this->assertFalse($csv->hasStreamFilter('string.rot13'));
+        $csv->prependStreamFilter('string.rot13');
+        foreach ($csv->getIterator() as $row) {
+            $this->assertSame($row, ['WBUA', 'QBR', 'WBUA.QBR@RKNZCYR.PBZ']);
+        }
+        $csv->clearStreamFilter();
+        $this->assertFalse($csv->hasStreamFilter('string.tolower'));
+    }
+
+    /**
+     * @expectedException InvalidArgumentException
+     */
+    public function testGetFilterPath()
+    {
+        $csv = new Reader(new SplTempFileObject);
+        $csv->prependStreamFilter('string.rot13');
+        $csv->appendStreamFilter('string.toupper');
+        $this->assertFalse($csv->getIterator()->getRealPath());
+
+        $path = __DIR__.'/foo.csv';
+        $csv = new Writer(new SplFileInfo($path));
+        $csv->prependStreamFilter('string.rot13');
+        $csv->appendStreamFilter('string.toupper');
+        $this->assertFalse($csv->getIterator()->getRealPath());
+
+        $csv->prependStreamFilter(['string.rot13']);
     }
 }

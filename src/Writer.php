@@ -82,6 +82,8 @@ class Writer extends AbstractCsv
      */
     protected $detect_columns_count = false;
 
+    protected $stream_filter_mode = STREAM_FILTER_WRITE;
+
     /**
      * Tell the class how to handle null value
      *

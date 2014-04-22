@@ -52,6 +52,8 @@ class Reader extends AbstractCsv
      */
     use IteratorQuery;
 
+    protected $stream_filter_mode = STREAM_FILTER_READ;
+
     /**
      * Intelligent Array Combine
      *

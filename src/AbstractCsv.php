@@ -46,6 +46,7 @@ use IteratorAggregate;
 use LimitIterator;
 use CallbackFilterIterator;
 use League\Csv\Iterator\MapIterator;
+use League\Csv\Stream\StreamFilter;
 
 /**
  *  An abstract class to enable basic CSV manipulation
@@ -56,6 +57,8 @@ use League\Csv\Iterator\MapIterator;
  */
 abstract class AbstractCsv implements JsonSerializable, IteratorAggregate
 {
+
+    use StreamFilter;
 
     /**
      * The CSV object holder
@@ -342,7 +345,7 @@ abstract class AbstractCsv implements JsonSerializable, IteratorAggregate
      * @throws \InvalidArgumentException If the $file is not set
      * @throws \RuntimeException         If the $file could not be created and/or opened
      */
-    public function setIterator()
+    protected function setIterator()
     {
         if (! is_null($this->csv)) {
             return $this;
@@ -355,14 +358,24 @@ abstract class AbstractCsv implements JsonSerializable, IteratorAggregate
         }
 
         if ($this->path instanceof SplFileInfo) {
-            $this->csv = $this->path->openFile($this->open_mode);
+            $path = $this->getStreamFilterPath($this->path);
+            if (! isset($path)) {
+                $this->csv = $this->path->openFile($this->open_mode);
 
-            return $this;
-        } elseif (is_string($this->path)) {
-            $this->csv = new SplFileObject($this->path, $this->open_mode);
+                return $this;
+            }
+            $this->csv = new SplFileObject($path, $this->open_mode);
 
             return $this;
         }
+
+        if (is_string($this->path)) {
+
+            $this->csv = new SplFileObject($this->getStreamFilterPath($this->path), $this->open_mode);
+
+            return $this;
+        }
+
         throw new InvalidArgumentException(
             '$path must be a `SplFileInfo` object or a valid file path.'
         );
