@@ -2,9 +2,11 @@
 
 namespace lib;
 
+use php_user_filter;
+
 class FilterTranscode extends php_user_filter
 {
-    private static $name = 'convert.transcode.';
+    const FILTER_NAME = 'convert.transcode.';
 
     private $encoding_from = 'auto';
 
@@ -12,11 +14,11 @@ class FilterTranscode extends php_user_filter
 
     public function onCreate()
     {
-        if (strpos($this->filtername, self::$name) !== 0) {
+        if (strpos($this->filtername, self::FILTER_NAME) !== 0) {
             return false;
         }
 
-        $params = substr($this->filtername, strlen(self::$name));
+        $params = substr($this->filtername, strlen(self::FILTER_NAME));
         if (! preg_match('/^([-\w]+)(:([-\w]+))?$/', $params, $matches)) {
             return false;
         }
