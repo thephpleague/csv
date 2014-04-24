@@ -32,9 +32,11 @@
 */
 namespace League\Csv\Stream;
 
-use InvalidArgumentException;
 use SplFileInfo;
-use League\Csv\AbstractCsv;
+use SplTempFileObject;
+
+use InvalidArgumentException;
+use RuntimeException;
 
 /**
  *  A Trait to add ease manipulation Stream Filters
@@ -45,6 +47,48 @@ use League\Csv\AbstractCsv;
  */
 trait StreamFilter
 {
+
+    /**
+     *the real path
+     *
+     * @var string the real path to the file
+     *
+     */
+    protected $real_path;
+
+    /**
+     * Internal path setter
+     *
+     * @param mixed $path can be a SplFileInfo object or the path to a file
+     *
+     * @return self
+     *
+     * @throws InvalidArgumentException If $path is invalid
+     */
+    protected function setPath($path)
+    {
+        if ($path instanceof SplTempFileObject) {
+            $this->real_path = null;
+            $this->path = $path;
+
+            return $this;
+        } elseif ($path instanceof SplFileInfo) {
+            $this->path = $path;
+            $this->real_path = $path->getPath().'/'.$path->getBasename();
+
+            return $this;
+        }
+        if (! is_string($path)) {
+            throw new InvalidArgumentException(
+                'path must be a valid string or a `SplFileInfo` object'
+            );
+        }
+        $this->real_path = trim($path);
+        $this->path = $path;
+
+        return $this;
+    }
+
     /**
      * collection of stream filters
      *
@@ -60,47 +104,31 @@ trait StreamFilter
     protected $stream_filter_mode = STREAM_FILTER_ALL;
 
     /**
-     * prepend a stream filter
-     *
-     * @param mixed $filter_name a string or an object that implements the '__toString' method
-     *
-     * @return self
-     *
-     * @throws \InvalidArgumentException If what you try to add is invalid
-     */
-    public function prependStreamFilter($filter_name)
-    {
-        if (AbstractCsv::isValidString($filter_name)) {
-            array_unshift($this->stream_filters, (string) $filter_name);
-
-            return $this;
-        }
-
-        throw new InvalidArgumentException(
-            'you must submit a string, or a method that implements the `__toString method`'
-        );
-    }
-
-    /**
      * append a stream filter
      *
-     * @param mixed $filter_name a string or an object that implements the '__toString' method
+     * @param string $filter_name a string or an object that implements the '__toString' method
      *
      * @return self
      *
      * @throws \InvalidArgumentException If what you try to add is invalid
+     * @throws \RuntimeException         If adding Stream Filter is not possible
      */
-    public function appendStreamFilter($filter_name)
+    public function addStreamFilter($filter_name)
     {
-        if (AbstractCsv::isValidString($filter_name)) {
-            $this->stream_filters[] = (string) $filter_name;
-
-            return $this;
+        if (is_null($this->real_path) || stripos($this->real_path, 'php://filter/') === 0) {
+            throw new RuntimeException(
+                'you can not add a stream filter to '.get_class($this).' instance'
+            );
+        } elseif (! is_string($filter_name)) {
+            throw new InvalidArgumentException(
+                'you must submit a valid the filtername'
+            );
         }
 
-        throw new InvalidArgumentException(
-            'you must submit a string, or a method that implements the `__toString method`'
-        );
+        $filter_name = trim($filter_name);
+        $this->stream_filters[] = $filter_name;
+
+        return $this;
     }
 
     /**
@@ -147,20 +175,12 @@ trait StreamFilter
     /**
      * Return the filter path
      *
-     * @param mixed $path a SplFileInfo object or a string
-     *
      * @return string
      */
-    protected function getStreamFilterPath($path)
+    protected function getStreamFilterPath()
     {
-        if ($path instanceof SplFileInfo) {
-            $path = $path->getRealPath();
-        }
-        $path = trim($path);
-        if (! is_string($path) || empty($path)) {
-            return null;
-        } elseif (! $this->stream_filters) {
-            return $path;
+        if (! $this->stream_filters) {
+            return $this->real_path;
         }
 
         $prefix = '';
@@ -170,6 +190,6 @@ trait StreamFilter
             $prefix = 'write=';
         }
 
-        return 'php://filter/'.$prefix.implode('|', $this->stream_filters).'/resource='.$path;
+        return 'php://filter/'.$prefix.implode('|', $this->stream_filters).'/resource='.$this->real_path;
     }
 }

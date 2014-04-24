@@ -16,9 +16,9 @@ require 'lib/FilterTranscode.php';
 
 stream_filter_register(FilterTranscode::FILTER_NAME."*", "\lib\FilterTranscode");
 $reader = new Reader('data/prenoms.csv');
-$reader->appendStreamFilter(FilterTranscode::FILTER_NAME."iso-8859-1:utf-8");
-$reader->appendStreamFilter('string.toupper');
-$reader->prependStreamFilter('string.rot13');
+$reader->addStreamFilter(FilterTranscode::FILTER_NAME."iso-8859-1:utf-8");
+$reader->addStreamFilter('string.toupper');
+$reader->addStreamFilter('string.rot13');
 $reader->setDelimiter(';');
 $reader->setOffset(6);
 $reader->setLimit(3);
@@ -41,22 +41,25 @@ the data is :
 */
 var_dump($res);
 
-//BETWEEN insert* call you CAN NOT update/remove/add stream filter you MUST call a new Writer instance
-// This is a side effect because we don't want to mess with the file cursor position during all your
-// insertion
+// because of the limited support for stream filters with the SplFileObject
+
+// BETWEEN insert* call you CAN NOT UPDATE stream filters
+// You must instantiate a new Class for each changes
 touch('/tmp/test.csv');
 $writer = new Writer(new SplFileInfo('/tmp/test.csv'), 'w');
-$writer->appendStreamFilter('string.toupper');
+$writer->addStreamFilter('string.toupper');
 $writer->insertOne('je,suis,toto,le,héros');
-$writer->appendStreamFilter('string.rot13');
+$writer->addStreamFilter('string.rot13');
 $writer->insertOne('je,suis,toto,le,héros');
 /*
 the data is :
  - uppercased only
 */
-$writer = new Writer(new SplFileInfo('/tmp/test.csv'), 'a+');
-$writer->appendStreamFilter('string.toupper');
-$writer->appendStreamFilter('string.rot13');
+$writer = new Writer('/tmp/test.csv', 'a+');
+$writer->addStreamFilter('string.toupper');
+$writer->addStreamFilter(FilterTranscode::FILTER_NAME."iso-8859-1:utf-8");
+$writer->addStreamFilter('string.rot13');
+$writer->removeStreamFilter(FilterTranscode::FILTER_NAME."iso-8859-1:utf-8");
 $writer->insertOne('je,suis,toto,le,héros');
 /*
 the data is :

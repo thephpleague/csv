@@ -125,8 +125,8 @@ abstract class AbstractCsv implements JsonSerializable, IteratorAggregate
     public function __construct($path, $open_mode = 'r+')
     {
         ini_set("auto_detect_line_endings", true);
-        $this->path = $path;
         $this->open_mode = strtolower($open_mode);
+        $this->setPath($path);
     }
 
     /**
@@ -342,8 +342,8 @@ abstract class AbstractCsv implements JsonSerializable, IteratorAggregate
      *
      * @return self
      *
-     * @throws \InvalidArgumentException If the $file is not set
-     * @throws \RuntimeException         If the $file could not be created and/or opened
+     * @throws \InvalidArgumentException If the path is not valid
+     * @throws \RuntimeException         If the file could not be created and/or opened
      */
     protected function setIterator()
     {
@@ -353,28 +353,9 @@ abstract class AbstractCsv implements JsonSerializable, IteratorAggregate
             return $this;
         }
 
-        if ($this->path instanceof SplFileInfo) {
-            $path = $this->getStreamFilterPath($this->path);
-            if (! isset($path)) {
-                $this->csv = $this->path->openFile($this->open_mode);
+        $this->csv = new SplFileObject($this->getStreamFilterPath(), $this->open_mode);
 
-                return $this;
-            }
-            $this->csv = new SplFileObject($path, $this->open_mode);
-
-            return $this;
-        }
-
-        if (is_string($this->path)) {
-
-            $this->csv = new SplFileObject($this->getStreamFilterPath($this->path), $this->open_mode);
-
-            return $this;
-        }
-
-        throw new InvalidArgumentException(
-            '$path must be a `SplFileInfo` object or a valid file path.'
-        );
+        return $this;
     }
 
     /**
