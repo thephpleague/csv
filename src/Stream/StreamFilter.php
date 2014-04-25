@@ -37,6 +37,7 @@ use SplTempFileObject;
 
 use InvalidArgumentException;
 use RuntimeException;
+use OutOfBoundsException;
 
 /**
  *  A Trait to add ease manipulation Stream Filters
@@ -47,6 +48,19 @@ use RuntimeException;
  */
 trait StreamFilter
 {
+    /**
+     * collection of stream filters
+     *
+     * @var array
+     */
+    protected $stream_filters = [];
+
+    /**
+     * Stream filtering mode to apply on all filters
+     *
+     * @var integer
+     */
+    protected $stream_filter_mode = STREAM_FILTER_ALL;
 
     /**
      *the real path
@@ -65,43 +79,51 @@ trait StreamFilter
      *
      * @throws InvalidArgumentException If $path is invalid
      */
-    protected function setPath($path)
+    protected function setRealPath($path)
     {
         if ($path instanceof SplTempFileObject) {
             $this->real_path = null;
-            $this->path = $path;
 
             return $this;
+
         } elseif ($path instanceof SplFileInfo) {
-            $this->path = $path;
+            //$path->getRealPath() returns false for php stream wrapper
             $this->real_path = $path->getPath().'/'.$path->getBasename();
 
             return $this;
         }
-        if (! is_string($path)) {
-            throw new InvalidArgumentException(
-                'path must be a valid string or a `SplFileInfo` object'
-            );
-        }
+
         $this->real_path = trim($path);
-        $this->path = $path;
 
         return $this;
     }
 
     /**
-     * collection of stream filters
+     * stream filter mode Setter
+     * @param integer $mode
      *
-     * @var array
+     * @return self
      */
-    protected $stream_filters = [];
+    public function setStreamFilterMode($mode)
+    {
+        if (! in_array($mode, [STREAM_FILTER_ALL, STREAM_FILTER_READ, STREAM_FILTER_WRITE])) {
+            throw new OutOfBoundsException('the $mode should be a valid `STREAM_FILTER_*` constant');
+        }
+
+        $this->stream_filter_mode = $mode;
+
+        return $this;
+    }
 
     /**
-     * Stream filtering mode to apply on all filters
+     * stream filter mode getter
      *
-     * @var integer
+     * @return integer
      */
-    protected $stream_filter_mode = STREAM_FILTER_ALL;
+    public function getStreamFilterMode()
+    {
+        return $this->stream_filter_mode;
+    }
 
     /**
      * append a stream filter
