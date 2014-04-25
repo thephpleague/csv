@@ -68,7 +68,7 @@ trait StreamFilter
      * @var string the real path to the file
      *
      */
-    protected $real_path;
+    protected $stream_real_path;
 
     /**
      * Internal path setter
@@ -79,21 +79,21 @@ trait StreamFilter
      *
      * @throws InvalidArgumentException If $path is invalid
      */
-    protected function setRealPath($path)
+    protected function setStreamRealPath($path)
     {
         if ($path instanceof SplTempFileObject) {
-            $this->real_path = null;
+            $this->stream_real_path = null;
 
             return $this;
 
         } elseif ($path instanceof SplFileInfo) {
             //$path->getRealPath() returns false for php stream wrapper
-            $this->real_path = $path->getPath().'/'.$path->getBasename();
+            $this->stream_real_path = $path->getPath().'/'.$path->getBasename();
 
             return $this;
         }
 
-        $this->real_path = trim($path);
+        $this->stream_real_path = trim($path);
 
         return $this;
     }
@@ -137,7 +137,7 @@ trait StreamFilter
      */
     public function addStreamFilter($filter_name)
     {
-        if (is_null($this->real_path) || stripos($this->real_path, 'php://filter/') === 0) {
+        if (is_null($this->stream_real_path) || stripos($this->stream_real_path, 'php://filter/') === 0) {
             throw new RuntimeException(
                 'you can not add a stream filter to '.get_class($this).' instance'
             );
@@ -202,7 +202,7 @@ trait StreamFilter
     protected function getStreamFilterPath()
     {
         if (! $this->stream_filters) {
-            return $this->real_path;
+            return $this->stream_real_path;
         }
 
         $prefix = '';
@@ -212,6 +212,6 @@ trait StreamFilter
             $prefix = 'write=';
         }
 
-        return 'php://filter/'.$prefix.implode('|', $this->stream_filters).'/resource='.$this->real_path;
+        return 'php://filter/'.$prefix.implode('|', $this->stream_filters).'/resource='.$this->stream_real_path;
     }
 }
