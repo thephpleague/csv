@@ -96,6 +96,14 @@ class Writer extends AbstractCsv
     protected $csv;
 
     /**
+     * The destructor
+     */
+    public function __destruct()
+    {
+        $this->csv = null;
+    }
+
+    /**
      * Tell the class how to handle null value
      *
      * @param integer $value a Writer null behavior constant
