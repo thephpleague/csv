@@ -49,7 +49,7 @@ trait IteratorFilter
      *
      * @var array
      */
-    private $filter = [];
+    protected $iterator_filters = [];
 
     /**
      * Set the Iterator filter method
@@ -76,7 +76,7 @@ trait IteratorFilter
      */
     public function addFilter(callable $callable)
     {
-        $this->filter[] = $callable;
+        $this->iterator_filters[] = $callable;
 
         return $this;
     }
@@ -90,9 +90,9 @@ trait IteratorFilter
      */
     public function removeFilter(callable $callable)
     {
-        $res = array_search($callable, $this->filter, true);
+        $res = array_search($callable, $this->iterator_filters, true);
         if (false !== $res) {
-            unset($this->filter[$res]);
+            unset($this->iterator_filters[$res]);
         }
 
         return $this;
@@ -107,7 +107,7 @@ trait IteratorFilter
      */
     public function hasFilter(callable $callable)
     {
-        return false !== array_search($callable, $this->filter, true);
+        return false !== array_search($callable, $this->iterator_filters, true);
     }
 
     /**
@@ -117,7 +117,7 @@ trait IteratorFilter
      */
     public function clearFilter()
     {
-        $this->filter = [];
+        $this->iterator_filters = [];
 
         return $this;
     }
@@ -131,7 +131,7 @@ trait IteratorFilter
     */
     protected function applyFilter(Iterator $iterator)
     {
-        foreach ($this->filter as $callable) {
+        foreach ($this->iterator_filters as $callable) {
             $iterator = new CallbackFilterIterator($iterator, $callable);
         }
         $this->clearFilter();

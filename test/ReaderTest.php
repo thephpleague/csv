@@ -15,7 +15,7 @@ class ReaderTest extends PHPUnit_Framework_TestCase
 
     private $expected = [
         ['john', 'doe', 'john.doe@example.com'],
-        ['jane','doe','jane.doe@example.com'],
+        ['jane', 'doe', 'jane.doe@example.com'],
     ];
 
     public function setUp()
@@ -26,6 +26,82 @@ class ReaderTest extends PHPUnit_Framework_TestCase
         }
 
         $this->csv = new Reader($csv);
+    }
+
+    /**
+     * @expectedException \InvalidArgumentException
+     */
+    public function testSetLimit()
+    {
+        $this->csv->setLimit(1);
+        $this->assertCount(1, $this->csv->fetchAll());
+        $this->csv->setLimit(-4);
+    }
+
+    /**
+     * @expectedException \InvalidArgumentException
+     */
+    public function testSetOffset()
+    {
+        $this->csv->setOffset(1);
+        $this->assertCount(1, $this->csv->fetchAll());
+
+        $this->csv->setOffset('toto');
+    }
+
+    public function testIntervalLimitTooLong()
+    {
+        $this->csv->setOffset(1);
+        $this->csv->setLimit(10);
+        $this->assertSame([['jane', 'doe', 'jane.doe@example.com']], $this->csv->fetchAll());
+    }
+
+    public function testInterval()
+    {
+        $this->csv->setOffset(1);
+        $this->csv->setLimit(1);
+        $this->assertCount(1, $this->csv->fetchAll());
+    }
+
+    public function testFilter()
+    {
+        $func = function ($row) {
+            return ! in_array('jane', $row);
+        };
+        $this->csv->setFilter($func);
+
+        $this->assertCount(1, $this->csv->fetchAll());
+
+        $func2 = function ($row) {
+            return ! in_array('john', $row);
+        };
+        $this->csv->addFilter($func2);
+        $this->csv->addFilter($func);
+
+        $this->assertCount(0, $this->csv->fetchAll());
+
+        $this->csv->addFilter($func2);
+        $this->csv->addFilter($func);
+        $this->assertTrue($this->csv->hasFilter($func2));
+        $this->csv->removeFilter($func2);
+        $this->assertFalse($this->csv->hasFilter($func2));
+
+        $this->assertCount(1, $this->csv->fetchAll());
+    }
+
+    public function testSortBy()
+    {
+        $func = function ($rowA, $rowB) {
+            return strcmp($rowA[0], $rowB[0]);
+        };
+        $this->csv->setSortBy($func);
+        $this->assertSame(array_reverse($this->expected), $this->csv->fetchAll());
+
+        $this->csv->addSortBy($func);
+        $this->csv->addSortBy($func);
+        $this->csv->removeSortBy($func);
+        $this->assertTrue($this->csv->hasSortBy($func));
+        $this->assertSame(array_reverse($this->expected), $this->csv->fetchAll());
     }
 
     public function testFetchAll()

@@ -50,14 +50,14 @@ trait IteratorInterval
      *
      * @var integer
      */
-    private $offset = 0;
+    protected $iterator_offset = 0;
 
     /**
      * iterator maximum length
      *
      * @var integer
      */
-    private $limit = -1;
+    protected $iterator_limit = -1;
 
     /**
      * Set LimitIterator Offset
@@ -71,7 +71,7 @@ trait IteratorInterval
         if (false === filter_var($offset, FILTER_VALIDATE_INT, ['options' => ['min_range' => 0]])) {
             throw new InvalidArgumentException('the offset must be a positive integer or 0');
         }
-        $this->offset = $offset;
+        $this->iterator_offset = $offset;
 
         return $this;
     }
@@ -88,7 +88,7 @@ trait IteratorInterval
         if (false === filter_var($limit, FILTER_VALIDATE_INT, ['options' => ['min_range' => -1]])) {
             throw new InvalidArgumentException('the limit must an integer greater or equals to -1');
         }
-        $this->limit = $limit;
+        $this->iterator_limit = $limit;
 
         return $this;
     }
@@ -102,14 +102,14 @@ trait IteratorInterval
     */
     protected function applyInterval(Iterator $iterator)
     {
-        if (0 == $this->offset && -1 == $this->limit) {
+        if (0 == $this->iterator_offset && -1 == $this->iterator_limit) {
             return $iterator;
         }
-        $offset = $this->offset;
-        $limit = $this->limit;
+        $offset = $this->iterator_offset;
+        $limit = $this->iterator_limit;
 
-        $this->limit = -1;
-        $this->offset = 0;
+        $this->iterator_limit = -1;
+        $this->iterator_offset = 0;
 
         return new LimitIterator($iterator, $offset, $limit);
     }

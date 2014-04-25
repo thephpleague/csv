@@ -34,9 +34,12 @@ namespace League\Csv;
 
 use InvalidArgumentException;
 
+use Iterator;
 use CallbackFilterIterator;
 use League\Csv\Iterator\MapIterator;
-use League\Csv\Iterator\IteratorQuery;
+use League\Csv\Iterator\IteratorFilter;
+use League\Csv\Iterator\IteratorSortBy;
+use League\Csv\Iterator\IteratorInterval;
 
 /**
  *  A class to manage extracting and filtering a CSV
@@ -48,10 +51,23 @@ use League\Csv\Iterator\IteratorQuery;
 class Reader extends AbstractCsv
 {
     /**
-     * Iterator Query Trait
+     *  Iterator Filtering Trait
      */
-    use IteratorQuery;
+    use IteratorFilter;
 
+    /**
+     *  Iterator Sorting Trait
+     */
+    use IteratorSortBy;
+
+    /**
+     *  Iterator Set Interval Trait
+     */
+    use IteratorInterval;
+
+    /**
+     * {@ihneritdoc}
+     */
     protected $stream_filter_mode = STREAM_FILTER_READ;
 
     /**
@@ -73,6 +89,26 @@ class Reader extends AbstractCsv
         }
 
         return array_combine($keys, $value);
+    }
+
+    /**
+     * Return a filtered Iterator based on the filtering settings
+     *
+     * @param Iterator $iterator The iterator to be filtered
+     * @param callable $callable a callable function to be applied to each Iterator item
+     *
+     * @return Iterator
+     */
+    protected function execute(Iterator $iterator, callable $callable = null)
+    {
+        $iterator = $this->applyFilter($iterator);
+        $iterator = $this->applySortBy($iterator);
+        $iterator = $this->applyInterval($iterator);
+        if (! is_null($callable)) {
+            $iterator = new MapIterator($iterator, $callable);
+        }
+
+        return $iterator;
     }
 
     /**

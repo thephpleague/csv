@@ -49,7 +49,7 @@ trait IteratorSortBy
      *
      * @var callable
      */
-    private $sortBy = [];
+    protected $iterator_sort_by = [];
 
     /**
      * Set the Iterator SortBy method
@@ -68,7 +68,7 @@ trait IteratorSortBy
     }
 
     /**
-     * Set an Iterator sortBy method
+     * Set an Iterator $this->iterator_sort_by method
      *
      * @param callable $filter
      *
@@ -76,7 +76,7 @@ trait IteratorSortBy
      */
     public function addSortBy(callable $callable)
     {
-        $this->sortBy[] = $callable;
+        $this->iterator_sort_by[] = $callable;
 
         return $this;
     }
@@ -90,9 +90,9 @@ trait IteratorSortBy
      */
     public function removeSortBy(callable $callable)
     {
-        $res = array_search($callable, $this->sortBy, true);
+        $res = array_search($callable, $this->iterator_sort_by, true);
         if (false !== $res) {
-            unset($this->sortBy[$res]);
+            unset($this->iterator_sort_by[$res]);
         }
 
         return $this;
@@ -107,7 +107,7 @@ trait IteratorSortBy
      */
     public function hasSortBy(callable $callable)
     {
-        return false !== array_search($callable, $this->sortBy, true);
+        return false !== array_search($callable, $this->iterator_sort_by, true);
     }
 
     /**
@@ -117,7 +117,7 @@ trait IteratorSortBy
      */
     public function clearSortBy()
     {
-        $this->sortBy = [];
+        $this->iterator_sort_by = [];
 
         return $this;
     }
@@ -131,13 +131,13 @@ trait IteratorSortBy
     */
     protected function applySortBy(Iterator $iterator)
     {
-        if (! $this->sortBy) {
+        if (! $this->iterator_sort_by) {
             return $iterator;
         }
         $res = iterator_to_array($iterator, false);
 
         uasort($res, function ($rowA, $rowB) {
-            foreach ($this->sortBy as $callable) {
+            foreach ($this->iterator_sort_by as $callable) {
                 $res = $callable($rowA, $rowB);
                 if (0 !== $res) {
                     break;
