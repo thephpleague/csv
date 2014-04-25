@@ -68,9 +68,9 @@ trait IteratorSortBy
     }
 
     /**
-     * Set an Iterator $this->iterator_sort_by method
+     * Set an Iterator sorting callable function
      *
-     * @param callable $filter
+     * @param callable $callable
      *
      * @return self
      */
@@ -84,7 +84,7 @@ trait IteratorSortBy
     /**
      * Remove a callable from the collection
      *
-     * @param callable $filter
+     * @param callable $callable
      *
      * @return self
      */
@@ -101,7 +101,7 @@ trait IteratorSortBy
     /**
      * Detect if the callable is already registered
      *
-     * @param callable $filter
+     * @param callable $callable
      *
      * @return boolean
      */
