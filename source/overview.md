@@ -99,7 +99,6 @@ The more rows and delimiters you add, the more time and memory consuming the ope
 * If multiple delimiters are found (ie: your CSV is not consistent) a `RuntimeException` is thrown;
 * If no delimiter is found or your CSV is composed of a single column, `null` will be return;
 
-
 ## Switching from one class to the other
 
 It is possible to switch between modes by using:
