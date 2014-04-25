@@ -92,26 +92,6 @@ class Reader extends AbstractCsv
     }
 
     /**
-     * Return a filtered Iterator based on the filtering settings
-     *
-     * @param Iterator $iterator The iterator to be filtered
-     * @param callable $callable a callable function to be applied to each Iterator item
-     *
-     * @return Iterator
-     */
-    protected function execute(Iterator $iterator, callable $callable = null)
-    {
-        $iterator = $this->applyFilter($iterator);
-        $iterator = $this->applySortBy($iterator);
-        $iterator = $this->applyInterval($iterator);
-        if (! is_null($callable)) {
-            $iterator = new MapIterator($iterator, $callable);
-        }
-
-        return $iterator;
-    }
-
-    /**
      * Return a Filtered Iterator
      *
      * @param callable $callable a callable function to be applied to each Iterator item
@@ -124,7 +104,14 @@ class Reader extends AbstractCsv
             return is_array($row);
         });
 
-        return $this->execute($iterator, $callable);
+        $iterator = $this->applyFilter($iterator);
+        $iterator = $this->applySortBy($iterator);
+        $iterator = $this->applyInterval($iterator);
+        if (! is_null($callable)) {
+            $iterator = new MapIterator($iterator, $callable);
+        }
+
+        return $iterator;
     }
 
     /**
@@ -138,11 +125,7 @@ class Reader extends AbstractCsv
      */
     public function each(callable $callable)
     {
-        $iterator = new CallbackFilterIterator($this->getIterator(), function ($row) {
-            return is_array($row);
-        });
-
-        $iterator = $this->execute($iterator);
+        $iterator = $this->query();
         $index = 0;
         foreach ($iterator as $rowIndex => $row) {
             if (true !== $callable($row, $rowIndex, $iterator)) {
