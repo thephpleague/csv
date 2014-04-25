@@ -33,6 +33,7 @@
 namespace League\Csv;
 
 use Traversable;
+use SplFileObject;
 
 use InvalidArgumentException;
 use OutOfBoundsException;
@@ -82,7 +83,17 @@ class Writer extends AbstractCsv
      */
     protected $detect_columns_count = false;
 
+    /**
+     * {@ihneritdoc}
+     */
     protected $stream_filter_mode = STREAM_FILTER_WRITE;
+
+    /**
+     * The CSV object holder
+     *
+     * @var \SplFileObject
+     */
+    protected $csv;
 
     /**
      * Tell the class how to handle null value
@@ -241,6 +252,28 @@ class Writer extends AbstractCsv
     }
 
     /**
+     * set the csv container as a SplFileObject instance
+     *
+     * @return SplFileObject
+     *
+     * @throws \RuntimeException If the file could not be created and/or opened
+     */
+    protected function getCsv()
+    {
+        if (! is_null($this->csv)) {
+            return $this->csv;
+        } elseif ($this->path instanceof SplFileObject) {
+            $this->csv = $this->path;
+
+            return $this->csv;
+        }
+
+        $this->csv = new SplFileObject($this->getStreamFilterPath(), $this->open_mode);
+
+        return $this->csv;
+    }
+
+    /**
      * Add a new CSV row to the generated CSV
      *
      * @param mixed $data a string, an array or an object implementing to '__toString' method
@@ -259,10 +292,7 @@ class Writer extends AbstractCsv
                 that requires '.$this->columns_count.' columns per row.'
             );
         }
-        if (is_null($this->csv)) {
-            $this->setIterator();
-        }
-        $this->csv->fputcsv($data, $this->delimiter, $this->enclosure);
+        $this->getCsv()->fputcsv($data, $this->delimiter, $this->enclosure);
 
         return $this;
     }

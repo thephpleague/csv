@@ -57,15 +57,10 @@ use League\Csv\Stream\StreamFilter;
  */
 abstract class AbstractCsv implements JsonSerializable, IteratorAggregate
 {
-
-    use StreamFilter;
-
     /**
-     * The CSV object holder
-     *
-     * @var \SplFileObject
+     *  Stream Filter Trait
      */
-    protected $csv;
+    use StreamFilter;
 
     /**
      * the field delimiter (one character only)
@@ -124,19 +119,15 @@ abstract class AbstractCsv implements JsonSerializable, IteratorAggregate
      */
     public function __construct($path, $open_mode = 'r+')
     {
-        ini_set("auto_detect_line_endings", true);
+        if (! is_string($path) && ! $path instanceof SplFileInfo) {
+            throw new InvalidArgumentException(
+                'path must be a valid string or a `SplFileInfo` object'
+            );
+        }
+        $this->path = $path;
+        $this->setRealPath($path);
         $this->open_mode = strtolower($open_mode);
-        $this->setPath($path);
-    }
-
-    /**
-     * The destructor
-     *
-     * Make sure the class reference is destroy when the class is no longer used
-     */
-    public function __destruct()
-    {
-        $this->csv = null;
+        ini_set("auto_detect_line_endings", true);
     }
 
     /**
@@ -338,38 +329,20 @@ abstract class AbstractCsv implements JsonSerializable, IteratorAggregate
     }
 
     /**
-     * set the csv container as a SplFileObject instance
-     *
-     * @return self
-     *
-     * @throws \InvalidArgumentException If the path is not valid
-     * @throws \RuntimeException         If the file could not be created and/or opened
-     */
-    protected function setIterator()
-    {
-        if ($this->path instanceof SplFileObject) {
-            $this->csv = $this->path;
-
-            return $this;
-        }
-
-        $this->csv = new SplFileObject($this->getStreamFilterPath(), $this->open_mode);
-
-        return $this;
-    }
-
-    /**
      * Return the CSV Iterator
      *
      * @return \SplFileObject
      */
     public function getIterator()
     {
-        $this->setIterator();
-        $this->csv->setCsvControl($this->delimiter, $this->enclosure, $this->escape);
-        $this->csv->setFlags($this->flags);
+        $obj = $this->path;
+        if (! $obj instanceof SplFileObject) {
+            $obj = new SplFileObject($this->getStreamFilterPath(), $this->open_mode);
+        }
+        $obj->setCsvControl($this->delimiter, $this->enclosure, $this->escape);
+        $obj->setFlags($this->flags);
 
-        return $this->csv;
+        return $obj;
     }
 
     /**
@@ -411,14 +384,14 @@ abstract class AbstractCsv implements JsonSerializable, IteratorAggregate
      */
     protected function getInstance($class_name, $open_mode = 'r+')
     {
-        $csv = new $class_name($this->path, $open_mode);
-        $csv->setDelimiter($this->delimiter);
-        $csv->setEnclosure($this->enclosure);
-        $csv->setEscape($this->escape);
-        $csv->setFlags($this->flags);
-        $csv->setEncoding($this->encoding);
+        $obj = new $class_name($this->path, $open_mode);
+        $obj->delimiter = $this->delimiter;
+        $obj->enclosure = $this->enclosure;
+        $obj->escape = $this->escape;
+        $obj->flags = $this->flags;
+        $obj->encoding = $this->encoding;
 
-        return $csv;
+        return $obj;
     }
 
     /**

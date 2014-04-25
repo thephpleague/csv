@@ -66,7 +66,7 @@ class CsvTest extends PHPUnit_Framework_TestCase
      */
     public function testConstructorWithWrongType()
     {
-        (new Reader(['/usr/bin/foo.csv']))->getIterator();
+        new Reader(['/usr/bin/foo.csv']);
     }
 
     public function testCreateFromString()
@@ -272,6 +272,9 @@ EOF;
         $csv->addStreamFilter(new DateTime);
     }
 
+    /**
+     * @expectedException OutOfBoundsException
+     */
     public function testaddMultipleStreamFilter()
     {
         $path = __DIR__.'/foo.csv';
@@ -288,6 +291,15 @@ EOF;
         }
         $csv->clearStreamFilter();
         $this->assertFalse($csv->hasStreamFilter('string.rot13'));
+
+        $csv->addStreamFilter('string.toupper');
+        $this->assertSame(STREAM_FILTER_READ, $csv->getStreamFilterMode());
+        $csv->setStreamFilterMode(STREAM_FILTER_WRITE);
+        $this->assertSame(STREAM_FILTER_WRITE, $csv->getStreamFilterMode());
+        foreach ($csv->getIterator() as $row) {
+            $this->assertSame($row, ['john', 'doe', 'john.doe@example.com']);
+        }
+        $csv->setStreamFilterMode(34);
     }
 
     /**

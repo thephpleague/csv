@@ -2,11 +2,14 @@
 
 namespace League\Csv\test;
 
-use SplTempFileObject;
 use ArrayIterator;
 use LimitIterator;
-use PHPUnit_Framework_TestCase;
+use SplFileObject;
+use SplTempFileObject;
+
 use DateTime;
+
+use PHPUnit_Framework_TestCase;
 use League\Csv\Writer;
 
 date_default_timezone_set('UTC');
@@ -22,6 +25,12 @@ class WriterTest extends PHPUnit_Framework_TestCase
     public function setUp()
     {
         $this->csv = new Writer(new SplTempFileObject);
+    }
+
+    public function tearDown()
+    {
+        $csv = new SplFileObject(__DIR__.'/foo.csv', 'w');
+        $csv->fputcsv(["john", "doe", "john.doe@example.com"]);
     }
 
     public function testInsert()
@@ -48,6 +57,15 @@ class WriterTest extends PHPUnit_Framework_TestCase
         $this->assertSame(Writer::NULL_AS_SKIP_CELL, $this->csv->getNullHandlingMode());
 
         $this->csv->setNullHandlingMode(23);
+    }
+
+    public function testInsertNormalFile()
+    {
+        $csv = new Writer(__DIR__.'/foo.csv', 'a+');
+        $csv->insertOne(['jane', 'doe', 'jane.doe@example.com']);
+        $iterator = new LimitIterator($csv->getIterator(), 1, 1);
+        $iterator->rewind();
+        $this->assertSame(['jane', 'doe', 'jane.doe@example.com'], $iterator->getInnerIterator()->current());
     }
 
     public function testInsertNullToSkipCell()
