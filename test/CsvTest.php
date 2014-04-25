@@ -279,6 +279,7 @@ EOF;
     {
         $path = __DIR__.'/foo.csv';
         $csv = new Reader(new SplFileInfo($path));
+        $csv->setFlags(SplFileObject::READ_AHEAD|SplFileObject::SKIP_EMPTY);
         $csv->addStreamFilter('string.tolower');
         $csv->addStreamFilter('string.rot13');
         $csv->addStreamFilter('string.toupper');

@@ -30,7 +30,8 @@ class WriterTest extends PHPUnit_Framework_TestCase
     public function tearDown()
     {
         $csv = new SplFileObject(__DIR__.'/foo.csv', 'w');
-        $csv->fputcsv(["john", "doe", "john.doe@example.com"]);
+        $csv->setCsvControl();
+        $csv->fputcsv(["john", "doe", "john.doe@example.com"], ",", '"');
     }
 
     public function testInsert()
