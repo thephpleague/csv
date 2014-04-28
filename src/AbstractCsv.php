@@ -124,10 +124,20 @@ abstract class AbstractCsv implements JsonSerializable, IteratorAggregate
                 'path must be a valid string or a `SplFileInfo` object'
             );
         }
-        $this->path = $path;
-        $this->initStreamFilter($path);
-        $this->open_mode = strtolower($open_mode);
         ini_set("auto_detect_line_endings", true);
+        //lazy loading
+        $this->path = $path;
+        $this->open_mode = strtolower($open_mode);
+        $this->initStreamFilter($path);
+    }
+
+    /**
+     * The destructor
+     */
+    public function __destruct()
+    {
+        //in case path is a SplFileObject we need to remove its reference
+        $this->path = null;
     }
 
     /**

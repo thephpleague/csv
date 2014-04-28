@@ -101,6 +101,7 @@ class Writer extends AbstractCsv
     public function __destruct()
     {
         $this->csv = null;
+        parent::__destruct();
     }
 
     /**
