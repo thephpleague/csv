@@ -258,18 +258,39 @@ EOF;
         return [[file_get_contents(__DIR__.'/data/prenoms.csv')]];
     }
 
+    public function testInitStreamFilter()
+    {
+        $filter = 'php://filter/write=string.rot13/resource='.__DIR__.'/foo.csv';
+        $csv = new Reader(new SplFileInfo($filter));
+        $this->assertTrue($csv->hasStreamFilter('string.rot13'));
+        $this->assertSame(STREAM_FILTER_WRITE, $csv->getStreamFilterMode());
+
+        $filter = 'php://filter/read=string.toupper/resource='.__DIR__.'/foo.csv';
+        $csv = new Reader(new SplFileInfo($filter));
+        $this->assertTrue($csv->hasStreamFilter('string.toupper'));
+        $this->assertSame(STREAM_FILTER_READ, $csv->getStreamFilterMode());
+    }
+
     /**
      * @expectedException InvalidArgumentException
      */
-    public function testaddStreamFilter()
+    public function testappendStreamFilter()
     {
         $path = __DIR__.'/foo.csv';
         $csv = new Reader(new SplFileInfo($path));
-        $csv->addStreamFilter('string.toupper');
+        $csv->appendStreamFilter('string.toupper');
         foreach ($csv->getIterator() as $row) {
             $this->assertSame($row, ['JOHN', 'DOE', 'JOHN.DOE@EXAMPLE.COM']);
         }
-        $csv->addStreamFilter(new DateTime);
+        $csv->appendStreamFilter(new DateTime);
+    }
+
+    /**
+     * @expectedException RuntimeException
+     */
+    public function testprependStreamFilter()
+    {
+        (new Reader(new SplTempFileObject))->prependStreamFilter('string.toupper');
     }
 
     /**
@@ -280,9 +301,9 @@ EOF;
         $path = __DIR__.'/foo.csv';
         $csv = new Reader(new SplFileInfo($path));
         $csv->setFlags(SplFileObject::READ_AHEAD|SplFileObject::SKIP_EMPTY);
-        $csv->addStreamFilter('string.tolower');
-        $csv->addStreamFilter('string.rot13');
-        $csv->addStreamFilter('string.toupper');
+        $csv->appendStreamFilter('string.tolower');
+        $csv->prependStreamFilter('string.rot13');
+        $csv->appendStreamFilter('string.toupper');
         $this->assertTrue($csv->hasStreamFilter('string.tolower'));
         $csv->removeStreamFilter('string.tolower');
         $this->assertFalse($csv->hasStreamFilter('string.tolower'));
@@ -293,7 +314,7 @@ EOF;
         $csv->clearStreamFilter();
         $this->assertFalse($csv->hasStreamFilter('string.rot13'));
 
-        $csv->addStreamFilter('string.toupper');
+        $csv->appendStreamFilter('string.toupper');
         $this->assertSame(STREAM_FILTER_READ, $csv->getStreamFilterMode());
         $csv->setStreamFilterMode(STREAM_FILTER_WRITE);
         $this->assertSame(STREAM_FILTER_WRITE, $csv->getStreamFilterMode());
@@ -310,10 +331,10 @@ EOF;
     {
         $path = __DIR__.'/foo.csv';
         $csv = new Writer(new SplFileInfo($path));
-        $csv->addStreamFilter('string.rot13');
-        $csv->addStreamFilter('string.toupper');
+        $csv->appendStreamFilter('string.rot13');
+        $csv->appendStreamFilter('string.toupper');
         $this->assertFalse($csv->getIterator()->getRealPath());
 
-        (new Reader(new SplTempFileObject))->addStreamFilter('string.rot13');
+        (new Reader(new SplTempFileObject))->appendStreamFilter('string.rot13');
     }
 }

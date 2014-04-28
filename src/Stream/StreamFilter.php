@@ -79,7 +79,7 @@ trait StreamFilter
      *
      * @throws InvalidArgumentException If $path is invalid
      */
-    protected function setStreamRealPath($path)
+    protected function initStreamFilter($path)
     {
         if ($path instanceof SplTempFileObject) {
             $this->stream_real_path = null;
@@ -88,12 +88,31 @@ trait StreamFilter
 
         } elseif ($path instanceof SplFileInfo) {
             //$path->getRealPath() returns false for php stream wrapper
-            $this->stream_real_path = $path->getPath().'/'.$path->getBasename();
+            $path = $path->getPath().'/'.$path->getBasename();
+        }
+
+        $path = trim($path);
+        //if we are submitting a filter meta wrapper we extract and inject the info
+        if (preg_match(
+            ',^php://filter/(?P<mode>:?read=|write=)?(?P<filters>.*?)/resource=(?P<resource>.*)$,i',
+            $path,
+            $matches
+        )) {
+            $matches['mode'] = strtolower($matches['mode']);
+            $mode = STREAM_FILTER_ALL;
+            if ('write=' == $matches['mode']) {
+                $mode = STREAM_FILTER_WRITE;
+            } elseif ('read=' == $matches['mode']) {
+                $mode = STREAM_FILTER_READ;
+            }
+            $this->stream_filter_mode = $mode;
+            $this->stream_filters = explode('|', $matches['filters']);
+            $this->stream_real_path = $matches['resource'];
 
             return $this;
         }
 
-        $this->stream_real_path = trim($path);
+        $this->stream_real_path = $path;
 
         return $this;
     }
@@ -125,6 +144,17 @@ trait StreamFilter
         return $this->stream_filter_mode;
     }
 
+    protected function sanitizeStreamFilter($filter_name)
+    {
+        if (! is_string($filter_name)) {
+            throw new InvalidArgumentException(
+                'you must submit a valid the filtername'
+            );
+        }
+
+        return trim($filter_name);
+    }
+
     /**
      * append a stream filter
      *
@@ -135,20 +165,37 @@ trait StreamFilter
      * @throws \InvalidArgumentException If what you try to add is invalid
      * @throws \RuntimeException         If adding Stream Filter is not possible
      */
-    public function addStreamFilter($filter_name)
+    public function appendStreamFilter($filter_name)
     {
-        if (is_null($this->stream_real_path) || stripos($this->stream_real_path, 'php://filter/') === 0) {
+        if (is_null($this->stream_real_path)) {
             throw new RuntimeException(
                 'you can not add a stream filter to '.get_class($this).' instance'
             );
-        } elseif (! is_string($filter_name)) {
-            throw new InvalidArgumentException(
-                'you must submit a valid the filtername'
+        }
+        $this->stream_filters[] = $this->sanitizeStreamFilter($filter_name);
+
+        return $this;
+    }
+
+    /**
+     * prepend a stream filter
+     *
+     * @param string $filter_name a string or an object that implements the '__toString' method
+     *
+     * @return self
+     *
+     * @throws \InvalidArgumentException If what you try to add is invalid
+     * @throws \RuntimeException         If adding Stream Filter is not possible
+     */
+    public function prependStreamFilter($filter_name)
+    {
+        if (is_null($this->stream_real_path)) {
+            throw new RuntimeException(
+                'you can not add a stream filter to '.get_class($this).' instance'
             );
         }
 
-        $filter_name = trim($filter_name);
-        $this->stream_filters[] = $filter_name;
+        array_unshift($this->stream_filters, $this->sanitizeStreamFilter($filter_name));
 
         return $this;
     }
