@@ -130,6 +130,7 @@ trait StreamFilter
         }
 
         $this->stream_filter_mode = $mode;
+        $this->stream_filters = [];
 
         return $this;
     }

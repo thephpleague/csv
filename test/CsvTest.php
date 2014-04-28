@@ -332,7 +332,7 @@ EOF;
         $path = __DIR__.'/foo.csv';
         $csv = new Writer(new SplFileInfo($path));
         $csv->appendStreamFilter('string.rot13');
-        $csv->appendStreamFilter('string.toupper');
+        $csv->prependStreamFilter('string.toupper');
         $this->assertFalse($csv->getIterator()->getRealPath());
 
         (new Reader(new SplTempFileObject))->appendStreamFilter('string.rot13');
