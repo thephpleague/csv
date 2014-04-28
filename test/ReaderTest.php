@@ -104,6 +104,20 @@ class ReaderTest extends PHPUnit_Framework_TestCase
         $this->assertSame(array_reverse($this->expected), $this->csv->fetchAll());
     }
 
+    public function testSortBy2()
+    {
+        $string = 'john,doe,john.doe@example.com'.PHP_EOL.'john,doe,john.doe@example.com';
+        $csv = Reader::createFromString($string);
+        $func = function ($rowA, $rowB) {
+            return strcmp($rowA[0], $rowB[0]);
+        };
+        $csv->setSortBy($func);
+        $this->assertSame([
+            ['john', 'doe', 'john.doe@example.com'],
+            ['john', 'doe', 'john.doe@example.com']
+        ], $csv->fetchAll());
+    }
+
     public function testFetchAll()
     {
         $func = function ($value) {
