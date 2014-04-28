@@ -34,7 +34,6 @@ namespace League\Csv;
 
 use Traversable;
 use SplFileObject;
-
 use InvalidArgumentException;
 use OutOfBoundsException;
 

@@ -34,14 +34,11 @@ namespace League\Csv;
 
 use DomDocument;
 use JsonSerializable;
-
 use SplFileInfo;
 use SplFileObject;
 use SplTempFileObject;
-
 use RuntimeException;
 use InvalidArgumentException;
-
 use IteratorAggregate;
 use LimitIterator;
 use CallbackFilterIterator;
@@ -124,7 +121,7 @@ abstract class AbstractCsv implements JsonSerializable, IteratorAggregate
                 'path must be a valid string or a `SplFileInfo` object'
             );
         }
-        ini_set("auto_detect_line_endings", true);
+        ini_set("auto_detect_line_endings", '1');
         //lazy loading
         $this->path = $path;
         $this->open_mode = strtolower($open_mode);

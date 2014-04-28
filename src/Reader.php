@@ -33,7 +33,6 @@
 namespace League\Csv;
 
 use InvalidArgumentException;
-
 use Iterator;
 use CallbackFilterIterator;
 use League\Csv\Iterator\MapIterator;
@@ -211,8 +210,8 @@ class Reader extends AbstractCsv
      *
      * @deprecated deprecated since version 5.4
      *
-     * @param integer  $fieldIndex field Index
-     * @param callable $callable   a callable function to be applied to each value to be return
+     * @param integer  $column_index field Index
+     * @param callable $callable     a callable function to be applied to each value to be return
      *
      * @return array
      *
@@ -226,8 +225,8 @@ class Reader extends AbstractCsv
     /**
      * Return a single column from the CSV data
      *
-     * @param integer  $fieldIndex field Index
-     * @param callable $callable   a callable function to be applied to each value to be return
+     * @param integer  $column_index field Index
+     * @param callable $callable     a callable function to be applied to each value to be return
      *
      * @return array
      *

@@ -137,6 +137,7 @@ trait IteratorSortBy
         $res = iterator_to_array($iterator, false);
 
         uasort($res, function ($rowA, $rowB) {
+            $res = 0;
             foreach ($this->iterator_sort_by as $callable) {
                 $res = $callable($rowA, $rowB);
                 if (0 !== $res) {

@@ -34,7 +34,6 @@ namespace League\Csv\Stream;
 
 use SplFileInfo;
 use SplTempFileObject;
-
 use InvalidArgumentException;
 use RuntimeException;
 use OutOfBoundsException;
@@ -146,11 +145,20 @@ trait StreamFilter
         return $this->stream_filter_mode;
     }
 
+    /**
+     * Sanitize the stream filter name
+     *
+     * @param string $filter_name the stream filter name
+     *
+     * @return string
+     *
+     * @throws \InvalidArgumentException If $filter_name is not a string
+     */
     protected function sanitizeStreamFilter($filter_name)
     {
         if (! is_string($filter_name)) {
             throw new InvalidArgumentException(
-                'you must submit a valid the filtername'
+                'the filtername variable must be a string'
             );
         }
 
@@ -171,7 +179,7 @@ trait StreamFilter
     {
         if (is_null($this->stream_real_path)) {
             throw new RuntimeException(
-                'you can not add a stream filter to '.get_class($this).' instance'
+                'no stream path found, you can not append a stream filter'
             );
         }
         $this->stream_filters[] = $this->sanitizeStreamFilter($filter_name);
@@ -193,7 +201,7 @@ trait StreamFilter
     {
         if (is_null($this->stream_real_path)) {
             throw new RuntimeException(
-                'you can not add a stream filter to '.get_class($this).' instance'
+                'no stream path found, you can not prepend a stream filter'
             );
         }
 

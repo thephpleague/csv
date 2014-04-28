@@ -70,7 +70,7 @@ trait IteratorFilter
     /**
      * Set the Iterator filter method
      *
-     * @param callable $filter
+     * @param callable $callable
      *
      * @return self
      */
