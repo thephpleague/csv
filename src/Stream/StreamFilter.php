@@ -106,13 +106,14 @@ trait StreamFilter
                 $mode = STREAM_FILTER_READ;
             }
             $this->stream_filter_mode = $mode;
-            $this->stream_filters = explode('|', $matches['filters']);
             $this->stream_real_path = $matches['resource'];
+            $this->stream_filters = explode('|', $matches['filters']);
 
             return $this;
         }
 
         $this->stream_real_path = $path;
+        $this->stream_filters = [];
 
         return $this;
     }
