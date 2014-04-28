@@ -6,7 +6,7 @@
 * @copyright 2014 Ignace Nyamagana Butera
 * @link https://github.com/thephpleague/csv/
 * @license http://opensource.org/licenses/MIT
-* @version 5.4.0
+* @version 5.5.0
 * @package League.csv
 *
 * MIT LICENSE
@@ -100,7 +100,7 @@ trait IteratorInterval
     *
     * @return \LimitIterator
     */
-    protected function applyInterval(Iterator $iterator)
+    protected function applyIteratorInterval(Iterator $iterator)
     {
         if (0 == $this->iterator_offset && -1 == $this->iterator_limit) {
             return $iterator;

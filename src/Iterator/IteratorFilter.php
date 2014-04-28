@@ -6,7 +6,7 @@
 * @copyright 2014 Ignace Nyamagana Butera
 * @link https://github.com/thephpleague/csv/
 * @license http://opensource.org/licenses/MIT
-* @version 5.4.0
+* @version 5.5.0
 * @package League.csv
 *
 * MIT LICENSE
@@ -129,7 +129,7 @@ trait IteratorFilter
     *
     * @return \Iterator
     */
-    protected function applyFilter(Iterator $iterator)
+    protected function applyIteratorFilter(Iterator $iterator)
     {
         foreach ($this->iterator_filters as $callable) {
             $iterator = new CallbackFilterIterator($iterator, $callable);
