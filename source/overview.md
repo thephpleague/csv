@@ -59,7 +59,6 @@ Once your object is created you can optionally set:
 * the CSV enclosure;
 * the CSV escape characters;
 * the object `SplFileObject` flags;
-* the CSV encoding charset if the CSV is not in `UTF-8`;
 
 ~~~.language-php
 $reader = new Reader('/path/to/your/csv/file.csv');
@@ -68,10 +67,11 @@ $reader->setDelimiter(',');
 $reader->setEnclosure('"');
 $reader->setEscape('\\');
 $reader->setFlags(SplFileObject::READ_AHEAD|SplFileObject::SKIP_EMPTY);
-$reader->setEncoding('iso-8859-1');
 ~~~
 
-<p class="message-info"><strong>Tip:</strong> To avoid double encoding and to handle more easily your CSV encoding, instead of setting the encoding using <code>setEncoding</code>, you should use <a href="https://gist.github.com/nyamsprod/9932158#file-stream_filter-php" target="_blank">PHP stream filtering capabilities</a> to directly transcode your CSV into a UTF-8 encoded document. <strong>The linked script is a simple example</strong>, the code may vary depending on your CSV. You may, for instance, use <code>iconv</code> or <code>mb_*</code> functions to achieve the same goal.</p>
+To decode or encode you CSV in a UTF-8 charset please refer to the <a href="/filtering/">library stream filtering mechanism</a>
+
+<p class="message-warning">The <code>setEncoding</code> and <code>getEncoding</code> methods have been deprecated and will be remove in the next major version release. For backward compatibility, the methods still exists and can be used but using Stream Filtering is the recommended way.</p>
 
 ### detectDelimiter($nbRows = 1, array $delimiters = []) *since version 5.1*
 
@@ -88,7 +88,6 @@ $reader = new Reader('/path/to/your/csv/file.csv');
 $reader->setEnclosure('"');
 $reader->setEscape('\\');
 $reader->setFlags(SplFileObject::READ_AHEAD|SplFileObject::SKIP_EMPTY);
-$reader->setEncoding('iso-8859-1');
 
 $delimiter = $reader->detectDelimiter(10, [' ', '|']);
 ~~~
@@ -101,16 +100,18 @@ The more rows and delimiters you add, the more time and memory consuming the ope
 
 ## Switching from one class to the other
 
+<p class="message-warning">The <code>getReader</code> and <code>getWriter</code> methods have been deprecated and will be remove in the next major version release. For backward compatibility, the methods are now aliases of the <code>createReader</code> and <code>createWriter</code> methods.</p>
+
 It is possible to switch between modes by using:
 
-* the `League\Csv\Writer::getReader` method from the `League\Csv\Writer` class
-* the `League\Csv\Reader::getWriter` method from the `League\Csv\Reader` class 
+* the `League\Csv\Writer::createReader` method from the `League\Csv\Writer` class
+* the `League\Csv\Reader::createWriter` method from the `League\Csv\Reader` class 
 
 Both methods accept the optional $open_mode parameter. When not explicitly set, the `$open_mode` default value is `r+` for both methods.
 
 ~~~.language-php
-$reader = $writer->getReader('r+');
-$newWriter = $reader->getWriter('a'); 
+$reader = $writer->createReader('r+');
+$newWriter = $reader->createWriter('a'); 
 ~~~
 
 <p class="message-warning"><strong>Warning:</strong> be careful the <code>$newWriter</code>

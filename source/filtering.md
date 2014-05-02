@@ -7,55 +7,59 @@ title: Filtering
 
 *available since version 5.5*
 
-Sometimes you may want to perform operations on the CSV as it is being read from or written to. To ease this type of manipulation The `Reader` and `Writer` classes now include methods to ease stream filter usage.
+Sometimes you may want to perform operations on the CSV as it is being read from or written to. To ease this type of manipulation The `Reader` and `Writer` classes now include methods to ease PHP stream filtering usage.
 
-<p class="message-warning"><strong>Warning:</strong> For backward compatibility, PHP Stream Filtering can not be applied when a <code>SplFileObject</code> was use to instantiate the class. A <code>RuntimeException</code> exception will be thrown if you try to use API.</p>
+<p class="message-warning"><strong>Warning:</strong> For backward compatibility, PHP Stream Filtering can not be applied when a <code>SplFileObject</code> was use to instantiate the class. A <code>RuntimeException</code> exception will be thrown if you try to use the API under theses circumstances.</p>
 
 ## Stream Filter API
 
-The properties of the API are not: 
+To be able to use the stream filtering mechanism you need to:
 
-* cleared between calls;
+* set the class filtering mode;
+* attached to the object the stream filters you want;
+
+When all is set, the filters will be applied when the stream filter mode matches the method you've called.
+
+The attached filters are not:
+
+* cleared between method calls unless specified;
 * copied to the new class when using `Writer::createReader` and/or `Reader::createWriter` methods;
 
-### Setting and getting the object stream filter Mode
+### Setting and getting the object stream filter mode
 
-Because of `SplFileObject` restricted PHP stream filter support, the stream filter mode is object based and not filter specific.
+The stream filter mode property is set using PHP internal stream filter constant `STREAM_FILTER_*`, but unlike `fopen`, the stream filter mode is object based and not filter specific.
 
-The class stream filter mode property is set using PHP internal stream filter constant `STREAM_FILTER_*` and the `setStreamFilterMode($mode)` method.
+* `setStreamFilterMode($mode)`: set the class stream filter mode. When called, all previously attached filters are removed;
+* `getStreamFilterMode()`: returns the current stream filter mode;
 
-Whenever you change the class stream filter mode the stream filters are cleared.
+By default:
 
-You can retrieve the class stream filter mode using `getStreamFilterMode()` method. By default:
-
-- when using the Reader class the property is equal to `STREAM_FILTER_READ`;
-- when using the Writer class the property is equal to `STREAM_FILTER_WRITE`;
-
-<p class="message-warning"><strong>Warning:</strong> If you instantiate the class using a PHP filter meta wrapper, the mode will be the one used by the meta wrapper;</p>
+- when using the `Reader` class the property is equal to `STREAM_FILTER_READ`;
+- when using the `Writer` class the property is equal to `STREAM_FILTER_WRITE`;
+- If you instantiate the class using a PHP filter meta wrapper (ie: `php://filter/`), the mode will be the one used by the meta wrapper;
 
 ~~~.language-php
 use \League\Csv\Reader;
 
 $reader = new Reader('/path/to/my/file.csv');
+$current_mode = $reader->getStreamFilterMode(); //returns STREAM_FILTER_READ
 $reader->setStreamFilterMode(STREAM_FILTER_WRITE);
 //this means that any filter you will set will have no effect when reading the CSV
-$current_mode = $reader->getStreamFilterMode(); //return STREAM_FILTER_WRITE
+//all previously attached stream filters if they existed have been removed
+$current_mode = $reader->getStreamFilterMode(); //returns STREAM_FILTER_WRITE
 ~~~
 
 ### Managing Stream filter
 
-To manage the stream you can use the following methods
+To manage your stream filter collection you can use the following methods
 
-- `appendStreamFilter($filtername)` : adds a stream filter at the bottom of the stream filter collection
-- `appendStreamFilter($filtername)` : adds a stream filter at the top of the stream filter collection
+- `appendStreamFilter($filtername)` : adds a stream filter at the bottom of the collection
+- `prependStreamFilter($filtername)` : adds a stream filter at the top of the collection
 - `removeStreamFilter($filtername)` : removes a stream filter from the collection
 - `hasStreamFilter($filtername)` : check the presence of a stream filter in the collection
+- `clearStreamFilter()`: removes all the currently attached filters.
 
-`$filtername` represents the filter as registered using php `stream_filter_register` function.
-
-- `clearStreamFilter()`
-
-The `clearStreamFilter` method removes all the currently attached filters.
+The `$filtername` parameter is a string that represents the filter as registered using php `stream_filter_register` function or one of PHP internal stream filter.
 
 See below an example using `League\Csv\Reader` to illustrate:
 
@@ -77,9 +81,9 @@ foreach ($reader as $row) {
 
 ## Limitations
 
-### Writer class on Writing Mode
+### Writer class on Editing Mode
 
-<p class="message-warning"><strong>Warning:</strong> Because of <code>SplFileObject</code> restricted stream filter support, to preserve file cursor position during writing, the stream filtering properties and settings are fixed after the first insert is made.</p>
+<p class="message-warning"><strong>Warning:</strong> To preserve file cursor position during editing and because of <code>SplFileObject</code> restricted stream filter support, the stream filter properties and functions are fixed after the first insert is made with any of the <code>insert*</code> method.</p>
 
 ~~~.language-php
 use \League\Csv\Writer;
@@ -96,3 +100,12 @@ $writer->insertOne('steve,job,job@apple.com');
 
 echo $writer; //the newly added rows are all uppercased
 ~~~
+
+## Example
+
+Please review [the stream filtering example](https://github.com/thephpleague/csv/blob/master/examples/stream.php) and the attached [FilterTranscode](https://github.com/thephpleague/csv/blob/master/examples/lib/FilterTranscode.php) Class to understand how to use the filtering mechanism to convert a CSV into another charset. 
+
+The `FilterTranscode` class is not attached to the Library because the way you may want to convert you CSV may depend:
+
+* on your business logic; 
+* on the extension you choose with [iconv](http://php.net/iconv) function and/or the [UConverter](http://php.net/uconverter) class ability to achieve the same conversion;

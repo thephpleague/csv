@@ -74,7 +74,7 @@ If you only wish to make your CSV downloadable just use the output method to
 return to the output buffer the CSV content.
 
 ~~~.language-php
-header('Content-Type: text/csv; charset="'.$reader->getEncoding().'"');
+header('Content-Type: text/csv; charset=UTF-8');
 header('Content-Disposition: attachment; filename="name-for-your-file.csv"');
 $reader->output();
 ~~~
