@@ -253,14 +253,24 @@ class Reader extends AbstractCsv
     }
 
     /**
+     * DEPRECATION WARNING! This method will be removed in the next major point release
+     *
+     * @deprecated deprecated since version 5.5
+     */
+    public function getWriter($open_mode = 'r+')
+    {
+        return $this->createWriter($open_mode);
+    }
+
+    /**
      * Instantiate a {@link Writer} class from the current {@link Reader}
      *
      * @param string $open_mode the file open mode flag
      *
      * @return \League\Csv\Writer
      */
-    public function getWriter($open_mode = 'r+')
+    public function createWriter($open_mode = 'r+')
     {
-        return $this->getInstance('\League\Csv\Writer', $open_mode);
+        return $this->createFromCurrentInstance('\League\Csv\Writer', $open_mode);
     }
 }

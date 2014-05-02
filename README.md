@@ -48,15 +48,15 @@ Contribute to this documentation in the [sculpin branch](https://github.com/thep
 
 ### Tips
 
-#### Writing to a CSV data
+#### Creating or Editing a CSV file
 
 * When creating a file using the library, first insert all the data that need to be inserted before starting manipulating the CSV. If you manipulate your data before insertion, you may change the file cursor position and get unexpected results.
 
-* Even thought you can iterate using the `Writer` class **it is recommend** to iterate over you CSV using the `Reader` class to avoid any issue.
+* Even thought you can iterate using the `Writer` class **it is recommend and best practice** to iterate over you CSV using the `Reader` class to avoid any issue.
 
 #### CSV encoding charset
 
-The library assumes that your data is UTF-8 encoded. If your are dealing with non-unicode data, use the library stream filter mechanisms to convert your data into UTF-8 otherwise the output methods may failed.
+The library assumes that your data is UTF-8 encoded. If your are dealing with non-unicode data, use the library [stream filtering mechanism](http://csv.thephpleague.com/filtering) to convert your data into UTF-8 otherwise the output methods may failed.
 
 Testing
 -------
@@ -75,5 +75,3 @@ Credits
 
 - [ignace nyamagana butera](https://github.com/nyamsprod)
 - [All Contributors](https://github.com/thephpleague/csv/graphs/contributors)
-
-[![Bitdeli Badge](https://d2weczhvl823v0.cloudfront.net/thephpleague/csv/trend.png)](https://bitdeli.com/free "Bitdeli Badge")

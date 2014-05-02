@@ -88,6 +88,10 @@ abstract class AbstractCsv implements JsonSerializable, IteratorAggregate
     protected $flags = SplFileObject::READ_CSV;
 
     /**
+     * DEPRECATION WARNING! This method will be removed in the next major point release
+     *
+     * @deprecated deprecated since version 5.5
+     *
      * Charset Encoding for the CSV
      *
      * @var string
@@ -353,6 +357,10 @@ abstract class AbstractCsv implements JsonSerializable, IteratorAggregate
     }
 
     /**
+     * DEPRECATION WARNING! This method will be removed in the next major point release
+     *
+     * @deprecated deprecated since version 5.5
+     *
      * Set the CSV encoding charset
      *
      * @param string $str
@@ -372,6 +380,10 @@ abstract class AbstractCsv implements JsonSerializable, IteratorAggregate
     }
 
     /**
+     * DEPRECATION WARNING! This method will be removed in the next major point release
+     *
+     * @deprecated deprecated since version 5.5
+     *
      * Get the CSV encoding charset
      *
      * @return string
@@ -382,29 +394,13 @@ abstract class AbstractCsv implements JsonSerializable, IteratorAggregate
     }
 
     /**
-     * Instantiate a AbstractCsv extended class
+     * DEPRECATION WARNING! This method will be removed in the next major point release
      *
-     * @param string $class_name the Class to load {@link Writer} or {@link Reader}
-     * @param string $open_mode  the file open mode flag
+     * @deprecated deprecated since version 5.5
      *
-     * @return \League\Csv\AbstractCSv
-     */
-    protected function getInstance($class_name, $open_mode = 'r+')
-    {
-        $obj = new $class_name($this->path, $open_mode);
-        $obj->delimiter = $this->delimiter;
-        $obj->enclosure = $this->enclosure;
-        $obj->escape = $this->escape;
-        $obj->flags = $this->flags;
-        $obj->encoding = $this->encoding;
-
-        return $obj;
-    }
-
-    /**
      * Convert Csv file into UTF-8
      *
-     * @return \Iterator
+     * @return \Traversable
      */
     protected function convert2Utf8()
     {
@@ -420,6 +416,26 @@ abstract class AbstractCsv implements JsonSerializable, IteratorAggregate
 
             return $row;
         });
+    }
+
+    /**
+     * Instantiate a AbstractCsv extended class
+     *
+     * @param string $class_name the Class to load {@link Writer} or {@link Reader}
+     * @param string $open_mode  the file open mode flag
+     *
+     * @return \League\Csv\AbstractCSv
+     */
+    protected function createFromCurrentInstance($class_name, $open_mode = 'r+')
+    {
+        $obj = new $class_name($this->path, $open_mode);
+        $obj->delimiter = $this->delimiter;
+        $obj->enclosure = $this->enclosure;
+        $obj->escape = $this->escape;
+        $obj->flags = $this->flags;
+        $obj->encoding = $this->encoding;
+
+        return $obj;
     }
 
     /**
