@@ -13,21 +13,25 @@ Sometimes you may want to perform operations on the CSV as it is being read from
 
 ## Stream Filter API
 
-The properties and methods of the API are not: 
+The properties of the API are not: 
 
-* resetted between calls;
-* copied to the new class when using `Writer::getReader` and/or `Reader::getWriter` methods;
+* cleared between calls;
+* copied to the new class when using `Writer::createReader` and/or `Reader::createWriter` methods;
 
 ### Setting and getting the object stream filter Mode
 
-Because of `SplFileObject` restricted stream filter support the stream filter mode is object based not filter restricted. The class stream filter mode property is set using PHP internal stream filter constant `STREAM_FILTER_*` and the `setStreamFilterMode($mode)` method.
+Because of `SplFileObject` restricted PHP stream filter support, the stream filter mode is object based and not filter specific.
+
+The class stream filter mode property is set using PHP internal stream filter constant `STREAM_FILTER_*` and the `setStreamFilterMode($mode)` method.
+
+Whenever you change the class stream filter mode the stream filters are cleared.
 
 You can retrieve the class stream filter mode using `getStreamFilterMode()` method. By default:
 
 - when using the Reader class the property is equal to `STREAM_FILTER_READ`;
 - when using the Writer class the property is equal to `STREAM_FILTER_WRITE`;
 
-<p class="message-warning"><strong>Warning:</strong> If you instantiate the class using a PHP filter meta wrapper, the mode may vary</p>
+<p class="message-warning"><strong>Warning:</strong> If you instantiate the class using a PHP filter meta wrapper, the mode will be the one used by the meta wrapper;</p>
 
 ~~~.language-php
 use \League\Csv\Reader;
@@ -47,7 +51,7 @@ To manage the stream you can use the following methods
 - `removeStreamFilter($filtername)` : removes a stream filter from the collection
 - `hasStreamFilter($filtername)` : check the presence of a stream filter in the collection
 
-`$filtername` represents the filtername registered using php `stream_filter_register` function or a PHP included stream filter.
+`$filtername` represents the filter as registered using php `stream_filter_register` function.
 
 - `clearStreamFilter()`
 
