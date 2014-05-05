@@ -1,7 +1,7 @@
 {
     "name": "league/csv",
     "type": "library",
-    "description" : "Csv data manipulation made easy in PHP 5.4+",
+    "description" : "Csv data manipulation made easy in PHP",
     "keywords": ["csv", "import", "export", "read", "write", "filter"],
     "license": "MIT",
     "authors": [
