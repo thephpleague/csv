@@ -17,9 +17,9 @@
         "ext-mbstring" : "*"
     },
     "require-dev": {
-        "phpunit/phpunit" : "*",
-        "squizlabs/php_codesniffer": "1.*"
-    },    
+        "phpunit/phpunit" : "~4.0",
+        "squizlabs/php_codesniffer": "~1.5"
+    },
     "autoload": {
         "psr-4": {
             "League\\Csv\\": "src"
@@ -32,5 +32,10 @@
     },
     "replace": {
         "bakame/csv": "*"
+    },
+    "extra": {
+        "branch-alias": {
+            "dev-master": "5.4-dev"
+        }
     }
 }
