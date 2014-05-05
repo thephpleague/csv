@@ -338,16 +338,4 @@ class Writer extends AbstractCsv
     {
         return $this->createReader($open_mode);
     }
-
-    /**
-     * Instantiate a {@link Writer} class from the current {@link Reader}
-     *
-     * @param string $open_mode the file open mode flag
-     *
-     * @return \League\Csv\Writer
-     */
-    public function createReader($open_mode = 'r+')
-    {
-        return $this->createFromCurrentInstance('\League\Csv\Reader', $open_mode);
-    }
 }
