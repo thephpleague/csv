@@ -17,7 +17,7 @@
         "ext-mbstring" : "*"
     },
     "require-dev": {
-        "phpunit/phpunit" : "*",
+        "phpunit/phpunit" : "~4.0",
         "squizlabs/php_codesniffer": "1.*"
     },    
     "autoload": {
@@ -33,5 +33,10 @@
     },
     "replace": {
         "bakame/csv": "*"
-    }
+    },
+    "extra": {
+        "branch-alias": {
+            "dev-dev": "5.5.x-dev"
+        }
+     }
 }
