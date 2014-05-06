@@ -1,39 +1,20 @@
 <?php
 /**
-* League.csv - A CSV data manipulation library
+* This file is part of the League.csv library
 *
-* @author Ignace Nyamagana Butera <nyamsprod@gmail.com>
-* @copyright 2014 Ignace Nyamagana Butera
-* @link https://github.com/thephpleague/csv/
 * @license http://opensource.org/licenses/MIT
+* @link https://github.com/thephpleague/csv/
 * @version 5.5.0
 * @package League.csv
 *
-* MIT LICENSE
-*
-* Permission is hereby granted, free of charge, to any person obtaining
-* a copy of this software and associated documentation files (the
-* "Software"), to deal in the Software without restriction, including
-* without limitation the rights to use, copy, modify, merge, publish,
-* distribute, sublicense, and/or sell copies of the Software, and to
-* permit persons to whom the Software is furnished to do so, subject to
-* the following conditions:
-*
-* The above copyright notice and this permission notice shall be
-* included in all copies or substantial portions of the Software.
-*
-* THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-* EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-* MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-* NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
-* LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
-* OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
-* WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+* For the full copyright and license information, please view the LICENSE
+* file that was distributed with this source code.
 */
 namespace League\Csv;
 
 use DomDocument;
 use JsonSerializable;
+use Traversable;
 use SplFileInfo;
 use SplFileObject;
 use SplTempFileObject;
@@ -96,7 +77,7 @@ abstract class AbstractCsv implements JsonSerializable, IteratorAggregate
      *
      * @var string
      */
-    protected $encoding = 'UTF-8';
+    protected $encodingFrom = 'UTF-8';
 
     /**
      * The constructor path
@@ -163,6 +144,50 @@ abstract class AbstractCsv implements JsonSerializable, IteratorAggregate
         throw new InvalidArgumentException(
             'the submitted data must be a string or an object implementing the `__toString` method'
         );
+    }
+
+    /**
+     * Instantiate a AbstractCsv extended class
+     *
+     * @param string $class_name the Class to load {@link Writer} or {@link Reader}
+     * @param string $open_mode  the file open mode flag
+     *
+     * @return \League\Csv\AbstractCSv
+     */
+    protected function createFromCurrentInstance($class_name, $open_mode)
+    {
+        $obj = new $class_name($this->path, $open_mode);
+        $obj->delimiter = $this->delimiter;
+        $obj->enclosure = $this->enclosure;
+        $obj->escape = $this->escape;
+        $obj->flags = $this->flags;
+        $obj->encoding = $this->encodingFrom;
+
+        return $obj;
+    }
+
+    /**
+     * Instantiate a {@link Writer} class from the current object
+     *
+     * @param string $open_mode the file open mode flag
+     *
+     * @return \League\Csv\Writer
+     */
+    public function createWriter($open_mode = 'r+')
+    {
+        return $this->createFromCurrentInstance('\League\Csv\Writer', $open_mode);
+    }
+
+    /**
+     * Instantiate a {@link Reader} class from the current object
+     *
+     * @param string $open_mode the file open mode flag
+     *
+     * @return \League\Csv\Reader
+     */
+    public function createReader($open_mode = 'r+')
+    {
+        return $this->createFromCurrentInstance('\League\Csv\Reader', $open_mode);
     }
 
     /**
@@ -360,106 +385,70 @@ abstract class AbstractCsv implements JsonSerializable, IteratorAggregate
      * DEPRECATION WARNING! This method will be removed in the next major point release
      *
      * @deprecated deprecated since version 5.5
+     */
+    public function setEncoding($str)
+    {
+        return $this->setEncodingFrom($str);
+    }
+
+    /**
+     * DEPRECATION WARNING! This method will be removed in the next major point release
      *
+     * @deprecated deprecated since version 5.5
+     */
+    public function getEncoding()
+    {
+        return $this->getEncodingFrom();
+    }
+
+    /**
      * Set the CSV encoding charset
      *
      * @param string $str
      *
      * @return self
      */
-    public function setEncoding($str)
+    public function setEncodingFrom($str)
     {
         $str = str_replace('_', '-', $str);
         $str = filter_var($str, FILTER_SANITIZE_STRING, ['flags' => FILTER_FLAG_STRIP_LOW|FILTER_FLAG_STRIP_HIGH]);
         if (empty($str)) {
             throw new InvalidArgumentException('you should use a valid charset');
         }
-        $this->encoding = strtoupper($str);
+        $this->encodingFrom = strtoupper($str);
 
         return $this;
     }
 
     /**
-     * DEPRECATION WARNING! This method will be removed in the next major point release
-     *
-     * @deprecated deprecated since version 5.5
-     *
-     * Get the CSV encoding charset
+     * Get the source CSV encoding charset
      *
      * @return string
      */
-    public function getEncoding()
+    public function getEncodingFrom()
     {
-        return $this->encoding;
+        return $this->encodingFrom;
     }
 
     /**
-     * DEPRECATION WARNING! This method will be removed in the next major point release
-     *
-     * @deprecated deprecated since version 5.5
-     *
      * Convert Csv file into UTF-8
      *
      * @return \Traversable
      */
-    protected function convert2Utf8()
+    protected function convert2Utf8(Traversable $iterator)
     {
-        if ('UTF-8' == $this->encoding) {
-            return $this->getIterator();
+        if ('UTF-8' == $this->encodingFrom) {
+            return $iterator;
         }
 
-        return new MapIterator($this->getIterator(), function ($row) {
+        return new MapIterator($iterator, function ($row) {
             foreach ($row as &$value) {
-                $value = mb_convert_encoding($value, 'UTF-8', $this->encoding);
+                $value = mb_convert_encoding($value, 'UTF-8', $this->encodingFrom);
             }
             unset($value);
 
             return $row;
         });
-    }
-
-    /**
-     * Instantiate a AbstractCsv extended class
-     *
-     * @param string $class_name the Class to load {@link Writer} or {@link Reader}
-     * @param string $open_mode  the file open mode flag
-     *
-     * @return \League\Csv\AbstractCSv
-     */
-    protected function createFromCurrentInstance($class_name, $open_mode = 'r+')
-    {
-        $obj = new $class_name($this->path, $open_mode);
-        $obj->delimiter = $this->delimiter;
-        $obj->enclosure = $this->enclosure;
-        $obj->escape = $this->escape;
-        $obj->flags = $this->flags;
-        $obj->encoding = $this->encoding;
-
-        return $obj;
-    }
-
-    /**
-     * Instantiate a {@link Writer} class from the current object
-     *
-     * @param string $open_mode the file open mode flag
-     *
-     * @return \League\Csv\Writer
-     */
-    public function createWriter($open_mode = 'r+')
-    {
-        return $this->createFromCurrentInstance('\League\Csv\Writer', $open_mode);
-    }
-
-    /**
-     * Instantiate a {@link Reader} class from the current object
-     *
-     * @param string $open_mode the file open mode flag
-     *
-     * @return \League\Csv\Reader
-     */
-    public function createReader($open_mode = 'r+')
-    {
-        return $this->createFromCurrentInstance('\League\Csv\Reader', $open_mode);
     }
 
     /**
@@ -469,7 +458,7 @@ abstract class AbstractCsv implements JsonSerializable, IteratorAggregate
      */
     public function jsonSerialize()
     {
-        return iterator_to_array($this->convert2Utf8(), false);
+        return iterator_to_array($this->convert2Utf8($this->getIterator()), false);
     }
 
     /**
@@ -482,8 +471,9 @@ abstract class AbstractCsv implements JsonSerializable, IteratorAggregate
         $iterator = $this->getIterator();
         //@codeCoverageIgnoreStart
         if (! is_null($filename) && AbstractCsv::isValidString($filename)) {
-            header('Content-Type: text/csv; charset="'.$this->encoding.'"');
+            header('Content-Type: text/csv; charset="'.$this->encodingFrom.'"');
             header('Content-Disposition: attachment; filename="'.$filename.'"');
+            header('Content-Transfer-Encoding: binary');
             if (! $iterator instanceof SplTempFileObject) {
                 header('Content-Length: '.$iterator->getSize());
             }
@@ -519,7 +509,8 @@ abstract class AbstractCsv implements JsonSerializable, IteratorAggregate
     {
         $doc = new DomDocument('1.0', 'UTF-8');
         $root = $doc->createElement($root_name);
-        foreach ($this->convert2Utf8() as $row) {
+        $csv = $this->convert2Utf8($this->getIterator());
+        foreach ($csv as $row) {
             $item = $doc->createElement($row_name);
             foreach ($row as $value) {
                 $content = $doc->createTextNode($value);
