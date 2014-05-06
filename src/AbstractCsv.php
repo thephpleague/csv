@@ -69,10 +69,6 @@ abstract class AbstractCsv implements JsonSerializable, IteratorAggregate
     protected $flags = SplFileObject::READ_CSV;
 
     /**
-     * DEPRECATION WARNING! This method will be removed in the next major point release
-     *
-     * @deprecated deprecated since version 5.5
-     *
      * Charset Encoding for the CSV
      *
      * @var string
