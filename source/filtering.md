@@ -7,7 +7,7 @@ title: Filtering
 
 *available since version 5.5*
 
-Sometimes you may want to perform operations on the CSV as it is being read from or written to. To ease this type of manipulation The `Reader` and `Writer` classes now include methods to ease PHP stream filtering usage.
+To ease performing operations on the CSV as it is being read from or written to. the `Reader` and `Writer` classes now include methods to ease PHP stream filtering usage.
 
 <p class="message-warning"><strong>Warning:</strong> For backward compatibility, PHP Stream Filtering can not be applied when a <code>SplFileObject</code> was use to instantiate the class. A <code>RuntimeException</code> exception will be thrown if you try to use the API under theses circumstances.</p>
 
@@ -16,9 +16,9 @@ Sometimes you may want to perform operations on the CSV as it is being read from
 To be able to use the stream filtering mechanism you need to:
 
 * set the class filtering mode;
-* attached to the object the stream filters you want;
+* attached stream filters to your object as a collection;
 
-When all is set, the filters will be applied when the stream filter mode matches the method you've called.
+The filters will be automatically applied when the stream filter mode matches the method you are using.
 
 The attached filters are not:
 
@@ -27,9 +27,9 @@ The attached filters are not:
 
 ### Setting and getting the object stream filter mode
 
-The stream filter mode property is set using PHP internal stream filter constant `STREAM_FILTER_*`, but unlike `fopen`, the stream filter mode is object based and not filter specific.
+The stream filter mode property is set using PHP internal stream filter constant `STREAM_FILTER_*`, but unlike `fopen`, the mode is a class property and not specific to a stream filter unlike when using `fopen`.
 
-* `setStreamFilterMode($mode)`: set the class stream filter mode. When called, all previously attached filters are removed;
+* `setStreamFilterMode($mode)`: set the object stream filter mode **and** remove all previously attached stream filters;
 * `getStreamFilterMode()`: returns the current stream filter mode;
 
 By default:
@@ -83,7 +83,7 @@ foreach ($reader as $row) {
 
 ### Writer class on Editing Mode
 
-<p class="message-warning"><strong>Warning:</strong> To preserve file cursor position during editing and because of <code>SplFileObject</code> restricted stream filter support, the stream filter properties and functions are fixed after the first insert is made with any of the <code>insert*</code> method.</p>
+<p class="message-warning"><strong>Warning:</strong> To preserve file cursor position during editing and because of <code>SplFileObject</code> restricted stream filter support, the stream filter mode and the stream filter collection are frozen after the first insert is made using any of the <code>insert*</code> method.</p>
 
 ~~~.language-php
 use \League\Csv\Writer;
@@ -93,7 +93,7 @@ $writer->setDelimiter(',');
 $writer->addStreamFilter('str.toupper');
 //first insert -> file.csv will contain uppercased data.
 $writer->insertOne(['bill', 'gates', 'bill@microsoft.com']);
-//Both methods below will have no effect and won't return any error!!
+//this  will have no effect and won't return any error!!
 $writer->addStreamFilter('str.rot13');
 //The inserted array will only be uppercased!!
 $writer->insertOne('steve,job,job@apple.com');
