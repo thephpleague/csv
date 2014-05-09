@@ -1,42 +1,24 @@
 <?php
 /**
-* League.csv - A CSV data manipulation library
+* This file is part of the League.csv library
 *
-* @author Ignace Nyamagana Butera <nyamsprod@gmail.com>
-* @copyright 2014 Ignace Nyamagana Butera
-* @link https://github.com/thephpleague/csv/
 * @license http://opensource.org/licenses/MIT
-* @version 5.4.0
+* @link https://github.com/thephpleague/csv/
+* @version 5.5.0
 * @package League.csv
 *
-* MIT LICENSE
-*
-* Permission is hereby granted, free of charge, to any person obtaining
-* a copy of this software and associated documentation files (the
-* "Software"), to deal in the Software without restriction, including
-* without limitation the rights to use, copy, modify, merge, publish,
-* distribute, sublicense, and/or sell copies of the Software, and to
-* permit persons to whom the Software is furnished to do so, subject to
-* the following conditions:
-*
-* The above copyright notice and this permission notice shall be
-* included in all copies or substantial portions of the Software.
-*
-* THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-* EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-* MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-* NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
-* LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
-* OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
-* WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+* For the full copyright and license information, please view the LICENSE
+* file that was distributed with this source code.
 */
 namespace League\Csv;
 
 use InvalidArgumentException;
-
+use Iterator;
 use CallbackFilterIterator;
 use League\Csv\Iterator\MapIterator;
-use League\Csv\Iterator\IteratorQuery;
+use League\Csv\Iterator\IteratorFilter;
+use League\Csv\Iterator\IteratorSortBy;
+use League\Csv\Iterator\IteratorInterval;
 
 /**
  *  A class to manage extracting and filtering a CSV
@@ -48,12 +30,30 @@ use League\Csv\Iterator\IteratorQuery;
 class Reader extends AbstractCsv
 {
     /**
-     * Iterator Query Trait
+     *  Iterator Filtering Trait
      */
-    use IteratorQuery;
+    use IteratorFilter;
+
+    /**
+     *  Iterator Sorting Trait
+     */
+    use IteratorSortBy;
+
+    /**
+     *  Iterator Set Interval Trait
+     */
+    use IteratorInterval;
+
+    /**
+     * {@ihneritdoc}
+     */
+    protected $stream_filter_mode = STREAM_FILTER_READ;
 
     /**
      * Intelligent Array Combine
+     *
+     * add or remove values from the $value array to
+     * match array $keys length before using PHP array_combine function
      *
      * @param array $keys
      * @param array $value
@@ -78,7 +78,7 @@ class Reader extends AbstractCsv
      *
      * @param callable $callable a callable function to be applied to each Iterator item
      *
-     * @return \Iterator
+     * @return \Traversable
      */
     public function query(callable $callable = null)
     {
@@ -86,7 +86,14 @@ class Reader extends AbstractCsv
             return is_array($row);
         });
 
-        return $this->execute($iterator, $callable);
+        $iterator = $this->applyIteratorFilter($iterator);
+        $iterator = $this->applyIteratorSortBy($iterator);
+        $iterator = $this->applyIteratorInterval($iterator);
+        if (! is_null($callable)) {
+            $iterator = new MapIterator($iterator, $callable);
+        }
+
+        return $iterator;
     }
 
     /**
@@ -100,11 +107,7 @@ class Reader extends AbstractCsv
      */
     public function each(callable $callable)
     {
-        $iterator = new CallbackFilterIterator($this->getIterator(), function ($row) {
-            return is_array($row);
-        });
-
-        $iterator = $this->execute($iterator);
+        $iterator = $this->query();
         $index = 0;
         foreach ($iterator as $rowIndex => $row) {
             if (true !== $callable($row, $rowIndex, $iterator)) {
@@ -190,8 +193,8 @@ class Reader extends AbstractCsv
      *
      * @deprecated deprecated since version 5.4
      *
-     * @param integer  $fieldIndex field Index
-     * @param callable $callable   a callable function to be applied to each value to be return
+     * @param integer  $column_index field Index
+     * @param callable $callable     a callable function to be applied to each value to be return
      *
      * @return array
      *
@@ -205,8 +208,8 @@ class Reader extends AbstractCsv
     /**
      * Return a single column from the CSV data
      *
-     * @param integer  $fieldIndex field Index
-     * @param callable $callable   a callable function to be applied to each value to be return
+     * @param integer  $column_index field Index
+     * @param callable $callable     a callable function to be applied to each value to be return
      *
      * @return array
      *
@@ -233,14 +236,12 @@ class Reader extends AbstractCsv
     }
 
     /**
-     * Instantiate a {@link Writer} class from the current {@link Reader}
+     * DEPRECATION WARNING! This method will be removed in the next major point release
      *
-     * @param string $open_mode the file open mode flag
-     *
-     * @return \League\Csv\Writer
+     * @deprecated deprecated since version 5.5
      */
     public function getWriter($open_mode = 'r+')
     {
-        return $this->getInstance('\League\Csv\Writer', $open_mode);
+        return $this->createWriter($open_mode);
     }
 }

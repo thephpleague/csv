@@ -1,39 +1,19 @@
 <?php
 /**
-* League.csv - A CSV data manipulation library
+* This file is part of the League.csv library
 *
-* @author Ignace Nyamagana Butera <nyamsprod@gmail.com>
-* @copyright 2014 Ignace Nyamagana Butera
-* @link https://github.com/thephpleague/csv/
 * @license http://opensource.org/licenses/MIT
-* @version 5.4.0
+* @link https://github.com/thephpleague/csv/
+* @version 5.5.0
 * @package League.csv
 *
-* MIT LICENSE
-*
-* Permission is hereby granted, free of charge, to any person obtaining
-* a copy of this software and associated documentation files (the
-* "Software"), to deal in the Software without restriction, including
-* without limitation the rights to use, copy, modify, merge, publish,
-* distribute, sublicense, and/or sell copies of the Software, and to
-* permit persons to whom the Software is furnished to do so, subject to
-* the following conditions:
-*
-* The above copyright notice and this permission notice shall be
-* included in all copies or substantial portions of the Software.
-*
-* THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-* EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-* MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-* NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
-* LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
-* OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
-* WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+* For the full copyright and license information, please view the LICENSE
+* file that was distributed with this source code.
 */
 namespace League\Csv;
 
 use Traversable;
-
+use SplFileObject;
 use InvalidArgumentException;
 use OutOfBoundsException;
 
@@ -81,6 +61,27 @@ class Writer extends AbstractCsv
      * @var boolean
      */
     protected $detect_columns_count = false;
+
+    /**
+     * {@ihneritdoc}
+     */
+    protected $stream_filter_mode = STREAM_FILTER_WRITE;
+
+    /**
+     * The CSV object holder
+     *
+     * @var \SplFileObject
+     */
+    protected $csv;
+
+    /**
+     * The destructor
+     */
+    public function __destruct()
+    {
+        $this->csv = null;
+        parent::__destruct();
+    }
 
     /**
      * Tell the class how to handle null value
@@ -213,7 +214,7 @@ class Writer extends AbstractCsv
      */
     private function validateRow($row)
     {
-        //convert input row into a proper array
+        //convert input string row into a proper array
         if (self::isValidString($row)) {
             $row = str_getcsv((string) $row, $this->delimiter, $this->enclosure, $this->escape);
         }
@@ -224,6 +225,7 @@ class Writer extends AbstractCsv
             );
         }
 
+        //validate row according to null handling mode
         $check = array_filter($row, function ($value) {
             return (is_null($value) && self::NULL_AS_EXCEPTION != $this->null_handling_mode)
             || self::isValidString($value);
@@ -236,6 +238,30 @@ class Writer extends AbstractCsv
         }
 
         return $row;
+    }
+
+    /**
+     * set the csv container as a SplFileObject instance
+     * insure we use the same object for insertion to
+     * avoid loosing the cursor position
+     *
+     * @return SplFileObject
+     *
+     * @throws \RuntimeException If the file could not be created and/or opened
+     */
+    protected function getCsv()
+    {
+        if (! is_null($this->csv)) {
+            return $this->csv;
+        } elseif ($this->path instanceof SplFileObject) {
+            $this->csv = $this->path;
+
+            return $this->csv;
+        }
+
+        $this->csv = new SplFileObject($this->getStreamFilterPath(), $this->open_mode);
+
+        return $this->csv;
     }
 
     /**
@@ -257,14 +283,15 @@ class Writer extends AbstractCsv
                 that requires '.$this->columns_count.' columns per row.'
             );
         }
-
-        $this->csv->fputcsv($data, $this->delimiter, $this->enclosure);
+        $this->getCsv()->fputcsv($data, $this->delimiter, $this->enclosure);
 
         return $this;
     }
 
     /**
      * Add multiple lines to the CSV your are generating
+     *
+     * a simple helper/Wrapper method around insertOne
      *
      * @param mixed $rows a multidimentional array or a Traversable object
      *
@@ -288,14 +315,12 @@ class Writer extends AbstractCsv
     }
 
     /**
-     * Instantiate a {@link Reader} class from the current {@link Writer}
+     * DEPRECATION WARNING! This method will be removed in the next major point release
      *
-     * @param string $open_mode the file open mode flag
-     *
-     * @return \League\Csv\Reader
+     * @deprecated deprecated since version 5.5
      */
     public function getReader($open_mode = 'r+')
     {
-        return $this->getInstance('\League\Csv\Reader', $open_mode);
+        return $this->createReader($open_mode);
     }
 }

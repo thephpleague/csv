@@ -27,7 +27,8 @@
     },
     "autoload-dev": {
         "psr-4": {
-            "League\\Csv\\Test\\": "test"
+            "League\\Csv\\Test\\": "test",
+            "lib\\": "examples\\lib"
         }
     },
     "replace": {
@@ -35,7 +36,7 @@
     },
     "extra": {
         "branch-alias": {
-            "dev-master": "5.4-dev"
+            "dev-master": "5.5-dev"
         }
     }
 }

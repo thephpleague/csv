@@ -40,6 +40,9 @@ class CsvTest extends PHPUnit_Framework_TestCase
 
         $csv = new Reader(new SplFileInfo($path));
         $this->assertSame($path, $csv->getIterator()->getRealPath());
+
+        $csv = new Reader(new SplFileInfo('php://input'));
+        $this->assertFalse($csv->getIterator()->getRealPath());
     }
 
     public function testConstructorWithFilePath()
@@ -55,7 +58,7 @@ class CsvTest extends PHPUnit_Framework_TestCase
      */
     public function testConstructorWithNotWritablePath()
     {
-        new Reader('/usr/bin/foo.csv');
+        (new Reader('/usr/bin/foo.csv'))->getIterator();
     }
 
     /**
@@ -253,5 +256,85 @@ EOF;
     public static function getIso8859Csv()
     {
         return [[file_get_contents(__DIR__.'/data/prenoms.csv')]];
+    }
+
+    public function testInitStreamFilter()
+    {
+        $filter = 'php://filter/write=string.rot13/resource='.__DIR__.'/foo.csv';
+        $csv = new Reader(new SplFileInfo($filter));
+        $this->assertTrue($csv->hasStreamFilter('string.rot13'));
+        $this->assertSame(STREAM_FILTER_WRITE, $csv->getStreamFilterMode());
+
+        $filter = 'php://filter/read=string.toupper/resource='.__DIR__.'/foo.csv';
+        $csv = new Reader(new SplFileInfo($filter));
+        $this->assertTrue($csv->hasStreamFilter('string.toupper'));
+        $this->assertSame(STREAM_FILTER_READ, $csv->getStreamFilterMode());
+    }
+
+    /**
+     * @expectedException InvalidArgumentException
+     */
+    public function testappendStreamFilter()
+    {
+        $path = __DIR__.'/foo.csv';
+        $csv = new Reader(new SplFileInfo($path));
+        $csv->appendStreamFilter('string.toupper');
+        foreach ($csv->getIterator() as $row) {
+            $this->assertSame($row, ['JOHN', 'DOE', 'JOHN.DOE@EXAMPLE.COM']);
+        }
+        $csv->appendStreamFilter(new DateTime);
+    }
+
+    /**
+     * @expectedException RuntimeException
+     */
+    public function testprependStreamFilter()
+    {
+        (new Reader(new SplTempFileObject))->prependStreamFilter('string.toupper');
+    }
+
+    /**
+     * @expectedException OutOfBoundsException
+     */
+    public function testaddMultipleStreamFilter()
+    {
+        $path = __DIR__.'/foo.csv';
+        $csv = new Reader(new SplFileInfo($path));
+        $csv->setFlags(SplFileObject::READ_AHEAD|SplFileObject::SKIP_EMPTY);
+        $csv->appendStreamFilter('string.tolower');
+        $csv->prependStreamFilter('string.rot13');
+        $csv->appendStreamFilter('string.toupper');
+        $this->assertTrue($csv->hasStreamFilter('string.tolower'));
+        $csv->removeStreamFilter('string.tolower');
+        $this->assertFalse($csv->hasStreamFilter('string.tolower'));
+
+        foreach ($csv->getIterator() as $row) {
+            $this->assertSame($row, ['WBUA', 'QBR', 'WBUA.QBR@RKNZCYR.PBZ']);
+        }
+        $csv->clearStreamFilter();
+        $this->assertFalse($csv->hasStreamFilter('string.rot13'));
+
+        $csv->appendStreamFilter('string.toupper');
+        $this->assertSame(STREAM_FILTER_READ, $csv->getStreamFilterMode());
+        $csv->setStreamFilterMode(STREAM_FILTER_WRITE);
+        $this->assertSame(STREAM_FILTER_WRITE, $csv->getStreamFilterMode());
+        foreach ($csv->getIterator() as $row) {
+            $this->assertSame($row, ['john', 'doe', 'john.doe@example.com']);
+        }
+        $csv->setStreamFilterMode(34);
+    }
+
+    /**
+     * @expectedException RuntimeException
+     */
+    public function testGetFilterPath()
+    {
+        $path = __DIR__.'/foo.csv';
+        $csv = new Writer(new SplFileInfo($path));
+        $csv->appendStreamFilter('string.rot13');
+        $csv->prependStreamFilter('string.toupper');
+        $this->assertFalse($csv->getIterator()->getRealPath());
+
+        (new Reader(new SplTempFileObject))->appendStreamFilter('string.rot13');
     }
 }

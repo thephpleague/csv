@@ -1,34 +1,13 @@
 <?php
 /**
-* League.csv - A CSV data manipulation library
+* This file is part of the League.csv library
 *
-* @author Ignace Nyamagana Butera <nyamsprod@gmail.com>
-* @copyright 2014 Ignace Nyamagana Butera
-* @link https://github.com/thephpleague/csv/
 * @license http://opensource.org/licenses/MIT
-* @version 5.4.0
+* @version 5.5.0
 * @package League.csv
 *
-* MIT LICENSE
-*
-* Permission is hereby granted, free of charge, to any person obtaining
-* a copy of this software and associated documentation files (the
-* "Software"), to deal in the Software without restriction, including
-* without limitation the rights to use, copy, modify, merge, publish,
-* distribute, sublicense, and/or sell copies of the Software, and to
-* permit persons to whom the Software is furnished to do so, subject to
-* the following conditions:
-*
-* The above copyright notice and this permission notice shall be
-* included in all copies or substantial portions of the Software.
-*
-* THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-* EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-* MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-* NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
-* LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
-* OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
-* WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+* For the full copyright and license information, please view the LICENSE
+* file that was distributed with this source code.
 */
 namespace League\Csv\Iterator;
 
@@ -50,14 +29,14 @@ trait IteratorInterval
      *
      * @var integer
      */
-    private $offset = 0;
+    protected $iterator_offset = 0;
 
     /**
      * iterator maximum length
      *
      * @var integer
      */
-    private $limit = -1;
+    protected $iterator_limit = -1;
 
     /**
      * Set LimitIterator Offset
@@ -71,7 +50,7 @@ trait IteratorInterval
         if (false === filter_var($offset, FILTER_VALIDATE_INT, ['options' => ['min_range' => 0]])) {
             throw new InvalidArgumentException('the offset must be a positive integer or 0');
         }
-        $this->offset = $offset;
+        $this->iterator_offset = $offset;
 
         return $this;
     }
@@ -88,7 +67,7 @@ trait IteratorInterval
         if (false === filter_var($limit, FILTER_VALIDATE_INT, ['options' => ['min_range' => -1]])) {
             throw new InvalidArgumentException('the limit must an integer greater or equals to -1');
         }
-        $this->limit = $limit;
+        $this->iterator_limit = $limit;
 
         return $this;
     }
@@ -100,16 +79,16 @@ trait IteratorInterval
     *
     * @return \LimitIterator
     */
-    protected function applyInterval(Iterator $iterator)
+    protected function applyIteratorInterval(Iterator $iterator)
     {
-        if (0 == $this->offset && -1 == $this->limit) {
+        if (0 == $this->iterator_offset && -1 == $this->iterator_limit) {
             return $iterator;
         }
-        $offset = $this->offset;
-        $limit = $this->limit;
+        $offset = $this->iterator_offset;
+        $limit = $this->iterator_limit;
 
-        $this->limit = -1;
-        $this->offset = 0;
+        $this->iterator_limit = -1;
+        $this->iterator_offset = 0;
 
         return new LimitIterator($iterator, $offset, $limit);
     }

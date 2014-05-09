@@ -1,34 +1,14 @@
 <?php
 /**
-* League.csv - A CSV data manipulation library
+* This file is part of the League.csv library
 *
-* @author Ignace Nyamagana Butera <nyamsprod@gmail.com>
-* @copyright 2014 Ignace Nyamagana Butera
-* @link https://github.com/thephpleague/csv/
 * @license http://opensource.org/licenses/MIT
-* @version 5.4.0
+* @link https://github.com/thephpleague/csv/
+* @version 5.5.0
 * @package League.csv
 *
-* MIT LICENSE
-*
-* Permission is hereby granted, free of charge, to any person obtaining
-* a copy of this software and associated documentation files (the
-* "Software"), to deal in the Software without restriction, including
-* without limitation the rights to use, copy, modify, merge, publish,
-* distribute, sublicense, and/or sell copies of the Software, and to
-* permit persons to whom the Software is furnished to do so, subject to
-* the following conditions:
-*
-* The above copyright notice and this permission notice shall be
-* included in all copies or substantial portions of the Software.
-*
-* THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-* EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-* MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-* NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
-* LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
-* OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
-* WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+* For the full copyright and license information, please view the LICENSE
+* file that was distributed with this source code.
 */
 namespace League\Csv\Iterator;
 
@@ -49,7 +29,7 @@ trait IteratorSortBy
      *
      * @var callable
      */
-    private $sortBy = [];
+    protected $iterator_sort_by = [];
 
     /**
      * Set the Iterator SortBy method
@@ -68,15 +48,15 @@ trait IteratorSortBy
     }
 
     /**
-     * Set an Iterator sortBy method
+     * Set an Iterator sorting callable function
      *
-     * @param callable $filter
+     * @param callable $callable
      *
      * @return self
      */
     public function addSortBy(callable $callable)
     {
-        $this->sortBy[] = $callable;
+        $this->iterator_sort_by[] = $callable;
 
         return $this;
     }
@@ -84,15 +64,15 @@ trait IteratorSortBy
     /**
      * Remove a callable from the collection
      *
-     * @param callable $filter
+     * @param callable $callable
      *
      * @return self
      */
     public function removeSortBy(callable $callable)
     {
-        $res = array_search($callable, $this->sortBy, true);
+        $res = array_search($callable, $this->iterator_sort_by, true);
         if (false !== $res) {
-            unset($this->sortBy[$res]);
+            unset($this->iterator_sort_by[$res]);
         }
 
         return $this;
@@ -101,13 +81,13 @@ trait IteratorSortBy
     /**
      * Detect if the callable is already registered
      *
-     * @param callable $filter
+     * @param callable $callable
      *
      * @return boolean
      */
     public function hasSortBy(callable $callable)
     {
-        return false !== array_search($callable, $this->sortBy, true);
+        return false !== array_search($callable, $this->iterator_sort_by, true);
     }
 
     /**
@@ -117,7 +97,7 @@ trait IteratorSortBy
      */
     public function clearSortBy()
     {
-        $this->sortBy = [];
+        $this->iterator_sort_by = [];
 
         return $this;
     }
@@ -129,22 +109,22 @@ trait IteratorSortBy
     *
     * @return \ArrayIterator
     */
-    protected function applySortBy(Iterator $iterator)
+    protected function applyIteratorSortBy(Iterator $iterator)
     {
-        if (! $this->sortBy) {
+        if (! $this->iterator_sort_by) {
             return $iterator;
         }
         $res = iterator_to_array($iterator, false);
 
         uasort($res, function ($rowA, $rowB) {
-            foreach ($this->sortBy as $callable) {
+            foreach ($this->iterator_sort_by as $callable) {
                 $res = $callable($rowA, $rowB);
                 if (0 !== $res) {
-                    break;
+                    return $res;
                 }
             }
 
-            return $res;
+            return 0;
         });
 
         $this->clearSortBy();
