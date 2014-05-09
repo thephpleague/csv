@@ -157,7 +157,7 @@ abstract class AbstractCsv implements JsonSerializable, IteratorAggregate
         $obj->enclosure = $this->enclosure;
         $obj->escape = $this->escape;
         $obj->flags = $this->flags;
-        $obj->encoding = $this->encodingFrom;
+        $obj->encodingFrom = $this->encodingFrom;
 
         return $obj;
     }
@@ -252,18 +252,18 @@ abstract class AbstractCsv implements JsonSerializable, IteratorAggregate
         $delimiters = array_merge([$this->delimiter, ',', ';', "\t"], $delimiters);
         $delimiters = array_unique($delimiters);
 
-        //"reduce" the csv length to a maximum of $nb_rows
-        $iterator = new CallbackFilterIterator(
-            new LimitIterator($this->getIterator(), 0, $nb_rows),
-            function ($row) {
-                return is_array($row) && count($row) > 1;
-            }
-        );
-
         //detecting the possible delimiter
         $res = [];
         foreach ($delimiters as $delim) {
+            $iterator = $this->getIterator();
             $iterator->setCsvControl($delim, $this->enclosure, $this->escape);
+            //"reduce" the csv length to a maximum of $nb_rows
+            $iterator = new CallbackFilterIterator(
+                new LimitIterator($iterator, 0, $nb_rows),
+                function ($row) {
+                    return is_array($row) && count($row) > 1;
+                }
+            );
             $res[$delim] = count(iterator_to_array($iterator, false));
         }
         arsort($res, SORT_NUMERIC);
@@ -431,7 +431,7 @@ abstract class AbstractCsv implements JsonSerializable, IteratorAggregate
      *
      * @return \Traversable
      */
-    protected function convert2Utf8(Traversable $iterator)
+    protected function convertToUtf8(Traversable $iterator)
     {
         if ('UTF-8' == $this->encodingFrom) {
             return $iterator;
@@ -454,7 +454,7 @@ abstract class AbstractCsv implements JsonSerializable, IteratorAggregate
      */
     public function jsonSerialize()
     {
-        return iterator_to_array($this->convert2Utf8($this->getIterator()), false);
+        return iterator_to_array($this->convertToUtf8($this->getIterator()), false);
     }
 
     /**
@@ -505,7 +505,7 @@ abstract class AbstractCsv implements JsonSerializable, IteratorAggregate
     {
         $doc = new DomDocument('1.0', 'UTF-8');
         $root = $doc->createElement($root_name);
-        $csv = $this->convert2Utf8($this->getIterator());
+        $csv = $this->convertToUtf8($this->getIterator());
         foreach ($csv as $row) {
             $item = $doc->createElement($row_name);
             foreach ($row as $value) {
