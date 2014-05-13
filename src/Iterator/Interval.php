@@ -22,7 +22,7 @@ use LimitIterator;
  * @since  4.2.1
  *
  */
-trait IteratorInterval
+trait Interval
 {
     /**
      * iterator Offset

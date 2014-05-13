@@ -321,6 +321,6 @@ class Writer extends AbstractCsv
      */
     public function getReader($open_mode = 'r+')
     {
-        return $this->createReader($open_mode);
+        return $this->newReader($open_mode);
     }
 }

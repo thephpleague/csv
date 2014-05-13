@@ -16,13 +16,14 @@ use Iterator;
 use ArrayIterator;
 
 /**
- *  A Trait to sort an Iterator
+ *  A Trait to sort an Iterator against
+ *  a collection of Sort functions
  *
  * @package League.csv
  * @since  4.2.1
  *
  */
-trait IteratorSortBy
+trait SortBy
 {
     /**
      * Callable function to sort the ArrayObject

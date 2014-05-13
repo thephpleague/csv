@@ -14,9 +14,8 @@ League\Csv was designed for developers who wants to deal with CSV data using
 modern code and without the high levels of bootstrap and low-levels of
 usefulness provided by existing core functions or third party-code.
 
-This package is compliant with [PSR-1], [PSR-2], and [PSR-4].
+This package is compliant with [PSR-2] and [PSR-4].
 
-[PSR-1]: https://github.com/php-fig/fig-standards/blob/master/accepted/PSR-1-basic-coding-standard.md
 [PSR-2]: https://github.com/php-fig/fig-standards/blob/master/accepted/PSR-2-coding-style-guide.md
 [PSR-4]: https://github.com/php-fig/fig-standards/blob/master/accepted/PSR-4-autoloader.md
 
@@ -48,15 +47,14 @@ Contribute to this documentation in the [sculpin branch](https://github.com/thep
 
 ### Tips
 
-#### Creating or Editing a CSV file
+* When creating or editing a document using `League\Csv\Writer`, first insert all the data that need to be inserted before anything else. If you manipulate your data before insertion, you may change the file cursor position and get unexpected results.
 
-* When creating a file using the library, first insert all the data that need to be inserted before starting manipulating the CSV. If you manipulate your data before insertion, you may change the file cursor position and get unexpected results.
+* Even thought you can iterate over you document using `League\Csv\Writer` class, **it is recommend and best practice** to iterate over you CSV using the `League\Csv\Reader` class to avoid any issue.
 
-* Even thought you can iterate using the `Writer` class **it is recommend and best practice** to iterate over you CSV using the `Reader` class to avoid any issue.
+* The library assumes that your data is UTF-8 encoded. If your are dealing with non-unicode data you **must** enable your data conversion into UTF-8 otherwise output methods will failed. You can transcode you CSV :
+    * using the library [stream filtering methods](http://csv.thephpleague.com/filtering);
+    * or by setting the source [encoding charset](http://csv.thephpleague.com/overview);
 
-#### CSV encoding charset
-
-The library assumes that your data is UTF-8 encoded. If your are dealing with non-unicode data, use the library [stream filtering mechanism](http://csv.thephpleague.com/filtering) to convert your data into UTF-8 otherwise the output methods may failed.
 
 Testing
 -------

@@ -16,9 +16,9 @@ use InvalidArgumentException;
 use Iterator;
 use CallbackFilterIterator;
 use League\Csv\Iterator\MapIterator;
-use League\Csv\Iterator\IteratorFilter;
-use League\Csv\Iterator\IteratorSortBy;
-use League\Csv\Iterator\IteratorInterval;
+use League\Csv\Iterator\Filter;
+use League\Csv\Iterator\SortBy;
+use League\Csv\Iterator\Interval;
 
 /**
  *  A class to manage extracting and filtering a CSV
@@ -32,17 +32,17 @@ class Reader extends AbstractCsv
     /**
      *  Iterator Filtering Trait
      */
-    use IteratorFilter;
+    use Filter;
 
     /**
      *  Iterator Sorting Trait
      */
-    use IteratorSortBy;
+    use SortBy;
 
     /**
      *  Iterator Set Interval Trait
      */
-    use IteratorInterval;
+    use Interval;
 
     /**
      * {@ihneritdoc}
@@ -116,6 +116,8 @@ class Reader extends AbstractCsv
             $index++;
         }
 
+        $iterator = null;
+
         return $index;
     }
 
@@ -138,6 +140,7 @@ class Reader extends AbstractCsv
         if (! is_array($res)) {
             return [];
         }
+        $iterator = null;
 
         return $res;
     }
@@ -153,7 +156,11 @@ class Reader extends AbstractCsv
     {
         $iterator = $this->query($callable);
 
-        return iterator_to_array($iterator, false);
+        $res = iterator_to_array($iterator, false);
+
+        $iterator = null;
+
+        return $res;
     }
 
     /**
@@ -183,7 +190,11 @@ class Reader extends AbstractCsv
             return self::combineArray($keys, $row);
         });
 
-        return iterator_to_array($iterator, false);
+        $res = iterator_to_array($iterator, false);
+
+        $iterator = null;
+
+        return $res;
     }
 
     /**
@@ -232,7 +243,11 @@ class Reader extends AbstractCsv
             return $row[$column_index];
         });
 
-        return iterator_to_array($iterator, false);
+        $res = iterator_to_array($iterator, false);
+
+        $iterator = null;
+
+        return $res;
     }
 
     /**
@@ -242,6 +257,6 @@ class Reader extends AbstractCsv
      */
     public function getWriter($open_mode = 'r+')
     {
-        return $this->createWriter($open_mode);
+        return $this->newWriter($open_mode);
     }
 }

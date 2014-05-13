@@ -24,7 +24,7 @@ use IteratorAggregate;
 use LimitIterator;
 use CallbackFilterIterator;
 use League\Csv\Iterator\MapIterator;
-use League\Csv\Stream\StreamFilter;
+use League\Csv\Stream\Filter;
 
 /**
  *  An abstract class to enable basic CSV manipulation
@@ -38,7 +38,7 @@ abstract class AbstractCsv implements JsonSerializable, IteratorAggregate
     /**
      *  Stream Filter Trait
      */
-    use StreamFilter;
+    use Filter;
 
     /**
      * the field delimiter (one character only)
@@ -150,7 +150,7 @@ abstract class AbstractCsv implements JsonSerializable, IteratorAggregate
      *
      * @return \League\Csv\AbstractCSv
      */
-    protected function createFromCurrentInstance($class_name, $open_mode)
+    protected function newInstance($class_name, $open_mode)
     {
         $obj = new $class_name($this->path, $open_mode);
         $obj->delimiter = $this->delimiter;
@@ -169,9 +169,9 @@ abstract class AbstractCsv implements JsonSerializable, IteratorAggregate
      *
      * @return \League\Csv\Writer
      */
-    public function createWriter($open_mode = 'r+')
+    public function newWriter($open_mode = 'r+')
     {
-        return $this->createFromCurrentInstance('\League\Csv\Writer', $open_mode);
+        return $this->newInstance('\League\Csv\Writer', $open_mode);
     }
 
     /**
@@ -181,9 +181,9 @@ abstract class AbstractCsv implements JsonSerializable, IteratorAggregate
      *
      * @return \League\Csv\Reader
      */
-    public function createReader($open_mode = 'r+')
+    public function newReader($open_mode = 'r+')
     {
-        return $this->createFromCurrentInstance('\League\Csv\Reader', $open_mode);
+        return $this->newInstance('\League\Csv\Reader', $open_mode);
     }
 
     /**
@@ -266,6 +266,7 @@ abstract class AbstractCsv implements JsonSerializable, IteratorAggregate
             );
             $res[$delim] = count(iterator_to_array($iterator, false));
         }
+        $iterator = null;
         arsort($res, SORT_NUMERIC);
         $res = array_keys(array_filter($res));
         if (! $res) {
@@ -454,7 +455,11 @@ abstract class AbstractCsv implements JsonSerializable, IteratorAggregate
      */
     public function jsonSerialize()
     {
-        return iterator_to_array($this->convertToUtf8($this->getIterator()), false);
+        $iterator = $this->convertToUtf8($this->getIterator());
+        $res = iterator_to_array($iterator, false);
+        $iterator = null;
+
+        return $res;
     }
 
     /**
@@ -467,7 +472,7 @@ abstract class AbstractCsv implements JsonSerializable, IteratorAggregate
         $iterator = $this->getIterator();
         //@codeCoverageIgnoreStart
         if (! is_null($filename) && AbstractCsv::isValidString($filename)) {
-            header('Content-Type: text/csv; charset="'.$this->encodingFrom.'"');
+            header('Content-Type: application/octet-stream');
             header('Content-Disposition: attachment; filename="'.$filename.'"');
             header('Content-Transfer-Encoding: binary');
             if (! $iterator instanceof SplTempFileObject) {
@@ -477,6 +482,7 @@ abstract class AbstractCsv implements JsonSerializable, IteratorAggregate
         //@codeCoverageIgnoreEnd
         $iterator->rewind();
         $iterator->fpassthru();
+        $iterator = null;
     }
 
     /**
@@ -505,8 +511,8 @@ abstract class AbstractCsv implements JsonSerializable, IteratorAggregate
     {
         $doc = new DomDocument('1.0', 'UTF-8');
         $root = $doc->createElement($root_name);
-        $csv = $this->convertToUtf8($this->getIterator());
-        foreach ($csv as $row) {
+        $iterator = $this->convertToUtf8($this->getIterator());
+        foreach ($iterator as $row) {
             $item = $doc->createElement($row_name);
             foreach ($row as $value) {
                 $content = $doc->createTextNode($value);
@@ -517,6 +523,7 @@ abstract class AbstractCsv implements JsonSerializable, IteratorAggregate
             $root->appendChild($item);
         }
         $doc->appendChild($root);
+        $iterator = null;
 
         return $doc;
     }

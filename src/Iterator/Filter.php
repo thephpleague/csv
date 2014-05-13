@@ -16,13 +16,14 @@ use CallbackFilterIterator;
 use Iterator;
 
 /**
- *  A Trait to filter Iterators
+ *  A Trait to filter Iterator against
+ *  a collection of CallbackFilterIterator object
  *
  * @package League.csv
  * @since  4.2.1
  *
  */
-trait IteratorFilter
+trait Filter
 {
     /**
      * Callable function to filter the iterator

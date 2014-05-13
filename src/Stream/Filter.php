@@ -19,13 +19,14 @@ use RuntimeException;
 use OutOfBoundsException;
 
 /**
- *  A Trait to add ease manipulation Stream Filters
+ *  A Trait to ease PHP Stream Filters manipulation
+ *  with a SplFileObject
  *
  * @package League.csv
  * @since  5.5.0
  *
  */
-trait StreamFilter
+trait Filter
 {
     /**
      * collection of stream filters
