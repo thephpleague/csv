@@ -116,8 +116,6 @@ class Reader extends AbstractCsv
             $index++;
         }
 
-        $iterator = null;
-
         return $index;
     }
 
@@ -140,7 +138,6 @@ class Reader extends AbstractCsv
         if (! is_array($res)) {
             return [];
         }
-        $iterator = null;
 
         return $res;
     }
@@ -154,13 +151,7 @@ class Reader extends AbstractCsv
      */
     public function fetchAll(callable $callable = null)
     {
-        $iterator = $this->query($callable);
-
-        $res = iterator_to_array($iterator, false);
-
-        $iterator = null;
-
-        return $res;
+        return iterator_to_array($this->query($callable), false);
     }
 
     /**
@@ -190,11 +181,7 @@ class Reader extends AbstractCsv
             return self::combineArray($keys, $row);
         });
 
-        $res = iterator_to_array($iterator, false);
-
-        $iterator = null;
-
-        return $res;
+        return iterator_to_array($iterator, false);
     }
 
     /**
@@ -243,11 +230,7 @@ class Reader extends AbstractCsv
             return $row[$column_index];
         });
 
-        $res = iterator_to_array($iterator, false);
-
-        $iterator = null;
-
-        return $res;
+        return iterator_to_array($iterator, false);
     }
 
     /**
