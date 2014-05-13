@@ -23,11 +23,11 @@ The filters will be automatically applied when the stream filter mode matches th
 The attached filters are not:
 
 * cleared between method calls unless specified;
-* copied to the new class when using `Writer::createReader` and/or `Reader::createWriter` methods;
+* copied to the new class when using `newReader` or `newWriter` methods;
 
 ### Setting and getting the object stream filter mode
 
-The stream filter mode property is set using PHP internal stream filter constant `STREAM_FILTER_*`, but unlike `fopen`, the mode is a class property and not specific to a stream filter unlike when using `fopen`.
+The stream filter mode property is set using PHP internal stream filter constant `STREAM_FILTER_*`, but unlike `fopen`, the mode is a class property and not specific to a stream filter.
 
 * `setStreamFilterMode($mode)`: set the object stream filter mode **and** remove all previously attached stream filters;
 * `getStreamFilterMode()`: returns the current stream filter mode;
@@ -51,7 +51,7 @@ $current_mode = $reader->getStreamFilterMode(); //returns STREAM_FILTER_WRITE
 
 ### Managing Stream filter
 
-To manage your stream filter collection you can use the following methods
+To manage your registered stream filter collection you can use the following methods
 
 - `appendStreamFilter($filtername)` : adds a stream filter at the bottom of the collection
 - `prependStreamFilter($filtername)` : adds a stream filter at the top of the collection
@@ -108,4 +108,4 @@ Please review [the stream filtering example](https://github.com/thephpleague/csv
 The `FilterTranscode` class is not attached to the Library because the way you may want to convert you CSV may depend:
 
 * on your business logic; 
-* on the extension you choose with [iconv](http://php.net/iconv) function and/or the [UConverter](http://php.net/uconverter) class ability to achieve the same conversion;
+* on the extension you choose to transcode your file with: The [iconv](http://php.net/iconv) function or the [UConverter](http://php.net/uconverter) class have the ability to achieve the same conversion;

@@ -59,6 +59,7 @@ Once your object is created you can optionally set:
 * the CSV enclosure;
 * the CSV escape characters;
 * the object `SplFileObject` flags;
+* the CSV encoding source
 
 ~~~.language-php
 $reader = new Reader('/path/to/your/csv/file.csv');
@@ -67,11 +68,12 @@ $reader->setDelimiter(',');
 $reader->setEnclosure('"');
 $reader->setEscape('\\');
 $reader->setFlags(SplFileObject::READ_AHEAD|SplFileObject::SKIP_EMPTY);
+$reader->setEncodingFrom('iso-8859-15');
 ~~~
 
-To decode or encode you CSV in a UTF-8 charset please refer to the <a href="/filtering/">library stream filtering mechanism</a>
+The recommended way to transcode you CSV in a UTF-8 compatible charset is to use the <a href="/filtering/">library stream filtering mechanism</a>. When this is not possible you may fallback by using the `setEncondignFrom` and `getEncondignFrom` methods.
 
-<p class="message-warning">The <code>setEncoding</code> and <code>getEncoding</code> methods have been deprecated and will be remove in the next major version release. For backward compatibility, the methods still exists and can be used but using Stream Filtering is the recommended way.</p>
+<p class="message-warning"><strong>Warning:</strong> <code>set/getEncoding</code> methods have been deprecated and are schedule to be remove on the next major release. For backward compatibility, <code>setEncoding</code> is an alias of <code>setEncondignFrom</code> and <code>getEncoding</code> is an alias of <code>getEncondignFrom</code></p>
 
 ### detectDelimiter($nbRows = 1, array $delimiters = []) *since version 5.1*
 
@@ -100,19 +102,19 @@ The more rows and delimiters you add, the more time and memory consuming the ope
 
 ## Switching from one class to the other
 
-<p class="message-warning">The <code>getReader</code> and <code>getWriter</code> methods have been deprecated and will be remove in the next major version release. For backward compatibility, the methods are now aliases of the <code>createReader</code> and <code>createWriter</code> methods.</p>
+<p class="message-warning">The <code>getReader</code> and <code>getWriter</code> methods have been deprecated and will be remove in the next major version release. For backward compatibility, the methods are now aliases of the <code>newReader</code> and <code>newWriter</code> methods.</p>
 
-It is possible to switch between modes by using:
+At any given time you can switch or create a new `League\Csv\Writer` or a new `League\Csv\Reader` from the current object. to do so you can use the following methods.
 
-* the `League\Csv\Writer::createReader` method from the `League\Csv\Writer` class
-* the `League\Csv\Reader::createWriter` method from the `League\Csv\Reader` class 
+* the `League\Csv\Writer::newReader` method from the `League\Csv\Writer` class
+* the `League\Csv\Reader::newWriter` method from the `League\Csv\Reader` class 
 
 Both methods accept the optional $open_mode parameter. When not explicitly set, the `$open_mode` default value is `r+` for both methods.
 
 ~~~.language-php
-$reader = $writer->createReader('r+');
-$newWriter = $reader->createWriter('a'); 
+$reader = $writer->newReader('r+');
+$newWriter = $reader->newWriter('a'); 
+$anotherWriter = $newWriter->newWriter('r+'); 
 ~~~
 
-<p class="message-warning"><strong>Warning:</strong> be careful the <code>$newWriter</code>
-object is not equal to the <code>$writer</code> object!</p>
+<p class="message-warning"><strong>Warning:</strong> be careful the <code>$newWriter</code> and <code>$anotherWriter</code> object are not equal to the <code>$writer</code> object!</p>
