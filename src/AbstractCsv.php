@@ -434,7 +434,7 @@ abstract class AbstractCsv implements JsonSerializable, IteratorAggregate
      */
     protected function convertToUtf8(Traversable $iterator)
     {
-        if ('UTF-8' == $this->encodingFrom) {
+        if (strpos($this->encodingFrom, 'UTF-8') !== false) {
             return $iterator;
         }
 
@@ -455,11 +455,7 @@ abstract class AbstractCsv implements JsonSerializable, IteratorAggregate
      */
     public function jsonSerialize()
     {
-        $iterator = $this->convertToUtf8($this->getIterator());
-        $res = iterator_to_array($iterator, false);
-        $iterator = null;
-
-        return $res;
+        return iterator_to_array($this->convertToUtf8($this->getIterator()), false);
     }
 
     /**
@@ -471,10 +467,12 @@ abstract class AbstractCsv implements JsonSerializable, IteratorAggregate
     {
         $iterator = $this->getIterator();
         //@codeCoverageIgnoreStart
-        if (! is_null($filename) && AbstractCsv::isValidString($filename)) {
+        if (! is_null($filename) && self::isValidString($filename)) {
+            $filename = (string) $filename;
+            $filename = filter_var($filename, FILTER_UNSAFE_RAW, ['flags' => FILTER_FLAG_STRIP_LOW]);
             header('Content-Type: application/octet-stream');
-            header('Content-Disposition: attachment; filename="'.$filename.'"');
             header('Content-Transfer-Encoding: binary');
+            header('Content-Disposition: attachment; filename="'.$filename.'"');
             if (! $iterator instanceof SplTempFileObject) {
                 header('Content-Length: '.$iterator->getSize());
             }
@@ -482,7 +480,6 @@ abstract class AbstractCsv implements JsonSerializable, IteratorAggregate
         //@codeCoverageIgnoreEnd
         $iterator->rewind();
         $iterator->fpassthru();
-        $iterator = null;
     }
 
     /**
@@ -523,7 +520,6 @@ abstract class AbstractCsv implements JsonSerializable, IteratorAggregate
             $root->appendChild($item);
         }
         $doc->appendChild($root);
-        $iterator = null;
 
         return $doc;
     }
