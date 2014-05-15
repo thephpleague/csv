@@ -369,33 +369,13 @@ abstract class AbstractCsv implements JsonSerializable, IteratorAggregate
     public function getIterator()
     {
         $obj = $this->path;
-        if (! $obj instanceof SplFileObject) {
+        if (! $obj instanceof SplTempFileObject) {
             $obj = new SplFileObject($this->getStreamFilterPath(), $this->open_mode);
         }
         $obj->setCsvControl($this->delimiter, $this->enclosure, $this->escape);
         $obj->setFlags($this->flags);
 
         return $obj;
-    }
-
-    /**
-     * DEPRECATION WARNING! This method will be removed in the next major point release
-     *
-     * @deprecated deprecated since version 5.5
-     */
-    public function setEncoding($str)
-    {
-        return $this->setEncodingFrom($str);
-    }
-
-    /**
-     * DEPRECATION WARNING! This method will be removed in the next major point release
-     *
-     * @deprecated deprecated since version 5.5
-     */
-    public function getEncoding()
-    {
-        return $this->getEncodingFrom();
     }
 
     /**

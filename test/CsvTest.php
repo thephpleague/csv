@@ -164,10 +164,10 @@ class CsvTest extends PHPUnit_Framework_TestCase
     public function testEncoding()
     {
         $expected = 'iso-8859-15';
-        $this->csv->setEncoding($expected);
-        $this->assertSame(strtoupper($expected), $this->csv->getEncoding());
+        $this->csv->setEncodingFrom($expected);
+        $this->assertSame(strtoupper($expected), $this->csv->getEncodingFrom());
 
-        $this->csv->setEncoding('');
+        $this->csv->setEncodingFrom('');
     }
 
     public function testToString()
@@ -248,7 +248,7 @@ EOF;
     {
         $this->assertSame(json_encode($this->expected), json_encode($this->csv));
         $csv = Reader::createFromString($rawCsv);
-        $csv->setEncoding('iso-8859-15');
+        $csv->setEncodingFrom('iso-8859-15');
         json_encode($csv);
         $this->assertEquals(JSON_ERROR_NONE, json_last_error());
     }

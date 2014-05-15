@@ -313,14 +313,4 @@ class Writer extends AbstractCsv
 
         return $this;
     }
-
-    /**
-     * DEPRECATION WARNING! This method will be removed in the next major point release
-     *
-     * @deprecated deprecated since version 5.5
-     */
-    public function getReader($open_mode = 'r+')
-    {
-        return $this->newReader($open_mode);
-    }
 }

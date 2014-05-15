@@ -68,7 +68,7 @@ class ReaderTest extends PHPUnit_Framework_TestCase
         $func = function ($row) {
             return ! in_array('jane', $row);
         };
-        $this->csv->setFilter($func);
+        $this->csv->addFilter($func);
 
         $this->assertCount(1, $this->csv->fetchAll());
 
@@ -94,7 +94,7 @@ class ReaderTest extends PHPUnit_Framework_TestCase
         $func = function ($rowA, $rowB) {
             return strcmp($rowA[0], $rowB[0]);
         };
-        $this->csv->setSortBy($func);
+        $this->csv->addSortBy($func);
         $this->assertSame(array_reverse($this->expected), $this->csv->fetchAll());
 
         $this->csv->addSortBy($func);
@@ -111,7 +111,7 @@ class ReaderTest extends PHPUnit_Framework_TestCase
         $func = function ($rowA, $rowB) {
             return strcmp($rowA[0], $rowB[0]);
         };
-        $csv->setSortBy($func);
+        $csv->addSortBy($func);
         $this->assertSame([
             ['john', 'doe', 'john.doe@example.com'],
             ['john', 'doe', 'john.doe@example.com']
@@ -178,7 +178,7 @@ class ReaderTest extends PHPUnit_Framework_TestCase
 
     public function testFetchCol()
     {
-        $this->assertSame(['john', 'jane'], $this->csv->fetchCol(0));
+        $this->assertSame(['john', 'jane'], $this->csv->fetchColumn(0));
         $this->assertSame(['john', 'jane'], $this->csv->fetchColumn());
     }
 
@@ -206,7 +206,7 @@ class ReaderTest extends PHPUnit_Framework_TestCase
             return array_map('strtoupper', $value);
         };
 
-        $this->assertSame(['JOHN', 'JANE'], $this->csv->fetchCol(0, $func));
+        $this->assertSame(['JOHN', 'JANE'], $this->csv->fetchColumn(0, $func));
     }
 
     /**
@@ -214,7 +214,7 @@ class ReaderTest extends PHPUnit_Framework_TestCase
      */
     public function testFetchColFailure()
     {
-        $this->csv->fetchCol('toto');
+        $this->csv->fetchColumn('toto');
     }
 
     /**
@@ -250,7 +250,7 @@ class ReaderTest extends PHPUnit_Framework_TestCase
 
     public function testGetWriter()
     {
-        $writer = $this->csv->getWriter();
+        $writer = $this->csv->newWriter();
         $writer->insertOne(['toto', 'le', 'herisson']);
         $expected = <<<EOF
 <table class="table-csv-data">
@@ -276,7 +276,7 @@ EOF;
 
     public function testGetWriter2()
     {
-        $csv = (new Reader(__DIR__.'/foo.csv'))->getWriter('a+');
+        $csv = (new Reader(__DIR__.'/foo.csv'))->newWriter('a+');
         $this->assertInstanceOf('\League\Csv\Writer', $csv);
     }
 }
