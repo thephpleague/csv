@@ -266,7 +266,7 @@ abstract class AbstractCsv implements JsonSerializable, IteratorAggregate
             );
             $res[$delim] = count(iterator_to_array($iterator, false));
         }
-        $iterator = null;
+
         arsort($res, SORT_NUMERIC);
         $res = array_keys(array_filter($res));
         if (! $res) {
