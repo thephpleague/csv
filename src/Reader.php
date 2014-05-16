@@ -187,7 +187,7 @@ class Reader extends AbstractCsv
     /**
      * DEPRECATION WARNING! This method will be removed in the next major point release
      *
-     * @deprecated deprecated since version 5.5
+     * @deprecated deprecated since version 5.4
      *
      * @param integer  $column_index field Index
      * @param callable $callable     a callable function to be applied to each value to be return
