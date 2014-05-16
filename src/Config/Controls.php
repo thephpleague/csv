@@ -151,6 +151,8 @@ trait Controls
     /**
      * Set the Flags associated to the CSV SplFileObject
      *
+     * @param integer $flags
+     *
      * @return self
      */
     public function setFlags($flags)
