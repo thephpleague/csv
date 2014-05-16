@@ -115,7 +115,7 @@ class WriterTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException InvalidArgumentException
+     * @expectedException RuntimeException
      */
     public function testColumsCountConsistency()
     {
@@ -127,7 +127,7 @@ class WriterTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException InvalidArgumentException
+     * @expectedException RuntimeException
      */
     public function testAutoDetectColumnsCount()
     {

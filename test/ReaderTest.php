@@ -206,7 +206,7 @@ class ReaderTest extends PHPUnit_Framework_TestCase
             return array_map('strtoupper', $value);
         };
 
-        $this->assertSame(['JOHN', 'JANE'], $this->csv->fetchCol(0, $func));
+        $this->assertSame(['JOHN', 'JANE'], $this->csv->fetchColumn(0, $func));
     }
 
     /**
@@ -214,7 +214,7 @@ class ReaderTest extends PHPUnit_Framework_TestCase
      */
     public function testFetchColFailure()
     {
-        $this->csv->fetchCol('toto');
+        $this->csv->fetchColumn('toto');
     }
 
     /**
@@ -250,7 +250,7 @@ class ReaderTest extends PHPUnit_Framework_TestCase
 
     public function testGetWriter()
     {
-        $writer = $this->csv->getWriter();
+        $writer = $this->csv->newWriter();
         $writer->insertOne(['toto', 'le', 'herisson']);
         $expected = <<<EOF
 <table class="table-csv-data">

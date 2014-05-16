@@ -10,7 +10,7 @@
 * For the full copyright and license information, please view the LICENSE
 * file that was distributed with this source code.
 */
-namespace League\Csv\Stream;
+namespace League\Csv\Config;
 
 use SplFileInfo;
 use SplTempFileObject;
@@ -26,7 +26,7 @@ use OutOfBoundsException;
  * @since  5.5.0
  *
  */
-trait Filter
+trait StreamFilter
 {
     /**
      * collection of stream filters

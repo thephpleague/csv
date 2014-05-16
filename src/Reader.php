@@ -185,8 +185,6 @@ class Reader extends AbstractCsv
     }
 
     /**
-     * Return a single column from the CSV data
-     *
      * DEPRECATION WARNING! This method will be removed in the next major point release
      *
      * @deprecated deprecated since version 5.4
@@ -237,9 +235,32 @@ class Reader extends AbstractCsv
      * DEPRECATION WARNING! This method will be removed in the next major point release
      *
      * @deprecated deprecated since version 5.5
+     *
+     * @param string $open_mode the file open mode flag
+     *
+     * @return \League\Csv\Writer object
      */
     public function getWriter($open_mode = 'r+')
     {
         return $this->newWriter($open_mode);
+    }
+
+    /**
+     * Create a {@link Writer} instance from a {@link Reader} object
+     *
+     * @param string $open_mode the file open mode flag
+     *
+     * @return \League\Csv\Writer object
+     */
+    public function newWriter($open_mode = 'r+')
+    {
+        $csv = new Writer($this->path, $open_mode);
+        $csv->setDelimiter($this->delimiter);
+        $csv->setEnclosure($this->enclosure);
+        $csv->setEscape($this->escape);
+        $csv->setFlags($this->flags);
+        $csv->setEncodingFrom($this->encodingFrom);
+
+        return $csv;
     }
 }

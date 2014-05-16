@@ -15,6 +15,7 @@ namespace League\Csv;
 use Traversable;
 use SplFileObject;
 use InvalidArgumentException;
+use RuntimeException;
 use OutOfBoundsException;
 
 /**
@@ -278,7 +279,7 @@ class Writer extends AbstractCsv
         $data = $this->validateRow($data);
         $data = $this->sanitizeColumnsContent($data);
         if (! $this->isColumnsCountConsistent($data)) {
-            throw new InvalidArgumentException(
+            throw new RuntimeException(
                 'You are trying to add '.count($data).' columns to a CSV
                 that requires '.$this->columns_count.' columns per row.'
             );
@@ -318,9 +319,32 @@ class Writer extends AbstractCsv
      * DEPRECATION WARNING! This method will be removed in the next major point release
      *
      * @deprecated deprecated since version 5.5
+     *
+     * @param string $open_mode the file open mode flag
+     *
+     * @return \League\Csv\Reader object
      */
     public function getReader($open_mode = 'r+')
     {
         return $this->newReader($open_mode);
+    }
+
+    /**
+     * Create a {@link Reader} instance from a {@link Writer} object
+     *
+     * @param string $open_mode the file open mode flag
+     *
+     * @return \League\Csv\Reader object
+     */
+    public function newReader($open_mode = 'r+')
+    {
+        $csv = new Reader($this->path, $open_mode);
+        $csv->setDelimiter($this->delimiter);
+        $csv->setEnclosure($this->enclosure);
+        $csv->setEscape($this->escape);
+        $csv->setFlags($this->flags);
+        $csv->setEncodingFrom($this->encodingFrom);
+
+        return $csv;
     }
 }

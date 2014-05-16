@@ -248,7 +248,7 @@ EOF;
     {
         $this->assertSame(json_encode($this->expected), json_encode($this->csv));
         $csv = Reader::createFromString($rawCsv);
-        $csv->setEncoding('iso-8859-15');
+        $csv->setEncodingFrom('iso-8859-15');
         json_encode($csv);
         $this->assertEquals(JSON_ERROR_NONE, json_last_error());
     }

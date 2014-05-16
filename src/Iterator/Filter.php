@@ -33,8 +33,6 @@ trait Filter
     protected $iterator_filters = [];
 
     /**
-     * Set the Iterator filter method
-     *
      * DEPRECATION WARNING! This method will be removed in the next major point release
      *
      * @deprecated deprecated since version 5.1
