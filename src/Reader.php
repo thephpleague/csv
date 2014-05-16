@@ -213,4 +213,23 @@ class Reader extends AbstractCsv
 
         return iterator_to_array($iterator, false);
     }
+
+    /**
+     * Create a {@link Writer} instance from a {@link Reader} object
+     *
+     * @param string $open_mode the file open mode flag
+     *
+     * @return \League\Csv\Writer object
+     */
+    public function newWriter($open_mode = 'r+')
+    {
+        $csv = new Writer($this->path, $open_mode);
+        $csv->delimiter = $this->delimiter;
+        $csv->escape = $this->escape;
+        $csv->enclosure = $this->enclosure;
+        $csv->flags = $this->flags;
+        $csv->encodingFrom = $this->encodingFrom;
+
+        return $csv;
+    }
 }

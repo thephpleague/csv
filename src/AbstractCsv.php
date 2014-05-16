@@ -14,7 +14,6 @@ namespace League\Csv;
 
 use DomDocument;
 use JsonSerializable;
-use Traversable;
 use SplFileInfo;
 use SplFileObject;
 use SplTempFileObject;
@@ -23,8 +22,8 @@ use InvalidArgumentException;
 use IteratorAggregate;
 use LimitIterator;
 use CallbackFilterIterator;
-use League\Csv\Iterator\MapIterator;
-use League\Csv\Stream\Filter;
+use League\Csv\Config\StreamFilter;
+use League\Csv\Config\Controls;
 
 /**
  *  An abstract class to enable basic CSV manipulation
@@ -38,42 +37,12 @@ abstract class AbstractCsv implements JsonSerializable, IteratorAggregate
     /**
      *  Stream Filter Trait
      */
-    use Filter;
+    use StreamFilter;
 
     /**
-     * the field delimiter (one character only)
-     *
-     * @var string
+     *  Controls Trait
      */
-    protected $delimiter = ',';
-
-    /**
-     * the field enclosure character (one character only)
-     *
-     * @var string
-     */
-    protected $enclosure = '"';
-
-    /**
-     * the field escape character (one character only)
-     *
-     * @var string
-     */
-    protected $escape = '\\';
-
-    /**
-     * the \SplFileObject flags holder
-     *
-     * @var integer
-     */
-    protected $flags = SplFileObject::READ_CSV;
-
-    /**
-     * Charset Encoding for the CSV
-     *
-     * @var string
-     */
-    protected $encodingFrom = 'UTF-8';
+    use Controls;
 
     /**
      * The constructor path
@@ -143,91 +112,6 @@ abstract class AbstractCsv implements JsonSerializable, IteratorAggregate
     }
 
     /**
-     * Instantiate a AbstractCsv extended class
-     *
-     * @param string $class_name the Class to load {@link Writer} or {@link Reader}
-     * @param string $open_mode  the file open mode flag
-     *
-     * @return \League\Csv\AbstractCSv
-     */
-    protected function newInstance($class_name, $open_mode)
-    {
-        $obj = new $class_name($this->path, $open_mode);
-        $obj->delimiter = $this->delimiter;
-        $obj->enclosure = $this->enclosure;
-        $obj->escape = $this->escape;
-        $obj->flags = $this->flags;
-        $obj->encodingFrom = $this->encodingFrom;
-
-        return $obj;
-    }
-
-    /**
-     * Instantiate a {@link Writer} class from the current object
-     *
-     * @param string $open_mode the file open mode flag
-     *
-     * @return \League\Csv\Writer
-     */
-    public function newWriter($open_mode = 'r+')
-    {
-        return $this->newInstance('\League\Csv\Writer', $open_mode);
-    }
-
-    /**
-     * Instantiate a {@link Reader} class from the current object
-     *
-     * @param string $open_mode the file open mode flag
-     *
-     * @return \League\Csv\Reader
-     */
-    public function newReader($open_mode = 'r+')
-    {
-        return $this->newInstance('\League\Csv\Reader', $open_mode);
-    }
-
-    /**
-    * Validate a variable to be stringable
-    *
-    * @param mixed $str
-    *
-    * @return boolean
-    */
-    public static function isValidString($str)
-    {
-        return (is_scalar($str) || (is_object($str) && method_exists($str, '__toString')));
-    }
-
-    /**
-     * set the field delimeter
-     *
-     * @param string $delimiter
-     *
-     * @return self
-     *
-     * @throws \InvalidArgumentException If $delimeter is not a single character
-     */
-    public function setDelimiter($delimiter = ',')
-    {
-        if (1 != mb_strlen($delimiter)) {
-            throw new InvalidArgumentException('The delimiter must be a single character');
-        }
-        $this->delimiter = $delimiter;
-
-        return $this;
-    }
-
-    /**
-     * return the current field delimiter
-     *
-     * @return string
-     */
-    public function getDelimiter()
-    {
-        return $this->delimiter;
-    }
-
-    /**
      * Detect the CSV file delimiter
      *
      * @param integer $nb_rows
@@ -245,14 +129,14 @@ abstract class AbstractCsv implements JsonSerializable, IteratorAggregate
             throw new InvalidArgumentException('`$nb_rows` must be a valid positive integer');
         }
 
-        //detect and validate the possible delimiters
+        //validate the possible delimiters
         $delimiters = array_filter($delimiters, function ($str) {
             return 1 == mb_strlen($str);
         });
         $delimiters = array_merge([$this->delimiter, ',', ';', "\t"], $delimiters);
         $delimiters = array_unique($delimiters);
 
-        //detecting the possible delimiter
+        //detect the possible delimiter
         $res = [];
         foreach ($delimiters as $delim) {
             $iterator = $this->getIterator();
@@ -271,94 +155,10 @@ abstract class AbstractCsv implements JsonSerializable, IteratorAggregate
         $res = array_keys(array_filter($res));
         if (! $res) {
             return null;
-        } elseif (count($res) == 1) {
+        } elseif (1 == count($res)) {
             return $res[0];
         }
         throw new RuntimeException('too many delimiters were found: `'.implode('`,`', $res).'`');
-    }
-
-    /**
-     * set the field enclosure
-     *
-     * @param string $enclosure
-     *
-     * @return self
-     *
-     * @throws \InvalidArgumentException If $enclosure is not a single character
-     */
-    public function setEnclosure($enclosure = '"')
-    {
-        if (1 != mb_strlen($enclosure)) {
-            throw new InvalidArgumentException('The enclosure must be a single character');
-        }
-        $this->enclosure = $enclosure;
-
-        return $this;
-    }
-
-    /**
-     * return the current field enclosure
-     *
-     * @return string
-     */
-    public function getEnclosure()
-    {
-        return $this->enclosure;
-    }
-
-    /**
-     * set the field escape character
-     *
-     * @param string $escape
-     *
-     * @return self
-     *
-     * @throws \InvalidArgumentException If $escape is not a single character
-     */
-    public function setEscape($escape = "\\")
-    {
-        if (1 != mb_strlen($escape)) {
-            throw new InvalidArgumentException('The escape character must be a single character');
-        }
-        $this->escape = $escape;
-
-        return $this;
-    }
-
-    /**
-     * return the current field escape character
-     *
-     * @return string
-     */
-    public function getEscape()
-    {
-        return $this->escape;
-    }
-
-    /**
-     * Set the Flags associated to the CSV SplFileObject
-     *
-     * @return self
-     */
-    public function setFlags($flags)
-    {
-        if (false === filter_var($flags, FILTER_VALIDATE_INT, ['options' => ['min_range' => 0]])) {
-            throw new InvalidArgumentException('you should use a `SplFileObject` Constant');
-        }
-
-        $this->flags = $flags|SplFileObject::READ_CSV|SplFileObject::DROP_NEW_LINE;
-
-        return $this;
-    }
-
-    /**
-     * Returns the file Flags
-     *
-     * @return integer
-     */
-    public function getFlags()
-    {
-        return $this->flags;
     }
 
     /**
@@ -376,56 +176,6 @@ abstract class AbstractCsv implements JsonSerializable, IteratorAggregate
         $obj->setFlags($this->flags);
 
         return $obj;
-    }
-
-    /**
-     * Set the CSV encoding charset
-     *
-     * @param string $str
-     *
-     * @return self
-     */
-    public function setEncodingFrom($str)
-    {
-        $str = str_replace('_', '-', $str);
-        $str = filter_var($str, FILTER_SANITIZE_STRING, ['flags' => FILTER_FLAG_STRIP_LOW|FILTER_FLAG_STRIP_HIGH]);
-        if (empty($str)) {
-            throw new InvalidArgumentException('you should use a valid charset');
-        }
-        $this->encodingFrom = strtoupper($str);
-
-        return $this;
-    }
-
-    /**
-     * Get the source CSV encoding charset
-     *
-     * @return string
-     */
-    public function getEncodingFrom()
-    {
-        return $this->encodingFrom;
-    }
-
-    /**
-     * Convert Csv file into UTF-8
-     *
-     * @return \Traversable
-     */
-    protected function convertToUtf8(Traversable $iterator)
-    {
-        if (strpos($this->encodingFrom, 'UTF-8') !== false) {
-            return $iterator;
-        }
-
-        return new MapIterator($iterator, function ($row) {
-            foreach ($row as &$value) {
-                $value = mb_convert_encoding($value, 'UTF-8', $this->encodingFrom);
-            }
-            unset($value);
-
-            return $row;
-        });
     }
 
     /**
