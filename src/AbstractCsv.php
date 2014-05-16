@@ -112,6 +112,30 @@ abstract class AbstractCsv implements JsonSerializable, IteratorAggregate
     }
 
     /**
+     * fetch avaibable rows depending on a delimiter
+     *
+     * @param string $delimiter a given delimiter
+     *
+     * @param integer $nb_rows the maximum number of rows to be considered
+     *
+     * @return integer the number of found rows
+     */
+    protected function fetchAvailableRowCount($delimiter, $nb_rows = 1)
+    {
+        $iterator = $this->getIterator();
+        $iterator->setCsvControl($delimiter, $this->enclosure, $this->escape);
+        //"reduce" the csv length to a maximum of $nb_rows
+        $iterator = new CallbackFilterIterator(
+            new LimitIterator($iterator, 0, $nb_rows),
+            function ($row) {
+                return is_array($row) && count($row) > 1;
+            }
+        );
+
+        return count(iterator_to_array($iterator, false));
+    }
+
+    /**
      * Detect the CSV file delimiter
      *
      * @param integer $nb_rows
@@ -137,19 +161,10 @@ abstract class AbstractCsv implements JsonSerializable, IteratorAggregate
         $delimiters = array_unique($delimiters);
 
         //detect the possible delimiter
-        $res = [];
-        foreach ($delimiters as $delim) {
-            $iterator = $this->getIterator();
-            $iterator->setCsvControl($delim, $this->enclosure, $this->escape);
-            //"reduce" the csv length to a maximum of $nb_rows
-            $iterator = new CallbackFilterIterator(
-                new LimitIterator($iterator, 0, $nb_rows),
-                function ($row) {
-                    return is_array($row) && count($row) > 1;
-                }
-            );
-            $res[$delim] = count(iterator_to_array($iterator, false));
-        }
+        $res = array_fill_keys($delimiters, 0);
+        array_walk($res, function (&$value, $delim) use ($nb_rows) {
+            $value = $this->fetchAvailableRowCount($delim, $nb_rows);
+        });
 
         arsort($res, SORT_NUMERIC);
         $res = array_keys(array_filter($res));
