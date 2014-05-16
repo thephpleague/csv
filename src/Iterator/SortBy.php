@@ -33,6 +33,20 @@ trait SortBy
     protected $iterator_sort_by = [];
 
     /**
+     * DEPRECATION WARNING! This method will be removed in the next major point release
+     *
+     * @deprecated deprecated since version 5.2
+     *
+     * @param callable $callable
+     *
+     * @return self
+     */
+    public function setSortBy(callable $callable)
+    {
+        return $this->addSortBy($callable);
+    }
+
+    /**
      * Set an Iterator sorting callable function
      *
      * @param callable $callable

@@ -68,7 +68,7 @@ class ReaderTest extends PHPUnit_Framework_TestCase
         $func = function ($row) {
             return ! in_array('jane', $row);
         };
-        $this->csv->addFilter($func);
+        $this->csv->setFilter($func);
 
         $this->assertCount(1, $this->csv->fetchAll());
 
@@ -94,7 +94,7 @@ class ReaderTest extends PHPUnit_Framework_TestCase
         $func = function ($rowA, $rowB) {
             return strcmp($rowA[0], $rowB[0]);
         };
-        $this->csv->addSortBy($func);
+        $this->csv->setSortBy($func);
         $this->assertSame(array_reverse($this->expected), $this->csv->fetchAll());
 
         $this->csv->addSortBy($func);
@@ -111,7 +111,7 @@ class ReaderTest extends PHPUnit_Framework_TestCase
         $func = function ($rowA, $rowB) {
             return strcmp($rowA[0], $rowB[0]);
         };
-        $csv->addSortBy($func);
+        $csv->setSortBy($func);
         $this->assertSame([
             ['john', 'doe', 'john.doe@example.com'],
             ['john', 'doe', 'john.doe@example.com']
@@ -178,7 +178,7 @@ class ReaderTest extends PHPUnit_Framework_TestCase
 
     public function testFetchCol()
     {
-        $this->assertSame(['john', 'jane'], $this->csv->fetchColumn(0));
+        $this->assertSame(['john', 'jane'], $this->csv->fetchCol(0));
         $this->assertSame(['john', 'jane'], $this->csv->fetchColumn());
     }
 
@@ -276,7 +276,7 @@ EOF;
 
     public function testGetWriter2()
     {
-        $csv = (new Reader(__DIR__.'/foo.csv'))->newWriter('a+');
+        $csv = (new Reader(__DIR__.'/foo.csv'))->getWriter('a+');
         $this->assertInstanceOf('\League\Csv\Writer', $csv);
     }
 }

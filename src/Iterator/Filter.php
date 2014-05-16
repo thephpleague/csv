@@ -33,6 +33,20 @@ trait Filter
     protected $iterator_filters = [];
 
     /**
+     * DEPRECATION WARNING! This method will be removed in the next major point release
+     *
+     * @deprecated deprecated since version 5.1
+     *
+     * @param callable $callable
+     *
+     * @return self
+     */
+    public function setFilter(callable $callable)
+    {
+        return $this->addFilter($callable);
+    }
+
+    /**
      * Set the Iterator filter method
      *
      * @param callable $callable

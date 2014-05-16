@@ -115,7 +115,7 @@ class WriterTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException InvalidArgumentException
+     * @expectedException RuntimeException
      */
     public function testColumsCountConsistency()
     {
@@ -127,7 +127,7 @@ class WriterTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException InvalidArgumentException
+     * @expectedException RuntimeException
      */
     public function testAutoDetectColumnsCount()
     {
@@ -189,7 +189,7 @@ class WriterTest extends PHPUnit_Framework_TestCase
             $this->csv->insertOne($row);
         }
 
-        $reader = $this->csv->newReader();
+        $reader = $this->csv->getReader();
         $this->assertSame(['john', 'doe', 'john.doe@example.com'], $reader->fetchOne(0));
     }
 }

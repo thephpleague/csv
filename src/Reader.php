@@ -185,6 +185,23 @@ class Reader extends AbstractCsv
     }
 
     /**
+     * DEPRECATION WARNING! This method will be removed in the next major point release
+     *
+     * @deprecated deprecated since version 5.5
+     *
+     * @param integer  $column_index field Index
+     * @param callable $callable     a callable function to be applied to each value to be return
+     *
+     * @return array
+     *
+     * @throws \InvalidArgumentException If the column index is not a positive integer or 0
+     */
+    public function fetchCol($column_index = 0, callable $callable = null)
+    {
+        return $this->fetchColumn($column_index, $callable);
+    }
+
+    /**
      * Return a single column from the CSV data
      *
      * @param integer  $column_index field Index
@@ -212,6 +229,20 @@ class Reader extends AbstractCsv
         });
 
         return iterator_to_array($iterator, false);
+    }
+
+    /**
+     * DEPRECATION WARNING! This method will be removed in the next major point release
+     *
+     * @deprecated deprecated since version 5.5
+     *
+     * @param string $open_mode the file open mode flag
+     *
+     * @return \League\Csv\Writer object
+     */
+    public function getWriter($open_mode = 'r+')
+    {
+        return $this->newWriter($open_mode);
     }
 
     /**

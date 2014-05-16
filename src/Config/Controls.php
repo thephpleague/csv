@@ -21,7 +21,7 @@ use League\Csv\Iterator\MapIterator;
  *  A trait to configure and check CSV file and content
  *
  * @package League.csv
- * @since  6.0.0
+ * @since  5.5.0
  *
  */
 trait Controls
@@ -172,6 +172,32 @@ trait Controls
     public function getFlags()
     {
         return $this->flags;
+    }
+
+    /**
+     * DEPRECATION WARNING! This method will be removed in the next major point release
+     *
+     * @deprecated deprecated since version 5.5
+     *
+     * @param string $str
+     *
+     * @return self
+     */
+    public function setEncoding($str)
+    {
+        return $this->setEncodingFrom($str);
+    }
+
+    /**
+     * DEPRECATION WARNING! This method will be removed in the next major point release
+     *
+     * @deprecated deprecated since version 5.5
+     *
+     * @return string
+     */
+    public function getEncoding()
+    {
+        return $this->getEncodingFrom();
     }
 
     /**
