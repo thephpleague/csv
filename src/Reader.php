@@ -224,11 +224,11 @@ class Reader extends AbstractCsv
     public function newWriter($open_mode = 'r+')
     {
         $csv = new Writer($this->path, $open_mode);
-        $csv->delimiter = $this->delimiter;
-        $csv->escape = $this->escape;
-        $csv->enclosure = $this->enclosure;
-        $csv->flags = $this->flags;
-        $csv->encodingFrom = $this->encodingFrom;
+        $csv->setDelimiter($this->delimiter);
+        $csv->setEnclosure($this->enclosure);
+        $csv->setEscape($this->escape);
+        $csv->setFlags($this->flags);
+        $csv->setEncodingFrom($this->encodingFrom);
 
         return $csv;
     }
