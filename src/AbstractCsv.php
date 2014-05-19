@@ -112,6 +112,49 @@ abstract class AbstractCsv implements JsonSerializable, IteratorAggregate
     }
 
     /**
+     * Create a {@link AbstractCsv} instance from another {@link AbstractCsv} object
+     *
+     * @param string $class_name the class to be instantiated
+     * @param string $open_mode  the file open mode flag
+     *
+     * @return {@link AbstractCsv}
+     */
+    protected function newInstance($class_name, $open_mode)
+    {
+        $csv = new $class_name($this->path, $open_mode);
+        $csv->delimiter = $this->delimiter;
+        $csv->enclosure = $this->enclosure;
+        $csv->escape = $this->escape;
+        $csv->encodingFrom = $this->encodingFrom;
+
+        return $csv;
+    }
+
+    /**
+     * Create a {@link Writer} instance from a {@link AbstractCsv} object
+     *
+     * @param string $open_mode the file open mode flag
+     *
+     * @return \League\Csv\Writer object
+     */
+    public function newWriter($open_mode = 'r+')
+    {
+        return $this->newInstance('\League\Csv\Writer', $open_mode);
+    }
+
+    /**
+     * Create a {@link Reader} instance from a {@link AbstractCsv} object
+     *
+     * @param string $open_mode the file open mode flag
+     *
+     * @return \League\Csv\Reader object
+     */
+    public function newReader($open_mode = 'r+')
+    {
+        return $this->newInstance('\League\Csv\Reader', $open_mode);
+    }
+
+    /**
      * Detect the CSV file delimiter
      *
      * @param integer $nb_rows

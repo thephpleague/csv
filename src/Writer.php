@@ -328,23 +328,4 @@ class Writer extends AbstractCsv
     {
         return $this->newReader($open_mode);
     }
-
-    /**
-     * Create a {@link Reader} instance from a {@link Writer} object
-     *
-     * @param string $open_mode the file open mode flag
-     *
-     * @return \League\Csv\Reader object
-     */
-    public function newReader($open_mode = 'r+')
-    {
-        $csv = new Reader($this->path, $open_mode);
-        $csv->setDelimiter($this->delimiter);
-        $csv->setEnclosure($this->enclosure);
-        $csv->setEscape($this->escape);
-        $csv->setFlags($this->flags);
-        $csv->setEncodingFrom($this->encodingFrom);
-
-        return $csv;
-    }
 }
