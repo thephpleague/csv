@@ -155,12 +155,34 @@ abstract class AbstractCsv implements JsonSerializable, IteratorAggregate
     }
 
     /**
+     * detect the actual number of row according to a delimiter
+     *
+     * @param string  $delimiter a CSV delimiter
+     * @param integer $nb_rows   the number of row to consider
+     *
+     * @return integer
+     */
+    protected function fetchRowsCountByDelimiter($delimiter, $nb_rows = 1)
+    {
+        $iterator = $this->getIterator();
+        $iterator->setCsvControl($delimiter, $this->enclosure, $this->escape);
+        //"reduce" the csv length to a maximum of $nb_rows
+        $iterator = new LimitIterator($iterator, 0, $nb_rows);
+        //return the parse rows
+        $iterator = new CallbackFilterIterator($iterator, function ($row) {
+            return is_array($row) && count($row) > 1;
+        });
+
+        return count(iterator_to_array($iterator, false));
+    }
+
+    /**
      * Detect the CSV file delimiter
      *
      * @param integer $nb_rows
      * @param array   $delimiters additional delimiters
      *
-     * @return string
+     * @return null|string
      *
      * @throws \InvalidArgumentException If $nb_rows value is invalid
      * @throws \RuntimeException         If too many delimiters are found
@@ -180,19 +202,10 @@ abstract class AbstractCsv implements JsonSerializable, IteratorAggregate
         $delimiters = array_unique($delimiters);
 
         //detect the possible delimiter
-        $res = [];
-        foreach ($delimiters as $delim) {
-            $iterator = $this->getIterator();
-            $iterator->setCsvControl($delim, $this->enclosure, $this->escape);
-            //"reduce" the csv length to a maximum of $nb_rows
-            $iterator = new CallbackFilterIterator(
-                new LimitIterator($iterator, 0, $nb_rows),
-                function ($row) {
-                    return is_array($row) && count($row) > 1;
-                }
-            );
-            $res[$delim] = count(iterator_to_array($iterator, false));
-        }
+        $res = array_fill_keys($delimiters, 0);
+        array_walk($res, function (&$value, $delim) use ($nb_rows) {
+            $value = $this->fetchRowsCountByDelimiter($delim, $nb_rows);
+        });
 
         arsort($res, SORT_NUMERIC);
         $res = array_keys(array_filter($res));
