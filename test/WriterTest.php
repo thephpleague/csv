@@ -106,6 +106,15 @@ class WriterTest extends PHPUnit_Framework_TestCase
     /**
      * @expectedException InvalidArgumentException
      */
+    public function testInsertNullThrowsException()
+    {
+        $this->csv->setNullHandlingMode(Writer::NULL_AS_EXCEPTION);
+        $this->csv->insertOne(['john', null, 'john.doe@example.com']);
+    }
+
+    /**
+     * @expectedException InvalidArgumentException
+     */
     public function testColumsCountSetterGetter()
     {
         $this->assertSame(-1, $this->csv->getColumnsCount());

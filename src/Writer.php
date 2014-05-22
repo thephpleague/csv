@@ -213,25 +213,36 @@ class Writer extends AbstractCsv
             $row = str_getcsv((string) $row, $this->delimiter, $this->enclosure, $this->escape);
         }
 
-        if (! is_array($row)) {
+        if (!is_array($row)) {
             throw new InvalidArgumentException(
-                'the data provided must be convertible into an array'
+                'the data provided must be convertible into arrays'
             );
         }
 
-        //validate row according to null handling mode
-        $check = array_filter($row, function ($value) {
-            return (is_null($value) && self::NULL_AS_EXCEPTION != $this->null_handling_mode)
-            || self::isValidString($value);
-        });
-
-        if (count($check) != count($row)) {
-            throw new InvalidArgumentException(
-                'the converted array must contain only data that can be converted into string'
-            );
+        foreach ($row as $value) {
+            if (!$this->isConvertibleContent($value)) {
+                throw new InvalidArgumentException(
+                    'the values are not convertible into strings'
+                );
+            }
         }
 
         return $row;
+    }
+
+    /**
+     * Check if a given value can be added into a CSV cell
+     *
+     * @param mixed $value the value to be added
+     *
+     * @return boolean
+     */
+    private function isConvertibleContent($value)
+    {
+        //check if the row value respects the null handling mode
+        //check if the row value can be convertible into string
+        return (is_null($value) && self::NULL_AS_EXCEPTION != $this->null_handling_mode)
+            || self::isValidString($value);
     }
 
     /**
