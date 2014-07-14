@@ -13,9 +13,9 @@ require '../vendor/autoload.php';
 
 //BETWEEN fetch* call you CAN update/remove/add stream filter
 
-stream_filter_register(FilterTranscode::FILTER_NAME."*", "\lib\FilterTranscode");
+stream_filter_register(FilterTranscode::FILTER_NAME."*", "\lib\AnsiTranscodeFilter");
 $reader = new Reader(__DIR__.'/data/prenoms.csv');
-$reader->appendStreamFilter(FilterTranscode::FILTER_NAME."iso-8859-1:utf-8");
+$reader->appendStreamFilter(FilterTranscode::FILTER_NAME);
 $reader->appendStreamFilter('string.toupper');
 $reader->appendStreamFilter('string.rot13');
 $reader->setDelimiter(';');
