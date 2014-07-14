@@ -7,15 +7,15 @@ ini_set('display_errors', 1);
 
 use League\Csv\Reader;
 use League\Csv\Writer;
-use lib\FilterTranscode;
+use lib\AnsiTranscodeFilter;
 
 require '../vendor/autoload.php';
 
 //BETWEEN fetch* call you CAN update/remove/add stream filter
 
-stream_filter_register(FilterTranscode::FILTER_NAME."*", "\lib\AnsiTranscodeFilter");
+stream_filter_register(AnsiTranscodeFilter::FILTER_NAME."*", "\lib\AnsiTranscodeFilter");
 $reader = new Reader(__DIR__.'/data/prenoms.csv');
-$reader->appendStreamFilter(FilterTranscode::FILTER_NAME);
+$reader->appendStreamFilter(AnsiTranscodeFilter::FILTER_NAME.'iso-8859-1:utf-8');
 $reader->appendStreamFilter('string.toupper');
 $reader->appendStreamFilter('string.rot13');
 $reader->setDelimiter(';');
@@ -56,9 +56,9 @@ the data is :
 */
 $writer = new Writer('/tmp/test.csv', 'a+');
 $writer->appendStreamFilter('string.toupper');
-$writer->appendStreamFilter(FilterTranscode::FILTER_NAME."iso-8859-1:utf-8");
+$writer->appendStreamFilter(AnsiTranscodeFilter::FILTER_NAME."iso-8859-1:utf-8");
 $writer->appendStreamFilter('string.rot13');
-$writer->removeStreamFilter(FilterTranscode::FILTER_NAME."iso-8859-1:utf-8");
+$writer->removeStreamFilter(AnsiTranscodeFilter::FILTER_NAME."iso-8859-1:utf-8");
 $writer->insertOne('je,suis,toto,le,héros');
 /*
 the data is :
