@@ -1,8 +1,10 @@
 <?php
 namespace League\Csv\Filter;
+
 use php_user_filter;
 
-class TranscodeFilter extends php_user_filter {
+class TranscodeFilter extends php_user_filter
+{
 
 	const FILTER_NAME = 'convert.transcode.';
 
