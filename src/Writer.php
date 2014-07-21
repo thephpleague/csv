@@ -120,7 +120,7 @@ class Writer extends AbstractCsv
      *
      * @return array
      */
-    private function sanitizeColumnsContent(array $row)
+    protected function sanitizeColumnsContent(array $row)
     {
         if (self::NULL_AS_EXCEPTION == $this->null_handling_mode) {
             return $row;
@@ -183,7 +183,7 @@ class Writer extends AbstractCsv
      *
      * @return boolean
      */
-    private function isColumnsCountConsistent(array $row)
+    protected function isColumnsCountConsistent(array $row)
     {
         if ($this->detect_columns_count) {
             $this->columns_count = count($row);
@@ -206,7 +206,7 @@ class Writer extends AbstractCsv
      *
      * @throws InvalidArgumentException If the given $row is not valid
      */
-    private function validateRow($row)
+    protected function validateRow($row)
     {
         //convert input string row into a proper array
         if (self::isValidString($row)) {
@@ -237,7 +237,7 @@ class Writer extends AbstractCsv
      *
      * @return boolean
      */
-    private function isConvertibleContent($value)
+    protected function isConvertibleContent($value)
     {
         //check if the row value respects the null handling mode
         //check if the row value can be convertible into string

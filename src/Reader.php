@@ -60,7 +60,7 @@ class Reader extends AbstractCsv
      *
      * @return array
      */
-    private static function combineArray(array $keys, array $value)
+    protected static function combineArray(array $keys, array $value)
     {
         $nbKeys = count($keys);
         $diff = $nbKeys - count($value);
