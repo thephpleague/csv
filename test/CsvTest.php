@@ -34,23 +34,28 @@ class CsvTest extends PHPUnit_Framework_TestCase
         $this->csv = new Reader($csv);
     }
 
-    public function testConstructorWithFileObject()
-    {
-        $path = __DIR__.'/foo.csv';
-
-        $csv = new Reader(new SplFileInfo($path));
-        $this->assertSame($path, $csv->getIterator()->getRealPath());
-
-        $csv = new Reader(new SplFileInfo('php://input'));
-        $this->assertFalse($csv->getIterator()->getRealPath());
-    }
-
     public function testConstructorWithFilePath()
     {
         $path = __DIR__.'/foo.csv';
 
         $csv = new Reader($path);
         $this->assertSame($path, $csv->getIterator()->getRealPath());
+    }
+
+    public function testConstructorWithFileObject()
+    {
+        $path = __DIR__.'/foo.csv';
+
+        $csv = new Reader(new SplFileInfo($path));
+        $this->assertSame($path, $csv->getIterator()->getRealPath());
+    }
+
+    public function testContructorWithPHPWrapper()
+    {
+        $path = __DIR__.'/foo.csv';
+
+        $csv = new Reader('php://filter/read=string.toupper/resource='.$path);
+        $this->assertFalse($csv->getIterator()->getRealPath());
     }
 
     /**
