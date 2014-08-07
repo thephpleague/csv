@@ -39,7 +39,7 @@ trait Filter
      *
      * @param callable $callable
      *
-     * @return self
+     * @return static The invoked object
      */
     public function setFilter(callable $callable)
     {
@@ -51,7 +51,7 @@ trait Filter
      *
      * @param callable $callable
      *
-     * @return self
+     * @return static The invoked object
      */
     public function addFilter(callable $callable)
     {
@@ -65,7 +65,7 @@ trait Filter
      *
      * @param callable $callable
      *
-     * @return self
+     * @return static The invoked object
      */
     public function removeFilter(callable $callable)
     {
@@ -92,7 +92,7 @@ trait Filter
     /**
      * Remove all registered callable filter
      *
-     * @return self
+     * @return static The invoked object
      */
     public function clearFilter()
     {

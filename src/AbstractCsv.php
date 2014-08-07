@@ -93,7 +93,7 @@ abstract class AbstractCsv implements JsonSerializable, IteratorAggregate
      * @param \SplFileInfo|\SplFileObject|string $path      an SplFileInfo object or the path to a file
      * @param string                             $open_mode the file open mode flag
      *
-     * @return self
+     * @return static
      *
      * @throws \InvalidArgumentException If the data provided is invalid
      */
@@ -116,7 +116,7 @@ abstract class AbstractCsv implements JsonSerializable, IteratorAggregate
      *
      * @param string $str The CSV data as string
      *
-     * @return self
+     * @return static
      *
      * @throws \InvalidArgumentException If the data provided is invalid
      */
@@ -141,7 +141,7 @@ abstract class AbstractCsv implements JsonSerializable, IteratorAggregate
      * @param string $class_name the class to be instantiated
      * @param string $open_mode  the file open mode flag
      *
-     * @return {@link AbstractCsv}
+     * @return static
      */
     protected function newInstance($class_name, $open_mode)
     {

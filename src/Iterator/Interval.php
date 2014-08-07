@@ -43,7 +43,7 @@ trait Interval
      *
      * @param $offset
      *
-     * @return self
+     * @return static The invoked object
      */
     public function setOffset($offset = 0)
     {
@@ -60,7 +60,7 @@ trait Interval
      *
      * @param integer $limit
      *
-     * @return self
+     * @return static The invoked object
      */
     public function setLimit($limit = -1)
     {

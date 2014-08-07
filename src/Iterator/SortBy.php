@@ -39,7 +39,7 @@ trait SortBy
      *
      * @param callable $callable
      *
-     * @return self
+     * @return static The invoked object
      */
     public function setSortBy(callable $callable)
     {
@@ -51,7 +51,7 @@ trait SortBy
      *
      * @param callable $callable
      *
-     * @return self
+     * @return static The invoked object
      */
     public function addSortBy(callable $callable)
     {
@@ -65,7 +65,7 @@ trait SortBy
      *
      * @param callable $callable
      *
-     * @return self
+     * @return static The invoked object
      */
     public function removeSortBy(callable $callable)
     {
@@ -92,7 +92,7 @@ trait SortBy
     /**
      * Remove all registered callable
      *
-     * @return self
+     * @return static The invoked object
      */
     public function clearSortBy()
     {
