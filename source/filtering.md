@@ -9,7 +9,7 @@ title: Filtering
 
 To ease performing operations on the CSV as it is being read from or written to. the `Reader` and `Writer` classes now include methods to ease PHP stream filtering usage.
 
-<p class="message-warning"><strong>Warning:</strong> For backward compatibility, PHP Stream Filtering can not be applied when a <code>SplFileObject</code> was use to instantiate the class. A <code>RuntimeException</code> exception will be thrown if you try to use the API under theses circumstances.</p>
+<p class="message-warning"><strong>Warning:</strong> stream capabilities are restricted to objects instantiated through the use of the <code>createFromPath</code> named constructor. A <code>RuntimeException</code> exception will be thrown if you try to use the API under other circumstances.</p>
 
 ## Stream Filter API
 
@@ -41,7 +41,7 @@ By default:
 ~~~.language-php
 use \League\Csv\Reader;
 
-$reader = new Reader('/path/to/my/file.csv');
+$reader = Reader::createFromPath('/path/to/my/file.csv');
 $current_mode = $reader->getStreamFilterMode(); //returns STREAM_FILTER_READ
 $reader->setStreamFilterMode(STREAM_FILTER_WRITE);
 //this means that any filter you will set will have no effect when reading the CSV
@@ -69,7 +69,7 @@ use \League\Csv\Reader;
 stream_filter_register('convert.utf8decode', 'MyLib\Transcode');
 // 'MyLib\Transcode' is a class that extends PHP's php_user_filter class
 
-$reader = new Reader('/path/to/my/chinese.csv');
+$reader = Reader::createFromPath('/path/to/my/chinese.csv');
 $reader->appendStreamFilter('str.toupper');
 $reader->appendStreamFilter('str.rot13');
 $reader->prependStreamFilter('convert.utf8decode');
@@ -86,9 +86,9 @@ foreach ($reader as $row) {
 <p class="message-warning"><strong>Warning:</strong> To preserve file cursor position during editing and because of <code>SplFileObject</code> restricted stream filter support, the stream filter mode and the stream filter collection are frozen after the first insert is made using any of the <code>insert*</code> method.</p>
 
 ~~~.language-php
-use \League\Csv\Writer;
+use League\Csv\Writer;
 
-$writer = new Writer('/path/to/my/file.csv');
+$writer = Writer::createFromPath('/path/to/my/file.csv');
 $writer->setDelimiter(',');
 $writer->addStreamFilter('str.toupper');
 //first insert -> file.csv will contain uppercased data.
@@ -105,7 +105,7 @@ echo $writer; //the newly added rows are all uppercased
 
 Please review [the stream filtering example](https://github.com/thephpleague/csv/blob/master/examples/stream.php) and the attached [FilterTranscode](https://github.com/thephpleague/csv/blob/master/examples/lib/FilterTranscode.php) Class to understand how to use the filtering mechanism to convert a CSV into another charset. 
 
-The `FilterTranscode` class is not attached to the Library because the way you may want to convert you CSV may depend:
-
-* on your business logic; 
-* on the extension you choose to transcode your file with: The [iconv](http://php.net/iconv) function or the [UConverter](http://php.net/uconverter) class have the ability to achieve the same conversion;
+The `FilterTranscode` class is not attached to the Library because converting you CSV may depend on the extension you choose, in PHP you can use the following extensions : 
+    * The [mbstring](http://php.net/mbstring);
+    * The [iconv](http://php.net/iconv);
+    * The [intl](http://php.net/intl);

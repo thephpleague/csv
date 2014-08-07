@@ -20,36 +20,34 @@ There's several ways to instantiate these classes:
 use League\Csv\Reader;
 use League\Csv\Writer;
 
-$reader = new Reader('/path/to/your/csv/file.csv');
-$reader = new Reader(new SpliFileInfo('/path/to/your/csv/file.csv'), 'rt');
+$reader = Reader::createFromPath('/path/to/your/csv/file.csv', 'rt');
 $reader = Reader::createFromString('john,doe,john.doe@example.com');
+$reader = Reader::createFromFilObject(new SpliFileObject('/path/to/your/csv/file.csv'));
 
 //or 
 
-$writer = new Writer('/path/to/your/csv/file.csv', 'ab+');
-$writer = new Writer(new SpliFileObject('/path/to/your/csv/file.csv'));
+$writer = Writer::createFromPath(new SpliFileObject('/path/to/your/csv/file.csv'), 'ab+');
 $writer = Writer::createFromString('john,doe,john.doe@example.com');
+$writer = Writer::createFromFilObject(new SpliFileObject('/path/to/your/csv/file.csv'));
 ~~~
 
-Both classes constructors take one optional parameter `$open_mode` representing
-the file open mode used by the PHP fopen function.
+Both classes use named constructors to ease object instantiation. If you want to create a CSV object from:
 
-The `$open_mode` parameter is taken into account if you instantiate your object with:
+* a raw string use the `createFromString` static method;
+* a `SplFileObject` use the `createFromFileObject` static method;
+* a file path  *à la* `fopen` use the static method `createFromPath`. This method takes an optional `$open_mode` parameter which default value is `r+`.
+
+For simplicity it is recommended to only use the named constructors. For backward compatibility you can still directly instantiate your CSV object with the constructor, but the optional `$open_mode` parameter is
+
+taken into account if you instantiate your object with:
 
 * a `SplFileInfo`
 * a string path
 
-The `$open_mode` parameter is ignore if you instantiate your object with:
+ignore if you instantiate your object with:
 
 * a `SplFileObject`
 * a `SplTempFileObject`
-
-When not explicitly set:
-
-* The `$open_mode` default value is `r+` for both classes.
-
-The static method `createFromString` is to be use if your data is a string. This
-method takes no optional `$open_mode` parameter.
 
 ## CSV properties settings
 
@@ -62,7 +60,7 @@ Once your object is created you can optionally set:
 * the CSV encoding source
 
 ~~~.language-php
-$reader = new Reader('/path/to/your/csv/file.csv');
+$reader = Reader::createFromPath('/path/to/your/csv/file.csv');
 
 $reader->setDelimiter(',');
 $reader->setEnclosure('"');
@@ -85,7 +83,7 @@ The method takes two arguments:
 * the possible delimiters to check (you don't need to specify the following delimiters as they are already checked by the method: `",", ";", "\t"`);
 
 ~~~.language-php
-$reader = new Reader('/path/to/your/csv/file.csv');
+$reader = Reader::createFromPath('/path/to/your/csv/file.csv');
 
 $reader->setEnclosure('"');
 $reader->setEscape('\\');

@@ -13,7 +13,7 @@ A simple example to show you how to parse a CSV document.
 <?php
 use League\Csv\Reader;
 
-$csv = new Reader('/path/to/your/csv/file.csv');
+$csv = Reader::createFromPath('/path/to/your/csv/file.csv');
 
 //get the first row, usually the CSV header
 $headers = $csv->fetchOne();
@@ -40,7 +40,7 @@ $sth->setFetchMode(PDO::FETCH_ASSOC);
 $sth->execute();
 
 //we create the CSV into memory
-$csv = new Writer(new SplTempFileObject);
+$csv = Writer::createFromFileObject(new SplTempFileObject);
 
 //the library will automatically convert null value into an '' empty string
 $csv->setNullHandlingMode(Writer::NULL_AS_EMPTY);
@@ -74,7 +74,7 @@ $sth = $dbh->prepare(
 	"INSERT INTO users (firstname, lastname, email) VALUES (:firstname, :lastname, :email)"
 );
 
-$csv = new Reader('/path/to/your/csv/file.csv');
+$csv = Reader::createFromPath('/path/to/your/csv/file.csv');
 $csv->setOffset(1); //because we don't want to insert the header
 $nbInsert = $csv->each(function ($row) use (&$sth)) {
 	//Do not forget to validate your data before inserting it in your database

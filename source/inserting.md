@@ -119,7 +119,9 @@ $writer->insertAll([
 Another way is to use the `autodetectColumnsCount` method which will set the `$columns_count` property according to the next inserted row.
 
 ~~~.language-php
-$writer = new \League\Csv\Writer('path/to/csv', 'w');
+use League\Csv\Writer;
+
+$writer = Writer::createFromPath('path/to/csv', 'w');
 $writer->autodetectColumnsCount();
 $nb_column_count = $writer->getColumnsCount(); // equals to -1 = default value;
 $writer->insertOne(["one", "two", "four"]); 
