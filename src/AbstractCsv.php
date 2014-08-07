@@ -101,14 +101,13 @@ abstract class AbstractCsv implements JsonSerializable, IteratorAggregate
     {
         if ($path instanceof SplTempFileObject) {
             throw new InvalidArgumentException(
-                'path must be a valid string or a `SplFileInfo` object'
+                'an `SplTempFileObject` object does not contain a valid path'
             );
         } elseif ($path instanceof SplFileInfo) {
             $path = $path->getPath().'/'.$path->getBasename();
         }
-        $path = (string) $path;
 
-        return new static($path, $open_mode);
+        return new static((string) $path, $open_mode);
     }
 
     /**
