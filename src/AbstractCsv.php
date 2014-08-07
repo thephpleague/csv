@@ -47,7 +47,7 @@ abstract class AbstractCsv implements JsonSerializable, IteratorAggregate
     /**
      * The constructor path
      *
-     * @var mixed can be a SplFileInfo object or the path to a file
+     * @var \SplFileInfo|string can be a SplFileInfo object or the path to a file
      */
     protected $path;
 
@@ -61,8 +61,8 @@ abstract class AbstractCsv implements JsonSerializable, IteratorAggregate
     /**
      * The constructor
      *
-     * @param mixed  $path      an SplFileInfo object or the path to a file
-     * @param string $open_mode the file open mode flag
+     * @param \SplFileInfo|string $path      an SplFileInfo object or the path to a file
+     * @param string              $open_mode the file open mode flag
      */
     public function __construct($path, $open_mode = 'r+')
     {
@@ -85,6 +85,30 @@ abstract class AbstractCsv implements JsonSerializable, IteratorAggregate
     {
         //in case path is a SplFileObject we need to remove its reference
         $this->path = null;
+    }
+
+    /**
+     * Create a {@link AbstractCsv} from a string
+     *
+     * @param \SplFileInfo|\SplFileObject|string $path      an SplFileInfo object or the path to a file
+     * @param string                             $open_mode the file open mode flag
+     *
+     * @return self
+     *
+     * @throws \InvalidArgumentException If the data provided is invalid
+     */
+    public static function createFromPath($path, $open_mode = 'r+')
+    {
+        if ($path instanceof SplTempFileObject) {
+            throw new InvalidArgumentException(
+                'path must be a valid string or a `SplFileInfo` object'
+            );
+        } elseif ($path instanceof SplFileInfo) {
+            $path = $path->getPath().'/'.$path->getBasename();
+        }
+        $path = (string) $path;
+
+        return new static($path, $open_mode);
     }
 
     /**
