@@ -100,14 +100,15 @@ abstract class AbstractCsv implements JsonSerializable, IteratorAggregate
     public static function createFromPath($path, $open_mode = 'r+')
     {
         if ($path instanceof SplTempFileObject) {
-            throw new InvalidArgumentException(
-                'an `SplTempFileObject` object does not contain a valid path'
-            );
+            throw new InvalidArgumentException('an `SplTempFileObject` object does not contain a valid path');
         } elseif ($path instanceof SplFileInfo) {
             $path = $path->getPath().'/'.$path->getBasename();
+        } elseif (! self::isValidString($path)) {
+            throw new InvalidArgumentException('path must be a valid string');
         }
+        $path = (string) $path;
 
-        return new static((string) $path, $open_mode);
+        return new static($path, $open_mode);
     }
 
     /**
@@ -133,15 +134,15 @@ abstract class AbstractCsv implements JsonSerializable, IteratorAggregate
      */
     public static function createFromString($str)
     {
-        if (self::isValidString($str)) {
-            $obj = new SplTempFileObject;
-            $obj->fwrite((string) $str.PHP_EOL);
-
-            return static::createFromFileObject($obj);
+        if (! self::isValidString($str)) {
+            throw new InvalidArgumentException(
+                'the submitted data must be a string or an object implementing the `__toString` method'
+            );
         }
-        throw new InvalidArgumentException(
-            'the submitted data must be a string or an object implementing the `__toString` method'
-        );
+        $obj = new SplTempFileObject;
+        $obj->fwrite((string) $str.PHP_EOL);
+
+        return static::createFromFileObject($obj);
     }
 
     /**

@@ -25,7 +25,7 @@ class ReaderTest extends PHPUnit_Framework_TestCase
             $csv->fputcsv($row);
         }
 
-        $this->csv = new Reader($csv);
+        $this->csv = Reader::createFromFileObject($csv);
     }
 
     /**
@@ -193,7 +193,7 @@ class ReaderTest extends PHPUnit_Framework_TestCase
         foreach ($raw as $row) {
             $file->fputcsv($row);
         }
-        $csv = new Reader($file);
+        $csv = Reader::createFromFileObject($file);
         $res = $csv->fetchColumn(2);
         $this->assertInternalType('array', $res);
         $this->assertCount(2, $res);
@@ -276,7 +276,7 @@ EOF;
 
     public function testGetWriter2()
     {
-        $csv = (new Reader(__DIR__.'/foo.csv'))->getWriter('a+');
+        $csv = Reader::createFromPath(__DIR__.'/foo.csv')->getWriter('a+');
         $this->assertInstanceOf('\League\Csv\Writer', $csv);
     }
 }

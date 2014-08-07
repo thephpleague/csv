@@ -24,7 +24,7 @@ class WriterTest extends PHPUnit_Framework_TestCase
 
     public function setUp()
     {
-        $this->csv = new Writer(new SplTempFileObject);
+        $this->csv = Writer::createFromFileObject(new SplTempFileObject);
     }
 
     public function tearDown()
@@ -62,7 +62,7 @@ class WriterTest extends PHPUnit_Framework_TestCase
 
     public function testInsertNormalFile()
     {
-        $csv = new Writer(__DIR__.'/foo.csv', 'a+');
+        $csv = Writer::createFromPath(__DIR__.'/foo.csv', 'a+');
         $csv->insertOne(['jane', 'doe', 'jane.doe@example.com']);
         $iterator = new LimitIterator($csv->getIterator(), 1, 1);
         $iterator->rewind();

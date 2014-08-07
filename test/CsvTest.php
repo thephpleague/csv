@@ -31,7 +31,7 @@ class CsvTest extends PHPUnit_Framework_TestCase
             $csv->fputcsv($row);
         }
 
-        $this->csv = new Reader($csv);
+        $this->csv = Reader::createFromFileObject($csv);
     }
 
     public function tearDown()
@@ -43,7 +43,7 @@ class CsvTest extends PHPUnit_Framework_TestCase
     {
         $path = __DIR__.'/foo.csv';
 
-        $csv = new Reader($path);
+        $csv = Reader::createFromPath($path);
         $this->assertSame($path, $csv->getIterator()->getRealPath());
     }
 
@@ -51,7 +51,7 @@ class CsvTest extends PHPUnit_Framework_TestCase
     {
         $path = __DIR__.'/foo.csv';
 
-        $csv = new Reader(new SplFileInfo($path));
+        $csv = Reader::createFromPath(new SplFileInfo($path));
         $this->assertSame($path, $csv->getIterator()->getRealPath());
     }
 
@@ -59,7 +59,7 @@ class CsvTest extends PHPUnit_Framework_TestCase
     {
         $path = __DIR__.'/foo.csv';
 
-        $csv = new Reader('php://filter/read=string.toupper/resource='.$path);
+        $csv = Reader::createFromPath('php://filter/read=string.toupper/resource='.$path);
         $this->assertFalse($csv->getIterator()->getRealPath());
     }
 
@@ -68,7 +68,7 @@ class CsvTest extends PHPUnit_Framework_TestCase
      */
     public function testConstructorWithNotWritablePath()
     {
-        (new Reader('/usr/bin/foo.csv'))->getIterator();
+        Reader::createFromPath('/usr/bin/foo.csv')->getIterator();
     }
 
     /**
@@ -76,15 +76,7 @@ class CsvTest extends PHPUnit_Framework_TestCase
      */
     public function testConstructorWithWrongType()
     {
-        new Reader(['/usr/bin/foo.csv']);
-    }
-
-    public function testCreateFromPath()
-    {
-        $path = __DIR__.'/foo.csv';
-
-        $csv = Reader::createFromPath(new SplFileInfo($path));
-        $this->assertSame($path, $csv->getIterator()->getRealPath());
+        Reader::createFromPath(['/usr/bin/foo.csv']);
     }
 
     /**
@@ -132,7 +124,7 @@ class CsvTest extends PHPUnit_Framework_TestCase
     {
         $file = new SplTempFileObject;
         $file->fwrite("How are you today ?\nI'm doing fine thanks!");
-        $csv = new Writer($file);
+        $csv = Writer::createFromFileObject($file);
         $this->assertNull($csv->detectDelimiter(5, ['toto', '|']));
     }
 
@@ -141,7 +133,7 @@ class CsvTest extends PHPUnit_Framework_TestCase
      */
     public function testDetectDelimiterWithInconsistentCSV()
     {
-        $csv = new Writer(new SplTempFileObject);
+        $csv = Writer::createFromFileObject(new SplTempFileObject);
         $csv->setDelimiter(';');
         $csv->insertOne(['toto', 'tata', 'tutu']);
         $csv->setDelimiter('|');
@@ -287,12 +279,12 @@ EOF;
     public function testInitStreamFilter()
     {
         $filter = 'php://filter/write=string.rot13/resource='.__DIR__.'/foo.csv';
-        $csv = new Reader(new SplFileInfo($filter));
+        $csv = Reader::createFromPath(new SplFileInfo($filter));
         $this->assertTrue($csv->hasStreamFilter('string.rot13'));
         $this->assertSame(STREAM_FILTER_WRITE, $csv->getStreamFilterMode());
 
         $filter = 'php://filter/read=string.toupper/resource='.__DIR__.'/foo.csv';
-        $csv = new Reader(new SplFileInfo($filter));
+        $csv = Reader::createFromPath(new SplFileInfo($filter));
         $this->assertTrue($csv->hasStreamFilter('string.toupper'));
         $this->assertSame(STREAM_FILTER_READ, $csv->getStreamFilterMode());
     }
@@ -302,8 +294,7 @@ EOF;
      */
     public function testappendStreamFilter()
     {
-        $path = __DIR__.'/foo.csv';
-        $csv = new Reader(new SplFileInfo($path));
+        $csv = Reader::createFromPath(__DIR__.'/foo.csv');
         $csv->appendStreamFilter('string.toupper');
         foreach ($csv->getIterator() as $row) {
             $this->assertSame($row, ['JOHN', 'DOE', 'JOHN.DOE@EXAMPLE.COM']);
@@ -314,9 +305,17 @@ EOF;
     /**
      * @expectedException RuntimeException
      */
-    public function testprependStreamFilter()
+    public function testFailedprependStreamFilter()
     {
-        (new Reader(new SplTempFileObject))->prependStreamFilter('string.toupper');
+        Reader::createFromFileObject(new SplTempFileObject)->prependStreamFilter('string.toupper');
+    }
+
+    /**
+     * @expectedException RuntimeException
+     */
+    public function testFailedapppendStreamFilter()
+    {
+        Reader::createFromFileObject(new SplTempFileObject)->appendStreamFilter('string.toupper');
     }
 
     /**
@@ -324,8 +323,7 @@ EOF;
      */
     public function testaddMultipleStreamFilter()
     {
-        $path = __DIR__.'/foo.csv';
-        $csv = new Reader(new SplFileInfo($path));
+        $csv = Reader::createFromPath(__DIR__.'/foo.csv');
         $csv->setFlags(SplFileObject::READ_AHEAD|SplFileObject::SKIP_EMPTY);
         $csv->appendStreamFilter('string.tolower');
         $csv->prependStreamFilter('string.rot13');
@@ -350,17 +348,11 @@ EOF;
         $csv->setStreamFilterMode(34);
     }
 
-    /**
-     * @expectedException RuntimeException
-     */
     public function testGetFilterPath()
     {
-        $path = __DIR__.'/foo.csv';
-        $csv = new Writer(new SplFileInfo($path));
+        $csv = Writer::createFromPath(__DIR__.'/foo.csv');
         $csv->appendStreamFilter('string.rot13');
         $csv->prependStreamFilter('string.toupper');
         $this->assertFalse($csv->getIterator()->getRealPath());
-
-        (new Reader(new SplTempFileObject))->appendStreamFilter('string.rot13');
     }
 }
