@@ -12,18 +12,18 @@
 */
 namespace League\Csv;
 
+use CallbackFilterIterator;
 use DomDocument;
+use InvalidArgumentException;
+use IteratorAggregate;
 use JsonSerializable;
+use League\Csv\Config\StreamFilter;
+use League\Csv\Config\Controls;
+use LimitIterator;
+use RuntimeException;
 use SplFileInfo;
 use SplFileObject;
 use SplTempFileObject;
-use RuntimeException;
-use InvalidArgumentException;
-use IteratorAggregate;
-use LimitIterator;
-use CallbackFilterIterator;
-use League\Csv\Config\StreamFilter;
-use League\Csv\Config\Controls;
 
 /**
  *  An abstract class to enable basic CSV manipulation

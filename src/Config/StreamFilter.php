@@ -12,11 +12,11 @@
 */
 namespace League\Csv\Config;
 
+use InvalidArgumentException;
+use OutOfBoundsException;
+use RuntimeException;
 use SplFileInfo;
 use SplTempFileObject;
-use InvalidArgumentException;
-use RuntimeException;
-use OutOfBoundsException;
 
 /**
  *  A Trait to ease PHP Stream Filters manipulation

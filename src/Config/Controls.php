@@ -12,10 +12,10 @@
 */
 namespace League\Csv\Config;
 
-use Traversable;
-use SplFileObject;
 use InvalidArgumentException;
 use League\Csv\Iterator\MapIterator;
+use SplFileObject;
+use Traversable;
 
 /**
  *  A trait to configure and check CSV file and content
@@ -177,9 +177,7 @@ trait Controls
     }
 
     /**
-     * DEPRECATION WARNING! This method will be removed in the next major point release
-     *
-     * @deprecated deprecated since version 5.5
+     * Set the CSV encoding charset
      *
      * @param string $str
      *
@@ -191,9 +189,7 @@ trait Controls
     }
 
     /**
-     * DEPRECATION WARNING! This method will be removed in the next major point release
-     *
-     * @deprecated deprecated since version 5.5
+     * Get the CSV encoding charset
      *
      * @return string
      */

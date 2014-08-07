@@ -12,9 +12,9 @@
 */
 namespace League\Csv;
 
+use CallbackFilterIterator;
 use InvalidArgumentException;
 use Iterator;
-use CallbackFilterIterator;
 use League\Csv\Iterator\MapIterator;
 use League\Csv\Iterator\Filter;
 use League\Csv\Iterator\SortBy;

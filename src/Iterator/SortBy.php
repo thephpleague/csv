@@ -12,8 +12,8 @@
 */
 namespace League\Csv\Iterator;
 
-use Iterator;
 use ArrayIterator;
+use Iterator;
 
 /**
  *  A Trait to sort an Iterator against

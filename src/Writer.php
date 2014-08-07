@@ -12,11 +12,11 @@
 */
 namespace League\Csv;
 
-use Traversable;
-use SplFileObject;
 use InvalidArgumentException;
-use RuntimeException;
 use OutOfBoundsException;
+use RuntimeException;
+use SplFileObject;
+use Traversable;
 
 /**
  *  A class to manage data insertion into a CSV
