@@ -22,13 +22,13 @@ use League\Csv\Writer;
 
 $reader = Reader::createFromPath('/path/to/your/csv/file.csv', 'rt');
 $reader = Reader::createFromString('john,doe,john.doe@example.com');
-$reader = Reader::createFromFilObject(new SpliFileObject('/path/to/your/csv/file.csv'));
+$reader = Reader::createFromFileObject(new SplFileObject('/path/to/your/csv/file.csv'));
 
 //or 
 
 $writer = Writer::createFromPath(new SpliFileObject('/path/to/your/csv/file.csv'), 'ab+');
 $writer = Writer::createFromString('john,doe,john.doe@example.com');
-$writer = Writer::createFromFilObject(new SpliFileObject('/path/to/your/csv/file.csv'));
+$writer = Writer::createFromFileObject(new SplTempFileObject);
 ~~~
 
 Both classes use named constructors to ease object instantiation. If you want to create a CSV object from:
