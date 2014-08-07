@@ -1,10 +1,12 @@
 CSV
 ==========
 
-[![Build Status](https://travis-ci.org/thephpleague/csv.png?branch=master)](https://travis-ci.org/thephpleague/csv)
-[![Coverage Status](https://coveralls.io/repos/thephpleague/csv/badge.png)](https://coveralls.io/r/thephpleague/csv)
-[![Total Downloads](https://poser.pugx.org/league/csv/downloads.png)](https://packagist.org/packages/league/csv)
-[![Latest Stable Version](https://poser.pugx.org/league/csv/v/stable.png)](https://packagist.org/packages/league/csv)
+[![Latest Version](https://img.shields.io/github/release/thephpleague/csv.svg?style=flat)](https://github.com/thephpleague/csv/releases)
+[![Software License](https://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat)](LICENSE.md)
+[![Build Status](https://img.shields.io/travis/thephpleague/csv/master.svg?style=flat)](https://travis-ci.org/thephpleague/csv)
+[![Coverage Status](https://img.shields.io/scrutinizer/coverage/g/thephpleague/csv.svg?style=flat)](https://scrutinizer-ci.com/g/thephpleague/csv/code-structure)
+[![Quality Score](https://img.shields.io/scrutinizer/g/thephpleague/csv.svg?style=flat)](https://scrutinizer-ci.com/g/thephpleague/csv)
+[![Total Downloads](https://img.shields.io/packagist/dt/league/csv.svg?style=flat)](https://packagist.org/packages/league/csv)
 
 League\Csv is a simple library to ease CSV parsing, writing and filtering in
 PHP. The goal of the library is to be as powerful while remaining lightweight,
