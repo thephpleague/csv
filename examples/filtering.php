@@ -1,11 +1,14 @@
 <?php
 
+error_reporting(-1);
+ini_set('display_errors', '1');
+
 use League\Csv\Reader;
 
 require '../vendor/autoload.php';
 
  //you can instantiate the Reader class with a SplFileObject object
-$inputCsv = new Reader(new SplFileObject('data/prenoms.csv'));
+$inputCsv = Reader::createFromPath(new SplFileObject('data/prenoms.csv'));
 $inputCsv->setDelimiter(';');
 $inputCsv->setEncoding("iso-8859-15");
 

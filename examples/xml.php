@@ -1,13 +1,13 @@
 <?php
 
 error_reporting(-1);
-ini_set('display_errors', 1);
+ini_set('display_errors', '1');
 
 use League\Csv\Reader;
 
 require '../vendor/autoload.php';
 
-$inputCsv = new Reader('data/prenoms.csv');
+$inputCsv = Reader::createFromPath('data/prenoms.csv');
 $inputCsv->setEncoding('ISO-8859-15');
 $inputCsv->setDelimiter(';');
 $doc = $inputCsv->toXML('csv', 'ligne', 'cellule');
