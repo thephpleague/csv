@@ -34,6 +34,11 @@ class CsvTest extends PHPUnit_Framework_TestCase
         $this->csv = new Reader($csv);
     }
 
+    public function tearDown()
+    {
+        $this->csv = null;
+    }
+
     public function testConstructorWithFilePath()
     {
         $path = __DIR__.'/foo.csv';
@@ -72,6 +77,22 @@ class CsvTest extends PHPUnit_Framework_TestCase
     public function testConstructorWithWrongType()
     {
         new Reader(['/usr/bin/foo.csv']);
+    }
+
+    public function testCreateFromPath()
+    {
+        $path = __DIR__.'/foo.csv';
+
+        $csv = Reader::createFromPath(new SplFileInfo($path));
+        $this->assertSame($path, $csv->getIterator()->getRealPath());
+    }
+
+    /**
+     * @expectedException InvalidArgumentException
+     */
+    public function testFailedCreateFromPath()
+    {
+        Reader::createFromPath(new SplTempFileObject);
     }
 
     public function testCreateFromString()

@@ -200,7 +200,7 @@ class Writer extends AbstractCsv
     /**
      * Is the submitted row valid
      *
-     * @param mixed $row
+     * @param \Traversable|array|string $row
      *
      * @return array
      *
@@ -272,7 +272,7 @@ class Writer extends AbstractCsv
     /**
      * Add a new CSV row to the generated CSV
      *
-     * @param mixed $data a string, an array or an object implementing to '__toString' method
+     * @param array|string $data a string, an array or an object implementing to '__toString' method
      *
      * @return self
      *
@@ -298,7 +298,7 @@ class Writer extends AbstractCsv
      *
      * a simple helper/Wrapper method around insertOne
      *
-     * @param mixed $rows a multidimentional array or a Traversable object
+     * @param \Traversable|array $rows a multidimentional array or a Traversable object
      *
      * @return self
      *

@@ -53,7 +53,7 @@ trait StreamFilter
     /**
      * Internal path setter
      *
-     * @param mixed $path can be a SplFileInfo object or the path to a file
+     * @param \SplFileInfo|string $path can be a SplFileInfo object or the path to a file
      *
      * @return self
      *
