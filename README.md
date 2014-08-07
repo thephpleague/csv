@@ -25,7 +25,7 @@ This package is compliant with [PSR-2] and [PSR-4].
 System Requirements
 -------
 
-You need **PHP >= 5.4.0** and the `mbstring` extension to use `League\Csv` but the latest stable version of PHP is recommended.
+You need **PHP >= 5.4.0** or **HHVM >= 3.2** and the `mbstring` extension to use `League\Csv` but the latest stable version of PHP/HHVM is recommended.
 
 Install
 -------
