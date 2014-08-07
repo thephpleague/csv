@@ -177,11 +177,13 @@ trait Controls
     }
 
     /**
-     * Set the CSV encoding charset
+     * DEPRECATION WARNING! This method will be removed in the next major point release
+     *
+     * @deprecated deprecated since version 5.5
      *
      * @param string $str
      *
-     * @return self
+     * @return static The invoked object
      */
     public function setEncoding($str)
     {
@@ -189,7 +191,9 @@ trait Controls
     }
 
     /**
-     * Get the CSV encoding charset
+     * DEPRECATION WARNING! This method will be removed in the next major point release
+     *
+     * @deprecated deprecated since version 5.5
      *
      * @return string
      */

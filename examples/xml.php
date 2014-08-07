@@ -8,7 +8,7 @@ use League\Csv\Reader;
 require '../vendor/autoload.php';
 
 $inputCsv = Reader::createFromPath('data/prenoms.csv');
-$inputCsv->setEncoding('ISO-8859-15');
+$inputCsv->setEncodingFrom('ISO-8859-15');
 $inputCsv->setDelimiter(';');
 $doc = $inputCsv->toXML('csv', 'ligne', 'cellule');
 $xml = $doc->saveXML();

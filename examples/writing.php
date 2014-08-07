@@ -9,7 +9,7 @@ require '../vendor/autoload.php';
 
 $writer = Writer::createFromFileObject(new SplTempFileObject); //the CSV file will be created into a temporary File
 $writer->setDelimiter("\t"); //the delimiter will be the tab character
-$writer->setEncoding("utf-8");
+$writer->setEncodingFrom("utf-8");
 
 $headers = ["position" , "team", "played", "goals difference", "points"];
 $writer->insertOne($headers);
@@ -29,7 +29,7 @@ $writer->insertAll($teams);
 <!doctype html>
 <html lang="fr">
 <head>
-    <meta charset="<?=$writer->getEncoding()?>">
+    <meta charset="<?=$writer->getEncodingFrom()?>">
     <title>Using the \League\Writer object</title>
     <link rel="stylesheet" href="example.css">
 </head>

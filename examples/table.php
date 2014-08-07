@@ -9,12 +9,12 @@ require '../vendor/autoload.php';
 
 $inputCsv = Reader::createFromPath('data/prenoms.csv');
 $inputCsv->setDelimiter(';');
-$inputCsv->setEncoding("iso-8859-15");
+$inputCsv->setEncodingFrom("iso-8859-15");
 ?>
 <!doctype html>
 <html lang="fr">
 <head>
-    <meta charset="<?=$inputCsv->getEncoding()?>">
+    <meta charset="<?=$inputCsv->getEncodingFrom()?>">
     <title>Using the toHTML() method</title>
     <link rel="stylesheet" href="example.css">
 </head>

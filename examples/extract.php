@@ -9,7 +9,7 @@ require '../vendor/autoload.php';
 
 $inputCsv = Reader::createFromPath('data/prenoms.csv');
 $inputCsv->setDelimiter(';');
-$inputCsv->setEncoding("iso-8859-15");
+$inputCsv->setEncodingFrom("iso-8859-15");
 
 //get the header
 $headers = $inputCsv->fetchOne(0);
@@ -20,7 +20,7 @@ $res = $inputCsv->setOffset(800)->setLimit(25)->fetchAll();
 <!doctype html>
 <html lang="fr">
 <head>
-    <meta charset="<?=$inputCsv->getEncoding()?>">
+    <meta charset="<?=$inputCsv->getEncodingFrom()?>">
     <title>\League\Csv\Reader simple usage</title>
     <link rel="stylesheet" href="example.css">
 </head>
