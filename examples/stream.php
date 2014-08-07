@@ -9,11 +9,12 @@ use League\Csv\Reader;
 use League\Csv\Writer;
 use lib\FilterTranscode;
 
-require '../vendor/autoload.php';
+require '../vendor/autoload.php';  //to load the library
+
+//you must register your class for it to be usable by the CSV Lib
+stream_filter_register(FilterTranscode::FILTER_NAME."*", "\lib\FilterTranscode");
 
 //BETWEEN fetch* call you CAN update/remove/add stream filter
-
-stream_filter_register(FilterTranscode::FILTER_NAME."*", "\lib\FilterTranscode");
 $reader = new Reader(__DIR__.'/data/prenoms.csv');
 $reader->appendStreamFilter(FilterTranscode::FILTER_NAME."iso-8859-1:utf-8");
 $reader->appendStreamFilter('string.toupper');
@@ -29,6 +30,7 @@ the data is :
  - rot13 transform
 */
 var_dump($res);
+
 $reader->removeStreamFilter('string.toupper');
 $reader->setOffset(6);
 $reader->setLimit(3);
@@ -41,19 +43,18 @@ the data is :
 var_dump($res);
 
 // because of the limited support for stream filters with the SplFileObject
+// BETWEEN insert call **YOU CAN NOT UPDATE** stream filters
 
-// BETWEEN insert* call you CAN NOT UPDATE stream filters
-// You must instantiate a new Class for each changes
 touch('/tmp/test.csv');
 $writer = new Writer(new SplFileInfo('/tmp/test.csv'), 'w');
 $writer->appendStreamFilter('string.toupper');
 $writer->insertOne('je,suis,toto,le,héros');
-$writer->appendStreamFilter('string.rot13');
+$writer->appendStreamFilter('string.rot13'); //this stream won't be apploed
 $writer->insertOne('je,suis,toto,le,héros');
 /*
-the data is :
- - uppercased only
+the inserted data is only uppercased only
 */
+
 $writer = new Writer('/tmp/test.csv', 'a+');
 $writer->appendStreamFilter('string.toupper');
 $writer->appendStreamFilter(FilterTranscode::FILTER_NAME."iso-8859-1:utf-8");
@@ -61,7 +62,7 @@ $writer->appendStreamFilter('string.rot13');
 $writer->removeStreamFilter(FilterTranscode::FILTER_NAME."iso-8859-1:utf-8");
 $writer->insertOne('je,suis,toto,le,héros');
 /*
-the data is :
+the inserted data is :
  - uppercased
  - rot13 transform
 */
