@@ -111,6 +111,18 @@ abstract class AbstractCsv implements JsonSerializable, IteratorAggregate
     }
 
     /**
+     * Create a {@link AbstractCsv} from a SplFileObject
+     *
+     * @param SplFileObject $obj
+     *
+     * @return static
+     */
+    public static function createFromFileObject(SplFileObject $obj)
+    {
+        return new static($obj);
+    }
+
+    /**
      * Create a {@link AbstractCsv} from a string
      *
      * @param string $str The CSV data as string
@@ -122,12 +134,10 @@ abstract class AbstractCsv implements JsonSerializable, IteratorAggregate
     public static function createFromString($str)
     {
         if (self::isValidString($str)) {
-            $csv = new SplTempFileObject;
-            $raw = (string) $str;
-            $raw .= PHP_EOL;
-            $csv->fwrite($raw);
+            $obj = new SplTempFileObject;
+            $obj->fwrite((string) $str.PHP_EOL);
 
-            return new static($csv);
+            return static::createFromFileObject($obj);
         }
         throw new InvalidArgumentException(
             'the submitted data must be a string or an object implementing the `__toString` method'
