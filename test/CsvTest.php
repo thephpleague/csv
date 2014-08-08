@@ -39,7 +39,7 @@ class CsvTest extends PHPUnit_Framework_TestCase
         $this->csv = null;
     }
 
-    public function testConstructorWithFilePath()
+    public function testCreateFromPathWithFilePath()
     {
         $path = __DIR__.'/foo.csv';
 
@@ -47,7 +47,7 @@ class CsvTest extends PHPUnit_Framework_TestCase
         $this->assertSame($path, $csv->getIterator()->getRealPath());
     }
 
-    public function testConstructorWithFileObject()
+    public function testCreateFromPathWithFileObject()
     {
         $path = __DIR__.'/foo.csv';
 
@@ -55,7 +55,7 @@ class CsvTest extends PHPUnit_Framework_TestCase
         $this->assertSame($path, $csv->getIterator()->getRealPath());
     }
 
-    public function testContructorWithPHPWrapper()
+    public function testCreateFromPathWithPHPWrapper()
     {
         $path = __DIR__.'/foo.csv';
 
@@ -66,23 +66,31 @@ class CsvTest extends PHPUnit_Framework_TestCase
     /**
      * @expectedException RuntimeException
      */
-    public function testConstructorWithNotWritablePath()
+    public function testCreateFromPathWithNotWritablePath()
     {
-        Reader::createFromPath('/usr/bin/foo.csv')->getIterator();
+        Reader::createFromPath('usr/bin/foo.csv')->getIterator();
+    }
+
+    /**
+     * @expectedException PHPUnit_Framework_Error
+     */
+    public function testCreateFromPathWithWrongType()
+    {
+        Reader::createFromPath(new DateTime);
     }
 
     /**
      * @expectedException InvalidArgumentException
      */
-    public function testConstructorWithWrongType()
+    public function testConstructorWithNotStringableObject()
     {
-        Reader::createFromPath(['/usr/bin/foo.csv']);
+        new Reader(new DateTime);
     }
 
     /**
      * @expectedException InvalidArgumentException
      */
-    public function testFailedCreateFromPath()
+    public function testCreateFromPathWithSplTempFileObject()
     {
         Reader::createFromPath(new SplTempFileObject);
     }
@@ -171,7 +179,7 @@ class CsvTest extends PHPUnit_Framework_TestCase
     /**
      * @expectedException InvalidArgumentException
      */
-    public function testFailCreateFromString()
+    public function testCreateFromStringFromNotStringableObject()
     {
         Reader::createFromString(new DateTime);
     }
@@ -290,7 +298,7 @@ EOF;
     }
 
     /**
-     * @expectedException InvalidArgumentException
+     * @expectedException PHPUnit_Framework_Error
      */
     public function testappendStreamFilter()
     {
@@ -303,7 +311,7 @@ EOF;
     }
 
     /**
-     * @expectedException RuntimeException
+     * @expectedException LogicException
      */
     public function testFailedprependStreamFilter()
     {
@@ -311,7 +319,7 @@ EOF;
     }
 
     /**
-     * @expectedException RuntimeException
+     * @expectedException LogicException
      */
     public function testFailedapppendStreamFilter()
     {
