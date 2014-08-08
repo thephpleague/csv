@@ -12,7 +12,6 @@
 */
 namespace League\Csv\Config;
 
-use InvalidArgumentException;
 use LogicException;
 use OutOfBoundsException;
 use SplFileInfo;
@@ -53,11 +52,13 @@ trait StreamFilter
     /**
      * Internal path setter
      *
-     * @param \SplFileInfo|string $path can be a SplFileInfo object or the path to a file
+     * The path must be an SplFileInfo object
+     * an object that implements the `__toString` method
+     * a path to a file
      *
-     * @return self
+     * @param \SplFileInfo|object|string $path The file path
      *
-     * @throws InvalidArgumentException If $path is invalid
+     * @return void
      */
     protected function initStreamFilter($path)
     {
@@ -71,6 +72,7 @@ trait StreamFilter
             $path = $path->getPath().'/'.$path->getBasename();
         }
 
+        $path = (string) $path;
         $path = trim($path);
         //if we are submitting a filter meta wrapper
         //we extract and inject the mode, the filter and the path
@@ -95,12 +97,11 @@ trait StreamFilter
 
         $this->stream_real_path = $path;
         $this->stream_filters = [];
-
-        return $this;
     }
 
     /**
      * Check if the trait methods can be used
+     *
      * @return void
      *
      * @throws \LogicException If the API can not be use
@@ -121,6 +122,8 @@ trait StreamFilter
      * @param integer $mode
      *
      * @return self
+     *
+     * @throws \LogicException If the API can not be use
      */
     public function setStreamFilterMode($mode)
     {
@@ -139,6 +142,8 @@ trait StreamFilter
      * stream filter mode getter
      *
      * @return integer
+     *
+     * @throws \LogicException If the API can not be use
      */
     public function getStreamFilterMode()
     {
@@ -176,7 +181,6 @@ trait StreamFilter
     public function appendStreamFilter($filter_name)
     {
         $this->checkStreamApiAvailability();
-
         $this->stream_filters[] = $this->sanitizeStreamFilter($filter_name);
 
         return $this;
@@ -194,7 +198,6 @@ trait StreamFilter
     public function prependStreamFilter($filter_name)
     {
         $this->checkStreamApiAvailability();
-
         array_unshift($this->stream_filters, $this->sanitizeStreamFilter($filter_name));
 
         return $this;
@@ -228,7 +231,6 @@ trait StreamFilter
     public function removeStreamFilter($filter_name)
     {
         $this->checkStreamApiAvailability();
-
         $res = array_search($filter_name, $this->stream_filters, true);
         if (false !== $res) {
             unset($this->stream_filters[$res]);
@@ -247,7 +249,6 @@ trait StreamFilter
     public function clearStreamFilter()
     {
         $this->checkStreamApiAvailability();
-
         $this->stream_filters = [];
 
         return $this;
@@ -263,7 +264,6 @@ trait StreamFilter
     protected function getStreamFilterPath()
     {
         $this->checkStreamApiAvailability();
-
         if (! $this->stream_filters) {
             return $this->stream_real_path;
         }

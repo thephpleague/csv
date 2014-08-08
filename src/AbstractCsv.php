@@ -76,8 +76,6 @@ abstract class AbstractCsv implements JsonSerializable, IteratorAggregate
             $path = (string) $path;
             $path = trim($path);
         }
-        $this->path = $path;
-
         ini_set("auto_detect_line_endings", '1');
 
         $this->path = $path;
