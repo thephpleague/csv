@@ -13,8 +13,8 @@
 namespace League\Csv\Config;
 
 use InvalidArgumentException;
+use LogicException;
 use OutOfBoundsException;
-use RuntimeException;
 use SplFileInfo;
 use SplTempFileObject;
 
@@ -100,6 +100,19 @@ trait StreamFilter
     }
 
     /**
+     * Check if the trait methods can be used
+     * @return void
+     *
+     * @throws \LogicException If the API can not be use
+     */
+    protected function checkStreamApiAvailability()
+    {
+        if (is_null($this->stream_real_path)) {
+            throw new LogicException('The stream filter API can not be used');
+        }
+    }
+
+    /**
      * stream filter mode Setter
      *
      * Set the new Stream Filter mode and remove all
@@ -111,6 +124,7 @@ trait StreamFilter
      */
     public function setStreamFilterMode($mode)
     {
+        $this->checkStreamApiAvailability();
         if (! in_array($mode, [STREAM_FILTER_ALL, STREAM_FILTER_READ, STREAM_FILTER_WRITE])) {
             throw new OutOfBoundsException('the $mode should be a valid `STREAM_FILTER_*` constant');
         }
@@ -128,6 +142,8 @@ trait StreamFilter
      */
     public function getStreamFilterMode()
     {
+        $this->checkStreamApiAvailability();
+
         return $this->stream_filter_mode;
     }
 
@@ -138,15 +154,12 @@ trait StreamFilter
      *
      * @return string
      *
-     * @throws \InvalidArgumentException If $filter_name is not a string
+     * @throws \LogicException If the API can not be use
      */
     protected function sanitizeStreamFilter($filter_name)
     {
-        if (! is_string($filter_name)) {
-            throw new InvalidArgumentException(
-                'the filtername variable must be a string'
-            );
-        }
+        $this->checkStreamApiAvailability();
+        $filter_name = (string) $filter_name;
 
         return trim($filter_name);
     }
@@ -158,16 +171,12 @@ trait StreamFilter
      *
      * @return self
      *
-     * @throws \InvalidArgumentException If what you try to add is invalid
-     * @throws \RuntimeException         If adding Stream Filter is not possible
+     * @throws \LogicException If the API can not be use
      */
     public function appendStreamFilter($filter_name)
     {
-        if (is_null($this->stream_real_path)) {
-            throw new RuntimeException(
-                'no stream path found, you can not append a stream filter'
-            );
-        }
+        $this->checkStreamApiAvailability();
+
         $this->stream_filters[] = $this->sanitizeStreamFilter($filter_name);
 
         return $this;
@@ -180,16 +189,11 @@ trait StreamFilter
      *
      * @return self
      *
-     * @throws \InvalidArgumentException If what you try to add is invalid
-     * @throws \RuntimeException         If adding Stream Filter is not possible
+     * @throws \LogicException If the API can not be use
      */
     public function prependStreamFilter($filter_name)
     {
-        if (is_null($this->stream_real_path)) {
-            throw new RuntimeException(
-                'no stream path found, you can not prepend a stream filter'
-            );
-        }
+        $this->checkStreamApiAvailability();
 
         array_unshift($this->stream_filters, $this->sanitizeStreamFilter($filter_name));
 
@@ -202,9 +206,13 @@ trait StreamFilter
      * @param string $filter_name
      *
      * @return boolean
+     *
+     * @throws \LogicException If the API can not be use
      */
     public function hasStreamFilter($filter_name)
     {
+        $this->checkStreamApiAvailability();
+
         return false !== array_search($filter_name, $this->stream_filters, true);
     }
 
@@ -214,9 +222,13 @@ trait StreamFilter
      * @param string $filter_name
      *
      * @return self
+     *
+     * @throws \LogicException If the API can not be use
      */
     public function removeStreamFilter($filter_name)
     {
+        $this->checkStreamApiAvailability();
+
         $res = array_search($filter_name, $this->stream_filters, true);
         if (false !== $res) {
             unset($this->stream_filters[$res]);
@@ -229,9 +241,13 @@ trait StreamFilter
      * Remove all registered stream filter
      *
      * @return self
+     *
+     * @throws \LogicException If the API can not be use
      */
     public function clearStreamFilter()
     {
+        $this->checkStreamApiAvailability();
+
         $this->stream_filters = [];
 
         return $this;
@@ -241,9 +257,13 @@ trait StreamFilter
      * Return the filter path
      *
      * @return string
+     *
+     * @throws \LogicException If the API can not be use
      */
     protected function getStreamFilterPath()
     {
+        $this->checkStreamApiAvailability();
+
         if (! $this->stream_filters) {
             return $this->stream_real_path;
         }

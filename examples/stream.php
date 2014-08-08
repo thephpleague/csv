@@ -9,7 +9,7 @@ use League\Csv\Reader;
 use League\Csv\Writer;
 use lib\FilterTranscode;
 
-require '../vendor/autoload.php';  //to load the library
+require '../vendor/autoload.php';  //load all the classes in dev composer install dev mode
 
 //you must register your class for it to be usable by the CSV Lib
 stream_filter_register(FilterTranscode::FILTER_NAME."*", "\lib\FilterTranscode");
@@ -51,7 +51,6 @@ var_dump($res);
 echo 'Using the Writer:' . PHP_EOL;
 echo 'Filters can only be used with <code><strong>createFromPath</strong></code> method'.PHP_EOL;
 
-touch('/tmp/test.csv');
 $writer = Writer::createFromPath('/tmp/test.csv', 'w');
 $writer->appendStreamFilter('string.toupper');
 $writer->insertOne('je,suis,toto,le,héros');
@@ -59,9 +58,10 @@ $writer->appendStreamFilter('string.rot13'); //this stream won't be apploed
 $writer->insertOne('je,suis,toto,le,héros');
 
 echo '- the 2 first inserted rows are only uppercased'.PHP_EOL.PHP_EOL
-    .'To change the filters you need to create a new Writer object with a different <code><strong>$open_mode</strong></code>'.PHP_EOL;
+    .'To update the filters you need to
+    create a new Writer object with a different <code><strong>$open_mode</strong></code>'.PHP_EOL;
 
-$writer = Writer::createFromPath(new SplFileObject('/tmp/test.csv'), 'a+');
+$writer = Writer::createFromPath('/tmp/test.csv', 'a+');
 $writer->appendStreamFilter('string.toupper');
 $writer->appendStreamFilter(FilterTranscode::FILTER_NAME."iso-8859-1:utf-8");
 $writer->appendStreamFilter('string.rot13');
@@ -73,6 +73,6 @@ echo 'the following rows are :
  - rot13 transform
 ';
 
-$reader = Reader::createFromPath('/tmp/test.csv');
+$reader = $writer->newReader();
 $reader->setFlags(SplFileObject::READ_AHEAD|SplFileObject::SKIP_EMPTY);
 var_dump($reader->fetchAll());
