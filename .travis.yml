@@ -6,6 +6,10 @@ php:
   - 5.6
   - hhvm
 
+matrix:
+  allow_failures:
+    - php: hhvm
+
 before_script:
   - composer self-update
   - composer install
@@ -16,7 +20,3 @@ script:
 after_script:
   - wget https://scrutinizer-ci.com/ocular.phar
   - php ocular.phar code-coverage:upload --format=php-clover coverage.clover
-
-matrix:
-  allow_failures:
-    - php: hhvm

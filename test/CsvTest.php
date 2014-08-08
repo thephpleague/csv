@@ -72,14 +72,6 @@ class CsvTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException PHPUnit_Framework_Error
-     */
-    public function testCreateFromPathWithWrongType()
-    {
-        Reader::createFromPath(new DateTime);
-    }
-
-    /**
      * @expectedException InvalidArgumentException
      */
     public function testConstructorWithNotStringableObject()
@@ -300,9 +292,6 @@ EOF;
         $this->assertSame(STREAM_FILTER_READ, $csv->getStreamFilterMode());
     }
 
-    /**
-     * @expectedException PHPUnit_Framework_Error
-     */
     public function testappendStreamFilter()
     {
         $csv = Reader::createFromPath(__DIR__.'/foo.csv');
@@ -310,7 +299,6 @@ EOF;
         foreach ($csv->getIterator() as $row) {
             $this->assertSame($row, ['JOHN', 'DOE', 'JOHN.DOE@EXAMPLE.COM']);
         }
-        $csv->appendStreamFilter(new DateTime);
     }
 
     /**
