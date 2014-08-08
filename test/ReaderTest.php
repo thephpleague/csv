@@ -2,9 +2,10 @@
 
 namespace League\Csv\test;
 
-use PHPUnit_Framework_TestCase;
-use SplTempFileObject;
 use League\Csv\Reader;
+use PHPUnit_Framework_TestCase;
+use SplFileObject;
+use SplTempFileObject;
 
 /**
  * @group reader
@@ -271,6 +272,7 @@ class ReaderTest extends PHPUnit_Framework_TestCase
 </tr>
 </table>
 EOF;
+        $writer->setFlags(SplFileObject::READ_AHEAD|SplFileObject::SKIP_EMPTY);
         $this->assertSame($expected, $writer->toHTML());
     }
 

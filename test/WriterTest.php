@@ -3,14 +3,12 @@
 namespace League\Csv\test;
 
 use ArrayIterator;
+use DateTime;
+use League\Csv\Writer;
 use LimitIterator;
+use PHPUnit_Framework_TestCase;
 use SplFileObject;
 use SplTempFileObject;
-
-use DateTime;
-
-use PHPUnit_Framework_TestCase;
-use League\Csv\Writer;
 
 date_default_timezone_set('UTC');
 
@@ -43,7 +41,7 @@ class WriterTest extends PHPUnit_Framework_TestCase
         foreach ($expected as $row) {
             $this->csv->insertOne($row);
         }
-
+        $this->csv->setFlags(SplFileObject::READ_AHEAD|SplFileObject::SKIP_EMPTY);
         foreach ($this->csv as $row) {
             $this->assertSame(['john', 'doe', 'john.doe@example.com'], $row);
         }
@@ -171,6 +169,7 @@ class WriterTest extends PHPUnit_Framework_TestCase
         ];
         $this->csv->insertAll($multipleArray);
         $this->csv->insertAll(new ArrayIterator($multipleArray));
+        $this->csv->setFlags(SplFileObject::READ_AHEAD|SplFileObject::SKIP_EMPTY);
         foreach ($this->csv as $key => $row) {
             $expected = ['jane', 'doe', 'jane.doe@example.com'];
             if ($key%2 == 0) {

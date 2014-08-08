@@ -17,8 +17,8 @@ use DomDocument;
 use InvalidArgumentException;
 use IteratorAggregate;
 use JsonSerializable;
-use League\Csv\Config\StreamFilter;
 use League\Csv\Config\Controls;
+use League\Csv\Config\StreamFilter;
 use LimitIterator;
 use RuntimeException;
 use SplFileInfo;
@@ -214,8 +214,8 @@ abstract class AbstractCsv implements JsonSerializable, IteratorAggregate
     /**
      * Detect the CSV file delimiter
      *
-     * @param integer $nb_rows
-     * @param array   $delimiters additional delimiters
+     * @param integer  $nb_rows
+     * @param string[] $delimiters additional delimiters
      *
      * @return null|string
      *

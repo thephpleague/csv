@@ -2,13 +2,13 @@
 
 namespace League\Csv\test;
 
-use SplFileInfo;
-use SplFileObject;
-use SplTempFileObject;
-use PHPUnit_Framework_TestCase;
 use DateTime;
 use League\Csv\Reader;
 use League\Csv\Writer;
+use PHPUnit_Framework_TestCase;
+use SplFileInfo;
+use SplFileObject;
+use SplTempFileObject;
 
 date_default_timezone_set('UTC');
 
@@ -61,14 +61,6 @@ class CsvTest extends PHPUnit_Framework_TestCase
 
         $csv = Reader::createFromPath('php://filter/read=string.toupper/resource='.$path);
         $this->assertFalse($csv->getIterator()->getRealPath());
-    }
-
-    /**
-     * @expectedException RuntimeException
-     */
-    public function testCreateFromPathWithNotWritablePath()
-    {
-        Reader::createFromPath('usr/bin/foo.csv')->getIterator();
     }
 
     /**
@@ -188,6 +180,7 @@ class CsvTest extends PHPUnit_Framework_TestCase
 
     public function testIterator()
     {
+        $this->csv->setFlags(SplFileObject::READ_AHEAD|SplFileObject::SKIP_EMPTY);
         foreach ($this->csv as $key => $row) {
             $this->assertSame($this->expected[$key], $row);
         }
@@ -221,6 +214,7 @@ class CsvTest extends PHPUnit_Framework_TestCase
 </tr>
 </table>
 EOF;
+        $this->csv->setFlags(SplFileObject::READ_AHEAD|SplFileObject::SKIP_EMPTY);
         $this->assertSame($expected, $this->csv->toHTML());
     }
 
@@ -242,6 +236,7 @@ EOF;
 </csv>
 
 EOF;
+        $this->csv->setFlags(SplFileObject::READ_AHEAD|SplFileObject::SKIP_EMPTY);
         $doc = $this->csv->toXML();
         $this->assertInstanceof('\DomDocument', $doc);
         $doc->formatOutput = true;
@@ -255,6 +250,7 @@ EOF;
      */
     public function testJsonInterface($rawCsv)
     {
+        $this->csv->setFlags(SplFileObject::READ_AHEAD|SplFileObject::SKIP_EMPTY);
         $this->assertSame(json_encode($this->expected), json_encode($this->csv));
         $csv = Reader::createFromString($rawCsv);
         $csv->setEncodingFrom('iso-8859-15');
@@ -287,6 +283,7 @@ EOF;
     {
         $csv = Reader::createFromPath(__DIR__.'/foo.csv');
         $csv->appendStreamFilter('string.toupper');
+        $csv->setFlags(SplFileObject::READ_AHEAD|SplFileObject::SKIP_EMPTY);
         foreach ($csv->getIterator() as $row) {
             $this->assertSame($row, ['JOHN', 'DOE', 'JOHN.DOE@EXAMPLE.COM']);
         }

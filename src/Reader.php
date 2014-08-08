@@ -15,10 +15,10 @@ namespace League\Csv;
 use CallbackFilterIterator;
 use InvalidArgumentException;
 use Iterator;
-use League\Csv\Iterator\MapIterator;
 use League\Csv\Iterator\Filter;
-use League\Csv\Iterator\SortBy;
 use League\Csv\Iterator\Interval;
+use League\Csv\Iterator\MapIterator;
+use League\Csv\Iterator\SortBy;
 
 /**
  *  A class to manage extracting and filtering a CSV
