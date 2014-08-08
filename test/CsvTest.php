@@ -295,6 +295,9 @@ EOF;
         $csv = Reader::createFromPath(new SplFileInfo($filter));
         $this->assertTrue($csv->hasStreamFilter('string.toupper'));
         $this->assertSame(STREAM_FILTER_READ, $csv->getStreamFilterMode());
+
+        $csv = new Reader(new SplFileInfo($filter));
+        $this->assertSame(STREAM_FILTER_READ, $csv->getStreamFilterMode());
     }
 
     /**
