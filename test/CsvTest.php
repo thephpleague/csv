@@ -74,14 +74,6 @@ class CsvTest extends PHPUnit_Framework_TestCase
     /**
      * @expectedException InvalidArgumentException
      */
-    public function testConstructorWithNotStringableObject()
-    {
-        new Reader(new DateTime);
-    }
-
-    /**
-     * @expectedException InvalidArgumentException
-     */
     public function testCreateFromPathWithSplTempFileObject()
     {
         Reader::createFromPath(new SplTempFileObject);
@@ -133,16 +125,15 @@ class CsvTest extends PHPUnit_Framework_TestCase
      */
     public function testDetectDelimiterWithInconsistentCSV()
     {
-        $csv = Writer::createFromFileObject(new SplTempFileObject);
-        $csv->setDelimiter(';');
-        $csv->insertOne(['toto', 'tata', 'tutu']);
-        $csv->setDelimiter('|');
-        $csv->insertAll([
-            ['toto', 'tata', 'tutu'],
-            ['toto', 'tata', 'tutu'],
-            ['toto', 'tata', 'tutu']
-        ]);
+        $data = new SplTempFileObject;
+        $data->setCsvControl(';');
+        $data->fputcsv(['toto', 'tata', 'tutu']);
+        $data->setCsvControl('|');
+        $data->fputcsv(['toto', 'tata', 'tutu']);
+        $data->fputcsv(['toto', 'tata', 'tutu']);
+        $data->fputcsv(['toto', 'tata', 'tutu']);
 
+        $csv = Writer::createFromFileObject($data);
         $csv->detectDelimiter(5, ['toto', '|']);
     }
 

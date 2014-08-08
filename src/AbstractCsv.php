@@ -66,9 +66,12 @@ abstract class AbstractCsv implements JsonSerializable, IteratorAggregate
      */
     public function __construct($path, $open_mode = 'r+')
     {
-        if (! $path instanceof SplFileInfo && ! self::isValidString($path)) {
-            throw new InvalidArgumentException('path must be a valid string or a `SplFileInfo` object');
+        if (! $path instanceof SplFileInfo) {
+            $path = (string) $path;
+            $path = trim($path);
         }
+        $this->path = $path;
+
         ini_set("auto_detect_line_endings", '1');
         //lazy loading
         $this->path = $path;
