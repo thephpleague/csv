@@ -135,6 +135,7 @@ class Writer extends AbstractCsv
 
     /**
      * Set Inserted row column count
+     *
      * @param integer $value
      *
      * @return self

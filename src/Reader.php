@@ -99,9 +99,10 @@ class Reader extends AbstractCsv
     /**
      * Apply a callback function on the CSV
      *
-     * @param callable $callable The callback function to call on every element.
-     *                           The function must return TRUE in order to continue
-     *                           iterating over the iterator.
+     * The callback function must return TRUE in order to continue
+     * iterating over the iterator.
+     *
+     * @param callable $callable The callback function
      *
      * @return integer the iteration count
      */
@@ -145,7 +146,9 @@ class Reader extends AbstractCsv
     /**
      * Return a sequential array of all CSV lines
      *
-     * @param callable $callable a callable function to be applied to each Iterator item
+     * The callable function will be applied to each Iterator item
+     *
+     * @param callable $callable a callable function
      *
      * @return array
      */
@@ -155,10 +158,13 @@ class Reader extends AbstractCsv
     }
 
     /**
-     * Return a sequential array of all CSV lines; the rows are presented as associated arrays
+     * Return a sequential array of all CSV lines;
+     *
+     * The rows are presented as associated arrays
+     * The callable function will be applied to each Iterator item
      *
      * @param array    $keys     the name for each key member
-     * @param callable $callable a callable function to be applied to each Iterator item
+     * @param callable $callable a callable function
      *
      * @return array
      *
@@ -189,8 +195,10 @@ class Reader extends AbstractCsv
      *
      * @deprecated deprecated since version 5.4
      *
+     * The callable function will be applied to each value to be return
+     *
      * @param integer  $column_index field Index
-     * @param callable $callable     a callable function to be applied to each value to be return
+     * @param callable $callable     a callable function
      *
      * @return array
      *
@@ -204,8 +212,10 @@ class Reader extends AbstractCsv
     /**
      * Return a single column from the CSV data
      *
+     * The callable function will be applied to each value to be return
+     *
      * @param integer  $column_index field Index
-     * @param callable $callable     a callable function to be applied to each value to be return
+     * @param callable $callable     a callable function
      *
      * @return array
      *

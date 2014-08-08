@@ -47,7 +47,9 @@ abstract class AbstractCsv implements JsonSerializable, IteratorAggregate
     /**
      * The constructor path
      *
-     * @var \SplFileInfo|string can be a SplFileInfo object or the path to a file
+     * can be a SplFileInfo object or the string path to a file
+     *
+     * @var \SplFileInfo|string
      */
     protected $path;
 
@@ -61,8 +63,12 @@ abstract class AbstractCsv implements JsonSerializable, IteratorAggregate
     /**
      * The constructor
      *
-     * @param \SplFileInfo|string $path      an SplFileInfo object or the path to a file
-     * @param string              $open_mode the file open mode flag
+     * The path must be an SplFileInfo object
+     * an object that implements the `__toString` method
+     * a path to a file
+     *
+     * @param \SplFileInfo|object|string $path      The file path
+     * @param string                     $open_mode the file open mode flag
      */
     public function __construct($path, $open_mode = 'r+')
     {
@@ -73,7 +79,7 @@ abstract class AbstractCsv implements JsonSerializable, IteratorAggregate
         $this->path = $path;
 
         ini_set("auto_detect_line_endings", '1');
-        //lazy loading
+
         $this->path = $path;
         $this->open_mode = strtolower($open_mode);
         $this->initStreamFilter($path);
@@ -91,8 +97,13 @@ abstract class AbstractCsv implements JsonSerializable, IteratorAggregate
     /**
      * Create a {@link AbstractCsv} from a string
      *
-     * @param \SplFileInfo|\SplFileObject|string $path      an SplFileInfo object or the path to a file
-     * @param string                             $open_mode the file open mode flag
+     * The path must be an SplFileInfo, or a SplFileObject,
+     * or an object that implements the `__toString` method,
+     * or a string
+     * BUT NOT a SplTempFileObject
+     *
+     * @param \SplFileInfo|\SplFileObject|object|string $path      file path
+     * @param string                                    $open_mode the file open mode flag
      *
      * @return static
      *
@@ -127,7 +138,10 @@ abstract class AbstractCsv implements JsonSerializable, IteratorAggregate
     /**
      * Create a {@link AbstractCsv} from a string
      *
-     * @param string $str The CSV data as string
+     * The string must be an object that implements the `__toString` method,
+     * or a string
+     *
+     * @param string|object $str the string
      *
      * @return static
      *

@@ -76,8 +76,7 @@ class CsvTest extends PHPUnit_Framework_TestCase
         $expected = "john,doe,john.doe@example.com".PHP_EOL
             ."jane,doe,jane.doe@example.com".PHP_EOL;
         $reader = Reader::createFromString($expected);
-        $this->assertSame($reader->fetchOne(0), ['john', 'doe', 'john.doe@example.com']);
-        $this->assertSame($reader->fetchOne(1), ['jane', 'doe', 'jane.doe@example.com']);
+        $this->assertInstanceof('League\Csv\Reader', $reader);
     }
 
     /**
