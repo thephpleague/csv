@@ -40,7 +40,7 @@ $headers = $inputCsv->fetchOne(0);
 <!doctype html>
 <html lang="fr">
 <head>
-    <meta charset="<?=$inputCsv->getEncodingFrom()?>">
+    <meta charset="utf-8">
     <title>\League\Csv\Reader filtering method</title>
     <link rel="stylesheet" href="example.css">
 </head>

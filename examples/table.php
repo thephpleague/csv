@@ -14,7 +14,7 @@ $inputCsv->setEncodingFrom("iso-8859-15");
 <!doctype html>
 <html lang="fr">
 <head>
-    <meta charset="<?=$inputCsv->getEncodingFrom()?>">
+    <meta charset="utf-8">
     <title>Using the toHTML() method</title>
     <link rel="stylesheet" href="example.css">
 </head>

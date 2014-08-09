@@ -30,6 +30,16 @@ class WriterTest extends PHPUnit_Framework_TestCase
         $csv = new SplFileObject(__DIR__.'/foo.csv', 'w');
         $csv->setCsvControl();
         $csv->fputcsv(["john", "doe", "john.doe@example.com"], ",", '"');
+        $this->csv = null;
+    }
+
+    public function testSupportsStreamFilter()
+    {
+        $csv = Writer::createFromPath(__DIR__.'/foo.csv');
+        $this->assertTrue($csv->isActiveStreamFilter());
+        $csv->appendStreamFilter('string.toupper');
+        $csv->insertOne(['jane', 'doe', 'jane@example.com']);
+        $this->assertFalse($csv->isActiveStreamFilter());
     }
 
     public function testInsert()
@@ -49,6 +59,7 @@ class WriterTest extends PHPUnit_Framework_TestCase
 
     /**
      * @expectedException OutOfBoundsException
+     * @expectedExceptionMessage invalid value for null handling
      */
     public function testSetterGetterNullBehavior()
     {
@@ -103,6 +114,7 @@ class WriterTest extends PHPUnit_Framework_TestCase
 
     /**
      * @expectedException InvalidArgumentException
+     * @expectedExceptionMessage
      */
     public function testInsertNullThrowsException()
     {
@@ -112,6 +124,7 @@ class WriterTest extends PHPUnit_Framework_TestCase
 
     /**
      * @expectedException InvalidArgumentException
+     * @expectedExceptionMessage the column count must an integer greater or equals to -1
      */
     public function testColumsCountSetterGetter()
     {
@@ -123,6 +136,7 @@ class WriterTest extends PHPUnit_Framework_TestCase
 
     /**
      * @expectedException RuntimeException
+     * @expectedExceptionMessage You are trying to add
      */
     public function testColumsCountConsistency()
     {
@@ -135,6 +149,7 @@ class WriterTest extends PHPUnit_Framework_TestCase
 
     /**
      * @expectedException RuntimeException
+     * @expectedExceptionMessage You are trying to add
      */
     public function testAutoDetectColumnsCount()
     {
@@ -146,7 +161,7 @@ class WriterTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException InvalidArgumentException
+     * @expectedException PHPUnit_Framework_Error
      */
     public function testFailedInsertWithWrongData()
     {
@@ -155,6 +170,7 @@ class WriterTest extends PHPUnit_Framework_TestCase
 
     /**
      * @expectedException InvalidArgumentException
+     * @expectedExceptionMessage the values are not convertible into strings
      */
     public function testFailedInsertWithMultiDimensionArray()
     {
@@ -181,6 +197,7 @@ class WriterTest extends PHPUnit_Framework_TestCase
 
     /**
      * @expectedException InvalidArgumentException
+     * @expectedExceptionMessage the provided data must be an array OR a \Traversable object
      */
     public function testFailedSaveWithWrongType()
     {

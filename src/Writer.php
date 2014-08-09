@@ -114,6 +114,16 @@ class Writer extends AbstractCsv
     }
 
     /**
+     * Tells whether the stream filter capabilities can be used
+     *
+     * @return boolean
+     */
+    public function isActiveStreamFilter()
+    {
+        return parent::isActiveStreamFilter() && is_null($this->csv);
+    }
+
+    /**
      * Format the row according to the null handling behavior
      *
      * @param array $row
@@ -201,7 +211,7 @@ class Writer extends AbstractCsv
     /**
      * Is the submitted row valid
      *
-     * @param \Traversable|array|string $row
+     * @param string[]|string $row
      *
      * @return array
      *
@@ -209,15 +219,8 @@ class Writer extends AbstractCsv
      */
     protected function validateRow($row)
     {
-        //convert input string row into a proper array
-        if (self::isValidString($row)) {
+        if (! is_array($row)) {
             $row = str_getcsv((string) $row, $this->delimiter, $this->enclosure, $this->escape);
-        }
-
-        if (!is_array($row)) {
-            throw new InvalidArgumentException(
-                'the data provided must be convertible into arrays'
-            );
         }
 
         foreach ($row as $value) {
@@ -252,20 +255,13 @@ class Writer extends AbstractCsv
      * avoid loosing the cursor position
      *
      * @return SplFileObject
-     *
-     * @throws \RuntimeException If the file could not be created and/or opened
      */
     protected function getCsv()
     {
         if (! is_null($this->csv)) {
             return $this->csv;
-        } elseif ($this->path instanceof SplFileObject) {
-            $this->csv = $this->path;
-
-            return $this->csv;
         }
-
-        $this->csv = new SplFileObject($this->getStreamFilterPath(), $this->open_mode);
+        $this->csv = $this->getIterator();
 
         return $this->csv;
     }
@@ -273,7 +269,7 @@ class Writer extends AbstractCsv
     /**
      * Add a new CSV row to the generated CSV
      *
-     * @param array|string $data a string, an array or an object implementing to '__toString' method
+     * @param string[]|string $data a string, an array or an object implementing to '__toString' method
      *
      * @return self
      *

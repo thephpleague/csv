@@ -29,7 +29,7 @@ $writer->insertAll($teams);
 <!doctype html>
 <html lang="fr">
 <head>
-    <meta charset="<?=$writer->getEncodingFrom()?>">
+    <meta charset="utf-8">
     <title>Using the \League\Writer object</title>
     <link rel="stylesheet" href="example.css">
 </head>

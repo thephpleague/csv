@@ -15,7 +15,6 @@ namespace League\Csv\Config;
 use LogicException;
 use OutOfBoundsException;
 use SplFileInfo;
-use SplTempFileObject;
 
 /**
  *  A Trait to ease PHP Stream Filters manipulation
@@ -56,24 +55,20 @@ trait StreamFilter
      * an object that implements the `__toString` method
      * a path to a file
      *
-     * @param \SplFileInfo|object|string $path The file path
+     * @param \SplFileObject|string $path The file path
      *
      * @return void
      */
     protected function initStreamFilter($path)
     {
-        if ($path instanceof SplTempFileObject) {
-            $this->stream_real_path = null;
-
-            return $this;
-
-        } elseif ($path instanceof SplFileInfo) {
-            //$path->getRealPath() returns false for php stream wrapper
-            $path = $path->getPath().'/'.$path->getBasename();
+        $this->stream_filters = [];
+        $this->stream_real_path = null;
+        if (! is_string($path)) {
+            return;
         }
 
-        $path = (string) $path;
-        $path = trim($path);
+        $this->stream_real_path = $path;
+
         //if we are submitting a filter meta wrapper
         //we extract and inject the mode, the filter and the path
         if (preg_match(
@@ -91,12 +86,8 @@ trait StreamFilter
             $this->stream_filter_mode = $mode;
             $this->stream_real_path = $matches['resource'];
             $this->stream_filters = explode('|', $matches['filters']);
-
-            return $this;
         }
 
-        $this->stream_real_path = $path;
-        $this->stream_filters = [];
     }
 
     /**
@@ -108,9 +99,19 @@ trait StreamFilter
      */
     protected function checkStreamApiAvailability()
     {
-        if (is_null($this->stream_real_path)) {
+        if (! is_string($this->stream_real_path)) {
             throw new LogicException('The stream filter API can not be used');
         }
+    }
+
+    /**
+     * Tells whether the stream filter capabilities can be used
+     *
+     * @return boolean
+     */
+    public function isActiveStreamFilter()
+    {
+        return is_string($this->stream_real_path);
     }
 
     /**
@@ -121,9 +122,9 @@ trait StreamFilter
      *
      * @param integer $mode
      *
-     * @return self
+     * @return static
      *
-     * @throws \LogicException If the API can not be use
+     * @throws \OutOfBoundsException If the mode is invalid
      */
     public function setStreamFilterMode($mode)
     {
@@ -142,8 +143,6 @@ trait StreamFilter
      * stream filter mode getter
      *
      * @return integer
-     *
-     * @throws \LogicException If the API can not be use
      */
     public function getStreamFilterMode()
     {
@@ -158,8 +157,6 @@ trait StreamFilter
      * @param string $filter_name the stream filter name
      *
      * @return string
-     *
-     * @throws \LogicException If the API can not be use
      */
     protected function sanitizeStreamFilter($filter_name)
     {
@@ -174,9 +171,7 @@ trait StreamFilter
      *
      * @param string $filter_name a string or an object that implements the '__toString' method
      *
-     * @return self
-     *
-     * @throws \LogicException If the API can not be use
+     * @return static
      */
     public function appendStreamFilter($filter_name)
     {
@@ -191,9 +186,7 @@ trait StreamFilter
      *
      * @param string $filter_name a string or an object that implements the '__toString' method
      *
-     * @return self
-     *
-     * @throws \LogicException If the API can not be use
+     * @return static
      */
     public function prependStreamFilter($filter_name)
     {
@@ -209,8 +202,6 @@ trait StreamFilter
      * @param string $filter_name
      *
      * @return boolean
-     *
-     * @throws \LogicException If the API can not be use
      */
     public function hasStreamFilter($filter_name)
     {
@@ -224,9 +215,7 @@ trait StreamFilter
      *
      * @param string $filter_name
      *
-     * @return self
-     *
-     * @throws \LogicException If the API can not be use
+     * @return static
      */
     public function removeStreamFilter($filter_name)
     {
@@ -242,9 +231,7 @@ trait StreamFilter
     /**
      * Remove all registered stream filter
      *
-     * @return self
-     *
-     * @throws \LogicException If the API can not be use
+     * @return static
      */
     public function clearStreamFilter()
     {
@@ -258,8 +245,6 @@ trait StreamFilter
      * Return the filter path
      *
      * @return string
-     *
-     * @throws \LogicException If the API can not be use
      */
     protected function getStreamFilterPath()
     {

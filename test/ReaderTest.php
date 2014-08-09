@@ -31,6 +31,7 @@ class ReaderTest extends PHPUnit_Framework_TestCase
 
     /**
      * @expectedException \InvalidArgumentException
+     * @expectedExceptionMessage the limit must an integer greater or equals to -1
      */
     public function testSetLimit()
     {
@@ -41,6 +42,7 @@ class ReaderTest extends PHPUnit_Framework_TestCase
 
     /**
      * @expectedException \InvalidArgumentException
+     * @expectedExceptionMessage the offset must be a positive integer or 0
      */
     public function testSetOffset()
     {
@@ -171,6 +173,7 @@ class ReaderTest extends PHPUnit_Framework_TestCase
 
     /**
      * @expectedException InvalidArgumentException
+     * @expectedExceptionMessage The named keys should be unique strings Or integer
      */
     public function testFetchAssocKeyFailure()
     {
@@ -212,6 +215,7 @@ class ReaderTest extends PHPUnit_Framework_TestCase
 
     /**
      * @expectedException \InvalidArgumentException
+     * @expectedExceptionMessage the column index must be a positive integer or 0
      */
     public function testFetchColFailure()
     {
@@ -220,6 +224,7 @@ class ReaderTest extends PHPUnit_Framework_TestCase
 
     /**
      * @expectedException \InvalidArgumentException
+     * @expectedExceptionMessage the offset must be a positive integer or 0
      */
     public function testfetchOne()
     {

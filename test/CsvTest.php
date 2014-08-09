@@ -55,6 +55,14 @@ class CsvTest extends PHPUnit_Framework_TestCase
         $this->assertSame($path, $csv->getIterator()->getRealPath());
     }
 
+    public function testConstructorWithSplFileInfo()
+    {
+        $path = __DIR__.'/foo.csv';
+        $csv = new Reader(new SplFileInfo($path));
+
+        $this->assertSame($path, $csv->getIterator()->getRealPath());
+    }
+
     public function testCreateFromPathWithPHPWrapper()
     {
         $path = __DIR__.'/foo.csv';
@@ -65,6 +73,7 @@ class CsvTest extends PHPUnit_Framework_TestCase
 
     /**
      * @expectedException InvalidArgumentException
+     * @expectedExceptionMessage an `SplTempFileObject` object does not contain a valid path
      */
     public function testCreateFromPathWithSplTempFileObject()
     {
@@ -81,6 +90,7 @@ class CsvTest extends PHPUnit_Framework_TestCase
 
     /**
      * @expectedException InvalidArgumentException
+     * @expectedExceptionMessage The delimiter must be a single character
      */
     public function testDelimeter()
     {
@@ -97,6 +107,7 @@ class CsvTest extends PHPUnit_Framework_TestCase
 
     /**
      * @expectedException InvalidArgumentException
+     * @expectedExceptionMessage `$nb_rows` must be a valid positive integer
      */
     public function testDetectDelimiterWithInvalidRowLimit()
     {
@@ -113,6 +124,7 @@ class CsvTest extends PHPUnit_Framework_TestCase
 
     /**
      * @expectedException RuntimeException
+     * @expectedExceptionMessage 'too many delimiters were found: `;`,`|`'
      */
     public function testDetectDelimiterWithInconsistentCSV()
     {
@@ -125,11 +137,12 @@ class CsvTest extends PHPUnit_Framework_TestCase
         $data->fputcsv(['toto', 'tata', 'tutu']);
 
         $csv = Writer::createFromFileObject($data);
-        $csv->detectDelimiter(5, ['toto', '|']);
+        $csv->detectDelimiter(5, ['|']);
     }
 
     /**
      * @expectedException InvalidArgumentException
+     * @expectedExceptionMessage The escape character must be a single character
      */
     public function testEscape()
     {
@@ -141,6 +154,7 @@ class CsvTest extends PHPUnit_Framework_TestCase
 
     /**
      * @expectedException InvalidArgumentException
+     * @expectedExceptionMessage The enclosure must be a single character
      */
     public function testEnclosure()
     {
@@ -152,6 +166,7 @@ class CsvTest extends PHPUnit_Framework_TestCase
 
     /**
      * @expectedException InvalidArgumentException
+     * @expectedExceptionMessage the submitted data must be a string or an object implementing the `__toString` method
      */
     public function testCreateFromStringFromNotStringableObject()
     {
@@ -160,6 +175,7 @@ class CsvTest extends PHPUnit_Framework_TestCase
 
     /**
      * @expectedException InvalidArgumentException
+     * @expectedExceptionMessage you should use a valid charset
      */
     public function testEncoding()
     {
@@ -187,6 +203,7 @@ class CsvTest extends PHPUnit_Framework_TestCase
 
     /**
      * @expectedException InvalidArgumentException
+     * @expectedExceptionMessage you should use a `SplFileObject` Constant
      */
     public function testSetFlags()
     {
@@ -265,22 +282,28 @@ EOF;
     public function testInitStreamFilter()
     {
         $filter = 'php://filter/write=string.rot13/resource='.__DIR__.'/foo.csv';
-        $csv = Reader::createFromPath(new SplFileInfo($filter));
+        $csv = Reader::createFromPath($filter);
         $this->assertTrue($csv->hasStreamFilter('string.rot13'));
         $this->assertSame(STREAM_FILTER_WRITE, $csv->getStreamFilterMode());
 
         $filter = 'php://filter/read=string.toupper/resource='.__DIR__.'/foo.csv';
-        $csv = Reader::createFromPath(new SplFileInfo($filter));
+        $csv = Reader::createFromPath($filter);
         $this->assertTrue($csv->hasStreamFilter('string.toupper'));
         $this->assertSame(STREAM_FILTER_READ, $csv->getStreamFilterMode());
+    }
 
-        $csv = new Reader(new SplFileInfo($filter));
-        $this->assertSame(STREAM_FILTER_READ, $csv->getStreamFilterMode());
+    /**
+     * @expectedException LogicException
+     * @expectedExceptionMessage The stream filter API can not be used
+     */
+    public function testInitStreamFilterWithSplFileObject()
+    {
+        (new Reader(new SplFileObject(__DIR__.'/foo.csv')))->getStreamFilterMode();
     }
 
     public function testappendStreamFilter()
     {
-        $csv = Reader::createFromPath(__DIR__.'/foo.csv');
+        $csv = new Reader(__DIR__.'/foo.csv');
         $csv->appendStreamFilter('string.toupper');
         $csv->setFlags(SplFileObject::READ_AHEAD|SplFileObject::SKIP_EMPTY);
         foreach ($csv->getIterator() as $row) {
@@ -290,22 +313,29 @@ EOF;
 
     /**
      * @expectedException LogicException
+     * @expectedExceptionMessage The stream filter API can not be used
      */
     public function testFailedprependStreamFilter()
     {
-        Reader::createFromFileObject(new SplTempFileObject)->prependStreamFilter('string.toupper');
+        $csv = new Reader(new SplTempFileObject);
+        $this->assertFalse($csv->isActiveStreamFilter());
+        $csv->prependStreamFilter('string.toupper');
     }
 
     /**
      * @expectedException LogicException
+     * @expectedExceptionMessage The stream filter API can not be used
      */
     public function testFailedapppendStreamFilter()
     {
-        Reader::createFromFileObject(new SplTempFileObject)->appendStreamFilter('string.toupper');
+        $csv = new Writer(new SplTempFileObject);
+        $this->assertFalse($csv->isActiveStreamFilter());
+        $csv->appendStreamFilter('string.toupper');
     }
 
     /**
      * @expectedException OutOfBoundsException
+     * @expectedExceptionMessage the $mode should be a valid `STREAM_FILTER_*` constant
      */
     public function testaddMultipleStreamFilter()
     {
@@ -336,7 +366,7 @@ EOF;
 
     public function testGetFilterPath()
     {
-        $csv = Writer::createFromPath(__DIR__.'/foo.csv');
+        $csv = new Writer(__DIR__.'/foo.csv');
         $csv->appendStreamFilter('string.rot13');
         $csv->prependStreamFilter('string.toupper');
         $this->assertFalse($csv->getIterator()->getRealPath());
