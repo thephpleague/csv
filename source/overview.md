@@ -35,9 +35,12 @@ Both classes use named constructors to ease object instantiation. If you want to
 
 * a raw string use the `createFromString` static method;
 * a `SplFileObject` use the `createFromFileObject` static method;
-* a file path  *à la* `fopen` use the static method `createFromPath`. This method takes an optional `$open_mode` parameter which default value is `r+`.
+* a file path  *à la* `fopen` use the static method `createFromPath`. This method takes an second parameter `$open_mode` which default value is `r+`.
 
-For simplicity it is recommended to only use the named constructors. For backward compatibility you can still directly instantiate your CSV object with the constructor, but the optional `$open_mode` parameter is
+For simplicity it is recommended to only use the named constructors. The `createFromFileObject`  and `createFromPath` named constructor were added in version 5.5. 
+
+
+For backward compatibility you can still directly instantiate your CSV object with the constructor, but the `$open_mode` parameter is:
 
 taken into account if you instantiate your object with:
 

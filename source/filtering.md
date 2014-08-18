@@ -9,7 +9,20 @@ title: Filtering
 
 To ease performing operations on the CSV as it is being read from or written to. the `Reader` and `Writer` classes now include methods to ease PHP stream filtering usage.
 
-<p class="message-warning"><strong>Warning:</strong> stream capabilities are restricted to objects instantiated through the use of the <code>createFromPath</code> named constructor. A <code>RuntimeException</code> exception will be thrown if you try to use the API under other circumstances.</p>
+<p class="message-warning"><strong>Warning:</strong> because of <code>SplFileObject</code> restricted stream filter support, a <code>LogicException</code> exception will be thrown if you try to use the API under other circumstances.</p>
+
+To avoid the exception you can make sure the Stream Filter API is available by using the `supportsStreamFilter` method, which returns `true` if you can safely use the API:
+
+~~~.language-php
+use \League\Csv\Reader;
+use \League\Csv\Writer;
+
+$reader = Reader::createFromPath('/path/to/my/file.csv');
+$reader->supportsStreamFilter(); //return true
+
+$writer = new Writer(new SplTempFileObject);
+$writer->supportsStreamFilter(); //return false the API can not be use
+~~~
 
 ## Stream Filter API
 
@@ -18,16 +31,15 @@ To be able to use the stream filtering mechanism you need to:
 * set the class filtering mode;
 * attached stream filters to your object as a collection;
 
-The filters will be automatically applied when the stream filter mode matches the method you are using.
+As a consequence:
 
-The attached filters are not:
-
-* cleared between method calls unless specified;
-* copied to the new class when using `newReader` or `newWriter` methods;
+* The filters will be automatically applied when the stream filter mode matches the method you are using.
+* The filters will not be cleared between method calls unless specified;
+* The filters will not be copied to the new class when using `newReader` or `newWriter` methods;
 
 ### Setting and getting the object stream filter mode
 
-The stream filter mode property is set using PHP internal stream filter constant `STREAM_FILTER_*`, but unlike `fopen`, the mode is a class property and not specific to a stream filter.
+The stream filter mode property is set using PHP internal stream filter constant `STREAM_FILTER_*`, but unlike `fopen`, the mode is attached to the object and not to a stream filter.
 
 * `setStreamFilterMode($mode)`: set the object stream filter mode **and** remove all previously attached stream filters;
 * `getStreamFilterMode()`: returns the current stream filter mode;
