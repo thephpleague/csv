@@ -23,12 +23,16 @@ use League\Csv\Writer;
 $reader = Reader::createFromPath('/path/to/your/csv/file.csv', 'rt');
 $reader = Reader::createFromString('john,doe,john.doe@example.com');
 $reader = Reader::createFromFileObject(new SplFileObject('/path/to/your/csv/file.csv'));
+$reader = new Reader('/path/to/your/csv/file.csv');
+$reader = new Reader(new SpliFileInfo('/path/to/your/csv/file.csv'), 'rt');
 
 //or 
 
 $writer = Writer::createFromPath(new SpliFileObject('/path/to/your/csv/file.csv'), 'ab+');
 $writer = Writer::createFromString('john,doe,john.doe@example.com');
 $writer = Writer::createFromFileObject(new SplTempFileObject);
+$writer = new Writer('/path/to/your/csv/file.csv', 'ab+');
+$writer = new Writer(new SpliFileObject('/path/to/your/csv/file.csv'));
 ~~~
 
 Both classes use named constructors to ease object instantiation. If you want to create a CSV object from:
@@ -37,7 +41,7 @@ Both classes use named constructors to ease object instantiation. If you want to
 * a `SplFileObject` use the `createFromFileObject` static method;
 * a file path  *à la* `fopen` use the static method `createFromPath`. This method takes an second parameter `$open_mode` which default value is `r+`.
 
-For simplicity it is recommended to only use the named constructors. The `createFromFileObject`  and `createFromPath` named constructor were added in version 5.5. 
+<p class="message-info">For simplicity it is recommended to only use the named constructors. The <code>createFromFileObject</code>  and <code>createFromPath</code> named constructors were added in <strong>version 5.5</strong>.</p> 
 
 
 For backward compatibility you can still directly instantiate your CSV object with the constructor, but the `$open_mode` parameter is:
