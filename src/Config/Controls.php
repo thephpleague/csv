@@ -154,6 +154,8 @@ trait Controls
      * @param integer $flags
      *
      * @return self
+     *
+     * @throws \InvalidArgumentException If the argument is not a valid integer
      */
     public function setFlags($flags)
     {

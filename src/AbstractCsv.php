@@ -35,12 +35,12 @@ use SplTempFileObject;
 abstract class AbstractCsv implements JsonSerializable, IteratorAggregate
 {
     /**
-     *  Stream Filter Trait
+     *  Stream Filter API Trait
      */
     use StreamFilter;
 
     /**
-     *  Controls Trait
+     *  Csv Controls Trait
      */
     use Controls;
 
@@ -49,7 +49,7 @@ abstract class AbstractCsv implements JsonSerializable, IteratorAggregate
      *
      * can be a SplFileInfo object or the string path to a file
      *
-     * @var \SplFileInfo|string
+     * @var \SplFileObject|string
      */
     protected $path;
 
@@ -271,12 +271,11 @@ abstract class AbstractCsv implements JsonSerializable, IteratorAggregate
      * @param integer  $nb_rows
      * @param string[] $delimiters additional delimiters
      *
-     * @return null|string
+     * @return string[]
      *
      * @throws \InvalidArgumentException If $nb_rows value is invalid
-     * @throws \RuntimeException         If too many delimiters are found
      */
-    public function detectDelimiter($nb_rows = 1, array $delimiters = [])
+    public function detectDelimiters($nb_rows = 1, array $delimiters = [])
     {
         $nb_rows = filter_var($nb_rows, FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]);
         if (! $nb_rows) {
@@ -297,7 +296,28 @@ abstract class AbstractCsv implements JsonSerializable, IteratorAggregate
         });
 
         arsort($res, SORT_NUMERIC);
-        $res = array_keys(array_filter($res));
+
+        return array_keys(array_filter($res));
+    }
+
+    /**
+     * DEPRECATION WARNING! This method will be removed in the next major point release
+     *
+     * @deprecated deprecated since version 5.5
+     *
+     * Detect the CSV file delimiter
+     *
+     * @param integer  $nb_rows
+     * @param string[] $delimiters additional delimiters
+     *
+     * @return null|string
+     *
+     * @throws \InvalidArgumentException If $nb_rows value is invalid
+     * @throws \RuntimeException         If too many delimiters are found
+     */
+    public function detectDelimiter($nb_rows = 1, array $delimiters = [])
+    {
+        $res = $this->detectDelimiters($nb_rows, $delimiters);
         if (! $res) {
             return null;
         } elseif (1 == count($res)) {
