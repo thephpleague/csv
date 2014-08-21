@@ -282,14 +282,11 @@ abstract class AbstractCsv implements JsonSerializable, IteratorAggregate
             throw new InvalidArgumentException('`$nb_rows` must be a valid positive integer');
         }
 
-        //validate the possible delimiters
         $delimiters = array_filter($delimiters, function ($str) {
             return 1 == mb_strlen($str);
         });
         $delimiters = array_merge([$this->delimiter, ',', ';', "\t"], $delimiters);
         $delimiters = array_unique($delimiters);
-
-        //detect the possible delimiter
         $res = array_fill_keys($delimiters, 0);
         array_walk($res, function (&$value, $delim) use ($nb_rows) {
             $value = $this->fetchRowsCountByDelimiter($delim, $nb_rows);

@@ -1,11 +1,11 @@
 #Changelog
-All Notable changes to League\Csv will be documented in this file
+All Notable changes to `League\Csv` will be documented in this file
 
 ## NEXT - XXXX-XX-XX
 
 ### Added
 - Stream Filter API in `League\Csv\AbstractCsv`
-- named constructors `createFromPath` and createFromFileObject in `League\Csv\AbstractCsv` to ease CSV object instantiation
+- named constructors `createFromPath` and `createFromFileObject` in `League\Csv\AbstractCsv` to ease CSV object instantiation
 - `detectDelimiters` in `League\Csv\AbstractCsv` to replace and remove the use of `Exception` in `detectDelimiter`
 - `setEncodingFrom` and `setDecodingFrom` in `League\Csv\AbstractCsv`
 
