@@ -4,7 +4,7 @@
 *
 * @license http://opensource.org/licenses/MIT
 * @link https://github.com/thephpleague/csv/
-* @version 5.5.0
+* @version 6.0.0
 * @package League.csv
 *
 * For the full copyright and license information, please view the LICENSE
@@ -12,8 +12,10 @@
 */
 namespace League\Csv\Config;
 
+use CallbackFilterIterator;
 use InvalidArgumentException;
 use League\Csv\Iterator\MapIterator;
+use LimitIterator;
 use SplFileObject;
 use Traversable;
 
@@ -66,7 +68,7 @@ trait Controls
      *
      * @param string $delimiter
      *
-     * @return self
+     * @return $this
      *
      * @throws \InvalidArgumentException If $delimeter is not a single character
      */
@@ -91,11 +93,72 @@ trait Controls
     }
 
     /**
+     * detect the actual number of row according to a delimiter
+     *
+     * @param string  $delimiter a CSV delimiter
+     * @param integer $nb_rows   the number of row to consider
+     *
+     * @return integer
+     */
+    protected function fetchRowsCountByDelimiter($delimiter, $nb_rows = 1)
+    {
+        $iterator = $this->getIterator();
+        $iterator->setCsvControl($delimiter, $this->enclosure, $this->escape);
+        //"reduce" the csv length to a maximum of $nb_rows
+        $iterator = new LimitIterator($iterator, 0, $nb_rows);
+        //return the parse rows
+        $iterator = new CallbackFilterIterator($iterator, function ($row) {
+            return is_array($row) && count($row) > 1;
+        });
+
+        return count(iterator_to_array($iterator, false));
+    }
+
+    /**
+     * Detect the CSV file delimiter
+     *
+     * @param integer  $nb_rows
+     * @param string[] $delimiters additional delimiters
+     *
+     * @return string[]
+     *
+     * @throws \InvalidArgumentException If $nb_rows value is invalid
+     */
+    public function detectDelimiterList($nb_rows = 1, array $delimiters = [])
+    {
+        $nb_rows = filter_var($nb_rows, FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]);
+        if (! $nb_rows) {
+            throw new InvalidArgumentException('`$nb_rows` must be a valid positive integer');
+        }
+
+        $delimiters = array_filter($delimiters, function ($str) {
+            return 1 == mb_strlen($str);
+        });
+        $delimiters = array_merge([$this->delimiter, ',', ';', "\t"], $delimiters);
+        $delimiters = array_unique($delimiters);
+        $res = array_fill_keys($delimiters, 0);
+        array_walk($res, function (&$value, $delim) use ($nb_rows) {
+            $value = $this->fetchRowsCountByDelimiter($delim, $nb_rows);
+        });
+
+        arsort($res, SORT_NUMERIC);
+
+        return array_keys(array_filter($res));
+    }
+
+    /**
+     * return a SplFileOjbect
+     *
+     * @return \SplFileOjbect
+     */
+    abstract public function getIterator();
+
+    /**
      * set the field enclosure
      *
      * @param string $enclosure
      *
-     * @return self
+     * @return $this
      *
      * @throws \InvalidArgumentException If $enclosure is not a single character
      */
@@ -124,7 +187,7 @@ trait Controls
      *
      * @param string $escape
      *
-     * @return self
+     * @return $this
      *
      * @throws \InvalidArgumentException If $escape is not a single character
      */
@@ -153,7 +216,7 @@ trait Controls
      *
      * @param integer $flags
      *
-     * @return self
+     * @return $this
      *
      * @throws \InvalidArgumentException If the argument is not a valid integer
      */
@@ -179,37 +242,11 @@ trait Controls
     }
 
     /**
-     * DEPRECATION WARNING! This method will be removed in the next major point release
-     *
-     * @deprecated deprecated since version 5.5
-     *
-     * @param string $str
-     *
-     * @return static The invoked object
-     */
-    public function setEncoding($str)
-    {
-        return $this->setEncodingFrom($str);
-    }
-
-    /**
-     * DEPRECATION WARNING! This method will be removed in the next major point release
-     *
-     * @deprecated deprecated since version 5.5
-     *
-     * @return string
-     */
-    public function getEncoding()
-    {
-        return $this->getEncodingFrom();
-    }
-
-    /**
      * Set the CSV encoding charset
      *
      * @param string $str
      *
-     * @return self
+     * @return $this
      */
     public function setEncodingFrom($str)
     {
@@ -252,17 +289,5 @@ trait Controls
 
             return $row;
         });
-    }
-
-    /**
-    * Validate a variable to be stringable
-    *
-    * @param mixed $str
-    *
-    * @return boolean
-    */
-    public static function isValidString($str)
-    {
-        return is_scalar($str) || (is_object($str) && method_exists($str, '__toString'));
     }
 }

@@ -4,7 +4,7 @@
 *
 * @license http://opensource.org/licenses/MIT
 * @link https://github.com/thephpleague/csv/
-* @version 5.5.0
+* @version 6.0.0
 * @package League.csv
 *
 * For the full copyright and license information, please view the LICENSE
@@ -33,25 +33,11 @@ trait SortBy
     protected $iterator_sort_by = [];
 
     /**
-     * DEPRECATION WARNING! This method will be removed in the next major point release
-     *
-     * @deprecated deprecated since version 5.2
-     *
-     * @param callable $callable
-     *
-     * @return static The invoked object
-     */
-    public function setSortBy(callable $callable)
-    {
-        return $this->addSortBy($callable);
-    }
-
-    /**
      * Set an Iterator sorting callable function
      *
      * @param callable $callable
      *
-     * @return static The invoked object
+     * @return $this
      */
     public function addSortBy(callable $callable)
     {
@@ -65,7 +51,7 @@ trait SortBy
      *
      * @param callable $callable
      *
-     * @return static The invoked object
+     * @return $this
      */
     public function removeSortBy(callable $callable)
     {
@@ -92,7 +78,7 @@ trait SortBy
     /**
      * Remove all registered callable
      *
-     * @return static The invoked object
+     * @return $this
      */
     public function clearSortBy()
     {

@@ -4,7 +4,7 @@
 *
 * @license http://opensource.org/licenses/MIT
 * @link https://github.com/thephpleague/csv/
-* @version 5.5.0
+* @version 6.0.0
 * @package League.csv
 *
 * For the full copyright and license information, please view the LICENSE
@@ -314,19 +314,5 @@ class Writer extends AbstractCsv
         }
 
         return $this;
-    }
-
-    /**
-     * DEPRECATION WARNING! This method will be removed in the next major point release
-     *
-     * @deprecated deprecated since version 5.5
-     *
-     * @param string $open_mode the file open mode flag
-     *
-     * @return \League\Csv\Reader object
-     */
-    public function getReader($open_mode = 'r+')
-    {
-        return $this->newReader($open_mode);
     }
 }

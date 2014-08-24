@@ -4,7 +4,7 @@
 *
 * @license http://opensource.org/licenses/MIT
 * @link https://github.com/thephpleague/csv/
-* @version 5.5.0
+* @version 6.0.0
 * @package League.csv
 *
 * For the full copyright and license information, please view the LICENSE
@@ -12,15 +12,12 @@
 */
 namespace League\Csv;
 
-use CallbackFilterIterator;
 use DomDocument;
 use InvalidArgumentException;
 use IteratorAggregate;
 use JsonSerializable;
 use League\Csv\Config\Controls;
 use League\Csv\Config\StreamFilter;
-use LimitIterator;
-use RuntimeException;
 use SplFileInfo;
 use SplFileObject;
 use SplTempFileObject;
@@ -244,86 +241,6 @@ abstract class AbstractCsv implements JsonSerializable, IteratorAggregate
     }
 
     /**
-     * detect the actual number of row according to a delimiter
-     *
-     * @param string  $delimiter a CSV delimiter
-     * @param integer $nb_rows   the number of row to consider
-     *
-     * @return integer
-     */
-    protected function fetchRowsCountByDelimiter($delimiter, $nb_rows = 1)
-    {
-        $iterator = $this->getIterator();
-        $iterator->setCsvControl($delimiter, $this->enclosure, $this->escape);
-        //"reduce" the csv length to a maximum of $nb_rows
-        $iterator = new LimitIterator($iterator, 0, $nb_rows);
-        //return the parse rows
-        $iterator = new CallbackFilterIterator($iterator, function ($row) {
-            return is_array($row) && count($row) > 1;
-        });
-
-        return count(iterator_to_array($iterator, false));
-    }
-
-    /**
-     * Detect the CSV file delimiter
-     *
-     * @param integer  $nb_rows
-     * @param string[] $delimiters additional delimiters
-     *
-     * @return string[]
-     *
-     * @throws \InvalidArgumentException If $nb_rows value is invalid
-     */
-    public function detectDelimiters($nb_rows = 1, array $delimiters = [])
-    {
-        $nb_rows = filter_var($nb_rows, FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]);
-        if (! $nb_rows) {
-            throw new InvalidArgumentException('`$nb_rows` must be a valid positive integer');
-        }
-
-        $delimiters = array_filter($delimiters, function ($str) {
-            return 1 == mb_strlen($str);
-        });
-        $delimiters = array_merge([$this->delimiter, ',', ';', "\t"], $delimiters);
-        $delimiters = array_unique($delimiters);
-        $res = array_fill_keys($delimiters, 0);
-        array_walk($res, function (&$value, $delim) use ($nb_rows) {
-            $value = $this->fetchRowsCountByDelimiter($delim, $nb_rows);
-        });
-
-        arsort($res, SORT_NUMERIC);
-
-        return array_keys(array_filter($res));
-    }
-
-    /**
-     * DEPRECATION WARNING! This method will be removed in the next major point release
-     *
-     * @deprecated deprecated since version 5.5
-     *
-     * Detect the CSV file delimiter
-     *
-     * @param integer  $nb_rows
-     * @param string[] $delimiters additional delimiters
-     *
-     * @return null|string
-     *
-     * @throws \InvalidArgumentException If $nb_rows value is invalid
-     * @throws \RuntimeException         If too many delimiters are found
-     */
-    public function detectDelimiter($nb_rows = 1, array $delimiters = [])
-    {
-        $res = $this->detectDelimiters($nb_rows, $delimiters);
-        if (! $res) {
-            return null;
-        } elseif (1 == count($res)) {
-            return $res[0];
-        }
-        throw new RuntimeException('too many delimiters were found: `'.implode('`,`', $res).'`');
-    }
-
-    /**
      * Return the CSV Iterator
      *
      * @return \SplFileObject
@@ -429,5 +346,17 @@ abstract class AbstractCsv implements JsonSerializable, IteratorAggregate
         $doc->documentElement->setAttribute('class', $class_name);
 
         return $doc->saveHTML($doc->documentElement);
+    }
+
+    /**
+    * Validate a variable to be stringable
+    *
+    * @param mixed $str
+    *
+    * @return boolean
+    */
+    public static function isValidString($str)
+    {
+        return is_scalar($str) || (is_object($str) && method_exists($str, '__toString'));
     }
 }

@@ -4,7 +4,7 @@
 *
 * @license http://opensource.org/licenses/MIT
 * @link https://github.com/thephpleague/csv/
-* @version 5.5.0
+* @version 6.0.0
 * @package League.csv
 *
 * For the full copyright and license information, please view the LICENSE
@@ -33,25 +33,11 @@ trait Filter
     protected $iterator_filters = [];
 
     /**
-     * DEPRECATION WARNING! This method will be removed in the next major point release
-     *
-     * @deprecated deprecated since version 5.1
-     *
-     * @param callable $callable
-     *
-     * @return static The invoked object
-     */
-    public function setFilter(callable $callable)
-    {
-        return $this->addFilter($callable);
-    }
-
-    /**
      * Set the Iterator filter method
      *
      * @param callable $callable
      *
-     * @return static The invoked object
+     * @return $this
      */
     public function addFilter(callable $callable)
     {
@@ -65,7 +51,7 @@ trait Filter
      *
      * @param callable $callable
      *
-     * @return static The invoked object
+     * @return $this
      */
     public function removeFilter(callable $callable)
     {
@@ -92,7 +78,7 @@ trait Filter
     /**
      * Remove all registered callable filter
      *
-     * @return static The invoked object
+     * @return $this
      */
     public function clearFilter()
     {

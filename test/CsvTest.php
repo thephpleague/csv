@@ -100,33 +100,29 @@ class CsvTest extends PHPUnit_Framework_TestCase
         $this->csv->setDelimiter('foo');
     }
 
-    public function testDetectDelimiter()
+    public function testDetectDelimiterList()
     {
-        $this->assertSame($this->csv->detectDelimiter(), ',');
+        $this->assertSame([','], $this->csv->detectDelimiterList());
     }
 
     /**
      * @expectedException InvalidArgumentException
      * @expectedExceptionMessage `$nb_rows` must be a valid positive integer
      */
-    public function testDetectDelimiterWithInvalidRowLimit()
+    public function testDetectDelimiterListWithInvalidRowLimit()
     {
-        $this->csv->detectDelimiter(-4);
+        $this->csv->detectDelimiterList(-4);
     }
 
-    public function testDetectDelimiterWithNoCSV()
+    public function testDetectDelimiterListWithNoCSV()
     {
         $file = new SplTempFileObject;
         $file->fwrite("How are you today ?\nI'm doing fine thanks!");
         $csv = Writer::createFromFileObject($file);
-        $this->assertNull($csv->detectDelimiter(5, ['toto', '|']));
+        $this->assertSame([], $csv->detectDelimiterList(5, ['toto', '|']));
     }
 
-    /**
-     * @expectedException RuntimeException
-     * @expectedExceptionMessage 'too many delimiters were found: `;`,`|`'
-     */
-    public function testDetectDelimiterWithInconsistentCSV()
+    public function testDetectDelimiterListWithInconsistentCSV()
     {
         $data = new SplTempFileObject;
         $data->setCsvControl(';');
@@ -137,7 +133,7 @@ class CsvTest extends PHPUnit_Framework_TestCase
         $data->fputcsv(['toto', 'tata', 'tutu']);
 
         $csv = Writer::createFromFileObject($data);
-        $csv->detectDelimiter(5, ['|']);
+        $this->assertSame(['|', ';'], $csv->detectDelimiterList(5, ['|']));
     }
 
     /**
@@ -180,10 +176,10 @@ class CsvTest extends PHPUnit_Framework_TestCase
     public function testEncoding()
     {
         $expected = 'iso-8859-15';
-        $this->csv->setEncoding($expected);
-        $this->assertSame(strtoupper($expected), $this->csv->getEncoding());
+        $this->csv->setEncodingFrom($expected);
+        $this->assertSame(strtoupper($expected), $this->csv->getEncodingFrom());
 
-        $this->csv->setEncoding('');
+        $this->csv->setEncodingFrom('');
     }
 
     public function testToString()

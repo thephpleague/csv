@@ -214,7 +214,7 @@ class WriterTest extends PHPUnit_Framework_TestCase
             $this->csv->insertOne($row);
         }
 
-        $reader = $this->csv->getReader();
+        $reader = $this->csv->newReader();
         $this->assertSame(['john', 'doe', 'john.doe@example.com'], $reader->fetchOne(0));
     }
 }

@@ -3,7 +3,7 @@
 * This file is part of the League.csv library
 *
 * @license http://opensource.org/licenses/MIT
-* @version 5.5.0
+* @version 6.0.0
 * @package League.csv
 *
 * For the full copyright and license information, please view the LICENSE
@@ -43,7 +43,7 @@ trait Interval
      *
      * @param $offset
      *
-     * @return static The invoked object
+     * @return $this
      */
     public function setOffset($offset = 0)
     {
@@ -60,7 +60,7 @@ trait Interval
      *
      * @param integer $limit
      *
-     * @return static The invoked object
+     * @return $this
      */
     public function setLimit($limit = -1)
     {

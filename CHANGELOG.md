@@ -6,18 +6,20 @@ All Notable changes to `League\Csv` will be documented in this file
 ### Added
 - Stream Filter API in `League\Csv\AbstractCsv`
 - named constructors `createFromPath` and `createFromFileObject` in `League\Csv\AbstractCsv` to ease CSV object instantiation
-- `detectDelimiters` in `League\Csv\AbstractCsv` to replace and remove the use of `Exception` in `detectDelimiter`
-- `setEncodingFrom` and `setDecodingFrom` in `League\Csv\AbstractCsv`
+- `detectDelimiterList` in `League\Csv\AbstractCsv` to replace and remove the use of `Exception` in `detectDelimiter`
+- `setEncodingFrom` and `setDecodingFrom` in `League\Csv\AbstractCsv` to replace `setEncoding` and `getEncoding` for naming consistency
 
 ### Deprecated
-- `detectDelimiter` in `League\Csv\AbstractCsv` in favor of `detectDelimiters`
-- `setEncoding` and `getEncoding` in `League\Csv\AbstractCsv` replaced by `setEncodingFrom` and `setDecodingFrom` for naming consistency
+- Nothing
 
 ### Fixed
 - `League\Csv\Reader::each` more stric `$callable` MUST returns true
 
 ### Remove
-- Nothing
+- `detectDelimiter`
+- `setEncoding` and `getEncoding`
+- `League\Csv\Reader::setSortBy`
+- `League\Csv\Reader::setFilter`
 
 ### Security
 - Nothing
@@ -126,7 +128,7 @@ All Notable changes to `League\Csv` will be documented in this file
 - Nothing
 
 ### Remove
-- Change namespace from `Bakame\Csv` to `League\Csv`
+- Nothing
 
 ### Security
 - Nothing
