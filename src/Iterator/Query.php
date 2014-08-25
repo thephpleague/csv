@@ -90,6 +90,27 @@ trait Query
     }
 
     /**
+    * Sort the Iterator
+    *
+    * @param \Iterator $iterator
+    *
+    * @return \LimitIterator
+    */
+    protected function applyIteratorInterval(Iterator $iterator)
+    {
+        if (0 == $this->iterator_offset && -1 == $this->iterator_limit) {
+            return $iterator;
+        }
+        $offset = $this->iterator_offset;
+        $limit = $this->iterator_limit;
+
+        $this->iterator_limit = -1;
+        $this->iterator_offset = 0;
+
+        return new LimitIterator($iterator, $offset, $limit);
+    }
+
+    /**
      * Set an Iterator sorting callable function
      *
      * @param callable $callable
@@ -145,6 +166,36 @@ trait Query
     }
 
     /**
+    * Sort the Iterator
+    *
+    * @param \Iterator $iterator
+    *
+    * @return \ArrayIterator
+    */
+    protected function applyIteratorSortBy(Iterator $iterator)
+    {
+        if (! $this->iterator_sort_by) {
+            return $iterator;
+        }
+        $res = iterator_to_array($iterator, false);
+
+        uasort($res, function ($rowA, $rowB) {
+            foreach ($this->iterator_sort_by as $callable) {
+                $res = $callable($rowA, $rowB);
+                if (0 !== $res) {
+                    return $res;
+                }
+            }
+
+            return 0;
+        });
+
+        $this->clearSortBy();
+
+        return new ArrayIterator($res);
+    }
+
+    /**
      * Set the Iterator filter method
      *
      * @param callable $callable
@@ -197,57 +248,6 @@ trait Query
         $this->iterator_filters = [];
 
         return $this;
-    }
-
-    /**
-    * Sort the Iterator
-    *
-    * @param \Iterator $iterator
-    *
-    * @return \LimitIterator
-    */
-    protected function applyIteratorInterval(Iterator $iterator)
-    {
-        if (0 == $this->iterator_offset && -1 == $this->iterator_limit) {
-            return $iterator;
-        }
-        $offset = $this->iterator_offset;
-        $limit = $this->iterator_limit;
-
-        $this->iterator_limit = -1;
-        $this->iterator_offset = 0;
-
-        return new LimitIterator($iterator, $offset, $limit);
-    }
-
-    /**
-    * Sort the Iterator
-    *
-    * @param \Iterator $iterator
-    *
-    * @return \ArrayIterator
-    */
-    protected function applyIteratorSortBy(Iterator $iterator)
-    {
-        if (! $this->iterator_sort_by) {
-            return $iterator;
-        }
-        $res = iterator_to_array($iterator, false);
-
-        uasort($res, function ($rowA, $rowB) {
-            foreach ($this->iterator_sort_by as $callable) {
-                $res = $callable($rowA, $rowB);
-                if (0 !== $res) {
-                    return $res;
-                }
-            }
-
-            return 0;
-        });
-
-        $this->clearSortBy();
-
-        return new ArrayIterator($res);
     }
 
     /**

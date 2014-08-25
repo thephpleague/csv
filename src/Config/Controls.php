@@ -14,10 +14,8 @@ namespace League\Csv\Config;
 
 use CallbackFilterIterator;
 use InvalidArgumentException;
-use League\Csv\Iterator\MapIterator;
 use LimitIterator;
 use SplFileObject;
-use Traversable;
 
 /**
  *  A trait to configure and check CSV file and content
@@ -55,13 +53,6 @@ trait Controls
      * @var integer
      */
     protected $flags = SplFileObject::READ_CSV;
-
-    /**
-     * Charset Encoding for the CSV
-     *
-     * @var string
-     */
-    protected $encodingFrom = 'UTF-8';
 
     /**
      * set the field delimeter
@@ -239,55 +230,5 @@ trait Controls
     public function getFlags()
     {
         return $this->flags;
-    }
-
-    /**
-     * Set the CSV encoding charset
-     *
-     * @param string $str
-     *
-     * @return $this
-     */
-    public function setEncodingFrom($str)
-    {
-        $str = str_replace('_', '-', $str);
-        $str = filter_var($str, FILTER_SANITIZE_STRING, ['flags' => FILTER_FLAG_STRIP_LOW|FILTER_FLAG_STRIP_HIGH]);
-        if (empty($str)) {
-            throw new InvalidArgumentException('you should use a valid charset');
-        }
-        $this->encodingFrom = strtoupper($str);
-
-        return $this;
-    }
-
-    /**
-     * Get the source CSV encoding charset
-     *
-     * @return string
-     */
-    public function getEncodingFrom()
-    {
-        return $this->encodingFrom;
-    }
-
-    /**
-     * Convert Csv file into UTF-8
-     *
-     * @return \Traversable
-     */
-    protected function convertToUtf8(Traversable $iterator)
-    {
-        if (strpos($this->encodingFrom, 'UTF-8') !== false) {
-            return $iterator;
-        }
-
-        return new MapIterator($iterator, function ($row) {
-            foreach ($row as &$value) {
-                $value = mb_convert_encoding($value, 'UTF-8', $this->encodingFrom);
-            }
-            unset($value);
-
-            return $row;
-        });
     }
 }

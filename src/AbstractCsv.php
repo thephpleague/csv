@@ -18,9 +18,11 @@ use IteratorAggregate;
 use JsonSerializable;
 use League\Csv\Config\Controls;
 use League\Csv\Config\StreamFilter;
+use League\Csv\Iterator\MapIterator;
 use SplFileInfo;
 use SplFileObject;
 use SplTempFileObject;
+use Traversable;
 
 /**
  *  An abstract class to enable basic CSV manipulation
@@ -268,6 +270,42 @@ abstract class AbstractCsv implements JsonSerializable, IteratorAggregate
     }
 
     /**
+     * Charset Encoding for the CSV
+     *
+     * @var string
+     */
+    protected $encodingFrom = 'UTF-8';
+
+    /**
+     * Set the CSV encoding charset
+     *
+     * @param string $str
+     *
+     * @return $this
+     */
+    public function setEncodingFrom($str)
+    {
+        $str = str_replace('_', '-', $str);
+        $str = filter_var($str, FILTER_SANITIZE_STRING, ['flags' => FILTER_FLAG_STRIP_LOW|FILTER_FLAG_STRIP_HIGH]);
+        if (empty($str)) {
+            throw new InvalidArgumentException('you should use a valid charset');
+        }
+        $this->encodingFrom = strtoupper($str);
+
+        return $this;
+    }
+
+    /**
+     * Get the source CSV encoding charset
+     *
+     * @return string
+     */
+    public function getEncodingFrom()
+    {
+        return $this->encodingFrom;
+    }
+
+    /**
      * Output all data on the CSV file
      *
      * @param string $filename CSV downloaded name if present adds extra headers
@@ -292,6 +330,18 @@ abstract class AbstractCsv implements JsonSerializable, IteratorAggregate
     }
 
     /**
+    * Validate a variable to be stringable
+    *
+    * @param mixed $str
+    *
+    * @return boolean
+    */
+    public static function isValidString($str)
+    {
+        return is_scalar($str) || (is_object($str) && method_exists($str, '__toString'));
+    }
+
+    /**
      * Retrieves the CSV content
      *
      * @return string
@@ -302,6 +352,21 @@ abstract class AbstractCsv implements JsonSerializable, IteratorAggregate
         $this->output();
 
         return ob_get_clean();
+    }
+
+    /**
+     * Return a HTML table representation of the CSV Table
+     *
+     * @param string $class_name optional classname
+     *
+     * @return string
+     */
+    public function toHTML($class_name = 'table-csv-data')
+    {
+        $doc = $this->toXML('table', 'tr', 'td');
+        $doc->documentElement->setAttribute('class', $class_name);
+
+        return $doc->saveHTML($doc->documentElement);
     }
 
     /**
@@ -334,29 +399,23 @@ abstract class AbstractCsv implements JsonSerializable, IteratorAggregate
     }
 
     /**
-     * Return a HTML table representation of the CSV Table
+     * Convert Csv file into UTF-8
      *
-     * @param string $class_name optional classname
-     *
-     * @return string
+     * @return \Traversable
      */
-    public function toHTML($class_name = 'table-csv-data')
+    protected function convertToUtf8(Traversable $iterator)
     {
-        $doc = $this->toXML('table', 'tr', 'td');
-        $doc->documentElement->setAttribute('class', $class_name);
+        if (strpos($this->encodingFrom, 'UTF-8') !== false) {
+            return $iterator;
+        }
 
-        return $doc->saveHTML($doc->documentElement);
-    }
+        return new MapIterator($iterator, function ($row) {
+            foreach ($row as &$value) {
+                $value = mb_convert_encoding($value, 'UTF-8', $this->encodingFrom);
+            }
+            unset($value);
 
-    /**
-    * Validate a variable to be stringable
-    *
-    * @param mixed $str
-    *
-    * @return boolean
-    */
-    public static function isValidString($str)
-    {
-        return is_scalar($str) || (is_object($str) && method_exists($str, '__toString'));
+            return $row;
+        });
     }
 }
