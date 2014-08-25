@@ -15,10 +15,8 @@ namespace League\Csv;
 use CallbackFilterIterator;
 use InvalidArgumentException;
 use Iterator;
-use League\Csv\Iterator\Filter;
-use League\Csv\Iterator\Interval;
 use League\Csv\Iterator\MapIterator;
-use League\Csv\Iterator\SortBy;
+use League\Csv\Iterator\Query;
 
 /**
  *  A class to manage extracting and filtering a CSV
@@ -30,19 +28,9 @@ use League\Csv\Iterator\SortBy;
 class Reader extends AbstractCsv
 {
     /**
-     *  Iterator Filtering Trait
+     *  Iterator Query Trait
      */
-    use Filter;
-
-    /**
-     *  Iterator Sorting Trait
-     */
-    use SortBy;
-
-    /**
-     *  Iterator Set Interval Trait
-     */
-    use Interval;
+    use Query;
 
     /**
      * {@ihneritdoc}
