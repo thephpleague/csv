@@ -72,8 +72,6 @@ $data = $reader->fetchColumn(2);
 // 
 ~~~
 
-<p class="message-warning">The <code>fetchCol</code> method has been deprecated and will be remove in the next major version release. For backward compatibility, the method is now an alias of the <code>fetchColumn</code> method.</p>
-
 The methods listed above (`query`, `fetchAll`, `fetchAssoc`, `fetchColumn`) can all take a optional `callable` argument to further manipulate each row before being returned. This callable function can take up to three parameters:
 
 * the current csv row data
@@ -96,7 +94,7 @@ $data = $reader->fetchOne(3); ///accessing the 4th row (indexing starts at 0)
 
 `each` apply a callable function on each CSV row. The callable function:
 
-* **must** return true to continue iterating over the CSV;
+* **must** return `true` to continue iterating over the CSV;
 * can take up to tree parameters:
     * the current csv row data;
     * the current csv key;
@@ -137,9 +135,6 @@ The `addFilter` method adds a callable filter function each time it is called. T
 * the current csv key;
 * the current csv iterator object;
 
-
-<p class="message-warning">The <code>setFilter</code> method has been deprecated and will be remove in the next major version release. For backward compatibility, the method is now an alias of the <code>addFilter</code> method.</p>
-
 ### removeFilter(callable $callable) *- since version 5.1*
 
 `removeFilter` method removes an already registered filter function. If the function was registered multiple times, you will have to call `removeFilter` as often as the filter was registered. **The first registered copy will be the first to be removed.**
@@ -162,8 +157,6 @@ The sorting options are applied **after the CSV filtering options**. The sorting
 ### addSortBy(callable $callable) *- since version 5.2*
 
 `addSortBy` method adds a sorting function each time it is called. The function takes exactly two parameters which will be filled by pairs of rows.
-
-<p class="message-warning">The <code>setSortBy</code> method has been deprecated and will be remove in the next major version release. For backward compatibility, the method is now an alias of the <code>addSortBy</code> method.</p>
 
 ### removeSortBy(callable $callable) *- since version 5.2*
 

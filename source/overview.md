@@ -10,9 +10,9 @@ The library is composed of two main classes:
 * `League\Csv\Reader` to extract and filter data from a CSV
 * `League\Csv\Writer` to insert new data into a CSV
 
-Both classes share methods to instantiate, format and output the CSV.
+Both classes extends the `League\Csv\AbstractCsv` class and as such share methods to instantiate, format and output the CSV.
 
-## Class Instantiation
+<h2 id="instantiation">Class Instantiation</h2>
 
 There's several ways to instantiate these classes:
 
@@ -35,26 +35,18 @@ $writer = new Writer('/path/to/your/csv/file.csv', 'ab+');
 $writer = new Writer(new SpliFileObject('/path/to/your/csv/file.csv'));
 ~~~
 
-Both classes use named constructors to ease object instantiation. If you want to create a CSV object from:
+**The recommended way** to create a CSV object from:
 
-* a raw string use the `createFromString` static method;
-* a `SplFileObject` use the `createFromFileObject` static method;
-* a file path  *à la* `fopen` use the static method `createFromPath`. This method takes an second parameter `$open_mode` which default value is `r+`.
+* a raw string is to use the named constructor `createFromString($str)`;
+* a `SplFileObject` is to use the named constructor `createFromFileObject(new SplTemFileObject)`;
+* a file path  *à la* `fopen`  is to use the named constructor `createFromPath($path, $open_mode)`. The `$path` parameter can be a `SplFileInfo`, an object that implements the `__toString` method or a string. This `$open_mode` parameter is **always** take into account and defaults to `r+` if none is supplied. 
 
-<p class="message-info">For simplicity it is recommended to only use the named constructors. The <code>createFromFileObject</code>  and <code>createFromPath</code> named constructors were added in <strong>version 5.5</strong>.</p> 
+<p class="message-info">The <code>createFromFileObject</code>  and <code>createFromPath</code> named constructors were added in <strong>version 6.0</strong>.</p> 
 
+For backward compatibility you can still directly instantiate your CSV object with the constructor. The constructor takes 2 parameters:
 
-For backward compatibility you can still directly instantiate your CSV object with the constructor, but the `$open_mode` parameter is:
-
-taken into account if you instantiate your object with:
-
-* a `SplFileInfo`
-* a string path
-
-ignore if you instantiate your object with:
-
-* a `SplFileObject`
-* a `SplTempFileObject`
+* A `$path` which can be a `SplFileInfo`, an object that implements the `__toString` method or a string;
+* A `$open_mode` which is ignore if you instantiate your object with a `SplFileObject`;
 
 ## CSV properties settings
 
@@ -64,7 +56,6 @@ Once your object is created you can optionally set:
 * the CSV enclosure;
 * the CSV escape characters;
 * the object `SplFileObject` flags;
-* the CSV encoding source
 
 ~~~.language-php
 $reader = Reader::createFromPath('/path/to/your/csv/file.csv');
@@ -73,16 +64,13 @@ $reader->setDelimiter(',');
 $reader->setEnclosure('"');
 $reader->setEscape('\\');
 $reader->setFlags(SplFileObject::READ_AHEAD|SplFileObject::SKIP_EMPTY);
-$reader->setEncodingFrom('iso-8859-15');
 ~~~
 
-The recommended way to transcode you CSV in a UTF-8 compatible charset is to use the <a href="/filtering/">library stream filtering mechanism</a>. When this is not possible you may fallback by using the `setEncondignFrom` and `getEncondignFrom` methods.
+### detectDelimiterList($nbRows = 1, array $delimiters = []) *new in version 6*
 
-<p class="message-warning"><strong>Warning:</strong> <code>set/getEncoding</code> methods have been deprecated and are schedule to be remove on the next major release. For backward compatibility, <code>setEncoding</code> is an alias of <code>setEncondignFrom</code> and <code>getEncoding</code> is an alias of <code>getEncondignFrom</code></p>
+<p class="message-warning"><strong>BC Break:</strong> the <code>detectDelimiterList</code> method replaces the removed method <code>detectDelimiter</code> !</p>
 
-### detectDelimiter($nbRows = 1, array $delimiters = []) *since version 5.1*
-
-If you are no sure about the delimiter you can ask the library to detect it for you using the `detectDelimiter` method. **This method will only give you a hint**. 
+If you are no sure about the delimiter you can ask the library to detect it for you using the `detectDelimiterList` method. **This method will only give you a hint**. 
 
 The method takes two arguments:
 
@@ -96,23 +84,21 @@ $reader->setEnclosure('"');
 $reader->setEscape('\\');
 $reader->setFlags(SplFileObject::READ_AHEAD|SplFileObject::SKIP_EMPTY);
 
-$delimiter = $reader->detectDelimiter(10, [' ', '|']);
+$delimiters_list = $reader->detectDelimiterList(10, [' ', '|']);
 ~~~
 
-The more rows and delimiters you add, the more time and memory consuming the operation will be.
+The more rows and delimiters you add, the more time and memory consuming the operation will be. The method returns an `array` of the delimiters found.
 
-* If a single delimiter is found the method will return it;
-* If multiple delimiters are found (ie: your CSV is not consistent) a `RuntimeException` is thrown;
-* If no delimiter is found or your CSV is composed of a single column, `null` will be return;
+* If a single delimiter is found the array will contain only one delimiter;
+* If multiple delimiters are found the array will contain the found delimiters sorted descendingly according to their occurences in the defined rows set;
+* If no delimiter is found or your CSV is composed of a single column, the array will be empty;
 
 ## Switching from one class to the other
 
-<p class="message-warning">The <code>getReader</code> and <code>getWriter</code> methods have been deprecated and will be remove in the next major version release. For backward compatibility, the methods are now aliases of the <code>newReader</code> and <code>newWriter</code> methods.</p>
-
 At any given time you can switch or create a new `League\Csv\Writer` or a new `League\Csv\Reader` from the current object. to do so you can use the following methods.
 
-* the `League\Csv\Writer::newReader` method from the `League\Csv\Writer` class
-* the `League\Csv\Reader::newWriter` method from the `League\Csv\Reader` class 
+* the `newReader` to create a new `League\Csv\Reader` object;
+* the `newWriter` to create a new `League\Csv\Writer` object;
 
 Both methods accept the optional $open_mode parameter. When not explicitly set, the `$open_mode` default value is `r+` for both methods.
 
@@ -122,4 +108,4 @@ $newWriter = $reader->newWriter('a');
 $anotherWriter = $newWriter->newWriter('r+'); 
 ~~~
 
-<p class="message-warning"><strong>Warning:</strong> be careful the <code>$newWriter</code> and <code>$anotherWriter</code> object are not equal to the <code>$writer</code> object!</p>
+<p class="message-warning"><strong>Warning:</strong> be careful the <code>$newWriter</code> and <code>$anotherWriter</code> object are not the same as the <code>$writer</code> object!</p>

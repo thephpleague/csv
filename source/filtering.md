@@ -5,14 +5,14 @@ title: Filtering
 
 # Stream Filtering
 
-*available since version 5.5*
+*available since version 6.0*
 
 To ease performing operations on the CSV as it is being read from or written to, the `Reader` and `Writer` classes now include methods to ease PHP stream filtering usage.
 
 
 ## Stream Filter API
 
-While in PHP the stream filter mode is attached to the its associated filter, in `League\Csv` the filter mode is attached to the CSV object. This means that when you change the filter mode, you also clear all previously attached stream filters.
+While in PHP the stream filter mode is attached to its associated filter, in `League\Csv` the filter mode is attached to the CSV object. This means that when you change the filter mode, you also clear all previously attached stream filters.
 
 To be able to use the stream filtering mechanism you need to:
 

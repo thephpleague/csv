@@ -19,6 +19,20 @@ foreach ($reader as $row) {
 }
 ~~~
 
+## Transcoding the CSV
+
+The recommended way to transcode your CSV in a UTF-8 compatible charset is to use the <a href="/filtering/">library stream filtering mechanism</a>. When this is not possible you can fallback using the `setEncondignFrom` and `getEncondignFrom` methods.
+
+<p class="message-warning"><strong>BC Break:</strong> <code>setEnconding</code> and <code>getEnconding</code> methods have been removed since version 6.0 and are replaced by <code>setEncondingFrom</code> and <code>getEncondingFrom</code> for naming consistency</p>
+
+~~~.language-php
+$reader = Reader::createFromFileObject(new SplFileObject('/path/to/bengali.csv'));
+$reader->setEncodingFrom('iso-8859-15');
+echo $reader; //the CSV will be transcoded from iso-8859-15 to UTF-8;
+~~~
+
+When using the outputting methods and the `json_encode` function, the data is internally converted into UTF-8 if `setEncodingFrom` is set to anything other than `UTF-8`.
+
 ## Show the CSV content
 
 Use the echo construct on the instantiated object or use the `__toString` method.
@@ -31,7 +45,7 @@ echo $writer->__toString();
 
 ## Convert to XML
 
-Use the toXML method to convert the CSV data into a PHP DomDocument object. This
+Use the toXML method to convert the CSV data into a `DomDocument` object. This
 method accepts 3 optionals arguments `$root_name`, `$row_name` and `$cell_name` 
 to help you customize the XML tree.
 
@@ -64,9 +78,6 @@ Use the `json_encode` function directly on the instantiated object.
 ~~~.language-php
 echo json_encode($writer);
 ~~~
-
-When using the `toHTML()`, `toXML()` methods and the `json_encode` function,
-the data is internally converted into UTF-8 if `setEncoding` is used and the encoding is not UTF-8.
 
 ## Force a file download
 
