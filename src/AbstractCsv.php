@@ -385,12 +385,12 @@ abstract class AbstractCsv implements JsonSerializable, IteratorAggregate
         $iterator = $this->convertToUtf8($this->getIterator());
         foreach ($iterator as $row) {
             $item = $doc->createElement($row_name);
-            foreach ($row as $value) {
+            array_walk($row, function ($value) use (&$item, $doc, $cell_name) {
                 $content = $doc->createTextNode($value);
-                $cell = $doc->createElement($cell_name);
+                $cell    = $doc->createElement($cell_name);
                 $cell->appendChild($content);
                 $item->appendChild($cell);
-            }
+            });
             $root->appendChild($item);
         }
         $doc->appendChild($root);
