@@ -177,19 +177,19 @@ trait Query
         if (! $this->iterator_sort_by) {
             return $iterator;
         }
+        $nb_callbacks = count($this->iterator_sort_by);
+        $this->iterator_sort_by = array_values($this->iterator_sort_by);
         $res = iterator_to_array($iterator, false);
-
-        uasort($res, function ($rowA, $rowB) {
-            foreach ($this->iterator_sort_by as $callable) {
-                $res = $callable($rowA, $rowB);
-                if (0 !== $res) {
-                    return $res;
-                }
+        uasort($res, function ($rowA, $rowB) use ($nb_callbacks) {
+            $res   = 0;
+            $index = 0;
+            while ($index < $nb_callbacks && 0 === $res) {
+                $res = $this->iterator_sort_by[$index]($rowA, $rowB);
+                ++$index;
             }
 
-            return 0;
+            return $res;
         });
-
         $this->clearSortBy();
 
         return new ArrayIterator($res);

@@ -96,13 +96,12 @@ class Reader extends AbstractCsv
      */
     public function each(callable $callable)
     {
+        $index    = 0;
         $iterator = $this->query();
-        $index = 0;
-        foreach ($iterator as $rowIndex => $row) {
-            if (true !== $callable($row, $rowIndex, $iterator)) {
-                break;
-            }
-            $index++;
+        $iterator->rewind();
+        while ($iterator->valid() && true === $callable($iterator->current(), $iterator->key(), $iterator)) {
+            ++$index;
+            $iterator->next();
         }
 
         return $index;
@@ -123,7 +122,7 @@ class Reader extends AbstractCsv
         $this->setLimit(1);
         $iterator = $this->query();
         $iterator->rewind();
-        $res = $iterator->getInnerIterator()->current();
+        $res = $iterator->current();
         if (! is_array($res)) {
             return [];
         }

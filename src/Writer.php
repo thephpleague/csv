@@ -223,13 +223,13 @@ class Writer extends AbstractCsv
             $row = str_getcsv((string) $row, $this->delimiter, $this->enclosure, $this->escape);
         }
 
-        foreach ($row as $value) {
-            if (!$this->isConvertibleContent($value)) {
+        array_walk($row, function ($value) {
+            if (! $this->isConvertibleContent($value)) {
                 throw new InvalidArgumentException(
                     'the values are not convertible into strings'
                 );
             }
-        }
+        });
 
         return $row;
     }
@@ -237,14 +237,15 @@ class Writer extends AbstractCsv
     /**
      * Check if a given value can be added into a CSV cell
      *
+     * The value MUST respect the null handling mode
+     * The valie MUST be convertible into a string
+     *
      * @param mixed $value the value to be added
      *
      * @return boolean
      */
     protected function isConvertibleContent($value)
     {
-        //check if the row value respects the null handling mode
-        //check if the row value can be convertible into string
         return (is_null($value) && self::NULL_AS_EXCEPTION != $this->null_handling_mode)
             || self::isValidString($value);
     }

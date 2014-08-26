@@ -46,7 +46,7 @@ trait StreamFilter
      * @var string the real path to the file
      *
      */
-    protected $stream_real_path;
+    protected $stream_uri;
 
     /**
      * Internal path setter
@@ -61,33 +61,45 @@ trait StreamFilter
      */
     protected function initStreamFilter($path)
     {
-        $this->stream_filters = [];
-        $this->stream_real_path = null;
         if (! is_string($path)) {
+            $this->stream_uri     = null;
+            $this->stream_filters = [];
+
             return;
         }
 
-        $this->stream_real_path = $path;
+        $this->extractStreamSettings($path);
+    }
 
-        //if we are submitting a filter meta wrapper
-        //we extract and inject the mode, the filter and the path
-        if (preg_match(
+    /**
+     * Extract Available stream settings from $path
+     *
+     * @param string $path the file path
+     *
+     * @return void
+     */
+    protected function extractStreamSettings($path)
+    {
+        if (! preg_match(
             ',^php://filter/(?P<mode>:?read=|write=)?(?P<filters>.*?)/resource=(?P<resource>.*)$,i',
             $path,
             $matches
         )) {
-            $matches['mode'] = strtolower($matches['mode']);
-            $mode = STREAM_FILTER_ALL;
-            if ('write=' == $matches['mode']) {
-                $mode = STREAM_FILTER_WRITE;
-            } elseif ('read=' == $matches['mode']) {
-                $mode = STREAM_FILTER_READ;
-            }
-            $this->stream_filter_mode = $mode;
-            $this->stream_real_path = $matches['resource'];
-            $this->stream_filters = explode('|', $matches['filters']);
-        }
+            $this->stream_uri     = $path;
+            $this->stream_filters = [];
 
+            return;
+        }
+        $matches['mode'] = strtolower($matches['mode']);
+        $mode = STREAM_FILTER_ALL;
+        if ('write=' == $matches['mode']) {
+            $mode = STREAM_FILTER_WRITE;
+        } elseif ('read=' == $matches['mode']) {
+            $mode = STREAM_FILTER_READ;
+        }
+        $this->stream_filter_mode = $mode;
+        $this->stream_uri         = $matches['resource'];
+        $this->stream_filters     = explode('|', $matches['filters']);
     }
 
     /**
@@ -97,9 +109,9 @@ trait StreamFilter
      *
      * @throws \LogicException If the API can not be use
      */
-    protected function checkStreamApiAvailability()
+    protected function assertStreamable()
     {
-        if (! is_string($this->stream_real_path)) {
+        if (! is_string($this->stream_uri)) {
             throw new LogicException('The stream filter API can not be used');
         }
     }
@@ -111,7 +123,7 @@ trait StreamFilter
      */
     public function isActiveStreamFilter()
     {
-        return is_string($this->stream_real_path);
+        return is_string($this->stream_uri);
     }
 
     /**
@@ -128,7 +140,7 @@ trait StreamFilter
      */
     public function setStreamFilterMode($mode)
     {
-        $this->checkStreamApiAvailability();
+        $this->assertStreamable();
         if (! in_array($mode, [STREAM_FILTER_ALL, STREAM_FILTER_READ, STREAM_FILTER_WRITE])) {
             throw new OutOfBoundsException('the $mode should be a valid `STREAM_FILTER_*` constant');
         }
@@ -146,7 +158,7 @@ trait StreamFilter
      */
     public function getStreamFilterMode()
     {
-        $this->checkStreamApiAvailability();
+        $this->assertStreamable();
 
         return $this->stream_filter_mode;
     }
@@ -160,7 +172,7 @@ trait StreamFilter
      */
     protected function sanitizeStreamFilter($filter_name)
     {
-        $this->checkStreamApiAvailability();
+        $this->assertStreamable();
         $filter_name = (string) $filter_name;
 
         return trim($filter_name);
@@ -175,7 +187,7 @@ trait StreamFilter
      */
     public function appendStreamFilter($filter_name)
     {
-        $this->checkStreamApiAvailability();
+        $this->assertStreamable();
         $this->stream_filters[] = $this->sanitizeStreamFilter($filter_name);
 
         return $this;
@@ -190,7 +202,7 @@ trait StreamFilter
      */
     public function prependStreamFilter($filter_name)
     {
-        $this->checkStreamApiAvailability();
+        $this->assertStreamable();
         array_unshift($this->stream_filters, $this->sanitizeStreamFilter($filter_name));
 
         return $this;
@@ -205,7 +217,7 @@ trait StreamFilter
      */
     public function hasStreamFilter($filter_name)
     {
-        $this->checkStreamApiAvailability();
+        $this->assertStreamable();
 
         return false !== array_search($filter_name, $this->stream_filters, true);
     }
@@ -219,7 +231,7 @@ trait StreamFilter
      */
     public function removeStreamFilter($filter_name)
     {
-        $this->checkStreamApiAvailability();
+        $this->assertStreamable();
         $res = array_search($filter_name, $this->stream_filters, true);
         if (false !== $res) {
             unset($this->stream_filters[$res]);
@@ -235,7 +247,7 @@ trait StreamFilter
      */
     public function clearStreamFilter()
     {
-        $this->checkStreamApiAvailability();
+        $this->assertStreamable();
         $this->stream_filters = [];
 
         return $this;
@@ -248,9 +260,9 @@ trait StreamFilter
      */
     protected function getStreamFilterPath()
     {
-        $this->checkStreamApiAvailability();
+        $this->assertStreamable();
         if (! $this->stream_filters) {
-            return $this->stream_real_path;
+            return $this->stream_uri;
         }
 
         $prefix = '';
@@ -260,6 +272,6 @@ trait StreamFilter
             $prefix = 'write=';
         }
 
-        return 'php://filter/'.$prefix.implode('|', $this->stream_filters).'/resource='.$this->stream_real_path;
+        return 'php://filter/'.$prefix.implode('|', $this->stream_filters).'/resource='.$this->stream_uri;
     }
 }

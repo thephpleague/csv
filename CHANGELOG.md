@@ -1,19 +1,19 @@
 #Changelog
 All Notable changes to `League\Csv` will be documented in this file
 
-## NEXT - XXXX-XX-XX
+## NEXT - YYYY-MM-DD
 
 ### Added
 - Stream Filter API in `League\Csv\AbstractCsv`
 - named constructors `createFromPath` and `createFromFileObject` in `League\Csv\AbstractCsv` to ease CSV object instantiation
-- `detectDelimiterList` in `League\Csv\AbstractCsv` to replace and remove the use of `Exception` in `detectDelimiter`
+- `detectDelimiterList` in `League\Csv\AbstractCsv` to replace and remove the use of `RuntimeException` in `detectDelimiter`
 - `setEncodingFrom` and `setDecodingFrom` in `League\Csv\AbstractCsv` to replace `setEncoding` and `getEncoding` for naming consistency
 
 ### Deprecated
 - Nothing
 
 ### Fixed
-- `League\Csv\Reader::each` more stric `$callable` MUST returns true
+- `League\Csv\Reader::each` more strict `$callable` MUST returns true
 
 ### Remove
 - `detectDelimiter`
