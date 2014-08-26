@@ -21,7 +21,7 @@ use SplFileObject;
  *  A trait to configure and check CSV file and content
  *
  * @package League.csv
- * @since  5.5.0
+ * @since  6.0.0
  *
  */
 trait Controls

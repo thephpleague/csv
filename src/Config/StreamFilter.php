@@ -21,7 +21,7 @@ use SplFileInfo;
  *  with a SplFileObject
  *
  * @package League.csv
- * @since  5.5.0
+ * @since  6.0.0
  *
  */
 trait StreamFilter
