@@ -105,3 +105,14 @@ $another_reader = $writer->newReader();
 
 - `setSortBy`: the method was already deprecated since version 5.2.
 - `setFilter`: the method was already deprecated since version 5.1.
+
+
+## Installing this version
+
+~~~.language-javascript
+{
+    "require": {
+        "league/csv": "6.*"
+    }
+}
+~~~
