@@ -8,6 +8,8 @@ title: Outputting
 With both `Reader` and `Writer` you can output the data that has been read or 
 generated in a uniform way.
 
+<p class="message-info"><strong>Tips:</strong> Even though you can use the following methods with the <code>League\Csv\Writer</code>. It is recommended to do so with a <code>League\Csv\Reader</code> class to avoid loosing the file cursor position and get unexpected results when inserting data.</p>
+
 ## Iterate over the CSV
 
 Using the foreach construct:
@@ -21,9 +23,9 @@ foreach ($reader as $row) {
 
 ## Transcoding the CSV
 
-The recommended way to transcode your CSV in a UTF-8 compatible charset is to use the <a href="/filtering/">library stream filtering mechanism</a>. When this is not possible you can fallback using the `setEncondignFrom` and `getEncondignFrom` methods.
+The recommended way to transcode your CSV in a UTF-8 compatible charset is to use the <a href="/filtering/">library stream filtering mechanism</a>. When this is not possible you can fallback to using the `setEncondingFrom` and `getEncondingFrom` methods.
 
-<p class="message-warning"><strong>BC Break:</strong> <code>setEnconding</code> and <code>getEnconding</code> methods have been removed since version 6.0 and are replaced by <code>setEncondingFrom</code> and <code>getEncondingFrom</code> for naming consistency</p>
+<p class="message-warning"><strong>BC Break:</strong> <code>setEnconding</code> and <code>getEnconding</code> methods have been renamed <code>setEncondingFrom</code> and <code>getEncondingFrom</code> to remove any ambiguity</p>
 
 ~~~.language-php
 $reader = Reader::createFromFileObject(new SplFileObject('/path/to/bengali.csv'));
@@ -38,9 +40,9 @@ When using the outputting methods and the `json_encode` function, the data is in
 Use the echo construct on the instantiated object or use the `__toString` method.
 
 ~~~.language-php
-echo $writer;
+echo $reader;
 // or
-echo $writer->__toString();
+echo $reader->__toString();
 ~~~
 
 ## Convert to XML
@@ -58,7 +60,7 @@ $cell_name = 'cell'
 ~~~
 
 ~~~.language-php
-$dom = $writer->toXML('data', 'item', 'cell');
+$dom = $reader->toXML('data', 'item', 'cell');
 ~~~
 
 ## Convert to HTML table
@@ -68,7 +70,7 @@ accepts an optional argument `$classname` to help you customize the table
 rendering, by defaut the classname given to the table is `table-csv-data`.
 
 ~~~.language-php
-echo $writer->toHTML('table table-bordered table-hover');
+echo $reader->toHTML('table table-bordered table-hover');
 ~~~
 
 ## Convert to JSON
@@ -76,7 +78,7 @@ echo $writer->toHTML('table table-bordered table-hover');
 Use the `json_encode` function directly on the instantiated object.
 
 ~~~.language-php
-echo json_encode($writer);
+echo json_encode($reader);
 ~~~
 
 ## Force a file download

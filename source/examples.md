@@ -89,7 +89,7 @@ $nbInsert = $csv->each(function ($row) use (&$sth)) {
 ## More Examples
 
 * [Selecting specific rows in the CSV](https://github.com/thephpleague/csv/blob/master/examples/extract.php)
-* [Filtering a CSV](https://github.com/thephpleague/csv/blob/master/examples/filtering.php)
+* [Querying a CSV](https://github.com/thephpleague/csv/blob/master/examples/filtering.php)
 * [Creating a CSV](https://github.com/thephpleague/csv/blob/master/examples/writing.php)
 * [Merging 2 CSV documents](https://github.com/thephpleague/csv/blob/master/examples/merge.php)
 * [Switching between modes from Writer to Reader mode](https://github.com/thephpleague/csv/blob/master/examples/switchmode.php)
@@ -97,6 +97,7 @@ $nbInsert = $csv->each(function ($row) use (&$sth)) {
 * [Converting the CSV into a Json String](https://github.com/thephpleague/csv/blob/master/examples/json.php)
 * [Converting the CSV into a XML file](https://github.com/thephpleague/csv/blob/master/examples/xml.php)
 * [Converting the CSV into a HTML Table](https://github.com/thephpleague/csv/blob/master/examples/table.php)
+* [Using stream Filter on the CSV](https://github.com/thephpleague/csv/blob/master/examples/stream.php)
 
 > The CSV data use for the examples are taken from [Paris Opendata](http://opendata.paris.fr/opendata/jsp/site/Portal.jsp?document_id=60&portlet_id=121)
 

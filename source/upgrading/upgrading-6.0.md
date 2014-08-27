@@ -6,58 +6,51 @@ permalink: upgrading/6.0/
 
 # Upgrading from 5.x to 6.x
 
-## Added methods
+## Installation
 
-### Named Constructors
+If you are using composer then you should update the require section of your `composer.json` file.
 
-The new preferred way to instantiate a CSV object is to use the [named constructors](/overview/#instantiation): `createFromPath`, `createFromFilObject`, `createFromString`. You can still use the class constructor for backward compatibility.
-
-Using the class constructor directly:
-
-~~~.language-php
-use League\Csv\Writer;
-
-$csv1 = new Writer('/path/to/your/csv/file.csv');
-$csv2 = new Writer(new SplFileObject('/path/to/your/csv/file.csv', 'a+'));
-$csv3 = new Writer(new SplFileObject('/path/to/your/csv/file.csv', 'a+'), 'wb+');
-~~~
-In case of <code>$csv3</code> the object <code>$open_mode</code> will be <code>a+</code> as the constructor will ignore the constructor <code>$open_mode</code> parameter completely!!
-
-Using named constructors:
-
-~~~.language-php
-use League\Csv\Writer;
-
-$csv1 = Writer::createFromPath('/path/to/your/csv/file.csv');
-$csv2 = Writer::createFromFileObject(new SplFileObject('/path/to/your/csv/file.csv', 'a+'));
-$csv3 = Writer::createFromPath(new SplFileObject('/path/to/your/csv/file.csv', 'a+'), 'wb+');
-try {
-	Writer::createFromPath(new SplTempFileObject);
-} catch(InvalidArgumentException $e) {
-	echo $e->getMessage(); //you can not use the createFromPath method with a SplTempFileObject
+~~~.language-javascript
+{
+    "require": {
+        "league/csv": "6.*"
+    }
 }
-
 ~~~
 
-In case of <code>$csv3</code> the object <code>$open_mode</code> will be <code>wb+</code> as the named constructor won't be using the submitted object but only retrieve its file path.
+## New Features
 
 ### Stream Filter API
 
 The Stream Filter API is introduced. Please [refer to the documentation](/filtering/) for more information
 
-## Backward compatibility breaks
+## Added Methods
 
-### detectDelimiter 
+### Named Constructors
 
-This method has been replaced by the `detectDelimiterList` method. The difference between both methods is that the latter always return an array as the former was throwing `RuntimeException` when multiple delimiters where found (ie: the CSV was inconsistent)
+The new preferred way to instantiate a CSV object is to use the [named constructors](/overview/#instantiation): 
+
+Two new named constructors are added to complement the already present `createFromString` method.
+
+* `createFromPath`;
+* `createFromFileObject`;
+
+You can still use the class constructor for backward compatibility.
+
+## Backward Incompatible Changes
+
+### Detecting CSV Delimiters
+
+The `detectDelimiter` method is removed and replaced by the `detectDelimiterList` method.
+
+The difference between both methods is that the latter always return an `array` as the former was throwing `RuntimeException` when multiple delimiters where found (*ie.*: the CSV was inconsistent)
 
 Old code:
 
 ~~~.language-php
+use League\Csv\Reader;
+
 $reader = new Reader('/path/to/your/csv/file.csv');
-$reader->setEnclosure('"');
-$reader->setEscape('\\');
-$reader->setFlags(SplFileObject::READ_AHEAD|SplFileObject::SKIP_EMPTY);
 
 try {
 	$delimiter = $reader->detectDelimiter(10, [' ', '|']);
@@ -76,30 +69,56 @@ New code:
 use League\Csv\Reader;
 
 $reader = Reader::createFromPath('/path/to/your/csv/file.csv');
-$reader->setEnclosure('"');
-$reader->setEscape('\\');
-$reader->setFlags(SplFileObject::READ_AHEAD|SplFileObject::SKIP_EMPTY);
 
 $delimiters_list = $reader->detectDelimiterList(10, [' ', '|']);
 if (! $delimiters_list) {
 	//no delimiter found
-} elseif (1 > count($delimiters_list)) {
-	//inconsistent CSV 
-} else {
+} elseif (1 == count($delimiters)) {
 	$delimiter = $delimiters_list[0]; // the found delimiter
+} else {
+	//inconsistent CSV 
+	var_dump($delimiters_list); // all the delimiters found
 }
 
 ~~~
 
-### Transcoding properties
+### Transcoding Charset Property
 
-`setEncoding`/`getEnconding`: the `$encondingFrom` property setter and getter are renamed `setEncodingFrom`/`getEncondingFrom` to avoid any ambiguity. **The library always assume that the output is in `UTF-8`** so when transcoding your CSV you should always transcode into an UTF-8 compatible charset.
+`setEncoding`/`getEnconding`: the `$encondingFrom` property setter and getter are renamed `setEncodingFrom`/`getEncondingFrom` to avoid any ambiguity. 
 
-### Creating new instances
+**The library always assume that the output is in `UTF-8`** so when transcoding your CSV you should always transcode from the `$encondingFrom` charset into an UTF-8 compatible charset.
 
-`getReader` was specific to the `Writer` class while `getWriter` was specific to the Reader class. Starting with version 6.0 the new methods `newWriter` and `newReader` are available on **both** class. This means you can create a CSV reader and/or a CSV writer object from any given object.
+You need to upgrade your code accordingly.
 
-Of course you:
+Old code:
+
+~~~.language-php
+use League\Csv\Reader;
+
+$reader = new Reader('/path/to/your/csv/file.csv');
+$reader->setEncoding('SJIS');
+$charset = $reader->getEncoding(); //returns 'SJIS'
+$reader->output();
+
+~~~
+
+New code:
+
+~~~.language-php
+use League\Csv\Reader;
+
+$reader = new Reader('/path/to/your/csv/file.csv');
+$reader->setEncodingFrom('SJIS');
+$charset = $reader->getEncodingFrom(); //returns 'SJIS'
+$reader->output();
+
+~~~
+
+### Creating New Instances From Existing CSV Objects
+
+`League\Csv\Writer::getReader` and `League\Csv\Reader::getWriter` are removed. 
+
+The new methods `newWriter` and `newReader` are available on **both** classes. This means you can create a CSV reader and/or a CSV writer object from any given object.
 
 * `newWriter` behaves exactly like `getWriter`;
 * `newReader` behaves exactly like `getReader`;
@@ -128,18 +147,7 @@ $another_reader1 = $writer->newReader();
 $another_reader2 = $reader->newReader();
 ~~~
 
-### Already deprecated methods
+## Already Deprecated Methods in 5.5, Removed in 6.0
 
 - `setSortBy`: the method was already deprecated since version 5.2 and replaced by `addSortBy`.
 - `setFilter`: the method was already deprecated since version 5.1 and replaced by `addFilter`.
-
-
-## Installing this version
-
-~~~.language-javascript
-{
-    "require": {
-        "league/csv": "6.*"
-    }
-}
-~~~
