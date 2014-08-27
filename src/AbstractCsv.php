@@ -73,8 +73,8 @@ abstract class AbstractCsv implements JsonSerializable, IteratorAggregate
      * an object that implements the `__toString` method
      * a path to a file
      *
-     * @param \SplFileInfo|object|string $path      The file path
-     * @param string                     $open_mode the file open mode flag
+     * @param object|string $path      The file path
+     * @param string        $open_mode the file open mode flag
      */
     public function __construct($path, $open_mode = 'r+')
     {
@@ -127,14 +127,14 @@ abstract class AbstractCsv implements JsonSerializable, IteratorAggregate
      *
      * BUT NOT a SplTempFileObject
      *
-     * ```php
+     * <code>
      *<?php
      * $csv = new Reader::createFromPath('/path/to/file.csv', 'a+');
      * $csv = new Reader::createFromPath(new SplFileInfo('/path/to/file.csv'));
      * $csv = new Reader::createFromPath(new SplFileObject('/path/to/file.csv'), 'rb');
      *
      * ?>
-     * ```
+     * </code>
      *
      * @param object|string $path      file path
      * @param string        $open_mode the file open mode flag
@@ -164,13 +164,13 @@ abstract class AbstractCsv implements JsonSerializable, IteratorAggregate
      * - a SplFileObject,
      * - a SplTempFileObject
      *
-     * ```php
+     * <code>
      *<?php
      * $csv = new Writer::createFromFileObject(new SplFileInfo('/path/to/file.csv'));
      * $csv = new Writer::createFromFileObject(new SplTempFileObject);
      *
      * ?>
-     * ```
+     * </code>
      *
      * @param SplFileObject $obj
      *
@@ -281,7 +281,7 @@ abstract class AbstractCsv implements JsonSerializable, IteratorAggregate
      *
      * @param string $str
      *
-     * @return $this
+     * @return static
      */
     public function setEncodingFrom($str)
     {

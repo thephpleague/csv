@@ -134,7 +134,7 @@ trait StreamFilter
      *
      * @param integer $mode
      *
-     * @return static
+     * @return $this
      *
      * @throws \OutOfBoundsException If the mode is invalid
      */
@@ -168,7 +168,7 @@ trait StreamFilter
      *
      * @param string $filter_name a string or an object that implements the '__toString' method
      *
-     * @return static
+     * @return $this
      */
     public function appendStreamFilter($filter_name)
     {
@@ -183,7 +183,7 @@ trait StreamFilter
      *
      * @param string $filter_name a string or an object that implements the '__toString' method
      *
-     * @return static
+     * @return $this
      */
     public function prependStreamFilter($filter_name)
     {
@@ -227,7 +227,7 @@ trait StreamFilter
      *
      * @param string $filter_name
      *
-     * @return static
+     * @return $this
      */
     public function removeStreamFilter($filter_name)
     {
@@ -243,7 +243,7 @@ trait StreamFilter
     /**
      * Remove all registered stream filter
      *
-     * @return static
+     * @return $this
      */
     public function clearStreamFilter()
     {
