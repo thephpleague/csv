@@ -8,7 +8,7 @@ All Notable changes to `League\Csv` will be documented in this file
 - named constructors `createFromPath` and `createFromFileObject` in `League\Csv\AbstractCsv` to ease CSV object instantiation
 - `detectDelimiterList` in `League\Csv\AbstractCsv` to replace and remove the use of `RuntimeException` in `detectDelimiter`
 - `setEncodingFrom` and `setDecodingFrom` in `League\Csv\AbstractCsv` to replace `setEncoding` and `getEncoding` for naming consistency
-- `newWriter` and `newReader` methods in League\Csv\AbstractCsv` to replace `League\Csv\Writer::getReader` and `League\Csv\Reader::getWriter`
+- `newWriter` and `newReader` methods in `League\Csv\AbstractCsv` to replace `League\Csv\Writer::getReader` and `League\Csv\Reader::getWriter`
 
 ### Deprecated
 - Nothing
