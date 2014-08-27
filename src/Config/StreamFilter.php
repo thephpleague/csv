@@ -164,21 +164,6 @@ trait StreamFilter
     }
 
     /**
-     * Sanitize the stream filter name
-     *
-     * @param string $filter_name the stream filter name
-     *
-     * @return string
-     */
-    protected function sanitizeStreamFilter($filter_name)
-    {
-        $this->assertStreamable();
-        $filter_name = (string) $filter_name;
-
-        return trim($filter_name);
-    }
-
-    /**
      * append a stream filter
      *
      * @param string $filter_name a string or an object that implements the '__toString' method
@@ -206,6 +191,21 @@ trait StreamFilter
         array_unshift($this->stream_filters, $this->sanitizeStreamFilter($filter_name));
 
         return $this;
+    }
+
+    /**
+     * Sanitize the stream filter name
+     *
+     * @param string $filter_name the stream filter name
+     *
+     * @return string
+     */
+    protected function sanitizeStreamFilter($filter_name)
+    {
+        $this->assertStreamable();
+        $filter_name = (string) $filter_name;
+
+        return trim($filter_name);
     }
 
     /**

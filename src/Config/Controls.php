@@ -55,6 +55,13 @@ trait Controls
     protected $flags = SplFileObject::READ_CSV;
 
     /**
+     * return a SplFileOjbect
+     *
+     * @return \SplFileOjbect
+     */
+    abstract public function getIterator();
+
+    /**
      * set the field delimeter
      *
      * @param string $delimiter
@@ -136,13 +143,6 @@ trait Controls
 
         return array_keys(array_filter($res));
     }
-
-    /**
-     * return a SplFileOjbect
-     *
-     * @return \SplFileOjbect
-     */
-    abstract public function getIterator();
 
     /**
      * set the field enclosure

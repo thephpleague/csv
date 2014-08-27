@@ -76,19 +76,10 @@ class Writer extends AbstractCsv
     protected $csv;
 
     /**
-     * The destructor
-     */
-    public function __destruct()
-    {
-        $this->csv = null;
-        parent::__destruct();
-    }
-
-    /**
      * Tell the class how to handle null value
      *
      * @param integer $value a Writer null behavior constant
-     *
+     *vi
      * @return self
      *
      * @throws OutOfBoundsException If the Integer is not valid
@@ -111,36 +102,6 @@ class Writer extends AbstractCsv
     public function getNullHandlingMode()
     {
         return $this->null_handling_mode;
-    }
-
-    /**
-     * Tells whether the stream filter capabilities can be used
-     *
-     * @return boolean
-     */
-    public function isActiveStreamFilter()
-    {
-        return parent::isActiveStreamFilter() && is_null($this->csv);
-    }
-
-    /**
-     * Format the row according to the null handling behavior
-     *
-     * @param array $row
-     *
-     * @return array
-     */
-    protected function sanitizeColumnsContent(array $row)
-    {
-        if (self::NULL_AS_EXCEPTION == $this->null_handling_mode) {
-            return $row;
-        } elseif (self::NULL_AS_EMPTY == $this->null_handling_mode) {
-            return str_replace(null, '', $row);
-        }
-
-        return array_filter($row, function ($value) {
-            return !is_null($value);
-        });
     }
 
     /**
@@ -188,24 +149,53 @@ class Writer extends AbstractCsv
     }
 
     /**
-     * Check column count consistency
+     * Add multiple lines to the CSV your are generating
      *
-     * @param array $row the row to be added to the CSV
+     * a simple helper/Wrapper method around insertOne
      *
-     * @return boolean
+     * @param \Traversable|array $rows a multidimentional array or a Traversable object
+     *
+     * @return self
+     *
+     * @throws \InvalidArgumentException If the given rows format is invalid
      */
-    protected function isColumnsCountConsistent(array $row)
+    public function insertAll($rows)
     {
-        if ($this->detect_columns_count) {
-            $this->columns_count = count($row);
-            $this->detect_columns_count = false;
-
-            return true;
-        } elseif (-1 == $this->columns_count) {
-            return true;
+        if (! is_array($rows) && ! $rows instanceof Traversable) {
+            throw new InvalidArgumentException(
+                'the provided data must be an array OR a \Traversable object'
+            );
         }
 
-        return count($row) == $this->columns_count;
+        foreach ($rows as $row) {
+            $this->insertOne($row);
+        }
+
+        return $this;
+    }
+
+    /**
+     * Add a new CSV row to the generated CSV
+     *
+     * @param string[]|string $data a string, an array or an object implementing to '__toString' method
+     *
+     * @return self
+     *
+     * @throws \InvalidArgumentException If the given row is invalid
+     */
+    public function insertOne($data)
+    {
+        $data = $this->validateRow($data);
+        $data = $this->sanitizeColumnsContent($data);
+        if (! $this->isColumnsCountConsistent($data)) {
+            throw new RuntimeException(
+                'You are trying to add '.count($data).' columns to a CSV
+                that requires '.$this->columns_count.' columns per row.'
+            );
+        }
+        $this->getCsv()->fputcsv($data, $this->delimiter, $this->enclosure);
+
+        return $this;
     }
 
     /**
@@ -251,6 +241,47 @@ class Writer extends AbstractCsv
     }
 
     /**
+     * Format the row according to the null handling behavior
+     *
+     * @param array $row
+     *
+     * @return array
+     */
+    protected function sanitizeColumnsContent(array $row)
+    {
+        if (self::NULL_AS_EXCEPTION == $this->null_handling_mode) {
+            return $row;
+        } elseif (self::NULL_AS_EMPTY == $this->null_handling_mode) {
+            return str_replace(null, '', $row);
+        }
+
+        return array_filter($row, function ($value) {
+            return !is_null($value);
+        });
+    }
+
+    /**
+     * Check column count consistency
+     *
+     * @param array $row the row to be added to the CSV
+     *
+     * @return boolean
+     */
+    protected function isColumnsCountConsistent(array $row)
+    {
+        if ($this->detect_columns_count) {
+            $this->columns_count = count($row);
+            $this->detect_columns_count = false;
+
+            return true;
+        } elseif (-1 == $this->columns_count) {
+            return true;
+        }
+
+        return count($row) == $this->columns_count;
+    }
+
+    /**
      * set the csv container as a SplFileObject instance
      * insure we use the same object for insertion to
      * avoid loosing the cursor position
@@ -268,52 +299,21 @@ class Writer extends AbstractCsv
     }
 
     /**
-     * Add a new CSV row to the generated CSV
+     * Tells whether the stream filter capabilities can be used
      *
-     * @param string[]|string $data a string, an array or an object implementing to '__toString' method
-     *
-     * @return self
-     *
-     * @throws \InvalidArgumentException If the given row is invalid
+     * @return boolean
      */
-    public function insertOne($data)
+    public function isActiveStreamFilter()
     {
-        $data = $this->validateRow($data);
-        $data = $this->sanitizeColumnsContent($data);
-        if (! $this->isColumnsCountConsistent($data)) {
-            throw new RuntimeException(
-                'You are trying to add '.count($data).' columns to a CSV
-                that requires '.$this->columns_count.' columns per row.'
-            );
-        }
-        $this->getCsv()->fputcsv($data, $this->delimiter, $this->enclosure);
-
-        return $this;
+        return parent::isActiveStreamFilter() && is_null($this->csv);
     }
 
     /**
-     * Add multiple lines to the CSV your are generating
-     *
-     * a simple helper/Wrapper method around insertOne
-     *
-     * @param \Traversable|array $rows a multidimentional array or a Traversable object
-     *
-     * @return self
-     *
-     * @throws \InvalidArgumentException If the given rows format is invalid
+     * The destructor
      */
-    public function insertAll($rows)
+    public function __destruct()
     {
-        if (! is_array($rows) && ! $rows instanceof Traversable) {
-            throw new InvalidArgumentException(
-                'the provided data must be an array OR a \Traversable object'
-            );
-        }
-
-        foreach ($rows as $row) {
-            $this->insertOne($row);
-        }
-
-        return $this;
+        $this->csv = null;
+        parent::__destruct();
     }
 }

@@ -86,6 +86,28 @@ abstract class AbstractCsv implements JsonSerializable, IteratorAggregate
     }
 
     /**
+     * Return a normalize path which could be a SplFileObject
+     * or a string path
+     *
+     * @param object|string $path the filepath
+     *
+     * @return \SplFileObject|string
+     */
+    protected function normalizePath($path)
+    {
+        if ($path instanceof SplFileObject) {
+            return $path;
+        } elseif ($path instanceof SplFileInfo) {
+            return $path->getPath().'/'.$path->getBasename();
+        }
+
+        $path = (string) $path;
+        $path = trim($path);
+
+        return $path;
+    }
+
+    /**
      * The destructor
      */
     public function __destruct()
@@ -114,8 +136,8 @@ abstract class AbstractCsv implements JsonSerializable, IteratorAggregate
      * ?>
      * ```
      *
-     * @param \SplFileInfo|\SplFileObject|object|string $path      file path
-     * @param string                                    $open_mode the file open mode flag
+     * @param object|string $path      file path
+     * @param string        $open_mode the file open mode flag
      *
      * @return static
      *
@@ -182,28 +204,6 @@ abstract class AbstractCsv implements JsonSerializable, IteratorAggregate
         $obj->fwrite((string) $str.PHP_EOL);
 
         return static::createFromFileObject($obj);
-    }
-
-    /**
-     * Return a normalize path which could be a SplFileObject
-     * or a string path
-     *
-     * @param object|string $path the filepath
-     *
-     * @return \SplFileObject|string
-     */
-    protected function normalizePath($path)
-    {
-        if ($path instanceof SplFileObject) {
-            return $path;
-        } elseif ($path instanceof SplFileInfo) {
-            return $path->getPath().'/'.$path->getBasename();
-        }
-
-        $path = (string) $path;
-        $path = trim($path);
-
-        return $path;
     }
 
     /**

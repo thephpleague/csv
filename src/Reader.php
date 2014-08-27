@@ -38,30 +38,6 @@ class Reader extends AbstractCsv
     protected $stream_filter_mode = STREAM_FILTER_READ;
 
     /**
-     * Intelligent Array Combine
-     *
-     * add or remove values from the $value array to
-     * match array $keys length before using PHP array_combine function
-     *
-     * @param array $keys
-     * @param array $value
-     *
-     * @return array
-     */
-    protected static function combineArray(array $keys, array $value)
-    {
-        $nbKeys = count($keys);
-        $diff = $nbKeys - count($value);
-        if ($diff > 0) {
-            $value = array_merge($value, array_fill(0, $diff, null));
-        } elseif ($diff < 0) {
-            $value = array_slice($value, 0, $nbKeys);
-        }
-
-        return array_combine($keys, $value);
-    }
-
-    /**
      * Return a Filtered Iterator
      *
      * @param callable $callable a callable function to be applied to each Iterator item
@@ -175,6 +151,30 @@ class Reader extends AbstractCsv
         });
 
         return iterator_to_array($iterator, false);
+    }
+
+    /**
+     * Intelligent Array Combine
+     *
+     * add or remove values from the $value array to
+     * match array $keys length before using PHP array_combine function
+     *
+     * @param array $keys
+     * @param array $value
+     *
+     * @return array
+     */
+    protected static function combineArray(array $keys, array $value)
+    {
+        $nbKeys = count($keys);
+        $diff = $nbKeys - count($value);
+        if ($diff > 0) {
+            $value = array_merge($value, array_fill(0, $diff, null));
+        } elseif ($diff < 0) {
+            $value = array_slice($value, 0, $nbKeys);
+        }
+
+        return array_combine($keys, $value);
     }
 
     /**
