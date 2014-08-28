@@ -4,6 +4,23 @@ All Notable changes to `League\Csv` will be documented in this file
 ## NEXT - YYYY-MM-DD
 
 ### Added
+- Nothing
+
+### Deprecated
+- Nothing
+
+### Fixed
+- Nothing
+
+### Remove
+- Nothing
+
+### Security
+- Nothing
+
+## 6.0 - 2014-08-28
+
+### Added
 - Stream Filter API in `League\Csv\AbstractCsv`
 - named constructors `createFromPath` and `createFromFileObject` in `League\Csv\AbstractCsv` to ease CSV object instantiation
 - `detectDelimiterList` in `League\Csv\AbstractCsv` to replace and remove the use of `RuntimeException` in `detectDelimiter`
