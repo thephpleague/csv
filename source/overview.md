@@ -17,7 +17,7 @@ Both classes extend the `League\Csv\AbstractCsv` class and as such share methods
 Because CSVs come in different forms there are several ways to instantiate the library CSV objects.
 Below you will find **the recommended ways** to create a CSV object.
 
-### createFromString
+### createFromString($str)
 
 If you have a raw CSV string you should use the named constructor `createFromString`. This method accepts only one single parameter the raw CSV string.
 
@@ -30,7 +30,7 @@ $writer = Writer::createFromString('john,doe,john.doe@example.com');
 
 ~~~
 
-### createFromFileObject
+### createFromFileObject(SplFileObject $obj) *- since version 6.0*
 
 If you have a `SplFileObject` and you want to directly work with it you should use the named constructor `createFromFileObject`. This method accepts only one single parameter the `SplFileObject` object.
 
@@ -43,12 +43,19 @@ $writer = Writer::createFromFileObject(new SplTempFileObject);
 
 ~~~
 
-### createFromPath
+### createFromPath($path, $open_mode) *- since version 6.0*
 
 For any other purpose you should rely on the named constructor `createFromPath`. You will be instantiating a CSV object *à la* `fopen`:
 
-* The `$path` parameter can be a `SplFileInfo`, an object that implements the `__toString` method or a string.
+* The `$path` parameter can be:
+    * a `SplFileInfo` object, the string path will be fetch from the object public methods. 
+    * an object implementing the `__toString` method the path will be the object string representation.
+    * a string.
+
+<p class="message-warning"><strong>Warning:</strong> The method throws an <code>InvalidArgumentException</code> if a <code>SplTempFileObject</code> is given as no path can be retrieve from such object.</p>
 * This `$open_mode` parameter is **always** take into account and defaults to `r+` if none is supplied. 
+
+The resulting string and `$open_mode` parameters are used to lazy load internally a `SplFileObject` object.
 
 ~~~.language-php
 use League\Csv\Reader;
@@ -60,13 +67,7 @@ $writer = Writer::createFromPath(new SplFileObject('/path/to/your/csv/file.csv',
 //the $writer object open mode will be 'w'!!
 ~~~
 
-<p class="message-info">When you supply a <code>SplFileObject</code> object to the method, it retrieves the file path and <strong>does not use the given object.</strong></p>
-
-<p class="message-warning">The method throws an <code>InvalidArgumentException</code> if a <code>SplTempFileObject</code> is given as no path can be retrieve from such object.</p>
-
-<p class="message-info">The <code>createFromFileObject</code>  and <code>createFromPath</code> named constructors were added in <strong>version 6.0</strong>.</p> 
-
-### constructors
+### Default Constructors
 
 For backward compatibility you can still directly instantiate your CSV object with the constructor. The constructor takes 2 parameters:
 
@@ -83,6 +84,8 @@ $writer = new Writer(new SplTempFileObject);
 //in both case the object is directly used internally by the library
 
 ~~~
+
+When using an object other than `SplFileObject` with the default class constructor, the library uses lazyloading.
 
 ## CSV properties settings
 
@@ -102,7 +105,7 @@ $reader->setEscape('\\');
 $reader->setFlags(SplFileObject::READ_AHEAD|SplFileObject::SKIP_EMPTY);
 ~~~
 
-### detectDelimiterList($nbRows = 1, array $delimiters = []) *new in version 6*
+### detectDelimiterList($nbRows = 1, array $delimiters = []) *- since version 6.0*
 
 <p class="message-warning"><strong>BC Break:</strong> the <code>detectDelimiterList</code> method replaces the removed method <code>detectDelimiter</code> !</p>
 
