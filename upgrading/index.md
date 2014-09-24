@@ -1,6 +1,7 @@
 ---
-layout: layout
+layout: default
 title: Upgrading
+permalink: upgrading/
 ---
 
 # Upgrading

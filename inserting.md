@@ -1,6 +1,7 @@
 ---
-layout: layout
+layout: default
 title: Reading & Filtering
+permalink: inserting/
 ---
 
 # Inserting Data
@@ -18,7 +19,7 @@ To create or update a CSV use the following `League\Csv\Writer` methods.
 `insertOne` inserts a single row. This method can take an `array`, a `string` or
 an `object` implementing the `__toString` method.
 
-~~~.language-php
+~~~ php
 class ToStringEnabledClass
 {
     private $str;
@@ -44,7 +45,7 @@ $writer->insertOne(new ToStringEnabledClass("john,doe,john.doe@example.com"))
 `insertAll` inserts multiple rows. This method can take an `array` or a 
 `Traversable` object to add several rows to the CSV data.
 
-~~~.language-php
+~~~ php
 $arr = [
     [1, 2, 3],
     ['foo', 'bar', 'baz'],
@@ -72,7 +73,7 @@ To set the `Writer` class handling behavior, you will use the `setNullHandlingMo
 
 <p class="message-warning">By default the Writer mode to handle <code>null</code> value is <code>Writer::NULL_AS_EXCEPTION</code> to keep the code backward compatible.</p>
 
-~~~.language-php
+~~~ php
 $writer->setNullHandlingMode(Writer::NULL_AS_SKIP_CELL);
 $writer->insertOne(["one", "two", null, "four"]); 
 ~~~
@@ -83,7 +84,7 @@ In the above example, the `null` value will be filter out and the corresponding 
 
 At any given time you are able to know the class mode using the `getNullHandlingMode` method.
 
-~~~.language-php
+~~~ php
 if (Writer::NULL_AS_EXCEPTION == $writer->getNullHandlingMode()) {
     $writer->setNullHandlingMode(Writer::NULL_AS_EMPTY);
 }
@@ -105,7 +106,7 @@ At any given time you can access the `$columns_count` property using the `getCol
 
 One way to do enable the columns count check is to use the `setColumnsCount` method to set the property to an integer greater than `-1`.
 
-~~~.language-php
+~~~ php
 $writer->setColumnsCount(2);
 $nb_column_count = $writer->getColumnsCount(); // equals to 2;
 $writer->insertAll([
@@ -118,7 +119,7 @@ $writer->insertAll([
 
 Another way is to use the `autodetectColumnsCount` method which will set the `$columns_count` property according to the next inserted row.
 
-~~~.language-php
+~~~ php
 use League\Csv\Writer;
 
 $writer = Writer::createFromPath('path/to/csv', 'w');

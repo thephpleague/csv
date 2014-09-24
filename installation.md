@@ -1,6 +1,7 @@
 ---
-layout: layout
+layout: default
 title: Installation
+permalink: installation/
 ---
 
 # Installation
@@ -23,7 +24,7 @@ CSV is available on [Packagist](https://packagist.org/packages/league/csv) and c
 
 Most modern frameworks will include Composer out of the box, but ensure the following file is included:
 
-~~~.language-php
+~~~ php
 <?php
 
 // Include the Composer autoloader
@@ -34,7 +35,7 @@ require 'vendor/autoload.php';
 
 You can also use CSV without using Composer by registing an autoloader function:
 
-~~~.language-php
+~~~ php
 spl_autoload_register(function ($class) {
     $prefix = 'League\\Csv\\';
     $base_dir = __DIR__ . '/src/';

@@ -1,6 +1,7 @@
 ---
-layout: layout
+layout: default
 title: Loading
+permalink: overview/
 ---
 
 # Overview
@@ -21,7 +22,7 @@ Below you will find **the recommended ways** to create a CSV object.
 
 If you have a raw CSV string you should use the named constructor `createFromString`. This method accepts only one single parameter the raw CSV string.
 
-~~~.language-php
+~~~ php
 use League\Csv\Reader;
 use League\Csv\Writer;
 
@@ -34,7 +35,7 @@ $writer = Writer::createFromString('john,doe,john.doe@example.com');
 
 If you have a `SplFileObject` and you want to directly work with it you should use the named constructor `createFromFileObject`. This method accepts only one single parameter the `SplFileObject` object.
 
-~~~.language-php
+~~~ php
 use League\Csv\Reader;
 use League\Csv\Writer;
 
@@ -57,7 +58,7 @@ For any other purpose you should rely on the named constructor `createFromPath`.
 
 The resulting string and `$open_mode` parameters are used to lazy load internally a `SplFileObject` object.
 
-~~~.language-php
+~~~ php
 use League\Csv\Reader;
 use League\Csv\Writer;
 
@@ -74,7 +75,7 @@ For backward compatibility you can still directly instantiate your CSV object wi
 * A `$path` which can be a `SplFileInfo`, an object that implements the `__toString` method or a string;
 * A `$open_mode` which is ignore if you instantiate your object with a `SplFileObject`;
 
-~~~.language-php
+~~~ php
 use League\Csv\Reader;
 use League\Csv\Writer;
 
@@ -96,7 +97,7 @@ Once your object is created you can optionally set:
 * the CSV escape characters;
 * the object `SplFileObject` flags;
 
-~~~.language-php
+~~~ php
 $reader = Reader::createFromPath('/path/to/your/csv/file.csv');
 
 $reader->setDelimiter(',');
@@ -116,7 +117,7 @@ The method takes two arguments:
 * the number of rows to scan (default to `1`);
 * the possible delimiters to check (you don't need to specify the following delimiters as they are already checked by the method: `",", ";", "\t"`);
 
-~~~.language-php
+~~~ php
 $reader = Reader::createFromPath('/path/to/your/csv/file.csv');
 
 $reader->setEnclosure('"');
@@ -146,7 +147,7 @@ Both methods accept an optional `$open_mode` parameter.
 * When not explicitly set, the `$open_mode` default value is `r+` for both methods.
 * If the initial object `$open_mode` parameter was not taken into account any new CSV object created with these methods won't take into account the given `$open_mode`.
 
-~~~.language-php
+~~~ php
 $reader = $writer->newReader('r+');
 $newWriter = $reader->newWriter('a'); 
 $anotherWriter = $newWriter->newWriter('r+'); 

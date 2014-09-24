@@ -1,5 +1,5 @@
 ---
-layout: layout
+layout: default
 title: Upgrading from 5.x to 6.x
 permalink: upgrading/6.0/
 ---
@@ -47,7 +47,7 @@ The difference between both methods is that the latter always return an `array` 
 
 Old code:
 
-~~~.language-php
+~~~ php
 use League\Csv\Reader;
 
 $reader = new Reader('/path/to/your/csv/file.csv');
@@ -65,7 +65,7 @@ try {
 
 New code:
 
-~~~.language-php
+~~~ php
 use League\Csv\Reader;
 
 $reader = Reader::createFromPath('/path/to/your/csv/file.csv');
@@ -92,7 +92,7 @@ You need to upgrade your code accordingly.
 
 Old code:
 
-~~~.language-php
+~~~ php
 use League\Csv\Reader;
 
 $reader = new Reader('/path/to/your/csv/file.csv');
@@ -104,7 +104,7 @@ $reader->output();
 
 New code:
 
-~~~.language-php
+~~~ php
 use League\Csv\Reader;
 
 $reader = new Reader('/path/to/your/csv/file.csv');
@@ -125,7 +125,7 @@ The new methods `newWriter` and `newReader` are available on **both** classes. T
 
 Old code:
 
-~~~.language-php
+~~~ php
 use League\Csv\Reader;
 
 $reader = new Reader('/path/to/your/csv/file.csv');
@@ -136,7 +136,7 @@ $another_reader = $writer->getReader();
 
 New code:
 
-~~~.language-php
+~~~ php
 use League\Csv\Reader;
 
 $reader = Reader::createFromPath('/path/to/your/csv/file.csv');
