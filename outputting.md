@@ -15,7 +15,7 @@ generated in a uniform way.
 
 Using the foreach construct:
 
-~~~ php
+~~~php
 foreach ($reader as $row) {
     //do something meaningfull here with $row !!
     //$row is an array where each item represent a CSV data cell
@@ -28,7 +28,7 @@ The recommended way to transcode your CSV in a UTF-8 compatible charset is to us
 
 <p class="message-warning"><strong>BC Break:</strong> <code>setEnconding</code> and <code>getEnconding</code> methods have been renamed <code>setEncondingFrom</code> and <code>getEncondingFrom</code> to remove any ambiguity</p>
 
-~~~ php
+~~~php
 $reader = Reader::createFromFileObject(new SplFileObject('/path/to/bengali.csv'));
 $reader->setEncodingFrom('iso-8859-15');
 echo $reader; //the CSV will be transcoded from iso-8859-15 to UTF-8;
@@ -40,7 +40,7 @@ When using the outputting methods and the `json_encode` function, the data is in
 
 Use the echo construct on the instantiated object or use the `__toString` method.
 
-~~~ php
+~~~php
 echo $reader;
 // or
 echo $reader->__toString();
@@ -54,13 +54,13 @@ to help you customize the XML tree.
 
 By default:
 
-~~~ php
+~~~php
 $root_name = 'csv'
 $row_name = 'row'
 $cell_name = 'cell'
 ~~~
 
-~~~ php
+~~~php
 $dom = $reader->toXML('data', 'item', 'cell');
 ~~~
 
@@ -70,7 +70,7 @@ Use the `toHTML` method to format the CSV data into an HTML table. This method
 accepts an optional argument `$classname` to help you customize the table 
 rendering, by defaut the classname given to the table is `table-csv-data`.
 
-~~~ php
+~~~php
 echo $reader->toHTML('table table-bordered table-hover');
 ~~~
 
@@ -78,7 +78,7 @@ echo $reader->toHTML('table table-bordered table-hover');
 
 Use the `json_encode` function directly on the instantiated object.
 
-~~~ php
+~~~php
 echo json_encode($reader);
 ~~~
 
@@ -87,7 +87,7 @@ echo json_encode($reader);
 If you only wish to make your CSV downloadable just use the output method to 
 return to the output buffer the CSV content.
 
-~~~ php
+~~~php
 header('Content-Type: text/csv; charset=UTF-8');
 header('Content-Disposition: attachment; filename="name-for-your-file.csv"');
 $reader->output();
@@ -96,6 +96,6 @@ $reader->output();
 The output method can take an optional argument `$filename`. When present you
 can even omit most of the headers.
 
-~~~ php
+~~~php
 $reader->output("name-for-your-file.csv");
 ~~~

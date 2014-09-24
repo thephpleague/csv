@@ -10,7 +10,7 @@ permalink: examples/
 
 A simple example to show you how to parse a CSV document.
 
-~~~ php
+~~~php
 <?php
 use League\Csv\Reader;
 
@@ -27,7 +27,7 @@ $res = $csv->setOffset(10)->setLimit(25)->fetchAll();
 
 A simple example to show you how to create and download a CSV from a `PDOStatement` object
 
-~~~ php
+~~~php
 <?php
 use League\Csv\Writer;
 
@@ -66,7 +66,7 @@ die;
 
 A simple example to show you how to import some CSV data into a database using a `PDOStatement` object
 
-~~~ php
+~~~php
 <?php
 use League\Csv\Reader;
 

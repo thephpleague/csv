@@ -10,7 +10,7 @@ permalink: upgrading/6.0/
 
 If you are using composer then you should update the require section of your `composer.json` file.
 
-~~~.language-javascript
+~~~javascript
 {
     "require": {
         "league/csv": "6.*"
@@ -47,7 +47,7 @@ The difference between both methods is that the latter always return an `array` 
 
 Old code:
 
-~~~ php
+~~~php
 use League\Csv\Reader;
 
 $reader = new Reader('/path/to/your/csv/file.csv');
@@ -65,7 +65,7 @@ try {
 
 New code:
 
-~~~ php
+~~~php
 use League\Csv\Reader;
 
 $reader = Reader::createFromPath('/path/to/your/csv/file.csv');
@@ -92,7 +92,7 @@ You need to upgrade your code accordingly.
 
 Old code:
 
-~~~ php
+~~~php
 use League\Csv\Reader;
 
 $reader = new Reader('/path/to/your/csv/file.csv');
@@ -104,7 +104,7 @@ $reader->output();
 
 New code:
 
-~~~ php
+~~~php
 use League\Csv\Reader;
 
 $reader = new Reader('/path/to/your/csv/file.csv');
@@ -125,7 +125,7 @@ The new methods `newWriter` and `newReader` are available on **both** classes. T
 
 Old code:
 
-~~~ php
+~~~php
 use League\Csv\Reader;
 
 $reader = new Reader('/path/to/your/csv/file.csv');
@@ -136,7 +136,7 @@ $another_reader = $writer->getReader();
 
 New code:
 
-~~~ php
+~~~php
 use League\Csv\Reader;
 
 $reader = Reader::createFromPath('/path/to/your/csv/file.csv');

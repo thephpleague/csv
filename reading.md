@@ -14,7 +14,7 @@ To extract data use `League\Csv\Reader` methods.
 
 The `query` method prepares and issues queries on the CSV data. It returns an `Iterator` that represents the result that you can further manipulate as you wish.
 
-~~~ php
+~~~php
 $data = $reader->query();
 foreach ($data as $line_index => $row) {
     //do something here
@@ -25,7 +25,7 @@ foreach ($data as $line_index => $row) {
 
 `fetchAll` returns a sequential array of all rows.
 
-~~~ php
+~~~php
 $data = $reader->fetchAll();
 // will return something like this :
 // 
@@ -42,7 +42,7 @@ $nb_rows = count($data);
 
 `fetchAssoc` returns a sequential array of all rows. The rows themselves are associative arrays where the keys are given directly to the method using an one dimension array. This array should only contain unique `string` and/or `integer` values.
 
-~~~ php
+~~~php
 $data = $reader->fetchAssoc(['firstname', 'lastname', 'email']);
 // will return something like this :
 // 
@@ -65,7 +65,7 @@ If the number of values in a CSV row is greater that the number of named keys th
 If no argument is given to the method it will return the first column from the CSV data.
 If the column does not exists in the csv data the method will return an array full of `null` value.
 
-~~~ php
+~~~php
 $data = $reader->fetchColumn(2);
 // will return something like this :
 // 
@@ -83,7 +83,7 @@ The methods listed above (`query`, `fetchAll`, `fetchAssoc`, `fetchColumn`) can 
 
 `fetchOne` return one single row from the CSV data. The required argument $offset represent the row index starting at 0. If no argument is given to the method it will return the first row from the CSV data.
 
-~~~ php
+~~~php
 $data = $reader->fetchOne(3); ///accessing the 4th row (indexing starts at 0)
 // will return something like this :
 // 
@@ -103,7 +103,7 @@ $data = $reader->fetchOne(3); ///accessing the 4th row (indexing starts at 0)
 
 The method returns the number of successful iterations.
 
-~~~ php
+~~~php
 <?php
 //re-create the fetchAll method using the each method
 $res = [];
@@ -189,7 +189,7 @@ The methods enable returning a specific interval of CSV rows. When called more t
 
 Here's an example on how to use the query features of the `Reader` class to restrict the `fetchAssoc` result:
 
-~~~ php
+~~~php
 function filterByEmail($row) 
 {
     return filer_var($row[2], FILTER_VALIDATE_EMAIL);

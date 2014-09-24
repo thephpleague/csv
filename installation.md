@@ -14,7 +14,7 @@ You need **PHP >= 5.4.0** or **HHVM >= 3.2** and the `mbstring` extension to use
 
 CSV is available on [Packagist](https://packagist.org/packages/league/csv) and can be installed using [Composer](https://getcomposer.org/):
 
-~~~.language-javascript
+~~~javascript
 {
     "require": {
         "league/csv": "6.*"
@@ -24,7 +24,7 @@ CSV is available on [Packagist](https://packagist.org/packages/league/csv) and c
 
 Most modern frameworks will include Composer out of the box, but ensure the following file is included:
 
-~~~ php
+~~~php
 <?php
 
 // Include the Composer autoloader
@@ -35,7 +35,7 @@ require 'vendor/autoload.php';
 
 You can also use CSV without using Composer by registing an autoloader function:
 
-~~~ php
+~~~php
 spl_autoload_register(function ($class) {
     $prefix = 'League\\Csv\\';
     $base_dir = __DIR__ . '/src/';
