@@ -43,9 +43,7 @@ Install the `csv` package with Composer.
 Documentation
 -------------
 
-Csv has [full documentation](http://csv.thephpleague.com), powered by [Sculpin](https://sculpin.io).
-
-Contribute to this documentation in the [sculpin branch](https://github.com/thephpleague/csv/tree/sculpin/source).
+`League\Csv` is [fully documentation](http://csv.thephpleague.com). Contribute to this documentation in the [gh-pages branch](https://github.com/thephpleague/csv/tree/gh-pages)
 
 ### Tips
 
