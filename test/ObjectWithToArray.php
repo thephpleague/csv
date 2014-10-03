@@ -1,6 +1,6 @@
 <?php
 
-namespace League\Csv\Test;
+namespace League\Csv\test;
 
 /**
  * Class ObjectWithToArray
