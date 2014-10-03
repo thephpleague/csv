@@ -209,7 +209,7 @@ class Writer extends AbstractCsv
      */
     protected function validateRow($row)
     {
-        if ( self::isValidArray($row)) {
+        if (self::isToArrayObject($row)) {
             $row = $row->toArray();
         }
 
@@ -310,6 +310,18 @@ class Writer extends AbstractCsv
     public function isActiveStreamFilter()
     {
         return parent::isActiveStreamFilter() && is_null($this->csv);
+    }
+
+    /**
+     * Validate a variable to be arrayable
+     *
+     * @param mixed $array
+     *
+     * @return boolean
+     */
+    public static function isToArrayObject($array)
+    {
+        return is_object($array) && method_exists($array, 'toArray');
     }
 
     /**

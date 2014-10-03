@@ -60,9 +60,10 @@ class WriterTest extends PHPUnit_Framework_TestCase
 
     public function testInsertObjectWithToArray()
     {
+        $objectWithToArray = new ObjectWithToArray('john', 'doe', 'john.doe@example.com');
         $expected = [
-            new ObjectWithToArray('john', 'doe', 'john.doe@example.com'),
-            new ObjectWithToArray('john', 'doe', 'john.doe@example.com')
+            $objectWithToArray,
+            $objectWithToArray
         ];
 
         foreach ($expected as $row) {
