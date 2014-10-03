@@ -9,6 +9,7 @@ use LimitIterator;
 use PHPUnit_Framework_TestCase;
 use SplFileObject;
 use SplTempFileObject;
+use League\Csv\Test\ObjectWithToArray;
 
 date_default_timezone_set('UTC');
 
@@ -52,6 +53,22 @@ class WriterTest extends PHPUnit_Framework_TestCase
             $this->csv->insertOne($row);
         }
         $this->csv->setFlags(SplFileObject::READ_AHEAD|SplFileObject::SKIP_EMPTY);
+        foreach ($this->csv as $row) {
+            $this->assertSame(['john', 'doe', 'john.doe@example.com'], $row);
+        }
+    }
+
+    public function testInsertObjectWithToArray()
+    {
+        $expected = [
+            new ObjectWithToArray('john', 'doe', 'john.doe@example.com'),
+            new ObjectWithToArray('john', 'doe', 'john.doe@example.com')
+        ];
+
+        foreach ($expected as $row) {
+            $this->csv->insertOne($row);
+        }
+
         foreach ($this->csv as $row) {
             $this->assertSame(['john', 'doe', 'john.doe@example.com'], $row);
         }

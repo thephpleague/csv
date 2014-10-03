@@ -177,7 +177,7 @@ class Writer extends AbstractCsv
     /**
      * Add a new CSV row to the generated CSV
      *
-     * @param string[]|string $data a string, an array or an object implementing to '__toString' method
+     * @param string[]|string $data a string, an array or an object implementing to '__toString' or toArray methods
      *
      * @return self
      *
@@ -209,6 +209,10 @@ class Writer extends AbstractCsv
      */
     protected function validateRow($row)
     {
+        if ( self::isValidArray($row)) {
+            $row = $row->toArray();
+        }
+
         if (! is_array($row)) {
             $row = str_getcsv((string) $row, $this->delimiter, $this->enclosure, $this->escape);
         }

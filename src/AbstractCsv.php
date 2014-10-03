@@ -355,6 +355,18 @@ abstract class AbstractCsv implements JsonSerializable, IteratorAggregate
     }
 
     /**
+     * Validate a variable to be arrayable
+     *
+     * @param mixed $array
+     *
+     * @return boolean
+     */
+    public static function isValidArray($array)
+    {
+        return is_object($array) && method_exists($array, 'toArray');
+    }
+
+    /**
      * Return a HTML table representation of the CSV Table
      *
      * @param string $class_name optional classname
