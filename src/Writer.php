@@ -177,7 +177,7 @@ class Writer extends AbstractCsv
     /**
      * Add a new CSV row to the generated CSV
      *
-     * @param string[]|string $data a string, an array or an object implementing to '__toString' method
+     * @param string[]|string $data a string, an array or an object implementing to '__toString' or toArray methods
      *
      * @return self
      *
@@ -209,6 +209,10 @@ class Writer extends AbstractCsv
      */
     protected function validateRow($row)
     {
+        if (self::isToArrayObject($row)) {
+            $row = $row->toArray();
+        }
+
         if (! is_array($row)) {
             $row = str_getcsv((string) $row, $this->delimiter, $this->enclosure, $this->escape);
         }
@@ -306,6 +310,18 @@ class Writer extends AbstractCsv
     public function isActiveStreamFilter()
     {
         return parent::isActiveStreamFilter() && is_null($this->csv);
+    }
+
+    /**
+     * Validate a variable to be arrayable
+     *
+     * @param mixed $array
+     *
+     * @return boolean
+     */
+    public static function isToArrayObject($array)
+    {
+        return is_object($array) && method_exists($array, 'toArray');
     }
 
     /**
