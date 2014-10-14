@@ -30,15 +30,18 @@ You need **PHP >= 5.4.0** or **HHVM >= 3.2** and the `mbstring` extension to use
 Install
 -------
 
-Install the `csv` package with Composer.
+Install `League\Csv` using Composer.
 
-```json
-{
-    "require": {
-        "league/csv": "6.*"
-    }
-}
 ```
+composer require league/csv
+```
+
+This will edit (or create) your `composer.json` file and automatically choose the most recent version, for example: `~6.0`
+
+#### Going Solo
+
+You can also use `League\Csv` without using Composer by downloading the library and using a [PSR-4](http://www.php-fig.org/psr/psr-4/) compatible autoloader.
+
 
 Documentation
 -------------
