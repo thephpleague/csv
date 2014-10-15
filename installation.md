@@ -14,13 +14,12 @@ You need **PHP >= 5.4.0** or **HHVM >= 3.2** and the `mbstring` extension to use
 
 CSV is available on [Packagist](https://packagist.org/packages/league/csv) and can be installed using [Composer](https://getcomposer.org/):
 
-~~~javascript
-{
-    "require": {
-        "league/csv": "6.*"
-    }
-}
 ~~~
+composer require league/csv
+~~~
+
+This will edit (or create) your `composer.json` file and automatically choose the most recent version, for example: `~6.0`
+
 
 Most modern frameworks will include Composer out of the box, but ensure the following file is included:
 
