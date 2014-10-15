@@ -10,13 +10,11 @@ permalink: upgrading/6.0/
 
 If you are using composer then you should update the require section of your `composer.json` file.
 
-~~~javascript
-{
-    "require": {
-        "league/csv": "6.*"
-    }
-}
 ~~~
+composer require league/csv:~6.0
+~~~
+
+This will edit (or create) your `composer.json` file.
 
 ## New Features
 
@@ -147,7 +145,7 @@ $another_reader1 = $writer->newReader();
 $another_reader2 = $reader->newReader();
 ~~~
 
-## Already Deprecated Methods in 5.5, Removed in 6.0
+## Already deprecated methods in 5.0 series, removed in 6.0
 
 - `setSortBy`: the method was already deprecated since version 5.2 and replaced by `addSortBy`.
 - `setFilter`: the method was already deprecated since version 5.1 and replaced by `addFilter`.
