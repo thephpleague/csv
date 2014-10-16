@@ -147,5 +147,5 @@ $another_reader2 = $reader->newReader();
 
 ## Already deprecated methods in 5.0 series, removed in 6.0
 
-- `setSortBy`: the method was already deprecated since version 5.2 and replaced by `addSortBy`.
-- `setFilter`: the method was already deprecated since version 5.1 and replaced by `addFilter`.
+- `setSortBy`: deprecated since version 5.2 and replaced by `addSortBy`.
+- `setFilter`: deprecated since version 5.1 and replaced by `addFilter`.
