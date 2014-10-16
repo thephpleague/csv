@@ -94,7 +94,7 @@ In the above example, the `null` value will be converted into an empty string, o
 
 ## Handling CSV columns count consistency (since version 5.4)
 
-You can optionally asks the `Writer` class to check the columns count consistency of the newly added rows in you CSV. To do so you need to set the class `$columns_count` property.
+You can optionally asks the `Writer` class to check the columns count consistency of the newly added rows in you CSV.
 
 ### getColumnsCount()
 
