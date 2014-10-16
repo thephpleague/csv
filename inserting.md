@@ -94,7 +94,7 @@ In the above example, the `null` value will be converted into an empty string, o
 
 ## Handling CSV columns count consistency (since version 5.4)
 
-You can optionally asks the Writer class to check the columns count consistency of the newly added rows in you CSV. To do so you need to set the class `$columns_count` property.
+You can optionally asks the `Writer` class to check the columns count consistency of the newly added rows in you CSV. To do so you need to set the class `$columns_count` property.
 
 ### getColumnsCount()
 
@@ -104,7 +104,7 @@ At any given time you can access the `$columns_count` property using the `getCol
 
 ### setColumnsCount($value)
 
-One way to do enable the columns count check is to use the `setColumnsCount` method to set the property to an integer greater than `-1`.
+One way to do enable columns consistency is to use the `setColumnsCount` method to set the required number of columns to an integer greater than `-1`.
 
 ~~~php
 $writer->setColumnsCount(2);
@@ -117,7 +117,7 @@ $writer->insertAll([
 
 ### autodetectColumnsCount()
 
-Another way is to use the `autodetectColumnsCount` method which will set the `$columns_count` property according to the next inserted row.
+Another way is to use the `autodetectColumnsCount` method which will set the required number of columns according to the next inserted row.
 
 ~~~php
 use League\Csv\Writer;
