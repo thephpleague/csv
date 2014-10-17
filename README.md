@@ -46,7 +46,7 @@ You can also use `League\Csv` without using Composer by downloading the library 
 Documentation
 -------------
 
-`League\Csv` is [fully documentated](http://csv.thephpleague.com). Contribute to this documentation in the [gh-pages branch](https://github.com/thephpleague/csv/tree/gh-pages)
+`League\Csv` is [fully documented](http://csv.thephpleague.com). Contribute to this documentation in the [gh-pages branch](https://github.com/thephpleague/csv/tree/gh-pages)
 
 ### Tips
 
