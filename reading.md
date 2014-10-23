@@ -192,7 +192,7 @@ Here's an example on how to use the query features of the `Reader` class to rest
 ~~~php
 function filterByEmail($row) 
 {
-    return filer_var($row[2], FILTER_VALIDATE_EMAIL);
+    return filter_var($row[2], FILTER_VALIDATE_EMAIL);
 }
 
 function sortByLastName($rowA, $rowB)
