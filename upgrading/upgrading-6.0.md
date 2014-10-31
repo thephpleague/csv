@@ -71,7 +71,7 @@ $reader = Reader::createFromPath('/path/to/your/csv/file.csv');
 $delimiters_list = $reader->detectDelimiterList(10, [' ', '|']);
 if (! $delimiters_list) {
 	//no delimiter found
-} elseif (1 == count($delimiters)) {
+} elseif (1 == count($delimiters_list)) {
 	$delimiter = $delimiters_list[0]; // the found delimiter
 } else {
 	//inconsistent CSV 
