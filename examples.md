@@ -77,7 +77,7 @@ $sth = $dbh->prepare(
 
 $csv = Reader::createFromPath('/path/to/your/csv/file.csv');
 $csv->setOffset(1); //because we don't want to insert the header
-$nbInsert = $csv->each(function ($row) use (&$sth)) {
+$nbInsert = $csv->each(function ($row) use (&$sth) {
 	//Do not forget to validate your data before inserting it in your database
 	$sth->bindValue(':firstname', $row[0], PDO::PARAM_STR);
 	$sth->bindValue(':lastname', $row[1], PDO::PARAM_STR);
