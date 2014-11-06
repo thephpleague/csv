@@ -145,7 +145,7 @@ class CsvTest extends PHPUnit_Framework_TestCase
         Menahem;1;R;2011;S;Q;2,1
         EOF;
         
-        $writer = Writer::createFromString($rawCsv);
+        $csv = Writer::createFromString($rawCsv);
         $this->assertSame([';'], $csv->detectDelimiterList(3));
     }
     
@@ -157,7 +157,7 @@ class CsvTest extends PHPUnit_Framework_TestCase
         Menahem;1;R;2011;London,S,2,1
         EOF;
         
-        $writer = Writer::createFromString($rawCsv);
+        $csv = Writer::createFromString($rawCsv);
         $this->assertSame([';', ','], $csv->detectDelimiterList(3));
     }
     
