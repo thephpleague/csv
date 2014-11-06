@@ -147,7 +147,7 @@ trait Controls
             $umpteen = ($res_tmp[0] / $res_tmp[1]);
         }
 
-        if ($umpteen > 2.5) {
+        if (isset($umpteen) && ($umpteen > 2.5)) {
             return array_search(max($res), $res);
         } else {
             return array_keys(array_filter($res));
