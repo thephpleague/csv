@@ -139,19 +139,9 @@ trait Controls
             $value = $this->fetchRowsCountByDelimiter($delim, $nb_rows);
         });
 
-        $res = array_filter($res);
         arsort($res, SORT_NUMERIC);
 
-        if (count($res) > 1) {
-            $res_tmp = array_values($res);
-            $umpteen = ($res_tmp[0] / $res_tmp[1]);
-        }
-
-        if (isset($umpteen) && ($umpteen > 2.5)) {
-            return array_search(max($res), $res);
-        } else {
-            return array_keys(array_filter($res));
-        }
+        return array_keys(array_filter($res));
     }
 
     /**
