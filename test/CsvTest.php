@@ -140,23 +140,23 @@ class CsvTest extends PHPUnit_Framework_TestCase
     public function testDetectDelimiterListFindDelimiterWithMostOccurrencesInOneLine()
     {
         $rawCsv = <<<EOF
-        Melodie;6;F;2011;Q;Q;4,0
-        Melvin;13;M;2011;P;Q;7,5
-        Menahem;1;R;2011;S;Q;2,1
-        EOF;
-        
+Melodie;6;F;2011;Q;Q;4,0
+Melvin;13;M;2011;P;Q;7,5
+Menahem;1;R;2011;S;Q;2,1
+EOF;
+
         $csv = Writer::createFromString($rawCsv);
         $this->assertSame([';'], $csv->detectDelimiterList(3));
     }
-    
+
     public function testDetectDelimiterListWithInconsistentDelimiterOccurrencesInOneLine()
     {
         $rawCsv = <<<EOF
-        Melodie;6;F;2011;Munich,Q,4,0
-        Melvin;13;M;2011;Berlin,P,7,5
-        Menahem;1;R;2011;London,S,2,1
-        EOF;
-        
+Melodie;6;F;2011;Munich,Q,4,0
+Melvin;13;M;2011;Berlin,P,7,5
+Menahem;1;R;2011;London,S,2,1
+EOF;
+
         $csv = Writer::createFromString($rawCsv);
         $this->assertSame([';', ','], $csv->detectDelimiterList(3));
     }
