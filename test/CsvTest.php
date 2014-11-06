@@ -127,40 +127,15 @@ class CsvTest extends PHPUnit_Framework_TestCase
         $data = new SplTempFileObject;
         $data->setCsvControl(';');
         $data->fputcsv(['toto', 'tata', 'tutu']);
-        $data->fputcsv(['toto', 'tata', 'tutu']);
         $data->setCsvControl('|');
         $data->fputcsv(['toto', 'tata', 'tutu']);
         $data->fputcsv(['toto', 'tata', 'tutu']);
         $data->fputcsv(['toto', 'tata', 'tutu']);
 
         $csv = Writer::createFromFileObject($data);
-        $this->assertSame(['|', ';'], $csv->detectDelimiterList(6, ['|']));
-    }
-    
-    public function testDetectDelimiterListFindDelimiterWithMostOccurrencesInOneLine()
-    {
-        $rawCsv = <<<EOF
-Melodie;6;F;2011;Q;Q;4,0
-Melvin;13;M;2011;P;Q;7,5
-Menahem;1;R;2011;S;Q;2,1
-EOF;
-
-        $csv = Writer::createFromString($rawCsv);
-        $this->assertSame([';'], $csv->detectDelimiterList(3));
+        $this->assertSame(['|', ';'], $csv->detectDelimiterList(5, ['|']));
     }
 
-    public function testDetectDelimiterListWithInconsistentDelimiterOccurrencesInOneLine()
-    {
-        $rawCsv = <<<EOF
-Melodie;6;F;2011;Munich,Q,4,0
-Melvin;13;M;2011;Berlin,P,7,5
-Menahem;1;R;2011;London,S,2,1
-EOF;
-
-        $csv = Writer::createFromString($rawCsv);
-        $this->assertSame([';', ','], $csv->detectDelimiterList(3));
-    }
-    
     /**
      * @expectedException InvalidArgumentException
      * @expectedExceptionMessage The escape character must be a single character
