@@ -109,7 +109,7 @@ trait Controls
             return is_array($row) && count($row) > 1;
         });
 
-        return count(iterator_to_array($iterator, false));
+        return count(iterator_to_array($iterator, false), COUNT_RECURSIVE);
     }
 
     /**
