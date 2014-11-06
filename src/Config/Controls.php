@@ -109,7 +109,7 @@ trait Controls
             return is_array($row) && count($row) > 1;
         });
 
-        return count(iterator_to_array($iterator, false));
+        return count(iterator_to_array($iterator, false), COUNT_RECURSIVE);
     }
 
     /**
@@ -139,9 +139,19 @@ trait Controls
             $value = $this->fetchRowsCountByDelimiter($delim, $nb_rows);
         });
 
+        $res = array_filter($res);
         arsort($res, SORT_NUMERIC);
 
-        return array_keys(array_filter($res));
+        if (count($res) > 1) {
+            $res_tmp = array_values($res);
+            $umpteen = ($res_tmp[0] / $res_tmp[1]);
+        }
+
+        if ($umpteen > 2.5) {
+            return array_search(max($res), $res);
+        } else {
+            return array_keys(array_filter($res));
+        }
     }
 
     /**
