@@ -127,13 +127,28 @@ class CsvTest extends PHPUnit_Framework_TestCase
         $data = new SplTempFileObject;
         $data->setCsvControl(';');
         $data->fputcsv(['toto', 'tata', 'tutu']);
+        $data->fputcsv(['toto', 'tata', 'tutu']);
         $data->setCsvControl('|');
         $data->fputcsv(['toto', 'tata', 'tutu']);
         $data->fputcsv(['toto', 'tata', 'tutu']);
         $data->fputcsv(['toto', 'tata', 'tutu']);
 
         $csv = Writer::createFromFileObject($data);
-        $this->assertSame(['|', ';'], $csv->detectDelimiterList(5, ['|']));
+        $this->assertSame(['|', ';'], $csv->detectDelimiterList(6, ['|']));
+    }
+    
+    public function testDetectDelimiterListFindDelimiterWithMostOccurrences()
+    {
+        $data = new SplTempFileObject;
+        $data->setCsvControl(';');
+        $data->fputcsv(['toto', 'tata', 'tutu']);
+        $data->setCsvControl('|');
+        $data->fputcsv(['toto', 'tata', 'tutu']);
+        $data->fputcsv(['toto', 'tata', 'tutu']);
+        $data->fputcsv(['toto', 'tata', 'tutu']);
+
+        $csv = Writer::createFromFileObject($data);
+        $this->assertSame(['|'], $csv->detectDelimiterList(5, ['|']));
     }
 
     /**
