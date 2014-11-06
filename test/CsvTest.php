@@ -140,9 +140,9 @@ class CsvTest extends PHPUnit_Framework_TestCase
     public function testDetectDelimiterListFindDelimiterWithMostOccurrencesInOneLine()
     {
         $rawCsv = <<<EOF
-        Melodie;6;F;2011;Q;4,0
-        Melvin;13;M;2011;P;7,5
-        Menahem;1;R;2011;S;2,1
+        Melodie;6;F;2011;Q;Q;4,0
+        Melvin;13;M;2011;P;Q;7,5
+        Menahem;1;R;2011;S;Q;2,1
         EOF;
         
         $writer = Writer::createFromString($rawCsv);
