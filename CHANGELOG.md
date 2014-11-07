@@ -16,7 +16,7 @@ All Notable changes to `League\Csv` will be documented in this file
 - Nothing
 
 ### Security
-- Nothing
+- Bug Fixed `detectDelimiterList`
 
 ## 6.0 - 2014-08-28
 
