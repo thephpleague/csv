@@ -200,7 +200,7 @@ abstract class AbstractCsv implements JsonSerializable, IteratorAggregate
                 'the submitted data must be a string or an object implementing the `__toString` method'
             );
         }
-        $obj = new SplTempFileObject;
+        $obj = new SplTempFileObject();
         $obj->fwrite((string) $str.PHP_EOL);
 
         return static::createFromFileObject($obj);

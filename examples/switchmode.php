@@ -44,7 +44,7 @@ $writer->setDelimiter(';');
 $writer->insertOne('Ben;7;M;2004');
 $writer->insertAll([
     'Benjamin;118;M;2004',
-    ['Benoit', '6', 'M', '2004']
+    ['Benoit', '6', 'M', '2004'],
 ]);
 
 //we create a Reader object from the Writer object

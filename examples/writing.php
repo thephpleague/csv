@@ -7,7 +7,7 @@ use League\Csv\Writer;
 
 require '../vendor/autoload.php';
 
-$writer = Writer::createFromFileObject(new SplTempFileObject); //the CSV file will be created into a temporary File
+$writer = Writer::createFromFileObject(new SplTempFileObject()); //the CSV file will be created into a temporary File
 $writer->setDelimiter("\t"); //the delimiter will be the tab character
 $writer->setEncodingFrom("utf-8");
 

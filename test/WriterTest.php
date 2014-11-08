@@ -17,12 +17,11 @@ date_default_timezone_set('UTC');
  */
 class WriterTest extends PHPUnit_Framework_TestCase
 {
-
     private $csv;
 
     public function setUp()
     {
-        $this->csv = Writer::createFromFileObject(new SplTempFileObject);
+        $this->csv = Writer::createFromFileObject(new SplTempFileObject());
     }
 
     public function tearDown()
@@ -165,7 +164,7 @@ class WriterTest extends PHPUnit_Framework_TestCase
      */
     public function testFailedInsertWithWrongData()
     {
-        $this->csv->insertOne(new DateTime);
+        $this->csv->insertOne(new DateTime());
     }
 
     /**
@@ -174,7 +173,7 @@ class WriterTest extends PHPUnit_Framework_TestCase
      */
     public function testFailedInsertWithMultiDimensionArray()
     {
-        $this->csv->insertOne(['john', new DateTime]);
+        $this->csv->insertOne(['john', new DateTime()]);
     }
 
     public function testSave()
@@ -201,7 +200,7 @@ class WriterTest extends PHPUnit_Framework_TestCase
      */
     public function testFailedSaveWithWrongType()
     {
-        $this->csv->insertAll(new DateTime);
+        $this->csv->insertAll(new DateTime());
     }
 
     public function testGetReader()
