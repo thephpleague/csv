@@ -132,7 +132,7 @@ if ($writer->isActiveStreamFilter()) {
 }
 $writer->insertAll([
     'je,suis,toto,le,héros',
-    'je,<strong>suis</strong>,toto,le,héros'
+    'je,<strong>suis</strong>,toto,le,héros',
 ]);
 
 echo $writer->newReader()->toHTML(), PHP_EOL;

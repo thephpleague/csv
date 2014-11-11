@@ -21,7 +21,7 @@ class ReaderTest extends PHPUnit_Framework_TestCase
 
     public function setUp()
     {
-        $csv = new SplTempFileObject;
+        $csv = new SplTempFileObject();
         foreach ($this->expected as $row) {
             $csv->fputcsv($row);
         }
@@ -117,7 +117,7 @@ class ReaderTest extends PHPUnit_Framework_TestCase
         $csv->addSortBy($func);
         $this->assertSame([
             ['john', 'doe', 'john.doe@example.com'],
-            ['john', 'doe', 'john.doe@example.com']
+            ['john', 'doe', 'john.doe@example.com'],
         ], $csv->fetchAll());
     }
 
@@ -190,10 +190,10 @@ class ReaderTest extends PHPUnit_Framework_TestCase
     {
         $raw = [
             ['john', 'doe'],
-            ['lara', 'croft', 'lara.croft@example.com']
+            ['lara', 'croft', 'lara.croft@example.com'],
         ];
 
-        $file = new SplTempFileObject;
+        $file = new SplTempFileObject();
         foreach ($raw as $row) {
             $file->fputcsv($row);
         }

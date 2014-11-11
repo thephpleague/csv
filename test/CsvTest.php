@@ -26,7 +26,7 @@ class CsvTest extends PHPUnit_Framework_TestCase
 
     public function setUp()
     {
-        $csv = new SplTempFileObject;
+        $csv = new SplTempFileObject();
         foreach ($this->expected as $row) {
             $csv->fputcsv($row);
         }
@@ -77,7 +77,7 @@ class CsvTest extends PHPUnit_Framework_TestCase
      */
     public function testCreateFromPathWithSplTempFileObject()
     {
-        Reader::createFromPath(new SplTempFileObject);
+        Reader::createFromPath(new SplTempFileObject());
     }
 
     public function testCreateFromString()
@@ -116,7 +116,7 @@ class CsvTest extends PHPUnit_Framework_TestCase
 
     public function testDetectDelimiterListWithNoCSV()
     {
-        $file = new SplTempFileObject;
+        $file = new SplTempFileObject();
         $file->fwrite("How are you today ?\nI'm doing fine thanks!");
         $csv = Writer::createFromFileObject($file);
         $this->assertSame([], $csv->detectDelimiterList(5, ['toto', '|']));
@@ -124,7 +124,7 @@ class CsvTest extends PHPUnit_Framework_TestCase
 
     public function testDetectDelimiterListWithInconsistentCSV()
     {
-        $data = new SplTempFileObject;
+        $data = new SplTempFileObject();
         $data->setCsvControl(';');
         $data->fputcsv(['toto', 'tata', 'tutu']);
         $data->setCsvControl('|');
@@ -166,7 +166,7 @@ class CsvTest extends PHPUnit_Framework_TestCase
      */
     public function testCreateFromStringFromNotStringableObject()
     {
-        Reader::createFromString(new DateTime);
+        Reader::createFromString(new DateTime());
     }
 
     /**
@@ -313,7 +313,7 @@ EOF;
      */
     public function testFailedprependStreamFilter()
     {
-        $csv = new Reader(new SplTempFileObject);
+        $csv = new Reader(new SplTempFileObject());
         $this->assertFalse($csv->isActiveStreamFilter());
         $csv->prependStreamFilter('string.toupper');
     }
@@ -324,7 +324,7 @@ EOF;
      */
     public function testFailedapppendStreamFilter()
     {
-        $csv = new Writer(new SplTempFileObject);
+        $csv = new Writer(new SplTempFileObject());
         $this->assertFalse($csv->isActiveStreamFilter());
         $csv->appendStreamFilter('string.toupper');
     }
