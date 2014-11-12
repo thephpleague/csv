@@ -4,7 +4,7 @@
 *
 * @license http://opensource.org/licenses/MIT
 * @link https://github.com/thephpleague/csv/
-* @version 6.0.0
+* @version 6.0.1
 * @package League.csv
 *
 * For the full copyright and license information, please view the LICENSE
@@ -45,21 +45,21 @@ class Writer extends AbstractCsv
     /**
      * the object current null handling mode
      *
-     * @var integer
+     * @var int
      */
     protected $null_handling_mode = self::NULL_AS_EXCEPTION;
 
     /**
      * The number of column per row
      *
-     * @var integer
+     * @var int
      */
     protected $columns_count = -1;
 
     /**
      * should the class detect the column count based the inserted row
      *
-     * @var boolean
+     * @var bool
      */
     protected $detect_columns_count = false;
 
@@ -78,11 +78,11 @@ class Writer extends AbstractCsv
     /**
      * Tell the class how to handle null value
      *
-     * @param integer $value a Writer null behavior constant
-     *vi
-     * @return self
+     * @param int $value a Writer null behavior constant
      *
-     * @throws OutOfBoundsException If the Integer is not valid
+     * @throws \OutOfBoundsException If the Integer is not valid
+     *
+     * @return static
      */
     public function setNullHandlingMode($value)
     {
@@ -97,7 +97,7 @@ class Writer extends AbstractCsv
     /**
      * null handling getter
      *
-     * @return integer
+     * @return int
      */
     public function getNullHandlingMode()
     {
@@ -107,11 +107,11 @@ class Writer extends AbstractCsv
     /**
      * Set Inserted row column count
      *
-     * @param integer $value
-     *
-     * @return self
+     * @param int $value
      *
      * @throws \InvalidArgumentException If $value is lesser than -1
+     *
+     * @return static
      */
     public function setColumnsCount($value)
     {
@@ -127,7 +127,7 @@ class Writer extends AbstractCsv
     /**
      * Column count getter
      *
-     * @return integer
+     * @return int
      */
     public function getColumnsCount()
     {
@@ -139,7 +139,7 @@ class Writer extends AbstractCsv
      * and therefore will also validate the next line whatever length it has no matter
      * the current $columns_count property value.
      *
-     * @return self
+     * @return static
      */
     public function autodetectColumnsCount()
     {
@@ -155,9 +155,9 @@ class Writer extends AbstractCsv
      *
      * @param \Traversable|array $rows a multidimentional array or a Traversable object
      *
-     * @return self
-     *
      * @throws \InvalidArgumentException If the given rows format is invalid
+     *
+     * @return static
      */
     public function insertAll($rows)
     {
@@ -179,9 +179,9 @@ class Writer extends AbstractCsv
      *
      * @param string[]|string $data a string, an array or an object implementing to '__toString' method
      *
-     * @return self
-     *
      * @throws \InvalidArgumentException If the given row is invalid
+     *
+     * @return static
      */
     public function insertOne($data)
     {
@@ -203,9 +203,9 @@ class Writer extends AbstractCsv
      *
      * @param string[]|string $row
      *
-     * @return array
+     * @throws \InvalidArgumentException If the given $row is not valid
      *
-     * @throws InvalidArgumentException If the given $row is not valid
+     * @return array
      */
     protected function validateRow($row)
     {
@@ -230,9 +230,9 @@ class Writer extends AbstractCsv
      * The value MUST respect the null handling mode
      * The valie MUST be convertible into a string
      *
-     * @param mixed $value the value to be added
+     * @param string|null $value the value to be added
      *
-     * @return boolean
+     * @return bool
      */
     protected function isConvertibleContent($value)
     {
@@ -265,7 +265,7 @@ class Writer extends AbstractCsv
      *
      * @param array $row the row to be added to the CSV
      *
-     * @return boolean
+     * @return bool
      */
     protected function isColumnsCountConsistent(array $row)
     {
@@ -286,7 +286,7 @@ class Writer extends AbstractCsv
      * insure we use the same object for insertion to
      * avoid loosing the cursor position
      *
-     * @return SplFileObject
+     * @return \SplFileObject
      */
     protected function getCsv()
     {
@@ -301,7 +301,7 @@ class Writer extends AbstractCsv
     /**
      * Tells whether the stream filter capabilities can be used
      *
-     * @return boolean
+     * @return bool
      */
     public function isActiveStreamFilter()
     {

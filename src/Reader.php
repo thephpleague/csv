@@ -4,7 +4,7 @@
 *
 * @license http://opensource.org/licenses/MIT
 * @link https://github.com/thephpleague/csv/
-* @version 6.0.0
+* @version 6.0.1
 * @package League.csv
 *
 * For the full copyright and license information, please view the LICENSE
@@ -68,7 +68,7 @@ class Reader extends AbstractCsv
      *
      * @param callable $callable The callback function
      *
-     * @return integer the iteration count
+     * @return int the iteration count
      */
     public function each(callable $callable)
     {
@@ -86,11 +86,11 @@ class Reader extends AbstractCsv
     /**
      * Return a single row from the CSV
      *
-     * @param integer $offset
-     *
-     * @return array
+     * @param int $offset
      *
      * @throws \InvalidArgumentException If the $offset is not a valid Integer
+     *
+     * @return array
      */
     public function fetchOne($offset = 0)
     {
@@ -129,9 +129,9 @@ class Reader extends AbstractCsv
      * @param array    $keys     the name for each key member
      * @param callable $callable a callable function
      *
-     * @return array
-     *
      * @throws \InvalidArgumentException If the submitted keys are not integer or strng
+     *
+     * @return array
      */
     public function fetchAssoc(array $keys, callable $callable = null)
     {
@@ -182,12 +182,12 @@ class Reader extends AbstractCsv
      *
      * The callable function will be applied to each value to be return
      *
-     * @param integer  $column_index field Index
+     * @param int      $column_index field Index
      * @param callable $callable     a callable function
      *
-     * @return array
-     *
      * @throws \InvalidArgumentException If the column index is not a positive integer or 0
+     *
+     * @return array
      */
     public function fetchColumn($column_index = 0, callable $callable = null)
     {

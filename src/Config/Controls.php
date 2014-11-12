@@ -4,7 +4,7 @@
 *
 * @license http://opensource.org/licenses/MIT
 * @link https://github.com/thephpleague/csv/
-* @version 6.0.0
+* @version 6.0.1
 * @package League.csv
 *
 * For the full copyright and license information, please view the LICENSE
@@ -50,7 +50,7 @@ trait Controls
     /**
      * the \SplFileObject flags holder
      *
-     * @var integer
+     * @var int
      */
     protected $flags = SplFileObject::READ_CSV;
 
@@ -66,9 +66,9 @@ trait Controls
      *
      * @param string $delimiter
      *
-     * @return $this
-     *
      * @throws \InvalidArgumentException If $delimeter is not a single character
+     *
+     * @return $this
      */
     public function setDelimiter($delimiter = ',')
     {
@@ -93,10 +93,10 @@ trait Controls
     /**
      * detect the actual number of row according to a delimiter
      *
-     * @param string  $delimiter a CSV delimiter
-     * @param integer $nb_rows   the number of row to consider
+     * @param string $delimiter a CSV delimiter
+     * @param int    $nb_rows   the number of row to consider
      *
-     * @return integer
+     * @return int
      */
     protected function fetchRowsCountByDelimiter($delimiter, $nb_rows = 1)
     {
@@ -115,12 +115,12 @@ trait Controls
     /**
      * Detect the CSV file delimiter
      *
-     * @param integer  $nb_rows
+     * @param int      $nb_rows
      * @param string[] $delimiters additional delimiters
      *
-     * @return string[]
-     *
      * @throws \InvalidArgumentException If $nb_rows value is invalid
+     *
+     * @return string[]
      */
     public function detectDelimiterList($nb_rows = 1, array $delimiters = [])
     {
@@ -149,9 +149,9 @@ trait Controls
      *
      * @param string $enclosure
      *
-     * @return $this
-     *
      * @throws \InvalidArgumentException If $enclosure is not a single character
+     *
+     * @return $this
      */
     public function setEnclosure($enclosure = '"')
     {
@@ -178,9 +178,9 @@ trait Controls
      *
      * @param string $escape
      *
-     * @return $this
-     *
      * @throws \InvalidArgumentException If $escape is not a single character
+     *
+     * @return $this
      */
     public function setEscape($escape = "\\")
     {
@@ -205,11 +205,11 @@ trait Controls
     /**
      * Set the Flags associated to the CSV SplFileObject
      *
-     * @param integer $flags
-     *
-     * @return $this
+     * @param int $flags
      *
      * @throws \InvalidArgumentException If the argument is not a valid integer
+     *
+     * @return $this
      */
     public function setFlags($flags)
     {
@@ -225,7 +225,7 @@ trait Controls
     /**
      * Returns the file Flags
      *
-     * @return integer
+     * @return int
      */
     public function getFlags()
     {

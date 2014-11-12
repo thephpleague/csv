@@ -4,7 +4,7 @@
 *
 * @license http://opensource.org/licenses/MIT
 * @link https://github.com/thephpleague/csv/
-* @version 6.0.0
+* @version 6.0.1
 * @package League.csv
 *
 * For the full copyright and license information, please view the LICENSE
@@ -67,7 +67,7 @@ abstract class AbstractCsv implements JsonSerializable, IteratorAggregate
     protected $encodingFrom = 'UTF-8';
 
     /**
-     * The constructor
+     * Create a new instance
      *
      * The path must be an SplFileInfo object
      * an object that implements the `__toString` method
@@ -139,9 +139,9 @@ abstract class AbstractCsv implements JsonSerializable, IteratorAggregate
      * @param object|string $path      file path
      * @param string        $open_mode the file open mode flag
      *
-     * @return static
-     *
      * @throws \InvalidArgumentException If $path is a \SplTempFileObject object
+     *
+     * @return static
      */
     public static function createFromPath($path, $open_mode = 'r+')
     {
@@ -189,9 +189,9 @@ abstract class AbstractCsv implements JsonSerializable, IteratorAggregate
      *
      * @param string|object $str the string
      *
-     * @return static
-     *
      * @throws \InvalidArgumentException If the data provided is invalid
+     *
+     * @return static
      */
     public static function createFromString($str)
     {
@@ -230,7 +230,7 @@ abstract class AbstractCsv implements JsonSerializable, IteratorAggregate
      *
      * @param string $open_mode the file open mode flag
      *
-     * @return \League\Csv\Writer object
+     * @return \League\Csv\Writer
      */
     public function newWriter($open_mode = 'r+')
     {
@@ -242,7 +242,7 @@ abstract class AbstractCsv implements JsonSerializable, IteratorAggregate
      *
      * @param string $open_mode the file open mode flag
      *
-     * @return \League\Csv\Reader object
+     * @return \League\Csv\Reader
      */
     public function newReader($open_mode = 'r+')
     {
@@ -332,9 +332,9 @@ abstract class AbstractCsv implements JsonSerializable, IteratorAggregate
     /**
     * Validate a variable to be stringable
     *
-    * @param mixed $str
+    * @param string $str
     *
-    * @return boolean
+    * @return bool
     */
     public static function isValidString($str)
     {

@@ -4,7 +4,7 @@
 *
 * @license http://opensource.org/licenses/MIT
 * @link https://github.com/thephpleague/csv/
-* @version 6.0.0
+* @version 6.0.1
 * @package League.csv
 *
 * For the full copyright and license information, please view the LICENSE
@@ -36,7 +36,7 @@ trait StreamFilter
     /**
      * Stream filtering mode to apply on all filters
      *
-     * @var integer
+     * @var int
      */
     protected $stream_filter_mode = STREAM_FILTER_ALL;
 
@@ -56,8 +56,6 @@ trait StreamFilter
      * a path to a file
      *
      * @param \SplFileObject|string $path The file path
-     *
-     * @return void
      */
     protected function initStreamFilter($path)
     {
@@ -75,8 +73,6 @@ trait StreamFilter
      * Extract Available stream settings from $path
      *
      * @param string $path the file path
-     *
-     * @return void
      */
     protected function extractStreamSettings($path)
     {
@@ -105,8 +101,6 @@ trait StreamFilter
     /**
      * Check if the trait methods can be used
      *
-     * @return void
-     *
      * @throws \LogicException If the API can not be use
      */
     protected function assertStreamable()
@@ -119,7 +113,7 @@ trait StreamFilter
     /**
      * Tells whether the stream filter capabilities can be used
      *
-     * @return boolean
+     * @return bool
      */
     public function isActiveStreamFilter()
     {
@@ -132,11 +126,11 @@ trait StreamFilter
      * Set the new Stream Filter mode and remove all
      * previously attached stream filters
      *
-     * @param integer $mode
-     *
-     * @return $this
+     * @param int $mode
      *
      * @throws \OutOfBoundsException If the mode is invalid
+     *
+     * @return $this
      */
     public function setStreamFilterMode($mode)
     {
@@ -154,7 +148,7 @@ trait StreamFilter
     /**
      * stream filter mode getter
      *
-     * @return integer
+     * @return int
      */
     public function getStreamFilterMode()
     {
@@ -213,7 +207,7 @@ trait StreamFilter
      *
      * @param string $filter_name
      *
-     * @return boolean
+     * @return bool
      */
     public function hasStreamFilter($filter_name)
     {

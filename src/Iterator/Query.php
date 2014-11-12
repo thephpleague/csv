@@ -4,7 +4,7 @@
 *
 * @license http://opensource.org/licenses/MIT
 * @link https://github.com/thephpleague/csv/
-* @version 6.0.0
+* @version 6.0.1
 * @package League.csv
 *
 * For the full copyright and license information, please view the LICENSE
@@ -44,14 +44,14 @@ trait Query
     /**
      * iterator Offset
      *
-     * @var integer
+     * @var int
      */
     protected $iterator_offset = 0;
 
     /**
      * iterator maximum length
      *
-     * @var integer
+     * @var int
      */
     protected $iterator_limit = -1;
 
@@ -75,7 +75,7 @@ trait Query
     /**
      * Set LimitInterator Count
      *
-     * @param integer $limit
+     * @param int $limit
      *
      * @return $this
      */
@@ -146,7 +146,7 @@ trait Query
      *
      * @param callable $callable
      *
-     * @return boolean
+     * @return bool
      */
     public function hasSortBy(callable $callable)
     {
@@ -231,7 +231,7 @@ trait Query
      *
      * @param callable $callable
      *
-     * @return boolean
+     * @return bool
      */
     public function hasFilter(callable $callable)
     {

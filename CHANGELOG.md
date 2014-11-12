@@ -1,7 +1,7 @@
 #Changelog
 All Notable changes to `League\Csv` will be documented in this file
 
-## NEXT - YYYY-MM-DD
+## 6.0.1 - 2014-11-12
 
 ### Added
 - Nothing
@@ -10,15 +10,15 @@ All Notable changes to `League\Csv` will be documented in this file
 - Nothing
 
 ### Fixed
-- Nothing
+- Bug Fixed `detectDelimiterList`
 
 ### Remove
 - Nothing
 
 ### Security
-- Bug Fixed `detectDelimiterList`
+- Nothing
 
-## 6.0 - 2014-08-28
+## 6.0.0 - 2014-08-28
 
 ### Added
 - Stream Filter API in `League\Csv\AbstractCsv`
