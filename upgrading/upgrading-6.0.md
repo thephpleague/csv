@@ -72,7 +72,7 @@ $delimiters_list = $reader->detectDelimiterList(10, [' ', '|']);
 if (! $delimiters_list) {
 	//no delimiter found
 } elseif (1 == count($delimiters_list)) {
-	$delimiter = $delimiters_list[0]; // the found delimiter
+	$delimiter = array_shift($delimiters); // the found delimiter
 } else {
 	//inconsistent CSV 
 	var_dump($delimiters_list); // all the delimiters found
