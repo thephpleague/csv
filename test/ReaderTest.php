@@ -286,4 +286,13 @@ EOF;
         $csv = Reader::createFromPath(__DIR__.'/foo.csv')->newWriter('a+');
         $this->assertInstanceOf('\League\Csv\Writer', $csv);
     }
+
+    public function testFetchAssocWithoutKeys()
+    {
+        $csv = Reader::createFromPath(__DIR__.'/data/prenoms.csv');
+        $csv->setDelimiter(';');
+        $csv->setEncodingFrom("iso-8859-15");
+        $data = $csv->fetchAssoc();
+        $this->assertTrue($data[0]['prenoms'] == 'Aaron');
+    }
 }
