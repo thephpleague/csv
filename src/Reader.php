@@ -38,6 +38,12 @@ class Reader extends AbstractCsv
     protected $stream_filter_mode = STREAM_FILTER_READ;
 
     /**
+     * Contain the header (csv first line)
+     * @var array
+     */
+    protected $header;
+
+    /**
      * Return a Filtered Iterator
      *
      * @param callable $callable a callable function to be applied to each Iterator item
@@ -133,8 +139,12 @@ class Reader extends AbstractCsv
      *
      * @return array
      */
-    public function fetchAssoc(array $keys, callable $callable = null)
+    public function fetchAssoc(array $keys = [], callable $callable = null)
     {
+        if (empty($keys)) {
+            $keys = $this->getDefaultKeys();
+        }
+
         $validKeys = array_unique(array_filter($keys, function ($value) {
             return self::isValidString($value);
         }));
@@ -151,6 +161,24 @@ class Reader extends AbstractCsv
         });
 
         return iterator_to_array($iterator, false);
+    }
+
+    /**
+     * Get the first line and add a filter to not get it again when
+     * fetching.
+     *
+     * @return array
+     */
+    protected function getDefaultKeys()
+    {
+        if (isset($this->header)) {
+            return $this->header;
+        }
+
+        $this->header = $this->fetchOne();
+        $this->addFilter(function ($row, $index) { return $index > 0; });
+
+        return $this->header;
     }
 
     /**
