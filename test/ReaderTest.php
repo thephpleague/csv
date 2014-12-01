@@ -287,12 +287,44 @@ EOF;
         $this->assertInstanceOf('\League\Csv\Writer', $csv);
     }
 
-    public function testFetchAssocWithoutKeys()
+    public function testFetchAssocWithARowIndex()
     {
-        $csv = Reader::createFromPath(__DIR__.'/data/prenoms.csv');
-        $csv->setDelimiter(';');
-        $csv->setEncodingFrom("iso-8859-15");
-        $data = $csv->fetchAssoc();
-        $this->assertTrue($data[0]['prenoms'] == 'Aaron');
+        $arr = [
+            ['A', 'B', 'C'],
+            [1, 2, 3],
+            ['D', 'E', 'F'],
+            [6, 7, 8],
+        ];
+
+        $tmpFile = new SplTempFileObject();
+        foreach ($arr as $row) {
+            $tmpFile->fputcsv($row);
+        }
+
+        $csv = Reader::createFromFileObject($tmpFile);
+        $res = $csv->setOffSet(2)->fetchAssoc(2);
+        $this->assertSame([['D' => '6', 'E' => '7', 'F' => '8']], $res);
+    }
+
+    /**
+     * @expectedException \InvalidArgumentException
+     * @expectedExceptionMessage the column index must be a positive integer or 0
+     */
+    public function testFetchAssocWithInvalidKey()
+    {
+        $arr = [
+            ['A', 'B', 'C'],
+            [1, 2, 3],
+            ['D', 'E', 'F'],
+            [6, 7, 8],
+        ];
+
+        $tmpFile = new SplTempFileObject();
+        foreach ($arr as $row) {
+            $tmpFile->fputcsv($row);
+        }
+
+        $csv = Reader::createFromFileObject($tmpFile);
+        $res = $csv->fetchAssoc(-23);
     }
 }

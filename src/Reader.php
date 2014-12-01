@@ -17,6 +17,7 @@ use InvalidArgumentException;
 use Iterator;
 use League\Csv\Iterator\MapIterator;
 use League\Csv\Iterator\Query;
+use LimitIterator;
 
 /**
  *  A class to manage extracting and filtering a CSV
@@ -36,12 +37,6 @@ class Reader extends AbstractCsv
      * {@ihneritdoc}
      */
     protected $stream_filter_mode = STREAM_FILTER_READ;
-
-    /**
-     * Contain the header (csv first line)
-     * @var array
-     */
-    protected $header;
 
     /**
      * Return a Filtered Iterator
@@ -132,29 +127,22 @@ class Reader extends AbstractCsv
      * The rows are presented as associated arrays
      * The callable function will be applied to each Iterator item
      *
-     * @param array    $keys     the name for each key member
-     * @param callable $callable a callable function
+     * @param array|int $keys     the name for each key member OR the row Index to be
+     *                            used as the associated named keys
+     * @param callable  $callable a callable function
      *
      * @throws \InvalidArgumentException If the submitted keys are not integer or strng
      *
      * @return array
      */
-    public function fetchAssoc(array $keys = [], callable $callable = null)
+    public function fetchAssoc($keys = 0, callable $callable = null)
     {
-        if (empty($keys)) {
-            $keys = $this->getDefaultKeys();
-        }
-
-        $validKeys = array_unique(array_filter($keys, function ($value) {
-            return self::isValidString($value);
-        }));
-
-        if ($keys !== $validKeys) {
+        $keys = $this->formatAssocKeys($keys);
+        if (! $this->isValidAssocKeys($keys)) {
             throw new InvalidArgumentException(
                 'The named keys should be unique strings Or integer'
             );
         }
-
         $iterator = $this->query($callable);
         $iterator = new MapIterator($iterator, function ($row) use ($keys) {
             return self::combineArray($keys, $row);
@@ -164,21 +152,46 @@ class Reader extends AbstractCsv
     }
 
     /**
-     * Get the first line and add a filter to not get it again when
-     * fetching.
+     * Select the array to be used as key for the fetchAssoc method
+     * @param array|int $keys the assoc key OR the row Index to be used
+     *                        as the key index
+     *
+     * @throws \InvalidArgumentException If the row index is invalid
      *
      * @return array
      */
-    protected function getDefaultKeys()
+    protected function formatAssocKeys($keys)
     {
-        if (isset($this->header)) {
-            return $this->header;
+        if (is_array($keys)) {
+            return $keys;
+        } elseif (false === filter_var($keys, FILTER_VALIDATE_INT, ['options' => ['min_range' => 0]])) {
+            throw new InvalidArgumentException('the column index must be a positive integer or 0');
         }
 
-        $this->header = $this->fetchOne();
-        $this->addFilter(function ($row, $index) { return $index > 0; });
+        $this->addFilter(function ($row, $rowIndex) use ($keys) {
+            return is_array($row) && $rowIndex != $keys;
+        });
 
-        return $this->header;
+        $iterator = new LimitIterator($this->getIterator(), $keys, 1);
+        $iterator->rewind();
+
+        return $iterator->current();
+    }
+
+    /**
+     * Validate the array to be used by the fetchAssoc method
+     *
+     * @param array $keys
+     *
+     * @return boolean
+     */
+    protected function isValidAssocKeys(array $keys)
+    {
+        $validKeys = array_unique(array_filter($keys, function ($value) {
+            return self::isValidString($value);
+        }));
+
+        return count($keys) && $keys === $validKeys;
     }
 
     /**
