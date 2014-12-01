@@ -4,7 +4,7 @@
 *
 * @license http://opensource.org/licenses/MIT
 * @link https://github.com/thephpleague/csv/
-* @version 6.0.1
+* @version 6.1.0
 * @package League.csv
 *
 * For the full copyright and license information, please view the LICENSE
@@ -99,12 +99,8 @@ class Reader extends AbstractCsv
         $this->setLimit(1);
         $iterator = $this->query();
         $iterator->rewind();
-        $res = $iterator->current();
-        if (! is_array($res)) {
-            return [];
-        }
 
-        return $res;
+        return (array) $iterator->current();
     }
 
     /**
@@ -131,7 +127,7 @@ class Reader extends AbstractCsv
      *                            used as the associated named keys
      * @param callable  $callable a callable function
      *
-     * @throws \InvalidArgumentException If the submitted keys are not integer or strng
+     * @throws \InvalidArgumentException If the submitted keys are not integer or string
      *
      * @return array
      */
@@ -140,12 +136,12 @@ class Reader extends AbstractCsv
         $keys = $this->formatAssocKeys($keys);
         if (! $this->isValidAssocKeys($keys)) {
             throw new InvalidArgumentException(
-                'The named keys should be unique strings Or integer'
+                'Use a flat non empty array with unique string values'
             );
         }
         $iterator = $this->query($callable);
         $iterator = new MapIterator($iterator, function ($row) use ($keys) {
-            return self::combineArray($keys, $row);
+            return static::combineArray($keys, $row);
         });
 
         return iterator_to_array($iterator, false);
@@ -175,7 +171,7 @@ class Reader extends AbstractCsv
         $iterator = new LimitIterator($this->getIterator(), $keys, 1);
         $iterator->rewind();
 
-        return $iterator->current();
+        return (array) $iterator->current();
     }
 
     /**

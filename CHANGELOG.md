@@ -1,6 +1,17 @@
 #Changelog
 All Notable changes to `League\Csv` will be documented in this file
 
+## 6.1.0 - XXXX-XX-XX
+
+### Added
+- `Reader::fetchAssoc` now also accepts an integer as first argument representing a row index.
+
+### Deprecated
+- Nothing
+
+### Fixed
+- Nothing
+
 ## 6.0.1 - 2014-11-12
 
 ### Added

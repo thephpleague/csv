@@ -144,10 +144,9 @@ class ReaderTest extends PHPUnit_Framework_TestCase
     public function testFetchAssocCallback()
     {
         $keys = ['firstname', 'lastname', 'email'];
-        $func = function ($value) {
+        $res = $this->csv->fetchAssoc($keys, function ($value) {
             return array_map('strtoupper', $value);
-        };
-        $res = $this->csv->fetchAssoc($keys, $func);
+        });
         foreach ($res as $row) {
             $this->assertSame($keys, array_keys($row));
         }
@@ -171,13 +170,76 @@ class ReaderTest extends PHPUnit_Framework_TestCase
         }
     }
 
+    public function testFetchAssocWithRowIndex()
+    {
+        $arr = [
+            ['A', 'B', 'C'],
+            [1, 2, 3],
+            ['D', 'E', 'F'],
+            [6, 7, 8],
+        ];
+
+        $tmpFile = new SplTempFileObject();
+        foreach ($arr as $row) {
+            $tmpFile->fputcsv($row);
+        }
+
+        $csv = Reader::createFromFileObject($tmpFile);
+        $res = $csv->setOffSet(2)->fetchAssoc(2);
+        $this->assertSame([['D' => '6', 'E' => '7', 'F' => '8']], $res);
+    }
+
     /**
      * @expectedException InvalidArgumentException
-     * @expectedExceptionMessage The named keys should be unique strings Or integer
+     * @expectedExceptionMessage Use a flat non empty array with unique string values
      */
     public function testFetchAssocKeyFailure()
     {
         $this->csv->fetchAssoc([['firstname', 'lastname', 'email', 'age']]);
+    }
+
+    /**
+     * @expectedException \InvalidArgumentException
+     * @expectedExceptionMessage the column index must be a positive integer or 0
+     */
+    public function testFetchAssocWithInvalidKey()
+    {
+        $arr = [
+            ['A', 'B', 'C'],
+            [1, 2, 3],
+            ['D', 'E', 'F'],
+            [6, 7, 8],
+        ];
+
+        $tmpFile = new SplTempFileObject();
+        foreach ($arr as $row) {
+            $tmpFile->fputcsv($row);
+        }
+
+        $csv = Reader::createFromFileObject($tmpFile);
+        $csv->fetchAssoc(-23);
+    }
+
+    /**
+     * @expectedException \InvalidArgumentException
+     * @expectedExceptionMessage Use a flat non empty array with unique string values
+     */
+    public function testFetchAssocWithEmptyArr()
+    {
+        $arr = [
+            ['A', 'B', 'C'],
+            [1, 2, 3],
+            ['D', 'E', 'F'],
+            [6, 7, 8],
+        ];
+
+        $tmpFile = new SplTempFileObject();
+        foreach ($arr as $row) {
+            $tmpFile->fputcsv($row);
+        }
+
+        $csv = Reader::createFromFileObject($tmpFile);
+        $csv->fetchAssoc(23);
     }
 
     public function testFetchCol()
@@ -285,46 +347,5 @@ EOF;
     {
         $csv = Reader::createFromPath(__DIR__.'/foo.csv')->newWriter('a+');
         $this->assertInstanceOf('\League\Csv\Writer', $csv);
-    }
-
-    public function testFetchAssocWithARowIndex()
-    {
-        $arr = [
-            ['A', 'B', 'C'],
-            [1, 2, 3],
-            ['D', 'E', 'F'],
-            [6, 7, 8],
-        ];
-
-        $tmpFile = new SplTempFileObject();
-        foreach ($arr as $row) {
-            $tmpFile->fputcsv($row);
-        }
-
-        $csv = Reader::createFromFileObject($tmpFile);
-        $res = $csv->setOffSet(2)->fetchAssoc(2);
-        $this->assertSame([['D' => '6', 'E' => '7', 'F' => '8']], $res);
-    }
-
-    /**
-     * @expectedException \InvalidArgumentException
-     * @expectedExceptionMessage the column index must be a positive integer or 0
-     */
-    public function testFetchAssocWithInvalidKey()
-    {
-        $arr = [
-            ['A', 'B', 'C'],
-            [1, 2, 3],
-            ['D', 'E', 'F'],
-            [6, 7, 8],
-        ];
-
-        $tmpFile = new SplTempFileObject();
-        foreach ($arr as $row) {
-            $tmpFile->fputcsv($row);
-        }
-
-        $csv = Reader::createFromFileObject($tmpFile);
-        $res = $csv->fetchAssoc(-23);
     }
 }
