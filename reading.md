@@ -38,9 +38,12 @@ $data = $reader->fetchAll();
 $nb_rows = count($data);
 ~~~
 
-### fetchAssoc(array [], callable $callable = null)
+### fetchAssoc($keys = 0, callable $callable = null)
 
-`fetchAssoc` returns a sequential array of all rows. The rows themselves are associative arrays where the keys are given directly to the method using an one dimension array. This array should only contain unique `string` and/or `integer` values.
+`fetchAssoc` returns a sequential array of all rows. The rows themselves are associative arrays where the keys are an one dimension array. This array should only contain unique `string` and/or `integer` values. This array can be specified as the first argument as
+
+- a specific CSV row by providing its index **(since version 6.1)**;
+- a non empty array directly provided;
 
 ~~~php
 $data = $reader->fetchAssoc(['firstname', 'lastname', 'email']);
@@ -57,6 +60,25 @@ $data = $reader->fetchAssoc(['firstname', 'lastname', 'email']);
 If the number of values in a CSV row is lesser than the number of named keys, the method will add `null` values to compensate for the missing values.
 
 If the number of values in a CSV row is greater that the number of named keys the exceeding values will be drop from the result set.
+
+If no argument is provided, the first row from the CSV data will be used **(since version 6.1)**.
+
+<p class="message-warning">When a row index is specified it will not appear in the resulting array</p>
+
+~~~php
+$data = $reader->fetchAssoc();
+// will output something like
+// [
+//    ['prenoms' => 'Aaron', 'nombre' => '55', 'sexe' => 'M', 'annee' => '2004'],
+//    ['prenoms' => 'Abdallah', 'nombre' => '7', 'sexe' => 'M', 'annee' => '2004'],
+// ...
+// ]
+//
+//
+//
+~~~
+
+<p class="message-notice">Prior to version <code>6.1</code> the method worked only with <code>array</code>. Now the method works with <code>array</code> and <code>integer</code>.</p>
 
 ### fetchColumn($columnIndex = 0, callable $callable = null)
 
