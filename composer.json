@@ -34,12 +34,9 @@
             "lib\\": "examples\\lib"
         }
     },
-    "replace": {
-        "bakame/csv": "*"
-    },
     "extra": {
         "branch-alias": {
-            "dev-master": "6.0-dev"
+            "dev-master": "6.1-dev"
         }
     }
 }
