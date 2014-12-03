@@ -200,7 +200,7 @@ class ReaderTest extends PHPUnit_Framework_TestCase
 
     /**
      * @expectedException \InvalidArgumentException
-     * @expectedExceptionMessage the column index must be a positive integer or 0
+     * @expectedExceptionMessage the row index must be a positive integer or 0
      */
     public function testFetchAssocWithInvalidKey()
     {
@@ -222,9 +222,9 @@ class ReaderTest extends PHPUnit_Framework_TestCase
 
     /**
      * @expectedException \InvalidArgumentException
-     * @expectedExceptionMessage Use a flat non empty array with unique string values
+     * @expectedExceptionMessage the specified row does not exist
      */
-    public function testFetchAssocWithEmptyArr()
+    public function testFetchAssocWithInvalidOffset()
     {
         $arr = [
             ['A', 'B', 'C'],
