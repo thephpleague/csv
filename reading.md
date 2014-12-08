@@ -38,11 +38,11 @@ $data = $reader->fetchAll();
 $nb_rows = count($data);
 ~~~
 
-### fetchAssoc($keys = 0, callable $callable = null)
+### fetchAssoc($offset_or_keys = 0, callable $callable = null)
 
 `fetchAssoc` returns a sequential array of all rows. The rows themselves are associative arrays where the keys are an one dimension array. This array should only contain unique `string` and/or `integer` values. This array can be specified as the first argument as
 
-- a specific CSV row by providing its index **(since version 6.1)**;
+- a specific CSV row by providing its offset **(since version 6.1)**;
 - a non empty array directly provided;
 
 ~~~php
