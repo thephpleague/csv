@@ -216,4 +216,14 @@ class WriterTest extends PHPUnit_Framework_TestCase
         $reader = $this->csv->newReader();
         $this->assertSame(['john', 'doe', 'john.doe@example.com'], $reader->fetchOne(0));
     }
+
+
+    public function testCustomLineEnding()
+    {
+        $csv = Writer::createFromFileObject(new SplTempFileObject());
+        $csv->setLineEnding("\r\n");
+
+        $csv->insertOne(["jane", "doe"]);
+        $this->assertSame("jane,doe\r\n", (string) $csv);
+    }
 }
