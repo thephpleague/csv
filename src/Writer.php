@@ -4,7 +4,7 @@
 *
 * @license http://opensource.org/licenses/MIT
 * @link https://github.com/thephpleague/csv/
-* @version 6.1.0
+* @version 6.2.0
 * @package League.csv
 *
 * For the full copyright and license information, please view the LICENSE
@@ -76,6 +76,13 @@ class Writer extends AbstractCsv
     protected $csv;
 
     /**
+     * newline character
+     *
+     * @var string
+     */
+    protected $newline = "\n";
+
+    /**
      * Tell the class how to handle null value
      *
      * @param int $value a Writer null behavior constant
@@ -102,6 +109,30 @@ class Writer extends AbstractCsv
     public function getNullHandlingMode()
     {
         return $this->null_handling_mode;
+    }
+
+    /**
+     * set the line ending
+     *
+     * @param string $newline
+     *
+     * @return $this
+     */
+    public function setNewline($newline)
+    {
+        $this->newline = (string) $newline;
+
+        return $this;
+    }
+
+    /**
+     * return the current line ending
+     *
+     * @return string
+     */
+    public function getNewline()
+    {
+        return $this->newline;
     }
 
     /**
@@ -193,11 +224,12 @@ class Writer extends AbstractCsv
                 that requires '.$this->columns_count.' columns per row.'
             );
         }
-        $this->getCsv()->fputcsv($data, $this->delimiter, $this->enclosure);
+        $csv = $this->getCsv();
+        $csv->fputcsv($data, $this->delimiter, $this->enclosure);
 
-        if ($this->lineEnding !== "\n") {
-            $this->getCsv()->fseek(-1, \SEEK_CUR);
-            $this->getCsv()->fwrite($this->lineEnding);
+        if ("\n" !== $this->newline) {
+            $csv->fseek(-1, SEEK_CUR);
+            $csv->fwrite($this->newline);
         }
 
         return $this;
@@ -295,10 +327,9 @@ class Writer extends AbstractCsv
      */
     protected function getCsv()
     {
-        if (! is_null($this->csv)) {
-            return $this->csv;
+        if (is_null($this->csv)) {
+            $this->csv = $this->getIterator();
         }
-        $this->csv = $this->getIterator();
 
         return $this->csv;
     }

@@ -4,7 +4,7 @@
 *
 * @license http://opensource.org/licenses/MIT
 * @link https://github.com/thephpleague/csv/
-* @version 6.1.0
+* @version 6.2.0
 * @package League.csv
 *
 * For the full copyright and license information, please view the LICENSE
@@ -32,13 +32,6 @@ trait Controls
      * @var string
      */
     protected $delimiter = ',';
-
-    /**
-     * the line ending
-     *
-     * @var string
-     */
-    protected $lineEnding = "\n";
 
     /**
      * the field enclosure character (one character only)
@@ -95,30 +88,6 @@ trait Controls
     public function getDelimiter()
     {
         return $this->delimiter;
-    }
-
-    /**
-     * set the line ending
-     *
-     * @param string $lineEnding
-     *
-     * @return $this
-     */
-    public function setLineEnding($lineEnding = "\n")
-    {
-        $this->lineEnding = $lineEnding;
-
-        return $this;
-    }
-
-    /**
-     * return the current line ending
-     *
-     * @return string
-     */
-    public function getLineEnding()
-    {
-        return $this->lineEnding;
     }
 
     /**

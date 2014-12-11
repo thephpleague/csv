@@ -4,7 +4,7 @@
 *
 * @license http://opensource.org/licenses/MIT
 * @link https://github.com/thephpleague/csv/
-* @version 6.1.0
+* @version 6.2.0
 * @package League.csv
 *
 * For the full copyright and license information, please view the LICENSE
@@ -218,7 +218,6 @@ abstract class AbstractCsv implements JsonSerializable, IteratorAggregate
     {
         $csv = new $class_name($this->path, $open_mode);
         $csv->delimiter = $this->delimiter;
-        $csv->lineEnding = $this->lineEnding;
         $csv->enclosure = $this->enclosure;
         $csv->escape = $this->escape;
         $csv->encodingFrom = $this->encodingFrom;
