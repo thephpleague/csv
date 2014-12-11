@@ -1,6 +1,6 @@
 ---
 layout: default
-title: Extracting
+title: Extracting data from a CSV
 permalink: reading/
 ---
 

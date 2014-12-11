@@ -1,6 +1,6 @@
 ---
 layout: default
-title: Reading & Filtering
+title: Inserting new data into a CSV
 permalink: inserting/
 ---
 
