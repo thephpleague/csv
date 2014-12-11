@@ -134,3 +134,27 @@ Keep in mind that:
 
 * the effect of the `autodetectColumnsCount` method will only take place after the next call to `insertOne`.
 * `setColumnsCount` and `autodetectColumnsCount` override each other effect when called before `insertOne`;
+
+## Handling CSV newline character (since version 6.2)
+
+Because the php `fputcsv` implementation has a hardcoded `"\n"`, we need to be able to replace the last LF code with one supplied by the developper for more interoperability between CSV packages on different platform.
+
+### getNewline()
+
+At any given time you can access the `$newline` property using the `getNewline` method. 
+
+<p class="message-warning">By default and for backward compatibility, the <code>$newline</code>property equals <code>"\n"</code> which is the default behavior of php <code>fputcsv</code> function.</p>
+
+### setNewline($newline)
+
+At any given time you can modify the `$newline` property using the `setNewline` method.
+
+~~~php
+$writer = Writer::createFromFileObject(new SplFileObject());
+$newline = $writer->getNewline(); // equals "\n";
+$writer->setNewline("\r\n");
+$newline = $writer->getNewline(); // equals "\r\n";
+$writer->insertOne(["one", "two"]); 
+echo $writer; // displays "one,two\r\n";
+~~~
+
