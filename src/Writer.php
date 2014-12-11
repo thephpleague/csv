@@ -195,6 +195,11 @@ class Writer extends AbstractCsv
         }
         $this->getCsv()->fputcsv($data, $this->delimiter, $this->enclosure);
 
+        if ($this->lineEnding !== "\n") {
+            $this->getCsv()->fseek(-1, \SEEK_CUR);
+            $this->getCsv()->fwrite($this->lineEnding);
+        }
+
         return $this;
     }
 

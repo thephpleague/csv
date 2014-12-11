@@ -34,6 +34,13 @@ trait Controls
     protected $delimiter = ',';
 
     /**
+     * the line ending
+     *
+     * @var string
+     */
+    protected $lineEnding = "\n";
+
+    /**
      * the field enclosure character (one character only)
      *
      * @var string
@@ -88,6 +95,30 @@ trait Controls
     public function getDelimiter()
     {
         return $this->delimiter;
+    }
+
+    /**
+     * set the line ending
+     *
+     * @param string $lineEnding
+     *
+     * @return $this
+     */
+    public function setLineEnding($lineEnding = "\n")
+    {
+        $this->lineEnding = $lineEnding;
+
+        return $this;
+    }
+
+    /**
+     * return the current line ending
+     *
+     * @return string
+     */
+    public function getLineEnding()
+    {
+        return $this->lineEnding;
     }
 
     /**

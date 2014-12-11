@@ -218,6 +218,7 @@ abstract class AbstractCsv implements JsonSerializable, IteratorAggregate
     {
         $csv = new $class_name($this->path, $open_mode);
         $csv->delimiter = $this->delimiter;
+        $csv->lineEnding = $this->lineEnding;
         $csv->enclosure = $this->enclosure;
         $csv->escape = $this->escape;
         $csv->encodingFrom = $this->encodingFrom;
