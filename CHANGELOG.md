@@ -1,33 +1,19 @@
 #Changelog
 All Notable changes to `League\Csv` will be documented in this file
+## 6.2.0 - XXXX-XX-XX
+
+### Added
+- `Writer::setNewline` , `Writer::getNewline`  control the newline character added at the end of each CSV row.
 
 ## 6.1.0 - 2014-12-08
 
 ### Added
 - `Reader::fetchAssoc` now also accepts an integer as first argument representing a row index.
 
-### Deprecated
-- Nothing
-
-### Fixed
-- Nothing
-
 ## 6.0.1 - 2014-11-12
-
-### Added
-- Nothing
-
-### Deprecated
-- Nothing
 
 ### Fixed
 - Bug Fixed `detectDelimiterList`
-
-### Remove
-- Nothing
-
-### Security
-- Nothing
 
 ## 6.0.0 - 2014-08-28
 
