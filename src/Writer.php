@@ -112,11 +112,11 @@ class Writer extends AbstractCsv
     }
 
     /**
-     * set the line ending
+     * set the newline sequence characters
      *
      * @param string $newline
      *
-     * @return $this
+     * @return static
      */
     public function setNewline($newline)
     {
@@ -126,7 +126,7 @@ class Writer extends AbstractCsv
     }
 
     /**
-     * return the current line ending
+     * return the current newline sequence characters
      *
      * @return string
      */
