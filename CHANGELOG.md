@@ -1,9 +1,9 @@
 #Changelog
 All Notable changes to `League\Csv` will be documented in this file
-## 6.2.0 - XXXX-XX-XX
+## 6.2.0 - 2014-12-12
 
 ### Added
-- `Writer::setNewline` , `Writer::getNewline`  control the newline character added at the end of each CSV row.
+- `Writer::setNewline` , `Writer::getNewline`  to control the newline sequence character added at the end of each CSV row.
 
 ## 6.1.0 - 2014-12-08
 
