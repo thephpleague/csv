@@ -1,5 +1,11 @@
 #Changelog
 All Notable changes to `League\Csv` will be documented in this file
+
+## 6.3.0 - XXXX-XX-XX
+
+### Added
+- `AbstractCSV::setBOMOnOutput` and `AbstractCSV::hasBOMOnOutput` to manage outputting the CSV with or without BOM. for BC by default no BOM sequence is added to the CSV on output.
+
 ## 6.2.0 - 2014-12-12
 
 ### Added

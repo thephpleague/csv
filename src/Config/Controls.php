@@ -55,6 +55,13 @@ trait Controls
     protected $flags = SplFileObject::READ_CSV;
 
     /**
+     * Tells whether we need to add the BOM sequences at the beginning
+     * of CSV output
+     * @var boolean
+     */
+    protected $bom_on_output = false;
+
+    /**
      * return a SplFileOjbect
      *
      * @return \SplFileOjbect
@@ -230,5 +237,29 @@ trait Controls
     public function getFlags()
     {
         return $this->flags;
+    }
+
+    /**
+     * Should we add the BOM sequence
+     *
+     * @param bool $use_bom
+     *
+     * @return  $this
+     */
+    public function setBOMOnOutput($use_bom)
+    {
+        $this->bom_on_output = (bool) $use_bom;
+
+        return $this;
+    }
+
+    /**
+     * returns the BOM status
+     *
+     * @return bool
+     */
+    public function hasBOMOnOutput()
+    {
+        return $this->bom_on_output;
     }
 }

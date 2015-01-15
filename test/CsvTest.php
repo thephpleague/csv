@@ -105,6 +105,13 @@ class CsvTest extends PHPUnit_Framework_TestCase
         $this->assertSame([','], $this->csv->detectDelimiterList());
     }
 
+    public function testBOMSettings()
+    {
+        $this->assertFalse($this->csv->hasBOMOnOutput());
+        $this->csv->setBOMOnOutput(true);
+        $this->assertTrue($this->csv->hasBOMOnOutput());
+    }
+
     /**
      * @expectedException InvalidArgumentException
      * @expectedExceptionMessage `$nb_rows` must be a valid positive integer

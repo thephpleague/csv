@@ -317,12 +317,18 @@ abstract class AbstractCsv implements JsonSerializable, IteratorAggregate
         if (! is_null($filename) && self::isValidString($filename)) {
             $filename = (string) $filename;
             $filename = filter_var($filename, FILTER_UNSAFE_RAW, ['flags' => FILTER_FLAG_STRIP_LOW]);
+            $bom = '';
+            if ($this->bom_on_output) {
+                $bom = chr(239).chr(187).chr(191);
+            }
             header('Content-Type: application/octet-stream');
             header('Content-Transfer-Encoding: binary');
             header('Content-Disposition: attachment; filename="'.$filename.'"');
             if (! $iterator instanceof SplTempFileObject) {
-                header('Content-Length: '.$iterator->getSize());
+                $size = $iterator->getSize() + strlen($bom);
+                header('Content-Length: '.$size);
             }
+            echo $bom;
         }
         //@codeCoverageIgnoreEnd
         $iterator->rewind();
