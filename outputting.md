@@ -22,30 +22,6 @@ foreach ($reader as $row) {
 }
 ~~~
 
-## Transcoding the CSV
-
-The recommended way to transcode your CSV in a UTF-8 compatible charset is to use the <a href="/filtering/">library stream filtering mechanism</a>. When this is not possible you can fallback to using the `setEncondingFrom` and `getEncondingFrom` methods.
-
-<p class="message-warning"><strong>BC Break:</strong> <code>setEnconding</code> and <code>getEnconding</code> methods have been renamed <code>setEncondingFrom</code> and <code>getEncondingFrom</code> to remove any ambiguity</p>
-
-~~~php
-$reader = Reader::createFromFileObject(new SplFileObject('/path/to/bengali.csv'));
-$reader->setEncodingFrom('iso-8859-15');
-echo $reader; //the CSV will be transcoded from iso-8859-15 to UTF-8;
-~~~
-
-When using the outputting methods and the `json_encode` function, the data is internally converted into UTF-8 if `setEncodingFrom` is set to anything other than `UTF-8`.
-
-## Show the CSV content
-
-Use the echo construct on the instantiated object or use the `__toString` method.
-
-~~~php
-echo $reader;
-// or
-echo $reader->__toString();
-~~~
-
 ## Convert to XML
 
 Use the toXML method to convert the CSV data into a `DomDocument` object. This
@@ -82,6 +58,30 @@ Use the `json_encode` function directly on the instantiated object.
 echo json_encode($reader);
 ~~~
 
+## Show the CSV content
+
+Use the echo construct on the instantiated object or use the `__toString` method.
+
+~~~php
+echo $reader;
+// or
+echo $reader->__toString();
+~~~
+
+## Transcoding the CSV
+
+The recommended way to transcode your CSV in a UTF-8 compatible charset is to use the <a href="/filtering/">library stream filtering mechanism</a>. When this is not possible you can fallback to using the `setEncondingFrom` and `getEncondingFrom` methods.
+
+<p class="message-warning"><strong>BC Break:</strong> <code>setEnconding</code> and <code>getEnconding</code> methods have been renamed <code>setEncondingFrom</code> and <code>getEncondingFrom</code> to remove any ambiguity</p>
+
+~~~php
+$reader = Reader::createFromFileObject(new SplFileObject('/path/to/bengali.csv'));
+$reader->setEncodingFrom('iso-8859-15');
+echo $reader; //the CSV will be transcoded from iso-8859-15 to UTF-8;
+~~~
+
+When using the outputting methods and the `json_encode` function, the data is internally converted into UTF-8 if `setEncodingFrom` is set to anything other than `UTF-8`.
+
 ## Force a file download
 
 ### output($filename = null)
@@ -102,18 +102,34 @@ can even omit most of the headers.
 $reader->output("name-for-your-file.csv");
 ~~~
 
-<p style="message-info">added in version 6.3</p>
+## BOM sequences
 
-To improve interoperability, you can now manage the addition of the BOM sequence in front of your CSV on output.
+<p class="message-notice">added in version 6.3</p>
+
+To improve interoperability, you can now manage the addition of the BOM sequence in front of your CSV content on output.
 
 ### setBOMOnOutput(bool $use_bom);
 
-This method will tell when downloading a file using the `output` method if the BOM sequence should be added or not.
+This method will tell when:
+- downloading a file using the `output` method
+- ouputting the CSV directly using the `__toString()` method
+
+if the BOM sequence should be prepended or not to the CSV content.
 
 ### hasBOMOnOutput()
 
-This method will tell you at any given time if the BOM sequence will be added or not by the `output` method.
-For Backward compatibility by default. `hasBOMOnOutput` returns `false`.
+This method will tell you at any given time if the BOM sequence will be or not prepended to the CSV content.
 
+<p class="message-info">For Backward compatibility by default. <code>hasBOMOnOutput</code> returns <code>false</code>.</p>
 
+~~~php
+$reader->setBOMOnOutput(true);
+$reader->output("name-for-your-file.csv");
 
+//or
+
+$reader->setBOMOnOutput(true);
+echo $reader->__toString();
+~~~
+
+In both cases the BOM sequences is added to the CSV output.
