@@ -6,7 +6,7 @@ permalink: outputting/
 
 # Outputting & Downloads
 
-With both `Reader` and `Writer` you can output the data that has been read or 
+With both `Reader` and `Writer` you can output the data that has been read or
 generated in a uniform way.
 
 <p class="message-info"><strong>Tips:</strong> Even though you can use the following methods with the <code>League\Csv\Writer</code>. It is recommended to do so with a <code>League\Csv\Reader</code> class to avoid loosing the file cursor position and get unexpected results when inserting data.</p>
@@ -49,7 +49,7 @@ echo $reader->__toString();
 ## Convert to XML
 
 Use the toXML method to convert the CSV data into a `DomDocument` object. This
-method accepts 3 optionals arguments `$root_name`, `$row_name` and `$cell_name` 
+method accepts 3 optionals arguments `$root_name`, `$row_name` and `$cell_name`
 to help you customize the XML tree.
 
 By default:
@@ -66,8 +66,8 @@ $dom = $reader->toXML('data', 'item', 'cell');
 
 ## Convert to HTML table
 
-Use the `toHTML` method to format the CSV data into an HTML table. This method 
-accepts an optional argument `$classname` to help you customize the table 
+Use the `toHTML` method to format the CSV data into an HTML table. This method
+accepts an optional argument `$classname` to help you customize the table
 rendering, by defaut the classname given to the table is `table-csv-data`.
 
 ~~~php
@@ -84,7 +84,9 @@ echo json_encode($reader);
 
 ## Force a file download
 
-If you only wish to make your CSV downloadable just use the output method to 
+### output($filename = null)
+
+If you only wish to make your CSV downloadable just use the output method to
 return to the output buffer the CSV content.
 
 ~~~php
@@ -99,3 +101,19 @@ can even omit most of the headers.
 ~~~php
 $reader->output("name-for-your-file.csv");
 ~~~
+
+<p style="message-info">added in version 6.3</p>
+
+To improve interoperability, you can now manage the addition of the BOM sequence in front of your CSV on output.
+
+### setBOMOnOutput(bool $use_bom);
+
+This method will tell when downloading a file using the `output` method if the BOM sequence should be added or not.
+
+### hasBOMOnOutput()
+
+This method will tell you at any given time if the BOM sequence will be added or not by the `output` method.
+For Backward compatibility by default. `hasBOMOnOutput` returns `false`.
+
+
+
