@@ -324,10 +324,6 @@ abstract class AbstractCsv implements JsonSerializable, IteratorAggregate
             header('Content-Type: application/octet-stream');
             header('Content-Transfer-Encoding: binary');
             header('Content-Disposition: attachment; filename="'.$filename.'"');
-            if (! $iterator instanceof SplTempFileObject) {
-                $size = $iterator->getSize() + strlen($bom);
-                header('Content-Length: '.$size);
-            }
             echo $bom;
         }
         //@codeCoverageIgnoreEnd
