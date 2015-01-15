@@ -112,6 +112,14 @@ class CsvTest extends PHPUnit_Framework_TestCase
         $this->assertTrue($this->csv->hasBOMOnOutput());
     }
 
+    public function testAddBOMSequences()
+    {
+        $this->csv->setBOMOnOutput(true);
+        $expected = chr(239).chr(187).chr(191)."john,doe,john.doe@example.com".PHP_EOL
+            ."jane,doe,jane.doe@example.com".PHP_EOL;
+        $this->assertSame($expected, $this->csv->__toString());
+    }
+
     /**
      * @expectedException InvalidArgumentException
      * @expectedExceptionMessage `$nb_rows` must be a valid positive integer

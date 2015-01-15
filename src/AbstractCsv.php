@@ -320,9 +320,9 @@ abstract class AbstractCsv implements JsonSerializable, IteratorAggregate
             header('Content-Type: application/octet-stream');
             header('Content-Transfer-Encoding: binary');
             header('Content-Disposition: attachment; filename="'.rawurlencode($filename).'"');
-            if ($this->bom_on_output) {
-                echo chr(239).chr(187).chr(191);
-            }
+        }
+        if ($this->bom_on_output) {
+            echo chr(239).chr(187).chr(191);
         }
         //@codeCoverageIgnoreEnd
         $iterator->rewind();
