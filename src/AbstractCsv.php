@@ -34,14 +34,19 @@ use Traversable;
 abstract class AbstractCsv implements JsonSerializable, IteratorAggregate
 {
     /**
-     *  Csv Controls Trait
+     *  UTF-8 BOM sequence
      */
-    use Controls;
+    const BOM_UTF8 = "\xEF\xBB\xBF";
 
     /**
-     *  Stream Filter API Trait
+     * UTF-16 BE BOM sequence
      */
-    use StreamFilter;
+    const BOM_UTF16_BE = "\xFE\xFF";
+
+    /**
+     * UTF-16 LE BOM sequence
+     */
+    const BOM_UTF16_LE = "\xFF\xFE";
 
     /**
      * The constructor path
@@ -65,6 +70,22 @@ abstract class AbstractCsv implements JsonSerializable, IteratorAggregate
      * @var string
      */
     protected $encodingFrom = 'UTF-8';
+
+    /**
+     * BOM sequence for Outputting the CSV
+     * @var string
+     */
+    protected $bom_sequence = '';
+
+    /**
+     *  Csv Controls Trait
+     */
+    use Controls;
+
+    /**
+     *  Stream Filter API Trait
+     */
+    use StreamFilter;
 
     /**
      * Create a new instance
@@ -306,6 +327,32 @@ abstract class AbstractCsv implements JsonSerializable, IteratorAggregate
     }
 
     /**
+     * Set the BOM sequence to prepend the CSV on output
+     *
+     * @param string $str  The BOM sequence
+     *
+     * @return static
+     */
+    public function setBOMOnOutput($str = '')
+    {
+        $str = (string) $str;
+        $str = trim($str);
+        $this->bom_sequence = (string) $str;
+
+        return $this;
+    }
+
+    /**
+     * Returns the BOM sequence in use on Output methods
+     *
+     * @return string
+     */
+    public function getBOMOnOutput()
+    {
+        return $this->bom_sequence;
+    }
+
+    /**
      * Output all data on the CSV file
      *
      * @param string $filename CSV downloaded name if present adds extra headers
@@ -321,9 +368,7 @@ abstract class AbstractCsv implements JsonSerializable, IteratorAggregate
             header('Content-Transfer-Encoding: binary');
             header('Content-Disposition: attachment; filename="'.rawurlencode($filename).'"');
         }
-        if ($this->bom_on_output) {
-            echo chr(239).chr(187).chr(191);
-        }
+        echo $this->bom_sequence;
         //@codeCoverageIgnoreEnd
         $iterator->rewind();
         $iterator->fpassthru();
