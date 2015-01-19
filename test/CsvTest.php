@@ -107,16 +107,16 @@ class CsvTest extends PHPUnit_Framework_TestCase
 
     public function testBOMSettings()
     {
-        $this->assertNull($this->csv->getBOMOnOutput());
-        $this->csv->setBOMOnOutput(Reader::BOM_UTF8);
-        $this->assertSame(Reader::BOM_UTF8, $this->csv->getBOMOnOutput());
-        $this->csv->setBOMOnOutput();
-        $this->assertNull($this->csv->getBOMOnOutput());
+        $this->assertNull($this->csv->getOutputBOM());
+        $this->csv->setOutputBOM(Reader::BOM_UTF8);
+        $this->assertSame(Reader::BOM_UTF8, $this->csv->getOutputBOM());
+        $this->csv->setOutputBOM();
+        $this->assertNull($this->csv->getOutputBOM());
     }
 
     public function testAddBOMSequences()
     {
-        $this->csv->setBOMOnOutput(Reader::BOM_UTF8);
+        $this->csv->setOutputBOM(Reader::BOM_UTF8);
         $expected = chr(239).chr(187).chr(191)."john,doe,john.doe@example.com".PHP_EOL
             ."jane,doe,jane.doe@example.com".PHP_EOL;
         $this->assertSame($expected, $this->csv->__toString());
@@ -127,7 +127,7 @@ class CsvTest extends PHPUnit_Framework_TestCase
         $expected = "john,doe,john.doe@example.com".PHP_EOL
             ."jane,doe,jane.doe@example.com".PHP_EOL;
         $reader = Reader::createFromString($expected);
-        $this->assertEmpty($reader->getBomOnInput());
+        $this->assertEmpty($reader->getInputBOM());
     }
 
     public function testGetBomOnInputWithBOM()
@@ -135,7 +135,7 @@ class CsvTest extends PHPUnit_Framework_TestCase
         $expected = "\x00\x00\xFE\xFFjohn,doe,john.doe@example.com".PHP_EOL
             ."jane,doe,jane.doe@example.com".PHP_EOL;
         $reader = Reader::createFromString($expected);
-        $this->assertSame(Reader::BOM_UTF32_BE, $reader->getBomOnInput());
+        $this->assertSame(Reader::BOM_UTF32_BE, $reader->getInputBOM());
     }
 
     /**

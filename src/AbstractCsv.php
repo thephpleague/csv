@@ -85,7 +85,7 @@ abstract class AbstractCsv implements JsonSerializable, IteratorAggregate
      * BOM sequence for Outputting the CSV
      * @var string
      */
-    protected $bom_sequence;
+    protected $bom;
 
     /**
      *  Csv Controls Trait
@@ -341,7 +341,7 @@ abstract class AbstractCsv implements JsonSerializable, IteratorAggregate
      *
      * @return string
      */
-    public function getBOMOnInput()
+    public function getInputBOM()
     {
         $bom = [self::BOM_UTF8, self::BOM_UTF16_BE, self::BOM_UTF16_LE, self::BOM_UTF32_BE, self::BOM_UTF32_LE];
         $csv = $this->getIterator();
@@ -362,15 +362,15 @@ abstract class AbstractCsv implements JsonSerializable, IteratorAggregate
      *
      * @return static
      */
-    public function setBOMOnOutput($str = null)
+    public function setOutputBOM($str = null)
     {
         if (is_null($str)) {
-            $this->bom_sequence = $str;
+            $this->bom = $str;
             return $this;
         }
         $str = (string) $str;
         $str = trim($str);
-        $this->bom_sequence = $str;
+        $this->bom = $str;
 
         return $this;
     }
@@ -380,9 +380,9 @@ abstract class AbstractCsv implements JsonSerializable, IteratorAggregate
      *
      * @return string
      */
-    public function getBOMOnOutput()
+    public function getOutputBOM()
     {
-        return $this->bom_sequence;
+        return $this->bom;
     }
 
     /**
@@ -403,7 +403,7 @@ abstract class AbstractCsv implements JsonSerializable, IteratorAggregate
             header("Content-Disposition: attachment; filename=\"$fname\"; filename*=UTF-8' '".rawurlencode($fname));
         }
         //@codeCoverageIgnoreEnd
-        echo $this->bom_sequence;
+        echo $this->bom;
         $iterator->rewind();
         $iterator->fpassthru();
     }

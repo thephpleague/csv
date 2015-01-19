@@ -4,10 +4,11 @@ All Notable changes to `League\Csv` will be documented in this file
 ## 6.3.0 - XXXX-XX-XX
 
 ### Added
-- `AbstractCSV::setBOMOnOutput`
-- `AbstractCSV::getBOMOnOutput`
-- `AbstractCSV::getBOMOnInput`
- to manage BOM character with CSV.
+- `AbstractCSV::setOutputBOM`
+- `AbstractCSV::getOutputBOM`
+- `AbstractCSV::getInputBOM`
+
+to manage BOM character with CSV.
 
 ## 6.2.0 - 2014-12-12
 
