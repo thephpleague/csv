@@ -50,6 +50,7 @@ This method will manage the addition of a BOM character in front of your outputt
 - ouputting the CSV directly using the `__toString()` method
 
 `$bom` is a string representing the BOM character or `null` to reset the setting.
+
 <p class="message-info">To ease writing the sequence you should use the <code>BOM_*</code> constant.</p>
 
 ### getBOMOnOutput()
