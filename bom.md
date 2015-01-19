@@ -42,26 +42,29 @@ If you wish to remove the BOM character while processing your data, you can rely
 ## Adding the BOM character to your CSV
 
 
-### setBOMOnOutput(bool $use_bom);
+### setBOMOnOutput($bom = null);
 
 This method will manage the addition of a BOM character in front of your outputted CSV when you are:
 
 - downloading a file using the `output` method
 - ouputting the CSV directly using the `__toString()` method
 
+`$bom` is a string representing the BOM character or `null` to reset the setting.
+<p class="message-info">To ease writing the sequence you should use the <code>BOM_*</code> constant.</p>
+
 ### getBOMOnOutput()
 
-This method will tell you at any given time what BOM sequence will be prepended to the CSV content.
+This method will tell you at any given time what BOM character will be prepended to the CSV content.
 
 <p class="message-info">For Backward compatibility by default <code>getBOMOnOutput</code> returns <code>null</code>.</p>
 
 ~~~php
 
 $reader = new Reader::createFromPath('path/to/your/file.csv');
-$res = $reader->getBOMOnOutput(); //$res equals null;
+$reader->getBOMOnOutput(); //$res equals null;
 $reader->setBOMOnOutput(Reader::BOM_UTF16LE);
 $res = $reader->getBOMOnOutput(); //$res equals "\xFF\xFE";
-$reader->output("name-for-your-file.csv"); the BOM sequence is prepended to the CSV
+echo $reader; the BOM sequence is prepended to the CSV
 
 ~~~
 
@@ -99,7 +102,7 @@ $csv->appendStreamFilter(FilterTranscode::FILTER_NAME."UTF-8:UTF-16LE");
 $csv->setDelimiter("\t");
 $csv->insertAll(...); //you can insert new data with tab delimiter
 $csv->setBOMOnOutput(Writer::BOM_UTF16_LE);
-$csv->output('test.csv');
+echo $csv;
 
 ~~~
 
