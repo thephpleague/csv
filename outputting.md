@@ -102,34 +102,55 @@ can even omit most of the headers.
 $reader->output("name-for-your-file.csv");
 ~~~
 
-## BOM sequences
+## BOM
 
 <p class="message-notice">added in version 6.3</p>
 
-To improve interoperability, you can now manage the addition of the BOM sequence in front of your CSV content on output.
+To improve interoperability with programs interacting with CSV, you can now manage the presence of a <abbr title="Byte Order Mark">BOM</abbr> character in your CSV content.
+
+The BOM character to be useful needs to be prepended to your CSV. The character signal the endianness of the CSV and its sequence depend on the encoding character of your CSV. To help you work with BOM, we are adding the following constants to the `Reader` and the `Writer` class:
+
+* `BOM_UTF8` : BOM for UTF-8;
+* `BOM_UTF16_BE` : BOM for UTF-16 with Big-Endian;
+* `BOM_UTF16_LE` : BOM for UTF-16 with Little-Endian;
+* `BOM_UTF32_BE` : BOM for UTF-32 with Big-Endian;
+* `BOM_UTF32_LE` : BOM for UTF-32 with Little-Endian;
+
+They each represent the BOM value for each encoding character.
+
+### getBOMOnInput()
+
+This method will detect if a BOM character is present in your CSV content. The method the detected BOM if one is found or `null`.
+
+~~~php
+
+$reader = new Reader::createFromPat('path/to/your/file.csv');
+$res = $reader->getBOMOnInput(); //$res equals null if no BOM is found
+
+$reader = new Reader::createFromPat('path/to/your/msexcel.csv');
+$res = $reader->getBOMOnInput(); //$res equals "\xFF\xFE";
+~~~
+
+If you wish to remove the BOM character you can rely on the `Reader` [extracting methods](/reading).
 
 ### setBOMOnOutput(bool $use_bom);
 
-This method will tell when:
+This method will manage the addition of a BOM character in front of your outputted CSV when you are:
 - downloading a file using the `output` method
 - ouputting the CSV directly using the `__toString()` method
 
-if the BOM sequence should be prepended or not to the CSV content.
+### getBOMOnOutput()
 
-### hasBOMOnOutput()
+This method will tell you at any given time what BOM sequence will be prepended to the CSV content.
 
-This method will tell you at any given time if the BOM sequence will be or not prepended to the CSV content.
-
-<p class="message-info">For Backward compatibility by default. <code>hasBOMOnOutput</code> returns <code>false</code>.</p>
+<p class="message-info">For Backward compatibility by default <code>getBOMOnOutput</code> returns <code>null</code>.</p>
 
 ~~~php
-$reader->setBOMOnOutput(true);
-$reader->output("name-for-your-file.csv");
 
-//or
+$reader = new Reader::createFromPat('path/to/your/file.csv');
+$res = $reader->getBOMOnOutput(); //$res equals null;
+$reader->setBOMOnOutput(Reader::BOM_UTF16LE);
+$res = $reader->getBOMOnOutput(); //$res equals "\xFF\xFE";
+$reader->output("name-for-your-file.csv"); the BOM sequence is prepended to the CSV
 
-$reader->setBOMOnOutput(true);
-echo $reader->__toString();
 ~~~
-
-In both cases the BOM sequences is added to the CSV output.
