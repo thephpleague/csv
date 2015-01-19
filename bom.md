@@ -22,17 +22,17 @@ The BOM character to be useful needs to be the first character of your CSV. <a h
 
 They each represent the `BOM` character for each encoding character.
 
-### getBOMOnInput()
+### getInputBOM()
 
 This method will detect if a `BOM` character is present in your CSV content. The method returns the detected `BOM` or `null`.
 
 ~~~php
 
 $reader = new Reader::createFromPath('path/to/your/file.csv');
-$res = $reader->getBOMOnInput(); //$res equals null if no BOM is found
+$res = $reader->getInputBOM(); //$res equals null if no BOM is found
 
 $reader = new Reader::createFromPat('path/to/your/msexcel.csv');
-if (Reader::BOM_UTF16_LE == $reader->getBOMOnInput()) {
+if (Reader::BOM_UTF16_LE == $reader->getInputBOM()) {
 	//the CSV file is encoded using UTF-16 LE
 }
 ~~~
@@ -42,7 +42,7 @@ If you wish to remove the BOM character while processing your data, you can rely
 ## Adding the BOM character to your CSV
 
 
-### setBOMOnOutput($bom = null);
+### setOutputBOM($bom = null);
 
 This method will manage the addition of a BOM character in front of your outputted CSV when you are:
 
@@ -53,18 +53,18 @@ This method will manage the addition of a BOM character in front of your outputt
 
 <p class="message-info">To ease writing the sequence you should use the <code>BOM_*</code> constant.</p>
 
-### getBOMOnOutput()
+### getOutputBOM()
 
 This method will tell you at any given time what BOM character will be prepended to the CSV content.
 
-<p class="message-info">For Backward compatibility by default <code>getBOMOnOutput</code> returns <code>null</code>.</p>
+<p class="message-info">For Backward compatibility by default <code>getOutputBOM</code> returns <code>null</code>.</p>
 
 ~~~php
 
 $reader = new Reader::createFromPath('path/to/your/file.csv');
-$reader->getBOMOnOutput(); //$res equals null;
-$reader->setBOMOnOutput(Reader::BOM_UTF16LE);
-$res = $reader->getBOMOnOutput(); //$res equals "\xFF\xFE";
+$reader->getOutputBOM(); //$res equals null;
+$reader->setOutputBOM(Reader::BOM_UTF16LE);
+$res = $reader->getOutputBOM(); //$res equals "\xFF\xFE";
 echo $reader; the BOM sequence is prepended to the CSV
 
 ~~~
@@ -83,7 +83,7 @@ use League\Csv\Reader;
 require '../vendor/autoload.php';
 
 $csv = Reader::createFromPath('/path/to/my/file.csv');
-$csv->setBOMOnOutput(Reader::BOM_UTF8);
+$csv->setOutputBOM(Reader::BOM_UTF8);
 $csv->output('test.csv');
 
 ~~~
@@ -102,7 +102,7 @@ $csv = Writer::createFromPath('/path/to/my/file.csv');
 $csv->appendStreamFilter(FilterTranscode::FILTER_NAME."UTF-8:UTF-16LE");
 $csv->setDelimiter("\t");
 $csv->insertAll(...); //you can insert new data with tab delimiter
-$csv->setBOMOnOutput(Writer::BOM_UTF16_LE);
+$csv->setOutputBOM(Writer::BOM_UTF16_LE);
 echo $csv;
 
 ~~~
