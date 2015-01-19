@@ -120,6 +120,22 @@ class CsvTest extends PHPUnit_Framework_TestCase
         $this->assertSame($expected, $this->csv->__toString());
     }
 
+    public function testGetBomOnInputWithNoBOM()
+    {
+        $expected = "john,doe,john.doe@example.com".PHP_EOL
+            ."jane,doe,jane.doe@example.com".PHP_EOL;
+        $reader = Reader::createFromString($expected);
+        $this->assertEmpty($reader->getBomOnInput());
+    }
+
+    public function testGetBomOnInputWithBOM()
+    {
+        $expected = "\x00\x00\xFE\xFFjohn,doe,john.doe@example.com".PHP_EOL
+            ."jane,doe,jane.doe@example.com".PHP_EOL;
+        $reader = Reader::createFromString($expected);
+        $this->assertSame(Reader::BOM_UTF32_BE, $reader->getBomOnInput());
+    }
+
     /**
      * @expectedException InvalidArgumentException
      * @expectedExceptionMessage `$nb_rows` must be a valid positive integer

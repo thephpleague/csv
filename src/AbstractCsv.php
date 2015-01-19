@@ -49,6 +49,16 @@ abstract class AbstractCsv implements JsonSerializable, IteratorAggregate
     const BOM_UTF16_LE = "\xFF\xFE";
 
     /**
+     * UTF-16 BE BOM sequence
+     */
+    const BOM_UTF32_BE = "\x00\x00\xFE\xFF";
+
+    /**
+     * UTF-16 LE BOM sequence
+     */
+    const BOM_UTF32_LE = "\x00\x00\xFF\xFE";
+
+    /**
      * The constructor path
      *
      * can be a SplFileInfo object or the string path to a file
@@ -327,6 +337,23 @@ abstract class AbstractCsv implements JsonSerializable, IteratorAggregate
     }
 
     /**
+     * Returns the BOM sequence of the given CSV
+     *
+     * @return string
+     */
+    public function getBOMOnInput()
+    {
+        $bom = [self::BOM_UTF8, self::BOM_UTF16_BE, self::BOM_UTF16_LE, self::BOM_UTF32_BE, self::BOM_UTF32_LE];
+        $csv = $this->getIterator();
+        $csv->rewind();
+        $line = $csv->fgets();
+
+        return array_shift(array_filter($bom, function ($sequence) use ($line) {
+            return strpos($line, $sequence) === 0;
+        }));
+    }
+
+    /**
      * Set the BOM sequence to prepend the CSV on output
      *
      * @param string $str  The BOM sequence
@@ -337,7 +364,7 @@ abstract class AbstractCsv implements JsonSerializable, IteratorAggregate
     {
         $str = (string) $str;
         $str = trim($str);
-        $this->bom_sequence = (string) $str;
+        $this->bom_sequence = $str;
 
         return $this;
     }
@@ -362,14 +389,15 @@ abstract class AbstractCsv implements JsonSerializable, IteratorAggregate
         $iterator = $this->getIterator();
         //@codeCoverageIgnoreStart
         if (! is_null($filename) && self::isValidString($filename)) {
-            $filename = (string) $filename;
-            $filename = filter_var($filename, FILTER_UNSAFE_RAW, ['flags' => FILTER_FLAG_STRIP_LOW]);
+            $fname = (string) $filename;
+            $fname = trim($fname);
+            $fname = filter_var($fname, FILTER_UNSAFE_RAW, ['flags' => FILTER_FLAG_STRIP_LOW]);
             header('Content-Type: application/octet-stream');
             header('Content-Transfer-Encoding: binary');
-            header('Content-Disposition: attachment; filename="'.rawurlencode($filename).'"');
+            header("Content-Disposition: attachment; filename=\"$fname\"; filename*=UTF-8' '".rawurlencode($fname));
         }
-        echo $this->bom_sequence;
         //@codeCoverageIgnoreEnd
+        echo $this->bom_sequence;
         $iterator->rewind();
         $iterator->fpassthru();
     }
