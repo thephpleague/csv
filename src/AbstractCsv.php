@@ -85,7 +85,7 @@ abstract class AbstractCsv implements JsonSerializable, IteratorAggregate
      * BOM sequence for Outputting the CSV
      * @var string
      */
-    protected $bom_sequence = '';
+    protected $bom_sequence;
 
     /**
      *  Csv Controls Trait
@@ -348,9 +348,11 @@ abstract class AbstractCsv implements JsonSerializable, IteratorAggregate
         $csv->rewind();
         $line = $csv->fgets();
 
-        return array_shift(array_filter($bom, function ($sequence) use ($line) {
+        $res = array_filter($bom, function ($sequence) use ($line) {
             return strpos($line, $sequence) === 0;
-        }));
+        });
+
+        return array_shift($res);
     }
 
     /**
@@ -360,8 +362,12 @@ abstract class AbstractCsv implements JsonSerializable, IteratorAggregate
      *
      * @return static
      */
-    public function setBOMOnOutput($str = '')
+    public function setBOMOnOutput($str = null)
     {
+        if (is_null($str)) {
+            $this->bom_sequence = $str;
+            return $this;
+        }
         $str = (string) $str;
         $str = trim($str);
         $this->bom_sequence = $str;

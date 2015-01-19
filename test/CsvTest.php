@@ -107,9 +107,11 @@ class CsvTest extends PHPUnit_Framework_TestCase
 
     public function testBOMSettings()
     {
-        $this->assertSame('', $this->csv->getBOMOnOutput());
+        $this->assertNull($this->csv->getBOMOnOutput());
         $this->csv->setBOMOnOutput(Reader::BOM_UTF8);
         $this->assertSame(Reader::BOM_UTF8, $this->csv->getBOMOnOutput());
+        $this->csv->setBOMOnOutput();
+        $this->assertNull($this->csv->getBOMOnOutput());
     }
 
     public function testAddBOMSequences()
