@@ -4,7 +4,7 @@
 *
 * @license http://opensource.org/licenses/MIT
 * @link https://github.com/thephpleague/csv/
-* @version 6.2.0
+* @version 6.3.0
 * @package League.csv
 *
 * For the full copyright and license information, please view the LICENSE
@@ -125,12 +125,11 @@ trait Output
         $iterator = $this->getIterator();
         //@codeCoverageIgnoreStart
         if (! is_null($filename) && self::isValidString($filename)) {
-            $fname = (string) $filename;
-            $fname = trim($fname);
-            $fname = filter_var($fname, FILTER_UNSAFE_RAW, ['flags' => FILTER_FLAG_STRIP_LOW]);
-            header('Content-Type: application/octet-stream');
-            header('Content-Transfer-Encoding: binary');
-            header("Content-Disposition: attachment; filename=\"$fname\"; filename*=UTF-8 ".rawurlencode($fname));
+            $filename = trim($filename);
+            $filename = filter_var($filename, FILTER_SANITIZE_ENCODED, FILTER_FLAG_STRIP_LOW);
+            header("Content-Type: application/octet-stream");
+            header("Content-Transfer-Encoding: binary");
+            header("Content-Disposition: attachment; filename=\"$filename\"; filename*=UTF-8 $filename");
         }
         //@codeCoverageIgnoreEnd
         echo $this->bom;
