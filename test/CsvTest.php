@@ -127,7 +127,7 @@ class CsvTest extends PHPUnit_Framework_TestCase
         $expected = "john,doe,john.doe@example.com".PHP_EOL
             ."jane,doe,jane.doe@example.com".PHP_EOL;
         $reader = Reader::createFromString($expected);
-        $this->assertEmpty($reader->getInputBOM());
+        $this->assertEmpty($reader->detectInputBOM());
     }
 
     public function testGetBomOnInputWithBOM()
@@ -135,7 +135,7 @@ class CsvTest extends PHPUnit_Framework_TestCase
         $expected = "\x00\x00\xFE\xFFjohn,doe,john.doe@example.com".PHP_EOL
             ."jane,doe,jane.doe@example.com".PHP_EOL;
         $reader = Reader::createFromString($expected);
-        $this->assertSame(Reader::BOM_UTF32_BE, $reader->getInputBOM());
+        $this->assertSame(Reader::BOM_UTF32_BE, $reader->detectInputBOM());
     }
 
     /**
