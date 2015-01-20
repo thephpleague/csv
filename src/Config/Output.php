@@ -124,7 +124,7 @@ trait Output
     {
         $iterator = $this->getIterator();
         //@codeCoverageIgnoreStart
-        if (! is_null($filename) && League\Csv\AbstractCsv::isValidString($filename)) {
+        if (! is_null($filename) && self::isValidString($filename)) {
             $fname = (string) $filename;
             $fname = trim($fname);
             $fname = filter_var($fname, FILTER_UNSAFE_RAW, ['flags' => FILTER_FLAG_STRIP_LOW]);

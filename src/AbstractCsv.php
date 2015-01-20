@@ -290,25 +290,6 @@ abstract class AbstractCsv implements JsonSerializable, IteratorAggregate
     }
 
     /**
-     * Returns the BOM sequence of the given CSV
-     *
-     * @return string
-     */
-    public function detectInputBOM()
-    {
-        $bom = [self::BOM_UTF8, self::BOM_UTF16_BE, self::BOM_UTF16_LE, self::BOM_UTF32_BE, self::BOM_UTF32_LE];
-        $csv = $this->getIterator();
-        $csv->rewind();
-        $line = $csv->fgets();
-
-        $res = array_filter($bom, function ($sequence) use ($line) {
-            return strpos($line, $sequence) === 0;
-        });
-
-        return array_shift($res);
-    }
-
-    /**
     * Validate a variable to be stringable
     *
     * @param object|string $str
