@@ -224,7 +224,7 @@ abstract class AbstractCsv implements JsonSerializable, IteratorAggregate
             );
         }
         $obj = new SplTempFileObject();
-        $obj->fwrite((string) $str.PHP_EOL);
+        $obj->fwrite(rtrim($str)."\n");
 
         return static::createFromFileObject($obj);
     }
@@ -242,8 +242,9 @@ abstract class AbstractCsv implements JsonSerializable, IteratorAggregate
         $csv = new $class_name($this->path, $open_mode);
         $csv->delimiter = $this->delimiter;
         $csv->enclosure = $this->enclosure;
-        $csv->escape = $this->escape;
+        $csv->escape    = $this->escape;
         $csv->encodingFrom = $this->encodingFrom;
+        $csv->bom          = $this->bom;
 
         return $csv;
     }
