@@ -10,9 +10,7 @@ permalink: bom/
 
 ## Detecting the CSV BOM character
 
-To improve interoperability with programs interacting with CSV, you can now manage the presence of a <abbr title="Byte Order Mark">BOM</abbr> character in your CSV content.
-
-The BOM character to be useful needs to be the first character of your CSV. <a href="http://en.wikipedia.org/wiki/Endianness" target="_blank">The character signal the endianness</a> of the CSV and its value depends on the encoding character of your CSV. To help you work with `BOM`, we are adding the following constants to the `Reader` and the `Writer` class:
+To improve interoperability with programs interacting with CSV, you can now manage the presence of a <abbr title="Byte Order Mark">BOM</abbr> character in your CSV content. <a href="http://en.wikipedia.org/wiki/Endianness" target="_blank">The character signal the endianness</a> of the CSV and its value depends on the CSV encoding character. To help you work with `BOM`, we are adding the following constants to the `Reader` and the `Writer` class:
 
 * `BOM_UTF8` : `UTF-8` `BOM`;
 * `BOM_UTF16_BE` : `UTF-16` `BOM` with Big-Endian;
@@ -24,7 +22,7 @@ They each represent the `BOM` character for each encoding character.
 
 ### getInputBOM()
 
-This method will detect if a `BOM` character is present in your CSV content. The method returns the detected `BOM` or `null`.
+This method will detect and return the `BOM` character used in your CSV if any.
 
 ~~~php
 
@@ -49,13 +47,13 @@ This method will manage the addition of a BOM character in front of your outputt
 - downloading a file using the `output` method
 - ouputting the CSV directly using the `__toString()` method
 
-`$bom` is a string representing the BOM character or `null` to reset the setting.
+`$bom` is a string representing the BOM character. To remove the `BOM` character just set `$bom` to an empty value like `null` or an empty string.
 
 <p class="message-info">To ease writing the sequence you should use the <code>BOM_*</code> constant.</p>
 
 ### getOutputBOM()
 
-This method will tell you at any given time what BOM character will be prepended to the CSV content.
+This method will tell you at any given time what `BOM` character will be prepended to the CSV content.
 
 <p class="message-info">For Backward compatibility by default <code>getOutputBOM</code> returns <code>null</code>.</p>
 
@@ -65,7 +63,7 @@ $reader = new Reader::createFromPath('path/to/your/file.csv');
 $reader->getOutputBOM(); //$res equals null;
 $reader->setOutputBOM(Reader::BOM_UTF16LE);
 $res = $reader->getOutputBOM(); //$res equals "\xFF\xFE";
-echo $reader; the BOM sequence is prepended to the CSV
+echo $reader; //the BOM sequence is prepended to the CSV
 
 ~~~
 
@@ -95,7 +93,7 @@ echo $csv;
 
 ### MS Excel on MacOS
 
-On a MacOS system, MS Excel requires a CSV encoded in `UTF-16 LE` with `tab` delimiters. Since `League\Csv` default output is `UTF-8` we will need to update the CSV encoding character and its tab property.how we download the CSV.
+On a MacOS system, MS Excel requires a CSV encoded in `UTF-16 LE` with `tab` delimiters. Here's an example on how to create such file using the `League\Csv` package.
 
 ~~~php
 use League\Csv\Reader;
