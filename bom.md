@@ -89,7 +89,7 @@ $csv = Reader::createFromPath('/path/to/my/file.csv');
 if (Reader::BOM_UTF8 != $reader->getInputBOM()) {
     $reader->setOutputBOM(Reader::BOM_UTF8);
 }
-$csv->output('test.csv');
+echo $csv;
 
 ~~~
 
@@ -136,17 +136,11 @@ $reader = $writer->newReader();
 if (Reader::BOM_UTF16_LE != $reader->getInputBOM()) {
     $reader->setOutputBOM(Reader::BOM_UTF16_LE);
 }
-//let's add the corresponding BOM
+//let's output the results
 $reader->output('mycsvfile.csv');
 
 ~~~
 
-of note, we :
-
-- used the [filtering capability](/filtering) of the library to first convert the CSV from `UTF-8` to `UTF-16 LE`
-- set the delimiter to the `tab` character otherwise the cells won't be detected
-- add the `BOM UTF-16 LE` character if missing
-
-The CSV is now readable out of the box by MS Excel on Mac OS.
+Of note, we used the [filtering capability](/filtering) of the library to convert the CSV encoding character from `UTF-8` to `UTF-16 LE`.
 
 You can found this code and the associated filter class in the [examples directory](https://github.com/thephpleague/csv/tree/master/examples).
