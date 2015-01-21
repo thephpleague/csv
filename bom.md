@@ -72,7 +72,7 @@ echo $reader; //the BOM sequence is prepended to the CSV
 Depending on your operating system and on the software you are using to read/import your CSV you may need to adjust the encoding character and add its corresponding BOM character to your CSV.  
 In the examples below we will be using an existing CSV as a starting point. The code may vary if you are creating the CSV from scratch.
 
-<p class="message-warning">Out of the box, <code>League\Csv</code> assumes that your are using a <code>UTF-8</code> encoded CSV.</p>
+<p class="message-warning">Out of the box, <code>League\Csv</code> assumes that your are using a <code>UTF-8</code> encoded CSV without any <code>BOM</code> character.</p>
 
 ### MS Excel on Windows
 
