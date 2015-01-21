@@ -49,7 +49,7 @@ This method will manage the addition of a BOM character in front of your outputt
 
 `$bom` is a string representing the BOM character. To remove the `BOM` character just set `$bom` to an empty value like `null` or an empty string.
 
-<p class="message-info">To ease writing the sequence you should use the <code>BOM_*</code> constant.</p>
+<p class="message-info">To ease writing the sequence you should use the <code>BOM_*</code> constants.</p>
 
 ### getOutputBOM()
 
