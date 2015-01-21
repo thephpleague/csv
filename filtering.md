@@ -6,7 +6,7 @@ permalink: filtering/
 
 # Stream Filtering
 
-*available since version 6.0*
+<p class="message-notice">available since version 6.0</p>
 
 To ease performing operations on the CSV as it is being read from or written to, the `Reader` and `Writer` classes now include methods to ease PHP stream filtering usage.
 
