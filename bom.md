@@ -69,13 +69,14 @@ echo $reader; //the BOM sequence is prepended to the CSV
 
 ## Software dependency
 
-Depending on your operating system and on the software you are using to read you CSV you may need to adapt the encoding character and add its corresponding BOM character to enable the use your CSV in the software. 
+Depending on your operating system and on the software you are using to read/import your CSV you may need to adjust the encoding character and add its corresponding BOM character to your CSV.  
+In the examples below we will be using an existing CSV as a starting point. The code may vary if you are creating the CSV from scratch.
 
-<p class="message-warning">Do keep in mind that, out of the box, <code>League\Csv</code> assumes that your are using a <code>UTF-8</code> encoded CSV.</p>
+<p class="message-warning">Out of the box, <code>League\Csv</code> assumes that your are using a <code>UTF-8</code> encoded CSV.</p>
 
 ### MS Excel on Windows
 
-On Windows, MS Excel, expects an UTF-8 encoded CSV with its corresponding `BOM` character. So to fullfill this requirement, you simply need to add the `UTF-8` `BOM` character if needed as explained below:
+On Windows, MS Excel, expects an UTF-8 encoded CSV with its corresponding `BOM` character. To fullfill this requirement, you simply need to add the `UTF-8` `BOM` character if needed as explained below:
 
 ~~~php
 use League\Csv\Reader;
@@ -87,13 +88,13 @@ $csv = Reader::createFromPath('/path/to/my/file.csv');
 if (Reader::BOM_UTF8 != $reader->getInputBOM()) {
     $reader->setOutputBOM(Reader::BOM_UTF8);
 }
-echo $csv;
+echo $csv->__toString();
 
 ~~~
 
 ### MS Excel on MacOS
 
-On a MacOS system, MS Excel requires a CSV encoded in `UTF-16 LE` with `tab` delimiters. Here's an example on how to create such file using the `League\Csv` package.
+On a MacOS system, MS Excel requires a CSV encoded in `UTF-16 LE` using the `tab` character as delimiter. Here's an example on how to meet those requirements using the `League\Csv` package.
 
 ~~~php
 use League\Csv\Reader;
@@ -137,4 +138,4 @@ $reader->output('mycsvfile.csv');
 
 Of note, we used the [filtering capability](/filtering) of the library to convert the CSV encoding character from `UTF-8` to `UTF-16 LE`.
 
-You can found this code and the associated filter class in the [examples directory](https://github.com/thephpleague/csv/tree/master/examples).
+You can found the code and the associated filter class in the [examples directory](https://github.com/thephpleague/csv/tree/master/examples).
