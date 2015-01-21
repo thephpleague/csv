@@ -71,11 +71,13 @@ echo $reader; the BOM sequence is prepended to the CSV
 
 ## Software dependency
 
-Depending on your operating system and on the software you are using to read you CSV you may need to adapt the encoding character and add its corresponding BOM character to enable the use your CSV in the software. Do keep in mind that out of the box `League\Csv` assume that your are using a `UTF-8` CSV.
+Depending on your operating system and on the software you are using to read you CSV you may need to adapt the encoding character and add its corresponding BOM character to enable the use your CSV in the software. 
 
-### MS Excel
+<p class="message-warning">Do keep in mind that out of the box <code>League\Csv</code> assume that your are using a `UTF-8` CSV.</p>
 
-On Windows, MS Excel, expect an UTF-8 encoded CSV with its corresponding `BOM` character. So to fullfill this requirement, you simply need to add the `UTF-8` `BOM` character as explained below:
+### MS Excel on Windows
+
+On Windows, MS Excel, expects an UTF-8 encoded CSV with its corresponding `BOM` character. So to fullfill this requirement, you simply need to add the `UTF-8` `BOM` character if needed as explained below:
 
 ~~~php
 use League\Csv\Reader;
@@ -83,35 +85,68 @@ use League\Csv\Reader;
 require '../vendor/autoload.php';
 
 $csv = Reader::createFromPath('/path/to/my/file.csv');
-$csv->setOutputBOM(Reader::BOM_UTF8);
+//detect and adjust the output BOM to be used
+if (Reader::BOM_UTF8 != $reader->getInputBOM()) {
+    $reader->setOutputBOM(Reader::BOM_UTF8);
+}
 $csv->output('test.csv');
 
 ~~~
 
+### MS Excel on MacOS
+
 On a MacOS system, MS Excel requires a CSV encoded in `UTF-16 LE` with `tab` delimiters. Since `League\Csv` default output is `UTF-8` we will need to update the CSV encoding character and its tab property.how we download the CSV.
 
 ~~~php
+use League\Csv\Reader;
 use League\Csv\Writer;
 use lib\FilterTranscode;
 
 require '../vendor/autoload.php';
 
-stream_filter_register(FilterTranscode::FILTER_NAME."*", "\lib\FilterTranscode");
+//the current CSV is UTF-8 encoded with a ";" delimiter
+$csv = Reader::createFromPath(__DIR__.'/data/prenoms.csv');
 
-$csv = Writer::createFromPath('/path/to/my/file.csv');
-$csv->appendStreamFilter(FilterTranscode::FILTER_NAME."UTF-8:UTF-16LE");
-$csv->setDelimiter("\t");
-$csv->insertAll(...); //you can insert new data with tab delimiter
-$csv->setOutputBOM(Writer::BOM_UTF16_LE);
-echo $csv;
+//To be open in MacOS Excel a CSV must
+// - be encoded in UTF16-LE
+// - use tab delimiter
+
+//let's convert the CSV to be UTF-16_LE encoded with a tab delimiter.
+
+//we must use `createFromPath` to be able to use the stream capability
+//we must use a temp file to be able to rewind the cursor file without loosing
+//the modification
+$writer = Writer::createFromPath('/tmp/toto.csv', 'w');
+$writer->setNullHandlingMode(Writer::NULL_AS_EMPTY);
+
+// we register a Transcode Filter class to convert the CSV into the proper encoding charset
+stream_filter_register(FilterTranscode::FILTER_NAME."*", "\lib\FilterTranscode");
+$writer->appendStreamFilter(FilterTranscode::FILTER_NAME."UTF-8:UTF-16LE");
+
+//we set the tab as the delimiter character
+$writer->setDelimiter("\t");
+
+//we insert csv data
+$writer->insertAll($csv);
+
+//let's switch to the Reader object
+//Writer::output will failed because of the open mode
+$reader = $writer->newReader();
+//detect and adjust the output BOM to be used
+if (Reader::BOM_UTF16_LE != $reader->getInputBOM()) {
+    $reader->setOutputBOM(Reader::BOM_UTF16_LE);
+}
+//let's add the corresponding BOM
+$reader->output('mycsvfile.csv');
 
 ~~~
 
 of note, we :
 
-- used the [filtering capability](/filtering) of the library to first convert the CSV from `UTF-8` to `UTF-16`
+- used the [filtering capability](/filtering) of the library to first convert the CSV from `UTF-8` to `UTF-16 LE`
 - set the delimiter to the `tab` character otherwise the cells won't be detected
-- add the `UTF-16 LE` `BOM` character
+- add the `BOM UTF-16 LE` character if missing
 
 The CSV is now readable out of the box by MS Excel on Mac OS.
 
+You can found this code and the associated filter class in the [examples directory](https://github.com/thephpleague/csv/tree/master/examples).
