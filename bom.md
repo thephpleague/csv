@@ -10,7 +10,7 @@ permalink: bom/
 
 ## Detecting the CSV BOM character
 
-To improve interoperability with programs interacting with CSV, you can now manage the presence of a <abbr title="Byte Order Mark">BOM</abbr> character in your CSV content. <a href="http://en.wikipedia.org/wiki/Endianness" target="_blank">The character signal the endianness</a> of the CSV and its value depends on the CSV encoding character. To help you work with `BOM`, we are adding the following constants to the `Reader` and the `Writer` class:
+To improve interoperability with programs interacting with CSV, you can now manage the presence of a <abbr title="Byte Order Mark">BOM</abbr> character in your CSV content. <a href="http://en.wikipedia.org/wiki/Endianness" target="_blank">The character signals the endianness</a> of the CSV and its value depends on the CSV encoding character. To help you work with `BOM`, we are adding the following constants to the `Reader` and the `Writer` class:
 
 * `BOM_UTF8` : `UTF-8` `BOM`;
 * `BOM_UTF16_BE` : `UTF-16` `BOM` with Big-Endian;
