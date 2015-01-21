@@ -123,17 +123,17 @@ trait Output
     public function output($filename = null)
     {
         $iterator = $this->getIterator();
+        $iterator->rewind();
         //@codeCoverageIgnoreStart
         if (! is_null($filename) && self::isValidString($filename)) {
             $filename = trim($filename);
-            $filename = filter_var($filename, FILTER_SANITIZE_ENCODED, FILTER_FLAG_STRIP_LOW);
+            $filename = filter_var($filename, FILTER_SANITIZE_STRING, FILTER_FLAG_STRIP_LOW);
             header("Content-Type: application/octet-stream");
             header("Content-Transfer-Encoding: binary");
-            header("Content-Disposition: attachment; filename=\"$filename\"; filename*=UTF-8 $filename");
+            header('Content-Disposition: attachment; filename="'.$filename);
         }
         //@codeCoverageIgnoreEnd
         echo $this->bom;
-        $iterator->rewind();
         $iterator->fpassthru();
     }
 
