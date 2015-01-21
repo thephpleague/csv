@@ -1,7 +1,7 @@
 #Changelog
 All Notable changes to `League\Csv` will be documented in this file
 
-## 6.3.0 - XXXX-XX-XX
+## 6.3.0 - 2015-01-21
 
 ### Added
 - `AbstractCSV::setOutputBOM`
