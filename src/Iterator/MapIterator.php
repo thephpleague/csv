@@ -20,6 +20,7 @@ use Traversable;
  *
  * @package League.csv
  * @since  3.3.0
+ * @internal used internally to modify CSV content
  *
  */
 class MapIterator extends IteratorIterator
