@@ -293,19 +293,14 @@ class Writer extends AbstractCsv
         if (self::DISABLE_NULL_HANDLING != $this->null_handling_mode) {
             array_walk($row, function ($value) {
                 if (! $this->isConvertibleContent($value)) {
-                    throw new InvalidArgumentException(
-                        'the values are not convertible into strings'
-                    );
+                    throw new InvalidArgumentException('The values are not convertible into strings');
                 }
             });
             $row = $this->sanitizeColumnsContent($row);
         }
 
         if (! $this->isColumnsCountConsistent($row)) {
-            throw new RuntimeException(
-                'You are trying to add '.count($row).' columns to a CSV
-                that requires '.$this->columns_count.' columns per row.'
-            );
+            throw new RuntimeException('Adding '.count($row).' cells on a '.$this->columns_count.' cells per row CSV.');
         }
 
         return $row;
