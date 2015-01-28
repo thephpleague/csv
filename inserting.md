@@ -59,37 +59,7 @@ $object = new ArrayIterator($arr);
 $writer->insertAll($object); //using a Traversable object
 ~~~
 
-### useFormatValidation(bool $status)
-
-<p class="message-notice">added in version 6.4</p>
-
-This method is to be used when all necessary checks have been made to your data before using `insertOne` or `insertAll`. The method enables or disables the library internal cell format validation. It accepts a single boolean parameter. When this parameter equals `false` the internal processs is disabled. You can of course reactivate the process at any given moment by setting the parameter to `true`. By default and for backward compatibility, cell format is always checked.
-
-`Writer::useFormatValidation` can be useful, for instance, when dealing with large dataset to transfer to a CSV file. By disabling the cell format validation you can drastically reduce the CSV creation duration.
-
-~~~php
-<?php
-use League\Csv\Writer;
-
-//$dbh is a PDO object
-//we fetch the info from a DB using a PDO object
-//let's assume that the table has more than 100 000 rows
-$sth = $dbh->prepare("SELECT firstname, lastname, email FROM users");
-$sth->setFetchMode(PDO::FETCH_ASSOC);
-$sth->execute();
-$csv = Writer::createFromFileObject(new SplTempFileObject);
-//data format validation is made on the following line
-$csv->insertOne(['firstname', 'lastname', 'email']);
-$csv->useFormatValidation(false);
-//no data format validation will be made on the data returned by PDO
-$csv->insertAll($sth);
-$csv->output('users.csv');
-die;
-~~~
-
-<p class="message-warning">Even though no check is done on each cell format, all other checks described bellow are applied</p>
-
-## Handling null values (since version 5.3)
+## Handling null values
 
 When importing data containing `null` values you should tell the library how to handle them. 
 
@@ -100,6 +70,9 @@ To set the `Writer` class handling behavior, you will use the `setNullHandlingMo
 * `Writer::NULL_AS_EXCEPTION`: Inserting methods throw an `InvalidArgumentException` when a `null` value is found;
 * `Writer::NULL_AS_EMPTY`:Inserting methods convert `null` values into empty string;
 * `Writer::NULL_AS_SKIP_CELL`: Inserting methods filter out each `null` item found;
+* `Writer::DISABLE_NULL_HANDLING`: No check whatsoever is done regarding null handling
+
+<p class="message-notice"><code>Writer::DISABLE_NULL_HANDLING</code> was added in version 6.4</p>
 
 <p class="message-warning">By default the Writer mode to handle <code>null</code> value is <code>Writer::NULL_AS_EXCEPTION</code> to keep the code backward compatible.</p>
 
@@ -122,7 +95,7 @@ $writer->insertOne(["one", "two", null, "four"]);
 ~~~
 In the above example, the `null` value will be converted into an empty string, only if the current mode handles the value by throwing exception.
 
-## Handling CSV columns count consistency (since version 5.4)
+## Handling CSV columns count consistency
 
 You can optionally asks the `Writer` class to check the columns count consistency of the newly added rows in you CSV.
 

@@ -42,7 +42,7 @@ $nb_rows = count($data);
 
 `fetchAssoc` returns a sequential array of all rows. The rows themselves are associative arrays where the keys are an one dimension array. This array should only contain unique `string` and/or `integer` values. This array can be specified as the first argument as
 
-- a specific CSV row by providing its offset **(since version 6.1)**;
+- a specific CSV row by providing its offset; **(since version 6.1)**
 - a non empty array directly provided;
 
 ~~~php
@@ -113,7 +113,7 @@ $data = $reader->fetchOne(3); ///accessing the 4th row (indexing starts at 0)
 //
 ~~~
 
-### each(callable $callable) *- since version 5.1*
+### each(callable $callable)
 
 `each` apply a callable function on each CSV row. The callable function:
 
@@ -150,7 +150,7 @@ You can restrict CSV extract methods output by setting query options. To set tho
 
 The filtering options **are the first settings applied to the CSV before anything else**. The filters follow the *First In First Out* rule.
 
-### addFilter(callable $callable) *- since version 5.1*
+### addFilter(callable $callable)
 
 The `addFilter` method adds a callable filter function each time it is called. The function can take up to three parameters:
 
@@ -158,15 +158,15 @@ The `addFilter` method adds a callable filter function each time it is called. T
 * the current csv key;
 * the current csv iterator object;
 
-### removeFilter(callable $callable) *- since version 5.1*
+### removeFilter(callable $callable)
 
 `removeFilter` method removes an already registered filter function. If the function was registered multiple times, you will have to call `removeFilter` as often as the filter was registered. **The first registered copy will be the first to be removed.**
 
-### hasFilter(callable $callable) *- since version 5.1*
+### hasFilter(callable $callable)
 
 `hasFilter` method checks if the filter function is already registered
 
-### clearFilter() *- since version 5.2*
+### clearFilter()
 
 `clearFilter` method removes all registered filter functions.
 
@@ -177,19 +177,19 @@ The sorting options are applied **after the CSV filtering options**. The sorting
 <p class="message-warning">To sort the data <code>iterator_to_array</code> is used which could lead to performance penalty if you have a heavy CSV file to sort
 </p>
 
-### addSortBy(callable $callable) *- since version 5.2*
+### addSortBy(callable $callable)
 
 `addSortBy` method adds a sorting function each time it is called. The function takes exactly two parameters which will be filled by pairs of rows.
 
-### removeSortBy(callable $callable) *- since version 5.2*
+### removeSortBy(callable $callable)
 
 `removeSortBy` method removes an already registered sorting function. If the function was registered multiple times, you will have to call `removeSortBy` as often as the function was registered. **The first registered copy will be the first to be removed.**
 
-### hasSortBy(callable $callable) *- since version 5.2*
+### hasSortBy(callable $callable)
 
 `hasSortBy` method checks if the sorting function is already registered
 
-### clearSortBy() *- since version 5.2*
+### clearSortBy()
 
 `clearSortBy` method removes all registered sorting functions.
 

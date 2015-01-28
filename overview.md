@@ -38,7 +38,7 @@ $writer = Writer::createFromString('john,doe,john.doe@example.com', "\r\n");
 
 ~~~
 
-### createFromFileObject(SplFileObject $obj) *- since version 6.0*
+### createFromFileObject(SplFileObject $obj)
 
 If you have a `SplFileObject` and you want to directly work with it you should use the named constructor `createFromFileObject`. This method accepts only one single parameter the `SplFileObject` object.
 
@@ -51,7 +51,7 @@ $writer = Writer::createFromFileObject(new SplTempFileObject);
 
 ~~~
 
-### createFromPath($path, $open_mode) *- since version 6.0*
+### createFromPath($path, $open_mode)
 
 For any other purpose you should rely on the named constructor `createFromPath`. You will be instantiating a CSV object *à la* `fopen`:
 
@@ -113,7 +113,7 @@ $reader->setEscape('\\');
 $reader->setFlags(SplFileObject::READ_AHEAD|SplFileObject::SKIP_EMPTY);
 ~~~
 
-### detectDelimiterList($nbRows = 1, array $delimiters = []) *- since version 6.0*
+### detectDelimiterList($nbRows = 1, array $delimiters = [])
 
 <p class="message-warning"><strong>BC Break:</strong> the <code>detectDelimiterList</code> method replaces the removed method <code>detectDelimiter</code> !</p>
 
