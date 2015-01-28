@@ -5,7 +5,7 @@ All Notable changes to `League\Csv` will be documented in this file
 
 ### Added
 
-- `Writer::setCellContentValidation` To disabled/enable cell content checking before insertion the is an optimization when working with large data source.
+- `Writer::DISABLE_NULL_HANDLING` To completely remove null handling when inserting new data.
 
 ### Fixed
 
