@@ -1,14 +1,17 @@
 Getting Started:
     Introduction: '/'
+    Changelog: '/changelog/'
     Examples: '/examples/'
     Installation: '/installation/'
 The API:
-    Overview: '/overview/'
-    Outputting: '/outputting/'
-    Extracting: '/reading/'
-    Inserting: '/inserting/'
-    Filtering: '/filtering/'
-    BOM: '/bom/'
+    Instantiation: '/instantiation/'
+    CSV Properties: '/properties/'
+    Basic Usage: '/outputting/'
+    Extracting Data: '/reading/'
+    Inserting Data: '/inserting/'
+    BOM Handling: '/bom/'
+    Stream Filters: '/filtering/'
 Upgrading Guide:
     Introduction: '/upgrading/'
     5.x to 6.x: '/upgrading/6.0/'
+    6.x to 7.x: '/upgrading/7.0/'

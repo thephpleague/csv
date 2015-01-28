@@ -1,6 +1,5 @@
 ---
 layout: default
-permalink: /
 ---
 
 # Introduction

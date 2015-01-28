@@ -1,7 +1,6 @@
 ---
 layout: default
 title: Extracting data from a CSV
-permalink: reading/
 ---
 
 # Extracting data
@@ -28,8 +27,8 @@ foreach ($data as $line_index => $row) {
 ~~~php
 $data = $reader->fetchAll();
 // will return something like this :
-// 
-// [ 
+//
+// [
 //   ['john', 'doe', 'john.doe@example.com'],
 //   ['jane', 'doe', 'jane.doe@example.com'],
 //   ...
@@ -48,13 +47,13 @@ $nb_rows = count($data);
 ~~~php
 $data = $reader->fetchAssoc(['firstname', 'lastname', 'email']);
 // will return something like this :
-// 
-// [ 
+//
+// [
 //   ['firstname' => 'john', 'lastname' => 'doe', 'email' => 'john.doe@example.com'],
 //   ['firstname' => 'jane', 'lastname' => 'doe', 'email' => 'jane.doe@example.com'],
 //   ...
 // ]
-// 
+//
 ~~~
 
 If the number of values in a CSV row is lesser than the number of named keys, the method will add `null` values to compensate for the missing values.
@@ -78,8 +77,6 @@ $data = $reader->fetchAssoc();
 //
 ~~~
 
-<p class="message-notice">Prior to version <code>6.1</code> the method worked only with <code>array</code>. Now the method works with <code>array</code> and <code>integer</code>.</p>
-
 ### fetchColumn($columnIndex = 0, callable $callable = null)
 
 `fetchColumn` returns a sequential array of all values in a given column from the CSV data.
@@ -90,9 +87,9 @@ If the column does not exists in the csv data the method will return an array fu
 ~~~php
 $data = $reader->fetchColumn(2);
 // will return something like this :
-// 
+//
 // ['john.doe@example.com', 'jane.doe@example.com', ...]
-// 
+//
 ~~~
 
 The methods listed above (`query`, `fetchAll`, `fetchAssoc`, `fetchColumn`) can all take a optional `callable` argument to further manipulate each row before being returned. This callable function can take up to three parameters:
@@ -108,7 +105,7 @@ The methods listed above (`query`, `fetchAll`, `fetchAssoc`, `fetchColumn`) can 
 ~~~php
 $data = $reader->fetchOne(3); ///accessing the 4th row (indexing starts at 0)
 // will return something like this :
-// 
+//
 //   ['john', 'doe', 'john.doe@example.com']
 //
 ~~~
@@ -145,6 +142,8 @@ You can restrict CSV extract methods output by setting query options. To set tho
 * The optional extract method callable function is called after all query options have been applied;
 
 <p class="message-info">The options methods are described in the same order as they are applied on the CSV iterator. The order is similar to one found in SQL statement construct.</p>
+
+<p class="message-notice">Starting with <code>version 7.0</code> The query options can be use to modify the output from the <code>jsonSerialize</code>, <code>toXML</code> and <code>toHTML</code> methods.</p>
 
 ## Filtering methods
 
@@ -205,14 +204,14 @@ The methods enable returning a specific interval of CSV rows. When called more t
 
 `setLimit` method specifies an optional maximum rows count for the return data. By default the offset equals `-1`, which translate to all rows.
 
-<p class="message-warning">Both methods have no effect on the `fetchOne` method output.</p>
+<p class="message-warning">Both methods have no effect on the <code>fetchOne</code> method output.</p>
 
 ## A concrete example
 
 Here's an example on how to use the query features of the `Reader` class to restrict the `fetchAssoc` result:
 
 ~~~php
-function filterByEmail($row) 
+function filterByEmail($row)
 {
     return filter_var($row[2], FILTER_VALIDATE_EMAIL);
 }
@@ -232,11 +231,38 @@ $data = $reader
 });
 // data length will be equals or lesser that 2 starting from the row index 3.
 // will return something like this :
-// 
-// [ 
+//
+// [
 //   ['firstname' => 'JANE', 'lastname' => 'RAMANOV', 'email' => 'JANE.RAMANOV@EXAMPLE.COM'],
 //   ['firstname' => 'JOHN', 'lastname' => 'DOE', 'email' => 'JOHN.DOE@EXAMPLE.COM'],
 // ]
-// 
+//
 ~~~
 
+## A example to modify CSV conversion methods
+
+~~~php
+function filterByEmail($row)
+{
+    return filter_var($row[2], FILTER_VALIDATE_EMAIL);
+}
+
+function sortByLastName($rowA, $rowB)
+{
+    return strcmp($rowB[1], $rowA[1]);
+}
+
+$data = $reader
+    ->setOffset(3)
+    ->setLimit(2)
+    ->addFilter('filterByEmail')
+    ->addSortBy('sortByLastName')
+    ->toHTML("simple-table");
+// $data contains the HTML table code equivalent to:
+//
+//<table class="simple-table">
+//  <tr><td>JANE</td><td>RAMANOV</td><td>JANE.RAMANOV@EXAMPLE.COM</td></tr>
+//  <tr><td>JOHN</td><td>DOE</td><td>JOHN.DOE@EXAMPLE.COM</td></tr>
+//</table>
+//
+~~~

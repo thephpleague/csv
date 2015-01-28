@@ -1,7 +1,6 @@
 ---
 layout: default
 title: Inserting new data into a CSV
-permalink: inserting/
 ---
 
 # Inserting Data
@@ -36,13 +35,13 @@ class ToStringEnabledClass
 }
 
 $writer->insertOne(['john', 'doe', 'john.doe@example.com']);
-$writer->insertOne("'john','doe','john.doe@example.com'"); 
-$writer->insertOne(new ToStringEnabledClass("john,doe,john.doe@example.com")) 
+$writer->insertOne("'john','doe','john.doe@example.com'");
+$writer->insertOne(new ToStringEnabledClass("john,doe,john.doe@example.com"))
 ~~~
 
 ### insertAll($data)
 
-`insertAll` inserts multiple rows. This method can take an `array` or a 
+`insertAll` inserts multiple rows. This method can take an `array` or a
 `Traversable` object to add several rows to the CSV data.
 
 ~~~php
@@ -53,15 +52,60 @@ $arr = [
     new ToStringEnabledClass("john,doe,john.doe@example.com")
 ];
 
-$writer->insertAll($arr); //using an array 
+$writer->insertAll($arr); //using an array
 
 $object = new ArrayIterator($arr);
 $writer->insertAll($object); //using a Traversable object
 ~~~
 
+### useValidation(bool $activate)
+
+<p class="message-notice">added in version 7.0</p>
+
+The `Writer` class out of the box will validate your data prior to inserting it. At any moment you can activate or deactivate this process using the `Writer::useValidation`. The method takes one argument `$activate` which is a boolean. If set to `false`, the validation will be disabled.
+
+By default, and for backward compatibility, the class validate the user input.
+
+~~~php
+<?php
+use League\Csv\Writer;
+
+$sth = $dbh->prepare("SELECT firstname, lastname, email FROM users");
+$sth->setFetchMode(PDO::FETCH_ASSOC);
+$sth->execute();
+
+$csv = Writer::createFromFileObject(new SplTempFileObject);
+//the first line is validate
+$csv->insertOne('firstname,lastname,email');
+$csv->useValidation(false);
+//the remaining lines are not validated
+$csv->insertAll($sth);
+$csv->output('users.csv');
+die;
+~~~
+
+<p class="message-info">Disabling the validation process reduces the CSV creation duration without affecting the memory usage.</p>
+
+## Handling newline
+
+Because the php `fputcsv` implementation has a hardcoded `"\n"`, we need to be able to replace the last `LF` code with one supplied by the developper for more interoperability between CSV packages on different platforms. The newline sequence will be appended to each CSV newly inserted line.
+
+At any given time you can modify the `$newline` property using the `setNewline` method.
+
+~~~php
+$writer = Writer::createFromFileObject(new SplFileObject());
+$newline = $writer->getNewline(); // equals "\n";
+$writer->setNewline("\r\n");
+$newline = $writer->getNewline(); // equals "\r\n";
+$writer->insertOne(["one", "two"]);
+echo $writer; // displays "one,two\r\n";
+~~~
+
+<p class="message-info">Please refer to <a href="/bom/">the BOM character dedicated documentation page</a> for more informations on how the library manage the BOM character.</p>
+
 ## Handling null values
 
-When importing data containing `null` values you should tell the library how to handle them. 
+When importing data containing `null` values you should tell the library how to handle them.
 
 ### setNullHandlingMode($mode)
 
@@ -70,15 +114,15 @@ To set the `Writer` class handling behavior, you will use the `setNullHandlingMo
 * `Writer::NULL_AS_EXCEPTION`: Inserting methods throw an `InvalidArgumentException` when a `null` value is found;
 * `Writer::NULL_AS_EMPTY`:Inserting methods convert `null` values into empty string;
 * `Writer::NULL_AS_SKIP_CELL`: Inserting methods filter out each `null` item found;
-* `Writer::DISABLE_NULL_HANDLING`: No check whatsoever is done regarding null handling
+* `Writer::NULL_HANDLING_DISABLED`: No check whatsoever is done regarding null handling
 
-<p class="message-notice"><code>Writer::DISABLE_NULL_HANDLING</code> was added in version 6.4</p>
+<p class="message-notice"><code>Writer::NULL_HANDLING_DISABLED</code> was added in version 7.0</p>
 
 <p class="message-warning">By default the Writer mode to handle <code>null</code> value is <code>Writer::NULL_AS_EXCEPTION</code> to keep the code backward compatible.</p>
 
 ~~~php
 $writer->setNullHandlingMode(Writer::NULL_AS_SKIP_CELL);
-$writer->insertOne(["one", "two", null, "four"]); 
+$writer->insertOne(["one", "two", null, "four"]);
 ~~~
 
 In the above example, the `null` value will be filter out and the corresponding CSV row will contain only 3 items.
@@ -91,7 +135,7 @@ At any given time you are able to know the class mode using the `getNullHandling
 if (Writer::NULL_AS_EXCEPTION == $writer->getNullHandlingMode()) {
     $writer->setNullHandlingMode(Writer::NULL_AS_EMPTY);
 }
-$writer->insertOne(["one", "two", null, "four"]); 
+$writer->insertOne(["one", "two", null, "four"]);
 ~~~
 In the above example, the `null` value will be converted into an empty string, only if the current mode handles the value by throwing exception.
 
@@ -115,7 +159,7 @@ $nb_column_count = $writer->getColumnsCount(); // equals to 2;
 $writer->insertAll([
     ["one", "two"],
     ["one", "two", "four"],  //this will throw an InvalidArgumentException
-]); 
+]);
 ~~~
 
 ### autodetectColumnsCount()
@@ -137,28 +181,3 @@ Keep in mind that:
 
 * the effect of the `autodetectColumnsCount` method will only take place after the next call to `insertOne`.
 * `setColumnsCount` and `autodetectColumnsCount` override each other effect when called before `insertOne`;
-
-## Handling CSV newline character
-
-<p class="message-notice">added in version 6.2</p>
-
-Because the php `fputcsv` implementation has a hardcoded `"\n"`, we need to be able to replace the last LF code with one supplied by the developper for more interoperability between CSV packages on different platform.
-
-### getNewline()
-
-At any given time you can access the `$newline` property using the `getNewline` method. 
-
-<p class="message-warning">By default and for backward compatibility, the <code>$newline</code>property equals <code>"\n"</code> which is the default behavior of php <code>fputcsv</code> function.</p>
-
-### setNewline($newline)
-
-At any given time you can modify the `$newline` property using the `setNewline` method.
-
-~~~php
-$writer = Writer::createFromFileObject(new SplFileObject());
-$newline = $writer->getNewline(); // equals "\n";
-$writer->setNewline("\r\n");
-$newline = $writer->getNewline(); // equals "\r\n";
-$writer->insertOne(["one", "two"]); 
-echo $writer; // displays "one,two\r\n";
-~~~

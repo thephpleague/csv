@@ -1,12 +1,9 @@
 ---
 layout: default
 title: CSV and BOM character
-permalink: bom/
 ---
 
 # Managing the BOM character
-
-<p class="message-notice">added in version 6.3</p>
 
 ## Detecting the CSV BOM character
 

@@ -1,7 +1,6 @@
 ---
 layout: default
 title: Examples
-permalink: examples/
 ---
 
 # Examples
@@ -22,7 +21,7 @@ $headers = $csv->fetchOne();
 //get 25 rows starting from the 11th row
 $res = $csv->setOffset(10)->setLimit(25)->fetchAll();
 ~~~
-		
+
 ## Exporting a database table as a CSV document
 
 A simple example to show you how to create and download a CSV from a `PDOStatement` object
@@ -35,7 +34,7 @@ use League\Csv\Writer;
 $sth = $dbh->prepare(
 	"SELECT firstname, lastname, email FROM users LIMIT 200"
 );
-//because we don't want to duplicate the data for each row 
+//because we don't want to duplicate the data for each row
 // PDO::FETCH_NUM could also have been used
 $sth->setFetchMode(PDO::FETCH_ASSOC);
 $sth->execute();
@@ -54,8 +53,8 @@ $csv->insertOne(['firstname', 'lastname', 'email']);
 // the data into the CSV
 $csv->insertAll($sth);
 
-// Because you are providing the filename you don't have to 
-// set the HTTP headers Writer::output can 
+// Because you are providing the filename you don't have to
+// set the HTTP headers Writer::output can
 // directly set them for you
 // The file is downloadable
 $csv->output('users.csv');

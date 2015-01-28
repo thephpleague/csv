@@ -1,12 +1,9 @@
 ---
 layout: default
 title: Filtering
-permalink: filtering/
 ---
 
 # Stream Filtering
-
-<p class="message-notice">available since version 6.0</p>
 
 To ease performing operations on the CSV as it is being read from or written to, the `Reader` and `Writer` classes now include methods to ease PHP stream filtering usage.
 
@@ -60,7 +57,7 @@ if ($reader->isActiveStreamFilter()) {
 	$reader->setStreamFilterMode(STREAM_FILTER_WRITE);
 	//this means that any filter you will set will have no effect when reading the CSV
 	//all previously attached stream filters if they existed have been removed
-	$current_mode = $reader->getStreamFilterMode(); //returns STREAM_FILTER_WRITE	
+	$current_mode = $reader->getStreamFilterMode(); //returns STREAM_FILTER_WRITE
 }
 ~~~
 
