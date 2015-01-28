@@ -112,11 +112,6 @@ trait Factory
         $obj = new SplTempFileObject();
         $obj->fwrite(rtrim($str).$newline);
 
-        $res = static::createFromFileObject($obj);
-        if ('League\Csv\Writer' == get_class($res)) {
-            $res->setNewline($newline);
-        }
-
-        return $res;
+        return static::createFromFileObject($obj);
     }
 }

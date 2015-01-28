@@ -43,6 +43,11 @@ class Writer extends AbstractCsv
     const NULL_AS_EMPTY = 3;
 
     /**
+     * disable null handling
+     */
+    const DISABLE_NULL_HANDLING = 4;
+
+    /**
      * the object current null handling mode
      *
      * @var int
@@ -83,14 +88,6 @@ class Writer extends AbstractCsv
     protected $newline = "\n";
 
     /**
-     * should the insertOne method check for the cell content validation
-     * before insertion or not
-     *
-     * @var boolean
-     */
-    protected $checkCellContent = true;
-
-    /**
      * Tell the class how to handle null value
      *
      * @param int $value a Writer null behavior constant
@@ -101,7 +98,12 @@ class Writer extends AbstractCsv
      */
     public function setNullHandlingMode($value)
     {
-        if (!in_array($value, [self::NULL_AS_SKIP_CELL, self::NULL_AS_EXCEPTION, self::NULL_AS_EMPTY])) {
+        if (!in_array($value, [
+                self::NULL_AS_SKIP_CELL,
+                self::NULL_AS_EXCEPTION,
+                self::NULL_AS_EMPTY,
+                self::DISABLE_NULL_HANDLING,
+            ])) {
             throw new OutOfBoundsException('invalid value for null handling');
         }
         $this->null_handling_mode = $value;
@@ -188,21 +190,6 @@ class Writer extends AbstractCsv
     }
 
     /**
-     * This method activate or deactive validation of cell content before insertions
-     * this will boost data insertion on a large CSV
-     *
-     * @param bool $status
-     *
-     * @return static
-     */
-    public function useFormatValidation($status)
-    {
-        $this->checkCellContent = (bool) $status;
-
-        return $this;
-    }
-
-    /**
      * Add multiple lines to the CSV your are generating
      *
      * a simple helper/Wrapper method around insertOne
@@ -270,10 +257,10 @@ class Writer extends AbstractCsv
     protected function validateRow($row)
     {
         if (! is_array($row)) {
-            $row = str_getcsv((string) $row, $this->delimiter, $this->enclosure, $this->escape);
+            return str_getcsv($row, $this->delimiter, $this->enclosure, $this->escape);
         }
 
-        if ($this->checkCellContent) {
+        if (self::DISABLE_NULL_HANDLING != $this->null_handling_mode) {
             array_walk($row, function ($value) {
                 if (! $this->isConvertibleContent($value)) {
                     throw new InvalidArgumentException(
@@ -311,15 +298,15 @@ class Writer extends AbstractCsv
      */
     protected function sanitizeColumnsContent(array $row)
     {
-        if (self::NULL_AS_EXCEPTION == $this->null_handling_mode) {
-            return $row;
-        } elseif (self::NULL_AS_EMPTY == $this->null_handling_mode) {
+        if (self::NULL_AS_EMPTY == $this->null_handling_mode) {
             return str_replace(null, '', $row);
+        } elseif (self::NULL_AS_SKIP_CELL == $this->null_handling_mode) {
+            return array_filter($row, function ($value) {
+                return !is_null($value);
+            });
         }
 
-        return array_filter($row, function ($value) {
-            return !is_null($value);
-        });
+        return $row;
     }
 
     /**
@@ -367,6 +354,17 @@ class Writer extends AbstractCsv
     public function isActiveStreamFilter()
     {
         return parent::isActiveStreamFilter() && is_null($this->csv);
+    }
+
+    /**
+     *  {@inheritdoc}
+     */
+    public static function createFromString($str, $newline = PHP_EOL)
+    {
+        $obj = parent::createFromString($str, $newline);
+        $obj->setNewline($newline);
+
+        return $obj;
     }
 
     /**
