@@ -21,7 +21,7 @@ use SplTempFileObject;
  *  A trait to facilate class instantiation
  *
  * @package League.csv
- * @since  6.X.X
+ * @since  6.4.0
  *
  */
 trait Factory
@@ -112,6 +112,11 @@ trait Factory
         $obj = new SplTempFileObject();
         $obj->fwrite(rtrim($str).$newline);
 
-        return static::createFromFileObject($obj);
+        $res = static::createFromFileObject($obj);
+        if ('League\Csv\Writer' == get_class($res)) {
+            $res->setNewline($newline);
+        }
+
+        return $res;
     }
 }

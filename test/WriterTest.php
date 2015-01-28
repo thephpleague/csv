@@ -119,7 +119,7 @@ class WriterTest extends PHPUnit_Framework_TestCase
             ['john', null, 'john.doe@example.com'],
         ];
         $this->csv->setNullHandlingMode(Writer::NULL_AS_EMPTY);
-        $this->csv->setCellContentValidation(false);
+        $this->csv->useFormatValidation(false);
         $this->csv->insertAll($expected);
 
         $iterator = new LimitIterator($this->csv->getIterator(), 2, 1);
@@ -242,5 +242,14 @@ class WriterTest extends PHPUnit_Framework_TestCase
 
         $csv->insertOne(["jane", "doe"]);
         $this->assertSame("jane,doe\r\n", (string) $csv);
+    }
+
+    public function testCustomNewlineFromCreateFromString()
+    {
+        $expected = "\r\n";
+        $raw = "john,doe,john.doe@example.com".PHP_EOL
+            ."jane,doe,jane.doe@example.com".PHP_EOL;
+        $csv = Writer::createFromString($raw, $expected);
+        $this->assertSame($expected, $csv->getNewline());
     }
 }

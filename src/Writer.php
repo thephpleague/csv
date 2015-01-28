@@ -195,7 +195,7 @@ class Writer extends AbstractCsv
      *
      * @return static
      */
-    public function setCellContentValidation($status)
+    public function useFormatValidation($status)
     {
         $this->checkCellContent = (bool) $status;
 
