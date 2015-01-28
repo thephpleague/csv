@@ -83,6 +83,14 @@ class Writer extends AbstractCsv
     protected $newline = "\n";
 
     /**
+     * should the insertOne method check for the cell content validation
+     * before insertion or not
+     *
+     * @var boolean
+     */
+    protected $checkCellContent = true;
+
+    /**
      * Tell the class how to handle null value
      *
      * @param int $value a Writer null behavior constant
@@ -180,6 +188,21 @@ class Writer extends AbstractCsv
     }
 
     /**
+     * This method activate or deactive validation of cell content before insertions
+     * this will boost data insertion on a large CSV
+     *
+     * @param bool $status
+     *
+     * @return static
+     */
+    public function setCellContentValidation($status)
+    {
+        $this->checkCellContent = (bool) $status;
+
+        return $this;
+    }
+
+    /**
      * Add multiple lines to the CSV your are generating
      *
      * a simple helper/Wrapper method around insertOne
@@ -250,13 +273,15 @@ class Writer extends AbstractCsv
             $row = str_getcsv((string) $row, $this->delimiter, $this->enclosure, $this->escape);
         }
 
-        array_walk($row, function ($value) {
-            if (! $this->isConvertibleContent($value)) {
-                throw new InvalidArgumentException(
-                    'the values are not convertible into strings'
-                );
-            }
-        });
+        if ($this->checkCellContent) {
+            array_walk($row, function ($value) {
+                if (! $this->isConvertibleContent($value)) {
+                    throw new InvalidArgumentException(
+                        'the values are not convertible into strings'
+                    );
+                }
+            });
+        }
 
         return $row;
     }
@@ -265,7 +290,7 @@ class Writer extends AbstractCsv
      * Check if a given value can be added into a CSV cell
      *
      * The value MUST respect the null handling mode
-     * The valie MUST be convertible into a string
+     * The value MUST be convertible into a string
      *
      * @param string|null $value the value to be added
      *
