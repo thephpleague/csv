@@ -6,6 +6,7 @@ All Notable changes to `League\Csv` will be documented in this file
 ### Added
 
 - `Writer::DISABLE_NULL_HANDLING` To completely remove null handling when inserting new data.
+- `Writer::useValidation` To enable/disabled complete validation when inserting new data.
 
 ### Fixed
 

@@ -111,7 +111,7 @@ class WriterTest extends PHPUnit_Framework_TestCase
         $this->assertSame(['john', '', 'john.doe@example.com'], $res);
     }
 
-    public function testInsertWithoutValidation()
+    public function testInsertWithoutNullHandlingMode()
     {
         $expected = [
             ['john', 'doe', 'john.doe@example.com'],
@@ -125,6 +125,21 @@ class WriterTest extends PHPUnit_Framework_TestCase
         $iterator->rewind();
         $res = $iterator->getInnerIterator()->current();
         $this->assertSame(['john', '', 'john.doe@example.com'], $res);
+    }
+
+    /**
+     * @expectedException PHPUnit_Framework_Error
+     */
+    public function testInsertWithoutValidation()
+    {
+        $expected = [
+            ['john', 'doe', 'john.doe@example.com'],
+            'john,doe,john.doe@example.com',
+            ['john', null, 'john.doe@example.com'],
+            new \StdClass,
+        ];
+        $this->csv->useValidation(false);
+        $this->csv->insertAll($expected);
     }
 
     /**

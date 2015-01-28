@@ -30,22 +30,22 @@ class Writer extends AbstractCsv
     /**
      * set null handling mode to throw exception
      */
-    const NULL_AS_EXCEPTION = 1;
+    const NULL_AS_EXCEPTION = 'NULL_AS_EXCEPTION';
 
     /**
      * set null handling mode to remove cell
      */
-    const NULL_AS_SKIP_CELL = 2;
+    const NULL_AS_SKIP_CELL = 'NULL_AS_SKIP_CELL';
 
     /**
      * set null handling mode to convert null into empty string
      */
-    const NULL_AS_EMPTY = 3;
+    const NULL_AS_EMPTY = 'NULL_AS_EMPTY';
 
     /**
      * disable null handling
      */
-    const DISABLE_NULL_HANDLING = 4;
+    const DISABLE_NULL_HANDLING = 'DISABLE_NULL_HANDLING';
 
     /**
      * the object current null handling mode
@@ -86,6 +86,13 @@ class Writer extends AbstractCsv
      * @var string
      */
     protected $newline = "\n";
+
+    /**
+     * should the class validate the input before insertion
+     *
+     * @var boolean
+     */
+    protected $useValidation = true;
 
     /**
      * Tell the class how to handle null value
@@ -216,6 +223,20 @@ class Writer extends AbstractCsv
     }
 
     /**
+     * Tells wether the library should check or not the input
+     *
+     * @param  bool $status
+     *
+     * @return static
+     */
+    public function useValidation($status)
+    {
+        $this->useValidation = (bool) $status;
+
+        return $this;
+    }
+
+    /**
      * Add a new CSV row to the generated CSV
      *
      * @param string[]|string $data a string, an array or an object implementing to '__toString' method
@@ -226,13 +247,9 @@ class Writer extends AbstractCsv
      */
     public function insertOne($data)
     {
-        $data = $this->validateRow($data);
-        $data = $this->sanitizeColumnsContent($data);
-        if (! $this->isColumnsCountConsistent($data)) {
-            throw new RuntimeException(
-                'You are trying to add '.count($data).' columns to a CSV
-                that requires '.$this->columns_count.' columns per row.'
-            );
+        $data = $this->formatRow($data);
+        if ($this->useValidation) {
+            $data = $this->validateRow($data);
         }
         $csv = $this->getCsv();
         $csv->fputcsv($data, $this->delimiter, $this->enclosure);
@@ -246,20 +263,33 @@ class Writer extends AbstractCsv
     }
 
     /**
-     * Is the submitted row valid
+     * format the submitted data to be an array
      *
-     * @param string[]|string $row
-     *
-     * @throws \InvalidArgumentException If the given $row is not valid
+     * @param  array|string $row the row data
      *
      * @return array
      */
-    protected function validateRow($row)
+    protected function formatRow($row)
     {
         if (! is_array($row)) {
             return str_getcsv($row, $this->delimiter, $this->enclosure, $this->escape);
         }
 
+        return $row;
+    }
+
+    /**
+     * Is the submitted row valid
+     *
+     * @param array $row
+     *
+     * @throws \InvalidArgumentException If the given $row is not valid
+     * @throws \RuntimeException If the given $row does not contain valid column count
+     *
+     * @return array
+     */
+    protected function validateRow(array $row)
+    {
         if (self::DISABLE_NULL_HANDLING != $this->null_handling_mode) {
             array_walk($row, function ($value) {
                 if (! $this->isConvertibleContent($value)) {
@@ -268,6 +298,14 @@ class Writer extends AbstractCsv
                     );
                 }
             });
+            $row = $this->sanitizeColumnsContent($row);
+        }
+
+        if (! $this->isColumnsCountConsistent($row)) {
+            throw new RuntimeException(
+                'You are trying to add '.count($row).' columns to a CSV
+                that requires '.$this->columns_count.' columns per row.'
+            );
         }
 
         return $row;
