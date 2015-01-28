@@ -18,16 +18,23 @@ Both classes extend the `League\Csv\AbstractCsv` class and as such share methods
 Because CSVs come in different forms there are several ways to instantiate the library CSV objects.
 Below you will find **the recommended ways** to create a CSV object.
 
-### createFromString($str)
+### createFromString($str, $newline = PHP_EOL)
 
-If you have a raw CSV string you should use the named constructor `createFromString`. This method accepts only one single parameter the raw CSV string.
+<p class="message-notice">The <code>$newline</code> argument was added in version 6.4</p>
+
+If you have a raw CSV string you should use the named constructor `createFromString`. This method accepts two parameters:
+
+- the raw CSV string.
+- the newline character added at the end of the raw CSV string
+
+For backward compatibility, the default newline character is the newline character used by your underlying system (ie: `PHP_EOL`).
 
 ~~~php
 use League\Csv\Reader;
 use League\Csv\Writer;
 
-$reader = Reader::createFromString('john,doe,john.doe@example.com');
-$writer = Writer::createFromString('john,doe,john.doe@example.com');
+$reader = Reader::createFromString('john,doe,john.doe@example.com', "\n");
+$writer = Writer::createFromString('john,doe,john.doe@example.com', "\r\n");
 
 ~~~
 
