@@ -89,6 +89,16 @@ class CsvTest extends PHPUnit_Framework_TestCase
     }
 
     /**
+     * @expectedException PHPUnit_Framework_Error
+     */
+    public function testCreateFromStringThrowExceptionWithBadNewline()
+    {
+        $expected = "john,doe,john.doe@example.com".PHP_EOL
+            ."jane,doe,jane.doe@example.com".PHP_EOL;
+        Reader::createFromString($expected, new \StdClass);
+    }
+
+    /**
      * @expectedException InvalidArgumentException
      * @expectedExceptionMessage The delimiter must be a single character
      */
