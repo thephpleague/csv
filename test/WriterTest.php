@@ -166,7 +166,7 @@ class WriterTest extends PHPUnit_Framework_TestCase
 
     /**
      * @expectedException RuntimeException
-     * @expectedExceptionMessage You are trying to add
+     * @expectedExceptionMessageRegexp Adding \d+ cells on a \d+ cells per row CSV
      */
     public function testColumsCountConsistency()
     {
@@ -179,7 +179,7 @@ class WriterTest extends PHPUnit_Framework_TestCase
 
     /**
      * @expectedException RuntimeException
-     * @expectedExceptionMessage You are trying to add
+     * @expectedExceptionMessageRegexp Adding \d+ cells on a \d+ cells per row CSV
      */
     public function testAutoDetectColumnsCount()
     {
@@ -200,7 +200,7 @@ class WriterTest extends PHPUnit_Framework_TestCase
 
     /**
      * @expectedException InvalidArgumentException
-     * @expectedExceptionMessage the values are not convertible into strings
+     * @expectedExceptionMessageRegexp Adding \d+ cells on a \d+ cells per row CSV
      */
     public function testFailedInsertWithMultiDimensionArray()
     {
