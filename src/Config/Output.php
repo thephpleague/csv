@@ -44,7 +44,7 @@ trait Output
      *
      * @return \SplFileObject
      */
-    abstract public function getIterator();
+    abstract protected function getOutputIterator();
 
     /**
      * JsonSerializable Interface
@@ -53,7 +53,7 @@ trait Output
      */
     public function jsonSerialize()
     {
-        return iterator_to_array($this->convertToUtf8($this->getIterator()), false);
+        return iterator_to_array($this->convertToUtf8($this->getOutputIterator()), false);
     }
 
     /**
@@ -122,7 +122,7 @@ trait Output
      */
     public function output($filename = null)
     {
-        $iterator = $this->getIterator();
+        $iterator = $this->getOutputIterator();
         $iterator->rewind();
         //@codeCoverageIgnoreStart
         if (! is_null($filename) && self::isValidString($filename)) {
@@ -178,7 +178,7 @@ trait Output
     {
         $doc = new DomDocument('1.0', 'UTF-8');
         $root = $doc->createElement($root_name);
-        $iterator = $this->convertToUtf8($this->getIterator());
+        $iterator = $this->convertToUtf8($this->getOutputIterator());
         foreach ($iterator as $row) {
             $item = $doc->createElement($row_name);
             array_walk($row, function ($value) use (&$item, $doc, $cell_name) {

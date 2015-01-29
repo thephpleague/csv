@@ -155,6 +155,11 @@ abstract class AbstractCsv implements JsonSerializable, IteratorAggregate
         return $obj;
     }
 
+    protected function getOutputIterator()
+    {
+        return $this->getIterator();
+    }
+
     /**
      * Create a {@link AbstractCsv} instance from another {@link AbstractCsv} object
      *

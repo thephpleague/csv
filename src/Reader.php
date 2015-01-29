@@ -61,6 +61,16 @@ class Reader extends AbstractCsv
         return $iterator;
     }
 
+    protected function getOutputIterator()
+    {
+        $iterator = $this->getIterator();
+        $iterator = $this->applyIteratorFilter($iterator);
+        $iterator = $this->applyIteratorSortBy($iterator);
+        $iterator = $this->applyIteratorInterval($iterator);
+
+        return $iterator;
+    }
+
     /**
      * Apply a callback function on the CSV
      *
