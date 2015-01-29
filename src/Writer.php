@@ -45,7 +45,7 @@ class Writer extends AbstractCsv
     /**
      * disable null handling
      */
-    const DISABLE_NULL_HANDLING = 'DISABLE_NULL_HANDLING';
+    const NULL_HANDLING_DISABLED = 'NULL_HANDLING_DISABLED';
 
     /**
      * the object current null handling mode
@@ -109,7 +109,7 @@ class Writer extends AbstractCsv
                 self::NULL_AS_SKIP_CELL,
                 self::NULL_AS_EXCEPTION,
                 self::NULL_AS_EMPTY,
-                self::DISABLE_NULL_HANDLING,
+                self::NULL_HANDLING_DISABLED,
             ])) {
             throw new OutOfBoundsException('invalid value for null handling');
         }
@@ -253,7 +253,6 @@ class Writer extends AbstractCsv
         }
         $csv = $this->getCsv();
         $csv->fputcsv($data, $this->delimiter, $this->enclosure);
-
         if ("\n" !== $this->newline) {
             $csv->fseek(-1, SEEK_CUR);
             $csv->fwrite($this->newline);
@@ -290,7 +289,7 @@ class Writer extends AbstractCsv
      */
     protected function validateRow(array $row)
     {
-        if (self::DISABLE_NULL_HANDLING != $this->null_handling_mode) {
+        if (self::NULL_HANDLING_DISABLED != $this->null_handling_mode) {
             array_walk($row, function ($value) {
                 if (! $this->isConvertibleContent($value)) {
                     throw new InvalidArgumentException('The values are not convertible into strings');
@@ -380,9 +379,7 @@ class Writer extends AbstractCsv
     }
 
     /**
-     * Tells whether the stream filter capabilities can be used
-     *
-     * @return bool
+     *  {@inheritdoc}
      */
     public function isActiveStreamFilter()
     {

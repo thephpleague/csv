@@ -31,7 +31,7 @@ class CsvTest extends PHPUnit_Framework_TestCase
             $csv->fputcsv($row);
         }
 
-        $this->csv = Reader::createFromFileObject($csv);
+        $this->csv = Reader::createFromFileObject($csv, "\n");
     }
 
     public function tearDown()
@@ -227,7 +227,7 @@ class CsvTest extends PHPUnit_Framework_TestCase
 
     public function testToString()
     {
-        $expected = "john,doe,john.doe@example.com".PHP_EOL
+        $expected = "john,doe,john.doe@example.com\n"
             ."jane,doe,jane.doe@example.com".PHP_EOL;
         $this->assertSame($expected, $this->csv->__toString());
     }

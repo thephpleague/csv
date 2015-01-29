@@ -118,7 +118,7 @@ class WriterTest extends PHPUnit_Framework_TestCase
             'john,doe,john.doe@example.com',
             ['john', null, 'john.doe@example.com'],
         ];
-        $this->csv->setNullHandlingMode(Writer::DISABLE_NULL_HANDLING);
+        $this->csv->setNullHandlingMode(Writer::NULL_HANDLING_DISABLED);
         $this->csv->insertAll($expected);
 
         $iterator = new LimitIterator($this->csv->getIterator(), 2, 1);
