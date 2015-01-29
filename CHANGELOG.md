@@ -1,7 +1,7 @@
 #Changelog
 All Notable changes to `League\Csv` will be documented in this file
 
-## Next - XXXX-XX-XX
+## Next - 2015-XX-XX
 
 ### Added
 
@@ -12,6 +12,7 @@ All Notable changes to `League\Csv` will be documented in this file
 
 - `AbstractCSV::createFromString` now accepts `$newline` a second argument to specify the last added new line character. To better work with interoperability.
 
+- All output methods (`toXML`, `toHTML`, `output`, `__toString`) can be modified using `Reader` extract methods.
 
 ## 6.3.0 - 2015-01-21
 
