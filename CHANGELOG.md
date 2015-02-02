@@ -5,18 +5,21 @@ All Notable changes to `League\Csv` will be documented in this file
 
 ### Added
 
-- `Writer::DISABLE_NULL_HANDLING` To completely remove null handling when inserting new data.
+- `Writer::NULL_HANDLING_DISABLED` To completely remove null handling when inserting new data.
 - `Writer::useValidation` To enable/disabled complete validation when inserting new data.
+- The following outputting methods (`toXML`, `toHTML`) can be modified using `Reader` extracting methods.
 
 ### Fixed
 
 - `AbstractCSV::createFromString` now accepts `$newline` a second argument to specify the last added new line character. To better work with interoperability.
 
-- All output methods (`toXML`, `toHTML`, `output`, `__toString`) can be modified using `Reader` extract methods.
+- `AbstractCSV::detectDelimiterList` index keys now represents the total number of occurences of the found delimiter.
+
 
 ## 6.3.0 - 2015-01-21
 
 ### Added
+
 - `AbstractCSV::setOutputBOM`
 - `AbstractCSV::getOutputBOM`
 - `AbstractCSV::getInputBOM`

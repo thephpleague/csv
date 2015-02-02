@@ -4,7 +4,7 @@
 *
 * @license http://opensource.org/licenses/MIT
 * @link https://github.com/thephpleague/csv/
-* @version 6.3.0
+* @version 7.0.0
 * @package League.csv
 *
 * For the full copyright and license information, please view the LICENSE
@@ -42,19 +42,9 @@ trait Output
     /**
      * Return the CSV Iterator
      *
-     * @return \SplFileObject
+     * @return \Iterator
      */
     abstract protected function getOutputIterator();
-
-    /**
-     * JsonSerializable Interface
-     *
-     * @return array
-     */
-    public function jsonSerialize()
-    {
-        return iterator_to_array($this->convertToUtf8($this->getOutputIterator()), false);
-    }
 
     /**
      * Set the CSV encoding charset
@@ -122,10 +112,8 @@ trait Output
      */
     public function output($filename = null)
     {
-        $iterator = $this->getOutputIterator();
-        $iterator->rewind();
         //@codeCoverageIgnoreStart
-        if (! is_null($filename) && self::isValidString($filename)) {
+        if (! is_null($filename)) {
             $filename = trim($filename);
             $filename = filter_var($filename, FILTER_SANITIZE_STRING, FILTER_FLAG_STRIP_LOW);
             header("Content-Type: application/octet-stream");
@@ -133,6 +121,8 @@ trait Output
             header('Content-Disposition: attachment; filename="'.$filename);
         }
         //@codeCoverageIgnoreEnd
+        $iterator = $this->getIterator();
+        $iterator->rewind();
         echo $this->bom;
         $iterator->fpassthru();
     }
@@ -148,6 +138,37 @@ trait Output
         $this->output();
 
         return ob_get_clean();
+    }
+
+    /**
+     * JsonSerializable Interface
+     *
+     * @return array
+     */
+    public function jsonSerialize()
+    {
+        return iterator_to_array($this->convertToUtf8($this->getIterator()), false);
+    }
+
+    /**
+     * Convert Csv file into UTF-8
+     *
+     * @return \Traversable
+     */
+    protected function convertToUtf8(Traversable $iterator)
+    {
+        if (strpos($this->encodingFrom, 'UTF-8') !== false) {
+            return $iterator;
+        }
+
+        return new MapIterator($iterator, function ($row) {
+            foreach ($row as &$value) {
+                $value = mb_convert_encoding($value, 'UTF-8', $this->encodingFrom);
+            }
+            unset($value);
+
+            return $row;
+        });
     }
 
     /**
@@ -192,26 +213,5 @@ trait Output
         $doc->appendChild($root);
 
         return $doc;
-    }
-
-    /**
-     * Convert Csv file into UTF-8
-     *
-     * @return \Traversable
-     */
-    protected function convertToUtf8(Traversable $iterator)
-    {
-        if (strpos($this->encodingFrom, 'UTF-8') !== false) {
-            return $iterator;
-        }
-
-        return new MapIterator($iterator, function ($row) {
-            foreach ($row as &$value) {
-                $value = mb_convert_encoding($value, 'UTF-8', $this->encodingFrom);
-            }
-            unset($value);
-
-            return $row;
-        });
     }
 }

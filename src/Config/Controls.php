@@ -4,7 +4,7 @@
 *
 * @license http://opensource.org/licenses/MIT
 * @link https://github.com/thephpleague/csv/
-* @version 6.3.0
+* @version 7.0.0
 * @package League.csv
 *
 * For the full copyright and license information, please view the LICENSE
@@ -141,7 +141,7 @@ trait Controls
 
         arsort($res, SORT_NUMERIC);
 
-        return array_keys(array_filter($res));
+        return array_flip(array_filter($res));
     }
 
     /**

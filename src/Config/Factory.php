@@ -4,7 +4,7 @@
 *
 * @license http://opensource.org/licenses/MIT
 * @link https://github.com/thephpleague/csv/
-* @version 6.X.X
+* @version 7.0.0
 * @package League.csv
 *
 * For the full copyright and license information, please view the LICENSE
@@ -21,7 +21,7 @@ use SplTempFileObject;
  *  A trait to facilate class instantiation
  *
  * @package League.csv
- * @since  6.4.0
+ * @since  7.0.0
  *
  */
 trait Factory
