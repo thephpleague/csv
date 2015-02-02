@@ -52,6 +52,6 @@ class MapIterator extends IteratorIterator
         $iterator = $this->getInnerIterator();
         $callable = $this->callable;
 
-        return $callable($iterator->current(), $iterator->key(), $iterator);
+        return $callable(parent::current(), parent::key(), $iterator);
     }
 }
