@@ -109,9 +109,12 @@ trait Factory
             );
         }
 
-        $obj = new SplTempFileObject();
-        $obj->fwrite(rtrim($str).$newline);
+        $file = new SplTempFileObject();
+        $file->fwrite(rtrim($str).$newline);
 
-        return static::createFromFileObject($obj);
+        $obj = static::createFromFileObject($file);
+        $obj->setNewline($newline);
+
+        return $obj;
     }
 }

@@ -81,13 +81,6 @@ class Writer extends AbstractCsv
     protected $csv;
 
     /**
-     * newline character
-     *
-     * @var string
-     */
-    protected $newline = "\n";
-
-    /**
      * should the class validate the input before insertion
      *
      * @var boolean
@@ -126,30 +119,6 @@ class Writer extends AbstractCsv
     public function getNullHandlingMode()
     {
         return $this->null_handling_mode;
-    }
-
-    /**
-     * set the newline sequence characters
-     *
-     * @param string $newline
-     *
-     * @return static
-     */
-    public function setNewline($newline)
-    {
-        $this->newline = (string) $newline;
-
-        return $this;
-    }
-
-    /**
-     * return the current newline sequence characters
-     *
-     * @return string
-     */
-    public function getNewline()
-    {
-        return $this->newline;
     }
 
     /**
@@ -384,17 +353,6 @@ class Writer extends AbstractCsv
     public function isActiveStreamFilter()
     {
         return parent::isActiveStreamFilter() && is_null($this->csv);
-    }
-
-    /**
-     *  {@inheritdoc}
-     */
-    public static function createFromString($str, $newline = PHP_EOL)
-    {
-        $obj = parent::createFromString($str, $newline);
-        $obj->setNewline($newline);
-
-        return $obj;
     }
 
     /**

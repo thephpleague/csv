@@ -55,6 +55,13 @@ trait Controls
     protected $flags = SplFileObject::READ_CSV;
 
     /**
+     * newline character
+     *
+     * @var string
+     */
+    protected $newline = "\n";
+
+    /**
      * return a SplFileOjbect
      *
      * @return \SplFileOjbect
@@ -255,5 +262,29 @@ trait Controls
         });
 
         return array_shift($res);
+    }
+
+    /**
+     * set the newline sequence characters
+     *
+     * @param string $newline
+     *
+     * @return static
+     */
+    public function setNewline($newline)
+    {
+        $this->newline = (string) $newline;
+
+        return $this;
+    }
+
+    /**
+     * return the current newline sequence characters
+     *
+     * @return string
+     */
+    public function getNewline()
+    {
+        return $this->newline;
     }
 }
