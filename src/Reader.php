@@ -15,8 +15,7 @@ namespace League\Csv;
 use CallbackFilterIterator;
 use InvalidArgumentException;
 use Iterator;
-use League\Csv\Iterator\MapIterator;
-use League\Csv\Iterator\Query;
+use League\Csv\Iterators;
 use LimitIterator;
 
 /**
@@ -31,7 +30,7 @@ class Reader extends AbstractCsv
     /**
      *  Iterator Query Trait
      */
-    use Query;
+    use Iterators\Query;
 
     /**
      * {@ihneritdoc}
@@ -55,7 +54,7 @@ class Reader extends AbstractCsv
         $iterator = $this->applyIteratorSortBy($iterator);
         $iterator = $this->applyIteratorInterval($iterator);
         if (! is_null($callable)) {
-            $iterator = new MapIterator($iterator, $callable);
+            $iterator = new Iterators\MapIterator($iterator, $callable);
         }
 
         return $iterator;
@@ -118,7 +117,7 @@ class Reader extends AbstractCsv
         }
 
         $iterator = $this->query($callable);
-        $iterator = new MapIterator($iterator, function ($row) use ($column_index) {
+        $iterator = new Iterators\MapIterator($iterator, function ($row) use ($column_index) {
             if (! array_key_exists($column_index, $row)) {
                 return null;
             }
@@ -181,7 +180,7 @@ class Reader extends AbstractCsv
         $keys = $this->getAssocKeys($offset_or_keys);
 
         $iterator = $this->query($callable);
-        $iterator = new MapIterator($iterator, function ($row) use ($keys) {
+        $iterator = new Iterators\MapIterator($iterator, function ($row) use ($keys) {
             return static::combineArray($keys, $row);
         });
 

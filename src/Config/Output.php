@@ -14,7 +14,7 @@ namespace League\Csv\Config;
 
 use DomDocument;
 use InvalidArgumentException;
-use League\Csv\Iterator\MapIterator;
+use League\Csv\Iterators\MapIterator;
 use Traversable;
 
 /**
@@ -118,7 +118,7 @@ trait Output
             $filename = filter_var($filename, FILTER_SANITIZE_STRING, FILTER_FLAG_STRIP_LOW);
             header("Content-Type: application/octet-stream");
             header("Content-Transfer-Encoding: binary");
-            header('Content-Disposition: attachment; filename="'.$filename);
+            header("Content-Disposition: attachment; filename=\"$filename\"");
         }
         //@codeCoverageIgnoreEnd
         $iterator = $this->getIterator();

@@ -16,6 +16,8 @@ All Notable changes to `League\Csv` will be documented in this file
 - `Reader::getNewline` and `Reader::setNewline` are implemented to complete newline feature.
 - `AbstractCSV::createFromString` now accepts `$newline` a second argument to specify the last added new line character. To better work with interoperability.
 
+- Remove default values for all the CSV controls setter methods
+
 ## 6.3.0 - 2015-01-21
 
 ### Added

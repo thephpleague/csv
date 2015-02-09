@@ -14,10 +14,7 @@ namespace League\Csv;
 
 use IteratorAggregate;
 use JsonSerializable;
-use League\Csv\Config\Controls;
-use League\Csv\Config\Factory;
-use League\Csv\Config\Output;
-use League\Csv\Config\StreamFilter;
+use League\Csv\Config;
 use SplFileInfo;
 use SplFileObject;
 
@@ -74,22 +71,22 @@ abstract class AbstractCsv implements JsonSerializable, IteratorAggregate
     /**
      *  Csv Controls Trait
      */
-    use Controls;
+    use Config\Controls;
 
     /**
      *  Csv Factory Trait
      */
-    use Factory;
+    use Config\Factory;
 
     /**
      * Csv Ouputting Trait
      */
-    use Output;
+    use Config\Output;
 
     /**
      *  Stream Filter API Trait
      */
-    use StreamFilter;
+    use Config\StreamFilter;
 
     /**
      * Create a new instance

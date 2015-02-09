@@ -30,22 +30,22 @@ class Writer extends AbstractCsv
     /**
      * set null handling mode to throw exception
      */
-    const NULL_AS_EXCEPTION = 'NULL_AS_EXCEPTION';
+    const NULL_AS_EXCEPTION = 1;
 
     /**
      * set null handling mode to remove cell
      */
-    const NULL_AS_SKIP_CELL = 'NULL_AS_SKIP_CELL';
+    const NULL_AS_SKIP_CELL = 2;
 
     /**
      * set null handling mode to convert null into empty string
      */
-    const NULL_AS_EMPTY = 'NULL_AS_EMPTY';
+    const NULL_AS_EMPTY = 3;
 
     /**
      * disable null handling
      */
-    const NULL_HANDLING_DISABLED = 'NULL_HANDLING_DISABLED';
+    const NULL_HANDLING_DISABLED = 4;
 
     /**
      * the object current null handling mode
@@ -98,7 +98,7 @@ class Writer extends AbstractCsv
      */
     public function setNullHandlingMode($value)
     {
-        if (!in_array($value, [
+        if (! in_array($value, [
                 self::NULL_AS_SKIP_CELL,
                 self::NULL_AS_EXCEPTION,
                 self::NULL_AS_EMPTY,
@@ -166,6 +166,20 @@ class Writer extends AbstractCsv
     }
 
     /**
+     * Tells wether the library should check or not the input
+     *
+     * @param  bool $status
+     *
+     * @return static
+     */
+    public function useValidation($status)
+    {
+        $this->useValidation = (bool) $status;
+
+        return $this;
+    }
+
+    /**
      * Add multiple lines to the CSV your are generating
      *
      * a simple helper/Wrapper method around insertOne
@@ -187,20 +201,6 @@ class Writer extends AbstractCsv
         foreach ($rows as $row) {
             $this->insertOne($row);
         }
-
-        return $this;
-    }
-
-    /**
-     * Tells wether the library should check or not the input
-     *
-     * @param  bool $status
-     *
-     * @return static
-     */
-    public function useValidation($status)
-    {
-        $this->useValidation = (bool) $status;
 
         return $this;
     }
@@ -268,7 +268,7 @@ class Writer extends AbstractCsv
         }
 
         if (! $this->isColumnsCountConsistent($row)) {
-            throw new RuntimeException('Adding '.count($row).' cells on a '.$this->columns_count.' cells per row CSV.');
+            throw new RuntimeException('Adding '.count($row).' cells on a {$this->columns_count} cells per row CSV.');
         }
 
         return $row;

@@ -77,7 +77,7 @@ trait Controls
      *
      * @return $this
      */
-    public function setDelimiter($delimiter = ',')
+    public function setDelimiter($delimiter)
     {
         if (1 != mb_strlen($delimiter)) {
             throw new InvalidArgumentException('The delimiter must be a single character');
@@ -109,9 +109,7 @@ trait Controls
     {
         $iterator = $this->getIterator();
         $iterator->setCsvControl($delimiter, $this->enclosure, $this->escape);
-        //"reduce" the csv length to a maximum of $nb_rows
         $iterator = new LimitIterator($iterator, 0, $nb_rows);
-        //return the parse rows
         $iterator = new CallbackFilterIterator($iterator, function ($row) {
             return is_array($row) && count($row) > 1;
         });
@@ -139,8 +137,7 @@ trait Controls
         $delimiters = array_filter($delimiters, function ($str) {
             return 1 == mb_strlen($str);
         });
-        $delimiters = array_merge([$this->delimiter, ',', ';', "\t"], $delimiters);
-        $delimiters = array_unique($delimiters);
+        $delimiters = array_unique(array_merge([$this->delimiter, ',', ';', "\t"], $delimiters));
         $res = array_fill_keys($delimiters, 0);
         array_walk($res, function (&$value, $delim) use ($nb_rows) {
             $value = $this->fetchRowsCountByDelimiter($delim, $nb_rows);
@@ -160,7 +157,7 @@ trait Controls
      *
      * @return $this
      */
-    public function setEnclosure($enclosure = '"')
+    public function setEnclosure($enclosure)
     {
         if (1 != mb_strlen($enclosure)) {
             throw new InvalidArgumentException('The enclosure must be a single character');
@@ -189,7 +186,7 @@ trait Controls
      *
      * @return $this
      */
-    public function setEscape($escape = "\\")
+    public function setEscape($escape)
     {
         if (1 != mb_strlen($escape)) {
             throw new InvalidArgumentException('The escape character must be a single character');
