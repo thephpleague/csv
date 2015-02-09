@@ -11,10 +11,10 @@ All Notable changes to `League\Csv` will be documented in this file
 
 ### Fixed
 
-- `AbstractCSV::createFromString` now accepts `$newline` a second argument to specify the last added new line character. To better work with interoperability.
-
 - `AbstractCSV::detectDelimiterList` index keys now represents the total number of occurences of the found delimiter.
 
+- `Reader::getNewline` and `Reader::setNewline` are implemented to complete newline feature.
+- `AbstractCSV::createFromString` now accepts `$newline` a second argument to specify the last added new line character. To better work with interoperability.
 
 ## 6.3.0 - 2015-01-21
 
