@@ -97,18 +97,10 @@ trait Factory
      * @param string|object $str the string
      * @param string        $newline the newline character
      *
-     * @throws \InvalidArgumentException If the data provided is invalid
-     *
      * @return static
      */
-    public static function createFromString($str, $newline = PHP_EOL)
+    public static function createFromString($str, $newline = "\n")
     {
-        if (! self::isValidString($str)) {
-            throw new InvalidArgumentException(
-                'the submitted data must be a string or an object implementing the `__toString` method'
-            );
-        }
-
         $file = new SplTempFileObject();
         $file->fwrite(rtrim($str).$newline);
 

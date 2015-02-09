@@ -27,6 +27,7 @@ class ReaderTest extends PHPUnit_Framework_TestCase
         }
 
         $this->csv = Reader::createFromFileObject($csv);
+        $this->csv->setFlags(SplFileObject::READ_AHEAD|SplFileObject::SKIP_EMPTY);
     }
 
     /**

@@ -174,11 +174,12 @@ abstract class AbstractCsv implements JsonSerializable, IteratorAggregate
     protected function newInstance($class_name, $open_mode)
     {
         $csv = new $class_name($this->path, $open_mode);
+        $csv->bom          = $this->bom;
         $csv->delimiter    = $this->delimiter;
         $csv->enclosure    = $this->enclosure;
         $csv->escape       = $this->escape;
         $csv->encodingFrom = $this->encodingFrom;
-        $csv->bom          = $this->bom;
+        $csv->newline      = $this->newline;
 
         return $csv;
     }
