@@ -112,6 +112,7 @@ class ReaderTest extends PHPUnit_Framework_TestCase
     {
         $string = 'john,doe,john.doe@example.com'.PHP_EOL.'john,doe,john.doe@example.com';
         $csv = Reader::createFromString($string);
+        $csv->setFlags(SplFileObject::READ_AHEAD|SplFileObject::SKIP_EMPTY);
         $func = function ($rowA, $rowB) {
             return strcmp($rowA[0], $rowB[0]);
         };
@@ -186,6 +187,7 @@ class ReaderTest extends PHPUnit_Framework_TestCase
         }
 
         $csv = Reader::createFromFileObject($tmpFile);
+        $csv->setFlags(SplFileObject::READ_AHEAD|SplFileObject::SKIP_EMPTY);
         $res = $csv->setOffSet(2)->fetchAssoc(2);
         $this->assertSame([['D' => '6', 'E' => '7', 'F' => '8']], $res);
     }
@@ -261,6 +263,7 @@ class ReaderTest extends PHPUnit_Framework_TestCase
             $file->fputcsv($row);
         }
         $csv = Reader::createFromFileObject($file);
+        $csv->setFlags(SplFileObject::READ_AHEAD|SplFileObject::SKIP_EMPTY);
         $res = $csv->fetchColumn(2);
         $this->assertInternalType('array', $res);
         $this->assertCount(2, $res);
