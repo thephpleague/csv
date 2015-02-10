@@ -208,7 +208,7 @@ trait Output
      */
     public function jsonSerialize()
     {
-        return iterator_to_array($this->convertToUtf8($this->getIterator()), false);
+        return iterator_to_array($this->convertToUtf8($this->getOutputIterator()), false);
     }
 
     /**

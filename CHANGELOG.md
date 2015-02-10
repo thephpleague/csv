@@ -18,7 +18,7 @@ All Notable changes to `League\Csv` will be documented in this file
 - Default flags value is now `SplFileObject::READ_CSV|SplFileObject::DROP_NEW_LINE`
 - `SplFileObject` constants are now copied when using `newReader` and `newWriter` methods
 - BOM addition on export improved by removing existing BOM character if found
-- `toXML` and `toHTML` output can be modified using `Reader` query options methods.
+- `jsonSerialize`, `toXML` and `toHTML` output can be modified using `Reader` query options methods.
 
 ### Remove
 - Nothing
