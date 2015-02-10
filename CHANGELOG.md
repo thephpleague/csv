@@ -11,6 +11,7 @@ All Notable changes to `League\Csv` will be documented in this file
 - Nothing
 
 ### Fixed
+- `jsonSerialize`, `toXML` and `toHTML` output can be modified using `Reader` query options methods.
 - `AbstractCSV::detectDelimiterList` index keys now represents the occurence of the found delimiter.
 - `getNewline` and `setNewline` are accessible on the `Reader` class too.
 - `AbstractCSV::createFromString` now accepts `$newline` as a second argument to specify the last added new line character to better work with interoperability.
@@ -18,7 +19,6 @@ All Notable changes to `League\Csv` will be documented in this file
 - Default flags value is now `SplFileObject::READ_CSV|SplFileObject::DROP_NEW_LINE`
 - `SplFileObject` constants are now copied when using `newReader` and `newWriter` methods
 - BOM addition on export improved by removing existing BOM character if found
-- `jsonSerialize`, `toXML` and `toHTML` output can be modified using `Reader` query options methods.
 
 ### Remove
 - Nothing
@@ -76,7 +76,7 @@ to manage BOM character with CSV.
 ### Added
 
 - `League\Csv\Writer::setColumnsCount`, `League\Csv\Writer::getColumnsCount`, `League\Csv\Writer::autodetectColumnsCount` to enable column consistency in writer mode
-- League\Csv\Reader::fetchColumn replaces `League\Csv\Reader::fetchCol` for naming consistency
+- `League\Csv\Reader::fetchColumn` replaces `League\Csv\Reader::fetchCol` for naming consistency
 
 ### Deprecated
 - `League\Csv\Reader::fetchCol`
