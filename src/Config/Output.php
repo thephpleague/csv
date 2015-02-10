@@ -170,6 +170,9 @@ trait Output
 
     /**
      * Output all data from the CSV
+     *
+     * @return int Returns the number of characters read from the handle
+     *              and passed through to the output.
      */
     protected function fpassthru()
     {
@@ -185,7 +188,9 @@ trait Output
             $csv->fseek(strlen($input_bom));
         }
         echo $bom;
-        $csv->fpassthru();
+        $res = $csv->fpassthru();
+
+        return $res + strlen($bom);
     }
 
     /**
