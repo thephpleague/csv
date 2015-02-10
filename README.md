@@ -54,9 +54,12 @@ Documentation
 
 * Even though you can iterate over you document using `League\Csv\Writer` class, **it is recommend and best practice** to iterate over you CSV using the `League\Csv\Reader` class to avoid any issue.
 
-* The library assumes that your data is UTF-8 encoded. If your are dealing with non-unicode data you **must** enable your data conversion into UTF-8 otherwise output methods will fail. You can transcode your CSV :
-    * using the library [stream filtering methods](http://csv.thephpleague.com/filtering);
-    * or by setting the source [encoding charset](http://csv.thephpleague.com/overview);
+* The library assumes that your data is `UTF-8` encoded. If your are dealing with non-unicode data you **must** enable your data conversion into UTF-8 otherwise conversion methods will fail.
+
+You can transcode your CSV :
+
+* using the library [stream filtering methods](http://csv.thephpleague.com/filtering) will affect conversion and outputting;
+* or by setting the source [encoding charset](http://csv.thephpleague.com/overview) will **only** affect conversion;
 
 Testing
 -------
