@@ -9,12 +9,11 @@ require '../vendor/autoload.php';
 
 $inputCsv = Reader::createFromPath('data/prenoms.csv');
 $inputCsv->setDelimiter(';');
-$inputCsv->setEncodingFrom("iso-8859-15");
 
 //get the header
 $headers = $inputCsv->fetchOne(0);
 
-//get at maximum 25 rows starting from the second 801th row
+//get at maximum 25 rows starting from the 801th row
 $res = $inputCsv->setOffset(800)->setLimit(25)->fetchAll();
 ?>
 <!doctype html>

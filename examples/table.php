@@ -10,6 +10,7 @@ require '../vendor/autoload.php';
 $inputCsv = Reader::createFromPath('data/prenoms.csv');
 $inputCsv->setDelimiter(';');
 $inputCsv->setEncodingFrom("iso-8859-15");
+$inputCsv->setLimit(30);
 ?>
 <!doctype html>
 <html lang="fr">

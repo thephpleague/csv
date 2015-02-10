@@ -10,7 +10,6 @@ require '../vendor/autoload.php';
  //you can instantiate the Reader class with a SplFileObject object
 $inputCsv = Reader::createFromPath(new SplFileObject('data/prenoms.csv'));
 $inputCsv->setDelimiter(';');
-$inputCsv->setEncodingFrom("iso-8859-15");
 
 $res = $inputCsv
     ->addFilter(function ($row, $index) {
@@ -40,7 +39,7 @@ $headers = $inputCsv->fetchOne(0);
 <!doctype html>
 <html lang="fr">
 <head>
-    <meta charset="utf-8">
+    <meta charset="iso-8859-15">
     <title>\League\Csv\Reader filtering method</title>
     <link rel="stylesheet" href="example.css">
 </head>
