@@ -54,6 +54,13 @@ trait Output
     abstract protected function getOutputIterator();
 
     /**
+     * Return the CSV Iterator
+     *
+     * @return \SplFileObject
+     */
+    abstract public function getIterator();
+
+    /**
      * Set the CSV encoding charset
      *
      * @param string $str
@@ -119,26 +126,25 @@ trait Output
      */
     public function getInputBOM()
     {
-        if ($this->input_bom) {
-            return $this->input_bom;
+        if (! $this->input_bom) {
+            $bom = [
+                self::BOM_UTF8,
+                self::BOM_UTF16_BE,
+                self::BOM_UTF16_LE,
+                self::BOM_UTF32_BE,
+                self::BOM_UTF32_LE,
+            ];
+            $csv = $this->getIterator();
+            $csv->setFlags(SplFileObject::READ_CSV);
+            $csv->rewind();
+            $line = $csv->fgets();
+
+            $res = array_filter($bom, function ($sequence) use ($line) {
+                return strpos($line, $sequence) === 0;
+            });
+
+            $this->input_bom = array_shift($res);
         }
-        $bom = [
-            self::BOM_UTF8,
-            self::BOM_UTF16_BE,
-            self::BOM_UTF16_LE,
-            self::BOM_UTF32_BE,
-            self::BOM_UTF32_LE,
-        ];
-        $csv = $this->getIterator();
-        $csv->setFlags(SplFileObject::READ_CSV);
-        $csv->rewind();
-        $line = $csv->fgets();
-
-        $res = array_filter($bom, function ($sequence) use ($line) {
-            return strpos($line, $sequence) === 0;
-        });
-
-        $this->input_bom = array_shift($res);
 
         return $this->input_bom;
     }
@@ -159,24 +165,27 @@ trait Output
             header("Content-Transfer-Encoding: binary");
             header("Content-Disposition: attachment; filename=\"$filename\"");
         }
-        $this->export();
+        $this->fpassthru();
     }
 
-    protected function export()
+    /**
+     * Output all data from the CSV
+     */
+    protected function fpassthru()
     {
         $bom = '';
         $input_bom = $this->getInputBOM();
         if ($this->output_bom && $input_bom != $this->output_bom) {
             $bom = $this->output_bom;
         }
-        $iterator = $this->getIterator();
-        $iterator->rewind();
-        $iterator->setFlags(SplFileObject::READ_CSV);
+        $csv = $this->getIterator();
+        $csv->rewind();
+        $csv->setFlags(SplFileObject::READ_CSV);
         if (! empty($input_bom)) {
-            $iterator->fseek(strlen($input_bom));
+            $csv->fseek(strlen($input_bom));
         }
         echo $bom;
-        $iterator->fpassthru();
+        $csv->fpassthru();
     }
 
     /**
@@ -187,7 +196,7 @@ trait Output
     public function __toString()
     {
         ob_start();
-        $this->export();
+        $this->fpassthru();
 
         return ob_get_clean();
     }

@@ -4,26 +4,28 @@ All Notable changes to `League\Csv` will be documented in this file
 ## Next - 2015-XX-XX
 
 ### Added
-
 - `Writer::NULL_HANDLING_DISABLED` To completely remove null handling when inserting new data.
 - `Writer::useValidation` To enable/disabled complete validation when inserting new data.
-- The following outputting methods (`toXML`, `toHTML`) can be modified using `Reader` extracting methods.
+
+### Deprecated
+- Nothing
 
 ### Fixed
-
-- `AbstractCSV::detectDelimiterList` index keys now represents the total number of occurences of the found delimiter.
-
-- `Reader::getNewline` and `Reader::setNewline` are implemented to complete newline feature.
-- `AbstractCSV::createFromString` now accepts `$newline` a second argument to specify the last added new line character. To better work with interoperability.
-- Remove default values for all the CSV controls setter methods
-- Default flag value is now `SplFileObject::READ_CSV|SplFileObject::DROP_NEW_LINE`
+- `AbstractCSV::detectDelimiterList` index keys now represents the occurence of the found delimiter.
+- `getNewline` and `setNewline` are accessible on the `Reader` class too.
+- `AbstractCSV::createFromString` now accepts `$newline` as a second argument to specify the last added new line character to better work with interoperability.
+- Remove default value on CSV controls setter methods (ie `setDelimiter`, `setEnclosure`, `setEscape`)
+- Default flags value is now `SplFileObject::READ_CSV|SplFileObject::DROP_NEW_LINE`
 - `SplFileObject` constants are now copied when using `newReader` and `newWriter` methods
-- BOM addition on export improved to remove extra BOM characters
+- BOM addition on export improved by removing existing BOM character if found
+- `toXML` and `toHTML` output can be modified using `Reader` query options methods.
+
+### Remove
+- Nothing
 
 ## 6.3.0 - 2015-01-21
 
 ### Added
-
 - `AbstractCSV::setOutputBOM`
 - `AbstractCSV::getOutputBOM`
 - `AbstractCSV::getInputBOM`
@@ -58,7 +60,7 @@ to manage BOM character with CSV.
 - Nothing
 
 ### Fixed
-- `League\Csv\Reader::each` more strict `$callable` MUST returns true
+- `League\Csv\Reader::each` more strict `$callable` MUST returns `true`
 
 ### Remove
 - `League\Csv\AbstractCsv::detectDelimiter`
@@ -67,9 +69,7 @@ to manage BOM character with CSV.
 - `League\Csv\Reader::setFilter`
 - `League\Csv\Reader::getWriter`
 - `League\Csv\Writer::getReader`
-
-### Security
-- Nothing
+- `League\Csv\Reader::fetchCol`
 
 ## 5.4.0 - 2014-04-17
 
@@ -84,12 +84,6 @@ to manage BOM character with CSV.
 ### Fixed
 - Nothing
 
-### Remove
-- Nothing
-
-### Security
-- Nothing
-
 ## 5.3.1 - 2014-04-09
 
 ### Added
@@ -101,28 +95,13 @@ to manage BOM character with CSV.
 ### Fixed
 - `$open_mode` default to `r+` in `League\Csv\AbstractCsv` constructors
 
-### Remove
-- Nothing
-
-### Security
-- Nothing
-
 ## 5.3.0 - 2014-03-24
 
 ### Added
 - `League\Csv\Writer::setNullHandlingMode` and `League\Csv\Writer::getNullHandlingMode` to handle `null` value
 
-### Deprecated
-- Nothing
-
 ### Fixed
 - `setting ini_set("auto_detect_line_endings", true);` no longer needed for Mac OS
-
-### Remove
-- Nothing
-
-### Security
-- Nothing
 
 ## 5.2.0 - 2014-03-13
 
@@ -135,14 +114,8 @@ to manage BOM character with CSV.
 
 ### Fixed
 - `League\Csv\Reader::setOffset` now default to 0;
-- `League\Csv\Reader::setLimit` now default to 0-1;
+- `League\Csv\Reader::setLimit` now default to -1;
 - `detectDelimiter` bug fixes
-
-### Remove
-- Nothing
-
-### Security
-- Nothing
 
 ## 5.1.0 - 2014-03-11
 
@@ -153,15 +126,6 @@ to manage BOM character with CSV.
 
 ### Deprecated
 - `League\Csv\Reader::setFilter` replaced by a better implementation
-
-### Fixed
-- Nothing
-
-### Remove
-- Nothing
-
-### Security
-- Nothing
 
 ## 5.0.0 - 2014-02-28
 
@@ -174,101 +138,41 @@ to manage BOM character with CSV.
 ### Fixed
 - Nothing
 
-### Remove
-- Nothing
-
-### Security
-- Nothing
-
 ## 4.2.1 - 2014-02-22
 
-### Added
-- Nothing
-
-### Deprecated
-- Nothing
-
 ### Fixed
-- `$open_mode` validation is done by PHP interals directly
-
-### Remove
-- Nothing
-
-### Security
-- Nothing
+- `$open_mode` validation is done by PHP internals directly
 
 ## 4.2.0 - 2014-02-17
 
 ### Added
 - `toXML` method to transcode the CSV into a XML in `Bakame\Csv\AbstractCsv`
 
-### Deprecated
-- Nothing
-
 ### Fixed
 - `toHTML` method bug in `Bakame\Csv\AbstractCsv`
 - `output` method accepts an optional `$filename` argument
-- `Bakame\Csv\Reader::fetchCol` default to `$columnIndex = 0` 
+- `Bakame\Csv\Reader::fetchCol` default to `$columnIndex = 0`
 - `Bakame\Csv\Reader::fetchOne` default to `$offset = 0`
-
-### Remove
-- Nothing
-
-### Security
-- Nothing
 
 ## 4.1.2 - 2014-02-14
 
 ### Added
 - Move from `PSR-0` to `PSR-4` to autoload the library
 
-### Deprecated
-- Nothing
-
-### Fixed
-- Nothing
-
-### Remove
-- Nothing
-
-### Security
-- Nothing
-
 ## 4.1.1 - 2014-02-14
-
-### Added
-- Nothing
-
-### Deprecated
-- Nothing
 
 ### Fixed
 - `Bakame\Csv\Reader` methods fixed
 - `jsonSerialize` bug fixed
 
-### Remove
-- Nothing
-
-### Security
-- Nothing
-
 ## 4.1.0 - 2014-02-07
 
-### Added 
+### Added
 - `getEncoding` and `setEncoding` methods to `Bakame\Csv\AbstractCsv`
-
-### Deprecated
-- Nothing
 
 ### Fixed
 - `Bakame\Csv\Writer::insertOne` takes into account CSV controls
 - `toHTML` method takes into account encoding
-
-### Removed
-- Nothing
-
-### Security
-- Nothing
 
 ## 4.0.0 - 2014-02-05
 
@@ -290,9 +194,6 @@ to manage BOM character with CSV.
 - `Bakame\Csv\Reader::fetchValue`
 - `Bakame\Csv\Reader` no longer implements the `ArrayAccess` interface
 
-### Security
-- Nothing
-
 ## 3.3.0 - 2014-01-28
 
 ### Added
@@ -301,7 +202,7 @@ to manage BOM character with CSV.
 - `Bakame\Csv\Reader::query` accept an optional `$callable` parameter
 
 ### Deprecated
-- `Bakame\Csv\Reader::getFile` in favor of `Bakame\Csv\Reader::getIterator` 
+- `Bakame\Csv\Reader::getFile` in favor of `Bakame\Csv\Reader::getIterator`
 
 ### Removed
 - `Bakame\Csv\ReaderInterface` useless interface
@@ -309,9 +210,6 @@ to manage BOM character with CSV.
 ### Fixed
 - `Bakame\Csv\Reader::fetch*` `$callable` parameter is normalized to accept an array
 - `Bakame\Csv\Reader::fetchCol` accepts a third parameter `$strict`
-
-### Security
-- Nothing
 
 ## 3.2.0 - 2014-01-16
 
@@ -323,16 +221,7 @@ to manage BOM character with CSV.
 
 ### Deprecated
 - `Bakame\Csv\Reader::fetchOne` replaced by `Bakame\Csv\Reader::offsetGet`
-- `Bakame\Csv\Reader::fetchValue` useless method 
-
-### Removed
-- Nothing
-
-### Fixed
-- Nothing
-
-### Security
-- Nothing
+- `Bakame\Csv\Reader::fetchValue` useless method
 
 ## 3.1.0 - 2014-01-13
 
@@ -340,34 +229,10 @@ to manage BOM character with CSV.
 - `Bakame\Csv\Reader::output` output the CSV data directly in the output buffer
 - `Bakame\Csv\Reader::__toString` can be use to echo the raw CSV
 
-### Deprecated
-- Nothing
-
-### Removed
-- Nothing
-
-### Fixed
-- Nothing
-
-### Security
-- Nothing
-
 ## 3.0.1 - 2014-01-10
-
-### Added
-- Nothing
-
-### Deprecated
-- Nothing
-
-### Removed
-- Nothing
 
 ### Fixed
 - `Bakame\Csv\Reader::fetchAssoc` when users keys and CSV row data don't have the same length
-
-### Security
-- Nothing
 
 ## 3.0.0 - 2014-01-10
 
@@ -375,19 +240,10 @@ to manage BOM character with CSV.
 - `Bakame\Csv\ReaderInterface`
 - `Bakame\Csv\Reader` class
 
-### Deprecated
-- Nothing
-
-### Removed
-- Nothing
-
 ### Fixed
 - `Bakame\Csv\Codec::loadString`returns a `Bakame\Csv\Reader` object
 - `Bakame\Csv\Codec::loadFile` returns a `Bakame\Csv\Reader` object
 - `Bakame\Csv\Codec::save` returns a `Bakame\Csv\Reader` object
-
-### Security
-- Nothing
 
 ## 2.0.0 - 2014-01-09
 
@@ -397,14 +253,11 @@ to manage BOM character with CSV.
 ### Deprecated
 - Nothing
 
-### Removed
-- `Bakame\Csv\Codec::create` from public API
-
 ### Fixed
 - Nothing
 
-### Security
-- Nothing
+### Removed
+- `Bakame\Csv\Codec::create` from public API
 
 ## 1.0.0 - 2013-12-03
 

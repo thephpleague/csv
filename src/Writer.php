@@ -208,20 +208,18 @@ class Writer extends AbstractCsv
     /**
      * Add a new CSV row to the generated CSV
      *
-     * @param string[]|string $data a string, an array or an object implementing to '__toString' method
-     *
-     * @throws \InvalidArgumentException If the given row is invalid
+     * @param string[]|string $row a string, an array or an object implementing to '__toString' method
      *
      * @return static
      */
-    public function insertOne($data)
+    public function insertOne($row)
     {
-        $data = $this->formatRow($data);
+        $row = $this->formatRow($row);
         if ($this->useValidation) {
-            $data = $this->validateRow($data);
+            $row = $this->validateRow($row);
         }
         $csv = $this->getCsv();
-        $csv->fputcsv($data, $this->delimiter, $this->enclosure);
+        $csv->fputcsv($row, $this->delimiter, $this->enclosure);
         if ("\n" !== $this->newline) {
             $csv->fseek(-1, SEEK_CUR);
             $csv->fwrite($this->newline);
