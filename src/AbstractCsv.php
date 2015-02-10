@@ -104,6 +104,7 @@ abstract class AbstractCsv implements JsonSerializable, IteratorAggregate
 
         $this->path      = $this->normalizePath($path);
         $this->open_mode = strtolower($open_mode);
+        $this->flags     =  SplFileObject::READ_CSV|SplFileObject::DROP_NEW_LINE;
         $this->initStreamFilter($this->path);
     }
 
@@ -171,11 +172,13 @@ abstract class AbstractCsv implements JsonSerializable, IteratorAggregate
     protected function newInstance($class_name, $open_mode)
     {
         $csv = new $class_name($this->path, $open_mode);
-        $csv->bom          = $this->bom;
         $csv->delimiter    = $this->delimiter;
         $csv->enclosure    = $this->enclosure;
         $csv->escape       = $this->escape;
         $csv->encodingFrom = $this->encodingFrom;
+        $csv->flags        = $this->flags;
+        $csv->input_bom    = $this->input_bom;
+        $csv->output_bom   = $this->output_bom;
         $csv->newline      = $this->newline;
 
         return $csv;

@@ -52,7 +52,7 @@ trait Controls
      *
      * @var int
      */
-    protected $flags = SplFileObject::READ_CSV;
+    protected $flags;
 
     /**
      * newline character
@@ -236,30 +236,6 @@ trait Controls
         return $this->flags;
     }
 
-    /**
-     * Returns the BOM sequence of the given CSV
-     *
-     * @return string
-     */
-    public function getInputBOM()
-    {
-        $bom = [
-            self::BOM_UTF8,
-            self::BOM_UTF16_BE,
-            self::BOM_UTF16_LE,
-            self::BOM_UTF32_BE,
-            self::BOM_UTF32_LE
-        ];
-        $csv = $this->getIterator();
-        $csv->rewind();
-        $line = $csv->fgets();
-
-        $res = array_filter($bom, function ($sequence) use ($line) {
-            return strpos($line, $sequence) === 0;
-        });
-
-        return array_shift($res);
-    }
 
     /**
      * set the newline sequence characters

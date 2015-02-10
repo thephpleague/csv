@@ -83,10 +83,20 @@ class ControlsTest extends PHPUnit_Framework_TestCase
 
     public function testGetBomOnInputWithBOM()
     {
-        $expected = "\x00\x00\xFE\xFFjohn,doe,john.doe@example.com".PHP_EOL
+        $expected = Reader::BOM_UTF32_BE."john,doe,john.doe@example.com".PHP_EOL
             ."jane,doe,jane.doe@example.com".PHP_EOL;
         $reader = Reader::createFromString($expected);
         $this->assertSame(Reader::BOM_UTF32_BE, $reader->getInputBOM());
+        $this->assertSame(Reader::BOM_UTF32_BE, $reader->getInputBOM());
+    }
+
+    public function testChangingBOMOnOutput()
+    {
+        $text = "john,doe,john.doe@example.com".PHP_EOL
+            ."jane,doe,jane.doe@example.com".PHP_EOL;
+        $reader = Reader::createFromString(Reader::BOM_UTF32_BE.$text);
+        $reader->setOutputBOM(Reader::BOM_UTF8);
+        $this->assertSame(Reader::BOM_UTF8.$text, $reader->__toString());
     }
 
     /**
@@ -163,9 +173,12 @@ class ControlsTest extends PHPUnit_Framework_TestCase
      */
     public function testSetFlags()
     {
+        $this->assertSame(SplFileObject::READ_CSV, $this->csv->getFlags() & SplFileObject::READ_CSV);
+        $this->assertSame(SplFileObject::DROP_NEW_LINE, $this->csv->getFlags() & SplFileObject::DROP_NEW_LINE);
         $this->csv->setFlags(SplFileObject::SKIP_EMPTY);
         $this->assertSame(SplFileObject::SKIP_EMPTY, $this->csv->getFlags() & SplFileObject::SKIP_EMPTY);
         $this->assertSame(SplFileObject::READ_CSV, $this->csv->getFlags() & SplFileObject::READ_CSV);
+        $this->assertSame(SplFileObject::DROP_NEW_LINE, $this->csv->getFlags() & SplFileObject::DROP_NEW_LINE);
 
         $this->csv->setFlags(-3);
     }
