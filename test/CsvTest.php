@@ -41,7 +41,6 @@ class CsvTest extends PHPUnit_Framework_TestCase
 
     public function testIterator()
     {
-        $this->csv->setFlags(SplFileObject::READ_AHEAD|SplFileObject::SKIP_EMPTY);
         foreach ($this->csv as $key => $row) {
             $this->assertSame($this->expected[$key], $row);
         }
