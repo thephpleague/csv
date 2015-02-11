@@ -15,11 +15,13 @@ by utilizing PHP native classes whenever possible.
 Highlights
 -------
 
-* Easy reading/writing to CSV files in a memory efficient and scalable way
-* CSV manipulation using stream filters
-* Content filtering using PHP's SPL Iterators capabilities
-* Easy conversion in JSON, XML or HTML format
+* Simple API
+* Read and Write to CSV documents in a memory efficient and scalable way
+* Use SPL to interact with the CSV documents
+* Support PHP Stream filtering capabilities
+* Transform CSV documents into popular format (JSON, XML or HTML)
 * Fully documented
+* Fully Unit tested
 * Framework-agnostic
 * Composer ready, [PSR-2] and [PSR-4] compliant
 
