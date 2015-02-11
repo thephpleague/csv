@@ -210,6 +210,9 @@ EOF;
      */
     public function testOutput()
     {
+        if (defined('HHVM_VERSION')) {
+            $this->markTestSkipped();
+        }
         $this->csv->output("test.csv");
         $headers = xdebug_get_headers();
         $this->assertSame($headers[0], "Content-Type: application/octet-stream");
