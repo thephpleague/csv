@@ -184,7 +184,7 @@ trait Output
         $csv = $this->getIterator();
         $csv->rewind();
         $csv->setFlags(SplFileObject::READ_CSV);
-        if (! empty($input_bom)) {
+        if (! empty($bom) && ! empty($input_bom)) {
             $csv->fseek(strlen($input_bom));
         }
         echo $bom;
