@@ -24,7 +24,7 @@ class FactoryTest extends PHPUnit_Framework_TestCase
         $this->assertSame($path, $csv->getIterator()->getRealPath());
     }
 
-    public function testCreateFromPathWithFileObject()
+    public function testCreateFromPathWithSplFileInfo()
     {
         $path = __DIR__.'/foo.csv';
         $csv  = Reader::createFromPath(new SplFileInfo($path));
@@ -34,7 +34,7 @@ class FactoryTest extends PHPUnit_Framework_TestCase
     public function testConstructorWithSplFileInfo()
     {
         $path = __DIR__.'/foo.csv';
-        $csv = Reader::createFromPath(new SplFileInfo($path));
+        $csv = new Reader(new SplFileInfo($path));
         $this->assertSame($path, $csv->getIterator()->getRealPath());
     }
 

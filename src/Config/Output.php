@@ -154,6 +154,8 @@ trait Output
      *
      * @param string $filename CSV downloaded name if present adds extra headers
      *
+     * @return int Returns the number of characters read from the handle
+     *             and passed through to the output.
      */
     public function output($filename = null)
     {
@@ -164,14 +166,15 @@ trait Output
             header("Content-Transfer-Encoding: binary");
             header("Content-Disposition: attachment; filename=\"$filename\"");
         }
-        $this->fpassthru();
+
+        return $this->fpassthru();
     }
 
     /**
      * Output all data from the CSV
      *
      * @return int Returns the number of characters read from the handle
-     *              and passed through to the output.
+     *             and passed through to the output.
      */
     protected function fpassthru()
     {
