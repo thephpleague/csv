@@ -204,4 +204,24 @@ EOF;
         $csv->prependStreamFilter('string.toupper');
         $this->assertFalse($csv->getIterator()->getRealPath());
     }
+
+    /**
+     * @runInSeparateProcess
+     */
+    public function testOutput()
+    {
+        $this->csv->output("test.csv");
+        $headers = xdebug_get_headers();
+        $this->assertSame($headers[0], "Content-Type: application/octet-stream");
+        $this->assertSame($headers[1], "Content-Transfer-Encoding: binary");
+        $this->assertSame($headers[2], "Content-Disposition: attachment; filename=\"test.csv\"");
+    }
+
+    /**
+     * @expectedException PHPUnit_Framework_Error
+     */
+    public function testFailedOutput()
+    {
+        $this->csv->output(new DateTime);
+    }
 }

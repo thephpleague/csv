@@ -154,7 +154,6 @@ trait Output
      *
      * @param string $filename CSV downloaded name if present adds extra headers
      *
-     * @codeCoverageIgnore
      */
     public function output($filename = null)
     {
