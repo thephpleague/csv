@@ -28,16 +28,16 @@ use LimitIterator;
 trait Query
 {
     /**
-     * Callable function to filter the iterator
+     * Callables to filter the iterator
      *
-     * @var array
+     * @var callable[]
      */
     protected $iterator_filters = [];
 
     /**
-     * Callable function to sort the ArrayObject
+     * Callables to sort the iterator
      *
-     * @var callable
+     * @var callable[]
      */
     protected $iterator_sort_by = [];
 

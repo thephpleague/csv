@@ -8,19 +8,25 @@ CSV
 [![Quality Score](https://img.shields.io/scrutinizer/g/thephpleague/csv.svg?style=flat-square)](https://scrutinizer-ci.com/g/thephpleague/csv)
 [![Total Downloads](https://img.shields.io/packagist/dt/league/csv.svg?style=flat-square)](https://packagist.org/packages/league/csv)
 
-League\Csv is a simple library to ease CSV parsing, writing and filtering in
+Csv is a simple library to ease CSV parsing, writing and filtering in
 PHP. The goal of the library is to be powerful while remaining lightweight,
 by utilizing PHP native classes whenever possible.
 
-League\Csv was designed for developers who want to deal with CSV data using
-modern code and without the high levels of bootstrap and low-levels of
-usefulness provided by existing core functions or third party-code.
+Highlights
+-------
 
-This package is compliant with [PSR-2] and [PSR-4].
+* Easy reading/writing to CSV files in a memory efficient and scalable way
+* CSV manipulation using stream filters
+* Content filtering using PHP's SPL Iterators capabilities
+* Easy conversion in JSON, XML or HTML format
+* Fully documented
+* Framework-agnostic
+* Composer ready, [PSR-2] and [PSR-4] compliant
 
-[PSR-2]: https://github.com/php-fig/fig-standards/blob/master/accepted/PSR-2-coding-style-guide.md
-[PSR-4]: https://github.com/php-fig/fig-standards/blob/master/accepted/PSR-4-autoloader.md
+Documentation
+-------
 
+Full documentation can be found at [csv.thephpleague.com](http://csv.thephpleague.com). Contribute to this documentation in the [gh-pages branch](https://github.com/thephpleague/csv/tree/gh-pages)
 
 System Requirements
 -------
@@ -33,36 +39,24 @@ Install
 Install `League\Csv` using Composer.
 
 ```
-composer require league/csv
+$ composer require league/csv
 ```
 
-This will edit (or create) your `composer.json` file and automatically choose the most recent version, for example: `~6.0`
+Tip
+-------
 
-#### Going Solo
+**If you are on a Mac OS X Server**, add the following lines before using the library to help [PHP detect line ending in Mac OS X](http://php.net/manual/en/function.fgetcsv.php#refsect1-function.fgetcsv-returnvalues).
 
-You can also use `League\Csv` without using Composer by downloading the library and using a [PSR-4](http://www.php-fig.org/psr/psr-4/) compatible autoloader.
-
-
-Documentation
--------------
-
-`League\Csv` is [fully documented](http://csv.thephpleague.com). Contribute to this documentation in the [gh-pages branch](https://github.com/thephpleague/csv/tree/gh-pages)
-
-### Tips
-
-* When creating or editing a document using `League\Csv\Writer`, first insert all the data that needs to be inserted before anything else. If you manipulate your data before insertion, you may change the file cursor position and get unexpected results.
-
-* Even though you can iterate over you document using `League\Csv\Writer` class, **it is recommend and best practice** to iterate over you CSV using the `League\Csv\Reader` class to avoid any issue.
-
-* The library assumes that your data is `UTF-8` encoded. If your are dealing with non-unicode data you **must** enable your data conversion into UTF-8 otherwise conversion methods will fail.
-
-You can transcode your CSV :
-
-* using the library [stream filtering methods](http://csv.thephpleague.com/filtering) will affect conversion and outputting;
-* or by setting the source [encoding charset](http://csv.thephpleague.com/overview) will **only** affect conversion;
+```php
+if (! ini_get("auto_detect_line_endings")) {
+    ini_set("auto_detect_line_endings", '1');
+}
+```
 
 Testing
 -------
+
+Csv has a [PHPUnit](https://phpunit.de/) test suite. To run the tests, run the following command from the project folder:
 
 ``` bash
 $ phpunit
@@ -71,7 +65,7 @@ $ phpunit
 Contributing
 -------
 
-Please see [CONTRIBUTING](CONTRIBUTING.md) for details.
+Contributions are welcome and will be fully credited. Please see [CONTRIBUTING](CONTRIBUTING.md) for details.
 
 Security
 -------
@@ -83,3 +77,11 @@ Credits
 
 - [ignace nyamagana butera](https://github.com/nyamsprod)
 - [All Contributors](https://github.com/thephpleague/csv/graphs/contributors)
+
+License
+-------
+
+The MIT License (MIT). Please see [LICENSE](LICENSE) for more information.
+
+[PSR-2]: http://www.php-fig.org/psr/psr-2/
+[PSR-4]: http://www.php-fig.org/psr/psr-4/
