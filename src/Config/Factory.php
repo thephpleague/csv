@@ -109,4 +109,13 @@ trait Factory
 
         return $obj;
     }
+
+    /**
+     * set the newline sequence characters
+     *
+     * @param string $newline
+     *
+     * @return static
+     */
+    abstract public function setNewline($newline);
 }

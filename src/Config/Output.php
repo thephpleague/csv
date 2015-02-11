@@ -51,7 +51,7 @@ trait Output
      *
      * @return \Iterator
      */
-    abstract protected function getOutputIterator();
+    abstract protected function getConvertionIterator();
 
     /**
      * Return the CSV Iterator
@@ -215,7 +215,7 @@ trait Output
      */
     public function jsonSerialize()
     {
-        return iterator_to_array($this->convertToUtf8($this->getOutputIterator()), false);
+        return iterator_to_array($this->convertToUtf8($this->getConvertionIterator()), false);
     }
 
     /**
@@ -267,7 +267,7 @@ trait Output
     {
         $doc = new DomDocument('1.0', 'UTF-8');
         $root = $doc->createElement($root_name);
-        $iterator = $this->convertToUtf8($this->getOutputIterator());
+        $iterator = $this->convertToUtf8($this->getConvertionIterator());
         foreach ($iterator as $row) {
             $item = $doc->createElement($row_name);
             array_walk($row, function ($value) use (&$item, $doc, $cell_name) {

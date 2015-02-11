@@ -63,7 +63,7 @@ class Reader extends AbstractCsv
     /**
      * {@inheritdoc}
      */
-    protected function getOutputIterator()
+    protected function getConvertionIterator()
     {
         $iterator = $this->getIterator();
         $iterator = $this->applyIteratorFilter($iterator);
