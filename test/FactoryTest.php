@@ -34,7 +34,7 @@ class FactoryTest extends PHPUnit_Framework_TestCase
     public function testConstructorWithSplFileInfo()
     {
         $path = __DIR__.'/foo.csv';
-        $csv = new Reader(new SplFileInfo($path));
+        $csv = Reader::createFromPath(new SplFileInfo($path));
         $this->assertSame($path, $csv->getIterator()->getRealPath());
     }
 

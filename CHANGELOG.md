@@ -8,7 +8,7 @@ All Notable changes to `League\Csv` will be documented in this file
 - `Writer::useValidation` To enable/disabled complete validation when inserting new data.
 
 ### Deprecated
-- Nothing
+- `Writer` and `Reader` default constructor, they will be removed from the public API in the next major version. You should used the named constructors instead.
 
 ### Fixed
 - `jsonSerialize`, `toXML` and `toHTML` output can be modified using `Reader` query options methods.

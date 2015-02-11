@@ -21,8 +21,7 @@
         "ext-mbstring" : "*"
     },
     "require-dev": {
-        "phpunit/phpunit" : "~4.0",
-        "ext-xdebug": "~2.0"
+        "phpunit/phpunit" : "~4.0"
     },
     "autoload": {
         "psr-4": {

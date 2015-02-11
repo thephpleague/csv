@@ -131,12 +131,12 @@ EOF;
      */
     public function testInitStreamFilterWithSplFileObject()
     {
-        (new Reader(new SplFileObject(__DIR__.'/foo.csv')))->getStreamFilterMode();
+        Reader::createFromFileObject(new SplFileObject(__DIR__.'/foo.csv'))->getStreamFilterMode();
     }
 
     public function testappendStreamFilter()
     {
-        $csv = new Reader(__DIR__.'/foo.csv');
+        $csv = Reader::createFromPath(__DIR__.'/foo.csv');
         $csv->appendStreamFilter('string.toupper');
         $csv->setFlags(SplFileObject::READ_AHEAD|SplFileObject::SKIP_EMPTY);
         foreach ($csv->getIterator() as $row) {
@@ -150,7 +150,7 @@ EOF;
      */
     public function testFailedprependStreamFilter()
     {
-        $csv = new Reader(new SplTempFileObject());
+        $csv = Reader::createFromFileObject(new SplTempFileObject());
         $this->assertFalse($csv->isActiveStreamFilter());
         $csv->prependStreamFilter('string.toupper');
     }
@@ -161,7 +161,7 @@ EOF;
      */
     public function testFailedapppendStreamFilter()
     {
-        $csv = new Writer(new SplTempFileObject());
+        $csv = Writer::createFromFileObject(new SplTempFileObject());
         $this->assertFalse($csv->isActiveStreamFilter());
         $csv->appendStreamFilter('string.toupper');
     }
@@ -199,7 +199,7 @@ EOF;
 
     public function testGetFilterPath()
     {
-        $csv = new Writer(__DIR__.'/foo.csv');
+        $csv = Writer::createFromPath(__DIR__.'/foo.csv');
         $csv->appendStreamFilter('string.rot13');
         $csv->prependStreamFilter('string.toupper');
         $this->assertFalse($csv->getIterator()->getRealPath());
