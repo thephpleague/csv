@@ -13,7 +13,7 @@ To create or update a CSV use the following `League\Csv\Writer` methods.
 
 ## Adding data to a CSV
 
-### insertOne($data)
+### insertOne($row)
 
 `insertOne` inserts a single row. This method can take an `array`, a `string` or
 an `object` implementing the `__toString` method.
@@ -39,23 +39,22 @@ $writer->insertOne("'john','doe','john.doe@example.com'");
 $writer->insertOne(new ToStringEnabledClass("john,doe,john.doe@example.com"))
 ~~~
 
-### insertAll($data)
+### insertAll($rows)
 
 `insertAll` inserts multiple rows. This method can take an `array` or a
 `Traversable` object to add several rows to the CSV data.
 
 ~~~php
-$arr = [
+$rows = [
     [1, 2, 3],
     ['foo', 'bar', 'baz'],
     "'john','doe','john.doe@example.com'",
     new ToStringEnabledClass("john,doe,john.doe@example.com")
 ];
 
-$writer->insertAll($arr); //using an array
+$writer->insertAll($rows); //using an array
 
-$object = new ArrayIterator($arr);
-$writer->insertAll($object); //using a Traversable object
+$writer->insertAll(new ArrayIterator($rows)); //using a Traversable object
 ~~~
 
 ### useValidation(bool $activate)
@@ -114,7 +113,7 @@ To set the `Writer` class handling behavior, you will use the `setNullHandlingMo
 * `Writer::NULL_AS_EXCEPTION`: Inserting methods throw an `InvalidArgumentException` when a `null` value is found;
 * `Writer::NULL_AS_EMPTY`:Inserting methods convert `null` values into empty string;
 * `Writer::NULL_AS_SKIP_CELL`: Inserting methods filter out each `null` item found;
-* `Writer::NULL_HANDLING_DISABLED`: No check whatsoever is done regarding null handling
+* `Writer::NULL_HANDLING_DISABLED`: No check is done regarding the `null` value;
 
 <p class="message-notice"><code>Writer::NULL_HANDLING_DISABLED</code> was added in version 7.0</p>
 

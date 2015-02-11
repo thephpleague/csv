@@ -94,6 +94,8 @@ $writer = new Writer(new SplTempFileObject);
 
 When using an object other than `SplFileObject` with the default class constructor, the library uses lazyloading.
 
+<p class="message-notice">Starting with <code>version 7.0</code> directly using the default constructor is deprecated and will be remove in the next major release.</p>
+
 ## Switching from one class to the other
 
 At any given time you can switch or create a new `League\Csv\Writer` or a new `League\Csv\Reader` from the current object. to do so you can use the following methods.

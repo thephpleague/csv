@@ -5,7 +5,7 @@ title: Setting and Accessing CSV settings
 
 # CSV properties
 
-Once your object is created you can optionally set several CSV properties. The following methods works on both the `Reader` and the `Writer` class.
+Once your object is [instantiated](/instantiation/) you can optionally set several CSV properties. The following methods works on both the `Reader` and the `Writer` class.
 
 ## Accessing and Setting CSV properties
 
@@ -16,7 +16,6 @@ $csv->setDelimiter(';');
 $delimiter = $csv->getDelimiter(); //returns ";"
 ~~~
 If no delimiter is set the default delimiter is `,`.
-When used you always have to provide a single character.
 
 ### The enclosure character
 
@@ -25,7 +24,6 @@ $csv->setEnclosure('|');
 $enclosure = $csv->getEnclosure(); //returns "|"
 ~~~
 If no enclosure is set the default enclosure is `"`.
-When used you always have to provide a single character.
 
 ### The escape character
 
@@ -34,7 +32,6 @@ $csv->setEscape('\\');
 $escape = $csv->getEscape(); //returns "\"
 ~~~
 If no escape is set the default escape is `\`.
-When used you always have to provide a single character.
 
 ### The SplFileObject flags
 
@@ -46,7 +43,7 @@ $flags = $csv->getFlags(); //returns an integer
 ~~~
 By default the flags used are `SplFileObject::READ_CSV` and `SplFileObject::DROP_NEW_LINE`.
 
-<p class="message-warning">To get an expected behaviour, you can not remove the default flags you can only add non defined flags.</p>
+<p class="message-warning">To get an expected behaviour, you can not remove the default flags you can only add non defined ones.</p>
 
 ### The newline sequence
 
@@ -64,7 +61,7 @@ If no newline is set the default newline is `\n`;
 
 To improve interoperability with programs interacting with CSV, you can now manage the presence of a <abbr title="Byte Order Mark">BOM</abbr> character in your CSV content.
 
-You can detect the current BOM character used if any with the `getInputBOM` method. This methods returns `null` or one of the predefined BOM character.
+You can detect the current BOM character used if any with the `getInputBOM` method. This method returns `null` or the currently used BOM character.
 
 ~~~php
 $bom = $csv->getInputBOM();
@@ -76,24 +73,24 @@ You can of course set the outputting BOM you want your CSV to be associated with
 $csv->setOutputBOM(Reader::BOM_UTF8);
 $bom = $csv->getOutputBOM(); //returns "\xEF\xBB\xBF"
 ~~~
-If no output `BOM` character is set the default value is `null`.
+The default output `BOM` character is set to `null`.
 
 <p class="message-info">Please refer to <a href="/bom/">the BOM character dedicated documentation page</a> for more informations on how the library manage the BOM character.</p>
 
 ### The encoding charset
 
-The library assumes that your data is UTF-8 encoded. Before converting your data in another format (XML, Json), you need to make sure it is the case.
+The library assumes that your data is UTF-8 encoded. Before converting your data in another format ( JSON, XML, HTML), you need to make sure it is the case.
 
 The recommended way to transcode your CSV in a UTF-8 compatible charset is to use the <a href="/filtering/">library stream filtering mechanism</a>.
 
-When this is not possible you can fallback to setting the CSV original as below.
+When this is not applicable you can fallback to setting the CSV original encoding charset as below.
 
 ~~~php
 $reader->setEncodingFrom('iso-8859-15');
 echo $reader->getEncodingFrom(); //returns iso-8859-15;
 ~~~
 
-If no output encoding charset is set the default value is `UTF-8`.
+By default the encoding charset is set to `UTF-8`.
 
 ## Detecting CSV delimiter
 

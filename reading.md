@@ -206,7 +206,9 @@ The methods enable returning a specific interval of CSV rows. When called more t
 
 <p class="message-warning">Both methods have no effect on the <code>fetchOne</code> method output.</p>
 
-## A concrete example
+## Examples
+
+### Modifying extract methods output
 
 Here's an example on how to use the query features of the `Reader` class to restrict the `fetchAssoc` result:
 
@@ -239,7 +241,9 @@ $data = $reader
 //
 ~~~
 
-## A example to modify CSV conversion methods
+### Modifying conversion methods output
+
+Starting with `version 7.0`, the query options can all modify the output from the convertion methods as shown below with the `toHTML` method.
 
 ~~~php
 function filterByEmail($row)

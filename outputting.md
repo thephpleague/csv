@@ -7,7 +7,7 @@ title: Basic Usage
 
 <p class="message-info"><strong>Tips:</strong> Even though you can use the following methods with the <code>League\Csv\Writer</code> object. It is recommended to do so with the <code>League\Csv\Reader</code> class to avoid loosing the file cursor position and getting unexpected results when inserting new data.</p>
 
-Once your CSV object is instantiated and configured, there are a number of methods available to interact with it. For starter you can iterate over your newly object to extract each CSV row using the `foreach` construct.
+Once your CSV object is [instantiated](/instantiation) and [configured](/properties/), you can start interacting with the data using a number of methods available to you. For starter, you can iterate over your newly object to extract each CSV row using the `foreach` construct.
 
 ~~~php
 $reader = Reader::createFromPath('/path/to/my/file.csv');
@@ -50,15 +50,26 @@ can even remove more headers.
 $reader->output("name-for-your-file.csv");
 ~~~
 
-<p class="message-info">For interoperabilitry, you may wish to add a BOM character to the output. For more informations please refer to the <a href="/bom/">BOM section</a>.</p>
+<div class="message-notice">
+The output methods <strong>can only be affected by:</strong>
+<ul>
+<li>the <a href="/filtering/">library stream filtering mechanism</a></li>
+<li>the <a href="/bom/">BOM property</a></li>
+</ul>
+No other method or property have an effect on the outputtig methods.
+</div>
 
-<p class="message-warning">The output methods are only affected by the file encoding character if you transcode your CSV in a UTF-8 compatible charset using the <a href="/filtering/">library stream filtering mechanism</a>.</p>
+## Converting the CSV
 
-## Convert the CSV
+The conversion methods assume that your CSV is UTF-8 encoded. If this is not the case, the recommended way to transcode your CSV in a UTF-8 compatible charset is to use the <a href="/filtering/">library stream filtering mechanism</a>.
 
-<p class="message-warning"><strong>BC Break: </strong> Starting with version 7.0 conversion method behavior is affected by <code>Csv\Reader</code> filtering methods. Please refer to the <a href="/reading/">extracting data section</a> for more information</p>
+When this is not possible you can fallback to using the `setEncondingFrom` and `getEncondingFrom` methods.
 
-### Convert into JSON format
+In both cases, the CSV will be internally converted into `UTF-8` prior to conversion.
+
+<p class="message-warning"><strong>BC Break: </strong> Starting with <code>version 7.0</code> conversion methods behavior are affected by the <code>Reader</code> query options methods. Please refer to the <a href="/reading/#querying-csv-data">extracting data section</a> for more informations.</p>
+
+### Convert to JSON format
 
 Use the `json_encode` function directly on the instantiated object.
 
@@ -86,7 +97,6 @@ $dom = $reader->toXML('data', 'item', 'cell');
 
 ### Convert to HTML table
 
-
 Use the `toHTML` method to convert the CSV data into an HTML table. This method
 accepts an optional argument `$classname` to help you customize the table
 rendering, by defaut the classname given to the table is `table-csv-data`.
@@ -95,17 +105,14 @@ rendering, by defaut the classname given to the table is `table-csv-data`.
 echo $reader->toHTML('table table-bordered table-hover');
 ~~~
 
-### Transcoding the CSV
-
-The conversion methods rely on the fact the document is UTF-8 encoded. If this is not the case, the recommended way to transcode your CSV in a UTF-8 compatible charset is to use the <a href="/filtering/">library stream filtering mechanism</a>.
-
-When this is not possible you can fallback to using the `setEncondingFrom` and `getEncondingFrom` methods.
-
-The CSV will be internally converted into UTF-8 prior to output using the `mb_string` extension.
+### Example using data transcode before conversion
 
 ~~~php
 $reader = Reader::createFromFileObject(new SplFileObject('/path/to/bengali.csv'));
+//we are using the setEncodingFrom method to transcode the CSV into UTF-8
 $reader->setEncodingFrom('iso-8859-15');
-echo json_encode($reader); //the CSV is transcoded from iso-8859-15 to UTF-8;
-echo $reader; //the CSV is not transcoded
+echo json_encode($reader);
+//the CSV is transcoded from iso-8859-15 to UTF-8
+//befor being converted to JSON format;
+echo $reader; //When outputting the data no conversion is done
 ~~~

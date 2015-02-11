@@ -9,8 +9,8 @@ The API:
     Basic Usage: '/outputting/'
     Extracting Data: '/reading/'
     Inserting Data: '/inserting/'
-    BOM Handling: '/bom/'
     Stream Filters: '/filtering/'
+    BOM Handling: '/bom/'
 Upgrading Guide:
     Introduction: '/upgrading/'
     5.x to 6.x: '/upgrading/6.0/'
