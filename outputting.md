@@ -37,6 +37,8 @@ echo $reader->__toString();
 
 If you only wish to make your CSV downloadable by forcing a file download just use the `output` method to force the use of the output buffer on the CSV content.
 
+<div class="message-notice"> Since <code>version 7.0</code>, the method returns the number of characters read from the handle and passed through to the output.</div>
+
 ~~~php
 header('Content-Type: text/csv; charset=UTF-8');
 header('Content-Disposition: attachment; filename="name-for-your-file.csv"');

@@ -24,6 +24,7 @@ All Notable changes to `League\Csv` will be documented in this file
 - Default flags value is now `SplFileObject::READ_CSV|SplFileObject::DROP_NEW_LINE`
 - `SplFileObject` constants are now copied when using `newReader` and `newWriter` methods
 - BOM addition on export improved by removing existing BOM character if found
+- the `output` method now returns the number of bytes send to the output buffer
 
 ### Removed
 - Setting `ini_set("auto_detect_line_endings", true);` is no longer set in the class constructor. Mac OS X users must explicitly set this ini options in their script.
