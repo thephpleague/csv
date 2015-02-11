@@ -12,6 +12,9 @@ All Notable changes to `League\Csv` will be documented in this file
 - `Writer::NULL_HANDLING_DISABLED` To completely remove null handling when inserting new data.
 - `Writer::useValidation` To enable/disabled complete validation when inserting new data.
 
+### Deprecated
+- Using `Writer` and `Reader` default constructor is deprecated you should favor the use of named constructors. The default constructor won't be accessible anymore in the next MAJOR version.
+
 ### Fixed
 - `jsonSerialize`, `toXML` and `toHTML` output can be modified using `Reader` query options methods.
 - `AbstractCSV::detectDelimiterList` index keys now represents the occurence of the found delimiter.
@@ -21,6 +24,9 @@ All Notable changes to `League\Csv` will be documented in this file
 - Default flags value is now `SplFileObject::READ_CSV|SplFileObject::DROP_NEW_LINE`
 - `SplFileObject` constants are now copied when using `newReader` and `newWriter` methods
 - BOM addition on export improved by removing existing BOM character if found
+
+### Removed
+- Setting `ini_set("auto_detect_line_endings", true);` is no longer set in the class constructor. Mac OS X users must explicitly set this ini options in their script.
 
 ## 6.3.0
 

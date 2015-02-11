@@ -21,6 +21,20 @@ foreach ($reader as $index => $row) {
 
 <p class="message-info"><strong>Tips:</strong> You can do more complex iterations using the extract methods as described in the <a href="/reading/">reading documentation page</a></p>
 
+
+## Mac OS Server
+
+**If you are on a Mac OS X Server**, add the following lines before using the library to help [PHP detect line ending in Mac OS X](http://php.net/manual/en/function.fgetcsv.php#refsect1-function.fgetcsv-returnvalues).
+
+~~~php
+if (! ini_get("auto_detect_line_endings")) {
+    ini_set("auto_detect_line_endings", '1');
+}
+
+$reader = Reader::createFromPath('/path/to/my/file.csv');
+//the rest of the code continue here...
+~~~
+
 ## Outputting the CSV
 
 ### __toString()
