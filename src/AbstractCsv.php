@@ -102,11 +102,9 @@ abstract class AbstractCsv implements JsonSerializable, IteratorAggregate
      */
     public function __construct($path, $open_mode = 'r+')
     {
-        ini_set('auto_detect_line_endings', '1');
-
-        $this->path      = $this->normalizePath($path);
-        $this->open_mode = strtolower($open_mode);
         $this->flags     = SplFileObject::READ_CSV|SplFileObject::DROP_NEW_LINE;
+        $this->open_mode = strtolower($open_mode);
+        $this->path      = $this->normalizePath($path);
         $this->initStreamFilter($this->path);
     }
 
