@@ -57,6 +57,48 @@ if (! ini_get("auto_detect_line_endings")) {
 //the rest of the code continue here...
 ~~~
 
+### CSV Instantiation
+
+Using the default constructor will raise a PHP error. you should modified your instantiation using one of the three named constructors. This is done in order to clarify `$open_mode` argument usage on instantiation. See below for a concrete example.
+
+Using the default constructor:
+
+~~~php
+use League\Csv\Writer;
+use League\Csv\Reader;
+
+$file = '/path/to/my/file.csv';
+$fileObject = new SplFileObject($file, 'r+');
+
+$sol1 = new Writer($file, 'w');
+$sol2 = new Writer($fileObject, 'w');
+~~~
+
+- `$sol1` open mode will be `w` and new `SplFileObject` object is created internally
+- `$sol2` open mode will be `r+` and `$fileObject` is directly used. The provided `$open_mode` argument has no effect.
+
+The default constructor behavior depended on the first argument type.
+
+Using named constructors:
+
+~~~php
+use League\Csv\Writer;
+use League\Csv\Reader;
+
+$file = '/path/to/my/file.csv';
+$fileObject = new SplFileObject($file, 'r+');
+
+$sol1 = Writer::createFromPath($file, 'w');
+$sol2 = Writer::createFromFileObject($fileObject);
+$sol3 = Writer::createFromPath($fileObject, 'w');
+~~~
+
+- `$sol1` open mode will be `w` and new `SplFileObject` object is created internally;
+- `$sol2` open mode will be `r+` and `$fileObject` is directly used;
+- `$sol3` is not possible using default constructor and is equivalent to `$sol1`;
+
+The `createFromPath` named constructor always take into account the `$open_mode` parameter. As for the `createFromFileObject` named constructor it requires only one argument which must be an instance of `SplFileObject` class.
+
 ### CSV properties
 
 - Starting with version 7, the default SplFileObject flags used are `SplFileObject::READ_CSV` and `SplFileObject::DROP_NEW_LINE`. As previously these flags can not be overidden by the developper to ensure consistency in the methods used.
