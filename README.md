@@ -44,7 +44,7 @@ Install `League\Csv` using Composer.
 $ composer require league/csv
 ```
 
-Tip
+Configuration
 -------
 
 **If you are on a Mac OS X Server**, add the following lines before using the library to help [PHP detect line ending in Mac OS X](http://php.net/manual/en/function.fgetcsv.php#refsect1-function.fgetcsv-returnvalues).
