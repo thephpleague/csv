@@ -8,7 +8,7 @@ All Notable changes to `League\Csv` will be documented in this file
 - `Writer::useValidation` to enable/disabled complete validation when inserting new data.
 
 ### Deprecated
-- Using `Writer` and `Reader` default constructor is deprecated you should favor the use of named constructors. The default constructor won't be accessible anymore in the next MAJOR version.
+- Nothing
 
 ### Fixed
 - `jsonSerialize`, `toXML` and `toHTML` output can be modified using `Reader` query options methods.
@@ -23,6 +23,7 @@ All Notable changes to `League\Csv` will be documented in this file
 
 ### Remove
 - Setting `ini_set("auto_detect_line_endings", true);` is no longer set in the class constructor. Mac OS X users must explicitly set this ini options in their script.
+- Using `Writer` and `Reader` default constructor removed in favor of the use of named constructors.
 
 ## 6.3.0 - 2015-01-21
 

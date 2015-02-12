@@ -12,11 +12,13 @@
 */
 namespace League\Csv;
 
+use InvalidArgumentException;
 use IteratorAggregate;
 use JsonSerializable;
 use League\Csv\Config;
 use SplFileInfo;
 use SplFileObject;
+use SplTempFileObject;
 
 /**
  *  An abstract class to enable basic CSV manipulation
@@ -74,11 +76,6 @@ abstract class AbstractCsv implements JsonSerializable, IteratorAggregate
     use Config\Controls;
 
     /**
-     *  Csv Factory Trait
-     */
-    use Config\Factory;
-
-    /**
      * Csv Ouputting Trait
      */
     use Config\Output;
@@ -100,7 +97,7 @@ abstract class AbstractCsv implements JsonSerializable, IteratorAggregate
      * @param object|string $path      The file path
      * @param string        $open_mode the file open mode flag
      */
-    public function __construct($path, $open_mode = 'r+')
+    protected function __construct($path, $open_mode = 'r+')
     {
         $this->flags     = SplFileObject::READ_CSV|SplFileObject::DROP_NEW_LINE;
         $this->open_mode = strtolower($open_mode);
@@ -120,8 +117,6 @@ abstract class AbstractCsv implements JsonSerializable, IteratorAggregate
     {
         if ($path instanceof SplFileObject) {
             return $path;
-        } elseif ($path instanceof SplFileInfo) {
-            return $path->getPath().'/'.$path->getBasename();
         }
 
         return trim($path);
@@ -133,6 +128,90 @@ abstract class AbstractCsv implements JsonSerializable, IteratorAggregate
     public function __destruct()
     {
         $this->path = null;
+    }
+
+    /**
+     * Create a {@link AbstractCsv} from a string
+     *
+     * The path can be:
+     * - an SplFileInfo,
+     * - a SplFileObject,
+     * - an object that implements the `__toString` method,
+     * - a string
+     *
+     * BUT NOT a SplTempFileObject
+     *
+     * <code>
+     *<?php
+     * $csv = new Reader::createFromPath('/path/to/file.csv', 'a+');
+     * $csv = new Reader::createFromPath(new SplFileInfo('/path/to/file.csv'));
+     * $csv = new Reader::createFromPath(new SplFileObject('/path/to/file.csv'), 'rb');
+     *
+     * ?>
+     * </code>
+     *
+     * @param object|string $path      file path
+     * @param string        $open_mode the file open mode flag
+     *
+     * @throws \InvalidArgumentException If $path is a \SplTempFileObject object
+     *
+     * @return static
+     */
+    public static function createFromPath($path, $open_mode = 'r+')
+    {
+        if ($path instanceof SplTempFileObject) {
+            throw new InvalidArgumentException('an `SplTempFileObject` object does not contain a valid path');
+        } elseif ($path instanceof SplFileInfo) {
+            $path = $path->getPath().'/'.$path->getBasename();
+        }
+
+        return new static(trim($path), $open_mode);
+    }
+
+    /**
+     * Create a {@link AbstractCsv} from a SplFileObject
+     *
+     * The path can be:
+     * - a SplFileObject,
+     * - a SplTempFileObject
+     *
+     * <code>
+     *<?php
+     * $csv = new Writer::createFromFileObject(new SplFileInfo('/path/to/file.csv'));
+     * $csv = new Writer::createFromFileObject(new SplTempFileObject);
+     *
+     * ?>
+     * </code>
+     *
+     * @param SplFileObject $obj
+     *
+     * @return static
+     */
+    public static function createFromFileObject(SplFileObject $obj)
+    {
+        return new static($obj);
+    }
+
+    /**
+     * Create a {@link AbstractCsv} from a string
+     *
+     * The string must be an object that implements the `__toString` method,
+     * or a string
+     *
+     * @param string|object $str the string
+     * @param string        $newline the newline character
+     *
+     * @return static
+     */
+    public static function createFromString($str, $newline = "\n")
+    {
+        $file = new SplTempFileObject();
+        $file->fwrite(rtrim($str).$newline);
+
+        $obj = static::createFromFileObject($file);
+        $obj->setNewline($newline);
+
+        return $obj;
     }
 
     /**

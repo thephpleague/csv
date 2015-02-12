@@ -31,13 +31,6 @@ class FactoryTest extends PHPUnit_Framework_TestCase
         $this->assertSame($path, $csv->getIterator()->getRealPath());
     }
 
-    public function testConstructorWithSplFileInfo()
-    {
-        $path = __DIR__.'/foo.csv';
-        $csv = new Reader(new SplFileInfo($path));
-        $this->assertSame($path, $csv->getIterator()->getRealPath());
-    }
-
     public function testCreateFromPathWithPHPWrapper()
     {
         $path = __DIR__.'/foo.csv';
