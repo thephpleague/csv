@@ -19,8 +19,10 @@ $csv = Reader::createFromPath(__DIR__.'/data/prenoms.csv');
 //we must use a temp file to be able to rewind the cursor file without loosing
 //the modification
 $writer = Writer::createFromPath('/tmp/toto.csv', 'w');
-$writer->setNullHandlingMode(Writer::NULL_AS_EMPTY);
-
+//we do not care about null value
+$writer->setNullHandlingMode(Writer::NULL_HANDLING_DISABLED);
+//adjust the output BOM to be used
+$writer->setOutputBOM(Writer::BOM_UTF16_LE);
 // we register a Transcode Filter class to convert the CSV into the proper encoding charset
 stream_filter_register(FilterTranscode::FILTER_NAME."*", "\lib\FilterTranscode");
 $writer->appendStreamFilter(FilterTranscode::FILTER_NAME."UTF-8:UTF-16LE");
@@ -33,10 +35,7 @@ $writer->insertAll($csv);
 
 //let's switch to the Reader object
 //Writer::output will failed because of the open mode
+//The BOM settings are all copied to the Reader object
 $reader = $writer->newReader();
-//detect and adjust the output BOM to be used
-if (Reader::BOM_UTF16_LE != $reader->getInputBOM()) {
-    $reader->setOutputBOM(Reader::BOM_UTF16_LE);
-}
-//let's add the corresponding BOM
-$reader->output('toto le héros.csv');
+
+$reader->output('toto-le-heros.csv');
