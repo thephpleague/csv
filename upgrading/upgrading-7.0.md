@@ -45,6 +45,18 @@ When using the `__toString` or `output` methods the input BOM if it exists is st
 
 ## Backward Incompatible Changes
 
+### PHP ini settings
+
+**If you are on a Mac OS X Server**, add the following lines before using the library to help [PHP detect line ending in Mac OS X](http://php.net/manual/en/function.fgetcsv.php#refsect1-function.fgetcsv-returnvalues).
+
+~~~php
+if (! ini_get("auto_detect_line_endings")) {
+    ini_set("auto_detect_line_endings", '1');
+}
+
+//the rest of the code continue here...
+~~~
+
 ### CSV properties
 
 - Starting with version 7, the default SplFileObject flags used are `SplFileObject::READ_CSV` and `SplFileObject::DROP_NEW_LINE`. As previously these flags can not be overidden by the developper to ensure consistency in the methods used.
