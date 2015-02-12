@@ -199,7 +199,7 @@ class Reader extends AbstractCsv
     protected function getAssocKeys($offset_or_keys)
     {
         $res = $offset_or_keys;
-        if (! is_array($res)) {
+        if (! is_array($offset_or_keys)) {
             $res = $this->getRow($offset_or_keys);
             $this->addFilter(function ($row, $rowIndex) use ($offset_or_keys) {
                 return is_array($row) && $rowIndex != $offset_or_keys;
