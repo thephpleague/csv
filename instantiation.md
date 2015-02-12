@@ -26,8 +26,7 @@ if (! ini_get("auto_detect_line_endings")) {
 
 ## Instantiating a new CSV object
 
-Because CSVs come in different forms there are several ways to instantiate the library CSV objects.
-Below you will find **the recommended ways** to create a CSV object.
+Because CSVs come in different forms we used named constructors to offer several ways to instantiate the library CSV objects.
 
 ### createFromPath($path, $open_mode)
 
@@ -86,27 +85,7 @@ $writer = Writer::createFromString('john,doe,john.doe@example.com', "\r\n");
 
 ~~~
 
-### Default Constructors
-
-For backward compatibility you can still directly instantiate your CSV object with the constructor. The constructor takes 2 parameters:
-
-* A `$path` which can be a `SplFileInfo`, an object that implements the `__toString` method or a string;
-* A `$open_mode` which is ignore if you instantiate your object with a `SplFileObject`;
-
-~~~php
-use League\Csv\Reader;
-use League\Csv\Writer;
-
-$reader = new Reader(new SplFileObject('/path/to/your/csv/file.csv'), 'wb');
-// the $open_mode parameter is not taken into account
-$writer = new Writer(new SplTempFileObject);
-//in both case the object is directly used internally by the library
-
-~~~
-
-When using an object other than `SplFileObject` with the default class constructor, the library uses lazyloading.
-
-<p class="message-notice">Starting with <code>version 7.0</code> directly using the default constructor is deprecated and will be remove in the next major release.</p>
+<p class="message-warning">Starting with <code>version 7.0</code> directly using the default constructor is no longer possible.</p>
 
 ## Switching from one class to the other
 
