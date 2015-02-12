@@ -17,18 +17,18 @@ All Notable changes to `League\Csv` will be documented in this file
 
 ### Fixed
 - `jsonSerialize`, `toXML` and `toHTML` output can be modified using `Reader` query options methods.
-- `AbstractCSV::detectDelimiterList` index keys now represents the occurence of the found delimiter.
+- `AbstractCSV::detectDelimiterList` index keys now represents the occurrence of the found delimiter.
 - `getNewline` and `setNewline` are accessible on the `Reader` class too.
-- `AbstractCSV::createFromString` now accepts `$newline` as a second argument to specify the last added new line character to better work with interoperability.
-- Remove default value on CSV controls setter methods (ie `setDelimiter`, `setEnclosure`, `setEscape`)
-- Default flags value is now `SplFileObject::READ_CSV|SplFileObject::DROP_NEW_LINE`
-- `SplFileObject` constants are now copied when using `newReader` and `newWriter` methods
-- BOM addition on export improved by removing existing BOM character if found
-- the `output` method now returns the number of bytes send to the output buffer
+- the named constructor `createFromString` now accepts the `$newline` sequence as a second argument to specify the last added new line character to better work with interoperability.
+- Default value on CSV controls setter methods `setDelimiter`, `setEnclosure` and `setEscape` are removed
+- Default `SplFileObject` flags value is now `SplFileObject::READ_CSV|SplFileObject::DROP_NEW_LINE`
+- All CSV properties are now copied when using `newReader` and `newWriter` methods
+- BOM addition on output improved by removing if found the existing BOM character
+- the `AbstractCSV::output` method now returns the number of bytes send to the output buffer
 
 ### Removed
 - Setting `ini_set("auto_detect_line_endings", true);` is no longer set in the class constructor. Mac OS X users must explicitly set this ini options in their script.
-- Using `Writer` and `Reader` default constructor removed in favor of the use of named constructors.
+- `Writer` and `Reader` default constructor are removed from public API in favor of the named constructors.
 
 ## 6.3.0
 
