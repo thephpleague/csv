@@ -40,7 +40,7 @@ $sth->setFetchMode(PDO::FETCH_ASSOC);
 $sth->execute();
 
 //we create the CSV into memory
-$csv = Writer::createFromFileObject(new SplTempFileObject);
+$csv = Writer::createFromFileObject(new SplTempFileObject());
 
 //the library will automatically convert null value into an '' empty string
 $csv->setNullHandlingMode(Writer::NULL_AS_EMPTY);
@@ -100,5 +100,3 @@ $nbInsert = $csv->each(function ($row) use (&$sth) {
 * [Using stream Filter on the CSV](https://github.com/thephpleague/csv/blob/master/examples/stream.php)
 
 > The CSV data use for the examples are taken from [Paris Opendata](http://opendata.paris.fr/opendata/jsp/site/Portal.jsp?document_id=60&portlet_id=121)
-
-Learn more about how this all works in the [Overview](/overview).

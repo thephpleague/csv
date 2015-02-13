@@ -10,7 +10,7 @@ The library is composed of two main classes:
 * `League\Csv\Reader` to read data from a CSV
 * `League\Csv\Writer` to write new data into a CSV
 
-Both classes extend the `League\Csv\AbstractCsv` class and as such share methods to be instantiated.
+Both classes extend the `League\Csv\AbstractCsv` class and as such share methods for instantiation.
 
 ## Mac OS Server
 
@@ -21,16 +21,16 @@ if (! ini_get("auto_detect_line_endings")) {
     ini_set("auto_detect_line_endings", '1');
 }
 
-//the rest of the code continue here...
+//the rest of the code continues here...
 ~~~
 
 ## Instantiating a new CSV object
 
-Because CSVs come in different forms we used named constructors to offer several ways to instantiate the library CSV objects.
+Because CSVs come in different forms we used named constructors to offer several ways to instantiate the library objects.
 
 ### createFromPath($path, $open_mode)
 
-This named constructor will instante a CSV object *à la* `fopen`:
+This named constructor will create a new object *à la* `fopen`:
 
 * The `$path` parameter can be:
     * a `SplFileInfo` object, the string path will be fetch from the object public methods.
@@ -38,7 +38,7 @@ This named constructor will instante a CSV object *à la* `fopen`:
     * a string.
 
 <p class="message-warning"><strong>Warning:</strong> The method throws an <code>InvalidArgumentException</code> if a <code>SplTempFileObject</code> is given as no path can be retrieve from such object.</p>
-* This `$open_mode` parameter is **always** take into account and defaults to `r+` if none is supplied.
+* The `$open_mode` parameter which defaults to `r+` if none is supplied.
 
 The resulting string and `$open_mode` parameters are used to lazy load internally a `SplFileObject` object.
 
@@ -54,7 +54,7 @@ $writer = Writer::createFromPath(new SplFileObject('/path/to/your/csv/file.csv',
 
 ### createFromFileObject(SplFileObject $obj)
 
-If you have a `SplFileObject` and you want to directly work with it you should use the named constructor `createFromFileObject`. This method accepts only one single parameter the `SplFileObject` object.
+If you have a `SplFileObject` and you want to directly work with it you should use the `createFromFileObject` named constructor. This method accepts only one single parameter, a `SplFileObject` object.
 
 ~~~php
 use League\Csv\Reader;
@@ -69,12 +69,12 @@ $writer = Writer::createFromFileObject(new SplTempFileObject());
 
 <p class="message-notice">The <code>$newline</code> argument was added in version 7.0</p>
 
-If you have a raw CSV string you should use the named constructor `createFromString`. This method accepts two parameters:
+If you have a raw CSV string use the `createFromString` named constructor. This method accepts two parameters:
 
-- the raw CSV string.
-- the newline character added at the end of the raw CSV string
+- the raw CSV string;
+- the newline sequence to be added at the end of the raw CSV string;
 
-If no newline character is specified, the newline character used will be `\n` to match the newline added by PHP `fputcsv` function.
+If no newline sequence is specified, the newline sequence used will be `\n` to match the one added by PHP `fputcsv` function.
 
 ~~~php
 use League\Csv\Reader;

@@ -6,7 +6,7 @@ Getting Started:
 The API:
     Instantiation: '/instantiation/'
     CSV Properties: '/properties/'
-    Basic Usage: '/outputting/'
+    Basic Usage: '/basic-usage/'
     Extracting Data: '/reading/'
     Inserting Data: '/inserting/'
     Stream Filters: '/filtering/'

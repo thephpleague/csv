@@ -38,7 +38,7 @@ usefulness provided by existing core functions or third party-code.
 
 ## Questions?
 
-CSV was created by Nyamagana Butera Ignace. Find him on Twitter at [@nyamsprod](https://twitter.com/nyamsprod).
+`League\Csv` was created by Ignace Nyamagana Butera. Find him on Twitter at [@nyamsprod](https://twitter.com/nyamsprod).
 
 [PSR-2]: http://www.php-fig.org/psr/psr-2/
 [PSR-4]: http://www.php-fig.org/psr/psr-4/

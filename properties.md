@@ -15,7 +15,7 @@ Once your object is [instantiated](/instantiation/) you can optionally set sever
 $csv->setDelimiter(';');
 $delimiter = $csv->getDelimiter(); //returns ";"
 ~~~
-If no delimiter is set the default delimiter is `,`.
+The default delimiter character is `,`.
 
 ### The enclosure character
 
@@ -23,7 +23,7 @@ If no delimiter is set the default delimiter is `,`.
 $csv->setEnclosure('|');
 $enclosure = $csv->getEnclosure(); //returns "|"
 ~~~
-If no enclosure is set the default enclosure is `"`.
+The default enclosure character is `"`.
 
 ### The escape character
 
@@ -31,11 +31,11 @@ If no enclosure is set the default enclosure is `"`.
 $csv->setEscape('\\');
 $escape = $csv->getEscape(); //returns "\"
 ~~~
-If no escape is set the default escape is `\`.
+The default escape character is `\`.
 
 ### The SplFileObject flags
 
-The `League\Csv` relies internally on the `SplFileObject` class. In order to fine tune the class behavior you can adjust the [flags](http://php.net/manual/en/class.splfileobject.php#splfileobject.constants) used.
+`League\Csv` objects rely internally on the `SplFileObject` class. In order to fine tune the class behavior you can adjust the [SplFileObject flags](http://php.net/manual/en/class.splfileobject.php#splfileobject.constants) used.
 
 ~~~php
 $csv->setFlags(SplFileObject::READ_AHEAD|SplFileObject::SKIP_EMPTY);
@@ -47,21 +47,21 @@ By default the flags used are `SplFileObject::READ_CSV` and `SplFileObject::DROP
 
 ### The newline sequence
 
-Because the php `fputcsv` implementation has a hardcoded `"\n"`, we need to be able to replace the last `LF` code with one supplied by the developper for more interoperability between CSV packages on different platforms. The newline sequence will be appended to each CSV newly inserted line.
+The newline sequence is appended to each CSV newly inserted line. To improve interoperability with programs interacting with CSV and because the php `fputcsv` implementation has a hardcoded `"\n"`, we need to be able to replace this last `LF` code with one supplied by the developer.
 
 ~~~php
 $csv->setNewline("\r\n");
 $newline = $csv->getNewline(); //returns "\r\n"
 ~~~
-If no newline is set the default newline is `\n`;
+The default newline sequence is `\n`;
 
-<p class="message-notice">Since version 7.0, the <code>$newline</code> getter and setter methods are available on the <code>Reader</code> class.</p>
+<p class="message-notice">Since version 7.0, the <code>$newline</code> getter and setter methods are also available on the <code>Reader</code> class.</p>
 
 ### The BOM character
 
 To improve interoperability with programs interacting with CSV, you can now manage the presence of a <abbr title="Byte Order Mark">BOM</abbr> character in your CSV content.
 
-You can detect the current BOM character used if any with the `getInputBOM` method. This method returns `null` or the currently used BOM character.
+Detect the current BOM character is done using the `getInputBOM` method. This method returns the currently used BOM character or `null` if none is found or recognized.
 
 ~~~php
 $bom = $csv->getInputBOM();
@@ -75,13 +75,13 @@ $bom = $csv->getOutputBOM(); //returns "\xEF\xBB\xBF"
 ~~~
 The default output `BOM` character is set to `null`.
 
-<p class="message-info">Please refer to <a href="/bom/">the BOM character dedicated documentation page</a> for more informations on how the library manage the BOM character.</p>
+<p class="message-info">Please refer to <a href="/bom/">the BOM character dedicated documentation page</a> for more informations on how the library helps you manage this feature.</p>
 
 ### The encoding charset
 
-The library assumes that your data is UTF-8 encoded. Before converting your data in another format ( JSON, XML, HTML), you need to make sure it is the case.
+When converting your CSV document into another format, the library assumes that your data is UTF-8 encoded. 
 
-The recommended way to transcode your CSV in a UTF-8 compatible charset is to use the <a href="/filtering/">library stream filtering mechanism</a>.
+When this is not the case, the recommended way to transcode your CSV in a UTF-8 compatible charset is to use the <a href="/filtering/">library stream filtering mechanism</a>.
 
 When this is not applicable you can fallback to setting the CSV original encoding charset as below.
 
@@ -90,7 +90,7 @@ $reader->setEncodingFrom('iso-8859-15');
 echo $reader->getEncodingFrom(); //returns iso-8859-15;
 ~~~
 
-By default the encoding charset is set to `UTF-8`.
+The default encoding charset is set `UTF-8`.
 
 ## Detecting CSV delimiter
 

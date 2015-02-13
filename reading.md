@@ -5,7 +5,7 @@ title: Extracting data from a CSV
 
 # Extracting data
 
-To extract data use `League\Csv\Reader` methods.
+To extract data from a CSV document use `League\Csv\Reader` methods.
 
 ## Fetching CSV data
 
@@ -15,7 +15,7 @@ The `query` method prepares and issues queries on the CSV data. It returns an `I
 
 ~~~php
 $data = $reader->query();
-foreach ($data as $line_index => $row) {
+foreach ($data as $lineIndex => $row) {
     //do something here
 }
 ~~~
@@ -39,10 +39,14 @@ $nb_rows = count($data);
 
 ### fetchAssoc($offset_or_keys = 0, callable $callable = null)
 
-`fetchAssoc` returns a sequential array of all rows. The rows themselves are associative arrays where the keys are an one dimension array. This array should only contain unique `string` and/or `integer` values. This array can be specified as the first argument as
+`fetchAssoc` returns a sequential array of all rows. The rows themselves are associative arrays where the keys are an one dimension array. This array must only contain unique `string` and/or `integer` values.
+
+This array keys can be specified as the first argument as
 
 - a specific CSV row by providing its offset; **(since version 6.1)**
 - a non empty array directly provided;
+
+Using a non empty array:
 
 ~~~php
 $data = $reader->fetchAssoc(['firstname', 'lastname', 'email']);
@@ -51,38 +55,39 @@ $data = $reader->fetchAssoc(['firstname', 'lastname', 'email']);
 // [
 //   ['firstname' => 'john', 'lastname' => 'doe', 'email' => 'john.doe@example.com'],
 //   ['firstname' => 'jane', 'lastname' => 'doe', 'email' => 'jane.doe@example.com'],
+//   ['firstname' => 'fred', 'lastname' => 'doe', 'email' => 'fred.doe@example.com'],
 //   ...
 // ]
 //
 ~~~
 
-If the number of values in a CSV row is lesser than the number of named keys, the method will add `null` values to compensate for the missing values.
-
-If the number of values in a CSV row is greater that the number of named keys the exceeding values will be drop from the result set.
-
-If no argument is provided, the first row from the CSV data will be used **(since version 6.1)**.
-
-<p class="message-warning">When a row index is specified it will not appear in the resulting array</p>
+Using a specific offset:
 
 ~~~php
 $data = $reader->fetchAssoc();
-// will output something like
+// will return something like this :
+//
 // [
-//    ['prenoms' => 'Aaron', 'nombre' => '55', 'sexe' => 'M', 'annee' => '2004'],
-//    ['prenoms' => 'Abdallah', 'nombre' => '7', 'sexe' => 'M', 'annee' => '2004'],
-// ...
+//   ['john' => 'jane', 'doe' => 'doe', 'john.doe@example.com' => 'jane.doe@example.com'],
+//   ['john' => 'fred', 'doe' => 'doe', 'john.doe@example.com' => 'fred.doe@example.com'],
+//   ...
 // ]
 //
-//
-//
 ~~~
+
+Of note:
+
+- If the number of values in a CSV row is lesser than the number of named keys, the method will add `null` values to compensate for the missing values.
+- If the number of values in a CSV row is greater that the number of named keys the exceeding values will be drop from the result set.
+- If no argument is provided, the first row from the CSV data will be used
+- If an offset is used, it's content will be skip in the result set.
 
 ### fetchColumn($columnIndex = 0, callable $callable = null)
 
 `fetchColumn` returns a sequential array of all values in a given column from the CSV data.
 
 If no argument is given to the method it will return the first column from the CSV data.
-If the column does not exists in the csv data the method will return an array full of `null` value.
+If the column does not exists in the csv data the method will return an array full of `null` values.
 
 ~~~php
 $data = $reader->fetchColumn(2);
@@ -92,11 +97,30 @@ $data = $reader->fetchColumn(2);
 //
 ~~~
 
+### Using a callable to modify the returned resultset
+
 The methods listed above (`query`, `fetchAll`, `fetchAssoc`, `fetchColumn`) can all take a optional `callable` argument to further manipulate each row before being returned. This callable function can take up to three parameters:
 
 * the current csv row data
 * the current csv key
 * the current csv iterator object
+
+~~~php
+$data = $reader->fetchAll(function ($row) {
+    return array_map('strtoupper', $row);
+});
+// will return something like this :
+//
+// [
+//   ['JOHN', 'DOE', 'JOHN.DOE@EXAMPLE.COM'],
+//   ['JANE', 'DOE', 'JANE.DOE@EXAMPLE.COM'],
+//   ...
+// ]
+//
+$nb_rows = count($data);
+~~~
+
+<p class="message-warning">In case of the <code>fetchAssoc</code> method, it's the callable result which is combine to the array key.</p>
 
 ### fetchOne($offset = 0)
 
@@ -126,8 +150,13 @@ The method returns the number of successful iterations.
 <?php
 //re-create the fetchAll method using the each method
 $res = [];
+$func = null;
 $nbIteration = $reader->each(function ($row, $index, $iterator) use (&$res, $func)) {
-    $res[] = $func($row, $index, $iterator);
+    if (is_callable($func)) {
+        $res[] = $func($row, $index, $iterator);
+        return true;
+    }
+    $res[] = $row;
     return true;
 });
 ~~~
@@ -243,7 +272,7 @@ $data = $reader
 
 ### Modifying conversion methods output
 
-Starting with `version 7.0`, the query options can all modify the output from the convertion methods as shown below with the `toHTML` method.
+Starting with `version 7.0`, the query options can also modify the output from the conversion methods as shown below with the `toHTML` method.
 
 ~~~php
 function filterByEmail($row)
