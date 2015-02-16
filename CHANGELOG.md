@@ -4,14 +4,18 @@ All Notable changes to `League\Csv` will be documented in this file
 ## Next - 2015-XX-XX
 
 ### Added
-- `Writer::useValidation` To enable/disabled row validation when inserting new data.
-- `Writer::addValidationRule` to add any callable function to the Writer
-- `Writer::removeValidationRule` to remove an already registered callable
-- `Writer::hasValidationRule` to detect the presence of a validation rule
-- `League\Csv\Validators\ColumnConsistency` to validation column consistency when adding new data
-- `League\Csv\Validators\NullHandling` to handle `null` value on insertion
-
-To better manage row validation on insert with the `Writer` class
+- Flexible mechanism to format and validate row before insertion by adding
+    - `Writer::addValidator` to add a validator to the `Writer` object
+    - `Writer::removeValidator` to remove an already registered validator
+    - `Writer::hasValidator` to detect the presence of a validator
+    - `Writer::clearValidators` to clear all registered validator
+    - `Writer::addFormatter` to add a validator to the `Writer` object
+    - `Writer::removFormatter` to remove an already registered validator
+    - `Writer::hasFormatter` to detect the presence of a validator
+    - `Writer::clearFormatters` to clear all registered validator
+    - `League\Csv\Exporter\Validators\ColumnConsistency` to validate column consistency on insertion
+    - `League\Csv\Exporter\Validators\NullValidator` to validate `null` value on insertion
+    - `League\Csv\Exporter\Formatters\NullFormatter` to format `null` value on insertion
 
 ### Deprecated
 - Nothing
@@ -31,7 +35,15 @@ To better manage row validation on insert with the `Writer` class
 ### Removed
 - Setting `ini_set("auto_detect_line_endings", true);` is no longer set in the class constructor. Mac OS X users must explicitly set this ini options in their script.
 - `Writer` and `Reader` default constructor are removed from public API in favor of the named constructors.
-- All `Writer` built in validation methods, properties and constants have been removed from the class to allow for better extensibility.
+- All `Writer` methods and constant related to CSV data validation and formatting before insertion
+    - `Writer::getNullHandlingMode`
+    - `Writer::setNullHandlingMode`
+    - `Writer::setColumnsCount`
+    - `Writer::getColumnsCount`
+    - `Writer::autodetectColumnsCount`
+    - `Writer::NULL_AS_EXCEPTION`
+    - `Writer::NULL_AS_EMPTY`
+    - `Writer::NULL_AS_SKIP_CELL`
 
 ## 6.3.0 - 2015-01-21
 
