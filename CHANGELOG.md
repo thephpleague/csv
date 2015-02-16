@@ -9,10 +9,10 @@ All Notable changes to `League\Csv` will be documented in this file
     - `Writer::removeValidator` to remove an already registered validator
     - `Writer::hasValidator` to detect the presence of a validator
     - `Writer::clearValidators` to clear all registered validator
-    - `Writer::addFormatter` to add a validator to the `Writer` object
-    - `Writer::removFormatter` to remove an already registered validator
-    - `Writer::hasFormatter` to detect the presence of a validator
-    - `Writer::clearFormatters` to clear all registered validator
+    - `Writer::addFormatter` to add a formatter to the `Writer` object
+    - `Writer::removeFormatter` to remove an already registered formatter
+    - `Writer::hasFormatter` to detect the presence of a formatter
+    - `Writer::clearFormatters` to clear all registered formatter
     - `League\Csv\Exporter\Validators\ColumnConsistency` to validate column consistency on insertion
     - `League\Csv\Exporter\Validators\NullValidator` to validate `null` value on insertion
     - `League\Csv\Exporter\Formatters\NullFormatter` to format `null` value on insertion
