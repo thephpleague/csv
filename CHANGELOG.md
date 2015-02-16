@@ -4,8 +4,14 @@ All Notable changes to `League\Csv` will be documented in this file
 ## Next - 2015-XX-XX
 
 ### Added
-- `Writer::NULL_HANDLING_DISABLED` To completely remove null handling when inserting new data.
-- `Writer::useValidation` To enable/disabled complete validation when inserting new data.
+- `Writer::useValidation` To enable/disabled row validation when inserting new data.
+- `Writer::addValidationRule` to add any callable function to the Writer
+- `Writer::removeValidationRule` to remove an already registered callable
+- `Writer::hasValidationRule` to detect the presence of a validation rule
+- `League\Csv\Validators\ColumnConsistency` to validation column consistency when adding new data
+- `League\Csv\Validators\NullHandling` to handle `null` value on insertion
+
+To better manage row validation on insert with the `Writer` class
 
 ### Deprecated
 - Nothing
@@ -25,6 +31,7 @@ All Notable changes to `League\Csv` will be documented in this file
 ### Removed
 - Setting `ini_set("auto_detect_line_endings", true);` is no longer set in the class constructor. Mac OS X users must explicitly set this ini options in their script.
 - `Writer` and `Reader` default constructor are removed from public API in favor of the named constructors.
+- All `Writer` built in validation methods, properties and constants have been removed from the class to allow for better extensibility.
 
 ## 6.3.0 - 2015-01-21
 

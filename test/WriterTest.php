@@ -56,18 +56,6 @@ class WriterTest extends PHPUnit_Framework_TestCase
         }
     }
 
-    /**
-     * @expectedException OutOfBoundsException
-     * @expectedExceptionMessage invalid value for null handling
-     */
-    public function testSetterGetterNullBehavior()
-    {
-        $this->csv->setNullHandlingMode(Writer::NULL_AS_SKIP_CELL);
-        $this->assertSame(Writer::NULL_AS_SKIP_CELL, $this->csv->getNullHandlingMode());
-
-        $this->csv->setNullHandlingMode(23);
-    }
-
     public function testInsertNormalFile()
     {
         $csv = Writer::createFromPath(__DIR__.'/foo.csv', 'a+');
@@ -75,56 +63,6 @@ class WriterTest extends PHPUnit_Framework_TestCase
         $iterator = new LimitIterator($csv->getIterator(), 1, 1);
         $iterator->rewind();
         $this->assertSame(['jane', 'doe', 'jane.doe@example.com'], $iterator->getInnerIterator()->current());
-    }
-
-    public function testInsertNullToSkipCell()
-    {
-        $expected = [
-            ['john', 'doe', 'john.doe@example.com'],
-            'john,doe,john.doe@example.com',
-            ['john', null, 'john.doe@example.com'],
-        ];
-        $this->csv->setNullHandlingMode(Writer::NULL_AS_SKIP_CELL);
-        foreach ($expected as $row) {
-            $this->csv->insertOne($row);
-        }
-        $iterator = new LimitIterator($this->csv->getIterator(), 2, 1);
-        $iterator->rewind();
-        $res = $iterator->getInnerIterator()->current();
-        $this->assertSame(['john', 'john.doe@example.com'], $res);
-    }
-
-    public function testInsertNullToEmpty()
-    {
-        $expected = [
-            ['john', 'doe', 'john.doe@example.com'],
-            'john,doe,john.doe@example.com',
-            ['john', null, 'john.doe@example.com'],
-        ];
-        $this->csv->setNullHandlingMode(Writer::NULL_AS_EMPTY);
-        foreach ($expected as $row) {
-            $this->csv->insertOne($row);
-        }
-        $iterator = new LimitIterator($this->csv->getIterator(), 2, 1);
-        $iterator->rewind();
-        $res = $iterator->getInnerIterator()->current();
-        $this->assertSame(['john', '', 'john.doe@example.com'], $res);
-    }
-
-    public function testInsertWithoutNullHandlingMode()
-    {
-        $expected = [
-            ['john', 'doe', 'john.doe@example.com'],
-            'john,doe,john.doe@example.com',
-            ['john', null, 'john.doe@example.com'],
-        ];
-        $this->csv->setNullHandlingMode(Writer::NULL_HANDLING_DISABLED);
-        $this->csv->insertAll($expected);
-
-        $iterator = new LimitIterator($this->csv->getIterator(), 2, 1);
-        $iterator->rewind();
-        $res = $iterator->getInnerIterator()->current();
-        $this->assertSame(['john', '', 'john.doe@example.com'], $res);
     }
 
     /**
@@ -143,54 +81,6 @@ class WriterTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException InvalidArgumentException
-     * @expectedExceptionMessage
-     */
-    public function testInsertNullThrowsException()
-    {
-        $this->csv->setNullHandlingMode(Writer::NULL_AS_EXCEPTION);
-        $this->csv->insertOne(['john', null, 'john.doe@example.com']);
-    }
-
-    /**
-     * @expectedException InvalidArgumentException
-     * @expectedExceptionMessage the column count must an integer greater or equals to -1
-     */
-    public function testColumsCountSetterGetter()
-    {
-        $this->assertSame(-1, $this->csv->getColumnsCount());
-        $this->csv->setColumnsCount(3);
-        $this->assertSame(3, $this->csv->getColumnsCount());
-        $this->csv->setColumnsCount('toto');
-    }
-
-    /**
-     * @expectedException RuntimeException
-     * @expectedExceptionMessageRegexp Adding \d+ cells on a \d+ cells per row CSV
-     */
-    public function testColumsCountConsistency()
-    {
-        $this->csv->insertOne(['john', 'doe', 'john.doe@example.com']);
-        $this->csv->setColumnsCount(2);
-        $this->csv->insertOne(['jane', 'jane.doe@example.com']);
-        $this->csv->setColumnsCount(3);
-        $this->csv->insertOne(['jane', 'jane.doe@example.com']);
-    }
-
-    /**
-     * @expectedException RuntimeException
-     * @expectedExceptionMessageRegexp Adding \d+ cells on a \d+ cells per row CSV
-     */
-    public function testAutoDetectColumnsCount()
-    {
-        $this->csv->autodetectColumnsCount();
-        $this->assertSame(-1, $this->csv->getColumnsCount());
-        $this->csv->insertOne(['john', 'doe', 'john.doe@example.com']);
-        $this->assertSame(3, $this->csv->getColumnsCount());
-        $this->csv->insertOne(['jane', 'jane.doe@example.com']);
-    }
-
-    /**
      * @expectedException PHPUnit_Framework_Error
      */
     public function testFailedInsertWithWrongData()
@@ -199,8 +89,7 @@ class WriterTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException InvalidArgumentException
-     * @expectedExceptionMessageRegexp Adding \d+ cells on a \d+ cells per row CSV
+     * @expectedException PHPUnit_Framework_Error
      */
     public function testFailedInsertWithMultiDimensionArray()
     {
@@ -265,5 +154,20 @@ class WriterTest extends PHPUnit_Framework_TestCase
             ."jane,doe,jane.doe@example.com".PHP_EOL;
         $csv = Writer::createFromString($raw, $expected);
         $this->assertSame($expected, $csv->getNewline());
+    }
+
+    public function testAddRules()
+    {
+        $func = function (array $row) {
+            return $row;
+        };
+
+        $this->csv->addValidationRule($func);
+        $this->csv->addValidationRule($func);
+        $this->assertTrue($this->csv->hasValidationRule($func));
+        $this->csv->removeValidationRule($func);
+        $this->assertTrue($this->csv->hasValidationRule($func));
+        $this->csv->clearValidationRules();
+        $this->assertFalse($this->csv->hasValidationRule($func));
     }
 }
