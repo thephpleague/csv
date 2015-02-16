@@ -247,11 +247,9 @@ class Reader extends AbstractCsv
      */
     protected function isValidAssocKeys(array $keys)
     {
-        $validKeys = array_unique(array_filter($keys, function ($value) {
-            return self::isValidString($value);
+        return count($keys) && $keys === array_unique(array_filter($keys, function ($value) {
+            return is_scalar($value) || (is_object($value) && method_exists($value, '__toString'));
         }));
-
-        return count($keys) && $keys === $validKeys;
     }
 
     /**

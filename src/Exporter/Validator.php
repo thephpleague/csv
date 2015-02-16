@@ -46,9 +46,9 @@ trait Validator
      * add a Validator to the collection
      *
      * @param callable $callable
-     * @param string rule name
+     * @param string   $name      the rule name
      *
-     * @return static
+     * @return $this
      */
     public function addValidator(callable $callable, $name)
     {
@@ -60,9 +60,9 @@ trait Validator
     /**
      * Remove a validator from the collection
      *
-     * @param callable $callable
+     * @param string $name the validator name
      *
-     * @return static
+     * @return $this
      */
     public function removeValidator($name)
     {
@@ -76,7 +76,7 @@ trait Validator
     /**
      * Detect if a validator is already registered
      *
-     * @param callable $callable
+     * @param string $name the validator name
      *
      * @return bool
      */
@@ -88,7 +88,7 @@ trait Validator
     /**
      * Remove all registered validatior
      *
-     * @return static
+     * @return $this
      */
     public function clearValidators()
     {
@@ -102,16 +102,12 @@ trait Validator
     *
     * @param array $row
     *
-    * @return array
+    * @return bool
     */
     protected function validateRow(array $row)
     {
         $this->lastValidator = null;
         $this->lastRowData   = null;
-        if (! $this->validationRules) {
-            return true;
-        }
-
         foreach ($this->validationRules as $name => $validator) {
             if (! $validator($row)) {
                 $this->lastValidator = $name;

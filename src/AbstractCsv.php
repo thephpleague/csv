@@ -287,16 +287,4 @@ abstract class AbstractCsv implements JsonSerializable, IteratorAggregate
     {
         return $this->newInstance('\League\Csv\Reader', $open_mode);
     }
-
-    /**
-    * Validate a variable to be stringable
-    *
-    * @param object|string $str
-    *
-    * @return bool
-    */
-    public static function isValidString($str)
-    {
-        return is_scalar($str) || (is_object($str) && method_exists($str, '__toString'));
-    }
 }
