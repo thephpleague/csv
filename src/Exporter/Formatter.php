@@ -26,7 +26,7 @@ trait Formatter
      *
      * @var callable[]
      */
-    protected $formatterRules = [];
+    protected $formatters = [];
 
     /**
      * add a formatter to the collection
@@ -37,7 +37,7 @@ trait Formatter
      */
     public function addFormatter(callable $callable)
     {
-        $this->formatterRules[] = $callable;
+        $this->formatters[] = $callable;
 
         return $this;
     }
@@ -51,9 +51,9 @@ trait Formatter
      */
     public function removeFormatter(callable $callable)
     {
-        $res = array_search($callable, $this->formatterRules, true);
+        $res = array_search($callable, $this->formatters, true);
         if (false !== $res) {
-            unset($this->formatterRules[$res]);
+            unset($this->formatters[$res]);
         }
 
         return $this;
@@ -68,7 +68,7 @@ trait Formatter
      */
     public function hasFormatter(callable $callable)
     {
-        return false !== array_search($callable, $this->formatterRules, true);
+        return false !== array_search($callable, $this->formatters, true);
     }
 
     /**
@@ -78,28 +78,8 @@ trait Formatter
      */
     public function clearFormatters()
     {
-        $this->formatterRules = [];
+        $this->formatters = [];
 
         return $this;
-    }
-
-    /**
-     * Format the given row
-     *
-     * @param array $row
-     *
-     * @return array
-     */
-    protected function formatRow($row)
-    {
-        if (! is_array($row)) {
-            $row = str_getcsv($row, $this->delimiter, $this->enclosure, $this->escape);
-        }
-
-        foreach ($this->formatterRules as $formatter) {
-            $row = (array) $formatter($row);
-        }
-
-        return (array) $row;
     }
 }

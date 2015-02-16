@@ -26,21 +26,21 @@ trait Validator
      *
      * @var string
      */
-    protected $lastValidator;
+    protected $lastValidatorErrorName;
 
     /**
      * The last failed row
      *
      * @var array|null
      */
-    protected $lastRowData;
+    protected $lastValidatorErrorData;
 
     /**
      * Callables to validate the row before insertion
      *
      * @var callable[]
      */
-    protected $validationRules = [];
+    protected $validators = [];
 
     /**
      * add a Validator to the collection
@@ -52,7 +52,8 @@ trait Validator
      */
     public function addValidator(callable $callable, $name)
     {
-        $this->validationRules[(string) $name] = $callable;
+        $name = trim($name);
+        $this->validators[$name] = $callable;
 
         return $this;
     }
@@ -66,8 +67,9 @@ trait Validator
      */
     public function removeValidator($name)
     {
-        if (array_key_exists($name, $this->validationRules)) {
-            unset($this->validationRules[$name]);
+        $name = trim($name);
+        if (array_key_exists($name, $this->validators)) {
+            unset($this->validators[$name]);
         }
 
         return $this;
@@ -82,7 +84,9 @@ trait Validator
      */
     public function hasValidator($name)
     {
-        return array_key_exists($name, $this->validationRules);
+        $name = trim($name);
+
+        return array_key_exists($name, $this->validators);
     }
 
     /**
@@ -92,31 +96,9 @@ trait Validator
      */
     public function clearValidators()
     {
-        $this->validationRules = [];
+        $this->validators = [];
 
         return $this;
-    }
-
-    /**
-    * validate a row
-    *
-    * @param array $row
-    *
-    * @return bool
-    */
-    protected function validateRow(array $row)
-    {
-        $this->lastValidator = null;
-        $this->lastRowData   = null;
-        foreach ($this->validationRules as $name => $validator) {
-            if (! $validator($row)) {
-                $this->lastValidator = $name;
-                $this->lastRowData   = $row;
-                return false;
-            }
-        }
-
-        return true;
     }
 
     /**
@@ -126,7 +108,7 @@ trait Validator
      */
     public function getLastValidatorErrorName()
     {
-        return $this->lastValidator;
+        return $this->lastValidatorErrorName;
     }
 
     /**
@@ -136,6 +118,6 @@ trait Validator
      */
     public function getLastValidatorErrorData()
     {
-        return $this->lastRowData;
+        return $this->lastValidatorErrorData;
     }
 }

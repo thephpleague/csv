@@ -38,14 +38,14 @@ class Writer extends AbstractCsv
     protected $csv;
 
     /**
-     * Trait to validate the row before insertion
-     */
-    use Exporter\Validator;
-
-    /**
      * Trait to format the row before insertion
      */
     use Exporter\Formatter;
+
+    /**
+     * Trait to validate the row before insertion
+     */
+    use Exporter\Validator;
 
     /**
      * Add multiple lines to the CSV your are generating
@@ -83,9 +83,9 @@ class Writer extends AbstractCsv
     public function insertOne($row)
     {
         $row = $this->formatRow($row);
-        if (! $this->validateRow($row)) {
+        if ($this->validators && ! $this->validateRow($row)) {
             throw new InvalidArgumentException(
-                'Row validation failed with the following validator: '. $this->getLastValidatorErrorName()
+                'Row validation failed with the following validator: '. $this->lastValidatorErrorName
             );
         }
         $csv = $this->getCsv();
@@ -96,6 +96,48 @@ class Writer extends AbstractCsv
         }
 
         return $this;
+    }
+
+    /**
+     * Format the given row
+     *
+     * @param array|string $row
+     *
+     * @return array
+     */
+    protected function formatRow($row)
+    {
+        if (! is_array($row)) {
+            $row = str_getcsv($row, $this->delimiter, $this->enclosure, $this->escape);
+        }
+
+        foreach ($this->formatters as $formatter) {
+            $row = $formatter($row);
+        }
+
+        return $row;
+    }
+
+    /**
+    * validate a row
+    *
+    * @param array $row
+    *
+    * @return bool
+    */
+    protected function validateRow(array $row)
+    {
+        $this->lastValidatorErrorName = null;
+        $this->lastValidatorErrorData = null;
+        foreach ($this->validators as $name => $validator) {
+            if (! $validator($row)) {
+                $this->lastValidatorErrorName = $name;
+                $this->lastValidatorErrorData = $row;
+                return false;
+            }
+        }
+
+        return true;
     }
 
     /**
