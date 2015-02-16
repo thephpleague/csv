@@ -76,7 +76,6 @@ class WriterTest extends PHPUnit_Framework_TestCase
             ['john', null, 'john.doe@example.com'],
             new \StdClass,
         ];
-        $this->csv->useValidation(false);
         $this->csv->insertAll($expected);
     }
 
@@ -156,18 +155,33 @@ class WriterTest extends PHPUnit_Framework_TestCase
         $this->assertSame($expected, $csv->getNewline());
     }
 
-    public function testAddRules()
+    public function testAddValidationRules()
     {
         $func = function (array $row) {
             return $row;
         };
 
-        $this->csv->addValidationRule($func);
-        $this->csv->addValidationRule($func);
-        $this->assertTrue($this->csv->hasValidationRule($func));
-        $this->csv->removeValidationRule($func);
-        $this->assertTrue($this->csv->hasValidationRule($func));
-        $this->csv->clearValidationRules();
-        $this->assertFalse($this->csv->hasValidationRule($func));
+        $this->csv->addValidator($func, 'func1');
+        $this->csv->addValidator($func, 'func2');
+        $this->assertTrue($this->csv->hasValidator('func1'));
+        $this->csv->removeValidator('func1');
+        $this->assertTrue($this->csv->hasValidator('func2'));
+        $this->csv->clearValidators();
+        $this->assertFalse($this->csv->hasValidator('func2'));
+    }
+
+    public function testFormatterRules()
+    {
+        $func = function (array $row) {
+            return array_map('strtoupper', $row);
+        };
+
+        $this->csv->addFormatter($func);
+        $this->csv->addFormatter($func);
+        $this->assertTrue($this->csv->hasFormatter($func));
+        $this->csv->removeFormatter($func);
+        $this->assertTrue($this->csv->hasFormatter($func));
+        $this->csv->clearFormatters();
+        $this->assertFalse($this->csv->hasFormatter($func));
     }
 }

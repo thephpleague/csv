@@ -2,16 +2,11 @@
 
 namespace League\Csv\Test\Validators;
 
-use ArrayIterator;
-use DateTime;
 use League\Csv\Writer;
-use League\Csv\Validators\ColumnConsistency;
-use LimitIterator;
+use League\Csv\Exporter\Validators\ColumnConsistency;
 use PHPUnit_Framework_TestCase;
 use SplFileObject;
 use SplTempFileObject;
-
-date_default_timezone_set('UTC');
 
 /**
  * @group validators
@@ -27,7 +22,7 @@ class ColumnConsistencyTest extends PHPUnit_Framework_TestCase
 
     public function tearDown()
     {
-        $csv = new SplFileObject(__DIR__.'/foo.csv', 'w');
+        $csv = new SplFileObject(dirname(__DIR__).'/foo.csv', 'w');
         $csv->setCsvControl();
         $csv->fputcsv(["john", "doe", "john.doe@example.com"], ",", '"');
         $this->csv = null;
@@ -35,7 +30,6 @@ class ColumnConsistencyTest extends PHPUnit_Framework_TestCase
 
     /**
      * @expectedException InvalidArgumentException
-     * @expectedExceptionMessage the column count must an integer greater or equals to -1
      */
     public function testColumsCountSetterGetter()
     {
@@ -47,13 +41,12 @@ class ColumnConsistencyTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException RuntimeException
-     * @expectedExceptionMessageRegexp Adding \d+ cells on a \d+ cells per row CSV
+     * @expectedException InvalidArgumentException
      */
     public function testColumsCountConsistency()
     {
         $consistency = new ColumnConsistency();
-        $this->csv->addValidationRule($consistency);
+        $this->csv->addValidator($consistency, 'consistency');
         $this->csv->insertOne(['john', 'doe', 'john.doe@example.com']);
         $consistency->setColumnsCount(2);
         $this->csv->insertOne(['jane', 'jane.doe@example.com']);
@@ -62,13 +55,12 @@ class ColumnConsistencyTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException RuntimeException
-     * @expectedExceptionMessageRegexp Adding \d+ cells on a \d+ cells per row CSV
+     * @expectedException InvalidArgumentException
      */
     public function testAutoDetectColumnsCount()
     {
         $consistency = new ColumnConsistency();
-        $this->csv->addValidationRule($consistency);
+        $this->csv->addValidator($consistency, 'consistency');
         $consistency->autodetectColumnsCount();
         $this->assertSame(-1, $consistency->getColumnsCount());
         $this->csv->insertOne(['john', 'doe', 'john.doe@example.com']);

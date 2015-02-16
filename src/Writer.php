@@ -13,6 +13,7 @@
 namespace League\Csv;
 
 use InvalidArgumentException;
+use League\Csv\Exporter;
 use Traversable;
 
 /**
@@ -37,108 +38,14 @@ class Writer extends AbstractCsv
     protected $csv;
 
     /**
-     * Callables to filter the iterator
-     *
-     * @var callable[]
+     * Trait to validate the row before insertion
      */
-    protected $rules = [];
+    use Exporter\Validator;
 
     /**
-     * should the class validate the input before insertion
-     *
-     * @var boolean
+     * Trait to format the row before insertion
      */
-    protected $useValidation = true;
-
-
-    /**
-     * Tells wether the library should check or not the input
-     *
-     * @param  bool $status
-     *
-     * @return static
-     */
-    public function useValidation($activate)
-    {
-        $this->useValidation = (bool) $activate;
-
-        return $this;
-    }
-
-    /**
-     * Set an Iterator sorting callable function
-     *
-     * @param callable $callable
-     *
-     * @return static
-     */
-    public function addValidationRule(callable $callable)
-    {
-        $this->rules[] = $callable;
-
-        return $this;
-    }
-
-    /**
-     * Remove a callable from the collection
-     *
-     * @param callable $callable
-     *
-     * @return static
-     */
-    public function removeValidationRule(callable $callable)
-    {
-        $res = array_search($callable, $this->rules, true);
-        if (false !== $res) {
-            unset($this->rules[$res]);
-        }
-
-        return $this;
-    }
-
-    /**
-     * Detect if the callable is already registered
-     *
-     * @param callable $callable
-     *
-     * @return bool
-     */
-    public function hasValidationRule(callable $callable)
-    {
-        return false !== array_search($callable, $this->rules, true);
-    }
-
-    /**
-     * Remove all registered callable
-     *
-     * @return static
-     */
-    public function clearValidationRules()
-    {
-        $this->rules = [];
-
-        return $this;
-    }
-
-    /**
-    * Filter the Iterator
-    *
-    * @param array $row
-    *
-    * @return array
-    */
-    protected function applyValidationRules(array $row)
-    {
-        if (! $this->useValidation || ! $this->rules) {
-            return $row;
-        }
-
-        foreach ($this->rules as $rule) {
-            $row = $rule($row);
-        }
-
-        return $row;
-    }
+    use Exporter\Formatter;
 
     /**
      * Add multiple lines to the CSV your are generating
@@ -176,7 +83,11 @@ class Writer extends AbstractCsv
     public function insertOne($row)
     {
         $row = $this->formatRow($row);
-        $row = $this->applyValidationRules($row);
+        if (! $this->validateRow($row)) {
+            throw new InvalidArgumentException(
+                'Row validation failed with the following validator: '. $this->getLastValidatorErrorName()
+            );
+        }
         $csv = $this->getCsv();
         $csv->fputcsv($row, $this->delimiter, $this->enclosure);
         if ("\n" !== $this->newline) {
@@ -185,22 +96,6 @@ class Writer extends AbstractCsv
         }
 
         return $this;
-    }
-
-    /**
-     * format the submitted data to be an array
-     *
-     * @param  array|string $row the row data
-     *
-     * @return array
-     */
-    protected function formatRow($row)
-    {
-        if (! is_array($row)) {
-            return str_getcsv($row, $this->delimiter, $this->enclosure, $this->escape);
-        }
-
-        return $row;
     }
 
     /**

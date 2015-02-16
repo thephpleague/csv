@@ -10,7 +10,7 @@
 * For the full copyright and license information, please view the LICENSE
 * file that was distributed with this source code.
 */
-namespace League\Csv\Validators;
+namespace League\Csv\Exporter\Validators;
 
 use InvalidArgumentException;
 use RuntimeException;
@@ -87,27 +87,9 @@ class ColumnConsistency
      *
      * @param array $row
      *
-     * @throws \RuntimeException If the given $row does not contain valid column count
-     *
-     * @return array
-     */
-    public function __invoke(array $row)
-    {
-        if (! $this->isColumnsCountConsistent($row)) {
-            throw new RuntimeException('Adding '.count($row).' cells on a {$this->columns_count} cells per row CSV.');
-        }
-
-        return $row;
-    }
-
-    /**
-     * Check column count consistency
-     *
-     * @param array $row the row to be added to the CSV
-     *
      * @return bool
      */
-    private function isColumnsCountConsistent(array $row)
+    public function __invoke(array $row)
     {
         if ($this->detect_columns_count) {
             $this->columns_count = count($row);
