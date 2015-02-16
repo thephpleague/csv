@@ -11,18 +11,14 @@ permalink: upgrading/7.0/
 If you are using composer then you should update the require section of your `composer.json` file.
 
 ~~~
-composer require league/csv:~7.0
+$ composer require league/csv:~7.0
 ~~~
 
 This will edit (or create) your `composer.json` file.
 
 ## Added features
 
-To improving writing speed you can now control prior to CSV addition:
-
-- column consistency validation (already present)
-- null handling validation (using the new `Writer::NULL_HANDLING_DISABLED` constant)
-- any data validation (using the new `Writer::useValidation` method)
+To improving writing speed you can now control data formatting and validation insertion prior to CSV addition:
 
 Please [refer to the documentation](/inserting/) for more information.
 
@@ -57,6 +53,101 @@ if (! ini_get("auto_detect_line_endings")) {
 //the rest of the code continue here...
 ~~~
 
+### Null Handling
+
+The null handling has been removed from the `Writer` class. If your code relied on it you can use the new validation and formatting capabilities of the `Writer` class and :
+
+- the `League\Csv\Exporter\NullFormatter` class to format the founded `null` values
+- the `League\Csv\Exporter\NullValidator` class to validate the absence or `null` values
+
+#### Example 1 : Null value validation
+
+**Old code:**
+
+~~~php
+use League\Csv\Writer;
+
+$writer = Writer::createFromPath('/path/to/your/csv/file.csv');
+$writer->insertOne(["foo", null, "bar"]); //will throw an InvalidArgumentException
+~~~
+
+**New code:**
+
+~~~php
+use League\Csv\Writer;
+use League\Csv\Exporter\NullValidator;
+
+$validator = new NullValidator();
+$writer = Writer::createFromPath('/path/to/your/csv/file.csv');
+$writer->addValidator($validator, 'null_as_exception');
+$writer->insertOne(["foo", null, "bar"]); //will throw an InvalidArgumentException
+~~~
+
+#### Example 2 : Null value formatting
+
+**Old code:**
+
+~~~php
+use League\Csv\Writer;
+
+$writer = Writer::createFromPath('/path/to/your/csv/file.csv');
+$writer->setNullHandlingMode(Writer::NULL_AS_SKIP_CELL);
+$writer->insertOne(["foo", null, "bar"]);
+//the actual inserted row will be ["foo", "bar"]
+~~~
+
+**New code:**
+
+~~~php
+use League\Csv\Writer;
+use League\Csv\Exporter\NullFormatter;
+
+$formatter = new NullFormatter();
+$formatter->setMode(NullFormatter::NULL_AS_SKIP_CELL);
+
+$writer = Writer::createFromPath('/path/to/your/csv/file.csv');
+$writer->addFormatter($formatter);
+$writer->insertOne(["foo", null, "bar"]);
+//the actual inserted row will be ["foo", "bar"]
+~~~
+
+### Row consistency check
+
+Directly checking row consistency has been removed from the `Writer` class. If your code relied on it you can use the new validation and formatting capabilities of the `Writer` class and:
+
+- the `League\Csv\Exporter\Validators\ColumnConsistency` class.
+
+**Old code:**
+
+~~~php
+use League\Csv\Writer;
+
+$writer = Writer::createFromPath('/path/to/your/csv/file.csv');
+$writer->setNullHandlingMode(Writer::NULL_AS_EMPTY);
+$writer->autodetectColumnsCount();
+$writer->getColumnsCount(); //returns -1
+
+$writer->insertOne(["foo", null, "bar"]);
+$nb_column_count = $writer->getColumnsCount(); //returns 3
+~~~
+
+**New code:**
+
+~~~php
+use League\Csv\Writer;
+use League\Csv\Exporter\Validators\ColumnConsistency;
+
+$validator = new ColumnConsistency();
+$validator->autodetectColumnsCount();
+$validator->getColumnsCount(); //returns -1
+
+$writer = Writer::createFromPath('/path/to/your/csv/file.csv');
+$writer->addValidator($validator, 'column_consistency');
+
+$writer->insertOne(["foo", null, "bar"]);
+$nb_column_count = $validator->getColumnsCount(); //returns 3
+~~~
+
 ### CSV conversion methods
 
 `jsonSerialize`, `toXML` and `toHTML` methods returns data is affected by the `Reader` query options methods. You can directly narrow the CSV conversion into a json string, a `DOMDocument` object or a HTML table if you filter your data prior to using the conversion method.
@@ -65,7 +156,7 @@ As with any other `Reader` extract method, the query options are resetted after 
 
 Because prior to version 7.0 the conversion methods were not affected, you may have to update your code accordingly.
 
-Old behavior:
+**Old behavior:**
 
 ~~~php
 use League\Csv\Reader;
@@ -76,7 +167,7 @@ $reader->setLimit(5);
 $reader->toHTML(); //would convert the full CSV
 ~~~
 
-New behavior:
+**New behavior:**
 
 ~~~php
 use League\Csv\Reader;
@@ -91,13 +182,12 @@ Of course, since the query options methods do not exist on the `Writer` class. T
 
 ### CSV Instantiation
 
-Using the default constructor will raise a PHP error. you should modified your instantiation using one of the three named constructors. This is done in order to clarify `$open_mode` argument usage on instantiation. See below for a concrete example.
+You can no longer use `Reader` and `Writer` default constructors. You are required to use the named constructors. This is done in order to clarify `$open_mode` argument usage on instantiation. See below for a concrete example.
 
-Using the default constructor:
+**Removed behavior:**
 
 ~~~php
 use League\Csv\Writer;
-use League\Csv\Reader;
 
 $file = '/path/to/my/file.csv';
 $fileObject = new SplFileObject($file, 'r+');
@@ -109,13 +199,10 @@ $sol2 = new Writer($fileObject, 'w');
 - `$sol1` open mode will be `w` and new `SplFileObject` object is created internally
 - `$sol2` open mode will be `r+` and `$fileObject` is directly used. The provided `$open_mode` argument has no effect.
 
-The default constructor behavior depended on the first argument type.
-
-Using named constructors:
+**Supported behavior**
 
 ~~~php
 use League\Csv\Writer;
-use League\Csv\Reader;
 
 $file = '/path/to/my/file.csv';
 $fileObject = new SplFileObject($file, 'r+');
@@ -127,14 +214,12 @@ $sol3 = Writer::createFromPath($fileObject, 'w');
 
 - `$sol1` open mode will be `w` and new `SplFileObject` object is created internally;
 - `$sol2` open mode will be `r+` and `$fileObject` is directly used;
-- `$sol3` is not possible using default constructor and is equivalent to `$sol1`;
-
-The `createFromPath` named constructor always take into account the `$open_mode` parameter. As for the `createFromFileObject` named constructor it requires only one argument which must be an instance of `SplFileObject` class.
+- `$sol3` was not possible using default constructor and is equivalent to `$sol1`;
 
 ### CSV properties
 
-- Starting with version 7, the default SplFileObject flags used are `SplFileObject::READ_CSV` and `SplFileObject::DROP_NEW_LINE`. As previously these flags can not be overidden by the developper to ensure consistency in the methods used.
-- All CSV properties setter methods no longer provides default values. When used the method must provide a value.
+- The new default `SplFileObject` flags used are `SplFileObject::READ_CSV` and `SplFileObject::DROP_NEW_LINE`. As previously these flags can not be overidden by the developer to ensure consistency in methods usage.
+- CSV properties setter methods no longer provides default values. When used, you are require to provide a value to the method.
 
 ### Detecting CSV Delimiters
 
@@ -164,7 +249,7 @@ if (count($delimiters_list)) {
 
 Prior to version 7.0 when, if the column did not exist in the csv data the method returned an array full of null values.
 
-Old behavior:
+**Old behavior:**
 
 ~~~php
 use League\Csv\Reader;
@@ -175,7 +260,7 @@ $arr = $reader->fetchColumn(3);
 //$arr is a array containing only null values;
 ~~~
 
-New behavior:
+**New behavior:**
 
 ~~~php
 use League\Csv\Reader;
@@ -186,4 +271,4 @@ $arr = $reader->fetchColumn(3);
 //$arr is empty
 ~~~
 
-Row with non existing value are skipped from the result set.
+Row with non existing values are skipped from the result set.

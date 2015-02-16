@@ -82,10 +82,8 @@ use League\Csv\Reader;
 require '../vendor/autoload.php';
 
 $csv = Reader::createFromPath('/path/to/my/file.csv');
-//detect and adjust the output BOM to be used
-if (Reader::BOM_UTF8 != $reader->getInputBOM()) {
-    $reader->setOutputBOM(Reader::BOM_UTF8);
-}
+$reader->setOutputBOM(Reader::BOM_UTF8);
+//BOM detected and adjusted for the output
 echo $csv->__toString();
 
 ~~~
@@ -109,7 +107,6 @@ $csv = Reader::createFromPath(__DIR__.'/data/prenoms.csv');
 //we must use a real temp file to be able to rewind the cursor file
 //without loosing the modifications
 $writer = Writer::createFromPath('/tmp/toto.csv', 'w');
-$writer->setNullHandlingMode(Writer::NULL_AS_EMPTY);
 
 //we set the tab as the delimiter character
 $writer->setDelimiter("\t");
@@ -126,9 +123,7 @@ stream_filter_register(FilterTranscode::FILTER_NAME."*", "\lib\FilterTranscode")
 $reader->appendStreamFilter(FilterTranscode::FILTER_NAME."UTF-8:UTF-16LE");
 
 //we detect and adjust the output BOM to be used
-if (Reader::BOM_UTF16_LE != $reader->getInputBOM()) {
-    $reader->setOutputBOM(Reader::BOM_UTF16_LE);
-}
+$reader->setOutputBOM(Reader::BOM_UTF16_LE);
 //all is good let's output the results
 $reader->output('mycsvfile.csv');
 

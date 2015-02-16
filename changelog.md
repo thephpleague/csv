@@ -9,8 +9,18 @@ All Notable changes to `League\Csv` will be documented in this file
 ## Next
 
 ### Added
-- `Writer::NULL_HANDLING_DISABLED` To completely remove null handling when inserting new data.
-- `Writer::useValidation` To enable/disabled complete validation when inserting new data.
+- Flexible mechanism to format and validate row before insertion by adding
+    - `Writer::addValidator` to add a validator to the `Writer` object
+    - `Writer::removeValidator` to remove an already registered validator
+    - `Writer::hasValidator` to detect the presence of a validator
+    - `Writer::clearValidators` to clear all registered validator
+    - `Writer::addFormatter` to add a formatter to the `Writer` object
+    - `Writer::removeFormatter` to remove an already registered formatter
+    - `Writer::hasFormatter` to detect the presence of a formatter
+    - `Writer::clearFormatters` to clear all registered formatter
+    - `League\Csv\Exporter\Validators\ColumnConsistency` to validate column consistency on insertion
+    - `League\Csv\Exporter\Validators\NullValidator` to validate `null` value on insertion
+    - `League\Csv\Exporter\Formatters\NullFormatter` to format `null` value on insertion
 
 ### Deprecated
 - Nothing
@@ -30,6 +40,15 @@ All Notable changes to `League\Csv` will be documented in this file
 ### Removed
 - Setting `ini_set("auto_detect_line_endings", true);` is no longer set in the class constructor. Mac OS X users must explicitly set this ini options in their script.
 - `Writer` and `Reader` default constructor are removed from public API in favor of the named constructors.
+- All `Writer` methods and constant related to CSV data validation and formatting before insertion
+    - `Writer::getNullHandlingMode`
+    - `Writer::setNullHandlingMode`
+    - `Writer::setColumnsCount`
+    - `Writer::getColumnsCount`
+    - `Writer::autodetectColumnsCount`
+    - `Writer::NULL_AS_EXCEPTION`
+    - `Writer::NULL_AS_EMPTY`
+    - `Writer::NULL_AS_SKIP_CELL`
 
 ## 6.3.0
 
