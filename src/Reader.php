@@ -117,11 +117,10 @@ class Reader extends AbstractCsv
         }
 
         $iterator = $this->query($callable);
+        $iterator = new CallbackFilterIterator($iterator, function ($row) use ($column_index) {
+            return array_key_exists($column_index, $row);
+        });
         $iterator = new Iterators\MapIterator($iterator, function ($row) use ($column_index) {
-            if (! array_key_exists($column_index, $row)) {
-                return null;
-            }
-
             return $row[$column_index];
         });
 

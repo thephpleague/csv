@@ -251,7 +251,7 @@ class ReaderTest extends PHPUnit_Framework_TestCase
         $this->assertSame(['john', 'jane'], $this->csv->fetchColumn());
     }
 
-    public function testFetchColEmptyCol()
+    public function testFetchColInconsistentColumnCSV()
     {
         $raw = [
             ['john', 'doe'],
@@ -266,9 +266,27 @@ class ReaderTest extends PHPUnit_Framework_TestCase
         $csv->setFlags(SplFileObject::READ_AHEAD|SplFileObject::SKIP_EMPTY);
         $res = $csv->fetchColumn(2);
         $this->assertInternalType('array', $res);
-        $this->assertCount(2, $res);
-        $this->assertNull($res[0][2]);
+        $this->assertCount(1, $res);
     }
+
+    public function testFetchColEmptyCol()
+    {
+        $raw = [
+            ['john', 'doe'],
+            ['lara', 'croft'],
+        ];
+
+        $file = new SplTempFileObject();
+        foreach ($raw as $row) {
+            $file->fputcsv($row);
+        }
+        $csv = Reader::createFromFileObject($file);
+        $csv->setFlags(SplFileObject::READ_AHEAD|SplFileObject::SKIP_EMPTY);
+        $res = $csv->fetchColumn(2);
+        $this->assertInternalType('array', $res);
+        $this->assertCount(0, $res);
+    }
+
 
     public function testFetchColCallback()
     {
