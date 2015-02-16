@@ -57,6 +57,38 @@ if (! ini_get("auto_detect_line_endings")) {
 //the rest of the code continue here...
 ~~~
 
+### CSV conversion methods
+
+`jsonSerialize`, `toXML` and `toHTML` methods returns data is affected by the `Reader` query options methods. You can directly narrow the CSV conversion into a json string, a `DOMDocument` object or a HTML table if you filter your data prior to using the conversion method.
+
+As with any other `Reader` extract method, the query options are resetted after a call to the above methods.
+
+Because prior to version 7.0 the conversion methods were not affected, you may have to update your code accordingly.
+
+Old behavior:
+
+~~~php
+use League\Csv\Reader;
+
+$reader = Reader::createFromPath('/path/to/your/csv/file.csv');
+$reader->setOffset(1);
+$reader->setLimit(5);
+$reader->toHTML(); //would convert the full CSV
+~~~
+
+New behavior:
+
+~~~php
+use League\Csv\Reader;
+
+$reader = Reader::createFromPath('/path/to/your/csv/file.csv');
+$reader->setOffset(1);
+$reader->setLimit(5);
+$reader->toHTML(); //will only convert the 5 specified rows
+~~~
+
+Of course, since the query options methods do not exist on the `Writer` class. The changed behavior does not affect the latter class.
+
 ### CSV Instantiation
 
 Using the default constructor will raise a PHP error. you should modified your instantiation using one of the three named constructors. This is done in order to clarify `$open_mode` argument usage on instantiation. See below for a concrete example.
@@ -128,23 +160,19 @@ if (count($delimiters_list)) {
 }
 ~~~
 
-### CSV conversion methods
+### Reader::fetchColumn
 
-`jsonSerialize`, `toXML` and `toHTML` methods returns data is affected by the `Reader` query options methods. You can directly narrow the CSV conversion into a json string, a `DOMDocument` object or a HTML table if you filter your data prior to using the conversion method.
-
-As with any other `Reader` extract method, the query options are resetted after a call to the above methods.
-
-Because prior to version 7.0 the conversion methods were not affected, you may have to update your code accordingly.
+Prior to version 7.0 when, if the column did not exist in the csv data the method returned an array full of null values.
 
 Old behavior:
 
 ~~~php
 use League\Csv\Reader;
 
+//this CSV contains only 2 column
 $reader = Reader::createFromPath('/path/to/your/csv/file.csv');
-$reader->setOffset(1);
-$reader->setLimit(5);
-$reader->toHTML(); //would convert the full CSV
+$arr = $reader->fetchColumn(3);
+//$arr is a array containing only null values;
 ~~~
 
 New behavior:
@@ -152,10 +180,10 @@ New behavior:
 ~~~php
 use League\Csv\Reader;
 
+//this CSV contains only 2 column
 $reader = Reader::createFromPath('/path/to/your/csv/file.csv');
-$reader->setOffset(1);
-$reader->setLimit(5);
-$reader->toHTML(); //will only convert the 5 specified rows
+$arr = $reader->fetchColumn(3);
+//$arr is empty
 ~~~
 
-Of course, since the query options methods do not exist on the `Writer` class. The changed behavior does not affect the latter class.
+Row with non existing value are skipped from the result set.

@@ -25,6 +25,7 @@ All Notable changes to `League\Csv` will be documented in this file
 - All CSV properties are now copied when using `newReader` and `newWriter` methods
 - BOM addition on output improved by removing if found the existing BOM character
 - the `AbstractCSV::output` method now returns the number of bytes send to the output buffer
+- `Reader::fetchColumn` will automatically filter out non existing values from the return array
 
 ### Removed
 - Setting `ini_set("auto_detect_line_endings", true);` is no longer set in the class constructor. Mac OS X users must explicitly set this ini options in their script.

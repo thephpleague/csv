@@ -86,8 +86,7 @@ Of note:
 
 `fetchColumn` returns a sequential array of all values in a given column from the CSV data.
 
-If no argument is given to the method it will return the first column from the CSV data.
-If the column does not exists in the csv data the method will return an array full of `null` values.
+If for a given row the column does not exist, the row will be skipped.
 
 ~~~php
 $data = $reader->fetchColumn(2);
@@ -96,6 +95,14 @@ $data = $reader->fetchColumn(2);
 // ['john.doe@example.com', 'jane.doe@example.com', ...]
 //
 ~~~
+
+<div class="message-warning">
+<strong>BC break starting with <code>version 7.0</code> :</strong> 
+<ul>
+<li>This method no longer adds <code>null</code> on an non existing column index.</li>
+<li>The cell skipping is done on the callable result.</li>
+</ul>
+</div>
 
 ### Using a callable to modify the returned resultset
 
