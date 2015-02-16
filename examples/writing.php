@@ -8,7 +8,6 @@ $writer = Writer::createFromFileObject(new SplTempFileObject()); //the CSV file 
 $writer->setDelimiter("\t"); //the delimiter will be the tab character
 $writer->setNewline("\r\n"); //use windows line endings for compatibility with some csv libraries
 $writer->setEncodingFrom("utf-8");
-$writer->setNullHandlingMode(Writer::NULL_AS_EMPTY); //if a null content cell is encountered it will be converted into a empty content
 
 $headers = ["position" , "team", "played", "goals difference", "points"];
 $writer->insertOne($headers);

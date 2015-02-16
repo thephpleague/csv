@@ -21,8 +21,6 @@ function generateRawData($start, $end)
 $start = microtime(true);
 $nbrows = 200000;
 $csv = Writer::createFromPath('result.csv', 'w'); //to work make sure you have the write permission
-//$csv->setNullHandlingMode(Writer::NULL_HANDLING_DISABLED); //uncomment with useValidation to true to compare the speed
-$csv->useValidation(false); //change the 'true' to compare the value when validation are on
 $csv->insertAll(generateRawData(0, $nbrows));
 $duration = microtime(true) - $start;
 $memory = memory_get_peak_usage(true);

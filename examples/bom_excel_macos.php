@@ -19,8 +19,6 @@ $csv = Reader::createFromPath(__DIR__.'/data/prenoms.csv');
 //we must use a temp file to be able to rewind the cursor file without loosing
 //the modification
 $writer = Writer::createFromPath('/tmp/toto.csv', 'w');
-//we do not care about null value
-$writer->setNullHandlingMode(Writer::NULL_HANDLING_DISABLED);
 //adjust the output BOM to be used
 $writer->setOutputBOM(Writer::BOM_UTF16_LE);
 // we register a Transcode Filter class to convert the CSV into the proper encoding charset
