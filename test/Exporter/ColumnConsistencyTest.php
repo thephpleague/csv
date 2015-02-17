@@ -1,9 +1,9 @@
 <?php
 
-namespace League\Csv\Test\Validators;
+namespace League\Csv\Test\Exporter;
 
 use League\Csv\Writer;
-use League\Csv\Exporter\Validators\ColumnConsistency;
+use League\Csv\Exporter\ColumnConsistency;
 use PHPUnit_Framework_TestCase;
 use SplFileObject;
 use SplTempFileObject;

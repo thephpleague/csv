@@ -1,9 +1,9 @@
 <?php
 
-namespace League\Csv\Test\Formatter;
+namespace League\Csv\Test\Exporter;
 
 use League\Csv\Writer;
-use League\Csv\Exporter\Formatters\NullFormatter;
+use League\Csv\Exporter\NullFormatter;
 use LimitIterator;
 use PHPUnit_Framework_TestCase;
 use SplFileObject;

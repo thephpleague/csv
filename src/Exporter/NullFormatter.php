@@ -10,13 +10,13 @@
 * For the full copyright and license information, please view the LICENSE
 * file that was distributed with this source code.
 */
-namespace League\Csv\Exporter\Formatters;
+namespace League\Csv\Exporter;
 
 use InvalidArgumentException;
 use OutOfBoundsException;
 
 /**
- *  A class to manage data insertion into a CSV
+ *  A class to handle null value formatting on data insertion into a CSV
  *
  * @package League.csv
  * @since  7.0.0

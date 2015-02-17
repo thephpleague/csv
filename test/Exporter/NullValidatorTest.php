@@ -1,10 +1,10 @@
 <?php
 
-namespace League\Csv\Test\Validators;
+namespace League\Csv\Test\Exporter;
 
 use InvalidArgumentException;
 use League\Csv\Writer;
-use League\Csv\Exporter\Validators\NullValidator;
+use League\Csv\Exporter\NullValidator;
 use PHPUnit_Framework_TestCase;
 use SplFileObject;
 use SplTempFileObject;

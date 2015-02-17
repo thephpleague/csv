@@ -10,10 +10,10 @@
 * For the full copyright and license information, please view the LICENSE
 * file that was distributed with this source code.
 */
-namespace League\Csv\Exporter\Validators;
+namespace League\Csv\Exporter;
 
 /**
- *  A class to manage data insertion into a CSV
+ *  A class to validate null value handling on data insertion into a CSV
  *
  * @package League.csv
  * @since  7.0.0
