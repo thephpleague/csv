@@ -3,8 +3,9 @@
 namespace League\Csv\Test\Exporter;
 
 use InvalidArgumentException;
-use League\Csv\Writer;
+use League\Csv\Exception\ValidationException;
 use League\Csv\Exporter\NullValidator;
+use League\Csv\Writer;
 use PHPUnit_Framework_TestCase;
 use SplFileObject;
 use SplTempFileObject;
@@ -37,7 +38,7 @@ class NullValidatorTest extends PHPUnit_Framework_TestCase
         $this->csv->addValidator($validator, $validator_name);
         try {
             $this->csv->insertOne($expected);
-        } catch (InvalidArgumentException $e) {
+        } catch (ValidationException $e) {
             $this->assertSame($validator_name, $this->csv->getLastValidatorErrorName());
             $this->assertSame($expected, $this->csv->getLastValidatorErrorData());
         }

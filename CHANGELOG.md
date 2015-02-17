@@ -5,17 +5,20 @@ All Notable changes to `League\Csv` will be documented in this file
 
 ### Added
 - Flexible mechanism to format and validate row before insertion by adding
-    - `Writer::addValidator` to add a validator to the `Writer` object
-    - `Writer::removeValidator` to remove an already registered validator
-    - `Writer::hasValidator` to detect the presence of a validator
-    - `Writer::clearValidators` to clear all registered validator
     - `Writer::addFormatter` to add a formatter to the `Writer` object
     - `Writer::removeFormatter` to remove an already registered formatter
     - `Writer::hasFormatter` to detect the presence of a formatter
     - `Writer::clearFormatters` to clear all registered formatter
-    - `League\Csv\Exporter\Validators\ColumnConsistency` to validate column consistency on insertion
-    - `League\Csv\Exporter\Validators\NullValidator` to validate `null` value on insertion
-    - `League\Csv\Exporter\Formatters\NullFormatter` to format `null` value on insertion
+    - `Writer::addValidator` to add a validator to the `Writer` object
+    - `Writer::removeValidator` to remove an already registered validator
+    - `Writer::hasValidator` to detect the presence of a validator
+    - `Writer::clearValidators` to clear all registered validator
+    - `Writer::getLastValidatorErrorName` the validator that made the validation failed
+    - `Writer::getLastValidatorErrorData` the data submitted the the validator that failed
+    - `League\Csv\Exception\ValidationException` exception thrown when row validation failed
+    - `League\Csv\Exporter\ColumnConsistency` to validate column consistency on insertion
+    - `League\Csv\Exporter\NullValidator` to validate `null` value on insertion
+    - `League\Csv\Exporter\NullFormatter` to format `null` value on insertion
 
 ### Deprecated
 - Nothing

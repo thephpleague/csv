@@ -13,6 +13,7 @@
 namespace League\Csv;
 
 use InvalidArgumentException;
+use League\Csv\Exception\ValidationException;
 use League\Csv\Exporter;
 use Traversable;
 
@@ -84,7 +85,7 @@ class Writer extends AbstractCsv
     {
         $row = $this->formatRow($row);
         if ($this->validators && ! $this->validateRow($row)) {
-            throw new InvalidArgumentException(
+            throw new ValidationException(
                 'Row validation failed with the following validator: '. $this->lastValidatorErrorName
             );
         }
