@@ -18,12 +18,10 @@ All Notable changes to `League\Csv` will be documented in this file
     - `Writer::removeValidator` to remove an already registered validator
     - `Writer::hasValidator` to detect the presence of a validator
     - `Writer::clearValidators` to clear all registered validator
-    - `Writer::getLastValidatorErrorName` the validator that made the validation failed
-    - `Writer::getLastValidatorErrorData` the data submitted the the validator that failed
-    - `League\Csv\Exception\ValidationException` exception thrown when row validation failed
-    - `League\Csv\Exporter\ColumnConsistency` to validate column consistency on insertion
-    - `League\Csv\Exporter\NullValidator` to validate `null` value on insertion
-    - `League\Csv\Exporter\NullFormatter` to format `null` value on insertion
+    - `League\Csv\Exception\InvalidRowException` exception thrown when row validation failed
+    - `League\Csv\Exporter\ColumnConsistencyValidator` to validate column consistency on insertion
+    - `League\Csv\Exporter\ForbiddenNullValuesValidator` to validate `null` value on insertion
+    - `League\Csv\Exporter\SkipNullValuesFormatter` to format `null` value on insertion
 
 ### Deprecated
 - Nothing

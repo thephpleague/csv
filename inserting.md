@@ -11,7 +11,7 @@ To create or update a CSV use the following `League\Csv\Writer` methods.
 
 <p class="message-info">When creating a file using the library, first insert all the data that need to be inserted before starting manipulating the CSV. If you manipulate your data before insertion, you may change the file cursor position and get unexpected results.</p>
 
-## Adding data to a CSV
+## Adding new data
 
 ### insertOne($row)
 
@@ -74,7 +74,7 @@ echo $writer; // displays "one,two\r\n";
 
 <p class="message-info">Please refer to <a href="/bom/">the BOM character dedicated documentation page</a> for more informations on how the library manage the BOM character.</p>
 
-## Formatting before insertion
+## Data formatting before insertion
 
 <p class="message-notice">New to version 7.0</p>
 
@@ -116,13 +116,13 @@ $writer->__toString();
 
 <p class="message-info">Some data formatting can also be achieved using the <a href="/fitering/">Stream Filters capabilities</a>.</p>
 
-If you are relying on the **removed** null handling feature the library comes bundle with the following class to help you migrate to the new version.
+If you are relying on the **removed** null handling feature the library comes bundle with the following classes to help you migrate to the new version.
 
-- `League\Csv\Exporter\Formatters\NullFormatter` to format `null` values
+- `League\Csv\Exporter\Formatters\SkipNullValuesFormatter` to format `null` values
 
 Please refers to the <a href="/upgrading/7.0/">migration guide</a> for more information.
 
-## Validating before insertion
+## Data validation before insertion
 
 <p class="message-notice">New to version 7.0</p>
 
@@ -150,31 +150,35 @@ Checks if the validator is already registered
 
 Removes all registered formatter
 
-### getLastValidatorErrorName() and getLastValidatorErrorData()
-
-If the validation failed a `League\Csv\Exception\ValidationException` is thrown by the `Writer` object. In addition, you will have access to the name of the validator which rejected the data and the input data submitted to the validator using two additional methods:
+## Validation example
 
 ~~~php
 <?php
 
 use League\Csv\Writer;
-use League\Csv\Exception\ValidationException;
+use League\Csv\Exception\InvalidRowException;
 
 $writer->addValidator(function (array $row) {
     return 10 == count($row);
 }, 'row_must_contain_10_cells');
 try {
     $writer->insertOne(['john', 'doe', 'john.doe@example.com']);
-} catch (ValidationException $e) {
-    echo $writer->getLastValidatorErrorName(); //display 'row_must_contain_10_cells'
-    $writer->getLastValidatorErrorData();
-    //will return the submitted data ['john', 'doe', 'john.doe@example.com']
+} catch (InvalidRowException $e) {
+    echo $e->getName(); //display 'row_must_contain_10_cells'
+    $e->getData();//will return the invalid data ['john', 'doe', 'john.doe@example.com']
 }
 ~~~
 
+If the validation failed a `League\Csv\Exception\InvalidRowException` is thrown by the `Writer` object. 
+This exception extends PHPs `InvalidArgumentException` by adding two public getter methods
+
+- `InvalidRowException::getName`: returns the name of the faild validator
+- `InvalidRowException::getData`: returns the invalid data submitted to the validator
+
+
 If you are relying on the **removed features** null handling and the column consistency, the library comes bundle with the following classes to help you migrate to the new version.
 
-- `League\Csv\Exporter\Validators\NullValidator` to validate the absence of the `null` value;
-- `League\Csv\Exporter\Validators\ColumnConsistency` to validate the CSV column consistency;
+- `League\Csv\Exporter\ForbiddenNullValuesValidator` to validate the absence of the `null` value;
+- `League\Csv\Exporter\ColumnConsistencyValidator` to validate the CSV column consistency;
 
 Please refers to the <a href="/upgrading/7.0/">migration guide</a> for more information.

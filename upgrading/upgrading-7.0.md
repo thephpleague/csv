@@ -57,8 +57,10 @@ if (! ini_get("auto_detect_line_endings")) {
 
 The null handling has been removed from the `Writer` class. If your code relied on it you can use the new validation and formatting capabilities of the `Writer` class and :
 
-- the `League\Csv\Exporter\NullFormatter` class to format the founded `null` values
-- the `League\Csv\Exporter\NullValidator` class to validate the absence or `null` values
+- the `League\Csv\Exporter\SkipNullValuesFormatter` class to skip cell using founded `null` values
+- the `League\Csv\Exporter\ForbiddenNullValuesValidator` class to validate the absence or `null` values
+
+By default `null` value cells are converted to empty string so the old behavior is preserved.
 
 #### Example 1 : Null value validation
 
@@ -75,9 +77,9 @@ $writer->insertOne(["foo", null, "bar"]); //will throw an InvalidArgumentExcepti
 
 ~~~php
 use League\Csv\Writer;
-use League\Csv\Exporter\NullValidator;
+use League\Csv\Exporter\ForbiddenNullValuesValidator;
 
-$validator = new NullValidator();
+$validator = new ForbiddenNullValuesValidator();
 $writer = Writer::createFromPath('/path/to/your/csv/file.csv');
 $writer->addValidator($validator, 'null_as_exception');
 $writer->insertOne(["foo", null, "bar"]); //will throw an InvalidArgumentException
@@ -100,10 +102,9 @@ $writer->insertOne(["foo", null, "bar"]);
 
 ~~~php
 use League\Csv\Writer;
-use League\Csv\Exporter\NullFormatter;
+use League\Csv\Exporter\SkipNullValuesFormatter;
 
-$formatter = new NullFormatter();
-$formatter->setMode(NullFormatter::NULL_AS_SKIP_CELL);
+$formatter = new SkipNullValuesFormatter();
 
 $writer = Writer::createFromPath('/path/to/your/csv/file.csv');
 $writer->addFormatter($formatter);
@@ -115,7 +116,7 @@ $writer->insertOne(["foo", null, "bar"]);
 
 Directly checking row consistency has been removed from the `Writer` class. If your code relied on it you can use the new validation and formatting capabilities of the `Writer` class and:
 
-- the `League\Csv\Exporter\Validators\ColumnConsistency` class.
+- the `League\Csv\Exporter\ColumnConsistencyValidator` class.
 
 **Old code:**
 
@@ -135,9 +136,9 @@ $nb_column_count = $writer->getColumnsCount(); //returns 3
 
 ~~~php
 use League\Csv\Writer;
-use League\Csv\Exporter\Validators\ColumnConsistency;
+use League\Csv\Exporter\ColumnConsistencyValidator;
 
-$validator = new ColumnConsistency();
+$validator = new ColumnConsistencyValidator();
 $validator->autodetectColumnsCount();
 $validator->getColumnsCount(); //returns -1
 
