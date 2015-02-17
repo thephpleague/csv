@@ -13,7 +13,7 @@
 namespace League\Csv;
 
 use InvalidArgumentException;
-use League\Csv\Exception\ValidationException;
+use League\Csv\Exception\InvalidRowException;
 use League\Csv\Exporter;
 use Traversable;
 
@@ -39,14 +39,14 @@ class Writer extends AbstractCsv
     protected $csv;
 
     /**
-     * Trait to format the row before insertion
+     * Data Formatters Collection trait
      */
-    use Exporter\Formatter;
+    use Exporter\DataFormatterCollection;
 
     /**
-     * Trait to validate the row before insertion
+     * Data Validators Collection trait
      */
-    use Exporter\Validator;
+    use Exporter\DataValidatorCollection;
 
     /**
      * Add multiple lines to the CSV your are generating
@@ -84,11 +84,7 @@ class Writer extends AbstractCsv
     public function insertOne($row)
     {
         $row = $this->formatRow($row);
-        if ($this->validators && ! $this->validateRow($row)) {
-            throw new ValidationException(
-                'Row validation failed with the following validator: '. $this->lastValidatorErrorName
-            );
-        }
+        $this->validateRow($row);
         $csv = $this->getCsv();
         $csv->fputcsv($row, $this->delimiter, $this->enclosure);
         if ("\n" !== $this->newline) {
@@ -124,21 +120,17 @@ class Writer extends AbstractCsv
     *
     * @param array $row
     *
-    * @return bool
+    * @throws \League\Csv\Exception\InvalidRowException If the validation failed
+    *
+    * @return void
     */
     protected function validateRow(array $row)
     {
-        $this->lastValidatorErrorName = null;
-        $this->lastValidatorErrorData = null;
         foreach ($this->validators as $name => $validator) {
-            if (! $validator($row)) {
-                $this->lastValidatorErrorName = $name;
-                $this->lastValidatorErrorData = $row;
-                return false;
+            if (true !== $validator($row)) {
+                throw new InvalidRowException($name, $row, 'row validation failed');
             }
         }
-
-        return true;
     }
 
     /**

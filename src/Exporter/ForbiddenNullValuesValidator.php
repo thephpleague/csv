@@ -19,16 +19,14 @@ namespace League\Csv\Exporter;
  * @since  7.0.0
  *
  */
-class NullValidator
+class ForbiddenNullValuesValidator
 {
     /**
      * Is the submitted row valid
      *
      * @param array $row
      *
-     * @throws \InvalidArgumentException If the given $row is not valid
-     *
-     * @return array
+     * @return bool
      */
     public function __invoke(array $row)
     {

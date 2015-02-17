@@ -3,7 +3,7 @@
 namespace League\Csv\Test\Exporter;
 
 use League\Csv\Writer;
-use League\Csv\Exporter\NullFormatter;
+use League\Csv\Exporter\SkipNullValuesFormatter;
 use LimitIterator;
 use PHPUnit_Framework_TestCase;
 use SplFileObject;
@@ -12,7 +12,7 @@ use SplTempFileObject;
 /**
  * @group formatter
  */
-class NullFormatterTest extends PHPUnit_Framework_TestCase
+class SkipNullValuesFormatterTest extends PHPUnit_Framework_TestCase
 {
     private $csv;
 
@@ -29,18 +29,6 @@ class NullFormatterTest extends PHPUnit_Framework_TestCase
         $this->csv = null;
     }
 
-    /**
-     * @expectedException OutOfBoundsException
-     */
-    public function testSetterGetterNullBehavior()
-    {
-        $formatter = new NullFormatter();
-        $formatter->setMode(NullFormatter::NULL_AS_SKIP_CELL);
-        $this->assertSame(NullFormatter::NULL_AS_SKIP_CELL, $formatter->getMode());
-
-        $formatter->setMode(23);
-    }
-
 
     public function testInsertNullToSkipCell()
     {
@@ -49,8 +37,7 @@ class NullFormatterTest extends PHPUnit_Framework_TestCase
             'john,doe,john.doe@example.com',
             ['john', null, 'john.doe@example.com'],
         ];
-        $formatter = new NullFormatter();
-        $formatter->setMode(NullFormatter::NULL_AS_SKIP_CELL);
+        $formatter = new SkipNullValuesFormatter();
         $this->csv->addFormatter($formatter);
         foreach ($expected as $row) {
             $this->csv->insertOne($row);
@@ -59,24 +46,5 @@ class NullFormatterTest extends PHPUnit_Framework_TestCase
         $iterator->rewind();
         $res = $iterator->getInnerIterator()->current();
         $this->assertSame(['john', 'john.doe@example.com'], $res);
-    }
-
-    public function testInsertNullToEmpty()
-    {
-        $expected = [
-            ['john', 'doe', 'john.doe@example.com'],
-            'john,doe,john.doe@example.com',
-            ['john', null, 'john.doe@example.com'],
-        ];
-        $formatter = new NullFormatter();
-        $formatter->setMode(NullFormatter::NULL_AS_EMPTY);
-        $this->csv->addFormatter($formatter);
-        foreach ($expected as $row) {
-            $this->csv->insertOne($row);
-        }
-        $iterator = new LimitIterator($this->csv->getIterator(), 2, 1);
-        $iterator->rewind();
-        $res = $iterator->getInnerIterator()->current();
-        $this->assertSame(['john', '', 'john.doe@example.com'], $res);
     }
 }

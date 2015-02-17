@@ -13,7 +13,6 @@
 namespace League\Csv\Exporter;
 
 use InvalidArgumentException;
-use RuntimeException;
 
 /**
  *  A class to manage column consistency on data insertion into a CSV
@@ -22,7 +21,7 @@ use RuntimeException;
  * @since  7.0.0
  *
  */
-class ColumnConsistency
+class ColumnConsistencyValidator
 {
     /**
      * The number of column per row

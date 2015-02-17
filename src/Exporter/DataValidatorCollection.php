@@ -19,22 +19,8 @@ namespace League\Csv\Exporter;
  * @since  7.0.0
  *
  */
-trait Validator
+trait DataValidatorCollection
 {
-    /**
-     * The last failed validator
-     *
-     * @var string
-     */
-    protected $lastValidatorErrorName;
-
-    /**
-     * The last failed row
-     *
-     * @var array|null
-     */
-    protected $lastValidatorErrorData;
-
     /**
      * Callables to validate the row before insertion
      *
@@ -99,25 +85,5 @@ trait Validator
         $this->validators = [];
 
         return $this;
-    }
-
-    /**
-     * Return the name of the last validation failed rule
-     *
-     * @return string
-     */
-    public function getLastValidatorErrorName()
-    {
-        return $this->lastValidatorErrorName;
-    }
-
-    /**
-     * Returns the last failed data
-     *
-     * @return array|null
-     */
-    public function getLastValidatorErrorData()
-    {
-        return $this->lastValidatorErrorData;
     }
 }

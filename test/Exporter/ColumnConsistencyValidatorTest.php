@@ -3,7 +3,7 @@
 namespace League\Csv\Test\Exporter;
 
 use League\Csv\Writer;
-use League\Csv\Exporter\ColumnConsistency;
+use League\Csv\Exporter\ColumnConsistencyValidator;
 use PHPUnit_Framework_TestCase;
 use SplFileObject;
 use SplTempFileObject;
@@ -11,7 +11,7 @@ use SplTempFileObject;
 /**
  * @group validators
  */
-class ColumnConsistencyTest extends PHPUnit_Framework_TestCase
+class ColumnConsistencyValidatorTest extends PHPUnit_Framework_TestCase
 {
     private $csv;
 
@@ -33,7 +33,7 @@ class ColumnConsistencyTest extends PHPUnit_Framework_TestCase
      */
     public function testColumsCountSetterGetter()
     {
-        $consistency = new ColumnConsistency();
+        $consistency = new ColumnConsistencyValidator();
         $this->assertSame(-1, $consistency->getColumnsCount());
         $consistency->setColumnsCount(3);
         $this->assertSame(3, $consistency->getColumnsCount());
@@ -45,7 +45,7 @@ class ColumnConsistencyTest extends PHPUnit_Framework_TestCase
      */
     public function testColumsCountConsistency()
     {
-        $consistency = new ColumnConsistency();
+        $consistency = new ColumnConsistencyValidator();
         $this->csv->addValidator($consistency, 'consistency');
         $this->csv->insertOne(['john', 'doe', 'john.doe@example.com']);
         $consistency->setColumnsCount(2);
@@ -59,7 +59,7 @@ class ColumnConsistencyTest extends PHPUnit_Framework_TestCase
      */
     public function testAutoDetectColumnsCount()
     {
-        $consistency = new ColumnConsistency();
+        $consistency = new ColumnConsistencyValidator();
         $this->csv->addValidator($consistency, 'consistency');
         $consistency->autodetectColumnsCount();
         $this->assertSame(-1, $consistency->getColumnsCount());

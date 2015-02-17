@@ -19,7 +19,7 @@ namespace League\Csv\Exporter;
  * @since  7.0.0
  *
  */
-trait Formatter
+trait DataFormatterCollection
 {
     /**
      * Callables to format the row before insertion
