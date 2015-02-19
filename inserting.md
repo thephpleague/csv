@@ -7,7 +7,7 @@ title: Inserting new data into a CSV
 
 To create or update a CSV use the following `League\Csv\Writer` methods.
 
-<p class="message-warning">The class has been rewrote for scalability. Some previous supported features have been removed. Please refer to the <a href="/upgrading/7.0/">upgrade section</a> to securely migrate from 6.0 to 7.0 .</p>
+<p class="message-warning">The class has been rewritten for scalability and speed. Some previous supported features have been removed. Please refer to the <a href="/upgrading/7.0/">upgrade section</a> to securely migrate from previous version to 7.0 .</p>
 
 <p class="message-info">When creating a file using the library, first insert all the data that need to be inserted before starting manipulating the CSV. If you manipulate your data before insertion, you may change the file cursor position and get unexpected results.</p>
 
@@ -111,7 +111,7 @@ $writer->__toString();
 
 If you are relying on the **removed** null handling feature the library comes bundle with the following classes to help you migrate to the new version.
 
-- `League\Csv\Plugin\Formatters\SkipNullValuesFormatter` to format `null` values
+- `League\Csv\Plugin\SkipNullValuesFormatter` to format `null` values
 
 Please refers to the <a href="/upgrading/7.0/">migration guide</a> for more information.
 
@@ -119,9 +119,9 @@ Please refers to the <a href="/upgrading/7.0/">migration guide</a> for more info
 
 <p class="message-notice">New to version 7.0</p>
 
-A validator is a `callable` which takes a `array` as its sole argument and returns a boolean. If the boolean evaluate to `true`, the supplied row is valid. The callable **must** return `true` to validate the submitted row. Any other expression, including thruthy ones like `yes`, `1`,... will make the `insertOne` method throw an `League\Csv\Exception\InvalidRowException`.
+A validator is a `callable` which takes a `array` as its sole argument and returns a boolean. The validator **must** return `true` to validate the submitted row. Any other expression, including thruthy ones like `yes`, `1`,... will make the `insertOne` method throw an `League\Csv\Exception\InvalidRowException`.
 
-As with the new formatter capabilities, you can attach as many validators as you want to your data prior to its insertion. The row data is checked against the validator **after being formatted**.
+As with the new formatter capabilities, you can attach as many validators as you want to your data prior to its insertion. The row data is checked against your supplied validators **after being formatted**.
 
 The validator API comes with the following public API:
 
@@ -142,7 +142,7 @@ Checks if the validator is already registered
 
 ### clearValidators()
 
-Removes all registered formatter
+Removes all registered validators
 
 ## Validation failed
 
