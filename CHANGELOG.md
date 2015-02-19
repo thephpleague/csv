@@ -1,7 +1,7 @@
 #Changelog
 All Notable changes to `League\Csv` will be documented in this file
 
-## Next - 2015-XX-XX
+## 7.0.0 - 2015-02-19
 
 ### Added
 - A new flexible mechanism to format and validate a row before its insertion by adding
