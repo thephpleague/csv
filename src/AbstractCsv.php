@@ -72,7 +72,7 @@ abstract class AbstractCsv implements JsonSerializable, IteratorAggregate
     protected $open_mode;
 
     /**
-     *  Csv Controls Trait
+     * Csv Controls Trait
      */
     use Config\Controls;
 
@@ -92,8 +92,6 @@ abstract class AbstractCsv implements JsonSerializable, IteratorAggregate
      * The path must be an SplFileInfo object
      * an object that implements the `__toString` method
      * a path to a file
-     *
-     * @deprecated as of version 7.0 will be made private in the next MAJOR version
      *
      * @param object|string $path      The file path
      * @param string        $open_mode the file open mode flag

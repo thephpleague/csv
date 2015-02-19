@@ -28,7 +28,7 @@ use LimitIterator;
 class Reader extends AbstractCsv
 {
     /**
-     *  Iterator Query Trait
+     * Iterator Query Trait
      */
     use Modifier\QueryFilter;
 

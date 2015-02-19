@@ -39,7 +39,7 @@ class Writer extends AbstractCsv
     protected $csv;
 
     /**
-     * Data Formatters/Validators trait
+     * Row Formatter and Validator trait
      */
     use Modifier\RowFilter;
 
