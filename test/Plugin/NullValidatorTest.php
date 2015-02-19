@@ -1,9 +1,9 @@
 <?php
 
-namespace League\Csv\Test\Exporter;
+namespace League\Csv\Test\Plugin;
 
 use League\Csv\Exception\InvalidRowException;
-use League\Csv\Exporter\ForbiddenNullValuesValidator;
+use League\Csv\Plugin\ForbiddenNullValuesValidator;
 use League\Csv\Writer;
 use PHPUnit_Framework_TestCase;
 use SplFileObject;

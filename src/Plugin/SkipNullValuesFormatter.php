@@ -10,30 +10,28 @@
 * For the full copyright and license information, please view the LICENSE
 * file that was distributed with this source code.
 */
-namespace League\Csv\Exporter;
+namespace League\Csv\Plugin;
 
 /**
- *  A class to validate null value handling on data insertion into a CSV
+ *  A class to remove null value from data before insertion into a CSV
  *
  * @package League.csv
  * @since  7.0.0
  *
  */
-class ForbiddenNullValuesValidator
+class SkipNullValuesFormatter
 {
     /**
-     * Is the submitted row valid
+     * remove null value form the submitted array
      *
      * @param array $row
      *
-     * @return bool
+     * @return array
      */
     public function __invoke(array $row)
     {
-        $res = array_filter($row, function ($value) {
-            return is_null($value);
+        return array_filter($row, function ($value) {
+            return ! is_null($value);
         });
-
-        return count($res) == 0;
     }
 }

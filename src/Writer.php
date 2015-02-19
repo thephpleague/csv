@@ -14,7 +14,7 @@ namespace League\Csv;
 
 use InvalidArgumentException;
 use League\Csv\Exception\InvalidRowException;
-use League\Csv\Exporter;
+use League\Csv\Modifier;
 use Traversable;
 
 /**
@@ -39,14 +39,9 @@ class Writer extends AbstractCsv
     protected $csv;
 
     /**
-     * Data Formatters Collection trait
+     * Data Formatters/Validators trait
      */
-    use Exporter\DataFormatterCollection;
-
-    /**
-     * Data Validators Collection trait
-     */
-    use Exporter\DataValidatorCollection;
+    use Modifier\RowFilter;
 
     /**
      * Add multiple lines to the CSV your are generating

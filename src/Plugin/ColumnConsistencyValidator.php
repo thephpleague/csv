@@ -10,7 +10,7 @@
 * For the full copyright and license information, please view the LICENSE
 * file that was distributed with this source code.
 */
-namespace League\Csv\Exporter;
+namespace League\Csv\Plugin;
 
 use InvalidArgumentException;
 
@@ -44,7 +44,7 @@ class ColumnConsistencyValidator
      *
      * @throws \InvalidArgumentException If $value is lesser than -1
      *
-     * @return static
+     * @return void
      */
     public function setColumnsCount($value)
     {
@@ -53,8 +53,6 @@ class ColumnConsistencyValidator
         }
         $this->detect_columns_count = false;
         $this->columns_count = $value;
-
-        return $this;
     }
 
     /**
@@ -72,13 +70,11 @@ class ColumnConsistencyValidator
      * and therefore will also validate the next line whatever length it has no matter
      * the current $columns_count property value.
      *
-     * @return static
+     * @return void
      */
     public function autodetectColumnsCount()
     {
         $this->detect_columns_count = true;
-
-        return $this;
     }
 
     /**

@@ -10,7 +10,7 @@
 * For the full copyright and license information, please view the LICENSE
 * file that was distributed with this source code.
 */
-namespace League\Csv\Iterators;
+namespace League\Csv\Modifier;
 
 use ArrayIterator;
 use CallbackFilterIterator;
@@ -25,7 +25,7 @@ use LimitIterator;
  * @since  4.2.1
  *
  */
-trait Query
+trait QueryFilter
 {
     /**
      * Callables to filter the iterator

@@ -16,6 +16,7 @@ use InvalidArgumentException;
 use IteratorAggregate;
 use JsonSerializable;
 use League\Csv\Config;
+use League\Csv\Modifier;
 use SplFileInfo;
 use SplFileObject;
 use SplTempFileObject;
@@ -83,7 +84,7 @@ abstract class AbstractCsv implements JsonSerializable, IteratorAggregate
     /**
      *  Stream Filter API Trait
      */
-    use Config\StreamFilter;
+    use Modifier\StreamFilter;
 
     /**
      * Create a new instance

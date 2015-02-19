@@ -14,7 +14,7 @@ namespace League\Csv\Config;
 
 use DomDocument;
 use InvalidArgumentException;
-use League\Csv\Iterators\MapIterator;
+use League\Csv\Modifier;
 use SplFileObject;
 use Traversable;
 
@@ -229,7 +229,7 @@ trait Output
             return $iterator;
         }
 
-        return new MapIterator($iterator, function ($row) {
+        return new Modifier\MapIterator($iterator, function ($row) {
             foreach ($row as &$value) {
                 $value = mb_convert_encoding($value, 'UTF-8', $this->encodingFrom);
             }
