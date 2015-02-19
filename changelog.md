@@ -19,9 +19,9 @@ All Notable changes to `League\Csv` will be documented in this file
     - `Writer::hasValidator` to detect the presence of a validator
     - `Writer::clearValidators` to clear all registered validator
     - `League\Csv\Exception\InvalidRowException` exception thrown when row validation failed
-    - `League\Csv\Exporter\ColumnConsistencyValidator` to validate column consistency on insertion
-    - `League\Csv\Exporter\ForbiddenNullValuesValidator` to validate `null` value on insertion
-    - `League\Csv\Exporter\SkipNullValuesFormatter` to format `null` value on insertion
+    - `League\Csv\Plugin\ColumnConsistencyValidator` to validate column consistency on insertion
+    - `League\Csv\Plugin\ForbiddenNullValuesValidator` to validate `null` value on insertion
+    - `League\Csv\Plugin\SkipNullValuesFormatter` to format `null` value on insertion
 
 ### Deprecated
 - Nothing

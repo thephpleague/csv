@@ -118,7 +118,7 @@ $writer->__toString();
 
 If you are relying on the **removed** null handling feature the library comes bundle with the following classes to help you migrate to the new version.
 
-- `League\Csv\Exporter\Formatters\SkipNullValuesFormatter` to format `null` values
+- `League\Csv\Plugin\Formatters\SkipNullValuesFormatter` to format `null` values
 
 Please refers to the <a href="/upgrading/7.0/">migration guide</a> for more information.
 
@@ -169,7 +169,7 @@ try {
 }
 ~~~
 
-If the validation failed a `League\Csv\Exception\InvalidRowException` is thrown by the `Writer` object. 
+If the validation failed a `League\Csv\Exception\InvalidRowException` is thrown by the `Writer` object.
 This exception extends PHPs `InvalidArgumentException` by adding two public getter methods
 
 - `InvalidRowException::getName`: returns the name of the faild validator
@@ -178,7 +178,7 @@ This exception extends PHPs `InvalidArgumentException` by adding two public gett
 
 If you are relying on the **removed features** null handling and the column consistency, the library comes bundle with the following classes to help you migrate to the new version.
 
-- `League\Csv\Exporter\ForbiddenNullValuesValidator` to validate the absence of the `null` value;
-- `League\Csv\Exporter\ColumnConsistencyValidator` to validate the CSV column consistency;
+- `League\Csv\Plugin\ForbiddenNullValuesValidator` to validate the absence of the `null` value;
+- `League\Csv\Plugin\ColumnConsistencyValidator` to validate the CSV column consistency;
 
 Please refers to the <a href="/upgrading/7.0/">migration guide</a> for more information.

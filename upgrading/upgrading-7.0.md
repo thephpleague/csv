@@ -57,8 +57,8 @@ if (! ini_get("auto_detect_line_endings")) {
 
 The null handling has been removed from the `Writer` class. If your code relied on it you can use the new validation and formatting capabilities of the `Writer` class and :
 
-- the `League\Csv\Exporter\SkipNullValuesFormatter` class to skip cell using founded `null` values
-- the `League\Csv\Exporter\ForbiddenNullValuesValidator` class to validate the absence or `null` values
+- the `League\Csv\Plugin\SkipNullValuesFormatter` class to skip cell using founded `null` values
+- the `League\Csv\Plugin\ForbiddenNullValuesValidator` class to validate the absence or `null` values
 
 By default `null` value cells are converted to empty string so the old behavior is preserved.
 
@@ -77,7 +77,7 @@ $writer->insertOne(["foo", null, "bar"]); //will throw an InvalidArgumentExcepti
 
 ~~~php
 use League\Csv\Writer;
-use League\Csv\Exporter\ForbiddenNullValuesValidator;
+use League\Csv\Plugin\ForbiddenNullValuesValidator;
 
 $validator = new ForbiddenNullValuesValidator();
 $writer = Writer::createFromPath('/path/to/your/csv/file.csv');
@@ -102,7 +102,7 @@ $writer->insertOne(["foo", null, "bar"]);
 
 ~~~php
 use League\Csv\Writer;
-use League\Csv\Exporter\SkipNullValuesFormatter;
+use League\Csv\Plugin\SkipNullValuesFormatter;
 
 $formatter = new SkipNullValuesFormatter();
 
@@ -116,7 +116,7 @@ $writer->insertOne(["foo", null, "bar"]);
 
 Directly checking row consistency has been removed from the `Writer` class. If your code relied on it you can use the new validation and formatting capabilities of the `Writer` class and:
 
-- the `League\Csv\Exporter\ColumnConsistencyValidator` class.
+- the `League\Csv\Plugin\ColumnConsistencyValidator` class.
 
 **Old code:**
 
@@ -136,7 +136,7 @@ $nb_column_count = $writer->getColumnsCount(); //returns 3
 
 ~~~php
 use League\Csv\Writer;
-use League\Csv\Exporter\ColumnConsistencyValidator;
+use League\Csv\Plugin\ColumnConsistencyValidator;
 
 $validator = new ColumnConsistencyValidator();
 $validator->autodetectColumnsCount();
