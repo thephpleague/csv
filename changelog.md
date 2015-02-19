@@ -9,7 +9,7 @@ All Notable changes to `League\Csv` will be documented in this file
 ## Next
 
 ### Added
-- Flexible mechanism to format and validate row before insertion by adding
+- A new flexible mechanism to format and validate a row before its insertion by adding
     - `Writer::addFormatter` to add a formatter to the `Writer` object
     - `Writer::removeFormatter` to remove an already registered formatter
     - `Writer::hasFormatter` to detect the presence of a formatter
@@ -19,6 +19,7 @@ All Notable changes to `League\Csv` will be documented in this file
     - `Writer::hasValidator` to detect the presence of a validator
     - `Writer::clearValidators` to clear all registered validator
     - `League\Csv\Exception\InvalidRowException` exception thrown when row validation failed
+- Classes to maintain removed features from the `Writer` class
     - `League\Csv\Plugin\ColumnConsistencyValidator` to validate column consistency on insertion
     - `League\Csv\Plugin\ForbiddenNullValuesValidator` to validate `null` value on insertion
     - `League\Csv\Plugin\SkipNullValuesFormatter` to format `null` value on insertion
