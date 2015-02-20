@@ -12,6 +12,8 @@
 */
 namespace League\Csv\Modifier;
 
+use League\Csv\Exception\InvalidRowException;
+
 /**
  *  Trait to format and validate the row before insertion
  *
@@ -148,4 +150,40 @@ trait RowFilter
 
         return $this;
     }
+
+    /**
+     * Format the given row
+     *
+     * @param array|string $row
+     *
+     * @return array
+     */
+    protected function formatRow(array $row)
+    {
+        foreach ($this->formatters as $formatter) {
+            $row = $formatter($row);
+        }
+
+        return $row;
+    }
+
+    /**
+    * validate a row
+    *
+    * @param array $row
+    *
+    * @throws \League\Csv\Exception\InvalidRowException If the validation failed
+    *
+    * @return void
+    */
+    protected function validateRow(array $row)
+    {
+        foreach ($this->validators as $name => $validator) {
+            if (true !== $validator($row)) {
+                throw new InvalidRowException($name, $row, 'row validation failed');
+            }
+        }
+    }
+
+
 }

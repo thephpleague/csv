@@ -13,7 +13,6 @@
 namespace League\Csv;
 
 use InvalidArgumentException;
-use League\Csv\Exception\InvalidRowException;
 use League\Csv\Modifier;
 use Traversable;
 
@@ -78,6 +77,9 @@ class Writer extends AbstractCsv
      */
     public function insertOne($row)
     {
+        if (! is_array($row)) {
+            $row = str_getcsv($row, $this->delimiter, $this->enclosure, $this->escape);
+        }
         $row = $this->formatRow($row);
         $this->validateRow($row);
         $csv = $this->getCsv();
@@ -88,44 +90,6 @@ class Writer extends AbstractCsv
         }
 
         return $this;
-    }
-
-    /**
-     * Format the given row
-     *
-     * @param array|string $row
-     *
-     * @return array
-     */
-    protected function formatRow($row)
-    {
-        if (! is_array($row)) {
-            $row = str_getcsv($row, $this->delimiter, $this->enclosure, $this->escape);
-        }
-
-        foreach ($this->formatters as $formatter) {
-            $row = $formatter($row);
-        }
-
-        return $row;
-    }
-
-    /**
-    * validate a row
-    *
-    * @param array $row
-    *
-    * @throws \League\Csv\Exception\InvalidRowException If the validation failed
-    *
-    * @return void
-    */
-    protected function validateRow(array $row)
-    {
-        foreach ($this->validators as $name => $validator) {
-            if (true !== $validator($row)) {
-                throw new InvalidRowException($name, $row, 'row validation failed');
-            }
-        }
     }
 
     /**
