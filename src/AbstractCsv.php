@@ -87,7 +87,7 @@ abstract class AbstractCsv implements JsonSerializable, IteratorAggregate
     use Modifier\StreamFilter;
 
     /**
-     * Create a new instance
+     * Creates a new instance
      *
      * The path must be an SplFileInfo object
      * an object that implements the `__toString` method
@@ -105,7 +105,7 @@ abstract class AbstractCsv implements JsonSerializable, IteratorAggregate
     }
 
     /**
-     * Return a normalize path which could be a SplFileObject
+     * Returns a normalize path which could be a SplFileObject
      * or a string path
      *
      * @param object|string $path the filepath
@@ -130,7 +130,34 @@ abstract class AbstractCsv implements JsonSerializable, IteratorAggregate
     }
 
     /**
-     * Create a {@link AbstractCsv} from a string
+     * Returns the CSV Iterator
+     *
+     * @return \Iterator
+     */
+    public function getIterator()
+    {
+        $iterator = $this->path;
+        if (! $iterator instanceof SplFileObject) {
+            $iterator = new SplFileObject($this->getStreamFilterPath(), $this->open_mode);
+        }
+        $iterator->setCsvControl($this->delimiter, $this->enclosure, $this->escape);
+        $iterator->setFlags($this->flags);
+
+        return $iterator;
+    }
+
+    /**
+     * Returns the CSV Iterator for conversion
+     *
+     * @return \Iterator
+     */
+    protected function getConvertionIterator()
+    {
+        return $this->getIterator();
+    }
+
+    /**
+     * Creates a {@link AbstractCsv} from a string
      *
      * The path can be:
      * - an SplFileInfo,
@@ -168,7 +195,7 @@ abstract class AbstractCsv implements JsonSerializable, IteratorAggregate
     }
 
     /**
-     * Create a {@link AbstractCsv} from a SplFileObject
+     * Creates a {@link AbstractCsv} from a SplFileObject
      *
      * The path can be:
      * - a SplFileObject,
@@ -192,7 +219,7 @@ abstract class AbstractCsv implements JsonSerializable, IteratorAggregate
     }
 
     /**
-     * Create a {@link AbstractCsv} from a string
+     * Creates a {@link AbstractCsv} from a string
      *
      * The string must be an object that implements the `__toString` method,
      * or a string
@@ -214,34 +241,7 @@ abstract class AbstractCsv implements JsonSerializable, IteratorAggregate
     }
 
     /**
-     * Return the CSV Iterator
-     *
-     * @return \Iterator
-     */
-    public function getIterator()
-    {
-        $iterator = $this->path;
-        if (! $iterator instanceof SplFileObject) {
-            $iterator = new SplFileObject($this->getStreamFilterPath(), $this->open_mode);
-        }
-        $iterator->setCsvControl($this->delimiter, $this->enclosure, $this->escape);
-        $iterator->setFlags($this->flags);
-
-        return $iterator;
-    }
-
-    /**
-     * Return the Iterator for conversion
-     *
-     * @return \Iterator
-     */
-    protected function getConvertionIterator()
-    {
-        return $this->getIterator();
-    }
-
-    /**
-     * Create a {@link AbstractCsv} instance from another {@link AbstractCsv} object
+     * Creates a {@link AbstractCsv} instance from another {@link AbstractCsv} object
      *
      * @param string $class_name the class to be instantiated
      * @param string $open_mode  the file open mode flag
@@ -264,7 +264,7 @@ abstract class AbstractCsv implements JsonSerializable, IteratorAggregate
     }
 
     /**
-     * Create a {@link Writer} instance from a {@link AbstractCsv} object
+     * Creates a {@link Writer} instance from a {@link AbstractCsv} object
      *
      * @param string $open_mode the file open mode flag
      *
@@ -276,7 +276,7 @@ abstract class AbstractCsv implements JsonSerializable, IteratorAggregate
     }
 
     /**
-     * Create a {@link Reader} instance from a {@link AbstractCsv} object
+     * Creates a {@link Reader} instance from a {@link AbstractCsv} object
      *
      * @param string $open_mode the file open mode flag
      *

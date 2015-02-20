@@ -28,7 +28,7 @@ use LimitIterator;
 class Reader extends AbstractCsv
 {
     /**
-     * Iterator Query Trait
+     * Query Filter Trait
      */
     use Modifier\QueryFilter;
 
@@ -38,7 +38,7 @@ class Reader extends AbstractCsv
     protected $stream_filter_mode = STREAM_FILTER_READ;
 
     /**
-     * Return a Filtered Iterator
+     * Returns a Filtered Iterator
      *
      * @param callable $callable a callable function to be applied to each Iterator item
      *
@@ -74,7 +74,7 @@ class Reader extends AbstractCsv
     }
 
     /**
-     * Apply a callback function on the CSV
+     * Applies a callback function on the CSV
      *
      * The callback function must return TRUE in order to continue
      * iterating over the iterator.
@@ -97,7 +97,7 @@ class Reader extends AbstractCsv
     }
 
     /**
-     * Return a single column from the CSV data
+     * Returns a single column from the CSV data
      *
      * The callable function will be applied to each value to be return
      *
@@ -128,7 +128,7 @@ class Reader extends AbstractCsv
     }
 
     /**
-     * Return a single row from the CSV
+     * Returns a single row from the CSV
      *
      * @param int $offset
      *
@@ -147,7 +147,7 @@ class Reader extends AbstractCsv
     }
 
     /**
-     * Return a sequential array of all CSV lines
+     * Returns a sequential array of all CSV lines
      *
      * The callable function will be applied to each Iterator item
      *
@@ -161,7 +161,7 @@ class Reader extends AbstractCsv
     }
 
     /**
-     * Return a sequential array of all CSV lines;
+     * Returns a sequential array of all CSV lines;
      *
      * The rows are presented as associated arrays
      * The callable function will be applied to each Iterator item
@@ -187,7 +187,8 @@ class Reader extends AbstractCsv
     }
 
     /**
-     * Select the array to be used as key for the fetchAssoc method
+     * Selects the array to be used as key for the fetchAssoc method
+     *
      * @param array|int $offset_or_keys the assoc key OR the row Index to be used
      *                                  as the key index
      *
@@ -214,7 +215,7 @@ class Reader extends AbstractCsv
     }
 
     /**
-     * Return a single row from the CSV without filtering
+     * Returns a single row from the CSV without filtering
      *
      * @param int $offset
      *
@@ -239,7 +240,7 @@ class Reader extends AbstractCsv
     }
 
     /**
-     * Validate the array to be used by the fetchAssoc method
+     * Validates the array to be used by the fetchAssoc method
      *
      * @param array $keys
      *

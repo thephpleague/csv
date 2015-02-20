@@ -43,9 +43,9 @@ class Writer extends AbstractCsv
     use Modifier\RowFilter;
 
     /**
-     * Add multiple lines to the CSV your are generating
+     * Adds multiple lines to the CSV document
      *
-     * a simple helper/Wrapper method around insertOne
+     * a simple wrapper method around insertOne
      *
      * @param \Traversable|array $rows a multidimentional array or a Traversable object
      *
@@ -69,7 +69,7 @@ class Writer extends AbstractCsv
     }
 
     /**
-     * Add a new CSV row to the generated CSV
+     * Adds a single line to a CSV document
      *
      * @param string[]|string $row a string, an array or an object implementing to '__toString' method
      *
@@ -93,8 +93,8 @@ class Writer extends AbstractCsv
     }
 
     /**
-     * set the csv container as a SplFileObject instance
-     * insure we use the same object for insertion to
+     * Sets the csv container as a \SplFileObject instance
+     * and Insures we use the same object for insertion to
      * avoid loosing the cursor position
      *
      * @return \SplFileObject
@@ -117,7 +117,7 @@ class Writer extends AbstractCsv
     }
 
     /**
-     * The destructor
+     *  {@inheritdoc}
      */
     public function __destruct()
     {

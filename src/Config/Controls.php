@@ -62,14 +62,14 @@ trait Controls
     protected $newline = "\n";
 
     /**
-     * return a SplFileOjbect
+     * Returns the CSV Iterator
      *
-     * @return \SplFileOjbect
+     * @return \Iterator
      */
     abstract public function getIterator();
 
     /**
-     * set the field delimeter
+     * Sets the field delimeter
      *
      * @param string $delimiter
      *
@@ -88,7 +88,7 @@ trait Controls
     }
 
     /**
-     * return the current field delimiter
+     * Returns the current field delimiter
      *
      * @return string
      */
@@ -98,7 +98,7 @@ trait Controls
     }
 
     /**
-     * detect the actual number of row according to a delimiter
+     * Detects the actual number of row according to a delimiter
      *
      * @param string $delimiter a CSV delimiter
      * @param int    $nb_rows   the number of row to consider
@@ -118,7 +118,7 @@ trait Controls
     }
 
     /**
-     * Detect the CSV file delimiter
+     * Detects the CSV file delimiters
      *
      * @param int      $nb_rows
      * @param string[] $delimiters additional delimiters
@@ -149,7 +149,7 @@ trait Controls
     }
 
     /**
-     * set the field enclosure
+     * Sets the field enclosure
      *
      * @param string $enclosure
      *
@@ -168,7 +168,7 @@ trait Controls
     }
 
     /**
-     * return the current field enclosure
+     * Returns the current field enclosure
      *
      * @return string
      */
@@ -178,7 +178,7 @@ trait Controls
     }
 
     /**
-     * set the field escape character
+     * Sets the field escape character
      *
      * @param string $escape
      *
@@ -197,7 +197,7 @@ trait Controls
     }
 
     /**
-     * return the current field escape character
+     * Returns the current field escape character
      *
      * @return string
      */
@@ -207,7 +207,7 @@ trait Controls
     }
 
     /**
-     * Set the Flags associated to the CSV SplFileObject
+     * Sets the Flags associated to the CSV SplFileObject
      *
      * @param int $flags
      *
@@ -238,7 +238,7 @@ trait Controls
 
 
     /**
-     * set the newline sequence characters
+     * Sets the newline sequence characters
      *
      * @param string $newline
      *
@@ -252,7 +252,7 @@ trait Controls
     }
 
     /**
-     * return the current newline sequence characters
+     * Returns the current newline sequence characters
      *
      * @return string
      */

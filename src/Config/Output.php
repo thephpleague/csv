@@ -47,21 +47,21 @@ trait Output
     protected $output_bom;
 
     /**
-     * Return the CSV Iterator
+     * Returns the CSV Iterator
      *
      * @return \Iterator
      */
     abstract protected function getConvertionIterator();
 
     /**
-     * Return the CSV Iterator
+     * Returns the CSV Iterator
      *
-     * @return \SplFileObject
+     * @return \Iterator
      */
     abstract public function getIterator();
 
     /**
-     * Set the CSV encoding charset
+     * Sets the CSV encoding charset
      *
      * @param string $str
      *
@@ -80,7 +80,7 @@ trait Output
     }
 
     /**
-     * Get the source CSV encoding charset
+     * Gets the source CSV encoding charset
      *
      * @return string
      */
@@ -90,7 +90,7 @@ trait Output
     }
 
     /**
-     * Set the BOM sequence to prepend the CSV on output
+     * Sets the BOM sequence to prepend the CSV on output
      *
      * @param string $str  The BOM sequence
      *
@@ -150,7 +150,7 @@ trait Output
     }
 
     /**
-     * Output all data on the CSV file
+     * Outputs all data on the CSV file
      *
      * @param string $filename CSV downloaded name if present adds extra headers
      *
@@ -171,7 +171,7 @@ trait Output
     }
 
     /**
-     * Output all data from the CSV
+     * Outputs all data from the CSV
      *
      * @return int Returns the number of characters read from the handle
      *             and passed through to the output.
@@ -240,7 +240,7 @@ trait Output
     }
 
     /**
-     * Return a HTML table representation of the CSV Table
+     * Returns a HTML table representation of the CSV Table
      *
      * @param string $class_name optional classname
      *
@@ -255,7 +255,7 @@ trait Output
     }
 
     /**
-     * transform a CSV into a XML
+     * Transforms a CSV into a XML
      *
      * @param string $root_name XML root node name
      * @param string $row_name  XML row node name
