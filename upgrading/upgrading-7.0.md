@@ -232,17 +232,15 @@ use League\Csv\Reader;
 $reader = Reader::createFromPath('/path/to/your/csv/file.csv');
 
 $delimiters_list = $reader->detectDelimiterList(10, [' ', '|']);
-if (count($delimiters_list)) {
-	foreach ($delimiters_list as $occurences => $delimiter) {
-		echo "$delimiter appeared $occurences times in 10 CSV row", PHP_EOL;
-	}
-	//$occurences can not be less than 1
-	//since it would mean that the delimiter is not used
+foreach ($delimiters_list as $occurences => $delimiter) {
+    echo "$delimiter appeared $occurences times in 10 CSV row", PHP_EOL;
 }
+//$occurences can not be less than 1
+//since it would mean that the delimiter is not used
 //if you are only interested in getting
 // the most use delimiter you can still do as follow
 if (count($delimiters_list)) {
-	$delimiter = array_shift($delimiters);
+    $delimiter = array_shift($delimiters);
 }
 ~~~
 

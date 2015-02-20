@@ -26,7 +26,7 @@ The Stream Filter API is introduced. Please [refer to the documentation](/filter
 
 ### Named Constructors
 
-The new preferred way to instantiate a CSV object is to use the [named constructors](/overview/#instantiation): 
+The new preferred way to instantiate a CSV object is to use the [named constructors](/overview/#instantiation):
 
 Two new named constructors are added to complement the already present `createFromString` method.
 
@@ -51,12 +51,12 @@ use League\Csv\Reader;
 $reader = new Reader('/path/to/your/csv/file.csv');
 
 try {
-	$delimiter = $reader->detectDelimiter(10, [' ', '|']);
-	if (is_null($delimiter)) {
-		//no delimiter found
-	}
+    $delimiter = $reader->detectDelimiter(10, [' ', '|']);
+    if (is_null($delimiter)) {
+        //no delimiter found
+    }
 } catch(RuntimeException $e) {
-	//inconsistent CSV the found delimiters were given in $e->getMessage();
+    //inconsistent CSV the found delimiters were given in $e->getMessage();
 }
 
 ~~~
@@ -70,19 +70,19 @@ $reader = Reader::createFromPath('/path/to/your/csv/file.csv');
 
 $delimiters_list = $reader->detectDelimiterList(10, [' ', '|']);
 if (! $delimiters_list) {
-	//no delimiter found
+    //no delimiter found
 } elseif (1 == count($delimiters_list)) {
-	$delimiter = array_shift($delimiters); // the found delimiter
+    $delimiter = array_shift($delimiters); // the found delimiter
 } else {
-	//inconsistent CSV 
-	var_dump($delimiters_list); // all the delimiters found
+    //inconsistent CSV
+    var_dump($delimiters_list); // all the delimiters found
 }
 
 ~~~
 
 ### Transcoding Charset Property
 
-`setEncoding`/`getEnconding`: the `$encondingFrom` property setter and getter are renamed `setEncodingFrom`/`getEncondingFrom` to avoid any ambiguity. 
+`setEncoding`/`getEnconding`: the `$encondingFrom` property setter and getter are renamed `setEncodingFrom`/`getEncondingFrom` to avoid any ambiguity.
 
 **The library always assume that the output is in `UTF-8`** so when transcoding your CSV you should always transcode from the `$encondingFrom` charset into an UTF-8 compatible charset.
 
