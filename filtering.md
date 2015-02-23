@@ -7,6 +7,8 @@ title: Filtering
 
 To ease performing operations on the CSV as it is being read from or written to, the `Reader` and `Writer` classes now include methods to ease PHP stream filtering usage.
 
+<p class="message-warning"><strong>Warning:</strong> The library depends on PHP <code>SplFileObject</code> class. Since this class has a <a href="https://bugs.php.net/bug.php?id=44392" target="_blank">poor support for stream filtering</a>, any filter that includes a <code>/</code>, like <code>convert.iconv.*</code> does, <a href="https://github.com/thephpleague/csv/issues/72" target="_blank">is not supported</a> and will throw a <code>RunTimeException</code>.<br>
+A possible workaround to this issue while waiting for a PHP bug fix is to register a stream filter as a wrapper to the unsupported filter.</p>
 
 ## Stream Filter API
 
