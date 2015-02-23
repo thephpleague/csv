@@ -151,7 +151,7 @@ This exception extends PHP's `InvalidArgumentException` by adding two public get
 
 ### InvalidRowException::getName
 
-returns the name of the faild validator
+returns the name of the failed validator
 
 ### InvalidRowException::getData
 

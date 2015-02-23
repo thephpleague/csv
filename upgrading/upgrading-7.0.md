@@ -70,7 +70,7 @@ By default `null` value cells are converted to empty string so the old behavior 
 use League\Csv\Writer;
 
 $writer = Writer::createFromPath('/path/to/your/csv/file.csv');
-$writer->insertOne(["foo", null, "bar"]); //will throw an InvalidArgumentException
+$writer->insertOne(["foo", null, "bar"]); //will throw an RuntimeException
 ~~~
 
 **New code:**
@@ -82,7 +82,7 @@ use League\Csv\Plugin\ForbiddenNullValuesValidator;
 $validator = new ForbiddenNullValuesValidator();
 $writer = Writer::createFromPath('/path/to/your/csv/file.csv');
 $writer->addValidator($validator, 'null_as_exception');
-$writer->insertOne(["foo", null, "bar"]); //will throw an InvalidArgumentException
+$writer->insertOne(["foo", null, "bar"]); //will throw an League\Csv\Exception\InvalidRowException
 ~~~
 
 #### Example 2 : Null value formatting
