@@ -14,9 +14,9 @@ namespace League\Csv\Config;
 
 use DomDocument;
 use InvalidArgumentException;
+use Iterator;
 use League\Csv\Modifier;
 use SplFileObject;
-use Traversable;
 
 /**
  *  A trait to output CSV
@@ -221,9 +221,9 @@ trait Output
     /**
      * Convert Csv file into UTF-8
      *
-     * @return \Traversable
+     * @return \Iterator
      */
-    protected function convertToUtf8(Traversable $iterator)
+    protected function convertToUtf8(Iterator $iterator)
     {
         if (strpos($this->encodingFrom, 'UTF-8') !== false) {
             return $iterator;

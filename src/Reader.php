@@ -42,7 +42,7 @@ class Reader extends AbstractCsv
      *
      * @param callable $callable a callable function to be applied to each Iterator item
      *
-     * @return \Traversable
+     * @return \Iterator
      */
     public function query(callable $callable = null)
     {
