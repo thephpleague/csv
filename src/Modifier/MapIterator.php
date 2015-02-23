@@ -12,8 +12,8 @@
 */
 namespace League\Csv\Modifier;
 
+use Iterator;
 use IteratorIterator;
-use Traversable;
 
 /**
  *  A simple MapIterator
@@ -35,10 +35,10 @@ class MapIterator extends IteratorIterator
     /**
      * The Constructor
      *
-     * @param Traversable $iterator
+     * @param Iterator $iterator
      * @param callable    $callable
      */
-    public function __construct(Traversable $iterator, callable $callable)
+    public function __construct(Iterator $iterator, callable $callable)
     {
         parent::__construct($iterator);
         $this->callable = $callable;
