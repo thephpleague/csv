@@ -82,30 +82,16 @@ class Writer extends AbstractCsv
         }
         $row = $this->formatRow($row);
         $this->validateRow($row);
-        $csv = $this->getCsv();
-        $csv->fputcsv($row, $this->delimiter, $this->enclosure);
-        if ("\n" !== $this->newline) {
-            $csv->fseek(-1, SEEK_CUR);
-            $csv->fwrite($this->newline);
-        }
-
-        return $this;
-    }
-
-    /**
-     * Sets the csv container as a \SplFileObject instance
-     * and Insures we use the same object for insertion to
-     * avoid loosing the cursor position
-     *
-     * @return \SplFileObject
-     */
-    protected function getCsv()
-    {
         if (is_null($this->csv)) {
             $this->csv = $this->getIterator();
         }
+        $this->csv->fputcsv($row, $this->delimiter, $this->enclosure);
+        if ("\n" !== $this->newline) {
+            $this->csv->fseek(-1, SEEK_CUR);
+            $this->csv->fwrite($this->newline);
+        }
 
-        return $this->csv;
+        return $this;
     }
 
     /**
