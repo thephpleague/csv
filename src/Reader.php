@@ -176,11 +176,15 @@ class Reader extends AbstractCsv
      */
     public function fetchAssoc($offset_or_keys = 0, callable $callable = null)
     {
-        $keys = $this->getAssocKeys($offset_or_keys);
+        $keys       = $this->getAssocKeys($offset_or_keys);
+        $keys_count = count($keys);
+        $iterator   = $this->query($callable);
+        $iterator   = new Modifier\MapIterator($iterator, function (array $row) use ($keys, $keys_count) {
+            if ($keys_count != count($row)) {
+                $row = array_slice(array_pad($row, $keys_count, null), 0, $keys_count);
+            }
 
-        $iterator = $this->query($callable);
-        $iterator = new Modifier\MapIterator($iterator, function ($row) use ($keys) {
-            return static::combineArray($keys, $row);
+            return array_combine($keys, $row);
         });
 
         return iterator_to_array($iterator, false);
@@ -251,29 +255,5 @@ class Reader extends AbstractCsv
         return count($keys) && $keys === array_unique(array_filter($keys, function ($value) {
             return is_scalar($value) || (is_object($value) && method_exists($value, '__toString'));
         }));
-    }
-
-    /**
-     * Intelligent Array Combine
-     *
-     * add or remove values from the $value array to
-     * match array $keys length before using PHP array_combine function
-     *
-     * @param array $keys
-     * @param array $value
-     *
-     * @return array
-     */
-    protected static function combineArray(array $keys, array $value)
-    {
-        $nbKeys = count($keys);
-        $diff = $nbKeys - count($value);
-        if ($diff > 0) {
-            $value = array_merge($value, array_fill(0, $diff, null));
-        } elseif ($diff < 0) {
-            $value = array_slice($value, 0, $nbKeys);
-        }
-
-        return array_combine($keys, $value);
     }
 }
