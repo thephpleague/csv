@@ -31,7 +31,7 @@ use \League\Csv\Writer;
 $reader = Reader::createFromPath('/path/to/my/file.csv');
 $reader->isActiveStreamFilter(); //return true
 
-$writer = new Writer(new SplTempFileObject);
+$writer = Writer::createFromFileObject(new SplTempFileObject());
 $writer->isActiveStreamFilter(); //return false the API can not be use
 ~~~
 
