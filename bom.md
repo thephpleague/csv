@@ -81,10 +81,10 @@ use League\Csv\Reader;
 
 require '../vendor/autoload.php';
 
-$csv = Reader::createFromPath('/path/to/my/file.csv');
+$reader = Reader::createFromPath('/path/to/my/file.csv');
 $reader->setOutputBOM(Reader::BOM_UTF8);
 //BOM detected and adjusted for the output
-echo $csv->__toString();
+echo $reader->__toString();
 
 ~~~
 
@@ -116,16 +116,16 @@ $writer->insertAll($csv);
 
 //let's switch to the Reader object
 //Writer::output will failed because of the open mode
-$reader = $writer->newReader();
+$csv = $writer->newReader();
 
 //we register a Stream Filter class to convert the CSV into the UTF-16 LE
 stream_filter_register(FilterTranscode::FILTER_NAME."*", "\lib\FilterTranscode");
-$reader->appendStreamFilter(FilterTranscode::FILTER_NAME."UTF-8:UTF-16LE");
+$csv->appendStreamFilter(FilterTranscode::FILTER_NAME."UTF-8:UTF-16LE");
 
 //we detect and adjust the output BOM to be used
-$reader->setOutputBOM(Reader::BOM_UTF16_LE);
+$csv->setOutputBOM(Reader::BOM_UTF16_LE);
 //all is good let's output the results
-$reader->output('mycsvfile.csv');
+$csv->output('mycsvfile.csv');
 
 ~~~
 
