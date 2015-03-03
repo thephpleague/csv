@@ -100,7 +100,7 @@ use lib\FilterTranscode;
 require '../vendor/autoload.php';
 
 //the current CSV is UTF-8 encoded with a ";" delimiter
-$csv = Reader::createFromPath(__DIR__.'/data/prenoms.csv');
+$origin = Reader::createFromPath(__DIR__.'/data/prenoms.csv');
 
 //let's convert the CSV to use a tab delimiter.
 
@@ -112,7 +112,7 @@ $writer = Writer::createFromPath('/tmp/toto.csv', 'w');
 $writer->setDelimiter("\t");
 
 //we insert csv data
-$writer->insertAll($csv);
+$writer->insertAll($origin);
 
 //let's switch to the Reader object
 //Writer::output will failed because of the open mode
