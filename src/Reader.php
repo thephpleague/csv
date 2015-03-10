@@ -14,7 +14,6 @@ namespace League\Csv;
 
 use CallbackFilterIterator;
 use InvalidArgumentException;
-use Iterator;
 use League\Csv\Modifier;
 use LimitIterator;
 

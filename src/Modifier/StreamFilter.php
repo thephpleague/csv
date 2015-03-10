@@ -14,7 +14,6 @@ namespace League\Csv\Modifier;
 
 use LogicException;
 use OutOfBoundsException;
-use SplFileInfo;
 
 /**
  *  A Trait to ease PHP Stream Filters manipulation
