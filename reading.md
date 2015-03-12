@@ -146,7 +146,7 @@ $data = $reader->fetchOne(3); ///accessing the 4th row (indexing starts at 0)
 `each` apply a callable function on each CSV row. The callable function:
 
 * **must** return `true` to continue iterating over the CSV;
-* can take up to tree parameters:
+* can take up to three parameters:
     * the current csv row data;
     * the current csv key;
     * the current csv iterator object;
