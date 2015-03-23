@@ -219,7 +219,7 @@ $sol3 = Writer::createFromPath($fileObject, 'w');
 
 ### CSV properties
 
-- The new default `SplFileObject` flags used are `SplFileObject::READ_CSV` and `SplFileObject::DROP_NEW_LINE`. As previously these flags can not be overidden by the developer to ensure consistency in methods usage.
+- The new default `SplFileObject` flags used are `SplFileObject::READ_CSV` and `SplFileObject::DROP_NEW_LINE`. The `SplFileObject::READ_CSV` is the only flag that can not be overidden by the developer to ensure consistency in methods usage.
 - CSV properties setter methods no longer provides default values. When used, you are require to provide a value to the method.
 
 ### Detecting CSV Delimiters

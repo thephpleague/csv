@@ -6,6 +6,12 @@ title: Changelog
 #Changelog
 All Notable changes to `League\Csv` will be documented in this file
 
+## 7.0.1
+
+### Fixed
+
+- `setFlags`: `SplFileObject::DROP_NEW_LINE` can be remove using `setFlags` method.
+
 ## 7.0.0
 
 ### Added

@@ -109,6 +109,6 @@ $reader = Reader::createFromFileObject(new SplFileObject('/path/to/bengali.csv')
 $reader->setEncodingFrom('iso-8859-15');
 echo json_encode($reader);
 //the CSV is transcoded from iso-8859-15 to UTF-8
-//befor being converted to JSON format;
+//before being converted to JSON format;
 echo $reader; //outputting the data is not affected by the conversion
 ~~~

@@ -41,56 +41,13 @@ The default escape character is `\`.
 $csv->setFlags(SplFileObject::READ_AHEAD|SplFileObject::SKIP_EMPTY);
 $flags = $csv->getFlags(); //returns an integer
 ~~~
-By default the flags used are `SplFileObject::READ_CSV` and `SplFileObject::DROP_NEW_LINE`.
 
-<p class="message-warning">To get an expected behaviour, you can not remove the default flags you can only add non defined ones.</p>
+<p class="message-warning">Since version 7.0.1, the <code>setFlags</code> method has been fixed to prevent a <a href="https://bugs.php.net/bug.php?id=69181" target="_blank">bug in SplFileObject</a>.</p>
 
-### The newline sequence
+- On instantiation the flags used are `SplFileObject::READ_CSV` and `SplFileObject::DROP_NEW_LINE`.
+- When using the `setFlags` method, you can add or remove any `SplFileObject` flags except for the `SplFileObject::READ_CSV` flag.
 
-The newline sequence is appended to each CSV newly inserted line. To improve interoperability with programs interacting with CSV and because the php `fputcsv` implementation has a hardcoded `"\n"`, we need to be able to replace this last `LF` code with one supplied by the developer.
-
-~~~php
-$csv->setNewline("\r\n");
-$newline = $csv->getNewline(); //returns "\r\n"
-~~~
-The default newline sequence is `\n`;
-
-<p class="message-notice">Since version 7.0, the <code>$newline</code> getter and setter methods are also available on the <code>Reader</code> class.</p>
-
-### The BOM character
-
-To improve interoperability with programs interacting with CSV, you can now manage the presence of a <abbr title="Byte Order Mark">BOM</abbr> character in your CSV content.
-
-Detect the current BOM character is done using the `getInputBOM` method. This method returns the currently used BOM character or `null` if none is found or recognized.
-
-~~~php
-$bom = $csv->getInputBOM();
-~~~
-
-You can of course set the outputting BOM you want your CSV to be associated with.
-
-~~~php
-$csv->setOutputBOM(Reader::BOM_UTF8);
-$bom = $csv->getOutputBOM(); //returns "\xEF\xBB\xBF"
-~~~
-The default output `BOM` character is set to `null`.
-
-<p class="message-info">Please refer to <a href="/bom/">the BOM character dedicated documentation page</a> for more informations on how the library helps you manage this feature.</p>
-
-### The encoding charset
-
-When converting your CSV document into another format, the library assumes that your data is UTF-8 encoded. 
-
-When this is not the case, the recommended way to transcode your CSV in a UTF-8 compatible charset is to use the <a href="/filtering/">library stream filtering mechanism</a>.
-
-When this is not applicable you can fallback to setting the CSV original encoding charset as below.
-
-~~~php
-$reader->setEncodingFrom('iso-8859-15');
-echo $reader->getEncodingFrom(); //returns iso-8859-15;
-~~~
-
-The default encoding charset is set `UTF-8`.
+<p class="message-info">If your CSV cells contain newline sequence in their content you should avoid using the <code>SplFileObject::DROP_NEW_LINE</code> flag as it will remove the first newline sequence found in each row.</p>
 
 ## Detecting CSV delimiter
 
@@ -130,3 +87,70 @@ The more rows and delimiters you add, the more time and memory consuming the ope
 <p class="message-warning"><strong>BC Break:</strong> Starting with version <code>7.0</code>, the index of each found delimiter represents the occurence of the found delimiter in the selected rows.</p>
 
 Whenever a user creates a new CSV object using the `newWriter` or the `newReader` methods, the current CSV object properties are copied to the new instance.
+
+## Writing mode only properties
+
+The following properties only affect the CSV when you are writing or saving data to it.
+
+### The newline sequence
+
+The newline sequence is appended to each CSV newly inserted line. To improve interoperability with programs interacting with CSV and because the php `fputcsv` implementation has a hardcoded `"\n"`, we need to be able to replace this last `LF` code with one supplied by the developer.
+
+~~~php
+$csv->setNewline("\r\n");
+$newline = $csv->getNewline(); //returns "\r\n"
+~~~
+The default newline sequence is `\n`;
+
+<p class="message-notice">Since version 7.0, the <code>$newline</code> getter and setter methods are also available on the <code>Reader</code> class.</p>
+
+### The BOM character
+
+To improve interoperability with programs interacting with CSV, you can now manage the presence of a <abbr title="Byte Order Mark">BOM</abbr> character in your CSV content.
+
+Detect the current BOM character is done using the `getInputBOM` method. This method returns the currently used BOM character or `null` if none is found or recognized.
+
+~~~php
+$bom = $csv->getInputBOM();
+~~~
+
+You can of course set the outputting BOM you want your CSV to be associated with.
+
+~~~php
+$csv->setOutputBOM(Reader::BOM_UTF8);
+$bom = $csv->getOutputBOM(); //returns "\xEF\xBB\xBF"
+~~~
+The default output `BOM` character is set to `null`.
+
+<p class="message-info">Please refer to <a href="/bom/">the BOM character dedicated documentation page</a> for more informations on how the library helps you manage this feature.</p>
+
+## Conversion only properties
+
+The following properties and method only works when converting CSV document into other available format.
+
+### The encoding charset
+
+To convert your CSV document into another format it must be encoded in UTF-8.
+
+When this is not the case, you should transcode it using the <a href="/filtering/">library stream filtering mechanism</a>.
+
+When this is not applicable you can fallback by providing the CSV original encoding charset to the CSV class using the following method:
+
+~~~php
+$reader->setEncodingFrom('iso-8859-15');
+echo $reader->getEncodingFrom(); //returns iso-8859-15;
+~~~
+
+By default `getEncodingFrom` returns `UTF-8` if `setEncodingFrom` was not used.
+
+<div class="message-warning">The encoding properties have no effect when reading or writing to a CSV document. You should instead use <a href="/filtering/">the Stream Filter API</a> or <a href="/inserting/#row-formatting">the Writing Formatter API</a>.</div>
+
+~~~php
+$reader = Reader::createFromFileObject(new SplFileObject('/path/to/bengali.csv'));
+//we are using the setEncodingFrom method to transcode the CSV into UTF-8
+$reader->setEncodingFrom('iso-8859-15');
+echo json_encode($reader);
+//the CSV is transcoded from iso-8859-15 to UTF-8
+//before being converted to JSON format;
+echo $reader; //outputting the data is not affected by the conversion
+~~~
