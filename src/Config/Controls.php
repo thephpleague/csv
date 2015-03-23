@@ -221,7 +221,7 @@ trait Controls
             throw new InvalidArgumentException('you should use a `SplFileObject` Constant');
         }
 
-        $this->flags = $flags|SplFileObject::READ_CSV|SplFileObject::DROP_NEW_LINE;
+        $this->flags = $flags|SplFileObject::READ_CSV;
 
         return $this;
     }
