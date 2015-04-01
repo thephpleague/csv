@@ -18,7 +18,7 @@ layout: default
 PHP. The goal of the library is to be as powerful while remaining lightweight,
 by utilizing PHP native classes whenever possible.
 
-`League\Csv` was designed for developers who wants to deal with CSV data using
+`League\Csv` was designed for developers who want to deal with CSV data using
 modern code and without the high levels of bootstrap and low-levels of
 usefulness provided by existing core functions or third party-code.
 
