@@ -52,6 +52,20 @@ class Reader extends AbstractCsv
         $iterator = $this->applyIteratorFilter($iterator);
         $iterator = $this->applyIteratorSortBy($iterator);
         $iterator = $this->applyIteratorInterval($iterator);
+
+        if (! is_null($this->getInputBOM())) {
+            $bom = $this->getInputBOM();
+            $iterator = new Modifier\MapIterator($iterator, function($row, $key) use ($bom) {
+                if ($key !== 0) {
+                    return $row;
+                }
+
+                $row[0] = ltrim($row[0], $bom);
+
+                return $row;
+            });
+        }
+
         if (! is_null($callable)) {
             $iterator = new Modifier\MapIterator($iterator, $callable);
         }
