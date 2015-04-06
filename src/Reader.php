@@ -37,6 +37,11 @@ class Reader extends AbstractCsv
     protected $stream_filter_mode = STREAM_FILTER_READ;
 
     /**
+     * @var array
+     */
+    protected $assoc_keys;
+
+    /**
      * Returns a Filtered Iterator
      *
      * @param callable $callable a callable function to be applied to each Iterator item
@@ -52,6 +57,11 @@ class Reader extends AbstractCsv
         $iterator = $this->applyIteratorFilter($iterator);
         $iterator = $this->applyIteratorSortBy($iterator);
         $iterator = $this->applyIteratorInterval($iterator);
+
+        if (! is_null($this->assoc_keys)) {
+            $iterator = new Modifier\AssociativeIterator($iterator, $this->assoc_keys);
+        }
+
         if (! is_null($callable)) {
             $iterator = new Modifier\MapIterator($iterator, $callable);
         }
@@ -187,6 +197,17 @@ class Reader extends AbstractCsv
         });
 
         return iterator_to_array($iterator, false);
+    }
+
+    public function setAssocKeys($offset_or_keys = 0)
+    {
+        if (false === $offset_or_keys) {
+            $this->assoc_keys = null;
+
+            return;
+        }
+
+        $this->assoc_keys = $this->getAssocKeys($offset_or_keys);
     }
 
     /**
