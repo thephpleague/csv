@@ -72,6 +72,13 @@ abstract class AbstractCsv implements JsonSerializable, IteratorAggregate
     protected $open_mode;
 
     /**
+     * Whether to automatically strip the BOM character
+     *
+     * @var bool
+     */
+    protected $strip_bom = false;
+
+    /**
      * Csv Controls Trait
      */
     use Config\Controls;
@@ -142,6 +149,15 @@ abstract class AbstractCsv implements JsonSerializable, IteratorAggregate
         }
         $iterator->setCsvControl($this->delimiter, $this->enclosure, $this->escape);
         $iterator->setFlags($this->flags);
+
+        if ($this->strip_bom) {
+            $this->strip_bom = false; // avoid recursive call to getIterator()
+            $bom = $this->getInputBOM();
+            $this->strip_bom = true;
+            if (! is_null($bom)) {
+                $iterator = new Modifier\StripBomIterator($iterator, $bom);
+            }
+        }
 
         return $iterator;
     }
@@ -259,6 +275,7 @@ abstract class AbstractCsv implements JsonSerializable, IteratorAggregate
         $csv->input_bom    = $this->input_bom;
         $csv->output_bom   = $this->output_bom;
         $csv->newline      = $this->newline;
+        $csv->strip_bom    = $this->strip_bom;
 
         return $csv;
     }
@@ -285,5 +302,19 @@ abstract class AbstractCsv implements JsonSerializable, IteratorAggregate
     public function newReader($open_mode = 'r+')
     {
         return $this->newInstance('\League\Csv\Reader', $open_mode);
+    }
+
+    /**
+     * Set whether to automatically strip BOM character
+     *
+     * @param bool $flag
+     *
+     * @return $this
+     */
+    public function stripBom($flag)
+    {
+        $this->strip_bom = (bool) $flag;
+
+        return $this;
     }
 }

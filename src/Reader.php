@@ -50,10 +50,11 @@ class Reader extends AbstractCsv
         $iterator = new CallbackFilterIterator($iterator, function ($row) {
             return is_array($row);
         });
-
+        
         $iterator = $this->applyIteratorFilter($iterator);
         $iterator = $this->applyIteratorSortBy($iterator);
         $iterator = $this->applyIteratorInterval($iterator);
+
         if (! is_null($callable)) {
             return new Modifier\MapIterator($iterator, $callable);
         }
