@@ -3,14 +3,11 @@
 namespace League\Csv\test;
 
 use ArrayIterator;
-use DateTime;
 use League\Csv\Writer;
 use LimitIterator;
 use PHPUnit_Framework_TestCase;
 use SplFileObject;
 use SplTempFileObject;
-
-date_default_timezone_set('UTC');
 
 /**
  * @group writer
@@ -45,81 +42,52 @@ class WriterTest extends PHPUnit_Framework_TestCase
     {
         $expected = [
             ['john', 'doe', 'john.doe@example.com'],
-            'john,doe,john.doe@example.com',
+            'jane,doe,jane.doe@example.com',
         ];
         foreach ($expected as $row) {
             $this->csv->insertOne($row);
         }
-        $this->csv->setFlags(SplFileObject::READ_AHEAD|SplFileObject::SKIP_EMPTY);
-        foreach ($this->csv as $row) {
-            $this->assertSame(['john', 'doe', 'john.doe@example.com'], $row);
-        }
+        $this->assertContains(['john', 'doe', 'john.doe@example.com'], $this->csv);
+        $this->assertContains(['jane', 'doe', 'jane.doe@example.com'], $this->csv);
     }
 
     public function testInsertNormalFile()
     {
         $csv = Writer::createFromPath(__DIR__.'/foo.csv', 'a+');
         $csv->insertOne(['jane', 'doe', 'jane.doe@example.com']);
-        $iterator = new LimitIterator($csv->getIterator(), 1, 1);
-        $iterator->rewind();
-        $this->assertSame(['jane', 'doe', 'jane.doe@example.com'], $iterator->getInnerIterator()->current());
+        $this->assertContains(['jane', 'doe', 'jane.doe@example.com'], $csv);
     }
 
     /**
-     * @expectedException PHPUnit_Framework_Error
+     * @expectedException InvalidArgumentException
      */
-    public function testInsertWithoutValidation()
+    public function testFailedSaveWithWrongType()
     {
-        $expected = [
-            ['john', 'doe', 'john.doe@example.com'],
-            'john,doe,john.doe@example.com',
-            ['john', null, 'john.doe@example.com'],
-            new \StdClass,
-        ];
-        $this->csv->insertAll($expected);
+        $this->csv->insertAll(new \StdClass());
     }
 
     /**
-     * @expectedException PHPUnit_Framework_Error
+     * @param  $argument
+     * @param  $expected
+     * @dataProvider dataToSave
      */
-    public function testFailedInsertWithWrongData()
+    public function testSave($argument, $expected)
     {
-        $this->csv->insertOne(new DateTime());
+        $this->csv->insertAll($argument);
+        $this->assertContains($expected, $this->csv);
     }
 
-    /**
-     * @expectedException PHPUnit_Framework_Error
-     */
-    public function testFailedInsertWithMultiDimensionArray()
-    {
-        $this->csv->insertOne(['john', new DateTime()]);
-    }
-
-    public function testSave()
+    public function dataToSave()
     {
         $multipleArray = [
             ['john', 'doe', 'john.doe@example.com'],
             'jane,doe,jane.doe@example.com',
         ];
-        $this->csv->insertAll($multipleArray);
-        $this->csv->insertAll(new ArrayIterator($multipleArray));
-        $this->csv->setFlags(SplFileObject::READ_AHEAD|SplFileObject::SKIP_EMPTY);
-        foreach ($this->csv as $key => $row) {
-            $expected = ['jane', 'doe', 'jane.doe@example.com'];
-            if ($key%2 == 0) {
-                $expected = ['john', 'doe', 'john.doe@example.com'];
-            }
-            $this->assertSame($expected, $row);
-        }
-    }
 
-    /**
-     * @expectedException InvalidArgumentException
-     * @expectedExceptionMessage the provided data must be an array OR a \Traversable object
-     */
-    public function testFailedSaveWithWrongType()
-    {
-        $this->csv->insertAll(new DateTime());
+        return [
+            'array' => [$multipleArray, $multipleArray[0]],
+            'iterator' => [new ArrayIterator($multipleArray), ['jane', 'doe', 'jane.doe@example.com']],
+        ];
     }
 
     public function testGetReader()
@@ -183,5 +151,15 @@ class WriterTest extends PHPUnit_Framework_TestCase
         $this->assertTrue($this->csv->hasFormatter($func));
         $this->csv->clearFormatters();
         $this->assertFalse($this->csv->hasFormatter($func));
+    }
+
+    public function testConversionWithWriter()
+    {
+        $this->csv->insertAll([
+            ['john', 'doe', 'john.doe@example.com'],
+            ['jane', 'doe', 'jane.doe@example.com'],
+            ['toto', 'le', 'herisson'],
+        ]);
+        $this->assertStringStartsWith("<table", $this->csv->toHTML());
     }
 }

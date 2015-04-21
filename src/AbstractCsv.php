@@ -153,7 +153,10 @@ abstract class AbstractCsv implements JsonSerializable, IteratorAggregate
      */
     protected function getConversionIterator()
     {
-        return $this->getIterator();
+        $iterator = $this->getIterator();
+        $iterator->setFlags(SplFileObject::READ_CSV|SplFileObject::READ_AHEAD|SplFileObject::SKIP_EMPTY);
+
+        return $iterator;
     }
 
     /**

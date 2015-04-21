@@ -66,7 +66,7 @@ class Reader extends AbstractCsv
      */
     protected function getConversionIterator()
     {
-        $iterator = $this->getIterator();
+        $iterator = parent::getConversionIterator();
         $iterator = $this->applyBomStripping($iterator);
         $iterator = $this->applyIteratorFilter($iterator);
         $iterator = $this->applyIteratorSortBy($iterator);
@@ -242,8 +242,7 @@ class Reader extends AbstractCsv
         }
 
         if (0 == $offset && $this->isBomStrippable()) {
-            $bom    = $this->getInputBom();
-            $res[0] = mb_substr($res[0], mb_strlen($bom));
+            $res[0] = mb_substr($res[0], mb_strlen($this->getInputBom()));
         }
 
         return $res;

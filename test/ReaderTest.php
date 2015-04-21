@@ -21,51 +21,77 @@ class ReaderTest extends PHPUnit_Framework_TestCase
 
     public function setUp()
     {
-        $csv = new SplTempFileObject();
+        $tmp = new SplTempFileObject();
         foreach ($this->expected as $row) {
-            $csv->fputcsv($row);
+            $tmp->fputcsv($row);
         }
 
-        $this->csv = Reader::createFromFileObject($csv);
-        $this->csv->setFlags(SplFileObject::READ_AHEAD|SplFileObject::SKIP_EMPTY);
+        $this->csv = Reader::createFromFileObject($tmp);
+    }
+
+    public function testSetLimit()
+    {
+        $this->assertCount(1, $this->csv->setLimit(1)->fetchAll());
     }
 
     /**
      * @expectedException \InvalidArgumentException
-     * @expectedExceptionMessage the limit must an integer greater or equals to -1
      */
-    public function testSetLimit()
+    public function testSetLimitThrowException()
     {
-        $this->csv->setLimit(1);
-        $this->assertCount(1, $this->csv->fetchAll());
         $this->csv->setLimit(-4);
     }
 
-    /**
-     * @expectedException \InvalidArgumentException
-     * @expectedExceptionMessage the offset must be a positive integer or 0
-     */
     public function testSetOffset()
     {
-        $this->csv->setOffset(1);
-        $this->assertCount(1, $this->csv->fetchAll());
+        $this->assertContains(
+            ['jane', 'doe', 'jane.doe@example.com'],
+            $this->csv->setOffset(1)->fetchAll()
+        );
+    }
 
+    /**
+     * @expectedException \InvalidArgumentException
+     */
+    public function testSetOffsetThrowException()
+    {
         $this->csv->setOffset('toto');
     }
 
-    public function testIntervalLimitTooLong()
+    /**
+     * @param $offset
+     * @param $limit
+     * @param $expected
+     * @dataProvider intervalTest
+     */
+    public function testInterval($offset, $limit, $expected)
     {
-        $this->csv->setOffset(1);
-        $this->csv->setLimit(10);
-        $this->assertSame([['jane', 'doe', 'jane.doe@example.com']], $this->csv->fetchAll());
+        $this->csv->setOffset($offset);
+        $this->csv->setLimit($limit);
+        $this->assertContains(
+            ['jane', 'doe', 'jane.doe@example.com'],
+            $this->csv->setOffset(1)->fetchAll()
+        );
     }
 
-    public function testInterval()
+    public function intervalTest()
+    {
+        return [
+            'tooHigh' => [1, 10, 1],
+            'normal' => [1, 1, 1],
+        ];
+    }
+
+    /**
+     * @expectedException \OutOfBoundsException
+     */
+    public function testIntervalThrowException()
     {
         $this->csv->setOffset(1);
-        $this->csv->setLimit(1);
-        $this->assertCount(1, $this->csv->fetchAll());
+        $this->csv->setLimit(0);
+        $this->csv->fetchAll();
     }
+
 
     public function testFilter()
     {
@@ -73,16 +99,17 @@ class ReaderTest extends PHPUnit_Framework_TestCase
             return ! in_array('jane', $row);
         };
         $this->csv->addFilter($func);
-
-        $this->assertCount(1, $this->csv->fetchAll());
+        $this->assertNotContains(['jane', 'doe', 'jane.doe@example.com'], $this->csv->fetchAll());
 
         $func2 = function ($row) {
             return ! in_array('john', $row);
         };
         $this->csv->addFilter($func2);
         $this->csv->addFilter($func);
+        $res = $this->csv->fetchAll();
 
-        $this->assertCount(0, $this->csv->fetchAll());
+        $this->assertNotContains(['john', 'doe', 'john.doe@example.com'], $res);
+        $this->assertNotContains(['jane', 'doe', 'jane.doe@example.com'], $res);
 
         $this->csv->addFilter($func2);
         $this->csv->addFilter($func);
@@ -90,7 +117,7 @@ class ReaderTest extends PHPUnit_Framework_TestCase
         $this->csv->removeFilter($func2);
         $this->assertFalse($this->csv->hasFilter($func2));
 
-        $this->assertCount(1, $this->csv->fetchAll());
+        $this->assertContains(['john', 'doe', 'john.doe@example.com'], $this->csv->fetchAll());
     }
 
     public function testSortBy()
@@ -99,28 +126,21 @@ class ReaderTest extends PHPUnit_Framework_TestCase
             return strcmp($rowA[0], $rowB[0]);
         };
         $this->csv->addSortBy($func);
+        $this->csv->addFilter(function ($row) {
+            return $row != [null];
+
+        });
         $this->assertSame(array_reverse($this->expected), $this->csv->fetchAll());
 
         $this->csv->addSortBy($func);
         $this->csv->addSortBy($func);
         $this->csv->removeSortBy($func);
         $this->assertTrue($this->csv->hasSortBy($func));
-        $this->assertSame(array_reverse($this->expected), $this->csv->fetchAll());
-    }
+        $this->csv->addFilter(function ($row) {
+            return $row != [null];
 
-    public function testSortBy2()
-    {
-        $string = 'john,doe,john.doe@example.com'.PHP_EOL.'john,doe,john.doe@example.com';
-        $csv = Reader::createFromString($string);
-        $csv->setFlags(SplFileObject::READ_AHEAD|SplFileObject::SKIP_EMPTY);
-        $func = function ($rowA, $rowB) {
-            return strcmp($rowA[0], $rowB[0]);
-        };
-        $csv->addSortBy($func);
-        $this->assertSame([
-            ['john', 'doe', 'john.doe@example.com'],
-            ['john', 'doe', 'john.doe@example.com'],
-        ], $csv->fetchAll());
+        });
+        $this->assertSame(array_reverse($this->expected), $this->csv->fetchAll());
     }
 
     public function testFetchAll()
@@ -129,17 +149,16 @@ class ReaderTest extends PHPUnit_Framework_TestCase
             return array_map('strtoupper', $value);
         };
 
-        $this->assertSame($this->expected, $this->csv->fetchAll());
-        $this->assertSame(array_map($func, $this->expected), $this->csv->fetchAll($func));
+        $res = $this->csv->fetchAll($func);
+        $this->assertContains(['JANE', 'DOE', 'JANE.DOE@EXAMPLE.COM'], $res);
     }
 
     public function testFetchAssoc()
     {
         $keys = ['firstname', 'lastname', 'email'];
         $res = $this->csv->fetchAssoc($keys);
-        foreach ($res as $index => $row) {
+        foreach ($res as $offset => $row) {
             $this->assertSame($keys, array_keys($row));
-            $this->assertSame($this->expected[$index], array_values($row));
         }
     }
 
@@ -152,13 +171,18 @@ class ReaderTest extends PHPUnit_Framework_TestCase
         foreach ($res as $row) {
             $this->assertSame($keys, array_keys($row));
         }
+        $this->assertContains([
+            'firstname' => 'JANE',
+            'lastname' => 'DOE',
+            'email' => 'JANE.DOE@EXAMPLE.COM'
+        ], $res);
     }
 
     public function testFetchAssocLessKeys()
     {
         $keys = ['firstname'];
         $res = $this->csv->fetchAssoc($keys);
-        $this->assertSame([['firstname' => 'john'], ['firstname' => 'jane']], $res);
+        $this->assertContains(['firstname' => 'john'], $res);
     }
 
     public function testFetchAssocMoreKeys()
@@ -166,10 +190,12 @@ class ReaderTest extends PHPUnit_Framework_TestCase
         $keys = ['firstname', 'lastname', 'email', 'age'];
         $res = $this->csv->fetchAssoc($keys);
 
-        foreach ($res as $row) {
-            $this->assertCount(4, array_values($row));
-            $this->assertNull($row['age']);
-        }
+        $this->assertContains([
+            'firstname' => 'jane',
+            'lastname' => 'doe',
+            'email' => 'jane.doe@example.com',
+            'age' => null,
+        ], $res);
     }
 
     public function testFetchAssocWithRowIndex()
@@ -181,15 +207,14 @@ class ReaderTest extends PHPUnit_Framework_TestCase
             [6, 7, 8],
         ];
 
-        $tmpFile = new SplTempFileObject();
+        $tmp = new SplTempFileObject();
         foreach ($arr as $row) {
-            $tmpFile->fputcsv($row);
+            $tmp->fputcsv($row);
         }
 
-        $csv = Reader::createFromFileObject($tmpFile);
-        $csv->setFlags(SplFileObject::READ_AHEAD|SplFileObject::SKIP_EMPTY);
+        $csv = Reader::createFromFileObject($tmp);
         $res = $csv->setOffSet(2)->fetchAssoc(2);
-        $this->assertSame([['D' => '6', 'E' => '7', 'F' => '8']], $res);
+        $this->assertContains(['D' => '6', 'E' => '7', 'F' => '8'], $res);
     }
 
     /**
@@ -203,7 +228,6 @@ class ReaderTest extends PHPUnit_Framework_TestCase
             $tmpFile->fputcsv($row);
         }
         $csv = Reader::createFromFileObject($tmpFile);
-        $csv->setFlags(SplFileObject::READ_AHEAD|SplFileObject::SKIP_EMPTY);
         $csv->stripBom(true);
 
         $this->assertSame($res, $csv->fetchAll()[0][0]);
@@ -229,18 +253,16 @@ class ReaderTest extends PHPUnit_Framework_TestCase
 
     public function testStripBOMWithFetchAssoc()
     {
-        $tmpFile = new SplTempFileObject();
         $expected = [
             [Reader::BOM_UTF16_LE.'john', 'doe', 'john.doe@example.com', ],
             ['jane', 'doe', 'jane.doe@example.com', ],
         ];
 
-        $tmpFile = new SplTempFileObject();
+        $tmp = new SplTempFileObject();
         foreach ($expected as $row) {
-            $tmpFile->fputcsv($row);
+            $tmp->fputcsv($row);
         }
-        $csv = Reader::createFromFileObject($tmpFile);
-        $csv->setFlags(SplFileObject::READ_AHEAD|SplFileObject::SKIP_EMPTY);
+        $csv = Reader::createFromFileObject($tmp);
         $csv->stripBom(true);
         $res = array_keys($csv->fetchAssoc()[0]);
 
@@ -249,7 +271,6 @@ class ReaderTest extends PHPUnit_Framework_TestCase
 
     /**
      * @expectedException \InvalidArgumentException
-     * @expectedExceptionMessage Use a flat non empty array with unique string values
      */
     public function testFetchAssocKeyFailure()
     {
@@ -257,10 +278,11 @@ class ReaderTest extends PHPUnit_Framework_TestCase
     }
 
     /**
+     * @param $offset
+     * @dataProvider invalidOffsetWithFetchAssoc
      * @expectedException \InvalidArgumentException
-     * @expectedExceptionMessage the row index must be a positive integer or 0
      */
-    public function testFetchAssocWithInvalidKey()
+    public function testFetchAssocWithInvalidOffset($offset)
     {
         $arr = [
             ['A', 'B', 'C'],
@@ -269,40 +291,33 @@ class ReaderTest extends PHPUnit_Framework_TestCase
             [6, 7, 8],
         ];
 
-        $tmpFile = new SplTempFileObject();
+        $tmp = new SplTempFileObject();
         foreach ($arr as $row) {
-            $tmpFile->fputcsv($row);
+            $tmp->fputcsv($row);
         }
 
-        $csv = Reader::createFromFileObject($tmpFile);
-        $csv->fetchAssoc(-23);
+        Reader::createFromFileObject($tmp)->fetchAssoc($offset);
     }
 
-    /**
-     * @expectedException \InvalidArgumentException
-     * @expectedExceptionMessage the specified row does not exist
-     */
-    public function testFetchAssocWithInvalidOffset()
+    public function invalidOffsetWithFetchAssoc()
     {
-        $arr = [
-            ['A', 'B', 'C'],
-            [1, 2, 3],
-            ['D', 'E', 'F'],
-            [6, 7, 8],
+        return [
+            'negative' => [-23],
+            'tooHigh' => [23],
         ];
-
-        $tmpFile = new SplTempFileObject();
-        foreach ($arr as $row) {
-            $tmpFile->fputcsv($row);
-        }
-
-        $csv = Reader::createFromFileObject($tmpFile);
-        $csv->fetchAssoc(23);
     }
 
     public function testFetchCol()
     {
+        $this->csv->addFilter(function ($row) {
+            return $row != [null];
+
+        });
         $this->assertSame(['john', 'jane'], $this->csv->fetchColumn(0));
+        $this->csv->addFilter(function ($row) {
+            return $row != [null];
+
+        });
         $this->assertSame(['john', 'jane'], $this->csv->fetchColumn());
     }
 
@@ -318,7 +333,10 @@ class ReaderTest extends PHPUnit_Framework_TestCase
             $file->fputcsv($row);
         }
         $csv = Reader::createFromFileObject($file);
-        $csv->setFlags(SplFileObject::READ_AHEAD|SplFileObject::SKIP_EMPTY);
+        $this->csv->addFilter(function ($row) {
+            return $row != [null];
+
+        });
         $res = $csv->fetchColumn(2);
         $this->assertInternalType('array', $res);
         $this->assertCount(1, $res);
@@ -336,8 +354,11 @@ class ReaderTest extends PHPUnit_Framework_TestCase
             $file->fputcsv($row);
         }
         $csv = Reader::createFromFileObject($file);
-        $csv->setFlags(SplFileObject::READ_AHEAD|SplFileObject::SKIP_EMPTY);
         $res = $csv->fetchColumn(2);
+        $this->csv->addFilter(function ($row) {
+            return $row != [null];
+
+        });
         $this->assertInternalType('array', $res);
         $this->assertCount(0, $res);
     }
@@ -348,13 +369,15 @@ class ReaderTest extends PHPUnit_Framework_TestCase
         $func = function ($value) {
             return array_map('strtoupper', $value);
         };
+        $this->csv->addFilter(function ($row) {
+            return $row != [null];
 
+        });
         $this->assertSame(['JOHN', 'JANE'], $this->csv->fetchColumn(0, $func));
     }
 
     /**
      * @expectedException \InvalidArgumentException
-     * @expectedExceptionMessage the column index must be a positive integer or 0
      */
     public function testFetchColFailure()
     {
@@ -363,7 +386,6 @@ class ReaderTest extends PHPUnit_Framework_TestCase
 
     /**
      * @expectedException \InvalidArgumentException
-     * @expectedExceptionMessage the offset must be a positive integer or 0
      */
     public function testfetchOne()
     {
@@ -376,6 +398,10 @@ class ReaderTest extends PHPUnit_Framework_TestCase
     public function testEach()
     {
         $transform = [];
+        $this->csv->addFilter(function ($row) {
+            return $row != [null];
+
+        });
         $res = $this->csv->each(function ($row) use (&$transform) {
             $transform[] = array_map('strtoupper', $row);
 
@@ -383,6 +409,10 @@ class ReaderTest extends PHPUnit_Framework_TestCase
         });
         $this->assertSame($res, 2);
         $this->assertSame(strtoupper($this->expected[0][0]), $transform[0][0]);
+    }
+
+    public function testEachWithEarlyReturns()
+    {
         $res = $this->csv->each(function ($row, $index) {
             if ($index > 0) {
                 return false;
@@ -395,34 +425,6 @@ class ReaderTest extends PHPUnit_Framework_TestCase
 
     public function testGetWriter()
     {
-        $writer = $this->csv->newWriter();
-        $writer->insertOne(['toto', 'le', 'herisson']);
-        $expected = <<<EOF
-<table class="table-csv-data">
-<tr>
-<td>john</td>
-<td>doe</td>
-<td>john.doe@example.com</td>
-</tr>
-<tr>
-<td>jane</td>
-<td>doe</td>
-<td>jane.doe@example.com</td>
-</tr>
-<tr>
-<td>toto</td>
-<td>le</td>
-<td>herisson</td>
-</tr>
-</table>
-EOF;
-        $writer->setFlags(SplFileObject::READ_AHEAD|SplFileObject::SKIP_EMPTY);
-        $this->assertSame($expected, $writer->toHTML());
-    }
-
-    public function testGetWriter2()
-    {
-        $csv = Reader::createFromPath(__DIR__.'/foo.csv')->newWriter('a+');
-        $this->assertInstanceOf('\League\Csv\Writer', $csv);
+        $this->assertInstanceOf('\League\Csv\Writer', $this->csv->newWriter());
     }
 }

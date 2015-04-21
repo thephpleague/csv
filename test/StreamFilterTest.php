@@ -28,7 +28,6 @@ class StreamFilterTest extends PHPUnit_Framework_TestCase
 
     /**
      * @expectedException LogicException
-     * @expectedExceptionMessage The stream filter API can not be used
      */
     public function testInitStreamFilterWithSplFileObject()
     {
@@ -47,7 +46,6 @@ class StreamFilterTest extends PHPUnit_Framework_TestCase
 
     /**
      * @expectedException LogicException
-     * @expectedExceptionMessage The stream filter API can not be used
      */
     public function testFailedprependStreamFilter()
     {
@@ -58,7 +56,6 @@ class StreamFilterTest extends PHPUnit_Framework_TestCase
 
     /**
      * @expectedException LogicException
-     * @expectedExceptionMessage The stream filter API can not be used
      */
     public function testFailedapppendStreamFilter()
     {
@@ -69,7 +66,6 @@ class StreamFilterTest extends PHPUnit_Framework_TestCase
 
     /**
      * @expectedException OutOfBoundsException
-     * @expectedExceptionMessage the $mode should be a valid `STREAM_FILTER_*` constant
      */
     public function testaddMultipleStreamFilter()
     {

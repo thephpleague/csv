@@ -2,15 +2,12 @@
 
 namespace League\Csv\test;
 
-use DateTime;
 use League\Csv\Reader;
 use League\Csv\Writer;
 use PHPUnit_Framework_TestCase;
 use SplFileInfo;
 use SplFileObject;
 use SplTempFileObject;
-
-date_default_timezone_set('UTC');
 
 /**
  * @group csv
@@ -26,12 +23,12 @@ class CsvTest extends PHPUnit_Framework_TestCase
 
     public function setUp()
     {
-        $csv = new SplTempFileObject();
+        $tmp = new SplTempFileObject();
         foreach ($this->expected as $row) {
-            $csv->fputcsv($row);
+            $tmp->fputcsv($row);
         }
 
-        $this->csv = Reader::createFromFileObject($csv, "\n");
+        $this->csv = Reader::createFromFileObject($tmp);
     }
 
     public function tearDown()
@@ -39,63 +36,25 @@ class CsvTest extends PHPUnit_Framework_TestCase
         $this->csv = null;
     }
 
-    public function testIterator()
+    public function testInterface()
     {
-        $this->csv->setFlags(SplFileObject::READ_AHEAD|SplFileObject::SKIP_EMPTY);
-        foreach ($this->csv as $key => $row) {
-            $this->assertSame($this->expected[$key], $row);
-        }
+        $this->assertInstanceOf('IteratorAggregate', $this->csv);
+        $this->assertInstanceOf('JsonSerializable', $this->csv);
     }
 
     public function testToHTML()
     {
-        $expected = <<<EOF
-<table class="table-csv-data">
-<tr>
-<td>john</td>
-<td>doe</td>
-<td>john.doe@example.com</td>
-</tr>
-<tr>
-<td>jane</td>
-<td>doe</td>
-<td>jane.doe@example.com</td>
-</tr>
-</table>
-EOF;
-        $this->csv->setFlags(SplFileObject::READ_AHEAD|SplFileObject::SKIP_EMPTY);
-        $this->assertSame($expected, $this->csv->toHTML());
+        $this->assertContains("<table", $this->csv->toHTML());
     }
 
     public function testToXML()
     {
-        $expected = <<<EOF
-<?xml version="1.0" encoding="UTF-8"?>
-<csv>
-  <row>
-    <cell>john</cell>
-    <cell>doe</cell>
-    <cell>john.doe@example.com</cell>
-  </row>
-  <row>
-    <cell>jane</cell>
-    <cell>doe</cell>
-    <cell>jane.doe@example.com</cell>
-  </row>
-</csv>
-
-EOF;
-        $this->csv->setFlags(SplFileObject::READ_AHEAD|SplFileObject::SKIP_EMPTY);
-        $doc = $this->csv->toXML();
-        $this->assertInstanceof('\DomDocument', $doc);
-        $doc->formatOutput = true;
-        $this->assertSame($expected, $doc->saveXML());
+        $this->assertInstanceOf('DOMDocument', $this->csv->toXML());
     }
 
     public function testJsonSerialize()
     {
-        $this->csv->setFlags(SplFileObject::READ_AHEAD|SplFileObject::SKIP_EMPTY);
-        $this->assertSame(json_encode($this->expected), json_encode($this->csv));
+        $this->assertContains(['john', 'doe', 'john.doe@example.com'], json_decode(json_encode($this->csv), true));
     }
 
     /**
@@ -121,24 +80,24 @@ EOF;
     /**
      * @runInSeparateProcess
      */
-    public function testOutput()
+    public function testOutputSize()
     {
-        if (defined('HHVM_VERSION')) {
+        $this->assertSame(60, $this->csv->output("test.csv"));
+    }
+
+    /**
+     * @runInSeparateProcess
+     */
+    public function testOutputHeaders()
+    {
+        if (! function_exists('xdebug_get_headers')) {
             $this->markTestSkipped();
         }
-        $this->assertSame(60, $this->csv->output("test.csv"));
+        $this->csv->output("test.csv");
         $headers = \xdebug_get_headers();
         $this->assertSame($headers[0], "Content-Type: application/octet-stream");
         $this->assertSame($headers[1], "Content-Transfer-Encoding: binary");
         $this->assertSame($headers[2], "Content-Disposition: attachment; filename=\"test.csv\"");
-    }
-
-    /**
-     * @expectedException PHPUnit_Framework_Error
-     */
-    public function testFailedOutput()
-    {
-        $this->csv->output(new DateTime);
     }
 
     public function testToString()

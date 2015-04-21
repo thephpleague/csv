@@ -2,15 +2,12 @@
 
 namespace League\Csv\test;
 
-use DateTime;
 use League\Csv\Reader;
 use PHPUnit_Framework_TestCase;
 use SplFileInfo;
 use SplFileObject;
 use SplTempFileObject;
 use StdClass;
-
-date_default_timezone_set('UTC');
 
 /**
  * @group factory
@@ -40,7 +37,6 @@ class FactoryTest extends PHPUnit_Framework_TestCase
 
     /**
      * @expectedException InvalidArgumentException
-     * @expectedExceptionMessage an `SplTempFileObject` object does not contain a valid path
      */
     public function testCreateFromPathWithSplTempFileObject()
     {
@@ -53,24 +49,6 @@ class FactoryTest extends PHPUnit_Framework_TestCase
             ."jane,doe,jane.doe@example.com".PHP_EOL;
         $reader = Reader::createFromString($expected);
         $this->assertInstanceof('League\Csv\Reader', $reader);
-    }
-
-    /**
-     * @expectedException PHPUnit_Framework_Error
-     */
-    public function testCreateFromStringThrowExceptionWithBadNewline()
-    {
-        $expected = "john,doe,john.doe@example.com".PHP_EOL
-            ."jane,doe,jane.doe@example.com".PHP_EOL;
-        Reader::createFromString($expected, new \StdClass);
-    }
-
-    /**
-     * @expectedException PHPUnit_Framework_Error
-     */
-    public function testCreateFromStringFromNotStringableObject()
-    {
-        Reader::createFromString(new DateTime());
     }
 
     public function testCreateFromFileObject()
@@ -87,13 +65,5 @@ class FactoryTest extends PHPUnit_Framework_TestCase
         $reader = Reader::createFromFileObject($obj);
         $this->assertInstanceof('League\Csv\Reader', $reader);
         $this->assertInstanceof('SplFileObject', $reader->getIterator());
-    }
-
-    /**
-     * @expectedException PHPUnit_Framework_Error
-     */
-    public function testCreateFromFileObjectFailed()
-    {
-        Reader::createFromFileObject(new StdClass());
     }
 }
