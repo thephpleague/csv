@@ -1,6 +1,12 @@
 #Changelog
 All Notable changes to `League\Csv` will be documented in this file
 
+## Next - XXXX-XX-XX
+
+### Added
+
+- `Reader::stripBOM` query filtering method to ease removing the BOM sequence when querying the CSV document.
+
 ## 7.0.1 - 2015-03-23
 
 ### Fixed

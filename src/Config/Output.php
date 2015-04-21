@@ -100,6 +100,7 @@ trait Output
     {
         if (empty($str)) {
             $this->output_bom = null;
+
             return $this;
         }
         $str = (string) $str;
@@ -187,7 +188,7 @@ trait Output
         $csv->rewind();
         $csv->setFlags(SplFileObject::READ_CSV);
         if (! empty($bom) && ! empty($input_bom)) {
-            $csv->fseek(strlen($input_bom));
+            $csv->fseek(mb_strlen($input_bom));
         }
         echo $bom;
         $res = $csv->fpassthru();
