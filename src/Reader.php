@@ -45,7 +45,9 @@ class Reader extends AbstractCsv
      */
     public function query(callable $callable = null)
     {
-        $iterator = new CallbackFilterIterator($this->getIterator(), function ($row) {
+        $iterator = $this->getIterator();
+        $iterator = $this->applyBomStripping($iterator);
+        $iterator = new CallbackFilterIterator($iterator, function ($row) {
             return is_array($row);
         });
 
@@ -53,7 +55,7 @@ class Reader extends AbstractCsv
         $iterator = $this->applyIteratorSortBy($iterator);
         $iterator = $this->applyIteratorInterval($iterator);
         if (! is_null($callable)) {
-            $iterator = new Modifier\MapIterator($iterator, $callable);
+            return new Modifier\MapIterator($iterator, $callable);
         }
 
         return $iterator;
@@ -65,11 +67,11 @@ class Reader extends AbstractCsv
     protected function getConversionIterator()
     {
         $iterator = $this->getIterator();
+        $iterator = $this->applyBomStripping($iterator);
         $iterator = $this->applyIteratorFilter($iterator);
         $iterator = $this->applyIteratorSortBy($iterator);
-        $iterator = $this->applyIteratorInterval($iterator);
 
-        return $iterator;
+        return $this->applyIteratorInterval($iterator);
     }
 
     /**
@@ -237,6 +239,11 @@ class Reader extends AbstractCsv
         $res = $iterator->current();
         if (is_null($res)) {
             throw new InvalidArgumentException('the specified row does not exist');
+        }
+
+        if (0 == $offset && $this->isBomStrippable()) {
+            $bom    = $this->getInputBom();
+            $res[0] = mb_substr($res[0], mb_strlen($bom));
         }
 
         return $res;

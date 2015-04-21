@@ -56,6 +56,67 @@ trait QueryFilter
     protected $iterator_limit = -1;
 
     /**
+     * Stripping BOM status
+     *
+     * @var boolean
+     */
+    protected $strip_bom = false;
+
+    /**
+     * Stripping BOM setter
+     *
+     * @param  bool $status
+     *
+     * @return $this
+     */
+    public function stripBom($status)
+    {
+        $this->strip_bom = (bool) $status;
+
+        return $this;
+    }
+
+    /**
+     * Tell whethe we can strip or not the leading BOM sequence
+     *
+     * @return boolean [description]
+     */
+    protected function isBomStrippable()
+    {
+        return ! empty($this->getInputBom()) && $this->strip_bom;
+    }
+
+    /**
+     * Remove the BOM sequence from the CSV
+     *
+     * @param  Iterator $iterator
+     *
+     * @return Iterator
+     */
+    protected function applyBomStripping(Iterator $iterator)
+    {
+        if (! $this->isBomStrippable()) {
+            return $iterator;
+        }
+
+        $bom = $this->getInputBom();
+        return new MapIterator($iterator, function ($row, $index) use ($bom) {
+            if (0 == $index) {
+                $row[0] = mb_substr($row[0], mb_strlen($bom));
+            }
+
+            return $row;
+        });
+    }
+
+    /**
+     * Returns the BOM sequence of the given CSV
+     *
+     * @return string
+     */
+    abstract public function getInputBom();
+
+    /**
      * Set LimitIterator Offset
      *
      * @param $offset

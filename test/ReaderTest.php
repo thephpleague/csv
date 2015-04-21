@@ -193,7 +193,62 @@ class ReaderTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException InvalidArgumentException
+     * @param  $expected
+     * @dataProvider validBOMSequences
+     */
+    public function testStripBOM($expected, $res)
+    {
+        $tmpFile = new SplTempFileObject();
+        foreach ($expected as $row) {
+            $tmpFile->fputcsv($row);
+        }
+        $csv = Reader::createFromFileObject($tmpFile);
+        $csv->setFlags(SplFileObject::READ_AHEAD|SplFileObject::SKIP_EMPTY);
+        $csv->stripBom(true);
+
+        $this->assertSame($res, $csv->fetchAll()[0][0]);
+    }
+
+    public function validBOMSequences()
+    {
+        return [
+            'withBOM' => [[
+                [Reader::BOM_UTF16_LE.'john', 'doe', 'john.doe@example.com', ],
+                ['jane', 'doe', 'jane.doe@example.com', ],
+            ], 'john'],
+            'withDoubleBOM' =>  [[
+                [Reader::BOM_UTF16_LE.Reader::BOM_UTF16_LE.'john', 'doe', 'john.doe@example.com', ],
+                ['jane', 'doe', 'jane.doe@example.com', ],
+            ], Reader::BOM_UTF16_LE.'john'],
+            'withoutBOM' => [[
+                ['john', 'doe', 'john.doe@example.com', ],
+                ['jane', 'doe', 'jane.doe@example.com', ],
+            ], 'john'],
+        ];
+    }
+
+    public function testStripBOMWithFetchAssoc()
+    {
+        $tmpFile = new SplTempFileObject();
+        $expected = [
+            [Reader::BOM_UTF16_LE.'john', 'doe', 'john.doe@example.com', ],
+            ['jane', 'doe', 'jane.doe@example.com', ],
+        ];
+
+        $tmpFile = new SplTempFileObject();
+        foreach ($expected as $row) {
+            $tmpFile->fputcsv($row);
+        }
+        $csv = Reader::createFromFileObject($tmpFile);
+        $csv->setFlags(SplFileObject::READ_AHEAD|SplFileObject::SKIP_EMPTY);
+        $csv->stripBom(true);
+        $res = array_keys($csv->fetchAssoc()[0]);
+
+        $this->assertSame('john', $res[0]);
+    }
+
+    /**
+     * @expectedException \InvalidArgumentException
      * @expectedExceptionMessage Use a flat non empty array with unique string values
      */
     public function testFetchAssocKeyFailure()
