@@ -14,6 +14,7 @@ namespace League\Csv;
 
 use InvalidArgumentException;
 use League\Csv\Modifier;
+use ReflectionMethod;
 use Traversable;
 
 /**
@@ -38,9 +39,43 @@ class Writer extends AbstractCsv
     protected $csv;
 
     /**
+     * fputcsv method from SplFileObject
+     *
+     * @var ReflectionMethod
+     */
+    protected static $fputcsv;
+
+    /**
+     * Nb parameters for SplFileObject::fputcsv method
+     *
+     * @var integer
+     */
+    protected static $fputcsv_param_count;
+
+    /**
      * Row Formatter and Validator trait
      */
     use Modifier\RowFilter;
+
+    /**
+     * {@ihneritdoc}
+     */
+    protected function __construct($path, $open_mode = 'r+')
+    {
+        parent::__construct($path, $open_mode);
+        static::initFputcsv();
+    }
+
+    /**
+     * initiate a SplFileObject::fputcsv method
+     */
+    protected static function initFputcsv()
+    {
+        if (is_null(static::$fputcsv)) {
+            static::$fputcsv             = new ReflectionMethod('\SplFileObject', 'fputcsv');
+            static::$fputcsv_param_count = static::$fputcsv->getNumberOfParameters();
+        }
+    }
 
     /**
      * Adds multiple lines to the CSV document
@@ -82,16 +117,35 @@ class Writer extends AbstractCsv
         }
         $row = $this->formatRow($row);
         $this->validateRow($row);
+
         if (is_null($this->csv)) {
             $this->csv = $this->getIterator();
         }
-        $this->csv->fputcsv($row, $this->delimiter, $this->enclosure);
+
+        static::$fputcsv->invokeArgs($this->csv, $this->getFputcsvParameters($row));
         if ("\n" !== $this->newline) {
             $this->csv->fseek(-1, SEEK_CUR);
             $this->csv->fwrite($this->newline);
         }
 
         return $this;
+    }
+
+    /**
+     * returns the parameters for SplFileObject::fputcsv
+     *
+     * @param  array $fields The fields to be add
+     *
+     * @return array
+     */
+    protected function getFputcsvParameters($fields)
+    {
+        $parameters = [$this->delimiter, $this->enclosure];
+        if (4 == static::$fputcsv_param_count) {
+            $parameters[] = $this->escape;
+        }
+
+        return array_merge([$fields], $parameters);
     }
 
     /**

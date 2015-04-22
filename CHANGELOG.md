@@ -10,6 +10,8 @@ All Notable changes to `League\Csv` will be documented in this file
 ### Fixed
 
 - `setFlags` has no effect on Conversions methods (`toXML`, `toHTML`, `jsonSerialize`) anymore. Non-valid rows are automatically skipped from the output.
+- TestSuite has been updated to take into account upcomming `PHP7`
+- `insertOne` now takes into account the the escape delimiter when it is updated during inserts.
 
 ## 7.0.1 - 2015-03-23
 
