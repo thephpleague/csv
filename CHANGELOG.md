@@ -7,6 +7,10 @@ All Notable changes to `League\Csv` will be documented in this file
 
 - `Reader::stripBOM` query filtering method to ease removing the BOM sequence when querying the CSV document.
 
+### Fixed
+
+- `setFlags` has no effect on Conversions methods (`toXML`, `toHTML`, `jsonSerialize`) anymore. Non-valid rows are automatically skipped from the output.
+
 ## 7.0.1 - 2015-03-23
 
 ### Fixed
