@@ -12,6 +12,7 @@
 */
 namespace League\Csv;
 
+use CallbackFilterIterator;
 use InvalidArgumentException;
 use IteratorAggregate;
 use JsonSerializable;
@@ -156,7 +157,9 @@ abstract class AbstractCsv implements JsonSerializable, IteratorAggregate
         $iterator = $this->getIterator();
         $iterator->setFlags(SplFileObject::READ_CSV|SplFileObject::READ_AHEAD|SplFileObject::SKIP_EMPTY);
 
-        return $iterator;
+        return new CallbackFilterIterator($iterator, function ($row) {
+            return is_array($row);
+        });
     }
 
     /**

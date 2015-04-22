@@ -79,7 +79,7 @@ trait QueryFilter
     /**
      * Tell whethe we can strip or not the leading BOM sequence
      *
-     * @return boolean [description]
+     * @return bool
      */
     protected function isBomStrippable()
     {
