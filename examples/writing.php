@@ -28,7 +28,7 @@ $writer->insertAll($teams);
 <html lang="fr">
 <head>
     <meta charset="utf-8">
-    <title>Using the \League\Writer object</title>
+    <title>Using the \League\Csv\Writer object</title>
     <link rel="stylesheet" href="example.css">
 </head>
 <body>
