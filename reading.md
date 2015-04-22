@@ -242,6 +242,20 @@ The methods enable returning a specific interval of CSV rows. When called more t
 
 <p class="message-warning">Both methods have no effect on the <code>fetchOne</code> method output.</p>
 
+## Modifying content methods
+
+### stripBOM($status)
+
+<p class="message-notice">Introduced in version <code>7.1</code></p>
+
+`stripBom` only argument `$status` must be a `boolean`. This method specifies if the [BOM sequence](/bom/) must be removed or not from the CSV's first cell of the first row. The actual stripping will take place only if a BOM sequence is detected and the first row is selected in the resultset **or** if its offset is used as the first argument of the `Reader::fetchAssoc` method.
+
+<p class="message-info">For backward compatibility, if the method is not called no BOM sequence will be stripped from the CSV document.</p>
+
+The same restrictions are applied to this filter, it must be set before each query is run to have any effect.
+
+<p class="message-warning">The BOM sequence is never removed from the CSV document, it is only stripped from the resultset.</p>
+
 ## Examples
 
 ### Modifying extract methods output
@@ -260,6 +274,7 @@ function sortByLastName($rowA, $rowB)
 }
 
 $data = $reader
+    ->stripBom(false)
     ->setOffset(3)
     ->setLimit(2)
     ->addFilter('filterByEmail')
@@ -293,6 +308,7 @@ function sortByLastName($rowA, $rowB)
 }
 
 $data = $reader
+    ->stripBom(true)
     ->setOffset(3)
     ->setLimit(2)
     ->addFilter('filterByEmail')

@@ -70,6 +70,8 @@ If your CSV is not UTF-8 encoded some unexpected results and some errors could b
 
 <p class="message-notice">Starting with <code>version 7.0</code>, when used with the <code>League\Csv\Reader</code> class, the conversion methods behavior are affected by the query options methods. Please refer to the <a href="/reading/#querying-csv-data">extracting data section</a> for more informations and examples.</p>
 
+<p class="message-warning">To align with a bugfix in <code>SplFileObject</code>, since <code>version 7.1</code>, the <code>setFlags</code> method has no effect on the conversion mechanism to guarantee a valid conversion. Invalid rows are automatically skipped while converting the CSV document.</p>
+
 ### Convert to JSON format
 
 Use the `json_encode` function directly on the instantiated object.
