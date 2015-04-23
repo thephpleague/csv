@@ -9,6 +9,8 @@ The API:
     Basic Usage: '/basic-usage/'
     Extracting Data: '/reading/'
     Inserting Data: '/inserting/'
+    Converting Data: '/converting/'
+    Query Filters: '/query-filtering/'
     Stream Filters: '/filtering/'
     BOM Handling: '/bom/'
 Upgrading Guide:

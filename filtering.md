@@ -1,6 +1,6 @@
 ---
 layout: default
-title: Filtering
+title: Stream Filtering
 ---
 
 # Stream Filtering
