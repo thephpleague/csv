@@ -278,6 +278,14 @@ class ReaderTest extends PHPUnit_Framework_TestCase
     }
 
     /**
+     * @expectedException \InvalidArgumentException
+     */
+    public function testFetchAssocKeyFailureWithEmptyArray()
+    {
+        $this->csv->fetchAssoc([]);
+    }
+
+    /**
      * @param $offset
      * @dataProvider invalidOffsetWithFetchAssoc
      * @expectedException \InvalidArgumentException

@@ -159,7 +159,13 @@ class Reader extends AbstractCsv
      */
     public function fetchAssoc($offset_or_keys = 0, callable $callable = null)
     {
-        $keys       = $this->getAssocKeys($offset_or_keys);
+        $keys = $this->getAssocKeys($offset_or_keys);
+        $this->assertValidAssocKeys($keys);
+        if (! is_array($offset_or_keys)) {
+            $this->addFilter(function ($row, $rowIndex) use ($offset_or_keys) {
+                return is_array($row) && $rowIndex != $offset_or_keys;
+            });
+        }
         $keys_count = count($keys);
         $iterator   = $this->query($callable);
         $iterator   = new Modifier\MapIterator($iterator, function (array $row) use ($keys, $keys_count) {
@@ -185,20 +191,17 @@ class Reader extends AbstractCsv
      */
     protected function getAssocKeys($offset_or_keys)
     {
-        $res = $offset_or_keys;
-        if (! is_array($offset_or_keys)) {
-            $res = $this->getRow($offset_or_keys);
-            $this->addFilter(function ($row, $rowIndex) use ($offset_or_keys) {
-                return is_array($row) && $rowIndex != $offset_or_keys;
-            });
+        if (is_array($offset_or_keys) && ! empty($offset_or_keys)) {
+            return $offset_or_keys;
         }
-        if (! $this->isValidAssocKeys($res)) {
+
+        if (false === filter_var($offset_or_keys, FILTER_VALIDATE_INT, ['options' => ['min_range' => 0]])) {
             throw new InvalidArgumentException(
-                'Use a flat non empty array with unique string values'
+                'the row index must be a positive integer, 0 or a non empty array'
             );
         }
 
-        return $res;
+        return $this->getRow($offset_or_keys);
     }
 
     /**
@@ -212,15 +215,11 @@ class Reader extends AbstractCsv
      */
     protected function getRow($offset)
     {
-        if (false === filter_var($offset, FILTER_VALIDATE_INT, ['options' => ['min_range' => 0]])) {
-            throw new InvalidArgumentException('the row index must be a positive integer or 0');
-        }
-
         $iterator = new LimitIterator($this->getIterator(), $offset, 1);
         $iterator->rewind();
         $res = $iterator->current();
-        if (is_null($res)) {
-            throw new InvalidArgumentException('the specified row does not exist');
+        if (empty($res)) {
+            throw new InvalidArgumentException('the specified row does not exist or is empty');
         }
 
         if (0 == $offset && $this->isBomStrippable()) {
@@ -237,10 +236,14 @@ class Reader extends AbstractCsv
      *
      * @return boolean
      */
-    protected function isValidAssocKeys(array $keys)
+    protected function assertValidAssocKeys(array $keys)
     {
-        return count($keys) && $keys === array_unique(array_filter($keys, function ($value) {
+        $test = array_unique(array_filter($keys, function ($value) {
             return is_scalar($value) || (is_object($value) && method_exists($value, '__toString'));
         }));
+
+        if ($keys !== $test) {
+            throw new InvalidArgumentException('Use a flat array with unique string values');
+        }
     }
 }
