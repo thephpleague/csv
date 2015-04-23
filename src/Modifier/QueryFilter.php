@@ -98,9 +98,11 @@ trait QueryFilter
     protected function applyBomStripping(Iterator $iterator)
     {
         if (! $this->isBomStrippable()) {
+            $this->strip_bom = false;
             return $iterator;
         }
 
+        $this->strip_bom = false;
         $bom = $this->getInputBom();
         return new MapIterator($iterator, function ($row, $index) use ($bom) {
             if (0 == $index) {
