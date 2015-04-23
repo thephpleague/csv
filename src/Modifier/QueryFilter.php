@@ -89,38 +89,6 @@ trait QueryFilter
     }
 
     /**
-     * Remove the BOM sequence from the CSV
-     *
-     * @param  Iterator $iterator
-     *
-     * @return Iterator
-     */
-    protected function applyBomStripping(Iterator $iterator)
-    {
-        if (! $this->isBomStrippable()) {
-            $this->strip_bom = false;
-            return $iterator;
-        }
-
-        $this->strip_bom = false;
-        $bom = $this->getInputBom();
-        return new MapIterator($iterator, function ($row, $index) use ($bom) {
-            if (0 == $index) {
-                $row[0] = mb_substr($row[0], mb_strlen($bom));
-            }
-
-            return $row;
-        });
-    }
-
-    /**
-     * Returns the BOM sequence of the given CSV
-     *
-     * @return string
-     */
-    abstract public function getInputBom();
-
-    /**
      * Set LimitIterator Offset
      *
      * @param $offset
@@ -152,27 +120,6 @@ trait QueryFilter
         $this->iterator_limit = $limit;
 
         return $this;
-    }
-
-    /**
-    * Sort the Iterator
-    *
-    * @param \Iterator $iterator
-    *
-    * @return \LimitIterator
-    */
-    protected function applyIteratorInterval(Iterator $iterator)
-    {
-        if (0 == $this->iterator_offset && -1 == $this->iterator_limit) {
-            return $iterator;
-        }
-        $offset = $this->iterator_offset;
-        $limit = $this->iterator_limit;
-
-        $this->iterator_limit = -1;
-        $this->iterator_offset = 0;
-
-        return new LimitIterator($iterator, $offset, $limit);
     }
 
     /**
@@ -231,36 +178,6 @@ trait QueryFilter
     }
 
     /**
-    * Sort the Iterator
-    *
-    * @param \Iterator $iterator
-    *
-    * @return \ArrayIterator
-    */
-    protected function applyIteratorSortBy(Iterator $iterator)
-    {
-        if (! $this->iterator_sort_by) {
-            return $iterator;
-        }
-        $nb_callbacks = count($this->iterator_sort_by);
-        $this->iterator_sort_by = array_values($this->iterator_sort_by);
-        $res = iterator_to_array($iterator, false);
-        uasort($res, function ($rowA, $rowB) use ($nb_callbacks) {
-            $res   = 0;
-            $index = 0;
-            while ($index < $nb_callbacks && 0 === $res) {
-                $res = $this->iterator_sort_by[$index]($rowA, $rowB);
-                ++$index;
-            }
-
-            return $res;
-        });
-        $this->clearSortBy();
-
-        return new ArrayIterator($res);
-    }
-
-    /**
      * Set the Iterator filter method
      *
      * @param callable $callable
@@ -316,6 +233,38 @@ trait QueryFilter
     }
 
     /**
+     * Remove the BOM sequence from the CSV
+     *
+     * @param  Iterator $iterator
+     *
+     * @return \Iterator
+     */
+    protected function applyBomStripping(Iterator $iterator)
+    {
+        if (! $this->isBomStrippable()) {
+            $this->strip_bom = false;
+            return $iterator;
+        }
+
+        $this->strip_bom = false;
+        $bom = $this->getInputBom();
+        return new MapIterator($iterator, function ($row, $index) use ($bom) {
+            if (0 == $index) {
+                $row[0] = mb_substr($row[0], mb_strlen($bom));
+            }
+
+            return $row;
+        });
+    }
+
+    /**
+     * Returns the BOM sequence of the given CSV
+     *
+     * @return string
+     */
+    abstract public function getInputBom();
+
+    /**
     * Filter the Iterator
     *
     * @param \Iterator $iterator
@@ -330,5 +279,56 @@ trait QueryFilter
         $this->clearFilter();
 
         return $iterator;
+    }
+
+    /**
+    * Sort the Iterator
+    *
+    * @param \Iterator $iterator
+    *
+    * @return \Iterator
+    */
+    protected function applyIteratorInterval(Iterator $iterator)
+    {
+        if (0 == $this->iterator_offset && -1 == $this->iterator_limit) {
+            return $iterator;
+        }
+        $offset = $this->iterator_offset;
+        $limit = $this->iterator_limit;
+
+        $this->iterator_limit = -1;
+        $this->iterator_offset = 0;
+
+        return new LimitIterator($iterator, $offset, $limit);
+    }
+
+    /**
+    * Sort the Iterator
+    *
+    * @param \Iterator $iterator
+    *
+    * @return \Iterator
+    */
+    protected function applyIteratorSortBy(Iterator $iterator)
+    {
+        if (! $this->iterator_sort_by) {
+            return $iterator;
+        }
+        $nb_callbacks = count($this->iterator_sort_by);
+        $this->iterator_sort_by = array_values($this->iterator_sort_by);
+        $res = iterator_to_array($iterator, false);
+        uasort($res, function ($rowA, $rowB) use ($nb_callbacks) {
+            $res   = 0;
+            $index = 0;
+            while ($index < $nb_callbacks && 0 === $res) {
+                $res = $this->iterator_sort_by[$index]($rowA, $rowB);
+                ++$index;
+            }
+
+            return $res;
+        });
+        $this->clearSortBy();
+
+        return new ArrayIterator($res);
     }
 }
