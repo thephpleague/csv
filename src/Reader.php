@@ -14,6 +14,7 @@ namespace League\Csv;
 
 use CallbackFilterIterator;
 use InvalidArgumentException;
+use Iterator;
 use League\Csv\Modifier;
 use LimitIterator;
 
@@ -80,37 +81,6 @@ class Reader extends AbstractCsv
     }
 
     /**
-     * Returns a single column from the CSV data
-     *
-     * The callable function will be applied to each value to be return
-     *
-     * @param int      $column_index field Index
-     * @param callable $callable     a callable function
-     *
-     * @throws \InvalidArgumentException If the column index is not a positive integer or 0
-     *
-     * @return array
-     */
-    public function fetchColumn($column_index = 0, callable $callable = null)
-    {
-        if (false === filter_var($column_index, FILTER_VALIDATE_INT, ['options' => ['min_range' => 0]])) {
-            throw new InvalidArgumentException(
-                'the column index must be a positive integer or 0'
-            );
-        }
-
-        $iterator = $this->query($callable);
-        $iterator = new CallbackFilterIterator($iterator, function ($row) use ($column_index) {
-            return array_key_exists($column_index, $row);
-        });
-        $iterator = new Modifier\MapIterator($iterator, function ($row) use ($column_index) {
-            return $row[$column_index];
-        });
-
-        return iterator_to_array($iterator, false);
-    }
-
-    /**
      * Returns a single row from the CSV
      *
      * @param int $offset
@@ -140,7 +110,50 @@ class Reader extends AbstractCsv
      */
     public function fetchAll(callable $callable = null)
     {
-        return iterator_to_array($this->query($callable), false);
+        return $this->execute($this->query($callable));
+    }
+
+    /**
+     * Transform the Iterator into an array
+     *
+     * @param Iterator $iterator
+     *
+     * @return array
+     */
+    protected function execute(Iterator $iterator)
+    {
+        return iterator_to_array($iterator, false);
+    }
+
+    /**
+     * Returns a single column from the CSV data
+     *
+     * The callable function will be applied to each value to be return
+     *
+     * @param int      $column_index field Index
+     * @param callable $callable     a callable function
+     *
+     * @throws \InvalidArgumentException If the column index is not a positive integer or 0
+     *
+     * @return array
+     */
+    public function fetchColumn($column_index = 0, callable $callable = null)
+    {
+        if (false === filter_var($column_index, FILTER_VALIDATE_INT, ['options' => ['min_range' => 0]])) {
+            throw new InvalidArgumentException(
+                'the column index must be a positive integer or 0'
+            );
+        }
+
+        $iterator = $this->query($callable);
+        $iterator = new CallbackFilterIterator($iterator, function ($row) use ($column_index) {
+            return array_key_exists($column_index, $row);
+        });
+        $iterator = new Modifier\MapIterator($iterator, function ($row) use ($column_index) {
+            return $row[$column_index];
+        });
+
+        return $this->execute($iterator);
     }
 
     /**
@@ -176,7 +189,7 @@ class Reader extends AbstractCsv
             return array_combine($keys, $row);
         });
 
-        return iterator_to_array($iterator, false);
+        return $this->execute($iterator);
     }
 
     /**
