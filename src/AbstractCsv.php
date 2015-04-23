@@ -83,6 +83,11 @@ abstract class AbstractCsv implements JsonSerializable, IteratorAggregate
     use Config\Output;
 
     /**
+     * Query Filter Trait
+     */
+    use Modifier\QueryFilter;
+
+    /**
      *  Stream Filter API Trait
      */
     use Modifier\StreamFilter;
@@ -155,11 +160,15 @@ abstract class AbstractCsv implements JsonSerializable, IteratorAggregate
     protected function getConversionIterator()
     {
         $iterator = $this->getIterator();
-        $iterator->setFlags(SplFileObject::READ_CSV|SplFileObject::READ_AHEAD|SplFileObject::SKIP_EMPTY);
-
-        return new CallbackFilterIterator($iterator, function ($row) {
+        $iterator->setFlags($this->flags|SplFileObject::READ_AHEAD|SplFileObject::SKIP_EMPTY);
+        $iterator = $this->applyBomStripping($iterator);
+        $iterator = new CallbackFilterIterator($iterator, function ($row) {
             return is_array($row);
         });
+        $iterator = $this->applyIteratorFilter($iterator);
+        $iterator = $this->applyIteratorSortBy($iterator);
+
+        return $this->applyIteratorInterval($iterator);
     }
 
     /**

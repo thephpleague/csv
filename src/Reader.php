@@ -16,7 +16,6 @@ use CallbackFilterIterator;
 use InvalidArgumentException;
 use League\Csv\Modifier;
 use LimitIterator;
-use SplFileObject;
 
 /**
  *  A class to manage extracting and filtering a CSV
@@ -27,11 +26,6 @@ use SplFileObject;
  */
 class Reader extends AbstractCsv
 {
-    /**
-     * Query Filter Trait
-     */
-    use Modifier\QueryFilter;
-
     /**
      * {@ihneritdoc}
      */
@@ -60,23 +54,6 @@ class Reader extends AbstractCsv
         }
 
         return $iterator;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    protected function getConversionIterator()
-    {
-        $iterator = $this->getIterator();
-        $iterator->setFlags(SplFileObject::READ_CSV|SplFileObject::READ_AHEAD|SplFileObject::SKIP_EMPTY);
-        $iterator = $this->applyBomStripping($iterator);
-        $iterator = new CallbackFilterIterator($iterator, function ($row) {
-            return is_array($row);
-        });
-        $iterator = $this->applyIteratorFilter($iterator);
-        $iterator = $this->applyIteratorSortBy($iterator);
-
-        return $this->applyIteratorInterval($iterator);
     }
 
     /**

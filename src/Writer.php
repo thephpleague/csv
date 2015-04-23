@@ -138,7 +138,7 @@ class Writer extends AbstractCsv
      *
      * @return array
      */
-    protected function getFputcsvParameters($fields)
+    protected function getFputcsvParameters(array $fields)
     {
         $parameters = [$this->delimiter, $this->enclosure];
         if (4 == static::$fputcsv_param_count) {
