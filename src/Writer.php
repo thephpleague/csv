@@ -140,12 +140,12 @@ class Writer extends AbstractCsv
      */
     protected function getFputcsvParameters(array $fields)
     {
-        $parameters = [$this->delimiter, $this->enclosure];
+        $parameters = [$fields, $this->delimiter, $this->enclosure];
         if (4 == static::$fputcsv_param_count) {
             $parameters[] = $this->escape;
         }
 
-        return array_merge([$fields], $parameters);
+        return $parameters;
     }
 
     /**

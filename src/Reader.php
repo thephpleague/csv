@@ -164,6 +164,7 @@ class Reader extends AbstractCsv
      *
      * @param array|int $offset_or_keys the name for each key member OR the row Index to be
      *                                  used as the associated named keys
+     *
      * @param callable  $callable       a callable function
      *
      * @throws \InvalidArgumentException If the submitted keys are invalid
@@ -247,7 +248,7 @@ class Reader extends AbstractCsv
      *
      * @param array $keys
      *
-     * @return boolean
+     * @throws \InvalidArgumentException If the submitted array fails the assertion
      */
     protected function assertValidAssocKeys(array $keys)
     {
