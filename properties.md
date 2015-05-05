@@ -53,7 +53,9 @@ $flags = $csv->getFlags(); //returns an integer
 
 ### detectDelimiterList($nbRows = 1, array $delimiters = [])
 
-If you are no sure about the delimiter you can ask the library to detect it for you using the `detectDelimiterList` method. **This method will only give you a hint**.
+If you are no sure about the delimiter you can ask the library to detect it for you using the `detectDelimiterList` method.
+
+**This method will only give you a hint, a better approach is to ask the CSV provider for the document controls properties**.
 
 The method takes two arguments:
 
@@ -83,6 +85,8 @@ The more rows and delimiters you add, the more time and memory consuming the ope
 * If a single delimiter is found the array will contain only one delimiter;
 * If multiple delimiters are found the array will contain the found delimiters sorted descendingly according to their occurences in the defined rows set;
 * If no delimiter is found or your CSV is composed of a single column, the array will be empty;
+
+<p class="message-warning">If multiple delimiters share the same occurences only the last found delimiter will be returned in the response array.</p>
 
 <p class="message-warning"><strong>BC Break:</strong> Starting with version <code>7.0</code>, the index of each found delimiter represents the occurence of the found delimiter in the selected rows.</p>
 
