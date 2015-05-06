@@ -1,7 +1,7 @@
 #Changelog
 All Notable changes to `League\Csv` will be documented in this file
 
-## Next - XXXX-XX-XX
+## 7.1.0 - 2015-05-06
 
 ### Added
 
