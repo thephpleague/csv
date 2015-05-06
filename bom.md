@@ -32,10 +32,9 @@ if (Reader::BOM_UTF16_LE == $reader->getInputBOM()) {
 }
 ~~~
 
-If you wish to remove the BOM character while processing your data, you can rely on the `Reader` [extracting methods](/reading) to do so.
+If you wish to remove the BOM character while processing your data, you can rely on the [query filters](/query-filtering/#stripbomstatus) to do so.
 
 ## Adding the BOM character to your CSV
-
 
 ### setOutputBOM($bom = null);
 
