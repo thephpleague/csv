@@ -20,6 +20,18 @@ You can restrict [extract methods](/reading/) and [conversion methods](/converti
 
 <p class="message-notice">Starting with <code>version 7.1</code> The query options are also available for conversion methods on the <code>League\Csv\Writer</code> class.</p>
 
+## Modifying content methods
+
+### stripBOM($status)
+
+<p class="message-notice">Introduced in version <code>7.1</code></p>
+
+`stripBom` only argument `$status` must be a `boolean`. This method specifies if the [BOM sequence](/bom/) must be removed or not from the CSV's first cell of the first row. The actual stripping will take place only if a BOM sequence is detected and the first row is selected in the resultset **or** if its offset is used as the first argument of the `Reader::fetchAssoc` method.
+
+<p class="message-info">For backward compatibility, if the method is not called no BOM sequence will be stripped from the CSV document.</p>
+
+<p class="message-warning">The BOM sequence is never removed from the CSV document, it is only stripped from the resultset.</p>
+
 ## Filtering methods
 
 The filtering options **are the first settings applied to the CSV before anything else**. The filters follow the *First In First Out* rule.
@@ -80,20 +92,6 @@ The methods enable returning a specific interval of CSV rows. When called more t
 `setLimit` method specifies an optional maximum rows count for the return data. By default the offset equals `-1`, which translate to all rows.
 
 <p class="message-warning">Both methods have no effect on the <code>fetchOne</code> method output.</p>
-
-## Modifying content methods
-
-### stripBOM($status)
-
-<p class="message-notice">Introduced in version <code>7.1</code></p>
-
-`stripBom` only argument `$status` must be a `boolean`. This method specifies if the [BOM sequence](/bom/) must be removed or not from the CSV's first cell of the first row. The actual stripping will take place only if a BOM sequence is detected and the first row is selected in the resultset **or** if its offset is used as the first argument of the `Reader::fetchAssoc` method.
-
-<p class="message-info">For backward compatibility, if the method is not called no BOM sequence will be stripped from the CSV document.</p>
-
-The same restrictions are applied to this filter, it must be set before each query is run to have any effect.
-
-<p class="message-warning">The BOM sequence is never removed from the CSV document, it is only stripped from the resultset.</p>
 
 ## Examples
 

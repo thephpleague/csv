@@ -55,7 +55,7 @@ $flags = $csv->getFlags(); //returns an integer
 
 If you are no sure about the delimiter you can ask the library to detect it for you using the `detectDelimiterList` method.
 
-**This method will only give you a hint, a better approach is to ask the CSV provider for the document controls properties**.
+<p class="message-warning">This method will only give you a hint, a better approach is to ask the CSV provider for the document controls properties.</p>
 
 The method takes two arguments:
 
