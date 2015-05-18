@@ -189,4 +189,37 @@ class ControlsTest extends PHPUnit_Framework_TestCase
         $csv->setNewline("\r\n");
         $this->assertSame("\r\n", $csv->getNewline());
     }
+
+    /**
+     * @param $flag
+     * @param $line_count
+     * @dataProvider appliedFlagsProvider
+     */
+    public function testAppliedFlags($flag, $line_count)
+    {
+        $path = __DIR__."/data/tmp.txt";
+        $obj  = new SplFileObject($path, "w+");
+        $obj->fwrite("1st\n2nd\n");
+        $reader = Reader::createFromFileObject($obj);
+        $reader->setFlags($flag);
+        $this->assertCount($line_count, $reader->fetchAll());
+        unlink($path);
+    }
+
+    public function appliedFlagsProvider()
+    {
+        return [
+            "NONE" => [0, 3],
+            "DROP_NEW_LINE" => [SplFileObject::DROP_NEW_LINE, 3],
+            "READ_AHEAD" => [SplFileObject::READ_AHEAD, 3],
+            "SKIP_EMPTY" => [SplFileObject::SKIP_EMPTY, 2],
+            "READ_AHEAD|DROP_NEW_LINE" => [SplFileObject::READ_AHEAD|SplFileObject::DROP_NEW_LINE, 3],
+            "READ_AHEAD|SKIP_EMPTY" => [SplFileObject::READ_AHEAD|SplFileObject::SKIP_EMPTY, 2],
+            "DROP_NEW_LINE|SKIP_EMPTY" => [SplFileObject::DROP_NEW_LINE|SplFileObject::SKIP_EMPTY, 2],
+            "READ_AHEAD|DROP_NEW_LINE|SKIP_EMPTY" => [
+                SplFileObject::READ_AHEAD|SplFileObject::DROP_NEW_LINE|SplFileObject::SKIP_EMPTY,
+                2
+            ],
+        ];
+    }
 }

@@ -4,7 +4,7 @@
 *
 * @license http://opensource.org/licenses/MIT
 * @link https://github.com/thephpleague/csv/
-* @version 7.1.0
+* @version 7.1.1
 * @package League.csv
 *
 * For the full copyright and license information, please view the LICENSE
@@ -241,6 +241,10 @@ trait QueryFilter
      */
     protected function applyBomStripping(Iterator $iterator)
     {
+        if (! $this->strip_bom) {
+            return $iterator;
+        }
+
         if (! $this->isBomStrippable()) {
             $this->strip_bom = false;
             return $iterator;

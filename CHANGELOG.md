@@ -1,6 +1,12 @@
 #Changelog
 All Notable changes to `League\Csv` will be documented in this file
 
+## 7.1.1 - 2015-05-20
+
+### Fixed
+
+- `SplFileObject` flags were not always applied using query filter [bug fix #99](http://github.com/thephpleague/csv/issues/99)
+
 ## 7.1.0 - 2015-05-06
 
 ### Added
