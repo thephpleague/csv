@@ -197,6 +197,9 @@ class ControlsTest extends PHPUnit_Framework_TestCase
      */
     public function testAppliedFlags($flag, $line_count)
     {
+        if (defined('HHVM_VERSION')) {
+            $this->markTestSkipped('HHVM CSV parsing is different');
+        }
         $path = __DIR__."/data/tmp.txt";
         $obj  = new SplFileObject($path, "w+");
         $obj->fwrite("1st\n2nd\n");
