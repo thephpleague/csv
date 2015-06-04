@@ -16,7 +16,7 @@ $csv = Reader::createFromPath(__DIR__.'/data/prenoms.csv');
 //let's convert the CSV to be UTF-16_LE encoded with a tab delimiter.
 
 //we must use `createFromPath` to be able to use the stream capability
-//we must use a temp file to be able to rewind the cursor file without loosing
+//we must use a temp file to be able to rewind the cursor file without losing
 //the modification
 $writer = Writer::createFromPath('/tmp/toto.csv', 'w');
 //adjust the output BOM to be used
