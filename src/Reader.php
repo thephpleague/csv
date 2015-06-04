@@ -17,6 +17,7 @@ use InvalidArgumentException;
 use Iterator;
 use League\Csv\Modifier;
 use LimitIterator;
+use SplFileObject;
 
 /**
  *  A class to manage extracting and filtering a CSV
@@ -229,7 +230,10 @@ class Reader extends AbstractCsv
      */
     protected function getRow($offset)
     {
-        $iterator = new LimitIterator($this->getIterator(), $offset, 1);
+        $csv = $this->getIterator();
+        $csv->setFlags($this->getFlags() & ~SplFileObject::READ_CSV);
+
+        $iterator = new LimitIterator($csv, $offset, 1);
         $iterator->rewind();
         $res = $iterator->current();
         if (empty($res)) {
@@ -237,10 +241,10 @@ class Reader extends AbstractCsv
         }
 
         if (0 == $offset && $this->isBomStrippable()) {
-            $res[0] = mb_substr($res[0], mb_strlen($this->getInputBom()));
+            $res = mb_substr($res, mb_strlen($this->getInputBom()));
         }
 
-        return $res;
+        return str_getcsv($res, $this->delimiter, $this->enclosure, $this->escape);
     }
 
     /**

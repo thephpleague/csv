@@ -89,6 +89,11 @@ trait QueryFilter
     }
 
     /**
+     * {@inheritdoc}
+     */
+    abstract public function getInputBom();
+
+    /**
      * Set LimitIterator Offset
      *
      * @param $offset
@@ -255,6 +260,11 @@ trait QueryFilter
         return new MapIterator($iterator, function ($row, $index) use ($bom) {
             if (0 == $index) {
                 $row[0] = mb_substr($row[0], mb_strlen($bom));
+                $enclosure = $this->getEnclosure();
+                //enclosure should be remove when a BOM sequence is stripped
+                if ($row[0][0] === $enclosure && mb_substr($row[0], -1, 1) == $enclosure) {
+                    $row[0] = mb_substr($row[0], 1, -1);
+                }
             }
 
             return $row;
@@ -262,11 +272,9 @@ trait QueryFilter
     }
 
     /**
-     * Returns the BOM sequence of the given CSV
-     *
-     * @return string
+     * {@inheritdoc}
      */
-    abstract public function getInputBom();
+    abstract public function getEnclosure();
 
     /**
     * Filter the Iterator

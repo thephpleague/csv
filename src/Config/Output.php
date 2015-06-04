@@ -129,11 +129,11 @@ trait Output
     {
         if (! $this->input_bom) {
             $bom = [
-                self::BOM_UTF8,
-                self::BOM_UTF16_BE,
-                self::BOM_UTF16_LE,
                 self::BOM_UTF32_BE,
                 self::BOM_UTF32_LE,
+                self::BOM_UTF16_BE,
+                self::BOM_UTF16_LE,
+                self::BOM_UTF8,
             ];
             $csv = $this->getIterator();
             $csv->setFlags(SplFileObject::READ_CSV);
