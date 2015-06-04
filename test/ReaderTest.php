@@ -253,13 +253,13 @@ class ReaderTest extends PHPUnit_Framework_TestCase
 
     public function testStripBOMWithFetchAssoc()
     {
-        $expected = [
+        $source = [
             [Reader::BOM_UTF16_LE.'john', 'doe', 'john.doe@example.com', ],
             ['jane', 'doe', 'jane.doe@example.com', ],
         ];
 
         $tmp = new SplTempFileObject();
-        foreach ($expected as $row) {
+        foreach ($source as $row) {
             $tmp->fputcsv($row);
         }
         $csv = Reader::createFromFileObject($tmp);
@@ -267,6 +267,53 @@ class ReaderTest extends PHPUnit_Framework_TestCase
         $res = array_keys($csv->fetchAssoc()[0]);
 
         $this->assertSame('john', $res[0]);
+    }
+
+    public function testStripBOMWithEnclosureFetchAssoc()
+    {
+        $expected = ["parent name", "parentA"];
+        $source = Reader::BOM_UTF8.'"parent name","child name","title"
+            "parentA","childA","titleA"';
+        $csv = Reader::createFromString($source);
+        $csv->stripBom(true);
+        $expected = [
+            ["parent name" => "parentA", "child name" => "childA", "title" => "titleA"],
+        ];
+        $this->assertSame($expected, $csv->fetchAssoc());
+    }
+
+    public function testStripBOMWithEnclosureFetchColumn()
+    {
+        $expected = ["parent name", "parentA"];
+        $source = Reader::BOM_UTF8.'"parent name","child name","title"
+            "parentA","childA","titleA"';
+        $csv = Reader::createFromString($source);
+        $csv->stripBom(true);
+        $this->assertSame($expected, $csv->fetchColumn());
+    }
+
+    public function testStripBOMWithEnclosureFetchAll()
+    {
+        $source = Reader::BOM_UTF8.'"parent name","child name","title"
+            "parentA","childA","titleA"';
+        $csv = Reader::createFromString($source);
+        $csv->stripBom(true);
+        $expected = [
+            ["parent name", "child name", "title"],
+            ["parentA", "childA", "titleA"],
+        ];
+        $this->assertSame($expected, $csv->fetchAll());
+    }
+
+    public function testStripBOMWithEnclosureFetchOne()
+    {
+        $source = Reader::BOM_UTF8.'"parent name","child name","title"
+            "parentA","childA","titleA"';
+        $csv = Reader::createFromString($source);
+        $csv->stripBom(true);
+        $this->assertSame(Reader::BOM_UTF8, $csv->getInputBom());
+        $expected = ["parent name", "child name", "title"];
+        $this->assertEquals($expected, $csv->fetchOne());
     }
 
     /**

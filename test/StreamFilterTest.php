@@ -13,17 +13,28 @@ use SplTempFileObject;
  */
 class StreamFilterTest extends PHPUnit_Framework_TestCase
 {
-    public function testInitStreamFilter()
+    public function testInitStreamFilterWithWriterStream()
     {
         $filter = 'php://filter/write=string.rot13/resource='.__DIR__.'/foo.csv';
         $csv = Reader::createFromPath($filter);
         $this->assertTrue($csv->hasStreamFilter('string.rot13'));
         $this->assertSame(STREAM_FILTER_WRITE, $csv->getStreamFilterMode());
+    }
 
+    public function testInitStreamFilterWithReaderStream()
+    {
         $filter = 'php://filter/read=string.toupper/resource='.__DIR__.'/foo.csv';
         $csv = Reader::createFromPath($filter);
         $this->assertTrue($csv->hasStreamFilter('string.toupper'));
         $this->assertSame(STREAM_FILTER_READ, $csv->getStreamFilterMode());
+    }
+
+    public function testInitStreamFilterWithBothStream()
+    {
+        $filter = 'php://filter/string.toupper/resource='.__DIR__.'/foo.csv';
+        $csv = Reader::createFromPath($filter);
+        $this->assertTrue($csv->hasStreamFilter('string.toupper'));
+        $this->assertSame(STREAM_FILTER_ALL, $csv->getStreamFilterMode());
     }
 
     /**
@@ -99,6 +110,14 @@ class StreamFilterTest extends PHPUnit_Framework_TestCase
         $csv = Writer::createFromPath(__DIR__.'/foo.csv');
         $csv->appendStreamFilter('string.rot13');
         $csv->prependStreamFilter('string.toupper');
+        $this->assertFalse($csv->getIterator()->getRealPath());
+    }
+
+
+    public function testGetFilterPathWithAllStream()
+    {
+        $filter = 'php://filter/string.toupper/resource='.__DIR__.'/foo.csv';
+        $csv = Reader::createFromPath($filter);
         $this->assertFalse($csv->getIterator()->getRealPath());
     }
 }
