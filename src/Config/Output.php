@@ -129,18 +129,14 @@ trait Output
     {
         if (! $this->input_bom) {
             $bom = [
-                self::BOM_UTF32_BE,
-                self::BOM_UTF32_LE,
-                self::BOM_UTF16_BE,
-                self::BOM_UTF16_LE,
-                self::BOM_UTF8,
+                self::BOM_UTF32_BE, self::BOM_UTF32_LE,
+                self::BOM_UTF16_BE, self::BOM_UTF16_LE, self::BOM_UTF8,
             ];
             $csv = $this->getIterator();
             $csv->setFlags(SplFileObject::READ_CSV);
             $csv->rewind();
             $line = $csv->fgets();
-
-            $res = array_filter($bom, function ($sequence) use ($line) {
+            $res  = array_filter($bom, function ($sequence) use ($line) {
                 return strpos($line, $sequence) === 0;
             });
 
@@ -187,7 +183,7 @@ trait Output
         $csv = $this->getIterator();
         $csv->rewind();
         $csv->setFlags(SplFileObject::READ_CSV);
-        if (! empty($bom) && ! empty($input_bom)) {
+        if (! empty($bom)) {
             $csv->fseek(mb_strlen($input_bom));
         }
         echo $bom;

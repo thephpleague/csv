@@ -48,6 +48,13 @@ trait StreamFilter
     protected $stream_uri;
 
     /**
+     * PHP Stream Filter Regex
+     *
+     * @var string
+     */
+    protected $stream_regex = ',^php://filter/(?P<mode>:?read=|write=)?(?P<filters>.*?)/resource=(?P<resource>.*)$,i';
+
+    /**
      * Internal path setter
      *
      * The path must be an SplFileInfo object
@@ -58,43 +65,43 @@ trait StreamFilter
      */
     protected function initStreamFilter($path)
     {
+        $this->stream_filters = [];
         if (! is_string($path)) {
-            $this->stream_uri     = null;
-            $this->stream_filters = [];
+            $this->stream_uri = null;
 
             return;
         }
 
-        $this->extractStreamSettings($path);
+        if (! preg_match($this->stream_regex, $path, $matches)) {
+            $this->stream_uri = $path;
+
+            return;
+        }
+        $this->stream_uri         = $matches['resource'];
+        $this->stream_filters     = explode('|', $matches['filters']);
+        $this->stream_filter_mode = $this->fetchStreamModeAsInt($matches['mode']);
     }
 
     /**
-     * Extract Available stream settings from $path
+     * Get the stream mode
      *
-     * @param string $path the file path
+     * @param  string $mode
+     *
+     * @return int
      */
-    protected function extractStreamSettings($path)
+    protected function fetchStreamModeAsInt($mode)
     {
-        if (! preg_match(
-            ',^php://filter/(?P<mode>:?read=|write=)?(?P<filters>.*?)/resource=(?P<resource>.*)$,i',
-            $path,
-            $matches
-        )) {
-            $this->stream_uri     = $path;
-            $this->stream_filters = [];
+        $mode = strtolower($mode);
+        $mode = rtrim($mode, '=');
+        if ('write' == $mode) {
+            return STREAM_FILTER_WRITE;
+        }
 
-            return;
+        if ('read' == $mode) {
+            return STREAM_FILTER_READ;
         }
-        $matches['mode'] = strtolower($matches['mode']);
-        $mode = STREAM_FILTER_ALL;
-        if ('write=' == $matches['mode']) {
-            $mode = STREAM_FILTER_WRITE;
-        } elseif ('read=' == $matches['mode']) {
-            $mode = STREAM_FILTER_READ;
-        }
-        $this->stream_filter_mode = $mode;
-        $this->stream_uri         = $matches['resource'];
-        $this->stream_filters     = explode('|', $matches['filters']);
+
+        return STREAM_FILTER_ALL;
     }
 
     /**
@@ -258,13 +265,27 @@ trait StreamFilter
             return $this->stream_uri;
         }
 
-        $prefix = '';
+        return 'php://filter/'
+            .$this->getStreamFilterPrefix()
+            .implode('|', $this->stream_filters)
+            .'/resource='.$this->stream_uri;
+    }
+
+    /**
+     * Return PHP stream filter prefix
+     *
+     * @return string
+     */
+    protected function getStreamFilterPrefix()
+    {
         if (STREAM_FILTER_READ == $this->stream_filter_mode) {
-            $prefix = 'read=';
-        } elseif (STREAM_FILTER_WRITE == $this->stream_filter_mode) {
-            $prefix = 'write=';
+            return 'read=';
         }
 
-        return 'php://filter/'.$prefix.implode('|', $this->stream_filters).'/resource='.$this->stream_uri;
+        if (STREAM_FILTER_WRITE == $this->stream_filter_mode) {
+            return 'write=';
+        }
+
+        return '';
     }
 }

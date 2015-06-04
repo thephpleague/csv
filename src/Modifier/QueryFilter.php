@@ -12,7 +12,7 @@
 */
 namespace League\Csv\Modifier;
 
-use ArrayIterator;
+use ArrayObject;
 use CallbackFilterIterator;
 use InvalidArgumentException;
 use Iterator;
@@ -256,8 +256,21 @@ trait QueryFilter
         }
 
         $this->strip_bom = false;
+
+        return $this->getStripBomIterator($iterator);
+    }
+
+    /**
+     * Return the Iterator without the BOM sequence
+     *
+     * @param  Iterator $iterator
+     *
+     * @return Iterator
+     */
+    protected function getStripBomIterator($iterator)
+    {
         $bom = $this->getInputBom();
-        return new MapIterator($iterator, function ($row, $index) use ($bom) {
+        $callback = function ($row, $index) use ($bom) {
             if (0 == $index) {
                 $row[0] = mb_substr($row[0], mb_strlen($bom));
                 $enclosure = $this->getEnclosure();
@@ -268,7 +281,9 @@ trait QueryFilter
             }
 
             return $row;
-        });
+        };
+
+        return new MapIterator($iterator, $callback);
     }
 
     /**
@@ -306,9 +321,8 @@ trait QueryFilter
             return $iterator;
         }
         $offset = $this->iterator_offset;
-        $limit = $this->iterator_limit;
-
-        $this->iterator_limit = -1;
+        $limit  = $this->iterator_limit;
+        $this->iterator_limit  = -1;
         $this->iterator_offset = 0;
 
         return new LimitIterator($iterator, $offset, $limit);
@@ -326,21 +340,19 @@ trait QueryFilter
         if (! $this->iterator_sort_by) {
             return $iterator;
         }
-        $nb_callbacks = count($this->iterator_sort_by);
-        $this->iterator_sort_by = array_values($this->iterator_sort_by);
-        $res = iterator_to_array($iterator, false);
-        uasort($res, function ($rowA, $rowB) use ($nb_callbacks) {
-            $res   = 0;
-            $index = 0;
-            while ($index < $nb_callbacks && 0 === $res) {
-                $res = $this->iterator_sort_by[$index]($rowA, $rowB);
-                ++$index;
+        $obj = new ArrayObject(iterator_to_array($iterator, false));
+        $obj->uasort(function ($rowA, $rowB) {
+            $sortRes = 0;
+            foreach ($this->iterator_sort_by as $callable) {
+                if (0 !== ($sortRes = $callable($rowA, $rowB))) {
+                    break;
+                }
             }
 
-            return $res;
+            return $sortRes;
         });
         $this->clearSortBy();
 
-        return new ArrayIterator($res);
+        return $obj->getIterator();
     }
 }
