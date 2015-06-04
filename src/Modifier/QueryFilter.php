@@ -252,6 +252,7 @@ trait QueryFilter
 
         if (! $this->isBomStrippable()) {
             $this->strip_bom = false;
+
             return $iterator;
         }
 
@@ -270,7 +271,8 @@ trait QueryFilter
     protected function getStripBomIterator($iterator)
     {
         $bom = $this->getInputBom();
-        $callback = function ($row, $index) use ($bom) {
+
+        return new MapIterator($iterator, function ($row, $index) use ($bom) {
             if (0 == $index) {
                 $row[0] = mb_substr($row[0], mb_strlen($bom));
                 $enclosure = $this->getEnclosure();
@@ -281,9 +283,7 @@ trait QueryFilter
             }
 
             return $row;
-        };
-
-        return new MapIterator($iterator, $callback);
+        });
     }
 
     /**
