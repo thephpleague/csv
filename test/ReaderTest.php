@@ -275,6 +275,7 @@ class ReaderTest extends PHPUnit_Framework_TestCase
         $source = Reader::BOM_UTF8.'"parent name","child name","title"
             "parentA","childA","titleA"';
         $csv = Reader::createFromString($source);
+        $csv->setFlags(SplFileObject::READ_AHEAD|SplFileObject::SKIP_EMPTY);
         $csv->stripBom(true);
         $expected = [
             ["parent name" => "parentA", "child name" => "childA", "title" => "titleA"],
@@ -288,6 +289,7 @@ class ReaderTest extends PHPUnit_Framework_TestCase
         $source = Reader::BOM_UTF8.'"parent name","child name","title"
             "parentA","childA","titleA"';
         $csv = Reader::createFromString($source);
+        $csv->setFlags(SplFileObject::READ_AHEAD|SplFileObject::SKIP_EMPTY);
         $csv->stripBom(true);
         $this->assertSame($expected, $csv->fetchColumn());
     }
@@ -297,6 +299,7 @@ class ReaderTest extends PHPUnit_Framework_TestCase
         $source = Reader::BOM_UTF8.'"parent name","child name","title"
             "parentA","childA","titleA"';
         $csv = Reader::createFromString($source);
+        $csv->setFlags(SplFileObject::READ_AHEAD|SplFileObject::SKIP_EMPTY);
         $csv->stripBom(true);
         $expected = [
             ["parent name", "child name", "title"],
@@ -310,6 +313,7 @@ class ReaderTest extends PHPUnit_Framework_TestCase
         $source = Reader::BOM_UTF8.'"parent name","child name","title"
             "parentA","childA","titleA"';
         $csv = Reader::createFromString($source);
+        $csv->setFlags(SplFileObject::READ_AHEAD|SplFileObject::SKIP_EMPTY);
         $csv->stripBom(true);
         $this->assertSame(Reader::BOM_UTF8, $csv->getInputBom());
         $expected = ["parent name", "child name", "title"];
