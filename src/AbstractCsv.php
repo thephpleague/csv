@@ -163,7 +163,7 @@ abstract class AbstractCsv implements JsonSerializable, IteratorAggregate
         $iterator->setFlags($this->flags|SplFileObject::READ_AHEAD|SplFileObject::SKIP_EMPTY);
         $iterator = $this->applyBomStripping($iterator);
         $iterator = new CallbackFilterIterator($iterator, function ($row) {
-            return is_array($row);
+            return is_array($row) && [null] != $row;
         });
         $iterator = $this->applyIteratorFilter($iterator);
         $iterator = $this->applyIteratorSortBy($iterator);

@@ -54,7 +54,7 @@ class CsvTest extends PHPUnit_Framework_TestCase
 
     public function testJsonSerialize()
     {
-        $this->assertContains(['john', 'doe', 'john.doe@example.com'], json_decode(json_encode($this->csv), true));
+        $this->assertSame($this->expected, json_decode(json_encode($this->csv), true));
     }
 
     /**
