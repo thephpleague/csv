@@ -7,13 +7,13 @@ title: Basic Usage
 
 <p class="message-info"><strong>Tips:</strong> Even though you can use the following methods with the <code>League\Csv\Writer</code> object. It is recommended to do so with the <code>League\Csv\Reader</code> class to avoid losing the file cursor position and getting unexpected results when inserting new data.</p>
 
-Once your CSV object is [instantiated](/instantiation) and [configured](/properties/), you can start interacting with the data using a number of methods available to you. For starter, you can iterate over your newly object to extract each CSV row using the `foreach` construct.
+Once your CSV object is [instantiated](/instantiation) and [configured](/properties/), you can start interacting with the data using a number of methods available to you. For starters, you can iterate over your newly object to extract each CSV row using the `foreach` construct.
 
 ~~~php
 $reader = Reader::createFromPath('/path/to/my/file.csv');
 $reader->setFlags(SplFileObject::READ_AHEAD|SplFileObject::SKIP_EMPTY);
 foreach ($reader as $index => $row) {
-    //do something meaningfull here with $row !!
+    //do something meaningful here with $row !!
     //$row is an array where each item represent a CSV data cell
     //$index is the CSV row index
 }
