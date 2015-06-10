@@ -1,7 +1,7 @@
 #Changelog
 All Notable changes to `League\Csv` will be documented in this file
 
-## 7.1.2 - 2015-06-XX
+## 7.1.2 - 2015-06-10
 
 - Enclosures should be removed when a BOM sequence is stripped [bug fix #102](http://github.com/thephpleague/csv/issues/99)
 
