@@ -144,7 +144,7 @@ class ControlsTest extends PHPUnit_Framework_TestCase
 
     /**
      * @expectedException InvalidArgumentException
-     * @expectedExceptionMessage The enclosure must be a single character
+     * @expectedExceptionMessage The enclosure must be a single character or an empty string
      */
     public function testEnclosure()
     {
