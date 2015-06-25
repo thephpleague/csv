@@ -159,8 +159,8 @@ trait Controls
      */
     public function setEnclosure($enclosure)
     {
-        if (1 != mb_strlen($enclosure)) {
-            throw new InvalidArgumentException('The enclosure must be a single character');
+        if (1 < mb_strlen($enclosure)) {
+            throw new InvalidArgumentException('The enclosure must be a single character or an empty string');
         }
         $this->enclosure = $enclosure;
 
