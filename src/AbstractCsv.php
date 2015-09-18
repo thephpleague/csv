@@ -47,12 +47,12 @@ abstract class AbstractCsv implements JsonSerializable, IteratorAggregate
     const BOM_UTF16_LE = "\xFF\xFE";
 
     /**
-     * UTF-16 BE BOM sequence
+     * UTF-32 BE BOM sequence
      */
     const BOM_UTF32_BE = "\x00\x00\xFE\xFF";
 
     /**
-     * UTF-16 LE BOM sequence
+     * UTF-32 LE BOM sequence
      */
     const BOM_UTF32_LE = "\x00\x00\xFF\xFE";
 
@@ -78,7 +78,7 @@ abstract class AbstractCsv implements JsonSerializable, IteratorAggregate
     use Config\Controls;
 
     /**
-     * Csv Ouputting Trait
+     * Csv Outputting Trait
      */
     use Config\Output;
 
