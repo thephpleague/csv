@@ -51,7 +51,7 @@ class ControlsTest extends PHPUnit_Framework_TestCase
 
     public function testDetectDelimiterList()
     {
-        $this->assertSame([4 => ','], $this->csv->detectDelimiterList());
+        $this->assertSame([',' => 4], $this->csv->detectDelimiterList());
     }
 
     public function testBOMSettings()
@@ -125,7 +125,7 @@ class ControlsTest extends PHPUnit_Framework_TestCase
         $data->fputcsv(['toto', 'tata', 'tutu']);
 
         $csv = Writer::createFromFileObject($data);
-        $this->assertSame([12 => '|', 4 => ';'], $csv->detectDelimiterList(5, ['|']));
+        $this->assertSame(['|' => 12, ';' => 4], $csv->detectDelimiterList(5, ['|']));
     }
 
     /**

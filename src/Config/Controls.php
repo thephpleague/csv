@@ -145,7 +145,7 @@ trait Controls
 
         arsort($res, SORT_NUMERIC);
 
-        return array_flip(array_filter($res));
+        return array_filter($res);
     }
 
     /**
