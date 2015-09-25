@@ -25,7 +25,7 @@ class NullValidatorTest extends PHPUnit_Framework_TestCase
     {
         $csv = new SplFileObject(dirname(__DIR__).'/foo.csv', 'w');
         $csv->setCsvControl();
-        $csv->fputcsv(["john", "doe", "john.doe@example.com"], ",", '"');
+        $csv->fputcsv(['john', 'doe', 'john.doe@example.com'], ',', '"');
         $this->csv = null;
     }
 

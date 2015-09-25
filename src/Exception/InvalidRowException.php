@@ -12,8 +12,6 @@
 */
 namespace League\Csv\Exception;
 
-use InvalidArgumentException;
-
 /**
  *  Thrown when a data is not validated prior to insertion
  *
@@ -42,7 +40,7 @@ class InvalidRowException extends \InvalidArgumentException
      * @param array  $data    invalid  data
      * @param string $message exception message
      */
-    public function __construct($name, array $data = [], $message = "")
+    public function __construct($name, array $data = [], $message = '')
     {
         parent::__construct($message);
         $this->name = $name;

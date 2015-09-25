@@ -65,7 +65,7 @@ trait QueryFilter
     /**
      * Stripping BOM setter
      *
-     * @param  bool $status
+     * @param bool $status
      *
      * @return $this
      */
@@ -240,7 +240,7 @@ trait QueryFilter
     /**
      * Remove the BOM sequence from the CSV
      *
-     * @param  Iterator $iterator
+     * @param Iterator $iterator
      *
      * @return \Iterator
      */
@@ -264,7 +264,7 @@ trait QueryFilter
     /**
      * Return the Iterator without the BOM sequence
      *
-     * @param  Iterator $iterator
+     * @param Iterator $iterator
      *
      * @return Iterator
      */

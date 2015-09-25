@@ -2,12 +2,29 @@
 
 Contributions are **welcome** and will be fully **credited**.
 
-We accept contributions via Pull Requests on [Github](https://github.com/theleague/csv).
+## Bug Report
 
+We accept bug reports via issues created on [Github](https://github.com/thephpleague/csv/issues).
 
-## Pull Requests
+### Prior to submitting your report
 
-- **[PSR-2 Coding Standard](https://github.com/php-fig/fig-standards/blob/master/accepted/PSR-2-coding-style-guide.md)** - The easiest way to apply the conventions is to install [PHP Code Sniffer](http://pear.php.net/package/PHP_CodeSniffer).
+- **Always search the issue or pull request list first** - The odds are good that if you've found a problem, someone else has found it, too.
+
+- **Always try the [master branch](https://github.com/thephpleague/csv)** - to see if the reported bug has not already been fixed.
+
+### When submitting your report
+
+- **Open a new bug report for each issue.**
+
+- **Write a clear summary in english** - A good summary should quickly and uniquely identify a bug report. It should explain the problem, not your suggested solution.
+
+- **Be brief, but don't leave any important details out** - Tell us what you did, what you expected to happen, and what happened. Do not forget to mention your PHP version, the OS Platform and the package version you were using.
+
+## Pull Request
+
+We accept contributions via Pull Requests on [Github](https://github.com/thephpleague/csv/pull).
+
+- **[PSR-2 Coding Standard](http://www.php-fig.org/psr/psr-2/)** - Your patch won't be accepted if it doesn't pass the package coding style test suite.
 
 - **Add tests!** - Your patch won't be accepted if it doesn't have tests.
 

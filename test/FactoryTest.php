@@ -7,7 +7,6 @@ use PHPUnit_Framework_TestCase;
 use SplFileInfo;
 use SplFileObject;
 use SplTempFileObject;
-use StdClass;
 
 /**
  * @group factory
@@ -45,8 +44,8 @@ class FactoryTest extends PHPUnit_Framework_TestCase
 
     public function testCreateFromString()
     {
-        $expected = "john,doe,john.doe@example.com".PHP_EOL
-            ."jane,doe,jane.doe@example.com".PHP_EOL;
+        $expected = 'john,doe,john.doe@example.com'.PHP_EOL
+            .'jane,doe,jane.doe@example.com'.PHP_EOL;
         $reader = Reader::createFromString($expected);
         $this->assertInstanceof('League\Csv\Reader', $reader);
     }

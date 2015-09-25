@@ -15,7 +15,7 @@ namespace League\Csv\Config;
 use DomDocument;
 use InvalidArgumentException;
 use Iterator;
-use League\Csv\Modifier;
+use League\Csv\Modifier\MapIterator;
 use SplFileObject;
 
 /**
@@ -49,14 +49,14 @@ trait Output
     /**
      * Returns the CSV Iterator
      *
-     * @return \Iterator
+     * @return Iterator
      */
     abstract protected function getConversionIterator();
 
     /**
      * Returns the CSV Iterator
      *
-     * @return \Iterator
+     * @return Iterator
      */
     abstract public function getIterator();
 
@@ -70,7 +70,7 @@ trait Output
     public function setEncodingFrom($str)
     {
         $str = str_replace('_', '-', $str);
-        $str = filter_var($str, FILTER_SANITIZE_STRING, ['flags' => FILTER_FLAG_STRIP_LOW|FILTER_FLAG_STRIP_HIGH]);
+        $str = filter_var($str, FILTER_SANITIZE_STRING, ['flags' => FILTER_FLAG_STRIP_LOW | FILTER_FLAG_STRIP_HIGH]);
         if (empty($str)) {
             throw new InvalidArgumentException('you should use a valid charset');
         }
@@ -92,7 +92,7 @@ trait Output
     /**
      * Sets the BOM sequence to prepend the CSV on output
      *
-     * @param string $str  The BOM sequence
+     * @param string $str The BOM sequence
      *
      * @return static
      */
@@ -159,8 +159,8 @@ trait Output
         if (! is_null($filename)) {
             $filename = trim($filename);
             $filename = filter_var($filename, FILTER_SANITIZE_STRING, FILTER_FLAG_STRIP_LOW);
-            header("Content-Type: application/octet-stream");
-            header("Content-Transfer-Encoding: binary");
+            header('Content-Type: application/octet-stream');
+            header('Content-Transfer-Encoding: binary');
             header("Content-Disposition: attachment; filename=\"$filename\"");
         }
 
@@ -218,7 +218,7 @@ trait Output
     /**
      * Convert Csv file into UTF-8
      *
-     * @return \Iterator
+     * @return Iterator
      */
     protected function convertToUtf8(Iterator $iterator)
     {
@@ -226,7 +226,7 @@ trait Output
             return $iterator;
         }
 
-        return new Modifier\MapIterator($iterator, function ($row) {
+        return new MapIterator($iterator, function ($row) {
             foreach ($row as &$value) {
                 $value = mb_convert_encoding($value, 'UTF-8', $this->encodingFrom);
             }
@@ -258,7 +258,7 @@ trait Output
      * @param string $row_name  XML row node name
      * @param string $cell_name XML cell node name
      *
-     * @return \DomDocument
+     * @return DomDocument
      */
     public function toXML($root_name = 'csv', $row_name = 'row', $cell_name = 'cell')
     {

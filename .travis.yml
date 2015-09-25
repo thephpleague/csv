@@ -1,22 +1,41 @@
 language: php
 
-php:
-  - 5.4
-  - 5.5
-  - 5.6
-  - 7.0
-  - hhvm
+sudo: false
 
 matrix:
+  include:
+    - php: 5.4
+      env:
+        - COLLECT_COVERAGE=true
+    - php: 5.5
+      env:
+        - COLLECT_COVERAGE=true
+    - php: 5.6
+      env:
+        - COLLECT_COVERAGE=true
+        - EXECUTE_CS_CHECK=true
+    - php: 7.0
+    - php: hhvm
   allow_failures:
     - php: 7.0
+  fast_finish: true
 
-before_script:
-  - travis_retry composer self-update
-  - travis_retry composer update --no-interaction --prefer-source
+cache:
+  directories:
+    - $HOME/.composer/cache
+
+before_install:
+  - composer self-update
+  - composer validate
+
+install:
+  - travis_retry composer install --prefer-dist
 
 script:
-  - phpunit --coverage-text --coverage-clover=coverage.clover
+  - if [ "$COLLECT_COVERAGE" != "true" ]; then vendor/bin/phpunit; fi
+  - if [ "$COLLECT_COVERAGE" == "true" ]; then vendor/bin/phpunit --coverage-text --coverage-clover=coverage.clover; fi
+  - if [ "$EXECUTE_CS_CHECK" == "true" ]; then vendor/bin/php-cs-fixer fix -v --diff --dry-run; fi
 
 after_script:
- - bash -c 'if [[ "$TRAVIS_PHP_VERSION" != "hhvm" && "$TRAVIS_PHP_VERSION" != "7.0" ]]; then php vendor/bin/ocular code-coverage:upload --format=php-clover coverage.clover; fi;'
+ - if [ "$COLLECT_COVERAGE" == "true" ]; then wget https://scrutinizer-ci.com/ocular.phar; fi
+ - if [ "$COLLECT_COVERAGE" == "true" ]; then php ocular.phar code-coverage:upload --format=php-clover coverage.clover; fi

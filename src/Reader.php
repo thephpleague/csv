@@ -15,7 +15,7 @@ namespace League\Csv;
 use CallbackFilterIterator;
 use InvalidArgumentException;
 use Iterator;
-use League\Csv\Modifier;
+use League\Csv\Modifier\MapIterator;
 use LimitIterator;
 use SplFileObject;
 
@@ -29,7 +29,7 @@ use SplFileObject;
 class Reader extends AbstractCsv
 {
     /**
-     * {@ihneritdoc}
+     * @ihneritdoc
      */
     protected $stream_filter_mode = STREAM_FILTER_READ;
 
@@ -38,7 +38,7 @@ class Reader extends AbstractCsv
      *
      * @param callable $callable a callable function to be applied to each Iterator item
      *
-     * @return \Iterator
+     * @return Iterator
      */
     public function query(callable $callable = null)
     {
@@ -52,7 +52,7 @@ class Reader extends AbstractCsv
         $iterator = $this->applyIteratorSortBy($iterator);
         $iterator = $this->applyIteratorInterval($iterator);
         if (! is_null($callable)) {
-            return new Modifier\MapIterator($iterator, $callable);
+            return new MapIterator($iterator, $callable);
         }
 
         return $iterator;
@@ -86,7 +86,7 @@ class Reader extends AbstractCsv
      *
      * @param int $offset
      *
-     * @throws \InvalidArgumentException If the $offset is not a valid Integer
+     * @throws InvalidArgumentException If the $offset is not a valid Integer
      *
      * @return array
      */
@@ -134,7 +134,7 @@ class Reader extends AbstractCsv
      * @param int      $column_index field Index
      * @param callable $callable     a callable function
      *
-     * @throws \InvalidArgumentException If the column index is not a positive integer or 0
+     * @throws InvalidArgumentException If the column index is not a positive integer or 0
      *
      * @return array
      */
@@ -150,7 +150,7 @@ class Reader extends AbstractCsv
         $iterator = new CallbackFilterIterator($iterator, function ($row) use ($column_index) {
             return array_key_exists($column_index, $row);
         });
-        $iterator = new Modifier\MapIterator($iterator, function ($row) use ($column_index) {
+        $iterator = new MapIterator($iterator, function ($row) use ($column_index) {
             return $row[$column_index];
         });
 
@@ -166,9 +166,9 @@ class Reader extends AbstractCsv
      * @param array|int $offset_or_keys the name for each key member OR the row Index to be
      *                                  used as the associated named keys
      *
-     * @param callable  $callable       a callable function
+     * @param callable $callable a callable function
      *
-     * @throws \InvalidArgumentException If the submitted keys are invalid
+     * @throws InvalidArgumentException If the submitted keys are invalid
      *
      * @return array
      */
@@ -183,7 +183,7 @@ class Reader extends AbstractCsv
         }
         $keys_count = count($keys);
         $iterator   = $this->query($callable);
-        $iterator   = new Modifier\MapIterator($iterator, function (array $row) use ($keys, $keys_count) {
+        $iterator   = new MapIterator($iterator, function (array $row) use ($keys, $keys_count) {
             if ($keys_count != count($row)) {
                 $row = array_slice(array_pad($row, $keys_count, null), 0, $keys_count);
             }
@@ -200,7 +200,7 @@ class Reader extends AbstractCsv
      * @param array|int $offset_or_keys the assoc key OR the row Index to be used
      *                                  as the key index
      *
-     * @throws \InvalidArgumentException If the row index and/or the resulting array is invalid
+     * @throws InvalidArgumentException If the row index and/or the resulting array is invalid
      *
      * @return array
      */
@@ -224,7 +224,7 @@ class Reader extends AbstractCsv
      *
      * @param int $offset
      *
-     * @throws \InvalidArgumentException If the $offset is not valid or the row does not exist
+     * @throws InvalidArgumentException If the $offset is not valid or the row does not exist
      *
      * @return array
      */
@@ -252,7 +252,7 @@ class Reader extends AbstractCsv
      *
      * @param array $keys
      *
-     * @throws \InvalidArgumentException If the submitted array fails the assertion
+     * @throws InvalidArgumentException If the submitted array fails the assertion
      */
     protected function assertValidAssocKeys(array $keys)
     {

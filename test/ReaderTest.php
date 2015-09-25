@@ -174,7 +174,7 @@ class ReaderTest extends PHPUnit_Framework_TestCase
         $this->assertContains([
             'firstname' => 'JANE',
             'lastname' => 'DOE',
-            'email' => 'JANE.DOE@EXAMPLE.COM'
+            'email' => 'JANE.DOE@EXAMPLE.COM',
         ], $res);
     }
 
@@ -237,16 +237,16 @@ class ReaderTest extends PHPUnit_Framework_TestCase
     {
         return [
             'withBOM' => [[
-                [Reader::BOM_UTF16_LE.'john', 'doe', 'john.doe@example.com', ],
-                ['jane', 'doe', 'jane.doe@example.com', ],
+                [Reader::BOM_UTF16_LE.'john', 'doe', 'john.doe@example.com'],
+                ['jane', 'doe', 'jane.doe@example.com'],
             ], 'john'],
             'withDoubleBOM' =>  [[
-                [Reader::BOM_UTF16_LE.Reader::BOM_UTF16_LE.'john', 'doe', 'john.doe@example.com', ],
-                ['jane', 'doe', 'jane.doe@example.com', ],
+                [Reader::BOM_UTF16_LE.Reader::BOM_UTF16_LE.'john', 'doe', 'john.doe@example.com'],
+                ['jane', 'doe', 'jane.doe@example.com'],
             ], Reader::BOM_UTF16_LE.'john'],
             'withoutBOM' => [[
-                ['john', 'doe', 'john.doe@example.com', ],
-                ['jane', 'doe', 'jane.doe@example.com', ],
+                ['john', 'doe', 'john.doe@example.com'],
+                ['jane', 'doe', 'jane.doe@example.com'],
             ], 'john'],
         ];
     }
@@ -254,8 +254,8 @@ class ReaderTest extends PHPUnit_Framework_TestCase
     public function testStripBOMWithFetchAssoc()
     {
         $source = [
-            [Reader::BOM_UTF16_LE.'john', 'doe', 'john.doe@example.com', ],
-            ['jane', 'doe', 'jane.doe@example.com', ],
+            [Reader::BOM_UTF16_LE.'john', 'doe', 'john.doe@example.com'],
+            ['jane', 'doe', 'jane.doe@example.com'],
         ];
 
         $tmp = new SplTempFileObject();
@@ -271,14 +271,14 @@ class ReaderTest extends PHPUnit_Framework_TestCase
 
     public function testStripBOMWithEnclosureFetchAssoc()
     {
-        $expected = ["parent name", "parentA"];
+        $expected = ['parent name', 'parentA'];
         $source = Reader::BOM_UTF8.'"parent name","child name","title"
             "parentA","childA","titleA"';
         $csv = Reader::createFromString($source);
-        $csv->setFlags(SplFileObject::READ_AHEAD|SplFileObject::SKIP_EMPTY);
+        $csv->setFlags(SplFileObject::READ_AHEAD | SplFileObject::SKIP_EMPTY);
         $csv->stripBom(true);
         $expected = [
-            ["parent name" => "parentA", "child name" => "childA", "title" => "titleA"],
+            ['parent name' => 'parentA', 'child name' => 'childA', 'title' => 'titleA'],
         ];
         $this->assertSame($expected, $csv->fetchAssoc());
     }
@@ -288,9 +288,9 @@ class ReaderTest extends PHPUnit_Framework_TestCase
         $source = Reader::BOM_UTF8.'"parent name","child name","title"
             "parentA","childA","titleA"';
         $csv = Reader::createFromString($source);
-        $csv->setFlags(SplFileObject::READ_AHEAD|SplFileObject::SKIP_EMPTY);
+        $csv->setFlags(SplFileObject::READ_AHEAD | SplFileObject::SKIP_EMPTY);
         $csv->stripBom(true);
-        $this->assertContains("parent name", $csv->fetchColumn());
+        $this->assertContains('parent name', $csv->fetchColumn());
     }
 
     public function testStripBOMWithEnclosureFetchAll()
@@ -298,9 +298,9 @@ class ReaderTest extends PHPUnit_Framework_TestCase
         $source = Reader::BOM_UTF8.'"parent name","child name","title"
             "parentA","childA","titleA"';
         $csv = Reader::createFromString($source);
-        $csv->setFlags(SplFileObject::READ_AHEAD|SplFileObject::SKIP_EMPTY);
+        $csv->setFlags(SplFileObject::READ_AHEAD | SplFileObject::SKIP_EMPTY);
         $csv->stripBom(true);
-        $this->assertContains(["parent name", "child name", "title"], $csv->fetchAll());
+        $this->assertContains(['parent name', 'child name', 'title'], $csv->fetchAll());
     }
 
     public function testStripBOMWithEnclosureFetchOne()
@@ -308,10 +308,10 @@ class ReaderTest extends PHPUnit_Framework_TestCase
         $source = Reader::BOM_UTF8.'"parent name","child name","title"
             "parentA","childA","titleA"';
         $csv = Reader::createFromString($source);
-        $csv->setFlags(SplFileObject::READ_AHEAD|SplFileObject::SKIP_EMPTY);
+        $csv->setFlags(SplFileObject::READ_AHEAD | SplFileObject::SKIP_EMPTY);
         $csv->stripBom(true);
         $this->assertSame(Reader::BOM_UTF8, $csv->getInputBom());
-        $expected = ["parent name", "child name", "title"];
+        $expected = ['parent name', 'child name', 'title'];
         $this->assertEquals($expected, $csv->fetchOne());
     }
 

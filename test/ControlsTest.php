@@ -2,11 +2,9 @@
 
 namespace League\Csv\test;
 
-use DateTime;
 use League\Csv\Reader;
 use League\Csv\Writer;
 use PHPUnit_Framework_TestCase;
-use SplFileInfo;
 use SplFileObject;
 use SplTempFileObject;
 
@@ -68,23 +66,23 @@ class ControlsTest extends PHPUnit_Framework_TestCase
     public function testAddBOMSequences()
     {
         $this->csv->setOutputBOM(Reader::BOM_UTF8);
-        $expected = chr(239).chr(187).chr(191)."john,doe,john.doe@example.com".PHP_EOL
-            ."jane,doe,jane.doe@example.com".PHP_EOL;
+        $expected = chr(239).chr(187).chr(191).'john,doe,john.doe@example.com'.PHP_EOL
+            .'jane,doe,jane.doe@example.com'.PHP_EOL;
         $this->assertSame($expected, $this->csv->__toString());
     }
 
     public function testGetBomOnInputWithNoBOM()
     {
-        $expected = "john,doe,john.doe@example.com".PHP_EOL
-            ."jane,doe,jane.doe@example.com".PHP_EOL;
+        $expected = 'john,doe,john.doe@example.com'.PHP_EOL
+            .'jane,doe,jane.doe@example.com'.PHP_EOL;
         $reader = Reader::createFromString($expected);
         $this->assertEmpty($reader->getInputBOM());
     }
 
     public function testGetBomOnInputWithBOM()
     {
-        $expected = Reader::BOM_UTF32_BE."john,doe,john.doe@example.com".PHP_EOL
-            ."jane,doe,jane.doe@example.com".PHP_EOL;
+        $expected = Reader::BOM_UTF32_BE.'john,doe,john.doe@example.com'.PHP_EOL
+            .'jane,doe,jane.doe@example.com'.PHP_EOL;
         $reader = Reader::createFromString($expected);
         $this->assertSame(Reader::BOM_UTF32_BE, $reader->getInputBOM());
         $this->assertSame(Reader::BOM_UTF32_BE, $reader->getInputBOM());
@@ -92,8 +90,8 @@ class ControlsTest extends PHPUnit_Framework_TestCase
 
     public function testChangingBOMOnOutput()
     {
-        $text = "john,doe,john.doe@example.com".PHP_EOL
-            ."jane,doe,jane.doe@example.com".PHP_EOL;
+        $text = 'john,doe,john.doe@example.com'.PHP_EOL
+            .'jane,doe,jane.doe@example.com'.PHP_EOL;
         $reader = Reader::createFromString(Reader::BOM_UTF32_BE.$text);
         $reader->setOutputBOM(Reader::BOM_UTF8);
         $this->assertSame(Reader::BOM_UTF8.$text, $reader->__toString());
@@ -200,8 +198,8 @@ class ControlsTest extends PHPUnit_Framework_TestCase
         if (defined('HHVM_VERSION')) {
             $this->markTestSkipped('HHVM CSV parsing is different');
         }
-        $path = __DIR__."/data/tmp.txt";
-        $obj  = new SplFileObject($path, "w+");
+        $path = __DIR__.'/data/tmp.txt';
+        $obj  = new SplFileObject($path, 'w+');
         $obj->fwrite("1st\n2nd\n");
         $reader = Reader::createFromFileObject($obj);
         $reader->setFlags($flag);
@@ -212,16 +210,16 @@ class ControlsTest extends PHPUnit_Framework_TestCase
     public function appliedFlagsProvider()
     {
         return [
-            "NONE" => [0, 3],
-            "DROP_NEW_LINE" => [SplFileObject::DROP_NEW_LINE, 3],
-            "READ_AHEAD" => [SplFileObject::READ_AHEAD, 3],
-            "SKIP_EMPTY" => [SplFileObject::SKIP_EMPTY, 2],
-            "READ_AHEAD|DROP_NEW_LINE" => [SplFileObject::READ_AHEAD|SplFileObject::DROP_NEW_LINE, 3],
-            "READ_AHEAD|SKIP_EMPTY" => [SplFileObject::READ_AHEAD|SplFileObject::SKIP_EMPTY, 2],
-            "DROP_NEW_LINE|SKIP_EMPTY" => [SplFileObject::DROP_NEW_LINE|SplFileObject::SKIP_EMPTY, 2],
-            "READ_AHEAD|DROP_NEW_LINE|SKIP_EMPTY" => [
-                SplFileObject::READ_AHEAD|SplFileObject::DROP_NEW_LINE|SplFileObject::SKIP_EMPTY,
-                2
+            'NONE' => [0, 3],
+            'DROP_NEW_LINE' => [SplFileObject::DROP_NEW_LINE, 3],
+            'READ_AHEAD' => [SplFileObject::READ_AHEAD, 3],
+            'SKIP_EMPTY' => [SplFileObject::SKIP_EMPTY, 2],
+            'READ_AHEAD|DROP_NEW_LINE' => [SplFileObject::READ_AHEAD | SplFileObject::DROP_NEW_LINE, 3],
+            'READ_AHEAD|SKIP_EMPTY' => [SplFileObject::READ_AHEAD | SplFileObject::SKIP_EMPTY, 2],
+            'DROP_NEW_LINE|SKIP_EMPTY' => [SplFileObject::DROP_NEW_LINE | SplFileObject::SKIP_EMPTY, 2],
+            'READ_AHEAD|DROP_NEW_LINE|SKIP_EMPTY' => [
+                SplFileObject::READ_AHEAD | SplFileObject::DROP_NEW_LINE | SplFileObject::SKIP_EMPTY,
+                2,
             ],
         ];
     }

@@ -13,7 +13,7 @@
 namespace League\Csv;
 
 use InvalidArgumentException;
-use League\Csv\Modifier;
+use League\Csv\Modifier\RowFilter;
 use ReflectionMethod;
 use Traversable;
 
@@ -26,8 +26,10 @@ use Traversable;
  */
 class Writer extends AbstractCsv
 {
+    use RowFilter;
+
     /**
-     * {@ihneritdoc}
+     * @ihneritdoc
      */
     protected $stream_filter_mode = STREAM_FILTER_WRITE;
 
@@ -53,12 +55,7 @@ class Writer extends AbstractCsv
     protected static $fputcsv_param_count;
 
     /**
-     * Row Formatter and Validator trait
-     */
-    use Modifier\RowFilter;
-
-    /**
-     * {@ihneritdoc}
+     * @ihneritdoc
      */
     protected function __construct($path, $open_mode = 'r+')
     {
@@ -82,9 +79,9 @@ class Writer extends AbstractCsv
      *
      * a simple wrapper method around insertOne
      *
-     * @param \Traversable|array $rows a multidimentional array or a Traversable object
+     * @param Traversable|array $rows a multidimentional array or a Traversable object
      *
-     * @throws \InvalidArgumentException If the given rows format is invalid
+     * @throws InvalidArgumentException If the given rows format is invalid
      *
      * @return static
      */
@@ -134,7 +131,7 @@ class Writer extends AbstractCsv
     /**
      * returns the parameters for SplFileObject::fputcsv
      *
-     * @param  array $fields The fields to be add
+     * @param array $fields The fields to be add
      *
      * @return array
      */

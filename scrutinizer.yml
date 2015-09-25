@@ -1,4 +1,5 @@
 filter:
+    paths: [src/*]
     excluded_paths: [examples/*, test/*]
 checks:
     php:
@@ -18,17 +19,5 @@ checks:
         fix_doc_comments: true
 tools:
     external_code_coverage:
-        timeout: 600
+        timeout: 1200
         runs: 3
-    php_code_coverage: false
-    php_code_sniffer:
-        config:
-            standard: PSR2
-        filter:
-            paths: ['src']
-    php_loc:
-        enabled: true
-        excluded_dirs: [vendor, test, examples]
-    php_cpd:
-        enabled: true
-        excluded_dirs: [vendor, test, examples]

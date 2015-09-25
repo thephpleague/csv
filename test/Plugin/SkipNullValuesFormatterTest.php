@@ -2,8 +2,8 @@
 
 namespace League\Csv\Test\Plugin;
 
-use League\Csv\Writer;
 use League\Csv\Plugin\SkipNullValuesFormatter;
+use League\Csv\Writer;
 use LimitIterator;
 use PHPUnit_Framework_TestCase;
 use SplFileObject;
@@ -25,7 +25,7 @@ class SkipNullValuesFormatterTest extends PHPUnit_Framework_TestCase
     {
         $csv = new SplFileObject(dirname(__DIR__).'/foo.csv', 'w');
         $csv->setCsvControl();
-        $csv->fputcsv(["john", "doe", "john.doe@example.com"], ",", '"');
+        $csv->fputcsv(['john', 'doe', 'john.doe@example.com'], ',', '"');
         $this->csv = null;
     }
 

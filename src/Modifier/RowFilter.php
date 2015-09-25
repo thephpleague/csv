@@ -96,7 +96,7 @@ trait RowFilter
      * add a Validator to the collection
      *
      * @param callable $callable
-     * @param string   $name      the rule name
+     * @param string   $name     the rule name
      *
      * @return $this
      */
@@ -174,7 +174,6 @@ trait RowFilter
     *
     * @throws \League\Csv\Exception\InvalidRowException If the validation failed
     *
-    * @return void
     */
     protected function validateRow(array $row)
     {
@@ -184,6 +183,4 @@ trait RowFilter
             }
         }
     }
-
-
 }

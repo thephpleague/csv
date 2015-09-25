@@ -73,7 +73,7 @@ trait Controls
      *
      * @param string $delimiter
      *
-     * @throws \InvalidArgumentException If $delimeter is not a single character
+     * @throws InvalidArgumentException If $delimeter is not a single character
      *
      * @return $this
      */
@@ -123,7 +123,7 @@ trait Controls
      * @param int      $nb_rows
      * @param string[] $delimiters additional delimiters
      *
-     * @throws \InvalidArgumentException If $nb_rows value is invalid
+     * @throws InvalidArgumentException If $nb_rows value is invalid
      *
      * @return string[]
      */
@@ -153,7 +153,7 @@ trait Controls
      *
      * @param string $enclosure
      *
-     * @throws \InvalidArgumentException If $enclosure is not a single character
+     * @throws InvalidArgumentException If $enclosure is not a single character
      *
      * @return $this
      */
@@ -182,7 +182,7 @@ trait Controls
      *
      * @param string $escape
      *
-     * @throws \InvalidArgumentException If $escape is not a single character
+     * @throws InvalidArgumentException If $escape is not a single character
      *
      * @return $this
      */
@@ -211,7 +211,7 @@ trait Controls
      *
      * @param int $flags
      *
-     * @throws \InvalidArgumentException If the argument is not a valid integer
+     * @throws InvalidArgumentException If the argument is not a valid integer
      *
      * @return $this
      */
@@ -221,7 +221,7 @@ trait Controls
             throw new InvalidArgumentException('you should use a `SplFileObject` Constant');
         }
 
-        $this->flags = $flags|SplFileObject::READ_CSV;
+        $this->flags = $flags | SplFileObject::READ_CSV;
 
         return $this;
     }

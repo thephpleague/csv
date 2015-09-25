@@ -49,7 +49,7 @@ class StreamFilterTest extends PHPUnit_Framework_TestCase
     {
         $csv = Reader::createFromPath(__DIR__.'/foo.csv');
         $csv->appendStreamFilter('string.toupper');
-        $csv->setFlags(SplFileObject::READ_AHEAD|SplFileObject::SKIP_EMPTY);
+        $csv->setFlags(SplFileObject::READ_AHEAD | SplFileObject::SKIP_EMPTY);
         foreach ($csv->getIterator() as $row) {
             $this->assertSame($row, ['JOHN', 'DOE', 'JOHN.DOE@EXAMPLE.COM']);
         }
@@ -81,7 +81,7 @@ class StreamFilterTest extends PHPUnit_Framework_TestCase
     public function testaddMultipleStreamFilter()
     {
         $csv = Reader::createFromPath(__DIR__.'/foo.csv');
-        $csv->setFlags(SplFileObject::READ_AHEAD|SplFileObject::SKIP_EMPTY);
+        $csv->setFlags(SplFileObject::READ_AHEAD | SplFileObject::SKIP_EMPTY);
         $csv->appendStreamFilter('string.tolower');
         $csv->prependStreamFilter('string.rot13');
         $csv->appendStreamFilter('string.toupper');
