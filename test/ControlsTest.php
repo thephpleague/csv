@@ -49,11 +49,6 @@ class ControlsTest extends PHPUnit_Framework_TestCase
         $this->csv->setDelimiter('foo');
     }
 
-    public function testDetectDelimiterList()
-    {
-        $this->assertSame([4 => ','], $this->csv->detectDelimiterList());
-    }
-
     public function testBOMSettings()
     {
         $this->assertNull($this->csv->getOutputBOM());
@@ -97,6 +92,11 @@ class ControlsTest extends PHPUnit_Framework_TestCase
         $this->assertSame(Reader::BOM_UTF8.$text, $reader->__toString());
     }
 
+    public function testDetectDelimiterList()
+    {
+        $this->assertSame([',' => 4], $this->csv->detectDelimiterList());
+    }
+
     /**
      * @expectedException InvalidArgumentException
      * @expectedExceptionMessage `$nb_rows` must be a valid positive integer
@@ -125,7 +125,10 @@ class ControlsTest extends PHPUnit_Framework_TestCase
         $data->fputcsv(['toto', 'tata', 'tutu']);
 
         $csv = Writer::createFromFileObject($data);
-        $this->assertSame([12 => '|', 4 => ';'], $csv->detectDelimiterList(5, ['|']));
+        $this->assertSame([
+            '|' => 12,
+            ';' => 4,
+        ], $csv->detectDelimiterList(5, ['|']));
     }
 
     /**
