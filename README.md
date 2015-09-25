@@ -59,10 +59,10 @@ if (! ini_get("auto_detect_line_endings")) {
 Testing
 -------
 
-Csv has a [PHPUnit](https://phpunit.de/) test suite. To run the tests, run the following command from the project folder:
+`League\Csv` has a [PHPUnit](https://phpunit.de) test suite and a coding style compliance test suite using [PHP CS Fixer](http://cs.sensiolabs.org/). To run the tests, run the following command from the project folder.
 
 ``` bash
-$ phpunit
+$ composer test
 ```
 
 Contributing

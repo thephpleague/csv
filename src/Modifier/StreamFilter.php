@@ -85,7 +85,7 @@ trait StreamFilter
     /**
      * Get the stream mode
      *
-     * @param  string $mode
+     * @param string $mode
      *
      * @return int
      */
@@ -107,7 +107,7 @@ trait StreamFilter
     /**
      * Check if the trait methods can be used
      *
-     * @throws \LogicException If the API can not be use
+     * @throws LogicException If the API can not be use
      */
     protected function assertStreamable()
     {
@@ -134,7 +134,7 @@ trait StreamFilter
      *
      * @param int $mode
      *
-     * @throws \OutOfBoundsException If the mode is invalid
+     * @throws OutOfBoundsException If the mode is invalid
      *
      * @return $this
      */

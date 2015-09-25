@@ -4,7 +4,6 @@ namespace League\Csv\test;
 
 use ArrayIterator;
 use League\Csv\Writer;
-use LimitIterator;
 use PHPUnit_Framework_TestCase;
 use SplFileObject;
 use SplTempFileObject;
@@ -25,7 +24,7 @@ class WriterTest extends PHPUnit_Framework_TestCase
     {
         $csv = new SplFileObject(__DIR__.'/foo.csv', 'w');
         $csv->setCsvControl();
-        $csv->fputcsv(["john", "doe", "john.doe@example.com"], ",", '"');
+        $csv->fputcsv(['john', 'doe', 'john.doe@example.com'], ',', '"');
         $this->csv = null;
     }
 
@@ -110,15 +109,15 @@ class WriterTest extends PHPUnit_Framework_TestCase
         $this->assertSame("\n", $csv->getNewline());
         $csv->setNewline("\r\n");
 
-        $csv->insertOne(["jane", "doe"]);
+        $csv->insertOne(['jane', 'doe']);
         $this->assertSame("jane,doe\r\n", (string) $csv);
     }
 
     public function testCustomNewlineFromCreateFromString()
     {
         $expected = "\r\n";
-        $raw = "john,doe,john.doe@example.com".PHP_EOL
-            ."jane,doe,jane.doe@example.com".PHP_EOL;
+        $raw = 'john,doe,john.doe@example.com'.PHP_EOL
+            .'jane,doe,jane.doe@example.com'.PHP_EOL;
         $csv = Writer::createFromString($raw, $expected);
         $this->assertSame($expected, $csv->getNewline());
     }
@@ -160,6 +159,6 @@ class WriterTest extends PHPUnit_Framework_TestCase
             ['jane', 'doe', 'jane.doe@example.com'],
             ['toto', 'le', 'herisson'],
         ]);
-        $this->assertStringStartsWith("<table", $this->csv->toHTML());
+        $this->assertStringStartsWith('<table', $this->csv->toHTML());
     }
 }

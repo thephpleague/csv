@@ -36,7 +36,7 @@ class MapIterator extends IteratorIterator
      * The Constructor
      *
      * @param Iterator $iterator
-     * @param callable    $callable
+     * @param callable $callable
      */
     public function __construct(Iterator $iterator, callable $callable)
     {

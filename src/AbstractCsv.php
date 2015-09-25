@@ -16,8 +16,10 @@ use CallbackFilterIterator;
 use InvalidArgumentException;
 use IteratorAggregate;
 use JsonSerializable;
-use League\Csv\Config;
-use League\Csv\Modifier;
+use League\Csv\Config\Controls;
+use League\Csv\Config\Output;
+use League\Csv\Modifier\QueryFilter;
+use League\Csv\Modifier\StreamFilter;
 use SplFileInfo;
 use SplFileObject;
 use SplTempFileObject;
@@ -31,6 +33,14 @@ use SplTempFileObject;
  */
 abstract class AbstractCsv implements JsonSerializable, IteratorAggregate
 {
+    use Controls;
+
+    use Output;
+
+    use QueryFilter;
+
+    use StreamFilter;
+
     /**
      *  UTF-8 BOM sequence
      */
@@ -73,26 +83,6 @@ abstract class AbstractCsv implements JsonSerializable, IteratorAggregate
     protected $open_mode;
 
     /**
-     * Csv Controls Trait
-     */
-    use Config\Controls;
-
-    /**
-     * Csv Outputting Trait
-     */
-    use Config\Output;
-
-    /**
-     * Query Filter Trait
-     */
-    use Modifier\QueryFilter;
-
-    /**
-     *  Stream Filter API Trait
-     */
-    use Modifier\StreamFilter;
-
-    /**
      * Creates a new instance
      *
      * The path must be an SplFileInfo object
@@ -104,7 +94,7 @@ abstract class AbstractCsv implements JsonSerializable, IteratorAggregate
      */
     protected function __construct($path, $open_mode = 'r+')
     {
-        $this->flags     = SplFileObject::READ_CSV|SplFileObject::DROP_NEW_LINE;
+        $this->flags     = SplFileObject::READ_CSV | SplFileObject::DROP_NEW_LINE;
         $this->open_mode = strtolower($open_mode);
         $this->path      = $this->normalizePath($path);
         $this->initStreamFilter($this->path);
@@ -160,7 +150,7 @@ abstract class AbstractCsv implements JsonSerializable, IteratorAggregate
     protected function getConversionIterator()
     {
         $iterator = $this->getIterator();
-        $iterator->setFlags($this->flags|SplFileObject::READ_AHEAD|SplFileObject::SKIP_EMPTY);
+        $iterator->setFlags($this->flags | SplFileObject::READ_AHEAD | SplFileObject::SKIP_EMPTY);
         $iterator = $this->applyBomStripping($iterator);
         $iterator = new CallbackFilterIterator($iterator, function ($row) {
             return is_array($row) && [null] != $row;
@@ -239,7 +229,7 @@ abstract class AbstractCsv implements JsonSerializable, IteratorAggregate
      * The string must be an object that implements the `__toString` method,
      * or a string
      *
-     * @param string|object $str the string
+     * @param string|object $str     the string
      * @param string        $newline the newline character
      *
      * @return static

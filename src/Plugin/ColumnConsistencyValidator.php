@@ -42,9 +42,8 @@ class ColumnConsistencyValidator
      *
      * @param int $value
      *
-     * @throws \InvalidArgumentException If $value is lesser than -1
+     * @throws InvalidArgumentException If $value is lesser than -1
      *
-     * @return void
      */
     public function setColumnsCount($value)
     {
@@ -70,7 +69,6 @@ class ColumnConsistencyValidator
      * and therefore will also validate the next line whatever length it has no matter
      * the current $columns_count property value.
      *
-     * @return void
      */
     public function autodetectColumnsCount()
     {
