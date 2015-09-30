@@ -132,7 +132,7 @@ $nb_rows = count($data);
 ### fetchOne($offset = 0)
 
 `fetchOne` return one single row from the CSV data. The required argument $offset represent the row index starting at 0. If no argument is given to the method it will return the first row from the CSV data.
-wi
+
 ~~~php
 $data = $reader->fetchOne(3); ///accessing the 4th row (indexing starts at 0)
 // will return something like this :
