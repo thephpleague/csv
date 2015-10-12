@@ -203,9 +203,7 @@ trait StreamFilter
     protected function sanitizeStreamFilter($filter_name)
     {
         $this->assertStreamable();
-        $filter_name = (string) $filter_name;
-
-        return trim($filter_name);
+        return (string) $filter_name;
     }
 
     /**

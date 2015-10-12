@@ -4,6 +4,7 @@ namespace League\Csv\test;
 
 use League\Csv\Reader;
 use League\Csv\Writer;
+use lib\FilterReplace;
 use PHPUnit_Framework_TestCase;
 use SplFileObject;
 use SplTempFileObject;
@@ -113,11 +114,34 @@ class StreamFilterTest extends PHPUnit_Framework_TestCase
         $this->assertFalse($csv->getIterator()->getRealPath());
     }
 
-
     public function testGetFilterPathWithAllStream()
     {
         $filter = 'php://filter/string.toupper/resource='.__DIR__.'/foo.csv';
         $csv = Reader::createFromPath($filter);
         $this->assertFalse($csv->getIterator()->getRealPath());
+    }
+
+    public function testSetStreamFilterWriterNewLine()
+    {
+        stream_filter_register(FilterReplace::FILTER_NAME.'*', '\lib\FilterReplace');
+        $csv = Writer::createFromPath(__DIR__.'/newline.csv');
+        $csv->appendStreamFilter(FilterReplace::FILTER_NAME."\r\n:\n");
+        $this->assertTrue($csv->hasStreamFilter(FilterReplace::FILTER_NAME."\r\n:\n"));
+        $csv->insertOne([1, 'two', 3, "new\r\nline"]);
+    }
+
+    /**
+     * @depends testSetStreamFilterWriterNewLine
+     */
+    public function testSetStreamFilterReaderNewLine()
+    {
+        /* WORKS */
+        $handle = fopen(__DIR__.'/newline.csv', 'r+');
+        $actual = fgetcsv($handle, 0, ',', '"', '\\');
+        $this->assertEquals([1, 'two', 3, "new\nline"], $actual);
+        fclose($handle);
+        /* FAILS */
+        /*$csv = Reader::createFromPath(__DIR__.'/newline.csv');
+        $this->assertEquals(array(1,"two",3,"new\nline"), $csv->fetchOne());/**/
     }
 }
