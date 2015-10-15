@@ -77,7 +77,7 @@ trait QueryFilter
     }
 
     /**
-     * Tell whethe we can strip or not the leading BOM sequence
+     * Tell whether we can strip or not the leading BOM sequence
      *
      * @return bool
      */

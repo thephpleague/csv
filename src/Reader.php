@@ -29,7 +29,7 @@ use SplFileObject;
 class Reader extends AbstractCsv
 {
     /**
-     * @ihneritdoc
+     * @inheritdoc
      */
     protected $stream_filter_mode = STREAM_FILTER_READ;
 

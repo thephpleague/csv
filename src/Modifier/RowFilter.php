@@ -140,7 +140,7 @@ trait RowFilter
     }
 
     /**
-     * Remove all registered validatior
+     * Remove all registered validators
      *
      * @return $this
      */

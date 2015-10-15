@@ -218,6 +218,8 @@ trait Output
     /**
      * Convert Csv file into UTF-8
      *
+     * @param Iterator $iterator
+     *
      * @return Iterator
      */
     protected function convertToUtf8(Iterator $iterator)

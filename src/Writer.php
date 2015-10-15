@@ -29,7 +29,7 @@ class Writer extends AbstractCsv
     use RowFilter;
 
     /**
-     * @ihneritdoc
+     * @inheritdoc
      */
     protected $stream_filter_mode = STREAM_FILTER_WRITE;
 
@@ -55,7 +55,7 @@ class Writer extends AbstractCsv
     protected static $fputcsv_param_count;
 
     /**
-     * @ihneritdoc
+     * @inheritdoc
      */
     protected function __construct($path, $open_mode = 'r+')
     {
@@ -79,7 +79,7 @@ class Writer extends AbstractCsv
      *
      * a simple wrapper method around insertOne
      *
-     * @param Traversable|array $rows a multidimentional array or a Traversable object
+     * @param Traversable|array $rows a multidimensional array or a Traversable object
      *
      * @throws InvalidArgumentException If the given rows format is invalid
      *
