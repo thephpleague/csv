@@ -69,11 +69,11 @@ trait Controls
     abstract public function getIterator();
 
     /**
-     * Sets the field delimeter
+     * Sets the field delimiter
      *
      * @param string $delimiter
      *
-     * @throws InvalidArgumentException If $delimeter is not a single character
+     * @throws InvalidArgumentException If $delimiter is not a single character
      *
      * @return $this
      */
