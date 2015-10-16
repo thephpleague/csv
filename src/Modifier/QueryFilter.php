@@ -111,7 +111,7 @@ trait QueryFilter
     }
 
     /**
-     * Set LimitInterator Count
+     * Set LimitIterator Count
      *
      * @param int $limit
      *
