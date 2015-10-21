@@ -181,8 +181,8 @@ trait Output
             $bom = $this->output_bom;
         }
         $csv = $this->getIterator();
-        $csv->rewind();
         $csv->setFlags(SplFileObject::READ_CSV);
+        $csv->rewind();
         if (!empty($bom)) {
             $csv->fseek(mb_strlen($input_bom));
         }

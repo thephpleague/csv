@@ -172,9 +172,10 @@ class ControlsTest extends PHPUnit_Framework_TestCase
     public function testSetFlags()
     {
         $this->assertSame(SplFileObject::READ_CSV, $this->csv->getFlags() & SplFileObject::READ_CSV);
-        $this->assertSame(SplFileObject::DROP_NEW_LINE, $this->csv->getFlags() & SplFileObject::DROP_NEW_LINE);
-        $this->csv->setFlags(SplFileObject::SKIP_EMPTY);
         $this->assertSame(SplFileObject::SKIP_EMPTY, $this->csv->getFlags() & SplFileObject::SKIP_EMPTY);
+        $this->assertSame(SplFileObject::READ_AHEAD, $this->csv->getFlags() & SplFileObject::READ_AHEAD);
+        $this->csv->setFlags(SplFileObject::DROP_NEW_LINE);
+        $this->assertSame(SplFileObject::DROP_NEW_LINE, $this->csv->getFlags() & SplFileObject::DROP_NEW_LINE);
         $this->assertSame(SplFileObject::READ_CSV, $this->csv->getFlags() & SplFileObject::READ_CSV);
 
         $this->csv->setFlags(-3);
