@@ -1,17 +1,62 @@
 #Changelog
 All Notable changes to `League\Csv` will be documented in this file
 
-## 7.1.2 - 2015-06-10
+
+## 7.1.3 - 2015-XX-XX
+
+### Added
+
+- Nothing
+
+### Deprecated
+
+- Nothing
 
 ### Fixed
 
-- Enclosures should be removed when a BOM sequence is stripped [bug fix #102](http://github.com/thephpleague/csv/issues/99)
+- Bug fix Stream feature by removing trimming filter name argument [issue #122](https://github.com/thephpleague/csv/issues/122)
+
+- Bug fix SplFileObject flags usage [PR #130](https://github.com/thephpleague/csv/pull/130)
+
+### Removed
+
+- Nothing
+
+## 7.1.2 - 2015-06-10
+
+### Added
+
+- Nothing
+
+### Deprecated
+
+- Nothing
+
+### Fixed
+
+- Enclosures should be removed when a BOM sequence is stripped [issue #102](http://github.com/thephpleague/csv/issues/99)
+
+### Removed
+
+- Nothing
 
 ## 7.1.1 - 2015-05-20
 
+### Added
+
+- Nothing
+
+### Deprecated
+
+- Nothing
+
 ### Fixed
 
-- `SplFileObject` flags were not always applied using query filter [bug fix #99](http://github.com/thephpleague/csv/issues/99)
+- `SplFileObject` flags were not always applied using query filter [issue #99](http://github.com/thephpleague/csv/issues/99)
+
+### Removed
+
+- Nothing
 
 ## 7.1.0 - 2015-05-06
 
@@ -20,17 +65,37 @@ All Notable changes to `League\Csv` will be documented in this file
 - `stripBOM` query filtering method to ease removing the BOM sequence when querying the CSV document.
 - All query filters are now accessible in the `Writer` class for conversion methods.
 
+### Deprecated
+
+- Nothing
+
 ### Fixed
 
-- Internal code has been updated to take into account [bug fix #68479](http://bugs.php.net/68479)
+- Internal code has been updated to take into account [issue #68479](http://bugs.php.net/68479)
 - `setFlags` on conversion methods SplFileObject default flags are `SplFileObject::READ_AHEAD|SplFileObject::SKIP_EMPTY`
 - `insertOne` now takes into account the escape character when modified after the first insert.
 
+### Removed
+
+- Nothing
+
 ## 7.0.1 - 2015-03-23
+
+### Added
+
+- Nothing
+
+### Deprecated
+
+- Nothing
 
 ### Fixed
 
 - `setFlags`: `SplFileObject::DROP_NEW_LINE` can be remove using `setFlags` method.
+
+### Removed
+
+- Nothing
 
 ## 7.0.0 - 2015-02-19
 
@@ -87,20 +152,68 @@ All Notable changes to `League\Csv` will be documented in this file
 
 to manage BOM character with CSV.
 
+### Deprecated
+
+- Nothing
+
+### Fixed
+
+- Nothing
+
+### Removed
+
+- Nothing
+
 ## 6.2.0 - 2014-12-12
 
 ### Added
 - `Writer::setNewline` , `Writer::getNewline`  to control the newline sequence character added at the end of each CSV row.
+
+### Deprecated
+
+- Nothing
+
+### Fixed
+
+- Nothing
+
+### Removed
+
+- Nothing
 
 ## 6.1.0 - 2014-12-08
 
 ### Added
 - `Reader::fetchAssoc` now also accepts an integer as first argument representing a row index.
 
+### Deprecated
+
+- Nothing
+
+### Fixed
+
+- Nothing
+
+### Removed
+
+- Nothing
+
 ## 6.0.1 - 2014-11-12
+
+### Added
+
+- Nothing
+
+### Deprecated
+
+- Nothing
 
 ### Fixed
 - Bug Fixed `detectDelimiterList`
+
+### Removed
+
+- Nothing
 
 ## 6.0.0 - 2014-08-28
 
@@ -139,6 +252,10 @@ to manage BOM character with CSV.
 ### Fixed
 - Nothing
 
+### Removed
+
+- Nothing
+
 ## 5.3.1 - 2014-04-09
 
 ### Added
@@ -150,13 +267,24 @@ to manage BOM character with CSV.
 ### Fixed
 - `$open_mode` default to `r+` in `League\Csv\AbstractCsv` constructors
 
+### Removed
+
+- Nothing
+
 ## 5.3.0 - 2014-03-24
 
 ### Added
 - `League\Csv\Writer::setNullHandlingMode` and `League\Csv\Writer::getNullHandlingMode` to handle `null` value
 
+### Deprecated
+- Nothing
+
 ### Fixed
 - `setting ini_set("auto_detect_line_endings", true);` no longer needed for Mac OS
+
+### Removed
+
+- Nothing
 
 ## 5.2.0 - 2014-03-13
 
@@ -172,6 +300,10 @@ to manage BOM character with CSV.
 - `League\Csv\Reader::setLimit` now default to -1;
 - `detectDelimiter` bug fixes
 
+### Removed
+
+- Nothing
+
 ## 5.1.0 - 2014-03-11
 
 ### Added
@@ -181,6 +313,13 @@ to manage BOM character with CSV.
 
 ### Deprecated
 - `League\Csv\Reader::setFilter` replaced by a better implementation
+
+### Fixed
+- Nothing
+
+### Removed
+
+- Nothing
 
 ## 5.0.0 - 2014-02-28
 
@@ -193,10 +332,18 @@ to manage BOM character with CSV.
 ### Fixed
 - Nothing
 
+### Removed
+
+- Nothing
+
 ## 4.2.1 - 2014-02-22
 
 ### Fixed
 - `$open_mode` validation is done by PHP internals directly
+
+### Removed
+
+- Nothing
 
 ## 4.2.0 - 2014-02-17
 
