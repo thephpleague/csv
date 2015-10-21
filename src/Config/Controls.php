@@ -120,28 +120,32 @@ trait Controls
     /**
      * Detects the CSV file delimiters
      *
+     * returns an array whose offset represents the found
+     * delimiters and the value the occurence of the delimiters
+     * in the given row numbers.
+     *
      * @param int      $nb_rows
      * @param string[] $delimiters additional delimiters
      *
      * @throws InvalidArgumentException If $nb_rows value is invalid
      *
-     * @return string[]
+     * @return array
      */
     public function detectDelimiterList($nb_rows = 1, array $delimiters = [])
     {
         $nb_rows = filter_var($nb_rows, FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]);
-        if (! $nb_rows) {
-            throw new InvalidArgumentException('`$nb_rows` must be a valid positive integer');
+        if (!$nb_rows) {
+            throw new InvalidArgumentException('The row count must be a valid positive integer');
         }
 
         $delimiters = array_filter($delimiters, function ($str) {
             return 1 == mb_strlen($str);
         });
         $delimiters = array_unique(array_merge([$this->delimiter, ',', ';', "\t"], $delimiters));
-        $res = array_fill_keys($delimiters, 0);
-        array_walk($res, function (&$value, $delim) use ($nb_rows) {
-            $value = $this->fetchRowsCountByDelimiter($delim, $nb_rows);
-        });
+        $res = [];
+        foreach ($delimiters as $delim) {
+            $res[$delim] = $this->fetchRowsCountByDelimiter($delim, $nb_rows);
+        }
 
         arsort($res, SORT_NUMERIC);
 
