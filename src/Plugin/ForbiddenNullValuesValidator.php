@@ -34,6 +34,6 @@ class ForbiddenNullValuesValidator
             return is_null($value);
         });
 
-        return ! $res;
+        return !$res;
     }
 }

@@ -51,7 +51,7 @@ class Reader extends AbstractCsv
         $iterator = $this->applyIteratorFilter($iterator);
         $iterator = $this->applyIteratorSortBy($iterator);
         $iterator = $this->applyIteratorInterval($iterator);
-        if (! is_null($callable)) {
+        if (!is_null($callable)) {
             return new MapIterator($iterator, $callable);
         }
 
@@ -73,7 +73,12 @@ class Reader extends AbstractCsv
         $index = 0;
         $iterator = $this->query();
         $iterator->rewind();
-        while ($iterator->valid() && true === $callable($iterator->current(), $iterator->key(), $iterator)) {
+        while ($iterator->valid() && true === call_user_func(
+            $callable,
+            $iterator->current(),
+            $iterator->key(),
+            $iterator
+        )) {
             ++$index;
             $iterator->next();
         }

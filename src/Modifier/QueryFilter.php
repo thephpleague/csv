@@ -268,7 +268,7 @@ trait QueryFilter
      *
      * @return Iterator
      */
-    protected function getStripBomIterator($iterator)
+    protected function getStripBomIterator(Iterator $iterator)
     {
         $bom = $this->getInputBom();
 
@@ -344,7 +344,7 @@ trait QueryFilter
         $obj->uasort(function ($rowA, $rowB) {
             $sortRes = 0;
             foreach ($this->iterator_sort_by as $callable) {
-                if (0 !== ($sortRes = $callable($rowA, $rowB))) {
+                if (0 !== ($sortRes = call_user_func($callable, $rowA, $rowB))) {
                     break;
                 }
             }

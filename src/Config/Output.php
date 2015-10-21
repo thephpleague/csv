@@ -156,7 +156,7 @@ trait Output
      */
     public function output($filename = null)
     {
-        if (! is_null($filename)) {
+        if (!is_null($filename)) {
             $filename = trim($filename);
             $filename = filter_var($filename, FILTER_SANITIZE_STRING, FILTER_FLAG_STRIP_LOW);
             header('Content-Type: application/octet-stream');
@@ -183,7 +183,7 @@ trait Output
         $csv = $this->getIterator();
         $csv->rewind();
         $csv->setFlags(SplFileObject::READ_CSV);
-        if (! empty($bom)) {
+        if (!empty($bom)) {
             $csv->fseek(mb_strlen($input_bom));
         }
         echo $bom;
@@ -271,7 +271,7 @@ trait Output
             $item = $doc->createElement($row_name);
             array_walk($row, function ($value) use (&$item, $doc, $cell_name) {
                 $content = $doc->createTextNode($value);
-                $cell    = $doc->createElement($cell_name);
+                $cell = $doc->createElement($cell_name);
                 $cell->appendChild($content);
                 $item->appendChild($cell);
             });

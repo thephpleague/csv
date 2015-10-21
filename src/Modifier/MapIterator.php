@@ -50,8 +50,7 @@ class MapIterator extends IteratorIterator
     public function current()
     {
         $iterator = $this->getInnerIterator();
-        $callable = $this->callable;
 
-        return $callable($iterator->current(), $iterator->key(), $iterator);
+        return call_user_func($this->callable, $iterator->current(), $iterator->key(), $iterator);
     }
 }

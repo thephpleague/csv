@@ -94,9 +94,9 @@ abstract class AbstractCsv implements JsonSerializable, IteratorAggregate
      */
     protected function __construct($path, $open_mode = 'r+')
     {
-        $this->flags     = SplFileObject::READ_CSV | SplFileObject::DROP_NEW_LINE;
+        $this->flags = SplFileObject::READ_CSV | SplFileObject::DROP_NEW_LINE;
         $this->open_mode = strtolower($open_mode);
-        $this->path      = $this->normalizePath($path);
+        $this->path = $this->normalizePath($path);
         $this->initStreamFilter($this->path);
     }
 
@@ -133,7 +133,7 @@ abstract class AbstractCsv implements JsonSerializable, IteratorAggregate
     public function getIterator()
     {
         $iterator = $this->path;
-        if (! $iterator instanceof SplFileObject) {
+        if (!$iterator instanceof SplFileObject) {
             $iterator = new SplFileObject($this->getStreamFilterPath(), $this->open_mode);
         }
         $iterator->setCsvControl($this->delimiter, $this->enclosure, $this->escape);
@@ -192,7 +192,9 @@ abstract class AbstractCsv implements JsonSerializable, IteratorAggregate
     {
         if ($path instanceof SplTempFileObject) {
             throw new InvalidArgumentException('an `SplTempFileObject` object does not contain a valid path');
-        } elseif ($path instanceof SplFileInfo) {
+        }
+
+        if ($path instanceof SplFileInfo) {
             $path = $path->getPath().'/'.$path->getBasename();
         }
 
@@ -256,14 +258,14 @@ abstract class AbstractCsv implements JsonSerializable, IteratorAggregate
     protected function newInstance($class_name, $open_mode)
     {
         $csv = new $class_name($this->path, $open_mode);
-        $csv->delimiter    = $this->delimiter;
-        $csv->enclosure    = $this->enclosure;
-        $csv->escape       = $this->escape;
+        $csv->delimiter = $this->delimiter;
+        $csv->enclosure = $this->enclosure;
+        $csv->escape = $this->escape;
         $csv->encodingFrom = $this->encodingFrom;
-        $csv->flags        = $this->flags;
-        $csv->input_bom    = $this->input_bom;
-        $csv->output_bom   = $this->output_bom;
-        $csv->newline      = $this->newline;
+        $csv->flags = $this->flags;
+        $csv->input_bom = $this->input_bom;
+        $csv->output_bom = $this->output_bom;
+        $csv->newline = $this->newline;
 
         return $csv;
     }

@@ -161,7 +161,7 @@ trait RowFilter
     protected function formatRow(array $row)
     {
         foreach ($this->formatters as $formatter) {
-            $row = $formatter($row);
+            $row = call_user_func($formatter, $row);
         }
 
         return $row;
@@ -172,13 +172,12 @@ trait RowFilter
     *
     * @param array $row
     *
-    * @throws \League\Csv\Exception\InvalidRowException If the validation failed
-    *
+    * @throws InvalidRowException If the validation failed
     */
     protected function validateRow(array $row)
     {
         foreach ($this->validators as $name => $validator) {
-            if (true !== $validator($row)) {
+            if (true !== call_user_func($validator, $row)) {
                 throw new InvalidRowException($name, $row, 'row validation failed');
             }
         }

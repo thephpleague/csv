@@ -52,7 +52,12 @@ trait StreamFilter
      *
      * @var string
      */
-    protected $stream_regex = ',^php://filter/(?P<mode>:?read=|write=)?(?P<filters>.*?)/resource=(?P<resource>.*)$,i';
+    protected $stream_regex = ',^
+        php://filter/
+        (?P<mode>:?read=|write=)?  # The resource open mode
+        (?P<filters>.*?)           # The resource registered filters
+        /resource=(?P<resource>.*) # The resource path
+        $,ix';
 
     /**
      * Internal path setter
@@ -77,8 +82,8 @@ trait StreamFilter
 
             return;
         }
-        $this->stream_uri         = $matches['resource'];
-        $this->stream_filters     = explode('|', $matches['filters']);
+        $this->stream_uri = $matches['resource'];
+        $this->stream_filters = explode('|', $matches['filters']);
         $this->stream_filter_mode = $this->fetchStreamModeAsInt($matches['mode']);
     }
 
@@ -111,7 +116,7 @@ trait StreamFilter
      */
     protected function assertStreamable()
     {
-        if (! is_string($this->stream_uri)) {
+        if (!is_string($this->stream_uri)) {
             throw new LogicException('The stream filter API can not be used');
         }
     }
@@ -141,7 +146,7 @@ trait StreamFilter
     public function setStreamFilterMode($mode)
     {
         $this->assertStreamable();
-        if (! in_array($mode, [STREAM_FILTER_ALL, STREAM_FILTER_READ, STREAM_FILTER_WRITE])) {
+        if (!in_array($mode, [STREAM_FILTER_ALL, STREAM_FILTER_READ, STREAM_FILTER_WRITE])) {
             throw new OutOfBoundsException('the $mode should be a valid `STREAM_FILTER_*` constant');
         }
 
