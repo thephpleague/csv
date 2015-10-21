@@ -42,12 +42,16 @@ $csv->setFlags(SplFileObject::READ_AHEAD|SplFileObject::SKIP_EMPTY);
 $flags = $csv->getFlags(); //returns an integer
 ~~~
 
-<p class="message-warning">Since version 7.0.1, the <code>setFlags</code> method has been fixed to prevent a <a href="https://bugs.php.net/bug.php?id=69181" target="_blank">bug in SplFileObject</a>.</p>
+<p class="message-notice">Since version <code>7.0.1</code>, the <code>setFlags</code> method has been fixed to prevent a <a href="https://bugs.php.net/bug.php?id=69181" target="_blank">bug in SplFileObject</a>.</p>
 
-- On instantiation the flags used are `SplFileObject::READ_CSV` and `SplFileObject::DROP_NEW_LINE`.
-- When using the `setFlags` method, you can add or remove any `SplFileObject` flags except for the `SplFileObject::READ_CSV` flag.
+<p class="message-notice">Since version <code>7.1.3</code>, the flags on instantiaton are have been changed to correct a bug when parsing row cells with multiple lines</p>
 
-<p class="message-info">If your CSV cells contain newline sequence in their content you should avoid using the <code>SplFileObject::DROP_NEW_LINE</code> flag as it will remove the first newline sequence found in each row.</p>
+- On instantiation the flags set are :
+    - `SplFileObject::READ_CSV`
+    - `SplFileObject::READ_AHEAD`
+    - `SplFileObject::SKIP_EMPTY`
+
+- On update you can add or remove any `SplFileObject` flags except for the `SplFileObject::READ_CSV` flag.
 
 ## Detecting CSV delimiter
 
