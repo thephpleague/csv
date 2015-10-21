@@ -79,7 +79,7 @@ class CsvTest extends PHPUnit_Framework_TestCase
      */
     public function testOutputSize()
     {
-        $this->assertSame(60, $this->csv->output('test.csv'));
+        $this->assertSame(60, $this->csv->output(__DIR__.'/data/test.csv'));
     }
 
     /**
@@ -87,7 +87,7 @@ class CsvTest extends PHPUnit_Framework_TestCase
      */
     public function testOutputHeaders()
     {
-        if (! function_exists('xdebug_get_headers')) {
+        if (!function_exists('xdebug_get_headers')) {
             $this->markTestSkipped();
         }
         $this->csv->output('test.csv');
