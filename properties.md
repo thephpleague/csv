@@ -89,9 +89,9 @@ $delimiters_list = $reader->fetchDelimitersOccurrence([' ', '|'], 10);
 
 <p class="message-warning">If multiple delimiters share the same occurrences count only the last found delimiter will be returned in the response array.</p>
 
-If you are no sure about the delimiter you can ask the library to detect it for you using the `detectDelimiterList` method.
+<p class="message-notice">This method will only give you a hint, a better approach is to ask the CSV provider for the document controls properties.</p>
 
-<p class="message-warning">This method will only give you a hint, a better approach is to ask the CSV provider for the document controls properties.</p>
+If you are no sure about the delimiter you can ask the library to detect it for you using the `detectDelimiterList` method.
 
 The method takes two arguments:
 
