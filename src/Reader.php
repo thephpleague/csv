@@ -4,7 +4,7 @@
 *
 * @license http://opensource.org/licenses/MIT
 * @link https://github.com/thephpleague/csv/
-* @version 7.1.1
+* @version 7.2.0
 * @package League.csv
 *
 * For the full copyright and license information, please view the LICENSE
@@ -36,18 +36,32 @@ class Reader extends AbstractCsv
     /**
      * Returns a Filtered Iterator
      *
-     * @param callable $callable a callable function to be applied to each Iterator item
+     * DEPRECATION WARNING! This method will be removed in the next major point release
+     *
+     * @deprecated deprecated since version 7.2
      *
      * @return Iterator
      */
     public function query(callable $callable = null)
     {
+        return $this->fetch($callable);
+    }
+
+    /**
+     * Return a Filtered Iterator
+     *
+     * @param callable $callable a callable function to be applied to each Iterator item
+     *
+     * @return Iterator
+     */
+    public function fetch(callable $callable = null)
+    {
+        $filterArray = function ($row) {
+            return is_array($row);
+        };
         $iterator = $this->getIterator();
         $iterator = $this->applyBomStripping($iterator);
-        $iterator = new CallbackFilterIterator($iterator, function ($row) {
-            return is_array($row);
-        });
-
+        $iterator = new CallbackFilterIterator($iterator, $filterArray);
         $iterator = $this->applyIteratorFilter($iterator);
         $iterator = $this->applyIteratorSortBy($iterator);
         $iterator = $this->applyIteratorInterval($iterator);
@@ -71,7 +85,7 @@ class Reader extends AbstractCsv
     public function each(callable $callable)
     {
         $index = 0;
-        $iterator = $this->query();
+        $iterator = $this->fetch();
         $iterator->rewind();
         while ($iterator->valid() && true === call_user_func(
             $callable,
@@ -99,7 +113,7 @@ class Reader extends AbstractCsv
     {
         $this->setOffset($offset);
         $this->setLimit(1);
-        $iterator = $this->query();
+        $iterator = $this->fetch();
         $iterator->rewind();
 
         return (array) $iterator->current();
@@ -116,19 +130,7 @@ class Reader extends AbstractCsv
      */
     public function fetchAll(callable $callable = null)
     {
-        return $this->execute($this->query($callable));
-    }
-
-    /**
-     * Transform the Iterator into an array
-     *
-     * @param Iterator $iterator
-     *
-     * @return array
-     */
-    protected function execute(Iterator $iterator)
-    {
-        return iterator_to_array($iterator, false);
+        return iterator_to_array($this->fetch($callable), false);
     }
 
     /**
@@ -150,16 +152,17 @@ class Reader extends AbstractCsv
                 'the column index must be a positive integer or 0'
             );
         }
-
-        $iterator = $this->query($callable);
-        $iterator = new CallbackFilterIterator($iterator, function ($row) use ($column_index) {
+        $filterColumn = function ($row) use ($column_index) {
             return array_key_exists($column_index, $row);
-        });
-        $iterator = new MapIterator($iterator, function ($row) use ($column_index) {
+        };
+        $selectColumn = function ($row) use ($column_index) {
             return $row[$column_index];
-        });
+        };
 
-        return $this->execute($iterator);
+        $iterator = $this->fetch($callable);
+        $iterator = new CallbackFilterIterator($iterator, $filterColumn);
+
+        return iterator_to_array(new MapIterator($iterator, $selectColumn), false);
     }
 
     /**
@@ -168,7 +171,7 @@ class Reader extends AbstractCsv
      * The rows are presented as associated arrays
      * The callable function will be applied to each Iterator item
      *
-     * @param array|int $offset_or_keys the name for each key member OR the row Index to be
+     * @param int|array $offset_or_keys the name for each key member OR the row Index to be
      *                                  used as the associated named keys
      *
      * @param callable $callable a callable function
@@ -181,22 +184,23 @@ class Reader extends AbstractCsv
     {
         $keys = $this->getAssocKeys($offset_or_keys);
         $this->assertValidAssocKeys($keys);
-        if (! is_array($offset_or_keys)) {
-            $this->addFilter(function ($row, $rowIndex) use ($offset_or_keys) {
+        if (!is_array($offset_or_keys)) {
+            $filterOutOffset = function ($row, $rowIndex) use ($offset_or_keys) {
                 return is_array($row) && $rowIndex != $offset_or_keys;
-            });
+            };
+            $this->addFilter($filterOutOffset);
         }
-        $keys_count = count($keys);
-        $iterator   = $this->query($callable);
-        $iterator   = new MapIterator($iterator, function (array $row) use ($keys, $keys_count) {
+        $iterator = $this->fetch($callable);
+        $combineArray = function (array $row) use ($keys) {
+            $keys_count = count($keys);
             if ($keys_count != count($row)) {
                 $row = array_slice(array_pad($row, $keys_count, null), 0, $keys_count);
             }
 
             return array_combine($keys, $row);
-        });
+        };
 
-        return $this->execute($iterator);
+        return iterator_to_array(new MapIterator($iterator, $combineArray), false);
     }
 
     /**

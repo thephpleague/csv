@@ -2,15 +2,18 @@
 All Notable changes to `League\Csv` will be documented in this file
 
 
-## 7.1.3 - 2015-XX-XX
+## 7.2.0 - 2015-XX-XX
 
 ### Added
 
-- Nothing
+- `League\Csv\Reader::fetch` replaces `League\Csv\Reader::query` for naming consistency
+- `League\Csv\Config\Controls::fetchDelimitersOccurrence` to replace `League\Csv\Config\Controls::detectDelimiterList` the latter gives erronous results
+
 
 ### Deprecated
 
-- Nothing
+- `League\Csv\Config\Controls::detectDelimiterList`
+- `League\Csv\Reader::query`
 
 ### Fixed
 
