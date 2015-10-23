@@ -4,7 +4,6 @@ namespace League\Csv\test;
 
 use League\Csv\Reader;
 use PHPUnit_Framework_TestCase;
-use SplFileObject;
 use SplTempFileObject;
 
 /**
@@ -275,7 +274,6 @@ class ReaderTest extends PHPUnit_Framework_TestCase
         $source = Reader::BOM_UTF8.'"parent name","child name","title"
             "parentA","childA","titleA"';
         $csv = Reader::createFromString($source);
-        $csv->setFlags(SplFileObject::READ_AHEAD | SplFileObject::SKIP_EMPTY);
         $csv->stripBom(true);
         $expected = [
             ['parent name' => 'parentA', 'child name' => 'childA', 'title' => 'titleA'],
@@ -288,7 +286,6 @@ class ReaderTest extends PHPUnit_Framework_TestCase
         $source = Reader::BOM_UTF8.'"parent name","child name","title"
             "parentA","childA","titleA"';
         $csv = Reader::createFromString($source);
-        $csv->setFlags(SplFileObject::READ_AHEAD | SplFileObject::SKIP_EMPTY);
         $csv->stripBom(true);
         $this->assertContains('parent name', $csv->fetchColumn());
     }
@@ -298,7 +295,6 @@ class ReaderTest extends PHPUnit_Framework_TestCase
         $source = Reader::BOM_UTF8.'"parent name","child name","title"
             "parentA","childA","titleA"';
         $csv = Reader::createFromString($source);
-        $csv->setFlags(SplFileObject::READ_AHEAD | SplFileObject::SKIP_EMPTY);
         $csv->stripBom(true);
         $this->assertContains(['parent name', 'child name', 'title'], $csv->fetchAll());
     }
@@ -308,7 +304,6 @@ class ReaderTest extends PHPUnit_Framework_TestCase
         $source = Reader::BOM_UTF8.'"parent name","child name","title"
             "parentA","childA","titleA"';
         $csv = Reader::createFromString($source);
-        $csv->setFlags(SplFileObject::READ_AHEAD | SplFileObject::SKIP_EMPTY);
         $csv->stripBom(true);
         $this->assertSame(Reader::BOM_UTF8, $csv->getInputBom());
         $expected = ['parent name', 'child name', 'title'];

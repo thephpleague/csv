@@ -190,7 +190,6 @@ class Reader extends AbstractCsv
             };
             $this->addFilter($filterOutOffset);
         }
-        $iterator = $this->fetch($callable);
         $combineArray = function (array $row) use ($keys) {
             $keys_count = count($keys);
             if ($keys_count != count($row)) {
@@ -200,7 +199,7 @@ class Reader extends AbstractCsv
             return array_combine($keys, $row);
         };
 
-        return iterator_to_array(new MapIterator($iterator, $combineArray), false);
+        return iterator_to_array(new MapIterator($this->fetch($callable), $combineArray), false);
     }
 
     /**
