@@ -11,11 +11,25 @@ To extract data from a CSV document use `League\Csv\Reader` methods.
 
 ### query(callable $callable = null)
 
+<p class="message-warning">This method is deprecated since version <code>7.2.0</code> and will be remove in the next major release</p>
+
 The `query` method prepares and issues queries on the CSV data. It returns an `Iterator` that represents the result that you can further manipulate as you wish.
 
 ~~~php
 $data = $reader->query();
 foreach ($data as $lineIndex => $row) {
+    //do something here
+}
+~~~
+
+### fetch(callable $callable = null)
+
+<p class="message-notice">This method is introduced in version <code>7.2.0</code></p>
+
+The `fetch` method returns an `Iterator`.
+
+~~~php
+foreach ($reader->fetch() as $row) {
     //do something here
 }
 ~~~
@@ -97,7 +111,7 @@ $data = $reader->fetchColumn(2);
 ~~~
 
 <div class="message-warning">
-<strong>BC break starting with <code>version 7.0</code> :</strong> 
+<strong>BC break starting with <code>version 7.0</code> :</strong>
 <ul>
 <li>This method no longer adds <code>null</code> on an non existing column index.</li>
 <li>The cell skipping is done on the callable result.</li>

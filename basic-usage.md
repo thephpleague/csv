@@ -11,7 +11,6 @@ Once your CSV object is [instantiated](/instantiation) and [configured](/propert
 
 ~~~php
 $reader = Reader::createFromPath('/path/to/my/file.csv');
-$reader->setFlags(SplFileObject::READ_AHEAD|SplFileObject::SKIP_EMPTY);
 foreach ($reader as $index => $row) {
     //do something meaningful here with $row !!
     //$row is an array where each item represent a CSV data cell

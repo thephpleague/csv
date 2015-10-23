@@ -44,7 +44,7 @@ $flags = $csv->getFlags(); //returns an integer
 
 <p class="message-notice">Since version <code>7.0.1</code>, the <code>setFlags</code> method has been fixed to prevent a <a href="https://bugs.php.net/bug.php?id=69181" target="_blank">bug in SplFileObject</a>.</p>
 
-<p class="message-notice">Since version <code>7.1.3</code>, the flags on instantiaton are have been changed to correct a bug when parsing row cells with multiple lines</p>
+<p class="message-notice">Since version <code>7.2.0</code>, the flags on instantiaton are have been changed to correct a bug when parsing row cells with multiple lines</p>
 
 - On instantiation the flags set are :
     - `SplFileObject::READ_CSV`
@@ -55,7 +55,39 @@ $flags = $csv->getFlags(); //returns an integer
 
 ## Detecting CSV delimiter
 
+## fetchDelimitersOccurrence(array $delimiters, $nbRows = 1)
+
+<p class="message-notice">This method is introduced in version <code>7.2.0</code></p>
+
+The method takes two arguments:
+
+* an array containing the delimiters to check;
+* an integer which represents the number of rows to scan (default to `1`);
+
+~~~php
+$reader = Reader::createFromPath('/path/to/your/csv/file.csv');
+
+$reader->setEnclosure('"');
+$reader->setEscape('\\');
+
+$delimiters_list = $reader->fetchDelimitersOccurrence([' ', '|'], 10);
+// $delimiters_list can be the following
+// [
+//     '|' => 20,
+//     ' ' => 0,
+// ]
+// This seems to be a consistent CSV with:
+// - the delimiter "|" appearing 20 times in the 10 first rows
+// - the delimiter " " never appearing
+~~~
+
+<p class="message-notice">This method only test the delimiters you gave it.</p>
+
 ### detectDelimiterList($nbRows = 1, array $delimiters = [])
+
+<p class="message-warning">This method is deprecated since version <code>7.2.0</code> and will be remove in the next major release</p>
+
+<p class="message-warning">If multiple delimiters share the same occurrences count only the last found delimiter will be returned in the response array.</p>
 
 If you are no sure about the delimiter you can ask the library to detect it for you using the `detectDelimiterList` method.
 
@@ -89,8 +121,6 @@ The more rows and delimiters you add, the more time and memory consuming the ope
 * If a single delimiter is found the array will contain only one delimiter;
 * If multiple delimiters are found the array will contain the found delimiters sorted descendingly according to their occurences in the defined rows set;
 * If no delimiter is found or your CSV is composed of a single column, the array will be empty;
-
-<p class="message-warning">If multiple delimiters share the same occurences only the last found delimiter will be returned in the response array.</p>
 
 <p class="message-warning"><strong>BC Break:</strong> Starting with version <code>7.0</code>, the index of each found delimiter represents the occurence of the found delimiter in the selected rows.</p>
 
