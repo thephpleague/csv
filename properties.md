@@ -55,7 +55,7 @@ $flags = $csv->getFlags(); //returns an integer
 
 ## Detecting CSV delimiter
 
-## fetchDelimitersOccurrence(array $delimiters, $nbRows = 1)
+### fetchDelimitersOccurrence(array $delimiters, $nbRows = 1)
 
 <p class="message-notice">This method is introduced in version <code>7.2.0</code></p>
 
