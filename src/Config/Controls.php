@@ -83,7 +83,7 @@ trait Controls
     /**
      * Tell whether the submitted string is a valid CSV Control character
      *
-     * @param strung $str The submitted string
+     * @param string $str The submitted string
      *
      * @return bool
      */
