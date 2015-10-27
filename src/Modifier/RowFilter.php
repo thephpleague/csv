@@ -61,9 +61,7 @@ trait RowFilter
     public function removeFormatter(callable $callable)
     {
         $res = array_search($callable, $this->formatters, true);
-        if (false !== $res) {
-            unset($this->formatters[$res]);
-        }
+        unset($this->formatters[$res]);
 
         return $this;
     }
@@ -102,7 +100,6 @@ trait RowFilter
      */
     public function addValidator(callable $callable, $name)
     {
-        $name = trim($name);
         $this->validators[$name] = $callable;
 
         return $this;
@@ -117,7 +114,6 @@ trait RowFilter
      */
     public function removeValidator($name)
     {
-        $name = trim($name);
         if (array_key_exists($name, $this->validators)) {
             unset($this->validators[$name]);
         }
@@ -134,8 +130,6 @@ trait RowFilter
      */
     public function hasValidator($name)
     {
-        $name = trim($name);
-
         return array_key_exists($name, $this->validators);
     }
 

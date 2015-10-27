@@ -151,9 +151,7 @@ trait QueryFilter
     public function removeSortBy(callable $callable)
     {
         $res = array_search($callable, $this->iterator_sort_by, true);
-        if (false !== $res) {
-            unset($this->iterator_sort_by[$res]);
-        }
+        unset($this->iterator_sort_by[$res]);
 
         return $this;
     }
@@ -206,9 +204,7 @@ trait QueryFilter
     public function removeFilter(callable $callable)
     {
         $res = array_search($callable, $this->iterator_filters, true);
-        if (false !== $res) {
-            unset($this->iterator_filters[$res]);
-        }
+        unset($this->iterator_filters[$res]);
 
         return $this;
     }
