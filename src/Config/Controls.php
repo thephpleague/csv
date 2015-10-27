@@ -72,12 +72,24 @@ trait Controls
      */
     public function setDelimiter($delimiter)
     {
-        if (1 != mb_strlen($delimiter)) {
+        if (!$this->isValidCsvControls($delimiter)) {
             throw new InvalidArgumentException('The delimiter must be a single character');
         }
         $this->delimiter = $delimiter;
 
         return $this;
+    }
+
+    /**
+     * Tell whether the submitted string is a valid CSV Control character
+     *
+     * @param strung $str The submitted string
+     *
+     * @return bool
+     */
+    protected function isValidCsvControls($str)
+    {
+        return 1 == mb_strlen($str);
     }
 
     /**
@@ -132,48 +144,30 @@ trait Controls
      */
     public function fetchDelimitersOccurrence(array $delimiters, $nb_rows = 1)
     {
-        $nb_rows = filter_var($nb_rows, FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]);
-        if (!$nb_rows) {
+        if (!($nb_rows = filter_var($nb_rows, FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]))) {
             throw new InvalidArgumentException('The number of rows to consider must be a valid positive integer');
         }
-        $delimiters = array_filter($delimiters, function ($str) {
-            return 1 == mb_strlen($str);
-        });
-        $delimiters = array_unique($delimiters);
+
+        $filterRow = function ($row) {
+            return is_array($row) && count($row) > 1;
+        };
+        $delimiters = array_unique(array_filter($delimiters, [$this, 'isValidCsvControls']));
+        $csv = $this->getIterator();
         $res = [];
         foreach ($delimiters as $delim) {
-            $res[$delim] = $this->fetchRowsCountByDelimiter($delim, $nb_rows);
+            $csv->setCsvControl($delim, $this->enclosure, $this->escape);
+            $iterator = new CallbackFilterIterator(new LimitIterator($csv, 0, $nb_rows), $filterRow);
+            $res[$delim] = count(iterator_to_array($iterator, false), COUNT_RECURSIVE);
         }
-
         arsort($res, SORT_NUMERIC);
 
         return $res;
     }
 
     /**
-     * Detects the actual number of row according to a delimiter
-     *
-     * @param string $delimiter a CSV delimiter
-     * @param int    $nb_rows   the number of row to consider
-     *
-     * @return int
-     */
-    protected function fetchRowsCountByDelimiter($delimiter, $nb_rows = 1)
-    {
-        $iterator = $this->getIterator();
-        $iterator->setCsvControl($delimiter, $this->enclosure, $this->escape);
-        $iterator = new LimitIterator($iterator, 0, $nb_rows);
-        $iterator = new CallbackFilterIterator($iterator, function ($row) {
-            return is_array($row) && count($row) > 1;
-        });
-
-        return count(iterator_to_array($iterator, false), COUNT_RECURSIVE);
-    }
-
-    /**
      * Returns the CSV Iterator
      *
-     * @return \Iterator
+     * @return SplFileObject
      */
     abstract public function getIterator();
 
@@ -188,7 +182,7 @@ trait Controls
      */
     public function setEnclosure($enclosure)
     {
-        if (1 != mb_strlen($enclosure)) {
+        if (!$this->isValidCsvControls($enclosure)) {
             throw new InvalidArgumentException('The enclosure must be a single character');
         }
         $this->enclosure = $enclosure;
@@ -217,7 +211,7 @@ trait Controls
      */
     public function setEscape($escape)
     {
-        if (1 != mb_strlen($escape)) {
+        if (!$this->isValidCsvControls($escape)) {
             throw new InvalidArgumentException('The escape character must be a single character');
         }
         $this->escape = $escape;

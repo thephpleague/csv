@@ -12,7 +12,6 @@
 */
 namespace League\Csv;
 
-use CallbackFilterIterator;
 use InvalidArgumentException;
 use IteratorAggregate;
 use JsonSerializable;
@@ -71,7 +70,7 @@ abstract class AbstractCsv implements JsonSerializable, IteratorAggregate
      *
      * can be a SplFileInfo object or the string path to a file
      *
-     * @var \SplFileObject|string
+     * @var SplFileObject|string
      */
     protected $path;
 
@@ -81,6 +80,13 @@ abstract class AbstractCsv implements JsonSerializable, IteratorAggregate
      * @var string
      */
     protected $open_mode;
+
+    /**
+     * Default SplFileObject flags settings
+     *
+     * @var int
+     */
+    protected $defaultFlags;
 
     /**
      * Creates a new instance
@@ -94,7 +100,8 @@ abstract class AbstractCsv implements JsonSerializable, IteratorAggregate
      */
     protected function __construct($path, $open_mode = 'r+')
     {
-        $this->flags = SplFileObject::READ_CSV | SplFileObject::READ_AHEAD | SplFileObject::SKIP_EMPTY;
+        $this->defaultFlags = SplFileObject::READ_CSV | SplFileObject::READ_AHEAD | SplFileObject::SKIP_EMPTY;
+        $this->flags = $this->defaultFlags;
         $this->open_mode = strtolower($open_mode);
         $this->path = $this->normalizePath($path);
         $this->initStreamFilter($this->path);
@@ -106,7 +113,7 @@ abstract class AbstractCsv implements JsonSerializable, IteratorAggregate
      *
      * @param object|string $path the filepath
      *
-     * @return \SplFileObject|string
+     * @return SplFileObject|string
      */
     protected function normalizePath($path)
     {
@@ -128,7 +135,7 @@ abstract class AbstractCsv implements JsonSerializable, IteratorAggregate
     /**
      * Returns the CSV Iterator
      *
-     * @return \Iterator
+     * @return SplFileObject
      */
     public function getIterator()
     {
@@ -149,12 +156,12 @@ abstract class AbstractCsv implements JsonSerializable, IteratorAggregate
      */
     protected function getConversionIterator()
     {
-        $iterator = $this->getIterator();
-        $iterator->setFlags($this->flags | SplFileObject::READ_AHEAD | SplFileObject::SKIP_EMPTY);
-        $iterator = $this->applyBomStripping($iterator);
-        $iterator = new CallbackFilterIterator($iterator, function ($row) {
+        $this->addFilter(function ($row) {
             return is_array($row) && [null] != $row;
         });
+        $iterator = $this->getIterator();
+        $iterator->setFlags($this->defaultFlags);
+        $iterator = $this->applyBomStripping($iterator);
         $iterator = $this->applyIteratorFilter($iterator);
         $iterator = $this->applyIteratorSortBy($iterator);
 
@@ -184,7 +191,7 @@ abstract class AbstractCsv implements JsonSerializable, IteratorAggregate
      * @param object|string $path      file path
      * @param string        $open_mode the file open mode flag
      *
-     * @throws \InvalidArgumentException If $path is a \SplTempFileObject object
+     * @throws InvalidArgumentException If $path is a \SplTempFileObject object
      *
      * @return static
      */
@@ -275,7 +282,7 @@ abstract class AbstractCsv implements JsonSerializable, IteratorAggregate
      *
      * @param string $open_mode the file open mode flag
      *
-     * @return \League\Csv\Writer
+     * @return Writer
      */
     public function newWriter($open_mode = 'r+')
     {
@@ -287,7 +294,7 @@ abstract class AbstractCsv implements JsonSerializable, IteratorAggregate
      *
      * @param string $open_mode the file open mode flag
      *
-     * @return \League\Csv\Reader
+     * @return Reader
      */
     public function newReader($open_mode = 'r+')
     {

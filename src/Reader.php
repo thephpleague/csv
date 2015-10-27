@@ -56,12 +56,11 @@ class Reader extends AbstractCsv
      */
     public function fetch(callable $callable = null)
     {
-        $filterArray = function ($row) {
+        $this->addFilter(function ($row) {
             return is_array($row);
-        };
+        });
         $iterator = $this->getIterator();
         $iterator = $this->applyBomStripping($iterator);
-        $iterator = new CallbackFilterIterator($iterator, $filterArray);
         $iterator = $this->applyIteratorFilter($iterator);
         $iterator = $this->applyIteratorSortBy($iterator);
         $iterator = $this->applyIteratorInterval($iterator);
@@ -178,20 +177,13 @@ class Reader extends AbstractCsv
      *
      * @throws InvalidArgumentException If the submitted keys are invalid
      *
-     * @return array
+     * @return Iterator
      */
     public function fetchAssoc($offset_or_keys = 0, callable $callable = null)
     {
         $keys = $this->getAssocKeys($offset_or_keys);
-        $this->assertValidAssocKeys($keys);
-        if (!is_array($offset_or_keys)) {
-            $filterOutOffset = function ($row, $rowIndex) use ($offset_or_keys) {
-                return is_array($row) && $rowIndex != $offset_or_keys;
-            };
-            $this->addFilter($filterOutOffset);
-        }
-        $combineArray = function (array $row) use ($keys) {
-            $keys_count = count($keys);
+        $keys_count = count($keys);
+        $combineArray = function (array $row) use ($keys, $keys_count) {
             if ($keys_count != count($row)) {
                 $row = array_slice(array_pad($row, $keys_count, null), 0, $keys_count);
             }
@@ -205,7 +197,7 @@ class Reader extends AbstractCsv
     /**
      * Selects the array to be used as key for the fetchAssoc method
      *
-     * @param array|int $offset_or_keys the assoc key OR the row Index to be used
+     * @param int|array $offset_or_keys the assoc key OR the row Index to be used
      *                                  as the key index
      *
      * @throws InvalidArgumentException If the row index and/or the resulting array is invalid
@@ -214,17 +206,50 @@ class Reader extends AbstractCsv
      */
     protected function getAssocKeys($offset_or_keys)
     {
-        if (is_array($offset_or_keys) && ! empty($offset_or_keys)) {
+        if (is_array($offset_or_keys)) {
+            $this->assertValidAssocKeys($offset_or_keys);
+
             return $offset_or_keys;
         }
 
         if (false === filter_var($offset_or_keys, FILTER_VALIDATE_INT, ['options' => ['min_range' => 0]])) {
-            throw new InvalidArgumentException(
-                'the row index must be a positive integer, 0 or a non empty array'
-            );
+            throw new InvalidArgumentException('the row index must be a positive integer, 0 or a non empty array');
         }
 
-        return $this->getRow($offset_or_keys);
+        $keys = $this->getRow($offset_or_keys);
+        $this->assertValidAssocKeys($keys);
+        $filterOutRow = function ($row, $rowIndex) use ($offset_or_keys) {
+            return is_array($row) && $rowIndex != $offset_or_keys;
+        };
+        $this->addFilter($filterOutRow);
+
+        return $keys;
+    }
+
+    /**
+     * Validates the array to be used by the fetchAssoc method
+     *
+     * @param array $keys
+     *
+     * @throws InvalidArgumentException If the submitted array fails the assertion
+     */
+    protected function assertValidAssocKeys(array $keys)
+    {
+        if (empty($keys) || $keys !== array_unique(array_filter($keys, [$this, 'isValidString']))) {
+            throw new InvalidArgumentException('Use a flat array with unique string values');
+        }
+    }
+
+    /**
+     * Returns whether the submitted value can be used as string
+     *
+     * @param mixed $value
+     *
+     * @return bool
+     */
+    protected function isValidString($value)
+    {
+        return is_scalar($value) || (is_object($value) && method_exists($value, '__toString'));
     }
 
     /**
@@ -240,10 +265,10 @@ class Reader extends AbstractCsv
     {
         $csv = $this->getIterator();
         $csv->setFlags($this->getFlags() & ~SplFileObject::READ_CSV);
-
         $iterator = new LimitIterator($csv, $offset, 1);
         $iterator->rewind();
         $res = $iterator->current();
+
         if (empty($res)) {
             throw new InvalidArgumentException('the specified row does not exist or is empty');
         }
@@ -253,23 +278,5 @@ class Reader extends AbstractCsv
         }
 
         return str_getcsv($res, $this->delimiter, $this->enclosure, $this->escape);
-    }
-
-    /**
-     * Validates the array to be used by the fetchAssoc method
-     *
-     * @param array $keys
-     *
-     * @throws InvalidArgumentException If the submitted array fails the assertion
-     */
-    protected function assertValidAssocKeys(array $keys)
-    {
-        $test = array_unique(array_filter($keys, function ($value) {
-            return is_scalar($value) || (is_object($value) && method_exists($value, '__toString'));
-        }));
-
-        if ($keys !== $test) {
-            throw new InvalidArgumentException('Use a flat array with unique string values');
-        }
     }
 }
