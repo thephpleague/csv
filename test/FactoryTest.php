@@ -1,9 +1,8 @@
 <?php
 
-namespace League\Csv\test;
+namespace League\Csv\Test;
 
 use League\Csv\Reader;
-use PHPUnit_Framework_TestCase;
 use SplFileInfo;
 use SplFileObject;
 use SplTempFileObject;
@@ -11,7 +10,7 @@ use SplTempFileObject;
 /**
  * @group factory
  */
-class FactoryTest extends PHPUnit_Framework_TestCase
+class FactoryTest extends AbstractTestCase
 {
     public function testCreateFromPathWithFilePath()
     {

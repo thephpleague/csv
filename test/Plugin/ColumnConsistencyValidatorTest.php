@@ -3,15 +3,15 @@
 namespace League\Csv\Test\Plugin;
 
 use League\Csv\Plugin\ColumnConsistencyValidator;
+use League\Csv\Test\AbstractTestCase;
 use League\Csv\Writer;
-use PHPUnit_Framework_TestCase;
 use SplFileObject;
 use SplTempFileObject;
 
 /**
  * @group validators
  */
-class ColumnConsistencyValidatorTest extends PHPUnit_Framework_TestCase
+class ColumnConsistencyValidatorTest extends AbstractTestCase
 {
     private $csv;
 

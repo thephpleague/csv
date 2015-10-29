@@ -1,18 +1,17 @@
 <?php
 
-namespace League\Csv\test;
+namespace League\Csv\Test;
 
 use League\Csv\Reader;
 use League\Csv\Writer;
 use lib\FilterReplace;
-use PHPUnit_Framework_TestCase;
 use SplFileObject;
 use SplTempFileObject;
 
 /**
  * @group csv
  */
-class StreamFilterTest extends PHPUnit_Framework_TestCase
+class StreamFilterTest extends AbstractTestCase
 {
     public function testInitStreamFilterWithWriterStream()
     {

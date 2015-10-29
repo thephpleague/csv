@@ -1,15 +1,14 @@
 <?php
 
-namespace League\Csv\test;
+namespace League\Csv\Test;
 
 use League\Csv\Reader;
-use PHPUnit_Framework_TestCase;
 use SplTempFileObject;
 
 /**
  * @group csv
  */
-class CsvTest extends PHPUnit_Framework_TestCase
+class CsvTest extends AbstractTestCase
 {
     private $csv;
 

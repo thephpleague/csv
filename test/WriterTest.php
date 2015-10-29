@@ -1,17 +1,16 @@
 <?php
 
-namespace League\Csv\test;
+namespace League\Csv\Test;
 
 use ArrayIterator;
 use League\Csv\Writer;
-use PHPUnit_Framework_TestCase;
 use SplFileObject;
 use SplTempFileObject;
 
 /**
  * @group writer
  */
-class WriterTest extends PHPUnit_Framework_TestCase
+class WriterTest extends AbstractTestCase
 {
     private $csv;
 
