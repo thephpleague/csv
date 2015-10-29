@@ -246,7 +246,7 @@ abstract class AbstractCsv implements JsonSerializable, IteratorAggregate
     public static function createFromString($str, $newline = "\n")
     {
         $file = new SplTempFileObject();
-        $file->fwrite(rtrim($str).$newline);
+        $file->fwrite($str);
 
         $obj = static::createFromFileObject($file);
         $obj->setNewline($newline);
@@ -299,5 +299,25 @@ abstract class AbstractCsv implements JsonSerializable, IteratorAggregate
     public function newReader($open_mode = 'r+')
     {
         return $this->newInstance('\League\Csv\Reader', $open_mode);
+    }
+
+    /**
+     * Validate the submitted integer
+     *
+     * @param int    $int
+     * @param int    $min
+     * @param string $message
+     *
+     * @throws InvalidArgumentException If the value is invalid
+     *
+     * @return int
+     */
+    protected function filterInteger($int, $min, $message)
+    {
+        if (false === ($int = filter_var($int, FILTER_VALIDATE_INT, ['options' => ['min_range' => $min]]))) {
+            throw new InvalidArgumentException($message);
+        }
+
+        return $int;
     }
 }

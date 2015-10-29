@@ -9,17 +9,17 @@ All Notable changes to `League\Csv` will be documented in this file
 - `League\Csv\Reader::fetch` replaces `League\Csv\Reader::query` for naming consistency
 - `League\Csv\Config\Controls::fetchDelimitersOccurrence` to replace `League\Csv\Config\Controls::detectDelimiterList` the latter gives erronous results
 
-
 ### Deprecated
 
 - `League\Csv\Config\Controls::detectDelimiterList`
 - `League\Csv\Reader::query`
+- The `$newline` argument from `AbstractCsv::createFromString` is deprecated
 
 ### Fixed
 
 - Bug fix Stream feature by removing trimming filter name argument [issue #122](https://github.com/thephpleague/csv/issues/122)
 
-- Bug fix SplFileObject flags usage [PR #130](https://github.com/thephpleague/csv/pull/130)
+- Bug fix `SplFileObject` flags usage [PR #130](https://github.com/thephpleague/csv/pull/130)
 
 ### Removed
 

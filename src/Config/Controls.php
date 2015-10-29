@@ -240,14 +240,16 @@ trait Controls
      */
     public function setFlags($flags)
     {
-        if (false === filter_var($flags, FILTER_VALIDATE_INT, ['options' => ['min_range' => 0]])) {
-            throw new InvalidArgumentException('you should use a `SplFileObject` Constant');
-        }
-
+        $flags = $this->filterInteger($flags, 0, 'you should use a `SplFileObject` Constant');
         $this->flags = $flags | SplFileObject::READ_CSV;
 
         return $this;
     }
+
+    /**
+     * @inheritdoc
+     */
+    abstract protected function filterInteger($int, $min, $message);
 
     /**
      * Returns the file Flags
