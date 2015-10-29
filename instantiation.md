@@ -76,13 +76,14 @@ If you have a raw CSV string use the `createFromString` named constructor. This 
 
 If no newline sequence is specified, the newline sequence used will be `\n` to match the one added by PHP `fputcsv` function.
 
+<p class="message-warning">The <code>$newline</code> argument is deprecated since version 7.2 and will be removed in the next major release.</p>
+
 ~~~php
 use League\Csv\Reader;
 use League\Csv\Writer;
 
 $reader = Reader::createFromString('john,doe,john.doe@example.com', "\n");
 $writer = Writer::createFromString('john,doe,john.doe@example.com', "\r\n");
-
 ~~~
 
 <p class="message-warning">Starting with <code>version 7.0</code> directly using the default constructor is no longer possible.</p>
