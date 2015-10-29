@@ -103,9 +103,8 @@ trait Output
 
             return $this;
         }
-        $str = (string) $str;
-        $str = trim($str);
-        $this->output_bom = $str;
+
+        $this->output_bom = (string) $str;
 
         return $this;
     }
@@ -157,7 +156,6 @@ trait Output
     public function output($filename = null)
     {
         if (!is_null($filename)) {
-            $filename = trim($filename);
             $filename = filter_var($filename, FILTER_SANITIZE_STRING, FILTER_FLAG_STRIP_LOW);
             header('Content-Type: application/octet-stream');
             header('Content-Transfer-Encoding: binary');

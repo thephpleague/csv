@@ -121,7 +121,7 @@ abstract class AbstractCsv implements JsonSerializable, IteratorAggregate
             return $path;
         }
 
-        return trim($path);
+        return $path;
     }
 
     /**
@@ -205,7 +205,7 @@ abstract class AbstractCsv implements JsonSerializable, IteratorAggregate
             $path = $path->getPath().'/'.$path->getBasename();
         }
 
-        return new static(trim($path), $open_mode);
+        return new static($path, $open_mode);
     }
 
     /**
