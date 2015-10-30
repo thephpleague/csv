@@ -13,6 +13,7 @@
 namespace League\Csv;
 
 use InvalidArgumentException;
+use Iterator;
 use IteratorAggregate;
 use JsonSerializable;
 use League\Csv\Config\Controls;
@@ -103,25 +104,8 @@ abstract class AbstractCsv implements JsonSerializable, IteratorAggregate
         $this->defaultFlags = SplFileObject::READ_CSV | SplFileObject::READ_AHEAD | SplFileObject::SKIP_EMPTY;
         $this->flags = $this->defaultFlags;
         $this->open_mode = strtolower($open_mode);
-        $this->path = $this->normalizePath($path);
+        $this->path = $path;
         $this->initStreamFilter($this->path);
-    }
-
-    /**
-     * Returns a normalize path which could be a SplFileObject
-     * or a string path
-     *
-     * @param SplFileObject|string $path the filepath
-     *
-     * @return SplFileObject|string
-     */
-    protected function normalizePath($path)
-    {
-        if ($path instanceof SplFileObject) {
-            return $path;
-        }
-
-        return $path;
     }
 
     /**
@@ -152,13 +136,10 @@ abstract class AbstractCsv implements JsonSerializable, IteratorAggregate
     /**
      * Returns the CSV Iterator for conversion
      *
-     * @return \Iterator
+     * @return Iterator
      */
     protected function getConversionIterator()
     {
-        $this->addFilter(function ($row) {
-            return is_array($row) && [null] != $row;
-        });
         $iterator = $this->getIterator();
         $iterator->setFlags($this->defaultFlags);
         $iterator = $this->applyBomStripping($iterator);
@@ -188,8 +169,8 @@ abstract class AbstractCsv implements JsonSerializable, IteratorAggregate
      * ?>
      * </code>
      *
-     * @param object|string $path      file path
-     * @param string        $open_mode the file open mode flag
+     * @param mixed  $path      file path
+     * @param string $open_mode the file open mode flag
      *
      * @throws InvalidArgumentException If $path is a \SplTempFileObject object
      *
@@ -205,7 +186,25 @@ abstract class AbstractCsv implements JsonSerializable, IteratorAggregate
             $path = $path->getPath().'/'.$path->getBasename();
         }
 
-        return new static($path, $open_mode);
+        return new static(static::validateString($path), $open_mode);
+    }
+
+    /**
+     * validate a string
+     *
+     * @param mixed $str the value to evaluate as a string
+     *
+     * @throws InvalidArgumentException if the submitted data can not be converted to string
+     *
+     * @return string
+     */
+    protected static function validateString($str)
+    {
+        if (is_scalar($str) || (is_object($str) && method_exists($str, '__toString'))) {
+            return (string) $str;
+        }
+
+        throw new InvalidArgumentException('Expected data must be a string or stringable');
     }
 
     /**
@@ -223,13 +222,13 @@ abstract class AbstractCsv implements JsonSerializable, IteratorAggregate
      * ?>
      * </code>
      *
-     * @param SplFileObject $obj
+     * @param SplFileObject $file
      *
      * @return static
      */
-    public static function createFromFileObject(SplFileObject $obj)
+    public static function createFromFileObject(SplFileObject $file)
     {
-        return new static($obj);
+        return new static($file);
     }
 
     /**
@@ -238,20 +237,20 @@ abstract class AbstractCsv implements JsonSerializable, IteratorAggregate
      * The string must be an object that implements the `__toString` method,
      * or a string
      *
-     * @param string|object $str     the string
-     * @param string        $newline the newline character
+     * @param string $str     the string
+     * @param string $newline the newline character
      *
      * @return static
      */
     public static function createFromString($str, $newline = "\n")
     {
         $file = new SplTempFileObject();
-        $file->fwrite($str);
+        $file->fwrite(static::validateString($str));
 
-        $obj = static::createFromFileObject($file);
-        $obj->setNewline($newline);
+        $csv = static::createFromFileObject($file);
+        $csv->setNewline($newline);
 
-        return $obj;
+        return $csv;
     }
 
     /**
@@ -312,10 +311,10 @@ abstract class AbstractCsv implements JsonSerializable, IteratorAggregate
      *
      * @return int
      */
-    protected function filterInteger($int, $min, $message)
+    protected function filterInteger($int, $minValue, $errorMessage)
     {
-        if (false === ($int = filter_var($int, FILTER_VALIDATE_INT, ['options' => ['min_range' => $min]]))) {
-            throw new InvalidArgumentException($message);
+        if (false === ($int = filter_var($int, FILTER_VALIDATE_INT, ['options' => ['min_range' => $minValue]]))) {
+            throw new InvalidArgumentException($errorMessage);
         }
 
         return $int;

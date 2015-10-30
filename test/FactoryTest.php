@@ -2,6 +2,7 @@
 
 namespace League\Csv\Test;
 
+use DateTime;
 use League\Csv\Reader;
 use SplFileInfo;
 use SplFileObject;
@@ -39,6 +40,14 @@ class FactoryTest extends AbstractTestCase
     public function testCreateFromPathWithSplTempFileObject()
     {
         Reader::createFromPath(new SplTempFileObject());
+    }
+
+    /**
+     * @expectedException InvalidArgumentException
+     */
+    public function testCreateFromPathWithUnStringableObject()
+    {
+        Reader::createFromPath(new DateTime());
     }
 
     public function testCreateFromString()
