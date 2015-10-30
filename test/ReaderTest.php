@@ -216,6 +216,15 @@ class ReaderTest extends AbstractTestCase
     }
 
     /**
+     * @expectedException \InvalidArgumentException
+     */
+    public function testFetchAssocThrowsExceptionWithNonUniqueAssocKeys()
+    {
+        $keys = ['firstname', 'lastname', 'firstname'];
+        $this->csv->fetchAssoc($keys);
+    }
+
+    /**
      * @param  $expected
      * @dataProvider validBOMSequences
      */

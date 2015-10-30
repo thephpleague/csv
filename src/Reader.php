@@ -207,9 +207,7 @@ class Reader extends AbstractCsv
     protected function getAssocKeys($offset_or_keys)
     {
         if (is_array($offset_or_keys)) {
-            $this->assertValidAssocKeys($offset_or_keys);
-
-            return $offset_or_keys;
+            return $this->validateAssocKeys($offset_or_keys);
         }
 
         if (false === filter_var($offset_or_keys, FILTER_VALIDATE_INT, ['options' => ['min_range' => 0]])) {
@@ -217,7 +215,7 @@ class Reader extends AbstractCsv
         }
 
         $keys = $this->getRow($offset_or_keys);
-        $this->assertValidAssocKeys($keys);
+        $keys = $this->validateAssocKeys($keys);
         $filterOutRow = function ($row, $rowIndex) use ($offset_or_keys) {
             return is_array($row) && $rowIndex != $offset_or_keys;
         };
@@ -233,23 +231,22 @@ class Reader extends AbstractCsv
      *
      * @throws InvalidArgumentException If the submitted array fails the assertion
      */
-    protected function assertValidAssocKeys(array $keys)
+    protected function validateAssocKeys(array $keys)
     {
-        if (empty($keys) || $keys !== array_unique(array_filter($keys, [$this, 'isValidString']))) {
-            throw new InvalidArgumentException('Use a flat array with unique string values');
+        if (empty($keys)) {
+            throw new InvalidArgumentException('The array can not be empty');
         }
-    }
 
-    /**
-     * Returns whether the submitted value can be used as string
-     *
-     * @param mixed $value
-     *
-     * @return bool
-     */
-    protected function isValidString($value)
-    {
-        return is_scalar($value) || (is_object($value) && method_exists($value, '__toString'));
+        foreach ($keys as &$str) {
+            $str = $this->validateString($str);
+        }
+        unset($str);
+
+        if ($keys == array_unique($keys)) {
+            return $keys;
+        }
+
+        throw new InvalidArgumentException('The array must contain unique values');
     }
 
     /**

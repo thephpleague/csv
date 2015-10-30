@@ -200,7 +200,7 @@ abstract class AbstractCsv implements JsonSerializable, IteratorAggregate
      */
     protected static function validateString($str)
     {
-        if (is_scalar($str) || (is_object($str) && method_exists($str, '__toString'))) {
+        if (is_string($str) || (is_object($str) && method_exists($str, '__toString'))) {
             return (string) $str;
         }
 
