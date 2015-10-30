@@ -304,8 +304,8 @@ abstract class AbstractCsv implements JsonSerializable, IteratorAggregate
      * Validate the submitted integer
      *
      * @param int    $int
-     * @param int    $min
-     * @param string $message
+     * @param int    $minValue
+     * @param string $errorMessage
      *
      * @throws InvalidArgumentException If the value is invalid
      *

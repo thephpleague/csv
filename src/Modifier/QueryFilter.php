@@ -109,7 +109,7 @@ trait QueryFilter
     /**
      * @inheritdoc
      */
-    abstract protected function filterInteger($int, $min, $message);
+    abstract protected function filterInteger($int, $minValue, $errorMessage);
 
     /**
      * Set LimitIterator Count

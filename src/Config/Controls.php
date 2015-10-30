@@ -249,7 +249,7 @@ trait Controls
     /**
      * @inheritdoc
      */
-    abstract protected function filterInteger($int, $min, $message);
+    abstract protected function filterInteger($int, $minValue, $errorMessage);
 
     /**
      * Returns the file Flags
