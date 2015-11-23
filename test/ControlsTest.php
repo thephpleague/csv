@@ -1,19 +1,16 @@
 <?php
 
-namespace League\Csv\test;
+namespace League\Csv\Test;
 
 use League\Csv\Reader;
 use League\Csv\Writer;
-use PHPUnit_Framework_TestCase;
 use SplFileObject;
 use SplTempFileObject;
-
-date_default_timezone_set('UTC');
 
 /**
  * @group controls
  */
-class ControlsTest extends PHPUnit_Framework_TestCase
+class ControlsTest extends AbstractTestCase
 {
     private $csv;
 

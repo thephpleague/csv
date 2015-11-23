@@ -21,7 +21,7 @@ class WriterTest extends AbstractTestCase
 
     public function tearDown()
     {
-        $csv = new SplFileObject(__DIR__.'/foo.csv', 'w');
+        $csv = new SplFileObject(__DIR__.'/data/foo.csv', 'w');
         $csv->setCsvControl();
         $csv->fputcsv(['john', 'doe', 'john.doe@example.com'], ',', '"');
         $this->csv = null;
@@ -29,7 +29,7 @@ class WriterTest extends AbstractTestCase
 
     public function testSupportsStreamFilter()
     {
-        $csv = Writer::createFromPath(__DIR__.'/foo.csv');
+        $csv = Writer::createFromPath(__DIR__.'/data/foo.csv');
         $this->assertTrue($csv->isActiveStreamFilter());
         $csv->appendStreamFilter('string.toupper');
         $csv->insertOne(['jane', 'doe', 'jane@example.com']);
@@ -51,7 +51,7 @@ class WriterTest extends AbstractTestCase
 
     public function testInsertNormalFile()
     {
-        $csv = Writer::createFromPath(__DIR__.'/foo.csv', 'a+');
+        $csv = Writer::createFromPath(__DIR__.'/data/foo.csv', 'a+');
         $csv->insertOne(['jane', 'doe', 'jane.doe@example.com']);
         $this->assertContains(['jane', 'doe', 'jane.doe@example.com'], $csv);
     }
@@ -110,15 +110,6 @@ class WriterTest extends AbstractTestCase
 
         $csv->insertOne(['jane', 'doe']);
         $this->assertSame("jane,doe\r\n", (string) $csv);
-    }
-
-    public function testCustomNewlineFromCreateFromString()
-    {
-        $expected = "\r\n";
-        $raw = 'john,doe,john.doe@example.com'.PHP_EOL
-            .'jane,doe,jane.doe@example.com'.PHP_EOL;
-        $csv = Writer::createFromString($raw, $expected);
-        $this->assertSame($expected, $csv->getNewline());
     }
 
     public function testAddValidationRules()

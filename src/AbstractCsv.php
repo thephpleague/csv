@@ -236,20 +236,16 @@ abstract class AbstractCsv implements JsonSerializable, IteratorAggregate
      * The string must be an object that implements the `__toString` method,
      * or a string
      *
-     * @param string|object $str     the string
-     * @param string        $newline the newline character
+     * @param string|object $str the string
      *
      * @return static
      */
-    public static function createFromString($str, $newline = "\n")
+    public static function createFromString($str)
     {
         $file = new SplTempFileObject();
         $file->fwrite(static::validateString($str));
 
-        $csv = static::createFromFileObject($file);
-        $csv->setNewline($newline);
-
-        return $csv;
+        return static::createFromFileObject($file);
     }
 
     /**

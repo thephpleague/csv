@@ -15,7 +15,7 @@ class StreamFilterTest extends AbstractTestCase
 {
     public function testInitStreamFilterWithWriterStream()
     {
-        $filter = 'php://filter/write=string.rot13/resource='.__DIR__.'/foo.csv';
+        $filter = 'php://filter/write=string.rot13/resource='.__DIR__.'/data/foo.csv';
         $csv = Reader::createFromPath($filter);
         $this->assertTrue($csv->hasStreamFilter('string.rot13'));
         $this->assertSame(STREAM_FILTER_WRITE, $csv->getStreamFilterMode());
@@ -23,7 +23,7 @@ class StreamFilterTest extends AbstractTestCase
 
     public function testInitStreamFilterWithReaderStream()
     {
-        $filter = 'php://filter/read=string.toupper/resource='.__DIR__.'/foo.csv';
+        $filter = 'php://filter/read=string.toupper/resource='.__DIR__.'/data/foo.csv';
         $csv = Reader::createFromPath($filter);
         $this->assertTrue($csv->hasStreamFilter('string.toupper'));
         $this->assertSame(STREAM_FILTER_READ, $csv->getStreamFilterMode());
@@ -31,7 +31,7 @@ class StreamFilterTest extends AbstractTestCase
 
     public function testInitStreamFilterWithBothStream()
     {
-        $filter = 'php://filter/string.toupper/resource='.__DIR__.'/foo.csv';
+        $filter = 'php://filter/string.toupper/resource='.__DIR__.'/data/foo.csv';
         $csv = Reader::createFromPath($filter);
         $this->assertTrue($csv->hasStreamFilter('string.toupper'));
         $this->assertSame(STREAM_FILTER_ALL, $csv->getStreamFilterMode());
@@ -42,12 +42,12 @@ class StreamFilterTest extends AbstractTestCase
      */
     public function testInitStreamFilterWithSplFileObject()
     {
-        Reader::createFromFileObject(new SplFileObject(__DIR__.'/foo.csv'))->getStreamFilterMode();
+        Reader::createFromFileObject(new SplFileObject(__DIR__.'/data/foo.csv'))->getStreamFilterMode();
     }
 
     public function testappendStreamFilter()
     {
-        $csv = Reader::createFromPath(__DIR__.'/foo.csv');
+        $csv = Reader::createFromPath(__DIR__.'/data/foo.csv');
         $csv->appendStreamFilter('string.toupper');
         foreach ($csv->getIterator() as $row) {
             $this->assertSame($row, ['JOHN', 'DOE', 'JOHN.DOE@EXAMPLE.COM']);
@@ -79,7 +79,7 @@ class StreamFilterTest extends AbstractTestCase
      */
     public function testaddMultipleStreamFilter()
     {
-        $csv = Reader::createFromPath(__DIR__.'/foo.csv');
+        $csv = Reader::createFromPath(__DIR__.'/data/foo.csv');
         $csv->appendStreamFilter('string.tolower');
         $csv->prependStreamFilter('string.rot13');
         $csv->appendStreamFilter('string.toupper');
@@ -105,7 +105,7 @@ class StreamFilterTest extends AbstractTestCase
 
     public function testGetFilterPath()
     {
-        $csv = Writer::createFromPath(__DIR__.'/foo.csv');
+        $csv = Writer::createFromPath(__DIR__.'/data/foo.csv');
         $csv->appendStreamFilter('string.rot13');
         $csv->prependStreamFilter('string.toupper');
         $this->assertFalse($csv->getIterator()->getRealPath());
@@ -113,7 +113,7 @@ class StreamFilterTest extends AbstractTestCase
 
     public function testGetFilterPathWithAllStream()
     {
-        $filter = 'php://filter/string.toupper/resource='.__DIR__.'/foo.csv';
+        $filter = 'php://filter/string.toupper/resource='.__DIR__.'/data/foo.csv';
         $csv = Reader::createFromPath($filter);
         $this->assertFalse($csv->getIterator()->getRealPath());
     }
@@ -121,7 +121,7 @@ class StreamFilterTest extends AbstractTestCase
     public function testSetStreamFilterWriterNewLine()
     {
         stream_filter_register(FilterReplace::FILTER_NAME.'*', '\lib\FilterReplace');
-        $csv = Writer::createFromPath(__DIR__.'/newline.csv');
+        $csv = Writer::createFromPath(__DIR__.'/data/newline.csv');
         $csv->appendStreamFilter(FilterReplace::FILTER_NAME."\r\n:\n");
         $this->assertTrue($csv->hasStreamFilter(FilterReplace::FILTER_NAME."\r\n:\n"));
         $csv->insertOne([1, 'two', 3, "new\r\nline"]);
