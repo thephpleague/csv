@@ -37,7 +37,7 @@
         }
     },
     "scripts": {
-        "test": "vendor/bin/phpunit; vendor/bin/php-cs-fixer fix -v --diff --dry-run;"
+        "test": "phpunit; php-cs-fixer fix -v --diff --dry-run;"
     },
     "extra": {
         "branch-alias": {

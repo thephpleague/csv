@@ -4,9 +4,6 @@ sudo: false
 
 matrix:
   include:
-    - php: 5.4
-      env:
-        - COLLECT_COVERAGE=true
     - php: 5.5
       env:
         - COLLECT_COVERAGE=true
