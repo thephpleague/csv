@@ -93,7 +93,7 @@ class Reader extends AbstractCsv
         $iterator = $this->applyIteratorSortBy($iterator);
         $iterator = $this->applyIteratorInterval($iterator);
         $this->returnType = self::TYPE_ARRAY;
-        if (!is_null($callable)) {
+        if (null !== $callable) {
             return new MapIterator($iterator, $callable);
         }
 
@@ -188,8 +188,8 @@ class Reader extends AbstractCsv
      *
      * By default if no column index is provided the first column of the CSV is selected
      *
-     * @param int           $column_index field Index
-     * @param callable|null $callable     a callable function
+     * @param int           $columnIndex field Index
+     * @param callable|null $callable    a callable function
      *
      * @throws InvalidArgumentException If the column index is not a positive integer or 0
      *
@@ -210,7 +210,7 @@ class Reader extends AbstractCsv
         $this->addFilter($filterColumn);
         $type = $this->returnType;
         $iterator = $this->fetch($selectColumn);
-        if (!is_null($callable)) {
+        if (null !== $callable) {
             $iterator = new MapIterator($iterator, $callable);
         }
 
@@ -261,7 +261,7 @@ class Reader extends AbstractCsv
         $type = $this->returnType;
         $iterator = $this->fetch($selectPairs);
 
-        if (!is_null($callable)) {
+        if (null !== $callable) {
             $iterator = new MapIterator($iterator, $callable);
         }
 

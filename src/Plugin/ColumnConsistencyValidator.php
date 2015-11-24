@@ -89,7 +89,9 @@ class ColumnConsistencyValidator
             $this->detect_columns_count = false;
 
             return true;
-        } elseif (-1 == $this->columns_count) {
+        }
+
+        if (-1 == $this->columns_count) {
             return true;
         }
 

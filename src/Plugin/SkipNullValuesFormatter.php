@@ -31,7 +31,7 @@ class SkipNullValuesFormatter
     public function __invoke(array $row)
     {
         return array_filter($row, function ($value) {
-            return !is_null($value);
+            return null !== $value;
         });
     }
 }

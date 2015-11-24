@@ -31,7 +31,7 @@ class ForbiddenNullValuesValidator
     public function __invoke(array $row)
     {
         $res = array_filter($row, function ($value) {
-            return is_null($value);
+            return null === $value;
         });
 
         return !$res;

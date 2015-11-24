@@ -155,7 +155,7 @@ trait Output
      */
     public function output($filename = null)
     {
-        if (!is_null($filename)) {
+        if (null !== $filename) {
             $filename = filter_var($filename, FILTER_SANITIZE_STRING, FILTER_FLAG_STRIP_LOW);
             header('Content-Type: application/octet-stream');
             header('Content-Transfer-Encoding: binary');
