@@ -16,9 +16,17 @@ $ composer require league/csv:^8.0
 
 This will edit (or create) your `composer.json` file.
 
-## Improved features
+## Added features
+
+### Reader return types
 
 To improving reading capabilities with huges CSV files you can now control the return type for some of the `Reader` extracting methods:
+
+Please [refer to the documentation](/reading/) for more information.
+
+### Reader::fetchPairs
+
+To complements the Reader extract methods the `Reader:fetchPairs` method is added.
 
 Please [refer to the documentation](/reading/) for more information.
 
@@ -26,9 +34,9 @@ Please [refer to the documentation](/reading/) for more information.
 
 ### PHP required version
 
-`League\Csv` 8.0.0 dropped the support for PHP5.4.
+`League\Csv` 8.0.0 is the first major version to remove support for `PHP 5.4`.
 
-### remove optional argument to createFromString
+### Remove optional argument to createFromString
 
 In version 8.0 the optional second argument from `createFromString` is removed. If your code relied on it you can use the following snippet:
 
@@ -53,7 +61,7 @@ $writer->insertOne(["foo", null, "bar"]);
 
 ### fetchAssoc callable argument
 
-The optional callable argument from fetchAssoc now expects its first argument to be an array indexed by the submitted array keys. In all previous versions, The indexation was made after the callable had manipulated the CSV array.
+The optional callable argument from `Reader::fetchAssoc` now expects its first argument to be an `array` indexed by the submitted array keys. In all previous versions, The indexation was made after the callable had manipulated the CSV row.
 
 **Old code:**
 
@@ -89,7 +97,7 @@ $csv->fetchAssoc(['lastname', 'firstname'], $func);
 
 ### fetchColumn callable argument
 
-The optional callable argument from fetchColumn now expects its first argument to be a single value. In all previous versions, the callable first argument was an array.
+The optional callable argument from `Reader::fetchColumn` now expects its first argument to be tje selected column value. In all previous versions, the callable first argument was an array.
 
 **Old code:**
 
