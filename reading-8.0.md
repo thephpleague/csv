@@ -32,7 +32,7 @@ $reader->getReturnType(); //returns Reader::TYPE_ARRAY
 //everytime a query is issued the return type is resetted to Reader::TYPE_ARRAY
 ~~~
 
-<p class="message-warning">Not all the Reader extract method are affected by this mechanism but any call to any of the extract methods will automatically reset the return type to <code>Reader::TYPE_ARRAY</code></p>
+<p class="message-warning">Not all the <code>Reader</code> extract methods are affected by this mechanism but any call to any of the extract methods will automatically reset the return type to <code>Reader::TYPE_ARRAY</code></p>
 
 
 ### fetch(callable $callable = null)
@@ -199,7 +199,7 @@ The method takes an second optional parameter, a callable, to apply to each row 
 - the CSV current row offset
 - the current iterator
 
-<p class="message-warning">BC break starting with <code>version 8.0</code> The <code>callable</code> expects a row with the indexes already applied to it.</p>
+<p class="message-warning"><strong>BC break:</strong> The <code>callable</code> expects a row with the indexes already applied to it.</p>
 
 ~~~php
 $func = function ($row) {
@@ -231,9 +231,7 @@ The method takes an second optional parameter, a callable, to apply to each row 
 - the CSV current row offset
 - the current iterator
 
-<div class="message-warning">
-<strong>BC break starting with <code>version 8.0</code> The <code>callable</code> expects the column value as its first parameter</strong>
-</div>
+<p class="message-warning"><strong>BC break:</strong> The <code>callable</code> expects the column value as its first parameter.</p>
 
 ~~~php
 $data = $reader->fetchColumn(2, 'strtoupper');
