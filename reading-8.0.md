@@ -7,9 +7,29 @@ title: Extracting data from a CSV
 
 To extract data from a CSV document use `League\Csv\Reader` methods.
 
+## Return types
+
+To enable dealing with huge CSV files in an efficient way version 8.0.0 introduces a way to modify the return type for some of its methods. By default the `Reader` methods will return an `array` which is optimized for small CSV. You can now set the method to return a `Iterator` to save memory when dealing with larger files. For the feature, the `Reader` exposes two new constants:
+
+- `Reader::TYPE_ARRAY`: When set the next call to a supported method will return an `Array`;
+- `Reader::TYPE_ITERATOR`: When set the next call to a supported method will return an `Iterator`;
+
+By default, the return type is set to `Reader::TYPE_ARRAY`.
+
+At any given time you can access the return type to be used on the next call using the feature getter method.
+
+~~~php
+$reader->getReturnType(); //returns Reader::TYPE_ARRAY
+$reader->setReturnType(Reader::TYPE_ITERATOR);
+$reader->getReturnType(); //returns Reader::TYPE_ITERATOR
+$result = $reader->fetchAssoc(); //$result is an iterator
+$reader->getReturnType(); //returns Reader::TYPE_ARRAY
+//everytime a query is issued the return type is resetted to Reader::TYPE_ARRAY
+~~~
+
 ### fetch(callable $callable = null)
 
-<p class="message-notice">This method is introduced in version <code>7.2.0</code></p>
+<p class="message-info">This method <strong>is not affected</strong> by the <code>Reader</code> return type.</p>
 
 The `fetch` method Fetches the next row from the `Iterator` result set.
 
@@ -37,6 +57,8 @@ foreach ($reader->fetch() as $row) {
 ~~~
 
 ### fetchAll(callable $callable = null)
+
+<p class="message-info">This method <strong>is not affected</strong> by the <code>Reader</code> return type.</p>
 
 `fetchAll` returns a sequential array of all rows.
 
@@ -77,6 +99,8 @@ $nb_rows = count($data);
 
 ### fetchOne($offset = 0)
 
+<p class="message-info">This method <strong>is not affected</strong> by the <code>Reader</code> return type.</p>
+
 `fetchOne` return one single row from the CSV data. The required argument $offset represent the row index starting at 0. If no argument is given to the method it will return the first row from the CSV data.
 
 ~~~php
@@ -88,6 +112,8 @@ $data = $reader->fetchOne(3); ///accessing the 4th row (indexing starts at 0)
 ~~~
 
 ### each(callable $callable)
+
+<p class="message-info">This method <strong>is not affected</strong> by the <code>Reader</code> return type.</p>
 
 `each` apply a callable function on each CSV row. The callable function:
 
@@ -113,24 +139,9 @@ $nbIteration = $reader->each(function ($row, $index, $iterator) use (&$res, $fun
 });
 ~~~
 
-#### Fetching modes
-
-To enable dealing with huge CSV files in an efficient way version 8.0.0 introduces a fetch mode to modify the return type for the remaining methods describe hereafter. The `Reader` exposes these modes through the uses of two new constants:
-
-- `Reader::FETCH_ARRAY`: When set the next call to one of these method will return an `Array`;
-- `Reader::FETCH_ITERATOR`: When set the next call to one of these method will return an `Iterator`;
-
-By default, the `Reader` fetch mode is set to `Reader::FETCH_ARRAY`.
-
-~~~php
-$reader->getFetchMode(); //returns Reader::FETCH_ARRAY
-$reader->setFetchMode(Reader::FETCH_ITERATOR);
-$reader->getFetchMode(); //returns Reader::FETCH_ITERATOR
-$result = $reader->fetchAssoc(); //$result is an iterator
-$reader->getFetchMode(); //returns Reader::FETCH_ARRAY //once the query is issued the fetch mode is resetted to Reader::FETCH_ARRAY
-~~~
-
 ### fetchAssoc($offset_or_keys = 0, callable $callable = null)
+
+<p class="message-notice">This method <strong>is affected</strong> by the <code>Reader</code> return type feature.</p>
 
 `fetchAssoc` returns a sequential array of all rows. The rows themselves are associative arrays where the keys are an one dimension array. This array must only contain unique `string` and/or `integer` values.
 
@@ -195,6 +206,8 @@ $data[0]['date']->format('Y-m-d H:i:s'); //because this cell contain a `DateTime
 
 ### fetchColumn($columnIndex = 0, callable $callable = null)
 
+<p class="message-notice">This method <strong>is affected</strong> by the <code>Reader</code> return type feature.</p>
+
 `fetchColumn` returns a sequential array of all values in a given column from the CSV data.
 
 If for a given row the column does not exist, the row will be skipped.
@@ -226,6 +239,8 @@ $data = $reader->fetchColumn(2, 'strtoupper');
 ~~~
 
 ### fetchPairs($offsetColumnIndex = 0, $valueColumnIndex = 1, callable $callable = null)
+
+<p class="message-notice">This method <strong>is affected</strong> by the <code>Reader</code> return type feature.</p>
 
 The `fetchPairs` method returns data in an array of key-value pairs, as an associative array with a single entry per row. The key of this associative array is taken from the submitted column index parameter. If not parameter is given the first CSV column will be used. The value is taken from the submitted column value parameter. If no parameter is given the second CSV column is used.
 
@@ -261,15 +276,13 @@ $data = $reader->fetchPairs();
 // ];
 ~~~
 
-<div class="message-warning">The behavior of this method changed with the mode selected:</div>
+<div class="message-warning">The behavior of this method changed with the return type selected:</div>
 
-When using `Reader::fetchPairs`:
-
-- with the `Reader::FETCH_ARRAY` mode if there are duplicates values in the column index, entries in the associative array will be overwritten.
-- with the `Reader::FETCH_ITERATOR` no overwrite occurs.
+- When using `Reader::TYPE_ARRAY` if there are duplicates values in the column index, entries in the associative array will be overwritten.
+- When using `Reader::TYPE_ITERATOR` no overwrite occurs as the return type is created using a PHP `Generator`.
 
 ~~~php
-$reader->setFetchMode(READER::FETCH_ARRAY);
+$reader->setReturnType(READER::TYPE_ARRAY);
 $data = $reader->fetchPairs(1, 0);
 // will return something like this :
 // [
@@ -277,7 +290,7 @@ $data = $reader->fetchPairs(1, 0);
 //   ...
 // ];
 
-$reader->setFetchMode(READER::FETCH_ITERATOR);
+$reader->setReturnType(READER::TYPE_ITERATOR);
 $data = $reader->fetchPairs(1, 0);
 foreach($data as $key => $value) {
     //first row will have $key = 'doe' and value = 'john'
