@@ -9,14 +9,19 @@ To extract data from a CSV document use `League\Csv\Reader` methods.
 
 ## Return types
 
-To enable dealing with huge CSV files in an efficient way version 8.0.0 introduces a way to modify the return type for some of its methods. By default the `Reader` methods will return an `array` which is optimized for small CSV. You can now set the method to return a `Iterator` to save memory when dealing with larger files. For the feature, the `Reader` exposes two new constants:
+<p class="message-notice">new feature introduced in <code>version 8.0</code></p>
 
-- `Reader::TYPE_ARRAY`: When set the next call to a supported method will return an `Array`;
-- `Reader::TYPE_ITERATOR`: When set the next call to a supported method will return an `Iterator`;
+The `Reader` class enables a way to modify the return type for some of its extract methods. To do so, the class exposes two new methods:
 
-By default, the return type is set to `Reader::TYPE_ARRAY`.
+- `Reader::setReturnType` : Set the return type for the next extract method call;
+- `Reader::getReturnType` : Return the return type for the next extract method call;
 
-At any given time you can access the return type to be used on the next call using the feature getter method.
+The return type must be one of the following `Reader` constant:
+
+- `Reader::TYPE_ARRAY`: to set the return type to be an `Array`;
+- `Reader::TYPE_ITERATOR`: to set the return type to be an `Iterator`;
+
+By default, and to preserve backward compatibility the return type is set to `Reader::TYPE_ARRAY`.
 
 ~~~php
 $reader->getReturnType(); //returns Reader::TYPE_ARRAY
@@ -27,9 +32,12 @@ $reader->getReturnType(); //returns Reader::TYPE_ARRAY
 //everytime a query is issued the return type is resetted to Reader::TYPE_ARRAY
 ~~~
 
+<p class="message-warning">Not all the Reader extract method are affected by this mechanism but any call to any of the extract methods will automatically reset the return type to <code>Reader::TYPE_ARRAY</code></p>
+
+
 ### fetch(callable $callable = null)
 
-<p class="message-info">This method <strong>is not affected</strong> by the <code>Reader</code> return type.</p>
+<p class="message-notice">This method <strong>is not affected</strong> by the <code>Reader::setReturnType</code>.</p>
 
 The `fetch` method Fetches the next row from the `Iterator` result set.
 
@@ -58,7 +66,7 @@ foreach ($reader->fetch() as $row) {
 
 ### fetchAll(callable $callable = null)
 
-<p class="message-info">This method <strong>is not affected</strong> by the <code>Reader</code> return type.</p>
+<p class="message-notice">This method <strong>is not affected</strong> by the <code>Reader::setReturnType</code>.</p>
 
 `fetchAll` returns a sequential array of all rows.
 
@@ -99,7 +107,7 @@ $nb_rows = count($data);
 
 ### fetchOne($offset = 0)
 
-<p class="message-info">This method <strong>is not affected</strong> by the <code>Reader</code> return type.</p>
+<p class="message-notice">This method <strong>is not affected</strong> by the <code>Reader::setReturnType</code>.</p>
 
 `fetchOne` return one single row from the CSV data. The required argument $offset represent the row index starting at 0. If no argument is given to the method it will return the first row from the CSV data.
 
@@ -113,7 +121,7 @@ $data = $reader->fetchOne(3); ///accessing the 4th row (indexing starts at 0)
 
 ### each(callable $callable)
 
-<p class="message-info">This method <strong>is not affected</strong> by the <code>Reader</code> return type.</p>
+<p class="message-notice">This method <strong>is not affected</strong> by the <code>Reader::setReturnType</code>.</p>
 
 `each` apply a callable function on each CSV row. The callable function:
 
@@ -141,7 +149,7 @@ $nbIteration = $reader->each(function ($row, $index, $iterator) use (&$res, $fun
 
 ### fetchAssoc($offset_or_keys = 0, callable $callable = null)
 
-<p class="message-notice">This method <strong>is affected</strong> by the <code>Reader</code> return type feature.</p>
+<p class="message-notice">This method <strong>is affected</strong> by the <code>Reader::setReturnType</code>.</p>
 
 `fetchAssoc` returns a sequential array of all rows. The rows themselves are associative arrays where the keys are an one dimension array. This array must only contain unique `string` and/or `integer` values.
 
@@ -206,7 +214,7 @@ $data[0]['date']->format('Y-m-d H:i:s'); //because this cell contain a `DateTime
 
 ### fetchColumn($columnIndex = 0, callable $callable = null)
 
-<p class="message-notice">This method <strong>is affected</strong> by the <code>Reader</code> return type feature.</p>
+<p class="message-notice">This method <strong>is affected</strong> by the <code>Reader::setReturnType</code>.</p>
 
 `fetchColumn` returns a sequential array of all values in a given column from the CSV data.
 
@@ -240,7 +248,7 @@ $data = $reader->fetchColumn(2, 'strtoupper');
 
 ### fetchPairs($offsetColumnIndex = 0, $valueColumnIndex = 1, callable $callable = null)
 
-<p class="message-notice">This method <strong>is affected</strong> by the <code>Reader</code> return type feature.</p>
+<p class="message-notice">This method <strong>is affected</strong> by the <code>Reader::setReturnType</code>.</p>
 
 The `fetchPairs` method returns data in an array of key-value pairs, as an associative array with a single entry per row. The key of this associative array is taken from the submitted column index parameter. If not parameter is given the first CSV column will be used. The value is taken from the submitted column value parameter. If no parameter is given the second CSV column is used.
 

@@ -18,7 +18,7 @@ This will edit (or create) your `composer.json` file.
 
 ## Improved features
 
-To improving reading capabilities with huges CSV files you can now control the fetch mode from the `Reader` extracting methods:
+To improving reading capabilities with huges CSV files you can now control the return type for some of the `Reader` extracting methods:
 
 Please [refer to the documentation](/reading/) for more information.
 
@@ -28,7 +28,7 @@ Please [refer to the documentation](/reading/) for more information.
 
 `League\Csv` 8.0.0 dropped the support for PHP5.4.
 
-### new line argument to `createFromString`
+### remove optional argument to createFromString
 
 In version 8.0 the optional second argument from `createFromString` is removed. If your code relied on it you can use the following snippet:
 
@@ -119,6 +119,6 @@ $csv = Reader::createFromPath('/path/to/file.csv');
 $csv->fetchColum(2, $func);
 ~~~
 
-## Already deprecated methods in 5.0 series, removed in 6.0
+## Deprecated methods in 7.0 series, removed in 8.0
 
 - `detectDelimiterList`: deprecated since version 7.2 and replaced by `fetchDelimitersOccurrence`.
