@@ -190,12 +190,10 @@ class ControlsTest extends AbstractTestCase
      * @param $flag
      * @param $line_count
      * @dataProvider appliedFlagsProvider
+     * @skipIfHHVM
      */
     public function testAppliedFlags($flag, $line_count)
     {
-        if (defined('HHVM_VERSION')) {
-            $this->markTestSkipped('HHVM CSV parsing is different');
-        }
         $path = __DIR__.'/data/tmp.txt';
         $obj  = new SplFileObject($path, 'w+');
         $obj->fwrite("1st\n2nd\n");

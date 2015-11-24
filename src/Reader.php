@@ -66,7 +66,7 @@ class Reader extends AbstractCsv
      */
     public function setReturnType($type)
     {
-        $modes = [static::TYPE_ARRAY => 1, static::TYPE_ITERATOR => 1];
+        $modes = [self::TYPE_ARRAY => 1, self::TYPE_ITERATOR => 1];
         if (!isset($modes[$type])) {
             throw new UnexpectedValueException('Unknown return type');
         }
@@ -92,7 +92,7 @@ class Reader extends AbstractCsv
         $iterator = $this->applyIteratorFilter($iterator);
         $iterator = $this->applyIteratorSortBy($iterator);
         $iterator = $this->applyIteratorInterval($iterator);
-        $this->returnType = static::TYPE_ARRAY;
+        $this->returnType = self::TYPE_ARRAY;
         if (!is_null($callable)) {
             return new MapIterator($iterator, $callable);
         }
@@ -111,7 +111,25 @@ class Reader extends AbstractCsv
      */
     public function fetchAll(callable $callable = null)
     {
-        return iterator_to_array($this->fetch($callable), false);
+        return $this->applyReturnType(self::TYPE_ARRAY, $this->fetch($callable), false);
+    }
+
+    /**
+     * Convert the Iterator into an array depending on the selected return type
+     *
+     * @param int      $type
+     * @param Iterator $iterator
+     * @param bool     $use_keys Whether to use the iterator element keys as index
+     *
+     * @return Iterator|array
+     */
+    protected function applyReturnType($type, Iterator $iterator, $use_keys = true)
+    {
+        if (self::TYPE_ARRAY == $type) {
+            return iterator_to_array($iterator, $use_keys);
+        }
+
+        return $iterator;
     }
 
     /**
@@ -214,24 +232,6 @@ class Reader extends AbstractCsv
     }
 
     /**
-     * Convert the Iterator into an array depending on the class returnType
-     *
-     * @param int      $type
-     * @param Iterator $iterator
-     * @param bool     $use_keys Whether to use the iterator element keys as index
-     *
-     * @return Iterator|array
-     */
-    protected function applyReturnType($type, Iterator $iterator, $use_keys = true)
-    {
-        if (static::TYPE_ARRAY == $type) {
-            return iterator_to_array($iterator, $use_keys);
-        }
-
-        return $iterator;
-    }
-
-    /**
      * Retrive CSV data as pairs
      *
      * Fetches an associative array of all rows as key-value pairs (first
@@ -265,7 +265,7 @@ class Reader extends AbstractCsv
             $iterator = new MapIterator($iterator, $callable);
         }
 
-        return $this->applyReturnType($type, $this->fetchPairsGenerator($iterator), true);
+        return $this->applyReturnType($type, $this->fetchPairsGenerator($iterator));
     }
 
     /**
@@ -357,7 +357,7 @@ class Reader extends AbstractCsv
      */
     protected function assertValidAssocKeys(array $keys)
     {
-        if (empty($keys) || $keys !== array_unique(array_filter($keys, [$this, 'isValidString']))) {
+        if (empty($keys) || $keys !== array_unique(array_filter($keys, [$this, 'isValidKey']))) {
             throw new InvalidArgumentException('Use a flat array with unique string values');
         }
     }
@@ -369,7 +369,7 @@ class Reader extends AbstractCsv
      *
      * @return bool
      */
-    protected function isValidString($value)
+    protected function isValidKey($value)
     {
         return is_scalar($value) || (is_object($value) && method_exists($value, '__toString'));
     }
