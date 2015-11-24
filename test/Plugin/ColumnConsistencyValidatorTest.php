@@ -22,7 +22,7 @@ class ColumnConsistencyValidatorTest extends AbstractTestCase
 
     public function tearDown()
     {
-        $csv = new SplFileObject(dirname(__DIR__).'/foo.csv', 'w');
+        $csv = new SplFileObject(dirname(__DIR__).'/data/foo.csv', 'w');
         $csv->setCsvControl();
         $csv->fputcsv(['john', 'doe', 'john.doe@example.com'], ',', '"');
         $this->csv = null;

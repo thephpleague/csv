@@ -7,8 +7,6 @@ use League\Csv\Writer;
 use SplFileObject;
 use SplTempFileObject;
 
-date_default_timezone_set('UTC');
-
 /**
  * @group controls
  */
@@ -93,7 +91,7 @@ class ControlsTest extends AbstractTestCase
 
     public function testDetectDelimiterList()
     {
-        $this->assertSame([4 => ','], $this->csv->detectDelimiterList());
+        $this->assertSame([',' => 4], $this->csv->fetchDelimitersOccurrence([',']));
     }
 
     /**
@@ -102,7 +100,7 @@ class ControlsTest extends AbstractTestCase
      */
     public function testDetectDelimiterListWithInvalidRowLimit()
     {
-        $this->csv->detectDelimiterList(-4);
+        $this->csv->fetchDelimitersOccurrence([','], -4);
     }
 
     public function testDetectDelimiterListWithNoCSV()
@@ -110,7 +108,7 @@ class ControlsTest extends AbstractTestCase
         $file = new SplTempFileObject();
         $file->fwrite("How are you today ?\nI'm doing fine thanks!");
         $csv = Writer::createFromFileObject($file);
-        $this->assertSame([], $csv->detectDelimiterList(5, ['toto', '|']));
+        $this->assertSame(['|' => 0], $csv->fetchDelimitersOccurrence(['toto', '|'], 5));
     }
 
     public function testDetectDelimiterListWithInconsistentCSV()
@@ -124,7 +122,7 @@ class ControlsTest extends AbstractTestCase
         $data->fputcsv(['toto', 'tata', 'tutu']);
 
         $csv = Writer::createFromFileObject($data);
-        $this->assertSame([12 => '|', 4 => ';'], $csv->detectDelimiterList(5, ['|']));
+        $this->assertSame(['|' => 12, ';' => 4], $csv->fetchDelimitersOccurrence(['|', ';'], 5));
     }
 
     /**
@@ -197,7 +195,7 @@ class ControlsTest extends AbstractTestCase
     public function testAppliedFlags($flag, $line_count)
     {
         $path = __DIR__.'/data/tmp.txt';
-        $obj = new SplFileObject($path, 'w+');
+        $obj  = new SplFileObject($path, 'w+');
         $obj->fwrite("1st\n2nd\n");
         $reader = Reader::createFromFileObject($obj);
         $reader->setFlags($flag);

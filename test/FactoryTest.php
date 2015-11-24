@@ -2,7 +2,7 @@
 
 namespace League\Csv\Test;
 
-use DateTime;
+use ArrayIterator;
 use League\Csv\Reader;
 use SplFileInfo;
 use SplFileObject;
@@ -15,21 +15,21 @@ class FactoryTest extends AbstractTestCase
 {
     public function testCreateFromPathWithFilePath()
     {
-        $path = __DIR__.'/foo.csv';
+        $path = __DIR__.'/data/foo.csv';
         $csv  = Reader::createFromPath($path);
         $this->assertSame($path, $csv->getIterator()->getRealPath());
     }
 
     public function testCreateFromPathWithSplFileInfo()
     {
-        $path = __DIR__.'/foo.csv';
+        $path = __DIR__.'/data/foo.csv';
         $csv  = Reader::createFromPath(new SplFileInfo($path));
         $this->assertSame($path, $csv->getIterator()->getRealPath());
     }
 
     public function testCreateFromPathWithPHPWrapper()
     {
-        $path = __DIR__.'/foo.csv';
+        $path = __DIR__.'/data/foo.csv';
         $csv = Reader::createFromPath('php://filter/read=string.toupper/resource='.$path);
         $this->assertFalse($csv->getIterator()->getRealPath());
     }
@@ -45,9 +45,9 @@ class FactoryTest extends AbstractTestCase
     /**
      * @expectedException InvalidArgumentException
      */
-    public function testCreateFromPathWithUnStringableObject()
+    public function testCreateFromPathWithInvalidObject()
     {
-        Reader::createFromPath(new DateTime());
+        Reader::createFromPath(new ArrayIterator([]));
     }
 
     public function testCreateFromString()
@@ -67,7 +67,7 @@ class FactoryTest extends AbstractTestCase
 
     public function testCreateFromFileObjectWithSplFileObject()
     {
-        $path   = __DIR__.'/foo.csv';
+        $path   = __DIR__.'/data/foo.csv';
         $obj    = new SplFileObject($path);
         $reader = Reader::createFromFileObject($obj);
         $this->assertInstanceof('League\Csv\Reader', $reader);

@@ -3,6 +3,7 @@
 namespace League\Csv\Test;
 
 use League\Csv\Reader;
+use League\Csv\Writer;
 use SplTempFileObject;
 
 /**
@@ -151,10 +152,21 @@ class ReaderTest extends AbstractTestCase
         $this->assertContains(['JANE', 'DOE', 'JANE.DOE@EXAMPLE.COM'], $res);
     }
 
-    public function testFetchAssoc()
+    public function testFetchAssocReturnsArray()
     {
         $keys = ['firstname', 'lastname', 'email'];
         $res = $this->csv->fetchAssoc($keys);
+        $this->assertInternalType('array', $res);
+        foreach ($res as $offset => $row) {
+            $this->assertSame($keys, array_keys($row));
+        }
+    }
+
+    public function testFetchAssocReturnsIterator()
+    {
+        $keys = ['firstname', 'lastname', 'email'];
+        $res = $this->csv->setReturnType(Reader::TYPE_ITERATOR)->fetchAssoc($keys);
+        $this->assertInstanceof('\Iterator', $res);
         foreach ($res as $offset => $row) {
             $this->assertSame($keys, array_keys($row));
         }
@@ -213,15 +225,6 @@ class ReaderTest extends AbstractTestCase
         $csv = Reader::createFromFileObject($tmp);
         $res = $csv->setOffSet(2)->fetchAssoc(2);
         $this->assertContains(['D' => '6', 'E' => '7', 'F' => '8'], $res);
-    }
-
-    /**
-     * @expectedException \InvalidArgumentException
-     */
-    public function testFetchAssocThrowsExceptionWithNonUniqueAssocKeys()
-    {
-        $keys = ['firstname', 'lastname', 'firstname'];
-        $this->csv->fetchAssoc($keys);
     }
 
     /**
@@ -364,21 +367,19 @@ class ReaderTest extends AbstractTestCase
         ];
     }
 
-    public function testFetchCol()
+    public function testFetchColumn()
     {
-        $this->csv->addFilter(function ($row) {
-            return $row != [null];
-
-        });
-        $this->assertSame(['john', 'jane'], $this->csv->fetchColumn(0));
-        $this->csv->addFilter(function ($row) {
-            return $row != [null];
-
-        });
-        $this->assertSame(['john', 'jane'], $this->csv->fetchColumn());
+        $this->assertContains('john', $this->csv->fetchColumn(0));
+        $this->assertContains('jane', $this->csv->fetchColumn());
     }
 
-    public function testFetchColInconsistentColumnCSV()
+    public function testFetchColumnReturnsIterator()
+    {
+        $this->assertContains('john', $this->csv->setReturnType(Reader::TYPE_ITERATOR)->fetchColumn(0));
+        $this->assertContains('jane', $this->csv->setReturnType(Reader::TYPE_ITERATOR)->fetchColumn());
+    }
+
+    public function testFetchColumnInconsistentColumnCSV()
     {
         $raw = [
             ['john', 'doe'],
@@ -390,16 +391,11 @@ class ReaderTest extends AbstractTestCase
             $file->fputcsv($row);
         }
         $csv = Reader::createFromFileObject($file);
-        $this->csv->addFilter(function ($row) {
-            return $row != [null];
-
-        });
         $res = $csv->fetchColumn(2);
-        $this->assertInternalType('array', $res);
         $this->assertCount(1, $res);
     }
 
-    public function testFetchColEmptyCol()
+    public function testFetchColumnEmptyCol()
     {
         $raw = [
             ['john', 'doe'],
@@ -412,31 +408,23 @@ class ReaderTest extends AbstractTestCase
         }
         $csv = Reader::createFromFileObject($file);
         $res = $csv->fetchColumn(2);
-        $this->csv->addFilter(function ($row) {
-            return $row != [null];
-
-        });
-        $this->assertInternalType('array', $res);
         $this->assertCount(0, $res);
     }
 
 
-    public function testFetchColCallback()
+    public function testFetchColumnCallback()
     {
         $func = function ($value) {
-            return array_map('strtoupper', $value);
+            return strtoupper($value);
         };
-        $this->csv->addFilter(function ($row) {
-            return $row != [null];
-
-        });
-        $this->assertSame(['JOHN', 'JANE'], $this->csv->fetchColumn(0, $func));
+        $iterator = $this->csv->fetchColumn(0, $func);
+        $this->assertSame(['JOHN', 'JANE'], $iterator);
     }
 
     /**
      * @expectedException \InvalidArgumentException
      */
-    public function testFetchColFailure()
+    public function testFetchColumnFailure()
     {
         $this->csv->fetchColumn('toto');
     }
@@ -482,6 +470,127 @@ class ReaderTest extends AbstractTestCase
 
     public function testGetWriter()
     {
-        $this->assertInstanceOf('\League\Csv\Writer', $this->csv->newWriter());
+        $this->assertInstanceOf(Writer::class, $this->csv->newWriter());
+    }
+
+    /**
+     * @dataProvider fetchPairsDataProvider
+     */
+    public function testFetchPairsIteratorMode($key, $value, $callable, $expected)
+    {
+        $iterator = $this->csv->setReturnType(Reader::TYPE_ITERATOR)->fetchPairs($key, $value, $callable);
+        foreach ($iterator as $key => $value) {
+            $res = current($expected);
+            $this->assertSame($value, $res[$key]);
+            next($expected);
+        }
+    }
+
+    public function fetchPairsDataProvider()
+    {
+        return [
+            'default values' => [
+                'key' => 0,
+                'value' => 1,
+                'callable' => null,
+                'expected' => [
+                    ['john' => 'doe'],
+                    ['jane' => 'doe'],
+                ],
+            ],
+            'changed key order' => [
+                'key' => 1,
+                'value' => 0,
+                'callable' => null,
+                'expected' => [
+                    ['doe' => 'john'],
+                    ['doe' => 'jane'],
+                ],
+            ],
+            'with callback' => [
+                'key' => 0,
+                'value' => 1,
+                'callable' => function ($row) {
+                    return [
+                        strtoupper($row[0]),
+                        strtoupper($row[1]),
+                    ];
+                },
+                'expected' => [
+                    ['JOHN' => 'DOE'],
+                    ['JANE' => 'DOE'],
+                ],
+            ],
+        ];
+    }
+
+    /**
+     * @dataProvider fetchPairsArrayDataProvider
+     */
+    public function testFetchPairsArrayMode($key, $value, $callable, $expected)
+    {
+        $array = $this->csv->fetchPairs($key, $value, $callable);
+        $this->assertSame($expected, $array);
+    }
+
+    public function fetchPairsArrayDataProvider()
+    {
+        return [
+            'default values' => [
+                'key' => 0,
+                'value' => 1,
+                'callable' => null,
+                'expected' => ['john' => 'doe', 'jane' => 'doe'],
+            ],
+            'changed key order' => [
+                'key' => 1,
+                'value' => 0,
+                'callable' => null,
+                'expected' => ['doe' => 'jane'],
+            ],
+            'with callback' => [
+                'key' => 0,
+                'value' => 1,
+                'callable' => function ($row) {
+                    return [
+                        strtoupper($row[0]),
+                        strtoupper($row[1]),
+                    ];
+                },
+                'expected' => ['JOHN' => 'DOE', 'JANE' => 'DOE'],
+            ],
+        ];
+    }
+
+    /**
+     * @expectedException \UnexpectedValueException
+     */
+    public function testReturnTypeThrowsException()
+    {
+        $this->csv->setReturnType('toto');
+    }
+
+    /**
+     * @dataProvider readerReturnTypeProvider
+     */
+    public function testReturnTypeResetBetweenCallToArray($method, array $args = [])
+    {
+        $this->assertSame(Reader::TYPE_ARRAY, $this->csv->getReturnType());
+        $this->csv->setReturnType(Reader::TYPE_ITERATOR);
+        call_user_func_array([$this->csv, $method], $args);
+        $this->assertSame(Reader::TYPE_ARRAY, $this->csv->getReturnType());
+    }
+
+    public function readerReturnTypeProvider()
+    {
+        return [
+            ['fetch'],
+            ['fetchOne'],
+            ['fetchAll'],
+            ['fetchColumn'],
+            ['fetchPairs'],
+            ['fetchAssoc'],
+            ['each', [function (array $row) { return true; }]],
+        ];
     }
 }

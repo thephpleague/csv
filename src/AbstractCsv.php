@@ -97,7 +97,7 @@ abstract class AbstractCsv implements JsonSerializable, IteratorAggregate
      * a path to a file
      *
      * @param SplFileObject|string $path      The file path
-     * @param string               $open_mode the file open mode flag
+     * @param string               $open_mode The file open mode flag
      */
     protected function __construct($path, $open_mode = 'r+')
     {
@@ -172,7 +172,7 @@ abstract class AbstractCsv implements JsonSerializable, IteratorAggregate
      * @param mixed  $path      file path
      * @param string $open_mode the file open mode flag
      *
-     * @throws InvalidArgumentException If $path is a \SplTempFileObject object
+     * @throws InvalidArgumentException If $path is a SplTempFileObject object
      *
      * @return static
      */
@@ -203,7 +203,6 @@ abstract class AbstractCsv implements JsonSerializable, IteratorAggregate
         if (is_string($str) || (is_object($str) && method_exists($str, '__toString'))) {
             return (string) $str;
         }
-
         throw new InvalidArgumentException('Expected data must be a string or stringable');
     }
 
@@ -237,27 +236,23 @@ abstract class AbstractCsv implements JsonSerializable, IteratorAggregate
      * The string must be an object that implements the `__toString` method,
      * or a string
      *
-     * @param string $str     the string
-     * @param string $newline the newline character
+     * @param string|object $str the string
      *
      * @return static
      */
-    public static function createFromString($str, $newline = "\n")
+    public static function createFromString($str)
     {
         $file = new SplTempFileObject();
         $file->fwrite(static::validateString($str));
 
-        $csv = static::createFromFileObject($file);
-        $csv->setNewline($newline);
-
-        return $csv;
+        return static::createFromFileObject($file);
     }
 
     /**
      * Creates a {@link AbstractCsv} instance from another {@link AbstractCsv} object
      *
-     * @param string $class_name the class to be instantiated
-     * @param string $open_mode  the file open mode flag
+     * @param string $class     the class to be instantiated
+     * @param string $open_mode the file open mode flag
      *
      * @return static
      */
@@ -285,7 +280,7 @@ abstract class AbstractCsv implements JsonSerializable, IteratorAggregate
      */
     public function newWriter($open_mode = 'r+')
     {
-        return $this->newInstance('\League\Csv\Writer', $open_mode);
+        return $this->newInstance(Writer::class, $open_mode);
     }
 
     /**
@@ -297,7 +292,7 @@ abstract class AbstractCsv implements JsonSerializable, IteratorAggregate
      */
     public function newReader($open_mode = 'r+')
     {
-        return $this->newInstance('\League\Csv\Reader', $open_mode);
+        return $this->newInstance(Reader::class, $open_mode);
     }
 
     /**
@@ -316,7 +311,6 @@ abstract class AbstractCsv implements JsonSerializable, IteratorAggregate
         if (false === ($int = filter_var($int, FILTER_VALIDATE_INT, ['options' => ['min_range' => $minValue]]))) {
             throw new InvalidArgumentException($errorMessage);
         }
-
         return $int;
     }
 }

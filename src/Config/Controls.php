@@ -103,33 +103,6 @@ trait Controls
     }
 
     /**
-     * Detects the CSV file delimiters
-     *
-     * Returns a associative array where each key represents
-     * the number of occurences and each value a delimiter with the
-     * given occurence
-     *
-     * This method returns incorrect informations when two delimiters
-     * have the same occurrence count
-     *
-     * DEPRECATION WARNING! This method will be removed in the next major point release
-     *
-     * @deprecated deprecated since version 7.2
-     *
-     * @param int      $nb_rows
-     * @param string[] $delimiters additional delimiters
-     *
-     * @return string[]
-     */
-    public function detectDelimiterList($nb_rows = 1, array $delimiters = [])
-    {
-        $delimiters = array_merge([$this->delimiter, ',', ';', "\t"], $delimiters);
-        $stats = $this->fetchDelimitersOccurrence($delimiters, $nb_rows);
-
-        return array_flip(array_filter($stats));
-    }
-
-    /**
      * Detect Delimiters occurences in the CSV
      *
      * Returns a associative array where each key represents

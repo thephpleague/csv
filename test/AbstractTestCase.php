@@ -4,9 +4,6 @@ namespace League\Csv\Test;
 
 use PHPUnit_Framework_TestCase;
 
-/**
- * @group controls
- */
 class AbstractTestCase extends PHPUnit_Framework_TestCase
 {
     protected function checkRequirements()
