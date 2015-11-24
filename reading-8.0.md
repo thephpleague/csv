@@ -32,14 +32,13 @@ $reader->getReturnType(); //returns Reader::TYPE_ARRAY
 //everytime a query is issued the return type is resetted to Reader::TYPE_ARRAY
 ~~~
 
-<p class="message-warning">Not all the <code>Reader</code> extract methods are affected by this mechanism but any call to any of the extract methods will automatically reset the return type to <code>Reader::TYPE_ARRAY</code></p>
-
+<p class="message-warning"><strong>WARNING:</strong> Not all the <code>Reader</code> extract methods are affected by this mechanism but any call to any of the <code>Reader</code> extract method will automatically reset the return type to <code>Reader::TYPE_ARRAY</code></p>
 
 ### fetch(callable $callable = null)
 
 <p class="message-notice">This method <strong>is not affected</strong> by <code>Reader::setReturnType</code>.</p>
 
-The `fetch` method Fetches the next row from the `Iterator` result set.
+The `fetch` method fetches the next row from the `Iterator` result set.
 
 ~~~php
 $results = $reader->fetch();
@@ -150,7 +149,8 @@ $nbIteration = $reader->each(function ($row, $index, $iterator) use (&$res, $fun
 ### fetchAssoc($offset_or_keys = 0, callable $callable = null)
 
 <p class="message-notice">This method <strong>is affected</strong> by <code>Reader::setReturnType</code>.</p>
-`fetchAssoc` returns a sequential array of all rows. The rows themselves are associative arrays where the keys are an one dimension array. This array must only contain unique `string` and/or `integer` values.
+
+`fetchAssoc` returns a sequential array of all rows. The rows themselves are associative arrays where the keys are a one dimension array. This array must only contain unique `string` and/or `scalar` values.
 
 This array keys can be specified as the first argument as
 
@@ -186,7 +186,7 @@ $data = $reader->fetchAssoc();
 //
 ~~~
 
-Of note:
+**Of note:**
 
 - If the number of values in a CSV row is lesser than the number of named keys, the method will add `null` values to compensate for the missing values.
 - If the number of values in a CSV row is greater that the number of named keys the exceeding values will be drop from the result set.
@@ -195,7 +195,7 @@ Of note:
 
 The method takes an second optional parameter, a callable, to apply to each row of the results before returning. This callable expected:
 
-- the CSV current row with the indexes already attached **(new to version 8.0.0)**
+- the CSV current row combined with the submitted indexes **(new to version 8.0.0)**
 - the CSV current row offset
 - the current iterator
 
@@ -213,6 +213,7 @@ $data[0]['date']->format('Y-m-d H:i:s');
 ### fetchColumn($columnIndex = 0, callable $callable = null)
 
 <p class="message-notice">This method <strong>is affected</strong> by <code>Reader::setReturnType</code>.</p>
+
 `fetchColumn` returns a sequential array of all values in a given column from the CSV data.
 
 If for a given row the column does not exist, the row will be skipped.
@@ -225,7 +226,7 @@ $data = $reader->fetchColumn(2);
 //
 ~~~
 
-The method takes an second optional parameter, a callable, to apply to each row of the results before returning. This callable expected:
+The method takes an second optional parameter, a callable, to apply to each valie of the result set before returning it. This callable expected:
 
 - the CSV current column value **(new to version 8.0.0)**
 - the CSV current row offset
@@ -246,7 +247,10 @@ $data = $reader->fetchColumn(2, 'strtoupper');
 <p class="message-notice">new feature introduced in <code>version 8.0</code></p>
 <p class="message-notice">This method <strong>is affected</strong> by <code>Reader::setReturnType</code>.</p>
 
-The `fetchPairs` method returns data in an array of key-value pairs, as an associative array with a single entry per row. The key of this associative array is taken from the submitted column index parameter. If not parameter is given the first CSV column will be used. The value is taken from the submitted column value parameter. If no parameter is given the second CSV column is used.
+The `fetchPairs` method returns data in an array of key-value pairs, as an associative array with a single entry per row. In this associative array:
+
+- The key is taken from the submitted column index parameter. If not parameter is given the first CSV column will be used.
+- The value is taken from the submitted column value parameter. If no parameter is given the second CSV column is used.
 
 ~~~php
 $data = $reader->fetchPairs();
@@ -260,7 +264,7 @@ $data = $reader->fetchPairs();
 
 The method takes a third optional parameter, a callable, to apply to each row of the results before returning. This callable expected:
 
-- an array containing two value, the first value represents the resulting offset and the second value the resulting value.
+- an array containing two values, the first value represents the resulting key and the second value the resulting value.
 - the CSV current row offset
 - the current iterator
 
@@ -280,7 +284,7 @@ $data = $reader->fetchPairs();
 // ];
 ~~~
 
-<p class="message-warning"><strong>WARNING:</strong> Depending on the return type selected, the items return may diffe:</p>
+<p class="message-warning"><strong>WARNING:</strong> Depending on the return type selected, the items returned may differ:</p>
 
 - When using `Reader::TYPE_ARRAY` if there are duplicates values in the column index, entries in the associative array will be overwritten.
 - When using `Reader::TYPE_ITERATOR` no overwrite occurs as the return type is created using a PHP `Generator`.

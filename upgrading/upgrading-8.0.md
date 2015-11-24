@@ -61,7 +61,7 @@ $writer->insertOne(["foo", null, "bar"]);
 
 ### fetchAssoc callable argument
 
-The optional callable argument from `Reader::fetchAssoc` now expects its first argument to be an `array` indexed by the submitted array keys. In all previous versions, The indexation was made after the callable had manipulated the CSV row.
+The optional callable argument from `Reader::fetchAssoc` now expects its first argument to be an `array` indexed by the submitted array keys. In all previous versions, the indexation was made after the callable had manipulated the CSV row.
 
 **Old code:**
 
@@ -97,7 +97,7 @@ $csv->fetchAssoc(['lastname', 'firstname'], $func);
 
 ### fetchColumn callable argument
 
-The optional callable argument from `Reader::fetchColumn` now expects its first argument to be tje selected column value. In all previous versions, the callable first argument was an array.
+The optional callable argument from `Reader::fetchColumn` now expects its first argument to be the selected column value. In all previous versions, the callable first argument was an array.
 
 **Old code:**
 
@@ -130,3 +130,4 @@ $csv->fetchColum(2, $func);
 ## Deprecated methods in 7.0 series, removed in 8.0
 
 - `detectDelimiterList`: deprecated since version 7.2 and replaced by `fetchDelimitersOccurrence`.
+- `Reader::query`: deprecated since version 7.2 and replaced by `Reader::fetch`.
