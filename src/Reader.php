@@ -18,6 +18,7 @@ use Iterator;
 use League\Csv\Modifier\MapIterator;
 use LimitIterator;
 use SplFileObject;
+use UnexpectedValueException;
 
 /**
  *  A class to manage extracting and filtering a CSV
@@ -28,9 +29,9 @@ use SplFileObject;
  */
 class Reader extends AbstractCsv
 {
-    const FETCH_ARRAY = 1;
+    const TYPE_ARRAY = 1;
 
-    const FETCH_ITERATOR = 2;
+    const TYPE_ITERATOR = 2;
 
     /**
      * @inheritdoc
@@ -38,34 +39,38 @@ class Reader extends AbstractCsv
     protected $stream_filter_mode = STREAM_FILTER_READ;
 
     /**
-     * Reader fetch mode
+     * Reader return type
      *
      * @var int
      */
-    protected $fetchMode = self::FETCH_ARRAY;
+    protected $returnType = self::TYPE_ARRAY;
 
     /**
-     * returns the current fetch mode
+     * Returns the return type for the next fetch call
      *
      * @return int
      */
-    public function getFetchMode()
+    public function getReturnType()
     {
-        return $this->fetchMode;
+        return $this->returnType;
     }
 
     /**
-     * Set the Reader fetch mode for the next call
+     * Set the return type for the next fetch call
      *
-     * @param static
+     * @param int $type
+     *
+     * @throws UnexpectedValueException If the value is not one of the defined constant
+     *
+     * @return static
      */
-    public function setFetchMode($mode)
+    public function setReturnType($type)
     {
-        $modes = [static::FETCH_ARRAY => 1, static::FETCH_ITERATOR => 1];
-        if (!isset($modes[$mode])) {
-            throw new InvalidArgumentException('Unknown return type mode');
+        $modes = [static::TYPE_ARRAY => 1, static::TYPE_ITERATOR => 1];
+        if (!isset($modes[$type])) {
+            throw new UnexpectedValueException('Unknown return type');
         }
-        $this->fetchMode = $mode;
+        $this->returnType = $type;
 
         return $this;
     }
@@ -87,6 +92,7 @@ class Reader extends AbstractCsv
         $iterator = $this->applyIteratorFilter($iterator);
         $iterator = $this->applyIteratorSortBy($iterator);
         $iterator = $this->applyIteratorInterval($iterator);
+        $this->returnType = static::TYPE_ARRAY;
         if (!is_null($callable)) {
             return new MapIterator($iterator, $callable);
         }
@@ -184,30 +190,13 @@ class Reader extends AbstractCsv
         };
 
         $this->addFilter($filterColumn);
+        $type = $this->returnType;
         $iterator = $this->fetch($selectColumn);
         if (!is_null($callable)) {
             $iterator = new MapIterator($iterator, $callable);
         }
 
-        return $this->toArray($iterator, false);
-    }
-
-    /**
-     * Convert the Iterator into an array depending on the class fetchMode
-     *
-     * @param Iterator $iterator
-     * @param bool     $use_keys Whether to use the iterator element keys as index
-     *
-     * @return Iterator|array
-     */
-    protected function toArray(Iterator $iterator, $use_keys = true)
-    {
-        if (static::FETCH_ARRAY == $this->fetchMode) {
-            return iterator_to_array($iterator, $use_keys);
-        }
-        $this->fetchMode = static::FETCH_ARRAY;
-
-        return $iterator;
+        return $this->applyReturnType($type, $iterator, false);
     }
 
     /**
@@ -222,6 +211,24 @@ class Reader extends AbstractCsv
         if (false === filter_var($index, FILTER_VALIDATE_INT, ['options' => ['min_range' => 0]])) {
             throw new InvalidArgumentException('the column index must be a positive integer or 0');
         }
+    }
+
+    /**
+     * Convert the Iterator into an array depending on the class returnType
+     *
+     * @param int      $type
+     * @param Iterator $iterator
+     * @param bool     $use_keys Whether to use the iterator element keys as index
+     *
+     * @return Iterator|array
+     */
+    protected function applyReturnType($type, Iterator $iterator, $use_keys = true)
+    {
+        if (static::TYPE_ARRAY == $type) {
+            return iterator_to_array($iterator, $use_keys);
+        }
+
+        return $iterator;
     }
 
     /**
@@ -251,13 +258,14 @@ class Reader extends AbstractCsv
             return [$row[$offsetColumnIndex], $row[$valueColumnIndex]];
         };
         $this->addFilter($filterPairs);
+        $type = $this->returnType;
         $iterator = $this->fetch($selectPairs);
 
         if (!is_null($callable)) {
             $iterator = new MapIterator($iterator, $callable);
         }
 
-        return $this->toArray($this->fetchPairsGenerator($iterator), true);
+        return $this->applyReturnType($type, $this->fetchPairsGenerator($iterator), true);
     }
 
     /**
@@ -301,7 +309,11 @@ class Reader extends AbstractCsv
             return array_combine($keys, $row);
         };
 
-        return $this->toArray(new MapIterator($this->fetch($callable), $combineArray), false);
+        return $this->applyReturnType(
+            $this->returnType,
+            new MapIterator($this->fetch($callable), $combineArray),
+            false
+        );
     }
 
     /**

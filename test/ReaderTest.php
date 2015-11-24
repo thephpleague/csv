@@ -165,7 +165,7 @@ class ReaderTest extends AbstractTestCase
     public function testFetchAssocReturnsIterator()
     {
         $keys = ['firstname', 'lastname', 'email'];
-        $res = $this->csv->setFetchMode(Reader::FETCH_ITERATOR)->fetchAssoc($keys);
+        $res = $this->csv->setReturnType(Reader::TYPE_ITERATOR)->fetchAssoc($keys);
         $this->assertInstanceof('\Iterator', $res);
         foreach ($res as $offset => $row) {
             $this->assertSame($keys, array_keys($row));
@@ -375,8 +375,8 @@ class ReaderTest extends AbstractTestCase
 
     public function testFetchColumnReturnsIterator()
     {
-        $this->assertContains('john', $this->csv->setFetchMode(Reader::FETCH_ITERATOR)->fetchColumn(0));
-        $this->assertContains('jane', $this->csv->setFetchMode(Reader::FETCH_ITERATOR)->fetchColumn());
+        $this->assertContains('john', $this->csv->setReturnType(Reader::TYPE_ITERATOR)->fetchColumn(0));
+        $this->assertContains('jane', $this->csv->setReturnType(Reader::TYPE_ITERATOR)->fetchColumn());
     }
 
     public function testFetchColumnInconsistentColumnCSV()
@@ -478,7 +478,7 @@ class ReaderTest extends AbstractTestCase
      */
     public function testFetchPairsIteratorMode($key, $value, $callable, $expected)
     {
-        $iterator = $this->csv->setFetchMode(Reader::FETCH_ITERATOR)->fetchPairs($key, $value, $callable);
+        $iterator = $this->csv->setReturnType(Reader::TYPE_ITERATOR)->fetchPairs($key, $value, $callable);
         foreach ($iterator as $key => $value) {
             $res = current($expected);
             $this->assertSame($value, $res[$key]);
@@ -563,13 +563,34 @@ class ReaderTest extends AbstractTestCase
     }
 
     /**
-     * @expectedException \InvalidArgumentException
+     * @expectedException \UnexpectedValueException
      */
-    public function testFetchMode()
+    public function testReturnTypeThrowsException()
     {
-        $this->assertSame(Reader::FETCH_ARRAY, $this->csv->getFetchMode());
-        $this->csv->setFetchMode(Reader::FETCH_ITERATOR);
-        $this->assertSame(Reader::FETCH_ITERATOR, $this->csv->getFetchMode());
-        $this->csv->setFetchMode('toto');
+        $this->csv->setReturnType('toto');
+    }
+
+    /**
+     * @dataProvider readerReturnTypeProvider
+     */
+    public function testReturnTypeResetBetweenCallToArray($method, array $args = [])
+    {
+        $this->assertSame(Reader::TYPE_ARRAY, $this->csv->getReturnType());
+        $this->csv->setReturnType(Reader::TYPE_ITERATOR);
+        call_user_func_array([$this->csv, $method], $args);
+        $this->assertSame(Reader::TYPE_ARRAY, $this->csv->getReturnType());
+    }
+
+    public function readerReturnTypeProvider()
+    {
+        return [
+            ['fetch'],
+            ['fetchOne'],
+            ['fetchAll'],
+            ['fetchColumn'],
+            ['fetchPairs'],
+            ['fetchAssoc'],
+            ['each', [function (array $row) { return true; }]],
+        ];
     }
 }
