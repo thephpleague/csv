@@ -1,6 +1,28 @@
 #Changelog
 All Notable changes to `League\Csv` will be documented in this file
 
+## Next - 2015-xx-xx
+
+### Added
+
+- `Reader::fetchPairs`
+- `Reader::setReturnType` and `Reader::getReturnType` to enable modifying some extract method return type
+
+### Deprecated
+
+- None
+
+### Fixed
+
+- `Reader::fetchAssoc` callable argument now expects an indexed row using the submitted keys as its first argument
+- `Reader::fetchColumn` callable argument now expects the selected column value as its first argument
+
+### Removed
+
+- `Controls::detectDelimiterList`
+- `Reader::query`
+- The `$newline` argument from `AbstractCsv::createFromString`
+
 ## 7.2.0 - 2015-11-02
 
 ### Added
