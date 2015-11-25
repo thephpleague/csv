@@ -10,7 +10,6 @@ matrix:
     - php: 5.6
       env:
         - COLLECT_COVERAGE=true
-        - EXECUTE_CS_CHECK=true
     - php: 7.0
     - php: hhvm
   fast_finish: true
@@ -27,9 +26,7 @@ install:
   - travis_retry composer install --prefer-dist
 
 script:
-  - if [ "$COLLECT_COVERAGE" != "true" ]; then vendor/bin/phpunit; fi
-  - if [ "$COLLECT_COVERAGE" == "true" ]; then vendor/bin/phpunit --coverage-text --coverage-clover=coverage.clover; fi
-  - if [ "$EXECUTE_CS_CHECK" == "true" ]; then vendor/bin/php-cs-fixer fix -v --diff --dry-run; fi
+  - composer test
 
 after_script:
  - if [ "$COLLECT_COVERAGE" == "true" ]; then wget https://scrutinizer-ci.com/ocular.phar; fi
