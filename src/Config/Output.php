@@ -222,18 +222,19 @@ trait Output
      */
     protected function convertToUtf8(Iterator $iterator)
     {
-        if (strpos($this->encodingFrom, 'UTF-8') !== false) {
+        if (stripos($this->encodingFrom, 'UTF-8') !== false) {
             return $iterator;
         }
 
-        return new MapIterator($iterator, function ($row) {
-            foreach ($row as &$value) {
-                $value = mb_convert_encoding($value, 'UTF-8', $this->encodingFrom);
-            }
-            unset($value);
+        $convertCell = function ($value) {
+            return mb_convert_encoding($value, 'UTF-8', $this->encodingFrom);
+        };
 
-            return $row;
-        });
+        $convertRow = function (array $row) use ($convertCell) {
+            return array_map($convertCell, $row);
+        };
+
+        return new MapIterator($iterator, $convertRow);
     }
 
     /**
