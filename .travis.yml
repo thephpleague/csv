@@ -30,4 +30,4 @@ script:
 
 after_script:
  - if [ "$COLLECT_COVERAGE" == "true" ]; then wget https://scrutinizer-ci.com/ocular.phar; fi
- - if [ "$COLLECT_COVERAGE" == "true" ]; then php ocular.phar code-coverage:upload --format=php-clover coverage.clover; fi
+ - if [ "$COLLECT_COVERAGE" == "true" ]; then php ocular.phar code-coverage:upload --format=php-clover build/logs/clover.xml; fi
