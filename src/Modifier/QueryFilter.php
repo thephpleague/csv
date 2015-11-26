@@ -275,7 +275,7 @@ trait QueryFilter
      *
      * @param Iterator $iterator
      *
-     * @return \Iterator
+     * @return Iterator
      */
     protected function applyBomStripping(Iterator $iterator)
     {
@@ -327,9 +327,9 @@ trait QueryFilter
     /**
     * Filter the Iterator
     *
-    * @param \Iterator $iterator
+    * @param Iterator $iterator
     *
-    * @return \Iterator
+    * @return Iterator
     */
     protected function applyIteratorFilter(Iterator $iterator)
     {
@@ -344,9 +344,9 @@ trait QueryFilter
     /**
     * Sort the Iterator
     *
-    * @param \Iterator $iterator
+    * @param Iterator $iterator
     *
-    * @return \Iterator
+    * @return Iterator
     */
     protected function applyIteratorInterval(Iterator $iterator)
     {
@@ -364,9 +364,9 @@ trait QueryFilter
     /**
     * Sort the Iterator
     *
-    * @param \Iterator $iterator
+    * @param Iterator $iterator
     *
-    * @return \Iterator
+    * @return Iterator
     */
     protected function applyIteratorSortBy(Iterator $iterator)
     {
@@ -387,5 +387,23 @@ trait QueryFilter
         $this->clearSortBy();
 
         return $obj->getIterator();
+    }
+
+    /**
+     * Convert the Iterator into an array depending on the selected return type
+     *
+     * @param int      $type
+     * @param Iterator $iterator
+     * @param bool     $use_keys Whether to use the iterator element keys as index
+     *
+     * @return Iterator|array
+     */
+    protected function applyReturnType($type, Iterator $iterator, $use_keys = true)
+    {
+        if (AbstractCsv::TYPE_ARRAY == $type) {
+            return iterator_to_array($iterator, $use_keys);
+        }
+
+        return $iterator;
     }
 }

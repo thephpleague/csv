@@ -12,6 +12,8 @@
 */
 namespace League\Csv\Exception;
 
+use InvalidArgumentException;
+
 /**
  *  Thrown when a data is not validated prior to insertion
  *
@@ -19,7 +21,7 @@ namespace League\Csv\Exception;
  * @since  7.0.0
  *
  */
-class InvalidRowException extends \InvalidArgumentException
+class InvalidRowException extends InvalidArgumentException
 {
     /**
      * Validator which did not validated the data

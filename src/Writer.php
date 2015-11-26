@@ -15,6 +15,7 @@ namespace League\Csv;
 use InvalidArgumentException;
 use League\Csv\Modifier\RowFilter;
 use ReflectionMethod;
+use SplFileObject;
 use Traversable;
 
 /**
@@ -36,7 +37,7 @@ class Writer extends AbstractCsv
     /**
      * The CSV object holder
      *
-     * @var \SplFileObject
+     * @var SplFileObject
      */
     protected $csv;
 
@@ -89,7 +90,7 @@ class Writer extends AbstractCsv
     {
         if (!is_array($rows) && !$rows instanceof Traversable) {
             throw new InvalidArgumentException(
-                'the provided data must be an array OR a \Traversable object'
+                'the provided data must be an array OR a `Traversable` object'
             );
         }
 

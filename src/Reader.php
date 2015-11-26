@@ -87,24 +87,6 @@ class Reader extends AbstractCsv
     }
 
     /**
-     * Convert the Iterator into an array depending on the selected return type
-     *
-     * @param int      $type
-     * @param Iterator $iterator
-     * @param bool     $use_keys Whether to use the iterator element keys as index
-     *
-     * @return Iterator|array
-     */
-    protected function applyReturnType($type, Iterator $iterator, $use_keys = true)
-    {
-        if (self::TYPE_ARRAY == $type) {
-            return iterator_to_array($iterator, $use_keys);
-        }
-
-        return $iterator;
-    }
-
-    /**
      * Applies a callback function on the CSV
      *
      * The callback function must return TRUE in order to continue
@@ -158,18 +140,14 @@ class Reader extends AbstractCsv
      *
      * By default if no column index is provided the first column of the CSV is selected
      *
-     * @param int           $columnIndex field Index
-     * @param callable|null $callable    a callable function to apply to each selected CSV rows column value.
-     *                                   The callable takes up to three parameter
-     *                                   - the column value
-     *                                   - the row index
-     *                                   - the CSV Iterator
+     * @param int           $columnIndex CSV column index
+     * @param callable|null $callable    A callable to be applied to each of the value to be returned.
      *
      * @return Iterator|array
      */
     public function fetchColumn($columnIndex = 0, callable $callable = null)
     {
-        $this->assertValidColumnIndex($columnIndex);
+        $columnIndex = $this->filterInteger($columnIndex, 0, 'the column index must be a positive integer or 0');
 
         $filterColumn = function ($row) use ($columnIndex) {
             return array_key_exists($columnIndex, $row);
@@ -185,20 +163,6 @@ class Reader extends AbstractCsv
         $iterator = $this->applyCallable($iterator, $callable);
 
         return $this->applyReturnType($type, $iterator, false);
-    }
-
-    /**
-     * Validate a CSV row index
-     *
-     * @param int $index
-     *
-     * @throws InvalidArgumentException If the column index is not a positive integer or 0
-     */
-    protected function assertValidColumnIndex($index)
-    {
-        if (false === filter_var($index, FILTER_VALIDATE_INT, ['options' => ['min_range' => 0]])) {
-            throw new InvalidArgumentException('the column index must be a positive integer or 0');
-        }
     }
 
     /**
@@ -219,8 +183,8 @@ class Reader extends AbstractCsv
      */
     public function fetchPairs($offsetColumnIndex = 0, $valueColumnIndex = 1, callable $callable = null)
     {
-        $this->assertValidColumnIndex($offsetColumnIndex);
-        $this->assertValidColumnIndex($valueColumnIndex);
+        $offsetColumnIndex = $this->filterInteger($offsetColumnIndex, 0, 'the offset column index must be a positive integer or 0');
+        $valueColumnIndex = $this->filterInteger($valueColumnIndex, 0, 'the value column index must be a positive integer or 0');
         $filterPairs = function ($row) use ($offsetColumnIndex, $valueColumnIndex) {
             return array_key_exists($offsetColumnIndex, $row) && array_key_exists($valueColumnIndex, $row);
         };
@@ -300,10 +264,7 @@ class Reader extends AbstractCsv
             return $offset_or_keys;
         }
 
-        if (false === filter_var($offset_or_keys, FILTER_VALIDATE_INT, ['options' => ['min_range' => 0]])) {
-            throw new InvalidArgumentException('the row index must be a positive integer, 0 or a non empty array');
-        }
-
+        $$offset_or_keys = $this->filterInteger($offset_or_keys, 0, 'the row index must be a positive integer, 0 or a non empty array');
         $keys = $this->getRow($offset_or_keys);
         $this->assertValidAssocKeys($keys);
         $filterOutRow = function ($row, $rowIndex) use ($offset_or_keys) {

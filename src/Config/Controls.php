@@ -48,7 +48,7 @@ trait Controls
     protected $escape = '\\';
 
     /**
-     * the \SplFileObject flags holder
+     * the SplFileObject flags holder
      *
      * @var int
      */
@@ -111,16 +111,11 @@ trait Controls
      * @param string[] $delimiters the delimiters to consider
      * @param int      $nb_rows    Detection is made using $nb_rows of the CSV
      *
-     * @throws InvalidArgumentException If $nb_rows value is invalid
-     *
      * @return array
      */
     public function fetchDelimitersOccurrence(array $delimiters, $nb_rows = 1)
     {
-        if (!($nb_rows = filter_var($nb_rows, FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]))) {
-            throw new InvalidArgumentException('The number of rows to consider must be a valid positive integer');
-        }
-
+        $nb_rows = $this->filterInteger($nb_rows, 1, 'The number of rows to consider must be a valid positive integer');
         $filterRow = function ($row) {
             return is_array($row) && count($row) > 1;
         };
