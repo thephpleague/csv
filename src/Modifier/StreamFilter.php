@@ -71,13 +71,13 @@ trait StreamFilter
     protected function initStreamFilter($path)
     {
         $this->stream_filters = [];
-        if (! is_string($path)) {
+        if (!is_string($path)) {
             $this->stream_uri = null;
 
             return;
         }
 
-        if (! preg_match($this->stream_regex, $path, $matches)) {
+        if (!preg_match($this->stream_regex, $path, $matches)) {
             $this->stream_uri = $path;
 
             return;

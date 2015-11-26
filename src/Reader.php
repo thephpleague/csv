@@ -150,7 +150,7 @@ class Reader extends AbstractCsv
         $columnIndex = $this->filterInteger($columnIndex, 0, 'the column index must be a positive integer or 0');
 
         $filterColumn = function ($row) use ($columnIndex) {
-            return array_key_exists($columnIndex, $row);
+            return isset($row[$columnIndex]);
         };
 
         $selectColumn = function ($row) use ($columnIndex) {
@@ -186,7 +186,7 @@ class Reader extends AbstractCsv
         $offsetColumnIndex = $this->filterInteger($offsetColumnIndex, 0, 'the offset column index must be a positive integer or 0');
         $valueColumnIndex = $this->filterInteger($valueColumnIndex, 0, 'the value column index must be a positive integer or 0');
         $filterPairs = function ($row) use ($offsetColumnIndex, $valueColumnIndex) {
-            return array_key_exists($offsetColumnIndex, $row) && array_key_exists($valueColumnIndex, $row);
+            return isset($row[$offsetColumnIndex], $row[$valueColumnIndex]);
         };
         $selectPairs = function ($row) use ($offsetColumnIndex, $valueColumnIndex) {
             return [$row[$offsetColumnIndex], $row[$valueColumnIndex]];
