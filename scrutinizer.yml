@@ -21,3 +21,15 @@ tools:
     external_code_coverage:
         timeout: 1200
         runs: 2
+    php_code_coverage: false
+    php_code_sniffer:
+        config:
+            standard: PSR2
+        filter:
+            paths: ['src']
+    php_loc:
+        enabled: true
+        excluded_dirs: [vendor, test, exemples]
+    php_cpd:
+        enabled: true
+        excluded_dirs: [vendor, test, exemples]
