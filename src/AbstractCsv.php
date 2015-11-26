@@ -67,6 +67,16 @@ abstract class AbstractCsv implements JsonSerializable, IteratorAggregate
     const BOM_UTF32_LE = "\x00\x00\xFF\xFE";
 
     /**
+     * return an array
+     */
+    const TYPE_ARRAY = 1;
+
+    /**
+     * return an iterator
+     */
+    const TYPE_ITERATOR = 2;
+
+    /**
      * The constructor path
      *
      * can be a SplFileInfo object or the string path to a file

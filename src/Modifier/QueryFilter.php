@@ -15,7 +15,9 @@ namespace League\Csv\Modifier;
 use ArrayObject;
 use CallbackFilterIterator;
 use Iterator;
+use League\Csv\AbstractCsv;
 use LimitIterator;
+use UnexpectedValueException;
 
 /**
  *  A Trait to Query rows against a SplFileObject
@@ -60,6 +62,43 @@ trait QueryFilter
      * @var boolean
      */
     protected $strip_bom = false;
+
+    /**
+     * Reader return type
+     *
+     * @var int
+     */
+    protected $returnType = AbstractCsv::TYPE_ARRAY;
+
+    /**
+     * Returns the return type for the next fetch call
+     *
+     * @return int
+     */
+    public function getReturnType()
+    {
+        return $this->returnType;
+    }
+
+    /**
+     * Set the return type for the next fetch call
+     *
+     * @param int $type
+     *
+     * @throws UnexpectedValueException If the value is not one of the defined constant
+     *
+     * @return static
+     */
+    public function setReturnType($type)
+    {
+        $modes = [AbstractCsv::TYPE_ARRAY => 1, AbstractCsv::TYPE_ITERATOR => 1];
+        if (!isset($modes[$type])) {
+            throw new UnexpectedValueException('Unknown return type');
+        }
+        $this->returnType = $type;
+
+        return $this;
+    }
 
     /**
      * Stripping BOM setter

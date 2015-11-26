@@ -18,7 +18,6 @@ use Iterator;
 use League\Csv\Modifier\MapIterator;
 use LimitIterator;
 use SplFileObject;
-use UnexpectedValueException;
 
 /**
  *  A class to manage extracting and filtering a CSV
@@ -29,51 +28,10 @@ use UnexpectedValueException;
  */
 class Reader extends AbstractCsv
 {
-    const TYPE_ARRAY = 1;
-
-    const TYPE_ITERATOR = 2;
-
     /**
      * @inheritdoc
      */
     protected $stream_filter_mode = STREAM_FILTER_READ;
-
-    /**
-     * Reader return type
-     *
-     * @var int
-     */
-    protected $returnType = self::TYPE_ARRAY;
-
-    /**
-     * Returns the return type for the next fetch call
-     *
-     * @return int
-     */
-    public function getReturnType()
-    {
-        return $this->returnType;
-    }
-
-    /**
-     * Set the return type for the next fetch call
-     *
-     * @param int $type
-     *
-     * @throws UnexpectedValueException If the value is not one of the defined constant
-     *
-     * @return static
-     */
-    public function setReturnType($type)
-    {
-        $modes = [self::TYPE_ARRAY => 1, self::TYPE_ITERATOR => 1];
-        if (!isset($modes[$type])) {
-            throw new UnexpectedValueException('Unknown return type');
-        }
-        $this->returnType = $type;
-
-        return $this;
-    }
 
     /**
      * Return a Filtered Iterator
@@ -93,6 +51,20 @@ class Reader extends AbstractCsv
         $iterator = $this->applyIteratorSortBy($iterator);
         $iterator = $this->applyIteratorInterval($iterator);
         $this->returnType = self::TYPE_ARRAY;
+
+        return $this->applyCallable($iterator, $callable);
+    }
+
+    /**
+     * Apply The callable function
+     *
+     * @param Iterator      $iterator
+     * @param callable|null $callable
+     *
+     * @return Iterator
+     */
+    protected function applyCallable(Iterator $iterator, callable $callable = null)
+    {
         if (null !== $callable) {
             return new MapIterator($iterator, $callable);
         }
@@ -105,7 +77,7 @@ class Reader extends AbstractCsv
      *
      * The callable function will be applied to each Iterator item
      *
-     * @param callable $callable a callable function
+     * @param callable|null $callable a callable function
      *
      * @return array
      */
@@ -138,7 +110,7 @@ class Reader extends AbstractCsv
      * The callback function must return TRUE in order to continue
      * iterating over the iterator.
      *
-     * @param callable $callable The callback function
+     * @param callable $callable a callable function to apply to each selected CSV rows
      *
      * @return int the iteration count
      */
@@ -165,9 +137,7 @@ class Reader extends AbstractCsv
      *
      * By default if no offset is provided the first row of the CSV is selected
      *
-     * @param int $offset
-     *
-     * @throws InvalidArgumentException If the $offset is not a valid Integer
+     * @param int $offset the CSV row offset
      *
      * @return array
      */
@@ -189,9 +159,11 @@ class Reader extends AbstractCsv
      * By default if no column index is provided the first column of the CSV is selected
      *
      * @param int           $columnIndex field Index
-     * @param callable|null $callable    a callable function
-     *
-     * @throws InvalidArgumentException If the column index is not a positive integer or 0
+     * @param callable|null $callable    a callable function to apply to each selected CSV rows column value.
+     *                                   The callable takes up to three parameter
+     *                                   - the column value
+     *                                   - the row index
+     *                                   - the CSV Iterator
      *
      * @return Iterator|array
      */
@@ -210,9 +182,7 @@ class Reader extends AbstractCsv
         $this->addFilter($filterColumn);
         $type = $this->returnType;
         $iterator = $this->fetch($selectColumn);
-        if (null !== $callable) {
-            $iterator = new MapIterator($iterator, $callable);
-        }
+        $iterator = $this->applyCallable($iterator, $callable);
 
         return $this->applyReturnType($type, $iterator, false);
     }
@@ -243,7 +213,7 @@ class Reader extends AbstractCsv
      *
      * @param int           $offsetColumnIndex The column index to server as offset
      * @param int           $valueColumnIndex  The column index to server as value
-     * @param callable|null $callable          Callback function to run for each element in each array
+     * @param callable|null $callable          A callable to be applied to each of the rows to be returned.
      *
      * @return Generator|array
      */
@@ -260,10 +230,7 @@ class Reader extends AbstractCsv
         $this->addFilter($filterPairs);
         $type = $this->returnType;
         $iterator = $this->fetch($selectPairs);
-
-        if (null !== $callable) {
-            $iterator = new MapIterator($iterator, $callable);
-        }
+        $iterator = $this->applyCallable($iterator, $callable);
 
         return $this->applyReturnType($type, $this->fetchPairsGenerator($iterator));
     }
@@ -291,7 +258,7 @@ class Reader extends AbstractCsv
      * @param int|array $offset_or_keys the name for each key member OR the row Index to be
      *                                  used as the associated named keys
      *
-     * @param callable $callable a callable function
+     * @param callable $callable A callable to be applied to each of the rows to be returned.
      *
      * @throws InvalidArgumentException If the submitted keys are invalid
      *
@@ -308,12 +275,11 @@ class Reader extends AbstractCsv
 
             return array_combine($keys, $row);
         };
+        $type = $this->returnType;
+        $iterator = $this->fetch($combineArray);
+        $iterator = $this->applyCallable($iterator, $callable);
 
-        return $this->applyReturnType(
-            $this->returnType,
-            new MapIterator($this->fetch($callable), $combineArray),
-            false
-        );
+        return $this->applyReturnType($type, $iterator, false);
     }
 
     /**
