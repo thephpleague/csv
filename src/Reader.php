@@ -264,7 +264,11 @@ class Reader extends AbstractCsv
             return $offset_or_keys;
         }
 
-        $$offset_or_keys = $this->filterInteger($offset_or_keys, 0, 'the row index must be a positive integer, 0 or a non empty array');
+        $offset_or_keys = $this->filterInteger(
+            $offset_or_keys,
+            0,
+            'the row index must be a positive integer, 0 or a non empty array'
+        );
         $keys = $this->getRow($offset_or_keys);
         $this->assertValidAssocKeys($keys);
         $filterOutRow = function ($row, $rowIndex) use ($offset_or_keys) {

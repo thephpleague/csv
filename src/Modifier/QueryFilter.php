@@ -71,16 +71,6 @@ trait QueryFilter
     protected $returnType = AbstractCsv::TYPE_ARRAY;
 
     /**
-     * Returns the return type for the next fetch call
-     *
-     * @return int
-     */
-    public function getReturnType()
-    {
-        return $this->returnType;
-    }
-
-    /**
      * Set the return type for the next fetch call
      *
      * @param int $type

@@ -570,27 +570,48 @@ class ReaderTest extends AbstractTestCase
         $this->csv->setReturnType('toto');
     }
 
-    /**
-     * @dataProvider readerReturnTypeProvider
-     */
-    public function testReturnTypeResetBetweenCallToArray($method, array $args = [])
+    public function testReturnTypeResetBetweenCallToArrayWithFetch()
     {
-        $this->assertSame(Reader::TYPE_ARRAY, $this->csv->getReturnType());
         $this->csv->setReturnType(Reader::TYPE_ITERATOR);
-        call_user_func_array([$this->csv, $method], $args);
-        $this->assertSame(Reader::TYPE_ARRAY, $this->csv->getReturnType());
+        $this->assertInstanceof('\Iterator', $this->csv->fetch());
+        $this->assertInstanceof('\Iterator', $this->csv->fetch());
     }
 
-    public function readerReturnTypeProvider()
+    public function testReturnTypeResetBetweenCallToArrayWithFetchAll()
     {
-        return [
-            ['fetch'],
-            ['fetchOne'],
-            ['fetchAll'],
-            ['fetchColumn'],
-            ['fetchPairs'],
-            ['fetchAssoc'],
-            ['each', [function (array $row) { return true; }]],
-        ];
+        $this->csv->setReturnType(Reader::TYPE_ITERATOR);
+        $this->assertInternalType('array', $this->csv->fetchAll());
+        $this->assertInternalType('array', $this->csv->fetchAll());
+    }
+
+    public function testReturnTypeResetBetweenCallToArrayWithFetchOne()
+    {
+        $this->csv->setReturnType(Reader::TYPE_ITERATOR);
+        $this->assertInternalType('array', $this->csv->fetchOne());
+        $this->assertInternalType('array', $this->csv->fetchOne());
+    }
+
+    public function testReturnTypeResetBetweenCallToArrayWithEach()
+    {
+        $func = function (array $row) {
+            return true;
+        };
+        $this->csv->setReturnType(Reader::TYPE_ITERATOR);
+        $this->assertInternalType('int', $this->csv->each($func));
+        $this->assertInternalType('int', $this->csv->each($func));
+    }
+
+    public function testReturnTypeResetBetweenCallToArrayWithFetchAssoc()
+    {
+        $this->csv->setReturnType(Reader::TYPE_ITERATOR);
+        $this->assertInstanceof('\Iterator', $this->csv->fetchAssoc());
+        $this->assertInternalType('array', $this->csv->fetchAssoc());
+    }
+
+    public function testReturnTypeResetBetweenCallToArrayWithFetchPairs()
+    {
+        $this->csv->setReturnType(Reader::TYPE_ITERATOR);
+        $this->assertInstanceof('\Iterator', $this->csv->fetchAssoc());
+        $this->assertInternalType('array', $this->csv->fetchAssoc());
     }
 }
