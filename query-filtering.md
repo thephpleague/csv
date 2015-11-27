@@ -11,26 +11,38 @@ You can restrict [extract methods](/reading/) and [conversion methods](/converti
 
 * The query options methods are all chainable *except when they have to return a boolean*;
 * The query options methods can be call in any sort of order before any extract/conversion method;
-* After an extract/conversion method call, all query options are cleared;
-* The optional extract method callable function is called after all query options have been applied;
-
-<p class="message-info">The options methods are described in the same order as they are applied on the CSV iterator. The order is similar to one found in SQL statement construct.</p>
-
-<p class="message-notice">Starting with <code>version 7.0</code> The query options can be use to modify the output from the <code>jsonSerialize</code>, <code>toXML</code> and <code>toHTML</code> methods.</p>
-
-<p class="message-notice">Starting with <code>version 7.1</code> The query options are also available for conversion methods on the <code>League\Csv\Writer</code> class.</p>
 
 ## Modifying content methods
 
 ### stripBOM($status)
 
-<p class="message-notice">Introduced in version <code>7.1</code></p>
-
 `stripBom` only argument `$status` must be a `boolean`. This method specifies if the [BOM sequence](/bom/) must be removed or not from the CSV's first cell of the first row. The actual stripping will take place only if a BOM sequence is detected and the first row is selected in the resultset **or** if its offset is used as the first argument of the `Reader::fetchAssoc` method.
 
-<p class="message-info">For backward compatibility, if the method is not called no BOM sequence will be stripped from the CSV document.</p>
-
 <p class="message-warning">The BOM sequence is never removed from the CSV document, it is only stripped from the resultset.</p>
+
+## Modifying Extract methods return type
+
+<p class="message-notice">new feature introduced in <code>version 8.0</code></p>
+
+Sometimes you may need to modify the return type for some extract methods. To do so, the library exposes one new method:
+
+- `setReturnType` : Set the return type for the next extract method call;
+
+The return type must be one of the following constant:
+
+- `AbstractCsv::TYPE_ARRAY`: to set the return type to be an `Array`;
+- `AbstractCsv::TYPE_ITERATOR`: to set the return type to be an `Iterator`;
+
+By default, and to preserve backward compatibility the return type is set to `Reader::TYPE_ARRAY`.
+
+~~~php
+$reader->setReturnType(Reader::TYPE_ITERATOR);
+$result = $reader->fetchAssoc(); //$result is an iterator
+$result = $reader->fetchAssoc(); //$result is an array
+//everytime a query is issued the return type is resetted to Reader::TYPE_ARRAY
+~~~
+
+<p class="message-warning"><strong>WARNING:</strong> Not all the extract methods are affected by this mechanism but any call to any extract/conversion method will automatically reset the return type to <code>AbstractCsv::TYPE_ARRAY</code></p>
 
 ## Filtering methods
 

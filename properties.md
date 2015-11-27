@@ -33,26 +33,6 @@ $escape = $csv->getEscape(); //returns "\"
 ~~~
 The default escape character is `\`.
 
-### The SplFileObject flags
-
-`League\Csv` objects rely internally on the `SplFileObject` class. In order to fine tune the class behavior you can adjust the [SplFileObject flags](http://php.net/manual/en/class.splfileobject.php#splfileobject.constants) used.
-
-~~~php
-$csv->setFlags(SplFileObject::READ_AHEAD|SplFileObject::SKIP_EMPTY);
-$flags = $csv->getFlags(); //returns an integer
-~~~
-
-<p class="message-notice">Since version <code>7.0.1</code>, the <code>setFlags</code> method has been fixed to prevent a <a href="https://bugs.php.net/bug.php?id=69181" target="_blank">bug in SplFileObject</a>.</p>
-
-<p class="message-notice">Since version <code>7.2.0</code>, the flags on instantiaton are have been changed to correct a bug when parsing row cells with multiple lines</p>
-
-- On instantiation the flags set are :
-    - `SplFileObject::READ_CSV`
-    - `SplFileObject::READ_AHEAD`
-    - `SplFileObject::SKIP_EMPTY`
-
-- On update you can add or remove any `SplFileObject` flags except for the `SplFileObject::READ_CSV` flag.
-
 ## Detecting CSV delimiter
 
 ### fetchDelimitersOccurrence(array $delimiters, $nbRows = 1)
@@ -81,50 +61,7 @@ $delimiters_list = $reader->fetchDelimitersOccurrence([' ', '|'], 10);
 // - the delimiter " " never appearing
 ~~~
 
-<p class="message-notice">This method only test the delimiters you gave it.</p>
-
-### detectDelimiterList($nbRows = 1, array $delimiters = [])
-
-<p class="message-warning">This method is deprecated since version <code>7.2.0</code> and will be remove in the next major release</p>
-
-<p class="message-warning">If multiple delimiters share the same occurrences count only the last found delimiter will be returned in the response array.</p>
-
-<p class="message-notice">This method will only give you a hint, a better approach is to ask the CSV provider for the document controls properties.</p>
-
-If you are no sure about the delimiter you can ask the library to detect it for you using the `detectDelimiterList` method.
-
-The method takes two arguments:
-
-* the number of rows to scan (default to `1`);
-* the possible delimiters to check (you don't need to specify the following delimiters as they are already checked by the method: `",", ";", "\t"`);
-
-~~~php
-$reader = Reader::createFromPath('/path/to/your/csv/file.csv');
-
-$reader->setEnclosure('"');
-$reader->setEscape('\\');
-$reader->setFlags(SplFileObject::READ_AHEAD|SplFileObject::SKIP_EMPTY);
-
-$delimiters_list = $reader->detectDelimiterList(10, [' ', '|']);
-// $delimiters_list can be the following
-// [
-//     20 => '|',
-//     3 => ';'
-// ]
-// This is a inconsistent CSV with:
-// - the delimiter "|" appearing 20 times in the 10 first rows
-// - the delimiter ";" appearing 3 times in the 10 first rows
-~~~
-
-The more rows and delimiters you add, the more time and memory consuming the operation will be. The method returns an `array` of the delimiters found.
-
-* If a single delimiter is found the array will contain only one delimiter;
-* If multiple delimiters are found the array will contain the found delimiters sorted descendingly according to their occurences in the defined rows set;
-* If no delimiter is found or your CSV is composed of a single column, the array will be empty;
-
-<p class="message-warning"><strong>BC Break:</strong> Starting with version <code>7.0</code>, the index of each found delimiter represents the occurence of the found delimiter in the selected rows.</p>
-
-Whenever a user creates a new CSV object using the `newWriter` or the `newReader` methods, the current CSV object properties are copied to the new instance.
+<p class="message-warning"><strong>Warning:</strong> This method only test the delimiters you gave it.</p>
 
 ## Writing mode only properties
 
@@ -139,8 +76,6 @@ $csv->setNewline("\r\n");
 $newline = $csv->getNewline(); //returns "\r\n"
 ~~~
 The default newline sequence is `\n`;
-
-<p class="message-notice">Since version 7.0, the <code>$newline</code> getter and setter methods are also available on the <code>Reader</code> class.</p>
 
 ### The BOM character
 
