@@ -59,6 +59,36 @@ $writer->setNewline("\r\n")
 $writer->insertOne(["foo", null, "bar"]);
 ~~~
 
+### Remove SplFileObject flags usage
+
+In version 8.0 you can no longer set `SplFileObject` flags the following methods are remove:
+
+- `setFlags`
+- `getFlags`
+
+The `SplFileObject` flags are normalized to have a normalized CSV filtering independent of the underlying PHP engine use (`HHVM` or `Zend`).
+
+**Old code:**
+
+~~~php
+use League\Csv\Reader;
+
+
+$csv = Reader::createFromPath('/path/to/file.csv');
+$csv->setFlags(SplFileObject::READ_AHEAD | SplFileObject::SKIP_EMPTY);
+$csv->fetchAssoc(); //empty lines where removed
+~~~
+
+**New code:**
+
+~~~php
+use League\Csv\Reader;
+
+
+$csv = Reader::createFromPath('/path/to/file.csv');
+$csv->fetchAssoc(); //empty lines are automatically removed
+~~~
+
 ### fetchAssoc callable argument
 
 The optional callable argument from `Reader::fetchAssoc` now expects its first argument to be an `array` indexed by the submitted array keys. In all previous versions, the indexation was made after the callable had manipulated the CSV row.

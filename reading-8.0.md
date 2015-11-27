@@ -7,33 +7,6 @@ title: Extracting data from a CSV
 
 To extract data from a CSV document use `League\Csv\Reader` methods.
 
-## Return types
-
-<p class="message-notice">new feature introduced in <code>version 8.0</code></p>
-
-The `Reader` class enables a way to modify the return type for some of its extract methods. To do so, the class exposes two new methods:
-
-- `Reader::setReturnType` : Set the return type for the next extract method call;
-- `Reader::getReturnType` : Return the return type for the next extract method call;
-
-The return type must be one of the following `Reader` constant:
-
-- `Reader::TYPE_ARRAY`: to set the return type to be an `Array`;
-- `Reader::TYPE_ITERATOR`: to set the return type to be an `Iterator`;
-
-By default, and to preserve backward compatibility the return type is set to `Reader::TYPE_ARRAY`.
-
-~~~php
-$reader->getReturnType(); //returns Reader::TYPE_ARRAY
-$reader->setReturnType(Reader::TYPE_ITERATOR);
-$reader->getReturnType(); //returns Reader::TYPE_ITERATOR
-$result = $reader->fetchAssoc(); //$result is an iterator
-$reader->getReturnType(); //returns Reader::TYPE_ARRAY
-//everytime a query is issued the return type is resetted to Reader::TYPE_ARRAY
-~~~
-
-<p class="message-warning"><strong>WARNING:</strong> Not all the <code>Reader</code> extract methods are affected by this mechanism but any call to any of the <code>Reader</code> extract method will automatically reset the return type to <code>Reader::TYPE_ARRAY</code></p>
-
 ### fetch(callable $callable = null)
 
 <p class="message-notice">This method <strong>is not affected</strong> by <code>Reader::setReturnType</code>.</p>
@@ -67,7 +40,7 @@ foreach ($reader->fetch() as $row) {
 
 <p class="message-notice">This method <strong>is not affected</strong> by <code>Reader::setReturnType</code>.</p>
 
-`fetchAll` returns a sequential array of all rows.
+`fetchAll` returns a sequential `array` of all rows.
 
 ~~~php
 $data = $reader->fetchAll();
@@ -108,7 +81,7 @@ $nb_rows = count($data);
 
 <p class="message-notice">This method <strong>is not affected</strong> by <code>Reader::setReturnType</code>.</p>
 
-`fetchOne` return one single row from the CSV data. The required argument $offset represent the row index starting at 0. If no argument is given to the method it will return the first row from the CSV data.
+`fetchOne` return one single row from the CSV data as an `array`. The required argument `$offset` represents the row index starting at `0`. If no argument is given the method will return the first row from the CSV data.
 
 ~~~php
 $data = $reader->fetchOne(3); ///accessing the 4th row (indexing starts at 0)
@@ -151,6 +124,8 @@ $nbIteration = $reader->each(function ($row, $index, $iterator) use (&$res, $fun
 <p class="message-notice">This method <strong>is affected</strong> by <code>Reader::setReturnType</code>.</p>
 
 `fetchAssoc` returns a sequential array of all rows. The rows themselves are associative arrays where the keys are a one dimension array. This array must only contain unique `string` and/or `scalar` values.
+
+Starting with version 8.0, when the [setReturnType](/query-filtering-8.0/) query filter is used `fetchAssoc` returns an `Iterator` instead of an `array`.
 
 This array keys can be specified as the first argument as
 
@@ -215,6 +190,8 @@ $data[0]['date']->format('Y-m-d H:i:s');
 <p class="message-notice">This method <strong>is affected</strong> by <code>Reader::setReturnType</code>.</p>
 
 `fetchColumn` returns a sequential array of all values in a given column from the CSV data.
+
+Starting with version 8.0, when the [setReturnType](/query-filtering-8.0/) query filter is used `fetchColumn` returns an `Iterator` instead of an `array`.
 
 If for a given row the column does not exist, the row will be skipped.
 
