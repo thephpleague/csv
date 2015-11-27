@@ -6,7 +6,7 @@ All Notable changes to `League\Csv` will be documented in this file
 ### Added
 
 - `Reader::fetchPairs`
-- `Reader::setReturnType` and `Reader::getReturnType` to enable modifying some extract method return type
+- `QueryFilter::setReturnType` and `QueryFilter::getReturnType` to enable modifying some extract method return type
 
 ### Deprecated
 
@@ -19,6 +19,8 @@ All Notable changes to `League\Csv` will be documented in this file
 
 ### Removed
 
+- `Controls::setFlags`
+- `Controls::getFlags`
 - `Controls::detectDelimiterList`
 - `Reader::query`
 - The `$newline` argument from `AbstractCsv::createFromString`

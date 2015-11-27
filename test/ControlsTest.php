@@ -162,22 +162,6 @@ class ControlsTest extends AbstractTestCase
         $this->csv->setEncodingFrom('');
     }
 
-    /**
-     * @expectedException InvalidArgumentException
-     * @expectedExceptionMessage you should use a `SplFileObject` Constant
-     */
-    public function testSetFlags()
-    {
-        $this->assertSame(SplFileObject::READ_CSV, $this->csv->getFlags() & SplFileObject::READ_CSV);
-        $this->assertSame(SplFileObject::SKIP_EMPTY, $this->csv->getFlags() & SplFileObject::SKIP_EMPTY);
-        $this->assertSame(SplFileObject::READ_AHEAD, $this->csv->getFlags() & SplFileObject::READ_AHEAD);
-        $this->csv->setFlags(SplFileObject::DROP_NEW_LINE);
-        $this->assertSame(SplFileObject::DROP_NEW_LINE, $this->csv->getFlags() & SplFileObject::DROP_NEW_LINE);
-        $this->assertSame(SplFileObject::READ_CSV, $this->csv->getFlags() & SplFileObject::READ_CSV);
-
-        $this->csv->setFlags(-3);
-    }
-
     public function testCustomNewline()
     {
         $csv = Writer::createFromFileObject(new SplTempFileObject());
@@ -187,36 +171,29 @@ class ControlsTest extends AbstractTestCase
     }
 
     /**
-     * @param $flag
-     * @param $line_count
      * @dataProvider appliedFlagsProvider
-     * @skipIfHHVM
      */
-    public function testAppliedFlags($flag, $line_count)
+    public function testAppliedFlags($flag, $fetch_count)
     {
         $path = __DIR__.'/data/tmp.txt';
         $obj  = new SplFileObject($path, 'w+');
         $obj->fwrite("1st\n2nd\n");
+        $obj->setFlags($flag);
         $reader = Reader::createFromFileObject($obj);
-        $reader->setFlags($flag);
-        $this->assertCount($line_count, $reader->fetchAll());
-        unlink($path);
+        $this->assertCount($fetch_count, $reader->fetchAll());
     }
 
     public function appliedFlagsProvider()
     {
         return [
-            'NONE' => [0, 3],
-            'DROP_NEW_LINE' => [SplFileObject::DROP_NEW_LINE, 3],
-            'READ_AHEAD' => [SplFileObject::READ_AHEAD, 3],
+            'NONE' => [0, 2],
+            'DROP_NEW_LINE' => [SplFileObject::READ_AHEAD | SplFileObject::DROP_NEW_LINE, 2],
+            'READ_AHEAD' => [SplFileObject::READ_AHEAD, 2],
             'SKIP_EMPTY' => [SplFileObject::SKIP_EMPTY, 2],
-            'READ_AHEAD|DROP_NEW_LINE' => [SplFileObject::READ_AHEAD | SplFileObject::DROP_NEW_LINE, 3],
+            'READ_AHEAD|DROP_NEW_LINE' => [SplFileObject::READ_AHEAD | SplFileObject::DROP_NEW_LINE, 2],
             'READ_AHEAD|SKIP_EMPTY' => [SplFileObject::READ_AHEAD | SplFileObject::SKIP_EMPTY, 2],
             'DROP_NEW_LINE|SKIP_EMPTY' => [SplFileObject::DROP_NEW_LINE | SplFileObject::SKIP_EMPTY, 2],
-            'READ_AHEAD|DROP_NEW_LINE|SKIP_EMPTY' => [
-                SplFileObject::READ_AHEAD | SplFileObject::DROP_NEW_LINE | SplFileObject::SKIP_EMPTY,
-                2,
-            ],
+            'READ_AHEAD|DROP_NEW_LINE|SKIP_EMPTY' => [SplFileObject::READ_AHEAD | SplFileObject::DROP_NEW_LINE | SplFileObject::SKIP_EMPTY, 2],
         ];
     }
 }

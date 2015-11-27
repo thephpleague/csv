@@ -42,14 +42,7 @@ class Reader extends AbstractCsv
      */
     public function fetch(callable $callable = null)
     {
-        $this->addFilter(function ($row) {
-            return is_array($row);
-        });
-        $iterator = $this->getIterator();
-        $iterator = $this->applyBomStripping($iterator);
-        $iterator = $this->applyIteratorFilter($iterator);
-        $iterator = $this->applyIteratorSortBy($iterator);
-        $iterator = $this->applyIteratorInterval($iterator);
+        $iterator = $this->getCsvIterator();
 
         return $this->applyCallable($iterator, $callable);
     }
@@ -315,9 +308,9 @@ class Reader extends AbstractCsv
      */
     protected function getRow($offset)
     {
-        $csv = $this->getIterator();
-        $csv->setFlags($this->getFlags() & ~SplFileObject::READ_CSV);
-        $iterator = new LimitIterator($csv, $offset, 1);
+        $iterator = $this->getIterator();
+        $iterator->setFlags(SplFileObject::READ_AHEAD | SplFileObject::SKIP_EMPTY);
+        $iterator = new LimitIterator($iterator, $offset, 1);
         $iterator->rewind();
         $res = $iterator->current();
 

@@ -9,7 +9,7 @@ use SplFileObject;
 use SplTempFileObject;
 
 /**
- * @group csv
+ * @group stream
  */
 class StreamFilterTest extends AbstractTestCase
 {
@@ -57,7 +57,7 @@ class StreamFilterTest extends AbstractTestCase
     /**
      * @expectedException LogicException
      */
-    public function testFailedprependStreamFilter()
+    public function testFailPrependStreamFilter()
     {
         $csv = Reader::createFromFileObject(new SplTempFileObject());
         $this->assertFalse($csv->isActiveStreamFilter());
@@ -77,7 +77,23 @@ class StreamFilterTest extends AbstractTestCase
     /**
      * @expectedException OutOfBoundsException
      */
-    public function testaddMultipleStreamFilter()
+    public function testSetInvalidStreamFilterMode()
+    {
+        $csv = Reader::createFromPath(__DIR__.'/data/foo.csv');
+        $csv->setStreamFilterMode(34);
+    }
+
+    public function testClearAttachedStreamFilters()
+    {
+        $csv = Reader::createFromPath(__DIR__.'/data/foo.csv');
+        $csv->appendStreamFilter('string.tolower');
+        $csv->appendStreamFilter('string.rot13');
+        $csv->appendStreamFilter('string.toupper');
+        $csv->clearStreamFilter();
+        $this->assertFalse($csv->hasStreamFilter('string.rot13'));
+    }
+
+    public function testAddMultipleStreamFilter()
     {
         $csv = Reader::createFromPath(__DIR__.'/data/foo.csv');
         $csv->appendStreamFilter('string.tolower');
@@ -86,21 +102,21 @@ class StreamFilterTest extends AbstractTestCase
         $this->assertTrue($csv->hasStreamFilter('string.tolower'));
         $csv->removeStreamFilter('string.tolower');
         $this->assertFalse($csv->hasStreamFilter('string.tolower'));
-
-        foreach ($csv->getIterator() as $row) {
+        foreach ($csv as $row) {
             $this->assertSame($row, ['WBUA', 'QBR', 'WBUA.QBR@RKNZCYR.PBZ']);
         }
-        $csv->clearStreamFilter();
-        $this->assertFalse($csv->hasStreamFilter('string.rot13'));
+    }
 
+    public function testSwithingStreamFilterMode()
+    {
+        $csv = Reader::createFromPath(__DIR__.'/data/foo.csv');
         $csv->appendStreamFilter('string.toupper');
         $this->assertSame(STREAM_FILTER_READ, $csv->getStreamFilterMode());
         $csv->setStreamFilterMode(STREAM_FILTER_WRITE);
         $this->assertSame(STREAM_FILTER_WRITE, $csv->getStreamFilterMode());
-        foreach ($csv->getIterator() as $row) {
+        foreach ($csv as $row) {
             $this->assertSame($row, ['john', 'doe', 'john.doe@example.com']);
         }
-        $csv->setStreamFilterMode(34);
     }
 
     public function testGetFilterPath()

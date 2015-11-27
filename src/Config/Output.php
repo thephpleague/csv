@@ -47,20 +47,6 @@ trait Output
     protected $output_bom;
 
     /**
-     * Returns the CSV Iterator
-     *
-     * @return Iterator
-     */
-    abstract protected function getConversionIterator();
-
-    /**
-     * Returns the CSV Iterator
-     *
-     * @return Iterator
-     */
-    abstract public function getIterator();
-
-    /**
      * Sets the CSV encoding charset
      *
      * @param string $str
@@ -146,6 +132,13 @@ trait Output
     }
 
     /**
+     * Returns the CSV Iterator
+     *
+     * @return Iterator
+     */
+    abstract public function getIterator();
+
+    /**
      * Outputs all data on the CSV file
      *
      * @param string $filename CSV downloaded name if present adds extra headers
@@ -210,8 +203,15 @@ trait Output
      */
     public function jsonSerialize()
     {
-        return iterator_to_array($this->convertToUtf8($this->getConversionIterator()), false);
+        return iterator_to_array($this->convertToUtf8($this->getCsvIterator()), false);
     }
+
+    /**
+     * Returns the CSV Iterator
+     *
+     * @return Iterator
+     */
+    abstract protected function getCsvIterator();
 
     /**
      * Convert Csv file into UTF-8
@@ -265,7 +265,7 @@ trait Output
     {
         $doc = new DomDocument('1.0', 'UTF-8');
         $root = $doc->createElement($root_name);
-        $iterator = $this->convertToUtf8($this->getConversionIterator());
+        $iterator = $this->convertToUtf8($this->getCsvIterator());
         foreach ($iterator as $row) {
             $item = $doc->createElement($row_name);
             array_walk($row, function ($value) use (&$item, $doc, $cell_name) {

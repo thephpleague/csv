@@ -93,13 +93,6 @@ abstract class AbstractCsv implements JsonSerializable, IteratorAggregate
     protected $open_mode;
 
     /**
-     * Default SplFileObject flags settings
-     *
-     * @var int
-     */
-    protected $defaultFlags;
-
-    /**
      * Creates a new instance
      *
      * The path must be an SplFileInfo object
@@ -111,8 +104,6 @@ abstract class AbstractCsv implements JsonSerializable, IteratorAggregate
      */
     protected function __construct($path, $open_mode = 'r+')
     {
-        $this->defaultFlags = SplFileObject::READ_CSV | SplFileObject::READ_AHEAD | SplFileObject::SKIP_EMPTY;
-        $this->flags = $this->defaultFlags;
         $this->open_mode = strtolower($open_mode);
         $this->path = $path;
         $this->initStreamFilter($this->path);
@@ -127,7 +118,7 @@ abstract class AbstractCsv implements JsonSerializable, IteratorAggregate
     }
 
     /**
-     * Returns the CSV Iterator
+     * Returns the inner SplFileObject
      *
      * @return SplFileObject
      */
@@ -139,20 +130,22 @@ abstract class AbstractCsv implements JsonSerializable, IteratorAggregate
             $iterator = new SplFileObject($this->getStreamFilterPath(), $this->open_mode);
         }
         $iterator->setCsvControl($this->delimiter, $this->enclosure, $this->escape);
-        $iterator->setFlags($this->flags);
+        $iterator->setFlags(SplFileObject::READ_CSV | SplFileObject::READ_AHEAD | SplFileObject::SKIP_EMPTY);
 
         return $iterator;
     }
 
     /**
-     * Returns the CSV Iterator for conversion
+     * Returns the CSV Iterator
      *
      * @return Iterator
      */
-    protected function getConversionIterator()
+    protected function getCsvIterator()
     {
+        $this->addFilter(function ($row) {
+            return is_array($row) && $row != [null];
+        });
         $iterator = $this->getIterator();
-        $iterator->setFlags($this->defaultFlags);
         $iterator = $this->applyBomStripping($iterator);
         $iterator = $this->applyIteratorFilter($iterator);
         $iterator = $this->applyIteratorSortBy($iterator);
@@ -274,7 +267,6 @@ abstract class AbstractCsv implements JsonSerializable, IteratorAggregate
         $csv->enclosure = $this->enclosure;
         $csv->escape = $this->escape;
         $csv->encodingFrom = $this->encodingFrom;
-        $csv->flags = $this->flags;
         $csv->input_bom = $this->input_bom;
         $csv->output_bom = $this->output_bom;
         $csv->newline = $this->newline;

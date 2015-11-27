@@ -48,13 +48,6 @@ trait Controls
     protected $escape = '\\';
 
     /**
-     * the SplFileObject flags holder
-     *
-     * @var int
-     */
-    protected $flags;
-
-    /**
      * newline character
      *
      * @var string
@@ -133,6 +126,11 @@ trait Controls
     }
 
     /**
+     * @inheritdoc
+     */
+    abstract protected function filterInteger($int, $minValue, $errorMessage);
+
+    /**
      * Returns the CSV Iterator
      *
      * @return SplFileObject
@@ -196,39 +194,6 @@ trait Controls
     {
         return $this->escape;
     }
-
-    /**
-     * Sets the Flags associated to the CSV SplFileObject
-     *
-     * @param int $flags
-     *
-     * @throws InvalidArgumentException If the argument is not a valid integer
-     *
-     * @return $this
-     */
-    public function setFlags($flags)
-    {
-        $flags = $this->filterInteger($flags, 0, 'you should use a `SplFileObject` Constant');
-        $this->flags = $flags | SplFileObject::READ_CSV;
-
-        return $this;
-    }
-
-    /**
-     * @inheritdoc
-     */
-    abstract protected function filterInteger($int, $minValue, $errorMessage);
-
-    /**
-     * Returns the file Flags
-     *
-     * @return int
-     */
-    public function getFlags()
-    {
-        return $this->flags;
-    }
-
 
     /**
      * Sets the newline sequence characters
