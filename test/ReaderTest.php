@@ -606,12 +606,18 @@ class ReaderTest extends AbstractTestCase
         $this->csv->setReturnType(Reader::TYPE_ITERATOR);
         $this->assertInstanceof('\Iterator', $this->csv->fetchAssoc());
         $this->assertInternalType('array', $this->csv->fetchAssoc());
+        $this->csv->setReturnType(Reader::TYPE_ITERATOR);
+        $this->csv->toXML();
+        $this->assertInternalType('array', $this->csv->fetchAssoc());
     }
 
     public function testReturnTypeResetBetweenCallToArrayWithFetchPairs()
     {
         $this->csv->setReturnType(Reader::TYPE_ITERATOR);
-        $this->assertInstanceof('\Iterator', $this->csv->fetchAssoc());
-        $this->assertInternalType('array', $this->csv->fetchAssoc());
+        $this->assertInstanceof('\Iterator', $this->csv->fetchPairs());
+        $this->assertInternalType('array', $this->csv->fetchPairs());
+        $this->csv->setReturnType(Reader::TYPE_ITERATOR);
+        $this->csv->toXML();
+        $this->assertInternalType('array', $this->csv->fetchPairs());
     }
 }

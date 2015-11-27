@@ -50,7 +50,6 @@ class Reader extends AbstractCsv
         $iterator = $this->applyIteratorFilter($iterator);
         $iterator = $this->applyIteratorSortBy($iterator);
         $iterator = $this->applyIteratorInterval($iterator);
-        $this->returnType = self::TYPE_ARRAY;
 
         return $this->applyCallable($iterator, $callable);
     }
@@ -147,6 +146,7 @@ class Reader extends AbstractCsv
      */
     public function fetchColumn($columnIndex = 0, callable $callable = null)
     {
+        $type = $this->returnType;
         $columnIndex = $this->filterInteger($columnIndex, 0, 'the column index must be a positive integer or 0');
 
         $filterColumn = function ($row) use ($columnIndex) {
@@ -158,7 +158,6 @@ class Reader extends AbstractCsv
         };
 
         $this->addFilter($filterColumn);
-        $type = $this->returnType;
         $iterator = $this->fetch($selectColumn);
         $iterator = $this->applyCallable($iterator, $callable);
 
@@ -183,6 +182,7 @@ class Reader extends AbstractCsv
      */
     public function fetchPairs($offsetColumnIndex = 0, $valueColumnIndex = 1, callable $callable = null)
     {
+        $type = $this->returnType;
         $offsetColumnIndex = $this->filterInteger($offsetColumnIndex, 0, 'the offset column index must be a positive integer or 0');
         $valueColumnIndex = $this->filterInteger($valueColumnIndex, 0, 'the value column index must be a positive integer or 0');
         $filterPairs = function ($row) use ($offsetColumnIndex, $valueColumnIndex) {
@@ -192,7 +192,6 @@ class Reader extends AbstractCsv
             return [$row[$offsetColumnIndex], $row[$valueColumnIndex]];
         };
         $this->addFilter($filterPairs);
-        $type = $this->returnType;
         $iterator = $this->fetch($selectPairs);
         $iterator = $this->applyCallable($iterator, $callable);
 
@@ -230,6 +229,7 @@ class Reader extends AbstractCsv
      */
     public function fetchAssoc($offset_or_keys = 0, callable $callable = null)
     {
+        $type = $this->returnType;
         $keys = $this->getAssocKeys($offset_or_keys);
         $keys_count = count($keys);
         $combineArray = function (array $row) use ($keys, $keys_count) {
@@ -239,7 +239,6 @@ class Reader extends AbstractCsv
 
             return array_combine($keys, $row);
         };
-        $type = $this->returnType;
         $iterator = $this->fetch($combineArray);
         $iterator = $this->applyCallable($iterator, $callable);
 
