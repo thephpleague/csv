@@ -5,6 +5,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     {% assign version = page.url | remove_first: "/" | split: "/"" | first %}
+    {% assign upgrading_pages = version %}
 
     {% if version != '8.0' %}
         {% if version != '7.0' %}
@@ -98,6 +99,13 @@
         {% endfor %}
     </menu>
     <article>
+{% if '7.0' != version %}
+    {% if upgrading_pages != 'changelog' %}
+        {% if upgrading_pages != 'upgrading' %}
+    <p class="message-notice">Version {{ version }} is in development. <strong>Please refer to <a href="/7.0/">the most recent stable version</a></strong>.</p>
+        {% endif %}
+    {% endif %}
+{% endif %}
         {{ content }}
     </article>
 </main>
