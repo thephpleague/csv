@@ -15,6 +15,7 @@ namespace League\Csv\Config;
 use DomDocument;
 use InvalidArgumentException;
 use Iterator;
+use League\Csv\AbstractCsv;
 use League\Csv\Modifier\MapIterator;
 use SplFileObject;
 
@@ -114,8 +115,8 @@ trait Output
     {
         if (! $this->input_bom) {
             $bom = [
-                self::BOM_UTF32_BE, self::BOM_UTF32_LE,
-                self::BOM_UTF16_BE, self::BOM_UTF16_LE, self::BOM_UTF8,
+                AbstractCsv::BOM_UTF32_BE, AbstractCsv::BOM_UTF32_LE,
+                AbstractCsv::BOM_UTF16_BE, AbstractCsv::BOM_UTF16_LE, AbstractCsv::BOM_UTF8,
             ];
             $csv = $this->getIterator();
             $csv->setFlags(SplFileObject::READ_CSV);
@@ -132,9 +133,7 @@ trait Output
     }
 
     /**
-     * Returns the CSV Iterator
-     *
-     * @return Iterator
+     * @inheritdoc
      */
     abstract public function getIterator();
 

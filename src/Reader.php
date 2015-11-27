@@ -75,7 +75,7 @@ class Reader extends AbstractCsv
      */
     public function fetchAll(callable $callable = null)
     {
-        return $this->applyReturnType(self::TYPE_ARRAY, $this->fetch($callable), false);
+        return $this->applyReturnType(AbstractCsv::TYPE_ARRAY, $this->fetch($callable), false);
     }
 
     /**
