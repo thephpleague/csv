@@ -142,7 +142,7 @@ abstract class AbstractCsv implements JsonSerializable, IteratorAggregate
      */
     protected function getCsvIterator()
     {
-        $this->addFilter(function ($row) {
+        array_unshift($this->iterator_filters, function ($row) {
             return is_array($row) && $row != [null];
         });
         $iterator = $this->getIterator();

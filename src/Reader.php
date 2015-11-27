@@ -42,9 +42,7 @@ class Reader extends AbstractCsv
      */
     public function fetch(callable $callable = null)
     {
-        $iterator = $this->getCsvIterator();
-
-        return $this->applyCallable($iterator, $callable);
+        return $this->applyCallable($this->getCsvIterator(), $callable);
     }
 
     /**
@@ -264,7 +262,7 @@ class Reader extends AbstractCsv
         $keys = $this->getRow($offset_or_keys);
         $this->assertValidAssocKeys($keys);
         $filterOutRow = function ($row, $rowIndex) use ($offset_or_keys) {
-            return is_array($row) && $rowIndex != $offset_or_keys;
+            return $rowIndex != $offset_or_keys;
         };
         $this->addFilter($filterOutRow);
 
