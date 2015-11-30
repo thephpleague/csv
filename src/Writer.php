@@ -70,7 +70,7 @@ class Writer extends AbstractCsv
     protected static function initFputcsv()
     {
         if (null === static::$fputcsv) {
-            static::$fputcsv  = new ReflectionMethod('\SplFileObject', 'fputcsv');
+            static::$fputcsv = new ReflectionMethod('\SplFileObject', 'fputcsv');
             static::$fputcsv_param_count = static::$fputcsv->getNumberOfParameters();
         }
     }

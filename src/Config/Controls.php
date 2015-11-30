@@ -108,7 +108,7 @@ trait Controls
      */
     public function fetchDelimitersOccurrence(array $delimiters, $nb_rows = 1)
     {
-        $nb_rows = $this->filterInteger($nb_rows, 1, 'The number of rows to consider must be a valid positive integer');
+        $nb_rows = $this->validateInteger($nb_rows, 1, 'The number of rows to consider must be a valid positive integer');
         $filterRow = function ($row) {
             return is_array($row) && count($row) > 1;
         };
@@ -126,9 +126,23 @@ trait Controls
     }
 
     /**
-     * @inheritdoc
+     * Validate an integer
+     *
+     * @param int    $int
+     * @param int    $minValue
+     * @param string $errorMessage
+     *
+     * @throws InvalidArgumentException If the value is invalid
+     *
+     * @return int
      */
-    abstract protected function filterInteger($int, $minValue, $errorMessage);
+    protected function validateInteger($int, $minValue, $errorMessage)
+    {
+        if (false === ($int = filter_var($int, FILTER_VALIDATE_INT, ['options' => ['min_range' => $minValue]]))) {
+            throw new InvalidArgumentException($errorMessage);
+        }
+        return $int;
+    }
 
     /**
      * Returns the CSV Iterator

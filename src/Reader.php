@@ -42,7 +42,7 @@ class Reader extends AbstractCsv
      */
     public function fetch(callable $callable = null)
     {
-        return $this->applyCallable($this->getCsvIterator(), $callable);
+        return $this->applyCallable($this->getQueryIterator(), $callable);
     }
 
     /**
@@ -137,8 +137,7 @@ class Reader extends AbstractCsv
      */
     public function fetchColumn($columnIndex = 0, callable $callable = null)
     {
-        $type = $this->returnType;
-        $columnIndex = $this->filterInteger($columnIndex, 0, 'the column index must be a positive integer or 0');
+        $columnIndex = $this->validateInteger($columnIndex, 0, 'the column index must be a positive integer or 0');
 
         $filterColumn = function ($row) use ($columnIndex) {
             return isset($row[$columnIndex]);
@@ -149,10 +148,11 @@ class Reader extends AbstractCsv
         };
 
         $this->addFilter($filterColumn);
+        $returnType = $this->returnType;
         $iterator = $this->fetch($selectColumn);
         $iterator = $this->applyCallable($iterator, $callable);
 
-        return $this->applyReturnType($type, $iterator, false);
+        return $this->applyReturnType($returnType, $iterator, false);
     }
 
     /**
@@ -165,28 +165,32 @@ class Reader extends AbstractCsv
      * - the first CSV column is used to provide the keys
      * - the second CSV column is used to provide the value
      *
-     * @param int           $offsetColumnIndex The column index to server as offset
-     * @param int           $valueColumnIndex  The column index to server as value
-     * @param callable|null $callable          A callable to be applied to each of the rows to be returned.
+     * @param int           $offsetIndex The column index to serve as offset
+     * @param int           $valueIndex  The column index to serve as value
+     * @param callable|null $callable    A callable to be applied to each of the rows to be returned.
      *
      * @return Generator|array
      */
-    public function fetchPairs($offsetColumnIndex = 0, $valueColumnIndex = 1, callable $callable = null)
+    public function fetchPairs($offsetIndex = 0, $valueIndex = 1, callable $callable = null)
     {
-        $type = $this->returnType;
-        $offsetColumnIndex = $this->filterInteger($offsetColumnIndex, 0, 'the offset column index must be a positive integer or 0');
-        $valueColumnIndex = $this->filterInteger($valueColumnIndex, 0, 'the value column index must be a positive integer or 0');
-        $filterPairs = function ($row) use ($offsetColumnIndex, $valueColumnIndex) {
-            return isset($row[$offsetColumnIndex], $row[$valueColumnIndex]);
+        $offsetIndex = $this->validateInteger($offsetIndex, 0, 'the offset column index must be a positive integer or 0');
+        $valueIndex = $this->validateInteger($valueIndex, 0, 'the value column index must be a positive integer or 0');
+        $filterPairs = function ($row) use ($offsetIndex, $valueIndex) {
+            return isset($row[$offsetIndex]);
         };
-        $selectPairs = function ($row) use ($offsetColumnIndex, $valueColumnIndex) {
-            return [$row[$offsetColumnIndex], $row[$valueColumnIndex]];
+        $selectPairs = function ($row) use ($offsetIndex, $valueIndex) {
+            return [
+                $row[$offsetIndex],
+                isset($row[$valueIndex]) ? $row[$valueIndex] : null,
+            ];
         };
+
         $this->addFilter($filterPairs);
+        $returnType = $this->returnType;
         $iterator = $this->fetch($selectPairs);
         $iterator = $this->applyCallable($iterator, $callable);
 
-        return $this->applyReturnType($type, $this->fetchPairsGenerator($iterator));
+        return $this->applyReturnType($returnType, $this->generatePairs($iterator));
     }
 
     /**
@@ -196,7 +200,7 @@ class Reader extends AbstractCsv
      *
      * @return Generator
      */
-    protected function fetchPairsGenerator(Iterator $iterator)
+    protected function generatePairs(Iterator $iterator)
     {
         foreach ($iterator as $row) {
             yield $row[0] => $row[1];
@@ -220,7 +224,6 @@ class Reader extends AbstractCsv
      */
     public function fetchAssoc($offset_or_keys = 0, callable $callable = null)
     {
-        $type = $this->returnType;
         $keys = $this->getAssocKeys($offset_or_keys);
         $keys_count = count($keys);
         $combineArray = function (array $row) use ($keys, $keys_count) {
@@ -230,10 +233,12 @@ class Reader extends AbstractCsv
 
             return array_combine($keys, $row);
         };
+
+        $returnType = $this->returnType;
         $iterator = $this->fetch($combineArray);
         $iterator = $this->applyCallable($iterator, $callable);
 
-        return $this->applyReturnType($type, $iterator, false);
+        return $this->applyReturnType($returnType, $iterator, false);
     }
 
     /**
@@ -249,18 +254,15 @@ class Reader extends AbstractCsv
     protected function getAssocKeys($offset_or_keys)
     {
         if (is_array($offset_or_keys)) {
-            $this->assertValidAssocKeys($offset_or_keys);
-
-            return $offset_or_keys;
+            return $this->validateKeys($offset_or_keys);
         }
 
-        $offset_or_keys = $this->filterInteger(
+        $offset_or_keys = $this->validateInteger(
             $offset_or_keys,
             0,
             'the row index must be a positive integer, 0 or a non empty array'
         );
-        $keys = $this->getRow($offset_or_keys);
-        $this->assertValidAssocKeys($keys);
+        $keys = $this->validateKeys($this->getRow($offset_or_keys));
         $filterOutRow = function ($row, $rowIndex) use ($offset_or_keys) {
             return $rowIndex != $offset_or_keys;
         };
@@ -275,12 +277,16 @@ class Reader extends AbstractCsv
      * @param array $keys
      *
      * @throws InvalidArgumentException If the submitted array fails the assertion
+     *
+     * @return array
      */
-    protected function assertValidAssocKeys(array $keys)
+    protected function validateKeys(array $keys)
     {
         if (empty($keys) || $keys !== array_unique(array_filter($keys, [$this, 'isValidKey']))) {
             throw new InvalidArgumentException('Use a flat array with unique string values');
         }
+
+        return $keys;
     }
 
     /**
@@ -306,20 +312,20 @@ class Reader extends AbstractCsv
      */
     protected function getRow($offset)
     {
-        $iterator = $this->getIterator();
-        $iterator->setFlags(SplFileObject::READ_AHEAD | SplFileObject::SKIP_EMPTY);
-        $iterator = new LimitIterator($iterator, $offset, 1);
+        $fileObj = $this->getIterator();
+        $fileObj->setFlags(SplFileObject::READ_AHEAD | SplFileObject::SKIP_EMPTY);
+        $iterator = new LimitIterator($fileObj, $offset, 1);
         $iterator->rewind();
-        $res = $iterator->current();
+        $line = $iterator->current();
 
-        if (empty($res)) {
+        if (empty($line)) {
             throw new InvalidArgumentException('the specified row does not exist or is empty');
         }
 
-        if (0 == $offset && $this->isBomStrippable()) {
-            $res = mb_substr($res, mb_strlen($this->getInputBom()));
+        if (0 === $offset && $this->isBomStrippable()) {
+            $line = mb_substr($line, mb_strlen($this->getInputBom()));
         }
 
-        return str_getcsv($res, $this->delimiter, $this->enclosure, $this->escape);
+        return str_getcsv($line, $this->delimiter, $this->enclosure, $this->escape);
     }
 }

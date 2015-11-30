@@ -562,6 +562,20 @@ class ReaderTest extends AbstractTestCase
         ];
     }
 
+    public function testFetchPairsWithInvalidOffset()
+    {
+        $this->assertCount(0, $this->csv->fetchPairs(10, 1));
+    }
+
+    public function testFetchPairsWithInvalidValue()
+    {
+        $res = $this->csv->fetchPairs(0, 15);
+        $this->assertCount(2, $res);
+        foreach ($res as $value) {
+            $this->assertNull($value);
+        }
+    }
+
     /**
      * @expectedException \UnexpectedValueException
      */

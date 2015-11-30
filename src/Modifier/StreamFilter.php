@@ -208,8 +208,14 @@ trait StreamFilter
     protected function sanitizeStreamFilter($filter_name)
     {
         $this->assertStreamable();
-        return (string) $filter_name;
+
+        return $this->validateString($filter_name);
     }
+
+    /**
+     * @inheritdoc
+     */
+    abstract public function validateString($str);
 
     /**
      * Detect if the stream filter is already present
@@ -264,7 +270,7 @@ trait StreamFilter
     protected function getStreamFilterPath()
     {
         $this->assertStreamable();
-        if (! $this->stream_filters) {
+        if (!$this->stream_filters) {
             return $this->stream_uri;
         }
 

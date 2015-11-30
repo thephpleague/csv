@@ -113,7 +113,7 @@ trait Output
      */
     public function getInputBOM()
     {
-        if (! $this->input_bom) {
+        if (!$this->input_bom) {
             $bom = [
                 AbstractCsv::BOM_UTF32_BE, AbstractCsv::BOM_UTF32_LE,
                 AbstractCsv::BOM_UTF16_BE, AbstractCsv::BOM_UTF16_LE, AbstractCsv::BOM_UTF8,
@@ -202,7 +202,7 @@ trait Output
      */
     public function jsonSerialize()
     {
-        return iterator_to_array($this->convertToUtf8($this->getCsvIterator()), false);
+        return iterator_to_array($this->convertToUtf8($this->getQueryIterator()), false);
     }
 
     /**
@@ -210,7 +210,7 @@ trait Output
      *
      * @return Iterator
      */
-    abstract protected function getCsvIterator();
+    abstract protected function getQueryIterator();
 
     /**
      * Convert Csv file into UTF-8
@@ -264,7 +264,7 @@ trait Output
     {
         $doc = new DomDocument('1.0', 'UTF-8');
         $root = $doc->createElement($root_name);
-        $iterator = $this->convertToUtf8($this->getCsvIterator());
+        $iterator = $this->convertToUtf8($this->getQueryIterator());
         foreach ($iterator as $row) {
             $item = $doc->createElement($row_name);
             array_walk($row, function ($value) use (&$item, $doc, $cell_name) {

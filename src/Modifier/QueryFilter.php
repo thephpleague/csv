@@ -113,7 +113,7 @@ trait QueryFilter
     {
         $bom = $this->getInputBom();
 
-        return ! empty($bom) && $this->strip_bom;
+        return !empty($bom) && $this->strip_bom;
     }
 
     /**
@@ -130,7 +130,7 @@ trait QueryFilter
      */
     public function setOffset($offset = 0)
     {
-        $this->iterator_offset = $this->filterInteger($offset, 0, 'the offset must be a positive integer or 0');
+        $this->iterator_offset = $this->validateInteger($offset, 0, 'the offset must be a positive integer or 0');
 
         return $this;
     }
@@ -138,7 +138,7 @@ trait QueryFilter
     /**
      * @inheritdoc
      */
-    abstract protected function filterInteger($int, $minValue, $errorMessage);
+    abstract protected function validateInteger($int, $minValue, $errorMessage);
 
     /**
      * Set LimitIterator Count
@@ -149,7 +149,7 @@ trait QueryFilter
      */
     public function setLimit($limit = -1)
     {
-        $this->iterator_limit = $this->filterInteger($limit, -1, 'the limit must an integer greater or equals to -1');
+        $this->iterator_limit = $this->validateInteger($limit, -1, 'the limit must an integer greater or equals to -1');
 
         return $this;
     }
@@ -269,11 +269,11 @@ trait QueryFilter
      */
     protected function applyBomStripping(Iterator $iterator)
     {
-        if (! $this->strip_bom) {
+        if (!$this->strip_bom) {
             return $iterator;
         }
 
-        if (! $this->isBomStrippable()) {
+        if (!$this->isBomStrippable()) {
             $this->strip_bom = false;
 
             return $iterator;
@@ -313,6 +313,30 @@ trait QueryFilter
      * {@inheritdoc}
      */
     abstract public function getEnclosure();
+
+    /**
+     * Returns the CSV Iterator
+     *
+     * @return Iterator
+     */
+    protected function getQueryIterator()
+    {
+        array_unshift($this->iterator_filters, function ($row) {
+            return is_array($row) && $row != [null];
+        });
+        $iterator = $this->getIterator();
+        $iterator = $this->applyBomStripping($iterator);
+        $iterator = $this->applyIteratorFilter($iterator);
+        $iterator = $this->applyIteratorSortBy($iterator);
+        $this->returnType = AbstractCsv::TYPE_ARRAY;
+
+        return $this->applyIteratorInterval($iterator);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    abstract public function getIterator();
 
     /**
     * Filter the Iterator
@@ -360,7 +384,7 @@ trait QueryFilter
     */
     protected function applyIteratorSortBy(Iterator $iterator)
     {
-        if (! $this->iterator_sort_by) {
+        if (!$this->iterator_sort_by) {
             return $iterator;
         }
         $obj = new ArrayObject(iterator_to_array($iterator, false));
