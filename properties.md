@@ -37,8 +37,6 @@ The default escape character is `\`.
 
 ### fetchDelimitersOccurrence(array $delimiters, $nbRows = 1)
 
-<p class="message-notice">This method is introduced in version <code>7.2.0</code></p>
-
 The method takes two arguments:
 
 * an array containing the delimiters to check;

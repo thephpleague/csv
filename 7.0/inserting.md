@@ -7,7 +7,7 @@ title: Inserting new data into a CSV
 
 To create or update a CSV use the following `League\Csv\Writer` methods.
 
-<p class="message-warning">The class has been rewritten for scalability and speed. Some previous supported features have been removed. Please refer to the <a href="/7.0/upgrading/7.0/">upgrade section</a> to securely migrate from previous version to 7.0 .</p>
+<p class="message-warning">The class has been rewritten for scalability and speed. Some previous supported features have been removed. Please refer to the <a href="/upgrading/7.0/">upgrade section</a> to securely migrate from previous version to 7.0 .</p>
 
 <p class="message-info">When creating a file using the library, first insert all the data that need to be inserted before starting manipulating the CSV. If you manipulate your data before insertion, you may change the file cursor position and get unexpected results.</p>
 
@@ -181,7 +181,7 @@ If you are relying on the **removed features** null handling and the column cons
 - `League\Csv\Plugin\ForbiddenNullValuesValidator` to validate the absence of the `null` value;
 - `League\Csv\Plugin\ColumnConsistencyValidator` to validate the CSV column consistency;
 
-Please refers to the <a href="/7.0/upgrading/7.0/">migration guide</a> for more information.
+Please refers to the <a href="/upgrading/7.0/">migration guide</a> for more information.
 
 ## Stream filtering
 

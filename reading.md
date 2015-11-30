@@ -98,15 +98,8 @@ $data = $reader->fetchOne(3); ///accessing the 4th row (indexing starts at 0)
 The method returns the number of successful iterations.
 
 ~~~php
-//re-create the fetchAll method using the each method
-$res = [];
-$func = null;
-$nbIteration = $reader->each(function ($row, $index, $iterator) use (&$res, $func)) {
-    if (is_callable($func)) {
-        $res[] = $func($row, $index, $iterator);
-        return true;
-    }
-    $res[] = $row;
+//count the numbers of rows in a CSV
+$nbRows = $reader->each(function ($row) {
     return true;
 });
 ~~~
@@ -116,8 +109,6 @@ $nbIteration = $reader->each(function ($row, $index, $iterator) use (&$res, $fun
 <p class="message-notice">Since <code>version 8.0</code> This method <strong>is affected</strong> by <code>Reader::setReturnType</code>.</p>
 
 `fetchAssoc` returns a sequential array of all rows. The rows themselves are associative arrays where the keys are a one dimension array. This array must only contain unique `string` and/or `scalar` values.
-
-Starting with version 8.0, when the [setReturnType](/query-filtering-8.0/) query filter is used `fetchAssoc` returns an `Iterator` instead of an `array`.
 
 This array keys can be specified as the first argument as
 
@@ -157,12 +148,12 @@ $data = $reader->fetchAssoc();
 
 - If the number of values in a CSV row is lesser than the number of named keys, the method will add `null` values to compensate for the missing values.
 - If the number of values in a CSV row is greater that the number of named keys the exceeding values will be drop from the result set.
-- If no argument is provided, the first row from the CSV data will be used
 - If an offset is used, it's content will be skipped in the result set.
+- If no argument is provided, the first row from the CSV data will be used
 
 The method takes an second optional parameter, a callable, to apply to each row of the results before returning. This callable expected:
 
-- the CSV current row combined with the submitted indexes **(new to version 8.0.0)**
+- the CSV current row combined with the submitted indexes **(new in version 8.0.0)**
 - the CSV current row offset
 - the current iterator
 
@@ -175,6 +166,16 @@ $func = function ($row) {
 $data = $reader->fetchAssoc(['firstname', 'lastname', 'date']);
 $data[0]['date']->format('Y-m-d H:i:s');
 //because this cell contain a `DateTimeInterface` object
+~~~
+
+<p class="message-warning"><strong>New:</strong> When the <a href="/query-filtering-8.0/">setReturnType</a> query filter is used with the <code>Reader::TYPE_ITERATOR</code> constant, <code>fetchAssoc</code> returns an <code>Iterator</code> instead of an <code>array</code> for the current call.</p>
+
+~~~php
+$reader->setReturnType(Reader::TYPE_ITERATOR);
+$resIterator = $reader->fetchAssoc(['firstname', 'lastname', 'date']);
+//$resIterator is an Iterator only for the current call
+$resArray = $reader->fetchAssoc(['firstname', 'lastname', 'date']);
+//$resArray is again an array
 ~~~
 
 ### fetchColumn($columnIndex = 0, callable $callable = null)
@@ -209,6 +210,16 @@ $data = $reader->fetchColumn(2, 'strtoupper');
 //
 // ['JOHN.DOE@EXAMPLE.COM', 'JANE.DOE@EXAMPLE.COM', ...]
 //
+~~~
+
+<p class="message-warning"><strong>New:</strong> When the <a href="/query-filtering-8.0/">setReturnType</a> query filter is used with the <code>Reader::TYPE_ITERATOR</code> constant, <code>fetchColumn</code> returns an <code>Iterator</code> instead of an <code>array</code> for the current call.</p>
+
+~~~php
+$reader->setReturnType(Reader::TYPE_ITERATOR);
+$resIterator = $reader->fetchColumn(2);
+//$resIterator is an Iterator only for the current call
+$resArray = $reader->fetchColumn(2);
+//$resArray is again an array
 ~~~
 
 ### fetchPairs($offsetColumnIndex = 0, $valueColumnIndex = 1, callable $callable = null)
@@ -255,8 +266,8 @@ $data = $reader->fetchPairs();
 
 <p class="message-warning"><strong>WARNING:</strong> Depending on the return type selected, the items returned may differ:</p>
 
-- When using `Reader::TYPE_ARRAY` if there are duplicates values in the column index, entries in the associative array will be overwritten.
-- When using `Reader::TYPE_ITERATOR` no overwrite occurs as the return type is created using a PHP `Generator`.
+- When using `Reader::TYPE_ARRAY` entries in the associative array will be overwritten if there are duplicates values in the column index.
+- When using `Reader::TYPE_ITERATOR` no overwrite occurs as the return value is a PHP `Generator`.
 
 ~~~php
 $reader->setReturnType(READER::TYPE_ARRAY);
