@@ -7,7 +7,6 @@ require '../vendor/autoload.php';
 $writer = Writer::createFromFileObject(new SplTempFileObject()); //the CSV file will be created into a temporary File
 $writer->setDelimiter("\t"); //the delimiter will be the tab character
 $writer->setNewline("\r\n"); //use windows line endings for compatibility with some csv libraries
-$writer->setEncodingFrom("utf-8");
 
 $headers = ["position" , "team", "played", "goals difference", "points"];
 $writer->insertOne($headers);

@@ -261,30 +261,6 @@ trait QueryFilter
     }
 
     /**
-     * Remove the BOM sequence from the CSV
-     *
-     * @param Iterator $iterator
-     *
-     * @return Iterator
-     */
-    protected function applyBomStripping(Iterator $iterator)
-    {
-        if (!$this->strip_bom) {
-            return $iterator;
-        }
-
-        if (!$this->isBomStrippable()) {
-            $this->strip_bom = false;
-
-            return $iterator;
-        }
-
-        $this->strip_bom = false;
-
-        return $this->getStripBomIterator($iterator);
-    }
-
-    /**
      * Return the Iterator without the BOM sequence
      *
      * @param Iterator $iterator
@@ -328,15 +304,41 @@ trait QueryFilter
         $iterator = $this->applyBomStripping($iterator);
         $iterator = $this->applyIteratorFilter($iterator);
         $iterator = $this->applyIteratorSortBy($iterator);
+        $iterator = $this->applyIteratorInterval($iterator);
+
         $this->returnType = AbstractCsv::TYPE_ARRAY;
 
-        return $this->applyIteratorInterval($iterator);
+        return $iterator;
     }
 
     /**
      * {@inheritdoc}
      */
     abstract public function getIterator();
+
+    /**
+     * Remove the BOM sequence from the CSV
+     *
+     * @param Iterator $iterator
+     *
+     * @return Iterator
+     */
+    protected function applyBomStripping(Iterator $iterator)
+    {
+        if (!$this->strip_bom) {
+            return $iterator;
+        }
+
+        if (!$this->isBomStrippable()) {
+            $this->strip_bom = false;
+
+            return $iterator;
+        }
+
+        $this->strip_bom = false;
+
+        return $this->getStripBomIterator($iterator);
+    }
 
     /**
     * Filter the Iterator
@@ -362,6 +364,36 @@ trait QueryFilter
     *
     * @return Iterator
     */
+    protected function applyIteratorSortBy(Iterator $iterator)
+    {
+        if (!$this->iterator_sort_by) {
+            return $iterator;
+        }
+        $sortFunc = function ($rowA, $rowB) {
+            $sortRes = 0;
+            foreach ($this->iterator_sort_by as $callable) {
+                if (0 !== ($sortRes = call_user_func($callable, $rowA, $rowB))) {
+                    break;
+                }
+            }
+
+            return $sortRes;
+        };
+
+        $obj = new ArrayObject(iterator_to_array($iterator));
+        $obj->uasort($sortFunc);
+        $this->clearSortBy();
+
+        return $obj->getIterator();
+    }
+
+    /**
+    * Sort the Iterator
+    *
+    * @param Iterator $iterator
+    *
+    * @return Iterator
+    */
     protected function applyIteratorInterval(Iterator $iterator)
     {
         if (0 == $this->iterator_offset && -1 == $this->iterator_limit) {
@@ -373,34 +405,6 @@ trait QueryFilter
         $this->iterator_offset = 0;
 
         return new LimitIterator($iterator, $offset, $limit);
-    }
-
-    /**
-    * Sort the Iterator
-    *
-    * @param Iterator $iterator
-    *
-    * @return Iterator
-    */
-    protected function applyIteratorSortBy(Iterator $iterator)
-    {
-        if (!$this->iterator_sort_by) {
-            return $iterator;
-        }
-        $obj = new ArrayObject(iterator_to_array($iterator, false));
-        $obj->uasort(function ($rowA, $rowB) {
-            $sortRes = 0;
-            foreach ($this->iterator_sort_by as $callable) {
-                if (0 !== ($sortRes = call_user_func($callable, $rowA, $rowB))) {
-                    break;
-                }
-            }
-
-            return $sortRes;
-        });
-        $this->clearSortBy();
-
-        return $obj->getIterator();
     }
 
     /**
