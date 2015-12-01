@@ -24,6 +24,12 @@ All Notable changes to `League\Csv` will be documented in this file
 - `Controls::detectDelimiterList`
 - `Reader::query`
 - The `$newline` argument from `AbstractCsv::createFromString`
+- `QueryFilter::removeFilter`
+- `QueryFilter::removeSortBy`
+- `QueryFilter::hasFilter`
+- `QueryFilter::hasSortBy`
+- `QueryFilter::clearFilter`
+- `QueryFilter::clearSortBy`
 
 ## 7.2.0 - 2015-11-02
 

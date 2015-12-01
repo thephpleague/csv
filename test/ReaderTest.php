@@ -95,28 +95,10 @@ class ReaderTest extends AbstractTestCase
     public function testFilter()
     {
         $func = function ($row) {
-            return ! in_array('jane', $row);
+            return !in_array('jane', $row);
         };
         $this->csv->addFilter($func);
         $this->assertNotContains(['jane', 'doe', 'jane.doe@example.com'], $this->csv->fetchAll());
-
-        $func2 = function ($row) {
-            return ! in_array('john', $row);
-        };
-        $this->csv->addFilter($func2);
-        $this->csv->addFilter($func);
-        $res = $this->csv->fetchAll();
-
-        $this->assertNotContains(['john', 'doe', 'john.doe@example.com'], $res);
-        $this->assertNotContains(['jane', 'doe', 'jane.doe@example.com'], $res);
-
-        $this->csv->addFilter($func2);
-        $this->csv->addFilter($func);
-        $this->assertTrue($this->csv->hasFilter($func2));
-        $this->csv->removeFilter($func2);
-        $this->assertFalse($this->csv->hasFilter($func2));
-
-        $this->assertContains(['john', 'doe', 'john.doe@example.com'], $this->csv->fetchAll());
     }
 
     public function testSortBy()
@@ -125,16 +107,6 @@ class ReaderTest extends AbstractTestCase
             return strcmp($rowA[0], $rowB[0]);
         };
         $this->csv->addSortBy($func);
-        $this->csv->addFilter(function ($row) {
-            return $row != [null];
-
-        });
-        $this->assertSame(array_reverse($this->expected), $this->csv->fetchAll());
-
-        $this->csv->addSortBy($func);
-        $this->csv->addSortBy($func);
-        $this->csv->removeSortBy($func);
-        $this->assertTrue($this->csv->hasSortBy($func));
         $this->csv->addFilter(function ($row) {
             return $row != [null];
 

@@ -169,45 +169,6 @@ trait QueryFilter
     }
 
     /**
-     * Remove a callable from the collection
-     *
-     * @param callable $callable
-     *
-     * @return $this
-     */
-    public function removeSortBy(callable $callable)
-    {
-        $res = array_search($callable, $this->iterator_sort_by, true);
-        unset($this->iterator_sort_by[$res]);
-
-        return $this;
-    }
-
-    /**
-     * Detect if the callable is already registered
-     *
-     * @param callable $callable
-     *
-     * @return bool
-     */
-    public function hasSortBy(callable $callable)
-    {
-        return false !== array_search($callable, $this->iterator_sort_by, true);
-    }
-
-    /**
-     * Remove all registered callable
-     *
-     * @return $this
-     */
-    public function clearSortBy()
-    {
-        $this->iterator_sort_by = [];
-
-        return $this;
-    }
-
-    /**
      * Set the Iterator filter method
      *
      * @param callable $callable
@@ -217,45 +178,6 @@ trait QueryFilter
     public function addFilter(callable $callable)
     {
         $this->iterator_filters[] = $callable;
-
-        return $this;
-    }
-
-    /**
-     * Remove a filter from the callable collection
-     *
-     * @param callable $callable
-     *
-     * @return $this
-     */
-    public function removeFilter(callable $callable)
-    {
-        $res = array_search($callable, $this->iterator_filters, true);
-        unset($this->iterator_filters[$res]);
-
-        return $this;
-    }
-
-    /**
-     * Detect if the callable filter is already registered
-     *
-     * @param callable $callable
-     *
-     * @return bool
-     */
-    public function hasFilter(callable $callable)
-    {
-        return false !== array_search($callable, $this->iterator_filters, true);
-    }
-
-    /**
-     * Remove all registered callable filter
-     *
-     * @return $this
-     */
-    public function clearFilter()
-    {
-        $this->iterator_filters = [];
 
         return $this;
     }
@@ -271,7 +193,7 @@ trait QueryFilter
     {
         $bom = $this->getInputBom();
 
-        return new MapIterator($iterator, function ($row, $index) use ($bom) {
+        $stripBom = function ($row, $index) use ($bom) {
             if (0 == $index) {
                 $row[0] = mb_substr($row[0], mb_strlen($bom));
                 $enclosure = $this->getEnclosure();
@@ -282,7 +204,9 @@ trait QueryFilter
             }
 
             return $row;
-        });
+        };
+
+        return new MapIterator($iterator, $stripBom);
     }
 
     /**
@@ -297,9 +221,10 @@ trait QueryFilter
      */
     protected function getQueryIterator()
     {
-        array_unshift($this->iterator_filters, function ($row) {
+        $normalizedCsv = function ($row) {
             return is_array($row) && $row != [null];
-        });
+        };
+        array_unshift($this->iterator_filters, $normalizedCsv);
         $iterator = $this->getIterator();
         $iterator = $this->applyBomStripping($iterator);
         $iterator = $this->applyIteratorFilter($iterator);
@@ -352,7 +277,7 @@ trait QueryFilter
         foreach ($this->iterator_filters as $callable) {
             $iterator = new CallbackFilterIterator($iterator, $callable);
         }
-        $this->clearFilter();
+        $this->iterator_filters = [];
 
         return $iterator;
     }
@@ -369,7 +294,9 @@ trait QueryFilter
         if (!$this->iterator_sort_by) {
             return $iterator;
         }
-        $sortFunc = function ($rowA, $rowB) {
+
+        $obj = new ArrayObject(iterator_to_array($iterator));
+        $obj->uasort(function ($rowA, $rowB) {
             $sortRes = 0;
             foreach ($this->iterator_sort_by as $callable) {
                 if (0 !== ($sortRes = call_user_func($callable, $rowA, $rowB))) {
@@ -378,11 +305,8 @@ trait QueryFilter
             }
 
             return $sortRes;
-        };
-
-        $obj = new ArrayObject(iterator_to_array($iterator));
-        $obj->uasort($sortFunc);
-        $this->clearSortBy();
+        });
+        $this->iterator_sort_by = [];
 
         return $obj->getIterator();
     }
