@@ -56,18 +56,6 @@ The `addFilter` method adds a callable filter function each time it is called. T
 * the current csv key;
 * the current csv iterator object;
 
-### removeFilter(callable $callable)
-
-`removeFilter` method removes an already registered filter function. If the function was registered multiple times, you will have to call `removeFilter` as often as the filter was registered. **The first registered copy will be the first to be removed.**
-
-### hasFilter(callable $callable)
-
-`hasFilter` method checks if the filter function is already registered
-
-### clearFilter()
-
-`clearFilter` method removes all registered filter functions.
-
 ## Sorting methods
 
 The sorting options are applied **after the CSV filtering options**. The sorting follow the *First In First Out* rule.
@@ -78,18 +66,6 @@ The sorting options are applied **after the CSV filtering options**. The sorting
 ### addSortBy(callable $callable)
 
 `addSortBy` method adds a sorting function each time it is called. The function takes exactly two parameters which will be filled by pairs of rows.
-
-### removeSortBy(callable $callable)
-
-`removeSortBy` method removes an already registered sorting function. If the function was registered multiple times, you will have to call `removeSortBy` as often as the function was registered. **The first registered copy will be the first to be removed.**
-
-### hasSortBy(callable $callable)
-
-`hasSortBy` method checks if the sorting function is already registered
-
-### clearSortBy()
-
-`clearSortBy` method removes all registered sorting functions.
 
 ## Interval methods
 
