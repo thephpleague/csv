@@ -81,8 +81,8 @@ trait QueryFilter
      */
     public function setReturnType($type)
     {
-        $modes = [AbstractCsv::TYPE_ARRAY => 1, AbstractCsv::TYPE_ITERATOR => 1];
-        if (!isset($modes[$type])) {
+        $returnTypeList = [AbstractCsv::TYPE_ARRAY => 1, AbstractCsv::TYPE_ITERATOR => 1];
+        if (!isset($returnTypeList[$type])) {
             throw new UnexpectedValueException('Unknown return type');
         }
         $this->returnType = $type;
@@ -102,18 +102,6 @@ trait QueryFilter
         $this->strip_bom = (bool) $status;
 
         return $this;
-    }
-
-    /**
-     * Tell whether we can strip or not the leading BOM sequence
-     *
-     * @return bool
-     */
-    protected function isBomStrippable()
-    {
-        $bom = $this->getInputBom();
-
-        return !empty($bom) && $this->strip_bom;
     }
 
     /**
@@ -183,33 +171,6 @@ trait QueryFilter
     }
 
     /**
-     * Return the Iterator without the BOM sequence
-     *
-     * @param Iterator $iterator
-     *
-     * @return Iterator
-     */
-    protected function getStripBomIterator(Iterator $iterator)
-    {
-        $bom = $this->getInputBom();
-
-        $stripBom = function ($row, $index) use ($bom) {
-            if (0 == $index) {
-                $row[0] = mb_substr($row[0], mb_strlen($bom));
-                $enclosure = $this->getEnclosure();
-                //enclosure should be remove when a BOM sequence is stripped
-                if ($row[0][0] === $enclosure && mb_substr($row[0], -1, 1) == $enclosure) {
-                    $row[0] = mb_substr($row[0], 1, -1);
-                }
-            }
-
-            return $row;
-        };
-
-        return new MapIterator($iterator, $stripBom);
-    }
-
-    /**
      * {@inheritdoc}
      */
     abstract public function getEnclosure();
@@ -266,6 +227,43 @@ trait QueryFilter
     }
 
     /**
+     * Tell whether we can strip or not the leading BOM sequence
+     *
+     * @return bool
+     */
+    protected function isBomStrippable()
+    {
+        return !empty($this->getInputBom()) && $this->strip_bom;
+    }
+
+    /**
+     * Return the Iterator without the BOM sequence
+     *
+     * @param Iterator $iterator
+     *
+     * @return Iterator
+     */
+    protected function getStripBomIterator(Iterator $iterator)
+    {
+        $bomLength = mb_strlen($this->getInputBom());
+        $enclosure = $this->getEnclosure();
+        $stripBom = function ($row, $index) use ($bomLength, $enclosure) {
+            if (0 != $index) {
+                return $row;
+            }
+
+            $row[0] = mb_substr($row[0], $bomLength);
+            if ($row[0][0] === $enclosure && mb_substr($row[0], -1, 1) === $enclosure) {
+                $row[0] = mb_substr($row[0], 1, -1);
+            }
+
+            return $row;
+        };
+
+        return new MapIterator($iterator, $stripBom);
+    }
+
+    /**
     * Filter the Iterator
     *
     * @param Iterator $iterator
@@ -274,9 +272,10 @@ trait QueryFilter
     */
     protected function applyIteratorFilter(Iterator $iterator)
     {
-        foreach ($this->iterator_filters as $callable) {
-            $iterator = new CallbackFilterIterator($iterator, $callable);
-        }
+        $reducer = function ($iterator, $callable) {
+            return new CallbackFilterIterator($iterator, $callable);
+        };
+        $iterator = array_reduce($this->iterator_filters, $reducer, $iterator);
         $this->iterator_filters = [];
 
         return $iterator;
@@ -297,7 +296,6 @@ trait QueryFilter
 
         $obj = new ArrayObject(iterator_to_array($iterator));
         $obj->uasort(function ($rowA, $rowB) {
-            $sortRes = 0;
             foreach ($this->iterator_sort_by as $callable) {
                 if (0 !== ($sortRes = call_user_func($callable, $rowA, $rowB))) {
                     break;
@@ -320,9 +318,6 @@ trait QueryFilter
     */
     protected function applyIteratorInterval(Iterator $iterator)
     {
-        if (0 == $this->iterator_offset && -1 == $this->iterator_limit) {
-            return $iterator;
-        }
         $offset = $this->iterator_offset;
         $limit  = $this->iterator_limit;
         $this->iterator_limit  = -1;
