@@ -11,6 +11,8 @@ matrix:
       env:
         - COLLECT_COVERAGE=true
     - php: 7.0
+      env:
+        - COLLECT_COVERAGE=true
     - php: hhvm
   fast_finish: true
 
