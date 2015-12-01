@@ -296,13 +296,14 @@ trait QueryFilter
 
         $obj = new ArrayObject(iterator_to_array($iterator));
         $obj->uasort(function ($rowA, $rowB) {
-            foreach ($this->iterator_sort_by as $callable) {
-                if (0 !== ($sortRes = call_user_func($callable, $rowA, $rowB))) {
+            foreach ($this->iterator_sort_by as $compareRows) {
+                $res = call_user_func($compareRows, $rowA, $rowB);
+                if (0 !== $res) {
                     break;
                 }
             }
 
-            return $sortRes;
+            return $res;
         });
         $this->iterator_sort_by = [];
 
@@ -319,8 +320,8 @@ trait QueryFilter
     protected function applyIteratorInterval(Iterator $iterator)
     {
         $offset = $this->iterator_offset;
-        $limit  = $this->iterator_limit;
-        $this->iterator_limit  = -1;
+        $limit = $this->iterator_limit;
+        $this->iterator_limit = -1;
         $this->iterator_offset = 0;
 
         return new LimitIterator($iterator, $offset, $limit);
