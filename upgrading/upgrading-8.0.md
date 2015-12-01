@@ -161,3 +161,12 @@ $csv->fetchColum(2, $func);
 
 - `detectDelimiterList`: deprecated since version 7.2 and replaced by `fetchDelimitersOccurrence`.
 - `Reader::query`: deprecated since version 7.2 and replaced by `Reader::fetch`.
+
+## Removed methods in 8.0.0
+
+- `QueryFilter::hasFilter`
+- `QueryFilter::removeFilter`
+- `QueryFilter::clearFilter`
+- `QueryFilter::hasSortBy`
+- `QueryFilter::removeSortBy`
+- `QueryFilter::clearSortBy`
