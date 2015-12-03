@@ -1,5 +1,5 @@
 CSV
-==========
+=====
 
 [![Latest Version](https://img.shields.io/github/release/thephpleague/csv.svg?style=flat-square)](https://github.com/thephpleague/csv/releases)
 [![Software License](https://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat-square)](LICENSE.md)
@@ -22,7 +22,7 @@ Highlights
 * Support PHP Stream filtering capabilities
 * Transform CSV documents into popular format (JSON, XML or HTML)
 * Fully documented
-* Fully Unit tested
+* Fully unit tested
 * Framework-agnostic
 * Composer ready, [PSR-2] and [PSR-4] compliant
 
@@ -34,12 +34,12 @@ Full documentation can be found at [csv.thephpleague.com](http://csv.thephpleagu
 System Requirements
 -------
 
-You need **PHP >= 5.5.0** and the `mbstring` extension to use `League\Csv` but the latest stable version of PHP/HHVM is recommended.
+You need **PHP >= 5.5.0** and the `mbstring` extension to use `Csv` but the latest stable version of PHP/HHVM is recommended.
 
 Install
 -------
 
-Install `League\Csv` using Composer.
+Install `Csv` using Composer.
 
 ```
 $ composer require league/csv
@@ -48,10 +48,10 @@ $ composer require league/csv
 Configuration
 -------
 
-**If you are on a Mac OS X Server**, add the following lines before using the library to help [PHP detect line ending in Mac OS X](http://php.net/manual/en/function.fgetcsv.php#refsect1-function.fgetcsv-returnvalues).
+**Warning:** If your CSV document was created or is read on a Macintosh computer, add the following lines before using the library to help [PHP detect line ending](http://php.net/manual/en/function.fgetcsv.php#refsect1-function.fgetcsv-returnvalues).
 
 ```php
-if (! ini_get("auto_detect_line_endings")) {
+if (!ini_get("auto_detect_line_endings")) {
     ini_set("auto_detect_line_endings", '1');
 }
 ```
@@ -59,7 +59,7 @@ if (! ini_get("auto_detect_line_endings")) {
 Testing
 -------
 
-`League\Csv` has a [PHPUnit](https://phpunit.de) test suite and a coding style compliance test suite using [PHP CS Fixer](http://cs.sensiolabs.org/). To run the tests, run the following command from the project folder.
+`Csv` has a [PHPUnit](https://phpunit.de) test suite and a coding style compliance test suite using [PHP CS Fixer](http://cs.sensiolabs.org/). To run the tests, run the following command from the project folder.
 
 ``` bash
 $ composer test

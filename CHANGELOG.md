@@ -1,5 +1,6 @@
 #Changelog
-All Notable changes to `League\Csv` will be documented in this file
+
+All Notable changes to `Csv` will be documented in this file
 
 ## Next - 2015-xx-xx
 
@@ -22,14 +23,14 @@ All Notable changes to `League\Csv` will be documented in this file
 - `Controls::setFlags`
 - `Controls::getFlags`
 - `Controls::detectDelimiterList`
-- `Reader::query`
-- The `$newline` argument from `AbstractCsv::createFromString`
 - `QueryFilter::removeFilter`
 - `QueryFilter::removeSortBy`
 - `QueryFilter::hasFilter`
 - `QueryFilter::hasSortBy`
 - `QueryFilter::clearFilter`
 - `QueryFilter::clearSortBy`
+- `Reader::query`
+- The `$newline` argument from `AbstractCsv::createFromString`
 
 ## 7.2.0 - 2015-11-02
 
@@ -42,7 +43,7 @@ All Notable changes to `League\Csv` will be documented in this file
 
 - `Controls::detectDelimiterList`
 - `Reader::query`
-- The `$newline` argument from `AbstractCsv::createFromString` is deprecated
+- The `$newline` argument from `AbstractCsv::createFromString`
 
 ### Fixed
 
