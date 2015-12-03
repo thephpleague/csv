@@ -263,14 +263,14 @@ trait Output
         $doc = new DomDocument('1.0', 'UTF-8');
         $root = $doc->createElement($root_name);
         foreach ($this->convertToUtf8($this->getQueryIterator()) as $row) {
-            $row = $doc->createElement($row_name);
-            array_walk($row, function ($value) use (&$row, $doc, $cell_name) {
+            $rowElement = $doc->createElement($row_name);
+            array_walk($row, function ($value) use (&$rowElement, $doc, $cell_name) {
                 $content = $doc->createTextNode($value);
                 $cell = $doc->createElement($cell_name);
                 $cell->appendChild($content);
-                $row->appendChild($cell);
+                $rowElement->appendChild($cell);
             });
-            $root->appendChild($row);
+            $root->appendChild($rowElement);
         }
         $doc->appendChild($root);
 
