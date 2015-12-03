@@ -196,9 +196,7 @@ trait Output
     }
 
     /**
-     * JsonSerializable Interface
-     *
-     * @return array
+     * @inheritdoc
      */
     public function jsonSerialize()
     {
@@ -239,14 +237,14 @@ trait Output
     /**
      * Returns a HTML table representation of the CSV Table
      *
-     * @param string $class_name optional classname
+     * @param string $class_attr optional classname
      *
      * @return string
      */
-    public function toHTML($class_name = 'table-csv-data')
+    public function toHTML($class_attr = 'table-csv-data')
     {
         $doc = $this->toXML('table', 'tr', 'td');
-        $doc->documentElement->setAttribute('class', $class_name);
+        $doc->documentElement->setAttribute('class', $class_attr);
 
         return $doc->saveHTML($doc->documentElement);
     }
@@ -264,16 +262,15 @@ trait Output
     {
         $doc = new DomDocument('1.0', 'UTF-8');
         $root = $doc->createElement($root_name);
-        $iterator = $this->convertToUtf8($this->getQueryIterator());
-        foreach ($iterator as $row) {
-            $item = $doc->createElement($row_name);
-            array_walk($row, function ($value) use (&$item, $doc, $cell_name) {
+        foreach ($this->convertToUtf8($this->getQueryIterator()) as $row) {
+            $row = $doc->createElement($row_name);
+            array_walk($row, function ($value) use (&$row, $doc, $cell_name) {
                 $content = $doc->createTextNode($value);
                 $cell = $doc->createElement($cell_name);
                 $cell->appendChild($content);
-                $item->appendChild($cell);
+                $row->appendChild($cell);
             });
-            $root->appendChild($item);
+            $root->appendChild($row);
         }
         $doc->appendChild($root);
 
