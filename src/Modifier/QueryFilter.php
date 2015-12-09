@@ -15,9 +15,7 @@ namespace League\Csv\Modifier;
 use ArrayObject;
 use CallbackFilterIterator;
 use Iterator;
-use League\Csv\AbstractCsv;
 use LimitIterator;
-use UnexpectedValueException;
 
 /**
  *  A Trait to Query rows against a SplFileObject
@@ -62,33 +60,6 @@ trait QueryFilter
      * @var boolean
      */
     protected $strip_bom = false;
-
-    /**
-     * Reader return type
-     *
-     * @var int
-     */
-    protected $returnType = AbstractCsv::TYPE_ARRAY;
-
-    /**
-     * Set the return type for the next fetch call
-     *
-     * @param int $type
-     *
-     * @throws UnexpectedValueException If the value is not one of the defined constant
-     *
-     * @return static
-     */
-    public function setReturnType($type)
-    {
-        $returnTypeList = [AbstractCsv::TYPE_ARRAY => 1, AbstractCsv::TYPE_ITERATOR => 1];
-        if (!isset($returnTypeList[$type])) {
-            throw new UnexpectedValueException('Unknown return type');
-        }
-        $this->returnType = $type;
-
-        return $this;
-    }
 
     /**
      * Stripping BOM setter
@@ -191,8 +162,6 @@ trait QueryFilter
         $iterator = $this->applyIteratorFilter($iterator);
         $iterator = $this->applyIteratorSortBy($iterator);
         $iterator = $this->applyIteratorInterval($iterator);
-
-        $this->returnType = AbstractCsv::TYPE_ARRAY;
 
         return $iterator;
     }
@@ -325,23 +294,5 @@ trait QueryFilter
         $this->iterator_offset = 0;
 
         return new LimitIterator($iterator, $offset, $limit);
-    }
-
-    /**
-     * Convert the Iterator into an array depending on the selected return type
-     *
-     * @param int      $type
-     * @param Iterator $iterator
-     * @param bool     $use_keys Whether to use the iterator element keys as index
-     *
-     * @return Iterator|array
-     */
-    protected function applyReturnType($type, Iterator $iterator, $use_keys = true)
-    {
-        if (AbstractCsv::TYPE_ARRAY == $type) {
-            return iterator_to_array($iterator, $use_keys);
-        }
-
-        return $iterator;
     }
 }

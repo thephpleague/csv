@@ -13,7 +13,6 @@
 namespace League\Csv;
 
 use InvalidArgumentException;
-use Iterator;
 use IteratorAggregate;
 use JsonSerializable;
 use League\Csv\Config\Controls;
@@ -65,16 +64,6 @@ abstract class AbstractCsv implements JsonSerializable, IteratorAggregate
      * UTF-32 LE BOM sequence
      */
     const BOM_UTF32_LE = "\x00\x00\xFF\xFE";
-
-    /**
-     * return an array
-     */
-    const TYPE_ARRAY = 1;
-
-    /**
-     * return an iterator
-     */
-    const TYPE_ITERATOR = 2;
 
     /**
      * The constructor path

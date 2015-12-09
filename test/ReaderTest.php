@@ -128,7 +128,6 @@ class ReaderTest extends AbstractTestCase
     {
         $keys = ['firstname', 'lastname', 'email'];
         $res = $this->csv->fetchAssoc($keys);
-        $this->assertInternalType('array', $res);
         foreach ($res as $offset => $row) {
             $this->assertSame($keys, array_keys($row));
         }
@@ -137,8 +136,7 @@ class ReaderTest extends AbstractTestCase
     public function testFetchAssocReturnsIterator()
     {
         $keys = ['firstname', 'lastname', 'email'];
-        $res = $this->csv->setReturnType(Reader::TYPE_ITERATOR)->fetchAssoc($keys);
-        $this->assertInstanceof('\Iterator', $res);
+        $res = $this->csv->fetchAssoc($keys);
         foreach ($res as $offset => $row) {
             $this->assertSame($keys, array_keys($row));
         }
@@ -246,7 +244,7 @@ class ReaderTest extends AbstractTestCase
         }
         $csv = Reader::createFromFileObject($tmp);
         $csv->stripBom(true);
-        $res = array_keys($csv->fetchAssoc()[0]);
+        $res = array_keys(iterator_to_array($csv->fetchAssoc(), false)[0]);
 
         $this->assertSame('john', $res[0]);
     }
@@ -261,7 +259,7 @@ class ReaderTest extends AbstractTestCase
         $expected = [
             ['parent name' => 'parentA', 'child name' => 'childA', 'title' => 'titleA'],
         ];
-        $this->assertSame($expected, $csv->fetchAssoc());
+        $this->assertSame($expected, iterator_to_array($csv->fetchAssoc(), false));
     }
 
     public function testStripBOMWithEnclosureFetchColumn()
@@ -345,12 +343,6 @@ class ReaderTest extends AbstractTestCase
         $this->assertContains('jane', $this->csv->fetchColumn());
     }
 
-    public function testFetchColumnReturnsIterator()
-    {
-        $this->assertContains('john', $this->csv->setReturnType(Reader::TYPE_ITERATOR)->fetchColumn(0));
-        $this->assertContains('jane', $this->csv->setReturnType(Reader::TYPE_ITERATOR)->fetchColumn());
-    }
-
     public function testFetchColumnInconsistentColumnCSV()
     {
         $raw = [
@@ -390,7 +382,7 @@ class ReaderTest extends AbstractTestCase
             return strtoupper($value);
         };
         $iterator = $this->csv->fetchColumn(0, $func);
-        $this->assertSame(['JOHN', 'JANE'], $iterator);
+        $this->assertSame(['JOHN', 'JANE'], iterator_to_array($iterator, false));
     }
 
     /**
@@ -450,7 +442,7 @@ class ReaderTest extends AbstractTestCase
      */
     public function testFetchPairsIteratorMode($key, $value, $callable, $expected)
     {
-        $iterator = $this->csv->setReturnType(Reader::TYPE_ITERATOR)->fetchPairs($key, $value, $callable);
+        $iterator = $this->csv->fetchPairs($key, $value, $callable);
         foreach ($iterator as $key => $value) {
             $res = current($expected);
             $this->assertSame($value, $res[$key]);
@@ -499,9 +491,9 @@ class ReaderTest extends AbstractTestCase
     /**
      * @dataProvider fetchPairsArrayDataProvider
      */
-    public function testFetchPairsArrayMode($key, $value, $callable, $expected)
+    public function testFetchPairsAsArray($key, $value, $callable, $expected)
     {
-        $array = $this->csv->fetchPairs($key, $value, $callable);
+        $array = $this->csv->fetchPairsWithoutDuplicates($key, $value, $callable);
         $this->assertSame($expected, $array);
     }
 
@@ -536,45 +528,25 @@ class ReaderTest extends AbstractTestCase
 
     public function testFetchPairsWithInvalidOffset()
     {
-        $this->assertCount(0, $this->csv->fetchPairs(10, 1));
+        $this->assertCount(0, iterator_to_array($this->csv->fetchPairs(10, 1), true));
     }
 
     public function testFetchPairsWithInvalidValue()
     {
         $res = $this->csv->fetchPairs(0, 15);
-        $this->assertCount(2, $res);
         foreach ($res as $value) {
             $this->assertNull($value);
         }
     }
 
-    /**
-     * @expectedException \UnexpectedValueException
-     */
-    public function testReturnTypeThrowsException()
-    {
-        $this->csv->setReturnType('toto');
-    }
-
     public function testReturnTypeResetBetweenCallToArrayWithFetch()
     {
-        $this->csv->setReturnType(Reader::TYPE_ITERATOR);
         $this->assertInstanceof('\Iterator', $this->csv->fetch());
-        $this->assertInstanceof('\Iterator', $this->csv->fetch());
-    }
-
-    public function testReturnTypeResetBetweenCallToArrayWithFetchAll()
-    {
-        $this->csv->setReturnType(Reader::TYPE_ITERATOR);
         $this->assertInternalType('array', $this->csv->fetchAll());
-        $this->assertInternalType('array', $this->csv->fetchAll());
-    }
-
-    public function testReturnTypeResetBetweenCallToArrayWithFetchOne()
-    {
-        $this->csv->setReturnType(Reader::TYPE_ITERATOR);
         $this->assertInternalType('array', $this->csv->fetchOne());
-        $this->assertInternalType('array', $this->csv->fetchOne());
+        $this->assertInstanceof('\Iterator', $this->csv->fetchAssoc());
+        $this->assertInstanceof('\Iterator', $this->csv->fetchPairs());
+        $this->assertInternalType('array', $this->csv->fetchPairsWithoutDuplicates());
     }
 
     public function testReturnTypeResetBetweenCallToArrayWithEach()
@@ -582,28 +554,6 @@ class ReaderTest extends AbstractTestCase
         $func = function (array $row) {
             return true;
         };
-        $this->csv->setReturnType(Reader::TYPE_ITERATOR);
         $this->assertInternalType('int', $this->csv->each($func));
-        $this->assertInternalType('int', $this->csv->each($func));
-    }
-
-    public function testReturnTypeResetBetweenCallToArrayWithFetchAssoc()
-    {
-        $this->csv->setReturnType(Reader::TYPE_ITERATOR);
-        $this->assertInstanceof('\Iterator', $this->csv->fetchAssoc());
-        $this->assertInternalType('array', $this->csv->fetchAssoc());
-        $this->csv->setReturnType(Reader::TYPE_ITERATOR);
-        $this->csv->toXML();
-        $this->assertInternalType('array', $this->csv->fetchAssoc());
-    }
-
-    public function testReturnTypeResetBetweenCallToArrayWithFetchPairs()
-    {
-        $this->csv->setReturnType(Reader::TYPE_ITERATOR);
-        $this->assertInstanceof('\Iterator', $this->csv->fetchPairs());
-        $this->assertInternalType('array', $this->csv->fetchPairs());
-        $this->csv->setReturnType(Reader::TYPE_ITERATOR);
-        $this->csv->toXML();
-        $this->assertInternalType('array', $this->csv->fetchPairs());
     }
 }

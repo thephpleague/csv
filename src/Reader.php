@@ -73,7 +73,7 @@ class Reader extends AbstractCsv
      */
     public function fetchAll(callable $callable = null)
     {
-        return $this->applyReturnType(AbstractCsv::TYPE_ARRAY, $this->fetch($callable), false);
+        return iterator_to_array($this->fetch($callable), false);
     }
 
     /**
@@ -133,7 +133,7 @@ class Reader extends AbstractCsv
      * @param int           $columnIndex CSV column index
      * @param callable|null $callable    A callable to be applied to each of the value to be returned.
      *
-     * @return Iterator|array
+     * @return Iterator
      */
     public function fetchColumn($columnIndex = 0, callable $callable = null)
     {
@@ -148,11 +148,10 @@ class Reader extends AbstractCsv
         };
 
         $this->addFilter($filterColumn);
-        $returnType = $this->returnType;
         $iterator = $this->fetch($selectColumn);
         $iterator = $this->applyCallable($iterator, $callable);
 
-        return $this->applyReturnType($returnType, $iterator, false);
+        return $iterator;
     }
 
     /**
@@ -169,7 +168,7 @@ class Reader extends AbstractCsv
      * @param int           $valueIndex  The column index to serve as value
      * @param callable|null $callable    A callable to be applied to each of the rows to be returned.
      *
-     * @return Generator|array
+     * @return Generator
      */
     public function fetchPairs($offsetIndex = 0, $valueIndex = 1, callable $callable = null)
     {
@@ -186,11 +185,10 @@ class Reader extends AbstractCsv
         };
 
         $this->addFilter($filterPairs);
-        $returnType = $this->returnType;
         $iterator = $this->fetch($selectPairs);
         $iterator = $this->applyCallable($iterator, $callable);
 
-        return $this->applyReturnType($returnType, $this->generatePairs($iterator));
+        return $this->generatePairs($iterator);
     }
 
     /**
@@ -205,6 +203,27 @@ class Reader extends AbstractCsv
         foreach ($iterator as $row) {
             yield $row[0] => $row[1];
         }
+    }
+
+    /**
+     * Retrive CSV data as pairs
+     *
+     * Fetches an associative array of all rows as key-value pairs (first
+     * column is the key, second column is the value).
+     *
+     * By default if no column index is provided:
+     * - the first CSV column is used to provide the keys
+     * - the second CSV column is used to provide the value
+     *
+     * @param int           $offsetIndex The column index to serve as offset
+     * @param int           $valueIndex  The column index to serve as value
+     * @param callable|null $callable    A callable to be applied to each of the rows to be returned.
+     *
+     * @return array
+     */
+    public function fetchPairsWithoutDuplicates($offsetIndex = 0, $valueIndex = 1, callable $callable = null)
+    {
+        return iterator_to_array($this->fetchPairs($offsetIndex, $valueIndex, $callable), true);
     }
 
     /**
@@ -234,11 +253,10 @@ class Reader extends AbstractCsv
             return array_combine($keys, $row);
         };
 
-        $returnType = $this->returnType;
         $iterator = $this->fetch($combineArray);
         $iterator = $this->applyCallable($iterator, $callable);
 
-        return $this->applyReturnType($returnType, $iterator, false);
+        return $iterator;
     }
 
     /**
