@@ -15,9 +15,11 @@ All Notable changes to `Csv` will be documented in this file
 
 ### Fixed
 
-- `Reader::fetchColumn` and `Reader::fetchAssoc` now returns `Iterator`
+- `Reader::fetchColumn` and `Reader::fetchAssoc` now return `Iterator`
 - `Reader::fetchAssoc` callable argument expects an indexed row using the submitted keys as its first argument
 - `Reader::fetchColumn` callable argument expects the selected column value as its first argument
+-  Default value on `setOutputBOM` is removed
+- `AbstractCsv::getOutputBOM` always return a string
 
 ### Removed
 

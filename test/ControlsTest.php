@@ -48,11 +48,11 @@ class ControlsTest extends AbstractTestCase
 
     public function testBOMSettings()
     {
-        $this->assertNull($this->csv->getOutputBOM());
+        $this->assertSame('', $this->csv->getOutputBOM());
         $this->csv->setOutputBOM(Reader::BOM_UTF8);
         $this->assertSame(Reader::BOM_UTF8, $this->csv->getOutputBOM());
-        $this->csv->setOutputBOM();
-        $this->assertNull($this->csv->getOutputBOM());
+        $this->csv->setOutputBOM('');
+        $this->assertSame('', $this->csv->getOutputBOM());
     }
 
     public function testAddBOMSequences()

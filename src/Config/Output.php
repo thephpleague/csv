@@ -39,13 +39,13 @@ trait Output
      * The Input file BOM character
      * @var string
      */
-    protected $input_bom;
+    protected $input_bom = '';
 
     /**
      * The Output file BOM character
      * @var string
      */
-    protected $output_bom;
+    protected $output_bom = '';
 
     /**
      * Sets the CSV encoding charset
@@ -83,10 +83,10 @@ trait Output
      *
      * @return static
      */
-    public function setOutputBOM($str = null)
+    public function setOutputBOM($str)
     {
         if (empty($str)) {
-            $this->output_bom = null;
+            $this->output_bom = '';
 
             return $this;
         }
@@ -126,7 +126,7 @@ trait Output
                 return strpos($line, $sequence) === 0;
             });
 
-            $this->input_bom = array_shift($res);
+            $this->input_bom = (string) array_shift($res);
         }
 
         return $this->input_bom;
