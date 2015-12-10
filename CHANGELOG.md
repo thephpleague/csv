@@ -7,7 +7,7 @@ All Notable changes to `Csv` will be documented in this file
 ### Added
 
 - `Reader::fetchPairs`
-- `QueryFilter::setReturnType` to enable modifying some extract method return type
+- `Reader::fetchPairsWithoutDuplicates`
 
 ### Deprecated
 
@@ -15,6 +15,7 @@ All Notable changes to `Csv` will be documented in this file
 
 ### Fixed
 
+- `Reader::fetchColumn` and `Reader::fetchAssoc` now returns `Iterator`
 - `Reader::fetchAssoc` callable argument expects an indexed row using the submitted keys as its first argument
 - `Reader::fetchColumn` callable argument expects the selected column value as its first argument
 

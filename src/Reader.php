@@ -174,7 +174,7 @@ class Reader extends AbstractCsv
     {
         $offsetIndex = $this->validateInteger($offsetIndex, 0, 'the offset column index must be a positive integer or 0');
         $valueIndex = $this->validateInteger($valueIndex, 0, 'the value column index must be a positive integer or 0');
-        $filterPairs = function ($row) use ($offsetIndex, $valueIndex) {
+        $filterPairs = function ($row) use ($offsetIndex) {
             return isset($row[$offsetIndex]);
         };
         $selectPairs = function ($row) use ($offsetIndex, $valueIndex) {
