@@ -31,7 +31,7 @@ Please [refer to the documentation](/reading/) for more information.
 
 ### PHP required version
 
-`League\Csv` 8.0.0 is the first major version to remove support for `PHP 5.4`.
+`Csv` 8.0.0 is the first major version to remove support for `PHP 5.4`.
 
 ### Remove optional argument to createFromString
 

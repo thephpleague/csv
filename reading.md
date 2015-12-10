@@ -240,7 +240,7 @@ foreach ($reader->fetchColumn(2, 'strtoupper') as $value) {
 
 <p class="message-notice">new feature introduced in <code>version 8.0</code></p>
 
-The `fetchPairs` method returns data in an `Generator` of key-value pairs, as an associative array with a single entry per row.
+The `fetchPairs` method returns a `Generator` of key-value pairs.
 
 ~~~php
 public Reader::fetchPairs(
@@ -249,8 +249,6 @@ public Reader::fetchPairs(
     callable $callable = null
 ): Generator
 ~~~
-
-In this associative array:
 
 - The key is taken from the submitted column index parameter (ie: `$offsetIndex`).
 - The value is taken from the submitted column value parameter (ie: `$valueIndex`).
@@ -261,6 +259,7 @@ In this associative array:
 $str = <<EOF
 john,doe
 jane,doe
+foo,bar
 EOF;
 
 $reader = Reader::createFromString($str);
@@ -271,6 +270,9 @@ foreach ($reader->fetchPairs() as $firstname => $lastname) {
     // - second iteration
     // echo $firstname; -> 'jane'
     // echo $lastname;  -> 'doe'
+    // - third iteration
+    // echo $firstname; -> 'foo'
+    // echo $lastname; -> 'bar'
 }
 ~~~
 
@@ -301,6 +303,7 @@ $callable(array $pairs, int $rowOffset, Iterator $iterator): array
 $str = <<EOF
 john,doe
 jane,doe
+foo,bar
 EOF;
 
 $func = function ($row) {
@@ -317,6 +320,9 @@ foreach ($reader->fetchPairs(1, 0, $func) as $lastname => $firstname) {
     // - second iteration
     // echo $lastname; -> 'DOE'
     // echo $firstname; -> 'jane'
+    // - third iteration
+    // echo $lastname; -> 'BAR'
+    // echo $firstname; -> 'foo'
 }
 ~~~
 
@@ -343,10 +349,11 @@ public Reader::fetchPairsWithoutDuplicates(
 $str = <<EOF
 john,doe
 jane,doe
+foo,bar
 EOF;
 
 $reader = Reader::createFromString($str);
 $data = $reader->fetchPairsWithoutDuplicates(1, 0);
-// will return ['doe' => 'jane'];
+// will return ['doe' => 'jane', 'foo' => 'bar'];
 // the 'john' value has been overwritten by 'jane'
 ~~~
