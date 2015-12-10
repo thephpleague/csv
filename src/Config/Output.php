@@ -39,7 +39,7 @@ trait Output
      * The Input file BOM character
      * @var string
      */
-    protected $input_bom = '';
+    protected $input_bom;
 
     /**
      * The Output file BOM character
@@ -113,7 +113,7 @@ trait Output
      */
     public function getInputBOM()
     {
-        if (!$this->input_bom) {
+        if (null === $this->input_bom) {
             $bom = [
                 AbstractCsv::BOM_UTF32_BE, AbstractCsv::BOM_UTF32_LE,
                 AbstractCsv::BOM_UTF16_BE, AbstractCsv::BOM_UTF16_LE, AbstractCsv::BOM_UTF8,

@@ -34,7 +34,21 @@ class Reader extends AbstractCsv
     protected $stream_filter_mode = STREAM_FILTER_READ;
 
     /**
-     * Return a Filtered Iterator
+     * Returns a sequential array of all CSV lines
+     *
+     * The callable function will be applied to each Iterator item
+     *
+     * @param callable|null $callable a callable function
+     *
+     * @return array
+     */
+    public function fetchAll(callable $callable = null)
+    {
+        return iterator_to_array($this->fetch($callable), false);
+    }
+
+    /**
+     * Fetch the next row from a result set
      *
      * @param callable|null $callable a callable function to be applied to each Iterator item
      *
@@ -60,20 +74,6 @@ class Reader extends AbstractCsv
         }
 
         return $iterator;
-    }
-
-    /**
-     * Returns a sequential array of all CSV lines
-     *
-     * The callable function will be applied to each Iterator item
-     *
-     * @param callable|null $callable a callable function
-     *
-     * @return array
-     */
-    public function fetchAll(callable $callable = null)
-    {
-        return iterator_to_array($this->fetch($callable), false);
     }
 
     /**
@@ -124,7 +124,7 @@ class Reader extends AbstractCsv
     }
 
     /**
-     * Returns a single column from the CSV data
+     * Returns the next value from a single CSV column
      *
      * The callable function will be applied to each value to be return
      *
@@ -155,9 +155,31 @@ class Reader extends AbstractCsv
     }
 
     /**
-     * Retrive CSV data as pairs
+     * Retrieve CSV data as pairs
      *
      * Fetches an associative array of all rows as key-value pairs (first
+     * column is the key, second column is the value).
+     *
+     * By default if no column index is provided:
+     * - the first CSV column is used to provide the keys
+     * - the second CSV column is used to provide the value
+     *
+     * If the value from the column key index is duplicated its corresponding value will
+     * be overwritten
+     *
+     * @param int           $offsetIndex The column index to serve as offset
+     * @param int           $valueIndex  The column index to serve as value
+     * @param callable|null $callable    A callable to be applied to each of the rows to be returned.
+     *
+     * @return array
+     */
+    public function fetchPairsWithoutDuplicates($offsetIndex = 0, $valueIndex = 1, callable $callable = null)
+    {
+        return iterator_to_array($this->fetchPairs($offsetIndex, $valueIndex, $callable), true);
+    }
+
+    /**
+     * Fetches the next key-value pairs from a result set (first
      * column is the key, second column is the value).
      *
      * By default if no column index is provided:
@@ -206,31 +228,10 @@ class Reader extends AbstractCsv
     }
 
     /**
-     * Retrive CSV data as pairs
-     *
-     * Fetches an associative array of all rows as key-value pairs (first
-     * column is the key, second column is the value).
-     *
-     * By default if no column index is provided:
-     * - the first CSV column is used to provide the keys
-     * - the second CSV column is used to provide the value
-     *
-     * @param int           $offsetIndex The column index to serve as offset
-     * @param int           $valueIndex  The column index to serve as value
-     * @param callable|null $callable    A callable to be applied to each of the rows to be returned.
-     *
-     * @return array
-     */
-    public function fetchPairsWithoutDuplicates($offsetIndex = 0, $valueIndex = 1, callable $callable = null)
-    {
-        return iterator_to_array($this->fetchPairs($offsetIndex, $valueIndex, $callable), true);
-    }
-
-    /**
-     * Returns a sequential array of all CSV lines;
+     * Fetch the next row from a result set
      *
      * The rows are presented as associated arrays
-     * The callable function will be applied to each Iterator item
+     * The callable function will be applied to each row
      *
      * @param int|array $offset_or_keys the name for each key member OR the row Index to be
      *                                  used as the associated named keys
@@ -239,7 +240,7 @@ class Reader extends AbstractCsv
      *
      * @throws InvalidArgumentException If the submitted keys are invalid
      *
-     * @return Iterator|array
+     * @return Iterator
      */
     public function fetchAssoc($offset_or_keys = 0, callable $callable = null)
     {
