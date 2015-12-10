@@ -60,7 +60,7 @@ $writer->insertOne("'john','doe','john.doe@example.com'");
 $writer->insertOne(new ToStringEnabledClass("john,doe,john.doe@example.com"))
 ~~~
 
-### insertAll($rows)
+### insertAll
 
 `insertAll` inserts multiple rows.
 
