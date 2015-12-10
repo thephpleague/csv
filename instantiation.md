@@ -17,7 +17,7 @@ Both classes extend the `League\Csv\AbstractCsv` class and as such share methods
 If your CSV document was created or is read on a Macintosh computer, add the following lines before using the library to help [PHP detect line ending in Mac OS X](http://php.net/manual/en/function.fgetcsv.php#refsect1-function.fgetcsv-returnvalues).
 
 ~~~php
-if (! ini_get("auto_detect_line_endings")) {
+if (!ini_get("auto_detect_line_endings")) {
     ini_set("auto_detect_line_endings", '1');
 }
 

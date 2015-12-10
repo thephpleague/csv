@@ -14,11 +14,11 @@ layout: default
 [![Quality Score](https://img.shields.io/scrutinizer/g/thephpleague/csv.svg?style=flat-square)](https://scrutinizer-ci.com/g/thephpleague/csv)
 [![Total Downloads](https://img.shields.io/packagist/dt/league/csv.svg?style=flat-square)](https://packagist.org/packages/league/csv)
 
-`League\Csv` is a simple library to ease CSV parsing, writing and filtering in
+`Csv` is a simple library to ease CSV parsing, writing and filtering in
 PHP. The goal of the library is to be as powerful while remaining lightweight,
 by utilizing PHP native classes whenever possible.
 
-`League\Csv` was designed for developers who want to deal with CSV data using
+`Csv` was designed for developers who want to deal with CSV data using
 modern code and without the high levels of bootstrap and low-levels of
 usefulness provided by existing core functions or third party-code.
 
@@ -38,7 +38,7 @@ usefulness provided by existing core functions or third party-code.
 
 ## Questions?
 
-`League\Csv` was created by Ignace Nyamagana Butera. Find him on Twitter at [@nyamsprod](https://twitter.com/nyamsprod).
+`Csv` was created by Ignace Nyamagana Butera. Find him on Twitter at [@nyamsprod](https://twitter.com/nyamsprod).
 
 [PSR-2]: http://www.php-fig.org/psr/psr-2/
 [PSR-4]: http://www.php-fig.org/psr/psr-4/
