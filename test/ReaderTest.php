@@ -58,9 +58,6 @@ class ReaderTest extends AbstractTestCase
     }
 
     /**
-     * @param $offset
-     * @param $limit
-     * @param $expected
      * @dataProvider intervalTest
      */
     public function testInterval($offset, $limit, $expected)
@@ -107,10 +104,6 @@ class ReaderTest extends AbstractTestCase
             return strcmp($rowA[0], $rowB[0]);
         };
         $this->csv->addSortBy($func);
-        $this->csv->addFilter(function ($row) {
-            return $row != [null];
-
-        });
         $this->assertSame(array_reverse($this->expected), $this->csv->fetchAll());
     }
 
@@ -124,16 +117,7 @@ class ReaderTest extends AbstractTestCase
         $this->assertContains(['JANE', 'DOE', 'JANE.DOE@EXAMPLE.COM'], $res);
     }
 
-    public function testFetchAssocReturnsArray()
-    {
-        $keys = ['firstname', 'lastname', 'email'];
-        $res = $this->csv->fetchAssoc($keys);
-        foreach ($res as $offset => $row) {
-            $this->assertSame($keys, array_keys($row));
-        }
-    }
-
-    public function testFetchAssocReturnsIterator()
+    public function testFetchAssoc()
     {
         $keys = ['firstname', 'lastname', 'email'];
         $res = $this->csv->fetchAssoc($keys);
@@ -145,9 +129,10 @@ class ReaderTest extends AbstractTestCase
     public function testFetchAssocCallback()
     {
         $keys = ['firstname', 'lastname', 'email'];
-        $res = $this->csv->fetchAssoc($keys, function ($value) {
+        $func = function ($value) {
             return array_map('strtoupper', $value);
-        });
+        };
+        $res = $this->csv->fetchAssoc($keys, $func);
         foreach ($res as $row) {
             $this->assertSame($keys, array_keys($row));
         }
