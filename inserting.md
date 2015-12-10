@@ -23,10 +23,21 @@ The `Writer` class will:
 
 To add new data to your CSV the `Writer` class uses the following methods
 
-### insertOne($row)
+### insertOne
 
-`insertOne` inserts a single row. This method can take an `array`, a `string` or
-an `object` implementing the `__toString` method.
+`insertOne` inserts a single row.
+
+~~~php
+public Writer::insertOne(mixed $row): Writer
+~~~
+
+This method takes a single argument `$row` which can be
+
+- an `array`;
+- a `string`;
+- or an `object` implementing the `__toString` method.
+
+#### Example
 
 ~~~php
 class ToStringEnabledClass
@@ -51,8 +62,20 @@ $writer->insertOne(new ToStringEnabledClass("john,doe,john.doe@example.com"))
 
 ### insertAll($rows)
 
-`insertAll` inserts multiple rows. This method can take an `array` or a
-`Traversable` object to add several rows to the CSV data.
+`insertAll` inserts multiple rows.
+
+~~~php
+public Writer::insertAll(mixed $rows): Writer
+~~~
+
+This method takes a single argument `$row` which can be
+
+- a `array`
+- or a `Traversable` object
+
+to add several rows to the CSV data.
+
+#### Example
 
 ~~~php
 $rows = [
@@ -69,93 +92,96 @@ $writer->insertAll(new ArrayIterator($rows)); //using a Traversable object
 
 ## Row formatting
 
+### CSV Formatter
+
 A formatter is a `callable` which accepts an `array` on input and returns the same array formatted according to its inner rules.
+
+~~~php
+$callable(array $row): array
+~~~
 
 You can attach as many formatters as you want to the `Writer` class to manipulate your data prior to its insertion. The formatters follow the *First In First Out* rule when inserted, deleted and/or applied.
 
- The formatter API comes with the following public API:
+### Formatter API
 
-### addFormatter(callable $callable)
-
-Adds a formatter to the formatter collection;
-
-### removeFormatter(callable $callable)
-
-Removes an already registered formatter. If the formatter was registered multiple times, you will have to call `removeFormatter` as often as the formatter was registered. **The first registered copy will be the first to be removed.**
-
-### hasFormatter(callable $callable)
-
-Checks if the formatter is already registered
-
-### clearFormatters()
-
-removes all registered formatters.
+The formatter API comes with the following public API:
 
 ~~~php
-<?php
+public Writer::addFormatter(callable $callable): Writer
+public Writer::removeFormatter(callable $callable): Writer
+public Writer::hasFormatter(callable $callable): bool
+public Writer::clearFormatters(void): Writer
+~~~
 
+- `addFormatter`: Adds a formatter to the formatter collection;
+- `removeFormatter`: Removes an already registered formatter. If the formatter was registered multiple times, you will have to call `removeFormatter` as often as the formatter was registered. **The first registered copy will be the first to be removed.**
+- `hasFormatter`: Checks if the formatter is already registered
+- `clearFormatters`: removes all registered formatters.
+
+~~~php
 use League\Csv\Writer;
 
-$writer->addFormatter(function ($row) {
+$formatter = function ($row) {
     return array_map('strtoupper', $row);
-});
+};
+$writer = Writer::createFromFileObject(new SplTempFileObject());
+$writer->addFormatter($formatter);
 $writer->insertOne(['john', 'doe', 'john.doe@example.com']);
 
 $writer->__toString();
 //will display something like JOHN,DOE,JOHN.DOE@EXAMPLE.COM
 ~~~
 
-If you are relying on the **removed** null handling feature the library comes bundle with the following classes to help you migrate to the new version.
-
-- `League\Csv\Plugin\SkipNullValuesFormatter` to format `null` values
-
-Please refers to the <a href="/upgrading/7.0/">migration guide</a> for more information.
-
 ## Row validation
 
-A validator is a `callable` which takes a `array` as its sole argument and returns a boolean. The validator **must** return `true` to validate the submitted row. Any other expression, including thruthy ones like `yes`, `1`,... will make the `insertOne` method throw an `League\Csv\Exception\InvalidRowException`.
+### CSV validator
+
+A validator is a `callable` which takes a `array` as its sole argument and returns a boolean.
+
+~~~php
+$callable(array $row): bool
+~~~
+
+The validator **must** return `true` to validate the submitted row.
+
+Any other expression, including thruthy ones like `yes`, `1`,... will make the `insertOne` method throw an `League\Csv\Exception\InvalidRowException`.
 
 As with the new formatter capabilities, you can attach as many validators as you want to your data prior to its insertion. The row data is checked against your supplied validators **after being formatted**.
 
+### Validator API
+
 The validator API comes with the following public API:
 
-### addValidator(callable $callable, $validator_name)
+~~~php
+public Writer::addValidator(callable $callable, string $validatorName): Writer
+public Writer::removeValidator(string $validatorName): Writer
+public Writer::hasValidator(string $validatorName): bool
+public Writer::clearValidators(void): Writer
+~~~
 
-Adds a validator each time it is called. The method takes two parameters:
+- `addValidator`: Adds a validator each time it is called. The method takes two parameters:
+    - A `callable` which takes an `array` as its unique parameter;
+    - The validator name which is **required**. If another validator was already registered with the given name, it will be overriden.
+- `removeValidator`: Removes an already registered validator by using the validator registrated name.
+- `hasValidator`: Checks if the validator is already registered
+- `clearValidators`: removes all registered validator.
 
-- A `callable` which takes an `array` as its unique parameter;
-- The validator name which is **required**. If another validator was already registered with the given name, it will be overriden.
-
-### removeValidator($validator_name)
-
-Removes an already registered validator by using the validator registrated name
-
-### hasValidator($validator_name)
-
-Checks if the validator is already registered
-
-### clearValidators()
-
-Removes all registered validators
-
-## Validation failed
+### Validation failed
 
 If the validation failed a `League\Csv\Exception\InvalidRowException` is thrown by the `Writer` object.
 This exception extends PHP's `InvalidArgumentException` by adding two public getter methods
 
-### InvalidRowException::getName
+~~~php
+public InvalidRowException::getName(void): string
+public InvalidRowException::getData(void): array
+~~~
 
-returns the name of the failed validator
+- `InvalidRowException::getName`: returns the name of the failed validator
+- `InvalidRowException::getData`: returns the invalid data submitted to the validator
 
-### InvalidRowException::getData
-
-returns the invalid data submitted to the validator
-
-## Validation example
+#### Validation example
 
 ~~~php
-<?php
-
 use League\Csv\Writer;
 use League\Csv\Exception\InvalidRowException;
 
@@ -169,13 +195,6 @@ try {
     $e->getData();//will return the invalid data ['john', 'doe', 'john.doe@example.com']
 }
 ~~~
-
-If you are relying on the **removed features** null handling and the column consistency, the library comes bundle with the following classes to help you migrate to the new version.
-
-- `League\Csv\Plugin\ForbiddenNullValuesValidator` to validate the absence of the `null` value;
-- `League\Csv\Plugin\ColumnConsistencyValidator` to validate the CSV column consistency;
-
-Please refers to the <a href="/upgrading/7.0/">migration guide</a> for more information.
 
 ## Stream filtering
 

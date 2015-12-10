@@ -13,7 +13,7 @@ If your CSV is not UTF-8 encoded some unexpected results and some errors could b
 
 ## Convert to JSON format
 
-Use the `json_encode` function directly on the instantiated object.
+`AbstractCsv` implements the `JsonSerializable` interface. As such you can use the `json_encode` function directly on the instantiated object.
 
 ~~~php
 echo json_encode($reader);
@@ -21,8 +21,17 @@ echo json_encode($reader);
 
 ## Convert to XML
 
-Use the `toXML` method to convert the CSV data into a `DomDocument` object. This
-method accepts 3 optionals arguments to help you customize the XML tree:
+Use the `toXML` method to convert the CSV data into a `DomDocument` object.
+
+~~~php
+public AbstractCsv::toXML(
+    string $root_name = 'csv',
+    string $row_name = 'row',
+    string $cell_name = 'cell'
+): DOMDocument
+~~~
+
+This method accepts 3 optionals arguments to help you customize the XML tree:
 
 - `$root_name`, the XML root name which defaults to `csv`;
 - `$row_name`, the XML node element representing a CSV row which defaults to `row`;
@@ -34,8 +43,13 @@ $dom = $reader->toXML('data', 'line', 'item');
 
 ## Convert to HTML table
 
-Use the `toHTML` method to convert the CSV data into an HTML table. This method
-accepts an optional argument `$classname` to help you customize the table
+Use the `toHTML` method to convert the CSV data into an HTML table.
+
+~~~php
+public AbstractCsv::toHTML(string $classAttribute = 'table-csv-data'): string
+~~~
+
+This method accepts an optional argument `$classAttribute` to help you customize the table
 rendering, by defaut the classname given to the table is `table-csv-data`.
 
 ~~~php

@@ -7,7 +7,18 @@ title: Basic Usage
 
 <p class="message-info"><strong>Tips:</strong> Even though you can use the following methods with the <code>League\Csv\Writer</code> object. It is recommended to do so with the <code>League\Csv\Reader</code> class to avoid losing the file cursor position and getting unexpected results when inserting new data.</p>
 
-Once your CSV object is [instantiated](/instantiation) and [configured](/properties/), you can start interacting with the data using a number of methods available to you. For starters, you can iterate over your newly object to extract each CSV row using the `foreach` construct.
+Once your CSV object is [instantiated](/instantiation) and [configured](/properties/), you can start interacting with the data using a number of methods available to you. 
+
+
+## Iterating over the CSV rows
+
+The CSV object implements PHP's `IteratorAggregate` interface
+
+~~~php
+public AbstractCsv::getIterator(void): SplFileObject
+~~~
+
+You can iterate over your CSV object to extract each CSV row using the `foreach` construct.
 
 ~~~php
 $reader = Reader::createFromPath('/path/to/my/file.csv');
@@ -22,9 +33,17 @@ foreach ($reader as $index => $row) {
 
 ## Outputting the CSV
 
-### __toString()
+### __toString
+
+Returns the string representation of the CSV document
+
+~~~php
+public AbstractCsv::__toString(void): string
+~~~
 
 Use the `echo` construct on the instantiated object or use the `__toString` method to show the CSV full content.
+
+#### Example
 
 ~~~php
 echo $reader;
@@ -32,11 +51,19 @@ echo $reader;
 echo $reader->__toString();
 ~~~
 
-### output($filename = null)
+### output
 
 If you only wish to make your CSV downloadable by forcing a file download just use the `output` method to force the use of the output buffer on the CSV content.
 
-The method returns the number of characters read from the handle and passed through to the output.
+~~~php
+public AbstractCsv::output(string $filename = null): int
+~~~
+
+- The method returns the number of characters read from the handle and passed through to the output.
+- The output method can take an optional argument `$filename`. When present you
+can even remove more headers.
+
+#### Example 1 - default usage
 
 ~~~php
 header('Content-Type: text/csv; charset=UTF-8');
@@ -44,12 +71,13 @@ header('Content-Disposition: attachment; filename="name-for-your-file.csv"');
 $reader->output();
 ~~~
 
-The output method can take an optional argument `$filename`. When present you
-can even remove more headers.
+#### Example 2 - using the $filename argument
 
 ~~~php
 $reader->output("name-for-your-file.csv");
 ~~~
+
+#### Notes
 
 The output methods **can only be affected by:**
 

@@ -9,33 +9,73 @@ Once your object is [instantiated](/instantiation/) you can optionally set sever
 
 ## Accessing and Setting CSV properties
 
-### The delimiter character
+### The CSV delimiter character.
+
+#### Description
+
+~~~php
+public AbstractCsv::setDelimiter(string $delimiter): AbstractCsv
+public AbstractCsv::getDelimiter(void): string
+~~~
+
+#### Example
 
 ~~~php
 $csv->setDelimiter(';');
 $delimiter = $csv->getDelimiter(); //returns ";"
 ~~~
+
+#### Notes
+
 The default delimiter character is `,`.
 
 ### The enclosure character
+
+#### Description
+
+~~~php
+public AbstractCsv::setEnclosure(string $delimiter): AbstractCsv
+public AbstractCsv::getEnclosure(void): string
+~~~
+
+#### Example
 
 ~~~php
 $csv->setEnclosure('|');
 $enclosure = $csv->getEnclosure(); //returns "|"
 ~~~
+
+#### Notes
+
 The default enclosure character is `"`.
 
 ### The escape character
+
+#### Description
+
+~~~php
+public AbstractCsv::setEscape(string $delimiter): AbstractCsv
+public AbstractCsv::getEscape(void): string
+~~~
+
+#### Example
 
 ~~~php
 $csv->setEscape('\\');
 $escape = $csv->getEscape(); //returns "\"
 ~~~
+
+#### Notes
+
 The default escape character is `\`.
 
-## Detecting CSV delimiter
+### fetchDelimitersOccurrence
 
-### fetchDelimitersOccurrence(array $delimiters, $nbRows = 1)
+This method allow you to find the occurences of some delimiters in a given CSV object.
+
+~~~php
+public AbstractCsv::fetchDelimitersOccurrence(array $delimiters, int $nbRows = 1): array
+~~~
 
 The method takes two arguments:
 
@@ -63,54 +103,96 @@ $delimiters_list = $reader->fetchDelimitersOccurrence([' ', '|'], 10);
 
 ## Writing mode only properties
 
-The following properties only affect the CSV when you are writing or saving data to it.
+The following properties only affect the CSV object when you are writing and/or saving data to it.
+
+<p class="message-notice">The <code>Reader</code> class still have access to them.</p>
+
 
 ### The newline sequence
 
-The newline sequence is appended to each CSV newly inserted line. To improve interoperability with programs interacting with CSV and because the php `fputcsv` implementation has a hardcoded `"\n"`, we need to be able to replace this last `LF` code with one supplied by the developer.
+To improve interoperability with programs interacting with CSV, the newline sequence is appended to each CSV newly inserted line.
+
+#### Description
+
+~~~php
+public AbstractCsv::setNewline(string $sequence): AbstractCsv
+public AbstractCsv::getNewline(void): string
+~~~
+
+#### Example
 
 ~~~php
 $csv->setNewline("\r\n");
 $newline = $csv->getNewline(); //returns "\r\n"
 ~~~
+
+#### Notes
+
 The default newline sequence is `\n`;
 
-### The BOM character
+### The BOM sequence
 
-To improve interoperability with programs interacting with CSV, you can now manage the presence of a <abbr title="Byte Order Mark">BOM</abbr> character in your CSV content.
+To improve interoperability with programs interacting with CSV, you can manage the presence of the <abbr title="Byte Order Mark">BOM</abbr> sequence in your CSV content.
 
-Detect the current BOM character is done using the `getInputBOM` method. This method returns the currently used BOM character or `null` if none is found or recognized.
+#### Detect the currently used BOM sequence
+
+~~~php
+public AbstractCsv::getInputBOM(void): string
+~~~
+
+Detect the current BOM character is done using the `getInputBOM` method. This method returns the currently used BOM character or an empty string if none is found or recognized.
 
 ~~~php
 $bom = $csv->getInputBOM();
 ~~~
 
-You can of course set the outputting BOM you want your CSV to be associated with.
+#### Set the outputting BOM sequence
+
+~~~php
+public AbstractCsv::setOutputBOM(string $sequence): AbstractCsv
+public AbstractCsv::getOutputBOM(void): string
+~~~
+
+- `setOutputBOM`: sets the outputting BOM you want your CSV to be associated with.
+- `getOutputBOM`: get the outputting BOM you want your CSV to be associated with.
 
 ~~~php
 $csv->setOutputBOM(Reader::BOM_UTF8);
 $bom = $csv->getOutputBOM(); //returns "\xEF\xBB\xBF"
 ~~~
-The default output `BOM` character is set to `null`.
+
+#### Notes
+
+- The default output `BOM` character is set to an empty string.
+- The `AbstractCsv` class provide constants to ease BOM sequence manipulation.
 
 <p class="message-info">Please refer to <a href="/bom/">the BOM character dedicated documentation page</a> for more informations on how the library helps you manage this feature.</p>
 
 ## Conversion only properties
 
-The following properties and method only works when converting CSV document into other available format.
+<p class="message-notice">The following properties and method only works when converting your CSV document into other available formats.</p>
 
 ### The encoding charset
 
-To convert your CSV document into another format it must be encoded in UTF-8.
+To convert your CSV document into another format it must be encoded in `UTF-8`.
 
-When this is not the case, you should transcode it using the <a href="/filtering/">library stream filtering mechanism</a>.
+When this is not the case, you should transcode it first using the <a href="/filtering/">library stream filtering mechanism</a>.
 
-When this is not applicable you can fallback by providing the CSV original encoding charset to the CSV class using the following method:
+When this is not applicable you should provide the CSV original encoding charset to the CSV object using the `setEncodingFrom` method.
+
+~~~php
+public AbstractCsv::setEncodingFrom(string $sequence): AbstractCsv
+public AbstractCsv::getEncodingFrom(void): string
+~~~
+
+#### Example
 
 ~~~php
 $reader->setEncodingFrom('iso-8859-15');
 echo $reader->getEncodingFrom(); //returns iso-8859-15;
 ~~~
+
+#### Notes
 
 By default `getEncodingFrom` returns `UTF-8` if `setEncodingFrom` was not used.
 

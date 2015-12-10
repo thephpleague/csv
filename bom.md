@@ -17,14 +17,18 @@ To improve interoperability with programs interacting with CSV, you can now mana
 
 They each represent the `BOM` character for each encoding character.
 
-### getInputBOM()
+### getInputBOM
 
 This method will detect and return the `BOM` character used in your CSV if any.
 
 ~~~php
+public AbstractCsv::getInputBOM(void): string
+~~~
+
+~~~php
 
 $reader = new Reader::createFromPath('path/to/your/file.csv');
-$res = $reader->getInputBOM(); //$res equals null if no BOM is found
+$res = $reader->getInputBOM(); //$res equals '' if no BOM is found
 
 $reader = new Reader::createFromPat('path/to/your/msexcel.csv');
 if (Reader::BOM_UTF16_LE == $reader->getInputBOM()) {
@@ -36,22 +40,30 @@ If you wish to remove the BOM character while processing your data, you can rely
 
 ## Adding the BOM character to your CSV
 
-### setOutputBOM($bom = null);
+### setOutputBOM;
 
 This method will manage the addition of a BOM character in front of your outputted CSV when you are:
 
 - downloading a file using the `output` method
 - ouputting the CSV directly using the `__toString()` method
 
-`$bom` is a string representing the BOM character. To remove the `BOM` character just set `$bom` to an empty value like `null` or an empty string.
+~~~php
+public AbstractCsv::setOutputBOM(string $sequence): AbstractCsv
+~~~
+
+`$sequence` is a string representing the BOM character. To remove the `BOM` character just set `$bom` to an empty value like `null` or an empty string.
 
 <p class="message-info">To ease writing the sequence you should use the <code>BOM_*</code> constants.</p>
 
-### getOutputBOM()
+### getOutputBOM
 
 This method will tell you at any given time what `BOM` character will be prepended to the CSV content.
 
-<p class="message-info">For Backward compatibility by default <code>getOutputBOM</code> returns <code>null</code>.</p>
+~~~php
+public AbstractCsv::getOutputBOM(void): string
+~~~
+
+<p class="message-warning"><strong>BC Break:</strong> by default <code>getOutputBOM</code> returns an empty string.</p>
 
 ~~~php
 

@@ -22,11 +22,17 @@ To be able to use the stream filtering mechanism you need to:
 
 ### Detecting if the API is active
 
-To be sure that the Stream Filter API is available it is recommend to use the method `isActiveStreamFilter`, which returns `true` if you can safely use the API:
+To be sure that the Stream Filter API is available it is recommend to use the method `isActiveStreamFilter`.
 
 ~~~php
-use \League\Csv\Reader;
-use \League\Csv\Writer;
+public AbstractCsv::isActiveStreamFilter(void): bool
+~~~
+
+`isActiveStreamFilter` returns `true` if you can safely use the API:
+
+~~~php
+use League\Csv\Reader;
+use League\Csv\Writer;
 
 $reader = Reader::createFromPath('/path/to/my/file.csv');
 $reader->isActiveStreamFilter(); //return true
@@ -39,10 +45,17 @@ $writer->isActiveStreamFilter(); //return false the API can not be use
 
 ### Setting and getting the object stream filter mode
 
-The stream filter mode property is set using PHP internal stream filter constant `STREAM_FILTER_*`, but unlike `fopen`, the mode is attached to the object and not to a stream filter.
+The stream filter mode property is set using PHP internal stream filter constant `STREAM_FILTER_*`.
 
-* `setStreamFilterMode($mode)`: set the object stream filter mode **and** remove all previously attached stream filters;
-* `getStreamFilterMode()`: returns the current stream filter mode;
+~~~php
+public AbstractCsv::setStreamFilterMode(int $mode): AbstractCsv
+public AbstractCsv::getStreamFilterMode(void): int
+~~~
+
+Unlike `fopen`, the mode is attached to the object and not to a specific stream filter.
+
+* `setStreamFilterMode`: set the object stream filter mode **and** remove all previously attached stream filters;
+* `getStreamFilterMode`: returns the current stream filter mode;
 
 By default:
 
@@ -51,7 +64,7 @@ By default:
 - If you instantiate the class using a PHP filter meta wrapper (ie: `php://filter/`), the mode will be the one used by the meta wrapper;
 
 ~~~php
-use \League\Csv\Reader;
+use League\Csv\Reader;
 
 $reader = Reader::createFromPath('/path/to/my/file.csv');
 if ($reader->isActiveStreamFilter()) {
@@ -65,13 +78,21 @@ if ($reader->isActiveStreamFilter()) {
 
 ### Managing Stream filter
 
-To manage your registered stream filter collection you can use the following methods
+To manage your registered stream filter collection you can use the following methods:
 
-- `appendStreamFilter($filtername)` : adds a stream filter at the bottom of the collection
-- `prependStreamFilter($filtername)` : adds a stream filter at the top of the collection
-- `removeStreamFilter($filtername)` : removes a stream filter from the collection
-- `hasStreamFilter($filtername)` : check the presence of a stream filter in the collection
-- `clearStreamFilter()`: removes all the currently attached filters.
+~~~php
+public AbstractCsv::appendStreamFilter(string $filtername): AbstractCsv
+public AbstractCsv::prependStreamFilter(string $filtername): AbstractCsv
+public AbstractCsv::removeStreamFilter(string $filtername): AbstractCsv
+public AbstractCsv::hasStreamFilter(string $filtername): bool
+public AbstractCsv::clearStreamFilter(void): AbstractCsv
+~~~
+
+- `appendStreamFilter`: adds a stream filter at the bottom of the collection
+- `prependStreamFilter`: adds a stream filter at the top of the collection
+- `removeStreamFilter`: removes a stream filter from the collection
+- `hasStreamFilter`: check the presence of a stream filter in the collection
+- `clearStreamFilter`: removes all the currently attached filters.
 
 The `$filtername` parameter is a string that represents the filter as registered using php `stream_filter_register` function or one of PHP internal stream filter.
 
@@ -85,7 +106,7 @@ The filters are automatically applied when the stream filter mode matches the me
 See below an example using `League\Csv\Reader` to illustrate:
 
 ~~~php
-use \League\Csv\Reader;
+use League\Csv\Reader;
 
 stream_filter_register('convert.utf8decode', 'MyLib\Transcode');
 // 'MyLib\Transcode' is a class that extends PHP's php_user_filter class

@@ -14,47 +14,43 @@ You can restrict [extract methods](/reading/) and [conversion methods](/converti
 
 ## Modifying content methods
 
-### stripBOM($status)
+### stripBOM
 
-`stripBom` only argument `$status` must be a `boolean`. This method specifies if the [BOM sequence](/bom/) must be removed or not from the CSV's first cell of the first row. The actual stripping will take place only if a BOM sequence is detected and the first row is selected in the resultset **or** if its offset is used as the first argument of the `Reader::fetchAssoc` method.
-
-<p class="message-warning">The BOM sequence is never removed from the CSV document, it is only stripped from the resultset.</p>
-
-## Modifying Extract methods return type
-
-<p class="message-notice">new feature introduced in <code>version 8.0</code></p>
-
-Sometimes you may need to modify the return type for some extract methods. To do so, the library exposes one new method:
-
-- `setReturnType` : Set the return type for the next extract method call;
-
-The return type must be one of the following constant:
-
-- `AbstractCsv::TYPE_ARRAY`: to set the return type to be an `Array`;
-- `AbstractCsv::TYPE_ITERATOR`: to set the return type to be an `Iterator`;
-
-By default, and to preserve backward compatibility the return type is set to `Reader::TYPE_ARRAY`.
+ This method specifies if the [BOM sequence](/bom/) must be removed or not from the CSV's first cell of the first row.
 
 ~~~php
-$reader->setReturnType(Reader::TYPE_ITERATOR);
-$result = $reader->fetchAssoc(); //$result is an iterator
-$result = $reader->fetchAssoc(); //$result is an array
-//everytime a query is issued the return type is resetted to Reader::TYPE_ARRAY
+public AbstractCsv::stripBOM(bool $status): AbstractCsv
 ~~~
 
-<p class="message-warning"><strong>WARNING:</strong> Not all the extract methods are affected by this mechanism but any call to any extract/conversion method will automatically reset the return type to <code>AbstractCsv::TYPE_ARRAY</code></p>
+`stripBom` only argument `$status` must be a `boolean`.
+
+The actual stripping will take place only if a BOM sequence is detected and the first row is selected in the resultset **or** if its offset is used as the first argument of the `Reader::fetchAssoc` method.
+
+<p class="message-warning">The BOM sequence is never removed from the CSV document, it is only stripped from the resultset.</p>
 
 ## Filtering methods
 
 The filtering options **are the first settings applied to the CSV before anything else**. The filters follow the *First In First Out* rule.
 
-### addFilter(callable $callable)
+### addFilter
 
-The `addFilter` method adds a callable filter function each time it is called. The function can take up to three parameters:
+The `addFilter` method adds a callable filter function each time it is called.
 
-* the current csv row data;
-* the current csv key;
-* the current csv iterator object;
+~~~php
+public AbstractCsv::addFilter(callable $callable): AbstractCsv
+~~~
+
+The callable filter signature is as follow:
+
+~~~php
+$callable(array $row, int $rowOffset, Iterator $iterator): AbstractCsv
+~~~
+
+It takes up to three parameters:
+
+- `$row`: the CSV current row as an array
+- `$rowOffset`: the CSV current row offset
+- `$iterator`: the current CSV iterator
 
 ## Sorting methods
 
@@ -63,21 +59,37 @@ The sorting options are applied **after the CSV filtering options**. The sorting
 <p class="message-warning">To sort the data <code>iterator_to_array</code> is used which could lead to performance penalty if you have a heavy CSV file to sort
 </p>
 
-### addSortBy(callable $callable)
+### addSortBy
 
-`addSortBy` method adds a sorting function each time it is called. The function takes exactly two parameters which will be filled by pairs of rows.
+`addSortBy` method adds a sorting function each time it is called.
+
+~~~php
+public AbstractCsv::addSortBy(callable $callable): AbstractCsv
+~~~
+
+The callable sort function signature is as follow:
+
+~~~php
+$callable(array $row, array $row): int
+~~~
+
+The sort function takes exactly two parameters which will be filled by pairs of rows.
 
 ## Interval methods
 
-The methods enable returning a specific interval of CSV rows. When called more than once, only the last filtering settings is taken into account. The interval is calculated **after filtering and/or sorting but before extracting the data**.
+The interval methods enable returning a specific interval of CSV rows. When called more than once, only the last filtering settings is taken into account. The interval is calculated **after filtering and/or sorting but before extracting the data**.
 
-### setOffset($offset = 0)
+The interval API is made of the following method
 
-`setOffset` method specifies an optional offset for the return data. By default the offset equals `0`.
+~~~php
+public AbstractCsv::setOffset(int $offset = 0): AbstractCsv
+public AbstractCsv::setLimit(int $limit = -1): AbstractCsv
+~~~
 
-### setLimit($limit = -1)
+Where
 
-`setLimit` method specifies an optional maximum rows count for the return data. By default the offset equals `-1`, which translate to all rows.
+- `setOffset` specifies an optional offset for the return data. By default the offset equals `0`.
+- `setLimit` specifies an optional maximum rows count for the return data. By default the offset equals `-1`, which translate to all rows.
 
 <p class="message-warning">Both methods have no effect on the <code>fetchOne</code> method output.</p>
 
@@ -119,7 +131,7 @@ $data = $reader
 
 ### Modifying conversion methods output
 
-Starting with `version 7.0`, the query options can also modify the output from the conversion methods as shown below with the `toHTML` method.
+The query options can also modify the output from the conversion methods as shown below with the `toHTML` method.
 
 ~~~php
 function filterByEmail($row)

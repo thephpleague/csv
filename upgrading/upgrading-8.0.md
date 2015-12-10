@@ -18,15 +18,12 @@ This will edit (or create) your `composer.json` file.
 
 ## Added features
 
-### Reader return types
+### Reader::fetchPairs and Reader::fetchPairsWithoutDuplicates
 
-To improving reading capabilities with huges CSV files you can now control the return type for some of the `Reader` extracting methods:
+To complements the Reader extract methods the following methods are added:
 
-Please [refer to the documentation](/reading/) for more information.
-
-### Reader::fetchPairs
-
-To complements the Reader extract methods the `Reader:fetchPairs` method is added.
+- `Reader:fetchPairs`
+- `Reader:fetchPairsWithoutDuplicates`
 
 Please [refer to the documentation](/reading/) for more information.
 
@@ -73,7 +70,6 @@ The `SplFileObject` flags are normalized to have a normalized CSV filtering inde
 ~~~php
 use League\Csv\Reader;
 
-
 $csv = Reader::createFromPath('/path/to/file.csv');
 $csv->setFlags(SplFileObject::READ_AHEAD | SplFileObject::SKIP_EMPTY);
 $csv->fetchAssoc(); //empty lines where removed
@@ -84,9 +80,34 @@ $csv->fetchAssoc(); //empty lines where removed
 ~~~php
 use League\Csv\Reader;
 
-
 $csv = Reader::createFromPath('/path/to/file.csv');
 $csv->fetchAssoc(); //empty lines are automatically removed
+~~~
+
+### fetchAssoc and fetchColumn return Iterator
+
+`Reader::fetchAssoc` and `Reader::fetchColumn` no longer return an array but instead an `Iterator`.
+
+**Old code:**
+
+~~~php
+use League\Csv\Reader;
+
+$csv = Reader::createFromPath('/path/to/file.csv');
+$res = $csv->fetchAssoc(['lastname', 'firstname']);
+
+echo $res[0]['lastname']; //would return the first row 'lastname' index
+~~~
+
+**New code:**
+
+~~~php
+use League\Csv\Reader;
+
+$csv = Reader::createFromPath('/path/to/file.csv');
+$res = $csv->fetchAssoc(['lastname', 'firstname']);
+
+echo iterator_to_array($res, false)[0]['lastname'];
 ~~~
 
 ### fetchAssoc callable argument
@@ -106,7 +127,7 @@ $func = function (array $row) {
 };
 
 $csv = Reader::createFromPath('/path/to/file.csv');
-$csv->fetchAssoc(['lastname', 'firstname'], $func);
+$res = $csv->fetchAssoc(['lastname', 'firstname'], $func);
 ~~~
 
 **New code:**
@@ -122,7 +143,7 @@ $func = function (array $row) {
 };
 
 $csv = Reader::createFromPath('/path/to/file.csv');
-$csv->fetchAssoc(['lastname', 'firstname'], $func);
+$res = $csv->fetchAssoc(['lastname', 'firstname'], $func);
 ~~~
 
 ### fetchColumn callable argument
@@ -141,7 +162,7 @@ $func = function (array $row) {
 };
 
 $csv = Reader::createFromPath('/path/to/file.csv');
-$csv->fetchColum(2, $func);
+$res = $csv->fetchColum(2, $func);
 ~~~
 
 **New code:**
@@ -154,7 +175,7 @@ $func = function ($value) {
 };
 
 $csv = Reader::createFromPath('/path/to/file.csv');
-$csv->fetchColum(2, $func);
+$res = $csv->fetchColum(2, $func);
 ~~~
 
 ## Deprecated methods in 7.0 series, removed in 8.0

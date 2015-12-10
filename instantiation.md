@@ -12,9 +12,9 @@ The library is composed of two main classes:
 
 Both classes extend the `League\Csv\AbstractCsv` class and as such share methods for instantiation.
 
-## Mac OS Server
+## Csv and Macintosh
 
-**If you are on a Mac OS X Server**, add the following lines before using the library to help [PHP detect line ending in Mac OS X](http://php.net/manual/en/function.fgetcsv.php#refsect1-function.fgetcsv-returnvalues).
+If your CSV document was created or is read on a Macintosh computer, add the following lines before using the library to help [PHP detect line ending in Mac OS X](http://php.net/manual/en/function.fgetcsv.php#refsect1-function.fgetcsv-returnvalues).
 
 ~~~php
 if (! ini_get("auto_detect_line_endings")) {
@@ -28,9 +28,16 @@ if (! ini_get("auto_detect_line_endings")) {
 
 Because CSVs come in different forms we used named constructors to offer several ways to instantiate the library objects.
 
-### createFromPath($path, $open_mode)
+### AbstractCsv::createFromPath
 
-This named constructor will create a new object *à la* `fopen`:
+This named constructor will create a new object *à la* `fopen`.
+
+~~~php
+public static AbstractCsv::createFromPath(
+	mixed $path,
+	string $open_mode = 'r+'
+): AbstractCsv
+~~~
 
 * The `$path` parameter can be:
     * a `SplFileInfo` object, the string path will be fetch from the object public methods.
@@ -52,9 +59,16 @@ $writer = Writer::createFromPath(new SplFileObject('/path/to/your/csv/file.csv',
 //the $writer object open mode will be 'w'!!
 ~~~
 
-### createFromFileObject(SplFileObject $obj)
+### AbstractCsv::createFromFileObject
 
-If you have a `SplFileObject` and you want to directly work with it you should use the `createFromFileObject` named constructor. This method accepts only one single parameter, a `SplFileObject` object.
+Instantiate a new Csv object from a `SplFileObject`.
+
+~~~php
+public static AbstractCsv::createFromFileObject(SplFileObject $obj): AbstractCsv
+~~~
+
+This method accepts only one single parameter, a `SplFileObject` object.
+
 
 ~~~php
 use League\Csv\Reader;
@@ -65,11 +79,15 @@ $writer = Writer::createFromFileObject(new SplTempFileObject());
 
 ~~~
 
-### createFromString($str)
+### AbstractCsv::createFromString
 
-If you have a raw CSV string use the `createFromString` named constructor. This method accepts one single parameter:
+This named constructor will create a new object from a given string.
 
-- the raw CSV string;
+~~~php
+public static AbstractCsv::createFromString(mixed $str): AbstractCsv
+~~~
+
+This method accepts only one single parameter, an object implementing the `__toString` method or a string.
 
 ~~~php
 use League\Csv\Reader;
@@ -87,6 +105,11 @@ At any given time you can switch or create a new `League\Csv\Writer` or a new `L
 * the `newWriter` to create a new `League\Csv\Writer` object;
 
 Both methods accept an optional `$open_mode` parameter.
+
+~~~php
+public AbstractCsv::newReader(string $open_mode = 'r+'): Reader
+public AbstractCsv::newWriter(string $open_mode = 'r+'): Writer
+~~~
 
 * When not explicitly set, the `$open_mode` default value is `r+` for both methods.
 * If the initial object `$open_mode` parameter was not taken into account any new CSV object created with these methods won't take into account the given `$open_mode`.
