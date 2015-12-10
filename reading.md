@@ -78,7 +78,7 @@ $data = $reader->fetchOne(3); ///accessing the 4th row (indexing starts at 0)
 //
 ~~~
 
-### each(callable $callable)
+### each
 
 `each` applies a callable function on each CSV row.
 
@@ -327,7 +327,7 @@ public Reader::fetchPairsWithoutDuplicates(
 ): array
 ~~~
 
-`fetchPairsWithoutDuplicates` behaves exactly like `fetchPairs` with two main differences:
+`fetchPairsWithoutDuplicates` behaves exactly like `fetchPairs` with two differences:
 
 - `fetchPairsWithoutDuplicates` returns an `Array`
 - When using `fetchPairsWithoutDuplicates` entries in the associative array will be overwritten if there are duplicates values in the column index.
