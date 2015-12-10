@@ -54,48 +54,9 @@ foreach ($reader->fetch() as $row) {
 public Reader::fetch(callable $callable = null): array
 ~~~
 
-The method takes an optional callable parameter to apply to each row of the resultset before returning. The callable signature is as follow:
+`fetchAll` behaves exactly like `fetch` with one difference:
 
-~~~php
-$callable(array $row, int $offsetIndex, Iterator $iterator): array
-~~~
-
-- `$row`: the CSV current row as an array
-- `$offsetIndex`: the CSV current row offset
-- `$iterator`: the current CSV iterator
-
-#### Example 1
-
-~~~php
-$data = $reader->fetchAll();
-// will return something like this :
-//
-// [
-//   ['john', 'doe', 'john.doe@example.com'],
-//   ['jane', 'doe', 'jane.doe@example.com'],
-//   ...
-// ]
-//
-$nb_rows = count($data);
-~~~
-
-#### Example 2 - with a callable
-
-~~~php
-$func = function ($row) {
-    return array_map('strtouper', $row);
-}
-$data = $reader->fetchAll($func);
-// will return something like this :
-//
-// [
-//   ['JOHN', 'DOE', 'JOHN.DOE@EXAMPLE.COM'],
-//   ['JANE', 'DOE', 'JANE.DOE@EXAMPLE.COM'],
-//   ...
-// ]
-//
-$nb_rows = count($data);
-~~~
+- `fetchAll` returns an `array`.
 
 ### fetchOne
 
@@ -130,11 +91,11 @@ The method returns the number of successful iterations.
 The callable signature is as follow:
 
 ~~~php
-$callable(array $row, int $offsetIndex, Iterator $iterator): bool
+$callable(array $row, int $rowOffset, Iterator $iterator): bool
 ~~~
 
 - `$row`: the CSV current row as an array
-- `$offsetIndex`: the CSV current row offset
+- `$rowOffset`: the CSV current row offset
 - `$iterator`: the current CSV iterator
 
 The callable must return `true` to continue iterating over the CSV;
@@ -209,11 +170,11 @@ $data = $reader->fetchAssoc(0);
 The method takes an optional callable which signature is as follow:
 
 ~~~php
-$callable(array $row, int $offsetIndex, Iterator $iterator): array
+$callable(array $row, int $rowOffset, Iterator $iterator): array
 ~~~
 
 - `$row`: the CSV current row combined with the submitted indexes **(new in version 8.0.0)**
-- `$offsetIndex`: the CSV current row offset
+- `$rowOffset`: the CSV current row offset
 - `$iterator`: the current CSV iterator
 
 #### Example 3 - Using a callable

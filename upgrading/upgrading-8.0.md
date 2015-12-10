@@ -162,7 +162,7 @@ $func = function (array $row) {
 };
 
 $csv = Reader::createFromPath('/path/to/file.csv');
-$res = $csv->fetchColum(2, $func);
+$res = $csv->fetchColumn(2, $func);
 ~~~
 
 **New code:**
