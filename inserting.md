@@ -23,7 +23,7 @@ The `Writer` class will:
 
 To add new data to your CSV the `Writer` class uses the following methods
 
-### insertOne
+### Writer::insertOne
 
 `insertOne` inserts a single row.
 
@@ -60,7 +60,7 @@ $writer->insertOne("'john','doe','john.doe@example.com'");
 $writer->insertOne(new ToStringEnabledClass("john,doe,john.doe@example.com"))
 ~~~
 
-### insertAll
+### Writer::insertAll
 
 `insertAll` inserts multiple rows.
 

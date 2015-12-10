@@ -14,7 +14,7 @@ You can restrict [extract methods](/reading/) and [conversion methods](/converti
 
 ## Modifying content methods
 
-### stripBOM
+### AbstractCsv::stripBOM
 
  This method specifies if the [BOM sequence](/bom/) must be removed or not from the CSV's first cell of the first row.
 
@@ -32,7 +32,7 @@ The actual stripping will take place only if a BOM sequence is detected and the 
 
 The filtering options **are the first settings applied to the CSV before anything else**. The filters follow the *First In First Out* rule.
 
-### addFilter
+### AbstractCsv::addFilter
 
 The `addFilter` method adds a callable filter function each time it is called.
 
@@ -59,7 +59,7 @@ The sorting options are applied **after the CSV filtering options**. The sorting
 <p class="message-warning">To sort the data <code>iterator_to_array</code> is used which could lead to performance penalty if you have a heavy CSV file to sort
 </p>
 
-### addSortBy
+### AbstractCsv::addSortBy
 
 `addSortBy` method adds a sorting function each time it is called.
 
@@ -88,8 +88,8 @@ public AbstractCsv::setLimit(int $limit = -1): AbstractCsv
 
 Where
 
-- `setOffset` specifies an optional offset for the return data. By default the offset equals `0`.
-- `setLimit` specifies an optional maximum rows count for the return data. By default the offset equals `-1`, which translate to all rows.
+- `AbstractCsv::setOffset` specifies an optional offset for the return data. By default the offset equals `0`.
+- `AbstractCsv::setLimit` specifies an optional maximum rows count for the return data. By default the offset equals `-1`, which translate to all rows.
 
 <p class="message-warning">Both methods have no effect on the <code>fetchOne</code> method output.</p>
 

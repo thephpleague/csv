@@ -17,7 +17,7 @@ To improve interoperability with programs interacting with CSV, you can now mana
 
 They each represent the `BOM` character for each encoding character.
 
-### getInputBOM
+### AbstractCsv::getInputBOM
 
 This method will detect and return the `BOM` character used in your CSV if any.
 
@@ -40,7 +40,7 @@ If you wish to remove the BOM character while processing your data, you can rely
 
 ## Adding the BOM character to your CSV
 
-### setOutputBOM;
+### AbstractCsv::setOutputBOM;
 
 This method will manage the addition of a BOM character in front of your outputted CSV when you are:
 
@@ -55,7 +55,7 @@ public AbstractCsv::setOutputBOM(string $sequence): AbstractCsv
 
 <p class="message-info">To ease writing the sequence you should use the <code>BOM_*</code> constants.</p>
 
-### getOutputBOM
+### AbstractCsv::getOutputBOM
 
 This method will tell you at any given time what `BOM` character will be prepended to the CSV content.
 

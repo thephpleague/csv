@@ -74,7 +74,10 @@ The default escape character is `\`.
 This method allow you to find the occurences of some delimiters in a given CSV object.
 
 ~~~php
-public AbstractCsv::fetchDelimitersOccurrence(array $delimiters, int $nbRows = 1): array
+public AbstractCsv::fetchDelimitersOccurrence(
+	array $delimiters,
+	int $nbRows = 1
+): array
 ~~~
 
 The method takes two arguments:
