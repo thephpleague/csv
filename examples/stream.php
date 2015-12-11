@@ -55,7 +55,7 @@ $reader->setOffset(6);
 $reader->setLimit(3);
 $res = $reader->fetchAssoc(['Prenom', 'Occurences', 'Sexe', 'Annee']);
 
-var_dump($res);
+var_dump(iterator_to_array($res, false));
 ?>
 <p>Let's remove the <code><strong>string.toupper</strong></code> stream filter</p>
 <pre><code>if ($reader->isActiveStreamFilter()) {
@@ -65,7 +65,7 @@ $reader->setOffset(6);
 $reader->setLimit(3);
 $res = $reader->fetchAssoc(['Prenom', 'Occurences', 'Sexe', 'Annee']);
 
-var_dump($res);</code></pre>
+var_dump(iterator_to_array($res, false));</code></pre>
 
 <?php
 if ($reader->isActiveStreamFilter()) {
@@ -75,7 +75,7 @@ $reader->setOffset(6);
 $reader->setLimit(3);
 $res = $reader->fetchAssoc(['Prenom', 'Occurences', 'Sexe', 'Annee']);
 
-var_dump($res);
+var_dump(iterator_to_array($res, false));
 ?>
 <h3>Using the Writer class</h3>
 

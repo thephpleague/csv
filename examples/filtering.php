@@ -28,7 +28,7 @@ $res = $inputCsv
         return strcmp($row1[1], $row2[1]); //we order the result according to the number of firstname given
     })
     ->setLimit(20) //we just want the first 20 results
-    ->fetchAll();
+    ->fetch();
 
 //get the headers
 $headers = $inputCsv->fetchOne(0);
@@ -37,7 +37,7 @@ $headers = $inputCsv->fetchOne(0);
 <html lang="fr">
 <head>
     <meta charset="iso-8859-15">
-    <title>\League\Csv\Reader filtering method</title>
+    <title>League\Csv\Reader filtering method</title>
     <link rel="stylesheet" href="example.css">
 </head>
 <body>

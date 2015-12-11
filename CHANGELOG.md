@@ -2,7 +2,7 @@
 
 All Notable changes to `Csv` will be documented in this file
 
-## Next - 2015-xx-xx
+## 8.0.0 - 2015-12-11
 
 ### Added
 
@@ -20,6 +20,7 @@ All Notable changes to `Csv` will be documented in this file
 - `Reader::fetchColumn` callable argument expects the selected column value as its first argument
 -  Default value on `setOutputBOM` is removed
 - `AbstractCsv::getOutputBOM` always return a string
+- `AbstractCsv::getInputBOM` always return a string
 
 ### Removed
 

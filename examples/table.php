@@ -7,7 +7,7 @@ require '../vendor/autoload.php';
 $inputCsv = Reader::createFromPath('data/prenoms.csv');
 $inputCsv->setDelimiter(';');
 $inputCsv->setEncodingFrom("iso-8859-15");
-$inputCsv->setLimit(30);
+$inputCsv->setLimit(30); //we are limiting the convertion to the first 31 rows
 ?>
 <!doctype html>
 <html lang="fr">
