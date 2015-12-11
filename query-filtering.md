@@ -43,7 +43,7 @@ public AbstractCsv::addFilter(callable $callable): AbstractCsv
 The callable filter signature is as follow:
 
 ~~~php
-$callable(array $row, int $rowOffset, Iterator $iterator): AbstractCsv
+function(array $row [, int $rowOffset [, Iterator $iterator]]): AbstractCsv
 ~~~
 
 It takes up to three parameters:
@@ -70,7 +70,7 @@ public AbstractCsv::addSortBy(callable $callable): AbstractCsv
 The callable sort function signature is as follow:
 
 ~~~php
-$callable(array $row, array $row): int
+function(array $row, array $row): int
 ~~~
 
 The sort function takes exactly two parameters which will be filled by pairs of rows.
@@ -100,6 +100,8 @@ Where
 Here's an example on how to use the query features of the `Reader` class to restrict the `fetchAssoc` result:
 
 ~~~php
+use League\Csv\Reader;
+
 function filterByEmail($row)
 {
     return filter_var($row[2], FILTER_VALIDATE_EMAIL);
@@ -110,6 +112,7 @@ function sortByLastName($rowA, $rowB)
     return strcmp($rowB[1], $rowA[1]);
 }
 
+$reader = Reader::createFromPath('/path/to/file.csv');
 $data = $reader
     ->stripBom(false)
     ->setOffset(3)
@@ -134,6 +137,8 @@ $data = $reader
 The query options can also modify the output from the conversion methods as shown below with the `toHTML` method.
 
 ~~~php
+use League\Csv\Reader;
+
 function filterByEmail($row)
 {
     return filter_var($row[2], FILTER_VALIDATE_EMAIL);
@@ -144,6 +149,7 @@ function sortByLastName($rowA, $rowB)
     return strcmp($rowB[1], $rowA[1]);
 }
 
+$reader = Reader::createFromPath('/path/to/file.csv');
 $data = $reader
     ->stripBom(true)
     ->setOffset(3)

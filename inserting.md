@@ -40,6 +40,8 @@ This method takes a single argument `$row` which can be
 #### Example
 
 ~~~php
+use League\Csv\Writer;
+
 class ToStringEnabledClass
 {
     private $str;
@@ -55,6 +57,7 @@ class ToStringEnabledClass
     }
 }
 
+$writer = Writer::createFromFileObject(new SplTempFileObject());
 $writer->insertOne(['john', 'doe', 'john.doe@example.com']);
 $writer->insertOne("'john','doe','john.doe@example.com'");
 $writer->insertOne(new ToStringEnabledClass("john,doe,john.doe@example.com"))
@@ -78,6 +81,8 @@ to add several rows to the CSV data.
 #### Example
 
 ~~~php
+use League\Csv\Writer;
+
 $rows = [
     [1, 2, 3],
     ['foo', 'bar', 'baz'],
@@ -85,8 +90,8 @@ $rows = [
     new ToStringEnabledClass("john,doe,john.doe@example.com")
 ];
 
+$writer = Writer::createFromFileObject(new SplTempFileObject());
 $writer->insertAll($rows); //using an array
-
 $writer->insertAll(new ArrayIterator($rows)); //using a Traversable object
 ~~~
 
@@ -97,7 +102,7 @@ $writer->insertAll(new ArrayIterator($rows)); //using a Traversable object
 A formatter is a `callable` which accepts an `array` on input and returns the same array formatted according to its inner rules.
 
 ~~~php
-$callable(array $row): array
+function(array $row): array
 ~~~
 
 You can attach as many formatters as you want to the `Writer` class to manipulate your data prior to its insertion. The formatters follow the *First In First Out* rule when inserted, deleted and/or applied.
@@ -139,7 +144,7 @@ $writer->__toString();
 A validator is a `callable` which takes a `array` as its sole argument and returns a boolean.
 
 ~~~php
-$callable(array $row): bool
+function(array $row): bool
 ~~~
 
 The validator **must** return `true` to validate the submitted row.
@@ -207,6 +212,8 @@ Because the php `fputcsv` implementation has a hardcoded `\n`, we need to be abl
 At any given time you can get and modify the `$newline` property using the `getNewline` and `setNewline` methods described in <a href="/properties/">CSV properties documentation page</a>.
 
 ~~~php
+use League\Csv\Writer;
+
 $writer = Writer::createFromFileObject(new SplFileObject());
 $newline = $writer->getNewline(); // equals "\n";
 $writer->setNewline("\r\n");

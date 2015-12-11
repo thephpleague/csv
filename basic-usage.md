@@ -21,6 +21,8 @@ public AbstractCsv::getIterator(void): SplFileObject
 You can iterate over your CSV object to extract each CSV row using the `foreach` construct.
 
 ~~~php
+use League\Csv\Reader;
+
 $reader = Reader::createFromPath('/path/to/my/file.csv');
 foreach ($reader as $index => $row) {
     //do something meaningful here with $row !!
@@ -46,6 +48,9 @@ Use the `echo` construct on the instantiated object or use the `__toString` meth
 #### Example
 
 ~~~php
+use League\Csv\Reader;
+
+$reader = Reader::createFromPath('/path/to/my/file.csv');
 echo $reader;
 // or
 echo $reader->__toString();
@@ -66,14 +71,21 @@ can even remove more headers.
 #### Example 1 - default usage
 
 ~~~php
+use League\Csv\Reader;
+
 header('Content-Type: text/csv; charset=UTF-8');
 header('Content-Disposition: attachment; filename="name-for-your-file.csv"');
+
+$reader = Reader::createFromPath('/path/to/my/file.csv');
 $reader->output();
 ~~~
 
 #### Example 2 - using the $filename argument
 
 ~~~php
+use League\Csv\Reader;
+
+$reader = Reader::createFromPath('/path/to/my/file.csv');
 $reader->output("name-for-your-file.csv");
 ~~~
 

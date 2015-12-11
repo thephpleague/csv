@@ -21,6 +21,9 @@ public AbstractCsv::getDelimiter(void): string
 #### Example
 
 ~~~php
+use League\Csv\Reader;
+
+$csv = Reader::createFromPath('/path/to/file.csv');
 $csv->setDelimiter(';');
 $delimiter = $csv->getDelimiter(); //returns ";"
 ~~~
@@ -41,6 +44,9 @@ public AbstractCsv::getEnclosure(void): string
 #### Example
 
 ~~~php
+use League\Csv\Writer;
+
+$csv = Writer::createFromPath('/path/to/file.csv');
 $csv->setEnclosure('|');
 $enclosure = $csv->getEnclosure(); //returns "|"
 ~~~
@@ -61,6 +67,9 @@ public AbstractCsv::getEscape(void): string
 #### Example
 
 ~~~php
+use League\Csv\Reader;
+
+$csv = Reader::createFromPath('/path/to/file.csv');
 $csv->setEscape('\\');
 $escape = $csv->getEscape(); //returns "\"
 ~~~
@@ -86,8 +95,9 @@ The method takes two arguments:
 * an integer which represents the number of rows to scan (default to `1`);
 
 ~~~php
-$reader = Reader::createFromPath('/path/to/your/csv/file.csv');
+use League\Csv\Reader;
 
+$reader = Reader::createFromPath('/path/to/your/csv/file.csv');
 $reader->setEnclosure('"');
 $reader->setEscape('\\');
 
@@ -125,6 +135,9 @@ public AbstractCsv::getNewline(void): string
 #### Example
 
 ~~~php
+use League\Csv\Writer;
+
+$csv = Writer::createFromPath('/path/to/file.csv');
 $csv->setNewline("\r\n");
 $newline = $csv->getNewline(); //returns "\r\n"
 ~~~
@@ -146,6 +159,9 @@ public AbstractCsv::getInputBOM(void): string
 Detect the current BOM character is done using the `getInputBOM` method. This method returns the currently used BOM character or an empty string if none is found or recognized.
 
 ~~~php
+use League\Csv\Writer;
+
+$csv = Writer::createFromPath('/path/to/file.csv');
 $bom = $csv->getInputBOM();
 ~~~
 
@@ -160,6 +176,9 @@ public AbstractCsv::getOutputBOM(void): string
 - `getOutputBOM`: get the outputting BOM you want your CSV to be associated with.
 
 ~~~php
+use League\Csv\Reader;
+
+$csv = Reader::createFromPath('/path/to/file.csv');
 $csv->setOutputBOM(Reader::BOM_UTF8);
 $bom = $csv->getOutputBOM(); //returns "\xEF\xBB\xBF"
 ~~~
@@ -191,8 +210,11 @@ public AbstractCsv::getEncodingFrom(void): string
 #### Example
 
 ~~~php
-$reader->setEncodingFrom('iso-8859-15');
-echo $reader->getEncodingFrom(); //returns iso-8859-15;
+use League\Csv\Reader;
+
+$csv = Reader::createFromPath('/path/to/file.csv');
+$csv->setEncodingFrom('iso-8859-15');
+echo $csv->getEncodingFrom(); //returns iso-8859-15;
 ~~~
 
 #### Notes
@@ -202,6 +224,8 @@ By default `getEncodingFrom` returns `UTF-8` if `setEncodingFrom` was not used.
 <div class="message-warning">The encoding properties have no effect when reading or writing to a CSV document. You should instead use <a href="/filtering/">the Stream Filter API</a> or <a href="/inserting/#row-formatting">the Writing Formatter API</a>.</div>
 
 ~~~php
+use League\Csv\Reader;
+
 $reader = Reader::createFromFileObject(new SplFileObject('/path/to/bengali.csv'));
 //we are using the setEncodingFrom method to transcode the CSV into UTF-8
 $reader->setEncodingFrom('iso-8859-15');

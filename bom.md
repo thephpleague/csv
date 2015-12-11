@@ -26,6 +26,7 @@ public AbstractCsv::getInputBOM(void): string
 ~~~
 
 ~~~php
+use League\Csv\Reader;
 
 $reader = new Reader::createFromPath('path/to/your/file.csv');
 $res = $reader->getInputBOM(); //$res equals '' if no BOM is found
@@ -66,6 +67,7 @@ public AbstractCsv::getOutputBOM(void): string
 <p class="message-warning"><strong>BC Break:</strong> by default <code>getOutputBOM</code> returns an empty string.</p>
 
 ~~~php
+use League\Csv\Reader;
 
 $reader = new Reader::createFromPath('path/to/your/file.csv');
 $reader->getOutputBOM(); //$res equals null;
@@ -90,8 +92,6 @@ On Windows, MS Excel, expects an UTF-8 encoded CSV with its corresponding `BOM` 
 ~~~php
 use League\Csv\Reader;
 
-require '../vendor/autoload.php';
-
 $reader = Reader::createFromPath('/path/to/my/file.csv');
 $reader->setOutputBOM(Reader::BOM_UTF8);
 //BOM detected and adjusted for the output
@@ -107,8 +107,6 @@ On a MacOS system, MS Excel requires a CSV encoded in `UTF-16 LE` using the `tab
 use League\Csv\Reader;
 use League\Csv\Writer;
 use lib\FilterTranscode;
-
-require '../vendor/autoload.php';
 
 //the current CSV is UTF-8 encoded with a ";" delimiter
 $origin = Reader::createFromPath(__DIR__.'/data/prenoms.csv');

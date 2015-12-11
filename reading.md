@@ -18,7 +18,7 @@ public Reader::fetch(callable $callable = null): Iterator
 The method takes an optional callable parameter to apply to each row of the resultset before returning. The callable signature is as follow:
 
 ~~~php
-$callable(array $row, int $rowOffset, Iterator $iterator): array
+function(array $row [, int $rowOffset [, Iterator $iterator]]): array
 ~~~
 
 - `$row`: the CSV current row as an array
@@ -28,6 +28,9 @@ $callable(array $row, int $rowOffset, Iterator $iterator): array
 ### Example 1
 
 ~~~php
+use League\Csv\Reader;
+
+$reader = Reader::createFromPath('/path/to/my/file.csv');
 $results = $reader->fetch();
 foreach ($reader->fetch() as $row) {
     //do something here
@@ -37,9 +40,13 @@ foreach ($reader->fetch() as $row) {
 ### Example 2 - with a callable
 
 ~~~php
+use League\Csv\Reader;
+
 $func = function ($row) {
     return array_map('strtouper', $row);
-}
+};
+
+$reader = Reader::createFromPath('/path/to/my/file.csv');
 $results = $reader->fetch($func);
 foreach ($reader->fetch() as $row) {
     //each row member will be uppercased
@@ -71,6 +78,9 @@ The required argument `$offset` represents the row index starting at `0`. If no 
 ### Example
 
 ~~~php
+use League\Csv\Reader;
+
+$reader = Reader::createFromPath('/path/to/my/file.csv');
 $data = $reader->fetchOne(3); ///accessing the 4th row (indexing starts at 0)
 // will return something like this :
 //
@@ -91,7 +101,7 @@ The method returns the number of successful iterations.
 The callable signature is as follow:
 
 ~~~php
-$callable(array $row, int $rowOffset, Iterator $iterator): bool
+function(array $row [, int $rowOffset [, Iterator $iterator]]): bool
 ~~~
 
 - `$row`: the CSV current row as an array
@@ -103,6 +113,10 @@ The callable must return `true` to continue iterating over the CSV;
 ### Example - Counting the CSV total number of rows
 
 ~~~php
+use League\Csv\Reader;
+
+$reader = Reader::createFromPath('/path/to/my/file.csv');
+
 //count the numbers of rows in a CSV
 $nbRows = $reader->each(function ($row) {
     return true;
@@ -130,28 +144,38 @@ This `$offset_or_keys` argument can be
 ### Example 1 - Using an array to specify the keys
 
 ~~~php
-$data = $reader->fetchAssoc(['firstname', 'lastname', 'email']);
+use League\Csv\Reader;
+
+$reader = Reader::createFromPath('/path/to/my/file.csv');
+$keys = ['firstname', 'lastname', 'email'];
+$data = $reader->fetchAssoc($keys);
 // will return something like this :
 //
-// [
-//   ['firstname' => 'john', 'lastname' => 'doe', 'email' => 'john.doe@example.com'],
-//   ['firstname' => 'jane', 'lastname' => 'doe', 'email' => 'jane.doe@example.com'],
-//   ['firstname' => 'fred', 'lastname' => 'doe', 'email' => 'fred.doe@example.com'],
-//   ...
-// ]
+//   [
+//       [
+//             'firstname' => 'john',
+//             'lastname' => 'doe',
+//             'email' => 'john.doe@example.com',
+//       ],
+//       ...
+//   ]
 //
 ~~~
 
 ### Example 2 - Using a CSV offset
 
 ~~~php
-$data = $reader->fetchAssoc(0);
+$offset = 0;
+$data = $reader->fetchAssoc($offset);
 // will return something like this :
 //
 // [
-//   ['john' => 'jane', 'doe' => 'doe', 'john.doe@example.com' => 'jane.doe@example.com'],
-//   ['john' => 'fred', 'doe' => 'doe', 'john.doe@example.com' => 'fred.doe@example.com'],
-//   ...
+//     [
+//         'john' => 'jane',
+//         'doe' => 'doe',
+//         'john.doe@example.com' => 'jane.doe@example.com',
+//     ],
+//     ...
 // ]
 //
 ~~~
@@ -170,7 +194,7 @@ $data = $reader->fetchAssoc(0);
 The method takes an optional callable which signature is as follow:
 
 ~~~php
-$callable(array $row, int $rowOffset, Iterator $iterator): array
+function(array $row [, int $rowOffset [, Iterator $iterator]]): array
 ~~~
 
 - `$row`: the CSV current row combined with the submitted indexes **(new in version 8.0.0)**
@@ -180,10 +204,14 @@ $callable(array $row, int $rowOffset, Iterator $iterator): array
 ### Example 3 - Using a callable
 
 ~~~php
+use League\Csv\Reader;
+
 $func = function ($row) {
     $row['date'] => DateTimeImmutable::createFromFormat($row['date'], 'd-m-Y');
 };
-foreach ($reader->fetchAssoc(['firstname', 'lastname', 'date']) as $row) {
+$keys = ['firstname', 'lastname', 'date'];
+$reader = Reader::createFromPath('/path/to/my/file.csv');
+foreach ($reader->fetchAssoc($keys) as $row) {
     $row['date']->format('Y-m-d H:i:s');
     //because this cell contain a `DateTimeInterface` object
 }
@@ -207,7 +235,11 @@ If for a given row the column does not exist, the row will be skipped.
 ### Example 1 - with a given column index
 
 ~~~php
-$data = $reader->fetchColumn(2);
+use League\Csv\Reader;
+
+$reader = Reader::createFromPath('/path/to/my/file.csv');
+$result = $reader->fetchColumn(2);
+$data = iterator_to_array($result, false);
 // will return something like this :
 //
 // ['john.doe@example.com', 'jane.doe@example.com', ...]
@@ -221,7 +253,7 @@ $data = $reader->fetchColumn(2);
 The method takes an optional callable which signature is as follow:
 
 ~~~php
-$callable(string $value, int $offsetIndex, Iterator $iterator): mixed
+function(string $value [, int $offsetIndex [, Iterator $iterator]]): mixed
 ~~~
 
 - `$value`: the CSV current column value **(new to version 8.0.0)**
@@ -231,6 +263,9 @@ $callable(string $value, int $offsetIndex, Iterator $iterator): mixed
 ### Example 2 - with a callable
 
 ~~~php
+use League\Csv\Reader;
+
+$reader = Reader::createFromPath('/path/to/my/file.csv');
 foreach ($reader->fetchColumn(2, 'strtoupper') as $value) {
     echo $value; //display 'JOHN.DOE@EXAMPLE.COM'
 }
@@ -256,6 +291,8 @@ public Reader::fetchPairs(
 ### Example 1 - default usage
 
 ~~~php
+use League\Csv\Reader;
+
 $str = <<EOF
 john,doe
 jane,doe
@@ -288,7 +325,7 @@ foreach ($reader->fetchPairs() as $firstname => $lastname) {
 The method takes an optional callable which signature is as follow:
 
 ~~~php
-$callable(array $pairs, int $rowOffset, Iterator $iterator): array
+function(array $pairs [, int $rowOffset [, Iterator $iterator]]): array
 ~~~
 
 - `$pairs`: an array where
@@ -300,6 +337,8 @@ $callable(array $pairs, int $rowOffset, Iterator $iterator): array
 ### Example 2 - with a callable
 
 ~~~php
+use League\Csv\Reader;
+
 $str = <<EOF
 john,doe
 jane,doe

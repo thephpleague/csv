@@ -180,11 +180,13 @@ $res = $csv->fetchColum(2, $func);
 
 ## Deprecated methods in 7.0 series, removed in 8.0
 
-- `detectDelimiterList`: deprecated since version 7.2 and replaced by `fetchDelimitersOccurrence`.
-- `Reader::query`: deprecated since version 7.2 and replaced by `Reader::fetch`.
+- `Controls::detectDelimiterList` replaced by `Controls::fetchDelimitersOccurence`
+- `Reader::query` replaced by `Reader::fetch`
 
 ## Removed methods in 8.0.0
 
+- `Controls::setFlags`
+- `Controls::getFlags`
 - `QueryFilter::hasFilter`
 - `QueryFilter::removeFilter`
 - `QueryFilter::clearFilter`

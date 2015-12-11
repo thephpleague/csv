@@ -38,6 +38,9 @@ This method accepts 3 optionals arguments to help you customize the XML tree:
 - `$cell_name`, the XML node element for each CSV cell which defaults value is `cell`;
 
 ~~~php
+use League\Csv\Reader;
+
+$reader = Reader::createFromPath('/path/to/file.csv');
 $dom = $reader->toXML('data', 'line', 'item');
 ~~~
 
@@ -53,12 +56,17 @@ This method accepts an optional argument `$classAttribute` to help you customize
 rendering, by defaut the classname given to the table is `table-csv-data`.
 
 ~~~php
+use League\Csv\Reader;
+
+$reader = Reader::createFromPath('/path/to/file.csv');
 echo $reader->toHTML('table table-bordered table-hover');
 ~~~
 
 ## Example using data transcode before conversion
 
 ~~~php
+use League\Csv\Reader;
+
 $reader = Reader::createFromFileObject(new SplFileObject('/path/to/bengali.csv'));
 //we are using the setEncodingFrom method to transcode the CSV into UTF-8
 $reader->setEncodingFrom('iso-8859-15');
