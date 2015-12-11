@@ -99,13 +99,6 @@
         {% endfor %}
     </menu>
     <article>
-{% if '7.0' != version %}
-    {% if upgrading_pages != 'changelog' %}
-        {% if upgrading_pages != 'upgrading' %}
-    <p class="message-notice">Version {{ version }} is in development. <strong>Please refer to <a href="/7.0/">the most recent stable version</a></strong>.</p>
-        {% endif %}
-    {% endif %}
-{% endif %}
         {{ content }}
     </article>
 </main>
