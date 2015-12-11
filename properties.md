@@ -152,7 +152,7 @@ To improve interoperability with programs interacting with CSV, you can manage t
 
 #### Detect the currently used BOM sequence
 
-<div class="message-warning"><strong>BC Break:</strong> <code>getInputBOM</code> always return a string</div>
+<p class="message-warning"><strong>BC Break:</strong> <code>getInputBOM</code> always return a string</p>
 
 ~~~php
 public AbstractCsv::getInputBOM(void): string
@@ -177,7 +177,7 @@ public AbstractCsv::getOutputBOM(void): string
 - `setOutputBOM`: sets the outputting BOM you want your CSV to be associated with.
 - `getOutputBOM`: get the outputting BOM you want your CSV to be associated with.
 
-<div class="message-warning"><strong>BC Break:</strong> <code>getOutputBOM</code> always return a string</div>
+<p class="message-warning"><strong>BC Break:</strong> <code>getOutputBOM</code> always return a string</p>
 
 ~~~php
 use League\Csv\Reader;
