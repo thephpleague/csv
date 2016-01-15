@@ -31,7 +31,7 @@ use League\Csv\Reader;
 $reader = new Reader::createFromPath('path/to/your/file.csv');
 $res = $reader->getInputBOM(); //$res equals '' if no BOM is found
 
-$reader = new Reader::createFromPat('path/to/your/msexcel.csv');
+$reader = new Reader::createFromPath('path/to/your/msexcel.csv');
 if (Reader::BOM_UTF16_LE == $reader->getInputBOM()) {
 	//the CSV file is encoded using UTF-16 LE
 }
