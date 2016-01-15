@@ -149,17 +149,16 @@ use League\Csv\Reader;
 $reader = Reader::createFromPath('/path/to/my/file.csv');
 $keys = ['firstname', 'lastname', 'email'];
 $data = $reader->fetchAssoc($keys);
-// will return something like this :
-//
-//   [
+// $data is an iterator
+foreach ($data as $row) {
+// each row will have the following data
 //       [
 //             'firstname' => 'john',
 //             'lastname' => 'doe',
 //             'email' => 'john.doe@example.com',
-//       ],
-//       ...
-//   ]
+//       ];
 //
+}
 ~~~
 
 ### Example 2 - Using a CSV offset
@@ -167,17 +166,16 @@ $data = $reader->fetchAssoc($keys);
 ~~~php
 $offset = 0;
 $data = $reader->fetchAssoc($offset);
-// will return something like this :
-//
-// [
+// $data is an iterator
+foreach ($data as $row) {
+// each row will have the following data
 //     [
 //         'john' => 'jane',
 //         'doe' => 'doe',
 //         'john.doe@example.com' => 'jane.doe@example.com',
-//     ],
-//     ...
-// ]
+//     ];
 //
+}
 ~~~
 
 ### Notes
