@@ -57,6 +57,10 @@ The default enclosure character is `"`.
 
 ### The escape character
 
+<p class="message-warning"><strong>Warning:</strong> The library depends on PHP <code>SplFileObject</code> class. Since this class exhibits <a href="https://bugs.php.net/bug.php?id=55413" target="_blank">a reported bug</a>, <strong>Data using the escape character a correctly escaped but the escape character is not removed from the CSV content</strong>.<br>
+A possible workaround to this issue while waiting for a PHP bug fix is <a href="/reading/">to register a callable to your extracting method when possible.</a></p>
+
+
 #### Description
 
 ~~~php

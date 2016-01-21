@@ -27,6 +27,9 @@ The default enclosure character is `"`.
 
 ### The escape character
 
+<p class="message-warning"><strong>Warning:</strong> The library depends on PHP <code>SplFileObject</code> class. Since this class exhibits <a href="https://bugs.php.net/bug.php?id=55413" target="_blank">a reported bug</a>, <strong>Data using the escape character a correctly escaped but the escape character is not removed from the CSV content</strong>.<br>
+A possible workaround to this issue while waiting for a PHP bug fix is to <a href="/7.0/reading/#using-a-callable-to-modify-the-returned-resultset">register a callable that will format your content.</a></p>
+
 ~~~php
 $csv->setEscape('\\');
 $escape = $csv->getEscape(); //returns "\"
