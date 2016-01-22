@@ -32,7 +32,7 @@ use League\Csv\Reader;
 
 $reader = Reader::createFromPath('/path/to/my/file.csv');
 $results = $reader->fetch();
-foreach ($reader->fetch() as $row) {
+foreach ($results as $row) {
     //do something here
 }
 ~~~
@@ -48,7 +48,7 @@ $func = function ($row) {
 
 $reader = Reader::createFromPath('/path/to/my/file.csv');
 $results = $reader->fetch($func);
-foreach ($reader->fetch() as $row) {
+foreach ($results as $row) {
     //each row member will be uppercased
 }
 ~~~
@@ -148,9 +148,9 @@ use League\Csv\Reader;
 
 $reader = Reader::createFromPath('/path/to/my/file.csv');
 $keys = ['firstname', 'lastname', 'email'];
-$data = $reader->fetchAssoc($keys);
-// $data is an iterator
-foreach ($data as $row) {
+$results = $reader->fetchAssoc($keys);
+// $results is an iterator
+foreach ($results as $row) {
 // each row will have the following data
 //       [
 //             'firstname' => 'john',
@@ -165,9 +165,9 @@ foreach ($data as $row) {
 
 ~~~php
 $offset = 0;
-$data = $reader->fetchAssoc($offset);
-// $data is an iterator
-foreach ($data as $row) {
+$results = $reader->fetchAssoc($offset);
+// $results is an iterator
+foreach ($results as $row) {
 // each row will have the following data
 //     [
 //         'john' => 'jane',
@@ -205,11 +205,13 @@ function(array $row [, int $rowOffset [, Iterator $iterator]]): array
 use League\Csv\Reader;
 
 $func = function ($row) {
-    $row['date'] => DateTimeImmutable::createFromFormat($row['date'], 'd-m-Y');
+    $row['date'] = DateTimeImmutable::createFromFormat($row['date'], 'd-m-Y');
+    
+    return $row;
 };
 $keys = ['firstname', 'lastname', 'date'];
 $reader = Reader::createFromPath('/path/to/my/file.csv');
-foreach ($reader->fetchAssoc($keys) as $row) {
+foreach ($reader->fetchAssoc($keys, $func) as $row) {
     $row['date']->format('Y-m-d H:i:s');
     //because this cell contain a `DateTimeInterface` object
 }
