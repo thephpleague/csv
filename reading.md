@@ -58,7 +58,7 @@ foreach ($reader->fetch() as $row) {
 `fetchAll` returns a sequential `array` of all rows.
 
 ~~~php
-public Reader::fetch(callable $callable = null): array
+public Reader::fetchAll(callable $callable = null): array
 ~~~
 
 `fetchAll` behaves exactly like `fetch` with one difference:
