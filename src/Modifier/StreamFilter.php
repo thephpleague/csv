@@ -83,7 +83,7 @@ trait StreamFilter
             return;
         }
         $this->stream_uri = $matches['resource'];
-        $this->stream_filters = explode('|', $matches['filters']);
+        $this->stream_filters = array_map('urldecode', explode('|', $matches['filters']));
         $this->stream_filter_mode = $this->fetchStreamModeAsInt($matches['mode']);
     }
 
@@ -209,7 +209,7 @@ trait StreamFilter
     {
         $this->assertStreamable();
 
-        return $this->validateString($filter_name);
+        return urldecode($this->validateString($filter_name));
     }
 
     /**
@@ -228,7 +228,7 @@ trait StreamFilter
     {
         $this->assertStreamable();
 
-        return false !== array_search($filter_name, $this->stream_filters, true);
+        return false !== array_search(urldecode($filter_name), $this->stream_filters, true);
     }
 
     /**
@@ -241,7 +241,7 @@ trait StreamFilter
     public function removeStreamFilter($filter_name)
     {
         $this->assertStreamable();
-        $res = array_search($filter_name, $this->stream_filters, true);
+        $res = array_search(urldecode($filter_name), $this->stream_filters, true);
         if (false !== $res) {
             unset($this->stream_filters[$res]);
         }
@@ -276,7 +276,7 @@ trait StreamFilter
 
         return 'php://filter/'
             .$this->getStreamFilterPrefix()
-            .implode('|', $this->stream_filters)
+            .implode('|', array_map('urlencode', $this->stream_filters))
             .'/resource='.$this->stream_uri;
     }
 
