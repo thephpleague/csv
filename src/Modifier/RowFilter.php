@@ -160,7 +160,7 @@ trait RowFilter
      *
      * @return array
      */
-    protected function formatRow(array $row)
+    protected function formatRow($row)
     {
         foreach ($this->formatters as $formatter) {
             $row = call_user_func($formatter, $row);
