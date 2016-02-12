@@ -76,7 +76,7 @@ trait QueryFilter
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritdoc
      */
     abstract public function getInputBom();
 
@@ -142,7 +142,7 @@ trait QueryFilter
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritdoc
      */
     abstract public function getEnclosure();
 
@@ -167,7 +167,7 @@ trait QueryFilter
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritdoc
      */
     abstract public function getIterator();
 

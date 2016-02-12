@@ -33,7 +33,7 @@ trait Output
      *
      * @var string
      */
-    protected $encodingFrom = 'UTF-8';
+    protected $input_encoding = 'UTF-8';
 
     /**
      * The Input file BOM character
@@ -54,16 +54,32 @@ trait Output
      *
      * @return static
      */
-    public function setEncodingFrom($str)
+    public function setInputEncoding($str)
     {
         $str = str_replace('_', '-', $str);
         $str = filter_var($str, FILTER_SANITIZE_STRING, ['flags' => FILTER_FLAG_STRIP_LOW | FILTER_FLAG_STRIP_HIGH]);
         if (empty($str)) {
             throw new InvalidArgumentException('you should use a valid charset');
         }
-        $this->encodingFrom = strtoupper($str);
+        $this->input_encoding = strtoupper($str);
 
         return $this;
+    }
+
+    /**
+     * Sets the CSV encoding charset
+     *
+     * DEPRECATION WARNING! This method will be removed in the next major point release
+     *
+     * @deprecated deprecated since version 4.1
+     *
+     * @param string $str
+     *
+     * @return static
+     */
+    public function setEncodingFrom($str)
+    {
+        return $this->setInputEncoding($str);
     }
 
     /**
@@ -71,9 +87,23 @@ trait Output
      *
      * @return string
      */
+    public function getInputEncoding()
+    {
+        return $this->input_encoding;
+    }
+
+    /**
+     * Gets the source CSV encoding charset
+     *
+     * DEPRECATION WARNING! This method will be removed in the next major point release
+     *
+     * @deprecated deprecated since version 4.1
+     *
+     * @return string
+     */
     public function getEncodingFrom()
     {
-        return $this->encodingFrom;
+        return $this->input_encoding;
     }
 
     /**
@@ -219,12 +249,12 @@ trait Output
      */
     protected function convertToUtf8(Iterator $iterator)
     {
-        if (stripos($this->encodingFrom, 'UTF-8') !== false) {
+        if (stripos($this->input_encoding, 'UTF-8') !== false) {
             return $iterator;
         }
 
         $convertCell = function ($value) {
-            return mb_convert_encoding($value, 'UTF-8', $this->encodingFrom);
+            return mb_convert_encoding($value, 'UTF-8', $this->input_encoding);
         };
 
         $convertRow = function (array $row) use ($convertCell) {

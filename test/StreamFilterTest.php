@@ -142,4 +142,11 @@ class StreamFilterTest extends AbstractTestCase
         $this->assertTrue($csv->hasStreamFilter(FilterReplace::FILTER_NAME."\r\n:\n"));
         $csv->insertOne([1, 'two', 3, "new\r\nline"]);
     }
+
+    public function testUrlEncodeFilterParameters()
+    {
+        $csv = Reader::createFromPath(__DIR__.'/data/foo.csv');
+        $csv->appendStreamFilter('convert.iconv.UTF-8/ASCII//TRANSLIT');
+        $this->assertCount(1, $csv->fetchAll());
+    }
 }

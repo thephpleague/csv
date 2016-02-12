@@ -190,7 +190,7 @@ abstract class AbstractCsv implements JsonSerializable, IteratorAggregate
         $csv->delimiter = $this->delimiter;
         $csv->enclosure = $this->enclosure;
         $csv->escape = $this->escape;
-        $csv->encodingFrom = $this->encodingFrom;
+        $csv->input_encoding = $this->input_encoding;
         $csv->input_bom = $this->input_bom;
         $csv->output_bom = $this->output_bom;
         $csv->newline = $this->newline;

@@ -2,6 +2,26 @@
 
 All Notable changes to `Csv` will be documented in this file
 
+## Next - 2016-xx-xx
+
+### Added
+
+- `Ouput::getInputEncoding`
+- `Ouput::setInputEncoding`
+
+### Deprecated
+
+- `Ouput::getEncodingFrom` replaced by `Ouput::getInputEncoding`
+- `Ouput::setEncodingFrom` replaced by `Ouput::setInputEncoding`
+
+### Fixed
+
+- Stream Filters are now url encoded before usage [issue #72](https://github.com/thephpleague/csv/issues/72)
+
+### Removed
+
+- None
+
 ## 8.0.0 - 2015-12-11
 
 ### Added
