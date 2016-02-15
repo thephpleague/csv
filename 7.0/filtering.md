@@ -7,8 +7,6 @@ title: Stream Filtering
 
 To ease performing operations on the CSV as it is being read from or written to, the `Reader` and `Writer` classes now include methods to ease PHP stream filtering usage.
 
-<p class="message-warning"><strong>Warning:</strong> The library depends on PHP <code>SplFileObject</code> class. Since this class has a <a href="https://bugs.php.net/bug.php?id=44392" target="_blank">poor support for stream filtering</a>, any filter that includes a <code>/</code>, like <code>convert.iconv.*</code> does, <a href="https://github.com/thephpleague/csv/issues/72" target="_blank">is not supported</a> and will throw a <code>RunTimeException</code>.<br>
-A possible workaround to this issue while waiting for a PHP bug fix is to register a stream filter as a wrapper to the unsupported filter.</p>
 
 ## Stream Filter API
 
@@ -25,8 +23,8 @@ To be able to use the stream filtering mechanism you need to:
 To be sure that the Stream Filter API is available it is recommend to use the method `isActiveStreamFilter`, which returns `true` if you can safely use the API:
 
 ~~~php
-use \League\Csv\Reader;
-use \League\Csv\Writer;
+use League\Csv\Reader;
+use League\Csv\Writer;
 
 $reader = Reader::createFromPath('/path/to/my/file.csv');
 $reader->isActiveStreamFilter(); //return true
@@ -85,7 +83,7 @@ The filters are automatically applied when the stream filter mode matches the me
 See below an example using `League\Csv\Reader` to illustrate:
 
 ~~~php
-use \League\Csv\Reader;
+use League\Csv\Reader;
 
 stream_filter_register('convert.utf8decode', 'MyLib\Transcode');
 // 'MyLib\Transcode' is a class that extends PHP's php_user_filter class
@@ -101,6 +99,17 @@ foreach ($reader as $row) {
 	// each row cell now contains strings that have been:
 	// first UTF8 decoded and then uppercased
 }
+~~~
+
+<p class="message-warning"><strong>Warning:</strong> If your filter contains <code>/</code> characters, to be sure that it will be taken into account and won't trigger any exception or error, you should URL encode it prior to adding it to the filter collections.</p>
+
+~~~php
+use League\Csv\Reader;
+
+$reader = Reader::createFromPath('/path/to/my/chinese.csv');
+$filter = urlencode('convert.iconv.UTF-8/ASCII//TRANSLIT);
+$reader->appendStreamFilter($filter);
+var_dump($reader->fetchAll());
 ~~~
 
 ## Limitations
