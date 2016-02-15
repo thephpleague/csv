@@ -79,7 +79,7 @@ abstract class AbstractCsv implements JsonSerializable, IteratorAggregate
      *
      * @var string
      */
-    protected $open_mode;
+    protected $openMode;
 
     /**
      * Creates a new instance
@@ -88,12 +88,12 @@ abstract class AbstractCsv implements JsonSerializable, IteratorAggregate
      * an object that implements the `__toString` method
      * a path to a file
      *
-     * @param SplFileObject|string $path      The file path
-     * @param string               $open_mode The file open mode flag
+     * @param SplFileObject|string $path     The file path
+     * @param string               $openMode The file open mode flag
      */
-    protected function __construct($path, $open_mode = 'r+')
+    protected function __construct($path, $openMode = 'r+')
     {
-        $this->open_mode = strtolower($open_mode);
+        $this->openMode = strtolower($openMode);
         $this->path = $path;
         $this->initStreamFilter($this->path);
     }
@@ -156,14 +156,14 @@ abstract class AbstractCsv implements JsonSerializable, IteratorAggregate
     /**
      * Return a new {@link AbstractCsv} from a string
      *
-     * @param mixed  $path      file path
-     * @param string $open_mode the file open mode flag
+     * @param mixed  $path     file path
+     * @param string $openMode the file open mode flag
      *
      * @throws InvalidArgumentException If $path is a SplTempFileObject object
      *
      * @return static
      */
-    public static function createFromPath($path, $open_mode = 'r+')
+    public static function createFromPath($path, $openMode = 'r+')
     {
         if ($path instanceof SplTempFileObject) {
             throw new InvalidArgumentException('an `SplTempFileObject` object does not contain a valid path');
@@ -173,26 +173,26 @@ abstract class AbstractCsv implements JsonSerializable, IteratorAggregate
             $path = $path->getPath().'/'.$path->getBasename();
         }
 
-        return new static(static::validateString($path), $open_mode);
+        return new static(static::validateString($path), $openMode);
     }
 
     /**
      * Return a new {@link AbstractCsv} instance from another {@link AbstractCsv} object
      *
-     * @param string $class     the class to be instantiated
-     * @param string $open_mode the file open mode flag
+     * @param string $class    the class to be instantiated
+     * @param string $openMode the file open mode flag
      *
      * @return static
      */
-    protected function newInstance($class, $open_mode)
+    protected function newInstance($class, $openMode)
     {
-        $csv = new $class($this->path, $open_mode);
+        $csv = new $class($this->path, $openMode);
         $csv->delimiter = $this->delimiter;
         $csv->enclosure = $this->enclosure;
         $csv->escape = $this->escape;
-        $csv->input_encoding = $this->input_encoding;
-        $csv->input_bom = $this->input_bom;
-        $csv->output_bom = $this->output_bom;
+        $csv->inputEncoding = $this->inputEncoding;
+        $csv->inputBom = $this->inputBom;
+        $csv->outputBom = $this->outputBom;
         $csv->newline = $this->newline;
 
         return $csv;
@@ -201,25 +201,25 @@ abstract class AbstractCsv implements JsonSerializable, IteratorAggregate
     /**
      * Return a new {@link Writer} instance from a {@link AbstractCsv} object
      *
-     * @param string $open_mode the file open mode flag
+     * @param string $openMode the file open mode flag
      *
      * @return Writer
      */
-    public function newWriter($open_mode = 'r+')
+    public function newWriter($openMode = 'r+')
     {
-        return $this->newInstance(Writer::class, $open_mode);
+        return $this->newInstance(Writer::class, $openMode);
     }
 
     /**
      * Return a new {@link Reader} instance from a {@link AbstractCsv} object
      *
-     * @param string $open_mode the file open mode flag
+     * @param string $openMode the file open mode flag
      *
      * @return Reader
      */
-    public function newReader($open_mode = 'r+')
+    public function newReader($openMode = 'r+')
     {
-        return $this->newInstance(Reader::class, $open_mode);
+        return $this->newInstance(Reader::class, $openMode);
     }
 
     /**
@@ -231,7 +231,7 @@ abstract class AbstractCsv implements JsonSerializable, IteratorAggregate
     {
         $iterator = $this->path;
         if (!$iterator instanceof SplFileObject) {
-            $iterator = new SplFileObject($this->getStreamFilterPath(), $this->open_mode);
+            $iterator = new SplFileObject($this->getStreamFilterPath(), $this->openMode);
         }
         $iterator->setCsvControl($this->delimiter, $this->enclosure, $this->escape);
         $iterator->setFlags(SplFileObject::READ_CSV | SplFileObject::READ_AHEAD | SplFileObject::SKIP_EMPTY);

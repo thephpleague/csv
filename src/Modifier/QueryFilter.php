@@ -31,35 +31,35 @@ trait QueryFilter
      *
      * @var callable[]
      */
-    protected $iterator_filters = [];
+    protected $iteratorFilters = [];
 
     /**
      * Callables to sort the iterator
      *
      * @var callable[]
      */
-    protected $iterator_sort_by = [];
+    protected $iteratorSortBy = [];
 
     /**
      * iterator Offset
      *
      * @var int
      */
-    protected $iterator_offset = 0;
+    protected $iteratorOffset = 0;
 
     /**
      * iterator maximum length
      *
      * @var int
      */
-    protected $iterator_limit = -1;
+    protected $iteratorLimit = -1;
 
     /**
      * Stripping BOM status
      *
      * @var boolean
      */
-    protected $strip_bom = false;
+    protected $stripBom = false;
 
     /**
      * Stripping BOM setter
@@ -70,7 +70,7 @@ trait QueryFilter
      */
     public function stripBom($status)
     {
-        $this->strip_bom = (bool) $status;
+        $this->stripBom = (bool) $status;
 
         return $this;
     }
@@ -89,7 +89,7 @@ trait QueryFilter
      */
     public function setOffset($offset = 0)
     {
-        $this->iterator_offset = $this->validateInteger($offset, 0, 'the offset must be a positive integer or 0');
+        $this->iteratorOffset = $this->validateInteger($offset, 0, 'the offset must be a positive integer or 0');
 
         return $this;
     }
@@ -108,7 +108,7 @@ trait QueryFilter
      */
     public function setLimit($limit = -1)
     {
-        $this->iterator_limit = $this->validateInteger($limit, -1, 'the limit must an integer greater or equals to -1');
+        $this->iteratorLimit = $this->validateInteger($limit, -1, 'the limit must an integer greater or equals to -1');
 
         return $this;
     }
@@ -122,7 +122,7 @@ trait QueryFilter
      */
     public function addSortBy(callable $callable)
     {
-        $this->iterator_sort_by[] = $callable;
+        $this->iteratorSortBy[] = $callable;
 
         return $this;
     }
@@ -136,7 +136,7 @@ trait QueryFilter
      */
     public function addFilter(callable $callable)
     {
-        $this->iterator_filters[] = $callable;
+        $this->iteratorFilters[] = $callable;
 
         return $this;
     }
@@ -156,7 +156,7 @@ trait QueryFilter
         $normalizedCsv = function ($row) {
             return is_array($row) && $row != [null];
         };
-        array_unshift($this->iterator_filters, $normalizedCsv);
+        array_unshift($this->iteratorFilters, $normalizedCsv);
         $iterator = $this->getIterator();
         $iterator = $this->applyBomStripping($iterator);
         $iterator = $this->applyIteratorFilter($iterator);
@@ -180,17 +180,17 @@ trait QueryFilter
      */
     protected function applyBomStripping(Iterator $iterator)
     {
-        if (!$this->strip_bom) {
+        if (!$this->stripBom) {
             return $iterator;
         }
 
         if (!$this->isBomStrippable()) {
-            $this->strip_bom = false;
+            $this->stripBom = false;
 
             return $iterator;
         }
 
-        $this->strip_bom = false;
+        $this->stripBom = false;
 
         return $this->getStripBomIterator($iterator);
     }
@@ -202,7 +202,7 @@ trait QueryFilter
      */
     protected function isBomStrippable()
     {
-        return !empty($this->getInputBom()) && $this->strip_bom;
+        return !empty($this->getInputBom()) && $this->stripBom;
     }
 
     /**
@@ -244,8 +244,8 @@ trait QueryFilter
         $reducer = function ($iterator, $callable) {
             return new CallbackFilterIterator($iterator, $callable);
         };
-        $iterator = array_reduce($this->iterator_filters, $reducer, $iterator);
-        $this->iterator_filters = [];
+        $iterator = array_reduce($this->iteratorFilters, $reducer, $iterator);
+        $this->iteratorFilters = [];
 
         return $iterator;
     }
@@ -259,14 +259,14 @@ trait QueryFilter
     */
     protected function applyIteratorSortBy(Iterator $iterator)
     {
-        if (!$this->iterator_sort_by) {
+        if (!$this->iteratorSortBy) {
             return $iterator;
         }
 
         $obj = new ArrayObject(iterator_to_array($iterator));
         $obj->uasort(function ($rowA, $rowB) {
             $res = 0;
-            foreach ($this->iterator_sort_by as $compareRows) {
+            foreach ($this->iteratorSortBy as $compareRows) {
                 if (0 !== ($res = call_user_func($compareRows, $rowA, $rowB))) {
                     break;
                 }
@@ -274,7 +274,7 @@ trait QueryFilter
 
             return $res;
         });
-        $this->iterator_sort_by = [];
+        $this->iteratorSortBy = [];
 
         return $obj->getIterator();
     }
@@ -288,10 +288,10 @@ trait QueryFilter
     */
     protected function applyIteratorInterval(Iterator $iterator)
     {
-        $offset = $this->iterator_offset;
-        $limit = $this->iterator_limit;
-        $this->iterator_limit = -1;
-        $this->iterator_offset = 0;
+        $offset = $this->iteratorOffset;
+        $limit = $this->iteratorLimit;
+        $this->iteratorLimit = -1;
+        $this->iteratorOffset = 0;
 
         return new LimitIterator($iterator, $offset, $limit);
     }

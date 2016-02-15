@@ -28,14 +28,14 @@ class ColumnConsistencyValidator
      *
      * @var int
      */
-    private $columns_count = -1;
+    private $columnsCount = -1;
 
     /**
      * should the class detect the column count based the inserted row
      *
      * @var bool
      */
-    private $detect_columns_count = false;
+    private $detectColumnsCount = false;
 
     /**
      * Set Inserted row column count
@@ -50,8 +50,8 @@ class ColumnConsistencyValidator
         if (false === filter_var($value, FILTER_VALIDATE_INT, ['options' => ['min_range' => -1]])) {
             throw new InvalidArgumentException('the column count must an integer greater or equals to -1');
         }
-        $this->detect_columns_count = false;
-        $this->columns_count = $value;
+        $this->detectColumnsCount = false;
+        $this->columnsCount = $value;
     }
 
     /**
@@ -61,18 +61,18 @@ class ColumnConsistencyValidator
      */
     public function getColumnsCount()
     {
-        return $this->columns_count;
+        return $this->columnsCount;
     }
 
     /**
-     * The method will set the $columns_count property according to the next inserted row
+     * The method will set the $columnsCount property according to the next inserted row
      * and therefore will also validate the next line whatever length it has no matter
-     * the current $columns_count property value.
+     * the current $columnsCount property value.
      *
      */
     public function autodetectColumnsCount()
     {
-        $this->detect_columns_count = true;
+        $this->detectColumnsCount = true;
     }
 
     /**
@@ -84,17 +84,17 @@ class ColumnConsistencyValidator
      */
     public function __invoke(array $row)
     {
-        if ($this->detect_columns_count) {
-            $this->columns_count = count($row);
-            $this->detect_columns_count = false;
+        if ($this->detectColumnsCount) {
+            $this->columnsCount = count($row);
+            $this->detectColumnsCount = false;
 
             return true;
         }
 
-        if (-1 == $this->columns_count) {
+        if (-1 == $this->columnsCount) {
             return true;
         }
 
-        return count($row) == $this->columns_count;
+        return count($row) == $this->columnsCount;
     }
 }

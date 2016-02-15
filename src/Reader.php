@@ -31,7 +31,7 @@ class Reader extends AbstractCsv
     /**
      * @inheritdoc
      */
-    protected $stream_filter_mode = STREAM_FILTER_READ;
+    protected $streamFilterMode = STREAM_FILTER_READ;
 
     /**
      * Returns a sequential array of all CSV lines
@@ -233,8 +233,8 @@ class Reader extends AbstractCsv
      * The rows are presented as associated arrays
      * The callable function will be applied to each row
      *
-     * @param int|array $offset_or_keys the name for each key member OR the row Index to be
-     *                                  used as the associated named keys
+     * @param int|array $offsetOrKeys the name for each key member OR the row Index to be
+     *                                used as the associated named keys
      *
      * @param callable $callable A callable to be applied to each of the rows to be returned.
      *
@@ -242,13 +242,13 @@ class Reader extends AbstractCsv
      *
      * @return Iterator
      */
-    public function fetchAssoc($offset_or_keys = 0, callable $callable = null)
+    public function fetchAssoc($offsetOrKeys = 0, callable $callable = null)
     {
-        $keys = $this->getAssocKeys($offset_or_keys);
-        $keys_count = count($keys);
-        $combineArray = function (array $row) use ($keys, $keys_count) {
-            if ($keys_count != count($row)) {
-                $row = array_slice(array_pad($row, $keys_count, null), 0, $keys_count);
+        $keys = $this->getAssocKeys($offsetOrKeys);
+        $keysCount = count($keys);
+        $combineArray = function (array $row) use ($keys, $keysCount) {
+            if ($keysCount != count($row)) {
+                $row = array_slice(array_pad($row, $keysCount, null), 0, $keysCount);
             }
 
             return array_combine($keys, $row);
@@ -263,27 +263,27 @@ class Reader extends AbstractCsv
     /**
      * Selects the array to be used as key for the fetchAssoc method
      *
-     * @param int|array $offset_or_keys the assoc key OR the row Index to be used
-     *                                  as the key index
+     * @param int|array $offsetOrKeys the assoc key OR the row Index to be used
+     *                                as the key index
      *
      * @throws InvalidArgumentException If the row index and/or the resulting array is invalid
      *
      * @return array
      */
-    protected function getAssocKeys($offset_or_keys)
+    protected function getAssocKeys($offsetOrKeys)
     {
-        if (is_array($offset_or_keys)) {
-            return $this->validateKeys($offset_or_keys);
+        if (is_array($offsetOrKeys)) {
+            return $this->validateKeys($offsetOrKeys);
         }
 
-        $offset_or_keys = $this->validateInteger(
-            $offset_or_keys,
+        $offsetOrKeys = $this->validateInteger(
+            $offsetOrKeys,
             0,
             'the row index must be a positive integer, 0 or a non empty array'
         );
-        $keys = $this->validateKeys($this->getRow($offset_or_keys));
-        $filterOutRow = function ($row, $rowIndex) use ($offset_or_keys) {
-            return $rowIndex != $offset_or_keys;
+        $keys = $this->validateKeys($this->getRow($offsetOrKeys));
+        $filterOutRow = function ($row, $rowIndex) use ($offsetOrKeys) {
+            return $rowIndex != $offsetOrKeys;
         };
         $this->addFilter($filterOutRow);
 
