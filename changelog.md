@@ -3,7 +3,7 @@ layout: default
 title: Changelog
 ---
 
-#Changelog
+# Changelog
 
 All Notable changes to `League\Csv` will be documented in this file
 

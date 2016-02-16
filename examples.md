@@ -11,6 +11,7 @@ A simple example to show you how to parse a CSV document.
 
 ~~~php
 <?php
+
 use League\Csv\Reader;
 
 $csv = Reader::createFromPath('/path/to/your/csv/file.csv');
@@ -28,6 +29,7 @@ A simple example to show you how to create and download a CSV from a `PDOStateme
 
 ~~~php
 <?php
+
 use League\Csv\Writer;
 
 //we fetch the info from a DB using a PDO object
@@ -64,6 +66,7 @@ A simple example to show you how to import some CSV data into a database using a
 
 ~~~php
 <?php
+
 use League\Csv\Reader;
 
 //We are going to insert some data into the users table

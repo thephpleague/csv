@@ -46,6 +46,8 @@ When using the `__toString` or `output` methods the input BOM if it exists is st
 **If you are on a Mac OS X Server**, add the following lines before using the library to help [PHP detect line ending in Mac OS X](http://php.net/manual/en/function.fgetcsv.php#refsect1-function.fgetcsv-returnvalues).
 
 ~~~php
+<?php
+
 if (! ini_get("auto_detect_line_endings")) {
     ini_set("auto_detect_line_endings", '1');
 }
@@ -67,6 +69,8 @@ By default `null` value cells are converted to empty string so the old behavior 
 **Old code:**
 
 ~~~php
+<?php
+
 use League\Csv\Writer;
 
 $writer = Writer::createFromPath('/path/to/your/csv/file.csv');
@@ -76,6 +80,8 @@ $writer->insertOne(["foo", null, "bar"]); //will throw an RuntimeException
 **New code:**
 
 ~~~php
+<?php
+
 use League\Csv\Writer;
 use League\Csv\Plugin\ForbiddenNullValuesValidator;
 
@@ -90,6 +96,8 @@ $writer->insertOne(["foo", null, "bar"]); //will throw an League\Csv\Exception\I
 **Old code:**
 
 ~~~php
+<?php
+
 use League\Csv\Writer;
 
 $writer = Writer::createFromPath('/path/to/your/csv/file.csv');
@@ -101,6 +109,8 @@ $writer->insertOne(["foo", null, "bar"]);
 **New code:**
 
 ~~~php
+<?php
+
 use League\Csv\Writer;
 use League\Csv\Plugin\SkipNullValuesFormatter;
 
@@ -121,6 +131,8 @@ Directly checking row consistency has been removed from the `Writer` class. If y
 **Old code:**
 
 ~~~php
+<?php
+
 use League\Csv\Writer;
 
 $writer = Writer::createFromPath('/path/to/your/csv/file.csv');
@@ -135,6 +147,8 @@ $nb_column_count = $writer->getColumnsCount(); //returns 3
 **New code:**
 
 ~~~php
+<?php
+
 use League\Csv\Writer;
 use League\Csv\Plugin\ColumnConsistencyValidator;
 
@@ -160,6 +174,8 @@ Because prior to version 7.0 the conversion methods were not affected, you may h
 **Old behavior:**
 
 ~~~php
+<?php
+
 use League\Csv\Reader;
 
 $reader = Reader::createFromPath('/path/to/your/csv/file.csv');
@@ -171,6 +187,8 @@ $reader->toHTML(); //would convert the full CSV
 **New behavior:**
 
 ~~~php
+<?php
+
 use League\Csv\Reader;
 
 $reader = Reader::createFromPath('/path/to/your/csv/file.csv');
@@ -188,6 +206,8 @@ You can no longer use `Reader` and `Writer` default constructors. You are requir
 **Removed behavior:**
 
 ~~~php
+<?php
+
 use League\Csv\Writer;
 
 $file = '/path/to/my/file.csv';
@@ -203,6 +223,8 @@ $sol2 = new Writer($fileObject, 'w');
 **Supported behavior**
 
 ~~~php
+<?php
+
 use League\Csv\Writer;
 
 $file = '/path/to/my/file.csv';
@@ -227,6 +249,8 @@ $sol3 = Writer::createFromPath($fileObject, 'w');
 Starting with version 7.0, each found delimiter index represents the character occurences in the specify CSV data.
 
 ~~~php
+<?php
+
 use League\Csv\Reader;
 
 $reader = Reader::createFromPath('/path/to/your/csv/file.csv');
@@ -251,6 +275,8 @@ Prior to version 7.0 when, if the column did not exist in the csv data the metho
 **Old behavior:**
 
 ~~~php
+<?php
+
 use League\Csv\Reader;
 
 //this CSV contains only 2 column
@@ -262,6 +288,8 @@ $arr = $reader->fetchColumn(3);
 **New behavior:**
 
 ~~~php
+<?php
+
 use League\Csv\Reader;
 
 //this CSV contains only 2 column

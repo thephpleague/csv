@@ -46,6 +46,8 @@ The difference between both methods is that the latter always return an `array` 
 Old code:
 
 ~~~php
+<?php
+
 use League\Csv\Reader;
 
 $reader = new Reader('/path/to/your/csv/file.csv');
@@ -64,6 +66,8 @@ try {
 New code:
 
 ~~~php
+<?php
+
 use League\Csv\Reader;
 
 $reader = Reader::createFromPath('/path/to/your/csv/file.csv');
@@ -91,6 +95,8 @@ You need to upgrade your code accordingly.
 Old code:
 
 ~~~php
+<?php
+
 use League\Csv\Reader;
 
 $reader = new Reader('/path/to/your/csv/file.csv');
@@ -103,6 +109,8 @@ $reader->output();
 New code:
 
 ~~~php
+<?php
+
 use League\Csv\Reader;
 
 $reader = new Reader('/path/to/your/csv/file.csv');
@@ -124,6 +132,8 @@ The new methods `newWriter` and `newReader` are available on **both** classes. T
 Old code:
 
 ~~~php
+<?php
+
 use League\Csv\Reader;
 
 $reader = new Reader('/path/to/your/csv/file.csv');
@@ -135,6 +145,8 @@ $another_reader = $writer->getReader();
 New code:
 
 ~~~php
+<?php
+
 use League\Csv\Reader;
 
 $reader = Reader::createFromPath('/path/to/your/csv/file.csv');

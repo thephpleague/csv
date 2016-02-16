@@ -31,6 +31,8 @@ To add new data to your CSV the `Writer` class uses the following methods
 an `object` implementing the `__toString` method.
 
 ~~~php
+<?php
+
 class ToStringEnabledClass
 {
     private $str;
@@ -57,6 +59,8 @@ $writer->insertOne(new ToStringEnabledClass("john,doe,john.doe@example.com"))
 `Traversable` object to add several rows to the CSV data.
 
 ~~~php
+<?php
+
 $rows = [
     [1, 2, 3],
     ['foo', 'bar', 'baz'],
@@ -194,6 +198,8 @@ Because the php `fputcsv` implementation has a hardcoded `\n`, we need to be abl
 At any given time you can get and modify the `$newline` property using the `getNewline` and `setNewline` methods described in <a href="/7.0/properties/">CSV properties documentation page</a>.
 
 ~~~php
+<?php
+
 $writer = Writer::createFromFileObject(new SplFileObject());
 $newline = $writer->getNewline(); // equals "\n";
 $writer->setNewline("\r\n");

@@ -22,6 +22,7 @@ They each represent the `BOM` character for each encoding character.
 This method will detect and return the `BOM` character used in your CSV if any.
 
 ~~~php
+<?php
 
 $reader = new Reader::createFromPath('path/to/your/file.csv');
 $res = $reader->getInputBOM(); //$res equals null if no BOM is found
@@ -54,6 +55,7 @@ This method will tell you at any given time what `BOM` character will be prepend
 <p class="message-info">For Backward compatibility by default <code>getOutputBOM</code> returns <code>null</code>.</p>
 
 ~~~php
+<?php
 
 $reader = new Reader::createFromPath('path/to/your/file.csv');
 $reader->getOutputBOM(); //$res equals null;
@@ -76,6 +78,8 @@ In the examples below we will be using an existing CSV as a starting point. The 
 On Windows, MS Excel, expects an UTF-8 encoded CSV with its corresponding `BOM` character. To fullfill this requirement, you simply need to add the `UTF-8` `BOM` character if needed as explained below:
 
 ~~~php
+<?php
+
 use League\Csv\Reader;
 
 require '../vendor/autoload.php';
@@ -92,6 +96,8 @@ echo $reader->__toString();
 On a MacOS system, MS Excel requires a CSV encoded in `UTF-16 LE` using the `tab` character as delimiter. Here's an example on how to meet those requirements using the `League\Csv` package.
 
 ~~~php
+<?php
+
 use League\Csv\Reader;
 use League\Csv\Writer;
 use lib\FilterTranscode;

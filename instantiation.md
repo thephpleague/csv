@@ -17,6 +17,8 @@ Both classes extend the `League\Csv\AbstractCsv` class and as such share methods
 If your CSV document was created or is read on a Macintosh computer, add the following lines before using the library to help [PHP detect line ending in Mac OS X](http://php.net/manual/en/function.fgetcsv.php#refsect1-function.fgetcsv-returnvalues).
 
 ~~~php
+<?php
+
 if (!ini_get("auto_detect_line_endings")) {
     ini_set("auto_detect_line_endings", '1');
 }
@@ -33,6 +35,8 @@ Because CSVs come in different forms we used named constructors to offer several
 This named constructor will create a new object *à la* `fopen`.
 
 ~~~php
+<?php
+
 public static AbstractCsv::createFromPath(
 	mixed $path,
 	string $open_mode = 'r+'
@@ -50,6 +54,8 @@ public static AbstractCsv::createFromPath(
 The resulting string and `$open_mode` parameters are used to lazy load internally a `SplFileObject` object.
 
 ~~~php
+<?php
+
 use League\Csv\Reader;
 use League\Csv\Writer;
 
@@ -64,6 +70,8 @@ $writer = Writer::createFromPath(new SplFileObject('/path/to/your/csv/file.csv',
 Instantiate a new Csv object from a `SplFileObject`.
 
 ~~~php
+<?php
+
 public static AbstractCsv::createFromFileObject(SplFileObject $obj): AbstractCsv
 ~~~
 
@@ -71,6 +79,8 @@ This method accepts only one single parameter, a `SplFileObject` object.
 
 
 ~~~php
+<?php
+
 use League\Csv\Reader;
 use League\Csv\Writer;
 
@@ -84,12 +94,16 @@ $writer = Writer::createFromFileObject(new SplTempFileObject());
 This named constructor will create a new object from a given string.
 
 ~~~php
+<?php
+
 public static AbstractCsv::createFromString(mixed $str): AbstractCsv
 ~~~
 
 This method accepts only one single parameter, an object implementing the `__toString` method or a string.
 
 ~~~php
+<?php
+
 use League\Csv\Reader;
 use League\Csv\Writer;
 
@@ -107,6 +121,8 @@ At any given time you can switch or create a new `League\Csv\Writer` or a new `L
 Both methods accept an optional `$open_mode` parameter.
 
 ~~~php
+<?php
+
 public AbstractCsv::newReader(string $open_mode = 'r+'): Reader
 public AbstractCsv::newWriter(string $open_mode = 'r+'): Writer
 ~~~
@@ -115,6 +131,8 @@ public AbstractCsv::newWriter(string $open_mode = 'r+'): Writer
 * If the initial object `$open_mode` parameter was not taken into account any new CSV object created with these methods won't take into account the given `$open_mode`.
 
 ~~~php
+<?php
+
 $reader = $writer->newReader('r+');
 $newWriter = $reader->newWriter('a');
 $anotherWriter = $newWriter->newWriter('r+');

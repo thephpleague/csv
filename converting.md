@@ -16,6 +16,8 @@ If your CSV is not UTF-8 encoded some unexpected results and some errors could b
 `AbstractCsv` implements the `JsonSerializable` interface. As such you can use the `json_encode` function directly on the instantiated object.
 
 ~~~php
+<?php
+
 echo json_encode($reader);
 ~~~
 
@@ -24,6 +26,8 @@ echo json_encode($reader);
 Use the `toXML` method to convert the CSV data into a `DomDocument` object.
 
 ~~~php
+<?php
+
 public AbstractCsv::toXML(
     string $root_name = 'csv',
     string $row_name = 'row',
@@ -38,6 +42,8 @@ This method accepts 3 optionals arguments to help you customize the XML tree:
 - `$cell_name`, the XML node element for each CSV cell which defaults value is `cell`;
 
 ~~~php
+<?php
+
 use League\Csv\Reader;
 
 $reader = Reader::createFromPath('/path/to/file.csv');
@@ -49,6 +55,8 @@ $dom = $reader->toXML('data', 'line', 'item');
 Use the `toHTML` method to convert the CSV data into an HTML table.
 
 ~~~php
+<?php
+
 public AbstractCsv::toHTML(string $classAttribute = 'table-csv-data'): string
 ~~~
 
@@ -56,6 +64,8 @@ This method accepts an optional argument `$classAttribute` to help you customize
 rendering, by defaut the classname given to the table is `table-csv-data`.
 
 ~~~php
+<?php
+
 use League\Csv\Reader;
 
 $reader = Reader::createFromPath('/path/to/file.csv');
@@ -65,6 +75,8 @@ echo $reader->toHTML('table table-bordered table-hover');
 ## Example using data transcode before conversion
 
 ~~~php
+<?php
+
 use League\Csv\Reader;
 
 $reader = Reader::createFromFileObject(new SplFileObject('/path/to/bengali.csv'));

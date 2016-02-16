@@ -16,6 +16,8 @@ To extract data from a CSV document use `League\Csv\Reader` methods.
 The `query` method prepares and issues queries on the CSV data. It returns an `Iterator` that represents the result that you can further manipulate as you wish.
 
 ~~~php
+<?php
+
 $data = $reader->query();
 foreach ($data as $lineIndex => $row) {
     //do something here
@@ -29,6 +31,8 @@ foreach ($data as $lineIndex => $row) {
 The `fetch` method returns an `Iterator`.
 
 ~~~php
+<?php
+
 foreach ($reader->fetch() as $row) {
     //do something here
 }
@@ -39,6 +43,8 @@ foreach ($reader->fetch() as $row) {
 `fetchAll` returns a sequential array of all rows.
 
 ~~~php
+<?php
+
 $data = $reader->fetchAll();
 // will return something like this :
 //
@@ -63,6 +69,8 @@ This array keys can be specified as the first argument as
 Using a non empty array:
 
 ~~~php
+<?php
+
 $data = $reader->fetchAssoc(['firstname', 'lastname', 'email']);
 // will return something like this :
 //
@@ -78,6 +86,8 @@ $data = $reader->fetchAssoc(['firstname', 'lastname', 'email']);
 Using a specific offset:
 
 ~~~php
+<?php
+
 $data = $reader->fetchAssoc();
 // will return something like this :
 //
@@ -103,6 +113,8 @@ Of note:
 If for a given row the column does not exist, the row will be skipped.
 
 ~~~php
+<?php
+
 $data = $reader->fetchColumn(2);
 // will return something like this :
 //
@@ -127,6 +139,8 @@ The methods listed above (`query`, `fetchAll`, `fetchAssoc`, `fetchColumn`) can 
 * the current csv iterator object
 
 ~~~php
+<?php
+
 $data = $reader->fetchAll(function ($row) {
     return array_map('strtoupper', $row);
 });
@@ -148,6 +162,8 @@ $nb_rows = count($data);
 `fetchOne` return one single row from the CSV data. The required argument $offset represent the row index starting at 0. If no argument is given to the method it will return the first row from the CSV data.
 
 ~~~php
+<?php
+
 $data = $reader->fetchOne(3); ///accessing the 4th row (indexing starts at 0)
 // will return something like this :
 //
@@ -168,6 +184,8 @@ $data = $reader->fetchOne(3); ///accessing the 4th row (indexing starts at 0)
 The method returns the number of successful iterations.
 
 ~~~php
+<?php
+
 <?php
 //re-create the fetchAll method using the each method
 $res = [];

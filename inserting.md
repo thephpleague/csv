@@ -28,6 +28,8 @@ To add new data to your CSV the `Writer` class uses the following methods
 `insertOne` inserts a single row.
 
 ~~~php
+<?php
+
 public Writer::insertOne(mixed $row): Writer
 ~~~
 
@@ -40,6 +42,8 @@ This method takes a single argument `$row` which can be
 #### Example
 
 ~~~php
+<?php
+
 use League\Csv\Writer;
 
 class ToStringEnabledClass
@@ -68,6 +72,8 @@ $writer->insertOne(new ToStringEnabledClass("john,doe,john.doe@example.com"))
 `insertAll` inserts multiple rows.
 
 ~~~php
+<?php
+
 public Writer::insertAll(mixed $rows): Writer
 ~~~
 
@@ -81,6 +87,8 @@ to add several rows to the CSV data.
 #### Example
 
 ~~~php
+<?php
+
 use League\Csv\Writer;
 
 $rows = [
@@ -102,6 +110,8 @@ $writer->insertAll(new ArrayIterator($rows)); //using a Traversable object
 A formatter is a `callable` which accepts an `array` on input and returns the same array formatted according to its inner rules.
 
 ~~~php
+<?php
+
 function(array $row): array
 ~~~
 
@@ -112,6 +122,8 @@ You can attach as many formatters as you want to the `Writer` class to manipulat
 The formatter API comes with the following public API:
 
 ~~~php
+<?php
+
 public Writer::addFormatter(callable $callable): Writer
 public Writer::removeFormatter(callable $callable): Writer
 public Writer::hasFormatter(callable $callable): bool
@@ -124,6 +136,8 @@ public Writer::clearFormatters(void): Writer
 - `clearFormatters`: removes all registered formatters.
 
 ~~~php
+<?php
+
 use League\Csv\Writer;
 
 $formatter = function ($row) {
@@ -144,6 +158,8 @@ $writer->__toString();
 A validator is a `callable` which takes a `array` as its sole argument and returns a boolean.
 
 ~~~php
+<?php
+
 function(array $row): bool
 ~~~
 
@@ -158,6 +174,8 @@ As with the new formatter capabilities, you can attach as many validators as you
 The validator API comes with the following public API:
 
 ~~~php
+<?php
+
 public Writer::addValidator(callable $callable, string $validatorName): Writer
 public Writer::removeValidator(string $validatorName): Writer
 public Writer::hasValidator(string $validatorName): bool
@@ -177,6 +195,8 @@ If the validation failed a `League\Csv\Exception\InvalidRowException` is thrown 
 This exception extends PHP's `InvalidArgumentException` by adding two public getter methods
 
 ~~~php
+<?php
+
 public InvalidRowException::getName(void): string
 public InvalidRowException::getData(void): array
 ~~~
@@ -187,6 +207,8 @@ public InvalidRowException::getData(void): array
 #### Validation example
 
 ~~~php
+<?php
+
 use League\Csv\Writer;
 use League\Csv\Exception\InvalidRowException;
 
@@ -212,6 +234,8 @@ Because the php `fputcsv` implementation has a hardcoded `\n`, we need to be abl
 At any given time you can get and modify the `$newline` property using the `getNewline` and `setNewline` methods described in <a href="/properties/">CSV properties documentation page</a>.
 
 ~~~php
+<?php
+
 use League\Csv\Writer;
 
 $writer = Writer::createFromFileObject(new SplFileObject());

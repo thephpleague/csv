@@ -22,10 +22,14 @@ They each represent the `BOM` character for each encoding character.
 This method will detect and return the `BOM` character used in your CSV if any.
 
 ~~~php
+<?php
+
 public AbstractCsv::getInputBOM(void): string
 ~~~
 
 ~~~php
+<?php
+
 use League\Csv\Reader;
 
 $reader = new Reader::createFromPath('path/to/your/file.csv');
@@ -49,6 +53,8 @@ This method will manage the addition of a BOM character in front of your outputt
 - ouputting the CSV directly using the `__toString()` method
 
 ~~~php
+<?php
+
 public AbstractCsv::setOutputBOM(string $sequence): AbstractCsv
 ~~~
 
@@ -61,12 +67,16 @@ public AbstractCsv::setOutputBOM(string $sequence): AbstractCsv
 This method will tell you at any given time what `BOM` character will be prepended to the CSV content.
 
 ~~~php
+<?php
+
 public AbstractCsv::getOutputBOM(void): string
 ~~~
 
 <p class="message-warning"><strong>BC Break:</strong> by default <code>getOutputBOM</code> returns an empty string.</p>
 
 ~~~php
+<?php
+
 use League\Csv\Reader;
 
 $reader = new Reader::createFromPath('path/to/your/file.csv');
@@ -90,6 +100,8 @@ In the examples below we will be using an existing CSV as a starting point. The 
 On Windows, MS Excel, expects an UTF-8 encoded CSV with its corresponding `BOM` character. To fullfill this requirement, you simply need to add the `UTF-8` `BOM` character if needed as explained below:
 
 ~~~php
+<?php
+
 use League\Csv\Reader;
 
 $reader = Reader::createFromPath('/path/to/my/file.csv');
@@ -104,6 +116,8 @@ echo $reader->__toString();
 On a MacOS system, MS Excel requires a CSV encoded in `UTF-16 LE` using the `tab` character as delimiter. Here's an example on how to meet those requirements using the `League\Csv` package.
 
 ~~~php
+<?php
+
 use League\Csv\Reader;
 use League\Csv\Writer;
 use lib\FilterTranscode;
