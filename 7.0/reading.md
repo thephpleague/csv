@@ -104,7 +104,7 @@ Of note:
 - If the number of values in a CSV row is lesser than the number of named keys, the method will add `null` values to compensate for the missing values.
 - If the number of values in a CSV row is greater that the number of named keys the exceeding values will be drop from the result set.
 - If no argument is provided, the first row from the CSV data will be used
-- If an offset is used, it's content will be skipped in the result set.
+- If an offset is used, its content will be skipped in the result set.
 
 ### fetchColumn($columnIndex = 0, callable $callable = null)
 
