@@ -51,7 +51,7 @@ foreach ($results as $row) {
 use League\Csv\Reader;
 
 $func = function ($row) {
-    return array_map('strtouper', $row);
+    return array_map('strtoupper', $row);
 };
 
 $reader = Reader::createFromPath('/path/to/my/file.csv');
@@ -208,7 +208,7 @@ foreach ($results as $row) {
 
 - If the number of values in a CSV row is lesser than the number of named keys, the method will add `null` values to compensate for the missing values.
 - If the number of values in a CSV row is greater that the number of named keys the exceeding values will be drop from the result set.
-- If an offset is used, it's content will be skipped in the result set.
+- If an offset is used, its content will be skipped in the result set.
 - If no argument is provided, the first row from the CSV data will be used
 
 ### The optional callable argument
