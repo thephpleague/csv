@@ -168,7 +168,11 @@ trait Output
     abstract public function getIterator();
 
     /**
-     * Outputs all data on the CSV file
+     * Outputs all data on the CSV file. 
+     * The CSV data  will be written to the output buffer. Returning 
+     * the result of this function (or anything else) may append 
+     * unwanted data to the output buffer (CSV file).
+     * See fpassthru (php docs) for more info.
      *
      * @param string $filename CSV downloaded name if present adds extra headers
      *
