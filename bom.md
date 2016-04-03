@@ -81,7 +81,7 @@ use League\Csv\Reader;
 
 $reader = new Reader::createFromPath('path/to/your/file.csv');
 $reader->getOutputBOM(); //$res equals null;
-$reader->setOutputBOM(Reader::BOM_UTF16LE);
+$reader->setOutputBOM(Reader::BOM_UTF16_LE);
 $res = $reader->getOutputBOM(); //$res equals "\xFF\xFE";
 echo $reader; //the BOM sequence is prepended to the CSV
 
