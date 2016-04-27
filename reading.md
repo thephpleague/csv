@@ -145,7 +145,7 @@ $nbRows = $reader->each(function ($row) {
 
 ## Reader::fetchAssoc
 
-<p class="message-warning"><strong>BC Break:</strong> Starting with <code>version 8.0.0</code> This method returns a <code>Iterator</code>.</p>
+<p class="message-warning"><strong>BC Break:</strong> Starting with <code>version 8.0.0</code> This method returns an <code>Iterator</code>.</p>
 
 `fetchAssoc` returns an `Iterator` of all rows. The rows themselves are associative arrays where the keys are a one dimension array. This array must only contain unique `string` and/or `scalar` values.
 
