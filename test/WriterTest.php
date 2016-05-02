@@ -6,6 +6,7 @@ use ArrayIterator;
 use League\Csv\Writer;
 use SplFileObject;
 use SplTempFileObject;
+use stdClass;
 
 /**
  * @group writer
@@ -61,7 +62,7 @@ class WriterTest extends AbstractTestCase
      */
     public function testFailedSaveWithWrongType()
     {
-        $this->csv->insertAll(new \StdClass());
+        $this->csv->insertAll(new stdClass());
     }
 
     /**

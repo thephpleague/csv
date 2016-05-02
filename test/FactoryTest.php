@@ -55,14 +55,14 @@ class FactoryTest extends AbstractTestCase
         $expected = 'john,doe,john.doe@example.com'.PHP_EOL
             .'jane,doe,jane.doe@example.com'.PHP_EOL;
         $reader = Reader::createFromString($expected);
-        $this->assertInstanceof('League\Csv\Reader', $reader);
+        $this->assertInstanceof(Reader::class, $reader);
     }
 
     public function testCreateFromFileObject()
     {
         $reader = Reader::createFromFileObject(new SplTempFileObject());
-        $this->assertInstanceof('League\Csv\Reader', $reader);
-        $this->assertInstanceof('SplTempFileObject', $reader->getIterator());
+        $this->assertInstanceof(Reader::class, $reader);
+        $this->assertInstanceof(SplTempFileObject::class, $reader->getIterator());
     }
 
     public function testCreateFromFileObjectWithSplFileObject()
@@ -70,7 +70,7 @@ class FactoryTest extends AbstractTestCase
         $path   = __DIR__.'/data/foo.csv';
         $obj    = new SplFileObject($path);
         $reader = Reader::createFromFileObject($obj);
-        $this->assertInstanceof('League\Csv\Reader', $reader);
-        $this->assertInstanceof('SplFileObject', $reader->getIterator());
+        $this->assertInstanceof(Reader::class, $reader);
+        $this->assertInstanceof(SplFileObject::class, $reader->getIterator());
     }
 }

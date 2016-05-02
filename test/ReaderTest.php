@@ -2,6 +2,7 @@
 
 namespace League\Csv\Test;
 
+use Iterator;
 use League\Csv\Reader;
 use League\Csv\Writer;
 use SplTempFileObject;
@@ -526,11 +527,11 @@ class ReaderTest extends AbstractTestCase
 
     public function testReturnTypeResetBetweenCallToArrayWithFetch()
     {
-        $this->assertInstanceof('\Iterator', $this->csv->fetch());
+        $this->assertInstanceof(Iterator::class, $this->csv->fetch());
         $this->assertInternalType('array', $this->csv->fetchAll());
         $this->assertInternalType('array', $this->csv->fetchOne());
-        $this->assertInstanceof('\Iterator', $this->csv->fetchAssoc());
-        $this->assertInstanceof('\Iterator', $this->csv->fetchPairs());
+        $this->assertInstanceof(Iterator::class, $this->csv->fetchAssoc());
+        $this->assertInstanceof(Iterator::class, $this->csv->fetchPairs());
         $this->assertInternalType('array', $this->csv->fetchPairsWithoutDuplicates());
     }
 

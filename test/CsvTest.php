@@ -2,6 +2,9 @@
 
 namespace League\Csv\Test;
 
+use DOMDocument;
+use IteratorAggregate;
+use JsonSerializable;
 use League\Csv\Reader;
 use SplTempFileObject;
 
@@ -34,8 +37,8 @@ class CsvTest extends AbstractTestCase
 
     public function testInterface()
     {
-        $this->assertInstanceOf('IteratorAggregate', $this->csv);
-        $this->assertInstanceOf('JsonSerializable', $this->csv);
+        $this->assertInstanceOf(IteratorAggregate::class, $this->csv);
+        $this->assertInstanceOf(JsonSerializable::class, $this->csv);
     }
 
     public function testToHTML()
@@ -45,7 +48,7 @@ class CsvTest extends AbstractTestCase
 
     public function testToXML()
     {
-        $this->assertInstanceOf('DOMDocument', $this->csv->toXML());
+        $this->assertInstanceOf(DOMDocument::class, $this->csv->toXML());
     }
 
     public function testJsonSerialize()
