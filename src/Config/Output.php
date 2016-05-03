@@ -71,7 +71,7 @@ trait Output
      *
      * DEPRECATION WARNING! This method will be removed in the next major point release
      *
-     * @deprecated deprecated since version 4.1
+     * @deprecated deprecated since version 8.1
      *
      * @param string $str
      *
@@ -97,7 +97,7 @@ trait Output
      *
      * DEPRECATION WARNING! This method will be removed in the next major point release
      *
-     * @deprecated deprecated since version 4.1
+     * @deprecated deprecated since version 8.1
      *
      * @return string
      */
