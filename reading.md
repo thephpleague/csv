@@ -114,7 +114,7 @@ public Reader::each(callable $callable): int
 
 The method returns the number of successful iterations.
 
-The callable signature is as follow:
+The callable signature is as follows:
 
 ~~~php
 <?php
