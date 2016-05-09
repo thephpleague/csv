@@ -10,7 +10,7 @@ title: Query Filtering
 You can restrict [extract methods](/reading/) and [conversion methods](/converting/) output by setting query options. To set those options you will need to use the methods described below. But keep in mind that:
 
 * The query options methods are all chainable *except when they have to return a boolean*;
-* The query options methods can be call in any sort of order before any extract/conversion method;
+* The query options methods can be called in any sort of order before any extract/conversion method.
 
 ## Modifying content methods
 
@@ -24,7 +24,7 @@ You can restrict [extract methods](/reading/) and [conversion methods](/converti
 public AbstractCsv::stripBOM(bool $status): AbstractCsv
 ~~~
 
-`stripBom` only argument `$status` must be a `boolean`.
+`stripBom`'s only argument `$status` must be a `boolean`.
 
 The actual stripping will take place only if a BOM sequence is detected and the first row is selected in the resultset **or** if its offset is used as the first argument of the `Reader::fetchAssoc` method.
 
@@ -44,7 +44,7 @@ The `addFilter` method adds a callable filter function each time it is called.
 public AbstractCsv::addFilter(callable $callable): AbstractCsv
 ~~~
 
-The callable filter signature is as follow:
+The callable filter signature is as follows:
 
 ~~~php
 <?php
@@ -60,9 +60,9 @@ It takes up to three parameters:
 
 ## Sorting methods
 
-The sorting options are applied **after the CSV filtering options**. The sorting follow the *First In First Out* rule.
+The sorting options are applied **after the CSV filtering options**. The sorting follows the *First In First Out* rule.
 
-<p class="message-warning">To sort the data <code>iterator_to_array</code> is used which could lead to performance penalty if you have a heavy CSV file to sort
+<p class="message-warning">To sort the data <code>iterator_to_array</code> is used, which could lead to a performance penalty if you have a heavy CSV file to sort
 </p>
 
 ### AbstractCsv::addSortBy
@@ -75,7 +75,7 @@ The sorting options are applied **after the CSV filtering options**. The sorting
 public AbstractCsv::addSortBy(callable $callable): AbstractCsv
 ~~~
 
-The callable sort function signature is as follow:
+The callable sort function signature is as follows:
 
 ~~~php
 <?php
@@ -83,7 +83,7 @@ The callable sort function signature is as follow:
 function(array $row, array $row): int
 ~~~
 
-The sort function takes exactly two parameters which will be filled by pairs of rows.
+The sort function takes exactly two parameters, which will be filled by pairs of rows.
 
 ## Interval methods
 
