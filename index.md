@@ -15,7 +15,7 @@ layout: default
 [![Total Downloads](https://img.shields.io/packagist/dt/league/csv.svg?style=flat-square)](https://packagist.org/packages/league/csv)
 
 `Csv` is a simple library to ease CSV parsing, writing and filtering in
-PHP. The goal of the library is to be as powerful while remaining lightweight,
+PHP. The goal of the library is to be powerful while remaining lightweight,
 by utilizing PHP native classes whenever possible.
 
 `Csv` was designed for developers who want to deal with CSV data using
@@ -30,7 +30,7 @@ usefulness provided by existing core functions or third party-code.
 * Read and Write to CSV documents in a memory efficient and scalable way
 * Use SPL to interact with the CSV documents
 * Support PHP Stream filtering capabilities
-* Transform CSV documents into popular format (JSON, XML or HTML)
+* Transform CSV documents into popular formats (JSON, XML or HTML)
 * Fully documented
 * Fully Unit tested
 * Framework-agnostic

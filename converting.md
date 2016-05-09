@@ -5,11 +5,11 @@ title: Converting your CSV
 
 # Converting the CSV
 
-the `League\Csv` object can convert your CSV document into JSON, XML and HTML format. In order to do so, the conversion methods assume that your CSV is UTF-8 encoded. To properly transcode your document into an UTF-8 compatible charset the recommended way is to use the <a href="/filtering/">library stream filtering mechanism</a>.
+The `League\Csv` object can convert your CSV document into JSON, XML and HTML formats. In order to do so, the conversion methods assume that your CSV is UTF-8 encoded. To properly transcode your document into an UTF-8 compatible charset, it's recommended to use the <a href="/filtering/">library stream filtering mechanism</a>.
 
 When this is not possible/applicable you can fallback to using the `setEncodingFrom` and `getEncodingFrom` methods.
 
-If your CSV is not UTF-8 encoded some unexpected results and some errors could be thrown when trying to convert your data.
+If your CSV is not UTF-8 encoded some unexpected results and some errors may be thrown when trying to convert your data.
 
 ## Convert to JSON format
 
@@ -61,7 +61,7 @@ public AbstractCsv::toHTML(string $classAttribute = 'table-csv-data'): string
 ~~~
 
 This method accepts an optional argument `$classAttribute` to help you customize the table
-rendering, by defaut the classname given to the table is `table-csv-data`.
+rendering. By defaut the classname given to the table is `table-csv-data`.
 
 ~~~php
 <?php
