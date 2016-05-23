@@ -102,14 +102,14 @@ trait Controls
      * a valid delimiter and each value the number of occurences
      *
      * @param string[] $delimiters the delimiters to consider
-     * @param int      $nbRows     Detection is made using $nbRows of the CSV
+     * @param int      $nb_rows    Detection is made using $nb_rows of the CSV
      *
      * @return array
      */
-    public function fetchDelimitersOccurrence(array $delimiters, $nbRows = 1)
+    public function fetchDelimitersOccurrence(array $delimiters, $nb_rows = 1)
     {
-        $nbRows = $this->validateInteger($nbRows, 1, 'The number of rows to consider must be a valid positive integer');
-        $filterRow = function ($row) {
+        $nb_rows = $this->validateInteger($nb_rows, 1, 'The number of rows to consider must be a valid positive integer');
+        $filter_row = function ($row) {
             return is_array($row) && count($row) > 1;
         };
         $delimiters = array_unique(array_filter($delimiters, [$this, 'isValidCsvControls']));
@@ -117,7 +117,7 @@ trait Controls
         $res = [];
         foreach ($delimiters as $delim) {
             $csv->setCsvControl($delim, $this->enclosure, $this->escape);
-            $iterator = new CallbackFilterIterator(new LimitIterator($csv, 0, $nbRows), $filterRow);
+            $iterator = new CallbackFilterIterator(new LimitIterator($csv, 0, $nb_rows), $filter_row);
             $res[$delim] = count(iterator_to_array($iterator, false), COUNT_RECURSIVE);
         }
         arsort($res, SORT_NUMERIC);

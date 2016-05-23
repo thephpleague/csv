@@ -31,7 +31,7 @@ class Reader extends AbstractCsv
     /**
      * @inheritdoc
      */
-    protected $streamFilterMode = STREAM_FILTER_READ;
+    protected $stream_filter_mode = STREAM_FILTER_READ;
 
     /**
      * Returns a sequential array of all CSV lines
@@ -130,25 +130,25 @@ class Reader extends AbstractCsv
      *
      * By default if no column index is provided the first column of the CSV is selected
      *
-     * @param int           $columnIndex CSV column index
-     * @param callable|null $callable    A callable to be applied to each of the value to be returned.
+     * @param int           $column_index CSV column index
+     * @param callable|null $callable     A callable to be applied to each of the value to be returned.
      *
      * @return Iterator
      */
-    public function fetchColumn($columnIndex = 0, callable $callable = null)
+    public function fetchColumn($column_index = 0, callable $callable = null)
     {
-        $columnIndex = $this->validateInteger($columnIndex, 0, 'the column index must be a positive integer or 0');
+        $column_index = $this->validateInteger($column_index, 0, 'the column index must be a positive integer or 0');
 
-        $filterColumn = function ($row) use ($columnIndex) {
-            return isset($row[$columnIndex]);
+        $filter_column = function ($row) use ($column_index) {
+            return isset($row[$column_index]);
         };
 
-        $selectColumn = function ($row) use ($columnIndex) {
-            return $row[$columnIndex];
+        $select_column = function ($row) use ($column_index) {
+            return $row[$column_index];
         };
 
-        $this->addFilter($filterColumn);
-        $iterator = $this->fetch($selectColumn);
+        $this->addFilter($filter_column);
+        $iterator = $this->fetch($select_column);
         $iterator = $this->applyCallable($iterator, $callable);
 
         return $iterator;
@@ -167,15 +167,15 @@ class Reader extends AbstractCsv
      * If the value from the column key index is duplicated its corresponding value will
      * be overwritten
      *
-     * @param int           $offsetIndex The column index to serve as offset
-     * @param int           $valueIndex  The column index to serve as value
-     * @param callable|null $callable    A callable to be applied to each of the rows to be returned.
+     * @param int           $offset_index The column index to serve as offset
+     * @param int           $value_index  The column index to serve as value
+     * @param callable|null $callable     A callable to be applied to each of the rows to be returned.
      *
      * @return array
      */
-    public function fetchPairsWithoutDuplicates($offsetIndex = 0, $valueIndex = 1, callable $callable = null)
+    public function fetchPairsWithoutDuplicates($offset_index = 0, $value_index = 1, callable $callable = null)
     {
-        return iterator_to_array($this->fetchPairs($offsetIndex, $valueIndex, $callable), true);
+        return iterator_to_array($this->fetchPairs($offset_index, $value_index, $callable), true);
     }
 
     /**
@@ -186,28 +186,28 @@ class Reader extends AbstractCsv
      * - the first CSV column is used to provide the keys
      * - the second CSV column is used to provide the value
      *
-     * @param int           $offsetIndex The column index to serve as offset
-     * @param int           $valueIndex  The column index to serve as value
-     * @param callable|null $callable    A callable to be applied to each of the rows to be returned.
+     * @param int           $offset_index The column index to serve as offset
+     * @param int           $value_index  The column index to serve as value
+     * @param callable|null $callable     A callable to be applied to each of the rows to be returned.
      *
      * @return Generator
      */
-    public function fetchPairs($offsetIndex = 0, $valueIndex = 1, callable $callable = null)
+    public function fetchPairs($offset_index = 0, $value_index = 1, callable $callable = null)
     {
-        $offsetIndex = $this->validateInteger($offsetIndex, 0, 'the offset column index must be a positive integer or 0');
-        $valueIndex = $this->validateInteger($valueIndex, 0, 'the value column index must be a positive integer or 0');
-        $filterPairs = function ($row) use ($offsetIndex) {
-            return isset($row[$offsetIndex]);
+        $offset_index = $this->validateInteger($offset_index, 0, 'the offset column index must be a positive integer or 0');
+        $value_index = $this->validateInteger($value_index, 0, 'the value column index must be a positive integer or 0');
+        $filter_pairs = function ($row) use ($offset_index) {
+            return isset($row[$offset_index]);
         };
-        $selectPairs = function ($row) use ($offsetIndex, $valueIndex) {
+        $select_pairs = function ($row) use ($offset_index, $value_index) {
             return [
-                $row[$offsetIndex],
-                isset($row[$valueIndex]) ? $row[$valueIndex] : null,
+                $row[$offset_index],
+                isset($row[$value_index]) ? $row[$value_index] : null,
             ];
         };
 
-        $this->addFilter($filterPairs);
-        $iterator = $this->fetch($selectPairs);
+        $this->addFilter($filter_pairs);
+        $iterator = $this->fetch($select_pairs);
         $iterator = $this->applyCallable($iterator, $callable);
 
         return $this->generatePairs($iterator);
@@ -233,8 +233,8 @@ class Reader extends AbstractCsv
      * The rows are presented as associated arrays
      * The callable function will be applied to each row
      *
-     * @param int|array $offsetOrKeys the name for each key member OR the row Index to be
-     *                                used as the associated named keys
+     * @param int|array $offset_or_keys the name for each key member OR the row Index to be
+     *                                  used as the associated named keys
      *
      * @param callable $callable A callable to be applied to each of the rows to be returned.
      *
@@ -242,19 +242,19 @@ class Reader extends AbstractCsv
      *
      * @return Iterator
      */
-    public function fetchAssoc($offsetOrKeys = 0, callable $callable = null)
+    public function fetchAssoc($offset_or_keys = 0, callable $callable = null)
     {
-        $keys = $this->getAssocKeys($offsetOrKeys);
-        $keysCount = count($keys);
-        $combineArray = function (array $row) use ($keys, $keysCount) {
-            if ($keysCount != count($row)) {
-                $row = array_slice(array_pad($row, $keysCount, null), 0, $keysCount);
+        $keys = $this->getAssocKeys($offset_or_keys);
+        $keys_count = count($keys);
+        $combine_array = function (array $row) use ($keys, $keys_count) {
+            if ($keys_count != count($row)) {
+                $row = array_slice(array_pad($row, $keys_count, null), 0, $keys_count);
             }
 
             return array_combine($keys, $row);
         };
 
-        $iterator = $this->fetch($combineArray);
+        $iterator = $this->fetch($combine_array);
         $iterator = $this->applyCallable($iterator, $callable);
 
         return $iterator;
@@ -263,27 +263,27 @@ class Reader extends AbstractCsv
     /**
      * Selects the array to be used as key for the fetchAssoc method
      *
-     * @param int|array $offsetOrKeys the assoc key OR the row Index to be used
-     *                                as the key index
+     * @param int|array $offset_or_keys the assoc key OR the row Index to be used
+     *                                  as the key index
      *
      * @throws InvalidArgumentException If the row index and/or the resulting array is invalid
      *
      * @return array
      */
-    protected function getAssocKeys($offsetOrKeys)
+    protected function getAssocKeys($offset_or_keys)
     {
-        if (is_array($offsetOrKeys)) {
-            return $this->validateKeys($offsetOrKeys);
+        if (is_array($offset_or_keys)) {
+            return $this->validateKeys($offset_or_keys);
         }
 
-        $offsetOrKeys = $this->validateInteger(
-            $offsetOrKeys,
+        $offset_or_keys = $this->validateInteger(
+            $offset_or_keys,
             0,
             'the row index must be a positive integer, 0 or a non empty array'
         );
-        $keys = $this->validateKeys($this->getRow($offsetOrKeys));
-        $filterOutRow = function ($row, $rowIndex) use ($offsetOrKeys) {
-            return $rowIndex != $offsetOrKeys;
+        $keys = $this->validateKeys($this->getRow($offset_or_keys));
+        $filterOutRow = function ($row, $rowIndex) use ($offset_or_keys) {
+            return $rowIndex != $offset_or_keys;
         };
         $this->addFilter($filterOutRow);
 

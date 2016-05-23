@@ -32,7 +32,7 @@ class Writer extends AbstractCsv
     /**
      * @inheritdoc
      */
-    protected $streamFilterMode = STREAM_FILTER_WRITE;
+    protected $stream_filter_mode = STREAM_FILTER_WRITE;
 
     /**
      * The CSV object holder
@@ -53,7 +53,7 @@ class Writer extends AbstractCsv
      *
      * @var integer
      */
-    protected static $fputcsvParamsCount;
+    protected static $fputcsv_param_count;
 
     /**
      * @inheritdoc
@@ -71,7 +71,7 @@ class Writer extends AbstractCsv
     {
         if (null === static::$fputcsv) {
             static::$fputcsv = new ReflectionMethod('\SplFileObject', 'fputcsv');
-            static::$fputcsvParamsCount = static::$fputcsv->getNumberOfParameters();
+            static::$fputcsv_param_count = static::$fputcsv->getNumberOfParameters();
         }
     }
 
@@ -139,7 +139,7 @@ class Writer extends AbstractCsv
     protected function getFputcsvParameters(array $fields)
     {
         $parameters = [$fields, $this->delimiter, $this->enclosure];
-        if (4 == static::$fputcsvParamsCount) {
+        if (4 == static::$fputcsv_param_count) {
             $parameters[] = $this->escape;
         }
 

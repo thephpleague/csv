@@ -33,19 +33,19 @@ trait Output
      *
      * @var string
      */
-    protected $inputEncoding = 'UTF-8';
+    protected $input_encoding = 'UTF-8';
 
     /**
      * The Input file BOM character
      * @var string
      */
-    protected $inputBom;
+    protected $input_bom;
 
     /**
      * The Output file BOM character
      * @var string
      */
-    protected $outputBom = '';
+    protected $output_bom = '';
 
     /**
      * Sets the CSV encoding charset
@@ -61,7 +61,7 @@ trait Output
         if (empty($str)) {
             throw new InvalidArgumentException('you should use a valid charset');
         }
-        $this->inputEncoding = strtoupper($str);
+        $this->input_encoding = strtoupper($str);
 
         return $this;
     }
@@ -89,7 +89,7 @@ trait Output
      */
     public function getInputEncoding()
     {
-        return $this->inputEncoding;
+        return $this->input_encoding;
     }
 
     /**
@@ -103,7 +103,7 @@ trait Output
      */
     public function getEncodingFrom()
     {
-        return $this->inputEncoding;
+        return $this->input_encoding;
     }
 
     /**
@@ -116,12 +116,12 @@ trait Output
     public function setOutputBOM($str)
     {
         if (empty($str)) {
-            $this->outputBom = '';
+            $this->output_bom = '';
 
             return $this;
         }
 
-        $this->outputBom = (string) $str;
+        $this->output_bom = (string) $str;
 
         return $this;
     }
@@ -133,7 +133,7 @@ trait Output
      */
     public function getOutputBOM()
     {
-        return $this->outputBom;
+        return $this->output_bom;
     }
 
     /**
@@ -143,7 +143,7 @@ trait Output
      */
     public function getInputBOM()
     {
-        if (null === $this->inputBom) {
+        if (null === $this->input_bom) {
             $bom = [
                 AbstractCsv::BOM_UTF32_BE, AbstractCsv::BOM_UTF32_LE,
                 AbstractCsv::BOM_UTF16_BE, AbstractCsv::BOM_UTF16_LE, AbstractCsv::BOM_UTF8,
@@ -156,10 +156,10 @@ trait Output
                 return strpos($line, $sequence) === 0;
             });
 
-            $this->inputBom = (string) array_shift($res);
+            $this->input_bom = (string) array_shift($res);
         }
 
-        return $this->inputBom;
+        return $this->input_bom;
     }
 
     /**
@@ -196,15 +196,15 @@ trait Output
     protected function fpassthru()
     {
         $bom = '';
-        $inputBom = $this->getInputBOM();
-        if ($this->outputBom && $inputBom != $this->outputBom) {
-            $bom = $this->outputBom;
+        $input_bom = $this->getInputBOM();
+        if ($this->output_bom && $input_bom != $this->output_bom) {
+            $bom = $this->output_bom;
         }
         $csv = $this->getIterator();
         $csv->setFlags(SplFileObject::READ_CSV);
         $csv->rewind();
         if (!empty($bom)) {
-            $csv->fseek(mb_strlen($inputBom));
+            $csv->fseek(mb_strlen($input_bom));
         }
         echo $bom;
         $res = $csv->fpassthru();
@@ -249,19 +249,19 @@ trait Output
      */
     protected function convertToUtf8(Iterator $iterator)
     {
-        if (stripos($this->inputEncoding, 'UTF-8') !== false) {
+        if (stripos($this->input_encoding, 'UTF-8') !== false) {
             return $iterator;
         }
 
-        $convertCell = function ($value) {
-            return mb_convert_encoding($value, 'UTF-8', $this->inputEncoding);
+        $convert_cell = function ($value) {
+            return mb_convert_encoding($value, 'UTF-8', $this->input_encoding);
         };
 
-        $convertRow = function (array $row) use ($convertCell) {
-            return array_map($convertCell, $row);
+        $convert_row = function (array $row) use ($convert_cell) {
+            return array_map($convert_cell, $row);
         };
 
-        return new MapIterator($iterator, $convertRow);
+        return new MapIterator($iterator, $convert_row);
     }
 
     /**
@@ -282,21 +282,21 @@ trait Output
     /**
      * Transforms a CSV into a XML
      *
-     * @param string $rootName XML root node name
-     * @param string $rowName  XML row node name
-     * @param string $cellName XML cell node name
+     * @param string $root_name XML root node name
+     * @param string $row_name  XML row node name
+     * @param string $cell_name XML cell node name
      *
      * @return DomDocument
      */
-    public function toXML($rootName = 'csv', $rowName = 'row', $cellName = 'cell')
+    public function toXML($root_name = 'csv', $row_name = 'row', $cell_name = 'cell')
     {
         $doc = new DomDocument('1.0', 'UTF-8');
-        $root = $doc->createElement($rootName);
+        $root = $doc->createElement($root_name);
         foreach ($this->convertToUtf8($this->getQueryIterator()) as $row) {
-            $rowElement = $doc->createElement($rowName);
-            array_walk($row, function ($value) use (&$rowElement, $doc, $cellName) {
+            $rowElement = $doc->createElement($row_name);
+            array_walk($row, function ($value) use (&$rowElement, $doc, $cell_name) {
                 $content = $doc->createTextNode($value);
-                $cell = $doc->createElement($cellName);
+                $cell = $doc->createElement($cell_name);
                 $cell->appendChild($content);
                 $rowElement->appendChild($cell);
             });

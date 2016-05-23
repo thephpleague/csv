@@ -6,6 +6,7 @@ All Notable changes to `Csv` will be documented in this file
 
 ### Added
 
+- The package now includes its own autoloader.
 - `Ouput::getInputEncoding`
 - `Ouput::setInputEncoding`
 
@@ -17,6 +18,7 @@ All Notable changes to `Csv` will be documented in this file
 ### Fixed
 
 - Stream Filters are now url encoded before usage [issue #72](https://github.com/thephpleague/csv/issues/72)
+- All parameters are now using the snake case format
 
 ### Removed
 

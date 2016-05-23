@@ -30,14 +30,14 @@ trait StreamFilter
      *
      * @var array
      */
-    protected $streamFilters = [];
+    protected $stream_filters = [];
 
     /**
      * Stream filtering mode to apply on all filters
      *
      * @var int
      */
-    protected $streamFilterMode = STREAM_FILTER_ALL;
+    protected $stream_filter_mode = STREAM_FILTER_ALL;
 
     /**
      *the real path
@@ -45,7 +45,7 @@ trait StreamFilter
      * @var string the real path to the file
      *
      */
-    protected $streamUri;
+    protected $stream_uri;
 
     /**
      * PHP Stream Filter Regex
@@ -70,21 +70,21 @@ trait StreamFilter
      */
     protected function initStreamFilter($path)
     {
-        $this->streamFilters = [];
+        $this->stream_filters = [];
         if (!is_string($path)) {
-            $this->streamUri = null;
+            $this->stream_uri = null;
 
             return;
         }
 
         if (!preg_match($this->stream_regex, $path, $matches)) {
-            $this->streamUri = $path;
+            $this->stream_uri = $path;
 
             return;
         }
-        $this->streamUri = $matches['resource'];
-        $this->streamFilters = array_map('urldecode', explode('|', $matches['filters']));
-        $this->streamFilterMode = $this->fetchStreamModeAsInt($matches['mode']);
+        $this->stream_uri = $matches['resource'];
+        $this->stream_filters = array_map('urldecode', explode('|', $matches['filters']));
+        $this->stream_filter_mode = $this->fetchStreamModeAsInt($matches['mode']);
     }
 
     /**
@@ -116,7 +116,7 @@ trait StreamFilter
      */
     protected function assertStreamable()
     {
-        if (!is_string($this->streamUri)) {
+        if (!is_string($this->stream_uri)) {
             throw new LogicException('The stream filter API can not be used');
         }
     }
@@ -128,7 +128,7 @@ trait StreamFilter
      */
     public function isActiveStreamFilter()
     {
-        return is_string($this->streamUri);
+        return is_string($this->stream_uri);
     }
 
     /**
@@ -150,8 +150,8 @@ trait StreamFilter
             throw new OutOfBoundsException('the $mode should be a valid `STREAM_FILTER_*` constant');
         }
 
-        $this->streamFilterMode = $mode;
-        $this->streamFilters = [];
+        $this->stream_filter_mode = $mode;
+        $this->stream_filters = [];
 
         return $this;
     }
@@ -165,20 +165,20 @@ trait StreamFilter
     {
         $this->assertStreamable();
 
-        return $this->streamFilterMode;
+        return $this->stream_filter_mode;
     }
 
     /**
      * append a stream filter
      *
-     * @param string $filterName a string or an object that implements the '__toString' method
+     * @param string $filter_name a string or an object that implements the '__toString' method
      *
      * @return $this
      */
-    public function appendStreamFilter($filterName)
+    public function appendStreamFilter($filter_name)
     {
         $this->assertStreamable();
-        $this->streamFilters[] = $this->sanitizeStreamFilter($filterName);
+        $this->stream_filters[] = $this->sanitizeStreamFilter($filter_name);
 
         return $this;
     }
@@ -186,14 +186,14 @@ trait StreamFilter
     /**
      * prepend a stream filter
      *
-     * @param string $filterName a string or an object that implements the '__toString' method
+     * @param string $filter_name a string or an object that implements the '__toString' method
      *
      * @return $this
      */
-    public function prependStreamFilter($filterName)
+    public function prependStreamFilter($filter_name)
     {
         $this->assertStreamable();
-        array_unshift($this->streamFilters, $this->sanitizeStreamFilter($filterName));
+        array_unshift($this->stream_filters, $this->sanitizeStreamFilter($filter_name));
 
         return $this;
     }
@@ -201,13 +201,13 @@ trait StreamFilter
     /**
      * Sanitize the stream filter name
      *
-     * @param string $filterName the stream filter name
+     * @param string $filter_name the stream filter name
      *
      * @return string
      */
-    protected function sanitizeStreamFilter($filterName)
+    protected function sanitizeStreamFilter($filter_name)
     {
-        return urldecode($this->validateString($filterName));
+        return urldecode($this->validateString($filter_name));
     }
 
     /**
@@ -218,30 +218,30 @@ trait StreamFilter
     /**
      * Detect if the stream filter is already present
      *
-     * @param string $filterName
+     * @param string $filter_name
      *
      * @return bool
      */
-    public function hasStreamFilter($filterName)
+    public function hasStreamFilter($filter_name)
     {
         $this->assertStreamable();
 
-        return false !== array_search(urldecode($filterName), $this->streamFilters, true);
+        return false !== array_search(urldecode($filter_name), $this->stream_filters, true);
     }
 
     /**
      * Remove a filter from the collection
      *
-     * @param string $filterName
+     * @param string $filter_name
      *
      * @return $this
      */
-    public function removeStreamFilter($filterName)
+    public function removeStreamFilter($filter_name)
     {
         $this->assertStreamable();
-        $res = array_search(urldecode($filterName), $this->streamFilters, true);
+        $res = array_search(urldecode($filter_name), $this->stream_filters, true);
         if (false !== $res) {
-            unset($this->streamFilters[$res]);
+            unset($this->stream_filters[$res]);
         }
 
         return $this;
@@ -255,7 +255,7 @@ trait StreamFilter
     public function clearStreamFilter()
     {
         $this->assertStreamable();
-        $this->streamFilters = [];
+        $this->stream_filters = [];
 
         return $this;
     }
@@ -268,14 +268,14 @@ trait StreamFilter
     protected function getStreamFilterPath()
     {
         $this->assertStreamable();
-        if (!$this->streamFilters) {
-            return $this->streamUri;
+        if (!$this->stream_filters) {
+            return $this->stream_uri;
         }
 
         return 'php://filter/'
             .$this->getStreamFilterPrefix()
-            .implode('|', array_map('urlencode', $this->streamFilters))
-            .'/resource='.$this->streamUri;
+            .implode('|', array_map('urlencode', $this->stream_filters))
+            .'/resource='.$this->stream_uri;
     }
 
     /**
@@ -285,11 +285,11 @@ trait StreamFilter
      */
     protected function getStreamFilterPrefix()
     {
-        if (STREAM_FILTER_READ == $this->streamFilterMode) {
+        if (STREAM_FILTER_READ == $this->stream_filter_mode) {
             return 'read=';
         }
 
-        if (STREAM_FILTER_WRITE == $this->streamFilterMode) {
+        if (STREAM_FILTER_WRITE == $this->stream_filter_mode) {
             return 'write=';
         }
 
