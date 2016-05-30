@@ -266,8 +266,8 @@ trait QueryFilter
         $obj = new ArrayObject(iterator_to_array($iterator));
         $obj->uasort(function ($row_a, $row_b) {
             $res = 0;
-            foreach ($this->iterator_sort_by as $compareRows) {
-                if (0 !== ($res = call_user_func($compareRows, $row_a, $row_b))) {
+            foreach ($this->iterator_sort_by as $compare) {
+                if (0 !== ($res = call_user_func($compare, $row_a, $row_b))) {
                     break;
                 }
             }
