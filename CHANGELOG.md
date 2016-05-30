@@ -2,7 +2,7 @@
 
 All Notable changes to `Csv` will be documented in this file
 
-## Next - 2016-xx-xx
+## 8.1.0 - 2016-05-31
 
 ### Added
 
@@ -18,7 +18,7 @@ All Notable changes to `Csv` will be documented in this file
 ### Fixed
 
 - Stream Filters are now url encoded before usage [issue #72](https://github.com/thephpleague/csv/issues/72)
-- All parameters are now using the snake case format
+- All internal parameters are now using the snake case format
 
 ### Removed
 
