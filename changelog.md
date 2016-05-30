@@ -5,7 +5,7 @@ title: Changelog
 
 # Changelog
 
-All Notable changes to `League\Csv` will be documented in this file
+All Notable changes to `Csv` will be documented in this file
 
 {% for release in site.github.releases %}
 ## {{ release.name }}

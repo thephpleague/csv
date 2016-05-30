@@ -133,6 +133,18 @@ foreach ($reader as $row) {
 }
 ~~~
 
+<p class="message-notice">Starting with version <code>8.1.0</code> you no longer need to URL encode your filter prior to attach it to the CSV object.</p>
+
+~~~php
+<?php
+
+use League\Csv\Reader;
+
+$reader = Reader::createFromPath('/path/to/my/chinese.csv');
+$reader->appendStreamFilter('convert.iconv.UTF-8/ASCII//TRANSLIT');
+var_dump($reader->fetchAll());
+~~~
+
 ## Limitations
 
 ### Writer class on Editing Mode

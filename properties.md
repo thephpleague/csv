@@ -230,18 +230,32 @@ $bom = $csv->getOutputBOM(); //returns "\xEF\xBB\xBF"
 
 <p class="message-notice">The following properties and method only works when converting your CSV document into other available formats.</p>
 
-### The encoding charset
-
 To convert your CSV document into another format it must be encoded in `UTF-8`.
 
-When this is not the case, you should transcode it first using the <a href="/filtering/">library stream filtering mechanism</a>.
+When this is not the case, you should transcode it first using the <a href="/filtering/">library stream filtering mechanism</a>. When this is not applicable you should provide the CSV original encoding charset to the CSV object using the following methods.
 
-When this is not applicable you should provide the CSV original encoding charset to the CSV object using the `setEncodingFrom` method.
+### methods
+
+<p class="message-notice">These methods are introduced in version <code>8.1.0</code></p>
 
 ~~~php
+<?php
+
+public AbstractCsv::setInputEncoding(string $sequence): AbstractCsv
+public AbstractCsv::getInputEncoding(void): string
+~~~
+
+<p class="message-warning">The following methods are deprecated since version <code>8.1.0</code> and will be remove in the next major release</p>
+
+~~~php
+<?php
+
 public AbstractCsv::setEncodingFrom(string $sequence): AbstractCsv
 public AbstractCsv::getEncodingFrom(void): string
 ~~~
+
+- `AbstractCsv::setEncodingFrom` is replaced by `AbstractCsv::setInputEncoding`
+- `AbstractCsv::getInputEncoding` is replaced by `AbstractCsv::getEncodingFrom`
 
 #### Example
 
@@ -251,13 +265,13 @@ public AbstractCsv::getEncodingFrom(void): string
 use League\Csv\Reader;
 
 $csv = Reader::createFromPath('/path/to/file.csv');
-$csv->setEncodingFrom('iso-8859-15');
-echo $csv->getEncodingFrom(); //returns iso-8859-15;
+$csv->setInputEncoding('iso-8859-15');
+echo $csv->getInputEncoding(); //returns iso-8859-15;
 ~~~
 
 #### Notes
 
-By default `getEncodingFrom` returns `UTF-8` if `setEncodingFrom` was not used.
+By default `getInputEncoding` returns `UTF-8` if `setInputEncoding` was not used.
 
 <div class="message-warning">The encoding properties have no effect when reading or writing to a CSV document. You should instead use <a href="/filtering/">the Stream Filter API</a> or <a href="/inserting/#row-formatting">the Writing Formatter API</a>.</div>
 
@@ -267,8 +281,8 @@ By default `getEncodingFrom` returns `UTF-8` if `setEncodingFrom` was not used.
 use League\Csv\Reader;
 
 $reader = Reader::createFromFileObject(new SplFileObject('/path/to/bengali.csv'));
-//we are using the setEncodingFrom method to transcode the CSV into UTF-8
-$reader->setEncodingFrom('iso-8859-15');
+//we are using the setInputEncoding method to transcode the CSV into UTF-8
+$reader->setInputEncoding('iso-8859-15');
 echo json_encode($reader);
 //the CSV is transcoded from iso-8859-15 to UTF-8
 //before being converted to JSON format;
