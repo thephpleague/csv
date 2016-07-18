@@ -12,7 +12,7 @@
 */
 namespace League\Csv\Modifier;
 
-use ArrayObject;
+use ArrayIterator;
 use CallbackFilterIterator;
 use Iterator;
 use LimitIterator;
@@ -263,7 +263,7 @@ trait QueryFilter
             return $iterator;
         }
 
-        $obj = new ArrayObject(iterator_to_array($iterator));
+        $obj = new ArrayIterator(iterator_to_array($iterator));
         $obj->uasort(function ($row_a, $row_b) {
             $res = 0;
             foreach ($this->iterator_sort_by as $compare) {
@@ -276,7 +276,7 @@ trait QueryFilter
         });
         $this->iterator_sort_by = [];
 
-        return $obj->getIterator();
+        return $obj;
     }
 
     /**

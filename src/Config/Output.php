@@ -103,7 +103,7 @@ trait Output
      */
     public function getEncodingFrom()
     {
-        return $this->input_encoding;
+        return $this->getInputEncoding();
     }
 
     /**

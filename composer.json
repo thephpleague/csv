@@ -23,7 +23,7 @@
     },
     "require-dev": {
         "phpunit/phpunit" : "^4.0",
-        "fabpot/php-cs-fixer": "^1.9"
+        "friendsofphp/php-cs-fixer": "^1.9"
     },
     "autoload": {
         "psr-4": {
@@ -37,7 +37,9 @@
         }
     },
     "scripts": {
-        "test": "phpunit --coverage-text; php-cs-fixer fix -v --diff --dry-run;"
+        "test": "phpunit --coverage-text; php-cs-fixer fix -v --diff --dry-run;",
+        "phpunit": "phpunit --coverage-text",
+        "phpcs": "php-cs-fixer fix -v --diff --dry-run;"
     },
     "extra": {
         "branch-alias": {
