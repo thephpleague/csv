@@ -2,15 +2,15 @@
 
 /.editorconfig     export-ignore
 /.gitattributes    export-ignore
+/.github           export-ignore
 /.gitignore        export-ignore
 /.php_cs           export-ignore
+/.scrutinizer.yml  export-ignore
 /.travis.yml       export-ignore
-/examples          export-ignore
-/phpunit.xml       export-ignore
 /README.md         export-ignore
 /scrutinizer.yml   export-ignore
-/test              export-ignore
 /CHANGELOG.md      export-ignore
-/CONTRIBUTING.md   export-ignore
 /CONDUCT.md        export-ignore
-/ISSUE_TEMPLATE.md export-ignore
+/phpunit.xml       export-ignore
+/examples          export-ignore
+/test              export-ignore
