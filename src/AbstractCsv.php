@@ -115,7 +115,15 @@ abstract class AbstractCsv implements JsonSerializable, IteratorAggregate
      */
     public static function createFromFileObject(SplFileObject $file)
     {
-        return new static($file);
+        $csv = new static($file);
+        $controls = $file->getCsvControl();
+        $csv->setDelimiter($controls[0]);
+        $csv->setEnclosure($controls[1]);
+        if (isset($controls[2])) {
+            $csv->setEscape($controls[2]);
+        }
+
+        return $csv;
     }
 
     /**

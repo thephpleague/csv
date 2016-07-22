@@ -73,4 +73,20 @@ class FactoryTest extends AbstractTestCase
         $this->assertInstanceof(Reader::class, $reader);
         $this->assertInstanceof(SplFileObject::class, $reader->getIterator());
     }
+
+
+    public function testCreateFromFileObjectPreserveFileObjectCsvControls()
+    {
+        $delimiter = "\t";
+        $enclosure = '?';
+        $escape = '^';
+        $file = new SplTempFileObject();
+        $file->setCsvControl($delimiter, $enclosure, $escape);
+        $obj = Reader::createFromFileObject($file);
+        $this->assertSame($delimiter, $obj->getDelimiter());
+        $this->assertSame($enclosure, $obj->getEnclosure());
+        if (3 === count($file->getCsvControl())) {
+            $this->assertSame($escape, $obj->getEscape());
+        }
+    }
 }
