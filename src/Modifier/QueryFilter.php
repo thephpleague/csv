@@ -78,7 +78,7 @@ trait QueryFilter
     /**
      * @inheritdoc
      */
-    abstract public function getInputBom();
+    abstract public function getInputBOM();
 
     /**
      * Set LimitIterator Offset
@@ -202,7 +202,7 @@ trait QueryFilter
      */
     protected function isBomStrippable()
     {
-        return !empty($this->getInputBom()) && $this->strip_bom;
+        return !empty($this->getInputBOM()) && $this->strip_bom;
     }
 
     /**
@@ -214,7 +214,7 @@ trait QueryFilter
      */
     protected function getStripBomIterator(Iterator $iterator)
     {
-        $bom_length = mb_strlen($this->getInputBom());
+        $bom_length = mb_strlen($this->getInputBOM());
         $enclosure = $this->getEnclosure();
         $strip_bom = function ($row, $index) use ($bom_length, $enclosure) {
             if (0 != $index) {
