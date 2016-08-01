@@ -342,7 +342,7 @@ class Reader extends AbstractCsv
         }
 
         if (0 === $offset && $this->isBomStrippable()) {
-            $line = mb_substr($line, mb_strlen($this->getInputBom()));
+            $line = mb_substr($line, mb_strlen($this->getInputBOM()));
         }
 
         return str_getcsv($line, $this->delimiter, $this->enclosure, $this->escape);

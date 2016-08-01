@@ -272,7 +272,7 @@ class ReaderTest extends AbstractTestCase
             "parentA","childA","titleA"';
         $csv = Reader::createFromString($source);
         $csv->stripBom(true);
-        $this->assertSame(Reader::BOM_UTF8, $csv->getInputBom());
+        $this->assertSame(Reader::BOM_UTF8, $csv->getInputBOM());
         $expected = ['parent name', 'child name', 'title'];
         $this->assertEquals($expected, $csv->fetchOne());
     }
