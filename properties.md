@@ -7,6 +7,24 @@ title: Setting and Accessing CSV settings
 
 Once your object is [instantiated](/instantiation/) you can optionally set several CSV properties. The following methods works on both the `Reader` and the `Writer` class.
 
+<p class="message-notice">Since <code>version 8.1.1</code> The underlying CSV controls from the submitted CSV are inherited by the return <code>AbstractCsv</code> object.</p>
+
+
+~~~php
+<?php
+
+$file = new SplTempFileObject();
+$file->setFlags(SplFileObject::READ_CSV);
+$file->setCsvControls('|');
+
+$csv = Reader::createFromFileObject($file);
+
+echo $csv->getDelimiter(); //display '|'
+~~~
+
+<p class="message-warning">Of note, The escape character is only inherited starting with <code>PHP 5.6.25</code> in the PHP5 line and <code>7.0.10</code> in the PHP7 version.</p>
+
+
 ## Accessing and Setting CSV properties
 
 ### The CSV delimiter character.
