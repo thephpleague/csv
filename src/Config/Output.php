@@ -179,7 +179,7 @@ trait Output
     {
         if (null !== $filename) {
             $filename = filter_var($filename, FILTER_SANITIZE_STRING, FILTER_FLAG_STRIP_LOW);
-            header('Content-Type: application/octet-stream');
+            header('Content-Type: text/csv');
             header('Content-Transfer-Encoding: binary');
             header("Content-Disposition: attachment; filename=\"$filename\"");
         }

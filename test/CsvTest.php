@@ -94,7 +94,10 @@ class CsvTest extends AbstractTestCase
         }
         $this->csv->output('test.csv');
         $headers = \xdebug_get_headers();
-        $this->assertSame($headers[0], 'Content-Type: application/octet-stream');
+
+        // Due to the variety of ways the xdebug expresses Content-Type of text files,
+        // we cannot count on complete string matching.
+        $this->assertContains('content-type: text/csv', strtolower($headers[0]));
         $this->assertSame($headers[1], 'Content-Transfer-Encoding: binary');
         $this->assertSame($headers[2], 'Content-Disposition: attachment; filename="test.csv"');
     }
