@@ -14,8 +14,9 @@ All Notable changes to `Csv` will be documented in this file
 
 ### Fixed
 
-- getInputBOM  consistent everywhere in the API [PR #171](https://github.com/thephpleague/csv/pull/171)
+- `getInputBOM` method name is now consistent everywhere in the API [PR #171](https://github.com/thephpleague/csv/pull/171)
 - preserve fileObject CSV controls [commit #8a20c56](https://github.com/thephpleague/csv/commit/8a20c56144effa552a8cba5d8c626063222975b7)
+- Change `output` method header content-type value to `text/csv` [PR #175](https://github.com/thephpleague/csv/pull/175)
 
 ### Removed
 
