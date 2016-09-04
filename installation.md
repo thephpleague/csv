@@ -7,7 +7,7 @@ title: Installation
 
 ## System Requirements
 
-You need **PHP >= 5.5.0** and the `mbstring` extension to use `League\Csv` but the latest stable version of PHP/HHVM is recommended.
+You need **PHP >= 5.5.0** and the `mbstring` extension to use `Csv` but the latest stable version of PHP is recommended.
 
 ## Composer
 
