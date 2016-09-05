@@ -104,15 +104,12 @@ class Writer extends AbstractCsv
     /**
      * Adds a single line to a CSV document
      *
-     * @param string[]|string $row a string, an array or an object implementing to '__toString' method
+     * @param string[] $row a string, an array or an object implementing to '__toString' method
      *
      * @return static
      */
-    public function insertOne($row)
+    public function insertOne(array $row)
     {
-        if (!is_array($row)) {
-            $row = str_getcsv($row, $this->delimiter, $this->enclosure, $this->escape);
-        }
         $row = $this->formatRow($row);
         $this->validateRow($row);
 

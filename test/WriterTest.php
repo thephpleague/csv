@@ -41,13 +41,11 @@ class WriterTest extends AbstractTestCase
     {
         $expected = [
             ['john', 'doe', 'john.doe@example.com'],
-            'jane,doe,jane.doe@example.com',
         ];
         foreach ($expected as $row) {
             $this->csv->insertOne($row);
         }
         $this->assertContains(['john', 'doe', 'john.doe@example.com'], $this->csv);
-        $this->assertContains(['jane', 'doe', 'jane.doe@example.com'], $this->csv);
     }
 
     public function testInsertNormalFile()
@@ -80,12 +78,11 @@ class WriterTest extends AbstractTestCase
     {
         $multipleArray = [
             ['john', 'doe', 'john.doe@example.com'],
-            'jane,doe,jane.doe@example.com',
         ];
 
         return [
             'array' => [$multipleArray, $multipleArray[0]],
-            'iterator' => [new ArrayIterator($multipleArray), ['jane', 'doe', 'jane.doe@example.com']],
+            'iterator' => [new ArrayIterator($multipleArray), ['john', 'doe', 'john.doe@example.com']],
         ];
     }
 
@@ -93,7 +90,6 @@ class WriterTest extends AbstractTestCase
     {
         $expected = [
             ['john', 'doe', 'john.doe@example.com'],
-            'john,doe,john.doe@example.com',
         ];
         foreach ($expected as $row) {
             $this->csv->insertOne($row);
