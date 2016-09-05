@@ -2,7 +2,7 @@
 
 All Notable changes to `Csv` will be documented in this file
 
-## Next
+## 8.1.1 - 2016-09-05
 
 ### Added
 
