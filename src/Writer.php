@@ -13,7 +13,7 @@
 namespace League\Csv;
 
 use InvalidArgumentException;
-use League\Csv\Modifier\RowFilter;
+use League\Csv\Exception\InvalidRowException;
 use ReflectionMethod;
 use SplFileObject;
 use Traversable;
@@ -27,8 +27,6 @@ use Traversable;
  */
 class Writer extends AbstractCsv
 {
-    use RowFilter;
-
     /**
      * @inheritdoc
      */
@@ -56,6 +54,20 @@ class Writer extends AbstractCsv
     protected static $fputcsv_param_count;
 
     /**
+     * Callables to validate the row before insertion
+     *
+     * @var callable[]
+     */
+    protected $validators = [];
+
+    /**
+     * Callables to format the row before insertion
+     *
+     * @var callable[]
+     */
+    protected $formatters = [];
+
+    /**
      * @inheritdoc
      */
     protected function __construct($path, $open_mode = 'r+')
@@ -76,6 +88,44 @@ class Writer extends AbstractCsv
     }
 
     /**
+     *  {@inheritdoc}
+     */
+    public function __destruct()
+    {
+        $this->csv = null;
+        parent::__destruct();
+    }
+
+    /**
+     * add a formatter to the collection
+     *
+     * @param callable $callable
+     *
+     * @return static
+     */
+    public function addFormatter(callable $callable)
+    {
+        $this->formatters[] = $callable;
+
+        return $this;
+    }
+
+    /**
+     * add a Validator to the collection
+     *
+     * @param callable $callable
+     * @param string   $name     the rule name
+     *
+     * @return static
+     */
+    public function addValidator(callable $callable, $name)
+    {
+        $this->validators[$this->validateString($name)] = $callable;
+
+        return $this;
+    }
+
+    /**
      * Adds multiple lines to the CSV document
      *
      * a simple wrapper method around insertOne
@@ -89,9 +139,7 @@ class Writer extends AbstractCsv
     public function insertAll($rows)
     {
         if (!is_array($rows) && !$rows instanceof Traversable) {
-            throw new InvalidArgumentException(
-                'the provided data must be an array OR a `Traversable` object'
-            );
+            throw new InvalidArgumentException('the provided data must be an iterable');
         }
 
         foreach ($rows as $row) {
@@ -112,7 +160,6 @@ class Writer extends AbstractCsv
     {
         $row = $this->formatRow($row);
         $this->validateRow($row);
-
         if (null === $this->csv) {
             $this->csv = $this->getIterator();
         }
@@ -124,6 +171,38 @@ class Writer extends AbstractCsv
         }
 
         return $this;
+    }
+
+    /**
+     * Format the given row
+     *
+     * @param array $row
+     *
+     * @return array
+     */
+    protected function formatRow(array $row)
+    {
+        foreach ($this->formatters as $formatter) {
+            $row = call_user_func($formatter, $row);
+        }
+
+        return $row;
+    }
+
+    /**
+    * Validate a row
+    *
+    * @param array $row
+    *
+    * @throws InvalidRowException If the validation failed
+    */
+    protected function validateRow(array $row)
+    {
+        foreach ($this->validators as $name => $validator) {
+            if (true !== call_user_func($validator, $row)) {
+                throw new InvalidRowException($name, $row, 'row validation failed');
+            }
+        }
     }
 
     /**
@@ -149,14 +228,5 @@ class Writer extends AbstractCsv
     public function isActiveStreamFilter()
     {
         return parent::isActiveStreamFilter() && null === $this->csv;
-    }
-
-    /**
-     *  {@inheritdoc}
-     */
-    public function __destruct()
-    {
-        $this->csv = null;
-        parent::__destruct();
     }
 }

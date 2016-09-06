@@ -112,16 +112,10 @@ class WriterTest extends AbstractTestCase
     public function testAddValidationRules()
     {
         $func = function (array $row) {
-            return $row;
+            return true;
         };
 
         $this->csv->addValidator($func, 'func1');
-        $this->csv->addValidator($func, 'func2');
-        $this->assertTrue($this->csv->hasValidator('func1'));
-        $this->csv->removeValidator('func1');
-        $this->assertTrue($this->csv->hasValidator('func2'));
-        $this->csv->clearValidators();
-        $this->assertFalse($this->csv->hasValidator('func2'));
     }
 
     public function testFormatterRules()
@@ -131,12 +125,8 @@ class WriterTest extends AbstractTestCase
         };
 
         $this->csv->addFormatter($func);
-        $this->csv->addFormatter($func);
-        $this->assertTrue($this->csv->hasFormatter($func));
-        $this->csv->removeFormatter($func);
-        $this->assertTrue($this->csv->hasFormatter($func));
-        $this->csv->clearFormatters();
-        $this->assertFalse($this->csv->hasFormatter($func));
+        $this->csv->insertOne(['jane', 'doe']);
+        $this->assertSame("JANE,DOE\n", (string) $this->csv);
     }
 
     public function testConversionWithWriter()

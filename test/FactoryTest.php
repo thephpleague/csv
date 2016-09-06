@@ -16,14 +16,14 @@ class FactoryTest extends AbstractTestCase
     public function testCreateFromPathWithFilePath()
     {
         $path = __DIR__.'/data/foo.csv';
-        $csv  = Reader::createFromPath($path);
+        $csv = Reader::createFromPath($path);
         $this->assertSame($path, $csv->getIterator()->getRealPath());
     }
 
     public function testCreateFromPathWithSplFileInfo()
     {
         $path = __DIR__.'/data/foo.csv';
-        $csv  = Reader::createFromPath(new SplFileInfo($path));
+        $csv = Reader::createFromPath(new SplFileInfo($path));
         $this->assertSame($path, $csv->getIterator()->getRealPath());
     }
 
@@ -67,8 +67,8 @@ class FactoryTest extends AbstractTestCase
 
     public function testCreateFromFileObjectWithSplFileObject()
     {
-        $path   = __DIR__.'/data/foo.csv';
-        $obj    = new SplFileObject($path);
+        $path = __DIR__.'/data/foo.csv';
+        $obj = new SplFileObject($path);
         $reader = Reader::createFromFileObject($obj);
         $this->assertInstanceof(Reader::class, $reader);
         $this->assertInstanceof(SplFileObject::class, $reader->getIterator());
