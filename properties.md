@@ -15,7 +15,7 @@ Once your object is [instantiated](/instantiation/) you can optionally set sever
 
 $file = new SplTempFileObject();
 $file->setFlags(SplFileObject::READ_CSV);
-$file->setCsvControls('|');
+$file->setCsvControl('|');
 
 $csv = Reader::createFromFileObject($file);
 
