@@ -5,13 +5,14 @@ namespace League\Csv\Test;
 use League\Csv\Reader;
 use League\Csv\Writer;
 use lib\FilterReplace;
+use PHPUnit\Framework\TestCase;
 use SplFileObject;
 use SplTempFileObject;
 
 /**
  * @group stream
  */
-class StreamFilterTest extends AbstractTestCase
+class StreamFilterTest extends TestCase
 {
     public function testInitStreamFilterWithWriterStream()
     {
@@ -37,11 +38,9 @@ class StreamFilterTest extends AbstractTestCase
         $this->assertSame(STREAM_FILTER_ALL, $csv->getStreamFilterMode());
     }
 
-    /**
-     * @expectedException LogicException
-     */
     public function testInitStreamFilterWithSplFileObject()
     {
+        $this->expectException(\LogicException::class);
         Reader::createFromFileObject(new SplFileObject(__DIR__.'/data/foo.csv'))->getStreamFilterMode();
     }
 
@@ -61,25 +60,22 @@ class StreamFilterTest extends AbstractTestCase
     {
         $csv = Reader::createFromFileObject(new SplTempFileObject());
         $this->assertFalse($csv->isActiveStreamFilter());
+        $this->expectException(\LogicException::class);
         $csv->prependStreamFilter('string.toupper');
     }
 
-    /**
-     * @expectedException LogicException
-     */
     public function testFailedapppendStreamFilter()
     {
         $csv = Writer::createFromFileObject(new SplTempFileObject());
         $this->assertFalse($csv->isActiveStreamFilter());
+        $this->expectException(\LogicException::class);
         $csv->appendStreamFilter('string.toupper');
     }
 
-    /**
-     * @expectedException OutOfBoundsException
-     */
     public function testSetInvalidStreamFilterMode()
     {
         $csv = Reader::createFromPath(__DIR__.'/data/foo.csv');
+        $this->expectException(\OutOfBoundsException::class);
         $csv->setStreamFilterMode(34);
     }
 
@@ -147,6 +143,6 @@ class StreamFilterTest extends AbstractTestCase
     {
         $csv = Reader::createFromPath(__DIR__.'/data/foo.csv');
         $csv->appendStreamFilter('convert.iconv.UTF-8/ASCII//TRANSLIT');
-        $this->assertCount(1, $csv->fetchAll());
+        $this->assertCount(1, $csv->select()->fetchAll());
     }
 }

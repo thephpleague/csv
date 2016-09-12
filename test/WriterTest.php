@@ -4,6 +4,7 @@ namespace League\Csv\Test;
 
 use ArrayIterator;
 use League\Csv\Writer;
+use PHPUnit\Framework\TestCase;
 use SplFileObject;
 use SplTempFileObject;
 use stdClass;
@@ -11,7 +12,7 @@ use stdClass;
 /**
  * @group writer
  */
-class WriterTest extends AbstractTestCase
+class WriterTest extends TestCase
 {
     private $csv;
 
@@ -57,11 +58,9 @@ class WriterTest extends AbstractTestCase
         $this->assertContains(['jane', 'doe', 'jane.doe@example.com'], $csv);
     }
 
-    /**
-     * @expectedException InvalidArgumentException
-     */
     public function testFailedSaveWithWrongType()
     {
+        $this->expectException(\InvalidArgumentException::class);
         $this->csv->insertAll(new stdClass());
     }
 
@@ -87,20 +86,6 @@ class WriterTest extends AbstractTestCase
             'array' => [$multipleArray, $multipleArray[0]],
             'iterator' => [new ArrayIterator($multipleArray), ['jane', 'doe', 'jane.doe@example.com']],
         ];
-    }
-
-    public function testGetReader()
-    {
-        $expected = [
-            ['john', 'doe', 'john.doe@example.com'],
-            'john,doe,john.doe@example.com',
-        ];
-        foreach ($expected as $row) {
-            $this->csv->insertOne($row);
-        }
-
-        $reader = $this->csv->newReader();
-        $this->assertSame(['john', 'doe', 'john.doe@example.com'], $reader->fetchOne(0));
     }
 
     public function testCustomNewline()
@@ -150,6 +135,6 @@ class WriterTest extends AbstractTestCase
             ['jane', 'doe', 'jane.doe@example.com'],
             ['toto', 'le', 'herisson'],
         ]);
-        $this->assertStringStartsWith('<table', $this->csv->toHTML());
+        $this->assertStringStartsWith('<table', $this->csv->newReader()->select()->toHTML());
     }
 }

@@ -4,13 +4,13 @@
 *
 * @license http://opensource.org/licenses/MIT
 * @link https://github.com/thephpleague/csv/
-* @version 8.1.1
+* @version 9.0.0
 * @package League.csv
 *
 * For the full copyright and license information, please view the LICENSE
 * file that was distributed with this source code.
 */
-namespace League\Csv\Exception;
+namespace League\Csv;
 
 use InvalidArgumentException;
 

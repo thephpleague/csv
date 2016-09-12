@@ -4,7 +4,7 @@
 *
 * @license http://opensource.org/licenses/MIT
 * @link https://github.com/thephpleague/csv/
-* @version 8.1.1
+* @version 9.0.0
 * @package League.csv
 *
 * For the full copyright and license information, please view the LICENSE
@@ -13,7 +13,7 @@
 namespace League\Csv;
 
 use InvalidArgumentException;
-use League\Csv\Modifier\RowFilter;
+use League\Csv\Config\RowFilter;
 use ReflectionMethod;
 use SplFileObject;
 use Traversable;

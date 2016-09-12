@@ -4,7 +4,7 @@
 *
 * @license http://opensource.org/licenses/MIT
 * @link https://github.com/thephpleague/csv/
-* @version 8.1.1
+* @version 9.0.0
 * @package League.csv
 *
 * For the full copyright and license information, please view the LICENSE
@@ -14,6 +14,7 @@ namespace League\Csv\Config;
 
 use CallbackFilterIterator;
 use InvalidArgumentException;
+use League\Csv\AbstractCsv;
 use LimitIterator;
 use SplFileObject;
 
@@ -26,6 +27,12 @@ use SplFileObject;
  */
 trait Controls
 {
+    use Validator;
+
+    use StreamFilter;
+
+    use Header;
+
     /**
      * the field delimiter (one character only)
      *
@@ -53,6 +60,19 @@ trait Controls
      * @var string
      */
     protected $newline = "\n";
+
+    /**
+     * The Input file BOM character
+     *
+     * @var string|null
+     */
+    protected $input_bom;
+
+    /**
+     * The Output file BOM character
+     * @var string
+     */
+    protected $output_bom = '';
 
     /**
      * Sets the field delimiter
@@ -123,25 +143,6 @@ trait Controls
         arsort($res, SORT_NUMERIC);
 
         return $res;
-    }
-
-    /**
-     * Validate an integer
-     *
-     * @param int    $int
-     * @param int    $minValue
-     * @param string $errorMessage
-     *
-     * @throws InvalidArgumentException If the value is invalid
-     *
-     * @return int
-     */
-    protected function validateInteger($int, $minValue, $errorMessage)
-    {
-        if (false === ($int = filter_var($int, FILTER_VALIDATE_INT, ['options' => ['min_range' => $minValue]]))) {
-            throw new InvalidArgumentException($errorMessage);
-        }
-        return $int;
     }
 
     /**
@@ -231,5 +232,118 @@ trait Controls
     public function getNewline()
     {
         return $this->newline;
+    }
+
+    /**
+     * Outputs all data on the CSV file
+     *
+     * @param string $filename CSV downloaded name if present adds extra headers
+     *
+     * @return int Returns the number of characters read from the handle
+     *             and passed through to the output.
+     */
+    public function output($filename = null)
+    {
+        if (null !== $filename) {
+            $filename = filter_var($filename, FILTER_SANITIZE_STRING, FILTER_FLAG_STRIP_LOW);
+            header('Content-Type: text/csv');
+            header('Content-Transfer-Encoding: binary');
+            header("Content-Disposition: attachment; filename=\"$filename\"");
+        }
+
+        return $this->fpassthru();
+    }
+
+    /**
+     * Returns the BOM sequence in use on Output methods
+     *
+     * @return string
+     */
+    public function getOutputBOM()
+    {
+        return $this->output_bom;
+    }
+
+    /**
+     * Returns the BOM sequence of the given CSV
+     *
+     * @return string
+     */
+    public function getInputBOM()
+    {
+        if (null === $this->input_bom) {
+            $bom = [
+                AbstractCsv::BOM_UTF32_BE, AbstractCsv::BOM_UTF32_LE,
+                AbstractCsv::BOM_UTF16_BE, AbstractCsv::BOM_UTF16_LE, AbstractCsv::BOM_UTF8,
+            ];
+            $csv = $this->getIterator();
+            $csv->setFlags(SplFileObject::READ_CSV);
+            $csv->rewind();
+            $line = $csv->fgets();
+            $res = array_filter($bom, function ($sequence) use ($line) {
+                return strpos($line, $sequence) === 0;
+            });
+
+            $this->input_bom = (string) array_shift($res);
+        }
+
+        return $this->input_bom;
+    }
+    /**
+     * Outputs all data from the CSV
+     *
+     * @return int Returns the number of characters read from the handle
+     *             and passed through to the output.
+     */
+    protected function fpassthru()
+    {
+        $bom = '';
+        $input_bom = $this->getInputBOM();
+        if ($this->output_bom && $input_bom != $this->output_bom) {
+            $bom = $this->output_bom;
+        }
+        $csv = $this->getIterator();
+        $csv->setFlags(SplFileObject::READ_CSV);
+        $csv->rewind();
+        if (!empty($bom)) {
+            $csv->fseek(mb_strlen($input_bom));
+        }
+        echo $bom;
+        $res = $csv->fpassthru();
+
+        return $res + strlen($bom);
+    }
+
+    /**
+     * Retrieves the CSV content
+     *
+     * @return string
+     */
+    public function __toString()
+    {
+        ob_start();
+        $this->fpassthru();
+
+        return ob_get_clean();
+    }
+
+    /**
+     * Sets the BOM sequence to prepend the CSV on output
+     *
+     * @param string $str The BOM sequence
+     *
+     * @return static
+     */
+    public function setOutputBOM($str)
+    {
+        if (empty($str)) {
+            $this->output_bom = '';
+
+            return $this;
+        }
+
+        $this->output_bom = (string) $str;
+
+        return $this;
     }
 }

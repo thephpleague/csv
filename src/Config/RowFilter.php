@@ -4,15 +4,15 @@
 *
 * @license http://opensource.org/licenses/MIT
 * @link https://github.com/thephpleague/csv/
-* @version 8.1.1
+* @version 9.0.0
 * @package League.csv
 *
 * For the full copyright and license information, please view the LICENSE
 * file that was distributed with this source code.
 */
-namespace League\Csv\Modifier;
+namespace League\Csv\Config;
 
-use League\Csv\Exception\InvalidRowException;
+use League\Csv\InvalidRowException;
 
 /**
  *  Trait to format and validate the row before insertion
@@ -108,7 +108,13 @@ trait RowFilter
     }
 
     /**
-     * @inheritdoc
+     * validate a string
+     *
+     * @param mixed $str the value to evaluate as a string
+     *
+     * @throws InvalidArgumentException if the submitted data can not be converted to string
+     *
+     * @return string
      */
     abstract protected function validateString($str);
 

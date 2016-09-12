@@ -4,13 +4,13 @@
 *
 * @license http://opensource.org/licenses/MIT
 * @link https://github.com/thephpleague/csv/
-* @version 8.1.1
+* @version 9.0.0
 * @package League.csv
 *
 * For the full copyright and license information, please view the LICENSE
 * file that was distributed with this source code.
 */
-namespace League\Csv\Modifier;
+namespace League\Csv;
 
 use Iterator;
 use IteratorIterator;
@@ -20,7 +20,7 @@ use IteratorIterator;
  *
  * @package League.csv
  * @since  3.3.0
- * @internal used internally to modify CSV content
+ * @internal used internally to modify Iterator content
  *
  */
 class MapIterator extends IteratorIterator

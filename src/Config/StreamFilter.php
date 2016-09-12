@@ -4,14 +4,15 @@
 *
 * @license http://opensource.org/licenses/MIT
 * @link https://github.com/thephpleague/csv/
-* @version 8.1.1
+* @version 9.0.0
 * @package League.csv
 *
 * For the full copyright and license information, please view the LICENSE
 * file that was distributed with this source code.
 */
-namespace League\Csv\Modifier;
+namespace League\Csv\Config;
 
+use InvalidArgumentException;
 use LogicException;
 use OutOfBoundsException;
 
@@ -58,6 +59,43 @@ trait StreamFilter
         (?P<filters>.*?)           # The resource registered filters
         /resource=(?P<resource>.*) # The resource path
         $,ix';
+
+    /**
+     * Charset Encoding for the CSV
+     *
+     * @var string
+     */
+    protected $input_encoding = 'UTF-8';
+
+    /**
+     * Gets the source CSV encoding charset
+     *
+     * @return string
+     */
+    public function getInputEncoding()
+    {
+        return $this->input_encoding;
+    }
+
+    /**
+     * Sets the CSV encoding charset
+     *
+     * @param string $str
+     *
+     * @return static
+     */
+    public function setInputEncoding($str)
+    {
+        $str = str_replace('_', '-', $str);
+        $str = filter_var($str, FILTER_SANITIZE_STRING, ['flags' => FILTER_FLAG_STRIP_LOW | FILTER_FLAG_STRIP_HIGH]);
+        $str = trim($str);
+        if ('' === $str) {
+            throw new InvalidArgumentException('you should use a valid charset');
+        }
+        $this->input_encoding = strtoupper($str);
+
+        return $this;
+    }
 
     /**
      * Internal path setter
@@ -211,9 +249,15 @@ trait StreamFilter
     }
 
     /**
-     * @inheritdoc
+     * validate a string
+     *
+     * @param mixed $str the value to evaluate as a string
+     *
+     * @throws InvalidArgumentException if the submitted data can not be converted to string
+     *
+     * @return string
      */
-    abstract public function validateString($str);
+    abstract protected function validateString($str);
 
     /**
      * Detect if the stream filter is already present
@@ -268,14 +312,34 @@ trait StreamFilter
     protected function getStreamFilterPath()
     {
         $this->assertStreamable();
-        if (!$this->stream_filters) {
+        $filters = $this->getStreamFilters();
+        if (empty($filters)) {
             return $this->stream_uri;
         }
 
         return 'php://filter/'
             .$this->getStreamFilterPrefix()
-            .implode('|', array_map('urlencode', $this->stream_filters))
+            .implode('|', array_map('urlencode', $filters))
             .'/resource='.$this->stream_uri;
+    }
+
+    /**
+     * Return the registered stream filters
+     *
+     * @return string[]
+     */
+    protected function getStreamFilters()
+    {
+        if (STREAM_FILTER_READ === $this->stream_filter_mode
+            && in_array('convert.iconv.*', stream_get_filters(), true)
+            && 'UTF-8' !== $this->input_encoding
+        ) {
+            $filters = $this->stream_filters;
+            $filters[] = $this->sanitizeStreamFilter('convert.iconv.'.$this->input_encoding.'/UTF-8//TRANSLIT');
+            return $filters;
+        }
+
+        return $this->stream_filters;
     }
 
     /**

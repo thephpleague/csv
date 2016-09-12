@@ -4,8 +4,6 @@ sudo: false
 
 matrix:
   include:
-    - php: 5.5
-      env: COLLECT_COVERAGE=true VALIDATE_CODING_STYLE=false
     - php: 5.6
       env: COLLECT_COVERAGE=true VALIDATE_CODING_STYLE=true
     - php: 7.0

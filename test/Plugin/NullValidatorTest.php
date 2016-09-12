@@ -2,17 +2,17 @@
 
 namespace League\Csv\Test\Plugin;
 
-use League\Csv\Exception\InvalidRowException;
+use League\Csv\InvalidRowException;
 use League\Csv\Plugin\ForbiddenNullValuesValidator;
-use League\Csv\Test\AbstractTestCase;
 use League\Csv\Writer;
+use PHPUnit\Framework\TestCase;
 use SplFileObject;
 use SplTempFileObject;
 
 /**
  * @group validators
  */
-class NullValidatorTest extends AbstractTestCase
+class NullValidatorTest extends TestCase
 {
     private $csv;
 
