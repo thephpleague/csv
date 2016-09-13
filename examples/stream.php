@@ -3,6 +3,7 @@
 header('Content-type: text/html; charset=utf-8');
 
 use League\Csv\Reader;
+use League\Csv\Statement;
 use League\Csv\Writer;
 use lib\FilterTranscode;
 
@@ -30,9 +31,12 @@ if ($reader->isActiveStreamFilter()) {
     $reader->appendStreamFilter('string.rot13');
 }
 $reader->setDelimiter(';');
-$reader->setOffset(6);
-$reader->setLimit(3);
-$res = $reader->fetchAssoc(['Prenom', 'Occurences', 'Sexe', 'Annee']);
+$reader->setHeader(['Prenom', 'Occurences', 'Sexe', 'Annee']);
+$stmt = (new Statement())
+    ->setOffset(6)
+    ->setLimit(3)
+;
+$res = $reader->select($stmt);
 </code></pre>
 
 <p>the data is :</p>
@@ -42,8 +46,12 @@ $res = $reader->fetchAssoc(['Prenom', 'Occurences', 'Sexe', 'Annee']);
 <li>rot13 transformed</li>
 </ol>
 <?php
+$stmt = (new Statement())
+    ->setOffset(6)
+    ->setLimit(3)
+;
 
-//BETWEEN fetch* call you CAN update/remove/add stream filter
+//BETWEEN select call you CAN update/remove/add stream filter
 $reader = Reader::createFromPath(__DIR__.'/data/prenoms.csv');
 if ($reader->isActiveStreamFilter()) {
     $reader->appendStreamFilter(FilterTranscode::FILTER_NAME."iso-8859-1:utf-8");
@@ -51,19 +59,16 @@ if ($reader->isActiveStreamFilter()) {
     $reader->appendStreamFilter('string.rot13');
 }
 $reader->setDelimiter(';');
-$reader->setOffset(6);
-$reader->setLimit(3);
-$res = $reader->fetchAssoc(['Prenom', 'Occurences', 'Sexe', 'Annee']);
+$reader->setHeader(['Prenom', 'Occurences', 'Sexe', 'Annee']);
+$records = $reader->select($stmt);
 
-var_dump(iterator_to_array($res, false));
+var_dump(iterator_to_array($records, false));
 ?>
 <p>Let's remove the <code><strong>string.toupper</strong></code> stream filter</p>
 <pre><code>if ($reader->isActiveStreamFilter()) {
     $reader->removeStreamFilter('string.toupper');
 }
-$reader->setOffset(6);
-$reader->setLimit(3);
-$res = $reader->fetchAssoc(['Prenom', 'Occurences', 'Sexe', 'Annee']);
+$records = $reader->select($stmt);
 
 var_dump(iterator_to_array($res, false));</code></pre>
 
@@ -71,11 +76,8 @@ var_dump(iterator_to_array($res, false));</code></pre>
 if ($reader->isActiveStreamFilter()) {
     $reader->removeStreamFilter('string.toupper');
 }
-$reader->setOffset(6);
-$reader->setLimit(3);
-$res = $reader->fetchAssoc(['Prenom', 'Occurences', 'Sexe', 'Annee']);
-
-var_dump(iterator_to_array($res, false));
+$records = $reader->select($stmt);
+var_dump(iterator_to_array($records, false));
 ?>
 <h3>Using the Writer class</h3>
 
@@ -132,7 +134,7 @@ $writer->insertAll([
     'je,<strong>suis</strong>,toto,le,héros',
 ]);
 
-echo $writer->newReader()->toHTML(), PHP_EOL;
+echo $writer->newReader()->select()->toHTML(), PHP_EOL;
 ?>
 
 </body>

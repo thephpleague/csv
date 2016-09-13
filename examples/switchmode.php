@@ -1,6 +1,7 @@
 <?php
 
 use League\Csv\Writer;
+use League\Csv\Statement;
 
 require '../vendor/autoload.php';
 
@@ -46,11 +47,11 @@ $writer->insertAll([
 
 //we create a Reader object from the Writer object
 $reader = $writer->newReader();
-$names = $reader
+$stmt = (new Statement())
     ->addSortBy(function ($row1, $row2) {
         return strcmp($row1[0], $row2[0]); //we are sorting the name
-    })
-    ->fetchColumn(); //we only return the name column
+    });
+$names = $reader->select($stmt)->fetchColumn(); //we only return the name column
 ?>
 <!doctype html>
 <html lang="fr">
@@ -62,7 +63,7 @@ $names = $reader
 <body>
 <h1>Using createFromString method and converting the League\Csv\Writer into a League\Csv\Reader</h1>
 <h3>The table representation of the csv to be save</h3>
-<?=$writer->toHTML();?>
+<?=$reader->select()->toHTML();?>
 <h3>The Raw CSV as it will be saved</h3>
 <pre>
 <?=$writer?>

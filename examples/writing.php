@@ -33,7 +33,7 @@ $writer->insertAll($contents);
 <body>
 <h1>Example 4: Using the Writer class</h1>
 <h3>The table representation of the csv</h3>
-<?=$writer->toHTML('table-csv-data with-header');?>
+<?=$writer->newReader()->select()->toHTML('table-csv-data with-header');?>
 <h3>The Raw CSV to be saved</h3>
 <pre>
 <?=$writer?>

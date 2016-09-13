@@ -1,17 +1,19 @@
 <?php
 
-use League\Csv\Reader;
-
 require '../vendor/autoload.php';
 
-$inputCsv = Reader::createFromPath('data/prenoms.csv');
-$inputCsv->setDelimiter(';');
+use League\Csv\Reader;
+use League\Csv\Statement;
+
+$csv = Reader::createFromPath('data/prenoms.csv');
+$csv->setInputEncoding('iso-8859-15');
+$csv->setDelimiter(';');
 
 //get the header
-$headers = $inputCsv->fetchOne(0);
-
+$headers = $csv->setHeader(0)->getHeader();
+$stmt = (new Statement())->setOffset(800)->setLimit(25);
 //get at maximum 25 rows starting from the 801th row
-$res = $inputCsv->setOffset(800)->setLimit(25)->fetch();
+$records = $csv->select($stmt);
 ?>
 <!doctype html>
 <html lang="fr">
@@ -30,7 +32,7 @@ $res = $inputCsv->setOffset(800)->setLimit(25)->fetch();
     </tr>
 </thead>
 <tbody>
-<?php foreach ($res as $row) : ?>
+<?php foreach ($records as $row) : ?>
     <tr>
         <td><?=implode('</td>'.PHP_EOL.'<td>', $row), '</td>', PHP_EOL; ?>
     </tr>
