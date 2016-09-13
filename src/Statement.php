@@ -77,9 +77,11 @@ class Statement
     /**
      * Returns a Record object
      *
+     * @param Reader $csv
+     *
      * @return RecordSet
      */
-    public function process(AbstractCsv $csv)
+    public function process(Reader $csv)
     {
         $input_encoding = $csv->getInputEncoding();
         $use_converter = $this->useInternalConverter($csv);
@@ -106,13 +108,13 @@ class Statement
      * - remove the BOM sequence if present
      * - attach the header to the records if present
      *
-     * @param AbstractCsv $csv
+     * @param Reader $csv
      *
      * @throws InvalidRowException if the column is inconsistent
      *
      * @return Iterator
      */
-    protected function format(AbstractCsv $csv, array $header)
+    protected function format(Reader $csv, array $header)
     {
         $iterator = $this->removeBOM($csv);
         if (empty($header)) {
@@ -134,11 +136,11 @@ class Statement
     /**
      * Remove the BOM sequence from the CSV
      *
-     * @param AbstractCsv $csv
+     * @param Reader $csv
      *
      * @return Iterator
      */
-    protected function removeBOM(AbstractCsv $csv)
+    protected function removeBOM(Reader $csv)
     {
         $bom = $csv->getInputBOM();
         if ('' === $bom) {
