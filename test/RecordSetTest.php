@@ -60,6 +60,7 @@ class RecordSetTest extends TestCase
         $this->assertInstanceof(Countable::class, $res);
         $this->assertInternalType('array', $res->fetchAll());
         $this->assertInternalType('array', $res->fetchOne());
+        $this->assertInternalType('array', $res->getHeader());
         $this->assertInstanceof(Iterator::class, $res->fetchColumn());
         $this->assertInstanceof(Iterator::class, $res->fetchPairs());
         $this->assertInstanceOf(DOMDocument::class, $res->toXML());

@@ -71,6 +71,24 @@ class RecordSet implements Countable, IteratorAggregate, JsonSerializable
     }
 
     /**
+     * @inheritdoc
+     */
+    public function getIterator()
+    {
+        return $this->iterator;
+    }
+
+    /**
+     * Returns the object header
+     *
+     * @return string[]
+     */
+    public function getHeader()
+    {
+        return $this->header;
+    }
+
+    /**
      * Returns a HTML table representation of the CSV Table
      *
      * @param string $class_attr optional classname
@@ -110,14 +128,6 @@ class RecordSet implements Countable, IteratorAggregate, JsonSerializable
         $doc->appendChild($root);
 
         return $doc;
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function getIterator()
-    {
-        return $this->iterator;
     }
 
     /**

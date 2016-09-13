@@ -289,7 +289,7 @@ class CsvTest extends TestCase
         $obj->fwrite("1st\n2nd\n");
         $obj->setFlags($flag);
         $reader = Reader::createFromFileObject($obj);
-        $this->assertCount($fetch_count, $reader);
+        $this->assertCount($fetch_count, $reader->getIterator());
     }
 
     public function appliedFlagsProvider()
