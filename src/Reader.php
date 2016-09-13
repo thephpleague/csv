@@ -15,6 +15,8 @@ namespace League\Csv;
 use BadMethodCallException;
 use Countable;
 use JsonSerializable;
+use ReflectionClass;
+use ReflectionMethod;
 
 /**
  * A class to interact with a CSV document without overriding it
@@ -33,17 +35,6 @@ use JsonSerializable;
  */
 class Reader extends AbstractCsv implements JsonSerializable, Countable
 {
-    protected static $record_set_methods = [
-        'fetchPairs' => 1,
-        'fetchColumn' => 1,
-        'fetchAll' => 1,
-        'fetchOne' => 1,
-        'toHTML' => 1,
-        'toXML' => 1,
-        'jsonSerialize' => 1,
-        'count' => 1,
-    ];
-
     /**
      * @inheritdoc
      */
@@ -73,10 +64,15 @@ class Reader extends AbstractCsv implements JsonSerializable, Countable
             $stmt = new Statement();
         }
 
-        if (isset(self::$record_set_methods[$method])) {
-            $records = $stmt->process($this);
+        static $method_list;
+        if (null === $method_list) {
+            $method_list = array_flip(array_map(function (ReflectionMethod $method) {
+                return $method->name;
+            }, (new ReflectionClass(RecordSet::class))->getMethods(ReflectionMethod::IS_PUBLIC)));
+        }
 
-            return call_user_func_array([$records, $method], $args);
+        if (isset($method_list[$method])) {
+            return call_user_func_array([$stmt->process($this), $method], $args);
         }
 
         throw new BadMethodCallException(sprintf('Unknown method %s::%s', get_class($this), $method));
