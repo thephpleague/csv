@@ -20,11 +20,10 @@ use SplFileObject;
 use SplTempFileObject;
 
 /**
- *  An abstract class to enable basic CSV manipulation
+ * Abstract class to set the CSV document properties
  *
  * @package League.csv
  * @since  4.0.0
- *
  */
 abstract class AbstractCsv implements IteratorAggregate
 {

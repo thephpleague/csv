@@ -14,10 +14,10 @@ namespace League\Csv\Config;
 
 use InvalidArgumentException;
 use LogicException;
+use SplFileObject;
 
 /**
- *  A Trait to ease PHP Stream Filters manipulation
- *  with a SplFileObject
+ *  Trait to manipulate PHP Stream Filters with a SplFileObject
  *
  * @package League.csv
  * @since  6.0.0
@@ -60,14 +60,14 @@ trait StreamFilter
         $,ix';
 
     /**
-     * Charset Encoding for the CSV
+     * CSV encoding charset
      *
      * @var string
      */
     protected $input_encoding = 'UTF-8';
 
     /**
-     * Gets the source CSV encoding charset
+     * Returns the CSV encoding charset
      *
      * @return string
      */
@@ -97,7 +97,7 @@ trait StreamFilter
     }
 
     /**
-     * stream filter mode getter
+     * Returns the stream filter mode
      *
      * @return int
      */
@@ -115,7 +115,7 @@ trait StreamFilter
      * an object that implements the `__toString` method
      * a path to a file
      *
-     * @param \SplFileObject|string $path The file path
+     * @param SplFileObject|string $path The file path
      */
     protected function initStreamFilter($path)
     {
@@ -223,17 +223,6 @@ trait StreamFilter
     {
         return urldecode($this->validateString($filter_name));
     }
-
-    /**
-     * validate a string
-     *
-     * @param mixed $str the value to evaluate as a string
-     *
-     * @throws InvalidArgumentException if the submitted data can not be converted to string
-     *
-     * @return string
-     */
-    abstract protected function validateString($str);
 
     /**
      * Return the filter path

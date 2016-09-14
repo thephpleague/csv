@@ -17,7 +17,8 @@ use Iterator;
 use League\Csv\Config\Validator;
 
 /**
- * A simple Statement class to fetch rows against a Csv file object
+ * A immutable value object to generate statements
+ * to select records against a {@link Reader} object
  *
  * @package League.csv
  * @since  9.0.0

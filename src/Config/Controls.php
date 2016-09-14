@@ -19,7 +19,7 @@ use LimitIterator;
 use SplFileObject;
 
 /**
- *  A trait to configure and check CSV file and content
+ *  Trait to configure CSV document properties
  *
  * @package League.csv
  * @since  6.0.0
@@ -146,13 +146,6 @@ trait Controls
     }
 
     /**
-     * Returns the CSV Iterator
-     *
-     * @return SplFileObject
-     */
-    abstract public function getIterator();
-
-    /**
      * Sets the field enclosure
      *
      * @param string $enclosure
@@ -215,7 +208,7 @@ trait Controls
      *
      * @param string $newline
      *
-     * @return static
+     * @return $this
      */
     public function setNewline($newline)
     {
@@ -332,7 +325,7 @@ trait Controls
      *
      * @param string $str The BOM sequence
      *
-     * @return static
+     * @return $this
      */
     public function setOutputBOM($str)
     {

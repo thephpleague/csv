@@ -19,7 +19,7 @@ use SplFileObject;
 use Traversable;
 
 /**
- *  A class to manage data insertion into a CSV
+ *  A class to add records to a Csv document
  *
  * @package League.csv
  * @since  4.0.0

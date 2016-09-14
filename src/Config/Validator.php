@@ -18,10 +18,10 @@ use InvalidArgumentException;
 use League\Csv\AbstractCsv;
 
 /**
- *  A trait to configure and check CSV file and content
+ *  Trait to validate CSV content and properties
  *
  * @package League.csv
- * @since  6.0.0
+ * @since  9.0.0
  *
  */
 trait Validator
@@ -43,7 +43,7 @@ trait Validator
     /**
      * Convert a row into a DOMElement
      *
-     * @param array       $record Csv record
+     * @param string[]       $record Csv record
      * @param DOMDocument $doc
      *
      * @return DOMElement
@@ -63,10 +63,10 @@ trait Validator
     /**
      * Convert a CSV record to UTF-8
      *
-     * @param array  $record
+     * @param string[]  $record
      * @param string $input_encoding
      *
-     * @return array
+     * @return string[]
      */
     protected function convertRecordToUtf8(array $record, $input_encoding)
     {
@@ -129,11 +129,11 @@ trait Validator
     /**
      * Strip the BOM character from the record
      *
-     * @param array  $record
+     * @param string[]  $record
      * @param string $bom
      * @param string $enclosure
      *
-     * @return array
+     * @return string[]
      */
     protected function stripBOM(array $record, $bom, $enclosure)
     {
@@ -148,5 +148,32 @@ trait Validator
         }
 
         return $record;
+    }
+
+    /**
+     * Validates the array to be used by the fetchAssoc method
+     *
+     * @param string[] $header
+     *
+     * @throws InvalidArgumentException If the submitted array fails the assertion
+     *
+     * @return string[]
+     */
+    protected function validateHeader(array $header)
+    {
+        if (empty($header)) {
+            return $header;
+        }
+
+        foreach ($header as &$value) {
+            $value = $this->validateString($value);
+        }
+        unset($value);
+
+        if (count(array_unique($header)) == count($header)) {
+            return $header;
+        }
+
+        throw new InvalidArgumentException('Use a flat array with unique string values');
     }
 }

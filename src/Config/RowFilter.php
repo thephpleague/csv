@@ -15,7 +15,7 @@ namespace League\Csv\Config;
 use League\Csv\InvalidRowException;
 
 /**
- *  Trait to format and validate the row before insertion
+ *  Trait to format and validate the record before insertion
  *
  * @package League.csv
  * @since  7.0.0

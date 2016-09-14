@@ -15,7 +15,7 @@ namespace League\Csv;
 use InvalidArgumentException;
 
 /**
- *  Thrown when a record is not valid
+ *  Exception triggered by an invalid CSV record
  *
  * @package League.csv
  * @since  7.0.0

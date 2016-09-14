@@ -19,7 +19,7 @@ use ReflectionClass;
 use ReflectionMethod;
 
 /**
- * A class to interact with a CSV document without overriding it
+ * A class to access records from a Csv document
  *
  * @package League.csv
  * @since  3.0.0

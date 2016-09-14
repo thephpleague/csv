@@ -13,12 +13,10 @@
 namespace League\Csv\Config;
 
 use InvalidArgumentException;
-use League\Csv\AbstractCsv;
 use LimitIterator;
-use SplFileObject;
 
 /**
- * A trait to configure and check CSV header
+ * Trait to configure the CSV header
  *
  * @package League.csv
  * @since  9.0.0
@@ -32,86 +30,6 @@ trait Header
      * @var array|int
      */
     protected $header = [];
-
-    /**
-     * Returns the inner SplFileObject
-     *
-     * @return SplFileObject
-     */
-    abstract public function getIterator();
-
-    /**
-     * Returns the current field enclosure
-     *
-     * @return string
-     */
-    abstract public function getEnclosure();
-
-    /**
-     * Returns the BOM sequence of the given CSV
-     *
-     * @return string
-     */
-    abstract public function getInputBOM();
-
-    /**
-     * Tell whether to use Stream Filter or not to convert the CSV
-     *
-     * @return bool
-     */
-    abstract protected function useInternalConverter(AbstractCsv $csv);
-
-    /**
-     * Convert a CSV record to UTF-8
-     *
-     * @param array  $record
-     * @param string $input_encoding
-     *
-     * @return array
-     */
-    abstract protected function convertRecordToUtf8(array $record, $input_encoding);
-
-    /**
-     * Strip the BOM character from the record
-     *
-     * @param string[] $record
-     * @param string   $bom
-     * @param string   $enclosure
-     *
-     * @return array
-     */
-    abstract protected function stripBOM(array $record, $bom, $enclosure);
-
-    /**
-     * Gets the source CSV encoding charset
-     *
-     * @return string
-     */
-    abstract public function getInputEncoding();
-
-    /**
-     * Validate an integer
-     *
-     * @param int    $int
-     * @param int    $minValue
-     * @param string $errorMessage
-     *
-     * @throws InvalidArgumentException If the value is invalid
-     *
-     * @return int
-     */
-    abstract protected function validateInteger($int, $minValue, $errorMessage);
-
-    /**
-     * validate a string
-     *
-     * @param mixed $str the value to evaluate as a string
-     *
-     * @throws InvalidArgumentException if the submitted data can not be converted to string
-     *
-     * @return string
-     */
-    abstract protected function validateString($str);
 
     /**
      * Tell whether the current header is internal
@@ -204,32 +122,5 @@ trait Header
 
         $this->header = $this->validateInteger($offset_or_keys, 0, 'the header offset is invalid');
         return $this;
-    }
-
-    /**
-     * Validates the array to be used by the fetchAssoc method
-     *
-     * @param array $keys
-     *
-     * @throws InvalidArgumentException If the submitted array fails the assertion
-     *
-     * @return array
-     */
-    protected function validateHeader(array $keys)
-    {
-        if (empty($keys)) {
-            return $keys;
-        }
-
-        foreach ($keys as &$value) {
-            $value = $this->validateString($value);
-        }
-        unset($value);
-
-        if (count(array_unique($keys)) == count($keys)) {
-            return $keys;
-        }
-
-        throw new InvalidArgumentException('Use a flat array with unique string values');
     }
 }

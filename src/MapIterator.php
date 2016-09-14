@@ -16,7 +16,7 @@ use Iterator;
 use IteratorIterator;
 
 /**
- *  A simple MapIterator
+ * A MapIterator to apply a callable on an Iterator
  *
  * @package League.csv
  * @since  3.3.0

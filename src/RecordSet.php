@@ -25,7 +25,9 @@ use League\Csv\Config\Validator;
 use LimitIterator;
 
 /**
- * A class to extract and convert data from a CSV
+ * Class to represent the resultset
+ * obtained from a select against a {@link Reader} object
+ * using a {@link Statement} object
  *
  * @package League.csv
  * @since  9.0.0
