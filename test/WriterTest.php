@@ -3,6 +3,7 @@
 namespace League\Csv\Test;
 
 use ArrayIterator;
+use InvalidArgumentException;
 use League\Csv\Writer;
 use PHPUnit\Framework\TestCase;
 use SplFileObject;
@@ -60,7 +61,7 @@ class WriterTest extends TestCase
 
     public function testFailedSaveWithWrongType()
     {
-        $this->expectException(\InvalidArgumentException::class);
+        $this->expectException(InvalidArgumentException::class);
         $this->csv->insertAll(new stdClass());
     }
 

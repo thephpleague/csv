@@ -51,7 +51,7 @@ class Reader extends AbstractCsv implements JsonSerializable, Countable
     {
         $stmt = $stmt ?: new Statement();
 
-        return $stmt->process($this);
+        return new RecordSet($this, $stmt);
     }
 
     /**
@@ -72,7 +72,7 @@ class Reader extends AbstractCsv implements JsonSerializable, Countable
         }
 
         if (isset($method_list[$method])) {
-            return call_user_func_array([$stmt->process($this), $method], $args);
+            return call_user_func_array([new RecordSet($this, $stmt), $method], $args);
         }
 
         throw new BadMethodCallException(sprintf('Unknown method %s::%s', get_class($this), $method));

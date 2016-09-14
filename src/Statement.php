@@ -12,12 +12,9 @@
 */
 namespace League\Csv;
 
-use ArrayIterator;
-use CallbackFilterIterator;
 use InvalidArgumentException;
 use Iterator;
 use League\Csv\Config\Validator;
-use LimitIterator;
 
 /**
  * A simple Statement class to fetch rows against a Csv file object
@@ -75,162 +72,47 @@ class Statement
     }
 
     /**
-     * Returns a Record object
+     * Return the added filter callable functions
      *
-     * @param Reader $csv
-     *
-     * @return RecordSet
+     * @return callable[]
      */
-    public function process(Reader $csv)
+    public function getFilter()
     {
-        $input_encoding = $csv->getInputEncoding();
-        $use_converter = $this->useInternalConverter($csv);
-        $header = $csv->getHeader();
-        $header_offset = $csv->getHeaderOffset();
-        $filters = [];
-        if (null !== $header_offset) {
-            $filters[] = function ($row, $index) use ($header_offset) {
-                return $index !== $header_offset;
-            };
-        }
-
-        $iterator = $this->format($csv, $header);
-        $iterator = $this->convert($iterator, $input_encoding, $use_converter);
-        $iterator = $this->filter($iterator, $filters);
-        $iterator = $this->sort($iterator);
-
-        return new RecordSet(new LimitIterator($iterator, $this->offset, $this->limit), $header);
+        return $this->filters;
     }
 
     /**
-     * Prepare the csv for manipulation
+     * Return the added sorting callable functions
      *
-     * - remove the BOM sequence if present
-     * - attach the header to the records if present
-     *
-     * @param Reader $csv
-     *
-     * @throws InvalidRowException if the column is inconsistent
-     *
-     * @return Iterator
+     * @return callable[]
      */
-    protected function format(Reader $csv, array $header)
+    public function getSortBy()
     {
-        $iterator = $this->removeBOM($csv);
-        if (empty($header)) {
-            return $iterator;
-        }
-
-        $header_column_count = count($header);
-        $combine_array = function (array $row) use ($header, $header_column_count) {
-            if ($header_column_count != count($row)) {
-                throw new InvalidRowException('csv_consistency', $row, 'The record and header column count differ');
-            }
-
-            return array_combine($header, $row);
-        };
-
-        return new MapIterator($iterator, $combine_array);
+        return $this->sort_by;
     }
 
     /**
-     * Remove the BOM sequence from the CSV
+     * Return the limit clause
      *
-     * @param Reader $csv
-     *
-     * @return Iterator
+     * @return int
      */
-    protected function removeBOM(Reader $csv)
+    public function getLimit()
     {
-        $bom = $csv->getInputBOM();
-        if ('' === $bom) {
-            return $csv->getIterator();
-        }
-
-        $enclosure = $csv->getEnclosure();
-        $strip_bom = function ($row, $index) use ($bom, $enclosure) {
-            if (0 != $index) {
-                return $row;
-            }
-
-            return $this->stripBOM($row, $bom, $enclosure);
-        };
-
-        return new MapIterator($csv->getIterator(), $strip_bom);
+        return $this->limit;
     }
 
     /**
-    * Filter the Iterator
-    *
-    * @param Iterator $iterator
-    *
-    * @return Iterator
-    */
-    protected function filter(Iterator $iterator, array $filters)
-    {
-        $reducer = function ($iterator, $callable) {
-            return new CallbackFilterIterator($iterator, $callable);
-        };
-
-        $filters[] = function ($row) {
-            return is_array($row) && $row != [null];
-        };
-
-        return array_reduce(array_merge($filters, $this->filters), $reducer, $iterator);
-    }
-
-    /**
-    * Sort the Iterator
-    *
-    * @param Iterator $iterator
-    *
-    * @return Iterator
-    */
-    protected function sort(Iterator $iterator)
-    {
-        if (empty($this->sort_by)) {
-            return $iterator;
-        }
-
-        $obj = new ArrayIterator(iterator_to_array($iterator));
-        $obj->uasort(function ($row_a, $row_b) {
-            $res = 0;
-            foreach ($this->sort_by as $compare) {
-                if (0 !== ($res = call_user_func($compare, $row_a, $row_b))) {
-                    break;
-                }
-            }
-
-            return $res;
-        });
-
-        return $obj;
-    }
-
-    /**
-     * Convert Iterator to UTF-8
+     * Return the offset clause
      *
-     * @param Iterator $iterator
-     * @param string   $input_encoding
-     * @param bool     $use_converter
-     *
-     * @return Iterator
+     * @return int
      */
-    protected function convert(Iterator $iterator, $input_encoding, $use_converter)
+    public function getOffset()
     {
-        if (!$use_converter) {
-            return $iterator;
-        }
-
-        $convert_row = function ($row) use ($input_encoding) {
-            return $this->convertRecordToUtf8($row, $input_encoding);
-        };
-
-        return new MapIterator($iterator, $convert_row);
+        return $this->offset;
     }
 
     /**
-     * Set LimitIterator Offset
+     * Set the offset clause
      *
      * @param $offset
      *
@@ -250,7 +132,7 @@ class Statement
     }
 
     /**
-     * Set LimitIterator Count
+     * Set the limit clause
      *
      * @param int $limit
      *
@@ -270,7 +152,7 @@ class Statement
     }
 
     /**
-     * Set an Iterator sorting callable function
+     * Add a sorting callable function
      *
      * @param callable $callable
      *
@@ -285,7 +167,7 @@ class Statement
     }
 
     /**
-     * Set the Iterator filter method
+     *Add a filter callable function
      *
      * @param callable $callable
      *
@@ -297,5 +179,17 @@ class Statement
         $clone->filters[] = $callable;
 
         return $clone;
+    }
+
+    /**
+     * Returns a Record object
+     *
+     * @param Reader $csv
+     *
+     * @return RecordSet
+     */
+    public function process(Reader $csv)
+    {
+        return new RecordSet($csv, $this);
     }
 }

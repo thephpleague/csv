@@ -14,7 +14,6 @@ namespace League\Csv\Config;
 
 use InvalidArgumentException;
 use LogicException;
-use OutOfBoundsException;
 
 /**
  *  A Trait to ease PHP Stream Filters manipulation
@@ -98,6 +97,18 @@ trait StreamFilter
     }
 
     /**
+     * stream filter mode getter
+     *
+     * @return int
+     */
+    public function getStreamFilterMode()
+    {
+        $this->assertStreamable();
+
+        return $this->stream_filter_mode;
+    }
+
+    /**
      * Internal path setter
      *
      * The path must be an SplFileInfo object
@@ -111,18 +122,20 @@ trait StreamFilter
         $this->stream_filters = [];
         if (!is_string($path)) {
             $this->stream_uri = null;
-
             return;
         }
 
         if (!preg_match($this->stream_regex, $path, $matches)) {
             $this->stream_uri = $path;
-
             return;
         }
+
         $this->stream_uri = $matches['resource'];
-        $this->stream_filters = array_map('urldecode', explode('|', $matches['filters']));
-        $this->stream_filter_mode = $this->fetchStreamModeAsInt($matches['mode']);
+        $this->stream_filters = [];
+        $filter_mode = $this->fetchStreamModeAsInt($matches['mode']);
+        if (in_array($filter_mode, [STREAM_FILTER_ALL, $this->stream_filter_mode])) {
+            $this->stream_filters = array_map('urldecode', explode('|', $matches['filters']));
+        }
     }
 
     /**
@@ -167,43 +180,6 @@ trait StreamFilter
     public function isActiveStreamFilter()
     {
         return is_string($this->stream_uri);
-    }
-
-    /**
-     * stream filter mode Setter
-     *
-     * Set the new Stream Filter mode and remove all
-     * previously attached stream filters
-     *
-     * @param int $mode
-     *
-     * @throws OutOfBoundsException If the mode is invalid
-     *
-     * @return $this
-     */
-    public function setStreamFilterMode($mode)
-    {
-        $this->assertStreamable();
-        if (!in_array($mode, [STREAM_FILTER_ALL, STREAM_FILTER_READ, STREAM_FILTER_WRITE])) {
-            throw new OutOfBoundsException('the $mode should be a valid `STREAM_FILTER_*` constant');
-        }
-
-        $this->stream_filter_mode = $mode;
-        $this->stream_filters = [];
-
-        return $this;
-    }
-
-    /**
-     * stream filter mode getter
-     *
-     * @return int
-     */
-    public function getStreamFilterMode()
-    {
-        $this->assertStreamable();
-
-        return $this->stream_filter_mode;
     }
 
     /**
@@ -260,51 +236,6 @@ trait StreamFilter
     abstract protected function validateString($str);
 
     /**
-     * Detect if the stream filter is already present
-     *
-     * @param string $filter_name
-     *
-     * @return bool
-     */
-    public function hasStreamFilter($filter_name)
-    {
-        $this->assertStreamable();
-
-        return false !== array_search(urldecode($filter_name), $this->stream_filters, true);
-    }
-
-    /**
-     * Remove a filter from the collection
-     *
-     * @param string $filter_name
-     *
-     * @return $this
-     */
-    public function removeStreamFilter($filter_name)
-    {
-        $this->assertStreamable();
-        $res = array_search(urldecode($filter_name), $this->stream_filters, true);
-        if (false !== $res) {
-            unset($this->stream_filters[$res]);
-        }
-
-        return $this;
-    }
-
-    /**
-     * Remove all registered stream filter
-     *
-     * @return $this
-     */
-    public function clearStreamFilter()
-    {
-        $this->assertStreamable();
-        $this->stream_filters = [];
-
-        return $this;
-    }
-
-    /**
      * Return the filter path
      *
      * @return string
@@ -349,14 +280,10 @@ trait StreamFilter
      */
     protected function getStreamFilterPrefix()
     {
-        if (STREAM_FILTER_READ == $this->stream_filter_mode) {
+        if (STREAM_FILTER_READ === $this->stream_filter_mode) {
             return 'read=';
         }
 
-        if (STREAM_FILTER_WRITE == $this->stream_filter_mode) {
-            return 'write=';
-        }
-
-        return '';
+        return 'write=';
     }
 }

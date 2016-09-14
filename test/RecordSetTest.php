@@ -4,6 +4,7 @@ namespace League\Csv\Test;
 
 use Countable;
 use DOMDocument;
+use InvalidArgumentException;
 use Iterator;
 use IteratorAggregate;
 use JsonSerializable;
@@ -363,7 +364,7 @@ class RecordSetTest extends TestCase
 
     public function testFetchColumnFailure()
     {
-        $this->expectException(\InvalidArgumentException::class);
+        $this->expectException(InvalidArgumentException::class);
         $this->csv->select()->fetchColumn('toto');
     }
 
@@ -449,7 +450,7 @@ class RecordSetTest extends TestCase
         $csv->setDelimiter(';');
         $csv->setHeader(0);
         $res = $csv->select($this->stmt->setOffset(750)->setLimit(2));
-        $this->expectException(\InvalidArgumentException::class);
+        $this->expectException(InvalidArgumentException::class);
         $res->fetchColumn(23);
     }
 }

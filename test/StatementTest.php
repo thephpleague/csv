@@ -2,6 +2,7 @@
 
 namespace League\Csv\Test;
 
+use InvalidArgumentException;
 use League\Csv\Reader;
 use League\Csv\RecordSet;
 use League\Csv\Statement;
@@ -38,6 +39,7 @@ class StatementTest extends TestCase
         $records = $this->stmt->process($this->csv);
         $this->assertInstanceof(RecordSet::class, $records);
         $this->assertEquals($records, $this->csv->select($this->stmt));
+        $this->assertEquals($records, new RecordSet($this->csv, $this->stmt));
     }
 
     public function testStatementImmutability()
@@ -46,27 +48,35 @@ class StatementTest extends TestCase
         $this->assertNotSame($this->stmt->setOffset(1), $this->stmt);
     }
 
+    public function testConstructorSetAllProperties()
+    {
+        $this->assertEquals(0, $this->stmt->getOffset());
+        $this->assertEquals(-1, $this->stmt->getLimit());
+        $this->assertEquals([], $this->stmt->getSortBy());
+        $this->assertEquals([], $this->stmt->getFilter());
+    }
+
     public function testStatementDoesNotAllowSettingUnknownProperty()
     {
-        $this->expectException(\InvalidArgumentException::class);
+        $this->expectException(InvalidArgumentException::class);
         $this->stmt->foo = 'bar';
     }
 
     public function testStatementDoesNotAllUnsetUnknownProperty()
     {
-        $this->expectException(\InvalidArgumentException::class);
+        $this->expectException(InvalidArgumentException::class);
         unset($this->stmt->foo);
     }
 
     public function testSetLimitThrowException()
     {
-        $this->expectException(\InvalidArgumentException::class);
+        $this->expectException(InvalidArgumentException::class);
         $this->stmt->setLimit(-4);
     }
 
     public function testSetOffsetThrowException()
     {
-        $this->expectException(\InvalidArgumentException::class);
+        $this->expectException(InvalidArgumentException::class);
         $this->stmt->setOffset('toto');
     }
 }

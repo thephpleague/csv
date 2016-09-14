@@ -12,6 +12,7 @@
 */
 namespace League\Csv;
 
+use ArrayIterator;
 use CallbackFilterIterator;
 use Countable;
 use DOMDocument;
@@ -52,14 +53,156 @@ class RecordSet implements Countable, IteratorAggregate, JsonSerializable
     /**
      * New Instance
      *
-     * @param Iterator $iterator
-     * @param array    $header
+     * @param Reader    $iterator
+     * @param Statement $header
      */
-    public function __construct(Iterator $iterator, array $header)
+    public function __construct(Reader $csv, Statement $stmt)
     {
-        $this->iterator = $iterator;
-        $this->header = $header;
-        $this->flip_header = array_flip($header);
+        $filters = $stmt->getFilter();
+        if (null !== ($header_offset = $csv->getHeaderOffset())) {
+            array_unshift($filters, function (array $record, $index) use ($header_offset) {
+                return $index !== $header_offset;
+            });
+        }
+
+        $iterator = $this->prepare($csv);
+        $iterator = $this->filter($iterator, $filters);
+        $iterator = $this->sort($iterator, $stmt->getSortBy());
+
+        $this->iterator = new LimitIterator($iterator, $stmt->getOffset(), $stmt->getLimit());
+    }
+
+    /**
+     * Prepare the Reader for manipulation
+     *
+     * - remove the BOM sequence if present
+     * - attach the header to the records if present
+     * - convert the CSV to UTF-8 if needed
+     *
+     * @param Reader $csv
+     *
+     * @throws InvalidRowException if the column is inconsistent
+     *
+     * @return Iterator
+     */
+    protected function prepare(Reader $csv)
+    {
+        $this->header = $csv->getHeader();
+        $this->flip_header = array_flip($this->header);
+        $input_encoding = $csv->getInputEncoding();
+        $use_converter = $this->useInternalConverter($csv);
+        $iterator = $this->removeBOM($csv);
+        if (!empty($this->header)) {
+            $header_column_count = count($this->header);
+            $combine_array = function (array $record) use ($header_column_count) {
+                if ($header_column_count != count($record)) {
+                    throw new InvalidRowException('csv_consistency', $record, 'record and header column count differ');
+                }
+
+                return array_combine($this->header, $record);
+            };
+            $iterator = new MapIterator($iterator, $combine_array);
+        }
+
+        return $this->convert($iterator, $input_encoding, $use_converter);
+    }
+
+    /**
+     * Remove the BOM sequence from the CSV
+     *
+     * @param Reader $csv
+     *
+     * @return Iterator
+     */
+    protected function removeBOM(Reader $csv)
+    {
+        $bom = $csv->getInputBOM();
+        if ('' === $bom) {
+            return $csv->getIterator();
+        }
+
+        $enclosure = $csv->getEnclosure();
+        $formatter = function (array $record, $index) use ($bom, $enclosure) {
+            if (0 != $index) {
+                return $record;
+            }
+
+            return $this->stripBOM($record, $bom, $enclosure);
+        };
+
+        return new MapIterator($csv->getIterator(), $formatter);
+    }
+
+    /**
+     * Convert the iterator to UTF-8 if needed
+     *
+     * @param Iterator $iterator
+     * @param string   $input_encoding
+     * @param bool     $use_converter
+     *
+     * @return Iterator
+     */
+    protected function convert(Iterator $iterator, $input_encoding, $use_converter)
+    {
+        if (!$use_converter) {
+            return $iterator;
+        }
+
+        $converter = function ($record) use ($input_encoding) {
+            return $this->convertRecordToUtf8($record, $input_encoding);
+        };
+
+        return new MapIterator($iterator, $converter);
+    }
+
+    /**
+    * Filter the Iterator
+    *
+    * @param Iterator $iterator
+    * @param callable[] $filters
+    *
+    * @return Iterator
+    */
+    protected function filter(Iterator $iterator, array $filters)
+    {
+        $reducer = function ($iterator, $callable) {
+            return new CallbackFilterIterator($iterator, $callable);
+        };
+
+        array_unshift($filters, function ($row) {
+            return is_array($row) && $row != [null];
+        });
+
+        return array_reduce($filters, $reducer, $iterator);
+    }
+
+    /**
+    * Sort the Iterator
+    *
+    * @param Iterator $iterator
+    * @param callable[] $sort
+    *
+    * @return Iterator
+    */
+    protected function sort(Iterator $iterator, array $sort)
+    {
+        if (empty($sort)) {
+            return $iterator;
+        }
+
+        $obj = new ArrayIterator(iterator_to_array($iterator));
+        $obj->uasort(function ($record_a, $record_b) use ($sort) {
+            $res = 0;
+            foreach ($sort as $compare) {
+                if (0 !== ($res = call_user_func($compare, $record_a, $record_b))) {
+                    break;
+                }
+            }
+
+            return $res;
+        });
+
+        return $obj;
     }
 
     /**
@@ -135,7 +278,7 @@ class RecordSet implements Countable, IteratorAggregate, JsonSerializable
      */
     public function count()
     {
-        return iterator_count($this);
+        return iterator_count($this->iterator);
     }
 
     /**
@@ -153,7 +296,7 @@ class RecordSet implements Countable, IteratorAggregate, JsonSerializable
      */
     public function fetchAll()
     {
-        return iterator_to_array($this, false);
+        return iterator_to_array($this->iterator, false);
     }
 
     /**
@@ -184,11 +327,11 @@ class RecordSet implements Countable, IteratorAggregate, JsonSerializable
     public function fetchColumn($column_index = 0)
     {
         $column_index = $this->filterFieldName($column_index, 'the column index value is invalid');
-        $filter = function ($row) use ($column_index) {
-            return isset($row[$column_index]);
+        $filter = function (array $record) use ($column_index) {
+            return isset($record[$column_index]);
         };
-        $select = function ($row) use ($column_index) {
-            return $row[$column_index];
+        $select = function (array $record) use ($column_index) {
+            return $record[$column_index];
         };
 
         return new MapIterator(new CallbackFilterIterator($this->iterator, $filter), $select);
@@ -239,11 +382,11 @@ class RecordSet implements Countable, IteratorAggregate, JsonSerializable
     {
         $offset_index = $this->filterFieldName($offset_index, 'the offset column index is invalid');
         $value_index = $this->filterFieldName($value_index, 'the value column index is invalid');
-        $filter = function ($row) use ($offset_index) {
-            return isset($row[$offset_index]);
+        $filter = function (array $record) use ($offset_index) {
+            return isset($record[$offset_index]);
         };
-        $select = function ($row) use ($offset_index, $value_index) {
-            return [$row[$offset_index], isset($row[$value_index]) ? $row[$value_index] : null];
+        $select = function (array $record) use ($offset_index, $value_index) {
+            return [$record[$offset_index], isset($record[$value_index]) ? $record[$value_index] : null];
         };
 
         $iterator = new MapIterator(new CallbackFilterIterator($this->iterator, $filter), $select);
