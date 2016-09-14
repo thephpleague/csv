@@ -6,8 +6,9 @@ use ArrayIterator;
 use InvalidArgumentException;
 use IteratorAggregate;
 use League\Csv\Reader;
-use League\Csv\RecordSet;
 use League\Csv\Writer;
+use lib\FilterReplace;
+use LogicException;
 use PHPUnit\Framework\TestCase;
 use SplFileInfo;
 use SplFileObject;
@@ -46,7 +47,6 @@ class CsvTest extends TestCase
         $this->assertInstanceOf(IteratorAggregate::class, $this->csv);
         $this->assertInstanceOf(Writer::class, $this->csv->newWriter());
         $this->assertInstanceOf(Reader::class, $this->csv->newReader());
-        $this->assertInstanceOf(RecordSet::class, $this->csv->select());
     }
 
     /**
@@ -116,17 +116,9 @@ class CsvTest extends TestCase
 
     public function testCreateFromString()
     {
-        $expected = 'john,doe,john.doe@example.com'.PHP_EOL
-            .'jane,doe,jane.doe@example.com'.PHP_EOL;
-        $reader = Reader::createFromString($expected);
-        $this->assertInstanceof(Reader::class, $reader);
-    }
-
-    public function testCreateFromFileObject()
-    {
-        $reader = Reader::createFromFileObject(new SplTempFileObject());
-        $this->assertInstanceof(Reader::class, $reader);
-        $this->assertInstanceof(SplTempFileObject::class, $reader->getIterator());
+        $expected = "john,doe,john.doe@example.com\njane,doe,jane.doe@example.com\n";
+        $writer = Writer::createFromString($expected);
+        $this->assertSame((string) $this->csv, (string) $writer);
     }
 
     public function testCreateFromFileObjectWithSplFileObject()
@@ -135,7 +127,7 @@ class CsvTest extends TestCase
         $obj = new SplFileObject($path);
         $reader = Reader::createFromFileObject($obj);
         $this->assertInstanceof(Reader::class, $reader);
-        $this->assertInstanceof(SplFileObject::class, $reader->getIterator());
+        $this->assertSame($obj, $reader->getIterator());
     }
 
 
@@ -160,7 +152,6 @@ class CsvTest extends TestCase
         $this->assertSame('o', $this->csv->getDelimiter());
 
         $this->expectException(InvalidArgumentException::class);
-        $this->expectExceptionMessage('The delimiter must be a single character');
         $this->csv->setDelimiter('foo');
     }
 
@@ -176,34 +167,28 @@ class CsvTest extends TestCase
     public function testAddBOMSequences()
     {
         $this->csv->setOutputBOM(Reader::BOM_UTF8);
-        $expected = chr(239).chr(187).chr(191).'john,doe,john.doe@example.com'.PHP_EOL
-            .'jane,doe,jane.doe@example.com'.PHP_EOL;
-        $this->assertSame($expected, $this->csv->__toString());
+        $expected = chr(239).chr(187).chr(191)."john,doe,john.doe@example.com\njane,doe,jane.doe@example.com\n";
+        $this->assertSame($expected, (string) $this->csv);
     }
 
     public function testGetBomOnInputWithNoBOM()
     {
-        $expected = 'john,doe,john.doe@example.com'.PHP_EOL
-            .'jane,doe,jane.doe@example.com'.PHP_EOL;
-        $reader = Reader::createFromString($expected);
-        $this->assertEmpty($reader->getInputBOM());
+        $expected = "john,doe,john.doe@example.com\njane,doe,jane.doe@example.com\n";
+        $this->assertEmpty(Reader::createFromString($expected)->getInputBOM());
     }
 
     public function testGetBomOnInputWithBOM()
     {
-        $expected = Reader::BOM_UTF32_BE.'john,doe,john.doe@example.com'.PHP_EOL
-            .'jane,doe,jane.doe@example.com'.PHP_EOL;
-        $reader = Reader::createFromString($expected);
-        $this->assertSame(Reader::BOM_UTF32_BE, $reader->getInputBOM());
+        $expected = Reader::BOM_UTF32_BE."john,doe,john.doe@example.com\njane,doe,jane.doe@example.com\n";
+        $this->assertSame(Reader::BOM_UTF32_BE, Reader::createFromString($expected)->getInputBOM());
     }
 
     public function testChangingBOMOnOutput()
     {
-        $text = 'john,doe,john.doe@example.com'.PHP_EOL
-            .'jane,doe,jane.doe@example.com'.PHP_EOL;
+        $text = "john,doe,john.doe@example.com\njane,doe,jane.doe@example.com\n";
         $reader = Reader::createFromString(Reader::BOM_UTF32_BE.$text);
         $reader->setOutputBOM(Reader::BOM_UTF8);
-        $this->assertSame(Reader::BOM_UTF8.$text, $reader->__toString());
+        $this->assertSame(Reader::BOM_UTF8.$text, (string) $reader);
     }
 
     public function testDetectDelimiterList()
@@ -214,7 +199,6 @@ class CsvTest extends TestCase
     public function testDetectDelimiterListWithInvalidRowLimit()
     {
         $this->expectException(InvalidArgumentException::class);
-        $this->expectExceptionMessage('The number of rows to consider must be a valid positive integer');
         $this->csv->fetchDelimitersOccurrence([','], -4);
     }
 
@@ -246,7 +230,6 @@ class CsvTest extends TestCase
         $this->assertSame('o', $this->csv->getEscape());
 
         $this->expectException(InvalidArgumentException::class);
-        $this->expectExceptionMessage('The escape character must be a single character');
         $this->csv->setEscape('foo');
     }
 
@@ -256,7 +239,6 @@ class CsvTest extends TestCase
         $this->assertSame('o', $this->csv->getEnclosure());
 
         $this->expectException(InvalidArgumentException::class);
-        $this->expectExceptionMessage('The enclosure must be a single character');
         $this->csv->setEnclosure('foo');
     }
 
@@ -267,7 +249,6 @@ class CsvTest extends TestCase
         $this->assertSame(strtoupper($expected), $this->csv->getInputEncoding());
 
         $this->expectException(InvalidArgumentException::class);
-        $this->expectExceptionMessage('you should use a valid charset');
         $this->csv->setInputEncoding('');
     }
 
@@ -304,6 +285,108 @@ class CsvTest extends TestCase
             'DROP_NEW_LINE|SKIP_EMPTY' => [SplFileObject::DROP_NEW_LINE | SplFileObject::SKIP_EMPTY, 2],
             'READ_AHEAD|DROP_NEW_LINE|SKIP_EMPTY' => [SplFileObject::READ_AHEAD | SplFileObject::DROP_NEW_LINE | SplFileObject::SKIP_EMPTY, 2],
         ];
+    }
+
+    public function testInitStreamFilterWithWriterStream()
+    {
+        $filter = 'php://filter/write=string.rot13/resource='.__DIR__.'/data/foo.csv';
+        $csv = Reader::createFromPath($filter);
+        foreach ($csv->getIterator() as $row) {
+            $this->assertSame($row, ['john', 'doe', 'john.doe@example.com']);
+        }
+    }
+
+    public function testInitStreamFilterWithReaderStream()
+    {
+        $filter = 'php://filter/read=string.toupper/resource='.__DIR__.'/data/foo.csv';
+        $csv = Reader::createFromPath($filter);
+        foreach ($csv->getIterator() as $row) {
+            $this->assertSame($row, ['JOHN', 'DOE', 'JOHN.DOE@EXAMPLE.COM']);
+        }
+    }
+
+    public function testInitStreamFilterWithBothStream()
+    {
+        $filter = 'php://filter/string.toupper/resource='.__DIR__.'/data/foo.csv';
+        $csv = Reader::createFromPath($filter);
+        foreach ($csv->getIterator() as $row) {
+            $this->assertSame($row, ['JOHN', 'DOE', 'JOHN.DOE@EXAMPLE.COM']);
+        }
+    }
+
+    public function testInitStreamFilterWithSplFileObject()
+    {
+        $this->expectException(LogicException::class);
+        Reader::createFromFileObject(new SplFileObject(__DIR__.'/data/foo.csv'))->getStreamFilterMode();
+    }
+
+    public function testappendStreamFilter()
+    {
+        $csv = Reader::createFromPath(__DIR__.'/data/foo.csv');
+        $csv->appendStreamFilter('string.toupper');
+        foreach ($csv->getIterator() as $row) {
+            $this->assertSame($row, ['JOHN', 'DOE', 'JOHN.DOE@EXAMPLE.COM']);
+        }
+    }
+
+    /**
+     * @expectedException LogicException
+     */
+    public function testFailPrependStreamFilter()
+    {
+        $csv = Reader::createFromFileObject(new SplTempFileObject());
+        $this->assertFalse($csv->isActiveStreamFilter());
+        $this->expectException(LogicException::class);
+        $csv->prependStreamFilter('string.toupper');
+    }
+
+    public function testFailedapppendStreamFilter()
+    {
+        $csv = Writer::createFromFileObject(new SplTempFileObject());
+        $this->assertFalse($csv->isActiveStreamFilter());
+        $this->expectException(LogicException::class);
+        $csv->appendStreamFilter('string.toupper');
+    }
+
+    public function testAddMultipleStreamFilter()
+    {
+        $csv = Reader::createFromPath(__DIR__.'/data/foo.csv');
+        $csv->appendStreamFilter('string.tolower');
+        $csv->prependStreamFilter('string.rot13');
+        $csv->appendStreamFilter('string.toupper');
+        foreach ($csv as $row) {
+            $this->assertSame($row, ['WBUA', 'QBR', 'WBUA.QBR@RKNZCYR.PBZ']);
+        }
+    }
+
+    public function testGetFilterPath()
+    {
+        $csv = Writer::createFromPath(__DIR__.'/data/foo.csv');
+        $csv->appendStreamFilter('string.rot13');
+        $csv->prependStreamFilter('string.toupper');
+        $this->assertFalse($csv->getIterator()->getRealPath());
+    }
+
+    public function testGetFilterPathWithAllStream()
+    {
+        $filter = 'php://filter/string.toupper/resource='.__DIR__.'/data/foo.csv';
+        $csv = Reader::createFromPath($filter);
+        $this->assertFalse($csv->getIterator()->getRealPath());
+    }
+
+    public function testSetStreamFilterWriterNewLine()
+    {
+        stream_filter_register(FilterReplace::FILTER_NAME.'*', '\lib\FilterReplace');
+        $csv = Writer::createFromPath(__DIR__.'/data/newline.csv');
+        $csv->appendStreamFilter(FilterReplace::FILTER_NAME."\r\n:\n");
+        $csv->insertOne([1, 'two', 3, "new\r\nline"]);
+    }
+
+    public function testUrlEncodeFilterParameters()
+    {
+        $csv = Reader::createFromPath(__DIR__.'/data/foo.csv');
+        $csv->appendStreamFilter('convert.iconv.UTF-8/ASCII//TRANSLIT');
+        $this->assertCount(1, $csv->select()->fetchAll());
     }
 
     /**
@@ -353,8 +436,7 @@ class CsvTest extends TestCase
 
     public function testSetHeaderWithBOM()
     {
-        $expected = Reader::BOM_UTF32_BE.'john,doe,john.doe@example.com'.PHP_EOL
-            .'jane,doe,jane.doe@example.com'.PHP_EOL;
+        $expected = Reader::BOM_UTF32_BE."john,doe,john.doe@example.com\njane,doe,jane.doe@example.com\n";
         $reader = Reader::createFromString($expected);
         $this->assertSame(['john', 'doe', 'john.doe@example.com'], $reader->setHeader(0)->getHeader());
     }

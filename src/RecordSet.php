@@ -53,8 +53,8 @@ class RecordSet implements Countable, IteratorAggregate, JsonSerializable
     /**
      * New Instance
      *
-     * @param Reader    $iterator
-     * @param Statement $header
+     * @param Reader    $csv
+     * @param Statement $stmt
      */
     public function __construct(Reader $csv, Statement $stmt)
     {

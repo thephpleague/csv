@@ -14,7 +14,9 @@ class ReaderTest extends TestCase
 {
     private $csv;
 
-    private $expected = <<<EOF
+    public function setUp()
+    {
+        $expected = <<<EOF
 Year,Make,Model,Description,Price
 1997,Ford,E350,"ac, abs, moon",3000.00
 1999,Chevy,"Venture ""Extended Edition""","",4900.00
@@ -22,20 +24,12 @@ Year,Make,Model,Description,Price
 1996,Jeep,Grand Cherokee,"MUST SELL!
 air, moon roof, loaded",4799.00
 EOF;
-
-    public function setUp()
-    {
-        $this->csv = Reader::createFromString($this->expected);
+        $this->csv = Reader::createFromString($expected);
     }
 
-    public function testSelect()
+    public function testReader()
     {
         $this->assertInstanceof(RecordSet::class, $this->csv->select());
-    }
-
-    public function testCall()
-    {
-        $this->csv->setHeader(0);
         $this->assertEquals($this->csv->select()->count(), $this->csv->count());
         $this->assertEquals($this->csv->select()->jsonSerialize(), $this->csv->jsonSerialize());
         $this->assertEquals($this->csv->select()->fetchAll(), $this->csv->fetchAll());
@@ -49,6 +43,6 @@ EOF;
     public function testCallThrowsBadMethodCallException()
     {
         $this->expectException(BadMethodCallException::class);
-        $this->csv->filterFieldName('john');
+        $this->csv->fetchAssoc();
     }
 }
