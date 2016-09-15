@@ -14,6 +14,9 @@ matrix:
       env: COLLECT_COVERAGE=false VALIDATE_CODING_STYLE=false
   allow_failures:
     - php: hhvm
+      sudo: true
+      dist: trusty
+      group: edge
   fast_finish: true
 
 cache:

@@ -34,20 +34,20 @@ class InvalidRowException extends InvalidArgumentException
      *
      * @var string[]
      */
-    private $data;
+    private $record;
 
     /**
      * New Instance
      *
      * @param string   $name    validator name
-     * @param string[] $data    invalid  data
+     * @param string[] $record  invalid  data
      * @param string   $message exception message
      */
     public function __construct($name, array $record = [], $message = '')
     {
         parent::__construct($message);
         $this->name = $name;
-        $this->data = $record;
+        $this->record = $record;
     }
 
     /**
@@ -67,6 +67,6 @@ class InvalidRowException extends InvalidArgumentException
      */
     public function getData()
     {
-        return $this->data;
+        return $this->record;
     }
 }

@@ -13,6 +13,7 @@
 namespace League\Csv\Config;
 
 use InvalidArgumentException;
+use League\Csv\AbstractCsv;
 use LimitIterator;
 
 /**
@@ -89,6 +90,15 @@ trait Header
      * @return string[]
      */
     abstract protected function filterHeader(array $header);
+
+    /**
+     * Tell whether to use Stream Filter or not to convert the CSV
+     *
+     * @param AbstractCsv $csv
+     *
+     * @return bool
+     */
+    abstract protected function useInternalConverter(AbstractCsv $csv);
 
     /**
      * Validate an integer
