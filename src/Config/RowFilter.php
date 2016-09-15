@@ -4,22 +4,21 @@
 *
 * @license http://opensource.org/licenses/MIT
 * @link https://github.com/thephpleague/csv/
-* @version 8.1.1
+* @version 9.0.0
 * @package League.csv
 *
 * For the full copyright and license information, please view the LICENSE
 * file that was distributed with this source code.
 */
-namespace League\Csv\Modifier;
+namespace League\Csv\Config;
 
-use League\Csv\Exception\InvalidRowException;
+use League\Csv\InvalidRowException;
 
 /**
- *  Trait to format and validate the row before insertion
+ * Trait to format and validate the record before insertion
  *
  * @package League.csv
  * @since  7.0.0
- *
  */
 trait RowFilter
 {
@@ -100,7 +99,7 @@ trait RowFilter
      */
     public function addValidator(callable $callable, $name)
     {
-        $name = $this->validateString($name);
+        $name = $this->filterString($name);
 
         $this->validators[$name] = $callable;
 
@@ -108,9 +107,15 @@ trait RowFilter
     }
 
     /**
-     * @inheritdoc
+     * validate a string
+     *
+     * @param mixed $str the value to evaluate as a string
+     *
+     * @throws InvalidArgumentException if the submitted data can not be converted to string
+     *
+     * @return string
      */
-    abstract protected function validateString($str);
+    abstract protected function filterString($str);
 
     /**
      * Remove a validator from the collection
@@ -121,7 +126,7 @@ trait RowFilter
      */
     public function removeValidator($name)
     {
-        $name = $this->validateString($name);
+        $name = $this->filterString($name);
         unset($this->validators[$name]);
 
         return $this;
@@ -136,7 +141,7 @@ trait RowFilter
      */
     public function hasValidator($name)
     {
-        $name = $this->validateString($name);
+        $name = $this->filterString($name);
 
         return isset($this->validators[$name]);
     }

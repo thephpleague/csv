@@ -4,7 +4,7 @@
 *
 * @license http://opensource.org/licenses/MIT
 * @link https://github.com/thephpleague/csv/
-* @version 8.1.1
+* @version 9.0.0
 * @package League.csv
 *
 * For the full copyright and license information, please view the LICENSE
@@ -15,11 +15,10 @@ namespace League\Csv\Plugin;
 use InvalidArgumentException;
 
 /**
- *  A class to manage column consistency on data insertion into a CSV
+ * Class to manage column consistency on data insertion into a CSV
  *
  * @package League.csv
  * @since  7.0.0
- *
  */
 class ColumnConsistencyValidator
 {
@@ -48,7 +47,7 @@ class ColumnConsistencyValidator
     public function setColumnsCount($value)
     {
         if (false === filter_var($value, FILTER_VALIDATE_INT, ['options' => ['min_range' => -1]])) {
-            throw new InvalidArgumentException('the column count must an integer greater or equals to -1');
+            throw new InvalidArgumentException('the column count must be an integer greater or equals to -1');
         }
         $this->detect_columns_count = false;
         $this->columns_count = $value;
@@ -65,10 +64,9 @@ class ColumnConsistencyValidator
     }
 
     /**
-     * The method will set the $columns_count property according to the next inserted row
+     * The method will set the $columns_count property according to the next inserted record
      * and therefore will also validate the next line whatever length it has no matter
      * the current $columns_count property value.
-     *
      */
     public function autodetectColumnsCount()
     {
@@ -76,16 +74,16 @@ class ColumnConsistencyValidator
     }
 
     /**
-     * Is the submitted row valid
+     * Is the submitted record valid
      *
-     * @param array $row
+     * @param array $record
      *
      * @return bool
      */
-    public function __invoke(array $row)
+    public function __invoke(array $record)
     {
         if ($this->detect_columns_count) {
-            $this->columns_count = count($row);
+            $this->columns_count = count($record);
             $this->detect_columns_count = false;
 
             return true;
@@ -95,6 +93,6 @@ class ColumnConsistencyValidator
             return true;
         }
 
-        return count($row) === $this->columns_count;
+        return count($record) === $this->columns_count;
     }
 }

@@ -4,7 +4,7 @@
 *
 * @license http://opensource.org/licenses/MIT
 * @link https://github.com/thephpleague/csv/
-* @version 8.1.1
+* @version 9.0.0
 * @package League.csv
 *
 * For the full copyright and license information, please view the LICENSE
@@ -13,24 +13,23 @@
 namespace League\Csv\Plugin;
 
 /**
- *  A class to validate null value handling on data insertion into a CSV
+ * Class to validate null value handling on data insertion into a CSV
  *
  * @package League.csv
  * @since  7.0.0
- *
  */
 class ForbiddenNullValuesValidator
 {
     /**
      * Is the submitted row valid
      *
-     * @param array $row
+     * @param array $record
      *
      * @return bool
      */
-    public function __invoke(array $row)
+    public function __invoke(array $record)
     {
-        $res = array_filter($row, function ($value) {
+        $res = array_filter($record, function ($value) {
             return null === $value;
         });
 

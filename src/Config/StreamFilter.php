@@ -4,24 +4,23 @@
 *
 * @license http://opensource.org/licenses/MIT
 * @link https://github.com/thephpleague/csv/
-* @version 8.1.1
+* @version 9.0.0
 * @package League.csv
 *
 * For the full copyright and license information, please view the LICENSE
 * file that was distributed with this source code.
 */
-namespace League\Csv\Modifier;
+namespace League\Csv\Config;
 
+use InvalidArgumentException;
 use LogicException;
-use OutOfBoundsException;
+use SplFileObject;
 
 /**
- *  A Trait to ease PHP Stream Filters manipulation
- *  with a SplFileObject
+ * Trait to manipulate PHP Stream Filters with a SplFileObject
  *
  * @package League.csv
  * @since  6.0.0
- *
  */
 trait StreamFilter
 {
@@ -33,7 +32,7 @@ trait StreamFilter
     protected $stream_filters = [];
 
     /**
-     * Stream filtering mode to apply on all filters
+     * Stream filtering mode
      *
      * @var int
      */
@@ -60,31 +59,93 @@ trait StreamFilter
         $,ix';
 
     /**
+     * CSV encoding charset
+     *
+     * @var string
+     */
+    protected $input_encoding = 'UTF-8';
+
+    /**
+     * validate a string
+     *
+     * @param mixed $str the value to evaluate as a string
+     *
+     * @throws InvalidArgumentException if the submitted data can not be converted to string
+     *
+     * @return string
+     */
+    abstract protected function filterString($str);
+
+    /**
+     * Returns the CSV encoding charset
+     *
+     * @return string
+     */
+    public function getInputEncoding()
+    {
+        return $this->input_encoding;
+    }
+
+    /**
+     * Sets the CSV encoding charset
+     *
+     * @param string $str
+     *
+     * @return $this
+     */
+    public function setInputEncoding($str)
+    {
+        $str = str_replace('_', '-', $str);
+        $str = filter_var($str, FILTER_SANITIZE_STRING, ['flags' => FILTER_FLAG_STRIP_LOW | FILTER_FLAG_STRIP_HIGH]);
+        $str = trim($str);
+        if ('' === $str) {
+            throw new InvalidArgumentException('you should use a valid charset');
+        }
+        $this->input_encoding = strtoupper($str);
+
+        return $this;
+    }
+
+    /**
+     * Returns the stream filter mode
+     *
+     * @return int
+     */
+    public function getStreamFilterMode()
+    {
+        $this->assertStreamable();
+
+        return $this->stream_filter_mode;
+    }
+
+    /**
      * Internal path setter
      *
      * The path must be an SplFileInfo object
      * an object that implements the `__toString` method
      * a path to a file
      *
-     * @param \SplFileObject|string $path The file path
+     * @param SplFileObject|string $path The file path
      */
     protected function initStreamFilter($path)
     {
         $this->stream_filters = [];
         if (!is_string($path)) {
             $this->stream_uri = null;
-
             return;
         }
 
         if (!preg_match($this->stream_regex, $path, $matches)) {
             $this->stream_uri = $path;
-
             return;
         }
+
         $this->stream_uri = $matches['resource'];
-        $this->stream_filters = array_map('urldecode', explode('|', $matches['filters']));
-        $this->stream_filter_mode = $this->fetchStreamModeAsInt($matches['mode']);
+        $this->stream_filters = [];
+        $filter_mode = $this->fetchStreamModeAsInt($matches['mode']);
+        if (in_array($filter_mode, [STREAM_FILTER_ALL, $this->stream_filter_mode])) {
+            $this->stream_filters = array_map('urldecode', explode('|', $matches['filters']));
+        }
     }
 
     /**
@@ -132,43 +193,6 @@ trait StreamFilter
     }
 
     /**
-     * stream filter mode Setter
-     *
-     * Set the new Stream Filter mode and remove all
-     * previously attached stream filters
-     *
-     * @param int $mode
-     *
-     * @throws OutOfBoundsException If the mode is invalid
-     *
-     * @return $this
-     */
-    public function setStreamFilterMode($mode)
-    {
-        $this->assertStreamable();
-        if (!in_array($mode, [STREAM_FILTER_ALL, STREAM_FILTER_READ, STREAM_FILTER_WRITE])) {
-            throw new OutOfBoundsException('the $mode should be a valid `STREAM_FILTER_*` constant');
-        }
-
-        $this->stream_filter_mode = $mode;
-        $this->stream_filters = [];
-
-        return $this;
-    }
-
-    /**
-     * stream filter mode getter
-     *
-     * @return int
-     */
-    public function getStreamFilterMode()
-    {
-        $this->assertStreamable();
-
-        return $this->stream_filter_mode;
-    }
-
-    /**
      * append a stream filter
      *
      * @param string $filter_name a string or an object that implements the '__toString' method
@@ -207,57 +231,7 @@ trait StreamFilter
      */
     protected function sanitizeStreamFilter($filter_name)
     {
-        return urldecode($this->validateString($filter_name));
-    }
-
-    /**
-     * @inheritdoc
-     */
-    abstract public function validateString($str);
-
-    /**
-     * Detect if the stream filter is already present
-     *
-     * @param string $filter_name
-     *
-     * @return bool
-     */
-    public function hasStreamFilter($filter_name)
-    {
-        $this->assertStreamable();
-
-        return false !== array_search(urldecode($filter_name), $this->stream_filters, true);
-    }
-
-    /**
-     * Remove a filter from the collection
-     *
-     * @param string $filter_name
-     *
-     * @return $this
-     */
-    public function removeStreamFilter($filter_name)
-    {
-        $this->assertStreamable();
-        $res = array_search(urldecode($filter_name), $this->stream_filters, true);
-        if (false !== $res) {
-            unset($this->stream_filters[$res]);
-        }
-
-        return $this;
-    }
-
-    /**
-     * Remove all registered stream filter
-     *
-     * @return $this
-     */
-    public function clearStreamFilter()
-    {
-        $this->assertStreamable();
-        $this->stream_filters = [];
-
-        return $this;
+        return urldecode($this->filterString($filter_name));
     }
 
     /**
@@ -268,14 +242,34 @@ trait StreamFilter
     protected function getStreamFilterPath()
     {
         $this->assertStreamable();
-        if (!$this->stream_filters) {
+        $filters = $this->getStreamFilters();
+        if (empty($filters)) {
             return $this->stream_uri;
         }
 
         return 'php://filter/'
             .$this->getStreamFilterPrefix()
-            .implode('|', array_map('urlencode', $this->stream_filters))
+            .implode('|', array_map('urlencode', $filters))
             .'/resource='.$this->stream_uri;
+    }
+
+    /**
+     * Return the registered stream filters
+     *
+     * @return string[]
+     */
+    protected function getStreamFilters()
+    {
+        if (STREAM_FILTER_READ === $this->stream_filter_mode
+            && in_array('convert.iconv.*', stream_get_filters(), true)
+            && 'UTF-8' !== $this->input_encoding
+        ) {
+            $filters = $this->stream_filters;
+            $filters[] = $this->sanitizeStreamFilter('convert.iconv.'.$this->input_encoding.'/UTF-8//TRANSLIT');
+            return $filters;
+        }
+
+        return $this->stream_filters;
     }
 
     /**
@@ -285,14 +279,10 @@ trait StreamFilter
      */
     protected function getStreamFilterPrefix()
     {
-        if (STREAM_FILTER_READ == $this->stream_filter_mode) {
+        if (STREAM_FILTER_READ === $this->stream_filter_mode) {
             return 'read=';
         }
 
-        if (STREAM_FILTER_WRITE == $this->stream_filter_mode) {
-            return 'write=';
-        }
-
-        return '';
+        return 'write=';
     }
 }

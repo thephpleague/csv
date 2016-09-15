@@ -4,7 +4,7 @@
 *
 * @license http://opensource.org/licenses/MIT
 * @link https://github.com/thephpleague/csv/
-* @version 8.1.1
+* @version 9.0.0
 * @package League.csv
 *
 * For the full copyright and license information, please view the LICENSE
@@ -13,24 +13,25 @@
 namespace League\Csv;
 
 use InvalidArgumentException;
-use League\Csv\Modifier\RowFilter;
+use League\Csv\Config\RowFilter;
 use ReflectionMethod;
 use SplFileObject;
 use Traversable;
 
 /**
- *  A class to manage data insertion into a CSV
+ *  Class to add records to a Csv document
  *
  * @package League.csv
  * @since  4.0.0
- *
  */
 class Writer extends AbstractCsv
 {
     use RowFilter;
 
     /**
-     * @inheritdoc
+     * Stream filtering mode
+     *
+     * @var int
      */
     protected $stream_filter_mode = STREAM_FILTER_WRITE;
 
@@ -56,7 +57,14 @@ class Writer extends AbstractCsv
     protected static $fputcsv_param_count;
 
     /**
-     * @inheritdoc
+     * Creates a new instance
+     *
+     * The path must be an SplFileInfo object
+     * an object that implements the `__toString` method
+     * a path to a file
+     *
+     * @param SplFileObject|string $path      The file path
+     * @param string               $open_mode The file open mode flag
      */
     protected function __construct($path, $open_mode = 'r+')
     {

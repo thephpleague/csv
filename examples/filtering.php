@@ -1,14 +1,16 @@
 <?php
 
-use League\Csv\Reader;
-
 require '../vendor/autoload.php';
 
- //you can instantiate the Reader class with a SplFileObject object
-$inputCsv = Reader::createFromPath(new SplFileObject('data/prenoms.csv'));
-$inputCsv->setDelimiter(';');
+use League\Csv\Reader;
+use League\Csv\Statement;
 
-$res = $inputCsv
+//you can instantiate the Reader class with a SplFileObject object
+$csv = Reader::createFromPath(new SplFileObject('data/prenoms.csv'));
+$csv->setInputEncoding('iso-8859-15');
+$csv->setDelimiter(';');
+
+$stmt = (new Statement())
     ->addFilter(function ($row, $index) {
         return $index > 0; //we don't take into account the header
     })
@@ -28,10 +30,12 @@ $res = $inputCsv
         return strcmp($row1[1], $row2[1]); //we order the result according to the number of firstname given
     })
     ->setLimit(20) //we just want the first 20 results
-    ->fetch();
+;
+
+$records = $csv->select($stmt);
 
 //get the headers
-$headers = $inputCsv->fetchOne(0);
+$headers = $csv->setHeader(0)->getHeader();
 ?>
 <!doctype html>
 <html lang="fr">
@@ -50,7 +54,7 @@ $headers = $inputCsv->fetchOne(0);
     </tr>
 </thead>
 <tbody>
-<?php foreach ($res as $row) : ?>
+<?php foreach ($records as $row) : ?>
     <tr>
     <td><?=implode('</td>'.PHP_EOL.'<td>', $row), '</td>', PHP_EOL; ?>
     </tr>

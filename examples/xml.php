@@ -1,6 +1,7 @@
 <?php
 
 use League\Csv\Reader;
+use League\Csv\Statement;
 
 require '../vendor/autoload.php';
 
@@ -10,12 +11,14 @@ $func = function ($row1, $row2) {
 };
 
 $csv = Reader::createFromPath('data/prenoms.csv');
-$csv->setEncodingFrom('ISO-8859-15');
+$csv->setInputEncoding('ISO-8859-15');
 $csv->setDelimiter(';');
-$csv->setOffset(1);
-$csv->setLimit(10);
-$csv->addSortBy($func);
-$doc = $csv->toXML('csv', 'ligne', 'cellule');
+$stmt = (new Statement())
+    ->setOffset(1)
+    ->setLimit(10)
+    ->addSortBy($func)
+;
+$doc = $csv->select($stmt)->toXML('csv', 'ligne', 'cellule');
 $xml = $doc->saveXML();
 header('Content-Type: application/xml; charset="utf-8"');
 header('Content-Length: '.strlen($xml));

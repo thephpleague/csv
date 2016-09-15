@@ -4,7 +4,7 @@
 *
 * @license http://opensource.org/licenses/MIT
 * @link https://github.com/thephpleague/csv/
-* @version 8.1.1
+* @version 9.0.0
 * @package League.csv
 *
 * For the full copyright and license information, please view the LICENSE
@@ -14,31 +14,20 @@ namespace League\Csv;
 
 use InvalidArgumentException;
 use IteratorAggregate;
-use JsonSerializable;
 use League\Csv\Config\Controls;
-use League\Csv\Config\Output;
-use League\Csv\Modifier\QueryFilter;
-use League\Csv\Modifier\StreamFilter;
 use SplFileInfo;
 use SplFileObject;
 use SplTempFileObject;
 
 /**
- *  An abstract class to enable basic CSV manipulation
+ * Abstract class to set the CSV document properties
  *
  * @package League.csv
  * @since  4.0.0
- *
  */
-abstract class AbstractCsv implements JsonSerializable, IteratorAggregate
+abstract class AbstractCsv implements IteratorAggregate
 {
     use Controls;
-
-    use Output;
-
-    use QueryFilter;
-
-    use StreamFilter;
 
     /**
      *  UTF-8 BOM sequence
@@ -99,7 +88,7 @@ abstract class AbstractCsv implements JsonSerializable, IteratorAggregate
     }
 
     /**
-     * The destructor
+     * Release the underlying SplFileObject if it exists
      */
     public function __destruct()
     {
@@ -139,26 +128,9 @@ abstract class AbstractCsv implements JsonSerializable, IteratorAggregate
     public static function createFromString($str)
     {
         $file = new SplTempFileObject();
-        $file->fwrite(static::validateString($str));
+        $file->fwrite(static::filterString($str));
 
         return new static($file);
-    }
-
-    /**
-     * validate a string
-     *
-     * @param mixed $str the value to evaluate as a string
-     *
-     * @throws InvalidArgumentException if the submitted data can not be converted to string
-     *
-     * @return string
-     */
-    protected static function validateString($str)
-    {
-        if (is_string($str) || (is_object($str) && method_exists($str, '__toString'))) {
-            return (string) $str;
-        }
-        throw new InvalidArgumentException('Expected data must be a string or stringable');
     }
 
     /**
@@ -181,7 +153,7 @@ abstract class AbstractCsv implements JsonSerializable, IteratorAggregate
             $path = $path->getPath().'/'.$path->getBasename();
         }
 
-        return new static(static::validateString($path), $open_mode);
+        return new static(static::filterString($path), $open_mode);
     }
 
     /**
@@ -202,6 +174,7 @@ abstract class AbstractCsv implements JsonSerializable, IteratorAggregate
         $csv->input_bom = $this->input_bom;
         $csv->output_bom = $this->output_bom;
         $csv->newline = $this->newline;
+        $csv->header = $this->header;
 
         return $csv;
     }

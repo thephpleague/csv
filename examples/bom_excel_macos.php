@@ -34,6 +34,4 @@ $writer->insertAll($csv);
 //let's switch to the Reader object
 //Writer::output will failed because of the open mode
 //The BOM settings are all copied to the Reader object
-$reader = $writer->newReader();
-
-$reader->output('toto-le-heros.csv');
+$writer->newReader()->output('toto-le-heros.csv');

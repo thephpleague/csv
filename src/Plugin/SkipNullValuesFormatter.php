@@ -4,7 +4,7 @@
 *
 * @license http://opensource.org/licenses/MIT
 * @link https://github.com/thephpleague/csv/
-* @version 8.1.1
+* @version 9.0.0
 * @package League.csv
 *
 * For the full copyright and license information, please view the LICENSE
@@ -13,24 +13,23 @@
 namespace League\Csv\Plugin;
 
 /**
- *  A class to remove null value from data before insertion into a CSV
+ * Class to remove null value from data before insertion into a CSV
  *
  * @package League.csv
  * @since  7.0.0
- *
  */
 class SkipNullValuesFormatter
 {
     /**
      * remove null value form the submitted array
      *
-     * @param array $row
+     * @param array $record
      *
      * @return array
      */
-    public function __invoke(array $row)
+    public function __invoke(array $record)
     {
-        return array_filter($row, function ($value) {
+        return array_filter($record, function ($value) {
             return null !== $value;
         });
     }

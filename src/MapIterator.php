@@ -4,24 +4,23 @@
 *
 * @license http://opensource.org/licenses/MIT
 * @link https://github.com/thephpleague/csv/
-* @version 8.1.1
+* @version 9.0.0
 * @package League.csv
 *
 * For the full copyright and license information, please view the LICENSE
 * file that was distributed with this source code.
 */
-namespace League\Csv\Modifier;
+namespace League\Csv;
 
 use Iterator;
 use IteratorIterator;
 
 /**
- *  A simple MapIterator
+ * Iterator to apply a callable on the elements of an Iterator
  *
  * @package League.csv
  * @since  3.3.0
- * @internal used internally to modify CSV content
- *
+ * @internal used internally to modify Iterator content
  */
 class MapIterator extends IteratorIterator
 {
@@ -33,10 +32,10 @@ class MapIterator extends IteratorIterator
     private $callable;
 
     /**
-     * The Constructor
+     * Create a map iterator from another iterator
      *
-     * @param Iterator $iterator
-     * @param callable $callable
+     * @param Iterator $iterator the iterator to run through the callable function
+     * @param callable $callable callable to run for each element in the Iterator
      */
     public function __construct(Iterator $iterator, callable $callable)
     {
