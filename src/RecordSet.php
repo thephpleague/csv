@@ -31,23 +31,28 @@ use LimitIterator;
  *
  * @package League.csv
  * @since  9.0.0
- *
  */
 class RecordSet implements Countable, IteratorAggregate, JsonSerializable
 {
     use Validator;
 
     /**
-     * @var array
+     * Csv document header
+     *
+     * @var string[]
      */
     protected $header;
 
     /**
+     * Csv document header flipped
+     *
      * @var array
      */
     protected $flip_header;
 
     /**
+     * Selected Csv records
+     *
      * @var Iterator
      */
     protected $iterator;
@@ -55,8 +60,8 @@ class RecordSet implements Countable, IteratorAggregate, JsonSerializable
     /**
      * New Instance
      *
-     * @param Reader    $csv
-     * @param Statement $stmt
+     * @param Reader    $csv  The source CSV document
+     * @param Statement $stmt The statement used to process the CSV document
      */
     public function __construct(Reader $csv, Statement $stmt)
     {
@@ -77,13 +82,15 @@ class RecordSet implements Countable, IteratorAggregate, JsonSerializable
     /**
      * Prepare the Reader for manipulation
      *
-     * - remove the BOM sequence if present
-     * - attach the header to the records if present
-     * - convert the CSV to UTF-8 if needed
+     * <ul>
+     * <li>remove the BOM sequence if present</li>
+     * <li>attach the header to the records if present</li>
+     * <li>convert the CSV to UTF-8 if needed</li>
+     * </ul>
      *
      * @param Reader $csv
      *
-     * @throws InvalidRowException if the column is inconsistent
+     * @throws InvalidRowException if the CSV document records are inconsistent
      *
      * @return Iterator
      */
@@ -110,7 +117,7 @@ class RecordSet implements Countable, IteratorAggregate, JsonSerializable
     }
 
     /**
-     * Remove the BOM sequence from the CSV
+     * Remove the BOM sequence from the CSV Document
      *
      * @param Reader $csv
      *
@@ -208,7 +215,7 @@ class RecordSet implements Countable, IteratorAggregate, JsonSerializable
     }
 
     /**
-     * @inheritdoc
+     * Release the underlying SplFileObject if it is still in use
      */
     public function __destruct()
     {
@@ -216,7 +223,7 @@ class RecordSet implements Countable, IteratorAggregate, JsonSerializable
     }
 
     /**
-     * @inheritdoc
+     * Returns an Iterator to move to the next selected record
      */
     public function getIterator()
     {
@@ -259,10 +266,10 @@ class RecordSet implements Countable, IteratorAggregate, JsonSerializable
      */
     public function toXML($root_name = 'csv', $row_name = 'row', $cell_name = 'cell')
     {
-        $this->row_name = $this->validateString($row_name);
-        $this->cell_name = $this->validateString($cell_name);
+        $this->row_name = $this->filterString($row_name);
+        $this->cell_name = $this->filterString($cell_name);
         $doc = new DOMDocument('1.0', 'UTF-8');
-        $root = $doc->createElement($this->validateString($root_name));
+        $root = $doc->createElement($this->filterString($root_name));
         if (!empty($this->header)) {
             $root->appendChild($this->convertRecordToDOMNode($this->header, $doc));
         }
@@ -276,7 +283,9 @@ class RecordSet implements Countable, IteratorAggregate, JsonSerializable
     }
 
     /**
-     * @inheritdoc
+     * The number of selected records
+     *
+     * @return int
      */
     public function count()
     {
@@ -284,7 +293,9 @@ class RecordSet implements Countable, IteratorAggregate, JsonSerializable
     }
 
     /**
-     * @inheritdoc
+     * The object representation to be serialized to JSON
+     *
+     * @return array
      */
     public function jsonSerialize()
     {
@@ -292,7 +303,7 @@ class RecordSet implements Countable, IteratorAggregate, JsonSerializable
     }
 
     /**
-     * Returns a sequential array of all founded RecordSet
+     * Returns a sequential array of the selected records
      *
      * @return array
      */
@@ -302,15 +313,15 @@ class RecordSet implements Countable, IteratorAggregate, JsonSerializable
     }
 
     /**
-     * Returns a single record from the recordSet
+     * Returns a single record from the result set
      *
      * @param int $offset the record offset relative to the RecordSet
      *
-     * @return array
+     * @return string[]
      */
     public function fetchOne($offset = 0)
     {
-        $offset = $this->validateInteger($offset, 0, 'the submitted offset is invalid');
+        $offset = $this->filterInteger($offset, 0, 'the submitted offset is invalid');
         $it = new LimitIterator($this->iterator, $offset, 1);
         $it->rewind();
 
@@ -355,7 +366,7 @@ class RecordSet implements Countable, IteratorAggregate, JsonSerializable
             return $field;
         }
 
-        $index = $this->validateInteger($field, 0, $error_message);
+        $index = $this->filterInteger($field, 0, $error_message);
         if (empty($this->header)) {
             return $index;
         }
@@ -372,8 +383,10 @@ class RecordSet implements Countable, IteratorAggregate, JsonSerializable
      * column is the key, second column is the value).
      *
      * By default if no column index is provided:
-     * - the first CSV column is used to provide the keys
-     * - the second CSV column is used to provide the value
+     * <ul>
+     * <li>the first CSV column is used to provide the keys</li>
+     * <li>the second CSV column is used to provide the value</li>
+     * </ul>
      *
      * @param string|int $offset_index The field index or name to serve as offset
      * @param string|int $value_index  The field index or name to serve as value

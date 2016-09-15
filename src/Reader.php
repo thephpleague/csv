@@ -19,29 +19,31 @@ use ReflectionClass;
 use ReflectionMethod;
 
 /**
- * A class to access records from a Csv document
+ * Class to access records from a Csv document
  *
  * @package League.csv
  * @since  3.0.0
  *
- * @method array fetchAll()
- * @method array fetchOne(int $offset = 0)
- * @method array fetchColumn(string|int $column_index = 0)
- * @method array fetchPairs(string|int $offset_index = 0, string|int $value_index = 1)
- * @method string toHTML(string $class_attr = 'table-csv-data')
- * @method DOMDocument toXML(string $root_name = 'csv', string $row_name = 'row', string $cell_name = 'cell')
- * @method array jsonSerialize()
- * @method int count()
+ * @method array fetchAll() returns a sequential array of all records
+ * @method array fetchOne(int $offset = 0) returns a specific record according to its offset
+ * @method array fetchColumn(string|int $column_index = 0) returns a single specific column
+ * @method array fetchPairs(string|int $offset_index = 0, string|int $value_index = 1) returns two CSV column as data pairs
+ * @method string toHTML(string $class_attr = 'table-csv-data') returns a HTML table representation of the CSV document
+ * @method DOMDocument toXML(string $root_name = 'csv', string $row_name = 'row', string $cell_name = 'cell') returns a XML representation of the CSV
+ * @method array jsonSerialize() returns the records that should be serialized to JSON
+ * @method int count() returns the records count from the CSV document
  */
 class Reader extends AbstractCsv implements JsonSerializable, Countable
 {
     /**
-     * @inheritdoc
+     * Stream filtering mode
+     *
+     * @var int
      */
     protected $stream_filter_mode = STREAM_FILTER_READ;
 
     /**
-     * Returns the Record object
+     * Returns a collection of selected records
      *
      * @param Statement|null $stmt
      *
@@ -55,7 +57,10 @@ class Reader extends AbstractCsv implements JsonSerializable, Countable
     }
 
     /**
-     * @inheritdoc
+     * Triggered when invoking inaccessible methods in the object
+     *
+     * @param string $method
+     * @param array  $args
      */
     public function __call($method, array $args)
     {
@@ -79,7 +84,9 @@ class Reader extends AbstractCsv implements JsonSerializable, Countable
     }
 
     /**
-     * @inheritdoc
+     * Returns the records count
+     *
+     * @var int
      */
     public function count()
     {
@@ -87,7 +94,9 @@ class Reader extends AbstractCsv implements JsonSerializable, Countable
     }
 
     /**
-     * @inheritdoc
+     * records representation to be serialized to JSON
+     *
+     * @return array
      */
     public function jsonSerialize()
     {

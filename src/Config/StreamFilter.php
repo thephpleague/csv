@@ -17,11 +17,10 @@ use LogicException;
 use SplFileObject;
 
 /**
- *  Trait to manipulate PHP Stream Filters with a SplFileObject
+ * Trait to manipulate PHP Stream Filters with a SplFileObject
  *
  * @package League.csv
  * @since  6.0.0
- *
  */
 trait StreamFilter
 {
@@ -33,7 +32,7 @@ trait StreamFilter
     protected $stream_filters = [];
 
     /**
-     * Stream filtering mode to apply on all filters
+     * Stream filtering mode
      *
      * @var int
      */
@@ -67,6 +66,17 @@ trait StreamFilter
     protected $input_encoding = 'UTF-8';
 
     /**
+     * validate a string
+     *
+     * @param mixed $str the value to evaluate as a string
+     *
+     * @throws InvalidArgumentException if the submitted data can not be converted to string
+     *
+     * @return string
+     */
+    abstract protected function filterString($str);
+
+    /**
      * Returns the CSV encoding charset
      *
      * @return string
@@ -81,7 +91,7 @@ trait StreamFilter
      *
      * @param string $str
      *
-     * @return static
+     * @return $this
      */
     public function setInputEncoding($str)
     {
@@ -221,7 +231,7 @@ trait StreamFilter
      */
     protected function sanitizeStreamFilter($filter_name)
     {
-        return urldecode($this->validateString($filter_name));
+        return urldecode($this->filterString($filter_name));
     }
 
     /**

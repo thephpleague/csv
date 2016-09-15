@@ -19,34 +19,35 @@ use InvalidArgumentException;
  *
  * @package League.csv
  * @since  7.0.0
- *
  */
 class InvalidRowException extends InvalidArgumentException
 {
     /**
      * Validator which did not validated the data
+     *
      * @var string
      */
     private $name;
 
     /**
      * Validator Data which caused the error
-     * @var array
+     *
+     * @var string[]
      */
     private $data;
 
     /**
      * New Instance
      *
-     * @param string $name    validator name
-     * @param array  $data    invalid  data
-     * @param string $message exception message
+     * @param string   $name    validator name
+     * @param string[] $data    invalid  data
+     * @param string   $message exception message
      */
-    public function __construct($name, array $data = [], $message = '')
+    public function __construct($name, array $record = [], $message = '')
     {
         parent::__construct($message);
         $this->name = $name;
-        $this->data = $data;
+        $this->data = $record;
     }
 
     /**
@@ -60,9 +61,9 @@ class InvalidRowException extends InvalidArgumentException
     }
 
     /**
-     * return the invalid data submitted
+     * return the invalid record
      *
-     * @return array
+     * @return string[]
      */
     public function getData()
     {

@@ -146,13 +146,46 @@ class CsvTest extends TestCase
         }
     }
 
-    public function testDelimeter()
+    /**
+     * @dataProvider validCsvControlProvider
+     */
+    public function testCsvControl($expected)
     {
-        $this->csv->setDelimiter('o');
-        $this->assertSame('o', $this->csv->getDelimiter());
+        $this->csv->setDelimiter($expected);
+        $this->csv->setEnclosure($expected);
+        $this->csv->setEscape($expected);
 
+        $this->assertSame($expected, $this->csv->getDelimiter());
+        $this->assertSame($expected, $this->csv->getEnclosure());
+        $this->assertSame($expected, $this->csv->getEscape());
+    }
+
+    public function validCsvControlProvider()
+    {
+        return [
+            'single char' => ['o'],
+            'non printable character' => ["\t"],
+        ];
+    }
+
+    /**
+     * @dataProvider invalidCsvControlProvider
+     */
+    public function testCsvControlThrowsInvalidArgumentException($char)
+    {
         $this->expectException(InvalidArgumentException::class);
-        $this->csv->setDelimiter('foo');
+        $this->csv->setDelimiter($char);
+    }
+
+    public function invalidCsvControlProvider()
+    {
+        return [
+            'wrong type' => [[]],
+            'too long' => ['coucou'],
+            'too short' => [''],
+            'unicode char' => ['💩'],
+            'unicode char PHP7 notation' => ["\u{0001F4A9}"],
+        ];
     }
 
     public function testBOMSettings()
@@ -222,24 +255,6 @@ class CsvTest extends TestCase
 
         $csv = Writer::createFromFileObject($data);
         $this->assertSame(['|' => 12, ';' => 4], $csv->fetchDelimitersOccurrence(['|', ';'], 5));
-    }
-
-    public function testEscape()
-    {
-        $this->csv->setEscape('o');
-        $this->assertSame('o', $this->csv->getEscape());
-
-        $this->expectException(InvalidArgumentException::class);
-        $this->csv->setEscape('foo');
-    }
-
-    public function testEnclosure()
-    {
-        $this->csv->setEnclosure('o');
-        $this->assertSame('o', $this->csv->getEnclosure());
-
-        $this->expectException(InvalidArgumentException::class);
-        $this->csv->setEnclosure('foo');
     }
 
     public function testEncoding()

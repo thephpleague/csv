@@ -19,18 +19,19 @@ use SplFileObject;
 use Traversable;
 
 /**
- *  A class to add records to a Csv document
+ *  Class to add records to a Csv document
  *
  * @package League.csv
  * @since  4.0.0
- *
  */
 class Writer extends AbstractCsv
 {
     use RowFilter;
 
     /**
-     * @inheritdoc
+     * Stream filtering mode
+     *
+     * @var int
      */
     protected $stream_filter_mode = STREAM_FILTER_WRITE;
 
@@ -56,7 +57,14 @@ class Writer extends AbstractCsv
     protected static $fputcsv_param_count;
 
     /**
-     * @inheritdoc
+     * Creates a new instance
+     *
+     * The path must be an SplFileInfo object
+     * an object that implements the `__toString` method
+     * a path to a file
+     *
+     * @param SplFileObject|string $path      The file path
+     * @param string               $open_mode The file open mode flag
      */
     protected function __construct($path, $open_mode = 'r+')
     {

@@ -19,11 +19,10 @@ use LimitIterator;
 use SplFileObject;
 
 /**
- *  Trait to configure CSV document properties
+ * Trait to configure CSV document properties
  *
  * @package League.csv
  * @since  6.0.0
- *
  */
 trait Controls
 {
@@ -34,21 +33,21 @@ trait Controls
     use Header;
 
     /**
-     * the field delimiter (one character only)
+     * the field delimiter character
      *
      * @var string
      */
     protected $delimiter = ',';
 
     /**
-     * the field enclosure character (one character only)
+     * the field enclosure character
      *
      * @var string
      */
     protected $enclosure = '"';
 
     /**
-     * the field escape character (one character only)
+     * the field escape character
      *
      * @var string
      */
@@ -62,51 +61,28 @@ trait Controls
     protected $newline = "\n";
 
     /**
-     * The Input file BOM character
+     * The input CSV BOM sequence
      *
-     * @var string|null
+     * @var string
      */
     protected $input_bom;
 
     /**
-     * The Output file BOM character
+     * The output CSV BOM sequence
+     *
      * @var string
      */
     protected $output_bom = '';
 
     /**
-     * Sets the field delimiter
+     * Returns the inner SplFileObject
      *
-     * @param string $delimiter
-     *
-     * @throws InvalidArgumentException If $delimiter is not a single character
-     *
-     * @return $this
+     * @return SplFileObject
      */
-    public function setDelimiter($delimiter)
-    {
-        if (!$this->isValidCsvControls($delimiter)) {
-            throw new InvalidArgumentException('The delimiter must be a single character');
-        }
-        $this->delimiter = $delimiter;
-
-        return $this;
-    }
+    abstract public function getIterator();
 
     /**
-     * Tell whether the submitted string is a valid CSV Control character
-     *
-     * @param string $str The submitted string
-     *
-     * @return bool
-     */
-    protected function isValidCsvControls($str)
-    {
-        return 1 == mb_strlen($str);
-    }
-
-    /**
-     * Returns the current field delimiter
+     * Returns the field delimiter
      *
      * @return string
      */
@@ -116,56 +92,7 @@ trait Controls
     }
 
     /**
-     * Detect Delimiters occurences in the CSV
-     *
-     * Returns a associative array where each key represents
-     * a valid delimiter and each value the number of occurences
-     *
-     * @param string[] $delimiters the delimiters to consider
-     * @param int      $nb_rows    Detection is made using $nb_rows of the CSV
-     *
-     * @return array
-     */
-    public function fetchDelimitersOccurrence(array $delimiters, $nb_rows = 1)
-    {
-        $nb_rows = $this->validateInteger($nb_rows, 1, 'The number of rows to consider must be a valid positive integer');
-        $filter_row = function ($row) {
-            return is_array($row) && count($row) > 1;
-        };
-        $delimiters = array_unique(array_filter($delimiters, [$this, 'isValidCsvControls']));
-        $csv = $this->getIterator();
-        $res = [];
-        foreach ($delimiters as $delim) {
-            $csv->setCsvControl($delim, $this->enclosure, $this->escape);
-            $iterator = new CallbackFilterIterator(new LimitIterator($csv, 0, $nb_rows), $filter_row);
-            $res[$delim] = count(iterator_to_array($iterator, false), COUNT_RECURSIVE);
-        }
-        arsort($res, SORT_NUMERIC);
-
-        return $res;
-    }
-
-    /**
-     * Sets the field enclosure
-     *
-     * @param string $enclosure
-     *
-     * @throws InvalidArgumentException If $enclosure is not a single character
-     *
-     * @return $this
-     */
-    public function setEnclosure($enclosure)
-    {
-        if (!$this->isValidCsvControls($enclosure)) {
-            throw new InvalidArgumentException('The enclosure must be a single character');
-        }
-        $this->enclosure = $enclosure;
-
-        return $this;
-    }
-
-    /**
-     * Returns the current field enclosure
+     * Returns the field enclosure
      *
      * @return string
      */
@@ -175,26 +102,7 @@ trait Controls
     }
 
     /**
-     * Sets the field escape character
-     *
-     * @param string $escape
-     *
-     * @throws InvalidArgumentException If $escape is not a single character
-     *
-     * @return $this
-     */
-    public function setEscape($escape)
-    {
-        if (!$this->isValidCsvControls($escape)) {
-            throw new InvalidArgumentException('The escape character must be a single character');
-        }
-        $this->escape = $escape;
-
-        return $this;
-    }
-
-    /**
-     * Returns the current field escape character
+     * Returns the field escape character
      *
      * @return string
      */
@@ -204,21 +112,7 @@ trait Controls
     }
 
     /**
-     * Sets the newline sequence characters
-     *
-     * @param string $newline
-     *
-     * @return $this
-     */
-    public function setNewline($newline)
-    {
-        $this->newline = (string) $newline;
-
-        return $this;
-    }
-
-    /**
-     * Returns the current newline sequence characters
+     * Returns the newline sequence
      *
      * @return string
      */
@@ -228,37 +122,7 @@ trait Controls
     }
 
     /**
-     * Outputs all data on the CSV file
-     *
-     * @param string $filename CSV downloaded name if present adds extra headers
-     *
-     * @return int Returns the number of characters read from the handle
-     *             and passed through to the output.
-     */
-    public function output($filename = null)
-    {
-        if (null !== $filename) {
-            $filename = filter_var($filename, FILTER_SANITIZE_STRING, FILTER_FLAG_STRIP_LOW);
-            header('Content-Type: text/csv');
-            header('Content-Transfer-Encoding: binary');
-            header("Content-Disposition: attachment; filename=\"$filename\"");
-        }
-
-        return $this->fpassthru();
-    }
-
-    /**
-     * Returns the BOM sequence in use on Output methods
-     *
-     * @return string
-     */
-    public function getOutputBOM()
-    {
-        return $this->output_bom;
-    }
-
-    /**
-     * Returns the BOM sequence of the given CSV
+     * Returns the input BOM sequence
      *
      * @return string
      */
@@ -282,11 +146,170 @@ trait Controls
 
         return $this->input_bom;
     }
+
+    /**
+     * Returns the BOM sequence in use on output methods
+     *
+     * @return string
+     */
+    public function getOutputBOM()
+    {
+        return $this->output_bom;
+    }
+
+    /**
+     * Sets the field delimiter
+     *
+     * @param string $delimiter
+     *
+     * @throws InvalidArgumentException If $delimiter is not a single character
+     *
+     * @return $this
+     */
+    public function setDelimiter($delimiter)
+    {
+        $this->delimiter = $this->filterCsvControl($delimiter);
+
+        return $this;
+    }
+
+    /**
+     * Sets the field enclosure
+     *
+     * @param string $enclosure
+     *
+     * @throws InvalidArgumentException If $enclosure is not a single character
+     *
+     * @return $this
+     */
+    public function setEnclosure($enclosure)
+    {
+        $this->enclosure = $this->filterCsvControl($enclosure);
+
+        return $this;
+    }
+
+    /**
+     * Sets the field escape character
+     *
+     * @param string $escape
+     *
+     * @throws InvalidArgumentException If $escape is not a single character
+     *
+     * @return $this
+     */
+    public function setEscape($escape)
+    {
+        $this->escape = $this->filterCsvControl($escape);
+
+        return $this;
+    }
+
+    /**
+     * Sets the newline sequence
+     *
+     * @param string $newline
+     *
+     * @return $this
+     */
+    public function setNewline($newline)
+    {
+        $this->newline = (string) $newline;
+
+        return $this;
+    }
+
+    /**
+     * Sets the BOM sequence to use in output method
+     *
+     * @param string $str The BOM sequence
+     *
+     * @return $this
+     */
+    public function setOutputBOM($str)
+    {
+        if (empty($str)) {
+            $this->output_bom = '';
+
+            return $this;
+        }
+
+        $this->output_bom = (string) $str;
+
+        return $this;
+    }
+
+    /**
+     * Detect Delimiters occurences in the CSV Document
+     *
+     * Returns a associative array where each key represents
+     * a valid delimiter and each value the number of occurences
+     *
+     * @param string[] $delimiters the delimiters to consider
+     * @param int      $nb_rows    Detection is made using $nb_rows of the CSV
+     *
+     * @return array
+     */
+    public function fetchDelimitersOccurrence(array $delimiters, $nb_rows = 1)
+    {
+        $nb_rows = $this->filterInteger($nb_rows, 1, 'The number of rows to consider must be a valid positive integer');
+        $filter_row = function ($row) {
+            return is_array($row) && count($row) > 1;
+        };
+        $delimiters = array_unique(array_filter($delimiters, [$this, 'isValidCsvControls']));
+        $csv = $this->getIterator();
+        $res = [];
+        foreach ($delimiters as $delim) {
+            $csv->setCsvControl($delim, $this->enclosure, $this->escape);
+            $iterator = new CallbackFilterIterator(new LimitIterator($csv, 0, $nb_rows), $filter_row);
+            $res[$delim] = count(iterator_to_array($iterator, false), COUNT_RECURSIVE);
+        }
+        arsort($res, SORT_NUMERIC);
+
+        return $res;
+    }
+
+    /**
+     * Tell whether the submitted string is a valid CSV Control character
+     *
+     * @param string $str The submitted string
+     *
+     * @return bool
+     */
+    protected function isValidCsvControls($str)
+    {
+        try {
+            return $this->filterCsvControl($str);
+        } catch (InvalidArgumentException $e) {
+            return false;
+        }
+    }
+
+    /**
+     * Outputs all data from the CSV document
+     *
+     * if a filename is provide output sends an HTTP Response containing a downloadable CSV
+     *
+     * @param string $filename CSV downloaded name if present adds extra headers
+     *
+     * @return int the number of bytes sent
+     */
+    public function output($filename = null)
+    {
+        if (null !== $filename) {
+            $filename = filter_var($filename, FILTER_SANITIZE_STRING, FILTER_FLAG_STRIP_LOW);
+            header('Content-Type: text/csv');
+            header('Content-Transfer-Encoding: binary');
+            header("Content-Disposition: attachment; filename=\"$filename\"");
+        }
+
+        return $this->fpassthru();
+    }
+
     /**
      * Outputs all data from the CSV
      *
-     * @return int Returns the number of characters read from the handle
-     *             and passed through to the output.
+     * @return int Returns the number of bytes read.
      */
     protected function fpassthru()
     {
@@ -308,7 +331,7 @@ trait Controls
     }
 
     /**
-     * Retrieves the CSV content
+     * Returns a string representation of the CSV Document
      *
      * @return string
      */
@@ -318,25 +341,5 @@ trait Controls
         $this->fpassthru();
 
         return ob_get_clean();
-    }
-
-    /**
-     * Sets the BOM sequence to prepend the CSV on output
-     *
-     * @param string $str The BOM sequence
-     *
-     * @return $this
-     */
-    public function setOutputBOM($str)
-    {
-        if (empty($str)) {
-            $this->output_bom = '';
-
-            return $this;
-        }
-
-        $this->output_bom = (string) $str;
-
-        return $this;
     }
 }

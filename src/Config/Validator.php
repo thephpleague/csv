@@ -18,11 +18,10 @@ use InvalidArgumentException;
 use League\Csv\AbstractCsv;
 
 /**
- *  Trait to validate CSV content and properties
+ * Trait to validate CSV content and properties
  *
  * @package League.csv
  * @since  9.0.0
- *
  */
 trait Validator
 {
@@ -43,7 +42,7 @@ trait Validator
     /**
      * Convert a row into a DOMElement
      *
-     * @param string[]       $record Csv record
+     * @param string[]    $record Csv record
      * @param DOMDocument $doc
      *
      * @return DOMElement
@@ -63,8 +62,8 @@ trait Validator
     /**
      * Convert a CSV record to UTF-8
      *
-     * @param string[]  $record
-     * @param string $input_encoding
+     * @param string[] $record
+     * @param string   $input_encoding
      *
      * @return string[]
      */
@@ -88,7 +87,7 @@ trait Validator
      *
      * @return int
      */
-    protected function validateInteger($int, $min_value, $error_message)
+    protected function filterInteger($int, $min_value, $error_message)
     {
         $int = filter_var($int, FILTER_VALIDATE_INT, ['options' => ['min_range' => $min_value]]);
         if (false !== $int) {
@@ -107,7 +106,7 @@ trait Validator
      *
      * @return string
      */
-    protected static function validateString($str)
+    protected static function filterString($str)
     {
         if (is_string($str) || (is_object($str) && method_exists($str, '__toString'))) {
             return (string) $str;
@@ -116,7 +115,28 @@ trait Validator
     }
 
     /**
+     * filter CSV Control characters
+     *
+     * @param string $str The submitted string
+     *
+     * @throws InvalidArgumentException if the character is not valid
+     *
+     * @return string
+     */
+    protected function filterCsvControl($str)
+    {
+        $str = $this->filterString($str);
+        if (1 == strlen($str)) {
+            return $str;
+        }
+
+        throw new InvalidArgumentException(sprintf('%s is not a single character', $str));
+    }
+
+    /**
      * Tell whether to use Stream Filter or not to convert the CSV
+     *
+     * @param AbstractCsv $csv
      *
      * @return bool
      */
@@ -129,9 +149,9 @@ trait Validator
     /**
      * Strip the BOM character from the record
      *
-     * @param string[]  $record
-     * @param string $bom
-     * @param string $enclosure
+     * @param string[] $record
+     * @param string   $bom
+     * @param string   $enclosure
      *
      * @return string[]
      */
@@ -159,14 +179,14 @@ trait Validator
      *
      * @return string[]
      */
-    protected function validateHeader(array $header)
+    protected function filterHeader(array $header)
     {
         if (empty($header)) {
             return $header;
         }
 
         foreach ($header as &$value) {
-            $value = $this->validateString($value);
+            $value = $this->filterString($value);
         }
         unset($value);
 

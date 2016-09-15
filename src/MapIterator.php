@@ -16,12 +16,11 @@ use Iterator;
 use IteratorIterator;
 
 /**
- * A MapIterator to apply a callable on an Iterator
+ * Iterator to apply a callable on the elements of an Iterator
  *
  * @package League.csv
  * @since  3.3.0
  * @internal used internally to modify Iterator content
- *
  */
 class MapIterator extends IteratorIterator
 {
@@ -33,10 +32,10 @@ class MapIterator extends IteratorIterator
     private $callable;
 
     /**
-     * The Constructor
+     * Create a map iterator from another iterator
      *
-     * @param Iterator $iterator
-     * @param callable $callable
+     * @param Iterator $iterator the iterator to run through the callable function
+     * @param callable $callable callable to run for each element in the Iterator
      */
     public function __construct(Iterator $iterator, callable $callable)
     {

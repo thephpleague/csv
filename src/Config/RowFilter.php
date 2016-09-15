@@ -15,11 +15,10 @@ namespace League\Csv\Config;
 use League\Csv\InvalidRowException;
 
 /**
- *  Trait to format and validate the record before insertion
+ * Trait to format and validate the record before insertion
  *
  * @package League.csv
  * @since  7.0.0
- *
  */
 trait RowFilter
 {
@@ -100,7 +99,7 @@ trait RowFilter
      */
     public function addValidator(callable $callable, $name)
     {
-        $name = $this->validateString($name);
+        $name = $this->filterString($name);
 
         $this->validators[$name] = $callable;
 
@@ -116,7 +115,7 @@ trait RowFilter
      *
      * @return string
      */
-    abstract protected function validateString($str);
+    abstract protected function filterString($str);
 
     /**
      * Remove a validator from the collection
@@ -127,7 +126,7 @@ trait RowFilter
      */
     public function removeValidator($name)
     {
-        $name = $this->validateString($name);
+        $name = $this->filterString($name);
         unset($this->validators[$name]);
 
         return $this;
@@ -142,7 +141,7 @@ trait RowFilter
      */
     public function hasValidator($name)
     {
-        $name = $this->validateString($name);
+        $name = $this->filterString($name);
 
         return isset($this->validators[$name]);
     }

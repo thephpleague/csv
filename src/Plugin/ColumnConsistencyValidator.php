@@ -15,11 +15,10 @@ namespace League\Csv\Plugin;
 use InvalidArgumentException;
 
 /**
- *  A class to manage column consistency on data insertion into a CSV
+ * Class to manage column consistency on data insertion into a CSV
  *
  * @package League.csv
  * @since  7.0.0
- *
  */
 class ColumnConsistencyValidator
 {
@@ -65,10 +64,9 @@ class ColumnConsistencyValidator
     }
 
     /**
-     * The method will set the $columns_count property according to the next inserted row
+     * The method will set the $columns_count property according to the next inserted record
      * and therefore will also validate the next line whatever length it has no matter
      * the current $columns_count property value.
-     *
      */
     public function autodetectColumnsCount()
     {
@@ -76,16 +74,16 @@ class ColumnConsistencyValidator
     }
 
     /**
-     * Is the submitted row valid
+     * Is the submitted record valid
      *
-     * @param array $row
+     * @param array $record
      *
      * @return bool
      */
-    public function __invoke(array $row)
+    public function __invoke(array $record)
     {
         if ($this->detect_columns_count) {
-            $this->columns_count = count($row);
+            $this->columns_count = count($record);
             $this->detect_columns_count = false;
 
             return true;
@@ -95,6 +93,6 @@ class ColumnConsistencyValidator
             return true;
         }
 
-        return count($row) === $this->columns_count;
+        return count($record) === $this->columns_count;
     }
 }

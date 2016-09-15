@@ -20,7 +20,6 @@ use LimitIterator;
  *
  * @package League.csv
  * @since  9.0.0
- *
  */
 trait Header
 {
@@ -32,8 +31,82 @@ trait Header
     protected $header = [];
 
     /**
-     * Tell whether the current header is internal
-     * or user submitted
+     * Returns the inner SplFileObject
+     *
+     * @return SplFileObject
+     */
+    abstract public function getIterator();
+
+    /**
+     * Returns the input BOM sequence
+     *
+     * @return string
+     */
+    abstract public function getInputBOM();
+
+    /**
+     * Returns the field enclosure
+     *
+     * @return string
+     */
+    abstract public function getEnclosure();
+
+    /**
+     * Strip the BOM character from the record
+     *
+     * @param string[] $record
+     * @param string   $bom
+     * @param string   $enclosure
+     *
+     * @return string[]
+     */
+    abstract protected function stripBOM(array $record, $bom, $enclosure);
+
+    /**
+     * Returns the input encoding charset
+     *
+     * @return string
+     */
+    abstract public function getInputEncoding();
+
+    /**
+     * Convert a CSV record to UTF-8
+     *
+     * @param string[] $record
+     * @param string   $input_encoding
+     *
+     * @return string[]
+     */
+    abstract protected function convertRecordToUtf8(array $record, $input_encoding);
+
+    /**
+     * Filter the header content
+     *
+     * @param string[] $header
+     *
+     * @throws InvalidArgumentException If the submitted array fails the assertion
+     *
+     * @return string[]
+     */
+    abstract protected function filterHeader(array $header);
+
+    /**
+     * Validate an integer
+     *
+     * @param int    $int
+     * @param int    $min_value
+     * @param string $error_message
+     *
+     * @throws InvalidArgumentException If the value is invalid
+     *
+     * @return int
+     */
+    abstract protected function filterInteger($int, $min_value, $error_message);
+
+    /**
+     * Returns the record offset used as header
+     *
+     * If no CSV record is used this method MUST return null
      *
      * @return int|null
      */
@@ -49,7 +122,7 @@ trait Header
     /**
      * Returns the CSV header
      *
-     * @return array
+     * @return string[]
      */
     public function getHeader()
     {
@@ -63,7 +136,9 @@ trait Header
     /**
      * Get the Header from a CSV record
      *
-     * @return array
+     * @throws InvalidArgumentException if the offset does not exist
+     *
+     * @return string[]
      */
     protected function getHeaderFromDocument()
     {
@@ -82,11 +157,11 @@ trait Header
     }
 
     /**
-     * Format the Document Header
+     * Format the Header
      *
-     * @param string[] $header
-     * @param string   $bom
-     * @param string   $enclosure
+     * @param string[] $header    The header
+     * @param string   $bom       The BOM sequence
+     * @param string   $enclosure The enclosure sequence
      *
      * @return string[]
      */
@@ -103,15 +178,24 @@ trait Header
     /**
      * Selects the array to be used as key for the fetchAssoc method
      *
-     * @param int|null|array $offset_or_keys the assoc key OR the row Index to be used
-     *                                       as the key index
+     * Because of the header is represented as an array, to be valid
+     * a header MUST contain only unique string value.
+     *
+     * <ul>
+     * <li>If a array is given it will be used as the header</li>
+     * <li>If a integer is given it will represent the offset of the record to be used as header</li>
+     * <li>If an empty array or null is given it will mean that no header is used</li>
+     * </ul>
+     *
+     * @param int|null|string[] $offset_or_keys the assoc key OR the row Index to be used
+     *                                          as the key index
      *
      * @return $this
      */
     public function setHeader($offset_or_keys)
     {
         if (is_array($offset_or_keys)) {
-            $this->header = $this->validateHeader($offset_or_keys);
+            $this->header = $this->filterHeader($offset_or_keys);
             return $this;
         }
 
@@ -120,7 +204,7 @@ trait Header
             return $this;
         }
 
-        $this->header = $this->validateInteger($offset_or_keys, 0, 'the header offset is invalid');
+        $this->header = $this->filterInteger($offset_or_keys, 0, 'the header offset is invalid');
         return $this;
     }
 }

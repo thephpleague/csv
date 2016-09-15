@@ -88,7 +88,7 @@ abstract class AbstractCsv implements IteratorAggregate
     }
 
     /**
-     * The destructor
+     * Release the underlying SplFileObject if it exists
      */
     public function __destruct()
     {
@@ -128,7 +128,7 @@ abstract class AbstractCsv implements IteratorAggregate
     public static function createFromString($str)
     {
         $file = new SplTempFileObject();
-        $file->fwrite(static::validateString($str));
+        $file->fwrite(static::filterString($str));
 
         return new static($file);
     }
@@ -153,7 +153,7 @@ abstract class AbstractCsv implements IteratorAggregate
             $path = $path->getPath().'/'.$path->getBasename();
         }
 
-        return new static(static::validateString($path), $open_mode);
+        return new static(static::filterString($path), $open_mode);
     }
 
     /**

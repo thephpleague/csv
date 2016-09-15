@@ -17,12 +17,11 @@ use Iterator;
 use League\Csv\Config\Validator;
 
 /**
- * A immutable value object to generate statements
+ * Immutable value object to generate statements
  * to select records against a {@link Reader} object
  *
  * @package League.csv
  * @since  9.0.0
- *
  */
 class Statement
 {
@@ -57,7 +56,12 @@ class Statement
     protected $limit = -1;
 
     /**
-     * @inheritdoc
+     * Triggered when writing data to inaccessible properties
+     *
+     * @param string $property property name
+     * @param mixed  $value    property value
+     *
+     * @throws InvalidArgumentException for all undefined properties
      */
     public function __set($property, $value)
     {
@@ -65,7 +69,11 @@ class Statement
     }
 
     /**
-     * @inheritdoc
+     * Triggered when __unset is used on inaccessible properties
+     *
+     * @param string $property property name
+     *
+     * @throws InvalidArgumentException for all undefined properties
      */
     public function __unset($property)
     {
@@ -73,7 +81,7 @@ class Statement
     }
 
     /**
-     * Return the added filter callable functions
+     * Returns the added filter callable functions
      *
      * @return callable[]
      */
@@ -83,7 +91,7 @@ class Statement
     }
 
     /**
-     * Return the added sorting callable functions
+     * Returns the added sorting callable functions
      *
      * @return callable[]
      */
@@ -93,7 +101,7 @@ class Statement
     }
 
     /**
-     * Return the limit clause
+     * Returns the limit clause
      *
      * @return int
      */
@@ -103,7 +111,7 @@ class Statement
     }
 
     /**
-     * Return the offset clause
+     * Returns the offset clause
      *
      * @return int
      */
@@ -113,7 +121,7 @@ class Statement
     }
 
     /**
-     * Set the offset clause
+     * Sets the offset clause
      *
      * @param $offset
      *
@@ -121,7 +129,7 @@ class Statement
      */
     public function setOffset($offset)
     {
-        $offset = $this->validateInteger($offset, 0, 'the offset must be a positive integer or 0');
+        $offset = $this->filterInteger($offset, 0, 'the offset must be a positive integer or 0');
         if ($offset === $this->offset) {
             return $this;
         }
@@ -133,7 +141,7 @@ class Statement
     }
 
     /**
-     * Set the limit clause
+     * Sets the limit clause
      *
      * @param int $limit
      *
@@ -141,7 +149,7 @@ class Statement
      */
     public function setLimit($limit)
     {
-        $limit = $this->validateInteger($limit, -1, 'the limit must an integer greater or equals to -1');
+        $limit = $this->filterInteger($limit, -1, 'the limit must an integer greater or equals to -1');
         if ($limit === $this->limit) {
             return $this;
         }
@@ -153,7 +161,7 @@ class Statement
     }
 
     /**
-     * Add a sorting callable function
+     * Adds a sorting callable function
      *
      * @param callable $callable
      *
@@ -168,7 +176,7 @@ class Statement
     }
 
     /**
-     *Add a filter callable function
+     *Adds a filter callable function
      *
      * @param callable $callable
      *
@@ -183,7 +191,8 @@ class Statement
     }
 
     /**
-     * Returns a Record object
+     * Returns a collection of selected records
+     * from the submitted {@link Reader} object
      *
      * @param Reader $csv
      *
