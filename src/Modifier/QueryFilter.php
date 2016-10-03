@@ -222,7 +222,7 @@ trait QueryFilter
             }
 
             $row[0] = mb_substr($row[0], $bom_length);
-            if ($row[0][0] === $enclosure && mb_substr($row[0], -1, 1) === $enclosure) {
+            if (mb_substr($row[0], 0, 1) === $enclosure && mb_substr($row[0], -1, 1) === $enclosure) {
                 $row[0] = mb_substr($row[0], 1, -1);
             }
 

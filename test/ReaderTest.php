@@ -395,7 +395,6 @@ class ReaderTest extends AbstractTestCase
         $transform = [];
         $this->csv->addFilter(function ($row) {
             return $row != [null];
-
         });
         $res = $this->csv->each(function ($row) use (&$transform) {
             $transform[] = array_map('strtoupper', $row);

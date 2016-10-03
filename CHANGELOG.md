@@ -2,6 +2,24 @@
 
 All Notable changes to `Csv` will be documented in this file
 
+## Next
+
+### Added
+
+- None
+
+### Deprecated
+
+- None
+
+### Fixed
+
+- BOM filtering fix [issue #184](ttps://github.com/thephpleague/csv/issues/184)
+
+### Removed
+
+- None
+
 ## 8.1.1 - 2016-09-05
 
 ### Added
