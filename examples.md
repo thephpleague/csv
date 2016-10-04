@@ -86,6 +86,29 @@ $nbInsert = $csv->each(function ($row) use (&$sth) {
 });
 ~~~
 
+## Converting a UTF-16 CSV file contents to UTF-8
+
+When importing csv files, you don't know whether the file is encoded with `UTF-8`, `UTF-16` or anything else. 
+The below example tries to determine the encoding and convert to `UTF-8` using the iconv extension.
+
+~~~php
+<?php
+
+use League\Csv\Reader;
+
+$reader = Reader::createFromPath('/path/to/your/csv/file.csv');
+
+$input_bom = $reader->getInputBOM();
+
+if ($input_bom === Reader::BOM_UTF16_LE || $input_bom === Reader::BOM_UTF16_BE) {
+    $reader->appendStreamFilter('convert.iconv.UTF-16/UTF-8');
+}
+
+foreach ($reader->fetchAssoc(0) as $row) {
+    echo json_encode($row, JSON_PRETTY_PRINT), PHP_EOL;
+}
+~~~
+
 ## More Examples
 
 * [Selecting specific rows in the CSV](https://github.com/thephpleague/csv/blob/master/examples/extract.php)
