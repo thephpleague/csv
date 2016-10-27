@@ -63,7 +63,7 @@ abstract class AbstractCsv implements JsonSerializable, IteratorAggregate
     /**
      * UTF-32 LE BOM sequence
      */
-    const BOM_UTF32_LE = "\x00\x00\xFF\xFE";
+    const BOM_UTF32_LE = "\xFF\xFE\x00\x00";
 
     /**
      * The constructor path

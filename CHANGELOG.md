@@ -2,7 +2,7 @@
 
 All Notable changes to `Csv` will be documented in this file
 
-## Next
+## 8.1.2 - 2016-10-27
 
 ### Added
 
@@ -14,7 +14,8 @@ All Notable changes to `Csv` will be documented in this file
 
 ### Fixed
 
-- BOM filtering fix [issue #184](ttps://github.com/thephpleague/csv/issues/184)
+- BOM filtering fix [issue #184](https://github.com/thephpleague/csv/issues/184)
+- `AbstractCsv::BOM_UTF32_LE` value fixed
 
 ### Removed
 
