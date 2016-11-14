@@ -35,7 +35,7 @@ foreach ($reader as $index => $row) {
 }
 ~~~
 
-<p class="message-notice">You can do more complex iterations <a href="/reading/">using the query methods</a> available on the <code>League\Csv\Reader</code> class only.</a></p>
+<p class="message-notice">You can do more complex iterations <a href="/reading/">using the query methods</a> available on the <code>League\Csv\Reader</code> class only.</p>
 
 ## Outputting the CSV
 
