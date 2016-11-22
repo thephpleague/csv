@@ -62,6 +62,7 @@ class Writer extends AbstractCsv
     {
         parent::__construct($path, $open_mode);
         static::initFputcsv();
+        $this->addDefaultFormatters();
     }
 
     /**
@@ -110,9 +111,6 @@ class Writer extends AbstractCsv
      */
     public function insertOne($row)
     {
-        if (!is_array($row)) {
-            $row = str_getcsv($row, $this->delimiter, $this->enclosure, $this->escape);
-        }
         $row = $this->formatRow($row);
         $this->validateRow($row);
 
@@ -144,6 +142,24 @@ class Writer extends AbstractCsv
         }
 
         return $parameters;
+    }
+
+    /**
+     * Adds default formatters.
+     *
+     * @return static
+     */
+    private function addDefaultFormatters()
+    {
+        $this->addFormatter(function ($row) {
+            if (is_array($row)) {
+                return $row;
+            }
+
+            return str_getcsv($row, $this->delimiter, $this->enclosure, $this->escape);
+        });
+
+        return $this;
     }
 
     /**
