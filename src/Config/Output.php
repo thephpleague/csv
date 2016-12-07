@@ -186,6 +186,18 @@ trait Output
 
         return $this->fpassthru();
     }
+    
+    /**
+     * Writes the CSV data to the specified file path on the local file system
+     * 
+     * @param string $path The local path where the file will be saved
+     * 
+     * @return int|false The number of bytes written to the file or false on failure
+     */
+    public function save($path)
+    {
+        file_put_contents($path, $this->__toString());   
+    }
 
     /**
      * Outputs all data from the CSV
