@@ -10,7 +10,7 @@ $inputCsv->setDelimiter(';');
 //get the header
 $headers = $inputCsv->fetchOne(0);
 
-//get at maximum 25 rows starting from the 801th row
+//get at maximum 25 rows starting from the 801st row
 $res = $inputCsv->setOffset(800)->setLimit(25)->fetch();
 ?>
 <!doctype html>
