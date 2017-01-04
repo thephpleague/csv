@@ -162,7 +162,7 @@ abstract class AbstractCsv implements JsonSerializable, IteratorAggregate
     }
 
     /**
-     * Return a new {@link AbstractCsv} from a string
+     * Return a new {@link AbstractCsv} from a file path
      *
      * @param mixed  $path      file path
      * @param string $open_mode the file open mode flag
