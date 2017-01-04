@@ -41,13 +41,11 @@ class WriterTest extends AbstractTestCase
     {
         $expected = [
             ['john', 'doe', 'john.doe@example.com'],
-            'jane,doe,jane.doe@example.com',
         ];
         foreach ($expected as $row) {
             $this->csv->insertOne($row);
         }
         $this->assertContains(['john', 'doe', 'john.doe@example.com'], $this->csv);
-        $this->assertContains(['jane', 'doe', 'jane.doe@example.com'], $this->csv);
     }
 
     public function testInsertNormalFile()
@@ -80,12 +78,11 @@ class WriterTest extends AbstractTestCase
     {
         $multipleArray = [
             ['john', 'doe', 'john.doe@example.com'],
-            'jane,doe,jane.doe@example.com',
         ];
 
         return [
             'array' => [$multipleArray, $multipleArray[0]],
-            'iterator' => [new ArrayIterator($multipleArray), ['jane', 'doe', 'jane.doe@example.com']],
+            'iterator' => [new ArrayIterator($multipleArray), ['john', 'doe', 'john.doe@example.com']],
         ];
     }
 
@@ -93,7 +90,6 @@ class WriterTest extends AbstractTestCase
     {
         $expected = [
             ['john', 'doe', 'john.doe@example.com'],
-            'john,doe,john.doe@example.com',
         ];
         foreach ($expected as $row) {
             $this->csv->insertOne($row);
@@ -116,16 +112,10 @@ class WriterTest extends AbstractTestCase
     public function testAddValidationRules()
     {
         $func = function (array $row) {
-            return $row;
+            return true;
         };
 
         $this->csv->addValidator($func, 'func1');
-        $this->csv->addValidator($func, 'func2');
-        $this->assertTrue($this->csv->hasValidator('func1'));
-        $this->csv->removeValidator('func1');
-        $this->assertTrue($this->csv->hasValidator('func2'));
-        $this->csv->clearValidators();
-        $this->assertFalse($this->csv->hasValidator('func2'));
     }
 
     public function testFormatterRules()
@@ -135,12 +125,8 @@ class WriterTest extends AbstractTestCase
         };
 
         $this->csv->addFormatter($func);
-        $this->csv->addFormatter($func);
-        $this->assertTrue($this->csv->hasFormatter($func));
-        $this->csv->removeFormatter($func);
-        $this->assertTrue($this->csv->hasFormatter($func));
-        $this->csv->clearFormatters();
-        $this->assertFalse($this->csv->hasFormatter($func));
+        $this->csv->insertOne(['jane', 'doe']);
+        $this->assertSame("JANE,DOE\n", (string) $this->csv);
     }
 
     public function testConversionWithWriter()

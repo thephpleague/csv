@@ -206,7 +206,7 @@ class ReaderTest extends AbstractTestCase
                 [Reader::BOM_UTF16_LE.'john', 'doe', 'john.doe@example.com'],
                 ['jane', 'doe', 'jane.doe@example.com'],
             ], 'john'],
-            'withDoubleBOM' =>  [[
+            'withDoubleBOM' => [[
                 [Reader::BOM_UTF16_LE.Reader::BOM_UTF16_LE.'john', 'doe', 'john.doe@example.com'],
                 ['jane', 'doe', 'jane.doe@example.com'],
             ], Reader::BOM_UTF16_LE.'john'],

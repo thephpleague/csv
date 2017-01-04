@@ -152,7 +152,7 @@ trait Output
             $csv->setFlags(SplFileObject::READ_CSV);
             $csv->rewind();
             $line = $csv->fgets();
-            $res  = array_filter($bom, function ($sequence) use ($line) {
+            $res = array_filter($bom, function ($sequence) use ($line) {
                 return strpos($line, $sequence) === 0;
             });
 

@@ -29,12 +29,11 @@ class SkipNullValuesFormatterTest extends AbstractTestCase
         $this->csv = null;
     }
 
-
     public function testInsertNullToSkipCell()
     {
         $expected = [
             ['john', 'doe', 'john.doe@example.com'],
-            'john,doe,john.doe@example.com',
+            ['john', 'doe', 'john.doe@example.com'],
             ['john', null, 'john.doe@example.com'],
         ];
         $formatter = new SkipNullValuesFormatter();

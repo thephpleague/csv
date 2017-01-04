@@ -176,7 +176,7 @@ class ControlsTest extends AbstractTestCase
     public function testAppliedFlags($flag, $fetch_count)
     {
         $path = __DIR__.'/data/tmp.txt';
-        $obj  = new SplFileObject($path, 'w+');
+        $obj = new SplFileObject($path, 'w+');
         $obj->fwrite("1st\n2nd\n");
         $obj->setFlags($flag);
         $reader = Reader::createFromFileObject($obj);
