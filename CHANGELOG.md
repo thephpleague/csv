@@ -2,6 +2,24 @@
 
 All Notable changes to `Csv` will be documented in this file
 
+## Next
+
+### Added
+
+- `AbstractCsv::createFromStream` to enable working with resource stream [issue #202](https://github.com/thephpleague/csv/issues/202)
+
+### Deprecated
+
+- None
+
+### Fixed
+
+- None
+
+### Removed
+
+- None
+
 ## 8.1.2 - 2016-10-27
 
 ### Added

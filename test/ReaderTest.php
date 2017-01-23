@@ -5,12 +5,13 @@ namespace League\Csv\Test;
 use Iterator;
 use League\Csv\Reader;
 use League\Csv\Writer;
+use PHPUnit_Framework_TestCase;
 use SplTempFileObject;
 
 /**
  * @group reader
  */
-class ReaderTest extends AbstractTestCase
+class ReaderTest extends PHPUnit_Framework_TestCase
 {
     private $csv;
 

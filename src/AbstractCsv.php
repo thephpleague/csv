@@ -19,6 +19,7 @@ use League\Csv\Config\Controls;
 use League\Csv\Config\Output;
 use League\Csv\Modifier\QueryFilter;
 use League\Csv\Modifier\StreamFilter;
+use League\Csv\Modifier\StreamIterator;
 use SplFileInfo;
 use SplFileObject;
 use SplTempFileObject;
@@ -124,6 +125,35 @@ abstract class AbstractCsv implements JsonSerializable, IteratorAggregate
         }
 
         return $csv;
+    }
+
+    /**
+     * Return a new {@link AbstractCsv} from a PHP resource stream
+     *
+     * @param resource $stream
+     *
+     * @return static
+     */
+    public static function createFromStream($stream)
+    {
+        if (is_resource($stream)) {
+            $stream = new StreamIterator($stream);
+        }
+
+        if ($stream instanceof StreamIterator) {
+            $csv = new static($stream);
+            $controls = $stream->getCsvControl();
+            $csv->setDelimiter($controls[0]);
+            $csv->setEnclosure($controls[1]);
+            $csv->setEscape($controls[2]);
+
+            return $csv;
+        }
+
+        throw new InvalidArgumentException(sprintf(
+            'Expected stream to be stream or a StreamIterator, got %s instead',
+            is_object($stream) ? get_class($stream) : gettype($stream)
+        ));
     }
 
     /**
@@ -233,17 +263,28 @@ abstract class AbstractCsv implements JsonSerializable, IteratorAggregate
     /**
      * Returns the inner SplFileObject
      *
-     * @return SplFileObject
+     * @return StreamIterator|SplFileObject
      */
     public function getIterator()
     {
-        $iterator = $this->path;
-        if (!$iterator instanceof SplFileObject) {
-            $iterator = new SplFileObject($this->getStreamFilterPath(), $this->open_mode);
-        }
+        $iterator = $this->setIterator();
         $iterator->setCsvControl($this->delimiter, $this->enclosure, $this->escape);
         $iterator->setFlags(SplFileObject::READ_CSV | SplFileObject::READ_AHEAD | SplFileObject::SKIP_EMPTY);
 
         return $iterator;
+    }
+
+    /**
+     * Set the Inner Iterator
+     *
+     * @return StreamIterator|SplFileObject
+     */
+    protected function setIterator()
+    {
+        if ($this->path instanceof StreamIterator || $this->path instanceof SplFileObject) {
+            return $this->path;
+        }
+
+        return new SplFileObject($this->getStreamFilterPath(), $this->open_mode);
     }
 }

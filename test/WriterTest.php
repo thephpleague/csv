@@ -4,6 +4,7 @@ namespace League\Csv\Test;
 
 use ArrayIterator;
 use League\Csv\Writer;
+use PHPUnit_Framework_TestCase;
 use SplFileObject;
 use SplTempFileObject;
 use stdClass;
@@ -11,7 +12,7 @@ use stdClass;
 /**
  * @group writer
  */
-class WriterTest extends AbstractTestCase
+class WriterTest extends PHPUnit_Framework_TestCase
 {
     private $csv;
 
