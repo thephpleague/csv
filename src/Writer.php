@@ -38,7 +38,7 @@ class Writer extends AbstractCsv
     /**
      * The CSV object holder
      *
-     * @var SplFileObject
+     * @var SplFileObject|StreamIterator
      */
     protected $csv;
 

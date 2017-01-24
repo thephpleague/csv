@@ -89,8 +89,8 @@ abstract class AbstractCsv implements JsonSerializable, IteratorAggregate
      * an object that implements the `__toString` method
      * a path to a file
      *
-     * @param SplFileObject|string $path      The file path
-     * @param string               $open_mode The file open mode flag
+     * @param StreamIterator|SplFileObject|string $path      The file path
+     * @param string                              $open_mode The file open mode flag
      */
     protected function __construct($path, $open_mode = 'r+')
     {
