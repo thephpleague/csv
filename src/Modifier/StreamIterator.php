@@ -20,7 +20,7 @@ use SplFileObject;
  *  A Stream Iterator
  *
  * @package League.csv
- * @since  8.3.0
+ * @since  8.2.0
  * @internal used internally to iterate over a stream resource
  *
  */
@@ -64,14 +64,14 @@ class StreamIterator implements Iterator
     {
         if (!is_resource($stream) || 'stream' !== get_resource_type($stream)) {
             throw new InvalidArgumentException(sprintf(
-                'Expected resource to be stream, got %s instead',
+                'Expected resource to be a stream, received %s instead',
                 is_object($stream) ? get_class($stream) : gettype($stream)
             ));
         }
 
         $data = stream_get_meta_data($stream);
         if (!$data['seekable']) {
-            throw new InvalidArgumentException('The resource pointer must be seekable');
+            throw new InvalidArgumentException('The stream must be seekable');
         }
 
         $this->stream = $stream;

@@ -128,32 +128,25 @@ abstract class AbstractCsv implements JsonSerializable, IteratorAggregate
     }
 
     /**
-     * Return a new {@link AbstractCsv} from a PHP resource stream
+     * Return a new {@link AbstractCsv} from a PHP resource stream or a StreamIterator
      *
-     * @param resource $stream
+     * @param StreamIterator|resource $stream
      *
      * @return static
      */
     public static function createFromStream($stream)
     {
-        if (is_resource($stream)) {
+        if (!$stream instanceof StreamIterator) {
             $stream = new StreamIterator($stream);
         }
 
-        if ($stream instanceof StreamIterator) {
-            $csv = new static($stream);
-            $controls = $stream->getCsvControl();
-            $csv->setDelimiter($controls[0]);
-            $csv->setEnclosure($controls[1]);
-            $csv->setEscape($controls[2]);
+        $csv = new static($stream);
+        $controls = $stream->getCsvControl();
+        $csv->setDelimiter($controls[0]);
+        $csv->setEnclosure($controls[1]);
+        $csv->setEscape($controls[2]);
 
-            return $csv;
-        }
-
-        throw new InvalidArgumentException(sprintf(
-            'Expected stream to be stream or a StreamIterator, got %s instead',
-            is_object($stream) ? get_class($stream) : gettype($stream)
-        ));
+        return $csv;
     }
 
     /**
