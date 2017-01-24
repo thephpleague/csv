@@ -4,7 +4,7 @@
 *
 * @license http://opensource.org/licenses/MIT
 * @link https://github.com/thephpleague/csv/
-* @version 8.1.1
+* @version 8.2.0
 * @package League.csv
 *
 * For the full copyright and license information, please view the LICENSE

@@ -1,0 +1,29 @@
+menu .versions {
+    margin: 15px 0 0 50px;
+}
+
+@media screen and (max-width: 549px) {
+    menu {
+        text-align: center;
+    }
+    menu .versions {
+        margin: 15px 0 0 0;
+        display: inline-block;
+    }
+}
+
+@media screen and (min-width: 550px) and (max-width: 849px) {
+    menu .versions {
+        margin: 15px 0 0 30px;
+    }
+}
+
+blockquote {
+    border-left: 4px solid #ccc;
+    font-style:italic;
+}
+
+blockquote {
+    box-sizing: border-box;
+    padding:0 10px;
+}

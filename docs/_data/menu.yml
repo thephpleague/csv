@@ -1,0 +1,42 @@
+'8.0':
+    Getting Started:
+        Introduction: '/'
+        Examples: '/examples/'
+        Installation: '/installation/'
+    The API:
+        Instantiation: '/instantiation/'
+        CSV Properties: '/properties/'
+        Basic Usage: '/basic-usage/'
+        Extracting Data: '/reading/'
+        Inserting Data: '/inserting/'
+        Converting Data: '/converting/'
+        Query Filters: '/query-filtering/'
+        Stream Filters: '/filtering/'
+        BOM Handling: '/bom/'
+    Upgrading Guide:
+        Introduction: '/upgrading/'
+        Changelog: '/changelog/'
+        5.x to 6.x: '/upgrading/6.0/'
+        6.x to 7.x: '/upgrading/7.0/'
+        7.x to 8.x: '/upgrading/8.0/'
+'7.0':
+    Getting Started:
+        Introduction: '/7.0/'
+        Examples: '/7.0/examples/'
+        Installation: '/7.0/installation/'
+    The API:
+        Instantiation: '/7.0/instantiation/'
+        CSV Properties: '/7.0/properties/'
+        Basic Usage: '/7.0/basic-usage/'
+        Extracting Data: '/7.0/reading/'
+        Inserting Data: '/7.0/inserting/'
+        Converting Data: '/7.0/converting/'
+        Query Filters: '/7.0/query-filtering/'
+        Stream Filters: '/7.0/filtering/'
+        BOM Handling: '/7.0/bom/'
+    Upgrading Guide:
+        Introduction: '/upgrading/'
+        Changelog: '/changelog/'
+        7.x to 8.x: '/upgrading/8.0/'
+        6.x to 7.x: '/upgrading/7.0/'
+        5.x to 6.x: '/upgrading/6.0/'

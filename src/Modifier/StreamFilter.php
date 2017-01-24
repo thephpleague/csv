@@ -4,7 +4,7 @@
 *
 * @license http://opensource.org/licenses/MIT
 * @link https://github.com/thephpleague/csv/
-* @version 8.1.1
+* @version 8.2.0
 * @package League.csv
 *
 * For the full copyright and license information, please view the LICENSE
@@ -14,6 +14,7 @@ namespace League\Csv\Modifier;
 
 use LogicException;
 use OutOfBoundsException;
+use SplFileObject;
 
 /**
  *  A Trait to ease PHP Stream Filters manipulation
@@ -66,7 +67,7 @@ trait StreamFilter
      * an object that implements the `__toString` method
      * a path to a file
      *
-     * @param \SplFileObject|string $path The file path
+     * @param StreamIterator|SplFileObject|string $path The file path
      */
     protected function initStreamFilter($path)
     {

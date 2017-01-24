@@ -1,0 +1,5 @@
+title: CSV
+tagline: "CSV data manipulation made easy in PHP."
+description: "Working with CSV can often be much more difficult than you expect, with different types of delimiter and complicated structures. This makes it easy to read and write almost anything."
+google_analytics_tracking_id: UA-46050814-6
+default_version: "8.0"

@@ -4,7 +4,7 @@
 *
 * @license http://opensource.org/licenses/MIT
 * @link https://github.com/thephpleague/csv/
-* @version 8.1.1
+* @version 8.2.0
 * @package League.csv
 *
 * For the full copyright and license information, please view the LICENSE
@@ -67,11 +67,11 @@ abstract class AbstractCsv implements JsonSerializable, IteratorAggregate
     const BOM_UTF32_LE = "\xFF\xFE\x00\x00";
 
     /**
-     * The constructor path
+     * The path
      *
-     * can be a SplFileInfo object or the string path to a file
+     * can be a StreamIterator object, a SplFileObject object or the string path to a file
      *
-     * @var SplFileObject|string
+     * @var StreamIterator|SplFileObject|string
      */
     protected $path;
 
@@ -155,7 +155,7 @@ abstract class AbstractCsv implements JsonSerializable, IteratorAggregate
      * The string must be an object that implements the `__toString` method,
      * or a string
      *
-     * @param string|object $str the string
+     * @param string $str the string
      *
      * @return static
      */
