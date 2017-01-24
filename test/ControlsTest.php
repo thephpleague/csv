@@ -4,13 +4,14 @@ namespace League\Csv\Test;
 
 use League\Csv\Reader;
 use League\Csv\Writer;
+use PHPUnit_Framework_TestCase;
 use SplFileObject;
 use SplTempFileObject;
 
 /**
  * @group controls
  */
-class ControlsTest extends AbstractTestCase
+class ControlsTest extends PHPUnit_Framework_TestCase
 {
     private $csv;
 

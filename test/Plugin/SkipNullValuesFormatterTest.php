@@ -3,16 +3,16 @@
 namespace League\Csv\Test\Plugin;
 
 use League\Csv\Plugin\SkipNullValuesFormatter;
-use League\Csv\Test\AbstractTestCase;
 use League\Csv\Writer;
 use LimitIterator;
+use PHPUnit_Framework_TestCase;
 use SplFileObject;
 use SplTempFileObject;
 
 /**
  * @group formatter
  */
-class SkipNullValuesFormatterTest extends AbstractTestCase
+class SkipNullValuesFormatterTest extends PHPUnit_Framework_TestCase
 {
     private $csv;
 

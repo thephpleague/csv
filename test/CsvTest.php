@@ -6,12 +6,13 @@ use DOMDocument;
 use IteratorAggregate;
 use JsonSerializable;
 use League\Csv\Reader;
+use PHPUnit_Framework_TestCase;
 use SplTempFileObject;
 
 /**
  * @group csv
  */
-class CsvTest extends AbstractTestCase
+class CsvTest extends PHPUnit_Framework_TestCase
 {
     private $csv;
 

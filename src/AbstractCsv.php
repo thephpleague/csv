@@ -19,6 +19,7 @@ use League\Csv\Config\Controls;
 use League\Csv\Config\Output;
 use League\Csv\Modifier\QueryFilter;
 use League\Csv\Modifier\StreamFilter;
+use League\Csv\Modifier\StreamIterator;
 use SplFileInfo;
 use SplFileObject;
 use SplTempFileObject;
@@ -88,8 +89,8 @@ abstract class AbstractCsv implements JsonSerializable, IteratorAggregate
      * an object that implements the `__toString` method
      * a path to a file
      *
-     * @param SplFileObject|string $path      The file path
-     * @param string               $open_mode The file open mode flag
+     * @param StreamIterator|SplFileObject|string $path      The file path
+     * @param string                              $open_mode The file open mode flag
      */
     protected function __construct($path, $open_mode = 'r+')
     {
@@ -122,6 +123,28 @@ abstract class AbstractCsv implements JsonSerializable, IteratorAggregate
         if (isset($controls[2])) {
             $csv->setEscape($controls[2]);
         }
+
+        return $csv;
+    }
+
+    /**
+     * Return a new {@link AbstractCsv} from a PHP resource stream or a StreamIterator
+     *
+     * @param StreamIterator|resource $stream
+     *
+     * @return static
+     */
+    public static function createFromStream($stream)
+    {
+        if (!$stream instanceof StreamIterator) {
+            $stream = new StreamIterator($stream);
+        }
+
+        $csv = new static($stream);
+        $controls = $stream->getCsvControl();
+        $csv->setDelimiter($controls[0]);
+        $csv->setEnclosure($controls[1]);
+        $csv->setEscape($controls[2]);
 
         return $csv;
     }
@@ -233,17 +256,28 @@ abstract class AbstractCsv implements JsonSerializable, IteratorAggregate
     /**
      * Returns the inner SplFileObject
      *
-     * @return SplFileObject
+     * @return StreamIterator|SplFileObject
      */
     public function getIterator()
     {
-        $iterator = $this->path;
-        if (!$iterator instanceof SplFileObject) {
-            $iterator = new SplFileObject($this->getStreamFilterPath(), $this->open_mode);
-        }
+        $iterator = $this->setIterator();
         $iterator->setCsvControl($this->delimiter, $this->enclosure, $this->escape);
         $iterator->setFlags(SplFileObject::READ_CSV | SplFileObject::READ_AHEAD | SplFileObject::SKIP_EMPTY);
 
         return $iterator;
+    }
+
+    /**
+     * Set the Inner Iterator
+     *
+     * @return StreamIterator|SplFileObject
+     */
+    protected function setIterator()
+    {
+        if ($this->path instanceof StreamIterator || $this->path instanceof SplFileObject) {
+            return $this->path;
+        }
+
+        return new SplFileObject($this->getStreamFilterPath(), $this->open_mode);
     }
 }

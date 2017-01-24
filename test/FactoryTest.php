@@ -4,6 +4,7 @@ namespace League\Csv\Test;
 
 use ArrayIterator;
 use League\Csv\Reader;
+use PHPUnit_Framework_TestCase;
 use SplFileInfo;
 use SplFileObject;
 use SplTempFileObject;
@@ -11,7 +12,7 @@ use SplTempFileObject;
 /**
  * @group factory
  */
-class FactoryTest extends AbstractTestCase
+class FactoryTest extends PHPUnit_Framework_TestCase
 {
     public function testCreateFromPathWithFilePath()
     {

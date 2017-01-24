@@ -5,13 +5,14 @@ namespace League\Csv\Test;
 use League\Csv\Reader;
 use League\Csv\Writer;
 use lib\FilterReplace;
+use PHPUnit_Framework_TestCase;
 use SplFileObject;
 use SplTempFileObject;
 
 /**
  * @group stream
  */
-class StreamFilterTest extends AbstractTestCase
+class StreamFilterTest extends PHPUnit_Framework_TestCase
 {
     public function testInitStreamFilterWithWriterStream()
     {
