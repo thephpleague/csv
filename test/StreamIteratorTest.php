@@ -25,22 +25,11 @@ class StreamIteratorTest extends PHPUnit_Framework_TestCase
         $this->csv = null;
     }
 
-    /**
-     * @dataProvider validStream
-     */
-    public function testCreateFromStreamFromStream($stream)
+    public function testCreateFromStreamFromStream()
     {
-        $csv = Reader::createFromStream($stream);
+        $csv = Reader::createFromStream(fopen(__DIR__.'/data/foo.csv', 'r'));
         $this->assertInstanceof(Reader::class, $csv);
         $this->assertInstanceof(StreamIterator::class, $csv->getIterator());
-    }
-
-    public function validStream()
-    {
-        return [
-            'stream' => [fopen(__DIR__.'/data/foo.csv', 'r')],
-            'StreamIterator' => [new StreamIterator(fopen(__DIR__.'/data/foo.csv', 'r'))],
-        ];
     }
 
     /**
@@ -160,7 +149,6 @@ class StreamIteratorTest extends PHPUnit_Framework_TestCase
         $this->assertSame($expected, $csv->__toString());
     }
 
-
     public function testIteratorWithLines()
     {
         $fp = fopen('php://temp', 'r+');
@@ -174,12 +162,10 @@ class StreamIteratorTest extends PHPUnit_Framework_TestCase
         }
 
         $stream = new StreamIterator($fp);
-        $stream->setFlags(0);
         $stream->rewind();
         $stream->current();
         $this->assertInternalType('string', $stream->fgets());
     }
-
 
     public function testCustomNewline()
     {

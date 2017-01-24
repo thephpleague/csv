@@ -7,7 +7,7 @@ title: Basic Usage
 
 <p class="message-info"><strong>Tips:</strong> Even though you can use the following methods with the <code>League\Csv\Writer</code> object. It is recommended to do so with the <code>League\Csv\Reader</code> class to avoid losing the file cursor position and getting unexpected results when inserting new data.</p>
 
-Once your CSV object is [instantiated](/instantiation) and [configured](/properties/), you can start interacting with the data using a number of methods available to you. 
+Once your CSV object is [instantiated](/instantiation) and [configured](/properties/), you can start interacting with the data using a number of methods available to you.
 
 
 ## Iterating over the CSV rows
@@ -17,7 +17,7 @@ The CSV object implements PHP's `IteratorAggregate` interface
 ~~~php
 <?php
 
-public AbstractCsv::getIterator(void): SplFileObject
+public AbstractCsv::getIterator(void): Iterator
 ~~~
 
 You can iterate over your CSV object to extract each CSV row using the `foreach` construct.

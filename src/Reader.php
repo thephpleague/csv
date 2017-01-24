@@ -44,11 +44,15 @@ class Reader extends AbstractCsv
      */
     public function fetchAll(callable $callable = null)
     {
-        return iterator_to_array($this->fetch($callable), false);
+        return iterator_to_array($this->applyCallable($this->getQueryIterator(), $callable), false);
     }
 
     /**
      * Fetch the next row from a result set
+     *
+     * DEPRECATION WARNING! This method will be removed in the next major point release
+     *
+     * @deprecated deprecated since version 8.2
      *
      * @param callable|null $callable a callable function to be applied to each Iterator item
      *
@@ -79,6 +83,10 @@ class Reader extends AbstractCsv
     /**
      * Applies a callback function on the CSV
      *
+     * DEPRECATION WARNING! This method will be removed in the next major point release
+     *
+     * @deprecated deprecated since version 8.2
+     *
      * The callback function must return TRUE in order to continue
      * iterating over the iterator.
      *
@@ -89,7 +97,7 @@ class Reader extends AbstractCsv
     public function each(callable $callable)
     {
         $index = 0;
-        $iterator = $this->fetch();
+        $iterator = $this->getQueryIterator();
         $iterator->rewind();
         while ($iterator->valid() && true === call_user_func(
             $callable,
@@ -117,7 +125,7 @@ class Reader extends AbstractCsv
     {
         $this->setOffset($offset);
         $this->setLimit(1);
-        $iterator = $this->fetch();
+        $iterator = $this->getQueryIterator();
         $iterator->rewind();
 
         return (array) $iterator->current();
@@ -148,14 +156,16 @@ class Reader extends AbstractCsv
         };
 
         $this->addFilter($filter_column);
-        $iterator = $this->fetch($select_column);
-        $iterator = $this->applyCallable($iterator, $callable);
 
-        return $iterator;
+        return $this->applyCallable(new MapIterator($this->getQueryIterator(), $select_column), $callable);
     }
 
     /**
      * Retrieve CSV data as pairs
+     *
+     * DEPRECATION WARNING! This method will be removed in the next major point release
+     *
+     * @deprecated deprecated since version 8.2
      *
      * Fetches an associative array of all rows as key-value pairs (first
      * column is the key, second column is the value).
@@ -207,21 +217,7 @@ class Reader extends AbstractCsv
         };
 
         $this->addFilter($filter_pairs);
-        $iterator = $this->fetch($select_pairs);
-        $iterator = $this->applyCallable($iterator, $callable);
-
-        return $this->generatePairs($iterator);
-    }
-
-    /**
-     * Return the key/pairs as a PHP generator
-     *
-     * @param Iterator $iterator
-     *
-     * @return Generator
-     */
-    protected function generatePairs(Iterator $iterator)
-    {
+        $iterator = $this->applyCallable(new MapIterator($this->getQueryIterator(), $select_pairs), $callable);
         foreach ($iterator as $row) {
             yield $row[0] => $row[1];
         }
@@ -229,6 +225,10 @@ class Reader extends AbstractCsv
 
     /**
      * Fetch the next row from a result set
+     *
+     * DEPRECATION WARNING! This method will be removed in the next major point release
+     *
+     * @deprecated deprecated since version 8.2
      *
      * The rows are presented as associated arrays
      * The callable function will be applied to each row
@@ -254,10 +254,7 @@ class Reader extends AbstractCsv
             return array_combine($keys, $row);
         };
 
-        $iterator = $this->fetch($combine_array);
-        $iterator = $this->applyCallable($iterator, $callable);
-
-        return $iterator;
+        return $this->applyCallable(new MapIterator($this->getQueryIterator(), $combine_array), $callable);
     }
 
     /**

@@ -26,13 +26,33 @@ use SplFileObject;
  */
 class StreamIterator implements Iterator
 {
+    /**
+     * Stream pointer
+     *
+     * @var resource
+     */
     protected $stream;
 
+    /**
+     * Current iterator value
+     *
+     * @var mixed
+     */
     protected $current_line;
 
+    /**
+     * Current iterator key
+     *
+     * @var int
+     */
     protected $current_line_number;
 
-    protected $flags = SplFileObject::READ_CSV;
+    /**
+     * Flags for the StreamIterator
+     *
+     * @var int
+     */
+    protected $flags = 0;
 
     /**
      * the field delimiter (one character only)
@@ -78,22 +98,6 @@ class StreamIterator implements Iterator
     }
 
     /**
-     * Get the delimiter, enclosure and escape character for CSV
-     *
-     * @see http://php.net/manual/en/splfileinfo.iswritable.php
-     *
-     * @return array
-     */
-    public function getCsvControl()
-    {
-        return [
-            $this->delimiter,
-            $this->enclosure,
-            $this->escape,
-        ];
-    }
-
-    /**
      * Set CSV control
      *
      * @see http://php.net/manual/en/splfileobject.setcsvcontrol.php
@@ -124,6 +128,7 @@ class StreamIterator implements Iterator
         if (1 == strlen($char)) {
             return $char;
         }
+
         throw new InvalidArgumentException(sprintf('The %s character must be a single character', $type));
     }
 
@@ -169,7 +174,7 @@ class StreamIterator implements Iterator
     /**
      * Retrieves the current line of the file.
      *
-     * @return string|array
+     * @return mixed
      */
     public function current()
     {
@@ -179,10 +184,12 @@ class StreamIterator implements Iterator
 
         if (($this->flags & SplFileObject::READ_CSV) == SplFileObject::READ_CSV) {
             $this->current_line = $this->getCurrentRecord();
+
             return $this->current_line;
         }
 
         $this->current_line = $this->getCurrentLine();
+
         return $this->current_line;
     }
 

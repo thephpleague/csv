@@ -130,23 +130,13 @@ abstract class AbstractCsv implements JsonSerializable, IteratorAggregate
     /**
      * Return a new {@link AbstractCsv} from a PHP resource stream or a StreamIterator
      *
-     * @param StreamIterator|resource $stream
+     * @param resource $stream
      *
      * @return static
      */
     public static function createFromStream($stream)
     {
-        if (!$stream instanceof StreamIterator) {
-            $stream = new StreamIterator($stream);
-        }
-
-        $csv = new static($stream);
-        $controls = $stream->getCsvControl();
-        $csv->setDelimiter($controls[0]);
-        $csv->setEnclosure($controls[1]);
-        $csv->setEscape($controls[2]);
-
-        return $csv;
+        return new static(new StreamIterator($stream));
     }
 
     /**
@@ -254,7 +244,7 @@ abstract class AbstractCsv implements JsonSerializable, IteratorAggregate
     }
 
     /**
-     * Returns the inner SplFileObject
+     * Returns the inner CSV Document Iterator object
      *
      * @return StreamIterator|SplFileObject
      */
