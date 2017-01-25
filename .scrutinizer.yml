@@ -1,6 +1,6 @@
 filter:
     paths: [src/*]
-    excluded_paths: [examples/*, test/*]
+    excluded_paths: [tests/*]
 checks:
     php:
         code_rating: true
@@ -20,7 +20,7 @@ checks:
 tools:
     external_code_coverage:
         timeout: 600
-        runs: 3
+        runs: 2
     php_code_coverage: false
     php_code_sniffer:
         config:
@@ -29,7 +29,7 @@ tools:
             paths: ['src']
     php_loc:
         enabled: true
-        excluded_dirs: [examples, test, vendor]
+        excluded_dirs: [tests, vendor]
     php_cpd:
         enabled: true
-        excluded_dirs: [examples, test, vendor]
+excluded_dirs: [tests, vendor]

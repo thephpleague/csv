@@ -12,5 +12,4 @@
 /CHANGELOG.md      export-ignore
 /CONDUCT.md        export-ignore
 /phpunit.xml       export-ignore
-/examples          export-ignore
-/test              export-ignore
+/tests             export-ignore

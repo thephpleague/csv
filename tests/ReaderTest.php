@@ -1,6 +1,6 @@
 <?php
 
-namespace League\Csv\Test;
+namespace LeagueTest\Csv;
 
 use Iterator;
 use League\Csv\Reader;
@@ -49,14 +49,6 @@ class ReaderTest extends PHPUnit_Framework_TestCase
             ['jane', 'doe', 'jane.doe@example.com'],
             $this->csv->setOffset(1)->fetchAll()
         );
-    }
-
-    /**
-     * @expectedException \InvalidArgumentException
-     */
-    public function testSetOffsetThrowException()
-    {
-        $this->csv->setOffset('toto');
     }
 
     /**
@@ -370,14 +362,6 @@ class ReaderTest extends PHPUnit_Framework_TestCase
         };
         $iterator = $this->csv->fetchColumn(0, $func);
         $this->assertSame(['JOHN', 'JANE'], iterator_to_array($iterator, false));
-    }
-
-    /**
-     * @expectedException \InvalidArgumentException
-     */
-    public function testFetchColumnFailure()
-    {
-        $this->csv->fetchColumn('toto');
     }
 
     /**

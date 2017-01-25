@@ -4,13 +4,15 @@
 *
 * @license http://opensource.org/licenses/MIT
 * @link https://github.com/thephpleague/csv/
-* @version 8.2.0
+* @version 9.0.0
 * @package League.csv
 *
 * For the full copyright and license information, please view the LICENSE
 * file that was distributed with this source code.
 */
-namespace League\Csv\Exception;
+declare(strict_types=1);
+
+namespace League\Csv;
 
 use InvalidArgumentException;
 
@@ -42,7 +44,7 @@ class InvalidRowException extends InvalidArgumentException
      * @param array  $data    invalid  data
      * @param string $message exception message
      */
-    public function __construct($name, array $data = [], $message = '')
+    public function __construct(string $name, array $data = [], $message = '')
     {
         parent::__construct($message);
         $this->name = $name;
@@ -54,7 +56,7 @@ class InvalidRowException extends InvalidArgumentException
      *
      * @return string
      */
-    public function getName()
+    public function getName(): string
     {
         return $this->name;
     }
@@ -64,7 +66,7 @@ class InvalidRowException extends InvalidArgumentException
      *
      * @return array
      */
-    public function getData()
+    public function getData(): array
     {
         return $this->data;
     }

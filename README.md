@@ -28,12 +28,12 @@ Highlights
 Documentation
 -------
 
-Full documentation can be found at [csv.thephpleague.com](http://csv.thephpleague.com). Contribute to this documentation in the [gh-pages branch](https://github.com/thephpleague/csv/tree/gh-pages)
+Full documentation can be found at [csv.thephpleague.com](http://csv.thephpleague.com).
 
 System Requirements
 -------
 
-You need **PHP >= 5.5.0** and the `mbstring` extension to use `Csv` but the latest stable version of PHP is recommended.
+You need **PHP >= 7.0** and the `mbstring` extension to use `Csv` but the latest stable version of PHP is recommended.
 
 Install
 -------

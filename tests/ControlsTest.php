@@ -1,6 +1,6 @@
 <?php
 
-namespace League\Csv\Test;
+namespace LeagueTest\Csv;
 
 use League\Csv\Reader;
 use League\Csv\Writer;
@@ -128,7 +128,7 @@ class ControlsTest extends PHPUnit_Framework_TestCase
 
     /**
      * @expectedException InvalidArgumentException
-     * @expectedExceptionMessage The escape character must be a single character
+     * @expectedExceptionMessage The escape must be a single character
      */
     public function testEscape()
     {
@@ -157,10 +157,10 @@ class ControlsTest extends PHPUnit_Framework_TestCase
     public function testEncoding()
     {
         $expected = 'iso-8859-15';
-        $this->csv->setEncodingFrom($expected);
-        $this->assertSame(strtoupper($expected), $this->csv->getEncodingFrom());
+        $this->csv->setInputEncoding($expected);
+        $this->assertSame(strtoupper($expected), $this->csv->getInputEncoding());
 
-        $this->csv->setEncodingFrom('');
+        $this->csv->setInputEncoding('');
     }
 
     public function testCustomNewline()

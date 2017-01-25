@@ -1,6 +1,21 @@
-#Changelog
+# Changelog
 
 All Notable changes to `Csv` will be documented in this file
+
+## Next
+
+### Added
+
+- None
+
+### Fixed
+
+- None
+
+### Removed
+
+- PHP5 support
+- `examples` directory
 
 ## 8.2.0 - 2017-01-25
 

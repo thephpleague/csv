@@ -1,6 +1,6 @@
 <?php
 
-namespace League\Csv\Test;
+namespace LeagueTest\Csv;
 
 use ArrayIterator;
 use League\Csv\Reader;

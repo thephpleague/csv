@@ -4,17 +4,17 @@
 *
 * @license http://opensource.org/licenses/MIT
 * @link https://github.com/thephpleague/csv/
-* @version 8.2.0
+* @version 9.0.0
 * @package League.csv
 *
 * For the full copyright and license information, please view the LICENSE
 * file that was distributed with this source code.
 */
+declare(strict_types=1);
+
 namespace League\Csv;
 
 use InvalidArgumentException;
-use League\Csv\Modifier\RowFilter;
-use League\Csv\Modifier\StreamIterator;
 use ReflectionMethod;
 use SplFileObject;
 use Traversable;
@@ -28,7 +28,19 @@ use Traversable;
  */
 class Writer extends AbstractCsv
 {
-    use RowFilter;
+    /**
+     * Callables to validate the row before insertion
+     *
+     * @var callable[]
+     */
+    protected $validators = [];
+
+    /**
+     * Callables to format the row before insertion
+     *
+     * @var callable[]
+     */
+    protected $formatters = [];
 
     /**
      * @inheritdoc
@@ -57,6 +69,37 @@ class Writer extends AbstractCsv
     protected $fputcsv_param_count;
 
     /**
+     * add a formatter to the collection
+     *
+     * @param callable $callable
+     *
+     * @return $this
+     */
+    public function addFormatter(callable $callable): self
+    {
+        $this->formatters[] = $callable;
+
+        return $this;
+    }
+
+    /**
+     * add a Validator to the collection
+     *
+     * @param callable $callable
+     * @param string   $name     the rule name
+     *
+     * @return $this
+     */
+    public function addValidator(callable $callable, string $name): self
+    {
+        $name = $this->validateString($name);
+
+        $this->validators[$name] = $callable;
+
+        return $this;
+    }
+
+    /**
      * Adds multiple lines to the CSV document
      *
      * a simple wrapper method around insertOne
@@ -67,7 +110,7 @@ class Writer extends AbstractCsv
      *
      * @return static
      */
-    public function insertAll($rows)
+    public function insertAll($rows): self
     {
         if (!is_array($rows) && !$rows instanceof Traversable) {
             throw new InvalidArgumentException(
@@ -89,16 +132,45 @@ class Writer extends AbstractCsv
      *
      * @return static
      */
-    public function insertOne($row)
+    public function insertOne(array $row): self
     {
-        if (!is_array($row)) {
-            $row = str_getcsv($row, $this->delimiter, $this->enclosure, $this->escape);
-        }
         $row = $this->formatRow($row);
         $this->validateRow($row);
         $this->addRow($row);
 
         return $this;
+    }
+
+    /**
+     * Format the given row
+     *
+     * @param array $row
+     *
+     * @return array
+     */
+    protected function formatRow(array $row): array
+    {
+        foreach ($this->formatters as $formatter) {
+            $row = ($formatter)($row);
+        }
+
+        return $row;
+    }
+
+    /**
+    * Validate a row
+    *
+    * @param array $row
+    *
+    * @throws InvalidRowException If the validation failed
+    */
+    protected function validateRow(array $row)
+    {
+        foreach ($this->validators as $name => $validator) {
+            if (true !== ($validator)($row)) {
+                throw new InvalidRowException($name, $row, 'row validation failed');
+            }
+        }
     }
 
     /**
@@ -137,7 +209,7 @@ class Writer extends AbstractCsv
      *
      * @return array
      */
-    protected function getFputcsvParameters(array $fields)
+    protected function getFputcsvParameters(array $fields): array
     {
         $parameters = [$fields, $this->delimiter, $this->enclosure];
         if (4 == $this->fputcsv_param_count) {
@@ -150,7 +222,7 @@ class Writer extends AbstractCsv
     /**
      *  {@inheritdoc}
      */
-    public function isActiveStreamFilter()
+    public function isActiveStreamFilter(): bool
     {
         return parent::isActiveStreamFilter() && null === $this->csv;
     }

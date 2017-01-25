@@ -1,9 +1,9 @@
 <?php
 
-namespace League\Csv\Test;
+namespace LeagueTest\Csv;
 
-use League\Csv\Modifier\StreamIterator;
 use League\Csv\Reader;
+use League\Csv\StreamIterator;
 use League\Csv\Writer;
 use PHPUnit_Framework_TestCase;
 
@@ -72,14 +72,6 @@ class StreamIteratorTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException InvalidArgumentException
-     */
-    public function testSetFlagsTriggersException()
-    {
-        (new StreamIterator(fopen('php://temp', 'r+')))->setFlags('toto');
-    }
-
-    /**
      * @param $expected
      * @dataProvider validBOMSequences
      */
@@ -120,7 +112,7 @@ class StreamIteratorTest extends PHPUnit_Framework_TestCase
 
         $expected = [
             ['john', 'doe', 'john.doe@example.com'],
-            'john,doe,john.doe@example.com',
+            ['john', 'doe', 'john.doe@example.com'],
         ];
 
         foreach ($expected as $row) {
@@ -138,7 +130,7 @@ class StreamIteratorTest extends PHPUnit_Framework_TestCase
 
         $expected = [
             ['john', 'doe', 'john.doe@example.com'],
-            'jane,doe,jane.doe@example.com',
+            ['jane', 'doe', 'jane.doe@example.com'],
         ];
 
         foreach ($expected as $row) {

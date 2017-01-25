@@ -1,8 +1,8 @@
 <?php
 
-namespace League\Csv\Test\Plugin;
+namespace LeagueTest\Csv\Plugin;
 
-use League\Csv\Exception\InvalidRowException;
+use League\Csv\InvalidRowException;
 use League\Csv\Plugin\ForbiddenNullValuesValidator;
 use League\Csv\Writer;
 use PHPUnit_Framework_TestCase;
