@@ -4,16 +4,19 @@
 *
 * @license http://opensource.org/licenses/MIT
 * @link https://github.com/thephpleague/csv/
-* @version 8.2.0
+* @version 9.0.0
 * @package League.csv
 *
 * For the full copyright and license information, please view the LICENSE
 * file that was distributed with this source code.
 */
-namespace League\Csv\Modifier;
+declare(strict_types=1);
+
+namespace League\Csv;
 
 use InvalidArgumentException;
 use Iterator;
+use LogicException;
 use SplFileObject;
 
 /**
@@ -106,7 +109,7 @@ class StreamIterator implements Iterator
      * @param string $enclosure
      * @param string $escape
      */
-    public function setCsvControl($delimiter = ',', $enclosure = '"', $escape = '\\')
+    public function setCsvControl(string $delimiter = ',', string $enclosure = '"', string $escape = '\\')
     {
         $this->delimiter = $this->filterControl($delimiter, 'delimiter');
         $this->enclosure = $this->filterControl($enclosure, 'enclosure');
@@ -123,7 +126,7 @@ class StreamIterator implements Iterator
      *
      * @return string
      */
-    private function filterControl($char, $type)
+    protected function filterControl(string $char, string $type)
     {
         if (1 == strlen($char)) {
             return $char;
@@ -139,12 +142,8 @@ class StreamIterator implements Iterator
      *
      * @param int $flags
      */
-    public function setFlags($flags)
+    public function setFlags(int $flags)
     {
-        if (false === filter_var($flags, FILTER_VALIDATE_INT, ['options' => ['min_range' => 0]])) {
-            throw new InvalidArgumentException('The flags must be a positive integer');
-        }
-
         $this->flags = $flags;
     }
 
@@ -160,7 +159,7 @@ class StreamIterator implements Iterator
      *
      * @return int
      */
-    public function fputcsv(array $fields, $delimiter = null, $enclosure = null, $escape = null)
+    public function fputcsv(array $fields, string $delimiter = null, string $enclosure = null, string $escape = null)
     {
         return fputcsv(
             $this->stream,
@@ -307,6 +306,29 @@ class StreamIterator implements Iterator
     public function fseek($offset, $whence = SEEK_SET)
     {
         return fseek($this->stream, $offset, $whence);
+    }
+
+    /**
+     * Seek a specified line
+     *
+     * @param int $line_pos
+     *
+     * @throws LogicException if the line positon is negative
+     */
+    public function seek(int $line_pos)
+    {
+        if (0 > $line_pos) {
+            throw new LogicException(sprintf('Can\'t seek stream to negative line %d', $line_pos));
+        }
+
+        foreach ($this as $key => $value) {
+            if ($key == $line_pos || feof($this->stream)) {
+                $this->current_line_number--;
+                break;
+            }
+        }
+
+        $this->current();
     }
 
     /**

@@ -1,6 +1,6 @@
 <?php
 
-namespace League\Csv\Test\Plugin;
+namespace LeagueTest\Csv\Plugin;
 
 use League\Csv\Plugin\SkipNullValuesFormatter;
 use League\Csv\Writer;
@@ -29,12 +29,11 @@ class SkipNullValuesFormatterTest extends PHPUnit_Framework_TestCase
         $this->csv = null;
     }
 
-
     public function testInsertNullToSkipCell()
     {
         $expected = [
             ['john', 'doe', 'john.doe@example.com'],
-            'john,doe,john.doe@example.com',
+            ['john', 'doe', 'john.doe@example.com'],
             ['john', null, 'john.doe@example.com'],
         ];
         $formatter = new SkipNullValuesFormatter();

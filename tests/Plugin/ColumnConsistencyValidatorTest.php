@@ -1,6 +1,6 @@
 <?php
 
-namespace League\Csv\Test\Plugin;
+namespace LeagueTest\Csv\Plugin;
 
 use League\Csv\Plugin\ColumnConsistencyValidator;
 use League\Csv\Writer;
@@ -37,7 +37,7 @@ class ColumnConsistencyValidatorTest extends PHPUnit_Framework_TestCase
         $this->assertSame(-1, $consistency->getColumnsCount());
         $consistency->setColumnsCount(3);
         $this->assertSame(3, $consistency->getColumnsCount());
-        $consistency->setColumnsCount('toto');
+        $consistency->setColumnsCount(-3);
     }
 
     /**

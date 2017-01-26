@@ -4,12 +4,14 @@
 *
 * @license http://opensource.org/licenses/MIT
 * @link https://github.com/thephpleague/csv/
-* @version 8.2.0
+* @version 9.0.0
 * @package League.csv
 *
 * For the full copyright and license information, please view the LICENSE
 * file that was distributed with this source code.
 */
+declare(strict_types=1);
+
 namespace League\Csv\Plugin;
 
 use InvalidArgumentException;
@@ -45,9 +47,9 @@ class ColumnConsistencyValidator
      * @throws InvalidArgumentException If $value is lesser than -1
      *
      */
-    public function setColumnsCount($value)
+    public function setColumnsCount(int $value)
     {
-        if (false === filter_var($value, FILTER_VALIDATE_INT, ['options' => ['min_range' => -1]])) {
+        if ($value < -1) {
             throw new InvalidArgumentException('the column count must an integer greater or equals to -1');
         }
         $this->detect_columns_count = false;
@@ -59,7 +61,7 @@ class ColumnConsistencyValidator
      *
      * @return int
      */
-    public function getColumnsCount()
+    public function getColumnsCount(): int
     {
         return $this->columns_count;
     }
@@ -82,7 +84,7 @@ class ColumnConsistencyValidator
      *
      * @return bool
      */
-    public function __invoke(array $row)
+    public function __invoke(array $row): bool
     {
         if ($this->detect_columns_count) {
             $this->columns_count = count($row);

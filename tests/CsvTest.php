@@ -1,6 +1,6 @@
 <?php
 
-namespace League\Csv\Test;
+namespace LeagueTest\Csv;
 
 use DOMDocument;
 use IteratorAggregate;
@@ -65,7 +65,7 @@ class CsvTest extends PHPUnit_Framework_TestCase
     public function testJsonSerializeAffectedByReaderOptions($rawCsv)
     {
         $csv = Reader::createFromString($rawCsv);
-        $csv->setEncodingFrom('iso-8859-15');
+        $csv->setInputEncoding('iso-8859-15');
         $csv->setOffset(799);
         $csv->setLimit(50);
         json_encode($csv);

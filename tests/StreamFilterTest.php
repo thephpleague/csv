@@ -1,10 +1,9 @@
 <?php
 
-namespace League\Csv\Test;
+namespace LeagueTest\Csv;
 
 use League\Csv\Reader;
 use League\Csv\Writer;
-use lib\FilterReplace;
 use PHPUnit_Framework_TestCase;
 use SplFileObject;
 use SplTempFileObject;
@@ -137,7 +136,7 @@ class StreamFilterTest extends PHPUnit_Framework_TestCase
 
     public function testSetStreamFilterWriterNewLine()
     {
-        stream_filter_register(FilterReplace::FILTER_NAME.'*', '\lib\FilterReplace');
+        stream_filter_register(FilterReplace::FILTER_NAME.'*', FilterReplace::class);
         $csv = Writer::createFromPath(__DIR__.'/data/newline.csv');
         $csv->appendStreamFilter(FilterReplace::FILTER_NAME."\r\n:\n");
         $this->assertTrue($csv->hasStreamFilter(FilterReplace::FILTER_NAME."\r\n:\n"));

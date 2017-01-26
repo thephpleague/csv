@@ -4,20 +4,19 @@
 *
 * @license http://opensource.org/licenses/MIT
 * @link https://github.com/thephpleague/csv/
-* @version 8.2.0
+* @version 9.0.0
 * @package League.csv
 *
 * For the full copyright and license information, please view the LICENSE
 * file that was distributed with this source code.
 */
+declare(strict_types=1);
+
 namespace League\Csv;
 
 use Generator;
 use InvalidArgumentException;
 use Iterator;
-use League\Csv\Modifier\MapIterator;
-use LimitIterator;
-use SplFileObject;
 
 /**
  *  A class to manage extracting and filtering a CSV
@@ -42,7 +41,7 @@ class Reader extends AbstractCsv
      *
      * @return array
      */
-    public function fetchAll(callable $callable = null)
+    public function fetchAll(callable $callable = null): array
     {
         return iterator_to_array($this->applyCallable($this->getQueryIterator(), $callable), false);
     }
@@ -58,7 +57,7 @@ class Reader extends AbstractCsv
      *
      * @return Iterator
      */
-    public function fetch(callable $callable = null)
+    public function fetch(callable $callable = null): Iterator
     {
         return $this->applyCallable($this->getQueryIterator(), $callable);
     }
@@ -71,7 +70,7 @@ class Reader extends AbstractCsv
      *
      * @return Iterator
      */
-    protected function applyCallable(Iterator $iterator, callable $callable = null)
+    protected function applyCallable(Iterator $iterator, callable $callable = null): Iterator
     {
         if (null !== $callable) {
             return new MapIterator($iterator, $callable);
@@ -94,13 +93,12 @@ class Reader extends AbstractCsv
      *
      * @return int the iteration count
      */
-    public function each(callable $callable)
+    public function each(callable $callable): int
     {
         $index = 0;
         $iterator = $this->getQueryIterator();
         $iterator->rewind();
-        while ($iterator->valid() && true === call_user_func(
-            $callable,
+        while ($iterator->valid() && true === ($callable)(
             $iterator->current(),
             $iterator->key(),
             $iterator
@@ -121,7 +119,7 @@ class Reader extends AbstractCsv
      *
      * @return array
      */
-    public function fetchOne($offset = 0)
+    public function fetchOne(int $offset = 0): array
     {
         $this->setOffset($offset);
         $this->setLimit(1);
@@ -143,7 +141,7 @@ class Reader extends AbstractCsv
      *
      * @return Iterator
      */
-    public function fetchColumn($column_index = 0, callable $callable = null)
+    public function fetchColumn(int $column_index = 0, callable $callable = null): Iterator
     {
         $column_index = $this->validateInteger($column_index, 0, 'the column index must be a positive integer or 0');
 
@@ -183,8 +181,11 @@ class Reader extends AbstractCsv
      *
      * @return array
      */
-    public function fetchPairsWithoutDuplicates($offset_index = 0, $value_index = 1, callable $callable = null)
-    {
+    public function fetchPairsWithoutDuplicates(
+        int $offset_index = 0,
+        int $value_index = 1,
+        callable $callable = null
+    ): array {
         return iterator_to_array($this->fetchPairs($offset_index, $value_index, $callable), true);
     }
 
@@ -202,7 +203,7 @@ class Reader extends AbstractCsv
      *
      * @return Generator
      */
-    public function fetchPairs($offset_index = 0, $value_index = 1, callable $callable = null)
+    public function fetchPairs(int $offset_index = 0, int $value_index = 1, callable $callable = null): Generator
     {
         $offset_index = $this->validateInteger($offset_index, 0, 'the offset column index must be a positive integer or 0');
         $value_index = $this->validateInteger($value_index, 0, 'the value column index must be a positive integer or 0');
@@ -242,7 +243,7 @@ class Reader extends AbstractCsv
      *
      * @return Iterator
      */
-    public function fetchAssoc($offset_or_keys = 0, callable $callable = null)
+    public function fetchAssoc($offset_or_keys = 0, callable $callable = null): Iterator
     {
         $keys = $this->getAssocKeys($offset_or_keys);
         $keys_count = count($keys);
@@ -267,7 +268,7 @@ class Reader extends AbstractCsv
      *
      * @return array
      */
-    protected function getAssocKeys($offset_or_keys)
+    protected function getAssocKeys($offset_or_keys): array
     {
         if (is_array($offset_or_keys)) {
             return $this->validateKeys($offset_or_keys);
@@ -296,7 +297,7 @@ class Reader extends AbstractCsv
      *
      * @return array
      */
-    protected function validateKeys(array $keys)
+    protected function validateKeys(array $keys): array
     {
         if (empty($keys) || $keys !== array_unique(array_filter($keys, [$this, 'isValidKey']))) {
             throw new InvalidArgumentException('Use a flat array with unique string values');
@@ -312,7 +313,7 @@ class Reader extends AbstractCsv
      *
      * @return bool
      */
-    protected function isValidKey($value)
+    protected function isValidKey($value): bool
     {
         return is_scalar($value) || (is_object($value) && method_exists($value, '__toString'));
     }
@@ -326,22 +327,24 @@ class Reader extends AbstractCsv
      *
      * @return array
      */
-    protected function getRow($offset)
+    protected function getRow(int $offset): array
     {
         $fileObj = $this->getIterator();
-        $fileObj->setFlags(SplFileObject::READ_AHEAD | SplFileObject::SKIP_EMPTY);
-        $iterator = new LimitIterator($fileObj, $offset, 1);
-        $iterator->rewind();
-        $line = $iterator->current();
-
-        if (empty($line)) {
+        $fileObj->seek($offset);
+        $row = $fileObj->current();
+        if (empty($row)) {
             throw new InvalidArgumentException('the specified row does not exist or is empty');
         }
 
-        if (0 === $offset && $this->isBomStrippable()) {
-            $line = mb_substr($line, mb_strlen($this->getInputBOM()));
+        if (0 != $offset || !$this->isBomStrippable()) {
+            return $row;
         }
 
-        return str_getcsv($line, $this->delimiter, $this->enclosure, $this->escape);
+        $row[0] = mb_substr($row[0], mb_strlen($this->getInputBOM()));
+        if ($this->enclosure == substr($row[0], 0, 1)) {
+            $row[0] = substr($row[0], 1, -1);
+        }
+
+        return $row;
     }
 }
