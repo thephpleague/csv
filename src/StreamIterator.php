@@ -16,6 +16,7 @@ namespace League\Csv;
 
 use InvalidArgumentException;
 use Iterator;
+use LogicException;
 use SplFileObject;
 
 /**
@@ -305,6 +306,29 @@ class StreamIterator implements Iterator
     public function fseek($offset, $whence = SEEK_SET)
     {
         return fseek($this->stream, $offset, $whence);
+    }
+
+    /**
+     * Seek a specified line
+     *
+     * @param int $line_pos
+     *
+     * @throws LogicException if the line positon is negative
+     */
+    public function seek(int $line_pos)
+    {
+        if (0 > $line_pos) {
+            throw new LogicException(sprintf('Can\'t seek stream to negative line %d', $line_pos));
+        }
+
+        foreach ($this as $key => $value) {
+            if ($key == $line_pos || feof($this->stream)) {
+                $this->current_line_number--;
+                break;
+            }
+        }
+
+        $this->current();
     }
 
     /**

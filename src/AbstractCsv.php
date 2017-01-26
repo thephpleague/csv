@@ -166,10 +166,10 @@ abstract class AbstractCsv implements JsonSerializable, IteratorAggregate
      */
     public static function createFromString(string $str): self
     {
-        $file = new SplTempFileObject();
-        $file->fwrite(static::validateString($str));
+        $stream = fopen('php://temp', 'r+');
+        fwrite($stream, static::validateString($str));
 
-        return new static($file);
+        return new static(new StreamIterator($stream));
     }
 
     /**
@@ -584,7 +584,7 @@ abstract class AbstractCsv implements JsonSerializable, IteratorAggregate
     */
     protected function applyIteratorSortBy(Iterator $iterator): Iterator
     {
-        if (!$this->iterator_sort_by) {
+        if (empty($this->iterator_sort_by)) {
             return $iterator;
         }
 

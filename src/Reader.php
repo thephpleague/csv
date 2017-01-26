@@ -17,8 +17,6 @@ namespace League\Csv;
 use Generator;
 use InvalidArgumentException;
 use Iterator;
-use LimitIterator;
-use SplFileObject;
 
 /**
  *  A class to manage extracting and filtering a CSV
@@ -332,17 +330,21 @@ class Reader extends AbstractCsv
     protected function getRow(int $offset): array
     {
         $fileObj = $this->getIterator();
-        $fileObj->setFlags(SplFileObject::READ_AHEAD | SplFileObject::SKIP_EMPTY);
         $fileObj->seek($offset);
-        $line = $fileObj->current();
-        if (empty($line)) {
+        $row = $fileObj->current();
+        if (empty($row)) {
             throw new InvalidArgumentException('the specified row does not exist or is empty');
         }
 
-        if (0 === $offset && $this->isBomStrippable()) {
-            $line = mb_substr($line, mb_strlen($this->getInputBOM()));
+        if (0 != $offset || !$this->isBomStrippable()) {
+            return $row;
         }
 
-        return str_getcsv($line, $this->delimiter, $this->enclosure, $this->escape);
+        $row[0] = mb_substr($row[0], mb_strlen($this->getInputBOM()));
+        if ($this->enclosure == substr($row[0], 0, 1)) {
+            $row[0] = substr($row[0], 1, -1);
+        }
+
+        return $row;
     }
 }

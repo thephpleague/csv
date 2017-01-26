@@ -26,7 +26,7 @@ use SplFileObject;
  *
  * @package League.csv
  * @since  9.0.0
- *
+ * @internal
  */
 trait CsvControlTrait
 {
@@ -126,6 +126,13 @@ trait CsvControlTrait
         (?P<filters>.*?)           # The resource registered filters
         /resource=(?P<resource>.*) # The resource path
         $,ix';
+
+    /**
+     * Returns the inner CSV Document Iterator object
+     *
+     * @return StreamIterator|SplFileObject
+     */
+    abstract public function getIterator();
 
     /**
      * validate a string

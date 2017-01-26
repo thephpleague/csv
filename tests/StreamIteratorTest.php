@@ -6,6 +6,7 @@ use League\Csv\Reader;
 use League\Csv\StreamIterator;
 use League\Csv\Writer;
 use PHPUnit_Framework_TestCase;
+use SplFileObject;
 
 /**
  * @group stream
@@ -168,5 +169,42 @@ class StreamIteratorTest extends PHPUnit_Framework_TestCase
 
         $csv->insertOne(['jane', 'doe']);
         $this->assertSame("jane,doe\r\n", (string) $csv);
+    }
+
+    /**
+     * @expectedException \LogicException
+     */
+    public function testStreamIteratorSeekThrowException()
+    {
+        $fp = fopen('php://temp', 'r+');
+        $expected = [
+            ['john', 'doe', 'john.doe@example.com'],
+            ['john', 'doe', 'john.doe@example.com'],
+        ];
+
+        foreach ($expected as $row) {
+            fputcsv($fp, $row);
+        }
+
+        $stream = new StreamIterator($fp);
+        $stream->seek(-1);
+    }
+
+    public function testStreamIteratorSeek()
+    {
+        $fp = fopen('php://temp', 'r+');
+        $expected = [
+            ['john', 'doe', 'john.doe@example.com'],
+            ['john', 'doe', 'john.doe@example.com'],
+        ];
+
+        foreach ($expected as $row) {
+            fputcsv($fp, $row);
+        }
+
+        $stream = new StreamIterator($fp);
+        $stream->setFlags(SplFileObject::READ_CSV);
+        $stream->seek(1);
+        $this->assertSame($expected[1], $stream->current());
     }
 }
