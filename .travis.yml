@@ -8,10 +8,6 @@ matrix:
       env: COLLECT_COVERAGE=true VALIDATE_CODING_STYLE=true
     - php: 7.1
       env: COLLECT_COVERAGE=true VALIDATE_CODING_STYLE=false
-    - php: hhvm
-      env: COLLECT_COVERAGE=false VALIDATE_CODING_STYLE=false
-  allow_failures:
-    - php: hhvm
   fast_finish: true
 
 cache:

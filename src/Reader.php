@@ -333,10 +333,8 @@ class Reader extends AbstractCsv
     {
         $fileObj = $this->getIterator();
         $fileObj->setFlags(SplFileObject::READ_AHEAD | SplFileObject::SKIP_EMPTY);
-        $iterator = new LimitIterator($fileObj, $offset, 1);
-        $iterator->rewind();
-        $line = $iterator->current();
-
+        $fileObj->seek($offset);
+        $line = $fileObj->current();
         if (empty($line)) {
             throw new InvalidArgumentException('the specified row does not exist or is empty');
         }
