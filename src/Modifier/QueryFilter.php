@@ -162,10 +162,10 @@ trait QueryFilter
         };
         array_unshift($this->iterator_filters, $normalizedCsv);
         $iterator = $this->getIterator();
+        $iterator = $this->applyIteratorInterval($iterator);
         $iterator = $this->applyBomStripping($iterator);
         $iterator = $this->applyIteratorFilter($iterator);
         $iterator = $this->applyIteratorSortBy($iterator);
-        $iterator = $this->applyIteratorInterval($iterator);
 
         return $iterator;
     }
