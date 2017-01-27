@@ -2,7 +2,6 @@
 
 namespace LeagueTest\Csv;
 
-use Iterator;
 use League\Csv\Reader;
 use League\Csv\Writer;
 use PHPUnit_Framework_TestCase;
@@ -114,7 +113,8 @@ class ReaderTest extends PHPUnit_Framework_TestCase
     public function testFetchAssoc()
     {
         $keys = ['firstname', 'lastname', 'email'];
-        $res = $this->csv->fetchAssoc($keys);
+        $this->csv->setHeader($keys);
+        $res = $this->csv->fetchAll();
         foreach ($res as $offset => $row) {
             $this->assertSame($keys, array_keys($row));
         }
@@ -126,7 +126,8 @@ class ReaderTest extends PHPUnit_Framework_TestCase
         $func = function ($value) {
             return array_map('strtoupper', $value);
         };
-        $res = $this->csv->fetchAssoc($keys, $func);
+        $this->csv->setHeader($keys);
+        $res = $this->csv->fetchAll($func);
         foreach ($res as $row) {
             $this->assertSame($keys, array_keys($row));
         }
@@ -140,14 +141,16 @@ class ReaderTest extends PHPUnit_Framework_TestCase
     public function testFetchAssocLessKeys()
     {
         $keys = ['firstname'];
-        $res = $this->csv->fetchAssoc($keys);
+        $this->csv->setHeader($keys);
+        $res = $this->csv->fetchAll();
         $this->assertContains(['firstname' => 'john'], $res);
     }
 
     public function testFetchAssocMoreKeys()
     {
         $keys = ['firstname', 'lastname', 'email', 'age'];
-        $res = $this->csv->fetchAssoc($keys);
+        $this->csv->setHeader($keys);
+        $res = $this->csv->fetchAll();
 
         $this->assertContains([
             'firstname' => 'jane',
@@ -172,8 +175,8 @@ class ReaderTest extends PHPUnit_Framework_TestCase
         }
 
         $csv = Reader::createFromFileObject($tmp);
-        $res = $csv->setOffSet(2)->fetchAssoc(2);
-        $this->assertContains(['D' => '6', 'E' => '7', 'F' => '8'], $res);
+        $csv->setHeader(2);
+        $this->assertContains(['D' => '6', 'E' => '7', 'F' => '8'], $csv->fetchAll());
     }
 
     /**
@@ -187,8 +190,6 @@ class ReaderTest extends PHPUnit_Framework_TestCase
             $tmpFile->fputcsv($row);
         }
         $csv = Reader::createFromFileObject($tmpFile);
-        $csv->stripBom(true);
-
         $this->assertSame($res, $csv->fetchAll()[0][0]);
     }
 
@@ -222,8 +223,8 @@ class ReaderTest extends PHPUnit_Framework_TestCase
             $tmp->fputcsv($row);
         }
         $csv = Reader::createFromFileObject($tmp);
-        $csv->stripBom(true);
-        $res = array_keys(iterator_to_array($csv->fetchAssoc(), false)[0]);
+        $csv->setHeader(0);
+        $res = array_keys($csv->fetchAll()[0]);
 
         $this->assertSame('john', $res[0]);
     }
@@ -234,11 +235,11 @@ class ReaderTest extends PHPUnit_Framework_TestCase
         $source = Reader::BOM_UTF8.'"parent name","child name","title"
             "parentA","childA","titleA"';
         $csv = Reader::createFromString($source);
-        $csv->stripBom(true);
+        $csv->setHeader(0);
         $expected = [
             ['parent name' => 'parentA', 'child name' => 'childA', 'title' => 'titleA'],
         ];
-        $this->assertSame($expected, iterator_to_array($csv->fetchAssoc(), false));
+        $this->assertSame($expected, $csv->fetchAll());
     }
 
     public function testStripBOMWithEnclosureFetchColumn()
@@ -246,7 +247,6 @@ class ReaderTest extends PHPUnit_Framework_TestCase
         $source = Reader::BOM_UTF8.'"parent name","child name","title"
             "parentA","childA","titleA"';
         $csv = Reader::createFromString($source);
-        $csv->stripBom(true);
         $this->assertContains('parent name', $csv->fetchColumn());
     }
 
@@ -255,7 +255,7 @@ class ReaderTest extends PHPUnit_Framework_TestCase
         $source = Reader::BOM_UTF8.'"parent name","child name","title"
             "parentA","childA","titleA"';
         $csv = Reader::createFromString($source);
-        $csv->stripBom(true);
+        $csv->setHeader(null);
         $this->assertContains(['parent name', 'child name', 'title'], $csv->fetchAll());
     }
 
@@ -264,7 +264,7 @@ class ReaderTest extends PHPUnit_Framework_TestCase
         $source = Reader::BOM_UTF8.'"parent name","child name","title"
             "parentA","childA","titleA"';
         $csv = Reader::createFromString($source);
-        $csv->stripBom(true);
+        $csv->setHeader([]);
         $this->assertSame(Reader::BOM_UTF8, $csv->getInputBOM());
         $expected = ['parent name', 'child name', 'title'];
         $this->assertEquals($expected, $csv->fetchOne());
@@ -275,15 +275,7 @@ class ReaderTest extends PHPUnit_Framework_TestCase
      */
     public function testFetchAssocKeyFailure()
     {
-        $this->csv->fetchAssoc([['firstname', 'lastname', 'email', 'age']]);
-    }
-
-    /**
-     * @expectedException \InvalidArgumentException
-     */
-    public function testFetchAssocKeyFailureWithEmptyArray()
-    {
-        $this->csv->fetchAssoc([]);
+        $this->csv->setHeader([['firstname', 'lastname', 'email', 'age']]);
     }
 
     /**
@@ -305,7 +297,7 @@ class ReaderTest extends PHPUnit_Framework_TestCase
             $tmp->fputcsv($row);
         }
 
-        Reader::createFromFileObject($tmp)->fetchAssoc($offset);
+        Reader::createFromFileObject($tmp)->setHeader($offset)->fetchAll();
     }
 
     public function invalidOffsetWithFetchAssoc()
@@ -375,33 +367,6 @@ class ReaderTest extends PHPUnit_Framework_TestCase
         $this->csv->fetchOne(-5);
     }
 
-    public function testEach()
-    {
-        $transform = [];
-        $this->csv->addFilter(function ($row) {
-            return $row != [null];
-        });
-        $res = $this->csv->each(function ($row) use (&$transform) {
-            $transform[] = array_map('strtoupper', $row);
-
-            return true;
-        });
-        $this->assertSame($res, 2);
-        $this->assertSame(strtoupper($this->expected[0][0]), $transform[0][0]);
-    }
-
-    public function testEachWithEarlyReturns()
-    {
-        $res = $this->csv->each(function ($row, $index) {
-            if ($index > 0) {
-                return false;
-            }
-
-            return true;
-        });
-        $this->assertSame($res, 1);
-    }
-
     public function testGetWriter()
     {
         $this->assertInstanceOf(Writer::class, $this->csv->newWriter());
@@ -458,44 +423,6 @@ class ReaderTest extends PHPUnit_Framework_TestCase
         ];
     }
 
-    /**
-     * @dataProvider fetchPairsArrayDataProvider
-     */
-    public function testFetchPairsAsArray($key, $value, $callable, $expected)
-    {
-        $array = $this->csv->fetchPairsWithoutDuplicates($key, $value, $callable);
-        $this->assertSame($expected, $array);
-    }
-
-    public function fetchPairsArrayDataProvider()
-    {
-        return [
-            'default values' => [
-                'key' => 0,
-                'value' => 1,
-                'callable' => null,
-                'expected' => ['john' => 'doe', 'jane' => 'doe'],
-            ],
-            'changed key order' => [
-                'key' => 1,
-                'value' => 0,
-                'callable' => null,
-                'expected' => ['doe' => 'jane'],
-            ],
-            'with callback' => [
-                'key' => 0,
-                'value' => 1,
-                'callable' => function ($row) {
-                    return [
-                        strtoupper($row[0]),
-                        strtoupper($row[1]),
-                    ];
-                },
-                'expected' => ['JOHN' => 'DOE', 'JANE' => 'DOE'],
-            ],
-        ];
-    }
-
     public function testFetchPairsWithInvalidOffset()
     {
         $this->assertCount(0, iterator_to_array($this->csv->fetchPairs(10, 1), true));
@@ -507,23 +434,5 @@ class ReaderTest extends PHPUnit_Framework_TestCase
         foreach ($res as $value) {
             $this->assertNull($value);
         }
-    }
-
-    public function testReturnTypeResetBetweenCallToArrayWithFetch()
-    {
-        $this->assertInstanceof(Iterator::class, $this->csv->fetch());
-        $this->assertInternalType('array', $this->csv->fetchAll());
-        $this->assertInternalType('array', $this->csv->fetchOne());
-        $this->assertInstanceof(Iterator::class, $this->csv->fetchAssoc());
-        $this->assertInstanceof(Iterator::class, $this->csv->fetchPairs());
-        $this->assertInternalType('array', $this->csv->fetchPairsWithoutDuplicates());
-    }
-
-    public function testReturnTypeResetBetweenCallToArrayWithEach()
-    {
-        $func = function (array $row) {
-            return true;
-        };
-        $this->assertInternalType('int', $this->csv->each($func));
     }
 }

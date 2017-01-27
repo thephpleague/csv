@@ -92,7 +92,7 @@ class Writer extends AbstractCsv
      */
     public function addValidator(callable $callable, string $name): self
     {
-        $name = $this->validateString($name);
+        $name = $this->filterString($name);
 
         $this->validators[$name] = $callable;
 
@@ -197,7 +197,7 @@ class Writer extends AbstractCsv
             return;
         }
 
-        $this->csv = $this->getIterator();
+        $this->csv = $this->getCsvDocument();
         $this->fputcsv = new ReflectionMethod(get_class($this->csv), 'fputcsv');
         $this->fputcsv_param_count = $this->fputcsv->getNumberOfParameters();
     }

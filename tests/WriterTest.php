@@ -46,14 +46,14 @@ class WriterTest extends PHPUnit_Framework_TestCase
         foreach ($expected as $row) {
             $this->csv->insertOne($row);
         }
-        $this->assertContains(['john', 'doe', 'john.doe@example.com'], $this->csv);
+        $this->assertContains('john,doe,john.doe@example.com', (string) $this->csv);
     }
 
     public function testInsertNormalFile()
     {
         $csv = Writer::createFromPath(__DIR__.'/data/foo.csv', 'a+');
         $csv->insertOne(['jane', 'doe', 'jane.doe@example.com']);
-        $this->assertContains(['jane', 'doe', 'jane.doe@example.com'], $csv);
+        $this->assertContains('jane,doe,jane.doe@example.com', (string) $csv);
     }
 
     /**
@@ -72,7 +72,7 @@ class WriterTest extends PHPUnit_Framework_TestCase
     public function testSave($argument, $expected)
     {
         $this->csv->insertAll($argument);
-        $this->assertContains($expected, $this->csv);
+        $this->assertContains($expected, (string) $this->csv);
     }
 
     public function dataToSave()
@@ -82,8 +82,8 @@ class WriterTest extends PHPUnit_Framework_TestCase
         ];
 
         return [
-            'array' => [$multipleArray, $multipleArray[0]],
-            'iterator' => [new ArrayIterator($multipleArray), ['john', 'doe', 'john.doe@example.com']],
+            'array' => [$multipleArray, 'john,doe,john.doe@example.com'],
+            'iterator' => [new ArrayIterator($multipleArray), 'john,doe,john.doe@example.com'],
         ];
     }
 
@@ -137,6 +137,6 @@ class WriterTest extends PHPUnit_Framework_TestCase
             ['jane', 'doe', 'jane.doe@example.com'],
             ['toto', 'le', 'herisson'],
         ]);
-        $this->assertStringStartsWith('<table', $this->csv->toHTML());
+        $this->assertStringStartsWith('<table', $this->csv->newReader()->toHTML());
     }
 }

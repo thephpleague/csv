@@ -6,7 +6,6 @@ use ArrayIterator;
 use League\Csv\Reader;
 use PHPUnit_Framework_TestCase;
 use SplFileInfo;
-use SplFileObject;
 use SplTempFileObject;
 
 /**
@@ -14,25 +13,11 @@ use SplTempFileObject;
  */
 class FactoryTest extends PHPUnit_Framework_TestCase
 {
-    public function testCreateFromPathWithFilePath()
-    {
-        $path = __DIR__.'/data/foo.csv';
-        $csv  = Reader::createFromPath($path);
-        $this->assertSame($path, $csv->getIterator()->getRealPath());
-    }
-
     public function testCreateFromPathWithSplFileInfo()
     {
         $path = __DIR__.'/data/foo.csv';
-        $csv  = Reader::createFromPath(new SplFileInfo($path));
-        $this->assertSame($path, $csv->getIterator()->getRealPath());
-    }
-
-    public function testCreateFromPathWithPHPWrapper()
-    {
-        $path = __DIR__.'/data/foo.csv';
-        $csv = Reader::createFromPath('php://filter/read=string.toupper/resource='.$path);
-        $this->assertFalse($csv->getIterator()->getRealPath());
+        $reader = Reader::createFromPath(new SplFileInfo($path));
+        $this->assertInstanceof(Reader::class, $reader);
     }
 
     /**
@@ -58,23 +43,6 @@ class FactoryTest extends PHPUnit_Framework_TestCase
         $reader = Reader::createFromString($expected);
         $this->assertInstanceof(Reader::class, $reader);
     }
-
-    public function testCreateFromFileObject()
-    {
-        $reader = Reader::createFromFileObject(new SplTempFileObject());
-        $this->assertInstanceof(Reader::class, $reader);
-        $this->assertInstanceof(SplTempFileObject::class, $reader->getIterator());
-    }
-
-    public function testCreateFromFileObjectWithSplFileObject()
-    {
-        $path   = __DIR__.'/data/foo.csv';
-        $obj    = new SplFileObject($path);
-        $reader = Reader::createFromFileObject($obj);
-        $this->assertInstanceof(Reader::class, $reader);
-        $this->assertInstanceof(SplFileObject::class, $reader->getIterator());
-    }
-
 
     public function testCreateFromFileObjectPreserveFileObjectCsvControls()
     {

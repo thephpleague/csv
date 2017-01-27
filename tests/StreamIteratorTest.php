@@ -26,13 +26,6 @@ class StreamIteratorTest extends PHPUnit_Framework_TestCase
         $this->csv = null;
     }
 
-    public function testCreateFromStreamFromStream()
-    {
-        $csv = Reader::createFromStream(fopen(__DIR__.'/data/foo.csv', 'r'));
-        $this->assertInstanceof(Reader::class, $csv);
-        $this->assertInstanceof(StreamIterator::class, $csv->getIterator());
-    }
-
     /**
      * @expectedException InvalidArgumentException
      */
@@ -83,7 +76,6 @@ class StreamIteratorTest extends PHPUnit_Framework_TestCase
             fputcsv($fp, $row);
         }
         $csv = Reader::createFromStream($fp);
-        $csv->stripBom(true);
 
         $this->assertSame($res, $csv->fetchAll()[0][0]);
     }
