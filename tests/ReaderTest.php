@@ -100,16 +100,6 @@ class ReaderTest extends PHPUnit_Framework_TestCase
         $this->assertSame(array_reverse($this->expected), $this->csv->fetchAll());
     }
 
-    public function testFetchAll()
-    {
-        $func = function ($value) {
-            return array_map('strtoupper', $value);
-        };
-
-        $res = $this->csv->fetchAll($func);
-        $this->assertContains(['JANE', 'DOE', 'JANE.DOE@EXAMPLE.COM'], $res);
-    }
-
     public function testFetchAssoc()
     {
         $keys = ['firstname', 'lastname', 'email'];
@@ -120,22 +110,31 @@ class ReaderTest extends PHPUnit_Framework_TestCase
         }
     }
 
-    public function testFetchAssocCallback()
+    public function testFetchColumnWithFieldName()
     {
         $keys = ['firstname', 'lastname', 'email'];
-        $func = function ($value) {
-            return array_map('strtoupper', $value);
-        };
         $this->csv->setHeader($keys);
-        $res = $this->csv->fetchAll($func);
-        foreach ($res as $row) {
-            $this->assertSame($keys, array_keys($row));
-        }
-        $this->assertContains([
-            'firstname' => 'JANE',
-            'lastname' => 'DOE',
-            'email' => 'JANE.DOE@EXAMPLE.COM',
-        ], $res);
+        $res = $this->csv->fetchColumn('firstname');
+        $this->assertSame(['john', 'jane'], iterator_to_array($res, false));
+    }
+
+    public function testFetchColumnWithColumnIndex()
+    {
+        $keys = ['firstname', 'lastname', 'email'];
+        $this->csv->setHeader($keys);
+        $res = $this->csv->fetchColumn(0);
+        $this->assertSame(['john', 'jane'], iterator_to_array($res, false));
+    }
+
+    /**
+     * @expectedException \InvalidArgumentException
+     */
+    public function testFetchColumnTriggersException()
+    {
+        $keys = ['firstname', 'lastname', 'email'];
+        $this->csv->setHeader($keys);
+        $res = $this->csv->fetchColumn(24);
+        $this->assertSame(['john', 'jane'], iterator_to_array($res, false));
     }
 
     public function testFetchAssocLessKeys()
@@ -346,16 +345,6 @@ class ReaderTest extends PHPUnit_Framework_TestCase
         $this->assertCount(0, $res);
     }
 
-
-    public function testFetchColumnCallback()
-    {
-        $func = function ($value) {
-            return strtoupper($value);
-        };
-        $iterator = $this->csv->fetchColumn(0, $func);
-        $this->assertSame(['JOHN', 'JANE'], iterator_to_array($iterator, false));
-    }
-
     /**
      * @expectedException \InvalidArgumentException
      */
@@ -375,9 +364,9 @@ class ReaderTest extends PHPUnit_Framework_TestCase
     /**
      * @dataProvider fetchPairsDataProvider
      */
-    public function testFetchPairsIteratorMode($key, $value, $callable, $expected)
+    public function testFetchPairsIteratorMode($key, $value, $expected)
     {
-        $iterator = $this->csv->fetchPairs($key, $value, $callable);
+        $iterator = $this->csv->fetchPairs($key, $value);
         foreach ($iterator as $key => $value) {
             $res = current($expected);
             $this->assertSame($value, $res[$key]);
@@ -391,7 +380,6 @@ class ReaderTest extends PHPUnit_Framework_TestCase
             'default values' => [
                 'key' => 0,
                 'value' => 1,
-                'callable' => null,
                 'expected' => [
                     ['john' => 'doe'],
                     ['jane' => 'doe'],
@@ -400,24 +388,9 @@ class ReaderTest extends PHPUnit_Framework_TestCase
             'changed key order' => [
                 'key' => 1,
                 'value' => 0,
-                'callable' => null,
                 'expected' => [
                     ['doe' => 'john'],
                     ['doe' => 'jane'],
-                ],
-            ],
-            'with callback' => [
-                'key' => 0,
-                'value' => 1,
-                'callable' => function ($row) {
-                    return [
-                        strtoupper($row[0]),
-                        strtoupper($row[1]),
-                    ];
-                },
-                'expected' => [
-                    ['JOHN' => 'DOE'],
-                    ['JANE' => 'DOE'],
                 ],
             ],
         ];

@@ -18,6 +18,7 @@ use ArrayIterator;
 use CallbackFilterIterator;
 use DomDocument;
 use Generator;
+use InvalidArgumentException;
 use Iterator;
 use IteratorAggregate;
 use JsonSerializable;
@@ -67,11 +68,53 @@ class Reader extends AbstractCsv implements JsonSerializable, IteratorAggregate
     protected $stream_filter_mode = STREAM_FILTER_READ;
 
     /**
-     * @inheritdoc
+     * Selected Header for the query
+     *
+     * @var array
      */
-    public function jsonSerialize()
+    protected $selected_header = [];
+
+    /**
+     * Returns a HTML table representation of the CSV Table
+     *
+     * @param string $class_attr optional classname
+     *
+     * @return string
+     */
+    public function toHTML(string $class_attr = 'table-csv-data'): string
     {
-        return iterator_to_array($this->convertToUtf8($this->getIterator()), false);
+        $doc = $this->toXML('table', 'tr', 'td');
+        $doc->documentElement->setAttribute('class', $class_attr);
+
+        return $doc->saveHTML($doc->documentElement);
+    }
+
+    /**
+     * Transforms a CSV into a XML
+     *
+     * @param string $root_name XML root node name
+     * @param string $row_name  XML row node name
+     * @param string $cell_name XML cell node name
+     *
+     * @return DomDocument
+     */
+    public function toXML(string $root_name = 'csv', string $row_name = 'row', string $cell_name = 'cell'): DomDocument
+    {
+        $doc = new DomDocument('1.0', 'UTF-8');
+        $root = $doc->createElement($root_name);
+        foreach ($this->convertToUtf8($this->getIterator()) as $row) {
+            $rowElement = $doc->createElement($row_name);
+            array_walk($row, function ($value) use (&$rowElement, $doc, $cell_name) {
+                $content = $doc->createTextNode($value);
+                $cell = $doc->createElement($cell_name);
+                $cell->appendChild($content);
+                $rowElement->appendChild($cell);
+            });
+            $root->appendChild($rowElement);
+        }
+        $doc->appendChild($root);
+
+        return $doc;
     }
 
     /**
@@ -99,46 +142,11 @@ class Reader extends AbstractCsv implements JsonSerializable, IteratorAggregate
     }
 
     /**
-     * Returns a HTML table representation of the CSV Table
-     *
-     * @param string $class_attr optional classname
-     *
-     * @return string
+     * @inheritdoc
      */
-    public function toHTML(string $class_attr = 'table-csv-data'): string
+    public function jsonSerialize()
     {
-        $doc = $this->toXML('table', 'tr', 'td');
-        $doc->documentElement->setAttribute('class', $class_attr);
-
-        return $doc->saveHTML($doc->documentElement);
-    }
-
-    /**
-     * Transforms a CSV into a XML
-     *
-     * @param string $root_name XML root node name
-     * @param string $row_name  XML row node name
-     * @param string $cell_name XML cell node name
-     *
-     * @return DomDocument
-     */
-    public function toXML(string $root_name = 'csv', string $row_name = 'row', string $cell_name = 'cell')
-    {
-        $doc = new DomDocument('1.0', 'UTF-8');
-        $root = $doc->createElement($root_name);
-        foreach ($this->convertToUtf8($this->getIterator()) as $row) {
-            $rowElement = $doc->createElement($row_name);
-            array_walk($row, function ($value) use (&$rowElement, $doc, $cell_name) {
-                $content = $doc->createTextNode($value);
-                $cell = $doc->createElement($cell_name);
-                $cell->appendChild($content);
-                $rowElement->appendChild($cell);
-            });
-            $root->appendChild($rowElement);
-        }
-        $doc->appendChild($root);
-
-        return $doc;
+        return iterator_to_array($this->convertToUtf8($this->getIterator()), false);
     }
 
     /**
@@ -355,30 +363,11 @@ class Reader extends AbstractCsv implements JsonSerializable, IteratorAggregate
      *
      * The callable function will be applied to each Iterator item
      *
-     * @param callable|null $callable a callable function
-     *
      * @return array
      */
-    public function fetchAll(callable $callable = null): array
+    public function fetchAll(): array
     {
-        return iterator_to_array($this->applyCallable($this->getIterator(), $callable), false);
-    }
-
-    /**
-     * Apply The callable function
-     *
-     * @param Iterator      $iterator
-     * @param callable|null $callable
-     *
-     * @return Iterator
-     */
-    protected function applyCallable(Iterator $iterator, callable $callable = null): Iterator
-    {
-        if (null !== $callable) {
-            return new MapIterator($iterator, $callable);
-        }
-
-        return $iterator;
+        return iterator_to_array($this->getIterator(), false);
     }
 
     /**
@@ -407,26 +396,52 @@ class Reader extends AbstractCsv implements JsonSerializable, IteratorAggregate
      *
      * By default if no column index is provided the first column of the CSV is selected
      *
-     * @param int           $column_index CSV column index
-     * @param callable|null $callable     A callable to be applied to each of the value to be returned.
+     * @param string|int $column_index CSV column index
      *
      * @return Iterator
      */
-    public function fetchColumn(int $column_index = 0, callable $callable = null): Iterator
+    public function fetchColumn($column_index = 0): Iterator
     {
-        $column_index = $this->filterInteger($column_index, 0, 'the column index must be a positive integer or 0');
-
-        $filter_column = function ($row) use ($column_index) {
+        $column_index = $this->getFieldIndex($column_index, 'the column index value is invalid');
+        $filter = function (array $row) use ($column_index) {
             return isset($row[$column_index]);
         };
 
-        $select_column = function ($row) use ($column_index) {
+        $select = function ($row) use ($column_index) {
             return $row[$column_index];
         };
 
-        $this->addFilter($filter_column);
+        $this->addFilter($filter);
 
-        return $this->applyCallable(new MapIterator($this->getIterator(), $select_column), $callable);
+        return new MapIterator($this->getIterator(), $select);
+    }
+
+    /**
+     * Filter a field name against the CSV header if any
+     *
+     * @param string|int $field         the field name or the field index
+     * @param string     $error_message the associated error message
+     *
+     * @throws InvalidArgumentException if the field is invalid
+     *
+     * @return string|int
+     */
+    protected function getFieldIndex($field, $error_message)
+    {
+        if (false !== array_search($field, $this->header, true)) {
+            return $field;
+        }
+
+        $index = $this->filterInteger($field, 0, $error_message);
+        if (empty($this->header)) {
+            return $index;
+        }
+
+        if (false !== ($index = array_search($index, array_flip($this->header), true))) {
+            return $index;
+        }
+
+        throw new InvalidArgumentException($error_message);
     }
 
     /**
@@ -437,29 +452,25 @@ class Reader extends AbstractCsv implements JsonSerializable, IteratorAggregate
      * - the first CSV column is used to provide the keys
      * - the second CSV column is used to provide the value
      *
-     * @param int           $offset_index The column index to serve as offset
-     * @param int           $value_index  The column index to serve as value
-     * @param callable|null $callable     A callable to be applied to each of the rows to be returned.
+     * @param string|int $offset_index The column index to serve as offset
+     * @param string|int $value_index  The column index to serve as value
      *
      * @return Generator
      */
-    public function fetchPairs(int $offset_index = 0, int $value_index = 1, callable $callable = null): Generator
+    public function fetchPairs($offset_index = 0, $value_index = 1): Generator
     {
-        $offset_index = $this->filterInteger($offset_index, 0, 'the offset column index must be a positive integer or 0');
-        $value_index = $this->filterInteger($value_index, 0, 'the value column index must be a positive integer or 0');
-        $filter_pairs = function ($row) use ($offset_index) {
-            return isset($row[$offset_index]);
-        };
-        $select_pairs = function ($row) use ($offset_index, $value_index) {
-            return [
-                $row[$offset_index],
-                isset($row[$value_index]) ? $row[$value_index] : null,
-            ];
+        $offset = $this->getFieldIndex($offset_index, 'the offset index value is invalid');
+        $value = $this->getFieldIndex($value_index, 'the value index value is invalid');
+        $filter = function ($row) use ($offset) {
+            return isset($row[$offset]);
         };
 
-        $this->addFilter($filter_pairs);
-        $iterator = $this->applyCallable(new MapIterator($this->getIterator(), $select_pairs), $callable);
-        foreach ($iterator as $row) {
+        $select = function ($row) use ($offset, $value) {
+            return [$row[$offset], isset($row[$value]) ? $row[$value] : null];
+        };
+
+        $this->addFilter($filter);
+        foreach (new MapIterator($this->getIterator(), $select) as $row) {
             yield $row[0] => $row[1];
         }
     }

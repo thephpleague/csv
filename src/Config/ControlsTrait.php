@@ -341,7 +341,7 @@ trait ControlsTrait
     public function getHeader(): array
     {
         if (null !== $this->header_offset) {
-            return $this->filterHeader($this->getRow($this->header_offset));
+            $this->header = $this->filterHeader($this->getRow($this->header_offset));
         }
 
         return $this->header;
