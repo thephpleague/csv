@@ -26,23 +26,6 @@ use InvalidArgumentException;
 trait ValidatorTrait
 {
     /**
-     * validate a string
-     *
-     * @param mixed $str the value to evaluate as a string
-     *
-     * @throws InvalidArgumentException if the submitted data can not be converted to string
-     *
-     * @return string
-     */
-    protected static function filterString($str): string
-    {
-        if (is_string($str) || (is_object($str) && method_exists($str, '__toString'))) {
-            return (string) $str;
-        }
-        throw new InvalidArgumentException('Expected data must be a string or stringable');
-    }
-
-    /**
      * Filter Csv control character
      *
      * @param string $char Csv control character
@@ -64,20 +47,43 @@ trait ValidatorTrait
     /**
      * Validate an integer
      *
-     * @param int    $int
-     * @param int    $minValue
-     * @param string $errorMessage
+     * @param int    $value
+     * @param int    $min_value
+     * @param string $error_message
      *
      * @throws InvalidArgumentException If the value is invalid
      *
      * @return int
      */
-    protected function filterInteger(int $int, int $minValue, string $errorMessage): int
+    protected function filterInteger(int $value, int $min_value, string $error_message): int
     {
-        if ($int < $minValue) {
-            throw new InvalidArgumentException($errorMessage);
+        if ($value < $min_value) {
+            throw new InvalidArgumentException($error_message);
         }
 
-        return $int;
+        return $value;
+    }
+
+    /**
+     * Strip the BOM sequence from a record
+     *
+     * @param string[] $row
+     * @param int      $bom_length
+     * @param string   $enclosure
+     *
+     * @return string[]
+     */
+    protected function removeBom(array $row, int $bom_length, string $enclosure): array
+    {
+        if (0 == $bom_length) {
+            return $row;
+        }
+
+        $row[0] = mb_substr($row[0], $bom_length);
+        if ($enclosure == mb_substr($row[0], 0, 1) && $enclosure == mb_substr($row[0], -1, 1)) {
+            $row[0] = mb_substr($row[0], 1, -1);
+        }
+
+        return $row;
     }
 }

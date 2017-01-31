@@ -210,19 +210,8 @@ trait StreamTrait
      */
     protected function sanitizeStreamFilter(string $filter_name): string
     {
-        return urldecode($this->filterString($filter_name));
+        return urldecode($filter_name);
     }
-
-    /**
-     * validate a string
-     *
-     * @param mixed $str the value to evaluate as a string
-     *
-     * @throws InvalidArgumentException if the submitted data can not be converted to string
-     *
-     * @return string
-     */
-    abstract protected static function filterString($str): string;
 
     /**
      * Detect if the stream filter is already present

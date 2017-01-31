@@ -92,8 +92,6 @@ class Writer extends AbstractCsv
      */
     public function addValidator(callable $callable, string $name): self
     {
-        $name = $this->filterString($name);
-
         $this->validators[$name] = $callable;
 
         return $this;

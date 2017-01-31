@@ -240,16 +240,11 @@ class Reader extends AbstractCsv implements JsonSerializable, IteratorAggregate
         $bom_length = mb_strlen($bom);
         $enclosure = $this->getEnclosure();
         $strip_bom = function ($row, $index) use ($bom_length, $enclosure) {
-            if (0 != $index) {
+            if (0 != $index || !is_array($row)) {
                 return $row;
             }
 
-            $row[0] = mb_substr($row[0], $bom_length);
-            if (mb_substr($row[0], 0, 1) === $enclosure && mb_substr($row[0], -1, 1) === $enclosure) {
-                $row[0] = mb_substr($row[0], 1, -1);
-            }
-
-            return $row;
+            return $this->removeBom($row, $bom_length, $enclosure);
         };
 
         return new MapIterator($iterator, $strip_bom);

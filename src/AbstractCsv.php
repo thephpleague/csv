@@ -14,13 +14,9 @@ declare(strict_types=1);
 
 namespace League\Csv;
 
-use InvalidArgumentException;
-use Iterator;
 use League\Csv\Config\ControlsTrait;
 use League\Csv\Config\StreamTrait;
-use SplFileInfo;
 use SplFileObject;
-use SplTempFileObject;
 
 /**
  *  An abstract class to enable basic CSV manipulation
@@ -68,10 +64,6 @@ abstract class AbstractCsv
 
     /**
      * Creates a new instance
-     *
-     * The path must be an SplFileInfo object
-     * an object that implements the `__toString` method
-     * a path to a file
      *
      * The file path can be:
      *
@@ -142,7 +134,7 @@ abstract class AbstractCsv
     public static function createFromString(string $str): self
     {
         $stream = fopen('php://temp', 'r+');
-        fwrite($stream, static::filterString($str));
+        fwrite($stream, $str);
 
         return new static(new StreamIterator($stream));
     }
@@ -150,24 +142,14 @@ abstract class AbstractCsv
     /**
      * Return a new {@link AbstractCsv} from a file path
      *
-     * @param mixed  $path      file path
+     * @param string $path      file path
      * @param string $open_mode the file open mode flag
-     *
-     * @throws InvalidArgumentException If $path is a SplTempFileObject object
      *
      * @return static
      */
-    public static function createFromPath($path, string $open_mode = 'r+'): self
+    public static function createFromPath(string $path, string $open_mode = 'r+'): self
     {
-        if ($path instanceof SplTempFileObject) {
-            throw new InvalidArgumentException('an `SplTempFileObject` object does not contain a valid path');
-        }
-
-        if ($path instanceof SplFileInfo) {
-            return new static($path->getPathname(), $open_mode);
-        }
-
-        return new static(static::filterString($path), $open_mode);
+        return new static($path, $open_mode);
     }
 
     /**
@@ -231,39 +213,6 @@ abstract class AbstractCsv
     }
 
     /**
-     * Returns a single row from the CSV without filtering
-     *
-     * @param int $offset
-     *
-     * @throws InvalidArgumentException If the $offset is not valid or the row does not exist
-     *
-     * @return array
-     */
-    protected function getRow(int $offset): array
-    {
-        $csv = $this->getCsvDocument();
-        $csv->setFlags(SplFileObject::READ_CSV);
-        $csv->setCsvControl($this->delimiter, $this->enclosure, $this->escape);
-        $csv->seek($offset);
-        $row = $csv->current();
-        if (empty($row) || [null] === $row) {
-            throw new InvalidArgumentException('the specified row does not exist or is empty');
-        }
-
-        $bom = $this->getInputBOM();
-        if (0 != $offset || '' === $bom) {
-            return $row;
-        }
-
-        $row[0] = mb_substr($row[0], mb_strlen($bom));
-        if ($this->enclosure == substr($row[0], 0, 1)) {
-            $row[0] = substr($row[0], 1, -1);
-        }
-
-        return $row;
-    }
-
-    /**
      * Outputs all data on the CSV file
      *
      * @param string $filename CSV downloaded name if present adds extra headers
@@ -298,7 +247,7 @@ abstract class AbstractCsv
         }
         $csv = $this->getCsvDocument();
         $csv->rewind();
-        if (!empty($bom)) {
+        if ('' !== $bom) {
             $csv->fseek(mb_strlen($input_bom));
         }
         echo $bom;

@@ -29,6 +29,26 @@ class ReaderTest extends PHPUnit_Framework_TestCase
         $this->csv = Reader::createFromFileObject($tmp);
     }
 
+    public function tearDown()
+    {
+        $this->csv = null;
+    }
+
+    public function testCreateFromFileObjectPreserveFileObjectCsvControls()
+    {
+        $delimiter = "\t";
+        $enclosure = '?';
+        $escape = '^';
+        $file = new SplTempFileObject();
+        $file->setCsvControl($delimiter, $enclosure, $escape);
+        $obj = Reader::createFromFileObject($file);
+        $this->assertSame($delimiter, $obj->getDelimiter());
+        $this->assertSame($enclosure, $obj->getEnclosure());
+        if (3 === count($file->getCsvControl())) {
+            $this->assertSame($escape, $obj->getEscape());
+        }
+    }
+
     public function testSetLimit()
     {
         $this->assertCount(1, $this->csv->setLimit(1)->fetchAll());
@@ -227,6 +247,25 @@ class ReaderTest extends PHPUnit_Framework_TestCase
 
         $this->assertSame('john', $res[0]);
     }
+
+    public function testFetchAssocWithoutBOM()
+    {
+        $source = [
+            ['john', 'doe', 'john.doe@example.com'],
+            ['jane', 'doe', 'jane.doe@example.com'],
+        ];
+
+        $tmp = new SplTempFileObject();
+        foreach ($source as $row) {
+            $tmp->fputcsv($row);
+        }
+        $csv = Reader::createFromFileObject($tmp);
+        $csv->setHeader(0);
+        $res = array_keys($csv->fetchAll()[0]);
+
+        $this->assertSame('john', $res[0]);
+    }
+
 
     public function testStripBOMWithEnclosureFetchAssoc()
     {

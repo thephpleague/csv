@@ -356,7 +356,23 @@ trait ControlsTrait
      *
      * @return array
      */
-    abstract protected function getRow(int $offset): array;
+    protected function getRow(int $offset): array
+    {
+        $csv = $this->getCsvDocument();
+        $csv->setFlags(SplFileObject::READ_CSV);
+        $csv->setCsvControl($this->delimiter, $this->enclosure, $this->escape);
+        $csv->seek($offset);
+        $row = $csv->current();
+        if (empty($row) || [null] === $row) {
+            throw new InvalidArgumentException('the specified row does not exist or is empty');
+        }
+
+        if (0 != $offset) {
+            return $row;
+        }
+
+        return $this->removeBom($row, mb_strlen($this->getInputBOM()), $this->enclosure);
+    }
 
     /**
      * Validates the array to be used by the fetchAssoc method
