@@ -121,7 +121,7 @@ class StreamFilterTest extends PHPUnit_Framework_TestCase
 
     public function testGetFilterPath()
     {
-        $csv = Writer::createFromPath(__DIR__.'/data/foo.csv');
+        $csv = Reader::createFromPath(__DIR__.'/data/foo.csv');
         $csv->appendStreamFilter('string.rot13');
         $csv->prependStreamFilter('string.toupper');
         $this->assertFalse($csv->getIterator()->getRealPath());

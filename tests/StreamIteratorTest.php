@@ -26,13 +26,6 @@ class StreamIteratorTest extends PHPUnit_Framework_TestCase
         $this->csv = null;
     }
 
-    public function testCreateFromStreamFromStream()
-    {
-        $csv = Reader::createFromStream(fopen(__DIR__.'/data/foo.csv', 'r'));
-        $this->assertInstanceof(Reader::class, $csv);
-        $this->assertInstanceof(StreamIterator::class, $csv->getIterator());
-    }
-
     /**
      * @expectedException InvalidArgumentException
      */
@@ -83,7 +76,6 @@ class StreamIteratorTest extends PHPUnit_Framework_TestCase
             fputcsv($fp, $row);
         }
         $csv = Reader::createFromStream($fp);
-        $csv->stripBom(true);
 
         $this->assertSame($res, $csv->fetchAll()[0][0]);
     }
@@ -155,6 +147,7 @@ class StreamIteratorTest extends PHPUnit_Framework_TestCase
         }
 
         $stream = new StreamIterator($fp);
+        $stream->setFlags(SplFileObject::READ_AHEAD);
         $stream->rewind();
         $stream->current();
         $this->assertInternalType('string', $stream->fgets());
@@ -194,8 +187,10 @@ class StreamIteratorTest extends PHPUnit_Framework_TestCase
     {
         $fp = fopen('php://temp', 'r+');
         $expected = [
+            [],
             ['john', 'doe', 'john.doe@example.com'],
             ['john', 'doe', 'john.doe@example.com'],
+            [],
         ];
 
         foreach ($expected as $row) {
@@ -203,7 +198,7 @@ class StreamIteratorTest extends PHPUnit_Framework_TestCase
         }
 
         $stream = new StreamIterator($fp);
-        $stream->setFlags(SplFileObject::READ_CSV);
+        $stream->setFlags(SplFileObject::READ_CSV | SplFileObject::READ_AHEAD);
         $stream->seek(1);
         $this->assertSame($expected[1], $stream->current());
     }

@@ -69,16 +69,7 @@ class ControlsTest extends PHPUnit_Framework_TestCase
         $expected = 'john,doe,john.doe@example.com'.PHP_EOL
             .'jane,doe,jane.doe@example.com'.PHP_EOL;
         $reader = Reader::createFromString($expected);
-        $this->assertEmpty($reader->getInputBOM());
-    }
-
-    public function testGetBomOnInputWithBOM()
-    {
-        $expected = Reader::BOM_UTF32_BE.'john,doe,john.doe@example.com'.PHP_EOL
-            .'jane,doe,jane.doe@example.com'.PHP_EOL;
-        $reader = Reader::createFromString($expected);
-        $this->assertSame(Reader::BOM_UTF32_BE, $reader->getInputBOM());
-        $this->assertSame(Reader::BOM_UTF32_BE, $reader->getInputBOM());
+        $this->assertNotContains(Reader::BOM_UTF8, (string) $reader);
     }
 
     public function testChangingBOMOnOutput()
@@ -87,7 +78,7 @@ class ControlsTest extends PHPUnit_Framework_TestCase
             .'jane,doe,jane.doe@example.com'.PHP_EOL;
         $reader = Reader::createFromString(Reader::BOM_UTF32_BE.$text);
         $reader->setOutputBOM(Reader::BOM_UTF8);
-        $this->assertSame(Reader::BOM_UTF8.$text, $reader->__toString());
+        $this->assertSame(Reader::BOM_UTF8.$text, (string) $reader);
     }
 
     public function testDetectDelimiterList()
@@ -182,6 +173,9 @@ class ControlsTest extends PHPUnit_Framework_TestCase
         $obj->setFlags($flag);
         $reader = Reader::createFromFileObject($obj);
         $this->assertCount($fetch_count, $reader->fetchAll());
+        $reader = null;
+        $obj = null;
+        unlink($path);
     }
 
     public function appliedFlagsProvider()

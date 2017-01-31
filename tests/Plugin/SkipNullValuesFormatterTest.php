@@ -4,7 +4,6 @@ namespace LeagueTest\Csv\Plugin;
 
 use League\Csv\Plugin\SkipNullValuesFormatter;
 use League\Csv\Writer;
-use LimitIterator;
 use PHPUnit_Framework_TestCase;
 use SplFileObject;
 use SplTempFileObject;
@@ -41,9 +40,7 @@ class SkipNullValuesFormatterTest extends PHPUnit_Framework_TestCase
         foreach ($expected as $row) {
             $this->csv->insertOne($row);
         }
-        $iterator = new LimitIterator($this->csv->getIterator(), 2, 1);
-        $iterator->rewind();
-        $res = $iterator->getInnerIterator()->current();
-        $this->assertSame(['john', 'john.doe@example.com'], $res);
+
+        $this->assertContains('john,john.doe@example.com', (string) $this->csv);
     }
 }
