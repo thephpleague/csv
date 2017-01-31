@@ -36,6 +36,7 @@ class WriterTest extends PHPUnit_Framework_TestCase
         $csv->appendStreamFilter('string.toupper');
         $csv->insertOne(['jane', 'doe', 'jane@example.com']);
         $this->assertFalse($csv->isActiveStreamFilter());
+        $this->assertContains('JANE,DOE,JANE@EXAMPLE.COM', (string) $csv);
     }
 
     public function testInsert()
@@ -102,12 +103,10 @@ class WriterTest extends PHPUnit_Framework_TestCase
 
     public function testCustomNewline()
     {
-        $csv = Writer::createFromFileObject(new SplTempFileObject());
-        $this->assertSame("\n", $csv->getNewline());
-        $csv->setNewline("\r\n");
-
-        $csv->insertOne(['jane', 'doe']);
-        $this->assertSame("jane,doe\r\n", (string) $csv);
+        $this->assertSame("\n", $this->csv->getNewline());
+        $this->csv->setNewline("\r\n");
+        $this->csv->insertOne(['jane', 'doe']);
+        $this->assertSame("jane,doe\r\n", (string) $this->csv);
     }
 
     public function testAddValidationRules()

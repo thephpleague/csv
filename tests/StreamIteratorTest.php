@@ -147,6 +147,7 @@ class StreamIteratorTest extends PHPUnit_Framework_TestCase
         }
 
         $stream = new StreamIterator($fp);
+        $stream->setFlags(SplFileObject::READ_AHEAD);
         $stream->rewind();
         $stream->current();
         $this->assertInternalType('string', $stream->fgets());
@@ -186,8 +187,10 @@ class StreamIteratorTest extends PHPUnit_Framework_TestCase
     {
         $fp = fopen('php://temp', 'r+');
         $expected = [
+            [],
             ['john', 'doe', 'john.doe@example.com'],
             ['john', 'doe', 'john.doe@example.com'],
+            [],
         ];
 
         foreach ($expected as $row) {
@@ -195,7 +198,7 @@ class StreamIteratorTest extends PHPUnit_Framework_TestCase
         }
 
         $stream = new StreamIterator($fp);
-        $stream->setFlags(SplFileObject::READ_CSV);
+        $stream->setFlags(SplFileObject::READ_CSV | SplFileObject::READ_AHEAD);
         $stream->seek(1);
         $this->assertSame($expected[1], $stream->current());
     }

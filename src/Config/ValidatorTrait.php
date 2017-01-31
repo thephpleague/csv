@@ -73,7 +73,7 @@ trait ValidatorTrait
      *
      * @return string[]
      */
-    protected function removeBom(array $row, int $bom_length, string $enclosure): array
+    protected function removeBOM(array $row, int $bom_length, string $enclosure): array
     {
         if (0 == $bom_length) {
             return $row;

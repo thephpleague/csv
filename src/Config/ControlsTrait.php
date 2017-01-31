@@ -60,13 +60,6 @@ trait ControlsTrait
     protected $newline = "\n";
 
     /**
-     * Charset Encoding for the CSV
-     *
-     * @var string
-     */
-    protected $input_encoding = 'UTF-8';
-
-    /**
      * The Input file BOM character
      * @var string
      */
@@ -137,16 +130,6 @@ trait ControlsTrait
     public function getNewline(): string
     {
         return $this->newline;
-    }
-
-    /**
-     * Gets the source CSV encoding charset
-     *
-     * @return string
-     */
-    public function getInputEncoding(): string
-    {
-        return $this->input_encoding;
     }
 
     /**
@@ -281,25 +264,6 @@ trait ControlsTrait
     }
 
     /**
-     * Sets the CSV encoding charset
-     *
-     * @param string $str
-     *
-     * @return static
-     */
-    public function setInputEncoding(string $str): self
-    {
-        $str = str_replace('_', '-', $str);
-        $str = filter_var($str, FILTER_SANITIZE_STRING, ['flags' => FILTER_FLAG_STRIP_LOW | FILTER_FLAG_STRIP_HIGH]);
-        if (empty($str)) {
-            throw new InvalidArgumentException('you should use a valid charset');
-        }
-        $this->input_encoding = strtoupper($str);
-
-        return $this;
-    }
-
-    /**
      * Sets the BOM sequence to prepend the CSV on output
      *
      * @param string $str The BOM sequence
@@ -371,7 +335,7 @@ trait ControlsTrait
             return $row;
         }
 
-        return $this->removeBom($row, mb_strlen($this->getInputBOM()), $this->enclosure);
+        return $this->removeBOM($row, mb_strlen($this->getInputBOM()), $this->enclosure);
     }
 
     /**

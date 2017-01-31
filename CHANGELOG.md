@@ -16,6 +16,20 @@ All Notable changes to `Csv` will be documented in this file
 
 - PHP5 support
 - `examples` directory
+- `League\Csv\AbstractCsv::stripBom`
+- `League\Csv\Reader::fetch`
+- `League\Csv\Reader::each`
+- `League\Csv\Reader::fetchPairsWithoutDuplicates`
+- `League\Csv\Reader::fetchAssoc`
+- `League\Csv\Writer::removeFormatter`
+- `League\Csv\Writer::hasFormatter`
+- `League\Csv\Writer::clearFormatters`
+- `League\Csv\Writer::removeValidator`
+- `League\Csv\Writer::hasValidator`
+- `League\Csv\Writer::clearValidators`
+- `League\Csv\Writer::jsonSerialize`
+- `League\Csv\Writer::toHTML`
+- `League\Csv\Writer::toXML`
 
 ## 8.2.0 - 2017-01-25
 

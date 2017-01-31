@@ -14,16 +14,13 @@ declare(strict_types=1);
 
 namespace League\Csv;
 
-use ArrayIterator;
-use CallbackFilterIterator;
 use DomDocument;
 use Generator;
 use InvalidArgumentException;
 use Iterator;
 use IteratorAggregate;
 use JsonSerializable;
-use LimitIterator;
-use SplFileObject;
+use League\Csv\Config\StatementTrait;
 
 /**
  *  A class to manage extracting and filtering a CSV
@@ -34,33 +31,14 @@ use SplFileObject;
  */
 class Reader extends AbstractCsv implements JsonSerializable, IteratorAggregate
 {
-    /**
-     * Callables to filter the iterator
-     *
-     * @var callable[]
-     */
-    protected $iterator_filters = [];
+    use StatementTrait;
 
     /**
-     * Callables to sort the iterator
+     * Charset Encoding for the CSV
      *
-     * @var callable[]
+     * @var string
      */
-    protected $iterator_sort_by = [];
-
-    /**
-     * iterator Offset
-     *
-     * @var int
-     */
-    protected $iterator_offset = 0;
-
-    /**
-     * iterator maximum length
-     *
-     * @var int
-     */
-    protected $iterator_limit = -1;
+    protected $input_encoding = 'UTF-8';
 
     /**
      * @inheritdoc
@@ -68,11 +46,33 @@ class Reader extends AbstractCsv implements JsonSerializable, IteratorAggregate
     protected $stream_filter_mode = STREAM_FILTER_READ;
 
     /**
-     * Selected Header for the query
+     * Gets the source CSV encoding charset
      *
-     * @var array
+     * @return string
      */
-    protected $selected_header = [];
+    public function getInputEncoding(): string
+    {
+        return $this->input_encoding;
+    }
+
+    /**
+     * Sets the CSV encoding charset
+     *
+     * @param string $str
+     *
+     * @return static
+     */
+    public function setInputEncoding(string $str): self
+    {
+        $str = str_replace('_', '-', $str);
+        $str = filter_var($str, FILTER_SANITIZE_STRING, ['flags' => FILTER_FLAG_STRIP_LOW | FILTER_FLAG_STRIP_HIGH]);
+        if (empty($str)) {
+            throw new InvalidArgumentException('you should use a valid charset');
+        }
+        $this->input_encoding = strtoupper($str);
+
+        return $this;
+    }
 
     /**
      * Returns a HTML table representation of the CSV Table
@@ -147,210 +147,6 @@ class Reader extends AbstractCsv implements JsonSerializable, IteratorAggregate
     public function jsonSerialize()
     {
         return iterator_to_array($this->convertToUtf8($this->getIterator()), false);
-    }
-
-    /**
-     * Set LimitIterator Offset
-     *
-     * @param $offset
-     *
-     * @return $this
-     */
-    public function setOffset(int $offset = 0): self
-    {
-        $this->iterator_offset = $this->filterInteger($offset, 0, 'the offset must be a positive integer or 0');
-
-        return $this;
-    }
-
-    /**
-     * Set LimitIterator Count
-     *
-     * @param int $limit
-     *
-     * @return $this
-     */
-    public function setLimit(int $limit = -1): self
-    {
-        $this->iterator_limit = $this->filterInteger($limit, -1, 'the limit must an integer greater or equals to -1');
-
-        return $this;
-    }
-
-    /**
-     * Set an Iterator sorting callable function
-     *
-     * @param callable $callable
-     *
-     * @return $this
-     */
-    public function addSortBy(callable $callable): self
-    {
-        $this->iterator_sort_by[] = $callable;
-
-        return $this;
-    }
-
-    /**
-     * Set the Iterator filter method
-     *
-     * @param callable $callable
-     *
-     * @return $this
-     */
-    public function addFilter(callable $callable): self
-    {
-        $this->iterator_filters[] = $callable;
-
-        return $this;
-    }
-
-    /**
-     * Returns the inner CSV Document Iterator object
-     *
-     * @return Iterator
-     */
-    public function getIterator()
-    {
-        $iterator = $this->getCsvDocument();
-        $iterator->setCsvControl($this->delimiter, $this->enclosure, $this->escape);
-        $iterator->setFlags(SplFileObject::READ_CSV | SplFileObject::READ_AHEAD | SplFileObject::SKIP_EMPTY);
-        $iterator = $this->applyBomStripping($iterator);
-        $iterator = $this->applyHeader($iterator);
-        $iterator = $this->applyFilter($iterator);
-        $iterator = $this->applySortBy($iterator);
-
-        return $this->applyIteratorInterval($iterator);
-    }
-
-    /**
-     * Remove the BOM sequence from the CSV
-     *
-     * @param Iterator $iterator
-     *
-     * @return Iterator
-     */
-    protected function applyBomStripping(Iterator $iterator): Iterator
-    {
-        $bom = $this->getInputBOM();
-        if ('' == $bom) {
-            return $iterator;
-        }
-
-        $bom_length = mb_strlen($bom);
-        $enclosure = $this->getEnclosure();
-        $strip_bom = function ($row, $index) use ($bom_length, $enclosure) {
-            if (0 != $index || !is_array($row)) {
-                return $row;
-            }
-
-            return $this->removeBom($row, $bom_length, $enclosure);
-        };
-
-        return new MapIterator($iterator, $strip_bom);
-    }
-
-    /**
-     * Add the CSV header if present
-     *
-     * @param Iterator $iterator
-     *
-     * @return Iterator
-     */
-    public function applyHeader(Iterator $iterator): Iterator
-    {
-        $header = $this->getHeader();
-        if (empty($header)) {
-            return $iterator;
-        }
-
-        $header_count = count($header);
-        $combine = function (array $row) use ($header, $header_count) {
-            if ($header_count != count($row)) {
-                $row = array_slice(array_pad($row, $header_count, null), 0, $header_count);
-            }
-
-            return array_combine($header, $row);
-        };
-
-        return new MapIterator($iterator, $combine);
-    }
-
-    /**
-    * Filter the Iterator
-    *
-    * @param Iterator $iterator
-    *
-    * @return Iterator
-    */
-    protected function applyFilter(Iterator $iterator): Iterator
-    {
-        $header_offset = $this->getHeaderOffset();
-        if (null !== $header_offset) {
-            $strip_header = function ($row, $index) use ($header_offset) {
-                return $index !== $header_offset;
-            };
-            array_unshift($this->iterator_filters, $strip_header);
-        }
-
-        $normalized_csv = function ($row) {
-            return is_array($row) && $row != [null];
-        };
-        array_unshift($this->iterator_filters, $normalized_csv);
-
-        $reducer = function ($iterator, $callable) {
-            return new CallbackFilterIterator($iterator, $callable);
-        };
-        $iterator = array_reduce($this->iterator_filters, $reducer, $iterator);
-        $this->iterator_filters = [];
-
-        return $iterator;
-    }
-
-    /**
-    * Sort the Iterator
-    *
-    * @param Iterator $iterator
-    *
-    * @return Iterator
-    */
-    protected function applySortBy(Iterator $iterator): Iterator
-    {
-        if (empty($this->iterator_sort_by)) {
-            return $iterator;
-        }
-
-        $obj = new ArrayIterator(iterator_to_array($iterator));
-        $obj->uasort(function ($row_a, $row_b) {
-            $res = 0;
-            foreach ($this->iterator_sort_by as $compare) {
-                if (0 !== ($res = ($compare)($row_a, $row_b))) {
-                    break;
-                }
-            }
-
-            return $res;
-        });
-        $this->iterator_sort_by = [];
-
-        return $obj;
-    }
-
-    /**
-    * Sort the Iterator
-    *
-    * @param Iterator $iterator
-    *
-    * @return Iterator
-    */
-    protected function applyIteratorInterval(Iterator $iterator): Iterator
-    {
-        $offset = $this->iterator_offset;
-        $limit = $this->iterator_limit;
-        $this->iterator_limit = -1;
-        $this->iterator_offset = 0;
-
-        return new LimitIterator($iterator, $offset, $limit);
     }
 
     /**

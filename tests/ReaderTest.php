@@ -303,7 +303,6 @@ class ReaderTest extends PHPUnit_Framework_TestCase
             "parentA","childA","titleA"';
         $csv = Reader::createFromString($source);
         $csv->setHeader([]);
-        $this->assertSame(Reader::BOM_UTF8, $csv->getInputBOM());
         $expected = ['parent name', 'child name', 'title'];
         $this->assertEquals($expected, $csv->fetchOne());
     }
