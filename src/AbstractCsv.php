@@ -232,6 +232,58 @@ abstract class AbstractCsv
     }
 
     /**
+     * Outputs all data on the csv file to disk
+     *
+     * @param string $filename CSV File to be saved on disk
+     *
+     * @return int Returns the csv file size written in the disk.
+     */
+    public function outputFile(string $filename): int
+    {
+        if (null !== $filename) {
+            $filename = filter_var($filename, FILTER_SANITIZE_STRING, FILTER_FLAG_STRIP_LOW);
+        }
+
+        return $this->saveTofile($filename);
+
+    }
+
+    /**
+     * Save csv to file in the disk
+     *
+     * @param string $filename CSV File to be saved on disk
+     *
+     * @return int Return the size of file
+     */
+    protected function saveTofile(string $filename): int
+    {
+        $bom = '';
+        $input_bom = $this->getInputBOM();
+        if ($this->output_bom && $input_bom != $this->output_bom) {
+            $bom = $this->output_bom;
+        }
+        $csv = $this->getCsvDocument();
+        $csv->rewind();
+        if ('' !== $bom) {
+            $csv->fseek(mb_strlen($input_bom));
+        }
+
+        $filesize = 0;
+        $outputFile = new SplFileObject($filename, 'w+');
+
+        while (!$csv->eof()) {
+            $line = $csv->fgets();
+            $outputFile->fwrite($line, strlen($line));
+            $filesize += strlen($line);
+        }
+
+        $outputFile->fflush();
+
+        return $filesize;
+    }
+
+
+    /**
      * Outputs all data from the CSV
      *
      * @return int Returns the number of characters read from the handle
