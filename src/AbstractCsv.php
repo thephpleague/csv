@@ -1,16 +1,16 @@
 <?php
 /**
-* This file is part of the League.csv library
-*
-* @license http://opensource.org/licenses/MIT
-* @link https://github.com/thephpleague/csv/
-* @version 9.0.0
-* @package League.csv
-*
-* For the full copyright and license information, please view the LICENSE
-* file that was distributed with this source code.
-*/
-declare(strict_types=1);
+ * This file is part of the League.csv library
+ *
+ * @license http://opensource.org/licenses/MIT
+ * @link https://github.com/thephpleague/csv/
+ * @version 9.0.0
+ * @package League.csv
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+declare(strict_types = 1);
 
 namespace League\Csv;
 
@@ -71,7 +71,7 @@ abstract class AbstractCsv
      * - a SplFileObject
      * - a StreamIterator
      *
-     * @param mixed  $path      The file path
+     * @param mixed $path The file path
      * @param string $open_mode The file open mode flag
      */
     protected function __construct($path, string $open_mode = 'r+')
@@ -142,7 +142,7 @@ abstract class AbstractCsv
     /**
      * Return a new {@link AbstractCsv} from a file path
      *
-     * @param string $path      file path
+     * @param string $path file path
      * @param string $open_mode the file open mode flag
      *
      * @return static
@@ -155,7 +155,7 @@ abstract class AbstractCsv
     /**
      * Return a new {@link AbstractCsv} instance from another {@link AbstractCsv} object
      *
-     * @param string $class     the class to be instantiated
+     * @param string $class the class to be instantiated
      * @param string $open_mode the file open mode flag
      *
      * @return static
@@ -236,7 +236,7 @@ abstract class AbstractCsv
      *
      * @param string $filename CSV File to be saved on disk
      *
-     * @return int Returns the csv file size written in the disk.
+     * @return int Returns the file
      */
     public function outputFile(string $filename): int
     {
@@ -266,6 +266,8 @@ abstract class AbstractCsv
         $csv->rewind();
         if ('' !== $bom) {
             $csv->fseek(mb_strlen($input_bom));
+        } else {
+            $csv->fseek(0);
         }
 
         $filesize = 0;
