@@ -14,7 +14,6 @@ declare(strict_types=1);
 
 namespace League\Csv;
 
-use InvalidArgumentException;
 use ReflectionMethod;
 use SplFileObject;
 use Traversable;
@@ -97,16 +96,14 @@ class Writer extends AbstractCsv
      *
      * @param Traversable|array $rows a multidimensional array or a Traversable object
      *
-     * @throws InvalidArgumentException If the given rows format is invalid
+     * @throws Exception If the given rows format is invalid
      *
      * @return static
      */
     public function insertAll($rows): self
     {
         if (!is_array($rows) && !$rows instanceof Traversable) {
-            throw new InvalidArgumentException(
-                'the provided data must be an array OR a `Traversable` object'
-            );
+            throw new Exception('the provided data must be an array OR a `Traversable` object');
         }
 
         foreach ($rows as $row) {
@@ -141,11 +138,11 @@ class Writer extends AbstractCsv
      */
     protected function formatRow(array $row): array
     {
-        foreach ($this->formatters as $formatter) {
-            $row = ($formatter)($row);
-        }
+        $reducer = function (array $row, callable $formatter) {
+            return $formatter($row);
+        };
 
-        return $row;
+        return array_reduce($this->formatters, $reducer, $row);
     }
 
     /**
@@ -158,7 +155,7 @@ class Writer extends AbstractCsv
     protected function validateRow(array $row)
     {
         foreach ($this->validators as $name => $validator) {
-            if (true !== ($validator)($row)) {
+            if (true !== $validator($row)) {
                 throw new InvalidRowException($name, $row, 'row validation failed');
             }
         }
@@ -171,7 +168,7 @@ class Writer extends AbstractCsv
      */
     protected function addRow(array $row)
     {
-        $this->initCsv();
+        $this->init();
         $this->fputcsv->invokeArgs($this->document, $this->getFputcsvParameters($row));
         if ("\n" !== $this->newline) {
             $this->document->fseek(-1, SEEK_CUR);
@@ -182,7 +179,7 @@ class Writer extends AbstractCsv
     /**
      * Initialize the CSV object and settings
      */
-    protected function initCsv()
+    protected function init()
     {
         if (null !== $this->fputcsv) {
             return;

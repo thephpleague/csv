@@ -14,8 +14,6 @@ declare(strict_types=1);
 
 namespace League\Csv;
 
-use InvalidArgumentException;
-
 /**
  *  Thrown when a data is not validated prior to insertion
  *
@@ -23,7 +21,7 @@ use InvalidArgumentException;
  * @since  7.0.0
  *
  */
-class InvalidRowException extends InvalidArgumentException
+class InvalidRowException extends Exception
 {
     /**
      * Validator which did not validated the data

@@ -14,7 +14,6 @@ declare(strict_types=1);
 
 namespace League\Csv;
 
-use InvalidArgumentException;
 use League\Csv\Config\ControlsTrait;
 use League\Csv\Config\StreamTrait;
 use SplFileObject;
@@ -220,7 +219,7 @@ abstract class AbstractCsv
      *
      * @param int $offset
      *
-     * @throws InvalidArgumentException If the $offset is not valid or the row does not exist
+     * @throws Exception If the $offset is not valid or the row does not exist
      *
      * @return array
      */
@@ -232,7 +231,7 @@ abstract class AbstractCsv
         $csv->seek($offset);
         $row = $csv->current();
         if (empty($row) || [null] === $row) {
-            throw new InvalidArgumentException('the specified row does not exist or is empty');
+            throw new Exception('the specified row does not exist or is empty');
         }
 
         if (0 != $offset) {

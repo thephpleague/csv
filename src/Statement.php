@@ -72,7 +72,7 @@ class Statement
      *
      * @param $offset
      *
-     * @return $this
+     * @return self
      */
     public function offset(int $offset = 0): self
     {
@@ -86,7 +86,7 @@ class Statement
      *
      * @param int $limit
      *
-     * @return $this
+     * @return self
      */
     public function limit(int $limit = -1): self
     {
@@ -100,7 +100,7 @@ class Statement
      *
      * @param callable $callable
      *
-     * @return $this
+     * @return self
      */
     public function orderBy(callable $callable): self
     {
@@ -114,7 +114,7 @@ class Statement
      *
      * @param callable $callable
      *
-     * @return $this
+     * @return self
      */
     public function where(callable $callable): self
     {
@@ -123,7 +123,14 @@ class Statement
         return $this;
     }
 
-    public function headers(array $headers)
+    /**
+     * Set the headers to be used by the RecordSet object
+     *
+     * @param string[] $headers
+     *
+     * @return self
+     */
+    public function headers(array $headers): self
     {
         $this->headers = $this->filterHeader($headers);
 
@@ -133,19 +140,19 @@ class Statement
     /**
      * Returns the inner CSV Document Iterator object
      *
-     * @return Iterator
+     * @return RecordSet
      */
     public function process(Reader $reader)
     {
         $bom = $reader->getInputBOM();
         $enclosure = $reader->getEnclosure();
-        $this->setRecordsHeader($reader);
+        $this->prepare($reader);
 
         $csv = $reader->getDocument();
         $csv->setFlags(SplFileObject::READ_AHEAD | SplFileObject::READ_CSV | SplFileObject::SKIP_EMPTY);
 
         $iterator = $this->stripBOM($csv, $bom, $enclosure);
-        $iterator = $this->addRecordsHeader($iterator);
+        $iterator = $this->addHeader($iterator);
         $iterator = $this->filterRecords($iterator);
         $iterator = $this->orderRecords($iterator);
 
@@ -153,6 +160,27 @@ class Statement
             new LimitIterator($iterator, $this->offset, $this->limit),
             $this->headers
         );
+    }
+
+    /**
+     * Set the computed RecordSet headers
+     *
+     * @param Reader $reader
+     */
+    protected function prepare(Reader $reader)
+    {
+        if (!empty($this->headers)) {
+            return;
+        }
+
+        $this->headers = $reader->getHeader();
+        $header_offset = $reader->getHeaderOffset();
+        if (null !== $header_offset) {
+            $strip_header = function ($row, $index) use ($header_offset) {
+                return $index !== $header_offset;
+            };
+            array_unshift($this->where, $strip_header);
+        }
     }
 
     /**
@@ -180,22 +208,6 @@ class Statement
         return new MapIterator($iterator, $strip_bom);
     }
 
-    protected function setRecordsHeader(Reader $reader)
-    {
-        if (!empty($this->headers)) {
-            return;
-        }
-        $this->headers = $reader->getHeader();
-
-        $header_offset = $reader->getHeaderOffset();
-        if (null !== $header_offset) {
-            $strip_header = function ($row, $index) use ($header_offset) {
-                return $index !== $header_offset;
-            };
-            array_unshift($this->where, $strip_header);
-        }
-    }
-
     /**
      * Add the CSV header if present
      *
@@ -203,23 +215,19 @@ class Statement
      *
      * @return Iterator
      */
-    public function addRecordsHeader(Iterator $iterator, array $headers = []): Iterator
+    protected function addHeader(Iterator $iterator): Iterator
     {
-        if (!empty($this->headers)) {
-            $headers = $this->headers;
-        }
-
-        if (empty($headers)) {
+        if (empty($this->headers)) {
             return $iterator;
         }
 
-        $header_count = count($headers);
-        $combine = function (array $row) use ($headers, $header_count) {
+        $header_count = count($this->headers);
+        $combine = function (array $row) use ($header_count) {
             if ($header_count != count($row)) {
                 $row = array_slice(array_pad($row, $header_count, null), 0, $header_count);
             }
 
-            return array_combine($headers, $row);
+            return array_combine($this->headers, $row);
         };
 
         return new MapIterator($iterator, $combine);

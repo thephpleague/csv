@@ -18,7 +18,6 @@ use CallbackFilterIterator;
 use Countable;
 use DomDocument;
 use Generator;
-use InvalidArgumentException;
 use Iterator;
 use IteratorAggregate;
 use JsonSerializable;
@@ -101,7 +100,7 @@ class RecordSet implements JsonSerializable, IteratorAggregate, Countable
         $str = str_replace('_', '-', $str);
         $str = filter_var($str, FILTER_SANITIZE_STRING, ['flags' => FILTER_FLAG_STRIP_LOW | FILTER_FLAG_STRIP_HIGH]);
         if (empty($str)) {
-            throw new InvalidArgumentException('you should use a valid charset');
+            throw new Exception('you should use a valid charset');
         }
         $this->input_encoding = strtoupper($str);
 
@@ -261,7 +260,7 @@ class RecordSet implements JsonSerializable, IteratorAggregate, Countable
      * @param string|int $field         the field name or the field index
      * @param string     $error_message the associated error message
      *
-     * @throws InvalidArgumentException if the field is invalid
+     * @throws Exception if the field is invalid
      *
      * @return string|int
      */
@@ -280,7 +279,7 @@ class RecordSet implements JsonSerializable, IteratorAggregate, Countable
             return $index;
         }
 
-        throw new InvalidArgumentException($error_message);
+        throw new Exception($error_message);
     }
 
     /**
