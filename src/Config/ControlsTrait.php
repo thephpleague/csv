@@ -289,19 +289,12 @@ trait ControlsTrait
     }
 
     /**
-     * Selects the array to be used as key for the fetchAssoc method
+     * Selects the record to be used as the CSV header
      *
      * Because of the header is represented as an array, to be valid
      * a header MUST contain only unique string value.
      *
-     * <ul>
-     * <li>If a array is given it will be used as the header</li>
-     * <li>If a integer is given it will represent the offset of the record to be used as header</li>
-     * <li>If an empty array or null is given it will mean that no header is used</li>
-     * </ul>
-     *
-     * @param int|null $offset_or_keys the assoc key OR the row Index to be used
-     *                                 as the key index
+     * @param int|null $offset the header row offset
      *
      * @return $this
      */

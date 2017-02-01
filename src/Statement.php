@@ -44,7 +44,7 @@ class Statement
      *
      * @var callable[]
      */
-    protected $filter = [];
+    protected $order_by = [];
 
     /**
      * iterator Offset
@@ -205,18 +205,21 @@ class Statement
      */
     public function addRecordsHeader(Iterator $iterator, array $headers = []): Iterator
     {
-        $header = $this->headers;
-        if (empty($header)) {
+        if (!empty($this->headers)) {
+            $headers = $this->headers;
+        }
+
+        if (empty($headers)) {
             return $iterator;
         }
 
-        $header_count = count($header);
-        $combine = function (array $row) use ($header, $header_count) {
+        $header_count = count($headers);
+        $combine = function (array $row) use ($headers, $header_count) {
             if ($header_count != count($row)) {
                 $row = array_slice(array_pad($row, $header_count, null), 0, $header_count);
             }
 
-            return array_combine($header, $row);
+            return array_combine($headers, $row);
         };
 
         return new MapIterator($iterator, $combine);
