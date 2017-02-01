@@ -141,19 +141,6 @@ class ControlsTest extends PHPUnit_Framework_TestCase
         $this->csv->setEnclosure('foo');
     }
 
-    /**
-     * @expectedException InvalidArgumentException
-     * @expectedExceptionMessage you should use a valid charset
-     */
-    public function testEncoding()
-    {
-        $expected = 'iso-8859-15';
-        $this->csv->setInputEncoding($expected);
-        $this->assertSame(strtoupper($expected), $this->csv->getInputEncoding());
-
-        $this->csv->setInputEncoding('');
-    }
-
     public function testCustomNewline()
     {
         $csv = Writer::createFromFileObject(new SplTempFileObject());

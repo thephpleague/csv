@@ -65,6 +65,40 @@ trait ValidatorTrait
     }
 
     /**
+     * Validates the array to be used by the fetchAssoc method
+     *
+     * @param array $keys
+     *
+     * @throws InvalidArgumentException If the submitted array fails the assertion
+     *
+     * @return array
+     */
+    protected function filterHeader(array $keys): array
+    {
+        if (empty($keys)) {
+            return $keys;
+        }
+
+        if ($keys !== array_unique(array_filter($keys, [$this, 'isValidKey']))) {
+            throw new InvalidArgumentException('Use a flat array with unique string values');
+        }
+
+        return $keys;
+    }
+
+    /**
+     * Returns whether the submitted value can be used as string
+     *
+     * @param mixed $value
+     *
+     * @return bool
+     */
+    protected function isValidKey(string $value)
+    {
+        return is_scalar($value) || (is_object($value) && method_exists($value, '__toString'));
+    }
+
+    /**
      * Strip the BOM sequence from a record
      *
      * @param string[] $row

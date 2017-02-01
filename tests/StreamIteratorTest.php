@@ -35,11 +35,6 @@ class StreamIteratorTest extends PHPUnit_Framework_TestCase
         Reader::createFromStream($path);
     }
 
-    public function testStreamIteratorIterator()
-    {
-        $this->assertCount(1, $this->csv->setLimit(1)->fetchAll());
-    }
-
     /**
      * @expectedException InvalidArgumentException
      */

@@ -30,6 +30,13 @@ use SplFileObject;
 class StreamIterator implements Iterator
 {
     /**
+     * Attached filters
+     *
+     * @var resource[]
+     */
+    protected $filters;
+
+    /**
      * Stream pointer
      *
      * @var resource
@@ -98,6 +105,14 @@ class StreamIterator implements Iterator
         }
 
         $this->stream = $stream;
+    }
+
+    /**
+     * close the file pointer
+     */
+    public function __destruct()
+    {
+        $this->stream = null;
     }
 
     /**
@@ -347,10 +362,34 @@ class StreamIterator implements Iterator
     }
 
     /**
-     * close the file pointer
+     * append a filter
+     *
+     * @param string $filter_name
+     *
+     * @return resource
      */
-    public function __destruct()
+    public function appendFilter(string $filter_name, int $read_write)
     {
-        $this->stream = null;
+        return stream_filter_append($this->stream, $filter_name, $read_write);
+    }
+
+    /**
+     * prepend a filter
+     *
+     * @param string $filter_name
+     *
+     * @return resource
+     */
+    public function prependFilter(string $filter_name, int $read_write)
+    {
+        return stream_filter_prepend($this->stream, $filter_name, $read_write);
+    }
+
+    /**
+     * remove all attached filters
+     */
+    public function removeFilter($resource)
+    {
+        return stream_filter_remove($resource);
     }
 }

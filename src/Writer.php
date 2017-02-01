@@ -48,13 +48,6 @@ class Writer extends AbstractCsv
     protected $stream_filter_mode = STREAM_FILTER_WRITE;
 
     /**
-     * The CSV object holder
-     *
-     * @var SplFileObject|StreamIterator
-     */
-    protected $csv;
-
-    /**
      * fputcsv method from SplFileObject or StreamIterator
      *
      * @var ReflectionMethod
@@ -179,10 +172,10 @@ class Writer extends AbstractCsv
     protected function addRow(array $row)
     {
         $this->initCsv();
-        $this->fputcsv->invokeArgs($this->csv, $this->getFputcsvParameters($row));
+        $this->fputcsv->invokeArgs($this->document, $this->getFputcsvParameters($row));
         if ("\n" !== $this->newline) {
-            $this->csv->fseek(-1, SEEK_CUR);
-            $this->csv->fwrite($this->newline, strlen($this->newline));
+            $this->document->fseek(-1, SEEK_CUR);
+            $this->document->fwrite($this->newline, strlen($this->newline));
         }
     }
 
@@ -191,12 +184,11 @@ class Writer extends AbstractCsv
      */
     protected function initCsv()
     {
-        if (null !== $this->csv) {
+        if (null !== $this->fputcsv) {
             return;
         }
 
-        $this->csv = $this->getCsvDocument();
-        $this->fputcsv = new ReflectionMethod(get_class($this->csv), 'fputcsv');
+        $this->fputcsv = new ReflectionMethod(get_class($this->document), 'fputcsv');
         $this->fputcsv_param_count = $this->fputcsv->getNumberOfParameters();
     }
 
@@ -215,22 +207,5 @@ class Writer extends AbstractCsv
         }
 
         return $parameters;
-    }
-
-    /**
-     *  {@inheritdoc}
-     */
-    public function isActiveStreamFilter(): bool
-    {
-        return parent::isActiveStreamFilter() && null === $this->csv;
-    }
-
-    /**
-     *  {@inheritdoc}
-     */
-    public function __destruct()
-    {
-        $this->csv = null;
-        parent::__destruct();
     }
 }

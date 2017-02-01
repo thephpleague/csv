@@ -58,26 +58,6 @@ class CsvTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * @param $rawCsv
-     *
-     * @dataProvider getIso8859Csv
-     */
-    public function testJsonSerializeAffectedByReaderOptions($rawCsv)
-    {
-        $csv = Reader::createFromString($rawCsv);
-        $csv->setInputEncoding('iso-8859-15');
-        $csv->setOffset(799);
-        $csv->setLimit(50);
-        json_encode($csv);
-        $this->assertEquals(JSON_ERROR_NONE, json_last_error());
-    }
-
-    public static function getIso8859Csv()
-    {
-        return [[file_get_contents(__DIR__.'/data/prenoms.csv')]];
-    }
-
-    /**
      * @runInSeparateProcess
      */
     public function testOutputSize()

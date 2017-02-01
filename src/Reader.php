@@ -14,13 +14,12 @@ declare(strict_types=1);
 
 namespace League\Csv;
 
+use Countable;
 use DomDocument;
 use Generator;
-use InvalidArgumentException;
 use Iterator;
 use IteratorAggregate;
 use JsonSerializable;
-use League\Csv\Config\StatementTrait;
 
 /**
  *  A class to manage extracting and filtering a CSV
@@ -29,16 +28,9 @@ use League\Csv\Config\StatementTrait;
  * @since  3.0.0
  *
  */
-class Reader extends AbstractCsv implements JsonSerializable, IteratorAggregate
+class Reader extends AbstractCsv implements JsonSerializable, Countable, IteratorAggregate
 {
-    use StatementTrait;
-
-    /**
-     * Charset Encoding for the CSV
-     *
-     * @var string
-     */
-    protected $input_encoding = 'UTF-8';
+    protected static $method_list;
 
     /**
      * @inheritdoc
@@ -46,32 +38,41 @@ class Reader extends AbstractCsv implements JsonSerializable, IteratorAggregate
     protected $stream_filter_mode = STREAM_FILTER_READ;
 
     /**
-     * Gets the source CSV encoding charset
+     * Returns a collection of selected records
      *
-     * @return string
+     * @param Statement|null $stmt
+     *
+     * @return RecordSet
      */
-    public function getInputEncoding(): string
+    public function select(Statement $stmt = null): RecordSet
     {
-        return $this->input_encoding;
+        $stmt = $stmt ?: new Statement();
+
+        return $stmt->process($this);
     }
 
     /**
-     * Sets the CSV encoding charset
-     *
-     * @param string $str
-     *
-     * @return static
+     * @inheritdoc
      */
-    public function setInputEncoding(string $str): self
+    public function count(): int
     {
-        $str = str_replace('_', '-', $str);
-        $str = filter_var($str, FILTER_SANITIZE_STRING, ['flags' => FILTER_FLAG_STRIP_LOW | FILTER_FLAG_STRIP_HIGH]);
-        if (empty($str)) {
-            throw new InvalidArgumentException('you should use a valid charset');
-        }
-        $this->input_encoding = strtoupper($str);
+        return $this->select()->count();
+    }
 
-        return $this;
+    /**
+     * @inheritdoc
+     */
+    public function getIterator(): Iterator
+    {
+        return $this->select()->getIterator();
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function jsonSerialize()
+    {
+        return $this->select()->jsonSerialize();
     }
 
     /**
@@ -83,10 +84,7 @@ class Reader extends AbstractCsv implements JsonSerializable, IteratorAggregate
      */
     public function toHTML(string $class_attr = 'table-csv-data'): string
     {
-        $doc = $this->toXML('table', 'tr', 'td');
-        $doc->documentElement->setAttribute('class', $class_attr);
-
-        return $doc->saveHTML($doc->documentElement);
+        return $this->select()->toHTML($class_attr);
     }
 
     /**
@@ -100,53 +98,7 @@ class Reader extends AbstractCsv implements JsonSerializable, IteratorAggregate
      */
     public function toXML(string $root_name = 'csv', string $row_name = 'row', string $cell_name = 'cell'): DomDocument
     {
-        $doc = new DomDocument('1.0', 'UTF-8');
-        $root = $doc->createElement($root_name);
-        foreach ($this->convertToUtf8($this->getIterator()) as $row) {
-            $rowElement = $doc->createElement($row_name);
-            array_walk($row, function ($value) use (&$rowElement, $doc, $cell_name) {
-                $content = $doc->createTextNode($value);
-                $cell = $doc->createElement($cell_name);
-                $cell->appendChild($content);
-                $rowElement->appendChild($cell);
-            });
-            $root->appendChild($rowElement);
-        }
-        $doc->appendChild($root);
-
-        return $doc;
-    }
-
-    /**
-     * Convert Csv file into UTF-8
-     *
-     * @param Iterator $iterator
-     *
-     * @return Iterator
-     */
-    protected function convertToUtf8(Iterator $iterator): Iterator
-    {
-        if (stripos($this->input_encoding, 'UTF-8') !== false) {
-            return $iterator;
-        }
-
-        $convert_cell = function ($value) {
-            return mb_convert_encoding($value, 'UTF-8', $this->input_encoding);
-        };
-
-        $convert_row = function (array $row) use ($convert_cell) {
-            return array_map($convert_cell, $row);
-        };
-
-        return new MapIterator($iterator, $convert_row);
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function jsonSerialize()
-    {
-        return iterator_to_array($this->convertToUtf8($this->getIterator()), false);
+        return $this->select()->toXML($root_name, $row_name, $cell_name);
     }
 
     /**
@@ -158,7 +110,7 @@ class Reader extends AbstractCsv implements JsonSerializable, IteratorAggregate
      */
     public function fetchAll(): array
     {
-        return iterator_to_array($this->getIterator(), false);
+        return $this->select()->fetchAll();
     }
 
     /**
@@ -172,12 +124,7 @@ class Reader extends AbstractCsv implements JsonSerializable, IteratorAggregate
      */
     public function fetchOne(int $offset = 0): array
     {
-        $this->setOffset($offset);
-        $this->setLimit(1);
-        $iterator = $this->getIterator();
-        $iterator->rewind();
-
-        return (array) $iterator->current();
+        return $this->select()->fetchOne($offset);
     }
 
     /**
@@ -193,46 +140,7 @@ class Reader extends AbstractCsv implements JsonSerializable, IteratorAggregate
      */
     public function fetchColumn($column_index = 0): Iterator
     {
-        $column_index = $this->getFieldIndex($column_index, 'the column index value is invalid');
-        $filter = function (array $row) use ($column_index) {
-            return isset($row[$column_index]);
-        };
-
-        $select = function ($row) use ($column_index) {
-            return $row[$column_index];
-        };
-
-        $this->addFilter($filter);
-
-        return new MapIterator($this->getIterator(), $select);
-    }
-
-    /**
-     * Filter a field name against the CSV header if any
-     *
-     * @param string|int $field         the field name or the field index
-     * @param string     $error_message the associated error message
-     *
-     * @throws InvalidArgumentException if the field is invalid
-     *
-     * @return string|int
-     */
-    protected function getFieldIndex($field, $error_message)
-    {
-        if (false !== array_search($field, $this->header, true)) {
-            return $field;
-        }
-
-        $index = $this->filterInteger($field, 0, $error_message);
-        if (empty($this->header)) {
-            return $index;
-        }
-
-        if (false !== ($index = array_search($index, array_flip($this->header), true))) {
-            return $index;
-        }
-
-        throw new InvalidArgumentException($error_message);
+        return $this->select()->fetchColumn($column_index);
     }
 
     /**
@@ -248,21 +156,8 @@ class Reader extends AbstractCsv implements JsonSerializable, IteratorAggregate
      *
      * @return Generator
      */
-    public function fetchPairs($offset_index = 0, $value_index = 1): Generator
+    public function fetchPairs($offset_index = 0, $value_index = 1)
     {
-        $offset = $this->getFieldIndex($offset_index, 'the offset index value is invalid');
-        $value = $this->getFieldIndex($value_index, 'the value index value is invalid');
-        $filter = function ($row) use ($offset) {
-            return isset($row[$offset]);
-        };
-
-        $select = function ($row) use ($offset, $value) {
-            return [$row[$offset], isset($row[$value]) ? $row[$value] : null];
-        };
-
-        $this->addFilter($filter);
-        foreach (new MapIterator($this->getIterator(), $select) as $row) {
-            yield $row[0] => $row[1];
-        }
+        return $this->select()->fetchPairs($offset_index, $value_index);
     }
 }

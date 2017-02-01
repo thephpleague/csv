@@ -35,7 +35,6 @@ class WriterTest extends PHPUnit_Framework_TestCase
         $this->assertTrue($csv->isActiveStreamFilter());
         $csv->appendStreamFilter('string.toupper');
         $csv->insertOne(['jane', 'doe', 'jane@example.com']);
-        $this->assertFalse($csv->isActiveStreamFilter());
         $this->assertContains('JANE,DOE,JANE@EXAMPLE.COM', (string) $csv);
     }
 

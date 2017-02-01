@@ -14,6 +14,7 @@ declare(strict_types=1);
 
 namespace League\Csv;
 
+use InvalidArgumentException;
 use League\Csv\Config\ControlsTrait;
 use League\Csv\Config\StreamTrait;
 use SplFileObject;
@@ -56,29 +57,18 @@ abstract class AbstractCsv
     const BOM_UTF32_LE = "\xFF\xFE\x00\x00";
 
     /**
-     * The file open mode flag
-     *
-     * @var string
-     */
-    protected $open_mode;
-
-    /**
      * Creates a new instance
      *
      * The file path can be:
      *
-     * - a string
      * - a SplFileObject
      * - a StreamIterator
      *
-     * @param mixed  $path      The file path
-     * @param string $open_mode The file open mode flag
+     * @param SplFileObject|StreamIterator $document The CSV Object instance
      */
-    protected function __construct($path, string $open_mode = 'r+')
+    protected function __construct($document)
     {
-        $this->open_mode = strtolower($open_mode);
-        $this->path = $path;
-        $this->initStreamFilter();
+        $this->document = $document;
     }
 
     /**
@@ -86,7 +76,21 @@ abstract class AbstractCsv
      */
     public function __destruct()
     {
-        $this->path = null;
+        if ($this->isActiveStreamFilter()) {
+            $this->clearStreamFilter();
+        }
+
+        $this->document = null;
+    }
+
+    /**
+     * Set the Inner Iterator
+     *
+     * @return StreamIterator|SplFileObject
+     */
+    public function getDocument()
+    {
+        return $this->document;
     }
 
     /**
@@ -149,26 +153,28 @@ abstract class AbstractCsv
      */
     public static function createFromPath(string $path, string $open_mode = 'r+'): self
     {
-        return new static($path, $open_mode);
+        $stream = fopen($path, $open_mode);
+
+        return new static(new StreamIterator($stream));
     }
 
     /**
      * Return a new {@link AbstractCsv} instance from another {@link AbstractCsv} object
      *
-     * @param string $class     the class to be instantiated
-     * @param string $open_mode the file open mode flag
+     * @param string $class the class to be instantiated
      *
      * @return static
      */
-    protected function newInstance(string $class, string $open_mode): self
+    protected function newInstance(string $class): self
     {
-        $csv = new $class($this->path, $open_mode);
+        $csv = new $class($this->document);
         $csv->delimiter = $this->delimiter;
         $csv->enclosure = $this->enclosure;
         $csv->escape = $this->escape;
         $csv->input_bom = $this->input_bom;
         $csv->output_bom = $this->output_bom;
         $csv->newline = $this->newline;
+        $csv->clearStreamFilter();
 
         return $csv;
     }
@@ -176,39 +182,64 @@ abstract class AbstractCsv
     /**
      * Return a new {@link Writer} instance from a {@link AbstractCsv} object
      *
-     * @param string $open_mode the file open mode flag
-     *
      * @return Writer
      */
-    public function newWriter(string $open_mode = 'r+'): self
+    public function newWriter(): self
     {
-        return $this->newInstance(Writer::class, $open_mode);
+        return $this->newInstance(Writer::class);
     }
 
     /**
      * Return a new {@link Reader} instance from a {@link AbstractCsv} object
      *
-     * @param string $open_mode the file open mode flag
-     *
      * @return Reader
      */
-    public function newReader(string $open_mode = 'r+'): self
+    public function newReader(): self
     {
-        return $this->newInstance(Reader::class, $open_mode);
+        return $this->newInstance(Reader::class);
     }
 
     /**
-     * Set the Inner Iterator
+     * Returns the header
      *
-     * @return StreamIterator|SplFileObject
+     * If no CSV record is used this method MUST return an empty array
+     *
+     * @return string[]
      */
-    protected function getCsvDocument()
+    public function getHeader(): array
     {
-        if ($this->path instanceof StreamIterator || $this->path instanceof SplFileObject) {
-            return $this->path;
+        if (null === $this->header_offset) {
+            return [];
         }
 
-        return new SplFileObject($this->getStreamFilterPath(), $this->open_mode);
+        return $this->filterHeader($this->getRow($this->header_offset));
+    }
+
+    /**
+     * Returns a single row from the CSV without filtering
+     *
+     * @param int $offset
+     *
+     * @throws InvalidArgumentException If the $offset is not valid or the row does not exist
+     *
+     * @return array
+     */
+    protected function getRow(int $offset): array
+    {
+        $csv = $this->getDocument();
+        $csv->setFlags(SplFileObject::READ_CSV);
+        $csv->setCsvControl($this->delimiter, $this->enclosure, $this->escape);
+        $csv->seek($offset);
+        $row = $csv->current();
+        if (empty($row) || [null] === $row) {
+            throw new InvalidArgumentException('the specified row does not exist or is empty');
+        }
+
+        if (0 != $offset) {
+            return $row;
+        }
+
+        return $this->removeBOM($row, mb_strlen($this->getInputBOM()), $this->enclosure);
     }
 
     /**
@@ -244,7 +275,7 @@ abstract class AbstractCsv
         if ($this->output_bom && $input_bom != $this->output_bom) {
             $bom = $this->output_bom;
         }
-        $csv = $this->getCsvDocument();
+        $csv = $this->getDocument();
         $csv->rewind();
         if ('' !== $bom) {
             $csv->fseek(mb_strlen($input_bom));

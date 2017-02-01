@@ -79,18 +79,11 @@ trait ControlsTrait
     protected $header_offset;
 
     /**
-     * CSV Document header
-     *
-     * @var string[]
-     */
-    protected $header = [];
-
-    /**
      * Returns the inner CSV Document Iterator object
      *
      * @return StreamIterator|SplFileObject
      */
-    abstract public function getCsvDocument();
+    abstract public function getDocument();
 
     /**
      * Returns the current field delimiter
@@ -143,6 +136,18 @@ trait ControlsTrait
     }
 
     /**
+     * Returns the record offset used as header
+     *
+     * If no CSV record is used this method MUST return null
+     *
+     * @return int|null
+     */
+    public function getHeaderOffset()
+    {
+        return $this->header_offset;
+    }
+
+    /**
      * Returns the BOM sequence of the given CSV
      *
      * @return string
@@ -154,7 +159,7 @@ trait ControlsTrait
                 AbstractCsv::BOM_UTF32_BE, AbstractCsv::BOM_UTF32_LE,
                 AbstractCsv::BOM_UTF16_BE, AbstractCsv::BOM_UTF16_LE, AbstractCsv::BOM_UTF8,
             ];
-            $csv = $this->getCsvDocument();
+            $csv = $this->getDocument();
             $csv->setFlags(SplFileObject::READ_CSV);
             $csv->rewind();
             $line = $csv->fgets();
@@ -166,22 +171,6 @@ trait ControlsTrait
         }
 
         return $this->input_bom;
-    }
-
-    /**
-     * Sets the field delimiter
-     *
-     * @param string $delimiter
-     *
-     * @throws InvalidArgumentException If $delimiter is not a single character
-     *
-     * @return $this
-     */
-    public function setDelimiter(string $delimiter): self
-    {
-        $this->delimiter = $this->filterControl($delimiter, 'delimiter');
-
-        return $this;
     }
 
     /**
@@ -204,7 +193,7 @@ trait ControlsTrait
         $delimiters = array_unique(array_filter($delimiters, function ($value) {
             return 1 == strlen($value);
         }));
-        $csv = $this->getCsvDocument();
+        $csv = $this->getDocument();
         $csv->setFlags(SplFileObject::READ_CSV);
         $res = [];
         foreach ($delimiters as $delim) {
@@ -215,6 +204,22 @@ trait ControlsTrait
         arsort($res, SORT_NUMERIC);
 
         return $res;
+    }
+
+    /**
+     * Sets the field delimiter
+     *
+     * @param string $delimiter
+     *
+     * @throws InvalidArgumentException If $delimiter is not a single character
+     *
+     * @return $this
+     */
+    public function setDelimiter(string $delimiter): self
+    {
+        $this->delimiter = $this->filterControl($delimiter, 'delimiter');
+
+        return $this;
     }
 
     /**
@@ -284,83 +289,6 @@ trait ControlsTrait
     }
 
     /**
-     * Returns the record offset used as header
-     *
-     * If no CSV record is used this method MUST return null
-     *
-     * @return int|null
-     */
-    public function getHeaderOffset()
-    {
-        return $this->header_offset;
-    }
-
-    /**
-     * Returns the header
-     *
-     * If no CSV record is used this method MUST return an empty array
-     *
-     * @return string[]
-     */
-    public function getHeader(): array
-    {
-        if (null !== $this->header_offset) {
-            $this->header = $this->filterHeader($this->getRow($this->header_offset));
-        }
-
-        return $this->header;
-    }
-
-    /**
-     * Returns a single row from the CSV without filtering
-     *
-     * @param int $offset
-     *
-     * @throws InvalidArgumentException If the $offset is not valid or the row does not exist
-     *
-     * @return array
-     */
-    protected function getRow(int $offset): array
-    {
-        $csv = $this->getCsvDocument();
-        $csv->setFlags(SplFileObject::READ_CSV);
-        $csv->setCsvControl($this->delimiter, $this->enclosure, $this->escape);
-        $csv->seek($offset);
-        $row = $csv->current();
-        if (empty($row) || [null] === $row) {
-            throw new InvalidArgumentException('the specified row does not exist or is empty');
-        }
-
-        if (0 != $offset) {
-            return $row;
-        }
-
-        return $this->removeBOM($row, mb_strlen($this->getInputBOM()), $this->enclosure);
-    }
-
-    /**
-     * Validates the array to be used by the fetchAssoc method
-     *
-     * @param array $keys
-     *
-     * @throws InvalidArgumentException If the submitted array fails the assertion
-     *
-     * @return array
-     */
-    protected function filterHeader(array $keys): array
-    {
-        if (empty($keys)) {
-            return $keys;
-        }
-
-        if ($keys !== array_unique(array_filter($keys, [$this, 'isValidKey']))) {
-            throw new InvalidArgumentException('Use a flat array with unique string values');
-        }
-
-        return $keys;
-    }
-
-    /**
      * Selects the array to be used as key for the fetchAssoc method
      *
      * Because of the header is represented as an array, to be valid
@@ -372,32 +300,21 @@ trait ControlsTrait
      * <li>If an empty array or null is given it will mean that no header is used</li>
      * </ul>
      *
-     * @param int|null|string[] $offset_or_keys the assoc key OR the row Index to be used
-     *                                          as the key index
+     * @param int|null $offset_or_keys the assoc key OR the row Index to be used
+     *                                 as the key index
      *
      * @return $this
      */
-    public function setHeader($offset_or_keys): self
+    public function setHeaderOffset(int $offset = null): self
     {
-        if (is_array($offset_or_keys)) {
-            $this->header = $this->filterHeader($offset_or_keys);
-            $this->header_offset = null;
-
-            return $this;
+        $this->header_offset = null;
+        if (null !== $offset) {
+            $this->header_offset = $this->filterInteger(
+                $offset,
+                0,
+                'the header offset index must be a positive integer or 0'
+            );
         }
-
-        if (null === $offset_or_keys) {
-            $this->header = [];
-            $this->header_offset = null;
-
-            return $this;
-        }
-
-        $this->header_offset = $this->filterInteger(
-            $offset_or_keys,
-            0,
-            'the row index must be a positive integer, 0 or a non empty array'
-        );
 
         return $this;
     }
