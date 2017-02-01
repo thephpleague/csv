@@ -30,8 +30,6 @@ use JsonSerializable;
  */
 class Reader extends AbstractCsv implements JsonSerializable, Countable, IteratorAggregate
 {
-    protected static $method_list;
-
     /**
      * @inheritdoc
      */
