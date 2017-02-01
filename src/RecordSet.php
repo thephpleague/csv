@@ -207,8 +207,6 @@ class RecordSet implements JsonSerializable, IteratorAggregate, Countable
     /**
      * Returns a sequential array of all CSV lines
      *
-     * The callable function will be applied to each Iterator item
-     *
      * @return array
      */
     public function fetchAll(): array
@@ -236,8 +234,6 @@ class RecordSet implements JsonSerializable, IteratorAggregate, Countable
 
     /**
      * Returns the next value from a single CSV column
-     *
-     * The callable function will be applied to each value to be return
      *
      * By default if no column index is provided the first column of the CSV is selected
      *
