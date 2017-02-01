@@ -88,6 +88,16 @@ class CsvTest extends PHPUnit_Framework_TestCase
     /**
      * @runInSeparateProcess
      */
+    public function testOutputFileExists()
+    {
+        $file = __DIR__.'/data/test.csv';
+        $this->csv->outputFile($file);
+        $this->assertTrue(file_exists($file));
+    }
+
+    /**
+     * @runInSeparateProcess
+     */
     public function testOutputHeaders()
     {
         if (!function_exists('xdebug_get_headers')) {

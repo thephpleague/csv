@@ -1,16 +1,16 @@
 <?php
 /**
-* This file is part of the League.csv library
-*
-* @license http://opensource.org/licenses/MIT
-* @link https://github.com/thephpleague/csv/
-* @version 9.0.0
-* @package League.csv
-*
-* For the full copyright and license information, please view the LICENSE
-* file that was distributed with this source code.
-*/
-declare(strict_types=1);
+ * This file is part of the League.csv library
+ *
+ * @license http://opensource.org/licenses/MIT
+ * @link https://github.com/thephpleague/csv/
+ * @version 9.0.0
+ * @package League.csv
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+declare(strict_types = 1);
 
 namespace League\Csv;
 
@@ -71,7 +71,7 @@ abstract class AbstractCsv
      * - a SplFileObject
      * - a StreamIterator
      *
-     * @param mixed  $path      The file path
+     * @param mixed $path The file path
      * @param string $open_mode The file open mode flag
      */
     protected function __construct($path, string $open_mode = 'r+')
@@ -142,7 +142,7 @@ abstract class AbstractCsv
     /**
      * Return a new {@link AbstractCsv} from a file path
      *
-     * @param string $path      file path
+     * @param string $path file path
      * @param string $open_mode the file open mode flag
      *
      * @return static
@@ -155,7 +155,7 @@ abstract class AbstractCsv
     /**
      * Return a new {@link AbstractCsv} instance from another {@link AbstractCsv} object
      *
-     * @param string $class     the class to be instantiated
+     * @param string $class the class to be instantiated
      * @param string $open_mode the file open mode flag
      *
      * @return static
@@ -230,6 +230,60 @@ abstract class AbstractCsv
 
         return $this->fpassthru();
     }
+
+    /**
+     * Outputs all data on the csv file to disk
+     *
+     * @param string $filename CSV File to be saved on disk
+     *
+     * @return int Returns the file
+     */
+    public function outputFile(string $filename): int
+    {
+        if (null !== $filename) {
+            $filename = filter_var($filename, FILTER_SANITIZE_STRING, FILTER_FLAG_STRIP_LOW);
+        }
+
+        return $this->saveTofile($filename);
+
+    }
+
+    /**
+     * Save csv to file in the disk
+     *
+     * @param string $filename CSV File to be saved on disk
+     *
+     * @return int Return the size of file
+     */
+    protected function saveTofile(string $filename): int
+    {
+        $bom = '';
+        $input_bom = $this->getInputBOM();
+        if ($this->output_bom && $input_bom != $this->output_bom) {
+            $bom = $this->output_bom;
+        }
+        $csv = $this->getCsvDocument();
+        $csv->rewind();
+        if ('' !== $bom) {
+            $csv->fseek(mb_strlen($input_bom));
+        } else {
+            $csv->fseek(0);
+        }
+
+        $filesize = 0;
+        $outputFile = new SplFileObject($filename, 'w+');
+
+        while (!$csv->eof()) {
+            $line = $csv->fgets();
+            $outputFile->fwrite($line, strlen($line));
+            $filesize += strlen($line);
+        }
+
+        $outputFile->fflush();
+
+        return $filesize;
+    }
+
 
     /**
      * Outputs all data from the CSV
