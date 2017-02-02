@@ -68,20 +68,6 @@ class Statement
     protected $headers = [];
 
     /**
-     * Conversion Input Encoding mode in
-     * respect to BOM encoding
-     *
-     * @var array
-     */
-    protected $bom_conversion_mode = [
-        AbstractCsv::BOM_UTF32_BE => 'UTF-32BE',
-        AbstractCsv::BOM_UTF32_LE => 'UTF-32LE',
-        AbstractCsv::BOM_UTF16_BE => 'UTF-16BE',
-        AbstractCsv::BOM_UTF16_LE => 'UTF-16LE',
-        AbstractCsv::BOM_UTF8 => 'UTF-8',
-    ];
-
-    /**
      * Set LimitIterator Offset
      *
      * @param $offset
@@ -159,7 +145,6 @@ class Statement
     public function process(Reader $reader)
     {
         $bom = $reader->getInputBOM();
-        $input_encoding = $this->bom_conversion_mode[$bom] ?? 'UTF-8';
         $enclosure = $reader->getEnclosure();
         $this->prepare($reader);
 
@@ -169,9 +154,8 @@ class Statement
         $iterator = $this->addHeader($iterator);
         $iterator = $this->filterRecords($iterator);
         $iterator = $this->orderRecords($iterator);
-        $records = new RecordSet(new LimitIterator($iterator, $this->offset, $this->limit), $this->headers);
 
-        return $records->setInputEncoding($input_encoding);
+        return new RecordSet(new LimitIterator($iterator, $this->offset, $this->limit), $this->headers);
     }
 
     /**
