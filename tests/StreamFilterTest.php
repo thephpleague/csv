@@ -5,7 +5,6 @@ namespace LeagueTest\Csv;
 use League\Csv\Reader;
 use League\Csv\Writer;
 use PHPUnit_Framework_TestCase;
-use SplFileObject;
 use SplTempFileObject;
 
 /**
@@ -13,15 +12,6 @@ use SplTempFileObject;
  */
 class StreamFilterTest extends PHPUnit_Framework_TestCase
 {
-    public function testInitStreamFilterWithSplFileObject()
-    {
-        $this->assertSame(
-            STREAM_FILTER_READ,
-            Reader::createFromFileObject(new SplFileObject(__DIR__.'/data/foo.csv'))
-                ->getStreamFilterMode()
-        );
-    }
-
     public function testappendStreamFilter()
     {
         $csv = Reader::createFromPath(__DIR__.'/data/foo.csv');
@@ -29,6 +19,15 @@ class StreamFilterTest extends PHPUnit_Framework_TestCase
         foreach ($csv->getIterator() as $row) {
             $this->assertSame($row, ['JOHN', 'DOE', 'JOHN.DOE@EXAMPLE.COM']);
         }
+    }
+
+    public function testStreamFilterDetection()
+    {
+        $filtername = 'string.toupper';
+        $csv = Reader::createFromPath(__DIR__.'/data/foo.csv');
+        $this->assertFalse($csv->hasStreamFilter($filtername));
+        $csv->appendStreamFilter($filtername);
+        $this->assertTrue($csv->hasStreamFilter($filtername));
     }
 
     /**
@@ -49,6 +48,12 @@ class StreamFilterTest extends PHPUnit_Framework_TestCase
         $csv = Writer::createFromFileObject(new SplTempFileObject());
         $this->assertFalse($csv->isActiveStreamFilter());
         $csv->appendStreamFilter('string.toupper');
+    }
+
+    public function testRemoveStreamFilterAlwaysWorks()
+    {
+        $csv = Writer::createFromFileObject(new SplTempFileObject());
+        $csv->removeStreamFilter('string.toupper');
     }
 
     public function testClearAttachedStreamFilters()

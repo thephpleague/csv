@@ -27,6 +27,14 @@ class StreamIteratorTest extends PHPUnit_Framework_TestCase
     }
 
     /**
+     * @expectedException LogicException
+     */
+    public function testCloningIsForbidden()
+    {
+        $toto = clone new StreamIterator(fopen('php://temp', 'r+'));
+    }
+
+    /**
      * @expectedException InvalidArgumentException
      */
     public function testCreateFromStreamWithInvalidParameter()

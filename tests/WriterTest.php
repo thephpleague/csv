@@ -33,6 +33,7 @@ class WriterTest extends PHPUnit_Framework_TestCase
     {
         $csv = Writer::createFromPath(__DIR__.'/data/foo.csv');
         $this->assertTrue($csv->isActiveStreamFilter());
+        $csv->setFlushThreshold(1);
         $csv->appendStreamFilter('string.toupper');
         $csv->insertOne(['jane', 'doe', 'jane@example.com']);
         $this->assertContains('JANE,DOE,JANE@EXAMPLE.COM', (string) $csv);

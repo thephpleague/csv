@@ -391,4 +391,22 @@ class StreamIterator implements Iterator
     {
         return stream_filter_remove($resource);
     }
+
+    /**
+     * Flushes the output to a file
+     *
+     * @return bool
+     */
+    public function fflush()
+    {
+        return fflush($this->stream);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function __clone()
+    {
+        throw new LogicException('An object of class '.StreamIterator::class.' cannot be cloned');
+    }
 }

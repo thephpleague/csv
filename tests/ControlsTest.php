@@ -56,6 +56,16 @@ class ControlsTest extends PHPUnit_Framework_TestCase
         $this->assertSame('', $this->csv->getOutputBOM());
     }
 
+    /**
+     * @expectedException InvalidArgumentException
+     */
+    public function testFflusThreshold()
+    {
+        $this->csv->setFlushThreshold(12);
+        $this->assertSame(12, $this->csv->getFlushThreshold());
+        $this->csv->setFlushThreshold(-1);
+    }
+
     public function testAddBOMSequences()
     {
         $this->csv->setOutputBOM(Reader::BOM_UTF8);

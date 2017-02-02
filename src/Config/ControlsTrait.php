@@ -79,6 +79,13 @@ trait ControlsTrait
     protected $header_offset;
 
     /**
+     * Buffer flush threshold
+     *
+     * @var int
+     */
+    protected $flush_threshold = 500;
+
+    /**
      * Returns the inner CSV Document Iterator object
      *
      * @return StreamIterator|SplFileObject
@@ -123,6 +130,16 @@ trait ControlsTrait
     public function getNewline(): string
     {
         return $this->newline;
+    }
+
+    /**
+     * Get the flush threshold
+     *
+     * @return int
+     */
+    public function getFlushThreshold(): int
+    {
+        return $this->flush_threshold;
     }
 
     /**
@@ -269,6 +286,18 @@ trait ControlsTrait
     }
 
     /**
+     * Set the automatic flush threshold on write
+     *
+     * @param int $threshold
+     */
+    public function setFlushThreshold(int $threshold): self
+    {
+        $this->flush_threshold = $this->filterInteger($threshold, 0, 'The flush threshold must be a valid positive integer or 0');
+
+        return $this;
+    }
+
+    /**
      * Sets the BOM sequence to prepend the CSV on output
      *
      * @param string $str The BOM sequence
@@ -310,17 +339,5 @@ trait ControlsTrait
         }
 
         return $this;
-    }
-
-    /**
-     * Returns whether the submitted value can be used as string
-     *
-     * @param mixed $value
-     *
-     * @return bool
-     */
-    protected function isValidKey($value): bool
-    {
-        return is_scalar($value) || (is_object($value) && method_exists($value, '__toString'));
     }
 }

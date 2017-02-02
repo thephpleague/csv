@@ -14,8 +14,6 @@ declare(strict_types=1);
 
 namespace League\Csv;
 
-use ReflectionMethod;
-use SplFileObject;
 use Traversable;
 
 /**
@@ -28,14 +26,14 @@ use Traversable;
 class Writer extends AbstractCsv
 {
     /**
-     * Callables to validate the row before insertion
+     * Callables to validate the record before insertion
      *
      * @var callable[]
      */
     protected $validators = [];
 
     /**
-     * Callables to format the row before insertion
+     * Callables to format the record before insertion
      *
      * @var callable[]
      */
@@ -47,18 +45,11 @@ class Writer extends AbstractCsv
     protected $stream_filter_mode = STREAM_FILTER_WRITE;
 
     /**
-     * fputcsv method from SplFileObject or StreamIterator
+     * Insert Rows count
      *
-     * @var ReflectionMethod
+     * @var int
      */
-    protected $fputcsv;
-
-    /**
-     * Nb parameters for SplFileObject::fputcsv method
-     *
-     * @var integer
-     */
-    protected $fputcsv_param_count;
+    protected $insert_count = 0;
 
     /**
      * add a formatter to the collection
@@ -116,15 +107,24 @@ class Writer extends AbstractCsv
     /**
      * Adds a single line to a CSV document
      *
-     * @param string[]|string $row a string, an array or an object implementing to '__toString' method
+     * @param string[] $row a string, an array or an object implementing to '__toString' method
      *
      * @return static
      */
     public function insertOne(array $row): self
     {
-        $row = $this->formatRow($row);
-        $this->validateRow($row);
-        $this->addRow($row);
+        $row = array_reduce($this->formatters, [$this, 'formatRecord'], $row);
+        $this->validateRecord($row);
+        $this->document->fputcsv($row, $this->delimiter, $this->enclosure, $this->escape);
+        if ("\n" !== $this->newline) {
+            $this->document->fseek(-1, SEEK_CUR);
+            $this->document->fwrite($this->newline, strlen($this->newline));
+        }
+
+        $this->insert_count++;
+        if (0 === $this->insert_count % $this->flush_threshold) {
+            $this->document->fflush();
+        }
 
         return $this;
     }
@@ -132,17 +132,14 @@ class Writer extends AbstractCsv
     /**
      * Format the given row
      *
-     * @param array $row
+     * @param string[] $row
+     * @param callable $formatter
      *
-     * @return array
+     * @return string[]
      */
-    protected function formatRow(array $row): array
+    protected function formatRecord(array $row, callable $formatter): array
     {
-        $reducer = function (array $row, callable $formatter) {
-            return $formatter($row);
-        };
-
-        return array_reduce($this->formatters, $reducer, $row);
+        return $formatter($row);
     }
 
     /**
@@ -152,57 +149,12 @@ class Writer extends AbstractCsv
     *
     * @throws InvalidRowException If the validation failed
     */
-    protected function validateRow(array $row)
+    protected function validateRecord(array $row)
     {
         foreach ($this->validators as $name => $validator) {
             if (true !== $validator($row)) {
                 throw new InvalidRowException($name, $row, 'row validation failed');
             }
         }
-    }
-
-    /**
-     * Add new record to the CSV document
-     *
-     * @param array $row record to add
-     */
-    protected function addRow(array $row)
-    {
-        $this->init();
-        $this->fputcsv->invokeArgs($this->document, $this->getFputcsvParameters($row));
-        if ("\n" !== $this->newline) {
-            $this->document->fseek(-1, SEEK_CUR);
-            $this->document->fwrite($this->newline, strlen($this->newline));
-        }
-    }
-
-    /**
-     * Initialize the CSV object and settings
-     */
-    protected function init()
-    {
-        if (null !== $this->fputcsv) {
-            return;
-        }
-
-        $this->fputcsv = new ReflectionMethod(get_class($this->document), 'fputcsv');
-        $this->fputcsv_param_count = $this->fputcsv->getNumberOfParameters();
-    }
-
-    /**
-     * returns the parameters for SplFileObject::fputcsv
-     *
-     * @param array $fields The fields to be add
-     *
-     * @return array
-     */
-    protected function getFputcsvParameters(array $fields): array
-    {
-        $parameters = [$fields, $this->delimiter, $this->enclosure];
-        if (4 == $this->fputcsv_param_count) {
-            $parameters[] = $this->escape;
-        }
-
-        return $parameters;
     }
 }

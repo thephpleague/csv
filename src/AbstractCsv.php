@@ -173,6 +173,7 @@ abstract class AbstractCsv
         $csv->input_bom = $this->input_bom;
         $csv->output_bom = $this->output_bom;
         $csv->newline = $this->newline;
+        $csv->flush_threshold = $this->flush_threshold;
         $csv->clearStreamFilter();
 
         return $csv;

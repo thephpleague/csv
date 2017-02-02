@@ -37,16 +37,91 @@ trait StreamTrait
     protected $document;
 
     /**
-     * The CSV stream filter mode
-     */
-    protected $stream_filter_mode;
-
-    /**
      * collection of stream filters
      *
      * @var array
      */
     protected $stream_filters = [];
+
+    /**
+     * The stream filter mode (read or write)
+     */
+    protected $stream_filter_mode;
+
+    /**
+     * Tells whether the stream filter capabilities can be used
+     *
+     * @return bool
+     */
+    public function isActiveStreamFilter(): bool
+    {
+        return $this->document instanceof StreamIterator;
+    }
+
+    /**
+     * Tell whether the specify stream filter is attach to the current stream
+     *
+     * @return bool
+     */
+    public function hasStreamFilter(string $filter_name): bool
+    {
+        return isset($this->stream_filters[$filter_name]);
+    }
+
+    /**
+     * Remove all registered stream filter
+     *
+     * @return $this
+     */
+    public function clearStreamFilter(): self
+    {
+        foreach (array_keys($this->stream_filters) as $filter_name) {
+            $this->removeStreamFilter($filter_name);
+        }
+
+        $this->stream_filters = [];
+
+        return $this;
+    }
+
+    /**
+     * Remove all the stream filter with the same name
+     *
+     * @param string $filter_name the stream filter name
+     *
+     * @return $this
+     */
+    public function removeStreamFilter(string $filter_name): self
+    {
+        if (!isset($this->stream_filters[$filter_name])) {
+            return $this;
+        }
+
+        foreach ($this->stream_filters[$filter_name] as $filter) {
+            $this->document->removeFilter($filter);
+        }
+
+        unset($this->stream_filters[$filter_name]);
+        return $this;
+    }
+
+    /**
+     * append a stream filter
+     *
+     * @param string $filter_name a string or an object that implements the '__toString' method
+     *
+     * @return $this
+     */
+    public function appendStreamFilter(string $filter_name): self
+    {
+        $this->assertStreamable();
+        $this->stream_filters[$filter_name][] = $this->document->appendFilter(
+            $filter_name,
+            $this->stream_filter_mode
+        );
+
+        return $this;
+    }
 
     /**
      * Check if the trait methods can be used
@@ -61,71 +136,19 @@ trait StreamTrait
     }
 
     /**
-     * Tells whether the stream filter capabilities can be used
-     *
-     * @return bool
-     */
-    public function isActiveStreamFilter(): bool
-    {
-        return $this->document instanceof StreamIterator;
-    }
-
-    /**
-     * stream filter mode getter
-     *
-     * @return int
-     */
-    public function getStreamFilterMode(): int
-    {
-        return $this->stream_filter_mode;
-    }
-
-    /**
-     * append a stream filter
-     *
-     * @param string $filter_name a string or an object that implements the '__toString' method
-     *
-     * @return $this
-     */
-    public function appendStreamFilter(string $filter_name): self
-    {
-        $this->assertStreamable();
-        $this->stream_filters[] = $this->document->appendFilter($filter_name, $this->stream_filter_mode);
-
-        return $this;
-    }
-
-    /**
      * prepend a stream filter
      *
-     * @param string $filter_name a string or an object that implements the '__toString' method
+     * @param string $filter_name the stream filter name
      *
      * @return $this
      */
     public function prependStreamFilter(string $filter_name): self
     {
         $this->assertStreamable();
-        $this->stream_filters[] = $this->document->prependFilter($filter_name, $this->stream_filter_mode);
-
-        return $this;
-    }
-
-    /**
-     * Remove all registered stream filter
-     *
-     * @return $this
-     */
-    public function clearStreamFilter(): self
-    {
-        if (!$this->isActiveStreamFilter()) {
-            return $this;
-        }
-
-        foreach ($this->stream_filters as $filter) {
-            $this->document->removeFilter($filter);
-        }
-
-        $this->stream_filters = [];
+        $this->stream_filters[$filter_name][] = $this->document->prependFilter(
+            $filter_name,
+            $this->stream_filter_mode
+        );
 
         return $this;
     }
