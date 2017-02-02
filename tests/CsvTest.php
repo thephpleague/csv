@@ -2,11 +2,10 @@
 
 namespace LeagueTest\Csv;
 
-use DOMDocument;
-use IteratorAggregate;
-use JsonSerializable;
 use League\Csv\Reader;
+use LogicException;
 use PHPUnit_Framework_TestCase;
+use RuntimeException;
 use SplTempFileObject;
 
 /**
@@ -36,25 +35,16 @@ class CsvTest extends PHPUnit_Framework_TestCase
         $this->csv = null;
     }
 
-    public function testInterface()
+    public function testCreateFromPathThrowsRuntimeException()
     {
-        $this->assertInstanceOf(IteratorAggregate::class, $this->csv);
-        $this->assertInstanceOf(JsonSerializable::class, $this->csv);
+        $this->expectException(RuntimeException::class);
+        Reader::createFromPath(__DIR__.'/foo/bar', 'r');
     }
 
-    public function testToHTML()
+    public function testCloningIsForbidden()
     {
-        $this->assertContains('<table', $this->csv->toHTML());
-    }
-
-    public function testToXML()
-    {
-        $this->assertInstanceOf(DOMDocument::class, $this->csv->toXML());
-    }
-
-    public function testJsonSerialize()
-    {
-        $this->assertSame($this->expected, json_decode(json_encode($this->csv), true));
+        $this->expectException(LogicException::class);
+        clone $this->csv;
     }
 
     /**
@@ -86,6 +76,6 @@ class CsvTest extends PHPUnit_Framework_TestCase
     public function testToString()
     {
         $expected = "john,doe,john.doe@example.com\njane,doe,jane.doe@example.com\n";
-        $this->assertSame($expected, $this->csv->__toString());
+        $this->assertSame($expected, (string) $this->csv);
     }
 }

@@ -146,10 +146,12 @@ class Statement
     {
         $bom = $reader->getInputBOM();
         $enclosure = $reader->getEnclosure();
-        $this->prepare($reader);
+        $this->prepare($reader, $bom, $enclosure);
 
         $csv = $reader->getDocument();
         $csv->setFlags(SplFileObject::READ_AHEAD | SplFileObject::READ_CSV | SplFileObject::SKIP_EMPTY);
+        $csv->setCsvControl($reader->getDelimiter(), $enclosure, $reader->getEscape());
+
         $iterator = $this->stripBOM($csv, $bom, $enclosure);
         $iterator = $this->addHeader($iterator);
         $iterator = $this->filterRecords($iterator);
@@ -161,23 +163,56 @@ class Statement
     /**
      * Set the computed RecordSet headers
      *
-     * @param Reader $reader
+     * @param Reader $reader    The CSV document Reader object
+     * @param string $bom       The CSV document BOM sequence
+     * @param Reader $enclosure The CSV document enclosure character
      */
-    protected function prepare(Reader $reader)
+    protected function prepare(Reader $reader, string $bom, string $enclosure)
     {
-        if (!empty($this->headers)) {
+        $header_offset = $reader->getHeaderOffset();
+        if (!empty($this->headers) || null === $header_offset) {
             return;
         }
 
-        $this->headers = $reader->getHeader();
-        $header_offset = $reader->getHeaderOffset();
-        if (null !== $header_offset) {
-            $strip_header = function ($row, $index) use ($header_offset) {
-                return $index !== $header_offset;
-            };
-            array_unshift($this->where, $strip_header);
-        }
+        $this->headers = $this->getHeader($reader, $bom, $enclosure);
+        $strip_header = function ($row, $index) use ($header_offset) {
+            return $index !== $header_offset;
+        };
+        array_unshift($this->where, $strip_header);
     }
+
+    /**
+     * Returns the header
+     *
+     * If no CSV record is used this method MUST return an empty array
+     *
+     * @param Reader $reader    The CSV document Reader object
+     * @param string $bom       The CSV document BOM sequence
+     * @param Reader $enclosure The CSV document enclosure character
+     *
+     * @throws Exception If the header is not found
+     *
+     * @return string[]
+     */
+    protected function getHeader(Reader $reader, string $bom, string $enclosure): array
+    {
+        $offset = $reader->getHeaderOffset();
+        $csv = $reader->getDocument();
+        $csv->setFlags(SplFileObject::READ_CSV);
+        $csv->setCsvControl($reader->getDelimiter(), $enclosure, $reader->getEscape());
+        $csv->seek($offset);
+        $header = $csv->current();
+        if (empty($header) || [null] === $header) {
+            throw new Exception('the specified header does not exist or is empty');
+        }
+
+        if (0 === $offset) {
+            $header = $this->removeBOM($header, mb_strlen($bom), $enclosure);
+        }
+ 
+        return $this->filterHeader($header);
+    }
+
 
     /**
      * Remove the BOM sequence from the CSV

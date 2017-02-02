@@ -54,7 +54,7 @@ class Reader extends AbstractCsv implements JsonSerializable, Countable, Iterato
      */
     public function count(): int
     {
-        return $this->select()->count();
+        return count($this->select());
     }
 
     /**

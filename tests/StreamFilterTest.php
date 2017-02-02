@@ -9,6 +9,7 @@ use SplTempFileObject;
 
 /**
  * @group stream
+ * @group csv
  */
 class StreamFilterTest extends PHPUnit_Framework_TestCase
 {

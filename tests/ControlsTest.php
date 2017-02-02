@@ -9,7 +9,7 @@ use SplFileObject;
 use SplTempFileObject;
 
 /**
- * @group controls
+ * @group csv
  */
 class ControlsTest extends PHPUnit_Framework_TestCase
 {

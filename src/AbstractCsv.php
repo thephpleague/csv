@@ -16,6 +16,8 @@ namespace League\Csv;
 
 use League\Csv\Config\ControlsTrait;
 use League\Csv\Config\StreamTrait;
+use LogicException;
+use RuntimeException;
 use SplFileObject;
 
 /**
@@ -75,10 +77,7 @@ abstract class AbstractCsv
      */
     public function __destruct()
     {
-        if ($this->isActiveStreamFilter()) {
-            $this->clearStreamFilter();
-        }
-
+        $this->clearStreamFilter();
         $this->document = null;
     }
 
@@ -152,7 +151,12 @@ abstract class AbstractCsv
      */
     public static function createFromPath(string $path, string $open_mode = 'r+'): self
     {
-        $stream = fopen($path, $open_mode);
+        if (!$stream = @fopen($path, $open_mode)) {
+            throw new RuntimeException(sprintf(
+                'failed to open stream: `%s`; File missing or Permission denied',
+                $path
+            ));
+        }
 
         return new static(new StreamIterator($stream));
     }
@@ -174,6 +178,7 @@ abstract class AbstractCsv
         $csv->output_bom = $this->output_bom;
         $csv->newline = $this->newline;
         $csv->flush_threshold = $this->flush_threshold;
+        $csv->header_offset = $this->header_offset;
         $csv->clearStreamFilter();
 
         return $csv;
@@ -197,49 +202,6 @@ abstract class AbstractCsv
     public function newReader(): self
     {
         return $this->newInstance(Reader::class);
-    }
-
-    /**
-     * Returns the header
-     *
-     * If no CSV record is used this method MUST return an empty array
-     *
-     * @return string[]
-     */
-    public function getHeader(): array
-    {
-        if (null === $this->header_offset) {
-            return [];
-        }
-
-        return $this->filterHeader($this->getRow($this->header_offset));
-    }
-
-    /**
-     * Returns a single row from the CSV without filtering
-     *
-     * @param int $offset
-     *
-     * @throws Exception If the $offset is not valid or the row does not exist
-     *
-     * @return array
-     */
-    protected function getRow(int $offset): array
-    {
-        $csv = $this->getDocument();
-        $csv->setFlags(SplFileObject::READ_CSV);
-        $csv->setCsvControl($this->delimiter, $this->enclosure, $this->escape);
-        $csv->seek($offset);
-        $row = $csv->current();
-        if (empty($row) || [null] === $row) {
-            throw new Exception('the specified row does not exist or is empty');
-        }
-
-        if (0 != $offset) {
-            return $row;
-        }
-
-        return $this->removeBOM($row, mb_strlen($this->getInputBOM()), $this->enclosure);
     }
 
     /**
@@ -297,5 +259,13 @@ abstract class AbstractCsv
         $this->fpassthru();
 
         return ob_get_clean();
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function __clone()
+    {
+        throw new LogicException('An object of class '.get_class($this).' cannot be cloned');
     }
 }

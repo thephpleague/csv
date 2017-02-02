@@ -8,9 +8,9 @@ use PHPUnit_Framework_TestCase;
 use SplTempFileObject;
 
 /**
- * @group statement
- * @group resultset
  * @group reader
+ * @group statement
+ * @group recordset
  */
 class RecordSetTest extends PHPUnit_Framework_TestCase
 {

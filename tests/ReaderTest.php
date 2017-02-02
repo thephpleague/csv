@@ -2,6 +2,10 @@
 
 namespace LeagueTest\Csv;
 
+use Countable;
+use DOMDocument;
+use IteratorAggregate;
+use JsonSerializable;
 use League\Csv\Reader;
 use League\Csv\Writer;
 use PHPUnit_Framework_TestCase;
@@ -36,7 +40,29 @@ class ReaderTest extends PHPUnit_Framework_TestCase
 
     public function testCountable()
     {
+        $this->assertInstanceOf(Countable::class, $this->csv);
         $this->assertCount(2, $this->csv);
+    }
+
+    public function testInterface()
+    {
+        $this->assertInstanceOf(IteratorAggregate::class, $this->csv);
+    }
+
+    public function testToHTML()
+    {
+        $this->assertContains('<table', $this->csv->toHTML());
+    }
+
+    public function testToXML()
+    {
+        $this->assertInstanceOf(DOMDocument::class, $this->csv->toXML());
+    }
+
+    public function testJsonSerialize()
+    {
+        $this->assertInstanceOf(JsonSerializable::class, $this->csv);
+        $this->assertSame($this->expected, json_decode(json_encode($this->csv), true));
     }
 
     public function testCreateFromFileObjectPreserveFileObjectCsvControls()
