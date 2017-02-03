@@ -65,7 +65,7 @@ class Reader extends AbstractCsv implements JsonSerializable, Countable, Iterato
      *
      * @param int|null $offset the header row offset
      *
-     * @return $this
+     * @return static
      */
     public function setHeaderOffset($offset): self
     {
@@ -157,11 +157,28 @@ class Reader extends AbstractCsv implements JsonSerializable, Countable, Iterato
     /**
      * Returns the column header associate with the RecordSet
      *
+     * @throws Exception If no header is found
+     *
      * @return string[]
      */
     public function getHeader()
     {
-        return $this->select()->getHeader();
+        if (null === $this->header_offset) {
+            return [];
+        }
+
+        $csv = $this->getIterator();
+        $csv->seek($this->header_offset);
+        $header = $csv->current();
+        if (empty($header)) {
+            throw new Exception('The header record specified by `Reader::setHeaderOffset` does not exist or is empty');
+        }
+
+        if (0 === $this->header_offset) {
+            $header = $this->removeBOM($header, mb_strlen($this->getInputBOM()), $this->enclosure);
+        }
+
+        return $header;
     }
 
     /**

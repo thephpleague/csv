@@ -195,22 +195,13 @@ class Statement
      */
     protected function computeHeader(Reader $reader)
     {
-        $offset = $reader->getHeaderOffset();
-        if (null === $offset) {
-            return [];
-        }
-
-        $csv = $reader->getIterator();
-        $csv->seek($offset);
-        $header = $csv->current();
+        $header = $reader->getHeader();
         if (empty($header)) {
-            throw new Exception('The header record specified by `Reader::setHeaderOffset` does not exist or is empty');
+            return $header;
         }
 
-        if (0 === $offset) {
-            $header = $this->removeBOM($header, mb_strlen($reader->getInputBOM()), $reader->getEnclosure());
-        }
         $header = $this->filterHeader($header);
+        $offset = $reader->getHeaderOffset();
         array_unshift($this->where, function ($row, $index) use ($offset) {
             return $index !== $offset;
         });
