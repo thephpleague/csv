@@ -14,7 +14,7 @@ declare(strict_types=1);
 
 namespace League\Csv\Config;
 
-use InvalidArgumentException;
+use League\Csv\Exception;
 
 /**
  *  An abstract class to enable basic CSV manipulation
@@ -31,7 +31,7 @@ trait ValidatorTrait
      * @param string $char Csv control character
      * @param string $type Csv control character type
      *
-     * @throws InvalidArgumentException If the Csv control character is not one character only.
+     * @throws Exception If the Csv control character is not one character only.
      *
      * @return string
      */
@@ -41,7 +41,7 @@ trait ValidatorTrait
             return $char;
         }
 
-        throw new InvalidArgumentException(sprintf('The %s must be a single character', $type));
+        throw new Exception(sprintf('The %s must be a single character', $type));
     }
 
     /**
@@ -51,14 +51,14 @@ trait ValidatorTrait
      * @param int    $min_value
      * @param string $error_message
      *
-     * @throws InvalidArgumentException If the value is invalid
+     * @throws Exception If the value is invalid
      *
      * @return int
      */
     protected function filterInteger(int $value, int $min_value, string $error_message): int
     {
         if ($value < $min_value) {
-            throw new InvalidArgumentException($error_message);
+            throw new Exception($error_message);
         }
 
         return $value;
@@ -69,7 +69,7 @@ trait ValidatorTrait
      *
      * @param array $keys
      *
-     * @throws InvalidArgumentException If the submitted array fails the assertion
+     * @throws Exception If the submitted array fails the assertion
      *
      * @return array
      */
@@ -80,7 +80,7 @@ trait ValidatorTrait
         }
 
         if ($keys !== array_unique(array_filter($keys, [$this, 'isValidKey']))) {
-            throw new InvalidArgumentException('Use a flat array with unique string values');
+            throw new Exception('Use a flat array with unique string values');
         }
 
         return $keys;

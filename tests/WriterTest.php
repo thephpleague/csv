@@ -29,6 +29,16 @@ class WriterTest extends PHPUnit_Framework_TestCase
         $this->csv = null;
     }
 
+    /**
+     * @expectedException InvalidArgumentException
+     */
+    public function testflushThreshold()
+    {
+        $this->csv->setFlushThreshold(12);
+        $this->assertSame(12, $this->csv->getFlushThreshold());
+        $this->csv->setFlushThreshold(-1);
+    }
+
     public function testSupportsStreamFilter()
     {
         $csv = Writer::createFromPath(__DIR__.'/data/foo.csv');
@@ -88,19 +98,6 @@ class WriterTest extends PHPUnit_Framework_TestCase
         ];
     }
 
-    public function testGetReader()
-    {
-        $expected = [
-            ['john', 'doe', 'john.doe@example.com'],
-        ];
-        foreach ($expected as $row) {
-            $this->csv->insertOne($row);
-        }
-
-        $reader = $this->csv->newReader();
-        $this->assertSame(['john', 'doe', 'john.doe@example.com'], $reader->fetchOne(0));
-    }
-
     public function testCustomNewline()
     {
         $this->assertSame("\n", $this->csv->getNewline());
@@ -127,15 +124,5 @@ class WriterTest extends PHPUnit_Framework_TestCase
         $this->csv->addFormatter($func);
         $this->csv->insertOne(['jane', 'doe']);
         $this->assertSame("JANE,DOE\n", (string) $this->csv);
-    }
-
-    public function testConversionWithWriter()
-    {
-        $this->csv->insertAll([
-            ['john', 'doe', 'john.doe@example.com'],
-            ['jane', 'doe', 'jane.doe@example.com'],
-            ['toto', 'le', 'herisson'],
-        ]);
-        $this->assertStringStartsWith('<table', $this->csv->newReader()->toHTML());
     }
 }

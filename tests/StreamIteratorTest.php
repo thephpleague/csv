@@ -101,24 +101,6 @@ class StreamIteratorTest extends PHPUnit_Framework_TestCase
         ];
     }
 
-    public function testGetReader()
-    {
-        $fp = fopen('php://temp', 'r+');
-        $csv = Writer::createFromStream($fp);
-
-        $expected = [
-            ['john', 'doe', 'john.doe@example.com'],
-            ['john', 'doe', 'john.doe@example.com'],
-        ];
-
-        foreach ($expected as $row) {
-            $csv->insertOne($row);
-        }
-
-        $reader = $csv->newReader();
-        $this->assertSame(['john', 'doe', 'john.doe@example.com'], $reader->fetchOne(0));
-    }
-
     public function testToString()
     {
         $fp = fopen('php://temp', 'r+');

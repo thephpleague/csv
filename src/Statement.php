@@ -76,9 +76,15 @@ class Statement
      */
     public function offset(int $offset = 0): self
     {
-        $this->offset = $this->filterInteger($offset, 0, 'the offset must be a positive integer or 0');
+        $offset = $this->filterInteger($offset, 0, 'the offset must be a positive integer or 0');
+        if ($offset === $this->offset) {
+            return $this;
+        }
 
-        return $this;
+        $clone = clone $this;
+        $clone->offset = $offset;
+
+        return $clone;
     }
 
     /**
@@ -90,9 +96,15 @@ class Statement
      */
     public function limit(int $limit = -1): self
     {
-        $this->limit = $this->filterInteger($limit, -1, 'the limit must an integer greater or equals to -1');
+        $limit = $this->filterInteger($limit, -1, 'the limit must an integer greater or equals to -1');
+        if ($limit === $this->limit) {
+            return $this;
+        }
 
-        return $this;
+        $clone = clone $this;
+        $clone->limit = $limit;
+
+        return $clone;
     }
 
     /**
@@ -104,9 +116,10 @@ class Statement
      */
     public function orderBy(callable $callable): self
     {
-        $this->order_by[] = $callable;
+        $clone = clone $this;
+        $clone->order_by[] = $callable;
 
-        return $this;
+        return $clone;
     }
 
     /**
@@ -118,9 +131,10 @@ class Statement
      */
     public function where(callable $callable): self
     {
-        $this->where[] = $callable;
+        $clone = clone $this;
+        $clone->where[] = $callable;
 
-        return $this;
+        return $clone;
     }
 
     /**
@@ -132,9 +146,15 @@ class Statement
      */
     public function headers(array $headers): self
     {
-        $this->headers = $this->filterHeader($headers);
+        $headers = $this->filterHeader($headers);
+        if ($headers === $this->headers) {
+            return $this;
+        }
 
-        return $this;
+        $clone = clone $this;
+        $clone->headers = $headers;
+
+        return $clone;
     }
 
     /**
@@ -144,16 +164,9 @@ class Statement
      */
     public function process(Reader $reader)
     {
-        $bom = $reader->getInputBOM();
-        $enclosure = $reader->getEnclosure();
-        $this->prepare($reader, $bom, $enclosure);
-
-        $csv = $reader->getDocument();
-        $csv->setFlags(SplFileObject::READ_AHEAD | SplFileObject::READ_CSV | SplFileObject::SKIP_EMPTY);
-        $csv->setCsvControl($reader->getDelimiter(), $enclosure, $reader->getEscape());
-
-        $iterator = $this->stripBOM($csv, $bom, $enclosure);
-        $iterator = $this->addHeader($iterator);
+        $document = $this->prepare($reader);
+        $iterator = $this->stripBOM($document, $reader->getInputBOM(), $reader->getEnclosure());
+        $iterator = $this->combineHeader($iterator);
         $iterator = $this->filterRecords($iterator);
         $iterator = $this->orderRecords($iterator);
 
@@ -163,56 +176,38 @@ class Statement
     /**
      * Set the computed RecordSet headers
      *
-     * @param Reader $reader    The CSV document Reader object
-     * @param string $bom       The CSV document BOM sequence
-     * @param Reader $enclosure The CSV document enclosure character
-     */
-    protected function prepare(Reader $reader, string $bom, string $enclosure)
-    {
-        $header_offset = $reader->getHeaderOffset();
-        if (!empty($this->headers) || null === $header_offset) {
-            return;
-        }
-
-        $this->headers = $this->getHeader($reader, $bom, $enclosure);
-        $strip_header = function ($row, $index) use ($header_offset) {
-            return $index !== $header_offset;
-        };
-        array_unshift($this->where, $strip_header);
-    }
-
-    /**
-     * Returns the header
-     *
-     * If no CSV record is used this method MUST return an empty array
-     *
-     * @param Reader $reader    The CSV document Reader object
-     * @param string $bom       The CSV document BOM sequence
-     * @param Reader $enclosure The CSV document enclosure character
+     * @param Reader $reader The CSV document Reader object
      *
      * @throws Exception If the header is not found
      *
-     * @return string[]
+     * @return StreamIterator|SplFileObject
      */
-    protected function getHeader(Reader $reader, string $bom, string $enclosure): array
+    protected function prepare(Reader $reader)
     {
-        $offset = $reader->getHeaderOffset();
         $csv = $reader->getDocument();
-        $csv->setFlags(SplFileObject::READ_CSV);
-        $csv->setCsvControl($reader->getDelimiter(), $enclosure, $reader->getEscape());
+        $csv->setFlags(SplFileObject::READ_CSV | SplFileObject::READ_AHEAD | SplFileObject::SKIP_EMPTY);
+        $csv->setCsvControl($reader->getDelimiter(), $reader->getEnclosure(), $reader->getEscape());
+        $offset = $reader->getHeaderOffset();
+        if (!empty($this->headers) || null === $offset) {
+            return $csv;
+        }
+
         $csv->seek($offset);
-        $header = $csv->current();
-        if (empty($header) || [null] === $header) {
+        $headers = $csv->current();
+        if (empty($headers) || [null] === $headers) {
             throw new Exception('the specified header does not exist or is empty');
         }
 
         if (0 === $offset) {
-            $header = $this->removeBOM($header, mb_strlen($bom), $enclosure);
+            $headers = $this->removeBOM($headers, mb_strlen($reader->getInputBOM()), $reader->getEnclosure());
         }
- 
-        return $this->filterHeader($header);
-    }
+        $this->headers = $this->filterHeader($headers);
+        array_unshift($this->where, function ($row, $index) use ($offset) {
+            return $index !== $offset;
+        });
 
+        return $csv;
+    }
 
     /**
      * Remove the BOM sequence from the CSV
@@ -246,7 +241,7 @@ class Statement
      *
      * @return Iterator
      */
-    protected function addHeader(Iterator $iterator): Iterator
+    protected function combineHeader(Iterator $iterator): Iterator
     {
         if (empty($this->headers)) {
             return $iterator;

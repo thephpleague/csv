@@ -52,11 +52,78 @@ class Writer extends AbstractCsv
     protected $insert_count = 0;
 
     /**
+     * newline character
+     *
+     * @var string
+     */
+    protected $newline = "\n";
+
+    /**
+     * Buffer flush threshold
+     *
+     * @var int
+     */
+    protected $flush_threshold = 500;
+
+    /**
+     * Returns the current newline sequence characters
+     *
+     * @return string
+     */
+    public function getNewline(): string
+    {
+        return $this->newline;
+    }
+
+    /**
+     * Get the flush threshold
+     *
+     * @return int|null
+     */
+    public function getFlushThreshold()
+    {
+        return $this->flush_threshold;
+    }
+
+    /**
+     * Sets the newline sequence characters
+     *
+     * @param string $newline
+     *
+     * @return static
+     */
+    public function setNewline(string $newline): self
+    {
+        $this->newline = (string) $newline;
+
+        return $this;
+    }
+
+    /**
+     * Set the automatic flush threshold on write
+     *
+     * @param int|null $threshold
+     */
+    public function setFlushThreshold($threshold): self
+    {
+        if (null !== $threshold) {
+            $threshold = $this->filterInteger(
+                $threshold,
+                0,
+                'The flush threshold must be a valid positive integer or 0'
+            );
+        }
+        $this->flush_threshold = $threshold;
+
+        return $this;
+    }
+
+    /**
      * add a formatter to the collection
      *
      * @param callable $callable
      *
-     * @return $this
+     * @return static
      */
     public function addFormatter(callable $callable): self
     {
@@ -71,7 +138,7 @@ class Writer extends AbstractCsv
      * @param callable $callable
      * @param string   $name     the rule name
      *
-     * @return $this
+     * @return static
      */
     public function addValidator(callable $callable, string $name): self
     {
@@ -107,22 +174,22 @@ class Writer extends AbstractCsv
     /**
      * Adds a single line to a CSV document
      *
-     * @param string[] $row a string, an array or an object implementing to '__toString' method
+     * @param string[] $row an array
      *
      * @return static
      */
     public function insertOne(array $row): self
     {
-        $row = array_reduce($this->formatters, [$this, 'formatRecord'], $row);
-        $this->validateRecord($row);
-        $this->document->fputcsv($row, $this->delimiter, $this->enclosure, $this->escape);
+        $record = array_reduce($this->formatters, [$this, 'formatRecord'], $row);
+        $this->validateRecord($record);
+        $this->document->fputcsv($record, $this->delimiter, $this->enclosure, $this->escape);
         if ("\n" !== $this->newline) {
             $this->document->fseek(-1, SEEK_CUR);
             $this->document->fwrite($this->newline, strlen($this->newline));
         }
 
         $this->insert_count++;
-        if (0 === $this->insert_count % $this->flush_threshold) {
+        if (null !== $this->flush_threshold && 0 === $this->insert_count % $this->flush_threshold) {
             $this->document->fflush();
         }
 
@@ -145,7 +212,7 @@ class Writer extends AbstractCsv
     /**
     * Validate a row
     *
-    * @param array $row
+    * @param string[] $row
     *
     * @throws InvalidRowException If the validation failed
     */

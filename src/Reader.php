@@ -14,12 +14,15 @@ declare(strict_types=1);
 
 namespace League\Csv;
 
+use CallbackFilterIterator;
 use Countable;
 use DomDocument;
 use Generator;
 use Iterator;
 use IteratorAggregate;
 use JsonSerializable;
+use LimitIterator;
+use SplFileObject;
 
 /**
  *  A class to manage extracting and filtering a CSV
@@ -34,6 +37,82 @@ class Reader extends AbstractCsv implements JsonSerializable, Countable, Iterato
      * @inheritdoc
      */
     protected $stream_filter_mode = STREAM_FILTER_READ;
+
+    /**
+     * CSV Document header offset
+     *
+     * @var int|null
+     */
+    protected $header_offset;
+
+    /**
+     * Returns the record offset used as header
+     *
+     * If no CSV record is used this method MUST return null
+     *
+     * @return int|null
+     */
+    public function getHeaderOffset()
+    {
+        return $this->header_offset;
+    }
+
+    /**
+     * Selects the record to be used as the CSV header
+     *
+     * Because of the header is represented as an array, to be valid
+     * a header MUST contain only unique string value.
+     *
+     * @param int|null $offset the header row offset
+     *
+     * @return $this
+     */
+    public function setHeaderOffset($offset): self
+    {
+        $this->header_offset = null;
+        if (null !== $offset) {
+            $this->header_offset = $this->filterInteger(
+                $offset,
+                0,
+                'the header offset index must be a positive integer or 0'
+            );
+        }
+
+        return $this;
+    }
+
+    /**
+     * Detect Delimiters occurences in the CSV
+     *
+     * Returns a associative array where each key represents
+     * a valid delimiter and each value the number of occurences
+     *
+     * @param string[] $delimiters the delimiters to consider
+     * @param int      $nb_rows    Detection is made using $nb_rows of the CSV
+     *
+     * @return array
+     */
+    public function fetchDelimitersOccurrence(array $delimiters, int $nb_rows = 1): array
+    {
+        $nb_rows = $this->filterInteger($nb_rows, 1, 'The number of rows to consider must be a valid positive integer');
+        $filter_row = function ($row) {
+            return is_array($row) && count($row) > 1;
+        };
+        $delimiters = array_unique(array_filter($delimiters, function ($value) {
+            return 1 == strlen($value);
+        }));
+        $csv = $this->getDocument();
+        $csv->setFlags(SplFileObject::READ_CSV);
+        $res = [];
+        foreach ($delimiters as $delim) {
+            $csv->setCsvControl($delim, $this->enclosure, $this->escape);
+            $iterator = new CallbackFilterIterator(new LimitIterator($csv, 0, $nb_rows), $filter_row);
+            $res[$delim] = count(iterator_to_array($iterator, false), COUNT_RECURSIVE);
+        }
+        arsort($res, SORT_NUMERIC);
+
+        return $res;
+    }
 
     /**
      * Returns a collection of selected records

@@ -2,9 +2,11 @@
 
 namespace LeagueTest\Csv;
 
+use League\Csv\Exception;
 use League\Csv\Reader;
 use League\Csv\Statement;
-use PHPUnit_Framework_TestCase;
+use OutOfBoundsException;
+use PHPUnit\Framework\TestCase;
 use SplTempFileObject;
 
 /**
@@ -12,7 +14,7 @@ use SplTempFileObject;
  * @group statement
  * @group recordset
  */
-class RecordSetTest extends PHPUnit_Framework_TestCase
+class RecordSetTest extends TestCase
 {
     private $csv;
 
@@ -43,11 +45,17 @@ class RecordSetTest extends PHPUnit_Framework_TestCase
         $this->assertCount(1, $stmt->process($this->csv)->fetchAll());
     }
 
-    /**
-     * @expectedException \InvalidArgumentException
-     */
+    public function testStatementSameInstance()
+    {
+        $stmt = new Statement();
+        $stmt_alt = $stmt->limit(-1)->offset(0);
+
+        $this->assertSame($stmt_alt, $stmt);
+    }
+
     public function testSetLimitThrowException()
     {
+        $this->expectException(Exception::class);
         (new Statement())->limit(-4);
     }
 
@@ -84,11 +92,9 @@ class RecordSetTest extends PHPUnit_Framework_TestCase
         ];
     }
 
-    /**
-     * @expectedException \OutOfBoundsException
-     */
     public function testIntervalThrowException()
     {
+        $this->expectException(OutOfBoundsException::class);
         (new Statement())
             ->offset(1)
             ->limit(0)
@@ -147,11 +153,9 @@ class RecordSetTest extends PHPUnit_Framework_TestCase
         $this->assertSame(['john', 'jane'], iterator_to_array($res, false));
     }
 
-    /**
-     * @expectedException \InvalidArgumentException
-     */
     public function testFetchColumnTriggersException()
     {
+        $this->expectException(Exception::class);
         $keys = ['firstname', 'lastname', 'email'];
         $stmt = (new Statement())->headers($keys);
         $res = $stmt->process($this->csv)->fetchColumn(24);
@@ -178,7 +182,6 @@ class RecordSetTest extends PHPUnit_Framework_TestCase
             'age' => null,
         ], $stmt->process($this->csv)->fetchAll());
     }
-
 
     public function testFetchWithoutHeaders()
     {
@@ -278,7 +281,6 @@ class RecordSetTest extends PHPUnit_Framework_TestCase
         $this->assertSame('john', $res[0]);
     }
 
-
     public function testStripBOMWithEnclosureFetchAssoc()
     {
         $expected = ['parent name', 'parentA'];
@@ -319,18 +321,15 @@ class RecordSetTest extends PHPUnit_Framework_TestCase
         $this->assertEquals($expected, $csv->fetchOne());
     }
 
-    /**
-     * @expectedException \InvalidArgumentException
-     */
     public function testFetchAssocKeyFailure()
     {
+        $this->expectException(Exception::class);
         (new Statement())->headers(['firstname', 'firstname', 'lastname', 'email', 'age']);
     }
 
     /**
      * @param $offset
      * @dataProvider invalidOffsetWithFetchAssoc
-     * @expectedException \InvalidArgumentException
      */
     public function testFetchAssocWithInvalidOffset($offset)
     {
@@ -346,6 +345,7 @@ class RecordSetTest extends PHPUnit_Framework_TestCase
             $tmp->fputcsv($row);
         }
 
+        $this->expectException(Exception::class);
         Reader::createFromFileObject($tmp)->setHeaderOffset($offset)->fetchAll();
     }
 
@@ -395,14 +395,16 @@ class RecordSetTest extends PHPUnit_Framework_TestCase
         $this->assertCount(0, $res);
     }
 
-    /**
-     * @expectedException \InvalidArgumentException
-     */
     public function testfetchOne()
     {
         $this->assertSame($this->expected[0], $this->csv->fetchOne(0));
         $this->assertSame($this->expected[1], $this->csv->fetchOne(1));
         $this->assertSame([], $this->csv->fetchOne(35));
+    }
+
+    public function testFetchOneTriggersException()
+    {
+        $this->expectException(Exception::class);
         $this->csv->fetchOne(-5);
     }
 
@@ -463,7 +465,7 @@ class RecordSetTest extends PHPUnit_Framework_TestCase
     {
         $csv = Reader::createFromString($rawCsv);
         $res = (new Statement())->offset(799)->limit(50)->process($csv);
-        $res->setInputEncoding('iso-8859-15');
+        $res->setConversionInputEncoding('iso-8859-15');
 
         json_encode($res);
         $this->assertEquals(JSON_ERROR_NONE, json_last_error());
@@ -474,16 +476,42 @@ class RecordSetTest extends PHPUnit_Framework_TestCase
         return [[file_get_contents(__DIR__.'/data/prenoms.csv')]];
     }
 
-    /**
-     * @expectedException InvalidArgumentException
-     * @expectedExceptionMessage you should use a valid charset
-     */
     public function testEncoding()
     {
         $expected = 'iso-8859-15';
         $result = $this->csv->select();
-        $result->setInputEncoding($expected);
-        $this->assertSame(strtoupper($expected), $result->getInputEncoding());
-        $result->setInputEncoding('');
+        $result->setConversionInputEncoding($expected);
+        $this->assertSame(strtoupper($expected), $result->getConversionInputEncoding());
+    }
+
+    public function testEncodingTriggersException()
+    {
+        $this->expectException(Exception::class);
+        $this->csv->select()->setConversionInputEncoding('');
+    }
+
+    public function testGetHeader()
+    {
+        $stmt = new Statement();
+        $result = $this->csv->select($stmt);
+        $this->assertSame([], $result->getHeaders());
+    }
+
+    public function testGetComputedHeader()
+    {
+        $this->csv->setHeaderOffset(0);
+        $stmt = new Statement();
+        $result = $this->csv->select($stmt);
+        $this->assertSame($this->expected[0], $result->getHeaders());
+    }
+
+
+    public function testGetComputedHeaderWithSpecifiedHeader()
+    {
+        $expected = ['foo', 'bar', 'baz'];
+        $this->csv->setHeaderOffset(0);
+        $stmt = new Statement();
+        $result = $this->csv->select($stmt->headers($expected));
+        $this->assertSame($expected, $result->getHeaders());
     }
 }

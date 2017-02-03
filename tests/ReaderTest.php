@@ -7,7 +7,6 @@ use DOMDocument;
 use IteratorAggregate;
 use JsonSerializable;
 use League\Csv\Reader;
-use League\Csv\Writer;
 use PHPUnit_Framework_TestCase;
 use SplTempFileObject;
 
@@ -86,8 +85,34 @@ class ReaderTest extends PHPUnit_Framework_TestCase
         $this->assertContains('jane', $this->csv->fetchColumn());
     }
 
-    public function testGetWriter()
+    /**
+     * @expectedException InvalidArgumentException
+     * @expectedExceptionMessage The number of rows to consider must be a valid positive integer
+     */
+    public function testDetectDelimiterListWithInvalidRowLimit()
     {
-        $this->assertInstanceOf(Writer::class, $this->csv->newWriter());
+        $this->csv->fetchDelimitersOccurrence([','], -4);
+    }
+
+    public function testDetectDelimiterListWithNoCSV()
+    {
+        $file = new SplTempFileObject();
+        $file->fwrite("How are you today ?\nI'm doing fine thanks!");
+        $csv = Reader::createFromFileObject($file);
+        $this->assertSame(['|' => 0], $csv->fetchDelimitersOccurrence(['toto', '|'], 5));
+    }
+
+    public function testDetectDelimiterListWithInconsistentCSV()
+    {
+        $data = new SplTempFileObject();
+        $data->setCsvControl(';');
+        $data->fputcsv(['toto', 'tata', 'tutu']);
+        $data->setCsvControl('|');
+        $data->fputcsv(['toto', 'tata', 'tutu']);
+        $data->fputcsv(['toto', 'tata', 'tutu']);
+        $data->fputcsv(['toto', 'tata', 'tutu']);
+
+        $csv = Reader::createFromFileObject($data);
+        $this->assertSame(['|' => 12, ';' => 4], $csv->fetchDelimitersOccurrence(['|', ';'], 5));
     }
 }

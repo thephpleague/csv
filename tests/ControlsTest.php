@@ -3,7 +3,6 @@
 namespace LeagueTest\Csv;
 
 use League\Csv\Reader;
-use League\Csv\Writer;
 use PHPUnit_Framework_TestCase;
 use SplFileObject;
 use SplTempFileObject;
@@ -56,16 +55,6 @@ class ControlsTest extends PHPUnit_Framework_TestCase
         $this->assertSame('', $this->csv->getOutputBOM());
     }
 
-    /**
-     * @expectedException InvalidArgumentException
-     */
-    public function testFflusThreshold()
-    {
-        $this->csv->setFlushThreshold(12);
-        $this->assertSame(12, $this->csv->getFlushThreshold());
-        $this->csv->setFlushThreshold(-1);
-    }
-
     public function testAddBOMSequences()
     {
         $this->csv->setOutputBOM(Reader::BOM_UTF8);
@@ -98,37 +87,6 @@ class ControlsTest extends PHPUnit_Framework_TestCase
 
     /**
      * @expectedException InvalidArgumentException
-     * @expectedExceptionMessage The number of rows to consider must be a valid positive integer
-     */
-    public function testDetectDelimiterListWithInvalidRowLimit()
-    {
-        $this->csv->fetchDelimitersOccurrence([','], -4);
-    }
-
-    public function testDetectDelimiterListWithNoCSV()
-    {
-        $file = new SplTempFileObject();
-        $file->fwrite("How are you today ?\nI'm doing fine thanks!");
-        $csv = Writer::createFromFileObject($file);
-        $this->assertSame(['|' => 0], $csv->fetchDelimitersOccurrence(['toto', '|'], 5));
-    }
-
-    public function testDetectDelimiterListWithInconsistentCSV()
-    {
-        $data = new SplTempFileObject();
-        $data->setCsvControl(';');
-        $data->fputcsv(['toto', 'tata', 'tutu']);
-        $data->setCsvControl('|');
-        $data->fputcsv(['toto', 'tata', 'tutu']);
-        $data->fputcsv(['toto', 'tata', 'tutu']);
-        $data->fputcsv(['toto', 'tata', 'tutu']);
-
-        $csv = Writer::createFromFileObject($data);
-        $this->assertSame(['|' => 12, ';' => 4], $csv->fetchDelimitersOccurrence(['|', ';'], 5));
-    }
-
-    /**
-     * @expectedException InvalidArgumentException
      * @expectedExceptionMessage The escape must be a single character
      */
     public function testEscape()
@@ -149,14 +107,6 @@ class ControlsTest extends PHPUnit_Framework_TestCase
         $this->assertSame('o', $this->csv->getEnclosure());
 
         $this->csv->setEnclosure('foo');
-    }
-
-    public function testCustomNewline()
-    {
-        $csv = Writer::createFromFileObject(new SplTempFileObject());
-        $this->assertSame("\n", $csv->getNewline());
-        $csv->setNewline("\r\n");
-        $this->assertSame("\r\n", $csv->getNewline());
     }
 
     /**

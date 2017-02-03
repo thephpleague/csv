@@ -42,7 +42,7 @@ class RecordSet implements JsonSerializable, IteratorAggregate, Countable
      *
      * @var string
      */
-    protected $input_encoding = 'UTF-8';
+    protected $conversion_input_encoding = 'UTF-8';
 
     /**
      * The CSV iterator result
@@ -79,13 +79,23 @@ class RecordSet implements JsonSerializable, IteratorAggregate, Countable
     }
 
     /**
+     * Returns the column header associate with the RecordSet
+     *
+     * @return string[]
+     */
+    public function getHeaders()
+    {
+        return $this->headers;
+    }
+
+    /**
      * Gets the source CSV encoding charset
      *
      * @return string
      */
-    public function getInputEncoding(): string
+    public function getConversionInputEncoding(): string
     {
-        return $this->input_encoding;
+        return $this->conversion_input_encoding;
     }
 
     /**
@@ -95,14 +105,14 @@ class RecordSet implements JsonSerializable, IteratorAggregate, Countable
      *
      * @return static
      */
-    public function setInputEncoding(string $str): self
+    public function setConversionInputEncoding(string $str): self
     {
         $str = str_replace('_', '-', $str);
         $str = filter_var($str, FILTER_SANITIZE_STRING, ['flags' => FILTER_FLAG_STRIP_LOW | FILTER_FLAG_STRIP_HIGH]);
         if (empty($str)) {
             throw new Exception('you should use a valid charset');
         }
-        $this->input_encoding = strtoupper($str);
+        $this->conversion_input_encoding = strtoupper($str);
 
         return $this;
     }
@@ -159,12 +169,12 @@ class RecordSet implements JsonSerializable, IteratorAggregate, Countable
      */
     protected function convertToUtf8(Iterator $iterator): Iterator
     {
-        if (stripos($this->input_encoding, 'UTF-8') !== false) {
+        if (stripos($this->conversion_input_encoding, 'UTF-8') !== false) {
             return $iterator;
         }
 
         $convert_cell = function ($value) {
-            return mb_convert_encoding((string) $value, 'UTF-8', $this->input_encoding);
+            return mb_convert_encoding((string) $value, 'UTF-8', $this->conversion_input_encoding);
         };
 
         $convert_row = function (array $row) use ($convert_cell) {

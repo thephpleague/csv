@@ -162,49 +162,6 @@ abstract class AbstractCsv
     }
 
     /**
-     * Return a new {@link AbstractCsv} instance from another {@link AbstractCsv} object
-     *
-     * @param string $class the class to be instantiated
-     *
-     * @return static
-     */
-    protected function newInstance(string $class): self
-    {
-        $csv = new $class($this->document);
-        $csv->delimiter = $this->delimiter;
-        $csv->enclosure = $this->enclosure;
-        $csv->escape = $this->escape;
-        $csv->input_bom = $this->input_bom;
-        $csv->output_bom = $this->output_bom;
-        $csv->newline = $this->newline;
-        $csv->flush_threshold = $this->flush_threshold;
-        $csv->header_offset = $this->header_offset;
-        $csv->clearStreamFilter();
-
-        return $csv;
-    }
-
-    /**
-     * Return a new {@link Writer} instance from a {@link AbstractCsv} object
-     *
-     * @return Writer
-     */
-    public function newWriter(): self
-    {
-        return $this->newInstance(Writer::class);
-    }
-
-    /**
-     * Return a new {@link Reader} instance from a {@link AbstractCsv} object
-     *
-     * @return Reader
-     */
-    public function newReader(): self
-    {
-        return $this->newInstance(Reader::class);
-    }
-
-    /**
      * Outputs all data on the CSV file
      *
      * @param string $filename CSV downloaded name if present adds extra headers
