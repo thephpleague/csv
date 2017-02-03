@@ -4,14 +4,14 @@ namespace LeagueTest\Csv\Plugin;
 
 use League\Csv\Plugin\SkipNullValuesFormatter;
 use League\Csv\Writer;
-use PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\TestCase;
 use SplFileObject;
 use SplTempFileObject;
 
 /**
  * @group formatter
  */
-class SkipNullValuesFormatterTest extends PHPUnit_Framework_TestCase
+class SkipNullValuesFormatterTest extends TestCase
 {
     private $csv;
 

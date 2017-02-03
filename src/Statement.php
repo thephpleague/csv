@@ -167,7 +167,11 @@ class Statement
         $csv = $reader->getDocument();
         $csv->setFlags(SplFileObject::READ_CSV | SplFileObject::READ_AHEAD | SplFileObject::SKIP_EMPTY);
         $csv->setCsvControl($reader->getDelimiter(), $reader->getEnclosure(), $reader->getEscape());
-        $header = !empty($this->header) ? $this->header : $this->computeHeader($reader);
+        $header = $this->header;
+        if (empty($header)) {
+            $header = $this->computeHeader($reader);
+        }
+
         $normalized = function ($row) {
             return is_array($row) && $row != [null];
         };

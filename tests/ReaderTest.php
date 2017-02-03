@@ -6,14 +6,15 @@ use Countable;
 use DOMDocument;
 use IteratorAggregate;
 use JsonSerializable;
+use League\Csv\Exception;
 use League\Csv\Reader;
-use PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\TestCase;
 use SplTempFileObject;
 
 /**
  * @group reader
  */
-class ReaderTest extends PHPUnit_Framework_TestCase
+class ReaderTest extends TestCase
 {
     private $csv;
 
@@ -91,12 +92,9 @@ class ReaderTest extends PHPUnit_Framework_TestCase
         $this->assertContains('jane', $this->csv->fetchColumn());
     }
 
-    /**
-     * @expectedException InvalidArgumentException
-     * @expectedExceptionMessage The number of rows to consider must be a valid positive integer
-     */
     public function testDetectDelimiterListWithInvalidRowLimit()
     {
+        $this->expectException(Exception::class);
         $this->csv->fetchDelimitersOccurrence([','], -4);
     }
 

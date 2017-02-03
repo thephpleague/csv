@@ -4,14 +4,14 @@ namespace LeagueTest\Csv;
 
 use League\Csv\Reader;
 use LogicException;
-use PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\TestCase;
 use RuntimeException;
 use SplTempFileObject;
 
 /**
  * @group csv
  */
-class CsvTest extends PHPUnit_Framework_TestCase
+class CsvTest extends TestCase
 {
     private $csv;
 

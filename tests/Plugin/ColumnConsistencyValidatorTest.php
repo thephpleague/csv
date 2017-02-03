@@ -4,14 +4,14 @@ namespace LeagueTest\Csv\Plugin;
 
 use League\Csv\Plugin\ColumnConsistencyValidator;
 use League\Csv\Writer;
-use PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\TestCase;
 use SplFileObject;
 use SplTempFileObject;
 
 /**
  * @group validators
  */
-class ColumnConsistencyValidatorTest extends PHPUnit_Framework_TestCase
+class ColumnConsistencyValidatorTest extends TestCase
 {
     private $csv;
 

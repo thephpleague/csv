@@ -3,8 +3,10 @@
 namespace LeagueTest\Csv;
 
 use ArrayIterator;
+use League\Csv\Exception;
+use League\Csv\InvalidRowException;
 use League\Csv\Writer;
-use PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\TestCase;
 use SplFileObject;
 use SplTempFileObject;
 use stdClass;
@@ -12,7 +14,7 @@ use stdClass;
 /**
  * @group writer
  */
-class WriterTest extends PHPUnit_Framework_TestCase
+class WriterTest extends TestCase
 {
     private $csv;
 
@@ -29,11 +31,9 @@ class WriterTest extends PHPUnit_Framework_TestCase
         $this->csv = null;
     }
 
-    /**
-     * @expectedException InvalidArgumentException
-     */
     public function testflushThreshold()
     {
+        $this->expectException(Exception::class);
         $this->csv->setFlushThreshold(12);
         $this->assertSame(12, $this->csv->getFlushThreshold());
         $this->csv->setFlushThreshold(-1);
@@ -67,11 +67,9 @@ class WriterTest extends PHPUnit_Framework_TestCase
         $this->assertContains('jane,doe,jane.doe@example.com', (string) $csv);
     }
 
-    /**
-     * @expectedException InvalidArgumentException
-     */
     public function testFailedSaveWithWrongType()
     {
+        $this->expectException(Exception::class);
         $this->csv->insertAll(new stdClass());
     }
 
@@ -109,10 +107,12 @@ class WriterTest extends PHPUnit_Framework_TestCase
     public function testAddValidationRules()
     {
         $func = function (array $row) {
-            return true;
+            return false;
         };
 
+        $this->expectException(InvalidRowException::class);
         $this->csv->addValidator($func, 'func1');
+        $this->csv->insertOne(['jane', 'doe']);
     }
 
     public function testFormatterRules()

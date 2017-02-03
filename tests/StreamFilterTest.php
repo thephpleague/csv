@@ -4,14 +4,15 @@ namespace LeagueTest\Csv;
 
 use League\Csv\Reader;
 use League\Csv\Writer;
-use PHPUnit_Framework_TestCase;
+use LogicException;
+use PHPUnit\Framework\TestCase;
 use SplTempFileObject;
 
 /**
  * @group stream
  * @group csv
  */
-class StreamFilterTest extends PHPUnit_Framework_TestCase
+class StreamFilterTest extends TestCase
 {
     public function testappendStreamFilter()
     {
@@ -31,35 +32,26 @@ class StreamFilterTest extends PHPUnit_Framework_TestCase
         $this->assertTrue($csv->hasStreamFilter($filtername));
     }
 
-    /**
-     * @expectedException LogicException
-     */
     public function testFailPrependStreamFilter()
     {
+        $this->expectException(LogicException::class);
         $csv = Reader::createFromFileObject(new SplTempFileObject());
         $this->assertFalse($csv->isActiveStreamFilter());
         $csv->prependStreamFilter('string.toupper');
     }
 
-    /**
-     * @expectedException LogicException
-     */
     public function testFailedapppendStreamFilter()
     {
+        $this->expectException(LogicException::class);
         $csv = Writer::createFromFileObject(new SplTempFileObject());
         $this->assertFalse($csv->isActiveStreamFilter());
         $csv->appendStreamFilter('string.toupper');
     }
 
-    public function testRemoveStreamFilterAlwaysWorks()
-    {
-        $csv = Writer::createFromFileObject(new SplTempFileObject());
-        $csv->removeStreamFilter('string.toupper');
-    }
-
     public function testClearAttachedStreamFilters()
     {
         $csv = Reader::createFromPath(__DIR__.'/data/foo.csv');
+        $csv->removeStreamFilter('string.tolower');
         $csv->appendStreamFilter('string.tolower');
         $csv->appendStreamFilter('string.rot13');
         $csv->appendStreamFilter('string.toupper');
@@ -84,6 +76,7 @@ class StreamFilterTest extends PHPUnit_Framework_TestCase
         $csv = Writer::createFromPath(__DIR__.'/data/newline.csv');
         $csv->appendStreamFilter(FilterReplace::FILTER_NAME."\r\n:\n");
         $csv->insertOne([1, 'two', 3, "new\r\nline"]);
+        $this->assertContains("1,two,3,\"new\nline\"", (string) $csv);
     }
 
     public function testUrlEncodeFilterParameters()

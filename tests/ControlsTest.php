@@ -2,15 +2,16 @@
 
 namespace LeagueTest\Csv;
 
+use League\Csv\Exception;
 use League\Csv\Reader;
-use PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\TestCase;
 use SplFileObject;
 use SplTempFileObject;
 
 /**
  * @group csv
  */
-class ControlsTest extends PHPUnit_Framework_TestCase
+class ControlsTest extends TestCase
 {
     private $csv;
 
@@ -34,15 +35,11 @@ class ControlsTest extends PHPUnit_Framework_TestCase
         $this->csv = null;
     }
 
-    /**
-     * @expectedException InvalidArgumentException
-     * @expectedExceptionMessage The delimiter must be a single character
-     */
     public function testDelimeter()
     {
+        $this->expectException(Exception::class);
         $this->csv->setDelimiter('o');
         $this->assertSame('o', $this->csv->getDelimiter());
-
         $this->csv->setDelimiter('foo');
     }
 
@@ -85,24 +82,18 @@ class ControlsTest extends PHPUnit_Framework_TestCase
         $this->assertSame([',' => 4], $this->csv->fetchDelimitersOccurrence([',']));
     }
 
-    /**
-     * @expectedException InvalidArgumentException
-     * @expectedExceptionMessage The escape must be a single character
-     */
     public function testEscape()
     {
+        $this->expectException(Exception::class);
         $this->csv->setEscape('o');
         $this->assertSame('o', $this->csv->getEscape());
 
         $this->csv->setEscape('foo');
     }
 
-    /**
-     * @expectedException InvalidArgumentException
-     * @expectedExceptionMessage The enclosure must be a single character
-     */
     public function testEnclosure()
     {
+        $this->expectException(Exception::class);
         $this->csv->setEnclosure('o');
         $this->assertSame('o', $this->csv->getEnclosure());
 

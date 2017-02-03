@@ -2,16 +2,18 @@
 
 namespace LeagueTest\Csv;
 
+use League\Csv\Exception;
 use League\Csv\Reader;
 use League\Csv\StreamIterator;
 use League\Csv\Writer;
-use PHPUnit_Framework_TestCase;
+use LogicException;
+use PHPUnit\Framework\TestCase;
 use SplFileObject;
 
 /**
  * @group stream
  */
-class StreamIteratorTest extends PHPUnit_Framework_TestCase
+class StreamIteratorTest extends TestCase
 {
     protected $csv;
 
@@ -26,45 +28,35 @@ class StreamIteratorTest extends PHPUnit_Framework_TestCase
         $this->csv = null;
     }
 
-    /**
-     * @expectedException LogicException
-     */
     public function testCloningIsForbidden()
     {
+        $this->expectException(LogicException::class);
         $toto = clone new StreamIterator(fopen('php://temp', 'r+'));
     }
 
-    /**
-     * @expectedException InvalidArgumentException
-     */
     public function testCreateFromStreamWithInvalidParameter()
     {
+        $this->expectException(Exception::class);
         $path = __DIR__.'/data/foo.csv';
         Reader::createFromStream($path);
     }
 
-    /**
-     * @expectedException InvalidArgumentException
-     */
     public function testCreateStreamWithInvalidParameter()
     {
+        $this->expectException(Exception::class);
         $path = __DIR__.'/data/foo.csv';
         new StreamIterator($path);
     }
 
-    /**
-     * @expectedException InvalidArgumentException
-     */
     public function testCreateStreamWithNonSeekableStream()
     {
+        $this->expectException(Exception::class);
         new StreamIterator(fopen('php://stdin', 'r'));
     }
 
-    /**
-     * @expectedException InvalidArgumentException
-     */
     public function testSetCsvControlTriggersException()
     {
+        $this->expectException(Exception::class);
         (new StreamIterator(fopen('php://temp', 'r+')))->setCsvControl('toto');
     }
 
@@ -149,11 +141,9 @@ class StreamIteratorTest extends PHPUnit_Framework_TestCase
         $this->assertSame("jane,doe\r\n", (string) $csv);
     }
 
-    /**
-     * @expectedException \LogicException
-     */
     public function testStreamIteratorSeekThrowException()
     {
+        $this->expectException(LogicException::class);
         $fp = fopen('php://temp', 'r+');
         $expected = [
             ['john', 'doe', 'john.doe@example.com'],
