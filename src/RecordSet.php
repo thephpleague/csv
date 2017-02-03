@@ -56,18 +56,18 @@ class RecordSet implements JsonSerializable, IteratorAggregate, Countable
      *
      * @var array
      */
-    protected $headers = [];
+    protected $header = [];
 
     /**
      * New instance
      *
      * @param Iterator $iterator a CSV iterator created from Statement
-     * @param array    $headers  the CSV headers
+     * @param array    $header   the CSV header
      */
-    public function __construct(Iterator $iterator, array $headers = [])
+    public function __construct(Iterator $iterator, array $header = [])
     {
         $this->iterator = $iterator;
-        $this->headers = $headers;
+        $this->header = $header;
     }
 
     /**
@@ -83,9 +83,9 @@ class RecordSet implements JsonSerializable, IteratorAggregate, Countable
      *
      * @return string[]
      */
-    public function getHeaders()
+    public function getHeader()
     {
-        return $this->headers;
+        return $this->header;
     }
 
     /**
@@ -276,16 +276,16 @@ class RecordSet implements JsonSerializable, IteratorAggregate, Countable
      */
     protected function getFieldIndex($field, $error_message)
     {
-        if (false !== array_search($field, $this->headers, true)) {
+        if (false !== array_search($field, $this->header, true)) {
             return $field;
         }
 
         $index = $this->filterInteger($field, 0, $error_message);
-        if (empty($this->headers)) {
+        if (empty($this->header)) {
             return $index;
         }
 
-        if (false !== ($index = array_search($index, array_flip($this->headers), true))) {
+        if (false !== ($index = array_search($index, array_flip($this->header), true))) {
             return $index;
         }
 

@@ -53,6 +53,12 @@ class ReaderTest extends PHPUnit_Framework_TestCase
         $this->assertContains('<table', $this->csv->toHTML());
     }
 
+    public function testGetHeader()
+    {
+        $this->csv->setHeaderOffset(1);
+        $this->assertSame($this->expected[1], $this->csv->getHeader());
+    }
+
     public function testToXML()
     {
         $this->assertInstanceOf(DOMDocument::class, $this->csv->toXML());

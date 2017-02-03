@@ -153,6 +153,16 @@ class Reader extends AbstractCsv implements JsonSerializable, Countable, Iterato
     }
 
     /**
+     * Returns the column header associate with the RecordSet
+     *
+     * @return string[]
+     */
+    public function getHeader()
+    {
+        return $this->select()->getHeader();
+    }
+
+    /**
      * Returns a HTML table representation of the CSV Table
      *
      * @param string $class_attr optional classname

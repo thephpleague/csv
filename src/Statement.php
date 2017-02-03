@@ -164,8 +164,8 @@ class Statement
      */
     public function process(Reader $reader)
     {
-        $document = $this->prepare($reader);
-        $iterator = $this->stripBOM($document, $reader->getInputBOM(), $reader->getEnclosure());
+        $iterator = $this->prepare($reader);
+        $iterator = $this->stripBOM($iterator, $reader->getInputBOM(), $reader->getEnclosure());
         $iterator = $this->combineHeader($iterator);
         $iterator = $this->filterRecords($iterator);
         $iterator = $this->orderRecords($iterator);
@@ -180,16 +180,19 @@ class Statement
      *
      * @throws Exception If the header is not found
      *
-     * @return StreamIterator|SplFileObject
+     * @return CallbackFilterIterator
      */
     protected function prepare(Reader $reader)
     {
+        $normalized = function ($row) {
+            return is_array($row) && $row != [null];
+        };
         $csv = $reader->getDocument();
         $csv->setFlags(SplFileObject::READ_CSV | SplFileObject::READ_AHEAD | SplFileObject::SKIP_EMPTY);
         $csv->setCsvControl($reader->getDelimiter(), $reader->getEnclosure(), $reader->getEscape());
         $offset = $reader->getHeaderOffset();
         if (!empty($this->headers) || null === $offset) {
-            return $csv;
+            return new CallbackFilterIterator($csv, $normalized);
         }
 
         $csv->seek($offset);
@@ -206,7 +209,7 @@ class Statement
             return $index !== $offset;
         });
 
-        return $csv;
+        return new CallbackFilterIterator($csv, $normalized);
     }
 
     /**
@@ -248,7 +251,7 @@ class Statement
         }
 
         $header_count = count($this->headers);
-        $combine = function (array $row) use ($header_count) {
+        $combine = function ($row) use ($header_count) {
             if ($header_count != count($row)) {
                 $row = array_slice(array_pad($row, $header_count, null), 0, $header_count);
             }
@@ -268,11 +271,6 @@ class Statement
     */
     protected function filterRecords(Iterator $iterator): Iterator
     {
-        $normalized_csv = function ($row) {
-            return is_array($row) && $row != [null];
-        };
-        array_unshift($this->where, $normalized_csv);
-
         $reducer = function ($iterator, $callable) {
             return new CallbackFilterIterator($iterator, $callable);
         };
