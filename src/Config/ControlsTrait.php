@@ -27,6 +27,7 @@ use SplFileObject;
  */
 trait ControlsTrait
 {
+    use StreamTrait;
     use ValidatorTrait;
 
     /**
@@ -61,13 +62,6 @@ trait ControlsTrait
      * @var string
      */
     protected $output_bom = '';
-
-    /**
-     * Returns the inner CSV Document Iterator object
-     *
-     * @return StreamIterator|SplFileObject
-     */
-    abstract public function getDocument();
 
     /**
      * Returns the current field delimiter
@@ -121,11 +115,11 @@ trait ControlsTrait
                 AbstractCsv::BOM_UTF32_BE, AbstractCsv::BOM_UTF32_LE,
                 AbstractCsv::BOM_UTF16_BE, AbstractCsv::BOM_UTF16_LE, AbstractCsv::BOM_UTF8,
             ];
-            $csv = $this->getDocument();
-            $csv->setFlags(SplFileObject::READ_CSV);
-            $csv->rewind();
-            $line = $csv->fgets();
-            $res  = array_filter($bom, function ($sequence) use ($line) {
+
+            $this->document->setFlags(SplFileObject::READ_CSV);
+            $this->document->rewind();
+            $line = $this->document->fgets();
+            $res = array_filter($bom, function ($sequence) use ($line) {
                 return strpos($line, $sequence) === 0;
             });
 

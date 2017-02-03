@@ -101,12 +101,11 @@ class Reader extends AbstractCsv implements JsonSerializable, Countable, Iterato
         $delimiters = array_unique(array_filter($delimiters, function ($value) {
             return 1 == strlen($value);
         }));
-        $csv = $this->getDocument();
-        $csv->setFlags(SplFileObject::READ_CSV);
+        $this->document->setFlags(SplFileObject::READ_CSV);
         $res = [];
         foreach ($delimiters as $delim) {
-            $csv->setCsvControl($delim, $this->enclosure, $this->escape);
-            $iterator = new CallbackFilterIterator(new LimitIterator($csv, 0, $nb_rows), $filter_row);
+            $this->document->setCsvControl($delim, $this->enclosure, $this->escape);
+            $iterator = new CallbackFilterIterator(new LimitIterator($this->document, 0, $nb_rows), $filter_row);
             $res[$delim] = count(iterator_to_array($iterator, false), COUNT_RECURSIVE);
         }
         arsort($res, SORT_NUMERIC);
@@ -133,7 +132,7 @@ class Reader extends AbstractCsv implements JsonSerializable, Countable, Iterato
      */
     public function count(): int
     {
-        return count($this->select());
+        return iterator_count($this->getIterator());
     }
 
     /**
@@ -141,7 +140,10 @@ class Reader extends AbstractCsv implements JsonSerializable, Countable, Iterato
      */
     public function getIterator(): Iterator
     {
-        return $this->select()->getIterator();
+        $this->document->setFlags(SplFileObject::READ_CSV | SplFileObject::READ_AHEAD | SplFileObject::SKIP_EMPTY);
+        $this->document->setCsvControl($this->delimiter, $this->enclosure, $this->escape);
+
+        return $this->document;
     }
 
     /**

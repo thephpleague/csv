@@ -15,7 +15,6 @@ declare(strict_types=1);
 namespace League\Csv;
 
 use League\Csv\Config\ControlsTrait;
-use League\Csv\Config\StreamTrait;
 use LogicException;
 use RuntimeException;
 use SplFileObject;
@@ -30,7 +29,6 @@ use SplFileObject;
 abstract class AbstractCsv
 {
     use ControlsTrait;
-    use StreamTrait;
 
     /**
      *  UTF-8 BOM sequence
@@ -79,16 +77,6 @@ abstract class AbstractCsv
     {
         $this->clearStreamFilter();
         $this->document = null;
-    }
-
-    /**
-     * Set the Inner Iterator
-     *
-     * @return StreamIterator|SplFileObject
-     */
-    public function getDocument()
-    {
-        return $this->document;
     }
 
     /**
@@ -194,13 +182,13 @@ abstract class AbstractCsv
         if ($this->output_bom && $input_bom != $this->output_bom) {
             $bom = $this->output_bom;
         }
-        $csv = $this->getDocument();
-        $csv->rewind();
+
+        $this->document->rewind();
         if ('' !== $bom) {
-            $csv->fseek(mb_strlen($input_bom));
+            $this->document->fseek(mb_strlen($input_bom));
         }
         echo $bom;
-        $res = $csv->fpassthru();
+        $res = $this->document->fpassthru();
 
         return $res + strlen($bom);
     }

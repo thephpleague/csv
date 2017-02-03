@@ -45,6 +45,15 @@ class RecordSetTest extends TestCase
         $this->assertCount(1, $stmt->process($this->csv)->fetchAll());
     }
 
+    public function testCountable()
+    {
+        $stmt = (new Statement())->limit(1);
+        $res = $stmt->process($this->csv);
+        $this->assertCount(1, $res);
+        $this->assertSame(iterator_to_array($res, false), $res->fetchAll());
+    }
+
+
     public function testStatementSameInstance()
     {
         $stmt = new Statement();

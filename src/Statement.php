@@ -19,7 +19,6 @@ use CallbackFilterIterator;
 use Iterator;
 use League\Csv\Config\ValidatorTrait;
 use LimitIterator;
-use SplFileObject;
 
 /**
  *  A trait to manage filtering a CSV
@@ -164,9 +163,6 @@ class Statement
      */
     public function process(Reader $reader)
     {
-        $csv = $reader->getDocument();
-        $csv->setFlags(SplFileObject::READ_CSV | SplFileObject::READ_AHEAD | SplFileObject::SKIP_EMPTY);
-        $csv->setCsvControl($reader->getDelimiter(), $reader->getEnclosure(), $reader->getEscape());
         $header = $this->header;
         if (empty($header)) {
             $header = $this->computeHeader($reader);
@@ -177,7 +173,7 @@ class Statement
         };
 
         $iterator = $this->stripBOM(
-            new CallbackFilterIterator($csv, $normalized),
+            new CallbackFilterIterator($reader->getIterator(), $normalized),
             $reader->getInputBOM(),
             $reader->getEnclosure()
         );
@@ -204,7 +200,7 @@ class Statement
             return [];
         }
 
-        $csv = $reader->getDocument();
+        $csv = $reader->getIterator();
         $csv->seek($offset);
         $header = $csv->current();
         if (empty($header)) {
