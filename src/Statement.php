@@ -65,7 +65,7 @@ class Statement
      *
      * @var string[]
      */
-    protected $headers = [];
+    protected $header = [];
 
     /**
      * Set LimitIterator Offset
@@ -140,19 +140,19 @@ class Statement
     /**
      * Set the headers to be used by the RecordSet object
      *
-     * @param string[] $headers
+     * @param string[] $header
      *
      * @return self
      */
-    public function headers(array $headers): self
+    public function header(array $header): self
     {
-        $headers = $this->filterHeader($headers);
-        if ($headers === $this->headers) {
+        $header = $this->filterHeader($header);
+        if ($header === $this->header) {
             return $this;
         }
 
         $clone = clone $this;
-        $clone->headers = $headers;
+        $clone->header = $header;
 
         return $clone;
     }
@@ -164,13 +164,24 @@ class Statement
      */
     public function process(Reader $reader)
     {
-        $iterator = $this->prepare($reader);
-        $iterator = $this->stripBOM($iterator, $reader->getInputBOM(), $reader->getEnclosure());
-        $iterator = $this->combineHeader($iterator);
+        $csv = $reader->getDocument();
+        $csv->setFlags(SplFileObject::READ_CSV | SplFileObject::READ_AHEAD | SplFileObject::SKIP_EMPTY);
+        $csv->setCsvControl($reader->getDelimiter(), $reader->getEnclosure(), $reader->getEscape());
+        $header = !empty($this->header) ? $this->header : $this->computeHeader($reader);
+        $normalized = function ($row) {
+            return is_array($row) && $row != [null];
+        };
+
+        $iterator = $this->stripBOM(
+            new CallbackFilterIterator($csv, $normalized),
+            $reader->getInputBOM(),
+            $reader->getEnclosure()
+        );
+        $iterator = $this->combineHeader($iterator, $header);
         $iterator = $this->filterRecords($iterator);
         $iterator = $this->orderRecords($iterator);
 
-        return new RecordSet(new LimitIterator($iterator, $this->offset, $this->limit), $this->headers);
+        return new RecordSet(new LimitIterator($iterator, $this->offset, $this->limit), $header);
     }
 
     /**
@@ -180,36 +191,31 @@ class Statement
      *
      * @throws Exception If the header is not found
      *
-     * @return CallbackFilterIterator
+     * @return string[]
      */
-    protected function prepare(Reader $reader)
+    protected function computeHeader(Reader $reader)
     {
-        $normalized = function ($row) {
-            return is_array($row) && $row != [null];
-        };
-        $csv = $reader->getDocument();
-        $csv->setFlags(SplFileObject::READ_CSV | SplFileObject::READ_AHEAD | SplFileObject::SKIP_EMPTY);
-        $csv->setCsvControl($reader->getDelimiter(), $reader->getEnclosure(), $reader->getEscape());
         $offset = $reader->getHeaderOffset();
-        if (!empty($this->headers) || null === $offset) {
-            return new CallbackFilterIterator($csv, $normalized);
+        if (null === $offset) {
+            return [];
         }
 
+        $csv = $reader->getDocument();
         $csv->seek($offset);
-        $headers = $csv->current();
-        if (empty($headers) || [null] === $headers) {
-            throw new Exception('the specified header does not exist or is empty');
+        $header = $csv->current();
+        if (empty($header)) {
+            throw new Exception('The header record specified by `Reader::setHeaderOffset` does not exist or is empty');
         }
 
         if (0 === $offset) {
-            $headers = $this->removeBOM($headers, mb_strlen($reader->getInputBOM()), $reader->getEnclosure());
+            $header = $this->removeBOM($header, mb_strlen($reader->getInputBOM()), $reader->getEnclosure());
         }
-        $this->headers = $this->filterHeader($headers);
+        $header = $this->filterHeader($header);
         array_unshift($this->where, function ($row, $index) use ($offset) {
             return $index !== $offset;
         });
 
-        return new CallbackFilterIterator($csv, $normalized);
+        return $header;
     }
 
     /**
@@ -241,22 +247,23 @@ class Statement
      * Add the CSV header if present
      *
      * @param Iterator $iterator
+     * @param string[] $header
      *
      * @return Iterator
      */
-    protected function combineHeader(Iterator $iterator): Iterator
+    protected function combineHeader(Iterator $iterator, array $header): Iterator
     {
-        if (empty($this->headers)) {
+        if (empty($header)) {
             return $iterator;
         }
 
-        $header_count = count($this->headers);
-        $combine = function ($row) use ($header_count) {
+        $header_count = count($header);
+        $combine = function (array $row) use ($header_count, $header) {
             if ($header_count != count($row)) {
                 $row = array_slice(array_pad($row, $header_count, null), 0, $header_count);
             }
 
-            return array_combine($this->headers, $row);
+            return array_combine($header, $row);
         };
 
         return new MapIterator($iterator, $combine);
