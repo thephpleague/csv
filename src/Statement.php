@@ -161,7 +161,7 @@ class Statement
      *
      * @return RecordSet
      */
-    public function process(Reader $reader)
+    public function process(Reader $reader): RecordSet
     {
         $header = $this->header;
         if (empty($header)) {

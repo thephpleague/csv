@@ -2,10 +2,6 @@
 
 namespace LeagueTest\Csv;
 
-use Countable;
-use DOMDocument;
-use IteratorAggregate;
-use JsonSerializable;
 use League\Csv\Exception;
 use League\Csv\Reader;
 use PHPUnit\Framework\TestCase;
@@ -38,37 +34,10 @@ class ReaderTest extends TestCase
         $this->csv = null;
     }
 
-    public function testCountable()
-    {
-        $this->assertInstanceOf(Countable::class, $this->csv);
-        $this->assertCount(2, $this->csv);
-    }
-
-    public function testInterface()
-    {
-        $this->assertInstanceOf(IteratorAggregate::class, $this->csv);
-    }
-
-    public function testToHTML()
-    {
-        $this->assertContains('<table', $this->csv->toHTML());
-    }
-
     public function testGetHeader()
     {
         $this->csv->setHeaderOffset(1);
         $this->assertSame($this->expected[1], $this->csv->getHeader());
-    }
-
-    public function testToXML()
-    {
-        $this->assertInstanceOf(DOMDocument::class, $this->csv->toXML());
-    }
-
-    public function testJsonSerialize()
-    {
-        $this->assertInstanceOf(JsonSerializable::class, $this->csv);
-        $this->assertSame($this->expected, json_decode(json_encode($this->csv), true));
     }
 
     public function testCreateFromFileObjectPreserveFileObjectCsvControls()
@@ -84,12 +53,6 @@ class ReaderTest extends TestCase
         if (3 === count($file->getCsvControl())) {
             $this->assertSame($escape, $obj->getEscape());
         }
-    }
-
-    public function testFetchColumn()
-    {
-        $this->assertContains('john', $this->csv->fetchColumn(0));
-        $this->assertContains('jane', $this->csv->fetchColumn());
     }
 
     public function testDetectDelimiterListWithInvalidRowLimit()

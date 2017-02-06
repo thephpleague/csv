@@ -2,6 +2,7 @@
 
 namespace LeagueTest\Csv;
 
+use DOMDocument;
 use League\Csv\Exception;
 use League\Csv\Reader;
 use League\Csv\Statement;
@@ -53,6 +54,16 @@ class RecordSetTest extends TestCase
         $this->assertSame(iterator_to_array($res, false), $res->fetchAll());
     }
 
+    public function testToHTML()
+    {
+        $this->assertContains('<table', $this->csv->select()->toHTML());
+    }
+
+    public function testToXML()
+    {
+        $this->csv->setHeaderOffset(0);
+        $this->assertInstanceOf(DOMDocument::class, $this->csv->select()->toXML());
+    }
 
     public function testStatementSameInstance()
     {
@@ -110,7 +121,6 @@ class RecordSetTest extends TestCase
             ->process($this->csv)
             ->fetchAll();
     }
-
 
     public function testFilter()
     {
@@ -219,7 +229,10 @@ class RecordSetTest extends TestCase
 
         $csv = Reader::createFromFileObject($tmp);
         $csv->setHeaderOffset(2);
-        $this->assertContains(['D' => '6', 'E' => '7', 'F' => '8'], $csv->fetchAll());
+        $this->assertContains(
+            ['D' => '6', 'E' => '7', 'F' => '8'],
+            $csv->select()->fetchAll()
+        );
     }
 
     /**
@@ -233,7 +246,7 @@ class RecordSetTest extends TestCase
             $tmpFile->fputcsv($row);
         }
         $csv = Reader::createFromFileObject($tmpFile);
-        $this->assertSame($res, $csv->fetchAll()[0][0]);
+        $this->assertSame($res, $csv->select()->fetchAll()[0][0]);
     }
 
     public function validBOMSequences()
@@ -267,7 +280,7 @@ class RecordSetTest extends TestCase
         }
         $csv = Reader::createFromFileObject($tmp);
         $csv->setHeaderOffset(0);
-        $res = array_keys($csv->fetchAll()[0]);
+        $res = array_keys($csv->select()->fetchAll()[0]);
 
         $this->assertSame('john', $res[0]);
     }
@@ -285,7 +298,7 @@ class RecordSetTest extends TestCase
         }
         $csv = Reader::createFromFileObject($tmp);
         $csv->setHeaderOffset(0);
-        $res = array_keys($csv->fetchAll()[0]);
+        $res = array_keys($csv->select()->fetchAll()[0]);
 
         $this->assertSame('john', $res[0]);
     }
@@ -300,7 +313,7 @@ class RecordSetTest extends TestCase
         $expected = [
             ['parent name' => 'parentA', 'child name' => 'childA', 'title' => 'titleA'],
         ];
-        $this->assertSame($expected, $csv->fetchAll());
+        $this->assertSame($expected, $csv->select()->fetchAll());
     }
 
     public function testStripBOMWithEnclosureFetchColumn()
@@ -308,7 +321,7 @@ class RecordSetTest extends TestCase
         $source = Reader::BOM_UTF8.'"parent name","child name","title"
             "parentA","childA","titleA"';
         $csv = Reader::createFromString($source);
-        $this->assertContains('parent name', $csv->fetchColumn());
+        $this->assertContains('parent name', $csv->select()->fetchColumn());
     }
 
     public function testStripBOMWithEnclosureFetchAll()
@@ -317,7 +330,7 @@ class RecordSetTest extends TestCase
             "parentA","childA","titleA"';
         $csv = Reader::createFromString($source);
         $csv->setHeaderOffset(null);
-        $this->assertContains(['parent name', 'child name', 'title'], $csv->fetchAll());
+        $this->assertContains(['parent name', 'child name', 'title'], $csv->select()->fetchAll());
     }
 
     public function testStripBOMWithEnclosureFetchOne()
@@ -327,7 +340,7 @@ class RecordSetTest extends TestCase
         $csv = Reader::createFromString($source);
         $csv->setHeaderOffset(null);
         $expected = ['parent name', 'child name', 'title'];
-        $this->assertEquals($expected, $csv->fetchOne());
+        $this->assertEquals($expected, $csv->select()->fetchOne());
     }
 
     public function testFetchAssocKeyFailure()
@@ -355,7 +368,7 @@ class RecordSetTest extends TestCase
         }
 
         $this->expectException(Exception::class);
-        Reader::createFromFileObject($tmp)->setHeaderOffset($offset)->fetchAll();
+        Reader::createFromFileObject($tmp)->setHeaderOffset($offset)->select()->fetchAll();
     }
 
     public function invalidOffsetWithFetchAssoc()
@@ -368,8 +381,8 @@ class RecordSetTest extends TestCase
 
     public function testFetchColumn()
     {
-        $this->assertContains('john', $this->csv->fetchColumn(0));
-        $this->assertContains('jane', $this->csv->fetchColumn());
+        $this->assertContains('john', $this->csv->select()->fetchColumn(0));
+        $this->assertContains('jane', $this->csv->select()->fetchColumn());
     }
 
     public function testFetchColumnInconsistentColumnCSV()
@@ -384,7 +397,7 @@ class RecordSetTest extends TestCase
             $file->fputcsv($row);
         }
         $csv = Reader::createFromFileObject($file);
-        $res = $csv->fetchColumn(2);
+        $res = $csv->select()->fetchColumn(2);
         $this->assertCount(1, $res);
     }
 
@@ -400,21 +413,21 @@ class RecordSetTest extends TestCase
             $file->fputcsv($row);
         }
         $csv = Reader::createFromFileObject($file);
-        $res = $csv->fetchColumn(2);
+        $res = $csv->select()->fetchColumn(2);
         $this->assertCount(0, $res);
     }
 
     public function testfetchOne()
     {
-        $this->assertSame($this->expected[0], $this->csv->fetchOne(0));
-        $this->assertSame($this->expected[1], $this->csv->fetchOne(1));
-        $this->assertSame([], $this->csv->fetchOne(35));
+        $this->assertSame($this->expected[0], $this->csv->select()->fetchOne(0));
+        $this->assertSame($this->expected[1], $this->csv->select()->fetchOne(1));
+        $this->assertSame([], $this->csv->select()->fetchOne(35));
     }
 
     public function testFetchOneTriggersException()
     {
         $this->expectException(Exception::class);
-        $this->csv->fetchOne(-5);
+        $this->csv->select()->fetchOne(-5);
     }
 
     /**
@@ -422,7 +435,7 @@ class RecordSetTest extends TestCase
      */
     public function testFetchPairsIteratorMode($key, $value, $expected)
     {
-        $iterator = $this->csv->fetchPairs($key, $value);
+        $iterator = $this->csv->select()->fetchPairs($key, $value);
         foreach ($iterator as $key => $value) {
             $res = current($expected);
             $this->assertSame($value, $res[$key]);
@@ -454,12 +467,12 @@ class RecordSetTest extends TestCase
 
     public function testFetchPairsWithInvalidOffset()
     {
-        $this->assertCount(0, iterator_to_array($this->csv->fetchPairs(10, 1), true));
+        $this->assertCount(0, iterator_to_array($this->csv->select()->fetchPairs(10, 1), true));
     }
 
     public function testFetchPairsWithInvalidValue()
     {
-        $res = $this->csv->fetchPairs(0, 15);
+        $res = $this->csv->select()->fetchPairs(0, 15);
         foreach ($res as $value) {
             $this->assertNull($value);
         }

@@ -140,10 +140,7 @@ abstract class AbstractCsv
     public static function createFromPath(string $path, string $open_mode = 'r+'): self
     {
         if (!$stream = @fopen($path, $open_mode)) {
-            throw new RuntimeException(sprintf(
-                'failed to open stream: `%s`; File missing or Permission denied',
-                $path
-            ));
+            throw new RuntimeException(error_get_last()['message']);
         }
 
         return new static(new StreamIterator($stream));

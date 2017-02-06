@@ -16,7 +16,8 @@ namespace League\Csv;
 
 use CallbackFilterIterator;
 use Countable;
-use DomDocument;
+use DOMDocument;
+use DOMElement;
 use Generator;
 use Iterator;
 use IteratorAggregate;
@@ -139,25 +140,46 @@ class RecordSet implements JsonSerializable, IteratorAggregate, Countable
      * @param string $row_name  XML row node name
      * @param string $cell_name XML cell node name
      *
-     * @return DomDocument
+     * @return DOMDocument
      */
-    public function toXML(string $root_name = 'csv', string $row_name = 'row', string $cell_name = 'cell'): DomDocument
+    public function toXML(string $root_name = 'csv', string $row_name = 'row', string $cell_name = 'cell'): DOMDocument
     {
-        $doc = new DomDocument('1.0', 'UTF-8');
+        $doc = new DOMDocument('1.0', 'UTF-8');
         $root = $doc->createElement($root_name);
+        if (!empty($this->header)) {
+            $rowElement = $this->toDOMNode($doc, $this->header, $row_name, $cell_name);
+            $root->appendChild($rowElement);
+        }
         foreach ($this->convertToUtf8($this->iterator) as $row) {
-            $rowElement = $doc->createElement($row_name);
-            array_walk($row, function ($value) use (&$rowElement, $doc, $cell_name) {
-                $content = $doc->createTextNode($value);
-                $cell = $doc->createElement($cell_name);
-                $cell->appendChild($content);
-                $rowElement->appendChild($cell);
-            });
+            $rowElement = $this->toDOMNode($doc, $row, $row_name, $cell_name);
             $root->appendChild($rowElement);
         }
         $doc->appendChild($root);
 
         return $doc;
+    }
+
+    /**
+     * convert a Record into a DOMNode
+     *
+     * @param DOMDocument $doc       The DOMDocument
+     * @param array       $row       The CSV record
+     * @param string      $row_name  XML row node name
+     * @param string      $cell_name XML cell node name
+     *
+     * @return DOMElement
+     */
+    protected function toDOMNode(DOMDocument $doc, array $row, string $row_name, string $cell_name): DOMElement
+    {
+        $rowElement = $doc->createElement($row_name);
+        foreach ($row as $value) {
+            $content = $doc->createTextNode($value);
+            $cell = $doc->createElement($cell_name);
+            $cell->appendChild($content);
+            $rowElement->appendChild($cell);
+        }
+
+        return $rowElement;
     }
 
     /**
@@ -276,7 +298,7 @@ class RecordSet implements JsonSerializable, IteratorAggregate, Countable
      */
     protected function getFieldIndex($field, $error_message)
     {
-        if (false !== array_search($field, $this->header, true)) {
+        if (false !== array_search($field, $this->header, true) || is_string($field)) {
             return $field;
         }
 

@@ -36,8 +36,8 @@
         }
     },
     "scripts": {
-        "test": "phpunit --coverage-text --whitelist src; php-cs-fixer fix -v --diff --dry-run;",
-        "phpunit": "phpunit --coverage-text --whitelist src",
+        "test": "phpunit --coverage-text; php-cs-fixer fix -v --diff --dry-run;",
+        "phpunit": "phpunit --coverage-text",
         "phpcs": "php-cs-fixer fix -v --diff --dry-run;"
     },
     "extra": {

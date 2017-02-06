@@ -72,7 +72,7 @@ class StreamIteratorTest extends TestCase
         }
         $csv = Reader::createFromStream($fp);
 
-        $this->assertSame($res, $csv->fetchAll()[0][0]);
+        $this->assertSame($res, $csv->select()->fetchAll()[0][0]);
     }
 
     public function validBOMSequences()

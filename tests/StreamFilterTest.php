@@ -83,6 +83,6 @@ class StreamFilterTest extends TestCase
     {
         $csv = Reader::createFromPath(__DIR__.'/data/foo.csv');
         $csv->appendStreamFilter('convert.iconv.UTF-8/ASCII//TRANSLIT');
-        $this->assertCount(1, $csv->fetchAll());
+        $this->assertCount(1, $csv->select()->fetchAll());
     }
 }

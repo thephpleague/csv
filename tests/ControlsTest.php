@@ -57,7 +57,7 @@ class ControlsTest extends TestCase
         $this->csv->setOutputBOM(Reader::BOM_UTF8);
         $expected = chr(239).chr(187).chr(191).'john,doe,john.doe@example.com'.PHP_EOL
             .'jane,doe,jane.doe@example.com'.PHP_EOL;
-        $this->assertSame($expected, $this->csv->__toString());
+        $this->assertSame($expected, (string) $this->csv);
     }
 
     public function testGetBomOnInputWithNoBOM()
@@ -110,7 +110,7 @@ class ControlsTest extends TestCase
         $obj->fwrite("1st\n2nd\n");
         $obj->setFlags($flag);
         $reader = Reader::createFromFileObject($obj);
-        $this->assertCount($fetch_count, $reader->fetchAll());
+        $this->assertCount($fetch_count, $reader->select()->fetchAll());
         $reader = null;
         $obj = null;
         unlink($path);
