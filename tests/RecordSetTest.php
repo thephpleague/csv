@@ -59,6 +59,16 @@ class RecordSetTest extends TestCase
         $this->assertContains('<table', $this->csv->select()->toHTML());
     }
 
+    public function testAddHeaderToHTMLExport()
+    {
+        $this->csv->setHeaderOffset(0);
+        $res = $this->csv->select();
+        $this->assertContains('<td>john</td>', $res->toHTML());
+        $res->useHeaderOnXmlConversion(false);
+        $this->assertNotContains('<td>john</td>', $res->toHTML());
+    }
+
+
     public function testToXML()
     {
         $this->csv->setHeaderOffset(0);
@@ -496,14 +506,6 @@ class RecordSetTest extends TestCase
     public static function getIso8859Csv()
     {
         return [[file_get_contents(__DIR__.'/data/prenoms.csv')]];
-    }
-
-    public function testEncoding()
-    {
-        $expected = 'iso-8859-15';
-        $result = $this->csv->select();
-        $result->setConversionInputEncoding($expected);
-        $this->assertSame(strtoupper($expected), $result->getConversionInputEncoding());
     }
 
     public function testEncodingTriggersException()

@@ -37,15 +37,6 @@ class RecordSet implements JsonSerializable, IteratorAggregate, Countable
     use ValidatorTrait;
 
     /**
-     * Charset Encoding for the CSV
-     *
-     * This information is used when converting the CSV to XML or JSON
-     *
-     * @var string
-     */
-    protected $conversion_input_encoding = 'UTF-8';
-
-    /**
      * The CSV iterator result
      *
      * @var Iterator
@@ -60,12 +51,29 @@ class RecordSet implements JsonSerializable, IteratorAggregate, Countable
     protected $header = [];
 
     /**
+     * Charset Encoding for the CSV
+     *
+     * This information is used when converting the CSV to XML or JSON
+     *
+     * @var string
+     */
+    protected $conversion_input_encoding = 'UTF-8';
+
+    /**
+     * Tell whether to export the header value
+     * on XML/HTML conversion
+     *
+     * @var bool
+     */
+    protected $use_header_on_xml_conversion = true;
+
+    /**
      * New instance
      *
      * @param Iterator $iterator a CSV iterator created from Statement
      * @param array    $header   the CSV header
      */
-    public function __construct(Iterator $iterator, array $header = [])
+    public function __construct(Iterator $iterator, array $header)
     {
         $this->iterator = $iterator;
         $this->header = $header;
@@ -90,16 +98,6 @@ class RecordSet implements JsonSerializable, IteratorAggregate, Countable
     }
 
     /**
-     * Gets the source CSV encoding charset
-     *
-     * @return string
-     */
-    public function getConversionInputEncoding(): string
-    {
-        return $this->conversion_input_encoding;
-    }
-
-    /**
      * Sets the CSV encoding charset
      *
      * @param string $str
@@ -110,10 +108,26 @@ class RecordSet implements JsonSerializable, IteratorAggregate, Countable
     {
         $str = str_replace('_', '-', $str);
         $str = filter_var($str, FILTER_SANITIZE_STRING, ['flags' => FILTER_FLAG_STRIP_LOW | FILTER_FLAG_STRIP_HIGH]);
-        if (empty($str)) {
+        $str = trim($str);
+        if ('' === $str) {
             throw new Exception('you should use a valid charset');
         }
         $this->conversion_input_encoding = strtoupper($str);
+
+        return $this;
+    }
+
+    /**
+     * Tell whether to add the header content in the XML/HTML
+     * conversion output
+     *
+     * @param bool $status
+     *
+     * @return self
+     */
+    public function useHeaderOnXmlConversion(bool $status)
+    {
+        $this->use_header_on_xml_conversion = $status;
 
         return $this;
     }
@@ -146,13 +160,12 @@ class RecordSet implements JsonSerializable, IteratorAggregate, Countable
     {
         $doc = new DOMDocument('1.0', 'UTF-8');
         $root = $doc->createElement($root_name);
-        if (!empty($this->header)) {
-            $rowElement = $this->toDOMNode($doc, $this->header, $row_name, $cell_name);
-            $root->appendChild($rowElement);
+        if (!empty($this->header) && $this->use_header_on_xml_conversion) {
+            $root->appendChild($this->toDOMNode($doc, $this->header, $row_name, $cell_name));
         }
+
         foreach ($this->convertToUtf8($this->iterator) as $row) {
-            $rowElement = $this->toDOMNode($doc, $row, $row_name, $cell_name);
-            $root->appendChild($rowElement);
+            $root->appendChild($this->toDOMNode($doc, $row, $row_name, $cell_name));
         }
         $doc->appendChild($root);
 
