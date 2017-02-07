@@ -155,10 +155,8 @@ class Writer extends AbstractCsv
      * @param Traversable|array $rows a multidimensional array or a Traversable object
      *
      * @throws Exception If the given rows format is invalid
-     *
-     * @return static
      */
-    public function insertAll($rows): self
+    public function insertAll($rows)
     {
         if (!is_array($rows) && !$rows instanceof Traversable) {
             throw new Exception('the provided data must be an array OR a `Traversable` object');
@@ -167,18 +165,14 @@ class Writer extends AbstractCsv
         foreach ($rows as $row) {
             $this->insertOne($row);
         }
-
-        return $this;
     }
 
     /**
      * Adds a single line to a CSV document
      *
      * @param string[] $row an array
-     *
-     * @return static
      */
-    public function insertOne(array $row): self
+    public function insertOne(array $row)
     {
         $record = array_reduce($this->formatters, [$this, 'formatRecord'], $row);
         $this->validateRecord($record);
@@ -187,8 +181,6 @@ class Writer extends AbstractCsv
         }
 
         $this->postInsertionAction();
-
-        return $this;
     }
 
     /**
