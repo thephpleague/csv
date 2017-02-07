@@ -67,6 +67,13 @@ class WriterTest extends TestCase
         $this->assertContains('jane,doe,jane.doe@example.com', (string) $csv);
     }
 
+    public function testInsertThrowsExceptionOnError()
+    {
+        $this->expectException(Exception::class);
+        $csv = Writer::createFromPath(__DIR__.'/data/foo.csv', 'r');
+        $csv->insertOne(['jane', 'doe', 'jane.doe@example.com']);
+    }
+
     public function testFailedSaveWithWrongType()
     {
         $this->expectException(Exception::class);

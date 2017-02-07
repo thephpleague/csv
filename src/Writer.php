@@ -182,16 +182,11 @@ class Writer extends AbstractCsv
     {
         $record = array_reduce($this->formatters, [$this, 'formatRecord'], $row);
         $this->validateRecord($record);
-        $this->document->fputcsv($record, $this->delimiter, $this->enclosure, $this->escape);
-        if ("\n" !== $this->newline) {
-            $this->document->fseek(-1, SEEK_CUR);
-            $this->document->fwrite($this->newline, strlen($this->newline));
+        if (!$this->document->fputcsv($record, $this->delimiter, $this->enclosure, $this->escape)) {
+            throw new InvalidRowException(__METHOD__, $record, 'Unable to write data to the CSV document');
         }
 
-        $this->insert_count++;
-        if (null !== $this->flush_threshold && 0 === $this->insert_count % $this->flush_threshold) {
-            $this->document->fflush();
-        }
+        $this->postInsertionAction();
 
         return $this;
     }
@@ -222,6 +217,22 @@ class Writer extends AbstractCsv
             if (true !== $validator($row)) {
                 throw new InvalidRowException($name, $row, 'row validation failed');
             }
+        }
+    }
+
+    /**
+     * Post Insertion actions
+     */
+    protected function postInsertionAction()
+    {
+        if ("\n" !== $this->newline) {
+            $this->document->fseek(-1, SEEK_CUR);
+            $this->document->fwrite($this->newline, strlen($this->newline));
+        }
+
+        $this->insert_count++;
+        if (null !== $this->flush_threshold && 0 === $this->insert_count % $this->flush_threshold) {
+            $this->document->fflush();
         }
     }
 }
