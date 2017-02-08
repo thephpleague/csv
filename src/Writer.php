@@ -17,7 +17,7 @@ namespace League\Csv;
 use Traversable;
 
 /**
- *  A class to manage data insertion into a CSV
+ * A class to manage data insertion into a CSV
  *
  * @package League.csv
  * @since  4.0.0
@@ -86,39 +86,6 @@ class Writer extends AbstractCsv
     }
 
     /**
-     * Sets the newline sequence characters
-     *
-     * @param string $newline
-     *
-     * @return static
-     */
-    public function setNewline(string $newline): self
-    {
-        $this->newline = (string) $newline;
-
-        return $this;
-    }
-
-    /**
-     * Set the automatic flush threshold on write
-     *
-     * @param int|null $threshold
-     */
-    public function setFlushThreshold($threshold): self
-    {
-        if (null !== $threshold) {
-            $threshold = $this->filterInteger(
-                $threshold,
-                0,
-                'The flush threshold must be a valid positive integer or 0'
-            );
-        }
-        $this->flush_threshold = $threshold;
-
-        return $this;
-    }
-
-    /**
      * add a formatter to the collection
      *
      * @param callable $callable
@@ -155,32 +122,42 @@ class Writer extends AbstractCsv
      * @param Traversable|array $rows a multidimensional array or a Traversable object
      *
      * @throws Exception If the given rows format is invalid
+     *
+     * @return int
      */
-    public function insertAll($rows)
+    public function insertAll($rows): int
     {
         if (!is_array($rows) && !$rows instanceof Traversable) {
             throw new Exception('the provided data must be an array OR a `Traversable` object');
         }
 
+        $bytes = 0;
         foreach ($rows as $row) {
-            $this->insertOne($row);
+            $bytes += $this->insertOne($row);
         }
+
+        return $bytes;
     }
 
     /**
      * Adds a single line to a CSV document
      *
      * @param string[] $row an array
+     *
+     * @throws InsertionException If the row can not be inserted
+     *
+     * @return int
      */
-    public function insertOne(array $row)
+    public function insertOne(array $row): int
     {
         $record = array_reduce($this->formatters, [$this, 'formatRecord'], $row);
         $this->validateRecord($record);
-        if (!$this->document->fputcsv($record, $this->delimiter, $this->enclosure, $this->escape)) {
-            throw new InvalidRowException(__METHOD__, $record, 'Unable to write data to the CSV document');
+        $bytes = $this->document->fputcsv($record, $this->delimiter, $this->enclosure, $this->escape);
+        if (!$bytes) {
+            throw InsertionException::createFromCsv($record);
         }
 
-        $this->postInsertionAction();
+        return $bytes + $this->consolidate();
     }
 
     /**
@@ -201,30 +178,65 @@ class Writer extends AbstractCsv
     *
     * @param string[] $row
     *
-    * @throws InvalidRowException If the validation failed
+    * @throws InsertionException If the validation failed
     */
     protected function validateRecord(array $row)
     {
         foreach ($this->validators as $name => $validator) {
             if (true !== $validator($row)) {
-                throw new InvalidRowException($name, $row, 'row validation failed');
+                throw InsertionException::createFromValidator($name, $row);
             }
         }
     }
 
     /**
-     * Post Insertion actions
+     * Apply post insertion actions
+     *
+     * @return int
      */
-    protected function postInsertionAction()
+    protected function consolidate(): int
     {
+        $bytes = 0;
         if ("\n" !== $this->newline) {
             $this->document->fseek(-1, SEEK_CUR);
-            $this->document->fwrite($this->newline, strlen($this->newline));
+            $bytes = $this->document->fwrite($this->newline, strlen($this->newline)) - 1;
         }
 
         $this->insert_count++;
         if (null !== $this->flush_threshold && 0 === $this->insert_count % $this->flush_threshold) {
             $this->document->fflush();
         }
+
+        return $bytes;
+    }
+
+    /**
+     * Sets the newline sequence characters
+     *
+     * @param string $newline
+     *
+     * @return static
+     */
+    public function setNewline(string $newline): self
+    {
+        $this->newline = (string) $newline;
+
+        return $this;
+    }
+
+    /**
+     * Set the automatic flush threshold on write
+     *
+     * @param int|null $val
+     */
+    public function setFlushThreshold($val): self
+    {
+        if (null !== $val) {
+            $val = $this->filterInteger($val, 1, 'The flush threshold must be a valid positive integer or null');
+        }
+
+        $this->flush_threshold = $val;
+
+        return $this;
     }
 }

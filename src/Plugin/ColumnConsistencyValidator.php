@@ -14,7 +14,7 @@ declare(strict_types=1);
 
 namespace League\Csv\Plugin;
 
-use InvalidArgumentException;
+use League\Csv\Exception;
 
 /**
  *  A class to manage column consistency on data insertion into a CSV
@@ -50,7 +50,7 @@ class ColumnConsistencyValidator
     public function setColumnsCount(int $value)
     {
         if ($value < -1) {
-            throw new InvalidArgumentException('the column count must an integer greater or equals to -1');
+            throw new Exception('the column count must an integer greater or equals to -1');
         }
         $this->detect_columns_count = false;
         $this->columns_count = $value;

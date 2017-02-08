@@ -4,7 +4,7 @@ namespace LeagueTest\Csv;
 
 use ArrayIterator;
 use League\Csv\Exception;
-use League\Csv\InvalidRowException;
+use League\Csv\InsertionException;
 use League\Csv\Writer;
 use PHPUnit\Framework\TestCase;
 use SplFileObject;
@@ -36,7 +36,7 @@ class WriterTest extends TestCase
         $this->expectException(Exception::class);
         $this->csv->setFlushThreshold(12);
         $this->assertSame(12, $this->csv->getFlushThreshold());
-        $this->csv->setFlushThreshold(-1);
+        $this->csv->setFlushThreshold(0);
     }
 
     public function testSupportsStreamFilter()
@@ -69,9 +69,13 @@ class WriterTest extends TestCase
 
     public function testInsertThrowsExceptionOnError()
     {
-        $this->expectException(Exception::class);
-        $csv = Writer::createFromPath(__DIR__.'/data/foo.csv', 'r');
-        $csv->insertOne(['jane', 'doe', 'jane.doe@example.com']);
+        try {
+            $expected = ['jane', 'doe', 'jane.doe@example.com'];
+            $csv = Writer::createFromPath(__DIR__.'/data/foo.csv', 'r');
+            $csv->insertOne($expected);
+        } catch (InsertionException $e) {
+            $this->assertSame($e->getData(), $expected);
+        }
     }
 
     public function testFailedSaveWithWrongType()
@@ -117,7 +121,7 @@ class WriterTest extends TestCase
             return false;
         };
 
-        $this->expectException(InvalidRowException::class);
+        $this->expectException(InsertionException::class);
         $this->csv->addValidator($func, 'func1');
         $this->csv->insertOne(['jane', 'doe']);
     }

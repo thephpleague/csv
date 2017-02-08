@@ -98,41 +98,6 @@ class RecordSet implements JsonSerializable, IteratorAggregate, Countable
     }
 
     /**
-     * Sets the CSV encoding charset
-     *
-     * @param string $str
-     *
-     * @return static
-     */
-    public function setConversionInputEncoding(string $str): self
-    {
-        $str = str_replace('_', '-', $str);
-        $str = filter_var($str, FILTER_SANITIZE_STRING, ['flags' => FILTER_FLAG_STRIP_LOW | FILTER_FLAG_STRIP_HIGH]);
-        $str = trim($str);
-        if ('' === $str) {
-            throw new Exception('you should use a valid charset');
-        }
-        $this->conversion_input_encoding = strtoupper($str);
-
-        return $this;
-    }
-
-    /**
-     * Tell whether to add the header content in the XML/HTML
-     * conversion output
-     *
-     * @param bool $status
-     *
-     * @return self
-     */
-    public function useHeaderOnXmlConversion(bool $status)
-    {
-        $this->use_header_on_xml_conversion = $status;
-
-        return $this;
-    }
-
-    /**
      * Returns a HTML table representation of the CSV Table
      *
      * @param string $class_attr optional classname
@@ -255,7 +220,7 @@ class RecordSet implements JsonSerializable, IteratorAggregate, Countable
      */
     public function fetchAll(): array
     {
-        return iterator_to_array($this->iterator, false);
+        return iterator_to_array($this->iterator, true);
     }
 
     /**
@@ -356,5 +321,40 @@ class RecordSet implements JsonSerializable, IteratorAggregate, Countable
         foreach ($it as $row) {
             yield $row[0] => $row[1];
         }
+    }
+
+    /**
+     * Sets the CSV encoding charset
+     *
+     * @param string $str
+     *
+     * @return static
+     */
+    public function setConversionInputEncoding(string $str): self
+    {
+        $str = str_replace('_', '-', $str);
+        $str = filter_var($str, FILTER_SANITIZE_STRING, ['flags' => FILTER_FLAG_STRIP_LOW | FILTER_FLAG_STRIP_HIGH]);
+        $str = trim($str);
+        if ('' === $str) {
+            throw new Exception('you should use a valid charset');
+        }
+        $this->conversion_input_encoding = strtoupper($str);
+
+        return $this;
+    }
+
+    /**
+     * Tell whether to add the header content in the XML/HTML
+     * conversion output
+     *
+     * @param bool $status
+     *
+     * @return self
+     */
+    public function useHeaderOnXmlConversion(bool $status)
+    {
+        $this->use_header_on_xml_conversion = $status;
+
+        return $this;
     }
 }

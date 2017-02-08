@@ -2,7 +2,7 @@
 
 namespace LeagueTest\Csv\Plugin;
 
-use League\Csv\InvalidRowException;
+use League\Csv\InsertionException;
 use League\Csv\Plugin\ForbiddenNullValuesValidator;
 use League\Csv\Writer;
 use PHPUnit\Framework\TestCase;
@@ -37,7 +37,7 @@ class NullValidatorTest extends TestCase
         $this->csv->addValidator($validator, $validator_name);
         try {
             $this->csv->insertOne($expected);
-        } catch (InvalidRowException $e) {
+        } catch (InsertionException $e) {
             $this->assertSame($validator_name, $e->getName());
             $this->assertSame($expected, $e->getData());
             $this->assertSame('row validation failed', $e->getMessage());
