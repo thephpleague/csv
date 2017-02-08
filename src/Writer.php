@@ -86,35 +86,6 @@ class Writer extends AbstractCsv
     }
 
     /**
-     * add a formatter to the collection
-     *
-     * @param callable $callable
-     *
-     * @return static
-     */
-    public function addFormatter(callable $callable): self
-    {
-        $this->formatters[] = $callable;
-
-        return $this;
-    }
-
-    /**
-     * add a Validator to the collection
-     *
-     * @param callable $callable
-     * @param string   $name     the rule name
-     *
-     * @return static
-     */
-    public function addValidator(callable $callable, string $name): self
-    {
-        $this->validators[$name] = $callable;
-
-        return $this;
-    }
-
-    /**
      * Adds multiple lines to the CSV document
      *
      * a simple wrapper method around insertOne
@@ -208,6 +179,35 @@ class Writer extends AbstractCsv
         }
 
         return $bytes;
+    }
+
+    /**
+     * add a formatter to the collection
+     *
+     * @param callable $callable
+     *
+     * @return static
+     */
+    public function addFormatter(callable $callable): self
+    {
+        $this->formatters[] = $callable;
+
+        return $this;
+    }
+
+    /**
+     * add a Validator to the collection
+     *
+     * @param callable $callable
+     * @param string   $name     the rule name
+     *
+     * @return static
+     */
+    public function addValidator(callable $callable, string $name): self
+    {
+        $this->validators[$name] = $callable;
+
+        return $this;
     }
 
     /**

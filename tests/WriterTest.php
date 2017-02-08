@@ -42,7 +42,7 @@ class WriterTest extends TestCase
     public function testSupportsStreamFilter()
     {
         $csv = Writer::createFromPath(__DIR__.'/data/foo.csv');
-        $this->assertTrue($csv->isActiveStreamFilter());
+        $this->assertTrue($csv->isStream());
         $csv->setFlushThreshold(1);
         $csv->addStreamFilter('string.toupper');
         $csv->insertOne(['jane', 'doe', 'jane@example.com']);

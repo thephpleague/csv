@@ -29,7 +29,7 @@ class StreamFilterTest extends TestCase
     {
         $this->expectException(LogicException::class);
         $csv = Writer::createFromFileObject(new SplTempFileObject());
-        $this->assertFalse($csv->isActiveStreamFilter());
+        $this->assertFalse($csv->isStream());
         $csv->addStreamFilter('string.toupper');
     }
 
@@ -44,18 +44,17 @@ class StreamFilterTest extends TestCase
 
     public function testClearAttachedStreamFilters()
     {
-        $csv = Reader::createFromPath(__DIR__.'/data/foo.csv');
+        $path = __DIR__.'/data/foo.csv';
+        $csv = Reader::createFromPath($path);
         $csv->addStreamFilter('string.toupper');
         $this->assertContains('JOHN', (string) $csv);
-        $csv->clearStreamFilter();
+        $csv = Reader::createFromPath($path);
         $this->assertNotContains('JOHN', (string) $csv);
     }
 
     public function testRemoveStreamFilters()
     {
         $csv = Reader::createFromPath(__DIR__.'/data/foo.csv');
-        $this->assertFalse($csv->hasStreamFilter('string.tolower'));
-        $csv->removeStreamFilter('string.tolower');
         $this->assertFalse($csv->hasStreamFilter('string.tolower'));
     }
 

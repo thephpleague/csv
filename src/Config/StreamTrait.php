@@ -53,7 +53,7 @@ trait StreamTrait
      *
      * @return bool
      */
-    public function isActiveStreamFilter(): bool
+    public function isStream(): bool
     {
         return $this->document instanceof StreamIterator;
     }
@@ -69,43 +69,6 @@ trait StreamTrait
     }
 
     /**
-     * Remove all registered stream filter
-     *
-     * @return $this
-     */
-    public function clearStreamFilter(): self
-    {
-        foreach (array_keys($this->stream_filters) as $filter_name) {
-            $this->removeStreamFilter($filter_name);
-        }
-
-        $this->stream_filters = [];
-
-        return $this;
-    }
-
-    /**
-     * Remove all the stream filter with the same name
-     *
-     * @param string $filter_name the stream filter name
-     *
-     * @return $this
-     */
-    public function removeStreamFilter(string $filter_name): self
-    {
-        if (!isset($this->stream_filters[$filter_name])) {
-            return $this;
-        }
-
-        foreach ($this->stream_filters[$filter_name] as $filter) {
-            $this->document->removeFilter($filter);
-        }
-
-        unset($this->stream_filters[$filter_name]);
-        return $this;
-    }
-
-    /**
      * append a stream filter
      *
      * @param string $filter_name a string or an object that implements the '__toString' method
@@ -114,7 +77,10 @@ trait StreamTrait
      */
     public function addStreamFilter(string $filter_name): self
     {
-        $this->assertStreamable();
+        if (!$this->document instanceof StreamIterator) {
+            throw new LogicException('The stream filter API can not be used');
+        }
+
         $this->stream_filters[$filter_name][] = $this->document->appendFilter(
             $filter_name,
             $this->stream_filter_mode
@@ -124,14 +90,28 @@ trait StreamTrait
     }
 
     /**
-     * Check if the trait methods can be used
-     *
-     * @throws LogicException If the API can not be use
+     * Remove all registered stream filter
      */
-    protected function assertStreamable()
+    protected function clearStreamFilter()
     {
-        if (!$this->isActiveStreamFilter()) {
-            throw new LogicException('The stream filter API can not be used');
+        foreach (array_keys($this->stream_filters) as $filter_name) {
+            $this->removeStreamFilter($filter_name);
         }
+
+        $this->stream_filters = [];
+    }
+
+    /**
+     * Remove all the stream filter with the same name
+     *
+     * @param string $filter_name the stream filter name
+     */
+    protected function removeStreamFilter(string $filter_name)
+    {
+        foreach ($this->stream_filters[$filter_name] as $filter) {
+            $this->document->removeFilter($filter);
+        }
+
+        unset($this->stream_filters[$filter_name]);
     }
 }
