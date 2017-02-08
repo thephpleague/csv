@@ -21,8 +21,9 @@ use SplFileObject;
 /**
  *  an object oriented interface for a stream resource.
  *
- * @package League.csv
- * @since  8.2.0
+ * @package  League.csv
+ * @since    8.2.0
+ * @author   Ignace Nyamagana Butera <nyamsprod@gmail.com>
  * @internal used internally to iterate over a stream resource
  *
  */

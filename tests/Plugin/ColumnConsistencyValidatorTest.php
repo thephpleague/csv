@@ -2,7 +2,7 @@
 
 namespace LeagueTest\Csv\Plugin;
 
-use League\Csv\Exception;
+use InvalidArgumentException;
 use League\Csv\InsertionException;
 use League\Csv\Plugin\ColumnConsistencyValidator;
 use League\Csv\Writer;
@@ -32,7 +32,7 @@ class ColumnConsistencyValidatorTest extends TestCase
 
     public function testColumsCountSetterGetter()
     {
-        $this->expectException(Exception::class);
+        $this->expectException(InvalidArgumentException::class);
         $consistency = new ColumnConsistencyValidator();
         $this->assertSame(-1, $consistency->getColumnsCount());
         $consistency->setColumnsCount(3);

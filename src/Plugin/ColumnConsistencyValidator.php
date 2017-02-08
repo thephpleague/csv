@@ -14,30 +14,32 @@ declare(strict_types=1);
 
 namespace League\Csv\Plugin;
 
-use League\Csv\Exception;
+use InvalidArgumentException;
+use League\Csv\RecordValidatorInterface;
 
 /**
  *  A class to manage column consistency on data insertion into a CSV
  *
  * @package League.csv
- * @since  7.0.0
+ * @since   7.0.0
+ * @author  Ignace Nyamagana Butera <nyamsprod@gmail.com>
  *
  */
-class ColumnConsistencyValidator
+class ColumnConsistencyValidator implements RecordValidatorInterface
 {
     /**
      * The number of column per row
      *
      * @var int
      */
-    private $columns_count = -1;
+    protected $columns_count = -1;
 
     /**
      * should the class detect the column count based the inserted row
      *
      * @var bool
      */
-    private $detect_columns_count = false;
+    protected $detect_columns_count = false;
 
     /**
      * Set Inserted row column count
@@ -50,7 +52,7 @@ class ColumnConsistencyValidator
     public function setColumnsCount(int $value)
     {
         if ($value < -1) {
-            throw new Exception('the column count must an integer greater or equals to -1');
+            throw new InvalidArgumentException('the column count must an integer greater or equals to -1');
         }
         $this->detect_columns_count = false;
         $this->columns_count = $value;
@@ -84,7 +86,7 @@ class ColumnConsistencyValidator
      *
      * @return bool
      */
-    public function __invoke(array $row): bool
+    public function validate(array $row): bool
     {
         if ($this->detect_columns_count) {
             $this->columns_count = count($row);

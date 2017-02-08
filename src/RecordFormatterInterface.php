@@ -14,16 +14,22 @@ declare(strict_types=1);
 
 namespace League\Csv;
 
-use InvalidArgumentException;
-
 /**
- *  League CSV Base Exception
+ * League CSV Record Formatter Interface
  *
  * @package League.csv
  * @since   9.0.0
  * @author  Ignace Nyamagana Butera <nyamsprod@gmail.com>
  *
  */
-class Exception extends InvalidArgumentException
+interface RecordFormatterInterface
 {
+    /**
+     * Format and return a CSV record
+     *
+     * @param string[] $record
+     *
+     * @return string[]
+     */
+    public function format(array $record): array;
 }

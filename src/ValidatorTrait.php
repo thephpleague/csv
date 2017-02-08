@@ -12,16 +12,15 @@
 */
 declare(strict_types=1);
 
-namespace League\Csv\Config;
-
-use League\Csv\Exception;
+namespace League\Csv;
 
 /**
  *  An abstract class to enable basic CSV manipulation
  *
- * @package League.csv
- * @since  9.0.0
- * @internal
+ * @package  League.csv
+ * @since    9.0.0
+ * @author   Ignace Nyamagana Butera <nyamsprod@gmail.com>
+ * @internal Use to validate incoming data
  */
 trait ValidatorTrait
 {
@@ -79,23 +78,11 @@ trait ValidatorTrait
             return $keys;
         }
 
-        if ($keys !== array_unique(array_filter($keys, [$this, 'isValidKey']))) {
+        if ($keys !== array_unique(array_filter($keys, 'is_string'))) {
             throw new Exception('Use a flat array with unique string values');
         }
 
         return $keys;
-    }
-
-    /**
-     * Returns whether the submitted value can be used as string
-     *
-     * @param mixed $value
-     *
-     * @return bool
-     */
-    protected function isValidKey(string $value)
-    {
-        return is_scalar($value) || (is_object($value) && method_exists($value, '__toString'));
     }
 
     /**

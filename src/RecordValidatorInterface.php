@@ -12,33 +12,27 @@
 */
 declare(strict_types=1);
 
-namespace League\Csv\Plugin;
-
-use League\Csv\RecordValidatorInterface;
+namespace League\Csv;
 
 /**
- *  A class to validate null value handling on data insertion into a CSV
+ * League CSV Record Formatter Interface
  *
  * @package League.csv
- * @since   7.0.0
+ * @since   9.0.0
  * @author  Ignace Nyamagana Butera <nyamsprod@gmail.com>
  *
  */
-class ForbiddenNullValuesValidator implements RecordValidatorInterface
+interface RecordValidatorInterface
 {
     /**
-     * Is the submitted row valid
+     * Validate a CSV record
      *
-     * @param array $row
+     * The method tells whether the submtitted row is satisfying
+     * the methods rules.
+     *
+     * @param string[] $record
      *
      * @return bool
      */
-    public function validate(array $row): bool
-    {
-        $res = array_filter($row, function ($value) {
-            return null === $value;
-        });
-
-        return !$res;
-    }
+    public function validate(array $record): bool;
 }

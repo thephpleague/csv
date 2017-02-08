@@ -12,19 +12,18 @@
 */
 declare(strict_types=1);
 
-namespace League\Csv\Config;
+namespace League\Csv;
 
 use InvalidArgumentException;
-use League\Csv\AbstractCsv;
-use League\Csv\StreamIterator;
 use LogicException;
 use SplFileObject;
 
 /**
  *  An abstract class to enable basic CSV manipulation
  *
- * @package League.csv
- * @since  9.0.0
+ * @package  League.csv
+ * @since    9.0.0
+ * @author   Ignace Nyamagana Butera <nyamsprod@gmail.com>
  * @internal
  */
 trait ControlsTrait

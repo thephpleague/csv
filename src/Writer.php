@@ -14,13 +14,16 @@ declare(strict_types=1);
 
 namespace League\Csv;
 
+use League\Csv\RecordFormatterInterface as RecordFormatter;
+use League\Csv\RecordValidatorInterface as RecordValidator;
 use Traversable;
 
 /**
  * A class to manage data insertion into a CSV
  *
  * @package League.csv
- * @since  4.0.0
+ * @since   4.0.0
+ * @author  Ignace Nyamagana Butera <nyamsprod@gmail.com>
  *
  */
 class Writer extends AbstractCsv
@@ -31,16 +34,16 @@ class Writer extends AbstractCsv
     protected $stream_filter_mode = STREAM_FILTER_WRITE;
 
     /**
-     * Callables to validate the record before insertion
+     * RecordValidator object to validate the record before insertion
      *
-     * @var callable[]
+     * @var RecordValidator[]
      */
     protected $validators = [];
 
     /**
-     * Callables to format the record before insertion
+     * RecordFormatter collection to format the record before insertion
      *
-     * @var callable[]
+     * @var RecordFormatter[]
      */
     protected $formatters = [];
 
@@ -134,28 +137,28 @@ class Writer extends AbstractCsv
     /**
      * Format the given row
      *
-     * @param string[] $row
-     * @param callable $formatter
+     * @param string[]        $record
+     * @param RecordFormatter $formatter
      *
      * @return string[]
      */
-    protected function formatRecord(array $row, callable $formatter): array
+    protected function formatRecord(array $record, RecordFormatter $formatter): array
     {
-        return $formatter($row);
+        return $formatter->format($record);
     }
 
     /**
      * Validate a row
      *
-     * @param string[] $row
+     * @param string[] $record
      *
      * @throws InsertionException If the validation failed
      */
-    protected function validateRecord(array $row)
+    protected function validateRecord(array $record)
     {
         foreach ($this->validators as $name => $validator) {
-            if (true !== $validator($row)) {
-                throw InsertionException::createFromValidator($name, $row);
+            if (true !== $validator->validate($record)) {
+                throw InsertionException::createFromValidator($name, $record);
             }
         }
     }
@@ -184,13 +187,13 @@ class Writer extends AbstractCsv
     /**
      * add a formatter to the collection
      *
-     * @param callable $callable
+     * @param RecordFormatter $formatter
      *
      * @return static
      */
-    public function addFormatter(callable $callable): self
+    public function addFormatter(RecordFormatter $formatter): self
     {
-        $this->formatters[] = $callable;
+        $this->formatters[] = $formatter;
 
         return $this;
     }
@@ -198,14 +201,14 @@ class Writer extends AbstractCsv
     /**
      * add a Validator to the collection
      *
-     * @param callable $callable
-     * @param string   $name     the rule name
+     * @param RecordValidator $validator
+     * @param string          $name      the validator name
      *
      * @return static
      */
-    public function addValidator(callable $callable, string $name): self
+    public function addValidator(RecordValidator $validator, string $name): self
     {
-        $this->validators[$name] = $callable;
+        $this->validators[$name] = $validator;
 
         return $this;
     }

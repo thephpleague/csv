@@ -22,14 +22,14 @@ use Generator;
 use Iterator;
 use IteratorAggregate;
 use JsonSerializable;
-use League\Csv\Config\ValidatorTrait;
 use LimitIterator;
 
 /**
- *  A class to manage extracting and filtering a CSV
+ * A class to manage extracting and filtering a CSV
  *
  * @package League.csv
- * @since  3.0.0
+ * @since   9.0.0
+ * @author  Ignace Nyamagana Butera <nyamsprod@gmail.com>
  *
  */
 class RecordSet implements JsonSerializable, IteratorAggregate, Countable
@@ -73,7 +73,7 @@ class RecordSet implements JsonSerializable, IteratorAggregate, Countable
      * @param Iterator $iterator a CSV iterator created from Statement
      * @param array    $header   the CSV header
      */
-    public function __construct(Iterator $iterator, array $header)
+    public function __construct(Iterator $iterator, array $header = [])
     {
         $this->iterator = $iterator;
         $this->header = $header;

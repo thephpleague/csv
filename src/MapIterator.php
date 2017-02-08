@@ -20,8 +20,9 @@ use IteratorIterator;
 /**
  *  A simple MapIterator
  *
- * @package League.csv
- * @since  3.3.0
+ * @package  League.csv
+ * @since    3.3.0
+ * @author   Ignace Nyamagana Butera <nyamsprod@gmail.com>
  * @internal used internally to modify CSV content
  *
  */

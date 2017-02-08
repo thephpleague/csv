@@ -14,7 +14,6 @@ declare(strict_types=1);
 
 namespace League\Csv;
 
-use League\Csv\Config\ControlsTrait;
 use LogicException;
 use RuntimeException;
 use SplFileObject;
@@ -24,6 +23,7 @@ use SplFileObject;
  *
  * @package League.csv
  * @since  4.0.0
+ * @author  Ignace Nyamagana Butera <nyamsprod@gmail.com>
  *
  */
 abstract class AbstractCsv

@@ -17,14 +17,14 @@ namespace League\Csv;
 use ArrayIterator;
 use CallbackFilterIterator;
 use Iterator;
-use League\Csv\Config\ValidatorTrait;
 use LimitIterator;
 
 /**
  *  A trait to manage filtering a CSV
  *
  * @package League.csv
- * @since  9.0.0
+ * @since   9.0.0
+ * @author  Ignace Nyamagana Butera <nyamsprod@gmail.com>
  *
  */
 class Statement

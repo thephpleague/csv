@@ -1,6 +1,6 @@
 <?php
 
-namespace LeagueTest\Csv;
+namespace LeagueTest\Csv\Lib;
 
 use php_user_filter;
 
