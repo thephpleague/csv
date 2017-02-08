@@ -56,7 +56,7 @@ abstract class AbstractCsv
     const BOM_UTF32_LE = "\xFF\xFE\x00\x00";
 
     /**
-     * Creates a new instance
+     * New instance
      *
      * The file path can be:
      *
@@ -114,9 +114,6 @@ abstract class AbstractCsv
     /**
      * Return a new {@link AbstractCsv} from a string
      *
-     * The string must be an object that implements the `__toString` method,
-     * or a string
-     *
      * @param string $str the string
      *
      * @return static
@@ -158,9 +155,9 @@ abstract class AbstractCsv
     {
         if (null !== $filename) {
             $filename = filter_var($filename, FILTER_SANITIZE_STRING, FILTER_FLAG_STRIP_LOW);
-            header('Content-Type: text/csv');
-            header('Content-Transfer-Encoding: binary');
-            header("Content-Disposition: attachment; filename=\"$filename\"");
+            header('content-type: text/csv');
+            header('content-transfer-encoding: binary');
+            header('content-disposition: attachment; filename="'.rawurlencode($filename).'"');
         }
 
         return $this->fpassthru();

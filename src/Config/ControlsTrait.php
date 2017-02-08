@@ -16,6 +16,8 @@ namespace League\Csv\Config;
 
 use InvalidArgumentException;
 use League\Csv\AbstractCsv;
+use League\Csv\StreamIterator;
+use LogicException;
 use SplFileObject;
 
 /**
@@ -27,8 +29,16 @@ use SplFileObject;
  */
 trait ControlsTrait
 {
-    use StreamTrait;
     use ValidatorTrait;
+
+    /**
+     * The CSV document
+     *
+     * can be a StreamIterator object, a SplFileObject object or the string path to a file
+     *
+     * @var StreamIterator|SplFileObject
+     */
+    protected $document;
 
     /**
      * the field delimiter (one character only)
@@ -62,6 +72,18 @@ trait ControlsTrait
      * @var string
      */
     protected $output_bom = '';
+
+    /**
+     * collection of stream filters
+     *
+     * @var array
+     */
+    protected $stream_filters = [];
+
+    /**
+     * The stream filter mode (read or write)
+     */
+    protected $stream_filter_mode;
 
     /**
      * Returns the current field delimiter
@@ -130,6 +152,26 @@ trait ControlsTrait
     }
 
     /**
+     * Tells whether the stream filter capabilities can be used
+     *
+     * @return bool
+     */
+    public function isStream(): bool
+    {
+        return $this->document instanceof StreamIterator;
+    }
+
+    /**
+     * Tell whether the specify stream filter is attach to the current stream
+     *
+     * @return bool
+     */
+    public function hasStreamFilter(string $filtername): bool
+    {
+        return isset($this->stream_filters[$filtername]);
+    }
+
+    /**
      * Sets the field delimiter
      *
      * @param string $delimiter
@@ -189,5 +231,49 @@ trait ControlsTrait
         $this->output_bom = $str;
 
         return $this;
+    }
+
+    /**
+     * append a stream filter
+     *
+     * @param string $filtername a string or an object that implements the '__toString' method
+     *
+     * @return $this
+     */
+    public function addStreamFilter(string $filtername): self
+    {
+        if (!$this->document instanceof StreamIterator) {
+            throw new LogicException('The stream filter API can not be used');
+        }
+
+        $this->stream_filters[$filtername][] = $this->document->appendFilter($filtername, $this->stream_filter_mode);
+
+        return $this;
+    }
+
+    /**
+     * Remove all registered stream filter
+     */
+    protected function clearStreamFilter()
+    {
+        foreach (array_keys($this->stream_filters) as $filtername) {
+            $this->removeStreamFilter($filtername);
+        }
+
+        $this->stream_filters = [];
+    }
+
+    /**
+     * Remove all the stream filter with the same name
+     *
+     * @param string $filtername the stream filter name
+     */
+    protected function removeStreamFilter(string $filtername)
+    {
+        foreach ($this->stream_filters[$filtername] as $filter) {
+            $this->document->removeFilter($filter);
+        }
+
+        unset($this->stream_filters[$filtername]);
     }
 }

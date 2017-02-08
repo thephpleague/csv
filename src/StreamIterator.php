@@ -19,7 +19,7 @@ use LogicException;
 use SplFileObject;
 
 /**
- *  A Stream Iterator
+ *  an object oriented interface for a stream resource.
  *
  * @package League.csv
  * @since  8.2.0

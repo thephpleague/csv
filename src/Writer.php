@@ -26,6 +26,11 @@ use Traversable;
 class Writer extends AbstractCsv
 {
     /**
+     * @inheritdoc
+     */
+    protected $stream_filter_mode = STREAM_FILTER_WRITE;
+
+    /**
      * Callables to validate the record before insertion
      *
      * @var callable[]
@@ -38,11 +43,6 @@ class Writer extends AbstractCsv
      * @var callable[]
      */
     protected $formatters = [];
-
-    /**
-     * @inheritdoc
-     */
-    protected $stream_filter_mode = STREAM_FILTER_WRITE;
 
     /**
      * Insert Rows count
@@ -145,12 +145,12 @@ class Writer extends AbstractCsv
     }
 
     /**
-    * Validate a row
-    *
-    * @param string[] $row
-    *
-    * @throws InsertionException If the validation failed
-    */
+     * Validate a row
+     *
+     * @param string[] $row
+     *
+     * @throws InsertionException If the validation failed
+     */
     protected function validateRecord(array $row)
     {
         foreach ($this->validators as $name => $validator) {
