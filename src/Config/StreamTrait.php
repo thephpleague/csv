@@ -112,7 +112,7 @@ trait StreamTrait
      *
      * @return $this
      */
-    public function appendStreamFilter(string $filter_name): self
+    public function addStreamFilter(string $filter_name): self
     {
         $this->assertStreamable();
         $this->stream_filters[$filter_name][] = $this->document->appendFilter(
@@ -133,23 +133,5 @@ trait StreamTrait
         if (!$this->isActiveStreamFilter()) {
             throw new LogicException('The stream filter API can not be used');
         }
-    }
-
-    /**
-     * prepend a stream filter
-     *
-     * @param string $filter_name the stream filter name
-     *
-     * @return $this
-     */
-    public function prependStreamFilter(string $filter_name): self
-    {
-        $this->assertStreamable();
-        $this->stream_filters[$filter_name][] = $this->document->prependFilter(
-            $filter_name,
-            $this->stream_filter_mode
-        );
-
-        return $this;
     }
 }
