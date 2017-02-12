@@ -15,30 +15,10 @@ use SplFileObject;
  */
 class StreamIteratorTest extends TestCase
 {
-    protected $csv;
-
-    public function setUp()
-    {
-        $this->csv = Reader::createFromStream(fopen(__DIR__.'/data/prenoms.csv', 'r'));
-        $this->csv->setDelimiter(';');
-    }
-
-    public function tearDown()
-    {
-        $this->csv = null;
-    }
-
     public function testCloningIsForbidden()
     {
         $this->expectException(LogicException::class);
         $toto = clone new StreamIterator(fopen('php://temp', 'r+'));
-    }
-
-    public function testCreateFromStreamWithInvalidParameter()
-    {
-        $this->expectException(Exception::class);
-        $path = __DIR__.'/data/foo.csv';
-        Reader::createFromStream($path);
     }
 
     public function testCreateStreamWithInvalidParameter()
@@ -59,6 +39,22 @@ class StreamIteratorTest extends TestCase
         $this->expectException(Exception::class);
         (new StreamIterator(fopen('php://temp', 'r+')))->setCsvControl('toto');
     }
+
+    public function testIterator()
+    {
+        $expected = [
+            ['john', 'doe', 'john.doe@example.com'],
+            ['jane', 'doe', 'jane.doe@example.com'],
+        ];
+        $fp = fopen('php://temp', 'r+');
+        foreach ($expected as $row) {
+            fputcsv($fp, $row);
+        }
+        $stream = new StreamIterator($fp);
+        $stream->setFlags(SplFileObject::READ_CSV);
+        $this->assertCount(3, iterator_to_array($stream));
+    }
+
 
     /**
      * @param $expected

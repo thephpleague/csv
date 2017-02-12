@@ -309,6 +309,7 @@ class RecordSet implements JsonSerializable, IteratorAggregate, Countable
     {
         $offset = $this->getFieldIndex($offset_index, 'the offset index value is invalid');
         $value = $this->getFieldIndex($value_index, 'the value index value is invalid');
+
         $filter = function ($row) use ($offset) {
             return isset($row[$offset]);
         };
@@ -318,6 +319,7 @@ class RecordSet implements JsonSerializable, IteratorAggregate, Countable
         };
 
         $it = new MapIterator(new CallbackFilterIterator($this->iterator, $filter), $select);
+
         foreach ($it as $row) {
             yield $row[0] => $row[1];
         }

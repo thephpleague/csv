@@ -61,12 +61,6 @@ trait ControlsTrait
     protected $escape = '\\';
 
     /**
-     * The Input file BOM character
-     * @var string
-     */
-    protected $input_bom;
-
-    /**
      * The Output file BOM character
      * @var string
      */
@@ -131,23 +125,19 @@ trait ControlsTrait
      */
     public function getInputBOM(): string
     {
-        if (null === $this->input_bom) {
-            $bom = [
-                AbstractCsv::BOM_UTF32_BE, AbstractCsv::BOM_UTF32_LE,
-                AbstractCsv::BOM_UTF16_BE, AbstractCsv::BOM_UTF16_LE, AbstractCsv::BOM_UTF8,
-            ];
+        $bom = [
+            AbstractCsv::BOM_UTF32_BE, AbstractCsv::BOM_UTF32_LE,
+            AbstractCsv::BOM_UTF16_BE, AbstractCsv::BOM_UTF16_LE, AbstractCsv::BOM_UTF8,
+        ];
 
-            $this->document->setFlags(SplFileObject::READ_CSV);
-            $this->document->rewind();
-            $line = $this->document->fgets();
-            $res = array_filter($bom, function ($sequence) use ($line) {
-                return strpos($line, $sequence) === 0;
-            });
+        $this->document->setFlags(SplFileObject::READ_CSV);
+        $this->document->rewind();
+        $line = $this->document->fgets();
+        $res = array_filter($bom, function ($sequence) use ($line) {
+            return strpos($line, $sequence) === 0;
+        });
 
-            $this->input_bom = (string) array_shift($res);
-        }
-
-        return $this->input_bom;
+        return (string) array_shift($res);
     }
 
     /**

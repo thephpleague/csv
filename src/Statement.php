@@ -165,19 +165,9 @@ class Statement
     {
         $header = $this->header;
         if (empty($header)) {
-            $header = $this->computeHeader($reader);
+            $header = $reader->getHeader();
         }
-
-        $normalized = function ($row) {
-            return is_array($row) && $row != [null];
-        };
-
-        $iterator = $this->stripBOM(
-            new CallbackFilterIterator($reader->getIterator(), $normalized),
-            $reader->getInputBOM(),
-            $reader->getEnclosure()
-        );
-        $iterator = $this->combineHeader($iterator, $header);
+        $iterator = $this->combineHeader($reader->getIterator());
         $iterator = $this->filterRecords($iterator);
         $iterator = $this->orderRecords($iterator);
 
@@ -185,76 +175,25 @@ class Statement
     }
 
     /**
-     * Set the computed RecordSet headers
-     *
-     * @param Reader $reader The CSV document Reader object
-     *
-     * @throws Exception If the header is not found
-     *
-     * @return string[]
-     */
-    protected function computeHeader(Reader $reader)
-    {
-        $header = $reader->getHeader();
-        if (empty($header)) {
-            return $header;
-        }
-
-        $header = $this->filterHeader($header);
-        $offset = $reader->getHeaderOffset();
-        array_unshift($this->where, function ($row, $index) use ($offset) {
-            return $index !== $offset;
-        });
-
-        return $header;
-    }
-
-    /**
-     * Remove the BOM sequence from the CSV
-     *
-     * @param Iterator $iterator
-     *
-     * @return Iterator
-     */
-    protected function stripBOM(Iterator $iterator, string $bom, string $enclosure): Iterator
-    {
-        if ('' == $bom) {
-            return $iterator;
-        }
-
-        $bom_length = mb_strlen($bom);
-        $strip_bom = function ($row, $index) use ($bom_length, $enclosure) {
-            if (0 != $index || !is_array($row)) {
-                return $row;
-            }
-
-            return $this->removeBOM($row, $bom_length, $enclosure);
-        };
-
-        return new MapIterator($iterator, $strip_bom);
-    }
-
-    /**
      * Add the CSV header if present
      *
      * @param Iterator $iterator
-     * @param string[] $header
      *
      * @return Iterator
      */
-    protected function combineHeader(Iterator $iterator, array $header): Iterator
+    protected function combineHeader(Iterator $iterator): Iterator
     {
-        if (empty($header)) {
+        if (empty($this->header)) {
             return $iterator;
         }
 
-        $header_count = count($header);
-        $combine = function (array $row) use ($header_count, $header) {
+        $header_count = count($this->header);
+        $combine = function (array $row) use ($header_count) {
             if ($header_count != count($row)) {
                 $row = array_slice(array_pad($row, $header_count, null), 0, $header_count);
             }
 
-            return array_combine($header, $row);
+            return array_combine($this->header, $row);
         };
 
         return new MapIterator($iterator, $combine);

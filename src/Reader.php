@@ -118,7 +118,9 @@ class Reader extends AbstractCsv implements IteratorAggregate
      */
     public function select(Statement $stmt = null): RecordSet
     {
-        $stmt = $stmt ?: new Statement();
+        if (null === $stmt) {
+            $stmt = new Statement();
+        }
 
         return $stmt->process($this);
     }
@@ -128,10 +130,68 @@ class Reader extends AbstractCsv implements IteratorAggregate
      */
     public function getIterator(): Iterator
     {
+        $bom = $this->getInputBOM();
+        $header = $this->getHeader();
         $this->document->setFlags(SplFileObject::READ_CSV | SplFileObject::READ_AHEAD | SplFileObject::SKIP_EMPTY);
         $this->document->setCsvControl($this->delimiter, $this->enclosure, $this->escape);
+        $iterator = new CallbackFilterIterator($this->document, function ($row) {
+            return is_array($row) && $row != [null];
+        });
 
-        return $this->document;
+        return $this->stripBOM($this->combineHeader($iterator, $header), $bom);
+    }
+
+    /**
+     * Add the CSV header if present and valid
+     *
+     * @param Iterator $iterator
+     * @param string[] $header
+     *
+     * @return Iterator
+     */
+    protected function combineHeader(Iterator $iterator, array $header): Iterator
+    {
+        if (null === $this->header_offset) {
+            return $iterator;
+        }
+
+        $header = $this->filterHeader($header);
+        $header_count = count($header);
+        $iterator = new CallbackFilterIterator($iterator, function (array $row, int $offset) {
+            return $offset != $this->header_offset;
+        });
+
+        return new MapIterator($iterator, function (array $row) use ($header_count, $header) {
+            if ($header_count != count($row)) {
+                $row = array_slice(array_pad($row, $header_count, null), 0, $header_count);
+            }
+
+            return array_combine($header, $row);
+        });
+    }
+
+    /**
+     * Strip the BOM sequence if present
+     *
+     * @param Iterator $iterator
+     * @param string   $bom
+     *
+     * @return Iterator
+     */
+    protected function stripBOM(Iterator $iterator, string $bom): Iterator
+    {
+        if ('' === $bom) {
+            return $iterator;
+        }
+
+        $bom_length = mb_strlen($bom);
+        return new MapIterator($iterator, function (array $row, $index) use ($bom_length) {
+            if (0 != $index) {
+                return $row;
+            }
+
+            return $this->removeBOM($row, $bom_length, $this->enclosure);
+        });
     }
 
     /**
@@ -147,9 +207,10 @@ class Reader extends AbstractCsv implements IteratorAggregate
             return [];
         }
 
-        $csv = $this->getIterator();
-        $csv->seek($this->header_offset);
-        $header = $csv->current();
+        $this->document->setFlags(SplFileObject::READ_CSV | SplFileObject::READ_AHEAD | SplFileObject::SKIP_EMPTY);
+        $this->document->setCsvControl($this->delimiter, $this->enclosure, $this->escape);
+        $this->document->seek($this->header_offset);
+        $header = $this->document->current();
         if (empty($header)) {
             throw new Exception('The header record specified by `Reader::setHeaderOffset` does not exist or is empty');
         }

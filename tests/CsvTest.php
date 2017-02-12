@@ -45,6 +45,13 @@ class CsvTest extends TestCase
         Reader::createFromPath(__DIR__.'/foo/bar', 'r');
     }
 
+    public function testCreateFromStreamWithInvalidParameter()
+    {
+        $this->expectException(Exception::class);
+        $path = __DIR__.'/data/foo.csv';
+        Reader::createFromStream($path);
+    }
+
     public function testCloningIsForbidden()
     {
         $this->expectException(LogicException::class);

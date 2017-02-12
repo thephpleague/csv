@@ -37,7 +37,11 @@ class ReaderTest extends TestCase
     public function testGetHeader()
     {
         $this->csv->setHeaderOffset(1);
+        $this->assertSame(1, $this->csv->getHeaderOffset());
         $this->assertSame($this->expected[1], $this->csv->getHeader());
+        $this->csv->setHeaderOffset(null);
+        $this->assertNull($this->csv->getHeaderOffset());
+        $this->assertSame([], $this->csv->getHeader());
     }
 
     public function testCreateFromFileObjectPreserveFileObjectCsvControls()
