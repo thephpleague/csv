@@ -14,8 +14,6 @@ declare(strict_types=1);
 
 namespace League\Csv;
 
-use League\Csv\RecordFormatterInterface as RecordFormatter;
-use League\Csv\RecordValidatorInterface as RecordValidator;
 use Traversable;
 
 /**
@@ -34,16 +32,16 @@ class Writer extends AbstractCsv
     protected $stream_filter_mode = STREAM_FILTER_WRITE;
 
     /**
-     * RecordValidator object to validate the record before insertion
+     * callable collection to validate the record before insertion
      *
-     * @var RecordValidator[]
+     * @var callable[]
      */
     protected $validators = [];
 
     /**
-     * RecordFormatter collection to format the record before insertion
+     * callable collection to format the record before insertion
      *
-     * @var RecordFormatter[]
+     * @var callable[]
      */
     protected $formatters = [];
 
@@ -137,14 +135,14 @@ class Writer extends AbstractCsv
     /**
      * Format the given row
      *
-     * @param string[]        $record
-     * @param RecordFormatter $formatter
+     * @param string[] $record
+     * @param callable $formatter
      *
      * @return string[]
      */
-    protected function formatRecord(array $record, RecordFormatter $formatter): array
+    protected function formatRecord(array $record, callable $formatter): array
     {
-        return $formatter->format($record);
+        return $formatter($record);
     }
 
     /**
@@ -157,7 +155,7 @@ class Writer extends AbstractCsv
     protected function validateRecord(array $record)
     {
         foreach ($this->validators as $name => $validator) {
-            if (true !== $validator->validate($record)) {
+            if (true !== ($validator)($record)) {
                 throw InsertionException::createFromValidator($name, $record);
             }
         }
@@ -187,11 +185,11 @@ class Writer extends AbstractCsv
     /**
      * add a formatter to the collection
      *
-     * @param RecordFormatter $formatter
+     * @param callable $formatter
      *
      * @return static
      */
-    public function addFormatter(RecordFormatter $formatter): self
+    public function addFormatter(callable $formatter): self
     {
         $this->formatters[] = $formatter;
 
@@ -201,12 +199,12 @@ class Writer extends AbstractCsv
     /**
      * add a Validator to the collection
      *
-     * @param RecordValidator $validator
-     * @param string          $name      the validator name
+     * @param callable $validator
+     * @param string   $name      the validator name
      *
      * @return static
      */
-    public function addValidator(RecordValidator $validator, string $name): self
+    public function addValidator(callable $validator, string $name): self
     {
         $this->validators[$name] = $validator;
 

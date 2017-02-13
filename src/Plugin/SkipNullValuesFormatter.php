@@ -14,8 +14,6 @@ declare(strict_types=1);
 
 namespace League\Csv\Plugin;
 
-use League\Csv\RecordFormatterInterface;
-
 /**
  *  A class to remove null value from data before insertion into a CSV
  *
@@ -24,7 +22,7 @@ use League\Csv\RecordFormatterInterface;
  * @author  Ignace Nyamagana Butera <nyamsprod@gmail.com>
  *
  */
-class SkipNullValuesFormatter implements RecordFormatterInterface
+class SkipNullValuesFormatter
 {
     /**
      * remove null value form the submitted array
@@ -33,7 +31,7 @@ class SkipNullValuesFormatter implements RecordFormatterInterface
      *
      * @return array
      */
-    public function format(array $row): array
+    public function __invoke(array $row): array
     {
         return array_filter($row, function ($value) {
             return null !== $value;

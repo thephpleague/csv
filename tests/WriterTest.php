@@ -5,8 +5,6 @@ namespace LeagueTest\Csv;
 use ArrayIterator;
 use League\Csv\Exception;
 use League\Csv\InsertionException;
-use League\Csv\Plugin\CallableFormatterAdapter;
-use League\Csv\Plugin\CallableValidatorAdapter;
 use League\Csv\Writer;
 use PHPUnit\Framework\TestCase;
 use SplFileObject;
@@ -124,7 +122,7 @@ class WriterTest extends TestCase
         };
 
         $this->expectException(InsertionException::class);
-        $this->csv->addValidator(new CallableValidatorAdapter($func), 'func1');
+        $this->csv->addValidator($func, 'func1');
         $this->csv->insertOne(['jane', 'doe']);
     }
 
@@ -134,7 +132,7 @@ class WriterTest extends TestCase
             return array_map('strtoupper', $row);
         };
 
-        $this->csv->addFormatter(new CallableFormatterAdapter($func));
+        $this->csv->addFormatter($func);
         $this->csv->insertOne(['jane', 'doe']);
         $this->assertSame("JANE,DOE\n", (string) $this->csv);
     }

@@ -15,7 +15,6 @@ declare(strict_types=1);
 namespace League\Csv\Plugin;
 
 use InvalidArgumentException;
-use League\Csv\RecordValidatorInterface;
 
 /**
  *  A class to manage column consistency on data insertion into a CSV
@@ -25,7 +24,7 @@ use League\Csv\RecordValidatorInterface;
  * @author  Ignace Nyamagana Butera <nyamsprod@gmail.com>
  *
  */
-class ColumnConsistencyValidator implements RecordValidatorInterface
+class ColumnConsistencyValidator
 {
     /**
      * The number of column per row
@@ -86,7 +85,7 @@ class ColumnConsistencyValidator implements RecordValidatorInterface
      *
      * @return bool
      */
-    public function validate(array $row): bool
+    public function __invoke(array $row): bool
     {
         if ($this->detect_columns_count) {
             $this->columns_count = count($row);

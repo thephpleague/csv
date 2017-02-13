@@ -14,8 +14,6 @@ declare(strict_types=1);
 
 namespace League\Csv\Plugin;
 
-use League\Csv\RecordValidatorInterface;
-
 /**
  *  A class to validate null value handling on data insertion into a CSV
  *
@@ -24,7 +22,7 @@ use League\Csv\RecordValidatorInterface;
  * @author  Ignace Nyamagana Butera <nyamsprod@gmail.com>
  *
  */
-class ForbiddenNullValuesValidator implements RecordValidatorInterface
+class ForbiddenNullValuesValidator
 {
     /**
      * Is the submitted row valid
@@ -33,7 +31,7 @@ class ForbiddenNullValuesValidator implements RecordValidatorInterface
      *
      * @return bool
      */
-    public function validate(array $row): bool
+    public function __invoke(array $row): bool
     {
         $res = array_filter($row, function ($value) {
             return null === $value;

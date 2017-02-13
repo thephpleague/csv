@@ -118,9 +118,7 @@ class Reader extends AbstractCsv implements IteratorAggregate
      */
     public function select(Statement $stmt = null): RecordSet
     {
-        if (null === $stmt) {
-            $stmt = new Statement();
-        }
+        $stmt = $stmt ?? new Statement();
 
         return $stmt->process($this);
     }
@@ -134,11 +132,13 @@ class Reader extends AbstractCsv implements IteratorAggregate
         $header = $this->getHeader();
         $this->document->setFlags(SplFileObject::READ_CSV | SplFileObject::READ_AHEAD | SplFileObject::SKIP_EMPTY);
         $this->document->setCsvControl($this->delimiter, $this->enclosure, $this->escape);
-        $iterator = new CallbackFilterIterator($this->document, function ($row) {
+        $normalized = function ($row) {
             return is_array($row) && $row != [null];
-        });
+        };
+        $iterator = new CallbackFilterIterator($this->document, $normalized);
+        $iterator = $this->combineHeader($iterator, $header);
 
-        return $this->stripBOM($this->combineHeader($iterator, $header), $bom);
+        return $this->stripBOM($iterator, $bom);
     }
 
     /**
