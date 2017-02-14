@@ -167,7 +167,8 @@ class Statement
         if (empty($header)) {
             $header = $reader->getHeader();
         }
-        $iterator = $this->combineHeader($reader->getIterator());
+        $iterator = $reader->getIterator();
+        $iterator = $this->combineHeader($iterator);
         $iterator = $this->filterRecords($iterator);
         $iterator = $this->orderRecords($iterator);
 

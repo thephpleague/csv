@@ -62,10 +62,9 @@ class RecordSetTest extends TestCase
     public function testAddHeaderToHTMLExport()
     {
         $this->csv->setHeaderOffset(0);
-        $res = $this->csv->select();
-        $this->assertContains('<td>john</td>', $res->toHTML());
-        $res->useHeaderOnXmlConversion(false);
-        $this->assertNotContains('<td>john</td>', $res->toHTML());
+        $this->assertContains('<td title="john">jane</td>', $this->csv->select()->toHTML());
+        $this->csv->setHeaderOffset(null);
+        $this->assertContains('<td>jane</td>', $this->csv->select()->toHTML());
     }
 
 

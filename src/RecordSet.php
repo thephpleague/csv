@@ -60,14 +60,6 @@ class RecordSet implements JsonSerializable, IteratorAggregate, Countable
     protected $conversion_input_encoding = 'UTF-8';
 
     /**
-     * Tell whether to export the header value
-     * on XML/HTML conversion
-     *
-     * @var bool
-     */
-    protected $use_header_on_xml_conversion = true;
-
-    /**
      * New instance
      *
      * @param Iterator $iterator a CSV iterator created from Statement
@@ -125,10 +117,6 @@ class RecordSet implements JsonSerializable, IteratorAggregate, Countable
     {
         $doc = new DOMDocument('1.0', 'UTF-8');
         $root = $doc->createElement($root_name);
-        if (!empty($this->header) && $this->use_header_on_xml_conversion) {
-            $root->appendChild($this->toDOMNode($doc, $this->header, $row_name, $cell_name));
-        }
-
         foreach ($this->convertToUtf8($this->iterator) as $row) {
             $root->appendChild($this->toDOMNode($doc, $row, $row_name, $cell_name));
         }
@@ -150,9 +138,12 @@ class RecordSet implements JsonSerializable, IteratorAggregate, Countable
     protected function toDOMNode(DOMDocument $doc, array $row, string $row_name, string $cell_name): DOMElement
     {
         $rowElement = $doc->createElement($row_name);
-        foreach ($row as $value) {
+        foreach ($row as $name => $value) {
             $content = $doc->createTextNode($value);
             $cell = $doc->createElement($cell_name);
+            if (!empty($this->header)) {
+                $cell->setAttribute('title', $name);
+            }
             $cell->appendChild($content);
             $rowElement->appendChild($cell);
         }
@@ -341,21 +332,6 @@ class RecordSet implements JsonSerializable, IteratorAggregate, Countable
             throw new Exception('you should use a valid charset');
         }
         $this->conversion_input_encoding = strtoupper($str);
-
-        return $this;
-    }
-
-    /**
-     * Tell whether to add the header content in the XML/HTML
-     * conversion output
-     *
-     * @param bool $status
-     *
-     * @return self
-     */
-    public function useHeaderOnXmlConversion(bool $status)
-    {
-        $this->use_header_on_xml_conversion = $status;
 
         return $this;
     }
