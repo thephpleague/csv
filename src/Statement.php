@@ -229,7 +229,7 @@ class Statement
             return $iterator;
         }
 
-        $obj = new ArrayIterator(iterator_to_array($iterator));
+        $obj = new ArrayIterator(iterator_to_array($iterator, true));
         $obj->uasort(function ($row_a, $row_b) {
             $res = 0;
             foreach ($this->order_by as $compare) {

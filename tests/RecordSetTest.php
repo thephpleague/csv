@@ -150,7 +150,7 @@ class RecordSetTest extends TestCase
         };
         $stmt = (new Statement())->orderBy($func);
         $this->assertSame(
-            array_reverse($this->expected),
+            array_reverse($this->expected, true),
             $stmt->process($this->csv)->fetchAll()
         );
     }
@@ -289,9 +289,11 @@ class RecordSetTest extends TestCase
         }
         $csv = Reader::createFromFileObject($tmp);
         $csv->setHeaderOffset(0);
-        $res = array_keys($csv->select()->fetchAll()[0]);
+        $res = $csv->select()->fetchAll();
+        $first = array_shift($res);
+        $keys = array_keys($first);
 
-        $this->assertSame('john', $res[0]);
+        $this->assertSame('john', $keys[0]);
     }
 
     public function testFetchAssocWithoutBOM()
@@ -307,9 +309,11 @@ class RecordSetTest extends TestCase
         }
         $csv = Reader::createFromFileObject($tmp);
         $csv->setHeaderOffset(0);
-        $res = array_keys($csv->select()->fetchAll()[0]);
+        $res = $csv->select()->fetchAll();
+        $first = array_shift($res);
+        $keys = array_keys($first);
 
-        $this->assertSame('john', $res[0]);
+        $this->assertSame('john', $keys[0]);
     }
 
     public function testStripBOMWithEnclosureFetchAssoc()
@@ -320,7 +324,7 @@ class RecordSetTest extends TestCase
         $csv = Reader::createFromString($source);
         $csv->setHeaderOffset(0);
         $expected = [
-            ['parent name' => 'parentA', 'child name' => 'childA', 'title' => 'titleA'],
+            1 => ['parent name' => 'parentA', 'child name' => 'childA', 'title' => 'titleA'],
         ];
         $this->assertSame($expected, $csv->select()->fetchAll());
     }

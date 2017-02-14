@@ -211,7 +211,7 @@ class RecordSet implements JsonSerializable, IteratorAggregate, Countable
      */
     public function fetchAll(): array
     {
-        return iterator_to_array($this->iterator, false);
+        return iterator_to_array($this->iterator);
     }
 
     /**
