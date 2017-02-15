@@ -8,7 +8,6 @@ use League\Csv\Writer;
 use LeagueTest\Csv\Lib\FilterReplace;
 use LogicException;
 use PHPUnit\Framework\TestCase;
-use RuntimeException;
 use SplFileObject;
 use SplTempFileObject;
 
@@ -41,7 +40,7 @@ class CsvTest extends TestCase
 
     public function testCreateFromPathThrowsRuntimeException()
     {
-        $this->expectException(RuntimeException::class);
+        $this->expectException(Exception::class);
         Reader::createFromPath(__DIR__.'/foo/bar', 'r');
     }
 

@@ -15,7 +15,6 @@ declare(strict_types=1);
 namespace League\Csv;
 
 use LogicException;
-use RuntimeException;
 use SplFileObject;
 
 /**
@@ -28,7 +27,7 @@ use SplFileObject;
  */
 abstract class AbstractCsv
 {
-    use ControlsTrait;
+    use ValidatorTrait;
 
     /**
      *  UTF-8 BOM sequence
@@ -56,12 +55,53 @@ abstract class AbstractCsv
     const BOM_UTF32_LE = "\xFF\xFE\x00\x00";
 
     /**
+     * The CSV document
+     *
+     * @var StreamIterator|SplFileObject
+     */
+    protected $document;
+
+    /**
+     * the field delimiter (one character only)
+     *
+     * @var string
+     */
+    protected $delimiter = ',';
+
+    /**
+     * the field enclosure character (one character only)
+     *
+     * @var string
+     */
+    protected $enclosure = '"';
+
+    /**
+     * the field escape character (one character only)
+     *
+     * @var string
+     */
+    protected $escape = '\\';
+
+    /**
+     * The Output file BOM character
+     * @var string
+     */
+    protected $output_bom = '';
+
+    /**
+     * collection of stream filters
+     *
+     * @var array
+     */
+    protected $stream_filters = [];
+
+    /**
+     * The stream filter mode (read or write)
+     */
+    protected $stream_filter_mode;
+
+    /**
      * New instance
-     *
-     * The file path can be:
-     *
-     * - a SplFileObject
-     * - a StreamIterator
      *
      * @param SplFileObject|StreamIterator $document The CSV Object instance
      */
@@ -77,6 +117,14 @@ abstract class AbstractCsv
     {
         $this->clearStreamFilter();
         $this->document = null;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function __clone()
+    {
+        throw new LogicException('An object of class '.get_class($this).' cannot be cloned');
     }
 
     /**
@@ -137,10 +185,105 @@ abstract class AbstractCsv
     public static function createFromPath(string $path, string $open_mode = 'r+'): self
     {
         if (!$stream = @fopen($path, $open_mode)) {
-            throw new RuntimeException(error_get_last()['message']);
+            throw new Exception(error_get_last()['message']);
         }
 
         return new static(new StreamIterator($stream));
+    }
+
+    /**
+     * Returns the current field delimiter
+     *
+     * @return string
+     */
+    public function getDelimiter(): string
+    {
+        return $this->delimiter;
+    }
+
+    /**
+     * Returns the current field enclosure
+     *
+     * @return string
+     */
+    public function getEnclosure(): string
+    {
+        return $this->enclosure;
+    }
+
+    /**
+     * Returns the current field escape character
+     *
+     * @return string
+     */
+    public function getEscape(): string
+    {
+        return $this->escape;
+    }
+
+    /**
+     * Returns the BOM sequence in use on Output methods
+     *
+     * @return string
+     */
+    public function getOutputBOM(): string
+    {
+        return $this->output_bom;
+    }
+
+    /**
+     * Returns the BOM sequence of the given CSV
+     *
+     * @return string
+     */
+    public function getInputBOM(): string
+    {
+        $bom = [
+            self::BOM_UTF32_BE, self::BOM_UTF32_LE,
+            self::BOM_UTF16_BE, self::BOM_UTF16_LE, self::BOM_UTF8,
+        ];
+
+        $this->document->setFlags(SplFileObject::READ_CSV);
+        $this->document->rewind();
+        $line = $this->document->fgets();
+        $res = array_filter($bom, function ($sequence) use ($line) {
+            return strpos($line, $sequence) === 0;
+        });
+
+        return (string) array_shift($res);
+    }
+
+    /**
+     * Tells whether the stream filter capabilities can be used
+     *
+     * @return bool
+     */
+    public function isStream(): bool
+    {
+        return $this->document instanceof StreamIterator;
+    }
+
+    /**
+     * Tell whether the specify stream filter is attach to the current stream
+     *
+     * @return bool
+     */
+    public function hasStreamFilter(string $filtername): bool
+    {
+        return isset($this->stream_filters[$filtername]);
+    }
+
+    /**
+     * Retrieves the CSV content
+     *
+     * @return string
+     */
+    public function __toString(): string
+    {
+        ob_start();
+        $this->fpassthru();
+
+        return ob_get_clean();
     }
 
     /**
@@ -188,23 +331,104 @@ abstract class AbstractCsv
     }
 
     /**
-     * Retrieves the CSV content
+     * Sets the field delimiter
      *
-     * @return string
+     * @param string $delimiter
+     *
+     * @return $this
      */
-    public function __toString(): string
+    public function setDelimiter(string $delimiter): self
     {
-        ob_start();
-        $this->fpassthru();
+        $this->delimiter = $this->filterControl($delimiter, 'delimiter');
 
-        return ob_get_clean();
+        return $this;
     }
 
     /**
-     * @inheritdoc
+     * Sets the field enclosure
+     *
+     * @param string $enclosure
+     *
+     * @return $this
      */
-    public function __clone()
+    public function setEnclosure(string $enclosure): self
     {
-        throw new LogicException('An object of class '.get_class($this).' cannot be cloned');
+        $this->enclosure = $this->filterControl($enclosure, 'enclosure');
+
+        return $this;
+    }
+
+    /**
+     * Sets the field escape character
+     *
+     * @param string $escape
+     *
+     * @return $this
+     */
+    public function setEscape(string $escape): self
+    {
+        $this->escape = $this->filterControl($escape, 'escape');
+
+        return $this;
+    }
+
+    /**
+     * Sets the BOM sequence to prepend the CSV on output
+     *
+     * @param string $str The BOM sequence
+     *
+     * @return static
+     */
+    public function setOutputBOM(string $str): self
+    {
+        $this->output_bom = $str;
+
+        return $this;
+    }
+
+    /**
+     * append a stream filter
+     *
+     * @param string $filtername a string or an object that implements the '__toString' method
+     *
+     * @throws LogicException If the stream filter API can not be used
+     *
+     * @return $this
+     */
+    public function addStreamFilter(string $filtername): self
+    {
+        if (!$this->document instanceof StreamIterator) {
+            throw new LogicException('The stream filter API can not be used');
+        }
+
+        $this->stream_filters[$filtername][] = $this->document->appendFilter($filtername, $this->stream_filter_mode);
+
+        return $this;
+    }
+
+    /**
+     * Remove all registered stream filter
+     */
+    protected function clearStreamFilter()
+    {
+        foreach (array_keys($this->stream_filters) as $filtername) {
+            $this->removeStreamFilter($filtername);
+        }
+
+        $this->stream_filters = [];
+    }
+
+    /**
+     * Remove all the stream filter with the same name
+     *
+     * @param string $filtername the stream filter name
+     */
+    protected function removeStreamFilter(string $filtername)
+    {
+        foreach ($this->stream_filters[$filtername] as $filter) {
+            $this->document->removeFilter($filter);
+        }
+
+        unset($this->stream_filters[$filtername]);
     }
 }
