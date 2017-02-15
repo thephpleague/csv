@@ -138,10 +138,10 @@ abstract class AbstractCsv
     {
         $csv = new static($file);
         $controls = $file->getCsvControl();
-        $csv->setDelimiter($controls[0]);
-        $csv->setEnclosure($controls[1]);
+        $csv->delimiter = $controls[0];
+        $csv->enclosure = $controls[1];
         if (isset($controls[2])) {
-            $csv->setEscape($controls[2]);
+            $csv->escape = $controls[2];
         }
 
         return $csv;
@@ -335,7 +335,7 @@ abstract class AbstractCsv
      *
      * @param string $delimiter
      *
-     * @return $this
+     * @return static
      */
     public function setDelimiter(string $delimiter): self
     {
@@ -349,7 +349,7 @@ abstract class AbstractCsv
      *
      * @param string $enclosure
      *
-     * @return $this
+     * @return static
      */
     public function setEnclosure(string $enclosure): self
     {
@@ -363,7 +363,7 @@ abstract class AbstractCsv
      *
      * @param string $escape
      *
-     * @return $this
+     * @return static
      */
     public function setEscape(string $escape): self
     {
@@ -393,7 +393,7 @@ abstract class AbstractCsv
      *
      * @throws LogicException If the stream filter API can not be used
      *
-     * @return $this
+     * @return static
      */
     public function addStreamFilter(string $filtername): self
     {

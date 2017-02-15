@@ -98,7 +98,7 @@ class RecordSet implements JsonSerializable, IteratorAggregate, Countable
      */
     public function toHTML(string $class_attr = 'table-csv-data'): string
     {
-        $doc = $this->toXML('table', 'tr', 'td');
+        $doc = $this->toXML('table', 'tr', 'td', 'title');
         $doc->documentElement->setAttribute('class', $class_attr);
 
         return $doc->saveHTML($doc->documentElement);
@@ -107,18 +107,23 @@ class RecordSet implements JsonSerializable, IteratorAggregate, Countable
     /**
      * Transforms a CSV into a XML
      *
-     * @param string $root_name XML root node name
-     * @param string $row_name  XML row node name
-     * @param string $cell_name XML cell node name
+     * @param string $root_name   XML root node name
+     * @param string $row_name    XML row node name
+     * @param string $cell_name   XML cell node name
+     * @param string $header_name XML header attribute name
      *
      * @return DOMDocument
      */
-    public function toXML(string $root_name = 'csv', string $row_name = 'row', string $cell_name = 'cell'): DOMDocument
-    {
+    public function toXML(
+        string $root_name = 'csv',
+        string $row_name = 'row',
+        string $cell_name = 'cell',
+        string $header_name = 'name'
+    ): DOMDocument {
         $doc = new DOMDocument('1.0', 'UTF-8');
         $root = $doc->createElement($root_name);
         foreach ($this->convertToUtf8($this->iterator) as $row) {
-            $root->appendChild($this->toDOMNode($doc, $row, $row_name, $cell_name));
+            $root->appendChild($this->toDOMNode($doc, $row, $row_name, $cell_name, $header_name));
         }
         $doc->appendChild($root);
 
@@ -128,21 +133,27 @@ class RecordSet implements JsonSerializable, IteratorAggregate, Countable
     /**
      * convert a Record into a DOMNode
      *
-     * @param DOMDocument $doc       The DOMDocument
-     * @param array       $row       The CSV record
-     * @param string      $row_name  XML row node name
-     * @param string      $cell_name XML cell node name
+     * @param DOMDocument $doc         The DOMDocument
+     * @param array       $row         The CSV record
+     * @param string      $row_name    XML row node name
+     * @param string      $cell_name   XML cell node name
+     * @param string      $header_name XML header attribute name
      *
      * @return DOMElement
      */
-    protected function toDOMNode(DOMDocument $doc, array $row, string $row_name, string $cell_name): DOMElement
-    {
+    protected function toDOMNode(
+        DOMDocument $doc,
+        array $row,
+        string $row_name,
+        string $cell_name,
+        string $header_name
+    ): DOMElement {
         $rowElement = $doc->createElement($row_name);
         foreach ($row as $name => $value) {
             $content = $doc->createTextNode($value);
             $cell = $doc->createElement($cell_name);
             if (!empty($this->header)) {
-                $cell->setAttribute('title', $name);
+                $cell->setAttribute($header_name, $name);
             }
             $cell->appendChild($content);
             $rowElement->appendChild($cell);
