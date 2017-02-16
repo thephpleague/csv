@@ -155,7 +155,7 @@ class Reader extends AbstractCsv implements IteratorAggregate
             return $iterator;
         }
 
-        $header = $this->filterHeader($header);
+        $header = $this->filterColumnNames($header);
         $header_count = count($header);
         $iterator = new CallbackFilterIterator($iterator, function (array $row, int $offset) {
             return $offset != $this->header_offset;
@@ -192,6 +192,29 @@ class Reader extends AbstractCsv implements IteratorAggregate
 
             return $this->removeBOM($row, $bom_length, $this->enclosure);
         });
+    }
+
+    /**
+     * Strip the BOM sequence from a record
+     *
+     * @param string[] $row
+     * @param int      $bom_length
+     * @param string   $enclosure
+     *
+     * @return string[]
+     */
+    protected function removeBOM(array $row, int $bom_length, string $enclosure): array
+    {
+        if (0 == $bom_length) {
+            return $row;
+        }
+
+        $row[0] = mb_substr($row[0], $bom_length);
+        if ($enclosure == mb_substr($row[0], 0, 1) && $enclosure == mb_substr($row[0], -1, 1)) {
+            $row[0] = mb_substr($row[0], 1, -1);
+        }
+
+        return $row;
     }
 
     /**

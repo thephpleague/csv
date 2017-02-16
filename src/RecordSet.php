@@ -105,6 +105,59 @@ class RecordSet implements JsonSerializable, IteratorAggregate, Countable
     }
 
     /**
+     * @inheritdoc
+     */
+    public function getIterator(): Iterator
+    {
+        return $this->iterator;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function count(): int
+    {
+        return iterator_count($this->iterator);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function jsonSerialize()
+    {
+        return iterator_to_array($this->convertToUtf8($this->iterator), false);
+    }
+
+    /**
+     * Convert Csv file into UTF-8
+     *
+     * @param Iterator $iterator
+     *
+     * @return Iterator
+     */
+    protected function convertToUtf8(Iterator $iterator): Iterator
+    {
+        if (stripos($this->conversion_input_encoding, 'UTF-8') !== false) {
+            return $iterator;
+        }
+
+        $convert_cell = function ($value) {
+            return mb_convert_encoding((string) $value, 'UTF-8', $this->conversion_input_encoding);
+        };
+
+        $convert_row = function (array $row) use ($convert_cell) {
+            $res = [];
+            foreach ($row as $key => $value) {
+                $res[$convert_cell($key)] = $convert_cell($value);
+            }
+
+            return $res;
+        };
+
+        return new MapIterator($iterator, $convert_row);
+    }
+
+    /**
      * Returns a HTML table representation of the CSV Table
      *
      * @param string $class_attr optional classname
@@ -175,59 +228,6 @@ class RecordSet implements JsonSerializable, IteratorAggregate, Countable
         }
 
         return $rowElement;
-    }
-
-    /**
-     * Convert Csv file into UTF-8
-     *
-     * @param Iterator $iterator
-     *
-     * @return Iterator
-     */
-    protected function convertToUtf8(Iterator $iterator): Iterator
-    {
-        if (stripos($this->conversion_input_encoding, 'UTF-8') !== false) {
-            return $iterator;
-        }
-
-        $convert_cell = function ($value) {
-            return mb_convert_encoding((string) $value, 'UTF-8', $this->conversion_input_encoding);
-        };
-
-        $convert_row = function (array $row) use ($convert_cell) {
-            $res = [];
-            foreach ($row as $key => $value) {
-                $res[$convert_cell($key)] = $convert_cell($value);
-            }
-
-            return $res;
-        };
-
-        return new MapIterator($iterator, $convert_row);
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function getIterator(): Iterator
-    {
-        return $this->iterator;
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function count(): int
-    {
-        return iterator_count($this->iterator);
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function jsonSerialize()
-    {
-        return iterator_to_array($this->convertToUtf8($this->iterator), false);
     }
 
     /**

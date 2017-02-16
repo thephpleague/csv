@@ -97,6 +97,8 @@ abstract class AbstractCsv
 
     /**
      * The stream filter mode (read or write)
+     *
+     * @var int
      */
     protected $stream_filter_mode;
 

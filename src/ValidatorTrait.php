@@ -72,7 +72,7 @@ trait ValidatorTrait
      *
      * @return array
      */
-    protected function filterHeader(array $keys): array
+    protected function filterColumnNames(array $keys): array
     {
         if (empty($keys)) {
             return $keys;
@@ -83,28 +83,5 @@ trait ValidatorTrait
         }
 
         return $keys;
-    }
-
-    /**
-     * Strip the BOM sequence from a record
-     *
-     * @param string[] $row
-     * @param int      $bom_length
-     * @param string   $enclosure
-     *
-     * @return string[]
-     */
-    protected function removeBOM(array $row, int $bom_length, string $enclosure): array
-    {
-        if (0 == $bom_length) {
-            return $row;
-        }
-
-        $row[0] = mb_substr($row[0], $bom_length);
-        if ($enclosure == mb_substr($row[0], 0, 1) && $enclosure == mb_substr($row[0], -1, 1)) {
-            $row[0] = mb_substr($row[0], 1, -1);
-        }
-
-        return $row;
     }
 }

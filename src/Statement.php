@@ -137,7 +137,7 @@ class Statement
     }
 
     /**
-     * Set the headers to be used by the RecordSet object
+     * Set the column names to be used by the RecordSet object
      *
      * @param string[] $header
      *
@@ -145,7 +145,7 @@ class Statement
      */
     public function header(array $header): self
     {
-        $header = $this->filterHeader($header);
+        $header = $this->filterColumnNames($header);
         if ($header === $this->header) {
             return $this;
         }
