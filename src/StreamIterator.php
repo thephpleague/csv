@@ -210,7 +210,7 @@ class StreamIterator implements Iterator
     /**
      * Retrieves the current line as a CSV Record
      *
-     * @return array
+     * @return array|bool
      */
     protected function getCurrentRecord()
     {
@@ -226,7 +226,7 @@ class StreamIterator implements Iterator
      *
      * @return string
      */
-    protected function getCurrentLine()
+    protected function getCurrentLine(): string
     {
         do {
             $line = fgets($this->stream);
@@ -240,7 +240,7 @@ class StreamIterator implements Iterator
      *
      * @return int
      */
-    public function key()
+    public function key(): int
     {
         return $this->current_line_number;
     }
@@ -272,7 +272,7 @@ class StreamIterator implements Iterator
      *
      * @return bool
      */
-    public function valid()
+    public function valid(): bool
     {
         if ($this->flags & SplFileObject::READ_AHEAD) {
             return $this->current() !== false;
@@ -288,7 +288,7 @@ class StreamIterator implements Iterator
      *
      * @return string
      */
-    public function fgets()
+    public function fgets(): string
     {
         if (false !== $this->current_line) {
             $this->next();
@@ -303,7 +303,7 @@ class StreamIterator implements Iterator
      *
      * @return int
      */
-    public function fpassthru()
+    public function fpassthru(): int
     {
         return fpassthru($this->stream);
     }
@@ -318,7 +318,7 @@ class StreamIterator implements Iterator
      *
      * @return int
      */
-    public function fseek($offset, $whence = SEEK_SET)
+    public function fseek(int $offset, int $whence = SEEK_SET): int
     {
         return fseek($this->stream, $offset, $whence);
     }
@@ -356,7 +356,7 @@ class StreamIterator implements Iterator
      *
      * @return int
      */
-    public function fwrite($str, $length = 0)
+    public function fwrite(string $str, int $length = 0): int
     {
         return fwrite($this->stream, $str, $length);
     }
@@ -398,7 +398,7 @@ class StreamIterator implements Iterator
      *
      * @return bool
      */
-    public function fflush()
+    public function fflush(): bool
     {
         return fflush($this->stream);
     }

@@ -48,7 +48,7 @@ class RecordSet implements JsonSerializable, IteratorAggregate, Countable
      *
      * @var array
      */
-    protected $header = [];
+    protected $column_names = [];
 
     /**
      * Charset Encoding for the CSV
@@ -62,13 +62,13 @@ class RecordSet implements JsonSerializable, IteratorAggregate, Countable
     /**
      * New instance
      *
-     * @param Iterator $iterator a CSV iterator created from Statement
-     * @param array    $header   the CSV header
+     * @param Iterator $iterator     a CSV iterator
+     * @param array    $column_names the CSV header
      */
-    public function __construct(Iterator $iterator, array $header = [])
+    public function __construct(Iterator $iterator, array $column_names = [])
     {
         $this->iterator = $iterator;
-        $this->header = $header;
+        $this->column_names = $column_names;
     }
 
     /**
@@ -80,13 +80,28 @@ class RecordSet implements JsonSerializable, IteratorAggregate, Countable
     }
 
     /**
-     * Returns the column header associate with the RecordSet
+     * Returns the field names associate with the RecordSet
      *
      * @return string[]
      */
-    public function getHeader()
+    public function getColumnNames(): array
     {
-        return $this->header;
+        return $this->column_names;
+    }
+
+    /**
+     * Returns a specific field names according to its offset
+     *
+     * If no field name is found or associated to the submitted
+     * offset an empty string is returned
+     *
+     * @param int $offset
+     *
+     * @return string
+     */
+    public function getColumnName(int $offset): string
+    {
+        return $this->column_names[$offset] ?? '';
     }
 
     /**
@@ -107,10 +122,10 @@ class RecordSet implements JsonSerializable, IteratorAggregate, Countable
     /**
      * Transforms a CSV into a XML
      *
-     * @param string $root_name   XML root node name
-     * @param string $row_name    XML row node name
-     * @param string $cell_name   XML cell node name
-     * @param string $header_name XML header attribute name
+     * @param string $root_name        XML root node name
+     * @param string $row_name         XML row node name
+     * @param string $cell_name        XML cell node name
+     * @param string $column_attr_name XML column attribute name
      *
      * @return DOMDocument
      */
@@ -118,12 +133,12 @@ class RecordSet implements JsonSerializable, IteratorAggregate, Countable
         string $root_name = 'csv',
         string $row_name = 'row',
         string $cell_name = 'cell',
-        string $header_name = 'name'
+        string $column_attr_name = 'name'
     ): DOMDocument {
         $doc = new DOMDocument('1.0', 'UTF-8');
         $root = $doc->createElement($root_name);
         foreach ($this->convertToUtf8($this->iterator) as $row) {
-            $root->appendChild($this->toDOMNode($doc, $row, $row_name, $cell_name, $header_name));
+            $root->appendChild($this->toDOMNode($doc, $row, $row_name, $cell_name, $column_attr_name));
         }
         $doc->appendChild($root);
 
@@ -133,11 +148,11 @@ class RecordSet implements JsonSerializable, IteratorAggregate, Countable
     /**
      * convert a Record into a DOMNode
      *
-     * @param DOMDocument $doc         The DOMDocument
-     * @param array       $row         The CSV record
-     * @param string      $row_name    XML row node name
-     * @param string      $cell_name   XML cell node name
-     * @param string      $header_name XML header attribute name
+     * @param DOMDocument $doc              The DOMDocument
+     * @param array       $row              The CSV record
+     * @param string      $row_name         XML row node name
+     * @param string      $cell_name        XML cell node name
+     * @param string      $column_attr_name XML header attribute name
      *
      * @return DOMElement
      */
@@ -146,14 +161,14 @@ class RecordSet implements JsonSerializable, IteratorAggregate, Countable
         array $row,
         string $row_name,
         string $cell_name,
-        string $header_name
+        string $column_attr_name
     ): DOMElement {
         $rowElement = $doc->createElement($row_name);
         foreach ($row as $name => $value) {
             $content = $doc->createTextNode($value);
             $cell = $doc->createElement($cell_name);
-            if (!empty($this->header)) {
-                $cell->setAttribute($header_name, $name);
+            if (!empty($this->column_names)) {
+                $cell->setAttribute($column_attr_name, $name);
             }
             $cell->appendChild($content);
             $rowElement->appendChild($cell);
@@ -202,7 +217,7 @@ class RecordSet implements JsonSerializable, IteratorAggregate, Countable
     /**
      * @inheritdoc
      */
-    public function count()
+    public function count(): int
     {
         return iterator_count($this->iterator);
     }
@@ -248,26 +263,26 @@ class RecordSet implements JsonSerializable, IteratorAggregate, Countable
      *
      * By default if no column index is provided the first column of the CSV is selected
      *
-     * @param string|int $column CSV column index
+     * @param string|int $index CSV column index
      *
      * @return Iterator
      */
-    public function fetchColumn($column = 0): Iterator
+    public function fetchColumn($index = 0): Iterator
     {
-        $column = $this->getFieldIndex($column, 'the column index value is invalid');
-        $filter = function (array $row) use ($column) {
-            return isset($row[$column]);
+        $offset = $this->getColumnIndex($index, 'the column index value is invalid');
+        $filter = function (array $row) use ($offset) {
+            return isset($row[$offset]);
         };
 
-        $select = function ($row) use ($column) {
-            return $row[$column];
+        $select = function ($row) use ($offset) {
+            return $row[$offset];
         };
 
         return new MapIterator(new CallbackFilterIterator($this->iterator, $filter), $select);
     }
 
     /**
-     * Filter a field name against the CSV header if any
+     * Filter a column name against the CSV header if any
      *
      * @param string|int $field         the field name or the field index
      * @param string     $error_message the associated error message
@@ -276,18 +291,18 @@ class RecordSet implements JsonSerializable, IteratorAggregate, Countable
      *
      * @return string|int
      */
-    protected function getFieldIndex($field, $error_message)
+    protected function getColumnIndex($field, string $error_message)
     {
-        if (false !== array_search($field, $this->header, true) || is_string($field)) {
+        if (false !== array_search($field, $this->column_names, true) || is_string($field)) {
             return $field;
         }
 
         $index = $this->filterInteger($field, 0, $error_message);
-        if (empty($this->header)) {
+        if (empty($this->column_names)) {
             return $index;
         }
 
-        if (false !== ($index = array_search($index, array_flip($this->header), true))) {
+        if (false !== ($index = array_search($index, array_flip($this->column_names), true))) {
             return $index;
         }
 
@@ -309,8 +324,8 @@ class RecordSet implements JsonSerializable, IteratorAggregate, Countable
      */
     public function fetchPairs($offset_index = 0, $value_index = 1): Generator
     {
-        $offset = $this->getFieldIndex($offset_index, 'the offset index value is invalid');
-        $value = $this->getFieldIndex($value_index, 'the value index value is invalid');
+        $offset = $this->getColumnIndex($offset_index, 'the offset index value is invalid');
+        $value = $this->getColumnIndex($value_index, 'the value index value is invalid');
 
         $filter = function ($row) use ($offset) {
             return isset($row[$offset]);

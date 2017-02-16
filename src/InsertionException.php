@@ -47,7 +47,7 @@ class InsertionException extends RuntimeException
      *
      * @return self
      */
-    public static function createFromCsv(array $record)
+    public static function createFromCsv(array $record): self
     {
         $exception = new static('Unable to write data to the CSV document');
         $exception->data = $record;
@@ -63,7 +63,7 @@ class InsertionException extends RuntimeException
      *
      * @return self
      */
-    public static function createFromValidator(string $name, array $data)
+    public static function createFromValidator(string $name, array $data): self
     {
         $exception = new static('row validation failed');
         $exception->name = $name;

@@ -40,6 +40,9 @@
         "phpunit": "phpunit --coverage-text",
         "phpcs": "php-cs-fixer fix -v --diff --dry-run;"
     },
+    "suggest": {
+        "ext-iconv" : "Needed to ease transcoding CSV using iconv stream filters"
+    },
     "extra": {
         "branch-alias": {
             "dev-master": "9.x-dev"

@@ -159,16 +159,13 @@ class Statement
     /**
      * Returns the inner CSV Document Iterator object
      *
+     * @param Reader $reader
+     *
      * @return RecordSet
      */
     public function process(Reader $reader): RecordSet
     {
-        $header = $this->header;
-        if (empty($header)) {
-            $header = $reader->getHeader();
-        }
-        $iterator = $reader->getIterator();
-        $iterator = $this->combineHeader($iterator);
+        list($header, $iterator) = $this->combineHeader($reader);
         $iterator = $this->filterRecords($iterator);
         $iterator = $this->orderRecords($iterator);
 
@@ -178,18 +175,19 @@ class Statement
     /**
      * Add the CSV header if present
      *
-     * @param Iterator $iterator
+     * @param Reader $reader
      *
-     * @return Iterator
+     * @return array
      */
-    protected function combineHeader(Iterator $iterator): Iterator
+    protected function combineHeader(Reader $reader): array
     {
+        $iterator = $reader->getIterator();
         if (empty($this->header)) {
-            return $iterator;
+            return [$reader->getHeader(), $iterator];
         }
 
         $header_count = count($this->header);
-        $combine = function (array $row) use ($header_count) {
+        $combine = function (array $row) use ($header_count): array {
             if ($header_count != count($row)) {
                 $row = array_slice(array_pad($row, $header_count, null), 0, $header_count);
             }
@@ -197,7 +195,7 @@ class Statement
             return array_combine($this->header, $row);
         };
 
-        return new MapIterator($iterator, $combine);
+        return [$this->header, new MapIterator($iterator, $combine)];
     }
 
     /**
@@ -209,7 +207,7 @@ class Statement
     */
     protected function filterRecords(Iterator $iterator): Iterator
     {
-        $reducer = function ($iterator, $callable) {
+        $reducer = function (Iterator $iterator, callable $callable) {
             return new CallbackFilterIterator($iterator, $callable);
         };
 
@@ -230,10 +228,10 @@ class Statement
         }
 
         $obj = new ArrayIterator(iterator_to_array($iterator, true));
-        $obj->uasort(function ($row_a, $row_b) {
+        $obj->uasort(function (array $record_a, array $record_b): int {
             $res = 0;
             foreach ($this->order_by as $compare) {
-                if (0 !== ($res = $compare($row_a, $row_b))) {
+                if (0 !== ($res = $compare($record_a, $record_b))) {
                     break;
                 }
             }

@@ -521,7 +521,8 @@ class RecordSetTest extends TestCase
     {
         $stmt = new Statement();
         $result = $this->csv->select($stmt);
-        $this->assertSame([], $result->getHeader());
+        $this->assertSame([], $result->getColumnNames());
+        $this->assertSame('', $result->getColumnName(3));
     }
 
     public function testGetComputedHeader()
@@ -529,7 +530,8 @@ class RecordSetTest extends TestCase
         $this->csv->setHeaderOffset(0);
         $stmt = new Statement();
         $result = $this->csv->select($stmt);
-        $this->assertSame($this->expected[0], $result->getHeader());
+        $this->assertSame($this->expected[0], $result->getColumnNames());
+        $this->assertSame($this->expected[0][0], $result->getColumnName(0));
     }
 
 
@@ -539,6 +541,6 @@ class RecordSetTest extends TestCase
         $this->csv->setHeaderOffset(0);
         $stmt = new Statement();
         $result = $this->csv->select($stmt->header($expected));
-        $this->assertSame($expected, $result->getHeader());
+        $this->assertSame($expected, $result->getColumnNames());
     }
 }
