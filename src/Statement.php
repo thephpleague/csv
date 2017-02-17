@@ -32,6 +32,13 @@ class Statement
     use ValidatorTrait;
 
     /**
+     * CSV columns name
+     *
+     * @var string[]
+     */
+    protected $columns = [];
+
+    /**
      * Callables to filter the iterator
      *
      * @var callable[]
@@ -60,11 +67,54 @@ class Statement
     protected $limit = -1;
 
     /**
-     * CSV headers
+     * Set and select the column to be used by the RecordSet object
      *
-     * @var string[]
+     * @param array $columns
+     *
+     * @return self
      */
-    protected $header = [];
+    public function columns(array $columns): self
+    {
+        $columns = $this->filterColumnNames($columns);
+        if ($columns === $this->columns) {
+            return $this;
+        }
+
+        $clone = clone $this;
+        $clone->columns = $columns;
+
+        return $clone;
+    }
+
+    /**
+     * Set the Iterator filter method
+     *
+     * @param callable $callable
+     *
+     * @return self
+     */
+    public function where(callable $callable): self
+    {
+        $clone = clone $this;
+        $clone->where[] = $callable;
+
+        return $clone;
+    }
+
+    /**
+     * Set an Iterator sorting callable function
+     *
+     * @param callable $callable
+     *
+     * @return self
+     */
+    public function orderBy(callable $callable): self
+    {
+        $clone = clone $this;
+        $clone->order_by[] = $callable;
+
+        return $clone;
+    }
 
     /**
      * Set LimitIterator Offset
@@ -107,56 +157,6 @@ class Statement
     }
 
     /**
-     * Set an Iterator sorting callable function
-     *
-     * @param callable $callable
-     *
-     * @return self
-     */
-    public function orderBy(callable $callable): self
-    {
-        $clone = clone $this;
-        $clone->order_by[] = $callable;
-
-        return $clone;
-    }
-
-    /**
-     * Set the Iterator filter method
-     *
-     * @param callable $callable
-     *
-     * @return self
-     */
-    public function where(callable $callable): self
-    {
-        $clone = clone $this;
-        $clone->where[] = $callable;
-
-        return $clone;
-    }
-
-    /**
-     * Set the column names to be used by the RecordSet object
-     *
-     * @param string[] $header
-     *
-     * @return self
-     */
-    public function header(array $header): self
-    {
-        $header = $this->filterColumnNames($header);
-        if ($header === $this->header) {
-            return $this;
-        }
-
-        $clone = clone $this;
-        $clone->header = $header;
-
-        return $clone;
-    }
-
-    /**
      * Returns the inner CSV Document Iterator object
      *
      * @param Reader $reader
@@ -165,37 +165,78 @@ class Statement
      */
     public function process(Reader $reader): RecordSet
     {
-        list($header, $iterator) = $this->combineHeader($reader);
-        $iterator = $this->filterRecords($iterator);
-        $iterator = $this->orderRecords($iterator);
+        list($columns, $iterator) = $this->buildColumns($reader);
+        $iterator = $this->buildWhere($iterator);
+        $iterator = $this->buildOrderBy($iterator);
 
-        return new RecordSet(new LimitIterator($iterator, $this->offset, $this->limit), $header);
+        return new RecordSet(new LimitIterator($iterator, $this->offset, $this->limit), $columns);
     }
 
     /**
-     * Add the CSV header if present
+     * Add the CSV column if present
      *
      * @param Reader $reader
      *
      * @return array
      */
-    protected function combineHeader(Reader $reader): array
+    protected function buildColumns(Reader $reader): array
     {
+        $csv_header = $reader->getHeader();
         $iterator = $reader->getIterator();
-        if (empty($this->header)) {
-            return [$reader->getHeader(), $iterator];
+        if (empty($this->columns)) {
+            return [$csv_header, $iterator];
         }
 
-        $header_count = count($this->header);
-        $combine = function (array $row) use ($header_count): array {
-            if ($header_count != count($row)) {
-                $row = array_slice(array_pad($row, $header_count, null), 0, $header_count);
+        $columns = $this->columns;
+        if (!empty($csv_header)) {
+            $columns = $this->formatColumns($this->columns);
+            $this->filterColumnAgainstCsvHeader($columns, $csv_header);
+        }
+
+        $combine = function (array $row) use ($columns): array {
+            $record = [];
+            foreach ($columns as $key => $alias) {
+                $record[$alias] = $row[$key] ?? null;
             }
 
-            return array_combine($this->header, $row);
+            return $record;
         };
 
-        return [$this->header, new MapIterator($iterator, $combine)];
+        return [array_values($columns), new MapIterator($iterator, $combine)];
+    }
+
+    /**
+     * Format the column array
+     *
+     * @param array $columns
+     *
+     * @return array
+     */
+    private function formatColumns(array $columns): array
+    {
+        $res = [];
+        foreach ($columns as $key => $alias) {
+            $res[!is_string($key) ? $alias : $key] = $alias;
+        }
+
+        return $res;
+    }
+
+    /**
+     * Validate the column against the processed CSV header
+     *
+     * @param array $columns Statement CSV columns
+     * @param array $headers Reader CSV header
+     *
+     * @throws Exception If a column is not found
+     */
+    protected function filterColumnAgainstCsvHeader(array $columns, array $headers)
+    {
+        foreach ($columns as $key => $alias) {
+            if (false === array_search($key, $headers, true)) {
+                throw new Exception(sprintf('The following column `%s` does not exist in the CSV document', $key));
+            }
+        }
     }
 
     /**
@@ -205,9 +246,9 @@ class Statement
     *
     * @return Iterator
     */
-    protected function filterRecords(Iterator $iterator): Iterator
+    protected function buildWhere(Iterator $iterator): Iterator
     {
-        $reducer = function (Iterator $iterator, callable $callable) {
+        $reducer = function (Iterator $iterator, callable $callable): Iterator {
             return new CallbackFilterIterator($iterator, $callable);
         };
 
@@ -221,7 +262,7 @@ class Statement
     *
     * @return Iterator
     */
-    protected function orderRecords(Iterator $iterator): Iterator
+    protected function buildOrderBy(Iterator $iterator): Iterator
     {
         if (empty($this->order_by)) {
             return $iterator;

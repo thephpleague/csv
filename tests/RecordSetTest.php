@@ -158,7 +158,7 @@ class RecordSetTest extends TestCase
     public function testFetchAssoc()
     {
         $keys = ['firstname', 'lastname', 'email'];
-        $stmt = (new Statement())->header($keys);
+        $stmt = (new Statement())->columns($keys);
         $res = $stmt->process($this->csv)->fetchAll();
         foreach ($res as $offset => $row) {
             $this->assertSame($keys, array_keys($row));
@@ -168,7 +168,7 @@ class RecordSetTest extends TestCase
     public function testFetchColumnWithFieldName()
     {
         $keys = ['firstname', 'lastname', 'email'];
-        $stmt = (new Statement())->header($keys);
+        $stmt = (new Statement())->columns($keys);
         $res = $stmt->process($this->csv)->fetchColumn('firstname');
         $this->assertSame(['john', 'jane'], iterator_to_array($res, false));
     }
@@ -176,7 +176,7 @@ class RecordSetTest extends TestCase
     public function testFetchColumnWithColumnIndex()
     {
         $keys = ['firstname', 'lastname', 'email'];
-        $stmt = (new Statement())->header($keys);
+        $stmt = (new Statement())->columns($keys);
         $res = $this->csv->select($stmt)->fetchColumn(0);
         $this->assertSame(['john', 'jane'], iterator_to_array($res, false));
     }
@@ -185,7 +185,7 @@ class RecordSetTest extends TestCase
     {
         $this->expectException(Exception::class);
         $keys = ['firstname', 'lastname', 'email'];
-        $stmt = (new Statement())->header($keys);
+        $stmt = (new Statement())->columns($keys);
         $res = $stmt->process($this->csv)->fetchColumn(24);
         $this->assertSame(['john', 'jane'], iterator_to_array($res, false));
     }
@@ -193,7 +193,7 @@ class RecordSetTest extends TestCase
     public function testFetchAssocLessKeys()
     {
         $keys = ['firstname'];
-        $stmt = (new Statement())->header($keys);
+        $stmt = (new Statement())->columns($keys);
         $res = $stmt->process($this->csv)->fetchAll();
         $this->assertContains(['firstname' => 'john'], $res);
     }
@@ -201,7 +201,7 @@ class RecordSetTest extends TestCase
     public function testFetchAssocMoreKeys()
     {
         $keys = ['firstname', 'lastname', 'email', 'age'];
-        $stmt = (new Statement())->header($keys);
+        $stmt = (new Statement())->columns($keys);
 
         $this->assertContains([
             'firstname' => 'jane',
@@ -213,7 +213,7 @@ class RecordSetTest extends TestCase
 
     public function testFetchWithoutHeaders()
     {
-        $stmt = (new Statement())->header([]);
+        $stmt = (new Statement())->columns([]);
 
         $this->assertContains([
             'jane',
@@ -359,7 +359,7 @@ class RecordSetTest extends TestCase
     public function testFetchAssocKeyFailure()
     {
         $this->expectException(Exception::class);
-        (new Statement())->header(['firstname', 'firstname', 'lastname', 'email', 'age']);
+        (new Statement())->columns(['firstname', 'firstname', 'lastname', 'email', 'age']);
     }
 
     /**
@@ -537,10 +537,10 @@ class RecordSetTest extends TestCase
 
     public function testGetComputedHeaderWithSpecifiedHeader()
     {
-        $expected = ['foo', 'bar', 'baz'];
+        $expected = ['john' => 'prenom', 'doe' => 'lastname', 'john.doe@example.com' => 'email'];
         $this->csv->setHeaderOffset(0);
         $stmt = new Statement();
-        $result = $this->csv->select($stmt->header($expected));
-        $this->assertSame($expected, $result->getColumnNames());
+        $result = $this->csv->select($stmt->columns($expected));
+        $this->assertSame(array_values($expected), $result->getColumnNames());
     }
 }
