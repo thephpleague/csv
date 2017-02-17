@@ -34,7 +34,7 @@ class Statement
     /**
      * CSV columns name
      *
-     * @var string[]
+     * @var array
      */
     protected $columns = [];
 
@@ -181,18 +181,13 @@ class Statement
      */
     protected function buildColumns(Reader $reader): array
     {
-        $csv_header = $reader->getHeader();
+        $header = $reader->getHeader();
         $iterator = $reader->getIterator();
         if (empty($this->columns)) {
-            return [$csv_header, $iterator];
+            return [$header, $iterator];
         }
 
-        $columns = $this->columns;
-        if (!empty($csv_header)) {
-            $columns = $this->formatColumns($this->columns);
-            $this->filterColumnAgainstCsvHeader($columns, $csv_header);
-        }
-
+        $columns = $this->filterColumnAgainstCsvHeader($header);
         $combine = function (array $row) use ($columns): array {
             $record = [];
             foreach ($columns as $key => $alias) {
@@ -225,18 +220,25 @@ class Statement
     /**
      * Validate the column against the processed CSV header
      *
-     * @param array $columns Statement CSV columns
-     * @param array $headers Reader CSV header
+     * @param array    $columns Statement CSV columns
+     * @param string[] $headers Reader CSV header
      *
      * @throws Exception If a column is not found
      */
-    protected function filterColumnAgainstCsvHeader(array $columns, array $headers)
+    protected function filterColumnAgainstCsvHeader(array $headers)
     {
+        if (empty($headers)) {
+            return $this->columns;
+        }
+
+        $columns = $this->formatColumns($this->columns);
         foreach ($columns as $key => $alias) {
             if (false === array_search($key, $headers, true)) {
                 throw new Exception(sprintf('The following column `%s` does not exist in the CSV document', $key));
             }
         }
+
+        return $columns;
     }
 
     /**
