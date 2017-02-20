@@ -342,8 +342,16 @@ abstract class AbstractCsv
     public function setDelimiter(string $delimiter): self
     {
         $this->delimiter = $this->filterControl($delimiter, 'delimiter');
+        $this->resetDynamicProperties();
 
         return $this;
+    }
+
+    /**
+     * Reset dynamic CSV document properties to improve performance
+     */
+    protected function resetDynamicProperties()
+    {
     }
 
     /**
@@ -356,6 +364,7 @@ abstract class AbstractCsv
     public function setEnclosure(string $enclosure): self
     {
         $this->enclosure = $this->filterControl($enclosure, 'enclosure');
+        $this->resetDynamicProperties();
 
         return $this;
     }
@@ -370,6 +379,7 @@ abstract class AbstractCsv
     public function setEscape(string $escape): self
     {
         $this->escape = $this->filterControl($escape, 'escape');
+        $this->resetDynamicProperties();
 
         return $this;
     }
@@ -404,6 +414,7 @@ abstract class AbstractCsv
         }
 
         $this->stream_filters[$filtername][] = $this->document->appendFilter($filtername, $this->stream_filter_mode);
+        $this->resetDynamicProperties();
 
         return $this;
     }

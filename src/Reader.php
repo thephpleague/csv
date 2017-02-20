@@ -41,6 +41,10 @@ class Reader extends AbstractCsv implements IteratorAggregate
      */
     protected $header_offset;
 
+    protected $header = [];
+
+    protected $is_header_loaded = false;
+
     /**
      * Returns the record offset used as header
      *
@@ -65,6 +69,7 @@ class Reader extends AbstractCsv implements IteratorAggregate
      */
     public function setHeaderOffset($offset): self
     {
+        $this->resetDynamicProperties();
         $this->header_offset = null;
         if (null !== $offset) {
             $this->header_offset = $this->filterInteger(
@@ -75,6 +80,14 @@ class Reader extends AbstractCsv implements IteratorAggregate
         }
 
         return $this;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    protected function resetDynamicProperties()
+    {
+        return $this->is_header_loaded = false;
     }
 
     /**
@@ -226,8 +239,15 @@ class Reader extends AbstractCsv implements IteratorAggregate
      */
     public function getHeader(): array
     {
+        if ($this->is_header_loaded) {
+            return $this->header;
+        }
+
+        $this->is_header_loaded = true;
         if (null === $this->header_offset) {
-            return [];
+            $this->header = [];
+
+            return $this->header;
         }
 
         $this->document->setFlags(SplFileObject::READ_CSV | SplFileObject::READ_AHEAD | SplFileObject::SKIP_EMPTY);
@@ -239,9 +259,13 @@ class Reader extends AbstractCsv implements IteratorAggregate
         }
 
         if (0 !== $this->header_offset) {
-            return $header;
+            $this->header = $header;
+
+            return $this->header;
         }
 
-        return $this->removeBOM($header, mb_strlen($this->getInputBOM()), $this->enclosure);
+        $this->header = $this->removeBOM($header, mb_strlen($this->getInputBOM()), $this->enclosure);
+
+        return $this->header;
     }
 }

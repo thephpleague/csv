@@ -62,9 +62,12 @@ class RecordSetTest extends TestCase
     public function testAddHeaderToHTMLExport()
     {
         $this->csv->setHeaderOffset(0);
-        $this->assertContains('<td title="john">jane</td>', $this->csv->select()->toHTML());
+        $res = $this->csv->select();
+        $this->assertContains('<td title="john">jane</td>', $res->toHTML());
         $this->csv->setHeaderOffset(null);
         $this->assertContains('<td>jane</td>', $this->csv->select()->toHTML());
+        $res->preserveOffset(true);
+        $this->assertContains('<tr data-record-offset="', $res->toHTML());
     }
 
 
@@ -150,7 +153,7 @@ class RecordSetTest extends TestCase
         };
         $stmt = (new Statement())->orderBy($func);
         $this->assertSame(
-            array_reverse($this->expected, true),
+            array_reverse($this->expected),
             $stmt->process($this->csv)->fetchAll()
         );
     }
@@ -324,10 +327,33 @@ class RecordSetTest extends TestCase
         $csv = Reader::createFromString($source);
         $csv->setHeaderOffset(0);
         $expected = [
-            1 => ['parent name' => 'parentA', 'child name' => 'childA', 'title' => 'titleA'],
+            0 => ['parent name' => 'parentA', 'child name' => 'childA', 'title' => 'titleA'],
         ];
         $this->assertSame($expected, $csv->select()->fetchAll());
     }
+
+
+    public function testPreserveOffset()
+    {
+        $expected = ['parent name', 'parentA'];
+        $source = Reader::BOM_UTF8.'"parent name","child name","title"
+            "parentA","childA","titleA"';
+        $csv = Reader::createFromString($source);
+        $csv->setHeaderOffset(0);
+        $expectedNoOffset = [
+            0 => ['parent name' => 'parentA', 'child name' => 'childA', 'title' => 'titleA'],
+        ];
+        $expectedWithOffset = [
+            1 => ['parent name' => 'parentA', 'child name' => 'childA', 'title' => 'titleA'],
+        ];
+        $res = $csv->select();
+        $res->preserveOffset(false);
+        $this->assertSame($expectedNoOffset, $res->fetchAll());
+        $res->preserveOffset(true);
+        $this->assertSame($expectedWithOffset, $res->fetchAll());
+    }
+
+
 
     public function testStripBOMWithEnclosureFetchColumn()
     {
@@ -411,7 +437,7 @@ class RecordSetTest extends TestCase
         }
         $csv = Reader::createFromFileObject($file);
         $res = $csv->select()->fetchColumn(2);
-        $this->assertCount(1, $res);
+        $this->assertCount(1, iterator_to_array($res));
     }
 
     public function testFetchColumnEmptyCol()
@@ -427,7 +453,7 @@ class RecordSetTest extends TestCase
         }
         $csv = Reader::createFromFileObject($file);
         $res = $csv->select()->fetchColumn(2);
-        $this->assertCount(0, $res);
+        $this->assertCount(0, iterator_to_array($res));
     }
 
     public function testfetchOne()

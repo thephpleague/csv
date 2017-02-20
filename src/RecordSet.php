@@ -60,6 +60,14 @@ class RecordSet implements JsonSerializable, IteratorAggregate, Countable
     protected $conversion_input_encoding = 'UTF-8';
 
     /**
+     * Tell whether the CSV document offset
+     * must be kept on output
+     *
+     * @var bool
+     */
+    protected $preserve_offset = false;
+
+    /**
      * New instance
      *
      * @param Iterator $iterator     a CSV iterator
@@ -125,7 +133,7 @@ class RecordSet implements JsonSerializable, IteratorAggregate, Countable
      */
     public function jsonSerialize()
     {
-        return iterator_to_array($this->convertToUtf8($this->iterator));
+        return iterator_to_array($this->convertToUtf8($this->iterator), $this->preserve_offset);
     }
 
     /**
@@ -164,9 +172,9 @@ class RecordSet implements JsonSerializable, IteratorAggregate, Countable
      *
      * @return string
      */
-    public function toHTML(string $class_attr = 'table-csv-data'): string
+    public function toHTML(string $class_attr = 'table-csv-data', string $offset_attr = 'data-record-offset'): string
     {
-        $doc = $this->toXML('table', 'tr', 'td', 'title');
+        $doc = $this->toXML('table', 'tr', 'td', 'title', $offset_attr);
         $doc->documentElement->setAttribute('class', $class_attr);
 
         return $doc->saveHTML($doc->documentElement);
@@ -175,10 +183,11 @@ class RecordSet implements JsonSerializable, IteratorAggregate, Countable
     /**
      * Transforms a CSV into a XML
      *
-     * @param string $root_name        XML root node name
-     * @param string $row_name         XML row node name
-     * @param string $cell_name        XML cell node name
-     * @param string $column_attr_name XML column attribute name
+     * @param string $root_name   XML root node name
+     * @param string $row_name    XML row node name
+     * @param string $cell_name   XML cell node name
+     * @param string $column_attr XML column attribute name
+     * @param string $offset_attr XML offset attribute name
      *
      * @return DOMDocument
      */
@@ -186,12 +195,21 @@ class RecordSet implements JsonSerializable, IteratorAggregate, Countable
         string $root_name = 'csv',
         string $row_name = 'row',
         string $cell_name = 'cell',
-        string $column_attr_name = 'name'
+        string $column_attr = 'name',
+        string $offset_attr = 'offset'
     ): DOMDocument {
         $doc = new DOMDocument('1.0', 'UTF-8');
         $root = $doc->createElement($root_name);
-        foreach ($this->convertToUtf8($this->iterator) as $row) {
-            $root->appendChild($this->toDOMNode($doc, $row, $row_name, $cell_name, $column_attr_name));
+        foreach ($this->convertToUtf8($this->iterator) as $offset => $row) {
+            $root->appendChild($this->toDOMNode(
+                $doc,
+                $row,
+                $offset,
+                $row_name,
+                $cell_name,
+                $column_attr,
+                $offset_attr
+            ));
         }
         $doc->appendChild($root);
 
@@ -201,27 +219,34 @@ class RecordSet implements JsonSerializable, IteratorAggregate, Countable
     /**
      * convert a Record into a DOMNode
      *
-     * @param DOMDocument $doc              The DOMDocument
-     * @param array       $row              The CSV record
-     * @param string      $row_name         XML row node name
-     * @param string      $cell_name        XML cell node name
-     * @param string      $column_attr_name XML header attribute name
+     * @param DOMDocument $doc         The DOMDocument
+     * @param array       $row         The CSV record
+     * @param int         $offset      The CSV record offset
+     * @param string      $row_name    XML row node name
+     * @param string      $cell_name   XML cell node name
+     * @param string      $column_attr XML header attribute name
+     * @param string      $offset_attr XML offset attribute name
      *
      * @return DOMElement
      */
     protected function toDOMNode(
         DOMDocument $doc,
         array $row,
+        int $offset,
         string $row_name,
         string $cell_name,
-        string $column_attr_name
+        string $column_attr,
+        string $offset_attr
     ): DOMElement {
         $rowElement = $doc->createElement($row_name);
+        if ($this->preserve_offset) {
+            $rowElement->setAttribute($offset_attr, (string) $offset);
+        }
         foreach ($row as $name => $value) {
             $content = $doc->createTextNode($value);
             $cell = $doc->createElement($cell_name);
             if (!empty($this->column_names)) {
-                $cell->setAttribute($column_attr_name, $name);
+                $cell->setAttribute($column_attr, $name);
             }
             $cell->appendChild($content);
             $rowElement->appendChild($cell);
@@ -237,7 +262,7 @@ class RecordSet implements JsonSerializable, IteratorAggregate, Countable
      */
     public function fetchAll(): array
     {
-        return iterator_to_array($this->iterator);
+        return iterator_to_array($this->iterator, $this->preserve_offset);
     }
 
     /**
@@ -265,9 +290,9 @@ class RecordSet implements JsonSerializable, IteratorAggregate, Countable
      *
      * @param string|int $index CSV column index
      *
-     * @return Iterator
+     * @return Generator
      */
-    public function fetchColumn($index = 0): Iterator
+    public function fetchColumn($index = 0): Generator
     {
         $offset = $this->getColumnIndex($index, 'the column index value is invalid');
         $filter = function (array $row) use ($offset) {
@@ -278,7 +303,10 @@ class RecordSet implements JsonSerializable, IteratorAggregate, Countable
             return $row[$offset];
         };
 
-        return new MapIterator(new CallbackFilterIterator($this->iterator, $filter), $select);
+        $iterator = new MapIterator(new CallbackFilterIterator($this->iterator, $filter), $select);
+        foreach ($iterator as $key => $value) {
+            $this->preserve_offset ? yield $key => $value : yield $value;
+        }
     }
 
     /**
@@ -358,6 +386,21 @@ class RecordSet implements JsonSerializable, IteratorAggregate, Countable
             throw new Exception('you should use a valid charset');
         }
         $this->conversion_input_encoding = strtoupper($str);
+
+        return $this;
+    }
+
+    /**
+     * Whether we should preserve the CSV document record offset.
+     *
+     * If set to true CSV document record offset will added to
+     * method output where it makes sense.
+     *
+     * @param bool $status
+     */
+    public function preserveOffset(bool $status)
+    {
+        $this->preserve_offset = $status;
 
         return $this;
     }
