@@ -397,6 +397,8 @@ class RecordSet implements JsonSerializable, IteratorAggregate, Countable
      * method output where it makes sense.
      *
      * @param bool $status
+     *
+     * @return static
      */
     public function preserveOffset(bool $status)
     {

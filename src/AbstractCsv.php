@@ -103,6 +103,13 @@ abstract class AbstractCsv
     protected $stream_filter_mode;
 
     /**
+     * The CSV document BOM sequence
+     *
+     * @var string|null
+     */
+    protected $input_bom = null;
+
+    /**
      * New instance
      *
      * @param SplFileObject|StreamIterator $document The CSV Object instance
@@ -240,6 +247,10 @@ abstract class AbstractCsv
      */
     public function getInputBOM(): string
     {
+        if (null !== $this->input_bom) {
+            return $this->input_bom;
+        }
+
         $bom = [
             self::BOM_UTF32_BE, self::BOM_UTF32_LE,
             self::BOM_UTF16_BE, self::BOM_UTF16_LE, self::BOM_UTF8,
@@ -252,7 +263,9 @@ abstract class AbstractCsv
             return strpos($line, $sequence) === 0;
         });
 
-        return (string) array_shift($res);
+        $this->input_bom = (string) array_shift($res);
+
+        return $this->input_bom;
     }
 
     /**
@@ -415,6 +428,7 @@ abstract class AbstractCsv
 
         $this->stream_filters[$filtername][] = $this->document->appendFilter($filtername, $this->stream_filter_mode);
         $this->resetDynamicProperties();
+        $this->input_bom = null;
 
         return $this;
     }

@@ -123,7 +123,7 @@ class Statement
      *
      * @return self
      */
-    public function offset(int $offset = 0): self
+    public function offset(int $offset): self
     {
         $offset = $this->filterInteger($offset, 0, 'the offset must be a positive integer or 0');
         if ($offset === $this->offset) {
@@ -143,7 +143,7 @@ class Statement
      *
      * @return self
      */
-    public function limit(int $limit = -1): self
+    public function limit(int $limit): self
     {
         $limit = $this->filterInteger($limit, -1, 'the limit must an integer greater or equals to -1');
         if ($limit === $this->limit) {
@@ -220,7 +220,6 @@ class Statement
     /**
      * Validate the column against the processed CSV header
      *
-     * @param array    $columns Statement CSV columns
      * @param string[] $headers Reader CSV header
      *
      * @throws Exception If a column is not found

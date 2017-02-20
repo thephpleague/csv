@@ -41,8 +41,18 @@ class Reader extends AbstractCsv implements IteratorAggregate
      */
     protected $header_offset;
 
+    /**
+     * CSV Document Header record
+     *
+     * @var string[]
+     */
     protected $header = [];
 
+    /**
+     * Tell whether the header needs to be re-generated
+     *
+     * @var bool
+     */
     protected $is_header_loaded = false;
 
     /**
@@ -69,7 +79,6 @@ class Reader extends AbstractCsv implements IteratorAggregate
      */
     public function setHeaderOffset($offset): self
     {
-        $this->resetDynamicProperties();
         $this->header_offset = null;
         if (null !== $offset) {
             $this->header_offset = $this->filterInteger(
@@ -78,6 +87,7 @@ class Reader extends AbstractCsv implements IteratorAggregate
                 'the header offset index must be a positive integer or 0'
             );
         }
+        $this->resetDynamicProperties();
 
         return $this;
     }
