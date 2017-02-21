@@ -329,7 +329,7 @@ class Reader extends AbstractCsv
     protected function getRow($offset)
     {
         $fileObj = $this->getIterator();
-        $fileObj->setFlags(SplFileObject::READ_AHEAD | SplFileObject::SKIP_EMPTY);
+        $fileObj->setFlags(SplFileObject::READ_CSV | SplFileObject::READ_AHEAD | SplFileObject::SKIP_EMPTY);
         $iterator = new LimitIterator($fileObj, $offset, 1);
         $iterator->rewind();
         $line = $iterator->current();
