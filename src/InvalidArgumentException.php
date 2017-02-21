@@ -15,13 +15,13 @@ declare(strict_types=1);
 namespace League\Csv;
 
 /**
- *  League CSV Base Exception
+ * Thrown when a data is not valid
  *
  * @package League.csv
  * @since   9.0.0
  * @author  Ignace Nyamagana Butera <nyamsprod@gmail.com>
  *
  */
-interface Exception
+class InvalidArgumentException extends \InvalidArgumentException implements Exception
 {
 }

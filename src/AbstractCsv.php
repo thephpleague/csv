@@ -194,7 +194,7 @@ abstract class AbstractCsv
     public static function createFromPath(string $path, string $open_mode = 'r+'): self
     {
         if (!$stream = @fopen($path, $open_mode)) {
-            throw new Exception(error_get_last()['message']);
+            throw new InvalidArgumentException(error_get_last()['message']);
         }
 
         return new static(new StreamIterator($stream));

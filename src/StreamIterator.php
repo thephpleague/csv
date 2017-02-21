@@ -93,7 +93,7 @@ class StreamIterator implements Iterator
     public function __construct($stream)
     {
         if (!is_resource($stream) || 'stream' !== get_resource_type($stream)) {
-            throw new Exception(sprintf(
+            throw new InvalidArgumentException(sprintf(
                 'Expected resource to be a stream, received %s instead',
                 is_object($stream) ? get_class($stream) : gettype($stream)
             ));
@@ -101,7 +101,7 @@ class StreamIterator implements Iterator
 
         $data = stream_get_meta_data($stream);
         if (!$data['seekable']) {
-            throw new Exception('The stream must be seekable');
+            throw new InvalidArgumentException('The stream must be seekable');
         }
 
         $this->stream = $stream;
@@ -147,7 +147,7 @@ class StreamIterator implements Iterator
             return $char;
         }
 
-        throw new Exception(sprintf('The %s character must be a single character', $type));
+        throw new InvalidArgumentException(sprintf('The %s character must be a single character', $type));
     }
 
     /**

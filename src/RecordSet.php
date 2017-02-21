@@ -315,7 +315,7 @@ class RecordSet implements JsonSerializable, IteratorAggregate, Countable
      * @param string|int $field         the field name or the field index
      * @param string     $error_message the associated error message
      *
-     * @throws Exception if the field is invalid
+     * @throws InvalidArgumentException if the field is invalid
      *
      * @return string|int
      */
@@ -334,7 +334,7 @@ class RecordSet implements JsonSerializable, IteratorAggregate, Countable
             return $index;
         }
 
-        throw new Exception($error_message);
+        throw new InvalidArgumentException($error_message);
     }
 
     /**
@@ -375,6 +375,8 @@ class RecordSet implements JsonSerializable, IteratorAggregate, Countable
      *
      * @param string $str
      *
+     * @throws InvalidArgumentException if the charset is empty
+     *
      * @return static
      */
     public function setConversionInputEncoding(string $str): self
@@ -383,7 +385,7 @@ class RecordSet implements JsonSerializable, IteratorAggregate, Countable
         $str = filter_var($str, FILTER_SANITIZE_STRING, ['flags' => FILTER_FLAG_STRIP_LOW | FILTER_FLAG_STRIP_HIGH]);
         $str = trim($str);
         if ('' === $str) {
-            throw new Exception('you should use a valid charset');
+            throw new InvalidArgumentException('you should use a valid charset');
         }
         $this->conversion_input_encoding = strtoupper($str);
 

@@ -243,7 +243,7 @@ class Reader extends AbstractCsv implements IteratorAggregate
     /**
      * Returns the column header associate with the RecordSet
      *
-     * @throws Exception If no header is found
+     * @throws InvalidArgumentException If no header is found
      *
      * @return string[]
      */
@@ -265,7 +265,7 @@ class Reader extends AbstractCsv implements IteratorAggregate
         $this->document->seek($this->header_offset);
         $header = $this->document->current();
         if (empty($header)) {
-            throw new Exception('The header record specified by `Reader::setHeaderOffset` does not exist or is empty');
+            throw new InvalidArgumentException('The header record specified by `Reader::setHeaderOffset` does not exist or is empty');
         }
 
         if (0 !== $this->header_offset) {

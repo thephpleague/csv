@@ -93,14 +93,14 @@ class Writer extends AbstractCsv
      *
      * @param Traversable|array $rows a multidimensional array or a Traversable object
      *
-     * @throws Exception If the given rows format is invalid
+     * @throws InvalidArgumentException If the given rows format is invalid
      *
      * @return int
      */
     public function insertAll($rows): int
     {
         if (!is_array($rows) && !$rows instanceof Traversable) {
-            throw new Exception('the provided data must be an array OR a `Traversable` object');
+            throw new InvalidArgumentException('the provided data must be an array OR a `Traversable` object');
         }
 
         $bytes = 0;

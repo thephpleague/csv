@@ -67,7 +67,10 @@ class Statement
     protected $limit = -1;
 
     /**
-     * Set and select the column to be used by the RecordSet object
+     * Set and selected columns to be used by the RecordSet object
+     *
+     * The array offset represents the CSV document header value
+     * The array value represents the Alias named to be used by the RecordSet object
      *
      * @param array $columns
      *
@@ -165,39 +168,41 @@ class Statement
      */
     public function process(Reader $reader): RecordSet
     {
-        list($columns, $iterator) = $this->buildColumns($reader);
-        $iterator = $this->buildWhere($iterator);
+        list($columns, $combine) = $this->buildColumns($reader->getHeader());
+        $iterator = $this->buildWhere($reader->getIterator());
         $iterator = $this->buildOrderBy($iterator);
+        $iterator = new LimitIterator($iterator, $this->offset, $this->limit);
+        if (null !== $combine) {
+            $iterator = new MapIterator($iterator, $combine);
+        }
 
-        return new RecordSet(new LimitIterator($iterator, $this->offset, $this->limit), $columns);
+        return new RecordSet($iterator, $columns);
     }
 
     /**
      * Add the CSV column if present
      *
-     * @param Reader $reader
+     * @param string[] $columns
      *
      * @return array
      */
-    protected function buildColumns(Reader $reader): array
+    protected function buildColumns(array $columns): array
     {
-        $header = $reader->getHeader();
-        $iterator = $reader->getIterator();
-        if (empty($this->columns)) {
-            return [$header, $iterator];
+        $combine = null;
+        if (!empty($this->columns)) {
+            $columns_alias = $this->filterColumnAgainstCsvHeader($columns);
+            $columns = array_values($columns_alias);
+            $combine = function (array $row) use ($columns_alias): array {
+                $record = [];
+                foreach ($columns_alias as $key => $alias) {
+                    $record[$alias] = $row[$key] ?? null;
+                }
+
+                return $record;
+            };
         }
 
-        $columns = $this->filterColumnAgainstCsvHeader($header);
-        $combine = function (array $row) use ($columns): array {
-            $record = [];
-            foreach ($columns as $key => $alias) {
-                $record[$alias] = $row[$key] ?? null;
-            }
-
-            return $record;
-        };
-
-        return [array_values($columns), new MapIterator($iterator, $combine)];
+        return [$columns, $combine];
     }
 
     /**
@@ -222,7 +227,7 @@ class Statement
      *
      * @param string[] $headers Reader CSV header
      *
-     * @throws Exception If a column is not found
+     * @throws InvalidArgumentException If a column is not found
      */
     protected function filterColumnAgainstCsvHeader(array $headers)
     {
@@ -233,7 +238,7 @@ class Statement
         $columns = $this->formatColumns($this->columns);
         foreach ($columns as $key => $alias) {
             if (false === array_search($key, $headers, true)) {
-                throw new Exception(sprintf('The following column `%s` does not exist in the CSV document', $key));
+                throw new InvalidArgumentException(sprintf('The following column `%s` does not exist in the CSV document', $key));
             }
         }
 

@@ -24,7 +24,7 @@ use RuntimeException;
  * @author  Ignace Nyamagana Butera <nyamsprod@gmail.com>
  *
  */
-class InsertionException extends RuntimeException
+class InsertionException extends RuntimeException implements Exception
 {
     /**
      * The record submitted for insertion
