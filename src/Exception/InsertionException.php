@@ -12,9 +12,7 @@
 */
 declare(strict_types=1);
 
-namespace League\Csv;
-
-use RuntimeException;
+namespace League\Csv\Exception;
 
 /**
  *  Thrown when a data is not added to the Csv Document
@@ -24,7 +22,7 @@ use RuntimeException;
  * @author  Ignace Nyamagana Butera <nyamsprod@gmail.com>
  *
  */
-class InsertionException extends RuntimeException implements Exception
+class InsertionException extends RuntimeException
 {
     /**
      * The record submitted for insertion

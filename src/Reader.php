@@ -17,6 +17,7 @@ namespace League\Csv;
 use CallbackFilterIterator;
 use Iterator;
 use IteratorAggregate;
+use League\Csv\Exception\InvalidArgumentException;
 use LimitIterator;
 use SplFileObject;
 

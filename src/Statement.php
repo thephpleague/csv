@@ -17,6 +17,7 @@ namespace League\Csv;
 use ArrayIterator;
 use CallbackFilterIterator;
 use Iterator;
+use League\Csv\Exception\RuntimeException;
 use LimitIterator;
 
 /**

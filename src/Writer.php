@@ -14,6 +14,8 @@ declare(strict_types=1);
 
 namespace League\Csv;
 
+use League\Csv\Exception\InsertionException;
+use League\Csv\Exception\InvalidArgumentException;
 use Traversable;
 
 /**

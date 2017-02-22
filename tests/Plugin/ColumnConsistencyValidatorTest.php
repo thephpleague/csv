@@ -3,7 +3,7 @@
 namespace LeagueTest\Csv\Plugin;
 
 use InvalidArgumentException;
-use League\Csv\InsertionException;
+use League\Csv\Exception\InsertionException;
 use League\Csv\Plugin\ColumnConsistencyValidator;
 use League\Csv\Writer;
 use PHPUnit\Framework\TestCase;

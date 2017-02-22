@@ -2,7 +2,7 @@
 
 namespace LeagueTest\Csv;
 
-use League\Csv\Exception;
+use League\Csv\Exception\InvalidArgumentException;
 use League\Csv\Reader;
 use League\Csv\StreamIterator;
 use League\Csv\Writer;
@@ -23,20 +23,20 @@ class StreamIteratorTest extends TestCase
 
     public function testCreateStreamWithInvalidParameter()
     {
-        $this->expectException(Exception::class);
+        $this->expectException(InvalidArgumentException::class);
         $path = __DIR__.'/data/foo.csv';
         new StreamIterator($path);
     }
 
     public function testCreateStreamWithNonSeekableStream()
     {
-        $this->expectException(Exception::class);
+        $this->expectException(InvalidArgumentException::class);
         new StreamIterator(fopen('php://stdin', 'r'));
     }
 
     public function testSetCsvControlTriggersException()
     {
-        $this->expectException(Exception::class);
+        $this->expectException(InvalidArgumentException::class);
         (new StreamIterator(fopen('php://temp', 'r+')))->setCsvControl('toto');
     }
 

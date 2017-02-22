@@ -2,7 +2,7 @@
 
 namespace LeagueTest\Csv\Plugin;
 
-use League\Csv\InsertionException;
+use League\Csv\Exception\InsertionException;
 use League\Csv\Plugin\ForbiddenNullValuesValidator;
 use League\Csv\Writer;
 use PHPUnit\Framework\TestCase;

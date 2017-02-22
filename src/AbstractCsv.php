@@ -14,6 +14,7 @@ declare(strict_types=1);
 
 namespace League\Csv;
 
+use League\Csv\Exception\InvalidArgumentException;
 use LogicException;
 use SplFileObject;
 

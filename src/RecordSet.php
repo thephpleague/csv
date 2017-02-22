@@ -22,6 +22,7 @@ use Generator;
 use Iterator;
 use IteratorAggregate;
 use JsonSerializable;
+use League\Csv\Exception\InvalidArgumentException;
 use LimitIterator;
 
 /**

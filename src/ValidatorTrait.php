@@ -14,6 +14,8 @@ declare(strict_types=1);
 
 namespace League\Csv;
 
+use League\Csv\Exception\InvalidArgumentException;
+
 /**
  *  An abstract class to enable basic CSV manipulation
  *

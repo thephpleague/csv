@@ -3,9 +3,9 @@
 namespace LeagueTest\Csv;
 
 use DOMDocument;
-use League\Csv\InvalidArgumentException;
+use League\Csv\Exception\InvalidArgumentException;
+use League\Csv\Exception\RuntimeException;
 use League\Csv\Reader;
-use League\Csv\RuntimeException;
 use League\Csv\Statement;
 use OutOfBoundsException;
 use PHPUnit\Framework\TestCase;

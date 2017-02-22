@@ -12,7 +12,7 @@
 */
 declare(strict_types=1);
 
-namespace League\Csv;
+namespace League\Csv\Exception;
 
 /**
  * Thrown when a data is not valid
@@ -22,6 +22,6 @@ namespace League\Csv;
  * @author  Ignace Nyamagana Butera <nyamsprod@gmail.com>
  *
  */
-class InvalidArgumentException extends \InvalidArgumentException implements Exception
+class InvalidArgumentException extends \InvalidArgumentException implements CsvException
 {
 }

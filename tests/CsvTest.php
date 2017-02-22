@@ -2,7 +2,7 @@
 
 namespace LeagueTest\Csv;
 
-use League\Csv\Exception;
+use League\Csv\Exception\InvalidArgumentException;
 use League\Csv\Reader;
 use League\Csv\Writer;
 use LeagueTest\Csv\Lib\FilterReplace;
@@ -40,13 +40,13 @@ class CsvTest extends TestCase
 
     public function testCreateFromPathThrowsRuntimeException()
     {
-        $this->expectException(Exception::class);
+        $this->expectException(InvalidArgumentException::class);
         Reader::createFromPath(__DIR__.'/foo/bar', 'r');
     }
 
     public function testCreateFromStreamWithInvalidParameter()
     {
-        $this->expectException(Exception::class);
+        $this->expectException(InvalidArgumentException::class);
         $path = __DIR__.'/data/foo.csv';
         Reader::createFromStream($path);
     }
@@ -91,7 +91,7 @@ class CsvTest extends TestCase
 
     public function testDelimeter()
     {
-        $this->expectException(Exception::class);
+        $this->expectException(InvalidArgumentException::class);
         $this->csv->setDelimiter('o');
         $this->assertSame('o', $this->csv->getDelimiter());
         $this->csv->setDelimiter('foo');
@@ -138,7 +138,7 @@ class CsvTest extends TestCase
 
     public function testEscape()
     {
-        $this->expectException(Exception::class);
+        $this->expectException(InvalidArgumentException::class);
         $this->csv->setEscape('o');
         $this->assertSame('o', $this->csv->getEscape());
 
@@ -147,7 +147,7 @@ class CsvTest extends TestCase
 
     public function testEnclosure()
     {
-        $this->expectException(Exception::class);
+        $this->expectException(InvalidArgumentException::class);
         $this->csv->setEnclosure('o');
         $this->assertSame('o', $this->csv->getEnclosure());
 
