@@ -17,7 +17,6 @@ use InvalidArgumentException;
 use Iterator;
 use League\Csv\Modifier\MapIterator;
 use LimitIterator;
-use SplFileObject;
 
 /**
  *  A class to manage extracting and filtering a CSV
@@ -50,10 +49,6 @@ class Reader extends AbstractCsv
     /**
      * Fetch the next row from a result set
      *
-     * DEPRECATION WARNING! This method will be removed in the next major point release
-     *
-     * @deprecated deprecated since version 8.2
-     *
      * @param callable|null $callable a callable function to be applied to each Iterator item
      *
      * @return Iterator
@@ -82,10 +77,6 @@ class Reader extends AbstractCsv
 
     /**
      * Applies a callback function on the CSV
-     *
-     * DEPRECATION WARNING! This method will be removed in the next major point release
-     *
-     * @deprecated deprecated since version 8.2
      *
      * The callback function must return TRUE in order to continue
      * iterating over the iterator.
@@ -166,6 +157,7 @@ class Reader extends AbstractCsv
      * DEPRECATION WARNING! This method will be removed in the next major point release
      *
      * @deprecated deprecated since version 8.2
+     * @see Reader::fetchPairs
      *
      * Fetches an associative array of all rows as key-value pairs (first
      * column is the key, second column is the value).
@@ -225,10 +217,6 @@ class Reader extends AbstractCsv
 
     /**
      * Fetch the next row from a result set
-     *
-     * DEPRECATION WARNING! This method will be removed in the next major point release
-     *
-     * @deprecated deprecated since version 8.2
      *
      * The rows are presented as associated arrays
      * The callable function will be applied to each row
@@ -329,19 +317,23 @@ class Reader extends AbstractCsv
     protected function getRow($offset)
     {
         $fileObj = $this->getIterator();
-        $fileObj->setFlags(SplFileObject::READ_AHEAD | SplFileObject::SKIP_EMPTY);
         $iterator = new LimitIterator($fileObj, $offset, 1);
         $iterator->rewind();
-        $line = $iterator->current();
-
-        if (empty($line)) {
+        $row = $iterator->current();
+        if (empty($row)) {
             throw new InvalidArgumentException('the specified row does not exist or is empty');
         }
 
-        if (0 === $offset && $this->isBomStrippable()) {
-            $line = mb_substr($line, mb_strlen($this->getInputBOM()));
+        if (0 !== $offset || !$this->isBomStrippable()) {
+            return $row;
         }
 
-        return str_getcsv($line, $this->delimiter, $this->enclosure, $this->escape);
+        $bom_length = mb_strlen($this->getInputBOM());
+        $row[0] = mb_substr($row[0], $bom_length);
+        if ($this->enclosure == mb_substr($row[0], 0, 1) && $this->enclosure == mb_substr($row[0], -1, 1)) {
+            $row[0] = mb_substr($row[0], 1, -1);
+        }
+
+        return $row;
     }
 }
