@@ -6,6 +6,7 @@ use League\Csv\Modifier\StreamIterator;
 use League\Csv\Reader;
 use League\Csv\Writer;
 use PHPUnit_Framework_TestCase;
+use SplFileObject;
 
 /**
  * @group stream
@@ -117,10 +118,9 @@ class StreamIteratorTest extends PHPUnit_Framework_TestCase
     {
         $fp = fopen('php://temp', 'r+');
         $csv = Writer::createFromStream($fp);
-
         $expected = [
-            ['john', 'doe', 'john.doe@example.com'],
-            'john,doe,john.doe@example.com',
+            ['john', 'doe', 'john.doe@e"xample.com'],
+            'john,doe,john.doe@e"xample.com',
         ];
 
         foreach ($expected as $row) {
@@ -128,7 +128,15 @@ class StreamIteratorTest extends PHPUnit_Framework_TestCase
         }
 
         $reader = $csv->newReader();
-        $this->assertSame(['john', 'doe', 'john.doe@example.com'], $reader->fetchOne(0));
+        $this->assertSame(['john', 'doe', 'john.doe@e"xample.com'], $reader->fetchOne(0));
+    }
+
+    public function testInsertNormalFile()
+    {
+        $csv = new StreamIterator(fopen(__DIR__.'/data/foo.csv', 'a+'));
+        $csv->fputcsv(['jane', 'doe', 'jane.doe@example.com']);
+        $csv->setFlags(SplFileObject::READ_CSV);
+        $this->assertContains(['jane', 'doe', 'jane.doe@example.com'], $csv);
     }
 
     public function testToString()
