@@ -232,7 +232,15 @@ class Statement
     protected function filterColumnAgainstCsvHeader(array $headers)
     {
         if (empty($headers)) {
-            return $this->columns;
+            $res = array_filter($this->columns, function ($key) {
+                return !is_int($key) || $key < 0;
+            }, ARRAY_FILTER_USE_KEY);
+
+            if (empty($res)) {
+                return $this->columns;
+            }
+
+            throw new InvalidArgumentException('If no header is specified the columns keys must contain only integer');
         }
 
         $columns = $this->formatColumns($this->columns);

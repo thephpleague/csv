@@ -560,7 +560,6 @@ class RecordSetTest extends TestCase
         $this->assertSame($this->expected[0][0], $result->getColumnName(0));
     }
 
-
     public function testGetComputedHeaderWithSpecifiedHeader()
     {
         $expected = ['john' => 'prenom', 'doe' => 'lastname', 'john.doe@example.com' => 'email'];
@@ -568,5 +567,13 @@ class RecordSetTest extends TestCase
         $stmt = new Statement();
         $result = $this->csv->select($stmt->columns($expected));
         $this->assertSame(array_values($expected), $result->getColumnNames());
+    }
+
+    public function testColumnsThrowException()
+    {
+        $this->expectException(Exception::class);
+        $stmt = (new Statement())
+            ->columns(['john' => 'prenom', 'doe' => 'lastname', 'john.doe@example.com' => 'email']);
+        $stmt->process($this->csv);
     }
 }
