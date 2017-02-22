@@ -3,8 +3,9 @@
 namespace LeagueTest\Csv;
 
 use DOMDocument;
-use League\Csv\Exception;
+use League\Csv\InvalidArgumentException;
 use League\Csv\Reader;
+use League\Csv\RuntimeException;
 use League\Csv\Statement;
 use OutOfBoundsException;
 use PHPUnit\Framework\TestCase;
@@ -87,7 +88,7 @@ class RecordSetTest extends TestCase
 
     public function testSetLimitThrowException()
     {
-        $this->expectException(Exception::class);
+        $this->expectException(InvalidArgumentException::class);
         (new Statement())->limit(-4);
     }
 
@@ -186,7 +187,7 @@ class RecordSetTest extends TestCase
 
     public function testFetchColumnTriggersException()
     {
-        $this->expectException(Exception::class);
+        $this->expectException(InvalidArgumentException::class);
         $keys = ['firstname', 'lastname', 'email'];
         $stmt = (new Statement())->columns($keys);
         $res = $stmt->process($this->csv)->fetchColumn(24);
@@ -384,7 +385,7 @@ class RecordSetTest extends TestCase
 
     public function testFetchAssocKeyFailure()
     {
-        $this->expectException(Exception::class);
+        $this->expectException(InvalidArgumentException::class);
         (new Statement())->columns(['firstname', 'firstname', 'lastname', 'email', 'age']);
     }
 
@@ -406,7 +407,7 @@ class RecordSetTest extends TestCase
             $tmp->fputcsv($row);
         }
 
-        $this->expectException(Exception::class);
+        $this->expectException(InvalidArgumentException::class);
         Reader::createFromFileObject($tmp)->setHeaderOffset($offset)->select()->fetchAll();
     }
 
@@ -465,7 +466,7 @@ class RecordSetTest extends TestCase
 
     public function testFetchOneTriggersException()
     {
-        $this->expectException(Exception::class);
+        $this->expectException(InvalidArgumentException::class);
         $this->csv->select()->fetchOne(-5);
     }
 
@@ -539,7 +540,7 @@ class RecordSetTest extends TestCase
 
     public function testEncodingTriggersException()
     {
-        $this->expectException(Exception::class);
+        $this->expectException(InvalidArgumentException::class);
         $this->csv->select()->setConversionInputEncoding('');
     }
 
@@ -571,7 +572,7 @@ class RecordSetTest extends TestCase
 
     public function testColumnsThrowException()
     {
-        $this->expectException(Exception::class);
+        $this->expectException(RuntimeException::class);
         $stmt = (new Statement())
             ->columns(['john' => 'prenom', 'doe' => 'lastname', 'john.doe@example.com' => 'email']);
         $stmt->process($this->csv);

@@ -227,7 +227,7 @@ class Statement
      *
      * @param string[] $headers Reader CSV header
      *
-     * @throws InvalidArgumentException If a column is not found
+     * @throws RuntimeException If a column is not found
      */
     protected function filterColumnAgainstCsvHeader(array $headers)
     {
@@ -240,13 +240,13 @@ class Statement
                 return $this->columns;
             }
 
-            throw new InvalidArgumentException('If no header is specified the columns keys must contain only integer');
+            throw new RuntimeException('If no header is specified the columns keys must contain only integer');
         }
 
         $columns = $this->formatColumns($this->columns);
         foreach ($columns as $key => $alias) {
             if (false === array_search($key, $headers, true)) {
-                throw new InvalidArgumentException(sprintf('The following column `%s` does not exist in the CSV document', $key));
+                throw new RuntimeException(sprintf('The following column `%s` does not exist in the CSV document', $key));
             }
         }
 
