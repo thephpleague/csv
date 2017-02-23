@@ -110,6 +110,8 @@ class Writer extends AbstractCsv
             $bytes += $this->insertOne($row);
         }
 
+        $this->document->fflush();
+
         return $bytes;
     }
 

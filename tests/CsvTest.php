@@ -3,6 +3,7 @@
 namespace LeagueTest\Csv;
 
 use League\Csv\Exception\InvalidArgumentException;
+use League\Csv\Exception\RuntimeException;
 use League\Csv\Reader;
 use League\Csv\Writer;
 use LeagueTest\Csv\Lib\FilterReplace;
@@ -40,7 +41,7 @@ class CsvTest extends TestCase
 
     public function testCreateFromPathThrowsRuntimeException()
     {
-        $this->expectException(InvalidArgumentException::class);
+        $this->expectException(RuntimeException::class);
         Reader::createFromPath(__DIR__.'/foo/bar', 'r');
     }
 

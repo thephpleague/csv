@@ -118,7 +118,9 @@ class RecordSet implements JsonSerializable, IteratorAggregate, Countable
      */
     public function getIterator(): Iterator
     {
-        return $this->iterator;
+        foreach ($this->iterator as $key => $value) {
+            $this->preserve_offset ? yield $key => $value : yield $value;
+        }
     }
 
     /**

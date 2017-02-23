@@ -15,7 +15,7 @@ declare(strict_types=1);
 namespace League\Csv\Exception;
 
 /**
- *  League CSV Base Exception
+ *  League Csv Base Exception
  *
  * @package League.csv
  * @since   9.0.0

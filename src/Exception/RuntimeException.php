@@ -15,7 +15,7 @@ declare(strict_types=1);
 namespace League\Csv\Exception;
 
 /**
- * Thrown when a data is not valid
+ * Thrown if an error which can onlyu be found on runtime occurs.
  *
  * @package League.csv
  * @since   9.0.0

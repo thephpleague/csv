@@ -207,6 +207,37 @@ class Statement
     }
 
     /**
+     * Validate the column against the processed CSV header
+     *
+     * @param string[] $headers Reader CSV header
+     *
+     * @throws RuntimeException If a column is not found
+     */
+    protected function filterColumnAgainstCsvHeader(array $headers)
+    {
+        if (empty($headers)) {
+            $filter = function ($key) {
+                return !is_int($key) || $key < 0;
+            };
+
+            if (empty(array_filter($this->columns, $filter, ARRAY_FILTER_USE_KEY))) {
+                return $this->columns;
+            }
+
+            throw new RuntimeException('If no header is specified the columns keys must contain only integer');
+        }
+
+        $columns = $this->formatColumns($this->columns);
+        foreach ($columns as $key => $alias) {
+            if (false === array_search($key, $headers, true)) {
+                throw new RuntimeException(sprintf('The `%s` column does not exist in the Csv document', $key));
+            }
+        }
+
+        return $columns;
+    }
+
+    /**
      * Format the column array
      *
      * @param array $columns
@@ -221,37 +252,6 @@ class Statement
         }
 
         return $res;
-    }
-
-    /**
-     * Validate the column against the processed CSV header
-     *
-     * @param string[] $headers Reader CSV header
-     *
-     * @throws RuntimeException If a column is not found
-     */
-    protected function filterColumnAgainstCsvHeader(array $headers)
-    {
-        if (empty($headers)) {
-            $res = array_filter($this->columns, function ($key) {
-                return !is_int($key) || $key < 0;
-            }, ARRAY_FILTER_USE_KEY);
-
-            if (empty($res)) {
-                return $this->columns;
-            }
-
-            throw new RuntimeException('If no header is specified the columns keys must contain only integer');
-        }
-
-        $columns = $this->formatColumns($this->columns);
-        foreach ($columns as $key => $alias) {
-            if (false === array_search($key, $headers, true)) {
-                throw new RuntimeException(sprintf('The following column `%s` does not exist in the CSV document', $key));
-            }
-        }
-
-        return $columns;
     }
 
     /**
@@ -283,18 +283,20 @@ class Statement
             return $iterator;
         }
 
-        $obj = new ArrayIterator(iterator_to_array($iterator, true));
-        $obj->uasort(function (array $record_a, array $record_b): int {
+        $compare = function (array $record_a, array $record_b): int {
             $res = 0;
-            foreach ($this->order_by as $compare) {
-                if (0 !== ($res = $compare($record_a, $record_b))) {
+            foreach ($this->order_by as $callable) {
+                if (0 !== ($res = $callable($record_a, $record_b))) {
                     break;
                 }
             }
 
             return $res;
-        });
+        };
 
-        return $obj;
+        $iterator = new ArrayIterator(iterator_to_array($iterator, true));
+        $iterator->uasort($compare);
+
+        return $iterator;
     }
 }

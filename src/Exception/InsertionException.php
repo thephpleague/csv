@@ -15,7 +15,7 @@ declare(strict_types=1);
 namespace League\Csv\Exception;
 
 /**
- *  Thrown when a data is not added to the Csv Document
+ * Thrown when a data is not added to the Csv Document
  *
  * @package League.csv
  * @since   9.0.0
