@@ -2,6 +2,25 @@
 
 All Notable changes to `Csv` will be documented in this file
 
+## 8.2.1 - 2017-02-22
+
+### Added
+
+- None
+
+### Deprecated
+
+- None
+
+### Fixed
+
+- internal `Reader::getRow` when using a `StreamIterator` [issue #213](https://github.com/thephpleague/csv/issues/213)
+- Removed `@deprecated` from selected methods [issue #208](https://github.com/thephpleague/csv/issues/213)
+
+### Removed
+
+- None
+
 ## 8.2.0 - 2017-01-25
 
 ### Added

@@ -64,10 +64,6 @@ trait QueryFilter
     /**
      * Stripping BOM setter
      *
-     * DEPRECATION WARNING! This method will be removed in the next major point release
-     *
-     * @deprecated deprecated since version 8.2
-     *
      * @param bool $status
      *
      * @return $this

@@ -156,18 +156,17 @@ class StreamIterator implements Iterator
      * @param array  $fields
      * @param string $delimiter
      * @param string $enclosure
-     * @param string $escape
      *
      * @return int
      */
-    public function fputcsv(array $fields, $delimiter = null, $enclosure = null, $escape = null)
+    public function fputcsv(array $fields, $delimiter = ',', $enclosure = '"', $escape = '\\')
     {
         return fputcsv(
             $this->stream,
             $fields,
-            null !== $delimiter ? $this->filterControl($delimiter, 'delimiter') : $this->delimiter,
-            null !== $enclosure ? $this->filterControl($enclosure, 'enclosure') : $this->enclosure,
-            null !== $escape ? $this->filterControl($escape, 'escape') : $this->escape
+            $this->filterControl($delimiter, 'delimiter'),
+            $this->filterControl($enclosure, 'enclosure'),
+            $this->filterControl($escape, 'escape')
         );
     }
 
