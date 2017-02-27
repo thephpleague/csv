@@ -2,68 +2,59 @@
 
 namespace LeagueTest\Csv;
 
+use League\Csv\Exception\InvalidArgumentException;
 use League\Csv\Reader;
 use League\Csv\StreamIterator;
 use League\Csv\Writer;
-use PHPUnit_Framework_TestCase;
+use LogicException;
+use PHPUnit\Framework\TestCase;
 use SplFileObject;
 
 /**
  * @group stream
  */
-class StreamIteratorTest extends PHPUnit_Framework_TestCase
+class StreamIteratorTest extends TestCase
 {
-    protected $csv;
-
-    public function setUp()
+    public function testCloningIsForbidden()
     {
-        $this->csv = Reader::createFromStream(fopen(__DIR__.'/data/prenoms.csv', 'r'));
-        $this->csv->setDelimiter(';');
+        $this->expectException(LogicException::class);
+        $toto = clone new StreamIterator(fopen('php://temp', 'r+'));
     }
 
-    public function tearDown()
-    {
-        $this->csv = null;
-    }
-
-    /**
-     * @expectedException InvalidArgumentException
-     */
-    public function testCreateFromStreamWithInvalidParameter()
-    {
-        $path = __DIR__.'/data/foo.csv';
-        Reader::createFromStream($path);
-    }
-
-    public function testStreamIteratorIterator()
-    {
-        $this->assertCount(1, $this->csv->setLimit(1)->fetchAll());
-    }
-
-    /**
-     * @expectedException InvalidArgumentException
-     */
     public function testCreateStreamWithInvalidParameter()
     {
+        $this->expectException(InvalidArgumentException::class);
         $path = __DIR__.'/data/foo.csv';
         new StreamIterator($path);
     }
 
-    /**
-     * @expectedException InvalidArgumentException
-     */
     public function testCreateStreamWithNonSeekableStream()
     {
+        $this->expectException(InvalidArgumentException::class);
         new StreamIterator(fopen('php://stdin', 'r'));
     }
 
-    /**
-     * @expectedException InvalidArgumentException
-     */
     public function testSetCsvControlTriggersException()
     {
+        $this->expectException(InvalidArgumentException::class);
         (new StreamIterator(fopen('php://temp', 'r+')))->setCsvControl('toto');
     }
+
+    public function testIterator()
+    {
+        $expected = [
+            ['john', 'doe', 'john.doe@example.com'],
+            ['jane', 'doe', 'jane.doe@example.com'],
+        ];
+        $fp = fopen('php://temp', 'r+');
+        foreach ($expected as $row) {
+            fputcsv($fp, $row);
+        }
+        $stream = new StreamIterator($fp);
+        $stream->setFlags(SplFileObject::READ_CSV);
+        $this->assertCount(3, iterator_to_array($stream));
+    }
+
 
     /**
      * @param $expected
@@ -77,7 +68,7 @@ class StreamIteratorTest extends PHPUnit_Framework_TestCase
         }
         $csv = Reader::createFromStream($fp);
 
-        $this->assertSame($res, $csv->fetchAll()[0][0]);
+        $this->assertSame($res, $csv->select()->fetchAll()[0][0]);
     }
 
     public function validBOMSequences()
@@ -98,24 +89,6 @@ class StreamIteratorTest extends PHPUnit_Framework_TestCase
         ];
     }
 
-    public function testGetReader()
-    {
-        $fp = fopen('php://temp', 'r+');
-        $csv = Writer::createFromStream($fp);
-
-        $expected = [
-            ['john', 'doe', 'john.doe@example.com'],
-            ['john', 'doe', 'john.doe@example.com'],
-        ];
-
-        foreach ($expected as $row) {
-            $csv->insertOne($row);
-        }
-
-        $reader = $csv->newReader();
-        $this->assertSame(['john', 'doe', 'john.doe@example.com'], $reader->fetchOne(0));
-    }
-
     public function testToString()
     {
         $fp = fopen('php://temp', 'r+');
@@ -132,6 +105,26 @@ class StreamIteratorTest extends PHPUnit_Framework_TestCase
 
         $expected = "john,doe,john.doe@example.com\njane,doe,jane.doe@example.com\n";
         $this->assertSame($expected, $csv->__toString());
+    }
+
+    public function testPrependFilter()
+    {
+        $fp = fopen('php://temp', 'r+');
+        $csv = new StreamIterator($fp);
+
+        $expected = [
+            ['john', 'doe', 'john.doe@example.com'],
+            ['jane', 'doe', 'jane.doe@example.com'],
+        ];
+
+        $csv->prependFilter('string.toupper', STREAM_FILTER_WRITE);
+        foreach ($expected as $row) {
+            $csv->fputcsv($row);
+        }
+        $csv->setFlags(SplFileObject::READ_CSV | SplFileObject::READ_AHEAD | SplFileObject::SKIP_EMPTY);
+        foreach ($csv as $key => $row) {
+            $this->assertSame(array_map('strtoupper', $expected[$key]), $row);
+        }
     }
 
     public function testIteratorWithLines()
@@ -164,11 +157,9 @@ class StreamIteratorTest extends PHPUnit_Framework_TestCase
         $this->assertSame("jane,doe\r\n", (string) $csv);
     }
 
-    /**
-     * @expectedException \LogicException
-     */
     public function testStreamIteratorSeekThrowException()
     {
+        $this->expectException(LogicException::class);
         $fp = fopen('php://temp', 'r+');
         $expected = [
             ['john', 'doe', 'john.doe@example.com'],

@@ -20,7 +20,8 @@ use InvalidArgumentException;
  *  A class to manage column consistency on data insertion into a CSV
  *
  * @package League.csv
- * @since  7.0.0
+ * @since   7.0.0
+ * @author  Ignace Nyamagana Butera <nyamsprod@gmail.com>
  *
  */
 class ColumnConsistencyValidator
@@ -30,14 +31,14 @@ class ColumnConsistencyValidator
      *
      * @var int
      */
-    private $columns_count = -1;
+    protected $columns_count = -1;
 
     /**
      * should the class detect the column count based the inserted row
      *
      * @var bool
      */
-    private $detect_columns_count = false;
+    protected $detect_columns_count = false;
 
     /**
      * Set Inserted row column count

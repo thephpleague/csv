@@ -18,7 +18,8 @@ namespace League\Csv\Plugin;
  *  A class to validate null value handling on data insertion into a CSV
  *
  * @package League.csv
- * @since  7.0.0
+ * @since   7.0.0
+ * @author  Ignace Nyamagana Butera <nyamsprod@gmail.com>
  *
  */
 class ForbiddenNullValuesValidator

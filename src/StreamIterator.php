@@ -14,21 +14,29 @@ declare(strict_types=1);
 
 namespace League\Csv;
 
-use InvalidArgumentException;
 use Iterator;
+use League\Csv\Exception\InvalidArgumentException;
 use LogicException;
 use SplFileObject;
 
 /**
- *  A Stream Iterator
+ *  an object oriented interface for a stream resource.
  *
- * @package League.csv
- * @since  8.2.0
+ * @package  League.csv
+ * @since    8.2.0
+ * @author   Ignace Nyamagana Butera <nyamsprod@gmail.com>
  * @internal used internally to iterate over a stream resource
  *
  */
 class StreamIterator implements Iterator
 {
+    /**
+     * Attached filters
+     *
+     * @var resource[]
+     */
+    protected $filters;
+
     /**
      * Stream pointer
      *
@@ -101,6 +109,14 @@ class StreamIterator implements Iterator
     }
 
     /**
+     * close the file pointer
+     */
+    public function __destruct()
+    {
+        $this->stream = null;
+    }
+
+    /**
      * Set CSV control
      *
      * @see http://php.net/manual/en/splfileobject.setcsvcontrol.php
@@ -157,16 +173,16 @@ class StreamIterator implements Iterator
      * @param string $enclosure
      * @param string $escape
      *
-     * @return int
+     * @return int|false
      */
-    public function fputcsv(array $fields, string $delimiter = null, string $enclosure = null, string $escape = null)
+    public function fputcsv(array $fields, string $delimiter = ',', string $enclosure = '"', string $escape = '\\')
     {
         return fputcsv(
             $this->stream,
             $fields,
-            null !== $delimiter ? $this->filterControl($delimiter, 'delimiter') : $this->delimiter,
-            null !== $enclosure ? $this->filterControl($enclosure, 'enclosure') : $this->enclosure,
-            null !== $escape ? $this->filterControl($escape, 'escape') : $this->escape
+            $this->filterControl($delimiter, 'delimiter'),
+            $this->filterControl($enclosure, 'enclosure'),
+            $this->filterControl($escape, 'escape')
         );
     }
 
@@ -195,7 +211,7 @@ class StreamIterator implements Iterator
     /**
      * Retrieves the current line as a CSV Record
      *
-     * @return array
+     * @return array|bool
      */
     protected function getCurrentRecord()
     {
@@ -211,7 +227,7 @@ class StreamIterator implements Iterator
      *
      * @return string
      */
-    protected function getCurrentLine()
+    protected function getCurrentLine(): string
     {
         do {
             $line = fgets($this->stream);
@@ -225,7 +241,7 @@ class StreamIterator implements Iterator
      *
      * @return int
      */
-    public function key()
+    public function key(): int
     {
         return $this->current_line_number;
     }
@@ -257,7 +273,7 @@ class StreamIterator implements Iterator
      *
      * @return bool
      */
-    public function valid()
+    public function valid(): bool
     {
         if ($this->flags & SplFileObject::READ_AHEAD) {
             return $this->current() !== false;
@@ -273,7 +289,7 @@ class StreamIterator implements Iterator
      *
      * @return string
      */
-    public function fgets()
+    public function fgets(): string
     {
         if (false !== $this->current_line) {
             $this->next();
@@ -288,7 +304,7 @@ class StreamIterator implements Iterator
      *
      * @return int
      */
-    public function fpassthru()
+    public function fpassthru(): int
     {
         return fpassthru($this->stream);
     }
@@ -303,7 +319,7 @@ class StreamIterator implements Iterator
      *
      * @return int
      */
-    public function fseek($offset, $whence = SEEK_SET)
+    public function fseek(int $offset, int $whence = SEEK_SET): int
     {
         return fseek($this->stream, $offset, $whence);
     }
@@ -341,16 +357,58 @@ class StreamIterator implements Iterator
      *
      * @return int
      */
-    public function fwrite($str, $length = 0)
+    public function fwrite(string $str, int $length = 0): int
     {
         return fwrite($this->stream, $str, $length);
     }
 
     /**
-     * close the file pointer
+     * append a filter
+     *
+     * @param string $filter_name
+     *
+     * @return resource
      */
-    public function __destruct()
+    public function appendFilter(string $filter_name, int $read_write)
     {
-        $this->stream = null;
+        return stream_filter_append($this->stream, $filter_name, $read_write);
+    }
+
+    /**
+     * prepend a filter
+     *
+     * @param string $filter_name
+     *
+     * @return resource
+     */
+    public function prependFilter(string $filter_name, int $read_write)
+    {
+        return stream_filter_prepend($this->stream, $filter_name, $read_write);
+    }
+
+    /**
+     * remove all attached filters
+     */
+    public function removeFilter($resource)
+    {
+        return stream_filter_remove($resource);
+    }
+
+    /**
+     * Flushes the output to a file
+     *
+     * @return bool
+     */
+    public function fflush(): bool
+    {
+        return fflush($this->stream);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function __clone()
+    {
+        throw new LogicException('An object of class '.StreamIterator::class.' cannot be cloned');
     }
 }

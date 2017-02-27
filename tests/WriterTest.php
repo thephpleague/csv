@@ -3,8 +3,10 @@
 namespace LeagueTest\Csv;
 
 use ArrayIterator;
+use League\Csv\Exception\InsertionException;
+use League\Csv\Exception\InvalidArgumentException;
 use League\Csv\Writer;
-use PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\TestCase;
 use SplFileObject;
 use SplTempFileObject;
 use stdClass;
@@ -12,7 +14,7 @@ use stdClass;
 /**
  * @group writer
  */
-class WriterTest extends PHPUnit_Framework_TestCase
+class WriterTest extends TestCase
 {
     private $csv;
 
@@ -29,13 +31,21 @@ class WriterTest extends PHPUnit_Framework_TestCase
         $this->csv = null;
     }
 
+    public function testflushThreshold()
+    {
+        $this->expectException(InvalidArgumentException::class);
+        $this->csv->setFlushThreshold(12);
+        $this->assertSame(12, $this->csv->getFlushThreshold());
+        $this->csv->setFlushThreshold(0);
+    }
+
     public function testSupportsStreamFilter()
     {
         $csv = Writer::createFromPath(__DIR__.'/data/foo.csv');
-        $this->assertTrue($csv->isActiveStreamFilter());
-        $csv->appendStreamFilter('string.toupper');
+        $this->assertTrue($csv->isStream());
+        $csv->setFlushThreshold(1);
+        $csv->addStreamFilter('string.toupper');
         $csv->insertOne(['jane', 'doe', 'jane@example.com']);
-        $this->assertFalse($csv->isActiveStreamFilter());
         $this->assertContains('JANE,DOE,JANE@EXAMPLE.COM', (string) $csv);
     }
 
@@ -57,11 +67,20 @@ class WriterTest extends PHPUnit_Framework_TestCase
         $this->assertContains('jane,doe,jane.doe@example.com', (string) $csv);
     }
 
-    /**
-     * @expectedException InvalidArgumentException
-     */
+    public function testInsertThrowsExceptionOnError()
+    {
+        try {
+            $expected = ['jane', 'doe', 'jane.doe@example.com'];
+            $csv = Writer::createFromPath(__DIR__.'/data/foo.csv', 'r');
+            $csv->insertOne($expected);
+        } catch (InsertionException $e) {
+            $this->assertSame($e->getData(), $expected);
+        }
+    }
+
     public function testFailedSaveWithWrongType()
     {
+        $this->expectException(InvalidArgumentException::class);
         $this->csv->insertAll(new stdClass());
     }
 
@@ -88,19 +107,6 @@ class WriterTest extends PHPUnit_Framework_TestCase
         ];
     }
 
-    public function testGetReader()
-    {
-        $expected = [
-            ['john', 'doe', 'john.doe@example.com'],
-        ];
-        foreach ($expected as $row) {
-            $this->csv->insertOne($row);
-        }
-
-        $reader = $this->csv->newReader();
-        $this->assertSame(['john', 'doe', 'john.doe@example.com'], $reader->fetchOne(0));
-    }
-
     public function testCustomNewline()
     {
         $this->assertSame("\n", $this->csv->getNewline());
@@ -112,10 +118,12 @@ class WriterTest extends PHPUnit_Framework_TestCase
     public function testAddValidationRules()
     {
         $func = function (array $row) {
-            return true;
+            return false;
         };
 
+        $this->expectException(InsertionException::class);
         $this->csv->addValidator($func, 'func1');
+        $this->csv->insertOne(['jane', 'doe']);
     }
 
     public function testFormatterRules()
@@ -127,15 +135,5 @@ class WriterTest extends PHPUnit_Framework_TestCase
         $this->csv->addFormatter($func);
         $this->csv->insertOne(['jane', 'doe']);
         $this->assertSame("JANE,DOE\n", (string) $this->csv);
-    }
-
-    public function testConversionWithWriter()
-    {
-        $this->csv->insertAll([
-            ['john', 'doe', 'john.doe@example.com'],
-            ['jane', 'doe', 'jane.doe@example.com'],
-            ['toto', 'le', 'herisson'],
-        ]);
-        $this->assertStringStartsWith('<table', $this->csv->newReader()->toHTML());
     }
 }

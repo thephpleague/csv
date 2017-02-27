@@ -14,8 +14,8 @@ declare(strict_types=1);
 
 namespace League\Csv;
 
-use League\Csv\Config\ControlsTrait;
-use League\Csv\Config\StreamTrait;
+use League\Csv\Exception\RuntimeException;
+use LogicException;
 use SplFileObject;
 
 /**
@@ -23,12 +23,12 @@ use SplFileObject;
  *
  * @package League.csv
  * @since  4.0.0
+ * @author  Ignace Nyamagana Butera <nyamsprod@gmail.com>
  *
  */
 abstract class AbstractCsv
 {
-    use ControlsTrait;
-    use StreamTrait;
+    use ValidatorTrait;
 
     /**
      *  UTF-8 BOM sequence
@@ -56,29 +56,68 @@ abstract class AbstractCsv
     const BOM_UTF32_LE = "\xFF\xFE\x00\x00";
 
     /**
-     * The file open mode flag
+     * The CSV document
+     *
+     * @var StreamIterator|SplFileObject
+     */
+    protected $document;
+
+    /**
+     * the field delimiter (one character only)
      *
      * @var string
      */
-    protected $open_mode;
+    protected $delimiter = ',';
 
     /**
-     * Creates a new instance
+     * the field enclosure character (one character only)
      *
-     * The file path can be:
-     *
-     * - a string
-     * - a SplFileObject
-     * - a StreamIterator
-     *
-     * @param mixed  $path      The file path
-     * @param string $open_mode The file open mode flag
+     * @var string
      */
-    protected function __construct($path, string $open_mode = 'r+')
+    protected $enclosure = '"';
+
+    /**
+     * the field escape character (one character only)
+     *
+     * @var string
+     */
+    protected $escape = '\\';
+
+    /**
+     * The Output file BOM character
+     * @var string
+     */
+    protected $output_bom = '';
+
+    /**
+     * collection of stream filters
+     *
+     * @var array
+     */
+    protected $stream_filters = [];
+
+    /**
+     * The stream filter mode (read or write)
+     *
+     * @var int
+     */
+    protected $stream_filter_mode;
+
+    /**
+     * The CSV document BOM sequence
+     *
+     * @var string|null
+     */
+    protected $input_bom = null;
+
+    /**
+     * New instance
+     *
+     * @param SplFileObject|StreamIterator $document The CSV Object instance
+     */
+    protected function __construct($document)
     {
-        $this->open_mode = strtolower($open_mode);
-        $this->path = $path;
-        $this->initStreamFilter();
+        $this->document = $document;
     }
 
     /**
@@ -86,7 +125,16 @@ abstract class AbstractCsv
      */
     public function __destruct()
     {
-        $this->path = null;
+        $this->clearStreamFilter();
+        $this->document = null;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function __clone()
+    {
+        throw new LogicException('An object of class '.get_class($this).' cannot be cloned');
     }
 
     /**
@@ -100,10 +148,10 @@ abstract class AbstractCsv
     {
         $csv = new static($file);
         $controls = $file->getCsvControl();
-        $csv->setDelimiter($controls[0]);
-        $csv->setEnclosure($controls[1]);
+        $csv->delimiter = $controls[0];
+        $csv->enclosure = $controls[1];
         if (isset($controls[2])) {
-            $csv->setEscape($controls[2]);
+            $csv->escape = $controls[2];
         }
 
         return $csv;
@@ -123,9 +171,6 @@ abstract class AbstractCsv
 
     /**
      * Return a new {@link AbstractCsv} from a string
-     *
-     * The string must be an object that implements the `__toString` method,
-     * or a string
      *
      * @param string $str the string
      *
@@ -149,66 +194,112 @@ abstract class AbstractCsv
      */
     public static function createFromPath(string $path, string $open_mode = 'r+'): self
     {
-        return new static($path, $open_mode);
-    }
-
-    /**
-     * Return a new {@link AbstractCsv} instance from another {@link AbstractCsv} object
-     *
-     * @param string $class     the class to be instantiated
-     * @param string $open_mode the file open mode flag
-     *
-     * @return static
-     */
-    protected function newInstance(string $class, string $open_mode): self
-    {
-        $csv = new $class($this->path, $open_mode);
-        $csv->delimiter = $this->delimiter;
-        $csv->enclosure = $this->enclosure;
-        $csv->escape = $this->escape;
-        $csv->input_bom = $this->input_bom;
-        $csv->output_bom = $this->output_bom;
-        $csv->newline = $this->newline;
-
-        return $csv;
-    }
-
-    /**
-     * Return a new {@link Writer} instance from a {@link AbstractCsv} object
-     *
-     * @param string $open_mode the file open mode flag
-     *
-     * @return Writer
-     */
-    public function newWriter(string $open_mode = 'r+'): self
-    {
-        return $this->newInstance(Writer::class, $open_mode);
-    }
-
-    /**
-     * Return a new {@link Reader} instance from a {@link AbstractCsv} object
-     *
-     * @param string $open_mode the file open mode flag
-     *
-     * @return Reader
-     */
-    public function newReader(string $open_mode = 'r+'): self
-    {
-        return $this->newInstance(Reader::class, $open_mode);
-    }
-
-    /**
-     * Set the Inner Iterator
-     *
-     * @return StreamIterator|SplFileObject
-     */
-    protected function getCsvDocument()
-    {
-        if ($this->path instanceof StreamIterator || $this->path instanceof SplFileObject) {
-            return $this->path;
+        if (!$stream = @fopen($path, $open_mode)) {
+            throw new RuntimeException(error_get_last()['message']);
         }
 
-        return new SplFileObject($this->getStreamFilterPath(), $this->open_mode);
+        return new static(new StreamIterator($stream));
+    }
+
+    /**
+     * Returns the current field delimiter
+     *
+     * @return string
+     */
+    public function getDelimiter(): string
+    {
+        return $this->delimiter;
+    }
+
+    /**
+     * Returns the current field enclosure
+     *
+     * @return string
+     */
+    public function getEnclosure(): string
+    {
+        return $this->enclosure;
+    }
+
+    /**
+     * Returns the current field escape character
+     *
+     * @return string
+     */
+    public function getEscape(): string
+    {
+        return $this->escape;
+    }
+
+    /**
+     * Returns the BOM sequence in use on Output methods
+     *
+     * @return string
+     */
+    public function getOutputBOM(): string
+    {
+        return $this->output_bom;
+    }
+
+    /**
+     * Returns the BOM sequence of the given CSV
+     *
+     * @return string
+     */
+    public function getInputBOM(): string
+    {
+        if (null !== $this->input_bom) {
+            return $this->input_bom;
+        }
+
+        $bom = [
+            self::BOM_UTF32_BE, self::BOM_UTF32_LE,
+            self::BOM_UTF16_BE, self::BOM_UTF16_LE, self::BOM_UTF8,
+        ];
+
+        $this->document->setFlags(SplFileObject::READ_CSV);
+        $this->document->rewind();
+        $line = $this->document->fgets();
+        $res = array_filter($bom, function ($sequence) use ($line) {
+            return strpos($line, $sequence) === 0;
+        });
+
+        $this->input_bom = (string) array_shift($res);
+
+        return $this->input_bom;
+    }
+
+    /**
+     * Tells whether the stream filter capabilities can be used
+     *
+     * @return bool
+     */
+    public function isStream(): bool
+    {
+        return $this->document instanceof StreamIterator;
+    }
+
+    /**
+     * Tell whether the specify stream filter is attach to the current stream
+     *
+     * @return bool
+     */
+    public function hasStreamFilter(string $filtername): bool
+    {
+        return isset($this->stream_filters[$filtername]);
+    }
+
+    /**
+     * Retrieves the CSV content
+     *
+     * @return string
+     */
+    public function __toString(): string
+    {
+        ob_start();
+        $this->fpassthru();
+
+        return ob_get_clean();
     }
 
     /**
@@ -223,9 +314,9 @@ abstract class AbstractCsv
     {
         if (null !== $filename) {
             $filename = filter_var($filename, FILTER_SANITIZE_STRING, FILTER_FLAG_STRIP_LOW);
-            header('Content-Type: text/csv');
-            header('Content-Transfer-Encoding: binary');
-            header("Content-Disposition: attachment; filename=\"$filename\"");
+            header('content-type: text/csv');
+            header('content-transfer-encoding: binary');
+            header('content-disposition: attachment; filename="'.rawurlencode($filename).'"');
         }
 
         return $this->fpassthru();
@@ -244,27 +335,128 @@ abstract class AbstractCsv
         if ($this->output_bom && $input_bom != $this->output_bom) {
             $bom = $this->output_bom;
         }
-        $csv = $this->getCsvDocument();
-        $csv->rewind();
+
+        $this->document->rewind();
         if ('' !== $bom) {
-            $csv->fseek(mb_strlen($input_bom));
+            $this->document->fseek(mb_strlen($input_bom));
         }
         echo $bom;
-        $res = $csv->fpassthru();
+        $res = $this->document->fpassthru();
 
         return $res + strlen($bom);
     }
 
     /**
-     * Retrieves the CSV content
+     * Sets the field delimiter
      *
-     * @return string
+     * @param string $delimiter
+     *
+     * @return static
      */
-    public function __toString(): string
+    public function setDelimiter(string $delimiter): self
     {
-        ob_start();
-        $this->fpassthru();
+        $this->delimiter = $this->filterControl($delimiter, 'delimiter');
+        $this->resetDynamicProperties();
 
-        return ob_get_clean();
+        return $this;
+    }
+
+    /**
+     * Reset dynamic CSV document properties to improve performance
+     */
+    protected function resetDynamicProperties()
+    {
+    }
+
+    /**
+     * Sets the field enclosure
+     *
+     * @param string $enclosure
+     *
+     * @return static
+     */
+    public function setEnclosure(string $enclosure): self
+    {
+        $this->enclosure = $this->filterControl($enclosure, 'enclosure');
+        $this->resetDynamicProperties();
+
+        return $this;
+    }
+
+    /**
+     * Sets the field escape character
+     *
+     * @param string $escape
+     *
+     * @return static
+     */
+    public function setEscape(string $escape): self
+    {
+        $this->escape = $this->filterControl($escape, 'escape');
+        $this->resetDynamicProperties();
+
+        return $this;
+    }
+
+    /**
+     * Sets the BOM sequence to prepend the CSV on output
+     *
+     * @param string $str The BOM sequence
+     *
+     * @return static
+     */
+    public function setOutputBOM(string $str): self
+    {
+        $this->output_bom = $str;
+
+        return $this;
+    }
+
+    /**
+     * append a stream filter
+     *
+     * @param string $filtername a string or an object that implements the '__toString' method
+     *
+     * @throws LogicException If the stream filter API can not be used
+     *
+     * @return static
+     */
+    public function addStreamFilter(string $filtername): self
+    {
+        if (!$this->document instanceof StreamIterator) {
+            throw new LogicException('The stream filter API can not be used');
+        }
+
+        $this->stream_filters[$filtername][] = $this->document->appendFilter($filtername, $this->stream_filter_mode);
+        $this->resetDynamicProperties();
+        $this->input_bom = null;
+
+        return $this;
+    }
+
+    /**
+     * Remove all registered stream filter
+     */
+    protected function clearStreamFilter()
+    {
+        foreach (array_keys($this->stream_filters) as $filtername) {
+            $this->removeStreamFilter($filtername);
+        }
+
+        $this->stream_filters = [];
+    }
+
+    /**
+     * Remove all the stream filter with the same name
+     *
+     * @param string $filtername the stream filter name
+     */
+    protected function removeStreamFilter(string $filtername)
+    {
+        foreach ($this->stream_filters[$filtername] as $filter) {
+            $this->document->removeFilter($filter);
+        }
+
+        unset($this->stream_filters[$filtername]);
     }
 }

@@ -12,29 +12,16 @@
 */
 declare(strict_types=1);
 
-namespace League\Csv\Plugin;
+namespace League\Csv\Exception;
 
 /**
- *  A class to remove null value from data before insertion into a CSV
+ * Thrown if an error which can onlyu be found on runtime occurs.
  *
  * @package League.csv
- * @since   7.0.0
+ * @since   9.0.0
  * @author  Ignace Nyamagana Butera <nyamsprod@gmail.com>
  *
  */
-class SkipNullValuesFormatter
+class RuntimeException extends \RuntimeException implements CsvException
 {
-    /**
-     * remove null value form the submitted array
-     *
-     * @param array $row
-     *
-     * @return array
-     */
-    public function __invoke(array $row): array
-    {
-        return array_filter($row, function ($value) {
-            return null !== $value;
-        });
-    }
 }

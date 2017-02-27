@@ -12,16 +12,17 @@
 */
 declare(strict_types=1);
 
-namespace League\Csv\Config;
+namespace League\Csv;
 
-use InvalidArgumentException;
+use League\Csv\Exception\InvalidArgumentException;
 
 /**
  *  An abstract class to enable basic CSV manipulation
  *
- * @package League.csv
- * @since  9.0.0
- * @internal
+ * @package  League.csv
+ * @since    9.0.0
+ * @author   Ignace Nyamagana Butera <nyamsprod@gmail.com>
+ * @internal Use to validate incoming data
  */
 trait ValidatorTrait
 {
@@ -65,25 +66,24 @@ trait ValidatorTrait
     }
 
     /**
-     * Strip the BOM sequence from a record
+     * Validates the array to be used by the fetchAssoc method
      *
-     * @param string[] $row
-     * @param int      $bom_length
-     * @param string   $enclosure
+     * @param array $keys
      *
-     * @return string[]
+     * @throws InvalidArgumentException If the submitted array fails the assertion
+     *
+     * @return array
      */
-    protected function removeBOM(array $row, int $bom_length, string $enclosure): array
+    protected function filterColumnNames(array $keys): array
     {
-        if (0 == $bom_length) {
-            return $row;
+        if (empty($keys)) {
+            return $keys;
         }
 
-        $row[0] = mb_substr($row[0], $bom_length);
-        if ($enclosure == mb_substr($row[0], 0, 1) && $enclosure == mb_substr($row[0], -1, 1)) {
-            $row[0] = mb_substr($row[0], 1, -1);
+        if ($keys !== array_unique(array_filter($keys, 'is_string'))) {
+            throw new InvalidArgumentException('Use a flat array with unique string values');
         }
 
-        return $row;
+        return $keys;
     }
 }

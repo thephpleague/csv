@@ -2,16 +2,18 @@
 
 namespace LeagueTest\Csv\Plugin;
 
+use InvalidArgumentException;
+use League\Csv\Exception\InsertionException;
 use League\Csv\Plugin\ColumnConsistencyValidator;
 use League\Csv\Writer;
-use PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\TestCase;
 use SplFileObject;
 use SplTempFileObject;
 
 /**
  * @group validators
  */
-class ColumnConsistencyValidatorTest extends PHPUnit_Framework_TestCase
+class ColumnConsistencyValidatorTest extends TestCase
 {
     private $csv;
 
@@ -28,11 +30,9 @@ class ColumnConsistencyValidatorTest extends PHPUnit_Framework_TestCase
         $this->csv = null;
     }
 
-    /**
-     * @expectedException InvalidArgumentException
-     */
     public function testColumsCountSetterGetter()
     {
+        $this->expectException(InvalidArgumentException::class);
         $consistency = new ColumnConsistencyValidator();
         $this->assertSame(-1, $consistency->getColumnsCount());
         $consistency->setColumnsCount(3);
@@ -40,11 +40,9 @@ class ColumnConsistencyValidatorTest extends PHPUnit_Framework_TestCase
         $consistency->setColumnsCount(-3);
     }
 
-    /**
-     * @expectedException InvalidArgumentException
-     */
     public function testColumsCountConsistency()
     {
+        $this->expectException(InsertionException::class);
         $consistency = new ColumnConsistencyValidator();
         $this->csv->addValidator($consistency, 'consistency');
         $this->csv->insertOne(['john', 'doe', 'john.doe@example.com']);
@@ -54,11 +52,9 @@ class ColumnConsistencyValidatorTest extends PHPUnit_Framework_TestCase
         $this->csv->insertOne(['jane', 'jane.doe@example.com']);
     }
 
-    /**
-     * @expectedException InvalidArgumentException
-     */
     public function testAutoDetectColumnsCount()
     {
+        $this->expectException(InsertionException::class);
         $consistency = new ColumnConsistencyValidator();
         $this->csv->addValidator($consistency, 'consistency');
         $consistency->autodetectColumnsCount();
