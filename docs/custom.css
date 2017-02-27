@@ -27,3 +27,22 @@ blockquote {
     box-sizing: border-box;
     padding:0 10px;
 }
+
+
+/* ---------- header automatic permalink -----------*/
+
+.header-permalink {
+    text-decoration: none;
+    color:transparent;
+    font-size:.8em;
+    vertical-align: super;
+}
+.header-permalink:hover,
+h1:hover .header-permalink,
+h2:hover .header-permalink,
+h3:hover .header-permalink,
+h4:hover .header-permalink,
+h5:hover .header-permalink {
+    text-decoration: none;
+    color:#777;
+}

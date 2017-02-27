@@ -7,9 +7,11 @@
     {% assign version = page.url | remove_first: "/" | split: "/"" | first %}
     {% assign upgrading_pages = version %}
 
-    {% if version != '8.0' %}
-        {% if version != '7.0' %}
-            {% assign version = site.data.project.default_version %}
+    {% if version != '9.0' %}
+        {% if version != '8.0' %}
+            {% if version != '7.0' %}
+                {% assign version = site.data.project.default_version %}
+            {% endif %}
         {% endif %}
     {% endif %}
 
@@ -99,6 +101,10 @@
         {% endfor %}
     </menu>
     <article>
+    {% if version == '9.0' %}
+        <p class="message-notice">This is the documentation for the upcoming <code>version 9.0</code>. This documentation is not complete and may be altered.</p>
+    {% endif %}
+
         {{ content }}
     </article>
 </main>

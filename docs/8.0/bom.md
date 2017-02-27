@@ -41,7 +41,7 @@ if (Reader::BOM_UTF16_LE == $reader->getInputBOM()) {
 }
 ~~~
 
-If you wish to remove the BOM character while processing your data, you can rely on the [query filters](/query-filtering/#stripbomstatus) to do so.
+If you wish to remove the BOM character while processing your data, you can rely on the [query filters](/8.0/query-filtering/#stripbomstatus) to do so.
 
 ## Adding the BOM character to your CSV
 
@@ -152,6 +152,6 @@ $csv->output('mycsvfile.csv');
 
 ~~~
 
-Of note, we used the [filtering capability](/filtering) of the library to convert the CSV encoding character from `UTF-8` to `UTF-16 LE`.
+Of note, we used the [filtering capability](/8.0/filtering) of the library to convert the CSV encoding character from `UTF-8` to `UTF-16 LE`.
 
 You can found the code and the associated filter class in the [examples directory](https://github.com/thephpleague/csv/tree/8.x/examples).

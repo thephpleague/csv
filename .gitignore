@@ -1,3 +1,5 @@
-vendor
+.idea
 build
 composer.lock
+docs/_site
+vendor
