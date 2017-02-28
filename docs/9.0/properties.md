@@ -12,14 +12,12 @@ Once your connection is [instantiated](/9.0/connections/) you can optionally set
 
 public AbstractCsv::getDelimiter(void): string
 public AbstractCsv::getEnclosure(void): string
-public AbstractCsv::getEnclosure(void): string
 public AbstractCsv::getEscape(void): string
 public AbstractCsv::getInputBOM(void): string
 public AbstractCsv::getOutputBOM(void): string
 public AbstractCsv::hasStreamFilter(string $filtername): bool
 public AbstractCsv::supportsStreamFilter(void): bool
 public AbstractCsv::setDelimiter(string $delimiter): AbstractCsv
-public AbstractCsv::setEnclosure(string $delimiter): AbstractCsv
 public AbstractCsv::setEnclosure(string $delimiter): AbstractCsv
 public AbstractCsv::setEscape(string $delimiter): AbstractCsv
 public AbstractCsv::setOutputBOM(string $sequence): AbstractCsv

@@ -372,7 +372,7 @@ $stmt = (new Statement())
 ;
 ~~~
 
-<p class="message-warning">If a the <code>Reader</code> object has a header an the column uses undefined header value a <code>RuntimeException</code> is triggered.</p>
+<p class="message-warning">If a <code>Reader</code> object has a header and the column uses undefined header value a <code>RuntimeException</code> is triggered.</p>
 
 ### Statement::process
 
@@ -449,10 +449,10 @@ $results = $reader->select();
 count($results); //return the total number of records found
 ~~~
 
-`RecordSet::getColumnName` and `RecordSet::getColumnNames` returns the columns name information associated with the current object. This is usefull if the `RecordSet` object was created from:
+`RecordSet::getColumnNames` returns the columns name information associated with the current object. This is usefull if the `RecordSet` object was created from:
 
 - a `Reader` object where `Reader::getHeader` is not empty;
-- a `Statement` object where `Statement::columns` was used.
+- and/or a `Statement` object where `Statement::columns` was used.
 
 #### Example: no header information was given
 

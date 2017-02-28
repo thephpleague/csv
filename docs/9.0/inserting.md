@@ -10,7 +10,7 @@ To create or update a CSV you are required to use the `League\Csv\Writer` connec
 ~~~php
 <?php
 
-public Writer::insertOne(mixed $record): int
+public Writer::insertOne(array $record): int
 public Writer::insertAll(iterable $records): int
 public Writer::getFlushTreshold(void): int|null
 public Writer::getNewline(void): string
@@ -44,7 +44,7 @@ To add new data to your CSV the `Writer` class uses the following methods
 ~~~php
 <?php
 
-public Writer::insertOne(mixed $record): int
+public Writer::insertOne(array $record): int
 ~~~
 
 This method takes a single argument `$record`, an `array` and returns the length of the written string or throw and `League\Csv\Exception\InsertionException` on error.
