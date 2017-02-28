@@ -17,7 +17,7 @@ public AbstractCsv::getEscape(void): string
 public AbstractCsv::getInputBOM(void): string
 public AbstractCsv::getOutputBOM(void): string
 public AbstractCsv::hasStreamFilter(string $filtername): bool
-public AbstractCsv::isStream(void): bool
+public AbstractCsv::supportsStreamFilter(void): bool
 public AbstractCsv::setDelimiter(string $delimiter): AbstractCsv
 public AbstractCsv::setEnclosure(string $delimiter): AbstractCsv
 public AbstractCsv::setEnclosure(string $delimiter): AbstractCsv
@@ -242,7 +242,7 @@ To ease performing operations on the CSV as it is being read from or written to,
 ~~~php
 <?php
 
-public AbstractCsv::isStream(void): bool
+public AbstractCsv::supportsStreamFilter(void): bool
 ~~~
 
 Tells whether the stream filter API is supported
@@ -254,13 +254,13 @@ use League\Csv\Reader;
 use League\Csv\Writer;
 
 $reader = Reader::createFromPath('/path/to/my/file.csv');
-$reader->isStream(); //return true
+$reader->supportsStreamFilter(); //return true
 
 $writer = Writer::createFromFileObject(new SplTempFileObject());
-$writer->isStream(); //return false the API can not be use
+$writer->supportsStreamFilter(); //return false the API can not be use
 ~~~
 
-<p class="message-warning"><strong>Warning:</strong> A <code>LogicException</code> exception may be thrown if you try to use the API under certain circumstances without prior validation using <code>isStream</code></p>
+<p class="message-warning"><strong>Warning:</strong> A <code>LogicException</code> exception may be thrown if you try to use the API under certain circumstances without prior validation using <code>supportsStreamFilter</code></p>
 
 ### Add a PHP stream filter
 
@@ -289,7 +289,7 @@ stream_filter_register('convert.utf8decode', Transcode::class);
 // 'MyLib\Transcode' is a class that extends PHP's php_user_filter class
 
 $reader = Reader::createFromPath('/path/to/my/chinese.csv');
-if ($reader->isStream()) {
+if ($reader->supportsStreamFilter()) {
 	$reader->addStreamFilter('convert.utf8decode');
 	$reader->addStreamFilter('string.toupper');
 }
@@ -312,7 +312,7 @@ use League\Csv\Reader;
 
 $fp = fopen('/path/to/my/chines.csv', 'r');
 $reader = Reader::createFromStream($fp);
-if ($reader->isStream()) {
+if ($reader->supportsStreamFilter()) {
 	$reader->addStreamFilter('convert.utf8decode');
 	$reader->addStreamFilter('string.toupper');
 }

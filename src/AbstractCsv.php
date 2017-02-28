@@ -274,7 +274,7 @@ abstract class AbstractCsv
      *
      * @return bool
      */
-    public function isStream(): bool
+    public function supportsStreamFilter(): bool
     {
         return $this->document instanceof StreamIterator;
     }

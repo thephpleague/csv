@@ -328,7 +328,7 @@ The `Statement::columns` option is the last to be applied. So you can not use th
 <p class="message-notice">When called multiple times, each call override the last settings for this option.</p>
 
 
-#### Example 1 - If the Reader object has no header
+#### If the Reader object has no header
 
 ~~~php
 <?php
@@ -350,7 +350,7 @@ $stmt = (new Statement())
 ;
 ~~~
 
-#### Example 2 - If the Reader object has a header
+#### If the Reader object has a header
 
 ~~~php
 <?php
@@ -435,7 +435,6 @@ from a `League\Csv\Reader` using a `League\Csv\Statement` object.
 <?php
 public RecordSet::count(): int
 public RecordSet::getColumnNames(): array
-public RecordSet::getColumnName(int $offset): string|null
 ~~~
 
 The `RecordSet` class implements implements the `Countable` interface.
@@ -465,7 +464,6 @@ use League\Csv\Reader;
 $reader = Reader::createFromPath('/path/to/my/file.csv');
 $records = $reader->select();
 $records->getColumnNames(); // is empty because no header information was given
-$records->getColumnName(1); // returns 'null'
 ~~~
 
 #### Example: header information given by the Reader object
@@ -479,7 +477,6 @@ $reader = Reader::createFromPath('/path/to/my/file.csv');
 $reader->setHeaderOffset(0);
 $records = $reader->select();
 $records->getColumnNames(); // returns ['firstname', 'lastname', 'email'];
-$records->getColumnName(1); // returns 'lastname'
 ~~~
 
 #### Example: header information overridden by the Statement object
@@ -500,7 +497,6 @@ $stmt = (new Statement())
 ]);
 $records = $reader->select();
 $records->getColumnNames(); // returns ['First Name', 'Last Name', 'E-mail'];
-$records->getColumnName(1); // returns 'Last Name'
 ~~~
 
 ### Collection options
@@ -724,9 +720,12 @@ count(iterator_to_array($result, false)); //returns 5
 use League\Csv\Reader;
 
 $reader = Reader::createFromPath('/path/to/my/file.csv');
+$reader->setHeaderOffset(0);
 $records = $reader->select();
-foreach ($records->fetchColumn(1000) as $record) {
-    //throw an InvalidArgumentException
+foreach ($records->fetchColumn('foobar') as $record) {
+    //throw an InvalidArgumentException if
+    //no `foobar` column name is found
+    //in $records->getColumnNames() result
 }
 ~~~
 
@@ -793,9 +792,9 @@ To convert your the `RecordSet` collection into JSON, XML and HTML formats your 
 
 - If your `Reader` object supports PHP stream filters then it's recommended to use the library stream filtering mechanism to convert your data.
 
-- When this is not possible/applicable you can fallback to using the `RecordSet::setConversionInputEncoding` method.
+- Otherwise you can fallback to using the `RecordSet::setConversionInputEncoding` method.
 
-<p class="message-warning">If your CSV is not UTF-8 encoded some unexpected results and some errors may be thrown when trying to convert your data.</p>
+<p class="message-warning">If your CSV is not <code>UTF-8</code> encoded some unexpected results or errors may be thrown when trying to convert your data.</p>
 
 ~~~php
 <?php
@@ -806,12 +805,13 @@ public RecordSet::toXML(
     string $root_name = 'csv',
     string $row_name = 'row',
     string $cell_name = 'cell',
-    string $header_attr = 'name',
+    string $column_attr = 'name',
     string $offset_attr = 'offset',
 ): DOMDocument
 
 public RecordSet::toHTML(
     string $class_attr = 'table-csv-data',
+    string $column_attr = 'title',
     string $offset_attr = 'data-record-offset'
 ): string
 ~~~
@@ -820,19 +820,22 @@ public RecordSet::toHTML(
 - `RecordSet::toXML` converts the `RecordSet` into a `DomDocument` object.
 - `RecordSet::toHTML` converts the `RecordSet` into an HTML table.
 
-The `RecordSet::toXML` method accepts 5 optionals arguments to help you customize your XML tree:
+The `RecordSet::toXML` method accepts five (5) optionals arguments to help you customize your XML tree:
 
 - `$root_name`, the XML root name which defaults to `csv`;
 - `$row_name`, the XML node element representing a CSV row which defaults to `row`;
 - `$cell_name`, the XML node element for each CSV cell which defaults value is `cell`;
-- `$header_attr`, the XML node element attribute for each CSV cell if a header was prodived which defaults value is `name`;
+- `$column_attr`, the XML node element attribute for each CSV cell if a header was prodived which defaults value is `name`;
 - `$offset_attr`, the XML node element attribute for each CSV record if the offset must be preserved which defaults value is `offset`;
 
 
-The `RecordSet::toHTML` method accepts two optional arguments:
+The `RecordSet::toHTML` method accepts three (3) optional arguments:
 
 - `$class_attr` to help you customize the table rendering. By defaut the classname given to the table is `table-csv-data`.
-- `$offset_attr`, the attribute attach to each `<tr>` to indicate the CSV document original offset index which defaults value is `data-record-offset`
+- `$column_attr`, the attribute attach to each `<td>` to indicate the column name if it is provided. The default value is `title`;
+- `$offset_attr`, the attribute attach to each `<tr>` to indicate the CSV document original offset index. The default value is `data-record-offset`
+
+<p class="message-notice">The <code>$column_attr</code> argument from <code>RecordSet::toXML</code> and <code>RecordSet::toHTML</code> will only appear if the <code>RecordSet::getColumnNames</code> returns an non empty <code>array</code>.</p>
 
 <p class="message-notice">The <code>$offset_attr</code> argument from <code>RecordSet::toXML</code> and <code>RecordSet::toHTML</code> will only appear in the converted document if the <code>RecordSet::preserveOffset</code> status is <code>true</code>.</p>
 
@@ -842,7 +845,7 @@ The `RecordSet::toHTML` method accepts two optional arguments:
 use League\Csv\Statement;
 use League\Csv\Reader;
 
-$csv = Reader::createFromPath('/path/to/prenoms.csv', 'r')
+$csv = Reader::createFromPath('/path/to/prenoms.csv')
     ->setDelimiter(';')
     ->setHeaderOffset(0)
     ->addStreamFilter('convert.iconv.ISO-8859-1/UTF-8')

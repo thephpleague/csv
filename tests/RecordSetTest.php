@@ -185,13 +185,25 @@ class RecordSetTest extends TestCase
         $this->assertSame(['john', 'jane'], iterator_to_array($res, false));
     }
 
-    public function testFetchColumnTriggersException()
+    /**
+     * @dataProvider invalidFieldNameProvider
+     */
+    public function testFetchColumnTriggersException($field)
     {
         $this->expectException(InvalidArgumentException::class);
         $keys = ['firstname', 'lastname', 'email'];
         $stmt = (new Statement())->columns($keys);
-        $res = $stmt->process($this->csv)->fetchColumn(24);
+        $res = $stmt->process($this->csv)->fetchColumn($field);
         $this->assertSame(['john', 'jane'], iterator_to_array($res, false));
+    }
+
+    public function invalidFieldNameProvider()
+    {
+        return [
+            'negative integer offset' => [-1],
+            'invalid integer offset' => [24],
+            'unknown column name' => ['fooBar'],
+        ];
     }
 
     public function testFetchAssocLessKeys()
@@ -549,7 +561,6 @@ class RecordSetTest extends TestCase
         $stmt = new Statement();
         $result = $this->csv->select($stmt);
         $this->assertSame([], $result->getColumnNames());
-        $this->assertSame('', $result->getColumnName(3));
     }
 
     public function testGetComputedHeader()
@@ -558,7 +569,6 @@ class RecordSetTest extends TestCase
         $stmt = new Statement();
         $result = $this->csv->select($stmt);
         $this->assertSame($this->expected[0], $result->getColumnNames());
-        $this->assertSame($this->expected[0][0], $result->getColumnName(0));
     }
 
     public function testGetComputedHeaderWithSpecifiedHeader()

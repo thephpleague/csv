@@ -200,7 +200,7 @@ class CsvTest extends TestCase
     {
         $this->expectException(LogicException::class);
         $csv = Writer::createFromFileObject(new SplTempFileObject());
-        $this->assertFalse($csv->isStream());
+        $this->assertFalse($csv->supportsStreamFilter());
         $csv->addStreamFilter('string.toupper');
     }
 

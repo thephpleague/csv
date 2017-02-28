@@ -99,21 +99,6 @@ class RecordSet implements JsonSerializable, IteratorAggregate, Countable
     }
 
     /**
-     * Returns a specific field names according to its offset
-     *
-     * If no field name is found or associated to the submitted
-     * offset an empty string is returned
-     *
-     * @param int $offset
-     *
-     * @return string
-     */
-    public function getColumnName(int $offset): string
-    {
-        return $this->column_names[$offset] ?? '';
-    }
-
-    /**
      * @inheritdoc
      */
     public function getIterator(): Iterator
@@ -171,13 +156,18 @@ class RecordSet implements JsonSerializable, IteratorAggregate, Countable
     /**
      * Returns a HTML table representation of the CSV Table
      *
-     * @param string $class_attr optional classname
+     * @param string $class_attr  optional classname
+     * @param string $column_attr column attribute name
+     * @param string $offset_attr offset attribute name
      *
      * @return string
      */
-    public function toHTML(string $class_attr = 'table-csv-data', string $offset_attr = 'data-record-offset'): string
-    {
-        $doc = $this->toXML('table', 'tr', 'td', 'title', $offset_attr);
+    public function toHTML(
+        string $class_attr = 'table-csv-data',
+        string $column_attr = 'title',
+        string $offset_attr = 'data-record-offset'
+    ): string {
+        $doc = $this->toXML('table', 'tr', 'td', $column_attr, $offset_attr);
         $doc->documentElement->setAttribute('class', $class_attr);
 
         return $doc->saveHTML($doc->documentElement);
@@ -324,16 +314,18 @@ class RecordSet implements JsonSerializable, IteratorAggregate, Countable
      */
     protected function getColumnIndex($field, string $error_message)
     {
-        if (false !== array_search($field, $this->column_names, true) || is_string($field)) {
+        if (false !== array_search($field, $this->column_names, true)) {
             return $field;
         }
 
-        $index = $this->filterInteger($field, 0, $error_message);
-        if (empty($this->column_names)) {
-            return $index;
+        if (!is_int($field)) {
+            throw new InvalidArgumentException($error_message);
         }
 
-        if (false !== ($index = array_search($index, array_flip($this->column_names), true))) {
+        $index = $this->filterInteger($field, 0, $error_message);
+        if (empty($this->column_names) ||
+            false !== ($index = array_search($index, array_flip($this->column_names), true))
+        ) {
             return $index;
         }
 
