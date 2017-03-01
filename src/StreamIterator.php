@@ -16,7 +16,7 @@ namespace League\Csv;
 
 use Iterator;
 use League\Csv\Exception\InvalidArgumentException;
-use LogicException;
+use League\Csv\Exception\LogicException;
 use SplFileObject;
 
 /**

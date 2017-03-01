@@ -23,6 +23,7 @@ use Iterator;
 use IteratorAggregate;
 use JsonSerializable;
 use League\Csv\Exception\InvalidArgumentException;
+use League\Csv\Exception\RuntimeException;
 use LimitIterator;
 
 /**
@@ -287,7 +288,7 @@ class RecordSet implements JsonSerializable, IteratorAggregate, Countable
      */
     public function fetchColumn($index = 0): Generator
     {
-        $offset = $this->getColumnIndex($index, 'the column index value is invalid');
+        $offset = $this->getColumnIndex($index, 'the column index `%s` value is invalid');
         $filter = function (array $row) use ($offset) {
             return isset($row[$offset]);
         };
@@ -308,7 +309,7 @@ class RecordSet implements JsonSerializable, IteratorAggregate, Countable
      * @param string|int $field         the field name or the field index
      * @param string     $error_message the associated error message
      *
-     * @throws InvalidArgumentException if the field is invalid
+     * @throws RuntimeException if the field is invalid
      *
      * @return string|int
      */
@@ -319,7 +320,7 @@ class RecordSet implements JsonSerializable, IteratorAggregate, Countable
         }
 
         if (!is_int($field)) {
-            throw new InvalidArgumentException($error_message);
+            throw new RuntimeException(sprintf($error_message, $field));
         }
 
         $index = $this->filterInteger($field, 0, $error_message);
@@ -329,7 +330,7 @@ class RecordSet implements JsonSerializable, IteratorAggregate, Countable
             return $index;
         }
 
-        throw new InvalidArgumentException($error_message);
+        throw new RuntimeException(sprintf($error_message, $field));
     }
 
     /**

@@ -3,6 +3,7 @@
 namespace LeagueTest\Csv;
 
 use DOMDocument;
+use League\Csv\Exception\CsvException;
 use League\Csv\Exception\InvalidArgumentException;
 use League\Csv\Exception\RuntimeException;
 use League\Csv\Reader;
@@ -190,7 +191,7 @@ class RecordSetTest extends TestCase
      */
     public function testFetchColumnTriggersException($field)
     {
-        $this->expectException(InvalidArgumentException::class);
+        $this->expectException(CsvException::class);
         $keys = ['firstname', 'lastname', 'email'];
         $stmt = (new Statement())->columns($keys);
         $res = $stmt->process($this->csv)->fetchColumn($field);

@@ -2,34 +2,91 @@
 
 All Notable changes to `Csv` will be documented in this file
 
-## Next
+## 9.0.0 - TBD
 
 ### Added
 
-- None
+- `League\Csv\Statement`
+- `League\Csv\RecordSet`
+- `League\Csv\Exception\CsvException`
+- `League\Csv\Exception\InsertionException`
+- `League\Csv\Exception\InvalidArgumentException`
+- `League\Csv\Exception\LogicException`
+- `League\Csv\Exception\RuntimeException`
+- `League\Csv\Reader::getHeader`
+- `League\Csv\Reader::getHeaderOffset`
+- `League\Csv\Reader::setHeaderOffset`
+- `League\Csv\Reader::select`
+- `League\Csv\Writer::setFlushThreshold`
+- `League\Csv\Writer::getFlushThreshold`
+
+### Deprecated
+
+- Nothing
 
 ### Fixed
 
-- None
+- `League\Csv\Writer::insertOne` only accept an array and returns a integer
+- `League\Csv\Writer::insertAll` only accept an iterable of array and returns an integer
 
 ### Removed
 
 - PHP5 support
 - `examples` directory
+- `League\Csv\AbstractCsv::jsonSerialize`
+- `League\Csv\AbstractCsv::toHTML`
+- `League\Csv\AbstractCsv::toXML`
 - `League\Csv\AbstractCsv::stripBom`
-- `League\Csv\Reader::fetch`
+- `League\Csv\AbstractCsv::addFilter`
+- `League\Csv\AbstractCsv::addSortBy`
+- `League\Csv\AbstractCsv::setOffset`
+- `League\Csv\AbstractCsv::setLimit`
+- `League\Csv\AbstractCsv::isActiveStreamFilter`
+- `League\Csv\AbstractCsv::setStreamFilterMode`
+- `League\Csv\AbstractCsv::getStreamFilterMode`
+- `League\Csv\AbstractCsv::appendStreamFilter`
+- `League\Csv\AbstractCsv::prependStreamFilter`
+- `League\Csv\AbstractCsv::removeStreamFilter`
+- `League\Csv\AbstractCsv::clearStreamFilters`
+- `League\Csv\AbstractCsv::setInputEncoding`
+- `League\Csv\AbstractCsv::getInputEncoding`
+- `League\Csv\Exception\InvalidRowException`
 - `League\Csv\Reader::each`
-- `League\Csv\Reader::fetchPairsWithoutDuplicates`
+- `League\Csv\Reader::fetch`
+- `League\Csv\Reader::fetchAll`
 - `League\Csv\Reader::fetchAssoc`
-- `League\Csv\Writer::removeFormatter`
+- `League\Csv\Reader::fetchColumn`
+- `League\Csv\Reader::fetchPairs`
+- `League\Csv\Reader::fetchPairsWithoutDuplicates`
+- `League\Csv\Reader::getNewline`
+- `League\Csv\Reader::setNewline`
 - `League\Csv\Writer::hasFormatter`
+- `League\Csv\Writer::removeFormatter`
 - `League\Csv\Writer::clearFormatters`
-- `League\Csv\Writer::removeValidator`
 - `League\Csv\Writer::hasValidator`
+- `League\Csv\Writer::removeValidator`
 - `League\Csv\Writer::clearValidators`
-- `League\Csv\Writer::jsonSerialize`
-- `League\Csv\Writer::toHTML`
-- `League\Csv\Writer::toXML`
+- `League\Csv\Writer::getIterator`
+- `League\Csv\Writer::fetchDelimitersOccurrence`
+
+## 8.2.1 - 2017-02-22
+
+### Added
+
+- Nothing
+
+### Deprecated
+
+- Nothing
+
+### Fixed
+
+- internal `Reader::getRow` when using a `StreamIterator` [issue #213](https://github.com/thephpleague/csv/issues/213)
+- Removed `@deprecated` from selected methods [issue #208](https://github.com/thephpleague/csv/issues/213)
+
+### Removed
+
+- Nothing
 
 ## 8.2.0 - 2017-01-25
 
@@ -64,21 +121,21 @@ All Notable changes to `Csv` will be documented in this file
 
 ### Fixed
 
-- None
+- Nothing
 
 ### Removed
 
-- None
+- Nothing
 
 ## 8.1.2 - 2016-10-27
 
 ### Added
 
-- None
+- Nothing
 
 ### Deprecated
 
-- None
+- Nothing
 
 ### Fixed
 
@@ -87,17 +144,17 @@ All Notable changes to `Csv` will be documented in this file
 
 ### Removed
 
-- None
+- Nothing
 
 ## 8.1.1 - 2016-09-05
 
 ### Added
 
-- None
+- Nothing
 
 ### Deprecated
 
-- None
+- Nothing
 
 ### Fixed
 
@@ -107,7 +164,7 @@ All Notable changes to `Csv` will be documented in this file
 
 ### Removed
 
-- None
+- Nothing
 
 ## 8.1.0 - 2016-05-31
 
@@ -129,7 +186,7 @@ All Notable changes to `Csv` will be documented in this file
 
 ### Removed
 
-- None
+- Nothing
 
 ## 8.0.0 - 2015-12-11
 
@@ -140,7 +197,7 @@ All Notable changes to `Csv` will be documented in this file
 
 ### Deprecated
 
-- None
+- Nothing
 
 ### Fixed
 

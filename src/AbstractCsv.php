@@ -14,8 +14,8 @@ declare(strict_types=1);
 
 namespace League\Csv;
 
+use League\Csv\Exception\LogicException;
 use League\Csv\Exception\RuntimeException;
-use LogicException;
 use SplFileObject;
 
 /**
