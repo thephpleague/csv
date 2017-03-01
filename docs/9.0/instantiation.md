@@ -1,11 +1,11 @@
 ---
 layout: default
-title: Basic Usage
+title: Loading CSV documents
 ---
 
-# Basic usage
+# Instantiation
 
-## Csv and Macintosh
+## OS support
 
 If your CSV document was created or is read on a Macintosh computer, add the following lines before using the library to help [PHP detect line ending in Mac OS X](http://php.net/manual/en/function.fgetcsv.php#refsect1-function.fgetcsv-returnvalues).
 
@@ -19,7 +19,7 @@ if (!ini_get("auto_detect_line_endings")) {
 //the rest of the code continues here...
 ~~~
 
-## Instantiation
+## Connection type
 
 Accessing the CSV document is done using one of the following class:
 
@@ -28,7 +28,7 @@ Accessing the CSV document is done using one of the following class:
 
 Both classes extend the `League\Csv\AbstractCsv` class and as such share methods for instantiation.
 
-Because CSV documents come in different forms we used named constructors to offer several ways to load them.
+## CSV document loading
 
 ~~~php
 <?php
@@ -38,6 +38,8 @@ public static AbstractCsv::createFromPath(string $path, string $open_mode = 'r+'
 public static AbstractCsv::createFromStream(resource $stream): AbstractCsv
 public static AbstractCsv::createFromFileObject(SplFileObject $obj): AbstractCsv
 ~~~
+
+Because CSV documents come in different forms we used named constructors to offer several ways to load them.
 
 ### Create from a string
 
@@ -124,83 +126,3 @@ use League\Csv\Writer;
 $reader = Reader::createFromFileObject(new SplFileObject('/path/to/your/csv/file.csv'));
 $writer = Writer::createFromFileObject(new SplTempFileObject());
 ~~~
-
-## CSV document output
-
-<p class="message-info"><strong>Tips:</strong> Even though you can use the following methods with the <code>League\Csv\Writer</code> object. It is recommended to do so with the <code>League\Csv\Reader</code> class to avoid losing the file cursor position and getting unexpected results when inserting new data.</p>
-
-Once your CSV document is loaded, you can print or enable downloading the CSV document using the methods below.
-
-~~~php
-<?php
-
-public AbstractCsv::__toString(void): string
-public AbstractCsv::output(string $filename = null): int
-~~~
-
-### __toString
-
-Returns the string representation of the CSV document
-
-~~~php
-<?php
-
-public AbstractCsv::__toString(void): string
-~~~
-
-Use the `echo` construct on the instantiated object or use the `__toString` method to show the CSV full content.
-
-#### Example
-
-~~~php
-<?php
-
-use League\Csv\Reader;
-
-$reader = Reader::createFromPath('/path/to/my/file.csv');
-echo $reader;
-// or
-echo $reader->__toString();
-~~~
-
-### Download the CSV
-
-If you only wish to make your CSV document downloadable use the `output` method to force the use of the output buffer on the CSV content.
-
-~~~php
-<?php
-
-public AbstractCsv::output(string $filename = null): int
-~~~
-
-The method returns the number of characters read from the handle and passed through to the output.
-
-The output method can take an optional argument `$filename`. When present you
-can even remove more headers.
-
-#### Example 1 - default usage
-
-~~~php
-<?php
-
-use League\Csv\Reader;
-
-header('content-type: text/csv; charset=UTF-8');
-header('content-disposition: attachment; filename="name-for-your-file.csv"');
-
-$reader = Reader::createFromPath('/path/to/my/file.csv');
-$reader->output();
-~~~
-
-#### Example 2 - using the $filename argument
-
-~~~php
-<?php
-
-use League\Csv\Reader;
-
-$reader = Reader::createFromPath('/path/to/my/file.csv');
-$reader->output("name-for-your-file.csv");
-~~~
-
-<p class="message-info"><strong>Tips:</strong> The methods output <strong>are affected by</strong> <a href="/9.0/attributes/">the connection attributes</a>.</p>

@@ -3,11 +3,20 @@
         Introduction: '/9.0/'
         Examples: '/9.0/examples/'
         Installation: '/9.0/installation/'
-    The API:
-        Basic Usage: '/9.0/basic-usage/'
-        CSV Properties: '/9.0/properties/'
-        Inserting Records: '/9.0/inserting/'
-        Selecting Records: '/9.0/reading/'
+    Connections:
+        Instantiation: '/9.0/instantiation/'
+        Characters Controls: '/9.0/controls/'
+        BOM Sequences: '/9.0/bom/'
+        Stream Filters: '/9.0/filters/'
+        Document output: '/9.0/output/'
+        Interoperability: '/9.0/interop/'
+    Inserting Records:
+        Writer Connection: '/9.0/writer/'
+        Records Filtering: '/9.0/insertion-filtering/'
+    Selecting Records:
+        Reader Connection: '/9.0/reader/'
+        Constraint Builder: '/9.0/statement/'
+        Records Collection: '/9.0/records/'
     Upgrading Guide:
         Introduction: '/upgrading/'
         Changelog: '/changelog/'
