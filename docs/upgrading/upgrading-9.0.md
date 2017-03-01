@@ -4,7 +4,7 @@ title: Upgrading from 8.x to 9.x
 permalink: upgrading/9.0/
 ---
 
- <p class="message-notice">This is the documentation for the upcoming <code>version 9.0</code>. This documentation is not complete and may be altered.</p>
+<p class="message-notice">This is the documentation for the upcoming <code>version 9.0</code>. This is a work in progress.</p>
 
 # Upgrading from 8.x to 9.x
 
