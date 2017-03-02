@@ -16,7 +16,7 @@ Once your CSV document is loaded, you can print or enable downloading the CSV do
 
 <p class="message-info"><strong>Tips:</strong> Even though you can use the following methods with the <code>League\Csv\Writer</code> object. It is recommended to do so with the <code>League\Csv\Reader</code> class to avoid losing the file cursor position and getting unexpected results when inserting new data.</p>
 
-## Printing the full CSV document
+## Printing the document
 
 Returns the string representation of the CSV document
 
@@ -41,7 +41,7 @@ echo $reader;
 echo $reader->__toString();
 ~~~
 
-## Download the CSV
+## Downloading the document
 
 If you only wish to make your CSV document downloadable use the `output` method to force the use of the output buffer on the CSV content.
 
@@ -81,4 +81,4 @@ $reader = Reader::createFromPath('/path/to/my/file.csv');
 $reader->output("name-for-your-file.csv");
 ~~~
 
-<p class="message-info"><strong>Tips:</strong> The methods output <strong>are affected by</strong> <a href="/9.0/attributes/">the connection attributes</a>.</p>
+<p class="message-info"><strong>Tips:</strong> The methods output <strong>are affected by</strong> <a href="/9.0/connections/bom/">the output BOM sequence</a> or the supplied <a href="/9.0/connections/filters/">PHP stream filters</a>.</p>

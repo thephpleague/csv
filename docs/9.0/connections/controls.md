@@ -18,7 +18,7 @@ public AbstractCsv::setEscape(string $delimiter): AbstractCsv
 
 To parse the CSV document you are required to set the CSV character controls to the `Reader` and `Writer` connections.
 
-## The CSV delimiter character.
+## The delimiter character.
 
 ### Description
 

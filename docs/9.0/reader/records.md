@@ -5,7 +5,35 @@ title: Accessing Records from a CSV document
 
 # Records Collection
 
-The `League\Csv\RecordSet` is a class which manipulates the CSV document records. This object is returned from `Reader::select` or `Statement::process` execution.
+~~~php
+<?php
+public RecordSet::count(): int
+public RecordSet::getColumnNames(): array
+public RecordSet::preserveOffset(bool $status): RecordSet
+public RecordSet::setConversionInputEncoding(string $charset): RecordSet
+public RecordSet::getIterator(): Generator
+public RecordSet::fetchAll(): array
+public RecordSet::fetchOne(int $offset = 0): array
+public RecordSet::fetchPairs(string|int $offsetIndex = 0, string|int $valueIndex = 1): Generator
+public RecordSet::fetchColumn(string|int $columnIndex = 0): Generator
+public RecordSet::jsonSerialize(): array
+public RecordSet::toXML(
+    string $root_name = 'csv',
+    string $row_name = 'row',
+    string $cell_name = 'cell',
+    string $column_attr = 'name',
+    string $offset_attr = 'offset',
+): DOMDocument
+public RecordSet::toHTML(
+    string $class_attr = 'table-csv-data',
+    string $column_attr = 'title',
+    string $offset_attr = 'data-record-offset'
+): string
+
+
+~~~
+
+The `League\Csv\RecordSet` is a class which manipulates the CSV document records. This object is returned from [Reader::select](/9.0/reader/#selecting-csv-records) or [Statement::process](/9.0/reader/statement/#apply-the-constraints-to-a-csv-document) execution.
 
 ## Collection informations
 
@@ -29,8 +57,8 @@ count($results); //return the total number of records found
 
 `RecordSet::getColumnNames` returns the columns name information associated with the current object. This is usefull if the `RecordSet` object was created from:
 
-- a `Reader` object where `Reader::getHeader` is not empty;
-- and/or a `Statement` object where `Statement::columns` was used.
+- a `Reader` object where [Reader::getHeader](/9.0/reader/#header-detection) is not empty;
+- and/or a `Statement` object where [Statement::columns](/9.0/reader/statement/#select-constraint) was used.
 
 ### Example: no header information was given
 
@@ -94,7 +122,7 @@ public RecordSet::setConversionInputEncoding(string $charset): RecordSet
 
 <p class="message-notice">By default, the <code>RecordSet</code> object expect your records to be in <code>UTF-8</code>.</p>
 
-<p class="message-info"><strong>Tips:</strong> if the <code>Reader</code> supports stream filtering, use <code>Reader::addStreamFilter</code> instead to perform this charset conversion.</p>
+<p class="message-info"><strong>Tips:</strong> if the <code>Reader</code> supports stream filtering, use <a href="/9.0/connections/filters/">Reader::addStreamFilter</a> instead to perform this charset conversion.</p>
 
 ## Iterating over the collection
 
@@ -188,7 +216,7 @@ If you are only interested in on particular record from the `RecordSet` you can 
 ~~~php
 <?php
 
-public RecordSet::fetchOne($offset = 0): array
+public RecordSet::fetchOne(int $offset = 0): array
 ~~~
 
 The required argument `$offset` represents the record offset in the record collection starting at `0`. If no argument is given the method will return the first record from the result set. If no record is found an empty `array` is returned.
@@ -312,10 +340,7 @@ foreach ($records->fetchColumn('foobar') as $record) {
 ~~~php
 <?php
 
-public RecordSet::fetchPairs(
-    string|int $offsetIndex = 0,
-    string|int $valueIndex = 1
-): Generator
+public RecordSet::fetchPairs(string|int $offsetIndex = 0, string|int $valueIndex = 1): Generator
 ~~~
 
 Both arguments, `$offsetIndex` and `$valueIndex` can be:

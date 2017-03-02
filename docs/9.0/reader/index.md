@@ -16,9 +16,8 @@ public Reader::select(Statement $stmt = null): RecordSet
 public Reader::fetchDelimitersOccurrence(array $delimiters, int $nbRows = 1): array
 ~~~
 
-To select CSV records you are required to use the `League\Csv\Reader`.
+The `League\Csv\Reader` class extends the general connections [capabilities](/9.0/connections/) to ease selecting and manipulating CSV document records.
 
-The `Reader` class exposes the general connections <a href="/9.0/connections/">methods</a>  and <a href="/9.0/attributes/">attributes</a>.
 
 ## CSV example
 
@@ -77,7 +76,7 @@ $header_offset = $csv->getHeaderOffset(); //returns 1000
 $header = $csv->getHeader(); //triggers a Exception
 ~~~
 
-## Iterate over the Reader class
+## Iterating over the document records
 
 Because the `Reader` class implements the `IteratorAggregate` interface you can iterate over each record using the `foreach` construct. While iterating the `Reader` will:
 
@@ -130,7 +129,7 @@ foreach ($reader as $offset => $record) {
 
 <p class="message-notice">If a record header is selected, it will be skipped from the iteration.</p>
 
-## Selecting specific records
+## Selecting CSV records
 
 To improve records selection you can use the `Reader::select` method. This methods takes a `League\Csv\Statement` object and returns a `League\Csv\RecordSet` object containing the selected records.
 
@@ -157,9 +156,9 @@ $records = $reader->select($stmt);
 //$records is a League\Csv\RecordSet object
 ~~~
 
-<p class="message-info"><strong>Tips:</strong> The resulting records can be further manipulated by the <a href="/9.0/statement/">Statement</a> and/or the <a href="/9.0/records/">RecordSet</a> classes. Please refer to their documentation for more informations.</p>
+<p class="message-info"><strong>Tips:</strong> The resulting records can be further manipulated by the <a href="/9.0/reader/statement/">Statement</a> and/or the <a href="/9.0/reader/records/">RecordSet</a> classes. Please refer to their documentation for more informations.</p>
 
-## Detecting the CSV document delimiter character
+## Detecting the delimiter character
 
 This method allow you to find the occurences of some delimiters in a given CSV object.
 

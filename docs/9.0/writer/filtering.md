@@ -1,9 +1,9 @@
 ---
 layout: default
-title: Formatting and Validating records for insertion
+title: Formatting and Validating Records For Insertion
 ---
 
-# Records Inserting Filtering
+# Records Filtering
 
 ~~~php
 <?php
@@ -50,7 +50,7 @@ $writer->__toString();
 //will display something like JOHN,DOE,JOHN.DOE@EXAMPLE.COM
 ~~~
 
-## Record validator
+## Record Validator
 
 A validator is a `callable` which takes an `array` as its sole argument and returns a boolean.
 

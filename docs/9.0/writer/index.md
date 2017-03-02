@@ -16,9 +16,7 @@ public Writer::getFlushTreshold(void): int|null
 public Writer::setFlushTreshold(int $treshold = null): Writer
 ~~~
 
-To create or update a CSV you are required to use the `League\Csv\Writer` connection.
-
-The `Writer` class exposes the general connections <a href="/9.0/connections/">methods</a>  and <a href="/9.0/attributes/">attributes</a>.
+The `League\Csv\Writer` class extends the general connections [capabilities](/9.0/connections/) to create or update a CSV document.
 
 <p class="message-info"><strong>Tips: </strong> When creating a file using the library, first insert all the data that need to be inserted before starting manipulating the CSV. If you manipulate your data before insertion, you may change the file cursor position and get unexpected results.</p>
 

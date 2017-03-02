@@ -15,7 +15,7 @@ public AbstractCsv::addStreamFilter(string $filtername): AbstractCsv
 
 To ease performing operations on the CSV as it is being read from or written to, you can add PHP stream filters to the `Reader` and `Writer` connections.
 
-## Detecting PHP stream filter support
+## Detecting stream filter support
 
 ~~~php
 <?php
@@ -40,7 +40,7 @@ $writer->supportsStreamFilter(); //return false the API can not be use
 
 <p class="message-warning"><strong>Warning:</strong> A <code>LogicException</code> exception may be thrown if you try to use the API under certain circumstances without prior validation using <code>supportsStreamFilter</code></p>
 
-## Adding a PHP stream filter
+## Adding a stream filter
 
 ~~~php
 <?php

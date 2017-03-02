@@ -21,7 +21,7 @@ public AbstractCsv::setOutputBOM(string $sequence): AbstractCsv
 
 To improve interoperability with programs interacting with CSV, you can manage the presence of the <abbr title="Byte Order Mark">BOM</abbr> sequence in your CSV content.
 
-## Connection constants
+## Constants
 
 To ease BOM sequence manipulation, the `AbstractCsv` class provides the following constants :
 
@@ -31,7 +31,7 @@ To ease BOM sequence manipulation, the `AbstractCsv` class provides the followin
 * `AbstractCsv::BOM_UTF32_BE` : `UTF-32` `BOM` with Big-Endian;
 * `AbstractCsv::BOM_UTF32_LE` : `UTF-32` `BOM` with Little-Endian;
 
-## Detect the currently used BOM sequence
+## The document BOM sequence
 
 ~~~php
 <?php
@@ -50,7 +50,7 @@ $csv = Writer::createFromPath('/path/to/file.csv');
 $bom = $csv->getInputBOM();
 ~~~
 
-## Set the outputting BOM sequence
+## Setting the outputted BOM sequence
 
 ~~~php
 <?php

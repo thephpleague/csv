@@ -4,19 +4,19 @@
         Examples: '/9.0/examples/'
         Installation: '/9.0/installation/'
     Connections:
-        Instantiation: '/9.0/instantiation/'
-        Characters Controls: '/9.0/controls/'
-        BOM Sequences: '/9.0/bom/'
-        Stream Filters: '/9.0/filters/'
-        Document output: '/9.0/output/'
-        Interoperability: '/9.0/interop/'
+        Document Loading: '/9.0/connections/'
+        Characters Controls: '/9.0/connections/controls/'
+        BOM Sequences: '/9.0/connections/bom/'
+        Stream Filters: '/9.0/connections/filters/'
+        Document output: '/9.0/connections/output/'
+        Interoperability: '/9.0/connections/interoperability/'
     Inserting Records:
         Writer Connection: '/9.0/writer/'
-        Records Filtering: '/9.0/insertion-filtering/'
+        Records Filtering: '/9.0/writer/filtering/'
     Selecting Records:
         Reader Connection: '/9.0/reader/'
-        Constraint Builder: '/9.0/statement/'
-        Records Collection: '/9.0/records/'
+        Constraint Builder: '/9.0/reader/statement/'
+        Records Collection: '/9.0/reader/records/'
     Upgrading Guide:
         Introduction: '/upgrading/'
         Changelog: '/changelog/'

@@ -3,9 +3,24 @@ layout: default
 title: Loading CSV documents
 ---
 
-# Instantiation
+# Document loading
 
-## OS support
+## Connection type
+
+Accessing the CSV document is done using one of the following class:
+
+* `League\Csv\Reader` to connect on a [read only mode](/9.0/reader/)
+* `League\Csv\Writer` to connect on a [write only mode](/9.0/writer/)
+
+Both classes extend the `League\Csv\AbstractCsv` class and as such share the following features:
+
+- [Loading CSV document](#csv-document-loading)
+- [Setting up the CSV controls characters](/9.0/connections/controls/)
+- [Managing the BOM sequence](/9.0/connections/bom/)
+- [Adding PHP stream filters](/9.0/connections/filters/)
+- [Outputting the CSV document](/9.0/connections/output/)
+
+## OS specificity
 
 If your CSV document was created or is read on a Macintosh computer, add the following lines before using the library to help [PHP detect line ending in Mac OS X](http://php.net/manual/en/function.fgetcsv.php#refsect1-function.fgetcsv-returnvalues).
 
@@ -19,16 +34,7 @@ if (!ini_get("auto_detect_line_endings")) {
 //the rest of the code continues here...
 ~~~
 
-## Connection type
-
-Accessing the CSV document is done using one of the following class:
-
-* `League\Csv\Reader` to connect on a read only mode
-* `League\Csv\Writer` to connect on a write only mode
-
-Both classes extend the `League\Csv\AbstractCsv` class and as such share methods for instantiation.
-
-## CSV document loading
+## Instantiation
 
 ~~~php
 <?php

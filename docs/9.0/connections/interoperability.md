@@ -3,7 +3,7 @@ layout: default
 title: CSV document interoperability
 ---
 
-# Software dependency
+# Document interoperability
 
 Depending on your operating system and on the software you are using to read/import your CSV you may need to adjust the encoding character and add its corresponding BOM character to your CSV.
 
