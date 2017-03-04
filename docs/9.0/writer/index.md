@@ -12,8 +12,8 @@ public Writer::insertOne(array $record): int
 public Writer::insertAll(iterable $records): int
 public Writer::getNewline(void): string
 public Writer::setNewline(string $sequence): Writer
-public Writer::getFlushTreshold(void): int|null
-public Writer::setFlushTreshold(int $treshold = null): Writer
+public Writer::getFlushThreshold(void): int|null
+public Writer::setFlushThreshold(?int $threshold): Writer
 ~~~
 
 The `League\Csv\Writer` class extends the general connections [capabilities](/9.0/connections/) to create or update a CSV document.
@@ -111,13 +111,13 @@ For advanced usages, you can now manually indicates when flushing mechanism occu
 ~~~php
 <?php
 
-public Writer::setFlushTreshold(int $treshold = null): Writer
-public Writer::getFlushTreshold(void): int|null
+public Writer::setFlushThreshold(?int $treshold): Writer
+public Writer::getFlushThreshold(void): int|null
 ~~~
 
-By default, the flush mechanism is activate every 500 insertions.
+By default, the flush mechanism deactivate `getFlushTreshold` returns `null`.
 
-<p class="message-info"><code>Writer::insertAll</code> always flush its buffer when all insertion are done regardless of the threshold.</p>
+<p class="message-info"><code>Writer::insertAll</code> always flush its buffer when all records are inserted regardless of the threshold value.</p>
 
 <p class="message-info">If set to <code>null</code> the inner flush mechanism of <code>SplFileObject::fputcsv</code> or <code>fputcsv</code> will be used.</p>
 

@@ -3,7 +3,7 @@ layout: default
 title: Formatting and Validating Records For Insertion
 ---
 
-# Records Filtering
+# Insertion Filtering
 
 ~~~php
 <?php

@@ -13,7 +13,7 @@ layout: default
 [![Quality Score](https://img.shields.io/scrutinizer/g/thephpleague/csv.svg?style=flat-square)](https://scrutinizer-ci.com/g/thephpleague/csv)
 [![Total Downloads](https://img.shields.io/packagist/dt/league/csv.svg?style=flat-square)](https://packagist.org/packages/league/csv)
 
-[CSV](https://packagist.org/packages/league/csv) is a simple library to ease CSV parsing, writing and filtering in PHP.
+[CSV](https://packagist.org/packages/league/csv) is a simple library to ease CSV documents [loading](/9.0/connections) as well as [writing](/9.0/writer/) and [extracting](/9.0/reader/) CSV records in PHP.
 
 ## Highlights
 

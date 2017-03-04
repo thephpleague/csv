@@ -46,6 +46,7 @@ class WriterTest extends TestCase
         $csv->setFlushThreshold(1);
         $csv->addStreamFilter('string.toupper');
         $csv->insertOne(['jane', 'doe', 'jane@example.com']);
+        $csv->setFlushThreshold(null);
         $this->assertContains('JANE,DOE,JANE@EXAMPLE.COM', (string) $csv);
     }
 

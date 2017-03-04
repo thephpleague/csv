@@ -12,7 +12,7 @@
         Interoperability: '/9.0/connections/interoperability/'
     Inserting Records:
         Writer Connection: '/9.0/writer/'
-        Records Filtering: '/9.0/writer/filtering/'
+        Insertion Filtering: '/9.0/writer/filtering/'
     Selecting Records:
         Reader Connection: '/9.0/reader/'
         Constraint Builder: '/9.0/reader/statement/'

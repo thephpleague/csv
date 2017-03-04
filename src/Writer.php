@@ -48,11 +48,11 @@ class Writer extends AbstractCsv
     protected $formatters = [];
 
     /**
-     * Insert Rows count
+     * Insert records count for flushing
      *
      * @var int
      */
-    protected $insert_count = 0;
+    protected $flush_counter = 0;
 
     /**
      * newline character
@@ -66,7 +66,7 @@ class Writer extends AbstractCsv
      *
      * @var int
      */
-    protected $flush_threshold = 500;
+    protected $flush_threshold;
 
     /**
      * Returns the current newline sequence characters
@@ -102,7 +102,7 @@ class Writer extends AbstractCsv
     public function insertAll($rows): int
     {
         if (!is_array($rows) && !$rows instanceof Traversable) {
-            throw new InvalidArgumentException('the provided data must be an array OR a `Traversable` object');
+            throw new InvalidArgumentException('the provided data must be an array or a `Traversable` object');
         }
 
         $bytes = 0;
@@ -110,6 +110,7 @@ class Writer extends AbstractCsv
             $bytes += $this->insertOne($row);
         }
 
+        $this->flush_counter = 0;
         $this->document->fflush();
 
         return $bytes;
@@ -118,15 +119,15 @@ class Writer extends AbstractCsv
     /**
      * Adds a single line to a CSV document
      *
-     * @param string[] $row an array
+     * @param string[] $record an array
      *
-     * @throws InsertionException If the row can not be inserted
+     * @throws InsertionException If the record can not be inserted
      *
      * @return int
      */
-    public function insertOne(array $row): int
+    public function insertOne(array $record): int
     {
-        $record = array_reduce($this->formatters, [$this, 'formatRecord'], $row);
+        $record = array_reduce($this->formatters, [$this, 'formatRecord'], $record);
         $this->validateRecord($record);
         $bytes = $this->document->fputcsv($record, $this->delimiter, $this->enclosure, $this->escape);
         if (!$bytes) {
@@ -178,8 +179,13 @@ class Writer extends AbstractCsv
             $bytes = $this->document->fwrite($this->newline, strlen($this->newline)) - 1;
         }
 
-        $this->insert_count++;
-        if (null !== $this->flush_threshold && 0 === $this->insert_count % $this->flush_threshold) {
+        if (null === $this->flush_threshold) {
+            return $bytes;
+        }
+
+        ++$this->flush_counter;
+        if (0 === $this->flush_counter % $this->flush_threshold) {
+            $this->flush_counter = 0;
             $this->document->fflush();
         }
 
@@ -241,6 +247,10 @@ class Writer extends AbstractCsv
         }
 
         $this->flush_threshold = $val;
+        if (0 < $this->flush_counter) {
+            $this->flush_counter = 0;
+            $this->document->fflush();
+        }
 
         return $this;
     }
