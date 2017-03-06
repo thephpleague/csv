@@ -17,7 +17,7 @@ namespace League\Csv;
 use CallbackFilterIterator;
 use Iterator;
 use IteratorAggregate;
-use League\Csv\Exception\InvalidArgumentException;
+use League\Csv\Exception\RuntimeException;
 use LimitIterator;
 use SplFileObject;
 
@@ -244,7 +244,7 @@ class Reader extends AbstractCsv implements IteratorAggregate
     /**
      * Returns the column header associate with the RecordSet
      *
-     * @throws InvalidArgumentException If no header is found
+     * @throws RuntimeException If no header is found
      *
      * @return string[]
      */
@@ -266,7 +266,7 @@ class Reader extends AbstractCsv implements IteratorAggregate
         $this->document->seek($this->header_offset);
         $header = $this->document->current();
         if (empty($header)) {
-            throw new InvalidArgumentException('The header record specified by `Reader::setHeaderOffset` does not exist or is empty');
+            throw new RuntimeException('The header record specified by `Reader::setHeaderOffset` does not exist or is empty');
         }
 
         if (0 !== $this->header_offset) {

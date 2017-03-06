@@ -10,6 +10,7 @@
         Stream Filters: '/9.0/connections/filters/'
         Document output: '/9.0/connections/output/'
         Interoperability: '/9.0/connections/interoperability/'
+        Exceptions: '/9.0/connections/exceptions/'
     Inserting Records:
         Writer Connection: '/9.0/writer/'
         Insertion Filtering: '/9.0/writer/filtering/'

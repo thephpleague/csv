@@ -402,34 +402,10 @@ class RecordSetTest extends TestCase
         (new Statement())->columns(['firstname', 'firstname', 'lastname', 'email', 'age']);
     }
 
-    /**
-     * @param $offset
-     * @dataProvider invalidOffsetWithFetchAssoc
-     */
-    public function testFetchAssocWithInvalidOffset($offset)
+    public function testFetchAssocWithUnknownOffset()
     {
-        $arr = [
-            ['A', 'B', 'C'],
-            [1, 2, 3],
-            ['D', 'E', 'F'],
-            [6, 7, 8],
-        ];
-
-        $tmp = new SplTempFileObject();
-        foreach ($arr as $row) {
-            $tmp->fputcsv($row);
-        }
-
-        $this->expectException(InvalidArgumentException::class);
-        Reader::createFromFileObject($tmp)->setHeaderOffset($offset)->select()->fetchAll();
-    }
-
-    public function invalidOffsetWithFetchAssoc()
-    {
-        return [
-            'negative' => [-23],
-            'tooHigh' => [23],
-        ];
+        $this->expectException(RuntimeException::class);
+        $this->csv->setHeaderOffset(23)->select()->fetchAll();
     }
 
     public function testFetchColumn()

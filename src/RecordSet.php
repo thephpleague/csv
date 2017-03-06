@@ -309,7 +309,8 @@ class RecordSet implements JsonSerializable, IteratorAggregate, Countable
      * @param string|int $field         the field name or the field index
      * @param string     $error_message the associated error message
      *
-     * @throws RuntimeException if the field is invalid
+     * @throws InvalidArgumentException if the field is invalid
+     * @throws RuntimeException         if the column is not found
      *
      * @return string|int
      */
@@ -319,8 +320,8 @@ class RecordSet implements JsonSerializable, IteratorAggregate, Countable
             return $field;
         }
 
-        if (!is_int($field)) {
-            throw new RuntimeException(sprintf($error_message, $field));
+        if (is_string($field)) {
+            throw new InvalidArgumentException(sprintf($error_message, $field));
         }
 
         $index = $this->filterInteger($field, 0, $error_message);
