@@ -121,15 +121,6 @@ abstract class AbstractCsv
     }
 
     /**
-     * The destructor
-     */
-    public function __destruct()
-    {
-        $this->clearStreamFilter();
-        $this->document = null;
-    }
-
-    /**
      * @inheritdoc
      */
     public function __clone()
@@ -435,28 +426,18 @@ abstract class AbstractCsv
     }
 
     /**
-     * Remove all registered stream filter
+     * The destructor
      */
-    protected function clearStreamFilter()
+    public function __destruct()
     {
-        foreach (array_keys($this->stream_filters) as $filtername) {
-            $this->removeStreamFilter($filtername);
+        if ($this->document instanceof StreamIterator) {
+            $mapper = function (array $filters) {
+                array_map([$this->document, 'removeFilter'], $filters);
+            };
+
+            array_map($mapper, $this->stream_filters);
         }
 
-        $this->stream_filters = [];
-    }
-
-    /**
-     * Remove all the stream filter with the same name
-     *
-     * @param string $filtername the stream filter name
-     */
-    protected function removeStreamFilter(string $filtername)
-    {
-        foreach ($this->stream_filters[$filtername] as $filter) {
-            $this->document->removeFilter($filter);
-        }
-
-        unset($this->stream_filters[$filtername]);
+        $this->document = null;
     }
 }

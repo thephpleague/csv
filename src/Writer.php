@@ -230,7 +230,7 @@ class Writer extends AbstractCsv
      */
     public function setNewline(string $newline): self
     {
-        $this->newline = (string) $newline;
+        $this->newline = $newline;
 
         return $this;
     }

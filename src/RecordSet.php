@@ -324,9 +324,12 @@ class RecordSet implements JsonSerializable, IteratorAggregate, Countable
         }
 
         $index = $this->filterInteger($field, 0, $error_message);
-        if (empty($this->column_names) ||
-            false !== ($index = array_search($index, array_flip($this->column_names), true))
-        ) {
+        if (empty($this->column_names)) {
+            return $index;
+        }
+
+        $index = array_search($index, array_flip($this->column_names), true);
+        if (false !== $index) {
             return $index;
         }
 

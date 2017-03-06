@@ -14,7 +14,7 @@ declare(strict_types=1);
 
 namespace League\Csv\Plugin;
 
-use InvalidArgumentException;
+use League\Csv\ValidatorTrait;
 
 /**
  *  A class to manage column consistency on data insertion into a CSV
@@ -26,6 +26,8 @@ use InvalidArgumentException;
  */
 class ColumnConsistencyValidator
 {
+    use ValidatorTrait;
+
     /**
      * The number of column per row
      *
@@ -44,17 +46,11 @@ class ColumnConsistencyValidator
      * Set Inserted row column count
      *
      * @param int $value
-     *
-     * @throws InvalidArgumentException If $value is lesser than -1
-     *
      */
     public function setColumnsCount(int $value)
     {
-        if ($value < -1) {
-            throw new InvalidArgumentException('the column count must an integer greater or equals to -1');
-        }
         $this->detect_columns_count = false;
-        $this->columns_count = $value;
+        $this->columns_count = $this->filterInteger($value, -1, 'the column count must be greater or equal to -1');
     }
 
     /**
@@ -68,10 +64,9 @@ class ColumnConsistencyValidator
     }
 
     /**
-     * The method will set the $columns_count property according to the next inserted row
+     * The method will set the $columns_count property according to the next inserted record
      * and therefore will also validate the next line whatever length it has no matter
      * the current $columns_count property value.
-     *
      */
     public function autodetectColumnsCount()
     {
@@ -81,23 +76,22 @@ class ColumnConsistencyValidator
     /**
      * Is the submitted row valid
      *
-     * @param array $row
+     * @param array $record
      *
      * @return bool
      */
-    public function __invoke(array $row): bool
+    public function __invoke(array $record): bool
     {
         if ($this->detect_columns_count) {
-            $this->columns_count = count($row);
-            $this->detect_columns_count = false;
+            $this->setColumnsCount(count($record));
 
             return true;
         }
 
-        if (-1 == $this->columns_count) {
+        if (-1 === $this->columns_count) {
             return true;
         }
 
-        return count($row) === $this->columns_count;
+        return count($record) === $this->columns_count;
     }
 }
