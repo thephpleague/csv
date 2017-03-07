@@ -268,18 +268,14 @@ class Reader extends AbstractCsv implements IteratorAggregate
         $this->document->setFlags(SplFileObject::READ_CSV | SplFileObject::READ_AHEAD | SplFileObject::SKIP_EMPTY);
         $this->document->setCsvControl($this->delimiter, $this->enclosure, $this->escape);
         $this->document->seek($this->header_offset);
-        $header = $this->document->current();
-        if (empty($header)) {
-            throw new RuntimeException('The header record specified by `Reader::setHeaderOffset` does not exist or is empty');
+        $this->header = $this->document->current();
+        if (empty($this->header)) {
+            throw new RuntimeException(sprintf('The header record does not exist or is empty at offset: `%s`', $this->header_offset));
         }
 
-        if (0 !== $this->header_offset) {
-            $this->header = $header;
-
-            return $this->header;
+        if (0 === $this->header_offset) {
+            $this->header = $this->removeBOM($this->header, mb_strlen($this->getInputBOM()), $this->enclosure);
         }
-
-        $this->header = $this->removeBOM($header, mb_strlen($this->getInputBOM()), $this->enclosure);
 
         return $this->header;
     }
