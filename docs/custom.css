@@ -1,4 +1,4 @@
-menu .versions {
+menu .documentation {
     margin: 15px 0 0 50px;
 }
 
@@ -6,14 +6,14 @@ menu .versions {
     menu {
         text-align: center;
     }
-    menu .versions {
+    menu .documentation {
         margin: 15px 0 0 0;
         display: inline-block;
     }
 }
 
 @media screen and (min-width: 550px) and (max-width: 849px) {
-    menu .versions {
+    menu .documentation {
         margin: 15px 0 0 30px;
     }
 }
@@ -45,4 +45,240 @@ h4:hover .header-permalink,
 h5:hover .header-permalink {
     text-decoration: none;
     color:#777;
+}
+
+/* -------- homepage css -----------------*/
+
+.homepage header {
+    padding-bottom:3em;
+}
+
+.homepage main {
+    color: #2b3d50;
+    font-family: "Museo 300";
+    line-height: 160%;
+    font-weight: normal;
+    background:#19242f;
+}
+
+.homepage main > div {
+    margin:0 auto;
+    padding:3em 0;
+    box-sizing: border-box;
+    width:100%;
+}
+
+.homepage h1 {
+    color:#fff;
+    font-size:50px;
+    line-height:100%;
+    font-weight:normal;
+    text-transform:uppercase;
+    margin:0;
+}
+
+.inner-content {
+    margin:0 auto;
+    padding:1em;
+    box-sizing: border-box;
+    max-width:1000px;
+    text-align:center;
+}
+
+.inner-content:after {
+    content: '';
+    display:table;
+    clear:both;
+}
+
+.introduction {
+    padding:0;
+    background:#19242F;
+}
+
+.introduction h1 {
+    font-size:96px;
+    font-weight: normal;
+}
+
+.introduction h2 {
+    color:#ff4043;
+    font-size:36px;
+    line-height:1.33;
+    font-weight:normal;
+}
+
+.highlights {
+    background:#eff0f1;
+}
+
+.highlights .column {
+    float:left;
+    width:45%;
+}
+
+.highlights .one {
+    margin:0 10% 0 0;
+}
+
+.highlights .description {
+    color:#666;
+    font-size:18px;
+    font-family: "Museo 300";
+    text-align: left;
+}
+
+.highlights h1 {
+    color:#ff4043;
+    font-size: 50px;
+    line-height:115%;
+}
+
+.highlights ol {
+    margin:0;
+    text-align:left;
+}
+
+.highlights li {
+    margin:0 0 15px 0;
+    color:#666;
+    font-size:24px;
+    font-weight:bold;
+}
+
+.highlights li p {
+    margin:0;
+    font-size:20px;
+    font-weight: normal;
+    font-family: "Museo 300";
+    line-height: 140%;
+    color:#ff4043;
+}
+
+.documentation {
+    background: #6abcdd;
+}
+
+.documentation h1 {
+    margin-bottom:.5em;
+}
+
+.documentation .version {
+    float:left;
+    box-sizing: border-box;
+    width:30%;
+    margin:1%;
+    padding:0;
+    border:1px solid #0491a0;
+}
+
+.documentation .version h2 {
+    margin:0;
+    padding:.3em;
+    text-transform: uppercase;
+    font-size:18px;
+    color:#fff;
+    background:#0491a0;
+}
+
+.documentation .version a {
+    color:#ff4043;
+    text-decoration: none;
+}
+
+.documentation .version a {
+    display: inline-block;
+    padding: 13px 15px;
+    color: white;
+    -webkit-font-smoothing: antialiased;
+    font-size: 14px;
+    font-weight: bold;
+    line-height: 100%;
+    text-transform: uppercase;
+    text-decoration: none;
+    background: #ff5759;
+    border-radius: 4px;
+    box-shadow: 3px 3px 0 #d42f30;
+}
+
+.documentation .version a:hover {
+    background: #e75557;
+}
+
+.documentation .version .content {
+    padding:1em 0;
+    background: #fff;
+}
+
+.documentation .next {
+    border-color:#0491a0;
+}
+
+.documentation .next h2 {
+    background:#0491a0;
+}
+
+.documentation .next a {
+    background: #0491a0;
+    border-radius: 4px;
+    box-shadow: 3px 3px 0 #03565e;
+}
+
+.documentation .next a:hover {
+    background: #0a7c87;
+}
+
+.documentation .legacy {
+    border-color:#e74c3c;
+}
+
+.documentation .legacy a {
+    background: #e74c3c;
+    border-radius: 4px;
+    box-shadow: 3px 3px 0 #a3342a;
+}
+
+.documentation .legacy a:hover {
+    background: #c94034;
+}
+
+.documentation .legacy h2 {
+    background:#e74c3c;
+}
+
+.documentation .current {
+    border-color:#2db56a;
+}
+
+.documentation .current h2 {
+    background:#2db56a;
+}
+
+.documentation .current a {
+    background: #2db56a;
+    border-radius: 4px;
+    box-shadow: 3px 3px 0 #1a7742;
+}
+
+.documentation .current a:hover {
+    background: #259b58;
+}
+
+.questions {
+    padding:0;
+    background:#283b4f;
+    color:#fff;
+}
+
+.questions h1 {
+    font-size:36px;
+    color:#6abcdd;
+}
+
+.questions a {
+    color:#6abcdd;
+}
+
+.questions a:hover {
+    text-decoration: none;
 }

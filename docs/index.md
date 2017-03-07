@@ -1,43 +1,78 @@
 ---
-layout: default
+layout: homepage
 ---
 
-# Introduction
+<div class="introduction">
+  <div class="inner-content">
+    <h1>{{ site.data.project.title }}</h1>
+    <h2>{{ site.data.project.tagline }}</h2>
+  </div>
+</div>
 
-[![Author](http://img.shields.io/badge/author-@nyamsprod-blue.svg?style=flat-square)](https://twitter.com/nyamsprod)
-[![Source Code](http://img.shields.io/badge/source-league/csv-blue.svg?style=flat-square)](https://github.com/thephpleague/csv)
-[![Latest Version](https://img.shields.io/github/release/thephpleague/csv.svg?style=flat-square)](https://github.com/thephpleague/csv/releases)
-[![Software License](https://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat-square)](LICENSE.md)<br>
-[![Build Status](https://img.shields.io/travis/thephpleague/csv/master.svg?style=flat-square)](https://travis-ci.org/thephpleague/csv)
-[![Coverage Status](https://img.shields.io/scrutinizer/coverage/g/thephpleague/csv.svg?style=flat-square)](https://scrutinizer-ci.com/g/thephpleague/csv/code-structure)
-[![Quality Score](https://img.shields.io/scrutinizer/g/thephpleague/csv.svg?style=flat-square)](https://scrutinizer-ci.com/g/thephpleague/csv)
-[![Total Downloads](https://img.shields.io/packagist/dt/league/csv.svg?style=flat-square)](https://packagist.org/packages/league/csv)
+<div class="highlights">
+  <div class="inner-content">
+    <div class="column one">
+      <h1>Highlights</h1>
+      <div class="description">
+      <p>The library was designed for developers who want to deal with CSV data using modern code and without the high levels of bootstrap and low-levels of usefulness provided by existing core functions or third party-code.</p>
+      </div>
+    </div>
+    <div class="column two">
+      <ol>
+        <li><p>Simple API</p></li>
+        <li><p>Read and Write to CSV documents in a memory efficient and scalable way</p></li>
+        <li><p>Support PHP Stream filtering capabilities</p></li>
+        <li><p>Transform CSV documents into popular formats (JSON, XML or HTML)</p></li>
+        <li><p>Framework-agnostic</p></li>
+      </ol>
+    </div>
+  </div>
+</div>
 
-`Csv` is a simple library to ease CSV parsing, writing and filtering in
-PHP. The goal of the library is to be powerful while remaining lightweight,
-by utilizing PHP native classes whenever possible.
+<div class="documentation">
+  <div class="inner-content">
+    <h1>Documentation</h1>
+    <div class="version next">
+      <h2>Next/master</h2>
+      <div class="content">
+        <p><code>League\Csv 9.0</code></p>
+        <ul>
+          <li>Release Date: <strong>TBD</strong></li>
+          <li>Requires: <strong>PHP >= 7.0.0</strong></li>
+        </ul>
+        <p><a href="/9.0/">Full Documentation</a></p>
+      </div>
+    </div>
 
-`Csv` was designed for developers who want to deal with CSV data using
-modern code and without the high levels of bootstrap and low-levels of
-usefulness provided by existing core functions or third party-code.
+    <div class="version current">
+      <h2>Current Stable Release</h2>
+      <div class="content">
+        <p><code>League\Csv 8.0</code></p>
+        <ul>
+          <li>Release Date: <strong>2015-12-11</strong></li>
+          <li>Requires: <strong>PHP >= 5.5.0</strong></li>
+        </ul>
+        <p><a href="/8.0/">Full Documentation</a></p>
+      </div>
+    </div>
 
-[CSV on Packagist](https://packagist.org/packages/league/csv)
+    <div class="version legacy">
+      <h2>No longer Supported</h2>
+      <div class="content">
+        <p><code>League\Csv 7.0</code></p>
+        <ul>
+          <li>Release Date: <strong>2015-02-19</strong></li>
+          <li>Requires: <strong>PHP >= 5.4.0</strong></li>
+        </ul>
+        <p><a href="/7.0/">Full Documentation</a></p>
+      </div>
+    </div>
+  </div>
+</div>
 
-## Highlights
-
-* Simple API
-* Read and Write to CSV documents in a memory efficient and scalable way
-* Use SPL to interact with the CSV documents
-* Support PHP Stream filtering capabilities
-* Transform CSV documents into popular formats (JSON, XML or HTML)
-* Fully documented
-* Fully Unit tested
-* Framework-agnostic
-* Composer ready, [PSR-2] and [PSR-4] compliant
-
-## Questions?
-
-`Csv` was created by Ignace Nyamagana Butera. Find him on Twitter at [@nyamsprod](https://twitter.com/nyamsprod).
-
-[PSR-2]: http://www.php-fig.org/psr/psr-2/
-[PSR-4]: http://www.php-fig.org/psr/psr-4/
+<div class="questions">
+  <div class="inner-content">
+    <h1>Questions?</h1>
+    <p><strong>League\Csv</strong> was created by Ignace Nyamagana Butera. Find him on Twitter at <a href="https://twitter.com/nyamsprod">@nyamsprod</a>.</p>
+  </div>
+</div>
