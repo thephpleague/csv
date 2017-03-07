@@ -82,12 +82,14 @@
 
 <main>
     <menu>
+        <div class="tool">
         <select class="versions">
             {% for v in site.data.menu %}
                 <option data-url="{% if v[0] == site.data.project.default_version %}/{% else %}/{{ v[0] }}/{% endif %}" {% if version == v[0] %}selected="selected"{% endif %}>                    Version: {{ v[0] }}
                 </option>
             {% endfor %}
         </select>
+        </div>
 
         {% for section in site.data.menu[version] %}
             <h2>{{ section[0] }}</h2>

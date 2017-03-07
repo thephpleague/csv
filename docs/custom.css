@@ -28,6 +28,12 @@ blockquote {
     padding:0 10px;
 }
 
+/** --------------- select menu --------- */
+
+.tool {
+    margin:15px 0 0 0;
+    padding:0 45px;
+}
 
 /* ---------- header automatic permalink -----------*/
 
