@@ -181,17 +181,19 @@ class Reader extends AbstractCsv implements IteratorAggregate
 
         $header = $this->filterColumnNames($header);
         $header_count = count($header);
-        $iterator = new CallbackFilterIterator($iterator, function (array $row, int $offset) {
+        $iterator = new CallbackFilterIterator($iterator, function (array $row, int $offset): bool {
             return $offset != $this->header_offset;
         });
 
-        return new MapIterator($iterator, function (array $row) use ($header_count, $header) {
+        $mapper = function (array $row) use ($header_count, $header): array {
             if ($header_count != count($row)) {
                 $row = array_slice(array_pad($row, $header_count, null), 0, $header_count);
             }
 
             return array_combine($header, $row);
-        });
+        };
+
+        return new MapIterator($iterator, $mapper);
     }
 
     /**
@@ -209,13 +211,15 @@ class Reader extends AbstractCsv implements IteratorAggregate
         }
 
         $bom_length = mb_strlen($bom);
-        return new MapIterator($iterator, function (array $row, $index) use ($bom_length) {
+        $mapper = function (array $row, $index) use ($bom_length): array {
             if (0 != $index) {
                 return $row;
             }
 
             return $this->removeBOM($row, $bom_length, $this->enclosure);
-        });
+        };
+
+        return new MapIterator($iterator, $mapper);
     }
 
     /**

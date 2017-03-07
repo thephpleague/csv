@@ -30,6 +30,8 @@ use SplFileObject;
  */
 class StreamIterator implements Iterator
 {
+    use ValidatorTrait;
+
     /**
      * Attached filters
      *
@@ -130,25 +132,6 @@ class StreamIterator implements Iterator
         $this->delimiter = $this->filterControl($delimiter, 'delimiter');
         $this->enclosure = $this->filterControl($enclosure, 'enclosure');
         $this->escape = $this->filterControl($escape, 'escape');
-    }
-
-    /**
-     * Filter Csv control character
-     *
-     * @param string $char Csv control character
-     * @param string $type Csv control character type
-     *
-     * @throws InvalidArgumentException If the Csv control character is not one character only.
-     *
-     * @return string
-     */
-    protected function filterControl(string $char, string $type)
-    {
-        if (1 == strlen($char)) {
-            return $char;
-        }
-
-        throw new InvalidArgumentException(sprintf('The %s character must be a single character', $type));
     }
 
     /**
@@ -387,7 +370,9 @@ class StreamIterator implements Iterator
     }
 
     /**
-     * remove all attached filters
+     * remove a registered filter
+     *
+     * @param resource $resource
      */
     public function removeFilter($resource)
     {

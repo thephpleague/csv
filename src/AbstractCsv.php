@@ -56,6 +56,17 @@ abstract class AbstractCsv
     const BOM_UTF32_LE = "\xFF\xFE\x00\x00";
 
     /**
+     * BOM sequences list
+     */
+    const BOM_SEQUENCES_LIST = [
+        self::BOM_UTF32_BE,
+        self::BOM_UTF32_LE,
+        self::BOM_UTF16_BE,
+        self::BOM_UTF16_LE,
+        self::BOM_UTF8,
+    ];
+
+    /**
      * The CSV document
      *
      * @var StreamIterator|SplFileObject
@@ -243,18 +254,14 @@ abstract class AbstractCsv
             return $this->input_bom;
         }
 
-        $bom = [
-            self::BOM_UTF32_BE, self::BOM_UTF32_LE,
-            self::BOM_UTF16_BE, self::BOM_UTF16_LE, self::BOM_UTF8,
-        ];
-
         $this->document->setFlags(SplFileObject::READ_CSV);
         $this->document->rewind();
         $line = $this->document->fgets();
-        $res = array_filter($bom, function ($sequence) use ($line) {
+        $filter = function ($sequence) use ($line): bool {
             return strpos($line, $sequence) === 0;
-        });
+        };
 
+        $res = array_filter(self::BOM_SEQUENCES_LIST, $filter);
         $this->input_bom = (string) array_shift($res);
 
         return $this->input_bom;
@@ -321,20 +328,16 @@ abstract class AbstractCsv
      */
     protected function fpassthru(): int
     {
-        $bom = '';
+        $res = 0;
         $input_bom = $this->getInputBOM();
-        if ($this->output_bom && $input_bom != $this->output_bom) {
-            $bom = $this->output_bom;
-        }
-
         $this->document->rewind();
-        if ('' !== $bom) {
+        if ($input_bom != $this->output_bom) {
+            $res = strlen($this->output_bom);
             $this->document->fseek(mb_strlen($input_bom));
+            echo $this->output_bom;
         }
-        echo $bom;
-        $res = $this->document->fpassthru();
 
-        return $res + strlen($bom);
+        return $res + $this->document->fpassthru();
     }
 
     /**
@@ -431,11 +434,11 @@ abstract class AbstractCsv
     public function __destruct()
     {
         if ($this->document instanceof StreamIterator) {
-            $mapper = function (array $filters) {
-                array_map([$this->document, 'removeFilter'], $filters);
+            $mapper = function ($filter): bool {
+                return $this->document->removeFilter($filter);
             };
 
-            array_map($mapper, $this->stream_filters);
+            array_walk_recursive($this->stream_filters, $mapper);
         }
 
         $this->document = null;
