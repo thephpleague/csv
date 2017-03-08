@@ -9,10 +9,39 @@ layout: homepage
       </a>
       <h1>{{ site.data.project.title }}</h1>
       <h2>{{ site.data.project.tagline }}</h2>
+      <p class="composer"><span>$ composer require league/csv</span></p>
     </div>
 </header>
 
 <main>
+  <div class="example">
+    <div class="inner-content">
+      <h1>Usage</h1>
+
+<div class="language-php highlighter-rouge"><pre class="highlight"><code><span class="cp">&lt;?php</span>
+<span class="k">use</span> <span class="nx">League\Csv\Reader</span><span class="p">;</span>
+<span class="k">use</span> <span class="nx">League\Csv\Statement</span><span class="p">;</span>
+
+<span class="c1">//load the CSV document
+</span><span class="nv">$csv</span> <span class="o">=</span> <span class="nx">Reader</span><span class="o">::</span><span class="na">createFromPath</span><span class="p">(</span><span class="s1">'/path/to/your/csv/file.csv'</span><span class="p">)</span>
+    <span class="o">-&gt;</span><span class="na">setHeaderOffset</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+    <span class="o">-&gt;</span><span class="na">addStreamFilter</span><span class="p">(</span><span class="s1">'convert.iconv.ISO-8859-1/UTF-8'</span><span class="p">)</span>
+<span class="p">;</span>
+
+<span class="c1">//build a statement
+</span><span class="nv">$stmt</span> <span class="o">=</span> <span class="p">(</span><span class="k">new</span> <span class="nx">Statement</span><span class="p">())</span>
+    <span class="o">-&gt;</span><span class="na">offset</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span>
+    <span class="o">-&gt;</span><span class="na">limit</span><span class="p">(</span><span class="mi">25</span><span class="p">)</span>
+<span class="p">;</span>
+
+<span class="c1">//query your records from the document
+</span><span class="nv">$res</span> <span class="o">=</span> <span class="nv">$csv</span><span class="o">-&gt;</span><span class="na">select</span><span class="p">(</span><span class="nv">$stmt</span><span class="p">)</span><span class="o">-&gt;</span><span class="na">fetchAll</span><span class="p">();</span>
+</code></pre>
+</div>
+    </div>
+  </div>
+
+
   <div class="highlights">
     <div class="inner-content">
       <div class="column one">
@@ -35,7 +64,7 @@ layout: homepage
 
   <div class="documentation">
     <div class="inner-content">
-      <h1>Documentation</h1>
+      <h1>Releases</h1>
       <div class="version next">
         <h2>Next/master</h2>
         <div class="content">

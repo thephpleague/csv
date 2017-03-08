@@ -80,6 +80,21 @@ h5:hover .header-permalink {
     font-weight:normal;
 }
 
+.homepage .composer span {
+    padding:.3em 1em;
+    background-color:rgba(0, 0, 0, .3);
+    color:#fff;
+    font-family: Consolas, Monaco ,'Andale Mono', monospace;
+    line-height: 140%;
+    text-align: left;
+    white-space: pre;
+    word-wrap: normal;
+    word-spacing: normal;
+    hyphens: none;
+    display:inline-block;
+    border-radius: .3em;
+}
+
 .homepage main {
     color: #2b3d50;
     font-family: "Museo 300";
@@ -116,6 +131,14 @@ h5:hover .header-permalink {
     content: '';
     display:table;
     clear:both;
+}
+
+.example {
+    background:#fff;
+}
+
+.example h1 {
+    color:#ffb554;
 }
 
 .highlights {
@@ -158,7 +181,7 @@ h5:hover .header-permalink {
 
 .documentation h1 {
     margin-bottom:.5em;
-    font-size:32px;
+    font-size:36px;
 }
 
 .documentation .version {
@@ -196,36 +219,6 @@ h5:hover .header-permalink {
     background: #e75557;
 }
 
-.documentation .next a {
-    background: #0491a0;
-    border-radius: 4px;
-    box-shadow: 3px 3px 0 #03565e;
-}
-
-.documentation .next a:hover {
-    background: #0a7c87;
-}
-
-.documentation .legacy a {
-    background: #e74c3c;
-    border-radius: 4px;
-    box-shadow: 3px 3px 0 #a3342a;
-}
-
-.documentation .legacy a:hover {
-    background: #c94034;
-}
-
-.documentation .current a {
-    background: #2db56a;
-    border-radius: 4px;
-    box-shadow: 3px 3px 0 #1a7742;
-}
-
-.documentation .current a:hover {
-    background: #259b58;
-}
-
 .documentation .version .content {
     padding:1em 0;
     background: #fff;
@@ -239,6 +232,16 @@ h5:hover .header-permalink {
     background:#0491a0;
 }
 
+.documentation .next a {
+    background: #0491a0;
+    border-radius: 4px;
+    box-shadow: 3px 3px 0 #03565e;
+}
+
+.documentation .next a:hover {
+    background: #0a7c87;
+}
+
 .documentation .legacy {
     border-color:#e74c3c;
 }
@@ -247,12 +250,32 @@ h5:hover .header-permalink {
     background:#e74c3c;
 }
 
+.documentation .legacy a {
+    background: #e74c3c;
+    border-radius: 4px;
+    box-shadow: 3px 3px 0 #a3342a;
+}
+
+.documentation .legacy a:hover {
+    background: #c94034;
+}
+
 .documentation .current {
     border-color:#2db56a;
 }
 
 .documentation .current h2 {
     background:#2db56a;
+}
+
+.documentation .current a {
+    background: #2db56a;
+    border-radius: 4px;
+    box-shadow: 3px 3px 0 #1a7742;
+}
+
+.documentation .current a:hover {
+    background: #259b58;
 }
 
 .questions {
