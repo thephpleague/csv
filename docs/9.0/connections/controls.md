@@ -12,8 +12,8 @@ public AbstractCsv::getDelimiter(void): string
 public AbstractCsv::getEnclosure(void): string
 public AbstractCsv::getEscape(void): string
 public AbstractCsv::setDelimiter(string $delimiter): AbstractCsv
-public AbstractCsv::setEnclosure(string $delimiter): AbstractCsv
-public AbstractCsv::setEscape(string $delimiter): AbstractCsv
+public AbstractCsv::setEnclosure(string $enclosure): AbstractCsv
+public AbstractCsv::setEscape(string $escape): AbstractCsv
 ~~~
 
 To parse the CSV document you are required to set the CSV character controls to the `Reader` and `Writer` connections.
@@ -50,7 +50,7 @@ $delimiter = $csv->getDelimiter(); //returns ";"
 ~~~php
 <?php
 
-public AbstractCsv::setEnclosure(string $delimiter): AbstractCsv
+public AbstractCsv::setEnclosure(string $enclosure): AbstractCsv
 public AbstractCsv::getEnclosure(void): string
 ~~~
 
@@ -78,7 +78,7 @@ $enclosure = $csv->getEnclosure(); //returns "|"
 ~~~php
 <?php
 
-public AbstractCsv::setEscape(string $delimiter): AbstractCsv
+public AbstractCsv::setEscape(string $escape): AbstractCsv
 public AbstractCsv::getEscape(void): string
 ~~~
 

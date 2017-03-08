@@ -53,7 +53,7 @@ The `$filtername` parameter is a string that represents the filter as registered
 
 The `AbstractCsv::addStreamFilter` method adds a stream filter to the connection.
 
-<p class="message-notice">Because of the way PHP stream filters are added, you will add multiple times the same filter if you call this method with the same argument.</p>
+<p class="message-warning"><strong>Warning:</strong> Each time your call <code>addStreamFilter</code> with the same argument the corresponding filter is register again.</p>
 
 The `AbstractCsv::hasStreamFilter`: tells whether a stream filter is already attached to the connection.
 
