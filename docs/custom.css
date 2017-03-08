@@ -56,7 +56,28 @@ h5:hover .header-permalink {
 /* -------- homepage css -----------------*/
 
 .homepage header {
-    padding-bottom:3em;
+    margin:0 auto;
+    padding:3em 0;
+    box-sizing: border-box;
+    background:#19242F url(//thephpleague.com/img/header_bg.png) no-repeat top center;
+    background-size: cover;
+    max-width: none;
+}
+
+.homepage header h1 {
+    margin:.3em auto;
+    font-family: "Museo 300";
+    font-size:96px;
+    font-weight: normal;
+}
+
+.homepage header h2 {
+    margin:0 auto;
+    font-family: "Museo 300";
+    color:#ff4043;
+    font-size:36px;
+    line-height:1.33;
+    font-weight:normal;
 }
 
 .homepage main {
@@ -65,16 +86,24 @@ h5:hover .header-permalink {
     line-height: 160%;
     font-weight: normal;
     background:#19242f;
+    width:auto;
+    right:auto;
 }
 
 .homepage main > div {
     margin:0 auto;
     padding:3em 0;
     box-sizing: border-box;
-    width:100%;
 }
 
-.homepage h1 {
+.inner-content {
+    margin:0 auto;
+    padding:1em;
+    box-sizing: border-box;
+    text-align:center;
+}
+
+.inner-content h1 {
     color:#fff;
     font-size:50px;
     line-height:100%;
@@ -83,60 +112,25 @@ h5:hover .header-permalink {
     margin:0;
 }
 
-.inner-content {
-    margin:0 auto;
-    padding:1em;
-    box-sizing: border-box;
-    max-width:1000px;
-    text-align:center;
-}
-
 .inner-content:after {
     content: '';
     display:table;
     clear:both;
 }
 
-.introduction {
-    padding:0;
-    background:#19242F;
-}
-
-.introduction h1 {
-    font-size:96px;
-    font-weight: normal;
-}
-
-.introduction h2 {
-    color:#ff4043;
-    font-size:36px;
-    line-height:1.33;
-    font-weight:normal;
-}
-
 .highlights {
     background:#eff0f1;
 }
 
-.highlights .column {
-    float:left;
-    width:45%;
-}
-
-.highlights .one {
-    margin:0 10% 0 0;
-}
-
 .highlights .description {
     color:#666;
-    font-size:18px;
-    font-family: "Museo 300";
+    font:normal 18px/1.5 "Museo 300";
     text-align: left;
 }
 
 .highlights h1 {
     color:#ff4043;
-    font-size: 50px;
+    font-size: 36px;
     line-height:115%;
 }
 
@@ -148,16 +142,13 @@ h5:hover .header-permalink {
 .highlights li {
     margin:0 0 15px 0;
     color:#666;
-    font-size:24px;
+    font-size:16px;
     font-weight:bold;
 }
 
 .highlights li p {
     margin:0;
-    font-size:20px;
-    font-weight: normal;
-    font-family: "Museo 300";
-    line-height: 140%;
+    font:normal 18px/1.4 "Museo 300";
     color:#ff4043;
 }
 
@@ -167,15 +158,14 @@ h5:hover .header-permalink {
 
 .documentation h1 {
     margin-bottom:.5em;
+    font-size:32px;
 }
 
 .documentation .version {
-    float:left;
-    box-sizing: border-box;
-    width:30%;
-    margin:1%;
+    margin:.3em auto;
     padding:0;
     border:1px solid #0491a0;
+    max-width:289px;
 }
 
 .documentation .version h2 {
@@ -185,11 +175,6 @@ h5:hover .header-permalink {
     font-size:18px;
     color:#fff;
     background:#0491a0;
-}
-
-.documentation .version a {
-    color:#ff4043;
-    text-decoration: none;
 }
 
 .documentation .version a {
@@ -211,6 +196,36 @@ h5:hover .header-permalink {
     background: #e75557;
 }
 
+.documentation .next a {
+    background: #0491a0;
+    border-radius: 4px;
+    box-shadow: 3px 3px 0 #03565e;
+}
+
+.documentation .next a:hover {
+    background: #0a7c87;
+}
+
+.documentation .legacy a {
+    background: #e74c3c;
+    border-radius: 4px;
+    box-shadow: 3px 3px 0 #a3342a;
+}
+
+.documentation .legacy a:hover {
+    background: #c94034;
+}
+
+.documentation .current a {
+    background: #2db56a;
+    border-radius: 4px;
+    box-shadow: 3px 3px 0 #1a7742;
+}
+
+.documentation .current a:hover {
+    background: #259b58;
+}
+
 .documentation .version .content {
     padding:1em 0;
     background: #fff;
@@ -224,28 +239,8 @@ h5:hover .header-permalink {
     background:#0491a0;
 }
 
-.documentation .next a {
-    background: #0491a0;
-    border-radius: 4px;
-    box-shadow: 3px 3px 0 #03565e;
-}
-
-.documentation .next a:hover {
-    background: #0a7c87;
-}
-
 .documentation .legacy {
     border-color:#e74c3c;
-}
-
-.documentation .legacy a {
-    background: #e74c3c;
-    border-radius: 4px;
-    box-shadow: 3px 3px 0 #a3342a;
-}
-
-.documentation .legacy a:hover {
-    background: #c94034;
 }
 
 .documentation .legacy h2 {
@@ -258,16 +253,6 @@ h5:hover .header-permalink {
 
 .documentation .current h2 {
     background:#2db56a;
-}
-
-.documentation .current a {
-    background: #2db56a;
-    border-radius: 4px;
-    box-shadow: 3px 3px 0 #1a7742;
-}
-
-.documentation .current a:hover {
-    background: #259b58;
 }
 
 .questions {
@@ -287,4 +272,62 @@ h5:hover .header-permalink {
 
 .questions a:hover {
     text-decoration: none;
+}
+
+@media screen and (min-width: 549px) {
+    .homepage header h1 {
+        margin:0 auto;
+    }
+
+    .inner-content {
+        max-width:1000px;
+    }
+
+    .homepage main {
+        width:initial;
+        right:initial;
+    }
+
+    .highlights h1 {
+        font-size: 50px;
+    }
+
+    .highlights li {
+        font-size:24px;
+    }
+
+    .highlights li p {
+        font-size:20px;
+    }
+
+    .highlights .column {
+        float:left;
+        width:45%;
+    }
+
+    .highlights .one {
+        margin:0 10% 0 0;
+    }
+
+    .documentation h1 {
+        font-size:50px;
+    }
+}
+
+@media screen and (min-width:700px) {
+    .documentation .version {
+        float:left;
+        width:42%;
+        margin:2%;
+        max-width:289px;
+    }
+}
+
+@media screen and (min-width: 910px) {
+
+    .documentation .version {
+        float:left;
+        width:30%;
+        margin:1%;
+    }
 }
