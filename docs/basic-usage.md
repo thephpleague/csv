@@ -7,7 +7,7 @@ title: Basic Usage
 
 <p class="message-info"><strong>Tips:</strong> Even though you can use the following methods with the <code>League\Csv\Writer</code> object. It is recommended to do so with the <code>League\Csv\Reader</code> class to avoid losing the file cursor position and getting unexpected results when inserting new data.</p>
 
-Once your CSV object is [instantiated](/instantiation) and [configured](/properties/), you can start interacting with the data using a number of methods available to you.
+Once your CSV object is [instantiated](/8.0/instantiation) and [configured](/8.0/properties/), you can start interacting with the data using a number of methods available to you.
 
 
 ## Iterating over the CSV rows
@@ -35,7 +35,7 @@ foreach ($reader as $index => $row) {
 }
 ~~~
 
-<p class="message-notice">You can do more complex iterations <a href="/reading/">using the query methods</a> available on the <code>League\Csv\Reader</code> class only.</p>
+<p class="message-notice">You can do more complex iterations <a href="/8.0/reading/">using the query methods</a> available on the <code>League\Csv\Reader</code> class only.</p>
 
 ## Outputting the CSV
 
@@ -107,7 +107,7 @@ $reader->output("name-for-your-file.csv");
 
 The output methods **can only be affected by:**
 
-- the [library stream filtering mechanism](/filtering/)
-- the [BOM property](/bom/)
+- the [library stream filtering mechanism](/8.0/filtering/)
+- the [BOM property](/8.0/bom/)
 
 No other method or property have effect on them.

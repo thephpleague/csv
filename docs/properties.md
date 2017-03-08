@@ -5,7 +5,7 @@ title: Setting and Accessing CSV settings
 
 # CSV properties
 
-Once your object is [instantiated](/instantiation/) you can optionally set several CSV properties. The following methods works on both the `Reader` and the `Writer` class.
+Once your object is [instantiated](/8.0/instantiation/) you can optionally set several CSV properties. The following methods works on both the `Reader` and the `Writer` class.
 
 <p class="message-notice">Since <code>version 8.1.1</code> The underlying CSV controls from the submitted CSV are inherited by the return <code>AbstractCsv</code> object.</p>
 
@@ -242,7 +242,7 @@ $bom = $csv->getOutputBOM(); //returns "\xEF\xBB\xBF"
 - The default output `BOM` character is set to an empty string.
 - The `AbstractCsv` class provide constants to ease BOM sequence manipulation.
 
-<p class="message-info">Please refer to <a href="/bom/">the BOM character dedicated documentation page</a> for more informations on how the library helps you manage this feature.</p>
+<p class="message-info">Please refer to <a href="/8.0/bom/">the BOM character dedicated documentation page</a> for more informations on how the library helps you manage this feature.</p>
 
 ## Conversion only properties
 
@@ -250,7 +250,7 @@ $bom = $csv->getOutputBOM(); //returns "\xEF\xBB\xBF"
 
 To convert your CSV document into another format it must be encoded in `UTF-8`.
 
-When this is not the case, you should transcode it first using the <a href="/filtering/">library stream filtering mechanism</a>. When this is not applicable you should provide the CSV original encoding charset to the CSV object using the following methods.
+When this is not the case, you should transcode it first using the <a href="/8.0/filtering/">library stream filtering mechanism</a>. When this is not applicable you should provide the CSV original encoding charset to the CSV object using the following methods.
 
 ### methods
 
@@ -291,7 +291,7 @@ echo $csv->getInputEncoding(); //returns iso-8859-15;
 
 By default `getInputEncoding` returns `UTF-8` if `setInputEncoding` was not used.
 
-<div class="message-warning">The encoding properties have no effect when reading or writing to a CSV document. You should instead use <a href="/filtering/">the Stream Filter API</a> or <a href="/inserting/#row-formatting">the Writing Formatter API</a>.</div>
+<div class="message-warning">The encoding properties have no effect when reading or writing to a CSV document. You should instead use <a href="/8.0/filtering/">the Stream Filter API</a> or <a href="/inserting/#row-formatting">the Writing Formatter API</a>.</div>
 
 ~~~php
 <?php

@@ -225,13 +225,13 @@ try {
 
 ## Stream filtering
 
-Some data formatting can still occur while writing the data to the CSV document after validation using the [Stream Filters capabilities](/fitering/).
+Some data formatting can still occur while writing the data to the CSV document after validation using the [Stream Filters capabilities](/8.0/fitering/).
 
 ## Handling newline
 
 Because the php `fputcsv` implementation has a hardcoded `\n`, we need to be able to replace the last `LF` code with one supplied by the developper for more interoperability between CSV packages on different platforms. The newline sequence will be appended to each CSV newly inserted line.
 
-At any given time you can get and modify the `$newline` property using the `getNewline` and `setNewline` methods described in <a href="/properties/">CSV properties documentation page</a>.
+At any given time you can get and modify the `$newline` property using the `getNewline` and `setNewline` methods described in [CSV properties documentation page](/8.0/properties/).
 
 ~~~php
 <?php
@@ -246,5 +246,5 @@ $writer->insertOne(["one", "two"]);
 echo $writer; // displays "one,two\r\n";
 ~~~
 
-<p class="message-info">Please refer to <a href="/bom/">the BOM character dedicated documentation page</a> for more informations on how the library manage the BOM character.</p>
+<p class="message-info">Please refer to <a href="/8.0/bom/">the BOM character dedicated documentation page</a> for more informations on how the library manage the BOM character.</p>
 

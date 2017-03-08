@@ -4,41 +4,15 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    {% assign version = page.url | remove_first: "/" | split: "/"" | first %}
-    {% assign upgrading_pages = version %}
-
-    {% if version != '9.0' %}
-        {% if version != '8.0' %}
-            {% if version != '7.0' %}
-                {% assign version = site.data.project.default_version %}
-            {% endif %}
-        {% endif %}
-    {% endif %}
-
-    {% capture version_home %}/{{ version }}/{% endcapture %}
-
-    {% if page.url == '/'  or page.url == version_home %}
-        <title>{{ site.data.project.title }} - {{ site.data.project.tagline }}</title>
-    {% else %}
-        <title>{{ page.title }} - {{ site.data.project.title }}</title>
-    {% endif %}
-
-    {% if site.github.url %}
-        <base href="{{ site.github.url }}/{{ version }}/">
-    {% else %}
-        <base href="/{{ version }}/">
-    {% endif %}
-
+    <title>{{ page.title }} - {{ site.data.project.title }}</title>
     {% if site.data.project.description %}
         <meta name="description" content="{{ site.data.project.description }}">
     {% endif %}
-
     {% if site.data.images.favicon %}
         <link rel="icon" type="image/x-icon" href="{{ site.data.images.favicon }}" />
     {% else %}
         <link rel="icon" type="image/x-icon" href="http://theme.thephpleague.com/img/favicon.ico" />
     {% endif %}
-
     {% if site.data.images.apple_touch %}
         <link rel="apple-touch-icon-precomposed" href="{{ site.data.images.apple_touch }}">
     {% else %}

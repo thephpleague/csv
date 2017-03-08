@@ -7,7 +7,7 @@ title: Query Filtering
 
 ## Query Filters
 
-You can restrict [extract methods](/reading/) and [conversion methods](/converting/) output by setting query options. To set those options you will need to use the methods described below. But keep in mind that:
+You can restrict [extract methods](/8.0/reading/) and [conversion methods](/8.0/converting/) output by setting query options. To set those options you will need to use the methods described below. But keep in mind that:
 
 * The query options methods are all chainable *except when they have to return a boolean*;
 * The query options methods can be called in any sort of order before any extract/conversion method;

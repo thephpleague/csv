@@ -5,7 +5,7 @@ title: Converting your CSV
 
 # Converting the CSV
 
-The `League\Csv` object can convert your CSV document into JSON, XML and HTML formats. In order to do so, the conversion methods assume that your CSV is UTF-8 encoded. To properly transcode your document into an UTF-8 compatible charset, it's recommended to use the <a href="/filtering/">library stream filtering mechanism</a>.
+The `League\Csv` object can convert your CSV document into JSON, XML and HTML formats. In order to do so, the conversion methods assume that your CSV is UTF-8 encoded. To properly transcode your document into an UTF-8 compatible charset, it's recommended to use the <a href="/8.0/filtering/">library stream filtering mechanism</a>.
 
 When this is not possible/applicable you can fallback to using the `setEncodingFrom` and `getEncodingFrom` methods.
 
