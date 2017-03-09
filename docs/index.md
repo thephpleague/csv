@@ -65,13 +65,15 @@ layout: homepage
   <div class="documentation">
     <div class="inner-content">
       <h1>Releases</h1>
+
       <div class="version next">
         <h2>Next/master</h2>
         <div class="content">
           <p><code>League\Csv 9.0</code></p>
           <ul>
-            <li>Release Date: <strong>TBD</strong></li>
             <li>Requires: <strong>PHP >= 7.0.0</strong></li>
+            <li>Release Date: <strong>TBD</strong></li>
+            <li>Supported Until: <strong>TBD</strong></li>
           </ul>
           <p><a href="/9.0/">Full Documentation</a></p>
         </div>
@@ -82,8 +84,9 @@ layout: homepage
         <div class="content">
           <p><code>League\Csv 8.0</code></p>
           <ul>
-            <li>Release Date: <strong>2015-12-11</strong></li>
             <li>Requires: <strong>PHP >= 5.5.0</strong></li>
+            <li>Release Date: <strong>2015-12-11</strong></li>
+            <li>Supported Until: <strong>TBD</strong></li>
           </ul>
           <p><a href="/8.0/">Full Documentation</a></p>
         </div>
@@ -94,12 +97,16 @@ layout: homepage
         <div class="content">
           <p><code>League\Csv 7.0</code></p>
           <ul>
-            <li>Release Date: <strong>2015-02-19</strong></li>
             <li>Requires: <strong>PHP >= 5.4.0</strong></li>
+            <li>Release Date: <strong>2015-02-19</strong></li>
+            <li>Supported Until: <strong>2016-06-11</strong></li>
           </ul>
           <p><a href="/7.0/">Full Documentation</a></p>
         </div>
       </div>
+
+      <p class="footnote">Once a new major version is released, the previous stable release remains supported for six (6) more months through patches and/or security fixes.</p>
+
     </div>
   </div>
 
