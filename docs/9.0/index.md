@@ -2,7 +2,7 @@
 layout: default
 ---
 
-# Usage
+# Overview
 
 [![Author](http://img.shields.io/badge/author-@nyamsprod-blue.svg?style=flat-square)](https://twitter.com/nyamsprod)
 [![Source Code](http://img.shields.io/badge/source-league/csv-blue.svg?style=flat-square)](https://github.com/thephpleague/csv)
@@ -13,7 +13,9 @@ layout: default
 
 [CSV](https://packagist.org/packages/league/csv) is a simple library to ease CSV documents [loading](/9.0/connections) as well as [writing](/9.0/writer/) and [extracting](/9.0/reader/) CSV records in PHP.
 
-## Parsing a document
+## Examples
+
+### Parsing a document
 
 A simple example to show you how to parse a CSV document.
 
@@ -37,7 +39,7 @@ $stmt = (new Statement())
 $res = $csv->select($stmt)->fetchAll();
 ~~~
 
-## Exporting a database table as a CSV document
+### Exporting a database table as a CSV document
 
 A simple example to show you how to create and download a CSV from a `PDOStatement` object
 
@@ -74,7 +76,7 @@ $csv->output('users.csv');
 die;
 ~~~
 
-## Importing a CSV into a database table
+### Importing a CSV into a database table
 
 A simple example to show you how to import some CSV data into a database using a `PDOStatement` object
 

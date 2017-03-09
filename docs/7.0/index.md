@@ -2,7 +2,7 @@
 layout: default
 ---
 
-# Usage
+# Overview
 
 [![Author](http://img.shields.io/badge/author-@nyamsprod-blue.svg?style=flat-square)](https://twitter.com/nyamsprod)
 [![Source Code](http://img.shields.io/badge/source-league/csv-blue.svg?style=flat-square)](https://github.com/thephpleague/csv)
@@ -18,7 +18,9 @@ layout: default
 PHP. The goal of the library is to be as powerful while remaining lightweight,
 by utilizing PHP native classes whenever possible.
 
-## Parsing a document
+## Examples
+
+### Parsing a document
 
 A simple example to show you how to parse a CSV document.
 
@@ -36,7 +38,7 @@ $headers = $csv->fetchOne();
 $res = $csv->setOffset(10)->setLimit(25)->fetchAll();
 ~~~
 
-## Exporting a database table as a CSV document
+### Exporting a database table as a CSV document
 
 A simple example to show you how to create and download a CSV from a `PDOStatement` object
 
@@ -73,7 +75,7 @@ $csv->output('users.csv');
 die;
 ~~~
 
-## Importing a CSV into a database table
+### Importing a CSV into a database table
 
 A simple example to show you how to import some CSV data into a database using a `PDOStatement` object
 

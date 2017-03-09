@@ -93,7 +93,7 @@ class Writer extends AbstractCsv
      *
      * a simple wrapper method around insertOne
      *
-     * @param Traversable|array $rows a multidimensional array or a Traversable object
+     * @param Traversable|array $records a multidimensional array or a Traversable object
      *
      * @throws InvalidArgumentException If the given rows format is invalid
      *
