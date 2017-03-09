@@ -223,6 +223,64 @@ try {
 }
 ~~~
 
+## Bundled formatters and validators
+
+### Null value validator
+
+The `League\Csv\Plugin\ForbiddenNullValuesValidator` class validates the absence of `null` values
+
+~~~php
+<?php
+
+use League\Csv\Writer;
+use League\Csv\Plugin\ForbiddenNullValuesValidator;
+
+$validator = new ForbiddenNullValuesValidator();
+$writer = Writer::createFromPath('/path/to/your/csv/file.csv');
+$writer->addValidator($validator, 'null_as_exception');
+$writer->insertOne(["foo", null, "bar"]);
+// will throw an League\Csv\Exception\InvalidRowException
+~~~
+
+### Null value formatting
+
+The `League\Csv\Plugin\SkipNullValuesFormatter` class skips cell using founded `null` values
+
+~~~php
+<?php
+
+use League\Csv\Writer;
+use League\Csv\Plugin\SkipNullValuesFormatter;
+
+$formatter = new SkipNullValuesFormatter();
+
+$writer = Writer::createFromPath('/path/to/your/csv/file.csv');
+$writer->addFormatter($formatter);
+$writer->insertOne(["foo", null, "bar"]);
+//the actual inserted row will be ["foo", "bar"]
+~~~
+
+### Records consistency check
+
+The `League\Csv\Plugin\ColumnConsistencyValidator` class validates the inserted record column count consistency.
+
+~~~php
+<?php
+
+use League\Csv\Writer;
+use League\Csv\Plugin\ColumnConsistencyValidator;
+
+$validator = new ColumnConsistencyValidator();
+$validator->autodetectColumnsCount();
+$validator->getColumnsCount(); //returns -1
+
+$writer = Writer::createFromPath('/path/to/your/csv/file.csv');
+$writer->addValidator($validator, 'column_consistency');
+
+$writer->insertOne(["foo", null, "bar"]);
+$nb_column_count = $validator->getColumnsCount(); //returns 3
+~~~
+
 ## Stream filtering
 
 Some data formatting can still occur while writing the data to the CSV document after validation using the [Stream Filters capabilities](/8.0/fitering/).

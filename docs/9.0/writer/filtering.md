@@ -145,9 +145,9 @@ $writer->insertOne(["foo", null, "bar"]);
 //the actual inserted row will be ["foo", "bar"]
 ~~~
 
-### Row consistency check
+### Records consistency check
 
-The `League\Csv\Plugin\ColumnConsistencyValidator` class validates the inserted row column count consistency.
+The `League\Csv\Plugin\ColumnConsistencyValidator` class validates the inserted record column count consistency.
 
 ~~~php
 <?php
