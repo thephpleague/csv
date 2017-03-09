@@ -99,15 +99,15 @@ class Writer extends AbstractCsv
      *
      * @return int
      */
-    public function insertAll($rows): int
+    public function insertAll($records): int
     {
-        if (!is_array($rows) && !$rows instanceof Traversable) {
-            throw new InvalidArgumentException('the provided data must be an array or a `Traversable` object');
+        if (!is_array($records) && !$records instanceof Traversable) {
+            throw new InvalidArgumentException(sprintf('Argument 1 passed to %s must be iterable, %s given', __METHOD__, is_object($records) ? get_class($records) : gettype($records)));
         }
 
         $bytes = 0;
-        foreach ($rows as $row) {
-            $bytes += $this->insertOne($row);
+        foreach ($records as $record) {
+            $bytes += $this->insertOne($record);
         }
 
         $this->flush_counter = 0;
@@ -243,7 +243,7 @@ class Writer extends AbstractCsv
     public function setFlushThreshold($val): self
     {
         if (null !== $val) {
-            $val = $this->filterInteger($val, 1, 'The flush threshold must be a valid positive integer or null');
+            $val = $this->filterInteger($val, 1, __METHOD__.': The flush threshold must be a valid positive integer or null');
         }
 
         $this->flush_threshold = $val;

@@ -23,7 +23,8 @@
     },
     "require-dev": {
         "phpunit/phpunit" : "^6.0",
-        "friendsofphp/php-cs-fixer": "^1.9"
+        "friendsofphp/php-cs-fixer": "^1.9",
+        "ext-curl" : "*"
     },
     "autoload": {
         "psr-4": {

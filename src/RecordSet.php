@@ -270,7 +270,7 @@ class RecordSet implements JsonSerializable, IteratorAggregate, Countable
      */
     public function fetchOne(int $offset = 0): array
     {
-        $offset = $this->filterInteger($offset, 0, 'the submitted offset is invalid');
+        $offset = $this->filterInteger($offset, 0, __METHOD__.': the submitted offset is invalid');
         $it = new LimitIterator($this->iterator, $offset, 1);
         $it->rewind();
 
@@ -288,12 +288,12 @@ class RecordSet implements JsonSerializable, IteratorAggregate, Countable
      */
     public function fetchColumn($index = 0): Generator
     {
-        $offset = $this->getColumnIndex($index, 'the column index `%s` value is invalid');
+        $offset = $this->getColumnIndex($index, __METHOD__.': the column index `%s` value is invalid');
         $filter = function (array $row) use ($offset) {
             return isset($row[$offset]);
         };
 
-        $select = function ($row) use ($offset) {
+        $select = function (array $row) use ($offset) {
             return $row[$offset];
         };
 
@@ -352,21 +352,21 @@ class RecordSet implements JsonSerializable, IteratorAggregate, Countable
      */
     public function fetchPairs($offset_index = 0, $value_index = 1): Generator
     {
-        $offset = $this->getColumnIndex($offset_index, 'the offset index value is invalid');
-        $value = $this->getColumnIndex($value_index, 'the value index value is invalid');
+        $offset = $this->getColumnIndex($offset_index, __METHOD__.': the offset index value is invalid');
+        $value = $this->getColumnIndex($value_index, __METHOD__.': the value index value is invalid');
 
-        $filter = function ($row) use ($offset) {
-            return isset($row[$offset]);
+        $filter = function (array $record) use ($offset) {
+            return isset($record[$offset]);
         };
 
-        $select = function ($row) use ($offset, $value) {
-            return [$row[$offset], $row[$value] ?? null];
+        $select = function (array $record) use ($offset, $value) {
+            return [$record[$offset], $record[$value] ?? null];
         };
 
-        $it = new MapIterator(new CallbackFilterIterator($this->iterator, $filter), $select);
+        $iterator = new MapIterator(new CallbackFilterIterator($this->iterator, $filter), $select);
 
-        foreach ($it as $row) {
-            yield $row[0] => $row[1];
+        foreach ($iterator as $pair) {
+            yield $pair[0] => $pair[1];
         }
     }
 

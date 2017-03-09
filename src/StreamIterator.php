@@ -95,16 +95,16 @@ class StreamIterator implements Iterator
      */
     public function __construct($stream)
     {
-        if (!is_resource($stream) || 'stream' !== get_resource_type($stream)) {
-            throw new InvalidArgumentException(sprintf(
-                'Expected resource to be a stream, received %s instead',
-                is_object($stream) ? get_class($stream) : gettype($stream)
-            ));
+        if (!is_resource($stream)) {
+            throw new InvalidArgumentException(sprintf('Argument 1 passed to %s must be a resource, %s given', __METHOD__, is_object($stream) ? get_class($stream) : gettype($stream)));
         }
 
-        $data = stream_get_meta_data($stream);
-        if (!$data['seekable']) {
-            throw new InvalidArgumentException('The stream must be seekable');
+        if ('stream' !== ($type = get_resource_type($stream))) {
+            throw new InvalidArgumentException(sprintf('Argument 1 passed to %s must be a stream resource, %s resource given', __METHOD__, $type));
+        }
+
+        if (!stream_get_meta_data($stream)['seekable']) {
+            throw new InvalidArgumentException(sprintf('Argument 1 passed to %s must be a seekable stream resource', __METHOD__));
         }
 
         $this->stream = $stream;
@@ -129,9 +129,9 @@ class StreamIterator implements Iterator
      */
     public function setCsvControl(string $delimiter = ',', string $enclosure = '"', string $escape = '\\')
     {
-        $this->delimiter = $this->filterControl($delimiter, 'delimiter');
-        $this->enclosure = $this->filterControl($enclosure, 'enclosure');
-        $this->escape = $this->filterControl($escape, 'escape');
+        $this->delimiter = $this->filterControl($delimiter, 'delimiter', __METHOD__);
+        $this->enclosure = $this->filterControl($enclosure, 'enclosure', __METHOD__);
+        $this->escape = $this->filterControl($escape, 'escape', __METHOD__);
     }
 
     /**
@@ -163,9 +163,9 @@ class StreamIterator implements Iterator
         return fputcsv(
             $this->stream,
             $fields,
-            $this->filterControl($delimiter, 'delimiter'),
-            $this->filterControl($enclosure, 'enclosure'),
-            $this->filterControl($escape, 'escape')
+            $this->filterControl($delimiter, 'delimiter', __METHOD__),
+            $this->filterControl($enclosure, 'enclosure', __METHOD__),
+            $this->filterControl($escape, 'escape', __METHOD__)
         );
     }
 

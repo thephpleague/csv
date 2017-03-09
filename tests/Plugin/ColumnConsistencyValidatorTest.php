@@ -2,8 +2,8 @@
 
 namespace LeagueTest\Csv\Plugin;
 
-use InvalidArgumentException;
 use League\Csv\Exception\InsertionException;
+use League\Csv\Exception\OutOfRangeException;
 use League\Csv\Plugin\ColumnConsistencyValidator;
 use League\Csv\Writer;
 use PHPUnit\Framework\TestCase;
@@ -32,7 +32,7 @@ class ColumnConsistencyValidatorTest extends TestCase
 
     public function testColumsCountSetterGetter()
     {
-        $this->expectException(InvalidArgumentException::class);
+        $this->expectException(OutOfRangeException::class);
         $consistency = new ColumnConsistencyValidator();
         $this->assertSame(-1, $consistency->getColumnsCount());
         $consistency->setColumnsCount(3);

@@ -50,7 +50,7 @@ class ColumnConsistencyValidator
     public function setColumnsCount(int $value)
     {
         $this->detect_columns_count = false;
-        $this->columns_count = $this->filterInteger($value, -1, 'the column count must be greater or equal to -1');
+        $this->columns_count = $this->filterInteger($value, -1, __METHOD__.': the column count must be greater or equal to -1');
     }
 
     /**

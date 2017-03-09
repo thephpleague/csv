@@ -2,7 +2,7 @@
 
 namespace LeagueTest\Csv;
 
-use League\Csv\Exception\InvalidArgumentException;
+use League\Csv\Exception\OutOfRangeException;
 use League\Csv\Reader;
 use PHPUnit\Framework\TestCase;
 use SplTempFileObject;
@@ -61,7 +61,7 @@ class ReaderTest extends TestCase
 
     public function testDetectDelimiterListWithInvalidRowLimit()
     {
-        $this->expectException(InvalidArgumentException::class);
+        $this->expectException(OutOfRangeException::class);
         $this->csv->fetchDelimitersOccurrence([','], -4);
     }
 

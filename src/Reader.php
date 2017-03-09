@@ -85,7 +85,7 @@ class Reader extends AbstractCsv implements IteratorAggregate
             $this->header_offset = $this->filterInteger(
                 $offset,
                 0,
-                'the header offset index must be a positive integer or 0'
+                __METHOD__.': the header offset index must be a positive integer or 0'
             );
         }
         $this->resetDynamicProperties();
@@ -114,7 +114,7 @@ class Reader extends AbstractCsv implements IteratorAggregate
      */
     public function fetchDelimitersOccurrence(array $delimiters, int $nb_rows = 1): array
     {
-        $nb_rows = $this->filterInteger($nb_rows, 1, 'The number of rows to consider must be a valid positive integer');
+        $nb_rows = $this->filterInteger($nb_rows, 1, __METHOD__.': the number of rows to consider must be a valid positive integer');
         $filter_row = function ($row) {
             return is_array($row) && count($row) > 1;
         };
@@ -211,7 +211,7 @@ class Reader extends AbstractCsv implements IteratorAggregate
         }
 
         $bom_length = mb_strlen($bom);
-        $mapper = function (array $row, $index) use ($bom_length): array {
+        $mapper = function (array $row, int $index) use ($bom_length): array {
             if (0 != $index) {
                 return $row;
             }

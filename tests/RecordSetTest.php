@@ -5,6 +5,7 @@ namespace LeagueTest\Csv;
 use DOMDocument;
 use League\Csv\Exception\CsvException;
 use League\Csv\Exception\InvalidArgumentException;
+use League\Csv\Exception\OutOfRangeException;
 use League\Csv\Exception\RuntimeException;
 use League\Csv\Reader;
 use League\Csv\Statement;
@@ -89,7 +90,7 @@ class RecordSetTest extends TestCase
 
     public function testSetLimitThrowException()
     {
-        $this->expectException(InvalidArgumentException::class);
+        $this->expectException(OutOfRangeException::class);
         (new Statement())->limit(-4);
     }
 
@@ -455,7 +456,7 @@ class RecordSetTest extends TestCase
 
     public function testFetchOneTriggersException()
     {
-        $this->expectException(InvalidArgumentException::class);
+        $this->expectException(OutOfRangeException::class);
         $this->csv->select()->fetchOne(-5);
     }
 

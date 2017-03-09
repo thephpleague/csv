@@ -34,6 +34,12 @@ class StreamIteratorTest extends TestCase
         new StreamIterator(fopen('php://stdin', 'r'));
     }
 
+    public function testCreateStreamWithWrongResourceType()
+    {
+        $this->expectException(InvalidArgumentException::class);
+        new StreamIterator(curl_init());
+    }
+
     public function testSetCsvControlTriggersException()
     {
         $this->expectException(InvalidArgumentException::class);

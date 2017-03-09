@@ -15,6 +15,7 @@ declare(strict_types=1);
 namespace League\Csv;
 
 use League\Csv\Exception\InvalidArgumentException;
+use League\Csv\Exception\OutOfRangeException;
 
 /**
  *  An abstract class to enable basic CSV manipulation
@@ -29,20 +30,21 @@ trait ValidatorTrait
     /**
      * Filter Csv control character
      *
-     * @param string $char Csv control character
-     * @param string $type Csv control character type
+     * @param string $char   Csv control character
+     * @param string $type   Csv control character type
+     * @param string $method Method call
      *
      * @throws InvalidArgumentException If the Csv control character is not one character only.
      *
      * @return string
      */
-    protected function filterControl(string $char, string $type)
+    protected function filterControl(string $char, string $type, string $method)
     {
         if (1 == strlen($char)) {
             return $char;
         }
 
-        throw new InvalidArgumentException(sprintf('The %s must be a single character', $type));
+        throw new InvalidArgumentException(sprintf('%s: %s must be a single character', $method, $type));
     }
 
     /**
@@ -59,7 +61,7 @@ trait ValidatorTrait
     protected function filterInteger(int $value, int $min_value, string $error_message): int
     {
         if ($value < $min_value) {
-            throw new InvalidArgumentException($error_message);
+            throw new OutOfRangeException($error_message);
         }
 
         return $value;

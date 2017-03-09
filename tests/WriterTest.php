@@ -5,6 +5,7 @@ namespace LeagueTest\Csv;
 use ArrayIterator;
 use League\Csv\Exception\InsertionException;
 use League\Csv\Exception\InvalidArgumentException;
+use League\Csv\Exception\OutOfRangeException;
 use League\Csv\Writer;
 use PHPUnit\Framework\TestCase;
 use SplFileObject;
@@ -33,7 +34,7 @@ class WriterTest extends TestCase
 
     public function testflushThreshold()
     {
-        $this->expectException(InvalidArgumentException::class);
+        $this->expectException(OutOfRangeException::class);
         $this->csv->setFlushThreshold(12);
         $this->assertSame(12, $this->csv->getFlushThreshold());
         $this->csv->setFlushThreshold(0);
