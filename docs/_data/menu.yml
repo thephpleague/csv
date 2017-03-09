@@ -26,8 +26,7 @@
         8.x to 9.x: '/upgrading/9.0/'
 '8.0':
     Getting Started:
-        Introduction: '/8.0/'
-        Examples: '/8.0/examples/'
+        Usage: '/8.0/'
         Installation: '/8.0/installation/'
     The API:
         Instantiation: '/8.0/instantiation/'
@@ -48,8 +47,7 @@
         8.x to 9.x: '/upgrading/9.0/'
 '7.0':
     Getting Started:
-        Introduction: '/7.0/'
-        Examples: '/7.0/examples/'
+        Usage: '/7.0/'
         Installation: '/7.0/installation/'
     The API:
         Instantiation: '/7.0/instantiation/'
