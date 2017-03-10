@@ -363,8 +363,10 @@ class RecordSetTest extends TestCase
         ];
         $res = $csv->select();
         $res->preserveOffset(false);
+        $this->assertFalse($res->isOffsetPreserved());
         $this->assertSame($expectedNoOffset, $res->fetchAll());
         $res->preserveOffset(true);
+        $this->assertTrue($res->isOffsetPreserved());
         $this->assertSame($expectedWithOffset, $res->fetchAll());
     }
 
@@ -517,7 +519,9 @@ class RecordSetTest extends TestCase
     {
         $csv = Reader::createFromString($rawCsv);
         $res = (new Statement())->offset(799)->limit(50)->process($csv);
+        $this->assertSame('UTF-8', $res->getConversionInputEncoding());
         $res->setConversionInputEncoding('iso-8859-15');
+        $this->assertSame('ISO-8859-15', $res->getConversionInputEncoding());
 
         json_encode($res);
         $this->assertEquals(JSON_ERROR_NONE, json_last_error());

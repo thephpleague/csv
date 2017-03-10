@@ -100,9 +100,30 @@ class RecordSet implements JsonSerializable, IteratorAggregate, Countable
     }
 
     /**
+     * Tell whether the CSV document offset
+     * must be kept on output
+     *
+     * @return bool
+     */
+    public function isOffsetPreserved(): bool
+    {
+        return $this->preserve_offset;
+    }
+
+    /**
+     * Returns the conversion input encoding
+     *
+     * @return string
+     */
+    public function getConversionInputEncoding(): string
+    {
+        return $this->conversion_input_encoding;
+    }
+
+    /**
      * @inheritdoc
      */
-    public function getIterator(): Iterator
+    public function getIterator(): Generator
     {
         foreach ($this->iterator as $key => $value) {
             $this->preserve_offset ? yield $key => $value : yield $value;
@@ -120,7 +141,7 @@ class RecordSet implements JsonSerializable, IteratorAggregate, Countable
     /**
      * @inheritdoc
      */
-    public function jsonSerialize()
+    public function jsonSerialize(): array
     {
         return iterator_to_array($this->convertToUtf8($this->iterator), $this->preserve_offset);
     }

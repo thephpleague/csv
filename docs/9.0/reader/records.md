@@ -8,9 +8,9 @@ title: Accessing Records from a CSV document
 ~~~php
 <?php
 public RecordSet::count(): int
+public RecordSet::isOffsetPreserved(): bool
+public RecordSet::getConversionInputEncoding(): string
 public RecordSet::getColumnNames(): array
-public RecordSet::preserveOffset(bool $status): RecordSet
-public RecordSet::setConversionInputEncoding(string $charset): RecordSet
 public RecordSet::getIterator(): Generator
 public RecordSet::fetchAll(): array
 public RecordSet::fetchOne(int $offset = 0): array
@@ -29,6 +29,8 @@ public RecordSet::toHTML(
     string $column_attr = 'title',
     string $offset_attr = 'data-record-offset'
 ): string
+public RecordSet::preserveOffset(bool $status): RecordSet
+public RecordSet::setConversionInputEncoding(string $charset): RecordSet
 
 
 ~~~
@@ -110,15 +112,21 @@ $records->getColumnNames(); // returns ['firstname', 'lastname', 'email'];
 ~~~php
 <?php
 
+public RecordSet::isOffsetPreserved(): bool
+public RecordSet::getConversionInputEncoding(): string
 public RecordSet::preserveOffset(bool $status): RecordSet
 public RecordSet::setConversionInputEncoding(string $charset): RecordSet
 ~~~
 
 `RecordSet::preserveOffset` indicates if the `RecordSet` must keep the original CSV document records offset or can re-index them. When the `$status` is `true`, the original CSV document record offset will be preserve and output in methods where it makes sense.
 
+At any given time you can tell whether the CSV document offset is kept by calling `RecordSet::isOffsetPreserved` which returns a boolean.
+
 <p class="message-notice">By default, the <code>RecordSet</code> object does not preserve the original offset.</p>
 
 `RecordSet::setConversionInputEncoding` performs a charset conversion so that the records are all in `UTF-8` prior to converting the collection into XML or JSON. Without this step, errors may occurs while converting your data.
+
+At any given time you can retrive the current conversion input encoding charset by calling `RecordSet::getConversionInputEncoding`.
 
 <p class="message-notice">By default, the <code>RecordSet</code> object expect your records to be in <code>UTF-8</code>.</p>
 
@@ -168,12 +176,13 @@ $reader = Reader::createFromPath('/path/to/my/file.csv');
  //we will start iterating from the 6th record
 $stmt = (new Statement())->offset(5);
 $results = $reader->select($stmt);
-
+$results->isOffsetPreserved(); //returns false
 foreach ($results as $offset => $record) {
     //the first iteration will give $offset equal to `0`
 }
 
 $results->preserveOffset(true); //we are preserving the original offset
+$results->isOffsetPreserved(); //returns true
 foreach ($results->fetchAll() as $offset => $record) {
     //the first iteration will give $offset equal to `5`
 }
