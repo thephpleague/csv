@@ -25,15 +25,15 @@ namespace League\Csv\Plugin;
 class ForbiddenNullValuesValidator
 {
     /**
-     * Is the submitted row valid
+     * Is the submitted record valid
      *
-     * @param array $row
+     * @param array $record
      *
      * @return bool
      */
-    public function __invoke(array $row): bool
+    public function __invoke(array $record): bool
     {
-        $res = array_filter($row, function ($value) {
+        $res = array_filter($record, function ($value): bool {
             return null === $value;
         });
 

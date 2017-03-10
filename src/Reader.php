@@ -82,10 +82,10 @@ class Reader extends AbstractCsv implements IteratorAggregate
     public function fetchDelimitersOccurrence(array $delimiters, int $nb_rows = 1): array
     {
         $nb_rows = $this->filterInteger($nb_rows, 1, __METHOD__.': the number of rows to consider must be a valid positive integer');
-        $filter_row = function ($row) {
+        $filter_row = function ($row): bool {
             return is_array($row) && count($row) > 1;
         };
-        $delimiters = array_unique(array_filter($delimiters, function ($value) {
+        $delimiters = array_unique(array_filter($delimiters, function ($value): bool {
             return 1 == strlen($value);
         }));
         $this->document->setFlags(SplFileObject::READ_CSV);
@@ -123,7 +123,7 @@ class Reader extends AbstractCsv implements IteratorAggregate
         $header = $this->getHeader();
         $this->document->setFlags(SplFileObject::READ_CSV | SplFileObject::READ_AHEAD | SplFileObject::SKIP_EMPTY);
         $this->document->setCsvControl($this->delimiter, $this->enclosure, $this->escape);
-        $normalized = function ($row) {
+        $normalized = function ($row): bool {
             return is_array($row) && $row != [null];
         };
         $iterator = new CallbackFilterIterator($this->document, $normalized);
@@ -265,7 +265,7 @@ class Reader extends AbstractCsv implements IteratorAggregate
 
         if ($offset !== $this->header_offset) {
             $this->header_offset = $offset;
-            $this->resetDynamicProperties();
+            $this->resetProperties();
         }
 
         return $this;
@@ -274,7 +274,7 @@ class Reader extends AbstractCsv implements IteratorAggregate
     /**
      * @inheritdoc
      */
-    protected function resetDynamicProperties()
+    protected function resetProperties()
     {
         return $this->is_header_loaded = false;
     }

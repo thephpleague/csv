@@ -64,7 +64,7 @@ class Writer extends AbstractCsv
     /**
      * Buffer flush threshold
      *
-     * @var int
+     * @var int|null
      */
     protected $flush_threshold;
 

@@ -216,7 +216,7 @@ class Statement
     protected function filterColumnAgainstCsvHeader(array $headers)
     {
         if (empty($headers)) {
-            $filter = function ($key) {
+            $filter = function ($key): bool {
                 return !is_int($key) || $key < 0;
             };
 

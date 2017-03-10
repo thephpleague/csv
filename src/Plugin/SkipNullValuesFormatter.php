@@ -27,13 +27,13 @@ class SkipNullValuesFormatter
     /**
      * remove null value form the submitted array
      *
-     * @param array $row
+     * @param array $record
      *
      * @return array
      */
-    public function __invoke(array $row): array
+    public function __invoke(array $record): array
     {
-        return array_filter($row, function ($value) {
+        return array_filter($record, function ($value): bool {
             return null !== $value;
         });
     }

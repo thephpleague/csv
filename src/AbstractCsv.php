@@ -58,7 +58,7 @@ abstract class AbstractCsv
     /**
      * BOM sequences list
      */
-    const BOM_SEQUENCES_LIST = [
+    const BOM_SEQUENCES = [
         self::BOM_UTF32_BE,
         self::BOM_UTF32_LE,
         self::BOM_UTF16_BE,
@@ -95,7 +95,15 @@ abstract class AbstractCsv
     protected $escape = '\\';
 
     /**
+     * The CSV document BOM sequence
+     *
+     * @var string|null
+     */
+    protected $input_bom = null;
+
+    /**
      * The Output file BOM character
+     *
      * @var string
      */
     protected $output_bom = '';
@@ -113,13 +121,6 @@ abstract class AbstractCsv
      * @var int
      */
     protected $stream_filter_mode;
-
-    /**
-     * The CSV document BOM sequence
-     *
-     * @var string|null
-     */
-    protected $input_bom = null;
 
     /**
      * New instance
@@ -261,7 +262,7 @@ abstract class AbstractCsv
             return strpos($line, $sequence) === 0;
         };
 
-        $res = array_filter(self::BOM_SEQUENCES_LIST, $filter);
+        $res = array_filter(self::BOM_SEQUENCES, $filter);
         $this->input_bom = (string) array_shift($res);
 
         return $this->input_bom;
@@ -352,7 +353,7 @@ abstract class AbstractCsv
         $delimiter = $this->filterControl($delimiter, 'delimiter', __METHOD__);
         if ($delimiter != $this->delimiter) {
             $this->delimiter = $delimiter;
-            $this->resetDynamicProperties();
+            $this->resetProperties();
         }
 
         return $this;
@@ -361,7 +362,7 @@ abstract class AbstractCsv
     /**
      * Reset dynamic CSV document properties to improve performance
      */
-    protected function resetDynamicProperties()
+    protected function resetProperties()
     {
     }
 
@@ -377,7 +378,7 @@ abstract class AbstractCsv
         $enclosure = $this->filterControl($enclosure, 'enclosure', __METHOD__);
         if ($enclosure != $this->enclosure) {
             $this->enclosure = $enclosure;
-            $this->resetDynamicProperties();
+            $this->resetProperties();
         }
 
         return $this;
@@ -395,7 +396,7 @@ abstract class AbstractCsv
         $escape = $this->filterControl($escape, 'escape', __METHOD__);
         if ($escape != $this->escape) {
             $this->escape = $escape;
-            $this->resetDynamicProperties();
+            $this->resetProperties();
         }
 
 
@@ -432,7 +433,7 @@ abstract class AbstractCsv
         }
 
         $this->stream_filters[$filtername][] = $this->document->appendFilter($filtername, $this->stream_filter_mode);
-        $this->resetDynamicProperties();
+        $this->resetProperties();
         $this->input_bom = null;
 
         return $this;

@@ -60,11 +60,11 @@ trait ValidatorTrait
      */
     protected function filterInteger(int $value, int $min_value, string $error_message): int
     {
-        if ($value < $min_value) {
-            throw new OutOfRangeException($error_message);
+        if ($value >= $min_value) {
+            return $value;
         }
 
-        return $value;
+        throw new OutOfRangeException($error_message);
     }
 
     /**
@@ -78,14 +78,10 @@ trait ValidatorTrait
      */
     protected function filterColumnNames(array $keys): array
     {
-        if (empty($keys)) {
+        if (empty($keys) || $keys === array_unique(array_filter($keys, 'is_string'))) {
             return $keys;
         }
 
-        if ($keys !== array_unique(array_filter($keys, 'is_string'))) {
-            throw new InvalidArgumentException('Use a flat array with unique string values');
-        }
-
-        return $keys;
+        throw new InvalidArgumentException('Use a flat array with unique string values');
     }
 }

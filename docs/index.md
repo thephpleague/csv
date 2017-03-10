@@ -35,7 +35,7 @@ layout: homepage
 <span class="p">;</span>
 
 <span class="c1">//query your records from the document
-</span><span class="nv">$res</span> <span class="o">=</span> <span class="nv">$csv</span><span class="o">-&gt;</span><span class="na">select</span><span class="p">(</span><span class="nv">$stmt</span><span class="p">)</span><span class="o">-&gt;</span><span class="na">fetchAll</span><span class="p">();</span>
+</span><span class="nv">$records</span> <span class="o">=</span> <span class="nv">$stmt</span><span class="o">-&gt;</span><span class="na">process</span><span class="p">(</span><span class="nv">$csv</span><span class="p">)</span><span class="o">-&gt;</span><span class="na">fetchAll</span><span class="p">();</span>
 </code></pre>
 </div>
     </div>

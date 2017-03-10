@@ -159,11 +159,11 @@ class RecordSet implements JsonSerializable, IteratorAggregate, Countable
             return $iterator;
         }
 
-        $convert_cell = function ($value) {
+        $convert_cell = function ($value) : string {
             return mb_convert_encoding((string) $value, 'UTF-8', $this->conversion_input_encoding);
         };
 
-        $convert_row = function (array $row) use ($convert_cell) {
+        $convert_row = function (array $row) use ($convert_cell): array {
             $res = [];
             foreach ($row as $key => $value) {
                 $res[$convert_cell($key)] = $convert_cell($value);
@@ -310,11 +310,11 @@ class RecordSet implements JsonSerializable, IteratorAggregate, Countable
     public function fetchColumn($index = 0): Generator
     {
         $offset = $this->getColumnIndex($index, __METHOD__.': the column index `%s` value is invalid');
-        $filter = function (array $row) use ($offset) {
+        $filter = function (array $row) use ($offset): bool {
             return isset($row[$offset]);
         };
 
-        $select = function (array $row) use ($offset) {
+        $select = function (array $row) use ($offset): string {
             return $row[$offset];
         };
 
@@ -376,11 +376,11 @@ class RecordSet implements JsonSerializable, IteratorAggregate, Countable
         $offset = $this->getColumnIndex($offset_index, __METHOD__.': the offset index value is invalid');
         $value = $this->getColumnIndex($value_index, __METHOD__.': the value index value is invalid');
 
-        $filter = function (array $record) use ($offset) {
+        $filter = function (array $record) use ($offset): bool {
             return isset($record[$offset]);
         };
 
-        $select = function (array $record) use ($offset, $value) {
+        $select = function (array $record) use ($offset, $value): array {
             return [$record[$offset], $record[$value] ?? null];
         };
 
