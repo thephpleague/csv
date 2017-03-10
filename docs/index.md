@@ -105,7 +105,7 @@ layout: homepage
         </div>
       </div>
 
-      <p class="footnote">Once a new major version is released, the previous stable release remains supported for six (6) more months through patches and/or security fixes.</p>
+      <p class="footnote">Once a new major version is released, the previous stable release remains supported for six more months through patches and security fixes.</p>
 
     </div>
   </div>
