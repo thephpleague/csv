@@ -69,39 +69,6 @@ class Reader extends AbstractCsv implements IteratorAggregate
     }
 
     /**
-     * Selects the record to be used as the CSV header
-     *
-     * Because of the header is represented as an array, to be valid
-     * a header MUST contain only unique string value.
-     *
-     * @param int|null $offset the header row offset
-     *
-     * @return static
-     */
-    public function setHeaderOffset($offset): self
-    {
-        $this->header_offset = null;
-        if (null !== $offset) {
-            $this->header_offset = $this->filterInteger(
-                $offset,
-                0,
-                __METHOD__.': the header offset index must be a positive integer or 0'
-            );
-        }
-        $this->resetDynamicProperties();
-
-        return $this;
-    }
-
-    /**
-     * @inheritdoc
-     */
-    protected function resetDynamicProperties()
-    {
-        return $this->is_header_loaded = false;
-    }
-
-    /**
      * Detect Delimiters occurences in the CSV
      *
      * Returns a associative array where each key represents
@@ -278,5 +245,37 @@ class Reader extends AbstractCsv implements IteratorAggregate
         }
 
         return $this->header;
+    }
+
+    /**
+     * Selects the record to be used as the CSV header
+     *
+     * Because of the header is represented as an array, to be valid
+     * a header MUST contain only unique string value.
+     *
+     * @param int|null $offset the header row offset
+     *
+     * @return static
+     */
+    public function setHeaderOffset($offset): self
+    {
+        if (null !== $offset) {
+            $offset = $this->filterInteger($offset, 0, __METHOD__.': the header offset index must be a positive integer or 0');
+        }
+
+        if ($offset !== $this->header_offset) {
+            $this->header_offset = $offset;
+            $this->resetDynamicProperties();
+        }
+
+        return $this;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    protected function resetDynamicProperties()
+    {
+        return $this->is_header_loaded = false;
     }
 }

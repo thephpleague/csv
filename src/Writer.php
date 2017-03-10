@@ -246,6 +246,10 @@ class Writer extends AbstractCsv
             $val = $this->filterInteger($val, 1, __METHOD__.': The flush threshold must be a valid positive integer or null');
         }
 
+        if ($val === $this->flush_threshold) {
+            return $this;
+        }
+
         $this->flush_threshold = $val;
         if (0 < $this->flush_counter) {
             $this->flush_counter = 0;

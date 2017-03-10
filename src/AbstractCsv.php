@@ -349,8 +349,11 @@ abstract class AbstractCsv
      */
     public function setDelimiter(string $delimiter): self
     {
-        $this->delimiter = $this->filterControl($delimiter, 'delimiter', __METHOD__);
-        $this->resetDynamicProperties();
+        $delimiter = $this->filterControl($delimiter, 'delimiter', __METHOD__);
+        if ($delimiter != $this->delimiter) {
+            $this->delimiter = $delimiter;
+            $this->resetDynamicProperties();
+        }
 
         return $this;
     }
@@ -371,8 +374,11 @@ abstract class AbstractCsv
      */
     public function setEnclosure(string $enclosure): self
     {
-        $this->enclosure = $this->filterControl($enclosure, 'enclosure', __METHOD__);
-        $this->resetDynamicProperties();
+        $enclosure = $this->filterControl($enclosure, 'enclosure', __METHOD__);
+        if ($enclosure != $this->enclosure) {
+            $this->enclosure = $enclosure;
+            $this->resetDynamicProperties();
+        }
 
         return $this;
     }
@@ -386,8 +392,12 @@ abstract class AbstractCsv
      */
     public function setEscape(string $escape): self
     {
-        $this->escape = $this->filterControl($escape, 'escape', __METHOD__);
-        $this->resetDynamicProperties();
+        $escape = $this->filterControl($escape, 'escape', __METHOD__);
+        if ($escape != $this->escape) {
+            $this->escape = $escape;
+            $this->resetDynamicProperties();
+        }
+
 
         return $this;
     }
