@@ -63,7 +63,7 @@ $writer->insertAll([str_fgetcsv($record)]);
 
 ### Reduced method chaining
 
-The `Writer::insertOne` method is no longer chainable.
+The `Writer::insertOne` and `Writer::insertAll` methods are no longer chainable.
 
 Before:
 
@@ -140,8 +140,7 @@ foreach ($reader as $record) {
 
 ### Selecting records methods
 
-
-All extracting and methods are no longer attached to the `Reader` class you need to call the `Reader::select` method to have access to them.
+All extracting and methods are no longer attached to the `Reader` class instead they are expose using the `RecordSet` object.
 
 Before:
 
@@ -160,14 +159,16 @@ After:
 <?php
 
 use League\Csv\Reader;
+use League\Csv\Statement;
 
 $reader = Reader::createFromPath('/path/to/file.csv');
-$records = $reader->select()->fetchAll();
+$records = (new Statement())->process($reader);
+$records->fetchAll();
 ~~~
 
 ### Reader::fetch is removed
 
-The `Reader::fetch` is removed instead you are required to use the `RecordSet` object.
+The `Reader::fetch` is removed as the `RecordSet` class implements the `IteratorAggregate` interface.
 
 Before:
 
@@ -201,7 +202,7 @@ $stmt = (new Statement())
     ->offset(3)
     ->limit(2)
 ;
-$records = $reader->select($stmt);
+$records = $stmt->process($reader);
 foreach ($records as $record) {
     // do something here
 }
@@ -219,7 +220,11 @@ Before:
 use League\Csv\Reader;
 
 $reader = Reader::createFromPath('/path/to/file.csv');
-$records = $reader->fetchAssoc(); //The CSV first row is used as the CSV header
+foreach ($reader->fetchAssoc() as $records) {
+    //The CSV first row is used as the CSV header
+    //and as the index of each found record
+    //the CSV header offset is removed from iteration
+}
 ~~~
 
 After:
@@ -231,10 +236,15 @@ use League\Csv\Reader;
 
 $reader = Reader::createFromPath('/path/to/file.csv');
 $reader->setHeaderOffset(0);
-$records = $reader->select()->fetchAll();
+foreach ($reader as $records) {
+    //The CSV first row is used as the CSV header
+    //and as the index of each found record
+    //the CSV header offset is removed from iteration
+}
 ~~~
 
-If you want to specify the headers for a Csv document which don't have one
+If you want to map the headers for a CSV document which don't have one or add more constraints
+you need to use the `Statement` object.
 
 Before:
 
@@ -257,7 +267,7 @@ use League\Csv\Statement;
 
 $reader = Reader::createFromPath('/path/to/file.csv');
 $stmt = (new Statement())->columns(['firstname', 'lastname', 'email']);
-$records = $reader->select($stmt)->fetchAll();
+$records = $stmt->process($reader)->fetchAll();
 ~~~
 
 ## Miscellanous
@@ -358,7 +368,7 @@ $csv = null;
 
 ### Conversion methods
 
-All converting methods are no longer attached to the `Reader` or the `Writer` classes you need a RecordSet` object to have access to them.
+All converting methods are no longer attached to the `Reader` or the `Writer` classes you need a `RecordSet` object to have access to them.
 
 - `AbstractCsv::jsonSerialize`
 - `AbstractCsv::toHTML`
@@ -381,9 +391,10 @@ After:
 <?php
 
 use League\Csv\Reader;
+use League\Csv\Statement;
 
 $csv = Reader::createFromPath('/path/to/file.csv');
-$records = $csv->select()->toXML();
+$records = (new Statement())->process($csv)->toXML();
 ~~~
 
 ### Switching between connections

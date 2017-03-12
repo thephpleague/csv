@@ -4,6 +4,7 @@ namespace LeagueTest\Csv;
 
 use League\Csv\Exception\InvalidArgumentException;
 use League\Csv\Reader;
+use League\Csv\Statement;
 use League\Csv\StreamIterator;
 use League\Csv\Writer;
 use LogicException;
@@ -74,7 +75,7 @@ class StreamIteratorTest extends TestCase
         }
         $csv = Reader::createFromStream($fp);
 
-        $this->assertSame($res, $csv->select()->fetchAll()[0][0]);
+        $this->assertSame($res, (new Statement())->process($csv)->fetchAll()[0][0]);
     }
 
     public function validBOMSequences()

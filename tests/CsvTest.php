@@ -5,6 +5,7 @@ namespace LeagueTest\Csv;
 use League\Csv\Exception\InvalidArgumentException;
 use League\Csv\Exception\RuntimeException;
 use League\Csv\Reader;
+use League\Csv\Statement;
 use League\Csv\Writer;
 use LeagueTest\Csv\Lib\FilterReplace;
 use LogicException;
@@ -165,7 +166,7 @@ class CsvTest extends TestCase
         $obj->fwrite("1st\n2nd\n");
         $obj->setFlags($flag);
         $reader = Reader::createFromFileObject($obj);
-        $this->assertCount($fetch_count, $reader->select()->fetchAll());
+        $this->assertCount($fetch_count, (new Statement())->process($reader)->fetchAll());
         $reader = null;
         $obj = null;
         unlink($path);

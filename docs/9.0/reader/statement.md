@@ -93,7 +93,7 @@ public Statement::limit(int $limit): Statement
 
 ## Select constraint
 
-This option enables selecting specific columns from each record.
+This option enables mapping and selecting specific columns from each record.
 
 ~~~php
 <?php
@@ -167,9 +167,7 @@ $stmt = (new Statement())
 public Statement::process(Reader $reader): RecordSet
 ~~~
 
-This method process a `Reader` object and returns a [RecordSet](/9.0/reader/records) object.
-
-<p class="message-info"><strong>Tips:</strong> this method is equivalent of <a href="/9.0/reader/#selecting -csv-records">Reader::select</a>.</p>
+This method processes a [Reader](/9.0/reader/) object and returns the found records as a [RecordSet](/9.0/reader/records) object.
 
 ~~~php
 <?php
@@ -203,3 +201,6 @@ $recordsB = $reader->select($stmt);
 //$recordsB is a League\Csv\RecordSet object
 var_dump($recordsA == $recordB) // returns true
 ~~~
+
+<p class="message-info"><strong>Tips:</strong> this method is equivalent of <a href="/9.0/reader/#selecting-csv-records">Reader::select</a>.</p>
+

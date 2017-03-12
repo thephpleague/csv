@@ -8,12 +8,12 @@ title: CSV document Reader connection
 ~~~php
 <?php
 
+public Reader::fetchDelimitersOccurrence(array $delimiters, int $nbRows = 1): array
 public Reader::getHeaderOffset(void): int|null
 public Reader::getHeader(void): array
 public Reader::setHeaderOffset(?int $offset): Reader
 public Reader::getIterator(void): Iterator
-public Reader::select(Statement $stmt = null): RecordSet
-public Reader::fetchDelimitersOccurrence(array $delimiters, int $nbRows = 1): array
+public Reader::select(Statement $stmt): RecordSet
 ~~~
 
 The `League\Csv\Reader` class extends the general connections [capabilities](/9.0/connections/) to ease selecting and manipulating CSV document records.
@@ -21,13 +21,48 @@ The `League\Csv\Reader` class extends the general connections [capabilities](/9.
 
 ## CSV example
 
-Many examples in this reference require an CSV file. We will use `/path/to/file.csv` that contains the following data represented in an HTML Table for ease
+Many examples in this reference require an CSV file. We will use the following file `file.csv` containing the following data:
 
-| First Name | Last Name | E-mail               |
-| -----------|-----------|----------------------|
-|    john    |  doe      | john.doe@example.com |
-|    jane    |  doe      | jane.doe@example.com |
+    "First Name","Last Name",E-mail
+    john,doe,john.doe@example.com
+    jane,doe,jane.doe@example.com
 
+## Detecting the delimiter character
+
+This method allow you to find the occurences of some delimiters in a given CSV object.
+
+~~~php
+<?php
+
+public Reader::fetchDelimitersOccurrence(array $delimiters, int $nbRows = 1): array
+~~~
+
+The method takes two arguments:
+
+* an array containing the delimiters to check;
+* an integer which represents the number of rows to scan (default to `1`);
+
+~~~php
+<?php
+
+use League\Csv\Reader;
+
+$reader = Reader::createFromPath('/path/to/file.csv');
+$reader->setEnclosure('"');
+$reader->setEscape('\\');
+
+$delimiters_list = $reader->fetchDelimitersOccurrence([' ', '|'], 10);
+// $delimiters_list can be the following
+// [
+//     '|' => 20,
+//     ' ' => 0,
+// ]
+// This seems to be a consistent CSV with:
+// - the delimiter "|" appearing 20 times in the 10 first rows
+// - the delimiter " " never appearing
+~~~
+
+<p class="message-warning"><strong>Warning:</strong> This method only test the delimiters you gave it.</p>
 
 ## Header detection
 
@@ -131,13 +166,13 @@ foreach ($reader as $offset => $record) {
 
 ## Selecting CSV records
 
-To improve records selection you can use the `Reader::select` method. This methods takes a `League\Csv\Statement` object and returns a `League\Csv\RecordSet` object containing the selected records.
-
 ~~~php
 <?php
 
-public Reader::select(Statement $stmt = null): RecordSet
+public Reader::select(Statement $stmt): RecordSet
 ~~~
+
+This method uses a using a [Statement](/reader/statement/) object to process the `Reader` object. The found records are returned as a [RecordSet](/9.0/reader/records) object.
 
 ### Example
 
@@ -156,42 +191,4 @@ $records = $reader->select($stmt);
 //$records is a League\Csv\RecordSet object
 ~~~
 
-<p class="message-info"><strong>Tips:</strong> The resulting records can be further manipulated by the <a href="/9.0/reader/statement/">Statement</a> and/or the <a href="/9.0/reader/records/">RecordSet</a> classes. Please refer to their documentation for more informations.</p>
-
-## Detecting the delimiter character
-
-This method allow you to find the occurences of some delimiters in a given CSV object.
-
-~~~php
-<?php
-
-public Reader::fetchDelimitersOccurrence(array $delimiters, int $nbRows = 1): array
-~~~
-
-The method takes two arguments:
-
-* an array containing the delimiters to check;
-* an integer which represents the number of rows to scan (default to `1`);
-
-~~~php
-<?php
-
-use League\Csv\Reader;
-
-$reader = Reader::createFromPath('/path/to/file.csv');
-$reader->setEnclosure('"');
-$reader->setEscape('\\');
-
-$delimiters_list = $reader->fetchDelimitersOccurrence([' ', '|'], 10);
-// $delimiters_list can be the following
-// [
-//     '|' => 20,
-//     ' ' => 0,
-// ]
-// This seems to be a consistent CSV with:
-// - the delimiter "|" appearing 20 times in the 10 first rows
-// - the delimiter " " never appearing
-~~~
-
-<p class="message-warning"><strong>Warning:</strong> This method only test the delimiters you gave it.</p>
-
+<p class="message-info"><strong>Tips:</strong> this method is equivalent of <a href="/9.0/reader/statement/#apply-the-constraints-to-a-csv-document">Statement::process</a>.</p>

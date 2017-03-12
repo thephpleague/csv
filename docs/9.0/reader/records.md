@@ -35,7 +35,7 @@ public RecordSet::setConversionInputEncoding(string $charset): RecordSet
 
 ~~~
 
-The `League\Csv\RecordSet` is a class which manipulates the CSV document records. This object is returned from [Reader::select](/9.0/reader/#selecting-csv-records) or [Statement::process](/9.0/reader/statement/#apply-the-constraints-to-a-csv-document) execution.
+The `League\Csv\RecordSet` is a class which manipulates a collection of CSV document records. This object is returned from [Reader::select](/9.0/reader/#selecting-csv-records) or [Statement::process](/9.0/reader/statement/#apply-the-constraints-to-a-csv-document) execution.
 
 ## Collection informations
 
@@ -51,10 +51,11 @@ The `RecordSet` class implements implements the `Countable` interface.
 <?php
 
 use League\Csv\Reader;
+use League\Csv\Statement;
 
 $reader = Reader::createFromPath('/path/to/my/file.csv');
-$results = $reader->select();
-count($results); //return the total number of records found
+$records = (new Statement())->process($reader);
+count($records); //return the total number of records found
 ~~~
 
 `RecordSet::getColumnNames` returns the columns name information associated with the current object. This is usefull if the `RecordSet` object was created from:
@@ -68,9 +69,10 @@ count($results); //return the total number of records found
 <?php
 
 use League\Csv\Reader;
+use League\Csv\Statement;
 
 $reader = Reader::createFromPath('/path/to/my/file.csv');
-$records = $reader->select();
+$records = (new Statement())->process($reader);
 $records->getColumnNames(); // is empty because no header information was given
 ~~~
 
@@ -83,7 +85,7 @@ use League\Csv\Reader;
 
 $reader = Reader::createFromPath('/path/to/my/file.csv');
 $reader->setHeaderOffset(0);
-$records = $reader->select();
+$records = (new Statement())->process($reader);
 $records->getColumnNames(); // returns ['First Name', 'Last Name', 'E-mail'];
 ~~~
 
@@ -98,12 +100,13 @@ use League\Csv\Statement;
 $reader = Reader::createFromPath('/path/to/my/file.csv');
 $reader->setHeaderOffset(0);
 $stmt = (new Statement())
-->columns([
-    'First Name' => 'firstname',
-    'Last Name' => 'lastname',
-    'E-mail' => 'email',
-]);
-$records = $reader->select();
+    ->columns([
+        'First Name' => 'firstname',
+        'Last Name' => 'lastname',
+        'E-mail' => 'email',
+    ])
+;
+$records = $stmt->process($reader);
 $records->getColumnNames(); // returns ['firstname', 'lastname', 'email'];
 ~~~
 
@@ -149,14 +152,15 @@ Because the `RecordSet` class implements the `IteratorAggregate` interface  you 
 <?php
 
 use League\Csv\Reader;
+use League\Csv\Statement;
 
 $reader = Reader::createFromPath('/path/to/my/file.csv');
-$results = $reader->select();
-foreach ($results as $offset => $record) {
+$records = (new Statement())->process($reader);
+foreach ($records as $offset => $record) {
     //do something here
 }
 
-foreach ($results->fetchAll() as $offset => $record) {
+foreach ($records->fetchAll() as $offset => $record) {
     //do something here
 }
 
@@ -170,20 +174,19 @@ If the `RecordSet::preserveOffset` is set to `true`, the `$offset` parameter wil
 use League\Csv\Reader;
 use League\Csv\Statement;
 
-
 $reader = Reader::createFromPath('/path/to/my/file.csv');
 
  //we will start iterating from the 6th record
 $stmt = (new Statement())->offset(5);
-$results = $reader->select($stmt);
-$results->isOffsetPreserved(); //returns false
-foreach ($results as $offset => $record) {
+$records = $stmt->process($reader);
+$records->isOffsetPreserved(); //returns false
+foreach ($records as $offset => $record) {
     //the first iteration will give $offset equal to `0`
 }
 
-$results->preserveOffset(true); //we are preserving the original offset
-$results->isOffsetPreserved(); //returns true
-foreach ($results->fetchAll() as $offset => $record) {
+$records->preserveOffset(true); //we are preserving the original offset
+$records->isOffsetPreserved(); //returns true
+foreach ($records->fetchAll() as $offset => $record) {
     //the first iteration will give $offset equal to `5`
 }
 ~~~
@@ -205,8 +208,8 @@ $stmt = (new Statement())
         'E-mail' => 'email',
     ])
 ;
-$records = $reader->select();
-$reader->getColumnNames(); //returns ['firstname', 'lastname', 'email']
+$records = $stmt->process($reader);
+$records->getColumnNames(); //returns ['firstname', 'lastname', 'email']
 foreach ($records as $record) {
     // $records contains the following data
     // array(
@@ -234,6 +237,7 @@ The required argument `$offset` represents the record offset in the record colle
 <?php
 
 use League\Csv\Reader;
+use League\Csv\Statement;
 
 $reader = Reader::createFromPath('/path/to/my/file.csv');
 $reader->setHeaderOffset(0);
@@ -241,7 +245,7 @@ $stmt = (new Statement())
     ->offset(10)
     ->limit(12)
 ;
-$data = $reader->select()->fetchOne(3);
+$data = $stmt->proce($reader)->fetchOne(3);
 // access the 4th record from the recordset (indexing starts at 0)
 // will return something like this :
 //
@@ -270,20 +274,19 @@ the `$columnIndex` parameter can be:
 <?php
 
 use League\Csv\Reader;
+use League\Csv\Statement;
 
 $reader = Reader::createFromPath('/path/to/my/file.csv');
-$records = $reader->select();
-$result = $records->fetchColumn(2);
-foreach ($result as $offset => $value) {
+$records = (new Statement())->process($reader);
+foreach ($records->fetchColumn(2) as $offset => $value) {
     //$value is a string representing the value
     //of a given record for the selected column
 }
 
 $reader = Reader::createFromPath('/path/to/my/file.csv');
 $reader->setHeaderOffset(0);
-$records = $reader->select();
-$result = $records->fetchColumn('First Name');
-foreach ($result as $offset => $value) {
+$records = (new Statement())->process($reader);
+foreach ($records->fetchColumn('First Name') as $offset => $value) {
     //$value may be equal to 'john'
 }
 ~~~
@@ -292,6 +295,7 @@ If the `RecordSet::preserveOffset` is set to `true`, the `$offset` parameter wil
 
 ~~~php
 <?php
+
 use League\Csv\Reader;
 use League\Csv\Statement;
 
@@ -299,10 +303,9 @@ $reader = Reader::createFromPath('/path/to/my/file.csv');
 
  //we will start iterating from the 6th record
 $stmt = (new Statement())->offset(5);
-$records = $reader->select($stmt);
+$records = $stmt->process($reader);
 $records->preserveOffset(true);
-$result = $records->fetchColumn(2);
-foreach ($result as $offset => $value) {
+foreach ($records->fetchColumn(2) as $offset => $value) {
     //$value is a string representing the value
     //of a given record for the selected column
     //the first iteration will give $offset equal to `5`
@@ -316,12 +319,12 @@ foreach ($result as $offset => $value) {
 <?php
 
 use League\Csv\Reader;
+use League\Csv\Statement;
 
 $reader = Reader::createFromPath('/path/to/my/file.csv');
-$records = $reader->select();
-$result = $$records->fetchColumn(2);
+$records = (new Statement())->process($reader);
 count($records); //returns 10;
-count(iterator_to_array($result, false)); //returns 5
+count(iterator_to_array($records->fetchColumn(2), false)); //returns 5
 //5 records were skipped because the value column did not exists
 ~~~
 
@@ -331,10 +334,11 @@ count(iterator_to_array($result, false)); //returns 5
 <?php
 
 use League\Csv\Reader;
+use League\Csv\Statement;
 
 $reader = Reader::createFromPath('/path/to/my/file.csv');
 $reader->setHeaderOffset(0);
-$records = $reader->select();
+$records = (new Statement())->process($reader);
 foreach ($records->fetchColumn('foobar') as $record) {
     //throw an InvalidArgumentException if
     //no `foobar` column name is found
@@ -371,8 +375,11 @@ foo,bar
 sacha
 EOF;
 
+use League\Csv\Reader;
+use League\Csv\Statement;
+
 $reader = Reader::createFromString($str);
-foreach ($reader->select()->fetchPairs() as $firstname => $lastname) {
+foreach ((new Statement())->process($reader)->fetchPairs() as $firstname => $lastname) {
     // - first iteration
     // echo $firstname; -> 'john'
     // echo $lastname;  -> 'doe'
@@ -468,7 +475,7 @@ $stmt = (new Statement())
     ->limit(2)
 ;
 
-$records = $csv->select($stmt);
+$records = $stmt->process($csv);
 $records->preserveOffset(true);
 $dom = $records->toXML('csv', 'record', 'field');
 $dom->formatOutput = true;

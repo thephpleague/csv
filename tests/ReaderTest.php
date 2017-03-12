@@ -4,6 +4,8 @@ namespace LeagueTest\Csv;
 
 use League\Csv\Exception\OutOfRangeException;
 use League\Csv\Reader;
+use League\Csv\RecordSet;
+use League\Csv\Statement;
 use PHPUnit\Framework\TestCase;
 use SplTempFileObject;
 
@@ -42,6 +44,11 @@ class ReaderTest extends TestCase
         $this->csv->setHeaderOffset(null);
         $this->assertNull($this->csv->getHeaderOffset());
         $this->assertSame([], $this->csv->getHeader());
+    }
+
+    public function testSelect()
+    {
+        $this->assertInstanceOf(RecordSet::class, $this->csv->select(new Statement()));
     }
 
     public function testCreateFromFileObjectPreserveFileObjectCsvControls()
