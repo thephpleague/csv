@@ -243,6 +243,8 @@ foreach ($reader as $records) {
 }
 ~~~
 
+<p class="message-notice">Since the header offset is a property of the connection any subsequent use/call of the <code>Reader</code> will keep this setting unless you explicitly reset it.</p>
+
 If you want to map the headers for a CSV document which don't have one or add more constraints
 you need to use the `Statement` object.
 

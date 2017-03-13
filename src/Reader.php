@@ -69,6 +69,18 @@ class Reader extends AbstractCsv implements IteratorAggregate
     }
 
     /**
+     * Returns a collection of selected records
+     *
+     * @param Statement $stmt
+     *
+     * @return RecordSet
+     */
+    public function select(Statement $stmt): RecordSet
+    {
+        return $stmt->process($this);
+    }
+
+    /**
      * Detect Delimiters occurences in the CSV
      *
      * Returns a associative array where each key represents
@@ -101,18 +113,6 @@ class Reader extends AbstractCsv implements IteratorAggregate
     }
 
     /**
-     * Returns a collection of selected records
-     *
-     * @param Statement|null $stmt
-     *
-     * @return RecordSet
-     */
-    public function select(Statement $stmt): RecordSet
-    {
-        return $stmt->process($this);
-    }
-
-    /**
      * @inheritdoc
      */
     public function getIterator(): Iterator
@@ -128,6 +128,41 @@ class Reader extends AbstractCsv implements IteratorAggregate
         $iterator = $this->combineHeader($iterator, $header);
 
         return $this->stripBOM($iterator, $bom);
+    }
+
+    /**
+     * Returns the column header associate with the RecordSet
+     *
+     * @throws RuntimeException If no header is found
+     *
+     * @return string[]
+     */
+    public function getHeader(): array
+    {
+        if ($this->is_header_loaded) {
+            return $this->header;
+        }
+
+        $this->is_header_loaded = true;
+        if (null === $this->header_offset) {
+            $this->header = [];
+
+            return $this->header;
+        }
+
+        $this->document->setFlags(SplFileObject::READ_CSV | SplFileObject::READ_AHEAD | SplFileObject::SKIP_EMPTY);
+        $this->document->setCsvControl($this->delimiter, $this->enclosure, $this->escape);
+        $this->document->seek($this->header_offset);
+        $this->header = $this->document->current();
+        if (empty($this->header)) {
+            throw new RuntimeException(sprintf('The header record does not exist or is empty at offset: `%s`', $this->header_offset));
+        }
+
+        if (0 === $this->header_offset) {
+            $this->header = $this->removeBOM($this->header, mb_strlen($this->getInputBOM()), $this->enclosure);
+        }
+
+        return $this->header;
     }
 
     /**
@@ -208,41 +243,6 @@ class Reader extends AbstractCsv implements IteratorAggregate
         }
 
         return $row;
-    }
-
-    /**
-     * Returns the column header associate with the RecordSet
-     *
-     * @throws RuntimeException If no header is found
-     *
-     * @return string[]
-     */
-    public function getHeader(): array
-    {
-        if ($this->is_header_loaded) {
-            return $this->header;
-        }
-
-        $this->is_header_loaded = true;
-        if (null === $this->header_offset) {
-            $this->header = [];
-
-            return $this->header;
-        }
-
-        $this->document->setFlags(SplFileObject::READ_CSV | SplFileObject::READ_AHEAD | SplFileObject::SKIP_EMPTY);
-        $this->document->setCsvControl($this->delimiter, $this->enclosure, $this->escape);
-        $this->document->seek($this->header_offset);
-        $this->header = $this->document->current();
-        if (empty($this->header)) {
-            throw new RuntimeException(sprintf('The header record does not exist or is empty at offset: `%s`', $this->header_offset));
-        }
-
-        if (0 === $this->header_offset) {
-            $this->header = $this->removeBOM($this->header, mb_strlen($this->getInputBOM()), $this->enclosure);
-        }
-
-        return $this->header;
     }
 
     /**
