@@ -42,9 +42,9 @@ Before:
 use League\Csv\Writer;
 
 $writer = Writer::createFromFileObject(new SplTempFileObject());
-$record = 'john,doe,john.doe@example.com';
-$writer->insertOne($record);
-$writer->insertAll([$record]);
+$str = 'john,doe,john.doe@example.com';
+$writer->insertOne($str);
+$writer->insertAll([$str]);
 
 ~~~
 
@@ -56,9 +56,10 @@ After:
 use League\Csv\Writer;
 
 $writer = Writer::createFromFileObject(new SplTempFileObject());
-$record = 'john,doe,john.doe@example.com';
-$writer->insertOne(str_fgetcsv($record));
-$writer->insertAll([str_fgetcsv($record)]);
+$str = 'john,doe,john.doe@example.com';
+$record = str_getcsv($str, ',', '"', '\\');
+$writer->insertOne($record);
+$writer->insertAll(str_getcsv([$record]);
 ~~~
 
 ### Reduced method chaining
@@ -73,10 +74,11 @@ Before:
 use League\Csv\Writer;
 
 $writer = Writer::createFromFileObject(new SplTempFileObject());
-$record = ['john','doe','john.doe@example.com'];
+$record = ['john', 'doe', 'john.doe@example.com'];
 $writer
 	->insertOne($record)
 	->insertAll([$record])
+    ->insertOne($record)
 ;
 ~~~
 
@@ -91,6 +93,7 @@ $writer = Writer::createFromFileObject(new SplTempFileObject());
 $record = ['john','doe','john.doe@example.com'];
 $writer->insertOne($record);
 $writer->insertAll([$record]);
+$writer->insertOne($record);
 ~~~
 
 ### Removed methods
@@ -204,6 +207,49 @@ $stmt = (new Statement())
 ;
 $records = $stmt->process($reader);
 foreach ($records as $record) {
+    // do something here
+}
+~~~
+
+### Reader::fetchPairsWithoutDuplicates is removed
+
+The `Reader::fetchPairsWithoutDuplicates` is removed as the `RecordSet` class already exposes the `fetchPairs` method.
+
+Before:
+
+~~~php
+<?php
+
+use League\Csv\Reader;
+
+$reader = Reader::createFromPath('/path/to/file.csv');
+$pairs_without_duplicates = $reader
+    ->setOffset(3)
+    ->setLimit(2)
+    ->fetchfetchPairsWithoutDuplicates()
+;
+
+foreach ($pairs_without_duplicates as $key => $value) {
+    // do something here
+}
+~~~
+
+After:
+
+~~~php
+<?php
+
+use League\Csv\Reader;
+use League\Csv\Statement;
+
+$reader = Reader::createFromPath('/path/to/file.csv');
+$stmt = (new Statement())
+    ->offset(3)
+    ->limit(2)
+;
+$records = $stmt->process($reader);
+$pairs_without_duplicates = iterator_to_array($records->fetchPairs(), true);
+foreach ($pairs_without_duplicates as $record) {
     // do something here
 }
 ~~~
@@ -339,7 +385,7 @@ $csv->addStreamFilter('string.toupper');
 //the insertion order has changed
 ~~~
 
-PHP Stream filters are removed once the `Writer` object is freed.
+PHP Stream filters are removed once the CSV object is freed.
 
 Before:
 
@@ -370,11 +416,12 @@ $csv = null;
 
 ### Conversion methods
 
-All converting methods are no longer attached to the `Reader` or the `Writer` classes you need a `RecordSet` object to have access to them.
+All convertion methods are no longer attached to the `Reader` or the `Writer` classes you need a `RecordSet` object to have access to them. The following methods are removed
 
 - `AbstractCsv::jsonSerialize`
 - `AbstractCsv::toHTML`
 - `AbstractCsv::toXML`
+
 
 Before:
 
