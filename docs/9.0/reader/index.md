@@ -172,7 +172,7 @@ foreach ($reader as $offset => $record) {
 public Reader::select(Statement $stmt): RecordSet
 ~~~
 
-This method uses a using a [Statement](/reader/statement/) object to process the `Reader` object. The found records are returned as a [RecordSet](/9.0/reader/records) object.
+This method uses a [Statement](/reader/statement/) object to process the `Reader` object. The found records are returned as a [RecordSet](/9.0/reader/records) object.
 
 ### Example
 

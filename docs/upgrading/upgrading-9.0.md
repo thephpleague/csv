@@ -143,7 +143,12 @@ foreach ($reader as $record) {
 
 ### Selecting records methods
 
-All extracting and methods are no longer attached to the `Reader` class instead they are expose using the `RecordSet` object.
+The following methods are no longer attached to the `Reader` class instead they are expose using the `RecordSet` object. They also no longer accept an optional callable as argument.
+
+- `Reader::fetchAll`
+- `Reader::fetchColumn`
+- `Reader::fetchPairs`
+- `Reader::fetchOne`
 
 Before:
 
@@ -169,9 +174,9 @@ $records = (new Statement())->process($reader);
 $records->fetchAll();
 ~~~
 
-### Reader::fetch is removed
+### Reader::fetch and Reader:each are removed
 
-The `Reader::fetch` is removed as the `RecordSet` class implements the `IteratorAggregate` interface.
+`Reader::fetch` and `Reader:each` are removed as the `RecordSet` class implements the `IteratorAggregate` interface.
 
 Before:
 
@@ -181,10 +186,15 @@ Before:
 use League\Csv\Reader;
 
 $reader = Reader::createFromPath('/path/to/file.csv');
+
+$func = function (array $record) {
+    return array_map('strtoupper', $record);
+};
+
 $records = $reader
     ->setOffset(3)
     ->setLimit(2)
-    ->fetch()
+    ->fetch($func)
 ;
 
 foreach ($records as $record) {
@@ -207,6 +217,7 @@ $stmt = (new Statement())
 ;
 $records = $stmt->process($reader);
 foreach ($records as $record) {
+    $res = array_map('strtoupper', $record);
     // do something here
 }
 ~~~

@@ -175,14 +175,14 @@ This method processes a [Reader](/9.0/reader/) object and returns the found reco
 use League\Csv\Reader;
 use League\Csv\Statement;
 
-function filterByEmail($row)
+function filterByEmail(array $record): bool
 {
-    return filter_var($row[2], FILTER_VALIDATE_EMAIL);
+    return (bool) filter_var($record[2], FILTER_VALIDATE_EMAIL);
 }
 
-function sortByLastName($rowA, $rowB)
+function sortByLastName(array $recordA, array $recordB): int
 {
-    return strcmp($rowB[1], $rowA[1]);
+    return strcmp($recordB[1], $recordA[1]);
 }
 
 $reader = Reader::createFromPath('/path/to/file.csv');
@@ -195,11 +195,7 @@ $stmt = (new Statement())
     ->columns(['firstname', 'lastname', 'email'])
 ;
 
-$recordsA = $stmt->process($reader);
-//$recordsA is a League\Csv\RecordSet object
-$recordsB = $reader->select($stmt);
-//$recordsB is a League\Csv\RecordSet object
-var_dump($recordsA == $recordB) // returns true
+$records = $stmt->process($reader);
 ~~~
 
 <p class="message-info"><strong>Tips:</strong> this method is equivalent of <a href="/9.0/reader/#selecting-csv-records">Reader::select</a>.</p>
