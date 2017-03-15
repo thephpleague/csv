@@ -193,13 +193,13 @@ class Statement
         if (!empty($this->columns)) {
             $columns_alias = $this->filterColumnAgainstCsvHeader($columns);
             $columns = array_values($columns_alias);
-            $combine = function (array $row) use ($columns_alias): array {
-                $record = [];
+            $combine = function (array $record) use ($columns_alias): array {
+                $res = [];
                 foreach ($columns_alias as $key => $alias) {
-                    $record[$alias] = $row[$key] ?? null;
+                    $res[$alias] = $record[$key] ?? null;
                 }
 
-                return $record;
+                return $res;
             };
         }
 
@@ -284,14 +284,13 @@ class Statement
         }
 
         $compare = function (array $record_a, array $record_b): int {
-            $res = 0;
             foreach ($this->order_by as $callable) {
-                if (0 !== ($res = $callable($record_a, $record_b))) {
-                    break;
+                if (0 !== ($cmp = $callable($record_a, $record_b))) {
+                    return $cmp;
                 }
             }
 
-            return $res;
+            return $cmp ?? 0;
         };
 
         $iterator = new ArrayIterator(iterator_to_array($iterator, true));

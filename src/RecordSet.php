@@ -125,8 +125,27 @@ class RecordSet implements JsonSerializable, IteratorAggregate, Countable
      */
     public function getIterator(): Generator
     {
-        foreach ($this->iterator as $key => $value) {
-            $this->preserve_offset ? yield $key => $value : yield $value;
+        return $this->iteratorToGenerator($this->iterator, $this->preserve_offset);
+    }
+
+    /**
+     * Return the generator depending on the preserveOffset setting
+     *
+     * @param Iterator $iterator
+     *
+     * @return Generator
+     */
+    protected function iteratorToGenerator(Iterator $iterator, bool $preserve_offset): Generator
+    {
+        if ($preserve_offset) {
+            foreach ($iterator as $offset => $value) {
+                yield $offset => $value;
+            }
+            return;
+        }
+
+        foreach ($iterator as $value) {
+            yield $value;
         }
     }
 
@@ -163,16 +182,16 @@ class RecordSet implements JsonSerializable, IteratorAggregate, Countable
             return mb_convert_encoding((string) $value, 'UTF-8', $this->conversion_input_encoding);
         };
 
-        $convert_row = function (array $row) use ($convert_cell): array {
+        $convert_record = function (array $record) use ($convert_cell): array {
             $res = [];
-            foreach ($row as $key => $value) {
+            foreach ($record as $key => $value) {
                 $res[$convert_cell($key)] = $convert_cell($value);
             }
 
             return $res;
         };
 
-        return new MapIterator($iterator, $convert_row);
+        return new MapIterator($iterator, $convert_record);
     }
 
     /**
@@ -310,18 +329,17 @@ class RecordSet implements JsonSerializable, IteratorAggregate, Countable
     public function fetchColumn($index = 0): Generator
     {
         $offset = $this->getColumnIndex($index, __METHOD__.': the column index `%s` value is invalid');
-        $filter = function (array $row) use ($offset): bool {
-            return isset($row[$offset]);
+        $filter = function (array $record) use ($offset): bool {
+            return isset($record[$offset]);
         };
 
-        $select = function (array $row) use ($offset): string {
-            return $row[$offset];
+        $select = function (array $record) use ($offset): string {
+            return $record[$offset];
         };
 
         $iterator = new MapIterator(new CallbackFilterIterator($this->iterator, $filter), $select);
-        foreach ($iterator as $key => $value) {
-            $this->preserve_offset ? yield $key => $value : yield $value;
-        }
+
+        return $this->iteratorToGenerator($iterator, $this->preserve_offset);
     }
 
     /**

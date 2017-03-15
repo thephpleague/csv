@@ -181,16 +181,16 @@ class Reader extends AbstractCsv implements IteratorAggregate
 
         $header = $this->filterColumnNames($header);
         $header_count = count($header);
-        $iterator = new CallbackFilterIterator($iterator, function (array $row, int $offset): bool {
+        $iterator = new CallbackFilterIterator($iterator, function (array $record, int $offset): bool {
             return $offset != $this->header_offset;
         });
 
-        $mapper = function (array $row) use ($header_count, $header): array {
-            if ($header_count != count($row)) {
-                $row = array_slice(array_pad($row, $header_count, null), 0, $header_count);
+        $mapper = function (array $record) use ($header_count, $header): array {
+            if ($header_count != count($record)) {
+                $record = array_slice(array_pad($record, $header_count, null), 0, $header_count);
             }
 
-            return array_combine($header, $row);
+            return array_combine($header, $record);
         };
 
         return new MapIterator($iterator, $mapper);
@@ -211,12 +211,12 @@ class Reader extends AbstractCsv implements IteratorAggregate
         }
 
         $bom_length = mb_strlen($bom);
-        $mapper = function (array $row, int $index) use ($bom_length): array {
+        $mapper = function (array $record, int $index) use ($bom_length): array {
             if (0 != $index) {
-                return $row;
+                return $record;
             }
 
-            return $this->removeBOM($row, $bom_length, $this->enclosure);
+            return $this->removeBOM($record, $bom_length, $this->enclosure);
         };
 
         return new MapIterator($iterator, $mapper);

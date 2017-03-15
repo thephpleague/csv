@@ -55,6 +55,7 @@ class RecordSetTest extends TestCase
     {
         $records = $this->stmt->limit(1)->process($this->csv);
         $this->assertCount(1, $records);
+        $records->preserveOffset(true);
         $this->assertSame(iterator_to_array($records, false), $records->fetchAll());
     }
 
@@ -176,8 +177,9 @@ class RecordSetTest extends TestCase
     public function testFetchColumnWithColumnIndex()
     {
         $keys = ['firstname', 'lastname', 'email'];
-        $res = $this->stmt->columns($keys)->process($this->csv)->fetchColumn(0);
-        $this->assertSame(['john', 'jane'], iterator_to_array($res, false));
+        $records = $this->stmt->columns($keys)->process($this->csv);
+        $records->preserveOffset(true);
+        $this->assertSame(['john', 'jane'], iterator_to_array($records->fetchColumn(0), false));
     }
 
     /**
