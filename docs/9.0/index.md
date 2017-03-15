@@ -115,6 +115,7 @@ When importing csv files, you don't know whether the file is encoded with `UTF-8
 ~~~php
 <?php
 
+use League\Csv\BOM;
 use League\Csv\Reader;
 
 $reader = Reader::createFromPath('/path/to/your/csv/file.csv');
@@ -122,7 +123,7 @@ $reader->setHeaderOffset(0);
 
 $input_bom = $reader->getInputBOM();
 
-if ($input_bom === Reader::BOM_UTF16_LE || $input_bom === Reader::BOM_UTF16_BE) {
+if ($input_bom === BOM::UTF16_LE || $input_bom === BOM::UTF16_BE) {
     $reader->addStreamFilter('convert.iconv.UTF-16/UTF-8');
 }
 

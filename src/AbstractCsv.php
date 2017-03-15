@@ -22,49 +22,13 @@ use SplFileObject;
  *  An abstract class to enable basic CSV manipulation
  *
  * @package League.csv
- * @since  4.0.0
+ * @since   4.0.0
  * @author  Ignace Nyamagana Butera <nyamsprod@gmail.com>
  *
  */
 abstract class AbstractCsv
 {
     use ValidatorTrait;
-
-    /**
-     *  UTF-8 BOM sequence
-     */
-    const BOM_UTF8 = "\xEF\xBB\xBF";
-
-    /**
-     * UTF-16 BE BOM sequence
-     */
-    const BOM_UTF16_BE = "\xFE\xFF";
-
-    /**
-     * UTF-16 LE BOM sequence
-     */
-    const BOM_UTF16_LE = "\xFF\xFE";
-
-    /**
-     * UTF-32 BE BOM sequence
-     */
-    const BOM_UTF32_BE = "\x00\x00\xFE\xFF";
-
-    /**
-     * UTF-32 LE BOM sequence
-     */
-    const BOM_UTF32_LE = "\xFF\xFE\x00\x00";
-
-    /**
-     * BOM sequences list
-     */
-    const BOM_SEQUENCES = [
-        self::BOM_UTF32_BE,
-        self::BOM_UTF32_LE,
-        self::BOM_UTF16_BE,
-        self::BOM_UTF16_LE,
-        self::BOM_UTF8,
-    ];
 
     /**
      * The CSV document
@@ -251,19 +215,11 @@ abstract class AbstractCsv
      */
     public function getInputBOM(): string
     {
-        if (null !== $this->input_bom) {
-            return $this->input_bom;
+        if (null === $this->input_bom) {
+            $this->document->setFlags(SplFileObject::READ_CSV);
+            $this->document->rewind();
+            $this->input_bom = BOM::match($this->document->fgets());
         }
-
-        $this->document->setFlags(SplFileObject::READ_CSV);
-        $this->document->rewind();
-        $line = $this->document->fgets();
-        $filter = function ($sequence) use ($line): bool {
-            return strpos($line, $sequence) === 0;
-        };
-
-        $res = array_filter(self::BOM_SEQUENCES, $filter);
-        $this->input_bom = (string) array_shift($res);
 
         return $this->input_bom;
     }

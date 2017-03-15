@@ -6,6 +6,7 @@ All Notable changes to `Csv` will be documented in this file
 
 ### Added
 
+- `League\Csv\BOM`
 - `League\Csv\Statement`
 - `League\Csv\RecordSet`
 - `League\Csv\Exception\CsvException`
@@ -33,6 +34,11 @@ All Notable changes to `Csv` will be documented in this file
 
 - PHP5 support
 - `examples` directory
+- `League\Csv\AbstractCsv::BOM_UTF8`
+- `League\Csv\AbstractCsv::BOM_UTF16_BE`
+- `League\Csv\AbstractCsv::BOM_UTF16_LE`
+- `League\Csv\AbstractCsv::BOM_UTF32_BE`
+- `League\Csv\AbstractCsv::BOM_UTF32_LE`
 - `League\Csv\AbstractCsv::jsonSerialize`
 - `League\Csv\AbstractCsv::toHTML`
 - `League\Csv\AbstractCsv::toXML`

@@ -331,6 +331,33 @@ $records = $stmt->process($reader)->fetchAll();
 
 ## Miscellanous
 
+### BOM handling
+
+The BOM sequence constants are now attached to a `BOM` enum like class
+
+Before:
+
+~~~php
+<?php
+
+use League\Csv\Reader;
+
+$csv = Reader::createFromPath('/path/to/file.csv');
+$csv->setOutputBOM(Reader::BOM_UTF16_LE);
+~~~
+
+After:
+
+~~~php
+<?php
+
+use League\Csv\BOM;
+use League\Csv\Reader;
+
+$csv = Reader::createFromPath('/path/to/file.csv');
+$csv->setOutputBOM(BOM::UTF16_LE);
+~~~
+
 ### Stream Filtering
 
 To detect if a PHP stream filters are supported you neet to call `AbstractCsv::supportsStreamFilter`
