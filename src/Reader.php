@@ -87,29 +87,50 @@ class Reader extends AbstractCsv implements IteratorAggregate
      * a valid delimiter and each value the number of occurences
      *
      * @param string[] $delimiters the delimiters to consider
-     * @param int      $nb_rows    Detection is made using $nb_rows of the CSV
+     * @param int      $nb_records Detection is made using $nb_records of the CSV
      *
      * @return array
      */
-    public function fetchDelimitersOccurrence(array $delimiters, int $nb_rows = 1): array
+    public function fetchDelimitersOccurrence(array $delimiters, int $nb_records = 1): array
     {
-        $nb_rows = $this->filterInteger($nb_rows, 1, __METHOD__.': the number of rows to consider must be a valid positive integer');
-        $filter_row = function ($row): bool {
-            return is_array($row) && count($row) > 1;
-        };
-        $delimiters = array_unique(array_filter($delimiters, function ($value): bool {
+        $filter = function ($value): bool {
             return 1 == strlen($value);
-        }));
-        $this->document->setFlags(SplFileObject::READ_CSV);
-        $res = [];
-        foreach ($delimiters as $delim) {
-            $this->document->setCsvControl($delim, $this->enclosure, $this->escape);
-            $iterator = new CallbackFilterIterator(new LimitIterator($this->document, 0, $nb_rows), $filter_row);
-            $res[$delim] = count(iterator_to_array($iterator, false), COUNT_RECURSIVE);
-        }
+        };
+
+        $nb_records = $this->filterInteger($nb_records, 1, __METHOD__.': the number of rows to consider must be a valid positive integer');
+        $delimiters = array_unique(array_filter($delimiters, $filter));
+        $reducer = function (array $res, string $delimiter) use ($nb_records): array {
+            $res[$delimiter] = $this->getCellCount($delimiter, $nb_records);
+
+            return $res;
+        };
+
+        $res = array_reduce($delimiters, $reducer, []);
         arsort($res, SORT_NUMERIC);
 
         return $res;
+    }
+
+    /**
+     * Returns the cell count for a specified delimiter
+     * and a specified number of records
+     *
+     * @param string $delimiter  CSV delimiter
+     * @param int    $nb_records CSV records to consider
+     *
+     * @return int
+     */
+    protected function getCellCount(string $delimiter, int $nb_records)
+    {
+        $filter = function ($row): bool {
+            return is_array($row) && count($row) > 1;
+        };
+
+        $this->document->setFlags(SplFileObject::READ_CSV);
+        $this->document->setCsvControl($delimiter, $this->enclosure, $this->escape);
+        $iterator = new CallbackFilterIterator(new LimitIterator($this->document, 0, $nb_records), $filter);
+
+        return count(iterator_to_array($iterator, false), COUNT_RECURSIVE);
     }
 
     /**
