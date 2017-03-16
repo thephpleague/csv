@@ -16,11 +16,9 @@ namespace League\Csv;
 
 use CallbackFilterIterator;
 use Countable;
-use DOMDocument;
 use Generator;
 use Iterator;
 use IteratorAggregate;
-use JsonSerializable;
 use League\Csv\Exception\InvalidArgumentException;
 use League\Csv\Exception\RuntimeException;
 use LimitIterator;
@@ -33,7 +31,7 @@ use LimitIterator;
  * @author  Ignace Nyamagana Butera <nyamsprod@gmail.com>
  *
  */
-class RecordSet implements JsonSerializable, IteratorAggregate, Countable
+class RecordSet implements IteratorAggregate, Countable
 {
     use ValidatorTrait;
 
@@ -50,15 +48,6 @@ class RecordSet implements JsonSerializable, IteratorAggregate, Countable
      * @var array
      */
     protected $column_names = [];
-
-    /**
-     * Charset Encoding for the CSV
-     *
-     * This information is used when converting the CSV to XML or JSON
-     *
-     * @var string
-     */
-    protected $conversion_input_encoding = 'UTF-8';
 
     /**
      * Tell whether the CSV document offset
@@ -110,16 +99,6 @@ class RecordSet implements JsonSerializable, IteratorAggregate, Countable
     }
 
     /**
-     * Returns the conversion input encoding
-     *
-     * @return string
-     */
-    public function getConversionInputEncoding(): string
-    {
-        return $this->conversion_input_encoding;
-    }
-
-    /**
      * @inheritdoc
      */
     public function getIterator(): Generator
@@ -154,92 +133,6 @@ class RecordSet implements JsonSerializable, IteratorAggregate, Countable
     public function count(): int
     {
         return iterator_count($this->iterator);
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function jsonSerialize(): array
-    {
-        return iterator_to_array($this->convertToUtf8($this->iterator), $this->preserve_offset);
-    }
-
-    /**
-     * Convert Csv file into UTF-8
-     *
-     * @param Iterator $iterator
-     *
-     * @return Iterator
-     */
-    protected function convertToUtf8(Iterator $iterator): Iterator
-    {
-        if (stripos($this->conversion_input_encoding, 'UTF-8') !== false) {
-            return $iterator;
-        }
-
-        $walker = function (&$value, &$offset) {
-            $value = mb_convert_encoding((string) $value, 'UTF-8', $this->conversion_input_encoding);
-            $offset = mb_convert_encoding((string) $offset, 'UTF-8', $this->conversion_input_encoding);
-        };
-
-        $convert = function (array $record) use ($walker): array {
-            array_walk($record, $walker);
-
-            return $record;
-        };
-
-        return new MapIterator($iterator, $convert);
-    }
-
-    /**
-     * Returns a HTML table representation of the CSV Table
-     *
-     * @param string $class_attr  optional classname
-     * @param string $column_attr column attribute name
-     * @param string $offset_attr offset attribute name
-     *
-     * @return string
-     */
-    public function toHTML(
-        string $class_attr = 'table-csv-data',
-        string $column_attr = 'title',
-        string $offset_attr = 'data-record-offset'
-    ): string {
-        $doc = $this->toXML('table', 'tr', 'td', $column_attr, $offset_attr);
-        $doc->documentElement->setAttribute('class', $class_attr);
-
-        return $doc->saveHTML($doc->documentElement);
-    }
-
-    /**
-     * Transforms a CSV into a XML
-     *
-     * @param string $root_name   XML root node name
-     * @param string $record_name XML row node name
-     * @param string $cell_name   XML cell node name
-     * @param string $column_attr XML column attribute name
-     * @param string $offset_attr XML offset attribute name
-     *
-     * @return DOMDocument
-     */
-    public function toXML(
-        string $root_name = 'csv',
-        string $record_name = 'row',
-        string $cell_name = 'cell',
-        string $column_attr = 'name',
-        string $offset_attr = 'offset'
-    ): DOMDocument {
-        $encoder = (new XMLEncoder())
-            ->rootName($root_name)
-            ->recordName($record_name)
-            ->itemName($cell_name)
-            ->columnAttributeName($column_attr)
-            ->offsetAttributeName($offset_attr)
-            ->preserveItemOffset(!empty($this->column_names))
-            ->preserveRecordOffset($this->preserve_offset)
-        ;
-
-        return $encoder->encode($this->convertToUtf8($this->iterator));
     }
 
     /**
@@ -360,28 +253,6 @@ class RecordSet implements JsonSerializable, IteratorAggregate, Countable
         foreach ($iterator as $pair) {
             yield $pair[0] => $pair[1];
         }
-    }
-
-    /**
-     * Sets the CSV encoding charset
-     *
-     * @param string $str
-     *
-     * @throws InvalidArgumentException if the charset is empty
-     *
-     * @return static
-     */
-    public function setConversionInputEncoding(string $str): self
-    {
-        $str = str_replace('_', '-', $str);
-        $str = filter_var($str, FILTER_SANITIZE_STRING, ['flags' => FILTER_FLAG_STRIP_LOW | FILTER_FLAG_STRIP_HIGH]);
-        $str = trim($str);
-        if ('' === $str) {
-            throw new InvalidArgumentException('you should use a valid charset');
-        }
-        $this->conversion_input_encoding = strtoupper($str);
-
-        return $this;
     }
 
     /**

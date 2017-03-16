@@ -19,7 +19,7 @@ use League\Csv\Exception\OutOfRangeException;
 use Traversable;
 
 /**
- *  An abstract class to enable basic CSV manipulation
+ *  A trait to validate properties
  *
  * @package  League.csv
  * @since    9.0.0
@@ -103,5 +103,27 @@ trait ValidatorTrait
         }
 
         throw new InvalidArgumentException(sprintf('Argument 1 passed to %s must be iterable, %s given', $method, is_object($iterable) ? get_class($iterable) : gettype($iterable)));
+    }
+
+    /**
+     * Filter XML element name
+     *
+     * @param string $value  Element name
+     * @param string $type   Element type
+     * @param string $method Method call
+     *
+     * @throws InvalidArgumentException If the Element name is empty
+     *
+     * @return string
+     */
+    protected function filterElementName(string $value, string $type, string $method): string
+    {
+        $value = filter_var($value, FILTER_SANITIZE_STRING, ['flags' => FILTER_FLAG_STRIP_LOW | FILTER_FLAG_STRIP_HIGH]);
+        $value = trim($value);
+        if ('' !== $value) {
+            return $value;
+        }
+
+        throw new InvalidArgumentException(sprintf('%s: %s must be a non empty string', $method, $type));
     }
 }

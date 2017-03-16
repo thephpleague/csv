@@ -17,6 +17,11 @@
         Reader Connection: '/9.0/reader/'
         Constraint Builder: '/9.0/reader/statement/'
         Records Collection: '/9.0/reader/records/'
+    Converting Records:
+        Overview: '/9.0/converter/'
+        Json Converter: '/9.0/converter/json/'
+        XML Converter: '/9.0/converter/xml/'
+        HTML Converter: '/9.0/converter/html/'
     Upgrading Guide:
         Introduction: '/upgrading/'
         Changelog: '/changelog/'

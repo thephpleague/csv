@@ -2,7 +2,6 @@
 
 namespace LeagueTest\Csv;
 
-use DOMDocument;
 use League\Csv\BOM;
 use League\Csv\Exception\CsvException;
 use League\Csv\Exception\InvalidArgumentException;
@@ -58,28 +57,6 @@ class RecordSetTest extends TestCase
         $this->assertCount(1, $records);
         $records->preserveOffset(true);
         $this->assertSame(iterator_to_array($records, false), $records->fetchAll());
-    }
-
-    public function testToHTML()
-    {
-        $this->assertContains('<table', $this->stmt->process($this->csv)->toHTML());
-    }
-
-    public function testAddHeaderToHTMLExport()
-    {
-        $this->csv->setHeaderOffset(0);
-        $records = $this->stmt->process($this->csv);
-        $this->assertContains('<td title="john">jane</td>', $records->toHTML());
-        $this->csv->setHeaderOffset(null);
-        $this->assertContains('<td>jane</td>', $this->stmt->process($this->csv)->toHTML());
-        $records->preserveOffset(true);
-        $this->assertContains('<tr data-record-offset="', $records->toHTML());
-    }
-
-    public function testToXML()
-    {
-        $this->csv->setHeaderOffset(0);
-        $this->assertInstanceOf(DOMDocument::class, $this->stmt->process($this->csv)->toXML());
     }
 
     public function testStatementSameInstance()
@@ -503,32 +480,9 @@ class RecordSetTest extends TestCase
         }
     }
 
-    /**
-     * @param $rawCsv
-     *
-     * @dataProvider getIso8859Csv
-     */
-    public function testJsonSerializeAffectedByReaderOptions($rawCsv)
-    {
-        $csv = Reader::createFromString($rawCsv);
-        $records = $this->stmt->offset(799)->limit(50)->process($csv);
-        $this->assertSame('UTF-8', $records->getConversionInputEncoding());
-        $records->setConversionInputEncoding('iso-8859-15');
-        $this->assertSame('ISO-8859-15', $records->getConversionInputEncoding());
-
-        json_encode($records);
-        $this->assertEquals(JSON_ERROR_NONE, json_last_error());
-    }
-
     public static function getIso8859Csv()
     {
         return [[file_get_contents(__DIR__.'/data/prenoms.csv')]];
-    }
-
-    public function testEncodingTriggersException()
-    {
-        $this->expectException(InvalidArgumentException::class);
-        $this->stmt->process($this->csv)->setConversionInputEncoding('');
     }
 
     public function testGetHeader()

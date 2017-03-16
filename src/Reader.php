@@ -145,8 +145,8 @@ class Reader extends AbstractCsv implements IteratorAggregate
         $normalized = function ($row): bool {
             return is_array($row) && $row != [null];
         };
-        $iterator = new CallbackFilterIterator($this->document, $normalized);
-        $iterator = $this->combineHeader($iterator, $header);
+
+        $iterator = $this->combineHeader(new CallbackFilterIterator($this->document, $normalized), $header);
 
         return $this->stripBOM($iterator, $bom);
     }

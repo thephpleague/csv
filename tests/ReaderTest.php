@@ -4,7 +4,6 @@ namespace LeagueTest\Csv;
 
 use League\Csv\Exception\OutOfRangeException;
 use League\Csv\Reader;
-use League\Csv\RecordSet;
 use League\Csv\Statement;
 use PHPUnit\Framework\TestCase;
 use SplTempFileObject;
@@ -17,7 +16,7 @@ class ReaderTest extends TestCase
     private $csv;
 
     private $expected = [
-        ['john', 'doe', 'john.doe@example.com'],
+        ['john', 'doe', 'john.doe@example.com', '0123456789'],
         ['jane', 'doe', 'jane.doe@example.com'],
     ];
 
@@ -36,6 +35,14 @@ class ReaderTest extends TestCase
         $this->csv = null;
     }
 
+    public function testGetIterator()
+    {
+        $this->csv->setHeaderOffset(0);
+        foreach ($this->csv as $record) {
+            $this->assertCount(4, $record);
+        }
+    }
+
     public function testGetHeader()
     {
         $this->csv->setHeaderOffset(1);
@@ -48,7 +55,8 @@ class ReaderTest extends TestCase
 
     public function testSelect()
     {
-        $this->assertInstanceOf(RecordSet::class, $this->csv->select(new Statement()));
+        $stmt = new Statement();
+        $this->assertEquals($stmt->process($this->csv), $this->csv->select($stmt));
     }
 
     public function testCreateFromFileObjectPreserveFileObjectCsvControls()

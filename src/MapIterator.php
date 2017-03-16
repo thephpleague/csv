@@ -29,7 +29,7 @@ use Traversable;
 class MapIterator extends IteratorIterator
 {
     /**
-     * The function to be apply on all InnerIterator element
+     * The callback to apply on all InnerIterator current value
      *
      * @var callable
      */
@@ -48,7 +48,7 @@ class MapIterator extends IteratorIterator
     }
 
     /**
-     * Get the value of the current element
+     * @inheritdoc
      */
     public function current()
     {

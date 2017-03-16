@@ -9,30 +9,13 @@ title: Accessing Records from a CSV document
 <?php
 public RecordSet::count(): int
 public RecordSet::isOffsetPreserved(): bool
-public RecordSet::getConversionInputEncoding(): string
 public RecordSet::getColumnNames(): array
 public RecordSet::getIterator(): Generator
 public RecordSet::fetchAll(): array
 public RecordSet::fetchOne(int $offset = 0): array
 public RecordSet::fetchPairs(string|int $offsetIndex = 0, string|int $valueIndex = 1): Generator
 public RecordSet::fetchColumn(string|int $columnIndex = 0): Generator
-public RecordSet::jsonSerialize(): array
-public RecordSet::toXML(
-    string $root_name = 'csv',
-    string $row_name = 'row',
-    string $cell_name = 'cell',
-    string $column_attr = 'name',
-    string $offset_attr = 'offset',
-): DOMDocument
-public RecordSet::toHTML(
-    string $class_attr = 'table-csv-data',
-    string $column_attr = 'title',
-    string $offset_attr = 'data-record-offset'
-): string
 public RecordSet::preserveOffset(bool $status): RecordSet
-public RecordSet::setConversionInputEncoding(string $charset): RecordSet
-
-
 ~~~
 
 The `League\Csv\RecordSet` is a class which manipulates a collection of CSV document records. This object is returned from [Reader::select](/9.0/reader/#selecting-csv-records) or [Statement::process](/9.0/reader/statement/#apply-the-constraints-to-a-csv-document) execution.
@@ -116,9 +99,7 @@ $records->getColumnNames(); // returns ['firstname', 'lastname', 'email'];
 <?php
 
 public RecordSet::isOffsetPreserved(): bool
-public RecordSet::getConversionInputEncoding(): string
 public RecordSet::preserveOffset(bool $status): RecordSet
-public RecordSet::setConversionInputEncoding(string $charset): RecordSet
 ~~~
 
 `RecordSet::preserveOffset` indicates if the `RecordSet` must keep the original CSV document records offset or can re-index them. When the `$status` is `true`, the original CSV document record offset will be preserve and output in methods where it makes sense.
@@ -126,14 +107,6 @@ public RecordSet::setConversionInputEncoding(string $charset): RecordSet
 At any given time you can tell whether the CSV document offset is kept by calling `RecordSet::isOffsetPreserved` which returns a boolean.
 
 <p class="message-notice">By default, the <code>RecordSet</code> object does not preserve the original offset.</p>
-
-`RecordSet::setConversionInputEncoding` performs a charset conversion so that the records are all in `UTF-8` prior to converting the collection into XML or JSON. Without this step, errors may occurs while converting your data.
-
-At any given time you can retrive the current conversion input encoding charset by calling `RecordSet::getConversionInputEncoding`.
-
-<p class="message-notice">By default, the <code>RecordSet</code> object expect your records to be in <code>UTF-8</code>.</p>
-
-<p class="message-info"><strong>Tips:</strong> if the <code>Reader</code> supports stream filtering, use <a href="/9.0/connections/filters/">Reader::addStreamFilter</a> instead to perform this charset conversion.</p>
 
 ## Iterating over the collection
 
@@ -401,99 +374,3 @@ foreach ((new Statement())->process($reader)->fetchPairs() as $firstname => $las
 - If no `$valueIndex` is provided it default to `1`;
 - If no cell is found corresponding to `$offsetIndex` the row is skipped;
 - If no cell is found corresponding to `$valueIndex` the `null` value is used;
-
-## Converting the collection into JSON/XML/HTML
-
-To convert your the `RecordSet` collection into JSON, XML and HTML formats your records collection must be `UTF-8` encoded.
-
-- If your `Reader` object supports PHP stream filters then it's recommended to use the library stream filtering mechanism to convert your data.
-
-- Otherwise you can fallback to using the `RecordSet::setConversionInputEncoding` method.
-
-<p class="message-warning">If your CSV is not <code>UTF-8</code> encoded some unexpected results or errors may be thrown when trying to convert your data.</p>
-
-~~~php
-<?php
-
-public RecordSet::jsonSerialize(): array
-
-public RecordSet::toXML(
-    string $root_name = 'csv',
-    string $row_name = 'row',
-    string $cell_name = 'cell',
-    string $column_attr = 'name',
-    string $offset_attr = 'offset',
-): DOMDocument
-
-public RecordSet::toHTML(
-    string $class_attr = 'table-csv-data',
-    string $column_attr = 'title',
-    string $offset_attr = 'data-record-offset'
-): string
-~~~
-
-- `RecordSet` implements the `JsonSerializable` interface. As such you can use the `json_encode` function directly on the instantiated object.
-- `RecordSet::toXML` converts the `RecordSet` into a `DomDocument` object.
-- `RecordSet::toHTML` converts the `RecordSet` into an HTML table.
-
-The `RecordSet::toXML` method accepts five (5) optionals arguments to help you customize your XML tree:
-
-- `$root_name`, the XML root name which defaults to `csv`;
-- `$row_name`, the XML node element representing a CSV row which defaults to `row`;
-- `$cell_name`, the XML node element for each CSV cell which defaults value is `cell`;
-- `$column_attr`, the XML node element attribute for each CSV cell if a header was prodived which defaults value is `name`;
-- `$offset_attr`, the XML node element attribute for each CSV record if the offset must be preserved which defaults value is `offset`;
-
-
-The `RecordSet::toHTML` method accepts three (3) optional arguments:
-
-- `$class_attr` to help you customize the table rendering. By defaut the classname given to the table is `table-csv-data`.
-- `$column_attr`, the attribute attach to each `<td>` to indicate the column name if it is provided. The default value is `title`;
-- `$offset_attr`, the attribute attach to each `<tr>` to indicate the CSV document original offset index. The default value is `data-record-offset`
-
-<p class="message-notice">The <code>$column_attr</code> argument from <code>RecordSet::toXML</code> and <code>RecordSet::toHTML</code> will only appear if the <code>RecordSet::getColumnNames</code> returns an non empty <code>array</code>.</p>
-
-<p class="message-notice">The <code>$offset_attr</code> argument from <code>RecordSet::toXML</code> and <code>RecordSet::toHTML</code> will only appear in the converted document if the <code>RecordSet::preserveOffset</code> status is <code>true</code>.</p>
-
-~~~php
-<?php
-
-use League\Csv\Statement;
-use League\Csv\Reader;
-
-$csv = Reader::createFromPath('/path/to/prenoms.csv')
-    ->setDelimiter(';')
-    ->setHeaderOffset(0)
-    ->addStreamFilter('convert.iconv.ISO-8859-1/UTF-8')
-;
-
-$stmt = (new Statement())
-    ->where(function (array $record) {
-        return 'Anaïs' === $record['prenoms'];
-    })
-    ->offset(0)
-    ->limit(2)
-;
-
-$records = $stmt->process($csv);
-$records->preserveOffset(true);
-$dom = $records->toXML('csv', 'record', 'field');
-$dom->formatOutput = true;
-echo '<pre>', PHP_EOL;
-echo htmlentities($dom->saveXML());
-// <?xml version="1.0" encoding="UTF-8"?>
-// <csv>
-//   <record offset="71">
-//     <field name="prenoms">Anaïs</field>
-//     <field name="nombre">137</field>
-//     <field name="sexe">F</field>
-//     <field name="annee">2004</field>
-//   </record>
-//   <record offset="1099">
-//     <field name="prenoms">Anaïs</field>
-//     <field name="nombre">124</field>
-//     <field name="sexe">F</field>
-//     <field name="annee">2005</field>
-//   </record>
-// </csv>
-~~~

@@ -454,12 +454,11 @@ $csv = null;
 
 ### Conversion methods
 
-All convertion methods are no longer attached to the `Reader` or the `Writer` classes you need a `RecordSet` object to have access to them. The following methods are removed
+All convertion methods are no longer attached to the `Reader` or the `Writer` classes you need a [Converter](/9.0/reader/converter/) object to convert your CSV. The following methods are removed
 
 - `AbstractCsv::jsonSerialize`
 - `AbstractCsv::toHTML`
 - `AbstractCsv::toXML`
-
 
 Before:
 
@@ -469,7 +468,7 @@ Before:
 use League\Csv\Writer;
 
 $csv = Writer::createFromPath('/path/to/file.csv');
-$records = $csv->toXML();
+$dom = $csv->toXML(); //$dom is a DOMDocument
 ~~~
 
 After:
@@ -477,11 +476,11 @@ After:
 ~~~php
 <?php
 
+use League\Csv\XMLConverter;
 use League\Csv\Reader;
-use League\Csv\Statement;
 
 $csv = Reader::createFromPath('/path/to/file.csv');
-$records = (new Statement())->process($csv)->toXML();
+$dom = (new XMLConverter())->convert($csv); //$dom is a DOMDocument
 ~~~
 
 ### Switching between connections
