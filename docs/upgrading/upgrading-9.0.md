@@ -333,7 +333,7 @@ $records = $stmt->process($reader)->fetchAll();
 
 ### BOM handling
 
-The BOM sequence constants are now attached to a `BOM` enum like class
+The BOM sequence constants are now attached to a `BOM` interface
 
 Before:
 

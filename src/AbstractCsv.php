@@ -17,6 +17,7 @@ namespace League\Csv;
 use League\Csv\Exception\LogicException;
 use League\Csv\Exception\RuntimeException;
 use SplFileObject;
+use function League\Csv\bom_match;
 
 /**
  *  An abstract class to enable basic CSV manipulation
@@ -218,7 +219,7 @@ abstract class AbstractCsv
         if (null === $this->input_bom) {
             $this->document->setFlags(SplFileObject::READ_CSV);
             $this->document->rewind();
-            $this->input_bom = BOM::match($this->document->fgets());
+            $this->input_bom = bom_match($this->document->fgets());
         }
 
         return $this->input_bom;

@@ -16,6 +16,7 @@ namespace League\Csv;
 
 use League\Csv\Exception\InvalidArgumentException;
 use League\Csv\Exception\OutOfRangeException;
+use Traversable;
 
 /**
  *  An abstract class to enable basic CSV manipulation
@@ -83,5 +84,24 @@ trait ValidatorTrait
         }
 
         throw new InvalidArgumentException('Use a flat array with unique string values');
+    }
+
+    /**
+     * Validate the argument given is an iterable
+     *
+     * @param array|Traversable $iterable
+     * @param string            $method
+     *
+     * @throws InvalidArgumentException If the submitted value is not iterable
+     *
+     * @return array|Traversable
+     */
+    protected function filterIterable($iterable, string $method)
+    {
+        if (is_array($iterable) || $iterable instanceof Traversable) {
+            return $iterable;
+        }
+
+        throw new InvalidArgumentException(sprintf('Argument 1 passed to %s must be iterable, %s given', $method, is_object($iterable) ? get_class($iterable) : gettype($iterable)));
     }
 }

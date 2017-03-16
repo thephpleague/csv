@@ -189,19 +189,20 @@ class Statement
      */
     protected function buildColumns(array $columns): array
     {
-        $combine = null;
-        if (!empty($this->columns)) {
-            $columns_alias = $this->filterColumnAgainstCsvHeader($columns);
-            $columns = array_values($columns_alias);
-            $combine = function (array $record) use ($columns_alias): array {
-                $res = [];
-                foreach ($columns_alias as $key => $alias) {
-                    $res[$alias] = $record[$key] ?? null;
-                }
-
-                return $res;
-            };
+        if (empty($this->columns)) {
+            return [$columns, null];
         }
+
+        $columns_alias = $this->filterColumnAgainstCsvHeader($columns);
+        $columns = array_values($columns_alias);
+        $combine = function (array $record) use ($columns_alias): array {
+            $res = [];
+            foreach ($columns_alias as $key => $alias) {
+                $res[$alias] = $record[$key] ?? null;
+            }
+
+            return $res;
+        };
 
         return [$columns, $combine];
     }
@@ -224,7 +225,7 @@ class Statement
                 return $this->columns;
             }
 
-            throw new RuntimeException('If no header is specified the columns keys must contain only integer');
+            throw new RuntimeException('If no header is specified the columns keys must contain only positive integer or 0');
         }
 
         $columns = $this->formatColumns($this->columns);

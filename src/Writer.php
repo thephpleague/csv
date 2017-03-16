@@ -101,12 +101,8 @@ class Writer extends AbstractCsv
      */
     public function insertAll($records): int
     {
-        if (!is_array($records) && !$records instanceof Traversable) {
-            throw new InvalidArgumentException(sprintf('Argument 1 passed to %s must be iterable, %s given', __METHOD__, is_object($records) ? get_class($records) : gettype($records)));
-        }
-
         $bytes = 0;
-        foreach ($records as $record) {
+        foreach ($this->filterIterable($records, __METHOD__) as $record) {
             $bytes += $this->insertOne($record);
         }
 

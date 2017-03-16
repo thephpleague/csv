@@ -14,8 +14,8 @@ declare(strict_types=1);
 
 namespace League\Csv;
 
-use Iterator;
 use IteratorIterator;
+use Traversable;
 
 /**
  *  A simple MapIterator
@@ -33,15 +33,15 @@ class MapIterator extends IteratorIterator
      *
      * @var callable
      */
-    private $callable;
+    protected $callable;
 
     /**
      * The Constructor
      *
-     * @param Iterator $iterator
-     * @param callable $callable
+     * @param Traversable $iterator
+     * @param callable    $callable
      */
-    public function __construct(Iterator $iterator, callable $callable)
+    public function __construct(Traversable $iterator, callable $callable)
     {
         parent::__construct($iterator);
         $this->callable = $callable;
@@ -52,8 +52,6 @@ class MapIterator extends IteratorIterator
      */
     public function current()
     {
-        $iterator = $this->getInnerIterator();
-
-        return ($this->callable)($iterator->current(), $iterator->key());
+        return ($this->callable)(parent::current(), $this->key());
     }
 }

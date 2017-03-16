@@ -9,6 +9,9 @@ All Notable changes to `Csv` will be documented in this file
 - `League\Csv\BOM`
 - `League\Csv\Statement`
 - `League\Csv\RecordSet`
+- `League\Csv\XMLEncoder`
+- `League\Csv\is_bom` function
+- `League\Csv\bom_match` function
 - `League\Csv\Exception\CsvException`
 - `League\Csv\Exception\InsertionException`
 - `League\Csv\Exception\InvalidArgumentException`

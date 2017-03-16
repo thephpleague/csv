@@ -17,7 +17,6 @@ namespace League\Csv;
 use CallbackFilterIterator;
 use Countable;
 use DOMDocument;
-use DOMElement;
 use Generator;
 use Iterator;
 use IteratorAggregate;
@@ -178,20 +177,18 @@ class RecordSet implements JsonSerializable, IteratorAggregate, Countable
             return $iterator;
         }
 
-        $convert_cell = function ($value) : string {
-            return mb_convert_encoding((string) $value, 'UTF-8', $this->conversion_input_encoding);
+        $walker = function (&$value, &$offset) {
+            $value = mb_convert_encoding((string) $value, 'UTF-8', $this->conversion_input_encoding);
+            $offset = mb_convert_encoding((string) $offset, 'UTF-8', $this->conversion_input_encoding);
         };
 
-        $convert_record = function (array $record) use ($convert_cell): array {
-            $res = [];
-            foreach ($record as $key => $value) {
-                $res[$convert_cell($key)] = $convert_cell($value);
-            }
+        $convert = function (array $record) use ($walker): array {
+            array_walk($record, $walker);
 
-            return $res;
+            return $record;
         };
 
-        return new MapIterator($iterator, $convert_record);
+        return new MapIterator($iterator, $convert);
     }
 
     /**
@@ -218,7 +215,7 @@ class RecordSet implements JsonSerializable, IteratorAggregate, Countable
      * Transforms a CSV into a XML
      *
      * @param string $root_name   XML root node name
-     * @param string $row_name    XML row node name
+     * @param string $record_name XML row node name
      * @param string $cell_name   XML cell node name
      * @param string $column_attr XML column attribute name
      * @param string $offset_attr XML offset attribute name
@@ -227,66 +224,22 @@ class RecordSet implements JsonSerializable, IteratorAggregate, Countable
      */
     public function toXML(
         string $root_name = 'csv',
-        string $row_name = 'row',
+        string $record_name = 'row',
         string $cell_name = 'cell',
         string $column_attr = 'name',
         string $offset_attr = 'offset'
     ): DOMDocument {
-        $doc = new DOMDocument('1.0', 'UTF-8');
-        $root = $doc->createElement($root_name);
-        foreach ($this->convertToUtf8($this->iterator) as $offset => $row) {
-            $root->appendChild($this->toDOMNode(
-                $doc,
-                $row,
-                $offset,
-                $row_name,
-                $cell_name,
-                $column_attr,
-                $offset_attr
-            ));
-        }
-        $doc->appendChild($root);
+        $encoder = (new XMLEncoder())
+            ->rootName($root_name)
+            ->recordName($record_name)
+            ->itemName($cell_name)
+            ->columnAttributeName($column_attr)
+            ->offsetAttributeName($offset_attr)
+            ->preserveItemOffset(!empty($this->column_names))
+            ->preserveRecordOffset($this->preserve_offset)
+        ;
 
-        return $doc;
-    }
-
-    /**
-     * convert a Record into a DOMNode
-     *
-     * @param DOMDocument $doc         The DOMDocument
-     * @param array       $row         The CSV record
-     * @param int         $offset      The CSV record offset
-     * @param string      $row_name    XML row node name
-     * @param string      $cell_name   XML cell node name
-     * @param string      $column_attr XML header attribute name
-     * @param string      $offset_attr XML offset attribute name
-     *
-     * @return DOMElement
-     */
-    protected function toDOMNode(
-        DOMDocument $doc,
-        array $row,
-        int $offset,
-        string $row_name,
-        string $cell_name,
-        string $column_attr,
-        string $offset_attr
-    ): DOMElement {
-        $rowElement = $doc->createElement($row_name);
-        if ($this->preserve_offset) {
-            $rowElement->setAttribute($offset_attr, (string) $offset);
-        }
-        foreach ($row as $name => $value) {
-            $content = $doc->createTextNode($value);
-            $cell = $doc->createElement($cell_name);
-            if (!empty($this->column_names)) {
-                $cell->setAttribute($column_attr, $name);
-            }
-            $cell->appendChild($content);
-            $rowElement->appendChild($cell);
-        }
-
-        return $rowElement;
+        return $encoder->encode($this->convertToUtf8($this->iterator));
     }
 
     /**

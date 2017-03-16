@@ -14,8 +14,6 @@ declare(strict_types=1);
 
 namespace League\Csv;
 
-use ReflectionClass;
-
 /**
  *  Defines constants for common BOM sequences
  *
@@ -24,7 +22,7 @@ use ReflectionClass;
  * @author  Ignace Nyamagana Butera <nyamsprod@gmail.com>
  *
  */
-final class BOM
+interface BOM
 {
     /**
      *  UTF-8 BOM sequence
@@ -50,50 +48,4 @@ final class BOM
      * UTF-32 LE BOM sequence
      */
     const UTF32_LE = "\xFF\xFE\x00\x00";
-
-    /**
-     * Returns all possible BOM sequences as an array
-     *
-     * @return string[]
-     */
-    private static function toArray(): array
-    {
-        static $cache;
-
-        $cache = $cache ?? (new ReflectionClass(BOM::class))->getConstants();
-
-        return $cache;
-    }
-
-    /**
-     * Returns the BOM sequence found at the start of the string
-     *
-     * If no valid BOM sequence is found an empty string is returned
-     *
-     * @param string $str
-     *
-     * @return string
-     */
-    public static function match(string $str): string
-    {
-        foreach (self::toArray() as $sequence) {
-            if (0 === strpos($str, $sequence)) {
-                return $sequence;
-            }
-        }
-
-        return '';
-    }
-
-    /**
-     * Tell whether the submitted sequence is a valid BOM sequence
-     *
-     * @param string $sequence
-     *
-     * @return bool
-     */
-    public static function isValid(string $sequence): bool
-    {
-        return in_array($sequence, self::toArray(), true);
-    }
 }
