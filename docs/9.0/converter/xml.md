@@ -1,36 +1,56 @@
 ---
 layout: default
-title: Records conversion in popular formats
+title: Converting a CSV into a XML DOMDocument object
 ---
 
 # XML conversion
 
-This converter converts a CSV records collection into a PHP `DOMDocument`.
+`XMLConverter` converts a CSV records collection into a PHP `DOMDocument` by implementing the [Converter interface](/9.0/converter/#converter-interface) and using the [inputEncoding method](/9.0/converter/#records-input-encoding).
 
 ## Settings
+
+### XMLConverter::rootElement
 
 ~~~php
 <?php
 
 public XMLConverter::rootElement(string $node_name): self
-public XMLConverter::recordElement(string $node_name, string $offset_attribute_name = ''): self
-public XMLConverter::fieldElement(string $node_name, string $field_attribute_name = ''): self
 ~~~
 
-`XMLConverter::rootElement` sets the XML root name which defaults to `csv`.
+This method sets the XML root name which defaults to `csv`.
 
-`XMLConverter::recordElement` sets the XML record name which defaults to `row`. Optionnally you can preserve the record offset by providing a name for the its attribute on the XML record element using the `$offset_attribute_name` argument. If this argument is empty or not provided, the offset attribute information won't be added. By default, the attribute is not provided.
+### XMLConverter::recordElement
 
-`XMLConverter::fieldElement` sets the XML field name which defaults to `cell`. Optionnally you can preserve the field name by providing a name for the its attribute on the XML field element using the `$field_attribute_name` argument. If this argument is empty or not provided, the field name information won't be added. By default, the attribute is not provided.
+~~~php
+<?php
 
-## Convertion
+public XMLConverter::recordElement(string $node_name, string $record_offset_attribute_name = ''): self
+~~~
+
+This method sets the XML record name which defaults to `row`.
+
+Optionnally you can preserve the record offset by providing a name for its attribute on the XML record element using the `$record_offset_attribute_name` argument. If this argument is empty, the offset attribute information won't be added. By default, the attribute is not provided.
+
+### XMLConverter::fieldElement
+
+~~~php
+<?php
+
+public XMLConverter::fieldElement(string $node_name, string $fieldname_attribute_name = ''): self
+~~~
+
+This method sets the XML field name which defaults to `cell`.
+
+Optionnally you can preserve the field name by providing a name for its attribute on the XML field element using the `$fieldname_attribute_name` argument. If this argument is empty, the fieldname information won't be added. By default, the attribute is not provided.
+
+## Conversion
 
 ~~~php
 <?php
 public XMLConverter::convert(iterable $records): DOMDocument
 ~~~
 
-All convertion methods only accepts an `iterable` which represents the records collection.
+The `XMLConverter::convert` accepts an `iterable` which represents the records collection and returns a `DOMDocument` object.
 
 ~~~php
 <?php

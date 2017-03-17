@@ -100,7 +100,7 @@ class JsonConverter implements Converter
             $records = array_values($records);
         }
 
-        $json = json_encode($records, $this->options, $this->depth);
+        $json = @json_encode($records, $this->options, $this->depth);
         if (JSON_ERROR_NONE === json_last_error()) {
             return $json;
         }

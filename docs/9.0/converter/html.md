@@ -1,36 +1,50 @@
 ---
 layout: default
-title: Records conversion in popular formats
+title: Converting a CSV into an HTML table
 ---
 
 # HTML conversion
 
-This converter convert a CSV records collection into an HTML table.
+`HTMLConverter` converts a CSV records collection into a HTML Table by implementing the [Converter interface](/9.0/converter/#converter-interface) and using the [inputEncoding method](/9.0/converter/#records-input-encoding).
+
 
 ## Settings
+
+### HTMLConverter::className
 
 ~~~php
 <?php
 public HTMLConverter::className(string $class_name): self
-public HTMLConverter::recordOffsetAttribute(string $attribute_name): self
-public HTMlConverter::fieldAttributeName(string $attribute_name): self
 ~~~
 
+This method sets the optional table `class` attribute name. If none is uses it will default to `table-csv-data`.
 
-- `HTMLConverter::className` sets the optional table `class` attribute name. If none is uses it will default to `table-csv-data`;
-
-- `HTMLConverter::recordOffsetAttributeName` sets the optional attribute name for the record offset on the HTML `tr` tag. If none is use or an empty string is given, the record offset information won't be exported to the HTML table;
-
-- `HTMLConverter::fieldAttributeName` sets the optional attribute name for the field name on the HTML `td` tag. If none is use or an empty string is given, the field name information won't be exported to the HTML table;
-
-## Convertion
+### HTMLConverter::recordOffsetAttributeName
 
 ~~~php
 <?php
-public HTMlConverter::convert(iterable $records): string
+public HTMLConverter::recordOffsetAttribute(string $attribute_name): self
 ~~~
 
-All convertion methods only accepts an `iterable` which represents the records collection.
+This method sets the optional attribute name for the record offset on the HTML `tr` tag. If none is use or an empty string is given, the record offset information won't be exported to the HTML table
+
+### HTMLConverter::fieldAttributeName
+
+~~~php
+<?php
+public HTMLConverter::fieldAttributeName(string $attribute_name): self
+~~~
+
+This method sets the optional attribute name for the field name on the HTML `td` tag. If none is use or an empty string is given, the field name information won't be exported to the HTML table;
+
+## Conversion
+
+~~~php
+<?php
+public HTMLConverter::convert(iterable $records): string
+~~~
+
+The `HTMLConverter::convert` accepts an `iterable` which represents the records collection and returns a string.
 
 ~~~php
 <?php

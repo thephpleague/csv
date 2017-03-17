@@ -1,32 +1,42 @@
 ---
 layout: default
-title: Records conversion in popular formats
+title: Converting a CSV into a JSON string
 ---
 
 # JSON conversion
 
-This converter convert a CSV records collection into a JSON string using PHP's `json_encode` function.
+`JsonConverter` converts a CSV records collection into a JSON string by implementing the [Converter interface](/9.0/converter/#converter-interface) and using the [inputEncoding method](/9.0/converter/#records-input-encoding).
 
 ## Settings
 
+### JsonConverter::preserveRecordOffset
+
 ~~~php
 <?php
+
 public JsonConverter::preserveRecordOffset(bool $preserve_offset): self
+~~~
+
+This method tells whether the converter should keep or not the CSV record offset in the JSON output. By default, record offsets are not preserved.
+
+### JsonConverter::options
+
+~~~php
+<?php
+
 public JsonConverter::options(int options = 0, int $depth = 512): self
 ~~~
 
+This method sets PHP's `json_encode` optional arguments.
 
-- `JsonConverter::preserveRecordOffset` tells whether the converter should keep or not the CSV record offset in the JSON output. By default, the record offset are not preserved.
-
-- `JsonConverter::options` sets PHP's `json_encode` optional arguments.
-
-
-## Convertion
+## Conversion
 
 ~~~php
 <?php
 public JsonConverter::convert(iterable $records): string
 ~~~
+
+The `JsonConverter::convert` accepts an `iterable` which represents the records collection and returns a string.
 
 If a error occurs during the convertion an `RuntimeException` exception is thrown with additional information regarding the error.
 
@@ -34,14 +44,34 @@ If a error occurs during the convertion an `RuntimeException` exception is throw
 <?php
 
 use League\Csv\JsonConverter;
+use League\Csv\Reader;
 
-$csv = new SplFileObject('/path/to/french.csv', 'r');
-$csv->setFlags(SplFileObject::READ_CSV | SplFileObject::SKIP_EMPTY);
+$csv = Reader::createFromPath('/path/to/file.csv', 'r')
+   ->setHeaderOffset(0)
+;
 
 $json = (new JsonConverter())
     ->options(JSON_PRETTY_PRINT)
     ->convert($csv)
 ;
-//may trigger an error if for instance the
-//CSV collection is not in a UTF-8 encoding
+
+echo '<pre>', $json, PHP_EOL;
+// [
+//     {
+//         "firstname": "john",
+//         "lastname": "doe",
+//         "email": "john.doe@example.com"
+//     },
+//     {
+//         "firstname": "jane",
+//         "lastname": "doe",
+//         "email": "jane.doe@example.com"
+//     },
+//     ...
+//     {
+//         "firstname": "san",
+//         "lastname": "goku",
+//         "email": "san.goku@dragon-ball.super"
+//     }
+// ]
 ~~~
