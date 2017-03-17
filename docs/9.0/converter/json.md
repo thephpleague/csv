@@ -28,7 +28,7 @@ public JsonConverter::convert(iterable $records): string
 
 The `JsonConverter::convert` accepts an `iterable` which represents the records collection and returns a string.
 
-If a error occurs during the convertion an `RuntimeException` exception is thrown with additional information regarding the error.
+<p class="message-warning">If a error occurs during the convertion an <code>RuntimeException</code> exception is thrown with additional information regarding the error.</p>
 
 ~~~php
 <?php

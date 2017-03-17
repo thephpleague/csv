@@ -9,6 +9,10 @@ title: Converting a CSV into a XML DOMDocument object
 
 ## Settings
 
+Prior to converting your records collection into XML, you may wish to configure the element and its associated attribute names. To do so `XMLConverter` provides methods to setup theses settings.
+
+<p class="message-warning">Because we are setting <code>DOMDocument</code> properties, if an error occurs while validating the submitted values a <code>DOMException</code> exception will be thrown.</p>
+
 ### XMLConverter::rootElement
 
 ~~~php

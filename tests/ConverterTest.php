@@ -3,6 +3,7 @@
 namespace LeagueTest\Csv;
 
 use DOMDocument;
+use DOMException;
 use League\Csv\Exception\InvalidArgumentException;
 use League\Csv\Exception\RuntimeException;
 use League\Csv\HTMLConverter;
@@ -80,7 +81,7 @@ class ConverterTest extends TestCase
 
     public function testXmlElementTriggersException()
     {
-        $this->expectException(InvalidArgumentException::class);
+        $this->expectException(DOMException::class);
         (new XMLConverter())->rootElement('   ');
     }
 

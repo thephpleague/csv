@@ -49,11 +49,16 @@ trait ConverterTrait
      */
     public function inputEncoding(string $input_encoding): self
     {
-        $input_encoding = $this->filterElementName($input_encoding, 'input_encoding', __METHOD__);
-        $clone = clone $this;
-        $clone->input_encoding = strtoupper(str_replace('_', '-', $input_encoding));
+        $input_encoding = strtoupper(str_replace('_', '-', $input_encoding));
+        $test = filter_var($input_encoding, FILTER_SANITIZE_STRING, FILTER_FLAG_STRIP_LOW | FILTER_FLAG_STRIP_HIGH);
+        if ($test === $input_encoding && $input_encoding != '') {
+            $clone = clone $this;
+            $clone->input_encoding = $input_encoding;
 
-        return $clone;
+            return $clone;
+        }
+
+        throw new InvalidArgumentException('Invalid Character Error');
     }
 
     /**

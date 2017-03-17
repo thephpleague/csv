@@ -10,6 +10,10 @@ title: Converting a CSV into an HTML table
 
 ## Settings
 
+Prior to converting your records collection into a HTML table, you may wish to configure optional information to improve your table rendering.
+
+<p class="message-warning">Because we are using internally the <a href="/9.0/converter/xml/">XMLConverter</a>, if an error occurs while validating the submitted values a <code>DOMException</code> exception will be thrown.</p>
+
 ### HTMLConverter::className
 
 ~~~php

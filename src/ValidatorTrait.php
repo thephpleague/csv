@@ -14,6 +14,9 @@ declare(strict_types=1);
 
 namespace League\Csv;
 
+use DOMAttr;
+use DOMElement;
+use DOMException;
 use League\Csv\Exception\InvalidArgumentException;
 use League\Csv\Exception\OutOfRangeException;
 use Traversable;
@@ -108,22 +111,36 @@ trait ValidatorTrait
     /**
      * Filter XML element name
      *
-     * @param string $value  Element name
-     * @param string $type   Element type
-     * @param string $method Method call
+     * @param string $value Element name
      *
-     * @throws InvalidArgumentException If the Element name is empty
+     * @throws DOMException If the Element name is invalid
      *
      * @return string
      */
-    protected function filterElementName(string $value, string $type, string $method): string
+    protected function filterNodeName(string $value): string
     {
-        $value = filter_var($value, FILTER_SANITIZE_STRING, ['flags' => FILTER_FLAG_STRIP_LOW | FILTER_FLAG_STRIP_HIGH]);
-        $value = trim($value);
-        if ('' !== $value) {
+        new DOMElement($value);
+
+        return $value;
+    }
+
+    /**
+     * Filter XML attribute name
+     *
+     * @param string $value Element name
+     *
+     * @throws DOMException If the Element attribute name is invalid
+     *
+     * @return string
+     */
+    protected function filterAttributeName(string $value): string
+    {
+        if ('' === $value) {
             return $value;
         }
 
-        throw new InvalidArgumentException(sprintf('%s: %s must be a non empty string', $method, $type));
+        new DOMAttr($value);
+
+        return $value;
     }
 }

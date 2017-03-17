@@ -14,7 +14,6 @@ declare(strict_types=1);
 
 namespace League\Csv;
 
-use DOMDocument;
 use Traversable;
 
 /**
@@ -62,9 +61,7 @@ class HTMLConverter implements Converter
     public function className(string $class_name): self
     {
         $clone = clone $this;
-        $clone->class_name = trim(filter_var($class_name, FILTER_SANITIZE_STRING, [
-            'flags' => FILTER_FLAG_STRIP_LOW | FILTER_FLAG_STRIP_HIGH,
-        ]));
+        $clone->class_name = $class_name;
 
         return $clone;
     }
@@ -76,7 +73,7 @@ class HTMLConverter implements Converter
      *
      * @return self
      */
-    public function fieldAttributeName(string $attribute_name)
+    public function fieldAttributeName(string $attribute_name): self
     {
         $clone = clone $this;
         $clone->xml_converter = $this->xml_converter->fieldElement('td', $attribute_name);
@@ -91,7 +88,7 @@ class HTMLConverter implements Converter
      *
      * @return self
      */
-    public function recordOffsetAttributeName(string $attribute_name)
+    public function recordOffsetAttributeName(string $attribute_name): self
     {
         $clone = clone $this;
         $clone->xml_converter = $this->xml_converter->recordElement('tr', $attribute_name);
@@ -104,7 +101,7 @@ class HTMLConverter implements Converter
      *
      * @param array|Traversable $records the CSV records collection
      *
-     * @return DOMDocument
+     * @return string
      */
     public function convert($records)
     {

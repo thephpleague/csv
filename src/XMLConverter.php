@@ -83,29 +83,41 @@ class XMLConverter implements Converter
     public function rootElement(string $node_name): self
     {
         $clone = clone $this;
-        $clone->root_name = $this->filterElementName($node_name, 'root_name', __METHOD__);
+        $clone->root_name = $this->filterNodeName($node_name);
 
         return $clone;
     }
 
-    public function recordElement(string $node_name, string $offset_attribute = ''): self
+    /**
+     * XML Record element setter
+     *
+     * @param string $node_name
+     * @param string $record_offset_attribute_name
+     *
+     * @return self
+     */
+    public function recordElement(string $node_name, string $record_offset_attribute_name = ''): self
     {
         $clone = clone $this;
-        $clone->record_name = $this->filterElementName($node_name, 'record_name', __METHOD__);
-        $clone->offset_attr = trim(filter_var($offset_attribute, FILTER_SANITIZE_STRING, [
-            'flags' => FILTER_FLAG_STRIP_LOW | FILTER_FLAG_STRIP_HIGH,
-        ]));
+        $clone->record_name = $this->filterNodeName($node_name);
+        $clone->offset_attr = $this->filterAttributeName($record_offset_attribute_name);
 
         return $clone;
     }
 
-    public function fieldElement(string $node_name, string $fieldname_attribute = '')
+    /**
+     * XML Field element setter
+     *
+     * @param string $node_name
+     * @param string $fieldname_attribute_name
+     *
+     * @return self
+     */
+    public function fieldElement(string $node_name, string $fieldname_attribute_name = ''): self
     {
         $clone = clone $this;
-        $clone->field_name = $this->filterElementName($node_name, 'field_name', __METHOD__);
-        $clone->column_attr = trim(filter_var($fieldname_attribute, FILTER_SANITIZE_STRING, [
-            'flags' => FILTER_FLAG_STRIP_LOW | FILTER_FLAG_STRIP_HIGH,
-        ]));
+        $clone->field_name = $this->filterNodeName($node_name);
+        $clone->column_attr = $this->filterAttributeName($fieldname_attribute_name);
 
         return $clone;
     }
@@ -144,8 +156,12 @@ class XMLConverter implements Converter
      *
      * @return DOMElement
      */
-    protected function recordToElementWithAttribute(DOMDocument $doc, array $record, string $field_encoder, int $offset): DOMElement
-    {
+    protected function recordToElementWithAttribute(
+        DOMDocument $doc,
+        array $record,
+        string $field_encoder,
+        int $offset
+    ): DOMElement {
         $node = $this->recordToElement($doc, $record, $field_encoder);
         $node->setAttribute($this->offset_attr, (string) $offset);
 
