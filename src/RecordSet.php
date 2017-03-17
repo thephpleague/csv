@@ -93,7 +93,7 @@ class RecordSet implements IteratorAggregate, Countable
      *
      * @return bool
      */
-    public function isOffsetPreserved(): bool
+    public function isRecordOffsetPreserved(): bool
     {
         return $this->preserve_offset;
     }
@@ -107,7 +107,7 @@ class RecordSet implements IteratorAggregate, Countable
     }
 
     /**
-     * Return the generator depending on the preserveOffset setting
+     * Return the generator depending on the preserveRecordOffset setting
      *
      * @param Iterator $iterator
      *
@@ -265,7 +265,7 @@ class RecordSet implements IteratorAggregate, Countable
      *
      * @return static
      */
-    public function preserveOffset(bool $status)
+    public function preserveRecordOffset(bool $status)
     {
         $this->preserve_offset = $status;
 

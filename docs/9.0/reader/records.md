@@ -8,14 +8,14 @@ title: Accessing Records from a CSV document
 ~~~php
 <?php
 public RecordSet::count(): int
-public RecordSet::isOffsetPreserved(): bool
+public RecordSet::isRecordOffsetPreserved(): bool
 public RecordSet::getColumnNames(): array
 public RecordSet::getIterator(): Generator
 public RecordSet::fetchAll(): array
 public RecordSet::fetchOne(int $offset = 0): array
 public RecordSet::fetchPairs(string|int $offsetIndex = 0, string|int $valueIndex = 1): Generator
 public RecordSet::fetchColumn(string|int $columnIndex = 0): Generator
-public RecordSet::preserveOffset(bool $status): RecordSet
+public RecordSet::preserveRecordOffset(bool $status): RecordSet
 ~~~
 
 The `League\Csv\RecordSet` is a class which manipulates a collection of CSV document records. This object is returned from [Reader::select](/9.0/reader/#selecting-csv-records) or [Statement::process](/9.0/reader/statement/#apply-the-constraints-to-a-csv-document) execution.
@@ -98,13 +98,13 @@ $records->getColumnNames(); // returns ['firstname', 'lastname', 'email'];
 ~~~php
 <?php
 
-public RecordSet::isOffsetPreserved(): bool
-public RecordSet::preserveOffset(bool $status): RecordSet
+public RecordSet::isRecordOffsetPreserved(): bool
+public RecordSet::preserveRecordOffset(bool $status): RecordSet
 ~~~
 
-`RecordSet::preserveOffset` indicates if the `RecordSet` must keep the original CSV document records offset or can re-index them. When the `$status` is `true`, the original CSV document record offset will be preserve and output in methods where it makes sense.
+`RecordSet::preserveRecordOffset` indicates if the `RecordSet` must keep the original CSV document records offset or can re-index them. When the `$status` is `true`, the original CSV document record offset will be preserve and output in methods where it makes sense.
 
-At any given time you can tell whether the CSV document offset is kept by calling `RecordSet::isOffsetPreserved` which returns a boolean.
+At any given time you can tell whether the CSV document offset is kept by calling `RecordSet::isRecordOffsetPreserved` which returns a boolean.
 
 <p class="message-notice">By default, the <code>RecordSet</code> object does not preserve the original offset.</p>
 
@@ -139,7 +139,7 @@ foreach ($records->fetchAll() as $offset => $record) {
 
 ~~~
 
-If the `RecordSet::preserveOffset` is set to `true`, the `$offset` parameter will contains the original CSV document offset index, otherwise it will contain a numerical index starting from `0`.
+If the `RecordSet::preserveRecordOffset` is set to `true`, the `$offset` parameter will contains the original CSV document offset index, otherwise it will contain a numerical index starting from `0`.
 
 ~~~php
 <?php
@@ -152,13 +152,13 @@ $reader = Reader::createFromPath('/path/to/my/file.csv');
  //we will start iterating from the 6th record
 $stmt = (new Statement())->offset(5);
 $records = $stmt->process($reader);
-$records->isOffsetPreserved(); //returns false
+$records->isRecordOffsetPreserved(); //returns false
 foreach ($records as $offset => $record) {
     //the first iteration will give $offset equal to `0`
 }
 
-$records->preserveOffset(true); //we are preserving the original offset
-$records->isOffsetPreserved(); //returns true
+$records->preserveRecordOffset(true); //we are preserving the original offset
+$records->isRecordOffsetPreserved(); //returns true
 foreach ($records->fetchAll() as $offset => $record) {
     //the first iteration will give $offset equal to `5`
 }
@@ -226,7 +226,7 @@ $data = $stmt->proce($reader)->fetchOne(3);
 //
 ~~~
 
-<p class="message-notice">The <code>$offset</code> argument is not affected by <code>RecordSet::preserveOffset</code> status.</p>
+<p class="message-notice">The <code>$offset</code> argument is not affected by <code>RecordSet::preserveRecordOffset</code> status.</p>
 
 ## Selecting a specific column
 
@@ -264,7 +264,7 @@ foreach ($records->fetchColumn('First Name') as $offset => $value) {
 }
 ~~~
 
-If the `RecordSet::preserveOffset` is set to `true`, the `$offset` parameter will contains the original CSV document offset index, otherwise it will contain numerical index starting from`0`.
+If the `RecordSet::preserveRecordOffset` is set to `true`, the `$offset` parameter will contains the original CSV document offset index, otherwise it will contain numerical index starting from`0`.
 
 ~~~php
 <?php
@@ -277,7 +277,7 @@ $reader = Reader::createFromPath('/path/to/my/file.csv');
  //we will start iterating from the 6th record
 $stmt = (new Statement())->offset(5);
 $records = $stmt->process($reader);
-$records->preserveOffset(true);
+$records->preserveRecordOffset(true);
 foreach ($records->fetchColumn(2) as $offset => $value) {
     //$value is a string representing the value
     //of a given record for the selected column

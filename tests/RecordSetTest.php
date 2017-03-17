@@ -55,7 +55,7 @@ class RecordSetTest extends TestCase
     {
         $records = $this->stmt->limit(1)->process($this->csv);
         $this->assertCount(1, $records);
-        $records->preserveOffset(true);
+        $records->preserveRecordOffset(true);
         $this->assertSame(iterator_to_array($records, false), $records->fetchAll());
     }
 
@@ -156,7 +156,7 @@ class RecordSetTest extends TestCase
     {
         $keys = ['firstname', 'lastname', 'email'];
         $records = $this->stmt->columns($keys)->process($this->csv);
-        $records->preserveOffset(true);
+        $records->preserveRecordOffset(true);
         $this->assertSame(['john', 'jane'], iterator_to_array($records->fetchColumn(0), false));
     }
 
@@ -332,11 +332,11 @@ class RecordSetTest extends TestCase
             1 => ['parent name' => 'parentA', 'child name' => 'childA', 'title' => 'titleA'],
         ];
         $records = $this->stmt->process($csv);
-        $records->preserveOffset(false);
-        $this->assertFalse($records->isOffsetPreserved());
+        $records->preserveRecordOffset(false);
+        $this->assertFalse($records->isRecordOffsetPreserved());
         $this->assertSame($expectedNoOffset, $records->fetchAll());
-        $records->preserveOffset(true);
-        $this->assertTrue($records->isOffsetPreserved());
+        $records->preserveRecordOffset(true);
+        $this->assertTrue($records->isRecordOffsetPreserved());
         $this->assertSame($expectedWithOffset, $records->fetchAll());
     }
 
