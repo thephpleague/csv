@@ -129,3 +129,48 @@ if ($input_bom === BOM::UTF16_LE || $input_bom === BOM::UTF16_BE) {
 
 echo json_encode($reader->select(), JSON_PRETTY_PRINT), PHP_EOL;
 ~~~
+
+## Converting a CSV document into a XML document
+
+Using the provided `XMLConverter` object you can easily convert a CSV document into a DOMDocument objcet. The below example shows you how to accomplish that.
+
+~~~php
+<?php
+
+use League\Csv\XMLConverter;
+use League\Csv\Reader;
+
+$csv = Reader::createFromPath('/path/to/prenoms.csv')
+    ->setDelimiter(';')
+    ->setHeaderOffset(0)
+    ->addStreamFilter('convert.iconv.ISO-8859-1/UTF-8')
+;
+
+$converter = (new XMLConverter())
+    ->rootElement('csv')
+    ->recordElement('record', 'offset')
+    ->fieldElement('field', 'name')
+;
+
+$dom = $converter->toXML($records);
+$dom->formatOutput = true;
+
+echo '<pre>', PHP_EOL;
+echo htmlentities($dom->saveXML());
+// <?xml version="1.0" encoding="UTF-8"?>
+// <csv>
+//   <record offset="0">
+//     <field name="prenoms">Anaïs</field>
+//     <field name="nombre">137</field>
+//     <field name="sexe">F</field>
+//     <field name="annee">2004</field>
+//   </record>
+//   ...
+//   <record offset="1099">
+//     <field name="prenoms">Anaïs</field>
+//     <field name="nombre">124</field>
+//     <field name="sexe">F</field>
+//     <field name="annee">2005</field>
+//   </record>
+// </csv>
+~~~
