@@ -35,7 +35,7 @@ All convertion methods only accepts an `iterable` which represents the records c
 ~~~php
 <?php
 
-use League\Csv\Converter;
+use League\Csv\XMLConverter;
 use League\Csv\Statement;
 use League\Csv\Reader;
 
@@ -53,7 +53,7 @@ $stmt = (new Statement())
     ->limit(2)
 ;
 
-$converter = (new Converter())
+$converter = (new XMLConverter())
     ->rootElement('csv')
     ->recordElement('record', 'offset')
     ->fieldElement('field', 'name')
