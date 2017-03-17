@@ -9,22 +9,12 @@ title: Converting a CSV into a JSON string
 
 ## Settings
 
-### JsonConverter::preserveRecordOffset
-
-~~~php
-<?php
-
-public JsonConverter::preserveRecordOffset(bool $preserve_offset): self
-~~~
-
-This method tells whether the converter should keep or not the CSV record offset in the JSON output. By default, record offsets are not preserved.
-
 ### JsonConverter::options
 
 ~~~php
 <?php
 
-public JsonConverter::options(int options = 0, int $depth = 512): self
+public JsonConverter::options(int options, int $depth = 512): self
 ~~~
 
 This method sets PHP's `json_encode` optional arguments.

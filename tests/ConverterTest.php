@@ -66,11 +66,10 @@ class ConverterTest extends TestCase
         $encoder = (new JsonConverter())
             ->inputEncoding('iso-8859-15')
             ->options(JSON_HEX_QUOT)
-            ->preserveRecordOffset(true)
         ;
 
         $this->assertContains('[{', $encoder->convert($records));
-        $this->assertContains('[{', $encoder->preserveRecordOffset(false)->convert($records->fetchAll()));
+        $this->assertContains('[{', $encoder->convert($records->fetchAll()));
     }
 
     public function testEncodingTriggersException()

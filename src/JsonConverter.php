@@ -29,13 +29,6 @@ class JsonConverter implements Converter
     use ConverterTrait;
 
     /**
-     * Tell whether to preserve offset for json
-     *
-     * @var bool
-     */
-    protected $preserve_record_offset = false;
-
-    /**
      * json_encode options
      *
      * @var int
@@ -50,24 +43,6 @@ class JsonConverter implements Converter
     protected $depth = 512;
 
     /**
-     * Whether we should preserve the CSV document record offset.
-     *
-     * If set to true CSV document record offset will added to
-     * method output where it makes sense.
-     *
-     * @param bool $status
-     *
-     * @return static
-     */
-    public function preserveRecordOffset(bool $status)
-    {
-        $clone = clone $this;
-        $clone->preserve_record_offset = $status;
-
-        return $clone;
-    }
-
-    /**
      * Json encode Options
      *
      * @param int $options
@@ -75,11 +50,11 @@ class JsonConverter implements Converter
      *
      * @return self
      */
-    public function options(int $options = 0, int $depth = 512): self
+    public function options(int $options, int $depth = 512): self
     {
         $clone = clone $this;
-        $clone->options = $options;
-        $clone->depth = $depth;
+        $clone->options = $this->filterInteger($options, 0, __METHOD__.': the options must be a positive integer or 0');
+        $clone->depth = $this->filterInteger($depth, 2, __METHOD__.': the depth must be a positive integer greater or equal to 2');
 
         return $clone;
     }
@@ -95,9 +70,7 @@ class JsonConverter implements Converter
     {
         $records = $this->convertToUtf8($this->filterIterable($records, __METHOD__));
         if (!is_array($records)) {
-            $records = iterator_to_array($records, $this->preserve_record_offset);
-        } elseif (!$this->preserve_record_offset) {
-            $records = array_values($records);
+            $records = iterator_to_array($records);
         }
 
         $json = @json_encode($records, $this->options, $this->depth);
