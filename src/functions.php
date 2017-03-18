@@ -21,6 +21,8 @@ use ReflectionClass;
  *
  * If no valid BOM sequence is found an empty string is returned
  *
+ * @internal used internally to detect the BOM sequence
+ *
  * @param string $str
  *
  * @return string
@@ -42,6 +44,8 @@ function bom_match(string $str): string
 
 /**
  * Tell whether the submitted sequence is a valid BOM sequence
+ *
+ * @internal used internally to validate a BOM sequence
  *
  * @param string $sequence
  *
