@@ -14,29 +14,32 @@ Prior to converting your records collection into a HTML table, you may wish to c
 
 <p class="message-warning">Because we are using internally the <a href="/9.0/converter/xml/">XMLConverter</a>, if an error occurs while validating the submitted values a <code>DOMException</code> exception will be thrown.</p>
 
-### HTMLConverter::className
+### HTMLConverter::table
 
 ~~~php
 <?php
-public HTMLConverter::className(string $class_name): self
+public HTMLConverter::table(string $class_name, string $id_value = ''): self
 ~~~
 
-This method sets the optional table `class` attribute name. If none is uses it will default to `table-csv-data`.
+This method sets:
 
-### HTMLConverter::recordOffsetAttributeName
+- the optional table `class` attribute value, if none is uses it will default to `table-csv-data`;
+- the optional table `id` attribute value;
+
+### HTMLConverter::tr
 
 ~~~php
 <?php
-public HTMLConverter::recordOffsetAttribute(string $attribute_name): self
+public HTMLConverter::tr(string $record_offset_attribute_name): self
 ~~~
 
 This method sets the optional attribute name for the record offset on the HTML `tr` tag. If none is use or an empty string is given, the record offset information won't be exported to the HTML table
 
-### HTMLConverter::fieldAttributeName
+### HTMLConverter::td
 
 ~~~php
 <?php
-public HTMLConverter::fieldAttributeName(string $attribute_name): self
+public HTMLConverter::td(string $fieldname_attribute_name): self
 ~~~
 
 This method sets the optional attribute name for the field name on the HTML `td` tag. If none is use or an empty string is given, the field name information won't be exported to the HTML table;
@@ -61,8 +64,9 @@ $sth->setFetchMode(PDO::FETCH_ASSOC);
 $sth->execute();
 
 $converter = (new HTMLConverter())
-    ->recordOffsetAttributeName('data-record-offset')
-    ->fieldAttributeName('title')
+    ->table('table-csv-data', 'users')
+    ->tr('data-record-offset')
+    ->td('title')
 ;
 
 // The PDOStatement Object implements the Traversable Interface
@@ -72,7 +76,7 @@ $html = $converter->convert($sth);
 
 echo $html;
 
-// <table class="table-csv-data">
+// <table class="table-csv-data" id="users">
 // <tr data-record-offset="0">
 // <td title="firstname">john</td>
 // <td title="lastname">doe</td>

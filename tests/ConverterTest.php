@@ -44,10 +44,10 @@ class ConverterTest extends TestCase
     public function testToHTML()
     {
         $encoder = (new HTMLConverter())
-            ->className('table-csv-data')
+            ->table('table-csv-data')
             ->inputEncoding('iso-8859-15')
-            ->fieldAttributeName('title')
-            ->recordOffsetAttributeName('data-record-offset')
+            ->td('title')
+            ->tr('data-record-offset')
         ;
 
         $this->assertContains('<td title="', $encoder->convert($this->stmt->process($this->csv)));

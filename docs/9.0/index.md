@@ -11,7 +11,7 @@ layout: default
 [![Build Status](https://img.shields.io/travis/thephpleague/csv/master.svg?style=flat-square)](https://travis-ci.org/thephpleague/csv)
 [![Total Downloads](https://img.shields.io/packagist/dt/league/csv.svg?style=flat-square)](https://packagist.org/packages/league/csv)
 
-[CSV](https://packagist.org/packages/league/csv) is a simple library to ease CSV documents [loading](/9.0/connections) as well as [writing](/9.0/writer/) and [extracting](/9.0/reader/) CSV records in PHP.
+[CSV](https://packagist.org/packages/league/csv) is a simple library to ease CSV documents [loading](/9.0/connections/) as well as [writing](/9.0/writer/), [selecting](/9.0/reader/) and [converting](/9.0/converter/) CSV records.
 
 ## Examples
 
@@ -108,7 +108,7 @@ foreach ($csv->select($stmt) as $record) {
 }
 ~~~
 
-## Converting a UTF-16 CSV file contents to UTF-8
+### Converting a UTF-16 CSV file contents to UTF-8
 
 When importing csv files, you don't know whether the file is encoded with `UTF-8`, `UTF-16` or anything else. The below example tries to determine the encoding and convert to `UTF-8` using the iconv extension.
 
@@ -127,10 +127,12 @@ if ($input_bom === BOM::UTF16_LE || $input_bom === BOM::UTF16_BE) {
     $reader->addStreamFilter('convert.iconv.UTF-16/UTF-8');
 }
 
-echo json_encode($reader->select(), JSON_PRETTY_PRINT), PHP_EOL;
+foreach ($reader as $record) {
+    //all fields from the record are converted into UTF-8 charset
+}
 ~~~
 
-## Converting a CSV document into a XML document
+### Converting a CSV document into a XML document
 
 Using the provided `XMLConverter` object you can easily convert a CSV document into a DOMDocument objcet. The below example shows you how to accomplish that.
 

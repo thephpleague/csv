@@ -51,6 +51,7 @@ Optionnally you can preserve the field name by providing a name for its attribut
 
 ~~~php
 <?php
+
 public XMLConverter::convert(iterable $records): DOMDocument
 ~~~
 

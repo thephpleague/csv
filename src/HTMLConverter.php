@@ -28,11 +28,18 @@ class HTMLConverter implements Converter
     use ConverterTrait;
 
     /**
-     * table class name
+     * table class attribute value
      *
      * @var string
      */
     protected $class_name = 'table-csv-data';
+
+    /**
+     * table id attribute value
+     *
+     * @var string
+     */
+    protected $id_name = '';
 
     /**
      * @var XMLConverter
@@ -58,25 +65,11 @@ class HTMLConverter implements Converter
      *
      * @return self
      */
-    public function className(string $class_name): self
+    public function table(string $class_name, string $id_name = ''): self
     {
         $clone = clone $this;
         $clone->class_name = $class_name;
-
-        return $clone;
-    }
-
-    /**
-     * HTML td field name attribute setter
-     *
-     * @param string $attribute_name
-     *
-     * @return self
-     */
-    public function fieldAttributeName(string $attribute_name): self
-    {
-        $clone = clone $this;
-        $clone->xml_converter = $this->xml_converter->fieldElement('td', $attribute_name);
+        $clone->class_name = $id_name;
 
         return $clone;
     }
@@ -84,14 +77,29 @@ class HTMLConverter implements Converter
     /**
      * HTML tr record offset attribute setter
      *
-     * @param string $attribute_name
+     * @param string $record_offset_attribute_name
      *
      * @return self
      */
-    public function recordOffsetAttributeName(string $attribute_name): self
+    public function tr(string $record_offset_attribute_name): self
     {
         $clone = clone $this;
-        $clone->xml_converter = $this->xml_converter->recordElement('tr', $attribute_name);
+        $clone->xml_converter = $this->xml_converter->recordElement('tr', $record_offset_attribute_name);
+
+        return $clone;
+    }
+
+    /**
+     * HTML td field name attribute setter
+     *
+     * @param string $fieldname_attribute_name
+     *
+     * @return self
+     */
+    public function td(string $fieldname_attribute_name): self
+    {
+        $clone = clone $this;
+        $clone->xml_converter = $this->xml_converter->fieldElement('td', $fieldname_attribute_name);
 
         return $clone;
     }
@@ -106,9 +114,8 @@ class HTMLConverter implements Converter
     public function convert($records)
     {
         $doc = $this->xml_converter->inputEncoding($this->input_encoding)->convert($records);
-        if ('' !== $this->class_name) {
-            $doc->documentElement->setAttribute('class', $this->class_name);
-        }
+        $doc->documentElement->setAttribute('class', $this->class_name);
+        $doc->documentElement->setAttribute('id', $this->id_name);
 
         return $doc->saveHTML($doc->documentElement);
     }
