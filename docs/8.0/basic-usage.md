@@ -103,6 +103,22 @@ $reader = Reader::createFromPath('/path/to/my/file.csv');
 $reader->output("name-for-your-file.csv");
 ~~~
 
+#### Example 3 - using a Response object (Symfony, Laravel, PSR-7 etc)
+To avoid breaking the flow of your application, you should create a Response object when applicable in your framework. The actual implementation will differ per framework, but you should generally not ouput headers directly. 
+In some cases you can also use a Streaming Response for larger files.
+
+~~~php
+<?php
+
+use League\Csv\Reader;
+
+$reader = Reader::createFromPath('/path/to/my/file.csv');
+return new Response((string) $reader, 200, [
+	'Content-Type' => 'text/csv; charset=UTF-8',
+	'Content-Disposition' => 'attachment; filename="name-for-your-file.csv"',
+]);
+~~~
+
 #### Notes
 
 The output methods **can only be affected by:**
