@@ -27,7 +27,7 @@ use Traversable;
  */
 class XMLConverter implements Converter
 {
-    use ConverterTrait;
+    use ValidatorTrait;
 
     /**
      * XML Root name
@@ -135,8 +135,7 @@ class XMLConverter implements Converter
         $record_encoder = $this->encoder['record']['' !== $this->offset_attr];
         $doc = new DOMDocument('1.0', 'UTF-8');
         $root = $doc->createElement($this->root_name);
-        $records = $this->convertToUtf8($this->filterIterable($records, __METHOD__));
-        foreach ($records as $offset => $record) {
+        foreach ($this->filterIterable($records, __METHOD__) as $offset => $record) {
             $node = $this->{$record_encoder}($doc, $record, $field_encoder, $offset);
             $root->appendChild($node);
         }

@@ -219,7 +219,8 @@ abstract class AbstractCsv
         if (null === $this->input_bom) {
             $this->document->setFlags(SplFileObject::READ_CSV);
             $this->document->rewind();
-            $this->input_bom = bom_match($this->document->fgets());
+            $line = $this->document->fgets();
+            $this->input_bom = false === $line ? '' : bom_match($line);
         }
 
         return $this->input_bom;

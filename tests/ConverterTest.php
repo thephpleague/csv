@@ -4,6 +4,7 @@ namespace LeagueTest\Csv;
 
 use DOMDocument;
 use DOMException;
+use League\Csv\Encoder;
 use League\Csv\Exception\InvalidArgumentException;
 use League\Csv\Exception\RuntimeException;
 use League\Csv\HTMLConverter;
@@ -22,6 +23,8 @@ class ConverterTest extends TestCase
 
     private $stmt;
 
+    private $encoder;
+
     public function setUp()
     {
         $this->csv = Reader::createFromPath(__DIR__.'/data/prenoms.csv', 'r')
@@ -33,6 +36,8 @@ class ConverterTest extends TestCase
             ->offset(3)
             ->limit(5)
         ;
+
+        $this->encoder = new Encoder();
     }
 
     public function tearDown()
@@ -43,40 +48,42 @@ class ConverterTest extends TestCase
 
     public function testToHTML()
     {
-        $encoder = (new HTMLConverter())
+        $converter = (new HTMLConverter())
             ->table('table-csv-data')
-            ->inputEncoding('iso-8859-15')
             ->td('title')
             ->tr('data-record-offset')
         ;
 
-        $this->assertContains('<td title="', $encoder->convert($this->stmt->process($this->csv)));
+        $encoder = $this->encoder->inputEncoding('iso-8859-15');
+
+        $this->assertContains(
+            '<td title="',
+            $converter->convert($encoder->encodeAll($this->stmt->process($this->csv)))
+        );
     }
 
     public function testToXML()
     {
         $csv = Reader::createFromPath(__DIR__.'/data/foo.csv', 'r');
-        $encoder = (new XMLConverter())->recordElement('row', 'offset');
+        $converter = (new XMLConverter())->recordElement('row', 'offset');
 
-        $this->assertInstanceOf(DOMDocument::class, $encoder->convert($csv));
+        $this->assertInstanceOf(DOMDocument::class, $converter->convert($csv));
     }
 
     public function testToJson()
     {
-        $records = $this->stmt->process($this->csv);
-        $encoder = (new JsonConverter())
-            ->inputEncoding('iso-8859-15')
-            ->options(JSON_HEX_QUOT)
-        ;
+        $converter = (new JsonConverter())->options(JSON_HEX_QUOT);
+        $encoder = $this->encoder->inputEncoding('iso-8859-15');
 
-        $this->assertContains('[{', $encoder->convert($records));
-        $this->assertContains('[{', $encoder->convert($records->fetchAll()));
+        $records = $this->stmt->process($this->csv);
+        $this->assertContains('[{', $converter->convert($encoder->encodeAll($records)));
+        $this->assertContains('[{', $converter->convert($encoder->encodeAll($records->fetchAll())));
     }
 
     public function testEncodingTriggersException()
     {
         $this->expectException(InvalidArgumentException::class);
-        (new XMLConverter())->inputEncoding('');
+        (new Encoder())->inputEncoding('');
     }
 
     public function testXmlElementTriggersException()
@@ -89,5 +96,20 @@ class ConverterTest extends TestCase
     {
         $this->expectException(RuntimeException::class);
         (new JsonConverter())->convert($this->stmt->process($this->csv));
+    }
+
+    public function testEncoderRemainsTheSame()
+    {
+        $this->assertSame($this->encoder, $this->encoder->inputEncoding('utf-8'));
+        $this->assertSame($this->encoder, $this->encoder->outputEncoding('UtF-8'));
+        $this->assertNotEquals($this->encoder->outputEncoding('iso-8859-15'), $this->encoder);
+    }
+
+    public function testEncoderDoesNothing()
+    {
+        $expected = [['a' => 'bé']];
+        $this->assertSame($expected, $this->encoder->encodeAll($expected));
+        $this->assertSame($expected[0], ($this->encoder)($expected[0]));
+        $this->assertNotSame($expected[0], $this->encoder->outputEncoding('utf-16')->__invoke($expected[0]));
     }
 }

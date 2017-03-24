@@ -156,7 +156,7 @@ class StreamIterator implements Iterator
      * @param string $enclosure
      * @param string $escape
      *
-     * @return int|false
+     * @return int|bool
      */
     public function fputcsv(array $fields, string $delimiter = ',', string $enclosure = '"', string $escape = '\\')
     {
@@ -208,9 +208,9 @@ class StreamIterator implements Iterator
     /**
      * Retrieves the current line as a string
      *
-     * @return string
+     * @return string|bool
      */
-    protected function getCurrentLine(): string
+    protected function getCurrentLine()
     {
         do {
             $line = fgets($this->stream);
@@ -224,7 +224,7 @@ class StreamIterator implements Iterator
      *
      * @return int
      */
-    public function key(): int
+    public function key()
     {
         return $this->current_line_number;
     }
@@ -256,7 +256,7 @@ class StreamIterator implements Iterator
      *
      * @return bool
      */
-    public function valid(): bool
+    public function valid()
     {
         if ($this->flags & SplFileObject::READ_AHEAD) {
             return $this->current() !== false;
@@ -270,9 +270,9 @@ class StreamIterator implements Iterator
      *
      * @see http://php.net/manual/en/splfileobject.fgets.php
      *
-     * @return string
+     * @return string|bool
      */
-    public function fgets(): string
+    public function fgets()
     {
         if (false !== $this->current_line) {
             $this->next();
@@ -287,7 +287,7 @@ class StreamIterator implements Iterator
      *
      * @return int
      */
-    public function fpassthru(): int
+    public function fpassthru()
     {
         return fpassthru($this->stream);
     }
@@ -302,7 +302,7 @@ class StreamIterator implements Iterator
      *
      * @return int
      */
-    public function fseek(int $offset, int $whence = SEEK_SET): int
+    public function fseek(int $offset, int $whence = SEEK_SET)
     {
         return fseek($this->stream, $offset, $whence);
     }
@@ -338,9 +338,9 @@ class StreamIterator implements Iterator
      * @param string $str
      * @param int    $length
      *
-     * @return int
+     * @return int|bool
      */
-    public function fwrite(string $str, int $length = 0): int
+    public function fwrite(string $str, int $length = 0)
     {
         return fwrite($this->stream, $str, $length);
     }
@@ -384,7 +384,7 @@ class StreamIterator implements Iterator
      *
      * @return bool
      */
-    public function fflush(): bool
+    public function fflush()
     {
         return fflush($this->stream);
     }

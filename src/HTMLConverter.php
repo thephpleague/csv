@@ -25,8 +25,6 @@ use Traversable;
  */
 class HTMLConverter implements Converter
 {
-    use ConverterTrait;
-
     /**
      * table class attribute value
      *
@@ -39,7 +37,7 @@ class HTMLConverter implements Converter
      *
      * @var string
      */
-    protected $id_name = '';
+    protected $id_value = '';
 
     /**
      * @var XMLConverter
@@ -62,14 +60,15 @@ class HTMLConverter implements Converter
      * HTML table class name setter
      *
      * @param string $class_name
+     * @param string $id_value
      *
      * @return self
      */
-    public function table(string $class_name, string $id_name = ''): self
+    public function table(string $class_name, string $id_value = ''): self
     {
         $clone = clone $this;
         $clone->class_name = $class_name;
-        $clone->class_name = $id_name;
+        $clone->id_value = $id_value;
 
         return $clone;
     }
@@ -113,9 +112,9 @@ class HTMLConverter implements Converter
      */
     public function convert($records)
     {
-        $doc = $this->xml_converter->inputEncoding($this->input_encoding)->convert($records);
+        $doc = $this->xml_converter->convert($records);
         $doc->documentElement->setAttribute('class', $this->class_name);
-        $doc->documentElement->setAttribute('id', $this->id_name);
+        $doc->documentElement->setAttribute('id', $this->id_value);
 
         return $doc->saveHTML($doc->documentElement);
     }

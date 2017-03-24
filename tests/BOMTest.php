@@ -5,39 +5,12 @@ namespace LeagueTest\Csv;
 use League\Csv\BOM;
 use PHPUnit\Framework\TestCase;
 use function League\Csv\bom_match;
-use function League\Csv\is_bom;
 
 /**
  * @group csv
  */
 class BOMTest extends TestCase
 {
-    /**
-     * @dataProvider BOMValidProvider
-     */
-    public function testBOMValid($sequence, $expected)
-    {
-        $this->assertSame($expected, is_bom($sequence));
-    }
-
-    public function BOMValidProvider()
-    {
-        return [
-            'empty string' => [
-                'sequence' => '',
-                'expected' => false,
-            ],
-            'random string' => [
-                'sequence' => 'foo bar',
-                'expected' => false,
-            ],
-            'UTF8 BOM sequence' => [
-                'sequence' => chr(239).chr(187).chr(191),
-                'expected' => true,
-            ],
-        ];
-    }
-
     /**
      * @dataProvider BOMMatchProvider
      */

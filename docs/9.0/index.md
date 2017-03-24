@@ -154,7 +154,7 @@ $converter = (new XMLConverter())
     ->fieldElement('field', 'name')
 ;
 
-$dom = $converter->toXML($records);
+$dom = $converter->convert($records);
 $dom->formatOutput = true;
 
 echo '<pre>', PHP_EOL;

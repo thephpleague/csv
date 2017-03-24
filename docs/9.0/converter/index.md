@@ -18,14 +18,14 @@ All theses classes implements the `Converter` interface.
 ~~~php
 <?php
 
-public Converter::convert(iterable $records): mixed
+public Converter::convert(iterable $records): iterable
 ~~~
 
-This `$records` argument can be:
+The `$records` argument can be:
 
 - a [Reader](/9.0/reader/) object
 - a [RecordSet](/9.0/reader/records/) object;
-- or any `array` or `Traversable` object which represents a collection of CSV records;
+- or any `array` or `Traversable` object which represents a collection of CSV like records;
 
 <p class="message-warning"><strong>Warning:</strong> A <code>League\Csv\Writer</code> object can not be converted.</p>
 
@@ -40,26 +40,31 @@ When building a converter object, the methods do not need to be called in any pa
 ~~~php
 <?php
 
-public function ConverterObject::inputEncoding(string $charset): self
+public Encoder::inputEncoding(string $input_encoding): self
+public Encoder::outputEncoding(string $output_encoding = 'UTF-8'): self
+public Encoder::encodeOne(array $record): array
+public Encoder::encodeAll(iterable $records): iterable
 ~~~
 
-Out of the box, all converters assume that your are submitting `UTF-8` encoded records. If your data is not `UTF-8` encoded some unexpected results or exception may be thrown when trying to convert your data.
+Out of the box, all converters assume that your are submitting records on a valid encoding charset. For instance, if your data is not `UTF-8` encoded some unexpected results or exception may be thrown when trying to convert your data in JSON format.
 
-You can use the `inputEncoding` method exposed on each provided converter
+You can use the `Encoder` class to encode your records prior to converting it
 
 ~~~php
 <?php
 
+use League\Csv\Encoder;
 use League\Csv\JsonConverter;
 
 $csv = new SplFileObject('/path/to/french.csv', 'r');
 $csv->setFlags(SplFileObject::READ_CSV | SplFileObject::SKIP_EMPTY);
 
-$converter = (new JsonConverter())->inputEncoding('iso-8859-15');
+$encoder = (new Encoder())->inputEncoding('iso-8859-15');
+$converter = new JsonConverter();
 
-$json = $converter->convert($csv);
+$json = $converter->convert($encoder->encodeAll($csv));
 ~~~
 
 <p class="message-info"><strong>Tips:</strong> If your records come from a <code>Reader</code> object which supports PHP stream filters then it's recommended to use the library <a href="/9.0/connections/filters/">stream filtering mechanism</a> to first encode your data in <code>UTF-8</code>.</p>
 
-<p class="message-warning"><strong>Warning:</strong> <code>inputEncoding</code> is not part of the <code>Converter</code> interface.</p>
+<p class="message-info"><strong>Tips:</strong> The <code>Encoder</code> object can also be use to format records prior to insertion using <a href="/9.0/writer/filtering/">Writer::addFormater</a>.</p>

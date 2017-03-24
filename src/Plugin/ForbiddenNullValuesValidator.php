@@ -33,10 +33,10 @@ class ForbiddenNullValuesValidator
      */
     public function __invoke(array $record): bool
     {
-        $res = array_filter($record, function ($value): bool {
+        $filter = function ($value): bool {
             return null === $value;
-        });
+        };
 
-        return !$res;
+        return !array_filter($record, $filter);
     }
 }

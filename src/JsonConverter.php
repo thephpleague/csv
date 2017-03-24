@@ -26,7 +26,7 @@ use Traversable;
  */
 class JsonConverter implements Converter
 {
-    use ConverterTrait;
+    use ValidatorTrait;
 
     /**
      * json_encode options
@@ -68,7 +68,7 @@ class JsonConverter implements Converter
      */
     public function convert($records)
     {
-        $records = $this->convertToUtf8($this->filterIterable($records, __METHOD__));
+        $records = $this->filterIterable($records, __METHOD__);
         if (!is_array($records)) {
             $records = iterator_to_array($records);
         }

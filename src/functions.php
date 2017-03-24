@@ -41,21 +41,3 @@ function bom_match(string $str): string
 
     return '';
 }
-
-/**
- * Tell whether the submitted sequence is a valid BOM sequence
- *
- * @internal used internally to validate a BOM sequence
- *
- * @param string $sequence
- *
- * @return bool
- */
-function is_bom(string $sequence): bool
-{
-    static $list;
-
-    $list = $list ?? (new ReflectionClass(BOM::class))->getConstants();
-
-    return in_array($sequence, $list, true);
-}

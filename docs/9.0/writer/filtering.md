@@ -147,6 +147,14 @@ $writer->insertOne(["foo", null, "bar"]);
 
 ### Records consistency check
 
+~~~php
+<?php
+
+public ColumnConsistencyValidator::setColumnsCount(int $count): void
+public ColumnConsistencyValidator::getColumnsCount(void): int
+public ColumnConsistencyValidator::autodetectColumnsCount(void): void
+~~~
+
 The `League\Csv\Plugin\ColumnConsistencyValidator` class validates the inserted record column count consistency.
 
 ~~~php
@@ -165,3 +173,35 @@ $writer->addValidator($validator, 'column_consistency');
 $writer->insertOne(["foo", null, "bar"]);
 $nb_column_count = $validator->getColumnsCount(); //returns 3
 ~~~
+
+### Records encoder
+
+~~~php
+<?php
+
+public Encoder::inputEncoding(string $input_encoding): self
+public Encoder::outputEncoding(string $output_encoding): self
+public Encoder::__invoke(array $record): array
+~~~
+
+This formatter will help you encode your record depending on your settings.
+
+~~~php
+<?php
+
+use League\Csv\Encoder;
+use League\Csv\Writer;
+
+$writer = Writer::createFromPath('/path/to/your/csv/file.csv');
+$encoder = (new Encoder())
+    ->inputEncoding('utf-8')
+    ->outputEncoding('iso-8859-15')
+;
+$writer->addFormatter($encoder);
+$writer->insertOne(["foo", "bébé", "jouet"]);
+//all 'utf-8' caracters are now automatically encoded into 'iso-8859-15' charset
+~~~
+
+<p class="message-info"><strong>Tips:</strong> If your <code>Writer</code> object supports PHP stream filters then it's recommended to use the library <a href="/9.0/connections/filters/">stream filtering mechanism</a> instead.</p>
+
+<p class="message-info"><strong>Tips:</strong> The <code>Encoder</code> object can also be used <a href="/9.0/converter/">to convert CSV records</a> into other transport/exchange format.</p>
