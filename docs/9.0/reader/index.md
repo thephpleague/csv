@@ -11,7 +11,7 @@ title: CSV document Reader connection
 public Reader::fetchDelimitersOccurrence(array $delimiters, int $nbRows = 1): array
 public Reader::getHeaderOffset(void): int|null
 public Reader::getHeader(void): array
-public Reader::setHeaderOffset(?int $offset): Reader
+public Reader::setHeaderOffset(?int $offset): self
 public Reader::getIterator(void): Iterator
 public Reader::select(Statement $stmt): RecordSet
 ~~~
@@ -73,7 +73,7 @@ You can set and retrieve the header offset as well as the header record.
 ~~~php
 <?php
 
-public Reader::setHeaderOffset(?int $offset): Reader
+public Reader::setHeaderOffset(?int $offset): self
 public Reader::getHeaderOffset(void): int|null
 public Reader::getHeader(void): array
 ~~~

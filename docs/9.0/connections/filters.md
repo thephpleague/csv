@@ -10,10 +10,10 @@ title: Controlling PHP Stream Filters
 
 public AbstractCsv::hasStreamFilter(string $filtername): bool
 public AbstractCsv::supportsStreamFilter(void): bool
-public AbstractCsv::addStreamFilter(string $filtername): AbstractCsv
+public AbstractCsv::addStreamFilter(string $filtername): self
 ~~~
 
-To ease performing operations on the CSV as it is being read from or written to, you can add PHP stream filters to the `Reader` and `Writer` connections.
+To ease performing operations on the CSV document as it is being read from or written to, you can add PHP stream filters to the `Reader` and `Writer` objects.
 
 ## Detecting stream filter support
 
@@ -23,7 +23,7 @@ To ease performing operations on the CSV as it is being read from or written to,
 public AbstractCsv::supportsStreamFilter(void): bool
 ~~~
 
-Tells whether the stream filter API is supported
+Tells whether the stream filter API is supported by the current object.
 
 ~~~php
 <?php
@@ -40,12 +40,24 @@ $writer->supportsStreamFilter(); //return false the API can not be use
 
 <p class="message-warning"><strong>Warning:</strong> A <code>LogicException</code> exception may be thrown if you try to use the API under certain circumstances without prior validation using <code>supportsStreamFilter</code></p>
 
+### Cheat sheet
+
+Here's a table to quickly determine if PHP stream filters works depending on how the CSV object was instantiated.
+
+| Named constructor      | `supportsStreamFilter` |
+|------------------------|------------------------|
+| `createFromString`     |         true           |
+| `createFromPath  `     |         true           |
+| `createFromStream`     |         true           |
+| `createFromFileObject` |       **false**        |
+
+
 ## Adding a stream filter
 
 ~~~php
 <?php
 
-public AbstractCsv::addStreamFilter(string $filtername): AbstractCsv
+public AbstractCsv::addStreamFilter(string $filtername): self
 public AbstractCsv::hasStreamFilter(string $filtername): bool
 ~~~
 
@@ -81,7 +93,7 @@ foreach ($reader as $row) {
 }
 ~~~
 
-<p class="message-info">To clear any attached stream filter you need to call the <code>__destruct</code> method.</p>
+<p class="message-info">Attached stream filters are cleared on the document destruction.</p>
 
 ~~~php
 <?php

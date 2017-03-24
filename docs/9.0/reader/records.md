@@ -15,7 +15,7 @@ public RecordSet::fetchAll(): array
 public RecordSet::fetchOne(int $offset = 0): array
 public RecordSet::fetchPairs(string|int $offsetIndex = 0, string|int $valueIndex = 1): Generator
 public RecordSet::fetchColumn(string|int $columnIndex = 0): Generator
-public RecordSet::preserveRecordOffset(bool $status): RecordSet
+public RecordSet::preserveRecordOffset(bool $status): self
 ~~~
 
 The `League\Csv\RecordSet` is a class which manipulates a collection of CSV document records. This object is returned from [Reader::select](/9.0/reader/#selecting-csv-records) or [Statement::process](/9.0/reader/statement/#apply-the-constraints-to-a-csv-document) execution.
@@ -99,7 +99,7 @@ $records->getColumnNames(); // returns ['firstname', 'lastname', 'email'];
 <?php
 
 public RecordSet::isRecordOffsetPreserved(): bool
-public RecordSet::preserveRecordOffset(bool $status): RecordSet
+public RecordSet::preserveRecordOffset(bool $status): self
 ~~~
 
 `RecordSet::preserveRecordOffset` indicates if the `RecordSet` must keep the original CSV document records offset or can re-index them. When the `$status` is `true`, the original CSV document record offset will be preserve and output in methods where it makes sense.

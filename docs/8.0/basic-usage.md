@@ -104,7 +104,8 @@ $reader->output("name-for-your-file.csv");
 ~~~
 
 #### Example 3 - using a Response object (Symfony, Laravel, PSR-7 etc)
-To avoid breaking the flow of your application, you should create a Response object when applicable in your framework. The actual implementation will differ per framework, but you should generally not ouput headers directly. 
+
+To avoid breaking the flow of your application, you should create a Response object when applicable in your framework. The actual implementation will differ per framework, but you should generally not output headers directly.  
 In some cases you can also use a Streaming Response for larger files.
 
 ~~~php

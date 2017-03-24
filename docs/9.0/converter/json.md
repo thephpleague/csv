@@ -5,7 +5,7 @@ title: Converting a CSV into a JSON string
 
 # JSON conversion
 
-`JsonConverter` converts a CSV records collection into a JSON string by implementing the [Converter interface](/9.0/converter/#converter-interface) and using the [inputEncoding method](/9.0/converter/#records-input-encoding).
+`JsonConverter` converts a CSV records collection into a JSON string by implementing the [Converter interface](/9.0/converter/#converter-interface).
 
 ## Settings
 
@@ -65,3 +65,5 @@ echo '<pre>', $json, PHP_EOL;
 //     }
 // ]
 ~~~
+
+<p class="message-info"><strong>Tip:</strong> if needed you can use the <a href="/9.0/converter/#records-encoding">Encoder</a> object to correctly encode your CSV records before conversion.</p>

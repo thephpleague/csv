@@ -13,11 +13,11 @@ layout: default
 
 [CSV](https://packagist.org/packages/league/csv) is a simple library to ease CSV documents [loading](/9.0/connections/) as well as [writing](/9.0/writer/), [selecting](/9.0/reader/) and [converting](/9.0/converter/) CSV records.
 
-## Examples
+## Usage
 
 ### Parsing a document
 
-A simple example to show you how to parse a CSV document.
+Accessing some records from a given CSV documents.
 
 ~~~php
 <?php
@@ -41,7 +41,7 @@ $res = $csv->select($stmt)->fetchAll();
 
 ### Exporting a database table as a CSV document
 
-A simple example to show you how to create and download a CSV from a `PDOStatement` object
+Create and download a CSV from a `PDOStatement` object
 
 ~~~php
 <?php
@@ -78,7 +78,7 @@ die;
 
 ### Importing a CSV into a database table
 
-A simple example to show you how to import some CSV data into a database using a `PDOStatement` object
+Importing CSV records into a database using a `PDOStatement` object
 
 ~~~php
 <?php
@@ -95,15 +95,16 @@ $csv = Reader::createFromPath('/path/to/your/csv/file.csv');
 
 
 $stmt = (new Statement())
-    // we don't want to insert the header
-    ->offset(1)
+    ->setHeaderOffset(0)
 ;
+//by setting the header offset we index all records
+//with the header record and remove it from the iteration
 
 foreach ($csv->select($stmt) as $record) {
     //Do not forget to validate your data before inserting it in your database
-    $sth->bindValue(':firstname', $row[0], PDO::PARAM_STR);
-    $sth->bindValue(':lastname', $row[1], PDO::PARAM_STR);
-    $sth->bindValue(':email', $row[2], PDO::PARAM_STR);
+    $sth->bindValue(':firstname', $row['First Name'], PDO::PARAM_STR);
+    $sth->bindValue(':lastname', $row['Last Name'], PDO::PARAM_STR);
+    $sth->bindValue(':email', $row['E-mail'], PDO::PARAM_STR);
     $sth->execute();
 }
 ~~~

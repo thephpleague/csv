@@ -40,7 +40,7 @@ use League\Csv\Reader;
 use League\Csv\Writer;
 
 //the current CSV is ISO-8859-15 encoded with a ";" delimiter
-$origin = Reader::createFromPath('/path/to/franch.csv', 'r')
+$origin = Reader::createFromPath('/path/to/french.csv', 'r')
     ->setDelimiter(';')
 ;
 

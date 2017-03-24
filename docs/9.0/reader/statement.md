@@ -8,11 +8,11 @@ title: CSV document constraint Builder
 ~~~php
 <?php
 
-public Statement::where(callable $callable): Statement
-public Statement::orderBy(callable $callable): Statement
-public Statement::offset(int $offset): Statement
-public Statement::limit(int $limit): Statement
-public Statement::columns(array $columns): Statement
+public Statement::where(callable $callable): self
+public Statement::orderBy(callable $callable): self
+public Statement::offset(int $offset): self
+public Statement::limit(int $limit): self
+public Statement::columns(array $columns): self
 public Statement::process(Reader $reader): RecordSet
 ~~~
 
@@ -29,7 +29,7 @@ The filters attached using the `Statement::where` method **are the first setting
 ~~~php
 <?php
 
-public Statement::where(callable $callable): Statement
+public Statement::where(callable $callable): self
 ~~~
 
 The callable filter signature is as follows:
@@ -37,7 +37,7 @@ The callable filter signature is as follows:
 ~~~php
 <?php
 
-function(array $record [, int $offset [, Iterator $iterator]]): Statement
+function(array $record [, int $offset [, Iterator $iterator]]): self
 ~~~
 
 It takes up to three parameters:
@@ -59,7 +59,7 @@ The sorting options are applied **after the `Statement::where` options**. The so
 ~~~php
 <?php
 
-public Statement::orderBy(callable $callable): Statement
+public Statement::orderBy(callable $callable): self
 ~~~
 
 The callable sort function signature is as follows:
@@ -81,8 +81,8 @@ The interval API is made of the following method
 ~~~php
 <?php
 
-public Statement::offset(int $offset): Statement
-public Statement::limit(int $limit): Statement
+public Statement::offset(int $offset): self
+public Statement::limit(int $limit): self
 ~~~
 
 `Statement::offset` specifies an optional offset for the return data. By default if no offset was provided the offset equals `0`.
@@ -98,7 +98,7 @@ This option enables mapping and selecting specific columns from each record.
 ~~~php
 <?php
 
-public Statement::columns(array $columns): Statement
+public Statement::columns(array $columns): self
 ~~~
 
 The single parameter is an associative array where:

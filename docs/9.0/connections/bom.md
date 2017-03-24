@@ -29,6 +29,27 @@ To ease BOM sequence manipulation, the `BOM` class provides the following consta
 * `BOM::UTF32_BE` : `UTF-32` `BOM` with Big-Endian;
 * `BOM::UTF32_LE` : `UTF-32` `BOM` with Little-Endian;
 
+### bom_match
+
+~~~php
+<?php
+
+function bom_match(string $str): string
+~~~
+
+The `League\Csv\bom_match` function expects a string and returns the BOM sequence found at its start or an empty string otherwise.
+
+~~~php
+<?php
+
+use League\Csv\BOM;
+use function League\Csv\bom_match;
+
+bom_match('hello world!'); //returns ''
+bom_match(BOM::UTF8.'hello world!'); //returns '\xEF\xBB\xBF'
+bom_match('hrllo world!'.BOM::UTF16_BE); //returns ''
+~~~
+
 ## Managing CSV documents BOM sequence
 
 ### Detecting the BOM sequence
@@ -39,7 +60,7 @@ To ease BOM sequence manipulation, the `BOM` class provides the following consta
 public AbstractCsv::getInputBOM(void): string
 ~~~
 
-Detect the current BOM character is done using the `getInputBOM` method. This method returns the currently used BOM character or an empty string if none is found or recognized.
+The CSV document current BOM character is detected using the `getInputBOM` method. This method returns the currently used BOM character or an empty string if none is found or recognized. The detection is done using the `bom_match` function.
 
 ~~~php
 <?php
@@ -55,7 +76,7 @@ $bom = $csv->getInputBOM();
 ~~~php
 <?php
 
-public AbstractCsv::setOutputBOM(string $sequence): AbstractCsv
+public AbstractCsv::setOutputBOM(string $sequence): self
 public AbstractCsv::getOutputBOM(void): string
 ~~~
 
@@ -74,4 +95,5 @@ $bom = $csv->getOutputBOM(); //returns "\xEF\xBB\xBF"
 ~~~
 
 <p class="message-info">The default output <code>BOM</code> character is set to an empty string.</p>
+<p class="message-warning">The output BOM sequence is <strong>never</strong> saved to the CSV document.</p>
 

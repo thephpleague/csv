@@ -21,8 +21,6 @@ use ReflectionClass;
  *
  * If no valid BOM sequence is found an empty string is returned
  *
- * @internal used internally to detect the BOM sequence
- *
  * @param string $str
  *
  * @return string

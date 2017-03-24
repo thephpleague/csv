@@ -39,20 +39,20 @@ if (!ini_get("auto_detect_line_endings")) {
 ~~~php
 <?php
 
-public static AbstractCsv::createFromString(string $str): AbstractCsv
-public static AbstractCsv::createFromPath(string $path, string $open_mode = 'r+'): AbstractCsv
-public static AbstractCsv::createFromStream(resource $stream): AbstractCsv
-public static AbstractCsv::createFromFileObject(SplFileObject $obj): AbstractCsv
+public static AbstractCsv::createFromString(string $str): self
+public static AbstractCsv::createFromPath(string $path, string $open_mode = 'r+'): self
+public static AbstractCsv::createFromStream(resource $stream): self
+public static AbstractCsv::createFromFileObject(SplFileObject $obj): self
 ~~~
 
-Because CSV documents come in different forms we used named constructors to offer several ways to load them.
+Because CSV documents come in different forms we use named constructors to offer several ways to load them.
 
 ### Create from a string
 
 ~~~php
 <?php
 
-public static AbstractCsv::createFromString(string $str): AbstractCsv
+public static AbstractCsv::createFromString(string $str): self
 ~~~
 
 Creates a new object from a given string.
@@ -72,7 +72,7 @@ $writer = Writer::createFromString('john,doe,john.doe@example.com');
 ~~~php
 <?php
 
-public static AbstractCsv::createFromPath(string $path, string $open_mode = 'r+'): AbstractCsv
+public static AbstractCsv::createFromPath(string $path, string $open_mode = 'r+'): self
 ~~~
 
 Creates a new object *à la* `fopen`.
@@ -96,7 +96,7 @@ $writer = Writer::createFromPath('/path/to/your/csv/file.csv', 'w');
 ~~~php
 <?php
 
-public static AbstractCsv::createFromStream(resource $stream): AbstractCsv
+public static AbstractCsv::createFromStream(resource $stream): self
 ~~~
 
 Creates a new object from a stream resource.
@@ -118,7 +118,7 @@ $writer = Writer::createFromStream(tmpfile());
 ~~~php
 <?php
 
-public static AbstractCsv::createFromFileObject(SplFileObject $obj): AbstractCsv
+public static AbstractCsv::createFromFileObject(SplFileObject $obj): self
 ~~~
 
 Creates a new object from a `SplFileObject` object.

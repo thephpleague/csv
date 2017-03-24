@@ -11,12 +11,12 @@ title: Csv character controls
 public AbstractCsv::getDelimiter(void): string
 public AbstractCsv::getEnclosure(void): string
 public AbstractCsv::getEscape(void): string
-public AbstractCsv::setDelimiter(string $delimiter): AbstractCsv
-public AbstractCsv::setEnclosure(string $enclosure): AbstractCsv
-public AbstractCsv::setEscape(string $escape): AbstractCsv
+public AbstractCsv::setDelimiter(string $delimiter): self
+public AbstractCsv::setEnclosure(string $enclosure): self
+public AbstractCsv::setEscape(string $escape): self
 ~~~
 
-To parse the CSV document you are required to set the CSV character controls to the `Reader` and `Writer` connections.
+To correclty parse a CSV document you are required to set the character controls to be used by the `Reader` or the `Writer` object.
 
 ## The delimiter character.
 
@@ -25,7 +25,7 @@ To parse the CSV document you are required to set the CSV character controls to 
 ~~~php
 <?php
 
-public AbstractCsv::setDelimiter(string $delimiter): AbstractCsv
+public AbstractCsv::setDelimiter(string $delimiter): self
 public AbstractCsv::getDelimiter(void): string
 ~~~
 
@@ -50,7 +50,7 @@ $delimiter = $csv->getDelimiter(); //returns ";"
 ~~~php
 <?php
 
-public AbstractCsv::setEnclosure(string $enclosure): AbstractCsv
+public AbstractCsv::setEnclosure(string $enclosure): self
 public AbstractCsv::getEnclosure(void): string
 ~~~
 
@@ -70,7 +70,7 @@ $enclosure = $csv->getEnclosure(); //returns "|"
 
 ## The escape character
 
-<p class="message-warning"><strong>Warning:</strong> The library does not attempt to workaround <a href="https://bugs.php.net/bug.php?id=55413" target="_blank">a reported bug</a>, <strong>Data using the escape character are correctly escaped but the escape character is not removed from the CSV content</strong>.</p>
+<p class="message-warning"><strong>Warning:</strong> The library does not attempt to workaround <a href="https://bugs.php.net/bug.php?id=55413" target="_blank">a reported PHP bug</a>, <strong>Data using the escape character are correctly escaped but the escape character is not removed from the CSV content</strong>.</p>
 
 
 ### Description
@@ -78,7 +78,7 @@ $enclosure = $csv->getEnclosure(); //returns "|"
 ~~~php
 <?php
 
-public AbstractCsv::setEscape(string $escape): AbstractCsv
+public AbstractCsv::setEscape(string $escape): self
 public AbstractCsv::getEscape(void): string
 ~~~
 

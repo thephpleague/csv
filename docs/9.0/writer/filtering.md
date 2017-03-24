@@ -77,18 +77,7 @@ public Writer::addValidator(callable $callable, string $validatorName): Writer
 - A `callable` which takes an `array` representing a Csv record as its unique parameter;
 - The validator name which is **required**. If another validator was already registered with the given name, it will be overriden.
 
-On failure a `League\Csv\Exception\InsertionException`  exception is thrown by the `Writer` object.
-This exception extends PHP's `RuntimeException` by adding two public getter methods:
-
-~~~php
-<?php
-
-public InsertionException::getName(void): string
-public InsertionException::getData(void): array
-~~~
-
-- `InsertionException::getName`: returns the name of the failed validator
-- `InsertionException::getData`: returns the invalid data submitted to the validator
+On failure a [League\Csv\Exception\InsertionException](/9.0/connections/exceptions/#runtime-exceptions) exception is thrown by the `Writer` object.
 
 ### Example
 
@@ -109,23 +98,7 @@ try {
 }
 ~~~
 
-## Bundled formatters and validators
-
-### Null value validator
-
-The `League\Csv\Plugin\ForbiddenNullValuesValidator` class validates the absence of `null` values
-
-~~~php
-<?php
-
-use League\Csv\Writer;
-use League\Csv\Plugin\ForbiddenNullValuesValidator;
-
-$validator = new ForbiddenNullValuesValidator();
-$writer = Writer::createFromPath('/path/to/your/csv/file.csv');
-$writer->addValidator($validator, 'null_as_exception');
-$writer->insertOne(["foo", null, "bar"]); //will throw an League\Csv\Exception\InsertionException
-~~~
+## Bundled formatters
 
 ### Null value formatting
 
@@ -143,6 +116,56 @@ $writer = Writer::createFromPath('/path/to/your/csv/file.csv');
 $writer->addFormatter($formatter);
 $writer->insertOne(["foo", null, "bar"]);
 //the actual inserted row will be ["foo", "bar"]
+~~~
+
+### Records encoder
+
+~~~php
+<?php
+
+public Encoder::inputEncoding(string $input_encoding): self
+public Encoder::outputEncoding(string $output_encoding): self
+public Encoder::__invoke(array $record): array
+~~~
+
+`League\Csv\Encoder` will help you encode your record depending on your settings.
+
+~~~php
+<?php
+
+use League\Csv\Encoder;
+use League\Csv\Writer;
+
+$writer = Writer::createFromPath('/path/to/your/csv/file.csv');
+$encoder = (new Encoder())
+    ->inputEncoding('utf-8')
+    ->outputEncoding('iso-8859-15')
+;
+$writer->addFormatter($encoder);
+$writer->insertOne(["foo", "bébé", "jouet"]);
+//all 'utf-8' caracters are now automatically encoded into 'iso-8859-15' charset
+~~~
+
+<p class="message-info"><strong>Tip:</strong> If your <code>Writer</code> object supports PHP stream filters then it's recommended to use the library <a href="/9.0/connections/filters/">stream filtering mechanism</a> instead.</p>
+
+<p class="message-info"><strong>Tip:</strong> The <code>Encoder</code> object can also be used <a href="/9.0/converter/">to convert CSV records</a> into other transport/exchange format.</p>
+
+## Bundled validators
+
+### Null value validator
+
+The `League\Csv\Plugin\ForbiddenNullValuesValidator` class validates the absence of `null` values
+
+~~~php
+<?php
+
+use League\Csv\Writer;
+use League\Csv\Plugin\ForbiddenNullValuesValidator;
+
+$validator = new ForbiddenNullValuesValidator();
+$writer = Writer::createFromPath('/path/to/your/csv/file.csv');
+$writer->addValidator($validator, 'null_as_exception');
+$writer->insertOne(["foo", null, "bar"]); //will throw an League\Csv\Exception\InsertionException
 ~~~
 
 ### Records consistency check
@@ -173,35 +196,3 @@ $writer->addValidator($validator, 'column_consistency');
 $writer->insertOne(["foo", null, "bar"]);
 $nb_column_count = $validator->getColumnsCount(); //returns 3
 ~~~
-
-### Records encoder
-
-~~~php
-<?php
-
-public Encoder::inputEncoding(string $input_encoding): self
-public Encoder::outputEncoding(string $output_encoding): self
-public Encoder::__invoke(array $record): array
-~~~
-
-This formatter will help you encode your record depending on your settings.
-
-~~~php
-<?php
-
-use League\Csv\Encoder;
-use League\Csv\Writer;
-
-$writer = Writer::createFromPath('/path/to/your/csv/file.csv');
-$encoder = (new Encoder())
-    ->inputEncoding('utf-8')
-    ->outputEncoding('iso-8859-15')
-;
-$writer->addFormatter($encoder);
-$writer->insertOne(["foo", "bébé", "jouet"]);
-//all 'utf-8' caracters are now automatically encoded into 'iso-8859-15' charset
-~~~
-
-<p class="message-info"><strong>Tips:</strong> If your <code>Writer</code> object supports PHP stream filters then it's recommended to use the library <a href="/9.0/connections/filters/">stream filtering mechanism</a> instead.</p>
-
-<p class="message-info"><strong>Tips:</strong> The <code>Encoder</code> object can also be used <a href="/9.0/converter/">to convert CSV records</a> into other transport/exchange format.</p>
