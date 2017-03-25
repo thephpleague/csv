@@ -14,9 +14,6 @@ declare(strict_types=1);
 
 namespace League\Csv;
 
-use DOMAttr;
-use DOMElement;
-use DOMException;
 use League\Csv\Exception\InvalidArgumentException;
 use League\Csv\Exception\OutOfRangeException;
 use Traversable;
@@ -31,26 +28,6 @@ use Traversable;
  */
 trait ValidatorTrait
 {
-    /**
-     * Filter Csv control character
-     *
-     * @param string $char   Csv control character
-     * @param string $type   Csv control character type
-     * @param string $method Method call
-     *
-     * @throws InvalidArgumentException If the Csv control character is not one character only.
-     *
-     * @return string
-     */
-    protected function filterControl(string $char, string $type, string $method)
-    {
-        if (1 == strlen($char)) {
-            return $char;
-        }
-
-        throw new InvalidArgumentException(sprintf('%s: %s must be a single character', $method, $type));
-    }
-
     /**
      * Validate an integer
      *
@@ -69,24 +46,6 @@ trait ValidatorTrait
         }
 
         throw new OutOfRangeException($error_message);
-    }
-
-    /**
-     * Validates the array to be used by the fetchAssoc method
-     *
-     * @param array $keys
-     *
-     * @throws InvalidArgumentException If the submitted array fails the assertion
-     *
-     * @return array
-     */
-    protected function filterColumnNames(array $keys): array
-    {
-        if (empty($keys) || $keys === array_unique(array_filter($keys, 'is_string'))) {
-            return $keys;
-        }
-
-        throw new InvalidArgumentException('Use a flat array with unique string values');
     }
 
     /**
@@ -109,38 +68,40 @@ trait ValidatorTrait
     }
 
     /**
-     * Filter XML element name
+     * Filter Csv control character
      *
-     * @param string $value Element name
+     * @param string $char   Csv control character
+     * @param string $type   Csv control character type
+     * @param string $method Method call
      *
-     * @throws DOMException If the Element name is invalid
+     * @throws InvalidArgumentException If the Csv control character is not one character only.
      *
      * @return string
      */
-    protected function filterNodeName(string $value): string
+    protected function filterControl(string $char, string $type, string $method)
     {
-        new DOMElement($value);
+        if (1 == strlen($char)) {
+            return $char;
+        }
 
-        return $value;
+        throw new InvalidArgumentException(sprintf('%s: %s must be a single character', $method, $type));
     }
 
     /**
-     * Filter XML attribute name
+     * Validates the array to be used by the fetchAssoc method
      *
-     * @param string $value Element name
+     * @param array $keys
      *
-     * @throws DOMException If the Element attribute name is invalid
+     * @throws InvalidArgumentException If the submitted array fails the assertion
      *
-     * @return string
+     * @return array
      */
-    protected function filterAttributeName(string $value): string
+    protected function filterColumnNames(array $keys): array
     {
-        if ('' === $value) {
-            return $value;
+        if (empty($keys) || $keys === array_unique(array_filter($keys, 'is_string'))) {
+            return $keys;
         }
 
-        new DOMAttr($value);
-
-        return $value;
+        throw new InvalidArgumentException('Use a flat array with unique string values');
     }
 }

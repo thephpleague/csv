@@ -14,8 +14,10 @@ declare(strict_types=1);
 
 namespace League\Csv;
 
+use DOMAttr;
 use DOMDocument;
 use DOMElement;
+use DOMException;
 use Traversable;
 
 /**
@@ -80,12 +82,35 @@ class XMLConverter implements Converter
         ],
     ];
 
+    /**
+     * XML root element setter
+     *
+     * @param string $node_name
+     *
+     * @return self
+     */
     public function rootElement(string $node_name): self
     {
         $clone = clone $this;
         $clone->root_name = $this->filterNodeName($node_name);
 
         return $clone;
+    }
+
+    /**
+     * Filter XML element name
+     *
+     * @param string $value Element name
+     *
+     * @throws DOMException If the Element name is invalid
+     *
+     * @return string
+     */
+    protected function filterNodeName(string $value): string
+    {
+        new DOMElement($value);
+
+        return $value;
     }
 
     /**
@@ -103,6 +128,26 @@ class XMLConverter implements Converter
         $clone->offset_attr = $this->filterAttributeName($record_offset_attribute_name);
 
         return $clone;
+    }
+
+    /**
+     * Filter XML attribute name
+     *
+     * @param string $value Element name
+     *
+     * @throws DOMException If the Element attribute name is invalid
+     *
+     * @return string
+     */
+    protected function filterAttributeName(string $value): string
+    {
+        if ('' === $value) {
+            return $value;
+        }
+
+        new DOMAttr($value);
+
+        return $value;
     }
 
     /**
