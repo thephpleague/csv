@@ -67,6 +67,13 @@ class XMLConverter implements Converter
     protected $offset_attr = '';
 
     /**
+     * XML document encoding
+     *
+     * @var string
+     */
+    protected $encoding = 'UTF-8';
+
+    /**
      * Conversion method list
      *
      * @var array
@@ -83,6 +90,21 @@ class XMLConverter implements Converter
     ];
 
     /**
+     * XML encoding
+     *
+     * @param string $encoding
+     *
+     * @return static
+     */
+    public function encoding(string $encoding): self
+    {
+        $clone = clone $this;
+        $clone->encoding = $this->filterEncoding($encoding);
+
+        return $clone;
+    }
+
+    /**
      * XML root element setter
      *
      * @param string $node_name
@@ -92,7 +114,7 @@ class XMLConverter implements Converter
     public function rootElement(string $node_name): self
     {
         $clone = clone $this;
-        $clone->root_name = $this->filterNodeName($node_name);
+        $clone->root_name = $this->filterElementName($node_name);
 
         return $clone;
     }
@@ -106,11 +128,9 @@ class XMLConverter implements Converter
      *
      * @return string
      */
-    protected function filterNodeName(string $value): string
+    protected function filterElementName(string $value): string
     {
-        new DOMElement($value);
-
-        return $value;
+        return (new DOMElement($value))->tagName;
     }
 
     /**
@@ -124,7 +144,7 @@ class XMLConverter implements Converter
     public function recordElement(string $node_name, string $record_offset_attribute_name = ''): self
     {
         $clone = clone $this;
-        $clone->record_name = $this->filterNodeName($node_name);
+        $clone->record_name = $this->filterElementName($node_name);
         $clone->offset_attr = $this->filterAttributeName($record_offset_attribute_name);
 
         return $clone;
@@ -145,9 +165,7 @@ class XMLConverter implements Converter
             return $value;
         }
 
-        new DOMAttr($value);
-
-        return $value;
+        return (new DOMAttr($value))->name;
     }
 
     /**
@@ -161,7 +179,7 @@ class XMLConverter implements Converter
     public function fieldElement(string $node_name, string $fieldname_attribute_name = ''): self
     {
         $clone = clone $this;
-        $clone->field_name = $this->filterNodeName($node_name);
+        $clone->field_name = $this->filterElementName($node_name);
         $clone->column_attr = $this->filterAttributeName($fieldname_attribute_name);
 
         return $clone;
@@ -178,7 +196,7 @@ class XMLConverter implements Converter
     {
         $field_encoder = $this->encoder['field']['' !== $this->column_attr];
         $record_encoder = $this->encoder['record']['' !== $this->offset_attr];
-        $doc = new DOMDocument('1.0', 'UTF-8');
+        $doc = new DOMDocument('1.0', $this->encoding);
         $root = $doc->createElement($this->root_name);
         foreach ($this->filterIterable($records, __METHOD__) as $offset => $record) {
             $node = $this->{$record_encoder}($doc, $record, $field_encoder, $offset);

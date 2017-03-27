@@ -47,7 +47,7 @@ use function League\Csv\bom_match;
 
 bom_match('hello world!'); //returns ''
 bom_match(BOM::UTF8.'hello world!'); //returns '\xEF\xBB\xBF'
-bom_match('hrllo world!'.BOM::UTF16_BE); //returns ''
+bom_match('hello world!'.BOM::UTF16_BE); //returns ''
 ~~~
 
 ## Managing CSV documents BOM sequence

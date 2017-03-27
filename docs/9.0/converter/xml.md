@@ -11,7 +11,17 @@ title: Converting a CSV into a XML DOMDocument object
 
 Prior to converting your records collection into XML, you may wish to configure the element and its associated attribute names. To do so `XMLConverter` provides methods to setup theses settings.
 
-<p class="message-warning">Because we are building a <code>DOMDocument</code>, the <code>XMLConverter</code> object throws <code>DOMException</code> exceptions that do not implements <a href="/9.0/connections/exceptions/">CsvException</a>.</p>
+<p class="message-warning">Because we are building a <code>DOMDocument</code> object, the <code>XMLConverter</code> object throws <code>DOMException</code> exceptions that do not implements <a href="/9.0/connections/exceptions/">CsvException</a>.</p>
+
+### XMLConverter::encoding
+
+~~~php
+<?php
+
+public XMLConverter::encoding(string $encoding): self
+~~~
+
+This method sets the XML encoding charset which default to `UTF-8` if none is supplied.
 
 ### XMLConverter::rootElement
 

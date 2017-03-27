@@ -29,7 +29,7 @@ use Traversable;
 trait ValidatorTrait
 {
     /**
-     * Validate an integer
+     * Validate an integer minimal range
      *
      * @param int    $value
      * @param int    $min_value
@@ -39,7 +39,7 @@ trait ValidatorTrait
      *
      * @return int
      */
-    protected function filterInteger(int $value, int $min_value, string $error_message): int
+    protected function filterMinRange(int $value, int $min_value, string $error_message): int
     {
         if ($value >= $min_value) {
             return $value;
@@ -103,5 +103,25 @@ trait ValidatorTrait
         }
 
         throw new InvalidArgumentException('Use a flat array with unique string values');
+    }
+
+    /**
+     * Filter encoding charset
+     *
+     * @param string $encoding
+     *
+     * @throws InvalidArgumentException if the charset is malformed
+     *
+     * @return string
+     */
+    protected function filterEncoding(string $encoding)
+    {
+        $encoding = strtoupper(str_replace('_', '-', $encoding));
+        $test = filter_var($encoding, FILTER_SANITIZE_STRING, FILTER_FLAG_STRIP_LOW | FILTER_FLAG_STRIP_HIGH);
+        if ($test === $encoding && $encoding != '') {
+            return $encoding;
+        }
+
+        throw new InvalidArgumentException('Invalid Character Error');
     }
 }

@@ -49,23 +49,22 @@ class ConverterTest extends TestCase
     public function testToHTML()
     {
         $converter = (new HTMLConverter())
+            ->encoding('iso-8859-15')
             ->table('table-csv-data')
             ->td('title')
             ->tr('data-record-offset')
         ;
 
-        $encoder = $this->encoder->inputEncoding('iso-8859-15');
-
         $this->assertContains(
             '<td title="',
-            $converter->convert($encoder->encodeAll($this->stmt->process($this->csv)))
+            $converter->convert($this->stmt->process($this->csv))
         );
     }
 
     public function testToXML()
     {
         $csv = Reader::createFromPath(__DIR__.'/data/foo.csv', 'r');
-        $converter = (new XMLConverter())->recordElement('row', 'offset');
+        $converter = (new XMLConverter())->encoding('iso-8859-15')->recordElement('row', 'offset');
 
         $this->assertInstanceOf(DOMDocument::class, $converter->convert($csv));
     }

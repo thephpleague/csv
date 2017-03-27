@@ -94,7 +94,7 @@ public Writer::setFlushThreshold(?int $treshold): self
 public Writer::getFlushThreshold(void): int|null
 ~~~
 
-By default, the flush mechanism deactivate `getFlushTreshold` returns `null`.
+By default, `getFlushTreshold` returns `null`.
 
 <p class="message-info"><code>Writer::insertAll</code> always flush its buffer when all records are inserted regardless of the threshold value.</p>
 

@@ -111,6 +111,8 @@ $header_offset = $csv->getHeaderOffset(); //returns 1000
 $header = $csv->getHeader(); //triggers a Exception
 ~~~
 
+<p class="message-notice">By setting a header offset you implicitly normalize your CSV document to the field length of the specified header. Missing fields will be added with <code>null</code> content whereas extra fields will be truncated while iterating the CSV records.</p>
+
 ## Iterating over the document records
 
 Because the `Reader` class implements the `IteratorAggregate` interface you can iterate over each record using the `foreach` construct. While iterating the `Reader` will:

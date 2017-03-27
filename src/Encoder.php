@@ -15,7 +15,6 @@ declare(strict_types=1);
 namespace League\Csv;
 
 use Iterator;
-use League\Csv\Exception\InvalidArgumentException;
 use Traversable;
 
 /**
@@ -130,26 +129,6 @@ class Encoder
         $clone->input_encoding = $encoding;
 
         return $clone;
-    }
-
-    /**
-     * Filter encoding charset
-     *
-     * @param string $encoding
-     *
-     * @throws InvalidArgumentException if the charset is malformed
-     *
-     * @return string
-     */
-    protected function filterEncoding(string $encoding)
-    {
-        $encoding = strtoupper(str_replace('_', '-', $encoding));
-        $test = filter_var($encoding, FILTER_SANITIZE_STRING, FILTER_FLAG_STRIP_LOW | FILTER_FLAG_STRIP_HIGH);
-        if ($test === $encoding && $encoding != '') {
-            return $encoding;
-        }
-
-        throw new InvalidArgumentException('Invalid Character Error');
     }
 
     /**

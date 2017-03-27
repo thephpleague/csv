@@ -59,7 +59,7 @@ $writer = Writer::createFromFileObject(new SplTempFileObject());
 $str = 'john,doe,john.doe@example.com';
 $record = str_getcsv($str, ',', '"', '\\');
 $writer->insertOne($record);
-$writer->insertAll(str_getcsv([$record]);
+$writer->insertAll([$record]);
 ~~~
 
 ### Reduced method chaining
@@ -237,7 +237,7 @@ $reader = Reader::createFromPath('/path/to/file.csv');
 $pairs_without_duplicates = $reader
     ->setOffset(3)
     ->setLimit(2)
-    ->fetchfetchPairsWithoutDuplicates()
+    ->fetchPairsWithoutDuplicates()
 ;
 
 foreach ($pairs_without_duplicates as $key => $value) {
@@ -459,6 +459,8 @@ All convertion methods are no longer attached to the `Reader` or the `Writer` cl
 - `AbstractCsv::jsonSerialize`
 - `AbstractCsv::toHTML`
 - `AbstractCsv::toXML`
+
+And you can no longer convert a `Writer` class.
 
 Before:
 

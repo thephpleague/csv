@@ -36,25 +36,16 @@ class JsonConverter implements Converter
     protected $options = 0;
 
     /**
-     * json_encode depth
-     *
-     * @var int
-     */
-    protected $depth = 512;
-
-    /**
-     * Json encode Options
+     * json_encode $options flag setter
      *
      * @param int $options
-     * @param int $depth
      *
      * @return self
      */
-    public function options(int $options, int $depth = 512): self
+    public function options(int $options): self
     {
         $clone = clone $this;
-        $clone->options = $this->filterInteger($options, 0, __METHOD__.': the options must be a positive integer or 0');
-        $clone->depth = $this->filterInteger($depth, 2, __METHOD__.': the depth must be a positive integer greater or equal to 2');
+        $clone->options = $this->filterMinRange($options, 0, __METHOD__.': the options must be a positive integer or 0');
 
         return $clone;
     }
@@ -73,7 +64,7 @@ class JsonConverter implements Converter
             $records = iterator_to_array($records);
         }
 
-        $json = @json_encode($records, $this->options, $this->depth);
+        $json = @json_encode($records, $this->options, 2);
         if (JSON_ERROR_NONE === json_last_error()) {
             return $json;
         }

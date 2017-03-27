@@ -156,7 +156,7 @@ class RecordSet implements IteratorAggregate, Countable
      */
     public function fetchOne(int $offset = 0): array
     {
-        $offset = $this->filterInteger($offset, 0, __METHOD__.': the submitted offset is invalid');
+        $offset = $this->filterMinRange($offset, 0, __METHOD__.': the submitted offset is invalid');
         $it = new LimitIterator($this->iterator, $offset, 1);
         $it->rewind();
 
@@ -209,7 +209,7 @@ class RecordSet implements IteratorAggregate, Countable
             throw new InvalidArgumentException(sprintf($error_message, $field));
         }
 
-        $index = $this->filterInteger($field, 0, $error_message);
+        $index = $this->filterMinRange($field, 0, $error_message);
         if (empty($this->column_names)) {
             return $index;
         }

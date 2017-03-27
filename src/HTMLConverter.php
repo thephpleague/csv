@@ -57,6 +57,21 @@ class HTMLConverter implements Converter
     }
 
     /**
+     * HTML encoding
+     *
+     * @param string $encoding
+     *
+     * @return static
+     */
+    public function encoding(string $encoding): self
+    {
+        $clone = clone $this;
+        $clone->xml_converter = $this->xml_converter->encoding($encoding);
+
+        return $clone;
+    }
+
+    /**
      * HTML table class name setter
      *
      * @param string $class_name

@@ -14,6 +14,16 @@ Prior to converting your records collection into a HTML table, you may wish to c
 
 <p class="message-warning">Because we are using internally the <a href="/9.0/converter/xml/">XMLConverter</a>, if an error occurs while validating the submitted values a <code>DOMException</code> exception will be thrown.</p>
 
+### HTMLConverter::encoding
+
+~~~php
+<?php
+
+public HTMLConverter::encoding(string $encoding): self
+~~~
+
+This method sets the HTML encoding charset which default to `UTF-8` if none is supplied.
+
 ### HTMLConverter::table
 
 ~~~php

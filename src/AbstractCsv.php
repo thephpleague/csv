@@ -403,11 +403,11 @@ abstract class AbstractCsv
     public function __destruct()
     {
         if ($this->document instanceof StreamIterator) {
-            $mapper = function ($filter): bool {
+            $walker = function ($filter): bool {
                 return $this->document->removeFilter($filter);
             };
 
-            array_walk_recursive($this->stream_filters, $mapper);
+            array_walk_recursive($this->stream_filters, $walker);
         }
 
         $this->document = null;

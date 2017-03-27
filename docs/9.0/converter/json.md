@@ -14,10 +14,10 @@ title: Converting a CSV into a JSON string
 ~~~php
 <?php
 
-public JsonConverter::options(int options, int $depth = 512): self
+public JsonConverter::options(int options): self
 ~~~
 
-This method sets PHP's `json_encode` optional arguments.
+This method sets PHP's `json_encode` optional flags.
 
 ## Conversion
 

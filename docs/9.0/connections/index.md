@@ -132,3 +132,5 @@ use League\Csv\Writer;
 $reader = Reader::createFromFileObject(new SplFileObject('/path/to/your/csv/file.csv'));
 $writer = Writer::createFromFileObject(new SplTempFileObject());
 ~~~
+
+<p class="message-warning"> The <code>SplFileObject</code> <strong>MUST</strong> be seekable otherwise a <code>RuntimeException</code> may be thrown.</p>

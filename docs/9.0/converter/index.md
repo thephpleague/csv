@@ -41,7 +41,7 @@ When building a converter object, the methods do not need to be called in any pa
 <?php
 
 public Encoder::inputEncoding(string $input_encoding): self
-public Encoder::outputEncoding(string $output_encoding = 'UTF-8'): self
+public Encoder::outputEncoding(string $output_encoding): self
 public Encoder::encodeOne(array $record): array
 public Encoder::encodeAll(iterable $records): iterable
 ~~~
