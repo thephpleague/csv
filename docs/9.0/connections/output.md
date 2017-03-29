@@ -83,4 +83,4 @@ $reader->output("name-for-your-file.csv");
 
 <p class="message-info"><strong>Tips:</strong> The methods output <strong>are affected by</strong> <a href="/9.0/connections/bom/">the output BOM sequence</a> or the supplied <a href="/9.0/connections/filters/">PHP stream filters</a>.</p>
 
-<p class="message-notice">To avoid breaking the flow of your framework based application, you should instead create a Response object when applicable. The actual implementation will differ per framework, but you should generally not use the <code>AbstractCsv::output</code> method.</p>
+<p class="message-info"><strong>Tips:</strong> To avoid breaking the flow of your framework based application, you should avoid relying on the <code>AbstractCsv::output</code> method and instead create a framework specific <code>Response</code> object when applicable using <code>AbstractCsv::__toString</code>.</p>

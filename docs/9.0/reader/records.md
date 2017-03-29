@@ -66,8 +66,9 @@ $records->getColumnNames(); // is empty because no header information was given
 
 use League\Csv\Reader;
 
-$reader = Reader::createFromPath('/path/to/my/file.csv');
-$reader->setHeaderOffset(0);
+$reader = Reader::createFromPath('/path/to/my/file.csv')
+    ->setHeaderOffset(0)
+;
 $records = (new Statement())->process($reader);
 $records->getColumnNames(); // returns ['First Name', 'Last Name', 'E-mail'];
 ~~~
@@ -80,8 +81,10 @@ $records->getColumnNames(); // returns ['First Name', 'Last Name', 'E-mail'];
 use League\Csv\Reader;
 use League\Csv\Statement;
 
-$reader = Reader::createFromPath('/path/to/my/file.csv');
-$reader->setHeaderOffset(0);
+$reader = Reader::createFromPath('/path/to/my/file.csv')
+    ->setHeaderOffset(0)
+;
+
 $stmt = (new Statement())
     ->columns([
         'First Name' => 'firstname',
@@ -172,8 +175,9 @@ If the `Reader::getHeader` is not an empty `array` or if the `Statement::columns
 use League\Csv\Reader;
 use League\Csv\Statement;
 
-$reader = Reader::createFromPath('/path/to/my/file.csv');
-$reader->setHeaderOffset(0);
+$reader = Reader::createFromPath('/path/to/my/file.csv')
+    ->setHeaderOffset(0)
+;
 $stmt = (new Statement())
     ->columns([
         'First Name' => 'firstname',
@@ -212,8 +216,10 @@ The required argument `$offset` represents the record offset in the record colle
 use League\Csv\Reader;
 use League\Csv\Statement;
 
-$reader = Reader::createFromPath('/path/to/my/file.csv');
-$reader->setHeaderOffset(0);
+$reader = Reader::createFromPath('/path/to/my/file.csv')
+    ->setHeaderOffset(0)
+;
+
 $stmt = (new Statement())
     ->offset(10)
     ->limit(12)
@@ -256,8 +262,10 @@ foreach ($records->fetchColumn(2) as $offset => $value) {
     //of a given record for the selected column
 }
 
-$reader = Reader::createFromPath('/path/to/my/file.csv');
-$reader->setHeaderOffset(0);
+$reader = Reader::createFromPath('/path/to/my/file.csv')
+    ->setHeaderOffset(0)
+;
+
 $records = (new Statement())->process($reader);
 foreach ($records->fetchColumn('First Name') as $offset => $value) {
     //$value may be equal to 'john'
@@ -309,8 +317,10 @@ count(iterator_to_array($records->fetchColumn(2), false)); //returns 5
 use League\Csv\Reader;
 use League\Csv\Statement;
 
-$reader = Reader::createFromPath('/path/to/my/file.csv');
-$reader->setHeaderOffset(0);
+$reader = Reader::createFromPath('/path/to/my/file.csv')
+    ->setHeaderOffset(0)
+;
+
 $records = (new Statement())->process($reader);
 foreach ($records->fetchColumn('foobar') as $record) {
     //throw an InvalidArgumentException if
@@ -352,7 +362,9 @@ use League\Csv\Reader;
 use League\Csv\Statement;
 
 $reader = Reader::createFromString($str);
-foreach ((new Statement())->process($reader)->fetchPairs() as $firstname => $lastname) {
+$records = (new Statement())->process($reader);
+
+foreach ($records->fetchPairs() as $firstname => $lastname) {
     // - first iteration
     // echo $firstname; -> 'john'
     // echo $lastname;  -> 'doe'
@@ -374,3 +386,4 @@ foreach ((new Statement())->process($reader)->fetchPairs() as $firstname => $las
 - If no `$valueIndex` is provided it default to `1`;
 - If no cell is found corresponding to `$offsetIndex` the row is skipped;
 - If no cell is found corresponding to `$valueIndex` the `null` value is used;
+- If `RecordSet::getColumnNames` is not empty and the arguments are not found string, a `RuntimeException` will be thrown;

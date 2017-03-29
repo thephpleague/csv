@@ -14,7 +14,7 @@ title: Converting a CSV into a JSON string
 ~~~php
 <?php
 
-public JsonConverter::options(int options): self
+public JsonConverter::options(int $options): self
 ~~~
 
 This method sets PHP's `json_encode` optional flags.
@@ -66,4 +66,4 @@ echo '<pre>', $json, PHP_EOL;
 // ]
 ~~~
 
-<p class="message-info"><strong>Tip:</strong> if needed you can use the <a href="/9.0/converter/#records-encoding">Encoder</a> object to correctly encode your CSV records before conversion.</p>
+<p class="message-info"><strong>Tip:</strong> if needed you can use the <a href="/9.0/converter/encoder/">Encoder</a> object to correctly encode your CSV records before conversion.</p>

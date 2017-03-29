@@ -77,7 +77,6 @@ use League\Csv\Reader;
 $csv = Reader::createFromPath('/path/to/prenoms.csv')
     ->setDelimiter(';')
     ->setHeaderOffset(0)
-    ->addStreamFilter('convert.iconv.ISO-8859-1/UTF-8')
 ;
 
 $stmt = (new Statement())
@@ -89,6 +88,7 @@ $stmt = (new Statement())
 ;
 
 $converter = (new XMLConverter())
+    ->encoding('iso-8859-15')
     ->rootElement('csv')
     ->recordElement('record', 'offset')
     ->fieldElement('field', 'name')
@@ -102,7 +102,7 @@ $dom->formatOutput = true;
 
 echo '<pre>', PHP_EOL;
 echo htmlentities($dom->saveXML());
-// <?xml version="1.0" encoding="UTF-8"?>
+// <?xml version="1.0" encoding="ISO-8859-15"?>
 // <csv>
 //   <record offset="71">
 //     <field name="prenoms">Anaïs</field>
@@ -119,4 +119,4 @@ echo htmlentities($dom->saveXML());
 // </csv>
 ~~~
 
-<p class="message-info"><strong>Tip:</strong> if needed you can use the <a href="/9.0/converter/#records-encoding">Encoder</a> object to correctly encode your CSV records before conversion.</p>
+<p class="message-info"><strong>Tip:</strong> if needed you can use the <a href="/9.0/converter/encoder/">Encoder</a> object to correctly encode your CSV records before conversion.</p>

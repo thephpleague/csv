@@ -11,7 +11,7 @@ layout: default
 [![Build Status](https://img.shields.io/travis/thephpleague/csv/master.svg?style=flat-square)](https://travis-ci.org/thephpleague/csv)
 [![Total Downloads](https://img.shields.io/packagist/dt/league/csv.svg?style=flat-square)](https://packagist.org/packages/league/csv)
 
-[CSV](https://packagist.org/packages/league/csv) is a simple library to ease CSV documents [loading](/9.0/connections/) as well as [writing](/9.0/writer/), [selecting](/9.0/reader/) and [converting](/9.0/converter/) CSV records.
+**League\Csv** is a simple library to ease CSV documents [loading](/9.0/connections/) as well as [writing](/9.0/writer/), [selecting](/9.0/reader/) and [converting](/9.0/converter/) CSV records.
 
 ## Usage
 
@@ -76,7 +76,7 @@ $csv->output('users.csv');
 die;
 ~~~
 
-### Importing a CSV into a database table
+### Importing CSV records into a database table
 
 Importing CSV records into a database using a `PDOStatement` object
 
@@ -109,7 +109,7 @@ foreach ($csv->select($stmt) as $record) {
 }
 ~~~
 
-### Converting a UTF-16 CSV file contents to UTF-8
+### Encoding a CSV document into a given charset
 
 When importing csv files, you don't know whether the file is encoded with `UTF-8`, `UTF-16` or anything else. The below example tries to determine the encoding and convert to `UTF-8` using the iconv extension.
 
@@ -146,10 +146,10 @@ use League\Csv\Reader;
 $csv = Reader::createFromPath('/path/to/prenoms.csv')
     ->setDelimiter(';')
     ->setHeaderOffset(0)
-    ->addStreamFilter('convert.iconv.ISO-8859-1/UTF-8')
 ;
 
 $converter = (new XMLConverter())
+    ->encoding('iso-8859-15')
     ->rootElement('csv')
     ->recordElement('record', 'offset')
     ->fieldElement('field', 'name')
@@ -160,7 +160,7 @@ $dom->formatOutput = true;
 
 echo '<pre>', PHP_EOL;
 echo htmlentities($dom->saveXML());
-// <?xml version="1.0" encoding="UTF-8"?>
+// <?xml version="1.0" encoding="ISO-8859-15"?>
 // <csv>
 //   <record offset="0">
 //     <field name="prenoms">Anaïs</field>

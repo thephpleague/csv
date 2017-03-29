@@ -61,11 +61,13 @@ class ToStringEnabledClass
     }
 }
 
-$writer = Writer::createFromFileObject(new SplTempFileObject());
+$writer = Writer::createFromPath('/path/to/saved/file.csv', 'w+');
 $writer->insertOne(['john', 'doe', 'john.doe@example.com']);
 $writer->insertOne("'john','doe','john.doe@example.com'");
 $writer->insertOne(new ToStringEnabledClass("john,doe,john.doe@example.com"))
 ~~~
+
+In the above example, all the CSV records are saved to the `/path/to/saved/file.csv` file.
 
 ### Writer::insertAll
 

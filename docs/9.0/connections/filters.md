@@ -8,8 +8,8 @@ title: Controlling PHP Stream Filters
 ~~~php
 <?php
 
-public AbstractCsv::hasStreamFilter(string $filtername): bool
 public AbstractCsv::supportsStreamFilter(void): bool
+public AbstractCsv::hasStreamFilter(string $filtername): bool
 public AbstractCsv::addStreamFilter(string $filtername): self
 ~~~
 
@@ -61,7 +61,7 @@ public AbstractCsv::addStreamFilter(string $filtername): self
 public AbstractCsv::hasStreamFilter(string $filtername): bool
 ~~~
 
-The `$filtername` parameter is a string that represents the filter as registered using php `stream_filter_register` function or one of PHP internal stream filter.
+The `$filtername` parameter is a string that represents the filter as registered using php `stream_filter_register` function or one of [PHP internal stream filter](http://php.net/manual/en/filters.php).
 
 The `AbstractCsv::addStreamFilter` method adds a stream filter to the connection.
 
@@ -93,7 +93,7 @@ foreach ($reader as $row) {
 }
 ~~~
 
-<p class="message-info">Attached stream filters are cleared on the document destruction.</p>
+<p class="message-info">Attached stream filters are removed on the CSV object destruction.</p>
 
 ~~~php
 <?php
@@ -101,14 +101,15 @@ foreach ($reader as $row) {
 use League\Csv\Reader;
 
 $fp = fopen('/path/to/my/chines.csv', 'r');
+stream_filter_append($fp, 'string.rot13');
 $reader = Reader::createFromStream($fp);
-if ($reader->supportsStreamFilter()) {
-	$reader->addStreamFilter('convert.utf8decode');
-	$reader->addStreamFilter('string.toupper');
-}
-
+$reader->addStreamFilter('convert.utf8decode');
+$reader->addStreamFilter('string.toupper');
+$reader->hasStreamFilter('string.rot13'); //returns false
 $reader = null;
-//only the filters attached using addStreamFilter to `$fp` are removed.
+// only the filters attached using addStreamFilter to `$fp` are removed.
+// 'string.rot13' is still attached to `$fp`
+// filters added using `addStreamFilter` are removed
 ~~~
 
 <p class="message-warning">Only the filters added by the package are removed, filters added to the resource prior to being used in the library are not affected.</p>

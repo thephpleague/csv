@@ -120,15 +120,7 @@ $writer->insertOne(["foo", null, "bar"]);
 
 ### Records encoder
 
-~~~php
-<?php
-
-public Encoder::inputEncoding(string $input_encoding): self
-public Encoder::outputEncoding(string $output_encoding): self
-public Encoder::__invoke(array $record): array
-~~~
-
-`League\Csv\Encoder` will help you encode your record depending on your settings.
+[League\Csv\Encoder](/9.0/converter/encoder/) will help you encode your records depending on your settings.
 
 ~~~php
 <?php

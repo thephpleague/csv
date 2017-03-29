@@ -34,13 +34,13 @@ This method allow you to find the occurences of some delimiters in a given CSV o
 ~~~php
 <?php
 
-public Reader::fetchDelimitersOccurrence(array $delimiters, int $nbRows = 1): array
+public Reader::fetchDelimitersOccurrence(array $delimiters, int $nb_records = 1): array
 ~~~
 
 The method takes two arguments:
 
 * an array containing the delimiters to check;
-* an integer which represents the number of rows to scan (default to `1`);
+* an integer which represents the number of CSV records to scan (default to `1`);
 
 ~~~php
 <?php
@@ -58,7 +58,7 @@ $delimiters_list = $reader->fetchDelimitersOccurrence([' ', '|'], 10);
 //     ' ' => 0,
 // ]
 // This seems to be a consistent CSV with:
-// - the delimiter "|" appearing 20 times in the 10 first rows
+// - the delimiter "|" appearing 20 times in the 10 first records
 // - the delimiter " " never appearing
 ~~~
 

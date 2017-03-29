@@ -48,7 +48,7 @@ It takes up to three parameters:
 
 ## Sorting constraint
 
-The sorting options are applied **after the `Statement::where` options**. The sorting follows the *First In First Out* rule.
+The sorting options are applied **after the Statement::where options**. The sorting follows the *First In First Out* rule.
 
 <p class="message-warning"><strong>Warning:</strong> To sort the data <code>iterator_to_array</code> is used, which could lead to a performance penalty if you have a heavy CSV file to sort
 </p>
@@ -74,7 +74,7 @@ The sort function takes exactly two parameters, which will be filled by pairs of
 
 ## Interval constraint
 
-The interval methods enable returning a specific interval of CSV records. When called more than once, only the last filtering settings is taken into account. The interval is calculated **after applying `Statement::where` and `Statement::orderBy` options**.
+The interval methods enable returning a specific interval of CSV records. When called more than once, only the last filtering settings is taken into account. The interval is calculated **after applying Statement::orderBy options**.
 
 The interval API is made of the following method
 
@@ -186,7 +186,6 @@ function sortByLastName(array $recordA, array $recordB): int
 }
 
 $reader = Reader::createFromPath('/path/to/file.csv');
-$reader->addStreamFilter('string.toupper');
 $stmt = (new Statement())
     ->offset(3)
     ->limit(2)
