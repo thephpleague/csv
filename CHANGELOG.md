@@ -6,15 +6,15 @@ All Notable changes to `Csv` will be documented in this file
 
 ### Added
 
-- `League\Csv\BOM`
+- `League\Csv\bom_match` function
+- `League\Csv\BOM` interface
 - `League\Csv\Statement`
 - `League\Csv\RecordSet`
-- `League\Csv\Converter`
+- `League\Csv\Converter` interface
+- `League\Csv\CharsetConverter`
 - `League\Csv\XMLConverter`
 - `League\Csv\HTMLConverter`
 - `League\Csv\JsonConverter`
-- `League\Csv\is_bom` function
-- `League\Csv\bom_match` function
 - `League\Csv\Exception\CsvException`
 - `League\Csv\Exception\InsertionException`
 - `League\Csv\Exception\InvalidArgumentException`

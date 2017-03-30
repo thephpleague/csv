@@ -4,7 +4,7 @@ namespace LeagueTest\Csv;
 
 use DOMDocument;
 use DOMException;
-use League\Csv\Encoder;
+use League\Csv\CharsetConverter;
 use League\Csv\Exception\InvalidArgumentException;
 use League\Csv\Exception\RuntimeException;
 use League\Csv\HTMLConverter;
@@ -23,7 +23,7 @@ class ConverterTest extends TestCase
 
     private $stmt;
 
-    private $encoder;
+    private $charset_converter;
 
     public function setUp()
     {
@@ -37,13 +37,14 @@ class ConverterTest extends TestCase
             ->limit(5)
         ;
 
-        $this->encoder = new Encoder();
+        $this->charset_converter = new CharsetConverter();
     }
 
     public function tearDown()
     {
         $this->csv = null;
         $this->stmt = null;
+        $this->charset_converter = null;
     }
 
     public function testToHTML()
@@ -72,17 +73,11 @@ class ConverterTest extends TestCase
     public function testToJson()
     {
         $converter = (new JsonConverter())->options(JSON_HEX_QUOT);
-        $encoder = $this->encoder->inputEncoding('iso-8859-15');
+        $encoder = $this->charset_converter->inputEncoding('iso-8859-15');
 
         $records = $this->stmt->process($this->csv);
-        $this->assertContains('[{', $converter->convert($encoder->encodeAll($records)));
-        $this->assertContains('[{', $converter->convert($encoder->encodeAll($records->fetchAll())));
-    }
-
-    public function testEncodingTriggersException()
-    {
-        $this->expectException(InvalidArgumentException::class);
-        (new Encoder())->inputEncoding('');
+        $this->assertContains('[{', $converter->convert($encoder->convert($records)));
+        $this->assertContains('[{', $converter->convert($encoder->convert($records->fetchAll())));
     }
 
     public function testXmlElementTriggersException()
@@ -97,18 +92,51 @@ class ConverterTest extends TestCase
         (new JsonConverter())->convert($this->stmt->process($this->csv));
     }
 
-    public function testEncoderRemainsTheSame()
+    public function testCharsetConverterTriggersException()
     {
-        $this->assertSame($this->encoder, $this->encoder->inputEncoding('utf-8'));
-        $this->assertSame($this->encoder, $this->encoder->outputEncoding('UtF-8'));
-        $this->assertNotEquals($this->encoder->outputEncoding('iso-8859-15'), $this->encoder);
+        $this->expectException(InvalidArgumentException::class);
+        $this->charset_converter->inputEncoding('');
     }
 
-    public function testEncoderDoesNothing()
+    public function testCharsetConverterRemainsTheSame()
+    {
+        $this->assertSame($this->charset_converter, $this->charset_converter->inputEncoding('utf-8'));
+        $this->assertSame($this->charset_converter, $this->charset_converter->outputEncoding('UtF-8'));
+        $this->assertNotEquals($this->charset_converter->outputEncoding('iso-8859-15'), $this->charset_converter);
+    }
+
+    public function testCharsetConverterDoesNothing()
     {
         $expected = [['a' => 'bé']];
-        $this->assertSame($expected, $this->encoder->encodeAll($expected));
-        $this->assertSame($expected[0], ($this->encoder)($expected[0]));
-        $this->assertNotSame($expected[0], $this->encoder->outputEncoding('utf-16')->__invoke($expected[0]));
+        $this->assertSame($expected, $this->charset_converter->convert($expected));
+        $this->assertSame($expected[0], ($this->charset_converter)($expected[0]));
+        $this->assertNotSame($expected[0], ($this->charset_converter->outputEncoding('utf-16'))($expected[0]));
+    }
+
+    public function testCharsetConverterAsStreamFilter()
+    {
+        CharsetConverter::registerStreamFilter();
+        $res = stream_get_filters();
+        $this->assertContains(CharsetConverter::STREAM_FILTERNAME.'.*', $res);
+
+        $expected = 'Batman,Superman,Anaïs';
+        $raw = mb_convert_encoding($expected, 'iso-8859-15', 'utf-8');
+        $csv = Reader::createFromString($raw)
+            ->addStreamFilter('string.toupper')
+            ->addStreamFilter(CharsetConverter::getFiltername('iso-8859-15', 'utf-8'))
+        ;
+        $this->assertSame(strtoupper($expected), (string) $csv);
+    }
+
+    public function testCharsetConverterAsStreamFilterFailed()
+    {
+        $this->expectException(InvalidArgumentException::class);
+        CharsetConverter::registerStreamFilter();
+        $expected = 'Batman,Superman,Anaïs';
+        $raw = mb_convert_encoding($expected, 'iso-8859-15', 'utf-8');
+        $csv = Reader::createFromString($raw)
+            ->addStreamFilter('string.toupper')
+            ->addStreamFilter('convert.league.csv.iso-8859-15:utf-8')
+        ;
     }
 }

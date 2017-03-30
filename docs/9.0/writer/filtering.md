@@ -120,16 +120,16 @@ $writer->insertOne(["foo", null, "bar"]);
 
 ### Records encoder
 
-[League\Csv\Encoder](/9.0/converter/encoder/) will help you encode your records depending on your settings.
+[League\Csv\CharsetConverter](/9.0/converter/charset/) will help you encode your records depending on your settings.
 
 ~~~php
 <?php
 
-use League\Csv\Encoder;
+use League\Csv\CharsetConverter;
 use League\Csv\Writer;
 
 $writer = Writer::createFromPath('/path/to/your/csv/file.csv');
-$encoder = (new Encoder())
+$encoder = (new CharsetConverter())
     ->inputEncoding('utf-8')
     ->outputEncoding('iso-8859-15')
 ;
@@ -138,9 +138,23 @@ $writer->insertOne(["foo", "bébé", "jouet"]);
 //all 'utf-8' caracters are now automatically encoded into 'iso-8859-15' charset
 ~~~
 
-<p class="message-info"><strong>Tip:</strong> If your <code>Writer</code> object supports PHP stream filters then it's recommended to use the library <a href="/9.0/connections/filters/">stream filtering mechanism</a> instead.</p>
+If your `Writer` object supports PHP stream filters then it's recommended to use the library [stream filtering mechanism](/9.0/connections/filters/) instead.
 
-<p class="message-info"><strong>Tip:</strong> The <code>Encoder</code> object can also be used <a href="/9.0/converter/">to convert CSV records</a> into other transport/exchange format.</p>
+~~~php
+<?php
+
+use League\Csv\CharsetConverter;
+use League\Csv\Writer;
+
+CharsetConverter::registerStreamFilter();
+
+$filtername = CharsetConverter::getFiltername('utf-8', 'iso-8859-15');
+$writer = Writer::createFromPath('/path/to/your/csv/file.csv')
+    ->addStreamFilter($filtername)
+;
+$writer->insertOne(["foo", "bébé", "jouet"]);
+//all 'utf-8' caracters are now automatically encoded into 'iso-8859-15' charset
+~~~
 
 ## Bundled validators
 

@@ -8,7 +8,6 @@ use League\Csv\Exception\RuntimeException;
 use League\Csv\Reader;
 use League\Csv\Statement;
 use League\Csv\Writer;
-use LeagueTest\Csv\Lib\FilterReplace;
 use LogicException;
 use PHPUnit\Framework\TestCase;
 use SplFileObject;
@@ -39,6 +38,7 @@ class CsvTest extends TestCase
     public function tearDown()
     {
         $this->csv = null;
+        @unlink(__DIR__.'/data/newline.csv');
     }
 
     public function testCreateFromPathThrowsRuntimeException()
@@ -231,12 +231,11 @@ class CsvTest extends TestCase
         $this->assertFalse($csv->hasStreamFilter('string.tolower'));
     }
 
-    public function testSetStreamFilterWriterNewLine()
+    public function testSetStreamFilterOnWriter()
     {
-        stream_filter_register(FilterReplace::FILTER_NAME.'*', FilterReplace::class);
-        $csv = Writer::createFromPath(__DIR__.'/data/newline.csv');
-        $csv->addStreamFilter(FilterReplace::FILTER_NAME."\r\n:\n");
+        $csv = Writer::createFromPath(__DIR__.'/data/newline.csv', 'w+');
+        $csv->addStreamFilter('string.toupper');
         $csv->insertOne([1, 'two', 3, "new\r\nline"]);
-        $this->assertContains("1,two,3,\"new\nline\"", (string) $csv);
+        $this->assertContains("1,TWO,3,\"NEW\r\nLINE\"", (string) $csv);
     }
 }

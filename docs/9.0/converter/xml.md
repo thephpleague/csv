@@ -119,4 +119,4 @@ echo htmlentities($dom->saveXML());
 // </csv>
 ~~~
 
-<p class="message-info"><strong>Tip:</strong> if needed you can use the <a href="/9.0/converter/encoder/">Encoder</a> object to correctly encode your CSV records before conversion.</p>
+<p class="message-info"><strong>Tip:</strong> if needed you can use the <a href="/9.0/converter/charset/">CharsetConverter</a> object to correctly encode your CSV records before conversion.</p>

@@ -354,19 +354,12 @@ class StreamIterator implements Iterator
      */
     public function appendFilter(string $filter_name, int $read_write)
     {
-        return stream_filter_append($this->stream, $filter_name, $read_write);
-    }
+        $res = @stream_filter_append($this->stream, $filter_name, $read_write);
+        if (is_resource($res)) {
+            return $res;
+        }
 
-    /**
-     * prepend a filter
-     *
-     * @param string $filter_name
-     *
-     * @return resource
-     */
-    public function prependFilter(string $filter_name, int $read_write)
-    {
-        return stream_filter_prepend($this->stream, $filter_name, $read_write);
+        throw new InvalidArgumentException(error_get_last()['message']);
     }
 
     /**

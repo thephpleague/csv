@@ -115,26 +115,6 @@ class StreamIteratorTest extends TestCase
         $this->assertSame($expected, $csv->__toString());
     }
 
-    public function testPrependFilter()
-    {
-        $fp = fopen('php://temp', 'r+');
-        $csv = new StreamIterator($fp);
-
-        $expected = [
-            ['john', 'doe', 'john.doe@example.com'],
-            ['jane', 'doe', 'jane.doe@example.com'],
-        ];
-
-        $csv->prependFilter('string.toupper', STREAM_FILTER_WRITE);
-        foreach ($expected as $row) {
-            $csv->fputcsv($row);
-        }
-        $csv->setFlags(SplFileObject::READ_CSV | SplFileObject::READ_AHEAD | SplFileObject::SKIP_EMPTY);
-        foreach ($csv as $key => $row) {
-            $this->assertSame(array_map('strtoupper', $expected[$key]), $row);
-        }
-    }
-
     public function testIteratorWithLines()
     {
         $fp = fopen('php://temp', 'r+');

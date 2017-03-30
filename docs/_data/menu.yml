@@ -19,10 +19,10 @@
         Records Collection: '/9.0/reader/records/'
     Converting Records:
         Records Converter: '/9.0/converter/'
+        Charset Converter: '/9.0/converter/charset/'
         Json Converter: '/9.0/converter/json/'
         XML Converter: '/9.0/converter/xml/'
         HTML Converter: '/9.0/converter/html/'
-        Records Encoder: '/9.0/converter/encoder/'
     Upgrading Guide:
         Introduction: '/upgrading/'
         Changelog: '/changelog/'

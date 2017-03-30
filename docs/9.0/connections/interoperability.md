@@ -7,9 +7,9 @@ title: CSV document interoperability
 
 Depending on your operating system and on the software you are using to read/import your CSV you may need to adjust the encoding character and add its corresponding BOM character to your CSV.
 
-<p class="message-warning">Out of the box, <code>League\Csv</code> assumes that your are using a <code>UTF-8</code> encoded CSV.</p>
+<p class="message-warning">Out of the box, <code>League\Csv</code> connections classes do not alter the CSV document original encoding charset.</p>
 
-In the examples below we will be using an existing CSV as a starting point. The code may vary if you are creating the CSV from scratch.
+In the examples below we will be using an existing CSV in ISO-8859-15 charset encoding as a starting point. The code will vary if your CSV document is in a different charset.
 
 ## MS Excel on Windows
 
@@ -21,8 +21,10 @@ On Windows, MS Excel, expects an UTF-8 encoded CSV with its corresponding `BOM` 
 use League\Csv\BOM;
 use League\Csv\Reader;
 
-$reader = Reader::createFromPath('/path/to/my/file.csv');
-$reader->setOutputBOM(BOM::UTF8);
+$reader = Reader::createFromPath('/path/to/my/file.csv')
+    ->setOutputBOM(BOM::UTF8)
+    ->addStreamFilter('convert.iconv.ISO-8859-15/UTF-8')
+;
 //BOM detected and adjusted for the output
 echo $reader->__toString();
 
@@ -58,3 +60,5 @@ $writer->insertAll($origin);
 //all is good let's output the results
 $writer->output('mycsvfile.csv');
 ~~~
+
+<p class="message-notice">In the examples aboves, we assumed that you had the <code>iconv</code> extension installed, an alternative is to register the [League\CharsetConverter](/9.0/converter/charset/) class as a PHP stream filter.</p>

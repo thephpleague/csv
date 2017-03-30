@@ -114,7 +114,7 @@ trait ValidatorTrait
      *
      * @return string
      */
-    protected function filterEncoding(string $encoding)
+    protected static function filterEncoding(string $encoding)
     {
         $encoding = strtoupper(str_replace('_', '-', $encoding));
         $test = filter_var($encoding, FILTER_SANITIZE_STRING, FILTER_FLAG_STRIP_LOW | FILTER_FLAG_STRIP_HIGH);
