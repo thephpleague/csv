@@ -25,10 +25,9 @@ Accessing some records from a given CSV documents.
 use League\Csv\Reader;
 use League\Csv\Statement;
 
-$csv = Reader::createFromPath('/path/to/your/csv/file.csv');
-
-//set the CSV header offset
-$csv->setHeaderOffset(0);
+$csv = Reader::createFromPath('/path/to/your/csv/file.csv')
+    ->setHeaderOffset(0) //set the CSV header offset
+;
 
 //get 25 rows starting from the 11th row
 $stmt = (new Statement())
@@ -97,21 +96,22 @@ $csv = Reader::createFromPath('/path/to/your/csv/file.csv');
 $stmt = (new Statement())
     ->setHeaderOffset(0)
 ;
+
 //by setting the header offset we index all records
 //with the header record and remove it from the iteration
 
-foreach ($csv->select($stmt) as $record) {
+foreach ($stmt->process($csv) as $record) {
     //Do not forget to validate your data before inserting it in your database
-    $sth->bindValue(':firstname', $row['First Name'], PDO::PARAM_STR);
-    $sth->bindValue(':lastname', $row['Last Name'], PDO::PARAM_STR);
-    $sth->bindValue(':email', $row['E-mail'], PDO::PARAM_STR);
+    $sth->bindValue(':firstname', $record['First Name'], PDO::PARAM_STR);
+    $sth->bindValue(':lastname', $record['Last Name'], PDO::PARAM_STR);
+    $sth->bindValue(':email', $record['E-mail'], PDO::PARAM_STR);
     $sth->execute();
 }
 ~~~
 
 ### Encoding a CSV document into a given charset
 
-When importing csv files, you don't know whether the file is encoded with `UTF-8`, `UTF-16` or anything else. The below example tries to determine the encoding and convert to `UTF-8` using the iconv extension.
+When importing csv files, you don't know whether the file is encoded with `UTF-8`, `UTF-16` or anything else. The below example converts yor records to `UTF-8` using the `iconv` extension built-in stream filter.
 
 ~~~php
 <?php
@@ -119,23 +119,23 @@ When importing csv files, you don't know whether the file is encoded with `UTF-8
 use League\Csv\BOM;
 use League\Csv\Reader;
 
-$reader = Reader::createFromPath('/path/to/your/csv/file.csv');
-$reader->setHeaderOffset(0);
+$csv = Reader::createFromPath('/path/to/your/csv/file.csv')
+    ->setHeaderOffset(0);
 
-$input_bom = $reader->getInputBOM();
+$input_bom = $csv->getInputBOM();
 
 if ($input_bom === BOM::UTF16_LE || $input_bom === BOM::UTF16_BE) {
-    $reader->addStreamFilter('convert.iconv.UTF-16/UTF-8');
+    $csv->addStreamFilter('convert.iconv.UTF-16/UTF-8');
 }
 
-foreach ($reader as $record) {
+foreach ($csv as $record) {
     //all fields from the record are converted into UTF-8 charset
 }
 ~~~
 
 ### Converting a CSV document into a XML document
 
-Using the provided `XMLConverter` object you can easily convert a CSV document into a DOMDocument objcet. The below example shows you how to accomplish that.
+Using the provided `XMLConverter` object you can easily convert a CSV document into a `DOMDocument` object.
 
 ~~~php
 <?php
