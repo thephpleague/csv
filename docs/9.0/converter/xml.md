@@ -5,7 +5,7 @@ title: Converting a CSV into a XML DOMDocument object
 
 # XML conversion
 
-`XMLConverter` converts a CSV records collection into a PHP `DOMDocument` by implementing the [Converter interface](/9.0/converter/#converter-interface).
+`XMLConverter` converts a CSV records collection into a PHP `DOMDocument`.
 
 ## Settings
 

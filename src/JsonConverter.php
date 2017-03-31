@@ -24,7 +24,7 @@ use Traversable;
  * @since   9.0.0
  * @author  Ignace Nyamagana Butera <nyamsprod@gmail.com>
  */
-class JsonConverter implements Converter
+class JsonConverter
 {
     use ValidatorTrait;
 

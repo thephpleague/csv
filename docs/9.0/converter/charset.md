@@ -17,7 +17,7 @@ public CharsetConverter::inputEncoding(string $input_encoding): self
 public CharsetConverter::outputEncoding(string $output_encoding): self
 ~~~
 
-The `CharsetConverter` class converts your CSV records using the `mbstring` extension and its [supported character encodings](http://php.net/manual/en/mbstring.supported-encodings.php) by implementing the [Converter interface](/9.0/converter/#converter-interface).
+The `CharsetConverter` class converts your CSV records using the `mbstring` extension and its [supported character encodings](http://php.net/manual/en/mbstring.supported-encodings.php).
 
 ## Properties
 

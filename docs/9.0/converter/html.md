@@ -5,7 +5,7 @@ title: Converting a CSV into an HTML table
 
 # HTML conversion
 
-`HTMLConverter` converts a CSV records collection into a HTML Table by implementing the [Converter interface](/9.0/converter/#converter-interface).
+`HTMLConverter` converts a CSV records collection into a HTML Table using PHP's `DOMDocument` class.
 
 
 ## Settings

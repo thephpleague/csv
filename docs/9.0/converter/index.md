@@ -5,7 +5,7 @@ title: Records conversion in popular formats
 
 # Records conversion
 
-## Converter Interface
+## Converter classes
 
 The package provides classes which convert any collection of CSV records into:
 
@@ -14,7 +14,7 @@ The package provides classes which convert any collection of CSV records into:
 - a HTML table using the [HTMLConverter](/9.0/converter/html/) class;
 - a Json string using the [JsonConverter](/9.0/converter/json/) class;
 
-All theses classes implements the `Converter` interface.
+All theses classes expose a common `convert` method defined as follow:
 
 ~~~php
 <?php

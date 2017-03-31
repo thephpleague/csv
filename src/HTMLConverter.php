@@ -23,7 +23,7 @@ use Traversable;
  * @since   9.0.0
  * @author  Ignace Nyamagana Butera <nyamsprod@gmail.com>
  */
-class HTMLConverter implements Converter
+class HTMLConverter
 {
     /**
      * table class attribute value

@@ -10,7 +10,6 @@ All Notable changes to `Csv` will be documented in this file
 - `League\Csv\BOM` interface
 - `League\Csv\Statement`
 - `League\Csv\RecordSet`
-- `League\Csv\Converter` interface
 - `League\Csv\CharsetConverter`
 - `League\Csv\XMLConverter`
 - `League\Csv\HTMLConverter`

@@ -27,7 +27,7 @@ use Traversable;
  * @since   9.0.0
  * @author  Ignace Nyamagana Butera <nyamsprod@gmail.com>
  */
-class XMLConverter implements Converter
+class XMLConverter
 {
     use ValidatorTrait;
 
