@@ -29,7 +29,7 @@ class InsertionException extends RuntimeException
      *
      * @var array
      */
-    protected $data;
+    protected $record;
 
     /**
      * Validator which did not validated the data
@@ -39,7 +39,7 @@ class InsertionException extends RuntimeException
     protected $name = '';
 
     /**
-     * Create an Exception from a Record row
+     * Create an Exception from a record insertion
      *
      * @param string[] $record
      *
@@ -47,25 +47,25 @@ class InsertionException extends RuntimeException
      */
     public static function createFromCsv(array $record): self
     {
-        $exception = new static('Unable to write data to the CSV document');
-        $exception->data = $record;
+        $exception = new static('Unable to write record to the CSV document');
+        $exception->record = $record;
 
         return $exception;
     }
 
     /**
-     * Create an Exception from a Record row
+     * Create an Exception from a Record Validation
      *
-     * @param string   $name validator name
-     * @param string[] $data invalid  data
+     * @param string   $name   validator name
+     * @param string[] $record invalid  data
      *
      * @return self
      */
-    public static function createFromValidator(string $name, array $data): self
+    public static function createFromValidator(string $name, array $record): self
     {
-        $exception = new static('row validation failed');
+        $exception = new static('Record validation failed');
         $exception->name = $name;
-        $exception->data = $data;
+        $exception->record = $record;
 
         return $exception;
     }
@@ -85,8 +85,8 @@ class InsertionException extends RuntimeException
      *
      * @return array
      */
-    public function getData(): array
+    public function getRecord(): array
     {
-        return $this->data;
+        return $this->record;
     }
 }

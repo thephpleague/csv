@@ -94,7 +94,7 @@ class XMLConverter
      *
      * @param string $encoding
      *
-     * @return static
+     * @return self
      */
     public function encoding(string $encoding): self
     {
@@ -192,13 +192,13 @@ class XMLConverter
      *
      * @return DOMDocument
      */
-    public function convert($records)
+    public function convert($records): DOMDocument
     {
         $field_encoder = $this->encoder['field']['' !== $this->column_attr];
         $record_encoder = $this->encoder['record']['' !== $this->offset_attr];
         $doc = new DOMDocument('1.0', $this->encoding);
         $root = $doc->createElement($this->root_name);
-        foreach ($this->filterIterable($records, __METHOD__) as $offset => $record) {
+        foreach ($this->filterIterable($records) as $offset => $record) {
             $node = $this->{$record_encoder}($doc, $record, $field_encoder, $offset);
             $root->appendChild($node);
         }

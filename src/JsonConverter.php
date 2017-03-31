@@ -18,7 +18,7 @@ use League\Csv\Exception\RuntimeException;
 use Traversable;
 
 /**
- * A class to convert CSV records into a DOMDOcument object
+ * A class to convert CSV records into a Json string
  *
  * @package League.csv
  * @since   9.0.0
@@ -45,7 +45,7 @@ class JsonConverter
     public function options(int $options): self
     {
         $clone = clone $this;
-        $clone->options = $this->filterMinRange($options, 0, __METHOD__.': the options must be a positive integer or 0');
+        $clone->options = $this->filterMinRange($options, 0, 'The options must be a positive integer or 0');
 
         return $clone;
     }
@@ -57,9 +57,9 @@ class JsonConverter
      *
      * @return string
      */
-    public function convert($records)
+    public function convert($records): string
     {
-        $records = $this->filterIterable($records, __METHOD__);
+        $records = $this->filterIterable($records);
         if (!is_array($records)) {
             $records = iterator_to_array($records);
         }

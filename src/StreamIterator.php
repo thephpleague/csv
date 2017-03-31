@@ -17,6 +17,7 @@ namespace League\Csv;
 use Iterator;
 use League\Csv\Exception\InvalidArgumentException;
 use League\Csv\Exception\LogicException;
+use SeekableIterator;
 use SplFileObject;
 
 /**
@@ -28,7 +29,7 @@ use SplFileObject;
  * @internal used internally to iterate over a stream resource
  *
  */
-class StreamIterator implements Iterator
+class StreamIterator implements Iterator, SeekableIterator
 {
     use ValidatorTrait;
 
@@ -96,15 +97,15 @@ class StreamIterator implements Iterator
     public function __construct($stream)
     {
         if (!is_resource($stream)) {
-            throw new InvalidArgumentException(sprintf('Argument 1 passed to %s must be a resource, %s given', __METHOD__, is_object($stream) ? get_class($stream) : gettype($stream)));
+            throw new InvalidArgumentException(sprintf('Argument passed must be a resource, %s given', is_object($stream) ? get_class($stream) : gettype($stream)));
         }
 
         if ('stream' !== ($type = get_resource_type($stream))) {
-            throw new InvalidArgumentException(sprintf('Argument 1 passed to %s must be a stream resource, %s resource given', __METHOD__, $type));
+            throw new InvalidArgumentException(sprintf('Argument passed must be a stream resource, %s resource given', $type));
         }
 
         if (!stream_get_meta_data($stream)['seekable']) {
-            throw new InvalidArgumentException(sprintf('Argument 1 passed to %s must be a seekable stream resource', __METHOD__));
+            throw new InvalidArgumentException(sprintf('Argument passed must be a seekable stream resource'));
         }
 
         $this->stream = $stream;
@@ -129,13 +130,13 @@ class StreamIterator implements Iterator
      */
     public function setCsvControl(string $delimiter = ',', string $enclosure = '"', string $escape = '\\')
     {
-        $this->delimiter = $this->filterControl($delimiter, 'delimiter', __METHOD__);
-        $this->enclosure = $this->filterControl($enclosure, 'enclosure', __METHOD__);
-        $this->escape = $this->filterControl($escape, 'escape', __METHOD__);
+        $this->delimiter = $this->filterControl($delimiter, 'delimiter');
+        $this->enclosure = $this->filterControl($enclosure, 'enclosure');
+        $this->escape = $this->filterControl($escape, 'escape');
     }
 
     /**
-     * Set Flags
+     * Set StreamIterator Flags
      *
      * @see http://php.net/manual/en/splfileobject.setflags.php
      *
@@ -163,14 +164,16 @@ class StreamIterator implements Iterator
         return fputcsv(
             $this->stream,
             $fields,
-            $this->filterControl($delimiter, 'delimiter', __METHOD__),
-            $this->filterControl($enclosure, 'enclosure', __METHOD__),
-            $this->filterControl($escape, 'escape', __METHOD__)
+            $this->filterControl($delimiter, 'delimiter'),
+            $this->filterControl($enclosure, 'enclosure'),
+            $this->filterControl($escape, 'escape')
         );
     }
 
     /**
      * Retrieves the current line of the file.
+     *
+     * @see http://php.net/manual/en/splfileobject.current.php
      *
      * @return mixed
      */
@@ -222,6 +225,8 @@ class StreamIterator implements Iterator
     /**
      * Get line number
      *
+     * @see http://php.net/manual/en/splfileobject.key.php
+     *
      * @return int
      */
     public function key()
@@ -231,6 +236,9 @@ class StreamIterator implements Iterator
 
     /**
      * Read next line
+     *
+     * @see http://php.net/manual/en/splfileobject.next.php
+     *
      */
     public function next()
     {
@@ -240,6 +248,9 @@ class StreamIterator implements Iterator
 
     /**
      * Rewind the file to the first line
+     *
+     * @see http://php.net/manual/en/splfileobject.rewind.php
+     *
      */
     public function rewind()
     {
@@ -253,6 +264,8 @@ class StreamIterator implements Iterator
 
     /**
      * Not at EOF
+     *
+     * @see http://php.net/manual/en/splfileobject.valid.php
      *
      * @return bool
      */
@@ -308,20 +321,22 @@ class StreamIterator implements Iterator
     }
 
     /**
-     * Seek a specified line
+     * Seek to specified line
      *
-     * @param int $line_pos
+     * @see http://php.net/manual/en/splfileobject.seek.php
+     *
+     * @param int $position
      *
      * @throws LogicException if the line positon is negative
      */
-    public function seek(int $line_pos)
+    public function seek($position)
     {
-        if (0 > $line_pos) {
-            throw new LogicException(sprintf('Can\'t seek stream to negative line %d', $line_pos));
+        if (0 > $position) {
+            throw new LogicException(sprintf('Can\'t seek stream to negative line %d', $position));
         }
 
         foreach ($this as $key => $value) {
-            if ($key == $line_pos || feof($this->stream)) {
+            if ($key == $position || feof($this->stream)) {
                 $this->current_line_number--;
                 break;
             }
@@ -348,13 +363,17 @@ class StreamIterator implements Iterator
     /**
      * append a filter
      *
+     * @see http://php.net/manual/en/function.stream-filter-append.php
+     *
      * @param string $filter_name
+     * @param int    $read_write
+     * @param mixed  $params
      *
      * @return resource
      */
-    public function appendFilter(string $filter_name, int $read_write)
+    public function appendFilter(string $filter_name, int $read_write, $params = null)
     {
-        $res = @stream_filter_append($this->stream, $filter_name, $read_write);
+        $res = @stream_filter_append($this->stream, $filter_name, $read_write, $params);
         if (is_resource($res)) {
             return $res;
         }
@@ -365,6 +384,8 @@ class StreamIterator implements Iterator
     /**
      * remove a registered filter
      *
+     * @see http://php.net/manual/en/function.stream-filter-remove.php
+     *
      * @param resource $resource
      */
     public function removeFilter($resource)
@@ -374,6 +395,8 @@ class StreamIterator implements Iterator
 
     /**
      * Flushes the output to a file
+     *
+     * @see http://php.net/manual/en/splfileobject.fwrite.php
      *
      * @return bool
      */

@@ -129,7 +129,7 @@ class Statement
      */
     public function offset(int $offset): self
     {
-        $offset = $this->filterMinRange($offset, 0, __METHOD__.': the offset must be a positive integer or 0');
+        $offset = $this->filterMinRange($offset, 0, 'The Statement offset must be a positive integer or 0');
         if ($offset === $this->offset) {
             return $this;
         }
@@ -149,7 +149,7 @@ class Statement
      */
     public function limit(int $limit): self
     {
-        $limit = $this->filterMinRange($limit, -1, __METHOD__.': the limit must an integer greater or equals to -1');
+        $limit = $this->filterMinRange($limit, -1, 'The Statement limit must an integer greater or equals to -1');
         if ($limit === $this->limit) {
             return $this;
         }

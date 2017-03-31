@@ -2,6 +2,7 @@
 
 namespace LeagueTest\Csv;
 
+use ArrayIterator;
 use League\Csv\CharsetConverter;
 use League\Csv\Exception\InvalidArgumentException;
 use League\Csv\Reader;
@@ -29,10 +30,11 @@ class CharsetConverterTest extends TestCase
     public function testCharsetConverterDoesNothing()
     {
         $converter = new CharsetConverter();
-        $expected = [['a' => 'bé']];
-        $this->assertSame($expected, $converter->convert($expected));
-        $this->assertSame($expected[0], ($converter)($expected[0]));
-        $this->assertNotSame($expected[0], ($converter->outputEncoding('utf-16'))($expected[0]));
+        $data = [['a' => 'bé']];
+        $expected = new ArrayIterator($data);
+        $this->assertEquals($expected, $converter->convert($expected));
+        $this->assertEquals($expected[0], ($converter)($expected[0]));
+        $this->assertNotEquals($expected[0], ($converter->outputEncoding('utf-16'))($expected[0]));
     }
 
     public function testCharsetConverterAsStreamFilter()

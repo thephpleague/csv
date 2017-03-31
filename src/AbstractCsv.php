@@ -20,7 +20,7 @@ use SplFileObject;
 use function League\Csv\bom_match;
 
 /**
- *  An abstract class to enable basic CSV manipulation
+ *  An abstract class to enable CSV document loading.
  *
  * @package League.csv
  * @since   4.0.0
@@ -308,7 +308,7 @@ abstract class AbstractCsv
      */
     public function setDelimiter(string $delimiter): self
     {
-        $delimiter = $this->filterControl($delimiter, 'delimiter', __METHOD__);
+        $delimiter = $this->filterControl($delimiter, 'delimiter');
         if ($delimiter != $this->delimiter) {
             $this->delimiter = $delimiter;
             $this->resetProperties();
@@ -333,7 +333,7 @@ abstract class AbstractCsv
      */
     public function setEnclosure(string $enclosure): self
     {
-        $enclosure = $this->filterControl($enclosure, 'enclosure', __METHOD__);
+        $enclosure = $this->filterControl($enclosure, 'enclosure');
         if ($enclosure != $this->enclosure) {
             $this->enclosure = $enclosure;
             $this->resetProperties();
@@ -351,7 +351,7 @@ abstract class AbstractCsv
      */
     public function setEscape(string $escape): self
     {
-        $escape = $this->filterControl($escape, 'escape', __METHOD__);
+        $escape = $this->filterControl($escape, 'escape');
         if ($escape != $this->escape) {
             $this->escape = $escape;
             $this->resetProperties();
@@ -379,18 +379,19 @@ abstract class AbstractCsv
      * append a stream filter
      *
      * @param string $filtername a string or an object that implements the '__toString' method
+     * @param mixed  $params     additional parameters for the filter
      *
      * @throws LogicException If the stream filter API can not be used
      *
      * @return static
      */
-    public function addStreamFilter(string $filtername): self
+    public function addStreamFilter(string $filtername, $params = null): self
     {
         if (!$this->document instanceof StreamIterator) {
             throw new LogicException('The stream filter API can not be used');
         }
 
-        $this->stream_filters[$filtername][] = $this->document->appendFilter($filtername, $this->stream_filter_mode);
+        $this->stream_filters[$filtername][] = $this->document->appendFilter($filtername, $this->stream_filter_mode, $params);
         $this->resetProperties();
         $this->input_bom = null;
 

@@ -14,6 +14,7 @@ declare(strict_types=1);
 
 namespace League\Csv;
 
+use ArrayIterator;
 use Iterator;
 use php_user_filter;
 use Traversable;
@@ -140,11 +141,15 @@ class CharsetConverter extends php_user_filter
      *
      * @param array|Traversable $records the CSV records collection
      *
-     * @return array|Iterator
+     * @return Iterator
      */
-    public function convert($records)
+    public function convert($records): Iterator
     {
-        $records = $this->filterIterable($records, __METHOD__);
+        $records = $this->filterIterable($records);
+        if (is_array($records)) {
+            $records = new ArrayIterator($records);
+        }
+
         if ($this->output_encoding === $this->input_encoding) {
             return $records;
         }
@@ -154,10 +159,6 @@ class CharsetConverter extends php_user_filter
             return $record;
         };
 
-        if (is_array($records)) {
-            return array_map($convert, $records);
-        }
-
         return new MapIterator($records, $convert);
     }
 
@@ -166,7 +167,7 @@ class CharsetConverter extends php_user_filter
      *
      * @param string $encoding
      *
-     * @return static
+     * @return self
      */
     public function inputEncoding(string $encoding): self
     {
@@ -186,7 +187,7 @@ class CharsetConverter extends php_user_filter
      *
      * @param string $encoding
      *
-     * @return static
+     * @return self
      */
     public function outputEncoding(string $encoding): self
     {

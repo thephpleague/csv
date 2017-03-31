@@ -24,7 +24,7 @@ use League\Csv\Exception\RuntimeException;
 use LimitIterator;
 
 /**
- * A class to manage extracting and filtering a CSV
+ * Represents the result set of a {@link Reader} processed by a {@link Statement}
  *
  * @package League.csv
  * @since   9.0.0
@@ -36,22 +36,21 @@ class RecordSet implements IteratorAggregate, Countable
     use ValidatorTrait;
 
     /**
-     * The CSV iterator result
+     * The CSV records collection
      *
      * @var Iterator
      */
     protected $iterator;
 
     /**
-     * The CSV header
+     * The CSV records collection column names
      *
      * @var array
      */
     protected $column_names = [];
 
     /**
-     * Tell whether the CSV document offset
-     * must be kept on output
+     * Tell whether the CSV records offset must be kept on output
      *
      * @var bool
      */
@@ -60,10 +59,10 @@ class RecordSet implements IteratorAggregate, Countable
     /**
      * New instance
      *
-     * @param Iterator $iterator     a CSV iterator
-     * @param array    $column_names the CSV header
+     * @param Iterator $iterator     a CSV records collection iterator
+     * @param array    $column_names the associated collection column names
      */
-    public function __construct(Iterator $iterator, array $column_names = [])
+    public function __construct(Iterator $iterator, array $column_names)
     {
         $this->iterator = $iterator;
         $this->column_names = $column_names;
@@ -78,7 +77,7 @@ class RecordSet implements IteratorAggregate, Countable
     }
 
     /**
-     * Returns the field names associate with the RecordSet
+     * Returns the column names associated with the RecordSet
      *
      * @return string[]
      */
@@ -88,8 +87,7 @@ class RecordSet implements IteratorAggregate, Countable
     }
 
     /**
-     * Tell whether the CSV document offset
-     * must be kept on output
+     * Tell whether the CSV document record offset must be kept on output
      *
      * @return bool
      */
@@ -136,7 +134,7 @@ class RecordSet implements IteratorAggregate, Countable
     }
 
     /**
-     * Returns a sequential array of all CSV lines
+     * Returns a sequential array of all CSV records found
      *
      * @return array
      */
@@ -146,17 +144,17 @@ class RecordSet implements IteratorAggregate, Countable
     }
 
     /**
-     * Returns a single row from the CSV
+     * Returns a single record from the CSV
      *
      * By default if no offset is provided the first row of the CSV is selected
      *
-     * @param int $offset the CSV row offset
+     * @param int $offset the CSV record offset
      *
      * @return array
      */
     public function fetchOne(int $offset = 0): array
     {
-        $offset = $this->filterMinRange($offset, 0, __METHOD__.': the submitted offset is invalid');
+        $offset = $this->filterMinRange($offset, 0, 'The submitted offset must be a positive integer or 0');
         $it = new LimitIterator($this->iterator, $offset, 1);
         $it->rewind();
 
@@ -164,7 +162,7 @@ class RecordSet implements IteratorAggregate, Countable
     }
 
     /**
-     * Returns the next value from a single CSV column
+     * Returns the next value from a single CSV record field
      *
      * By default if no column index is provided the first column of the CSV is selected
      *
@@ -174,7 +172,7 @@ class RecordSet implements IteratorAggregate, Countable
      */
     public function fetchColumn($index = 0): Generator
     {
-        $offset = $this->getColumnIndex($index, __METHOD__.': the column index `%s` value is invalid');
+        $offset = $this->getColumnIndex($index, 'The column index `%s` value is invalid');
         $filter = function (array $record) use ($offset): bool {
             return isset($record[$offset]);
         };
@@ -237,8 +235,8 @@ class RecordSet implements IteratorAggregate, Countable
      */
     public function fetchPairs($offset_index = 0, $value_index = 1): Generator
     {
-        $offset = $this->getColumnIndex($offset_index, __METHOD__.': the offset index value is invalid');
-        $value = $this->getColumnIndex($value_index, __METHOD__.': the value index value is invalid');
+        $offset = $this->getColumnIndex($offset_index, 'The offset index value  `%s` is invalid');
+        $value = $this->getColumnIndex($value_index, 'The value index value `%s` is invalid');
 
         $filter = function (array $record) use ($offset): bool {
             return isset($record[$offset]);
@@ -258,12 +256,12 @@ class RecordSet implements IteratorAggregate, Countable
     /**
      * Whether we should preserve the CSV document record offset.
      *
-     * If set to true CSV document record offset will added to
+     * If set to true CSV document record offset will be added to
      * method output where it makes sense.
      *
      * @param bool $status
      *
-     * @return static
+     * @return self
      */
     public function preserveRecordOffset(bool $status)
     {

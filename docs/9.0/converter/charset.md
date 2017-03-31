@@ -12,7 +12,7 @@ const STREAM_FILTERNAME = 'convert.league.csv.';
 public static CharsetConverter::registerStreamFilter(): bool
 public static CharsetConverter::getFiltername(string $input_encoding, string $output_encoding): string
 public CharsetConverter::__invoke(array $record): array
-public CharsetConverter::convert(iterable $records): iterable
+public CharsetConverter::convert(iterable $records): Iterator
 public CharsetConverter::inputEncoding(string $input_encoding): self
 public CharsetConverter::outputEncoding(string $output_encoding): self
 ~~~
@@ -37,7 +37,7 @@ When building a `CharsetConverter` object, the methods do not need to be called 
 ~~~php
 <?php
 
-public CharsetConverter::convert(iterable $records): iterable
+public CharsetConverter::convert(iterable $records): Iterator
 ~~~
 
 `CharsetConverter::convert` converts the collection of records charset encoding.

@@ -386,4 +386,5 @@ foreach ($records->fetchPairs() as $firstname => $lastname) {
 - If no `$valueIndex` is provided it default to `1`;
 - If no cell is found corresponding to `$offsetIndex` the row is skipped;
 - If no cell is found corresponding to `$valueIndex` the `null` value is used;
-- If `RecordSet::getColumnNames` is not empty and the arguments are not found string, a `RuntimeException` will be thrown;
+
+<p class="message-warning">If <code>RecordSet::getColumnNames</code> is not empty and the submitted arguments are not found strings, a <code>RuntimeException</code> will be thrown</p>

@@ -29,28 +29,28 @@ class ColumnConsistencyValidator
     use ValidatorTrait;
 
     /**
-     * The number of column per row
+     * The number of column per record
      *
      * @var int
      */
     protected $columns_count = -1;
 
     /**
-     * should the class detect the column count based the inserted row
+     * should the class detect the column count based on the inserted record
      *
      * @var bool
      */
     protected $detect_columns_count = false;
 
     /**
-     * Set Inserted row column count
+     * Set Inserted record column count
      *
      * @param int $value
      */
     public function setColumnsCount(int $value)
     {
         $this->detect_columns_count = false;
-        $this->columns_count = $this->filterMinRange($value, -1, __METHOD__.': the column count must be greater or equal to -1');
+        $this->columns_count = $this->filterMinRange($value, -1, 'The column count must be greater or equal to -1');
     }
 
     /**
@@ -74,7 +74,7 @@ class ColumnConsistencyValidator
     }
 
     /**
-     * Is the submitted row valid
+     * Is the submitted record valid
      *
      * @param array $record
      *
@@ -82,8 +82,9 @@ class ColumnConsistencyValidator
      */
     public function __invoke(array $record): bool
     {
+        $count = count($record);
         if ($this->detect_columns_count) {
-            $this->setColumnsCount(count($record));
+            $this->setColumnsCount($count);
 
             return true;
         }
@@ -92,6 +93,6 @@ class ColumnConsistencyValidator
             return true;
         }
 
-        return count($record) === $this->columns_count;
+        return $count === $this->columns_count;
     }
 }

@@ -17,7 +17,7 @@ namespace League\Csv;
 use Traversable;
 
 /**
- * A class to convert CSV records into a DOMDOcument object
+ * A class to convert CSV records into an HTML Table string
  *
  * @package League.csv
  * @since   9.0.0
@@ -61,7 +61,7 @@ class HTMLConverter
      *
      * @param string $encoding
      *
-     * @return static
+     * @return self
      */
     public function encoding(string $encoding): self
     {
@@ -125,7 +125,7 @@ class HTMLConverter
      *
      * @return string
      */
-    public function convert($records)
+    public function convert($records): string
     {
         $doc = $this->xml_converter->convert($records);
         $doc->documentElement->setAttribute('class', $this->class_name);

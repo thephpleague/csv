@@ -52,39 +52,37 @@ trait ValidatorTrait
      * Validate the argument given is an iterable
      *
      * @param array|Traversable $iterable
-     * @param string            $method
      *
      * @throws InvalidArgumentException If the submitted value is not iterable
      *
      * @return array|Traversable
      */
-    protected function filterIterable($iterable, string $method)
+    protected function filterIterable($iterable)
     {
         if (is_array($iterable) || $iterable instanceof Traversable) {
             return $iterable;
         }
 
-        throw new InvalidArgumentException(sprintf('Argument 1 passed to %s must be iterable, %s given', $method, is_object($iterable) ? get_class($iterable) : gettype($iterable)));
+        throw new InvalidArgumentException(sprintf('Argument passed must be iterable, %s given', is_object($iterable) ? get_class($iterable) : gettype($iterable)));
     }
 
     /**
      * Filter Csv control character
      *
-     * @param string $char   Csv control character
-     * @param string $type   Csv control character type
-     * @param string $method Method call
+     * @param string $char Csv control character
+     * @param string $type Csv control character type
      *
      * @throws InvalidArgumentException If the Csv control character is not one character only.
      *
      * @return string
      */
-    protected function filterControl(string $char, string $type, string $method)
+    protected function filterControl(string $char, string $type)
     {
         if (1 == strlen($char)) {
             return $char;
         }
 
-        throw new InvalidArgumentException(sprintf('%s: %s must be a single character', $method, $type));
+        throw new InvalidArgumentException(sprintf('%s must be a single character', $type));
     }
 
     /**

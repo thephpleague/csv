@@ -18,7 +18,7 @@ use IteratorIterator;
 use Traversable;
 
 /**
- *  A simple MapIterator
+ * Map value from an iterator before yielding
  *
  * @package  League.csv
  * @since    3.3.0

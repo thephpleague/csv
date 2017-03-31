@@ -39,8 +39,8 @@ class NullValidatorTest extends TestCase
             $this->csv->insertOne($expected);
         } catch (InsertionException $e) {
             $this->assertSame($validator_name, $e->getName());
-            $this->assertSame($expected, $e->getData());
-            $this->assertSame('row validation failed', $e->getMessage());
+            $this->assertSame($expected, $e->getRecord());
+            $this->assertSame('Record validation failed', $e->getMessage());
         }
     }
 }

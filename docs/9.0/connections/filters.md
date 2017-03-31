@@ -10,7 +10,7 @@ title: Controlling PHP Stream Filters
 
 public AbstractCsv::supportsStreamFilter(void): bool
 public AbstractCsv::hasStreamFilter(string $filtername): bool
-public AbstractCsv::addStreamFilter(string $filtername): self
+public AbstractCsv::addStreamFilter(string $filtername, mixed $params = null): self
 ~~~
 
 To ease performing operations on the CSV document as it is being read from or written to, you can add PHP stream filters to the `Reader` and `Writer` objects.
@@ -57,13 +57,15 @@ Here's a table to quickly determine if PHP stream filters works depending on how
 ~~~php
 <?php
 
-public AbstractCsv::addStreamFilter(string $filtername): self
+public AbstractCsv::addStreamFilter(string $filtername, mixed $params = null): self
 public AbstractCsv::hasStreamFilter(string $filtername): bool
 ~~~
 
-The `$filtername` parameter is a string that represents the filter as registered using php `stream_filter_register` function or one of [PHP internal stream filter](http://php.net/manual/en/filters.php).
-
 The `AbstractCsv::addStreamFilter` method adds a stream filter to the connection.
+
+- The `$filtername` parameter is a string that represents the filter as registered using php `stream_filter_register` function or one of [PHP internal stream filter](http://php.net/manual/en/filters.php).
+
+- The `$params` : This filter will be added with the specified paramaters to the end of the list.
 
 <p class="message-warning"><strong>Warning:</strong> Each time your call <code>addStreamFilter</code> with the same argument the corresponding filter is register again.</p>
 

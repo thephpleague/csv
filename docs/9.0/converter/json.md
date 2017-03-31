@@ -30,6 +30,8 @@ The `JsonConverter::convert` accepts an `iterable` which represents the records 
 
 <p class="message-warning">If a error occurs during the convertion an <code>RuntimeException</code> exception is thrown with additional information regarding the error.</p>
 
+<p class="message-warning"><strong>Warning:</strong> To convert an iterator, <code>iterator_to_array</code> is used, which could lead to a performance penalty if you convert a large <code>Iterator</code>.</p>
+
 ~~~php
 <?php
 

@@ -76,7 +76,7 @@ class WriterTest extends TestCase
             $csv = Writer::createFromPath(__DIR__.'/data/foo.csv', 'r');
             $csv->insertOne($expected);
         } catch (InsertionException $e) {
-            $this->assertSame($e->getData(), $expected);
+            $this->assertSame($e->getRecord(), $expected);
         }
     }
 

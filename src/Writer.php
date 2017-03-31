@@ -15,11 +15,10 @@ declare(strict_types=1);
 namespace League\Csv;
 
 use League\Csv\Exception\InsertionException;
-use League\Csv\Exception\InvalidArgumentException;
 use Traversable;
 
 /**
- * A class to manage data insertion into a CSV
+ * A class to manage records insertion into a CSV Document
  *
  * @package League.csv
  * @since   4.0.0
@@ -95,14 +94,12 @@ class Writer extends AbstractCsv
      *
      * @param Traversable|array $records a multidimensional array or a Traversable object
      *
-     * @throws InvalidArgumentException If the given rows format is invalid
-     *
      * @return int
      */
     public function insertAll($records): int
     {
         $bytes = 0;
-        foreach ($this->filterIterable($records, __METHOD__) as $record) {
+        foreach ($this->filterIterable($records) as $record) {
             $bytes += $this->insertOne($record);
         }
 
@@ -134,7 +131,7 @@ class Writer extends AbstractCsv
     }
 
     /**
-     * Format the given row
+     * Format the given record
      *
      * @param string[] $record
      * @param callable $formatter
@@ -147,7 +144,7 @@ class Writer extends AbstractCsv
     }
 
     /**
-     * Validate a row
+     * Validate a record
      *
      * @param string[] $record
      *
@@ -206,13 +203,13 @@ class Writer extends AbstractCsv
      * add a Validator to the collection
      *
      * @param callable $validator
-     * @param string   $name      the validator name
+     * @param string   $validator_name the validator name
      *
      * @return static
      */
-    public function addValidator(callable $validator, string $name): self
+    public function addValidator(callable $validator, string $validator_name): self
     {
-        $this->validators[$name] = $validator;
+        $this->validators[$validator_name] = $validator;
 
         return $this;
     }
@@ -234,19 +231,19 @@ class Writer extends AbstractCsv
     /**
      * Set the automatic flush threshold on write
      *
-     * @param int|null $val
+     * @param int|null $threshold
      */
-    public function setFlushThreshold($val): self
+    public function setFlushThreshold($threshold): self
     {
-        if (null !== $val) {
-            $val = $this->filterMinRange($val, 1, __METHOD__.': The flush threshold must be a valid positive integer or null');
+        if (null !== $threshold) {
+            $threshold = $this->filterMinRange($threshold, 1, 'The flush threshold must be a valid positive integer or null');
         }
 
-        if ($val === $this->flush_threshold) {
+        if ($threshold === $this->flush_threshold) {
             return $this;
         }
 
-        $this->flush_threshold = $val;
+        $this->flush_threshold = $threshold;
         if (0 < $this->flush_counter) {
             $this->flush_counter = 0;
             $this->document->fflush();

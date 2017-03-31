@@ -22,7 +22,7 @@ use LimitIterator;
 use SplFileObject;
 
 /**
- *  A class to manage extracting and filtering a CSV
+ * A class to manage records selection from a CSV document
  *
  * @package League.csv
  * @since  3.0.0
@@ -69,7 +69,7 @@ class Reader extends AbstractCsv implements IteratorAggregate
     }
 
     /**
-     * Returns a collection of selected records
+     * Returns a CSV records collection
      *
      * @param Statement $stmt
      *
@@ -97,7 +97,7 @@ class Reader extends AbstractCsv implements IteratorAggregate
             return 1 == strlen($value);
         };
 
-        $nb_records = $this->filterMinRange($nb_records, 1, __METHOD__.': the number of rows to consider must be a valid positive integer');
+        $nb_records = $this->filterMinRange($nb_records, 1, 'The number of records to consider must be a valid positive integer');
         $delimiters = array_unique(array_filter($delimiters, $filter));
         $reducer = function (array $res, string $delimiter) use ($nb_records): array {
             $res[$delimiter] = $this->getCellCount($delimiter, $nb_records);
@@ -122,8 +122,8 @@ class Reader extends AbstractCsv implements IteratorAggregate
      */
     protected function getCellCount(string $delimiter, int $nb_records)
     {
-        $filter = function ($row): bool {
-            return is_array($row) && count($row) > 1;
+        $filter = function ($record): bool {
+            return is_array($record) && count($record) > 1;
         };
 
         $this->document->setFlags(SplFileObject::READ_CSV);
@@ -142,8 +142,8 @@ class Reader extends AbstractCsv implements IteratorAggregate
         $header = $this->getHeader();
         $this->document->setFlags(SplFileObject::READ_CSV | SplFileObject::READ_AHEAD | SplFileObject::SKIP_EMPTY);
         $this->document->setCsvControl($this->delimiter, $this->enclosure, $this->escape);
-        $normalized = function ($row): bool {
-            return is_array($row) && $row != [null];
+        $normalized = function ($record): bool {
+            return is_array($record) && $record != [null];
         };
 
         $iterator = $this->combineHeader(new CallbackFilterIterator($this->document, $normalized), $header);
@@ -246,24 +246,24 @@ class Reader extends AbstractCsv implements IteratorAggregate
     /**
      * Strip the BOM sequence from a record
      *
-     * @param string[] $row
+     * @param string[] $record
      * @param int      $bom_length
      * @param string   $enclosure
      *
      * @return string[]
      */
-    protected function removeBOM(array $row, int $bom_length, string $enclosure): array
+    protected function removeBOM(array $record, int $bom_length, string $enclosure): array
     {
         if (0 == $bom_length) {
-            return $row;
+            return $record;
         }
 
-        $row[0] = mb_substr($row[0], $bom_length);
-        if ($enclosure == mb_substr($row[0], 0, 1) && $enclosure == mb_substr($row[0], -1, 1)) {
-            $row[0] = mb_substr($row[0], 1, -1);
+        $record[0] = mb_substr($record[0], $bom_length);
+        if ($enclosure == mb_substr($record[0], 0, 1) && $enclosure == mb_substr($record[0], -1, 1)) {
+            $record[0] = mb_substr($record[0], 1, -1);
         }
 
-        return $row;
+        return $record;
     }
 
     /**
@@ -272,14 +272,14 @@ class Reader extends AbstractCsv implements IteratorAggregate
      * Because of the header is represented as an array, to be valid
      * a header MUST contain only unique string value.
      *
-     * @param int|null $offset the header row offset
+     * @param int|null $offset the header record offset
      *
      * @return static
      */
     public function setHeaderOffset($offset): self
     {
         if (null !== $offset) {
-            $offset = $this->filterMinRange($offset, 0, __METHOD__.': the header offset index must be a positive integer or 0');
+            $offset = $this->filterMinRange($offset, 0, 'The header offset index must be a positive integer or 0');
         }
 
         if ($offset !== $this->header_offset) {
