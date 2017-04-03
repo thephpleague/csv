@@ -69,10 +69,10 @@ layout: homepage
       <div class="version next">
         <h2>Next/master</h2>
         <div class="content">
-          <p><code>League\Csv 9.0</code></p>
+          <p><code>League\Csv 9.x</code></p>
           <ul>
             <li>Requires: <strong>PHP >= 7.0.0</strong></li>
-            <li>Release Date: <strong>TBD</strong></li>
+            <li>Latest: <strong>TBD</strong></li>
             <li>Supported Until: <strong>TBD</strong></li>
           </ul>
           <p><a href="/9.0/">Full Documentation</a></p>
@@ -82,10 +82,10 @@ layout: homepage
       <div class="version current">
         <h2>Current Stable Release</h2>
         <div class="content">
-          <p><code>League\Csv 8.0</code></p>
+          <p><code>League\Csv 8.x</code></p>
           <ul>
             <li>Requires: <strong>PHP >= 5.5.0</strong></li>
-            <li>Release Date: <strong>2015-12-11</strong></li>
+            <li>Latest: <strong>8.2.1 - 2017-02-23</strong></li>
             <li>Supported Until: <strong>TBD</strong></li>
           </ul>
           <p><a href="/8.0/">Full Documentation</a></p>
@@ -95,10 +95,10 @@ layout: homepage
       <div class="version legacy">
         <h2>No longer Supported</h2>
         <div class="content">
-          <p><code>League\Csv 7.0</code></p>
+          <p><code>League\Csv 7.x</code></p>
           <ul>
             <li>Requires: <strong>PHP >= 5.4.0</strong></li>
-            <li>Release Date: <strong>2015-02-19</strong></li>
+            <li>Latest: <strong>7.2.0 - 2015-11-02</strong></li>
             <li>Supported Until: <strong>2016-06-11</strong></li>
           </ul>
           <p><a href="/7.0/">Full Documentation</a></p>

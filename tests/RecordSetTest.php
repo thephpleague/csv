@@ -4,7 +4,6 @@ namespace LeagueTest\Csv;
 
 use League\Csv\BOM;
 use League\Csv\Exception\CsvException;
-use League\Csv\Exception\InvalidArgumentException;
 use League\Csv\Exception\OutOfRangeException;
 use League\Csv\Exception\RuntimeException;
 use League\Csv\Reader;
@@ -136,39 +135,15 @@ class RecordSetTest extends TestCase
         );
     }
 
-    public function testFetchAssoc()
-    {
-        $keys = ['firstname', 'lastname', 'email'];
-        $res = $this->stmt->columns($keys)->process($this->csv)->fetchAll();
-        foreach ($res as $offset => $row) {
-            $this->assertSame($keys, array_keys($row));
-        }
-    }
-
-    public function testFetchColumnWithFieldName()
-    {
-        $keys = ['firstname', 'lastname', 'email'];
-        $res = $this->stmt->columns($keys)->process($this->csv)->fetchColumn('firstname');
-        $this->assertSame(['john', 'jane'], iterator_to_array($res, false));
-    }
-
-    public function testFetchColumnWithColumnIndex()
-    {
-        $keys = ['firstname', 'lastname', 'email'];
-        $records = $this->stmt->columns($keys)->process($this->csv);
-        $records->preserveRecordOffset(true);
-        $this->assertSame(['john', 'jane'], iterator_to_array($records->fetchColumn(0), false));
-    }
-
     /**
      * @dataProvider invalidFieldNameProvider
      */
     public function testFetchColumnTriggersException($field)
     {
         $this->expectException(CsvException::class);
-        $keys = ['firstname', 'lastname', 'email'];
-        $res = $this->stmt->columns($keys)->process($this->csv)->fetchColumn($field);
-        $this->assertSame(['john', 'jane'], iterator_to_array($res, false));
+        $this->csv->setHeaderOffset(0);
+        $res = $this->stmt->process($this->csv)->fetchColumn($field);
+        iterator_to_array($res, false);
     }
 
     public function invalidFieldNameProvider()
@@ -178,36 +153,6 @@ class RecordSetTest extends TestCase
             'invalid integer offset' => [24],
             'unknown column name' => ['fooBar'],
         ];
-    }
-
-    public function testFetchAssocLessKeys()
-    {
-        $keys = ['firstname'];
-        $this->assertContains(
-            ['firstname' => 'john'],
-            $this->stmt->columns($keys)->process($this->csv)->fetchAll()
-        );
-    }
-
-    public function testFetchAssocMoreKeys()
-    {
-        $keys = ['firstname', 'lastname', 'email', 'age'];
-
-        $this->assertContains([
-            'firstname' => 'jane',
-            'lastname' => 'doe',
-            'email' => 'jane.doe@example.com',
-            'age' => null,
-        ], $this->stmt->columns($keys)->process($this->csv)->fetchAll());
-    }
-
-    public function testFetchWithoutHeaders()
-    {
-        $this->assertContains([
-            'jane',
-            'doe',
-            'jane.doe@example.com',
-        ], $this->stmt->columns([])->process($this->csv)->fetchAll());
     }
 
     public function testFetchAssocWithRowIndex()
@@ -340,14 +285,14 @@ class RecordSetTest extends TestCase
         $this->assertSame($expectedWithOffset, $records->fetchAll());
     }
 
-
-
-    public function testStripBOMWithEnclosureFetchColumn()
+    public function testFetchColumnWithColumnname()
     {
         $source = BOM::UTF8.'"parent name","child name","title"
             "parentA","childA","titleA"';
         $csv = Reader::createFromString($source);
-        $this->assertContains('parent name', $this->stmt->process($csv)->fetchColumn());
+        $csv->setHeaderOffset(0);
+        $this->assertContains('parentA', $this->stmt->process($csv)->fetchColumn('parent name'));
+        $this->assertContains('parentA', $this->stmt->process($csv)->fetchColumn(0));
     }
 
     public function testStripBOMWithEnclosureFetchAll()
@@ -367,12 +312,6 @@ class RecordSetTest extends TestCase
         $csv->setHeaderOffset(null);
         $expected = ['parent name', 'child name', 'title'];
         $this->assertEquals($expected, $this->stmt->process($csv)->fetchOne());
-    }
-
-    public function testFetchAssocKeyFailure()
-    {
-        $this->expectException(InvalidArgumentException::class);
-        $this->stmt->columns(['firstname', 'firstname', 'lastname', 'email', 'age']);
     }
 
     public function testFetchAssocWithUnknownOffset()
@@ -494,21 +433,5 @@ class RecordSetTest extends TestCase
     {
         $this->csv->setHeaderOffset(0);
         $this->assertSame($this->expected[0], $this->stmt->process($this->csv)->getColumnNames());
-    }
-
-    public function testGetComputedHeaderWithSpecifiedHeader()
-    {
-        $expected = ['john' => 'prenom', 'doe' => 'lastname', 'john.doe@example.com' => 'email'];
-        $this->csv->setHeaderOffset(0);
-        $records = $this->stmt->columns($expected)->process($this->csv);
-        $this->assertSame(array_values($expected), $records->getColumnNames());
-    }
-
-    public function testColumnsThrowException()
-    {
-        $this->expectException(RuntimeException::class);
-        $this->stmt
-            ->columns(['john' => 'prenom', 'doe' => 'lastname', 'john.doe@example.com' => 'email'])
-            ->process($this->csv);
     }
 }

@@ -3,6 +3,7 @@
 namespace LeagueTest\Csv;
 
 use League\Csv\Exception\OutOfRangeException;
+use League\Csv\Exception\RuntimeException;
 use League\Csv\Reader;
 use League\Csv\Statement;
 use PHPUnit\Framework\TestCase;
@@ -100,5 +101,18 @@ class ReaderTest extends TestCase
 
         $csv = Reader::createFromFileObject($data);
         $this->assertSame(['|' => 12, ';' => 4], $csv->fetchDelimitersOccurrence(['|', ';'], 5));
+    }
+
+    public function testDuplicateHeaderValueTriggersException()
+    {
+        $csv = Reader::createFromString(
+            'field1,field1,field3
+            1,2,3
+            4,5,6'
+        );
+        $csv->setHeaderOffset(0);
+        $this->assertSame(['field1', 'field1', 'field3'], $csv->getHeader());
+        $this->expectException(RuntimeException::class);
+        iterator_to_array($csv, true);
     }
 }

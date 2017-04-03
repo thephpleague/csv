@@ -12,7 +12,6 @@ public Statement::where(callable $callable): self
 public Statement::orderBy(callable $callable): self
 public Statement::offset(int $offset): self
 public Statement::limit(int $limit): self
-public Statement::columns(array $columns): self
 public Statement::process(Reader $reader): RecordSet
 ~~~
 
@@ -91,74 +90,6 @@ public Statement::limit(int $limit): self
 
 <p class="message-notice">When called multiple times, each call override the last settings for these options.</p>
 
-## Select constraint
-
-This option enables mapping and selecting specific columns from each record.
-
-~~~php
-<?php
-
-public Statement::columns(array $columns): self
-~~~
-
-The single parameter is an associative array where:
-
-- the key represents the specified key from the `Reader`
-- the value represents the key alias to be used by the `RecordSet` object.
-
-The `Statement::columns` option is the last to be applied. So you can not use the alias with the `Statement::where` or the `Statement::orderBy` methods.
-
-<p class="message-info"><strong>Tips:</strong> To reset the <code>columns</code> value, you need to provide an empty array.</p>
-
-<p class="message-notice">When called multiple times, each call override the last settings for this option.</p>
-
-
-### If the Reader object has no header
-
-~~~php
-<?php
-
-use League\Csv\Statement;
-
-$stmt = (new Statement())
-    ->columns(['firstname', 'lastname', 'email'])
-;
-
-// is equivalent to:
-
-$stmt = (new Statement())
-    ->columns([
-        0 => 'firstname',
-        1 => 'lastname',
-        2 => 'email',
-    ])
-;
-~~~
-
-### If the Reader object has a header
-
-~~~php
-<?php
-
-use League\Csv\Statement;
-
-$stmt = (new Statement())
-    ->columns(['firstname', 'lastname', 'email'])
-;
-
-// is equivalent to:
-
-$stmt = (new Statement())
-    ->columns([
-        'firstname' => 'firstname',
-        'lastname' => 'lastname',
-        'email' => 'email',
-    ])
-;
-~~~
-
-<p class="message-warning">If a <code>Reader</code> object has a header and the column uses undefined header value a <code>RuntimeException</code> is triggered.</p>
-
 ## Apply the constraints to a CSV document
 
 ~~~php
@@ -191,7 +122,6 @@ $stmt = (new Statement())
     ->limit(2)
     ->where('filterByEmail')
     ->orderBy('sortByLastName')
-    ->columns(['firstname', 'lastname', 'email'])
 ;
 
 $records = $stmt->process($reader);

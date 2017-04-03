@@ -325,8 +325,11 @@ use League\Csv\Reader;
 use League\Csv\Statement;
 
 $reader = Reader::createFromPath('/path/to/file.csv');
-$stmt = (new Statement())->columns(['firstname', 'lastname', 'email']);
-$records = $stmt->process($reader)->fetchAll();
+
+$records = (new Statement())->process($reader)->fetchAll();
+foreach ($records as $row) {
+    $record = array_combine(['firstname', 'lastname', 'email'], array_values($record));
+}
 ~~~
 
 ## Miscellanous

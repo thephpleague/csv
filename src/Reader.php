@@ -218,6 +218,24 @@ class Reader extends AbstractCsv implements IteratorAggregate
     }
 
     /**
+     * Validates the array to be used by the fetchAssoc method
+     *
+     * @param array $keys
+     *
+     * @throws RuntimeException If the submitted array fails the assertion
+     *
+     * @return array
+     */
+    protected function filterColumnNames(array $keys): array
+    {
+        if (empty($keys) || $keys === array_unique(array_filter($keys, 'is_string'))) {
+            return $keys;
+        }
+
+        throw new RuntimeException('Use a flat array with unique string values');
+    }
+
+    /**
      * Strip the BOM sequence if present
      *
      * @param Iterator $iterator

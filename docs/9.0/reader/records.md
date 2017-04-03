@@ -41,10 +41,7 @@ $records = (new Statement())->process($reader);
 count($records); //return the total number of records found
 ~~~
 
-`RecordSet::getColumnNames` returns the columns name information associated with the current object. This is usefull if the `RecordSet` object was created from:
-
-- a `Reader` object where [Reader::getHeader](/9.0/reader/#header-detection) is not empty;
-- and/or a `Statement` object where [Statement::columns](/9.0/reader/statement/#select-constraint) was used.
+`RecordSet::getColumnNames` returns the columns name information associated with the current object. This is usefull if the `RecordSet` object was created from a `Reader` object where [Reader::getHeader](/9.0/reader/#header-detection) is not empty;
 
 ### Example: no header information was given
 
@@ -71,29 +68,6 @@ $reader = Reader::createFromPath('/path/to/my/file.csv')
 ;
 $records = (new Statement())->process($reader);
 $records->getColumnNames(); // returns ['First Name', 'Last Name', 'E-mail'];
-~~~
-
-### Example: header information overridden by the Statement object
-
-~~~php
-<?php
-
-use League\Csv\Reader;
-use League\Csv\Statement;
-
-$reader = Reader::createFromPath('/path/to/my/file.csv')
-    ->setHeaderOffset(0)
-;
-
-$stmt = (new Statement())
-    ->columns([
-        'First Name' => 'firstname',
-        'Last Name' => 'lastname',
-        'E-mail' => 'email',
-    ])
-;
-$records = $stmt->process($reader);
-$records->getColumnNames(); // returns ['firstname', 'lastname', 'email'];
 ~~~
 
 ## Collection options
@@ -167,7 +141,7 @@ foreach ($records->fetchAll() as $offset => $record) {
 }
 ~~~
 
-If the `Reader::getHeader` is not an empty `array` or if the `Statement::columns` was used each record field key will contains the corresponding column name.
+If the `RecordSet::getColumnNames` is not an empty `array`.
 
 ~~~php
 <?php
@@ -178,21 +152,14 @@ use League\Csv\Statement;
 $reader = Reader::createFromPath('/path/to/my/file.csv')
     ->setHeaderOffset(0)
 ;
-$stmt = (new Statement())
-    ->columns([
-        'First Name' => 'firstname',
-        'Last Name' => 'lastname',
-        'E-mail' => 'email',
-    ])
-;
-$records = $stmt->process($reader);
-$records->getColumnNames(); //returns ['firstname', 'lastname', 'email']
+$records = (new Statement())->process($reader);
+$records->getColumnNames(); //returns ['First Name', 'Last Name', 'E-mail']
 foreach ($records as $record) {
     // $records contains the following data
     // array(
-    //     'firstname' => 'john',
-    //     'lastname' => 'doe',
-    //     'email' => 'john.doe@example.com',
+    //     'First Name' => 'john',
+    //     'Last Name' => 'doe',
+    //     'E-mail' => 'john.doe@example.com',
     // );
     //
 }
