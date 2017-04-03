@@ -98,27 +98,9 @@ try {
 }
 ~~~
 
-## Bundled formatters
+## Bundled formatter
 
-### Null value formatting
-
-The `League\Csv\Plugin\SkipNullValuesFormatter` class skips cell using founded `null` values
-
-~~~php
-<?php
-
-use League\Csv\Writer;
-use League\Csv\Plugin\SkipNullValuesFormatter;
-
-$formatter = new SkipNullValuesFormatter();
-
-$writer = Writer::createFromPath('/path/to/your/csv/file.csv');
-$writer->addFormatter($formatter);
-$writer->insertOne(["foo", null, "bar"]);
-//the actual inserted row will be ["foo", "bar"]
-~~~
-
-### Records encoder
+### Charset Converter
 
 [League\Csv\CharsetConverter](/9.0/converter/charset/) will help you encode your records depending on your settings.
 
@@ -129,11 +111,11 @@ use League\Csv\CharsetConverter;
 use League\Csv\Writer;
 
 $writer = Writer::createFromPath('/path/to/your/csv/file.csv');
-$encoder = (new CharsetConverter())
+$formatter = (new CharsetConverter())
     ->inputEncoding('utf-8')
     ->outputEncoding('iso-8859-15')
 ;
-$writer->addFormatter($encoder);
+$writer->addFormatter($formatter);
 $writer->insertOne(["foo", "bébé", "jouet"]);
 //all 'utf-8' caracters are now automatically encoded into 'iso-8859-15' charset
 ~~~
@@ -156,49 +138,34 @@ $writer->insertOne(["foo", "bébé", "jouet"]);
 //all 'utf-8' caracters are now automatically encoded into 'iso-8859-15' charset
 ~~~
 
-## Bundled validators
-
-### Null value validator
-
-The `League\Csv\Plugin\ForbiddenNullValuesValidator` class validates the absence of `null` values
-
-~~~php
-<?php
-
-use League\Csv\Writer;
-use League\Csv\Plugin\ForbiddenNullValuesValidator;
-
-$validator = new ForbiddenNullValuesValidator();
-$writer = Writer::createFromPath('/path/to/your/csv/file.csv');
-$writer->addValidator($validator, 'null_as_exception');
-$writer->insertOne(["foo", null, "bar"]); //will throw an League\Csv\Exception\InsertionException
-~~~
+## Bundled validator
 
 ### Records consistency check
 
 ~~~php
 <?php
 
-public ColumnConsistencyValidator::setColumnsCount(int $count): void
-public ColumnConsistencyValidator::getColumnsCount(void): int
-public ColumnConsistencyValidator::autodetectColumnsCount(void): void
+public ColumnConsistency::columnsCount(int $count): self
+public ColumnConsistency::autodetect(void): self
 ~~~
 
-The `League\Csv\Plugin\ColumnConsistencyValidator` class validates the inserted record column count consistency.
+The `League\Csv\Plugin\ColumnConsistency` class validates the inserted record column count consistency.
+
+- The `ColumnConsistency::columnsCount` method will set the column count value and validate each record length against the given value. If the value differs an `InsertionException` will be thrown.
+
+- The `ColumnConsistency::autodetect` method will lazy set the column count value according to the next inserted record and therefore will also validate it. Once set, if the given value differs with the following inserted records a `InsertionException` exception is triggered.
 
 ~~~php
 <?php
 
 use League\Csv\Writer;
-use League\Csv\Plugin\ColumnConsistencyValidator;
+use League\Csv\Plugin\ColumnConsistency;
 
-$validator = new ColumnConsistencyValidator();
-$validator->autodetectColumnsCount();
-$validator->getColumnsCount(); //returns -1
+$validator = (new ColumnConsistency())->autodetect();
 
 $writer = Writer::createFromPath('/path/to/your/csv/file.csv');
 $writer->addValidator($validator, 'column_consistency');
 
 $writer->insertOne(["foo", null, "bar"]);
-$nb_column_count = $validator->getColumnsCount(); //returns 3
+$writer->insertOne(["foo", "bar"]); //will trigger a InsertionException exception
 ~~~

@@ -37,6 +37,7 @@ class WriterTest extends TestCase
         $this->expectException(OutOfRangeException::class);
         $this->csv->setFlushThreshold(12);
         $this->assertSame(12, $this->csv->getFlushThreshold());
+        $this->csv->setFlushThreshold(12);
         $this->csv->setFlushThreshold(0);
     }
 
@@ -44,8 +45,15 @@ class WriterTest extends TestCase
     {
         $csv = Writer::createFromPath(__DIR__.'/data/foo.csv');
         $this->assertTrue($csv->supportsStreamFilter());
-        $csv->setFlushThreshold(1);
+        $csv->setFlushThreshold(3);
         $csv->addStreamFilter('string.toupper');
+        $csv->insertOne(['jane', 'doe', 'jane@example.com']);
+        $csv->insertOne(['jane', 'doe', 'jane@example.com']);
+        $csv->insertOne(['jane', 'doe', 'jane@example.com']);
+        $csv->insertOne(['jane', 'doe', 'jane@example.com']);
+        $csv->insertOne(['jane', 'doe', 'jane@example.com']);
+        $csv->insertOne(['jane', 'doe', 'jane@example.com']);
+        $csv->insertOne(['jane', 'doe', 'jane@example.com']);
         $csv->insertOne(['jane', 'doe', 'jane@example.com']);
         $csv->setFlushThreshold(null);
         $this->assertContains('JANE,DOE,JANE@EXAMPLE.COM', (string) $csv);

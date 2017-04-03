@@ -25,6 +25,7 @@ All Notable changes to `Csv` will be documented in this file
 - `League\Csv\Reader::select`
 - `League\Csv\Writer::setFlushThreshold`
 - `League\Csv\Writer::getFlushThreshold`
+- `League\Csv\ColumnConsistency`
 
 ### Deprecated
 
@@ -79,6 +80,9 @@ All Notable changes to `Csv` will be documented in this file
 - `League\Csv\Writer::clearValidators`
 - `League\Csv\Writer::getIterator`
 - `League\Csv\Writer::fetchDelimitersOccurrence`
+- `League\Csv\Plugin\SkipNullValuesFormatter`
+- `League\Csv\Plugin\ForbiddenNullValuesValidator`
+- `League\Csv\Plugin\ColumnConsistencyValidator`
 
 ## 8.2.1 - 2017-02-22
 

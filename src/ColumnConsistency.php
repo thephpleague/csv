@@ -12,9 +12,7 @@
 */
 declare(strict_types=1);
 
-namespace League\Csv\Plugin;
-
-use League\Csv\ValidatorTrait;
+namespace League\Csv;
 
 /**
  *  A class to manage column consistency on data insertion into a CSV
@@ -24,7 +22,7 @@ use League\Csv\ValidatorTrait;
  * @author  Ignace Nyamagana Butera <nyamsprod@gmail.com>
  *
  */
-class ColumnConsistencyValidator
+class ColumnConsistency
 {
     use ValidatorTrait;
 
@@ -46,35 +44,36 @@ class ColumnConsistencyValidator
      * Set Inserted record column count
      *
      * @param int $value
-     */
-    public function setColumnsCount(int $value)
-    {
-        $this->detect_columns_count = false;
-        $this->columns_count = $this->filterMinRange($value, -1, 'The column count must be greater or equal to -1');
-    }
-
-    /**
-     * Column count getter
      *
-     * @return int
+     * @return self
      */
-    public function getColumnsCount(): int
+    public function columnsCount(int $value): self
     {
-        return $this->columns_count;
+        $clone = clone $this;
+        $clone->columns_count = $this->filterMinRange($value, 0, 'The column count must be greater or equal to 0');
+        $clone->detect_columns_count = false;
+
+        return $clone;
     }
 
     /**
-     * The method will set the $columns_count property according to the next inserted record
-     * and therefore will also validate the next line whatever length it has no matter
-     * the current $columns_count property value.
+     * The method will set the $columns_count property
+     * according to the next inserted record and therefore
+     * will also validate it.
+     *
+     * @return self
      */
-    public function autodetectColumnsCount()
+    public function autodetect(): self
     {
-        $this->detect_columns_count = true;
+        $clone = clone $this;
+        $clone->detect_columns_count = true;
+        $clone->columns_count = -1;
+
+        return $clone;
     }
 
     /**
-     * Is the submitted record valid
+     * Tell whether the submitted record is valid
      *
      * @param array $record
      *
@@ -84,12 +83,9 @@ class ColumnConsistencyValidator
     {
         $count = count($record);
         if ($this->detect_columns_count) {
-            $this->setColumnsCount($count);
+            $this->detect_columns_count = false;
+            $this->columns_count = $count;
 
-            return true;
-        }
-
-        if (-1 === $this->columns_count) {
             return true;
         }
 
