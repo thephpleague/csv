@@ -149,7 +149,7 @@ public ColumnConsistency::columnsCount(int $count): self
 public ColumnConsistency::autodetect(void): self
 ~~~
 
-The `League\Csv\Plugin\ColumnConsistency` class validates the inserted record column count consistency.
+The `League\Csv\ColumnConsistency` class validates the inserted record column count consistency.
 
 - The `ColumnConsistency::columnsCount` method will set the column count value and validate each record length against the given value. If the value differs an `InsertionException` will be thrown.
 
@@ -159,7 +159,7 @@ The `League\Csv\Plugin\ColumnConsistency` class validates the inserted record co
 <?php
 
 use League\Csv\Writer;
-use League\Csv\Plugin\ColumnConsistency;
+use League\Csv\ColumnConsistency;
 
 $validator = (new ColumnConsistency())->autodetect();
 

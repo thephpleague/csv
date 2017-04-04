@@ -334,15 +334,9 @@ foreach ($records as $row) {
 
 ## Miscellanous
 
-### Writer bundled formatters
-
-- `League\Csv\Plugin\SkipNullValuesFormatter` is removed
-- `League\Csv\Plugin\NullValuesValidator` is removed
-
-### Writer bundled validator
+### Columns consistency Validator
 
 - `League\Csv\Plugin\ColumnConsistencyValidator` is renamed `League\Csv\ColumnConsistency` and is now an immutable object.
-
 
 Before:
 
@@ -355,7 +349,7 @@ $validator = new ColumnConsistencyValidator();
 $validator->autodetectColumnCount();
 
 $csv = Writer::createFromPath('/path/to/file.csv');
-$csv->addValidator($validator);
+$csv->addValidator($validator, 'columns_consistency');
 ~~~
 
 After:
@@ -366,7 +360,7 @@ After:
 use League\Csv\Writer;
 
 $csv = Writer::createFromPath('/path/to/file.csv');
-$csv->addValidator((new ColumnConsistency())->autodetect());
+$csv->addValidator((new ColumnConsistency())->autodetect(), 'columns_consistency');
 ~~~
 
 ### BOM handling
