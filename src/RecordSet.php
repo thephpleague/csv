@@ -19,7 +19,6 @@ use Countable;
 use Generator;
 use Iterator;
 use IteratorAggregate;
-use League\Csv\Exception\InvalidArgumentException;
 use League\Csv\Exception\RuntimeException;
 use LimitIterator;
 
@@ -192,8 +191,8 @@ class RecordSet implements IteratorAggregate, Countable
      * @param string|int $field         the field name or the field index
      * @param string     $error_message the associated error message
      *
-     * @throws InvalidArgumentException if the field is invalid
-     * @throws RuntimeException         if the column is not found
+     * @throws RuntimeException if the field is invalid
+     * @throws RuntimeException if the column is not found
      *
      * @return string|int
      */
@@ -204,7 +203,7 @@ class RecordSet implements IteratorAggregate, Countable
         }
 
         if (is_string($field)) {
-            throw new InvalidArgumentException(sprintf($error_message, $field));
+            throw new RuntimeException(sprintf($error_message, $field));
         }
 
         $index = $this->filterMinRange($field, 0, $error_message);
@@ -247,7 +246,6 @@ class RecordSet implements IteratorAggregate, Countable
         };
 
         $iterator = new MapIterator(new CallbackFilterIterator($this->iterator, $filter), $select);
-
         foreach ($iterator as $pair) {
             yield $pair[0] => $pair[1];
         }

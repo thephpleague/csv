@@ -153,7 +153,7 @@ class Writer extends AbstractCsv
     protected function validateRecord(array $record)
     {
         foreach ($this->validators as $name => $validator) {
-            if (true !== ($validator)($record)) {
+            if (true !== $validator($record)) {
                 throw InsertionException::createFromValidator($name, $record);
             }
         }

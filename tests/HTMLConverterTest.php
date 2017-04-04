@@ -27,7 +27,6 @@ class HTMLConverterTest extends TestCase
         $records = $stmt->process($csv);
 
         $converter = (new HTMLConverter())
-            ->encoding('iso-8859-15')
             ->table('table-csv-data', 'test')
             ->td('title')
             ->tr('data-record-offset')

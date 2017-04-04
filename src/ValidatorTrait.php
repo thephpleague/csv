@@ -76,7 +76,7 @@ trait ValidatorTrait
      *
      * @return string
      */
-    protected function filterControl(string $char, string $type)
+    protected function filterControl(string $char, string $type): string
     {
         if (1 == strlen($char)) {
             return $char;
@@ -94,7 +94,7 @@ trait ValidatorTrait
      *
      * @return string
      */
-    protected static function filterEncoding(string $encoding)
+    protected static function filterEncoding(string $encoding): string
     {
         $encoding = strtoupper(str_replace('_', '-', $encoding));
         $test = filter_var($encoding, FILTER_SANITIZE_STRING, FILTER_FLAG_STRIP_LOW | FILTER_FLAG_STRIP_HIGH);

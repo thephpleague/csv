@@ -120,7 +120,7 @@ class Reader extends AbstractCsv implements IteratorAggregate
      *
      * @return int
      */
-    protected function getCellCount(string $delimiter, int $nb_records)
+    protected function getCellCount(string $delimiter, int $nb_records): int
     {
         $filter = function ($record): bool {
             return is_array($record) && count($record) > 1;

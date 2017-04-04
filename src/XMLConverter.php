@@ -90,102 +90,6 @@ class XMLConverter
     ];
 
     /**
-     * XML encoding
-     *
-     * @param string $encoding
-     *
-     * @return self
-     */
-    public function encoding(string $encoding): self
-    {
-        $clone = clone $this;
-        $clone->encoding = $this->filterEncoding($encoding);
-
-        return $clone;
-    }
-
-    /**
-     * XML root element setter
-     *
-     * @param string $node_name
-     *
-     * @return self
-     */
-    public function rootElement(string $node_name): self
-    {
-        $clone = clone $this;
-        $clone->root_name = $this->filterElementName($node_name);
-
-        return $clone;
-    }
-
-    /**
-     * Filter XML element name
-     *
-     * @param string $value Element name
-     *
-     * @throws DOMException If the Element name is invalid
-     *
-     * @return string
-     */
-    protected function filterElementName(string $value): string
-    {
-        return (new DOMElement($value))->tagName;
-    }
-
-    /**
-     * XML Record element setter
-     *
-     * @param string $node_name
-     * @param string $record_offset_attribute_name
-     *
-     * @return self
-     */
-    public function recordElement(string $node_name, string $record_offset_attribute_name = ''): self
-    {
-        $clone = clone $this;
-        $clone->record_name = $this->filterElementName($node_name);
-        $clone->offset_attr = $this->filterAttributeName($record_offset_attribute_name);
-
-        return $clone;
-    }
-
-    /**
-     * Filter XML attribute name
-     *
-     * @param string $value Element name
-     *
-     * @throws DOMException If the Element attribute name is invalid
-     *
-     * @return string
-     */
-    protected function filterAttributeName(string $value): string
-    {
-        if ('' === $value) {
-            return $value;
-        }
-
-        return (new DOMAttr($value))->name;
-    }
-
-    /**
-     * XML Field element setter
-     *
-     * @param string $node_name
-     * @param string $fieldname_attribute_name
-     *
-     * @return self
-     */
-    public function fieldElement(string $node_name, string $fieldname_attribute_name = ''): self
-    {
-        $clone = clone $this;
-        $clone->field_name = $this->filterElementName($node_name);
-        $clone->column_attr = $this->filterAttributeName($fieldname_attribute_name);
-
-        return $clone;
-    }
-
-    /**
      * Convert an Record collection into a DOMDocument
      *
      * @param array|Traversable $records the CSV records collection
@@ -284,5 +188,101 @@ class XMLConverter
         $item->appendChild($doc->createTextNode($value));
 
         return $item;
+    }
+
+    /**
+     * XML encoding
+     *
+     * @param string $encoding
+     *
+     * @return self
+     */
+    public function encoding(string $encoding): self
+    {
+        $clone = clone $this;
+        $clone->encoding = $this->filterEncoding($encoding);
+
+        return $clone;
+    }
+
+    /**
+     * XML root element setter
+     *
+     * @param string $node_name
+     *
+     * @return self
+     */
+    public function rootElement(string $node_name): self
+    {
+        $clone = clone $this;
+        $clone->root_name = $this->filterElementName($node_name);
+
+        return $clone;
+    }
+
+    /**
+     * Filter XML element name
+     *
+     * @param string $value Element name
+     *
+     * @throws DOMException If the Element name is invalid
+     *
+     * @return string
+     */
+    protected function filterElementName(string $value): string
+    {
+        return (new DOMElement($value))->tagName;
+    }
+
+    /**
+     * XML Record element setter
+     *
+     * @param string $node_name
+     * @param string $record_offset_attribute_name
+     *
+     * @return self
+     */
+    public function recordElement(string $node_name, string $record_offset_attribute_name = ''): self
+    {
+        $clone = clone $this;
+        $clone->record_name = $this->filterElementName($node_name);
+        $clone->offset_attr = $this->filterAttributeName($record_offset_attribute_name);
+
+        return $clone;
+    }
+
+    /**
+     * Filter XML attribute name
+     *
+     * @param string $value Element name
+     *
+     * @throws DOMException If the Element attribute name is invalid
+     *
+     * @return string
+     */
+    protected function filterAttributeName(string $value): string
+    {
+        if ('' === $value) {
+            return $value;
+        }
+
+        return (new DOMAttr($value))->name;
+    }
+
+    /**
+     * XML Field element setter
+     *
+     * @param string $node_name
+     * @param string $fieldname_attribute_name
+     *
+     * @return self
+     */
+    public function fieldElement(string $node_name, string $fieldname_attribute_name = ''): self
+    {
+        $clone = clone $this;
+        $clone->field_name = $this->filterElementName($node_name);
+        $clone->column_attr = $this->filterAttributeName($fieldname_attribute_name);
+
+        return $clone;
     }
 }

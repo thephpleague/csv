@@ -57,18 +57,19 @@ class HTMLConverter
     }
 
     /**
-     * HTML encoding
+     * Convert an Record collection into a DOMDocument
      *
-     * @param string $encoding
+     * @param array|Traversable $records the CSV records collection
      *
-     * @return self
+     * @return string
      */
-    public function encoding(string $encoding): self
+    public function convert($records): string
     {
-        $clone = clone $this;
-        $clone->xml_converter = $this->xml_converter->encoding($encoding);
+        $doc = $this->xml_converter->convert($records);
+        $doc->documentElement->setAttribute('class', $this->class_name);
+        $doc->documentElement->setAttribute('id', $this->id_value);
 
-        return $clone;
+        return $doc->saveHTML($doc->documentElement);
     }
 
     /**
@@ -116,21 +117,5 @@ class HTMLConverter
         $clone->xml_converter = $this->xml_converter->fieldElement('td', $fieldname_attribute_name);
 
         return $clone;
-    }
-
-    /**
-     * Convert an Record collection into a DOMDocument
-     *
-     * @param array|Traversable $records the CSV records collection
-     *
-     * @return string
-     */
-    public function convert($records): string
-    {
-        $doc = $this->xml_converter->convert($records);
-        $doc->documentElement->setAttribute('class', $this->class_name);
-        $doc->documentElement->setAttribute('id', $this->id_value);
-
-        return $doc->saveHTML($doc->documentElement);
     }
 }
