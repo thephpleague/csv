@@ -67,7 +67,7 @@ layout: homepage
       <h1>Releases</h1>
 
       <div class="version next">
-        <h2>Next/master</h2>
+        <h2>Upcoming</h2>
         <div class="content">
           <p><code>League\Csv 9.x</code></p>
           <ul>
