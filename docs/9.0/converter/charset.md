@@ -19,7 +19,7 @@ public CharsetConverter::outputEncoding(string $output_encoding): self
 
 The `CharsetConverter` class converts your CSV records using the `mbstring` extension and its [supported character encodings](http://php.net/manual/en/mbstring.supported-encodings.php).
 
-## Properties
+## Settings
 
 ~~~php
 <?php
@@ -32,7 +32,7 @@ The `inputEncoding` and `outputEncoding` methods sets the object encoding proper
 
 When building a `CharsetConverter` object, the methods do not need to be called in any particular order, and may be called multiple times. Because the `CharsetConverter` is immutable, each time its setter methods are called they return a new object without modifying the current one.
 
-## Basic usage
+## Conversion
 
 ~~~php
 <?php
@@ -99,10 +99,9 @@ If your CSV object supports PHP stream filters then you can register the `Charse
 
 The `CharsetConverter::registerStreamFilter` static method registers the `CharsetConverter` class under the following generic filtername `convert.league.csv.*`.
 
-<p class="message-info"><strong>Tips:</strong> You just need to call <code>CharsetConverter::registerStreamFilter</code> once during your script execution time. The best place to call this method is in your bootstrap or configuration files.</p>
+<p class="message-info"><strong>Tips:</strong> <code>CharsetConverter::registerStreamFilter</code> should be called once during your script execution time. The best place to call this method is in your bootstrap or configuration files script.</p>
 
-
-Once registered you can use the CSV object's `addStreamFilter` method to configure the stream filter as shown below using `CharsetConverter::getFiltername` method.
+Once registered you can use the CSV object's `addStreamFilter` method to configure the stream filter by supplying the correct `$filtername` parameter. For ease, you can use the `CharsetConverter::getFiltername` method.
 
 ~~~php
 <?php
@@ -113,6 +112,8 @@ use League\Csv\Writer;
 CharsetConverter::registrerStreamFilter();
 
 $filtername = CharsetConverter::getFiltername('utf8', 'iso-8859-15');
+echo $filtername; //display 'convert.league.csv.UTF-8/ISO-8859-15';
+
 $writer = Writer::createFromPath('/path/to/your/csv/file.csv')
     ->addStreamFilter($filtername)
 ;

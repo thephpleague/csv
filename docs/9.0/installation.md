@@ -19,7 +19,9 @@ $ composer require league/csv:^9.0
 
 ## Going Solo
 
-You can also use `League\Csv` without using Composer by downloading the library and using any other [PSR-4](http://www.php-fig.org/psr/psr-4/) compatible autoloader or the `autoload.php` script found in the root directory
+You can also use `League\Csv` without using Composer by downloading the library and using any other [PSR-4](http://www.php-fig.org/psr/psr-4/) compatible autoloader.
+
+`League\Csv` comes bundle with its own autoloader script `autoload.php` located in the root directory.
 
 ~~~php
 <?php
@@ -31,3 +33,5 @@ require '/path/to/league/csv/autoload.php';
 
 //your script starts here
 ~~~
+
+where `path/to/league/csv` represents the path where the library was extracted.

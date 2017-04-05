@@ -90,17 +90,14 @@ $sth = $dbh->prepare(
     "INSERT INTO users (firstname, lastname, email) VALUES (:firstname, :lastname, :email)"
 );
 
-$csv = Reader::createFromPath('/path/to/your/csv/file.csv');
-
-
-$stmt = (new Statement())
+$csv = Reader::createFromPath('/path/to/your/csv/file.csv')
     ->setHeaderOffset(0)
 ;
 
 //by setting the header offset we index all records
 //with the header record and remove it from the iteration
 
-foreach ($stmt->process($csv) as $record) {
+foreach ($csv as $record) {
     //Do not forget to validate your data before inserting it in your database
     $sth->bindValue(':firstname', $record['First Name'], PDO::PARAM_STR);
     $sth->bindValue(':lastname', $record['Last Name'], PDO::PARAM_STR);
