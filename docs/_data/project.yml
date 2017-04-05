@@ -3,3 +3,33 @@ tagline: "CSV data manipulation made easy in PHP."
 description: "Working with CSV can often be much more difficult than you expect, with different types of delimiter and complicated structures. This makes it easy to read and write almost anything."
 google_analytics_tracking_id: UA-46050814-6
 default_version: "8.0"
+packagist_command: '<span>$ composer require league/csv</span>'
+highlights:
+  description: 'The library was designed for developers who want to deal with CSV data using modern code and without the high levels of bootstrap and low-levels of usefulness provided by existing core functions or third party-code.'
+  features:
+      - 'Simple API'
+      - 'Read and Write to CSV documents in a memory efficient and scalable way'
+      - 'Support PHP Stream filtering capabilities'
+      - 'Transform CSV documents into popular formats (JSON, XML or HTML)'
+      - 'Framework-agnostic'
+releases:
+  next:
+    version: '9.x'
+    requires: 'PHP >= 7.0.0'
+    latest: 'TBD'
+    supported_until: 'TBD'
+    documentation_link: 'http://csv.thephpleague.com/9.0/'
+  current:
+    version: '8.x'
+    requires: 'PHP >= 5.5.0'
+    latest: '8.2.1 - 2017-02-03'
+    supported_until: 'TBD'
+    documentation_link: 'http://csv.thephpleague.com/8.0/'
+  legacy:
+    version: '7.x'
+    requires: 'PHP >= 5.4.0'
+    latest: '7.2.0 - 2015-11-02'
+    supported_until: '2016-06-11'
+    documentation_link: 'http://csv.thephpleague.com/7.0/'
+footnote: 'Once a new major version is released, the previous stable release remains supported for six more months through patches and security fixes.'
+question: '<strong>League\Csv</strong> was created by Ignace Nyamagana Butera. Find him on Twitter at <a href="https://twitter.com/nyamsprod">@nyamsprod</a>.</p>'
