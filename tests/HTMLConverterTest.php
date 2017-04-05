@@ -2,6 +2,7 @@
 
 namespace LeagueTest\Csv;
 
+use DOMException;
 use League\Csv\HTMLConverter;
 use League\Csv\Reader;
 use League\Csv\Statement;
@@ -36,5 +37,11 @@ class HTMLConverterTest extends TestCase
         $this->assertContains('<table class="table-csv-data" id="test">', $html);
         $this->assertContains('<tr data-record-offset="', $html);
         $this->assertContains('<td title="', $html);
+    }
+
+    public function testTableTriggersException()
+    {
+        $this->expectException(DOMException::class);
+        (new HTMLConverter())->table('table-csv-data', 'te st');
     }
 }

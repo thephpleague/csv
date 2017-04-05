@@ -14,6 +14,7 @@ declare(strict_types=1);
 
 namespace League\Csv;
 
+use DOMException;
 use Traversable;
 
 /**
@@ -78,10 +79,15 @@ class HTMLConverter
      * @param string $class_name
      * @param string $id_value
      *
+     * @throws DOMException if the id_value contains any type of whitespace
+     *
      * @return self
      */
     public function table(string $class_name, string $id_value = ''): self
     {
+        if (preg_match(",\s,", $id_value)) {
+            throw new DOMException("the id attribute's value must not contain whitespace (spaces, tabs etc.)");
+        }
         $clone = clone $this;
         $clone->class_name = $class_name;
         $clone->id_value = $id_value;
