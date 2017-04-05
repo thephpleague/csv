@@ -83,7 +83,8 @@ class CsvTest extends TestCase
         // we cannot count on complete string matching.
         $this->assertContains('content-type: text/csv', strtolower($headers[0]));
         $this->assertSame($headers[1], 'content-transfer-encoding: binary');
-        $this->assertSame($headers[2], 'content-disposition: attachment; filename="test.csv"');
+        $this->assertSame($headers[2], 'content-description: File Transfer');
+        $this->assertSame($headers[3], 'content-disposition: attachment; filename="test.csv"');
     }
 
     public function testToString()

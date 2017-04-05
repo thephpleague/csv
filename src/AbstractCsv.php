@@ -270,9 +270,9 @@ abstract class AbstractCsv
     public function output(string $filename = null): int
     {
         if (null !== $filename) {
-            $filename = filter_var($filename, FILTER_SANITIZE_STRING, FILTER_FLAG_STRIP_LOW);
             header('content-type: text/csv');
             header('content-transfer-encoding: binary');
+            header('content-description: File Transfer');
             header('content-disposition: attachment; filename="'.rawurlencode($filename).'"');
         }
 
