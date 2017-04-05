@@ -254,7 +254,12 @@ abstract class AbstractCsv
      */
     public function __toString(): string
     {
-        return implode('', iterator_to_array($this->chunk(8192), false));
+        $raw = '';
+        foreach ($this->chunk(8192) as $chunk) {
+            $raw .= $chunk;
+        }
+
+        return $raw;
     }
 
     /**
