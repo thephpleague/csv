@@ -4,6 +4,7 @@ namespace LeagueTest\Csv;
 
 use League\Csv\BOM;
 use League\Csv\Exception\InvalidArgumentException;
+use League\Csv\Exception\OutOfRangeException;
 use League\Csv\Exception\RuntimeException;
 use League\Csv\Reader;
 use League\Csv\Statement;
@@ -76,7 +77,10 @@ class CsvTest extends TestCase
         if (!function_exists('xdebug_get_headers')) {
             $this->markTestSkipped();
         }
-        $this->csv->output('test.csv');
+
+        $raw_csv = BOM::UTF8."john,doe,john.doe@example.com\njane,doe,jane.doe@example.com\n";
+        $csv = Reader::createFromString($raw_csv)->setOutputBOM(BOM::UTF32_BE);
+        $csv->output('test.csv');
         $headers = \xdebug_get_headers();
 
         // Due to the variety of ways the xdebug expresses Content-Type of text files,
@@ -91,6 +95,25 @@ class CsvTest extends TestCase
     {
         $expected = "john,doe,john.doe@example.com\njane,doe,jane.doe@example.com\n";
         $this->assertSame($expected, (string) $this->csv);
+    }
+
+    public function testChunkTriggersException()
+    {
+        $this->expectException(OutOfRangeException::class);
+        $chunk = $this->csv->chunk(0);
+        iterator_to_array($chunk);
+    }
+
+    public function testChunk()
+    {
+        $raw_csv = BOM::UTF8."john,doe,john.doe@example.com\njane,doe,jane.doe@example.com\n";
+        $csv = Reader::createFromString($raw_csv)->setOutputBOM(BOM::UTF32_BE);
+        $expected = BOM::UTF32_BE."john,doe,john.doe@example.com\njane,doe,jane.doe@example.com\n";
+        $res = '';
+        foreach ($csv->chunk(8192) as $chunk) {
+            $res .= $chunk;
+        }
+        $this->assertSame($expected, $res);
     }
 
     public function testDelimeter()

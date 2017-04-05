@@ -6,8 +6,6 @@ All Notable changes to `Csv` will be documented in this file
 
 ### Added
 
-- `League\Csv\bom_match` function
-- `League\Csv\BOM` interface
 - `League\Csv\Statement`
 - `League\Csv\RecordSet`
 - `League\Csv\CharsetConverter`
@@ -19,6 +17,9 @@ All Notable changes to `Csv` will be documented in this file
 - `League\Csv\Exception\InvalidArgumentException`
 - `League\Csv\Exception\LogicException`
 - `League\Csv\Exception\RuntimeException`
+- `League\Csv\AbstractCsv::chunk`
+- `League\Csv\bom_match` function
+- `League\Csv\BOM` interface
 - `League\Csv\Reader::getHeader`
 - `League\Csv\Reader::getHeaderOffset`
 - `League\Csv\Reader::setHeaderOffset`

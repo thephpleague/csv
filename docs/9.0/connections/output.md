@@ -10,11 +10,15 @@ title: CSV document output
 
 public AbstractCsv::__toString(void): string
 public AbstractCsv::output(string $filename = null): int
+public AbstractCsv::chunk(int $length): Generator
 ~~~
 
 Once your CSV document is loaded, you can print or enable downloading it using the methods below.
 
+The methods output **are affected by** [the output BOM sequence](/9.0/connections/bom/) or the supplied [PHP stream filters](/9.0/connections/filters/).
+
 <p class="message-info"><strong>Tip:</strong> Even though you can use the following methods with the <code>League\Csv\Writer</code> object. It is recommended to do so with the <code>League\Csv\Reader</code> class to avoid losing the file cursor position and getting unexpected results when inserting new data.</p>
+
 
 ## Printing the document
 
@@ -64,6 +68,7 @@ can even remove more headers.
 use League\Csv\Reader;
 
 header('content-type: text/csv; charset=UTF-8');
+header('content-description: File Transfer');
 header('content-disposition: attachment; filename="name-for-your-file.csv"');
 
 $reader = Reader::createFromPath('/path/to/my/file.csv');
@@ -81,6 +86,35 @@ $reader = Reader::createFromPath('/path/to/my/file.csv');
 $reader->output("name-for-your-file.csv");
 ~~~
 
-<p class="message-info"><strong>Tips:</strong> The methods output <strong>are affected by</strong> <a href="/9.0/connections/bom/">the output BOM sequence</a> or the supplied <a href="/9.0/connections/filters/">PHP stream filters</a>.</p>
+## Outputting the document into chunks
 
-<p class="message-info"><strong>Tips:</strong> To avoid breaking the flow of your framework based application, you should avoid relying on the <code>AbstractCsv::output</code> method and instead create a framework specific <code>Response</code> object when applicable using <code>AbstractCsv::__toString</code>.</p>
+~~~php
+<?php
+
+public AbstractCsv::chunk(int $length): Generator
+~~~
+
+The `AbstractCsv::chunk` method takes a single `$length` parameter specifying the number of bytes to read from the CSV document and returns a `Generator` to ease outputting large CSV files.
+
+<p class="message-warning">if the <code>$length</code> parameter is not a positive integer a <code>OutOfRangeException</code> will be thrown.</p>
+
+~~~php
+<?php
+
+use League\Csv\Reader;
+
+header('transfer-encoding: chunked');
+header('content-encoding: none');
+header('content-type: text/csv; charset=UTF-8');
+header('content-description: File Transfer');
+header('content-disposition: attachment; filename="name-for-your-file.csv"');
+
+$reader = Reader::createFromPath('/path/to/huge/file.csv', 'r');
+foreach ($reader->chunk(1024) as $chunk) {
+    echo dechex(strlen($chunk))."\r\n$chunk\r\n";
+    usleep(5e4);
+}
+echo "0\r\n\r\n";
+~~~
+
+<p class="message-info"><strong>Tip:</strong> To avoid breaking the flow of your framework based application, you should create a framework specific <code>Response</code> object when applicable using <code>AbstractCsv::__toString</code> or <code>AbstractCsv::chunk</code> depending on the size of your CSV document.</p>

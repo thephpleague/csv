@@ -14,6 +14,7 @@ declare(strict_types=1);
 
 namespace League\Csv;
 
+use Generator;
 use League\Csv\Exception\LogicException;
 use League\Csv\Exception\RuntimeException;
 use SplFileObject;
@@ -253,10 +254,35 @@ abstract class AbstractCsv
      */
     public function __toString(): string
     {
-        ob_start();
-        $this->fpassthru();
+        return implode('', iterator_to_array($this->chunk(8192), false));
+    }
 
-        return ob_get_clean();
+    /**
+     * Retuns the CSV document as a Generator of string chunk
+     *
+     * @param int $length number of bytes read
+     *
+     * @throws InvalidArgumentException If the length is invalid
+     *
+     * @return Generator
+     */
+    public function chunk(int $length): Generator
+    {
+        $length = $this->filterMinRange($length, 1, 'The length must be a positive integer');
+        $input_bom = $this->getInputBOM();
+        $this->document->rewind();
+        if ($input_bom != $this->output_bom) {
+            $this->document->fseek(strlen($input_bom));
+            $chunk = $this->output_bom.$this->document->fread($length);
+            $this->document->fflush();
+            yield $chunk;
+        }
+
+        while ($this->document->valid()) {
+            $chunk = $this->document->fread($length);
+            $this->document->fflush();
+            yield $chunk;
+        }
     }
 
     /**
@@ -276,17 +302,6 @@ abstract class AbstractCsv
             header('content-disposition: attachment; filename="'.rawurlencode($filename).'"');
         }
 
-        return $this->fpassthru();
-    }
-
-    /**
-     * Outputs all data from the CSV
-     *
-     * @return int Returns the number of characters read from the handle
-     *             and passed through to the output.
-     */
-    protected function fpassthru(): int
-    {
         $res = 0;
         $input_bom = $this->getInputBOM();
         $this->document->rewind();

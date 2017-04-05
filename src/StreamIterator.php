@@ -306,6 +306,20 @@ class StreamIterator implements Iterator, SeekableIterator
     }
 
     /**
+     * Read from file
+     *
+     * @see http://php.net/manual/en/splfileobject.fread.php
+     *
+     * @param int $length The number of bytes to read
+     *
+     * @return string|false
+     */
+    public function fread($length)
+    {
+        return fread($this->stream, $length);
+    }
+
+    /**
      * Seek to a position
      *
      * @see http://php.net/manual/en/splfileobject.fseek.php
