@@ -31,5 +31,5 @@ releases:
     latest: '7.2.0 - 2015-11-02'
     supported_until: '2016-06-11'
     documentation_link: '/7.0/'
-footnote: 'Once a new major version is released, the previous stable release remains supported for six more months through patches and security fixes.'
-question: '<strong>League\Csv</strong> was created by Ignace Nyamagana Butera. Find him on Twitter at <a href="https://twitter.com/nyamsprod">@nyamsprod</a>.</p>'
+support: 'Once a new major version is released, the previous stable release remains supported for six more months through patches and security fixes.'
+author: '<strong>League\Csv</strong> was created by Ignace Nyamagana Butera. Find him on Twitter at <a href="https://twitter.com/nyamsprod">@nyamsprod</a>.</p>'
