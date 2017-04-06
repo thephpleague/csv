@@ -5,14 +5,9 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     {% assign version = page.url | remove_first: "/" | split: "/"" | first %}
-    {% assign upgrading_pages = version %}
 
-    {% if version != '9.0' %}
-        {% if version != '8.0' %}
-            {% if version != '7.0' %}
-                {% assign version = site.data.project.default_version %}
-            {% endif %}
-        {% endif %}
+    {% if version == '' or version == 'upgrading' %}
+        {% assign version = site.data.project.default_version %}
     {% endif %}
 
     {% capture version_home %}/{{ version }}/{% endcapture %}
@@ -45,7 +40,7 @@
         <link rel="apple-touch-icon-precomposed" href="http://theme.thephpleague.com/img/apple-touch-icon-precomposed.png">
     {% endif %}
     <link rel="stylesheet" href="http://theme.thephpleague.com/css/all.css?2">
-    <link rel="stylesheet" href="/custom.css?9">
+    <link rel="stylesheet" href="/custom.css?10">
 </head>
 <body>
 
@@ -102,8 +97,16 @@
         {% endfor %}
     </menu>
     <article>
-    {% if version == '9.0' %}
-        <p class="message-notice">This is the documentation for the upcoming <code>version 9.0</code>. This is a work in progress</p>
+    {% if version == site.data.project.releases.next.version %}
+        <p class="message-notice">This is the documentation for the upcoming <code>version {{ version }}</code>. This is a work in progress</p>
+    {% endif %}
+
+    {% if version == site.data.project.releases.previous.version %}
+        <p class="message-notice">This is the documentation for <code>version {{ version }}</code> which will be supported until <strong>{{ site.data.project.releases.previous.supported_until }}</strong>. Please consider upgrading your code to <a href="{{ site.data.project.releases.current.documentation_link }}">the latest stable version</a></p>
+    {% endif %}
+
+    {% if version == site.data.project.releases.legacy.version %}
+        <p class="message-notice">This is the documentation for the unsupported <code>version {{ version }}</code>. Please consider upgrading your code to <a href="{{ site.data.project.releases.current.documentation_link }}">the latest stable version</a></p>
     {% endif %}
 
         {{ content }}

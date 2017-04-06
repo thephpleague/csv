@@ -25,11 +25,11 @@
         HTML Converter: '/9.0/converter/html/'
     Upgrading Guide:
         Introduction: '/upgrading/'
-        Changelog: '/changelog/'
-        5.x to 6.x: '/upgrading/6.0/'
-        6.x to 7.x: '/upgrading/7.0/'
-        7.x to 8.x: '/upgrading/8.0/'
+        Changelog: '/upgrading/changelog/'
         8.x to 9.x: '/upgrading/9.0/'
+        7.x to 8.x: '/upgrading/8.0/'
+        6.x to 7.x: '/upgrading/7.0/'
+        5.x to 6.x: '/upgrading/6.0/'
 '8.0':
     Getting Started:
         Overview: '/8.0/'
@@ -46,11 +46,11 @@
         BOM Handling: '/8.0/bom/'
     Upgrading Guide:
         Introduction: '/upgrading/'
-        Changelog: '/changelog/'
-        5.x to 6.x: '/upgrading/6.0/'
-        6.x to 7.x: '/upgrading/7.0/'
-        7.x to 8.x: '/upgrading/8.0/'
+        Changelog: '/upgrading/changelog/'
         8.x to 9.x: '/upgrading/9.0/'
+        7.x to 8.x: '/upgrading/8.0/'
+        6.x to 7.x: '/upgrading/7.0/'
+        5.x to 6.x: '/upgrading/6.0/'
 '7.0':
     Getting Started:
         Overview: '/7.0/'
@@ -67,8 +67,8 @@
         BOM Handling: '/7.0/bom/'
     Upgrading Guide:
         Introduction: '/upgrading/'
-        Changelog: '/changelog/'
+        Changelog: '/upgrading/changelog/'
+        8.x to 9.x: '/upgrading/9.0/'
         7.x to 8.x: '/upgrading/8.0/'
         6.x to 7.x: '/upgrading/7.0/'
         5.x to 6.x: '/upgrading/6.0/'
-        8.x to 9.x: '/upgrading/9.0/'

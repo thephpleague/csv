@@ -270,21 +270,21 @@ h5:hover .header-permalink {
     background: #259b58;
 }
 
-.documentation .security {
+.documentation .previous {
     border-color:#ff8300;
 }
 
-.documentation .security h2 {
+.documentation .previous h2 {
     background:#ff8300;
 }
 
-.documentation .security a {
+.documentation .previous a {
     background: #ff8300;
     border-radius: 4px;
     box-shadow: 3px 3px 0 #a85401;
 }
 
-.documentation .security a:hover {
+.documentation .previous a:hover {
     background: #e56b00;
 }
 

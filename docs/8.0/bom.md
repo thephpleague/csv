@@ -1,6 +1,7 @@
 ---
 layout: default
 title: CSV and BOM character
+redirect_from: /bom/
 ---
 
 # Managing the BOM character

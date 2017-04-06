@@ -1,6 +1,7 @@
 ---
 layout: default
 title: Query Filtering
+redirect_from: /query-filtering/
 ---
 
 # Query Filtering

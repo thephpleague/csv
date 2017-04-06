@@ -19,7 +19,7 @@
         <link rel="apple-touch-icon-precomposed" href="http://theme.thephpleague.com/img/apple-touch-icon-precomposed.png">
     {% endif %}
     <link rel="stylesheet" href="http://theme.thephpleague.com/css/all.css?2">
-    <link rel="stylesheet" href="/custom.css?9">
+    <link rel="stylesheet" href="/custom.css?10">
 </head>
 <body>
 
@@ -38,7 +38,7 @@
       <a href="http://thephpleague.com/" class="league">Presented by The League of Extraordinary Packages</a>
       <h1>{{ site.data.project.title }}</h1>
       <h2>{{ site.data.project.tagline }}</h2>
-      <p class="composer">{{ site.data.project.packagist_command }}</p>
+      <p class="composer">{{ site.data.project.composer_command }}</p>
     </div>
 </header>
 
@@ -100,6 +100,20 @@
         </div>
       </div>
 {% endif %}
+{% if site.data.project.releases.previous %}
+      <div class="version previous">
+        <h2>Unsupported</h2>
+        <div class="content">
+          <p><code>League\Csv {{ site.data.project.releases.previous.version }}</code></p>
+          <ul>
+            <li>Requires: <strong>{{ site.data.project.releases.previous.requires }}</strong></li>
+            <li>Latest: <strong>{{ site.data.project.releases.previous.latest }}</strong></li>
+            <li>Supported Until: <strong>{{ site.data.project.releases.previous.supported_until }}</strong></li>
+          </ul>
+          <p><a href="{{ site.data.project.releases.previous.documentation_link }}">Full Documentation</a></p>
+        </div>
+      </div>
+{% endif %}
 {% if site.data.project.releases.legacy %}
       <div class="version legacy">
         <h2>Unsupported</h2>
@@ -134,17 +148,16 @@
 <script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
 <script src="http://theme.thephpleague.com/js/scripts.js"></script>
 <script src="/custom.js"></script>
-
 {% if site.data.project.google_analytics_tracking_id %}
-    <script>
-        (function(b,o,i,l,e,r){b.GoogleAnalyticsObject=l;b[l]||(b[l]=
-        function(){(b[l].q=b[l].q||[]).push(arguments)});b[l].l=+new Date;
-        e=o.createElement(i);r=o.getElementsByTagName(i)[0];
-        e.src='//www.google-analytics.com/analytics.js';
-        r.parentNode.insertBefore(e,r)}(window,document,'script','ga'));
-        ga('create','{{  site.data.project.google_analytics_tracking_id }}');
-        ga('send','pageview');
-    </script>
+<script>
+    (function(b,o,i,l,e,r){b.GoogleAnalyticsObject=l;b[l]||(b[l]=
+    function(){(b[l].q=b[l].q||[]).push(arguments)});b[l].l=+new Date;
+    e=o.createElement(i);r=o.getElementsByTagName(i)[0];
+    e.src='//www.google-analytics.com/analytics.js';
+    r.parentNode.insertBefore(e,r)}(window,document,'script','ga'));
+    ga('create','{{  site.data.project.google_analytics_tracking_id }}');
+    ga('send','pageview');
+</script>
 {% endif %}
 
 </body>

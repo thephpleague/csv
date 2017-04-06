@@ -3,8 +3,8 @@
 $header = <<<'EOF'
 This file is part of League\CSV, a CSV manipulation library
 
-@copyright 2015 Ignace Nyamagana Butera. All rights reserved
-@license MIT See LICENSE.md at the root of the project for more info
+For the full copyright and license information, please view the LICENSE
+file that was distributed with this source code.
 EOF;
 
 Symfony\CS\Fixer\Contrib\HeaderCommentFixer::setHeader($header);

@@ -1,6 +1,7 @@
 ---
 layout: default
 title: Changelog
+redirect_from: /changelog/
 ---
 
 # Changelog

@@ -1,6 +1,7 @@
 ---
 layout: default
 title: Basic Usage
+redirect_from: /basic-usage/
 ---
 
 # Basic usage

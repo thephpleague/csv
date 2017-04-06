@@ -1,6 +1,7 @@
 ---
 layout: default
 title: Inserting new data into a CSV
+redirect_from: /inserting/
 ---
 
 # Inserting Data

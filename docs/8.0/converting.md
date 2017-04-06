@@ -1,6 +1,7 @@
 ---
 layout: default
 title: Converting your CSV
+redirect_from: /converting/
 ---
 
 # Converting the CSV

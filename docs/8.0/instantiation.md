@@ -1,6 +1,7 @@
 ---
 layout: default
 title: Instantiation using named constructors
+redirect_from: /instantiation/
 ---
 
 # Instantiation

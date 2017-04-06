@@ -1,6 +1,7 @@
 ---
 layout: default
 title: Installation
+redirect_from: /installation/
 ---
 
 # Installation

@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en-US">
+<head>
+  <meta charset="utf-8">
+  <title>{{ site.data.project.tagline }} - {{ site.data.project.title }}</title>
+  <meta http-equiv="refresh" content="0; url={{ page.redirect.to }}">
+  {% if site.data.project.description %}
+      <meta name="description" content="{{ site.data.project.description }}">
+  {% endif %}
+  {% if site.data.images.favicon %}
+      <link rel="icon" type="image/x-icon" href="{{ site.data.images.favicon }}" />
+  {% else %}
+      <link rel="icon" type="image/x-icon" href="http://theme.thephpleague.com/img/favicon.ico" />
+  {% endif %}
+  {% if site.data.images.apple_touch %}
+      <link rel="apple-touch-icon-precomposed" href="{{ site.data.images.apple_touch }}">
+  {% else %}
+      <link rel="apple-touch-icon-precomposed" href="http://theme.thephpleague.com/img/apple-touch-icon-precomposed.png">
+  {% endif %}
+  <link rel="stylesheet" href="http://theme.thephpleague.com/css/all.css?2">
+  <link rel="stylesheet" href="/custom.css?10">
+  <link rel="canonical" href="{{ page.redirect.to }}">
+</head>
+<body>
+  <h1>Redirecting…</h1>
+  <a href="{{ page.redirect.to }}">Click here if you are not redirected.</a>
+  <script>location="{{ page.redirect.to }}"</script>
+</body>
+</html>

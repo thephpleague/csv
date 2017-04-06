@@ -1,6 +1,7 @@
 ---
 layout: default
 title: Stream Filtering
+redirect_from: /filtering/
 ---
 
 # Stream Filtering

@@ -1,6 +1,7 @@
 ---
 layout: default
 title: Setting and Accessing CSV settings
+redirect_from: /properties/
 ---
 
 # CSV properties

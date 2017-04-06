@@ -1,6 +1,7 @@
 ---
 layout: default
 title: Examples
+redirect_from: /examples/
 ---
 
 # Examples

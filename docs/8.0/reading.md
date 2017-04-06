@@ -1,6 +1,7 @@
 ---
 layout: default
 title: Extracting data from a CSV
+redirect_from: /reading/
 ---
 
 # Extracting data
