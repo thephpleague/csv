@@ -6,27 +6,32 @@ All Notable changes to `Csv` will be documented in this file
 
 ### Added
 
-- `League\Csv\Statement`
-- `League\Csv\RecordSet`
-- `League\Csv\CharsetConverter`
-- `League\Csv\XMLConverter`
-- `League\Csv\HTMLConverter`
-- `League\Csv\JsonConverter`
-- `League\Csv\Exception\CsvException`
-- `League\Csv\Exception\InsertionException`
-- `League\Csv\Exception\InvalidArgumentException`
-- `League\Csv\Exception\LogicException`
-- `League\Csv\Exception\RuntimeException`
-- `League\Csv\AbstractCsv::chunk`
-- `League\Csv\bom_match` function
-- `League\Csv\BOM` interface
-- `League\Csv\Reader::getHeader`
-- `League\Csv\Reader::getHeaderOffset`
-- `League\Csv\Reader::setHeaderOffset`
-- `League\Csv\Reader::select`
-- `League\Csv\Writer::setFlushThreshold`
-- `League\Csv\Writer::getFlushThreshold`
-- `League\Csv\ColumnConsistency`
+- Improved CSV Records selection
+    - `League\Csv\Statement` which provides a constraint builder to select CSV records.
+    - `League\Csv\RecordSet` which provides a Collection class for selected CSV records.
+    - `League\Csv\Reader::select` to enable CSV records selection from a `League\Csv\Reader` object
+- Improved CSV Records conversion
+    - `League\Csv\CharsetConverter` which provides CSV records charset conversion.
+    - `League\Csv\XMLConverter` which provides CSV records XML conversion.
+    - `League\Csv\HTMLConverter` which provides CSV records HTML conversion.
+    - `League\Csv\JsonConverter` which provides CSV records Json conversion.
+- Improved package Exception handling
+    - `League\Csv\Exception\CsvException` which provides basic exception interface
+    - `League\Csv\Exception\InsertionException`
+    - `League\Csv\Exception\InvalidArgumentException`
+    - `League\Csv\Exception\LogicException`
+    - `League\Csv\Exception\RuntimeException`
+- Improved CSV document output
+    - `League\Csv\AbstractCsv::chunk` method to output the CSV document in chunk
+    - `League\Csv\bom_match` function to detect BOM sequence in a given string
+    - `League\Csv\BOM` interface to decoupled BOM sequence from CSV documents
+- Improved CSV document loading for reading. You can now set the header offset directly on the Reader object.
+    - `League\Csv\Reader::getHeader`
+    - `League\Csv\Reader::getHeaderOffset`
+    - `League\Csv\Reader::setHeaderOffset`
+- Improved CSV record insertion
+    - `League\Csv\Writer::setFlushThreshold` and `League\Csv\Writer::getFlushThreshold` to better handle CSV document flush mechanism
+    - `League\Csv\ColumnConsistency` to validate records column count consistency
 
 ### Deprecated
 
@@ -34,56 +39,68 @@ All Notable changes to `Csv` will be documented in this file
 
 ### Fixed
 
-- `League\Csv\Writer::insertOne` only accept an array and returns a integer
-- `League\Csv\Writer::insertAll` only accept an iterable of array and returns an integer
+- Improved CSV record insertion
+    - `League\Csv\Writer::insertOne` only accept an array and returns a integer
+    - `League\Csv\Writer::insertAll` only accept an iterable of array and returns an integer
 
 ### Removed
 
 - PHP5 support
 - `examples` directory
-- `League\Csv\AbstractCsv::BOM_UTF8`
-- `League\Csv\AbstractCsv::BOM_UTF16_BE`
-- `League\Csv\AbstractCsv::BOM_UTF16_LE`
-- `League\Csv\AbstractCsv::BOM_UTF32_BE`
-- `League\Csv\AbstractCsv::BOM_UTF32_LE`
-- `League\Csv\AbstractCsv::jsonSerialize`
-- `League\Csv\AbstractCsv::toHTML`
-- `League\Csv\AbstractCsv::toXML`
-- `League\Csv\AbstractCsv::stripBom`
-- `League\Csv\AbstractCsv::addFilter`
-- `League\Csv\AbstractCsv::addSortBy`
-- `League\Csv\AbstractCsv::setOffset`
-- `League\Csv\AbstractCsv::setLimit`
-- `League\Csv\AbstractCsv::isActiveStreamFilter`
-- `League\Csv\AbstractCsv::setStreamFilterMode`
-- `League\Csv\AbstractCsv::getStreamFilterMode`
-- `League\Csv\AbstractCsv::appendStreamFilter`
-- `League\Csv\AbstractCsv::prependStreamFilter`
-- `League\Csv\AbstractCsv::removeStreamFilter`
-- `League\Csv\AbstractCsv::clearStreamFilters`
-- `League\Csv\AbstractCsv::setInputEncoding`
-- `League\Csv\AbstractCsv::getInputEncoding`
-- `League\Csv\Exception\InvalidRowException`
-- `League\Csv\Reader::each`
-- `League\Csv\Reader::fetch`
-- `League\Csv\Reader::fetchAll`
-- `League\Csv\Reader::fetchAssoc`
-- `League\Csv\Reader::fetchColumn`
-- `League\Csv\Reader::fetchPairs`
-- `League\Csv\Reader::fetchPairsWithoutDuplicates`
-- `League\Csv\Reader::getNewline`
-- `League\Csv\Reader::setNewline`
-- `League\Csv\Writer::hasFormatter`
-- `League\Csv\Writer::removeFormatter`
-- `League\Csv\Writer::clearFormatters`
-- `League\Csv\Writer::hasValidator`
-- `League\Csv\Writer::removeValidator`
-- `League\Csv\Writer::clearValidators`
-- `League\Csv\Writer::getIterator`
-- `League\Csv\Writer::fetchDelimitersOccurrence`
-- `League\Csv\Plugin\SkipNullValuesFormatter`
-- `League\Csv\Plugin\ForbiddenNullValuesValidator`
-- `League\Csv\Plugin\ColumnConsistencyValidator`
+- The following constants are removed from `League\Csv\AbstractCsv` because they are attached to the `League\Csv\BOM` interface:
+    - `League\Csv\AbstractCsv::BOM_UTF8`
+    - `League\Csv\AbstractCsv::BOM_UTF16_BE`
+    - `League\Csv\AbstractCsv::BOM_UTF16_LE`
+    - `League\Csv\AbstractCsv::BOM_UTF32_BE`
+    - `League\Csv\AbstractCsv::BOM_UTF32_LE`
+- The following methods are removed from `League\Csv\AbstractCsv` in favor of the introduced conversion classes:
+    - `League\Csv\AbstractCsv::jsonSerialize`
+    - `League\Csv\AbstractCsv::toHTML`
+    - `League\Csv\AbstractCsv::toXML`
+    - `League\Csv\AbstractCsv::setInputEncoding`
+    - `League\Csv\AbstractCsv::getInputEncoding`
+- BOM stripping is done automatically, thus, the `League\Csv\AbstractCsv::stripBOM` method is removed.
+- The following CSV records filtering methods are removed in favor of the introduced `League\Csv\Statement` object:
+    - `League\Csv\AbstractCsv::addFilter`,
+    - `League\Csv\AbstractCsv::addSortBy`,
+    - `League\Csv\AbstractCsv::setOffset`,
+    - `League\Csv\AbstractCsv::setLimit`;
+- Stream filter API is simplified thus the following methods are removed:
+    - `League\Csv\AbstractCsv::isActiveStreamFilter`
+    - `League\Csv\AbstractCsv::setStreamFilterMode`
+    - `League\Csv\AbstractCsv::getStreamFilterMode`
+    - `League\Csv\AbstractCsv::appendStreamFilter`
+    - `League\Csv\AbstractCsv::prependStreamFilter`
+    - `League\Csv\AbstractCsv::removeStreamFilter`
+    - `League\Csv\AbstractCsv::clearStreamFilters`
+- Because switching between `League\Csv\Writer` and `League\Csv\Reader` connections is removed the following methods are removed:
+    - `League\Csv\AbstractCsv::newReader`
+    - `League\Csv\AbstractCsv::newWriter`
+    - `League\Csv\Reader::getNewline`
+    - `League\Csv\Reader::setNewline`
+    - `League\Csv\Writer::fetchDelimitersOccurrence`
+- `League\Csv\Exception\InvalidRowException` is removed in favor of `League\Csv\Exception\InsertionException` class;
+- With the introduction of the `League\Csv\RecordSet` the following methods are removed from `League\Csv\Reader`:
+    - `League\Csv\Reader::each`
+    - `League\Csv\Reader::fetch`
+    - `League\Csv\Reader::fetchAll`
+    - `League\Csv\Reader::fetchAssoc`
+    - `League\Csv\Reader::fetchColumn`
+    - `League\Csv\Reader::fetchPairs`
+    - `League\Csv\Reader::fetchPairsWithoutDuplicates`
+- The formatting and validating CSV records on insertion API has been simplified, thus, the following methods are removed:
+    - `League\Csv\Writer::hasFormatter`
+    - `League\Csv\Writer::removeFormatter`
+    - `League\Csv\Writer::clearFormatters`
+    - `League\Csv\Writer::hasValidator`
+    - `League\Csv\Writer::removeValidator`
+    - `League\Csv\Writer::clearValidators`
+    - `League\Csv\Writer::getIterator`
+- The following Formatters and Validator are removed from the package:
+    - `League\Csv\Plugin\SkipNullValuesFormatter`
+    - `League\Csv\Plugin\ForbiddenNullValuesValidator`
+- The `League\Csv\Plugin\ColumnConsistencyValidator` validator is replace by `League\Csv\ColumnConsistency`
+- `League\Csv\Writer` no longers implements the `IteratorAggregate` interface
 
 ## 8.2.1 - 2017-02-22
 
