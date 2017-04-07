@@ -38,7 +38,7 @@
       <a href="http://thephpleague.com/" class="league">Presented by The League of Extraordinary Packages</a>
       <h1>{{ site.data.project.title }}</h1>
       <h2>{{ site.data.project.tagline }}</h2>
-      <p class="composer">{{ site.data.project.composer_command }}</p>
+      <p class="composer"><span>{{ site.data.project.composer }}</span></p>
     </div>
 </header>
 
@@ -76,7 +76,7 @@
       <div class="version next">
         <h2>Upcoming</h2>
         <div class="content">
-          <p><code>League\Csv {{ site.data.project.releases.next.version }}</code></p>
+          <p><code>{{ site.data.project.title }} {{ site.data.project.releases.next.version }}</code></p>
           <ul>
             <li>Requires: <strong>{{ site.data.project.releases.next.requires }}</strong></li>
             <li>Latest: <strong>{{ site.data.project.releases.next.latest }}</strong></li>
@@ -90,7 +90,7 @@
       <div class="version current">
         <h2>Current Stable</h2>
         <div class="content">
-          <p><code>League\Csv {{ site.data.project.releases.current.version }}</code></p>
+          <p><code>{{ site.data.project.title }} {{ site.data.project.releases.current.version }}</code></p>
           <ul>
             <li>Requires: <strong>{{ site.data.project.releases.current.requires }}</strong></li>
             <li>Latest: <strong>{{ site.data.project.releases.current.latest }}</strong></li>
@@ -104,7 +104,7 @@
       <div class="version previous">
         <h2>Unsupported</h2>
         <div class="content">
-          <p><code>League\Csv {{ site.data.project.releases.previous.version }}</code></p>
+          <p><code>{{ site.data.project.title }} {{ site.data.project.releases.previous.version }}</code></p>
           <ul>
             <li>Requires: <strong>{{ site.data.project.releases.previous.requires }}</strong></li>
             <li>Latest: <strong>{{ site.data.project.releases.previous.latest }}</strong></li>
@@ -118,7 +118,7 @@
       <div class="version legacy">
         <h2>Unsupported</h2>
         <div class="content">
-          <p><code>League\Csv {{ site.data.project.releases.legacy.version }}</code></p>
+          <p><code>{{ site.data.project.title }} {{ site.data.project.releases.legacy.version }}</code></p>
           <ul>
             <li>Requires: <strong>{{ site.data.project.releases.legacy.requires }}</strong></li>
             <li>Latest: <strong>{{ site.data.project.releases.legacy.latest }}</strong></li>
@@ -135,7 +135,7 @@
   <div class="questions">
     <div class="inner-content">
       <h1>Questions?</h1>
-      <p>{{ site.data.project.author }}</p>
+      <p><a href="https://github.com/thephpleague/{{ site.data.project.repo }}">{{ site.data.project.title }}</a> was created by {{ site.data.project.author.name }}. Find him on Twitter at <a href="https://twitter.com/{{ site.data.project.author.twitter_account }}">@{{ site.data.project.author.twitter_account }}</a>.</p>
     </div>
   </div>
 </main>

@@ -1,9 +1,9 @@
-title: CSV
+title: Csv
 tagline: "CSV data manipulation made easy in PHP."
 description: "Working with CSV can often be much more difficult than you expect, with different types of delimiter and complicated structures. This makes it easy to read and write almost anything."
 google_analytics_tracking_id: UA-46050814-6
 default_version: "8.0"
-composer_command: '<span>$ composer require league/csv</span>'
+composer: '$ composer require league/csv'
 highlights:
   description: 'The library was designed for developers who want to deal with CSV data using modern code and without the high levels of bootstrap and low-levels of usefulness provided by existing core functions or third party-code.'
   features:
@@ -32,4 +32,7 @@ releases:
     supported_until: '2016-06-11'
     documentation_link: '/7.0/'
 support: 'Once a new major version is released, the previous stable release remains supported for six more months through patches and security fixes.'
-author: '<strong>League\Csv</strong> was created by Ignace Nyamagana Butera. Find him on Twitter at <a href="https://twitter.com/nyamsprod">@nyamsprod</a>.</p>'
+repo: 'csv'
+author:
+    name: 'Ignace Nyamagana Butera'
+    twitter_account: 'nyamsprod'
