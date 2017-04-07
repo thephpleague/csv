@@ -1,71 +1,59 @@
-'9.0':
-    Getting Started:
-        Overview: '/9.0/'
-        Installation: '/9.0/installation/'
-    Connections:
-        Document Loading: '/9.0/connections/'
-        Characters Controls: '/9.0/connections/controls/'
-        BOM Sequences: '/9.0/connections/bom/'
-        Stream Filters: '/9.0/connections/filters/'
-        Document output: '/9.0/connections/output/'
-        Interoperability: '/9.0/connections/interoperability/'
-        Exceptions: '/9.0/connections/exceptions/'
-    Inserting Records:
-        Writer Connection: '/9.0/writer/'
-        Insertion Filtering: '/9.0/writer/filtering/'
-    Selecting Records:
-        Reader Connection: '/9.0/reader/'
-        Constraint Builder: '/9.0/reader/statement/'
-        Records Collection: '/9.0/reader/records/'
-    Converting Records:
-        Records Converter: '/9.0/converter/'
-        Charset Converter: '/9.0/converter/charset/'
-        Json Converter: '/9.0/converter/json/'
-        XML Converter: '/9.0/converter/xml/'
-        HTML Converter: '/9.0/converter/html/'
-    Upgrading Guide:
-        Introduction: '/upgrading/'
-        Changelog: '/upgrading/changelog/'
-        8.x to 9.x: '/upgrading/9.0/'
-        7.x to 8.x: '/upgrading/8.0/'
-        6.x to 7.x: '/upgrading/7.0/'
-        5.x to 6.x: '/upgrading/6.0/'
-'8.0':
-    Getting Started:
-        Overview: '/8.0/'
-        Installation: '/8.0/installation/'
-    The API:
-        Instantiation: '/8.0/instantiation/'
-        CSV Properties: '/8.0/properties/'
-        Basic Usage: '/8.0/basic-usage/'
-        Extracting Data: '/8.0/reading/'
-        Inserting Data: '/8.0/inserting/'
-        Converting Data: '/8.0/converting/'
-        Query Filters: '/8.0/query-filtering/'
-        Stream Filters: '/8.0/filtering/'
-        BOM Handling: '/8.0/bom/'
-    Upgrading Guide:
-        Introduction: '/upgrading/'
-        Changelog: '/upgrading/changelog/'
-        8.x to 9.x: '/upgrading/9.0/'
-        7.x to 8.x: '/upgrading/8.0/'
-        6.x to 7.x: '/upgrading/7.0/'
-        5.x to 6.x: '/upgrading/6.0/'
-'7.0':
-    Getting Started:
-        Overview: '/7.0/'
-        Installation: '/7.0/installation/'
-    The API:
-        Instantiation: '/7.0/instantiation/'
-        CSV Properties: '/7.0/properties/'
-        Basic Usage: '/7.0/basic-usage/'
-        Extracting Data: '/7.0/reading/'
-        Inserting Data: '/7.0/inserting/'
-        Converting Data: '/7.0/converting/'
-        Query Filters: '/7.0/query-filtering/'
-        Stream Filters: '/7.0/filtering/'
-        BOM Handling: '/7.0/bom/'
-    Upgrading Guide:
+version:
+    '9.0':
+        Getting Started:
+            Overview: '/9.0/'
+            Installation: '/9.0/installation/'
+        Connections:
+            Document Loading: '/9.0/connections/'
+            Characters Controls: '/9.0/connections/controls/'
+            BOM Sequences: '/9.0/connections/bom/'
+            Stream Filters: '/9.0/connections/filters/'
+            Document output: '/9.0/connections/output/'
+            Interoperability: '/9.0/connections/interoperability/'
+            Exceptions: '/9.0/connections/exceptions/'
+        Inserting Records:
+            Writer Connection: '/9.0/writer/'
+            Insertion Filtering: '/9.0/writer/filtering/'
+        Selecting Records:
+            Reader Connection: '/9.0/reader/'
+            Constraint Builder: '/9.0/reader/statement/'
+            Records Collection: '/9.0/reader/records/'
+        Converting Records:
+            Records Converter: '/9.0/converter/'
+            Charset Converter: '/9.0/converter/charset/'
+            Json Converter: '/9.0/converter/json/'
+            XML Converter: '/9.0/converter/xml/'
+            HTML Converter: '/9.0/converter/html/'
+    '8.0':
+        Getting Started:
+            Overview: '/8.0/'
+            Installation: '/8.0/installation/'
+        The API:
+            Instantiation: '/8.0/instantiation/'
+            CSV Properties: '/8.0/properties/'
+            Basic Usage: '/8.0/basic-usage/'
+            Extracting Data: '/8.0/reading/'
+            Inserting Data: '/8.0/inserting/'
+            Converting Data: '/8.0/converting/'
+            Query Filters: '/8.0/query-filtering/'
+            Stream Filters: '/8.0/filtering/'
+            BOM Handling: '/8.0/bom/'
+    '7.0':
+        Getting Started:
+            Overview: '/7.0/'
+            Installation: '/7.0/installation/'
+        The API:
+            Instantiation: '/7.0/instantiation/'
+            CSV Properties: '/7.0/properties/'
+            Basic Usage: '/7.0/basic-usage/'
+            Extracting Data: '/7.0/reading/'
+            Inserting Data: '/7.0/inserting/'
+            Converting Data: '/7.0/converting/'
+            Query Filters: '/7.0/query-filtering/'
+            Stream Filters: '/7.0/filtering/'
+            BOM Handling: '/7.0/bom/'
+upgrading:
+    'Upgrading Guide':
         Introduction: '/upgrading/'
         Changelog: '/upgrading/changelog/'
         8.x to 9.x: '/upgrading/9.0/'

@@ -1,17 +1,10 @@
+# Documentation website
 title: Csv
 tagline: "CSV data manipulation made easy in PHP."
 description: "Working with CSV can often be much more difficult than you expect, with different types of delimiter and complicated structures. This makes it easy to read and write almost anything."
 google_analytics_tracking_id: UA-46050814-6
-default_version: "8.0"
-composer: '$ composer require league/csv'
-highlights:
-  description: 'The library was designed for developers who want to deal with CSV data using modern code and without the high levels of bootstrap and low-levels of usefulness provided by existing core functions or third party-code.'
-  features:
-      - 'Simple API'
-      - 'Read and Write to CSV documents in a memory efficient and scalable way'
-      - 'Support PHP Stream filtering capabilities'
-      - 'Transform CSV documents into popular formats (JSON, XML or HTML)'
-      - 'Framework-agnostic'
+# Github repository
+repository: 'csv'
 releases:
   next:
     version: '9.0'
@@ -25,14 +18,30 @@ releases:
     latest: '8.2.1 - 2017-02-03'
     supported_until: 'TBD'
     documentation_link: '/8.0/'
+# Uncomment if needed
+#   previous:
+#    version: '8.0'
+#    requires: 'PHP >= 5.5.0'
+#    latest: '8.2.1 - 2017-02-03'
+#    supported_until: 'TBD'
+#    documentation_link: '/8.0/'
   legacy:
     version: '7.0'
     requires: 'PHP >= 5.4.0'
     latest: '7.2.0 - 2015-11-02'
     supported_until: '2016-06-11'
     documentation_link: '/7.0/'
-support: 'Once a new major version is released, the previous stable release remains supported for six more months through patches and security fixes.'
-repo: 'csv'
 author:
     name: 'Ignace Nyamagana Butera'
     twitter_account: 'nyamsprod'
+# Homepage specific
+highlights:
+  description: 'The library was designed for developers who want to deal with CSV data using modern code and without the high levels of bootstrap and low-levels of usefulness provided by existing core functions or third party-code.'
+  features:
+      - 'Simple API'
+      - 'Read and Write to CSV documents in a memory efficient and scalable way'
+      - 'Support PHP Stream filtering capabilities'
+      - 'Transform CSV documents into popular formats (JSON, XML or HTML)'
+      - 'Framework-agnostic'
+composer: '$ composer require league/csv'
+support: 'Once a new major version is released, the previous stable release remains supported for six more months through patches and security fixes.'
