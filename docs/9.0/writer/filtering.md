@@ -140,20 +140,20 @@ $writer->insertOne(["foo", "bébé", "jouet"]);
 
 ## Bundled validator
 
-### Records consistency check
+### Records columns consistency check
 
 ~~~php
 <?php
 
-public ColumnConsistency::columnsCount(int $count): self
-public ColumnConsistency::autodetect(void): self
+public ColumnConsistency::__construct(int $column_count = -1): void
+public ColumnConsistency::getColumnCount(void): int
 ~~~
 
 The `League\Csv\ColumnConsistency` class validates the inserted record column count consistency.
 
-- The `ColumnConsistency::columnsCount` method will set the column count value and validate each record length against the given value. If the value differs an `InsertionException` will be thrown.
-
-- The `ColumnConsistency::autodetect` method will lazy set the column count value according to the next inserted record and therefore will also validate it. Once set, if the given value differs with the following inserted records a `InsertionException` exception is triggered.
+This class constructor accepts a single argument `$column_count` which sets the column count value and validate each record length against the given value. If the value differs an `InsertionException` will be thrown.  
+if `$column_count` equals `-1`, the object will lazy set the column count value according to the next inserted record and therefore will also validate it. On the next insert, if the given value differs a `InsertionException` exception is triggered.
+At any given time you can retrieve the column count value using the `ColumnConsistency::getColumnCount` method.
 
 ~~~php
 <?php
@@ -161,11 +161,14 @@ The `League\Csv\ColumnConsistency` class validates the inserted record column co
 use League\Csv\Writer;
 use League\Csv\ColumnConsistency;
 
-$validator = (new ColumnConsistency())->autodetect();
 
+$validator = new ColumnConsistency();
 $writer = Writer::createFromPath('/path/to/your/csv/file.csv');
 $writer->addValidator($validator, 'column_consistency');
-
-$writer->insertOne(["foo", null, "bar"]);
+$validator->getColumnCount(); //returns -1
+$writer->insertOne(["foo", "bar", "baz"]);
+$validator->getColumnCount(); //returns 3
 $writer->insertOne(["foo", "bar"]); //will trigger a InsertionException exception
 ~~~
+
+<p class="message-info">The default column count is set to <code>-1</code>.</p>

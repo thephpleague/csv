@@ -9,8 +9,9 @@ use League\Csv\Statement;
 
 //load the CSV document
 $csv = Reader::createFromPath('/path/to/your/csv/file.csv')
-    ->setHeaderOffset(0)
     ->addStreamFilter('convert.iconv.ISO-8859-1/UTF-8')
+    ->setDelimiter(';')
+    ->setHeaderOffset(0)
 ;
 
 //build a statement

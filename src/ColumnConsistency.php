@@ -31,45 +31,26 @@ class ColumnConsistency
      *
      * @var int
      */
-    protected $columns_count = -1;
+    protected $columns_count;
 
     /**
-     * should the class detect the column count based on the inserted record
+     * New Instance
      *
-     * @var bool
+     * @param int $columns_count
      */
-    protected $detect_columns_count = false;
-
-    /**
-     * Set Inserted record column count
-     *
-     * @param int $value
-     *
-     * @return self
-     */
-    public function columnsCount(int $value): self
+    public function __construct(int $columns_count = -1)
     {
-        $clone = clone $this;
-        $clone->columns_count = $this->filterMinRange($value, 0, 'The column count must be greater or equal to 0');
-        $clone->detect_columns_count = false;
-
-        return $clone;
+        $this->columns_count = $this->filterMinRange($columns_count, -1, 'The column count must be greater or equal to -1');
     }
 
     /**
-     * The method will set the $columns_count property
-     * according to the next inserted record and therefore
-     * will also validate it.
+     * Returns the column count
      *
-     * @return self
+     * @return int
      */
-    public function autodetect(): self
+    public function getColumnCount(): int
     {
-        $clone = clone $this;
-        $clone->detect_columns_count = true;
-        $clone->columns_count = -1;
-
-        return $clone;
+        return $this->columns_count;
     }
 
     /**
@@ -82,8 +63,7 @@ class ColumnConsistency
     public function __invoke(array $record): bool
     {
         $count = count($record);
-        if ($this->detect_columns_count) {
-            $this->detect_columns_count = false;
+        if (-1 === $this->columns_count) {
             $this->columns_count = $count;
 
             return true;

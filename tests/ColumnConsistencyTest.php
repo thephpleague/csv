@@ -34,8 +34,11 @@ class ColumnConsistencyTest extends TestCase
     {
         try {
             $expected = ['jane', 'jane.doe@example.com'];
-            $this->csv->addValidator((new ColumnConsistency())->autodetect(), 'consistency');
+            $validator = new ColumnConsistency();
+            $this->csv->addValidator($validator, 'consistency');
+            $this->assertSame(-1, $validator->getColumnCount());
             $this->csv->insertOne(['john', 'doe', 'john.doe@example.com']);
+            $this->assertSame(3, $validator->getColumnCount());
             $this->csv->insertOne($expected);
         } catch (InsertionException $e) {
             $this->assertSame($e->getName(), 'consistency');
@@ -46,7 +49,7 @@ class ColumnConsistencyTest extends TestCase
     public function testColumnsCount()
     {
         $this->expectException(InsertionException::class);
-        $this->csv->addValidator((new ColumnConsistency())->columnsCount(3), 'consistency');
+        $this->csv->addValidator(new ColumnConsistency(3), 'consistency');
         $this->csv->insertOne(['john', 'doe', 'john.doe@example.com']);
         $this->csv->insertOne(['jane', 'jane.doe@example.com']);
     }
@@ -54,6 +57,6 @@ class ColumnConsistencyTest extends TestCase
     public function testColumsCountTriggersException()
     {
         $this->expectException(OutOfRangeException::class);
-        (new ColumnConsistency())->columnsCount(-1);
+        new ColumnConsistency(-2);
     }
 }
