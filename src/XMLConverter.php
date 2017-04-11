@@ -18,6 +18,7 @@ use DOMAttr;
 use DOMDocument;
 use DOMElement;
 use DOMException;
+use League\Csv\Exception\InvalidArgumentException;
 use Traversable;
 
 /**
@@ -195,14 +196,20 @@ class XMLConverter
      *
      * @param string $encoding
      *
+     * @throws InvalidArgumentException if the encoding charset is malformed
+     *
      * @return self
      */
     public function encoding(string $encoding): self
     {
-        $clone = clone $this;
-        $clone->encoding = $this->filterEncoding($encoding);
+        if (preg_match(',^[a-z0-9-]+$,i', $encoding)) {
+            $clone = clone $this;
+            $clone->encoding = $encoding;
 
-        return $clone;
+            return $clone;
+        }
+
+        throw new InvalidArgumentException(sprintf('Malformed Encoding Charset: %s', $encoding));
     }
 
     /**

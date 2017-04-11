@@ -138,27 +138,15 @@ class Statement
      */
     public function process(Reader $reader): RecordSet
     {
-        $iterator = $this->buildWhere($reader->getIterator());
-        $iterator = $this->buildOrderBy($iterator);
-        $iterator = new LimitIterator($iterator, $this->offset, $this->limit);
-
-        return new RecordSet($iterator, $reader->getHeader());
-    }
-
-    /**
-    * Filter the Iterator
-    *
-    * @param Iterator $iterator
-    *
-    * @return Iterator
-    */
-    protected function buildWhere(Iterator $iterator): Iterator
-    {
         $reducer = function (Iterator $iterator, callable $callable): Iterator {
             return new CallbackFilterIterator($iterator, $callable);
         };
 
-        return array_reduce($this->where, $reducer, $iterator);
+        $iterator = array_reduce($this->where, $reducer, $reader->getIterator());
+        $iterator = $this->buildOrderBy($iterator);
+        $iterator = new LimitIterator($iterator, $this->offset, $this->limit);
+
+        return new RecordSet($iterator, $reader->getHeader());
     }
 
     /**
@@ -184,7 +172,7 @@ class Statement
             return $cmp ?? 0;
         };
 
-        $iterator = new ArrayIterator(iterator_to_array($iterator, true));
+        $iterator = new ArrayIterator(iterator_to_array($iterator));
         $iterator->uasort($compare);
 
         return $iterator;

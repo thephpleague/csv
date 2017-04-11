@@ -16,6 +16,7 @@ namespace League\Csv;
 
 use ArrayIterator;
 use Iterator;
+use League\Csv\Exception\InvalidArgumentException;
 use php_user_filter;
 use Traversable;
 
@@ -53,7 +54,13 @@ class CharsetConverter extends php_user_filter
      */
     public static function registerStreamFilter(): bool
     {
-        return stream_filter_register(self::STREAM_FILTERNAME.'.*', CharsetConverter::class);
+        static $is_registered;
+
+        if (null === $is_registered) {
+            $is_registered = stream_filter_register(self::STREAM_FILTERNAME.'.*', CharsetConverter::class);
+        }
+
+        return $is_registered;
     }
 
     /**
@@ -75,6 +82,31 @@ class CharsetConverter extends php_user_filter
     }
 
     /**
+     * Filter encoding charset
+     *
+     * @param string $encoding
+     *
+     * @throws InvalidArgumentException if the charset is malformed or unsupported
+     *
+     * @return string
+     */
+    protected static function filterEncoding(string $encoding): string
+    {
+        static $encoding_list;
+        if (null === $encoding_list) {
+            $list = mb_list_encodings();
+            $encoding_list = array_combine(array_map('strtolower', $list), $list);
+        }
+
+        $key = strtolower($encoding);
+        if (isset($encoding_list[$key])) {
+            return $encoding_list[$key];
+        }
+
+        throw new InvalidArgumentException(sprintf('Unsupported charset %s', $encoding));
+    }
+
+    /**
      * @inherit
      */
     public function filter($in, $out, &$consumed, $closing)
@@ -93,8 +125,8 @@ class CharsetConverter extends php_user_filter
      */
     public function onCreate()
     {
-        $params = substr($this->filtername, strlen(self::STREAM_FILTERNAME) + 1);
-        if (!preg_match(',^(?<input>[-\w]+)\/(?<output>[-\w]+)$,', $params, $matches)) {
+        $encodings = substr($this->filtername, strlen(self::STREAM_FILTERNAME) + 1);
+        if (!preg_match(',^(?<input>[-\w]+)\/(?<output>[-\w]+)$,', $encodings, $matches)) {
             return false;
         }
 

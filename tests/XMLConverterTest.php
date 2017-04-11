@@ -4,6 +4,7 @@ namespace LeagueTest\Csv;
 
 use DOMDocument;
 use DOMException;
+use League\Csv\Exception\InvalidArgumentException;
 use League\Csv\Reader;
 use League\Csv\Statement;
 use League\Csv\XMLConverter;
@@ -41,7 +42,7 @@ class XMLConverterTest extends TestCase
 
         $this->assertInstanceOf(DOMDocument::class, $dom);
         $this->assertSame('csv', $dom->documentElement->tagName);
-        $this->assertSame('ISO-8859-15', $dom->xmlEncoding);
+        $this->assertSame('iso-8859-15', $dom->xmlEncoding);
         $this->assertEquals(5, $record_list->length);
         $this->assertTrue($record_list->item(0)->hasAttribute('offset'));
         $this->assertEquals(20, $field_list->length);
@@ -52,5 +53,11 @@ class XMLConverterTest extends TestCase
     {
         $this->expectException(DOMException::class);
         (new XMLConverter())->rootElement('   ');
+    }
+
+    public function testEncodingTriggersException()
+    {
+        $this->expectException(InvalidArgumentException::class);
+        (new XMLConverter())->encoding(' utf-8  ');
     }
 }
