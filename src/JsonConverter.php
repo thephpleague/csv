@@ -29,42 +29,21 @@ class JsonConverter
     use ValidatorTrait;
 
     /**
-     * json_encode options
-     *
-     * @var int
-     */
-    protected $options = 0;
-
-    /**
-     * json_encode $options flag setter
-     *
-     * @param int $options
-     *
-     * @return self
-     */
-    public function options(int $options): self
-    {
-        $clone = clone $this;
-        $clone->options = $this->filterMinRange($options, 0, 'The options must be a positive integer or 0');
-
-        return $clone;
-    }
-
-    /**
      * Convert an Record collection into a Json string
      *
      * @param array|Traversable $records the CSV records collection
      *
      * @return string
      */
-    public function convert($records): string
+    public function convert($records, int $options = 0): string
     {
+        $options = $this->filterMinRange($options, 0, 'The options must be a positive integer or 0');
         $records = $this->filterIterable($records);
         if (!is_array($records)) {
             $records = iterator_to_array($records);
         }
 
-        $json = @json_encode($records, $this->options, 2);
+        $json = @json_encode($records, $options, 2);
         if (JSON_ERROR_NONE === json_last_error()) {
             return $json;
         }

@@ -4,7 +4,6 @@ namespace LeagueTest\Csv;
 
 use DOMDocument;
 use DOMException;
-use League\Csv\Exception\InvalidArgumentException;
 use League\Csv\Reader;
 use League\Csv\Statement;
 use League\Csv\XMLConverter;
@@ -55,9 +54,21 @@ class XMLConverterTest extends TestCase
         (new XMLConverter())->rootElement('   ');
     }
 
-    public function testEncodingTriggersException()
+    /**
+     * @dataProvider encodingErrorProvider
+     */
+    public function testEncodingTriggersException($encoding)
     {
-        $this->expectException(InvalidArgumentException::class);
-        (new XMLConverter())->encoding(' utf-8  ');
+        $this->expectException(DOMException::class);
+        (new XMLConverter())->encoding($encoding);
+    }
+
+    public function encodingErrorProvider()
+    {
+        return [
+            'space forbidden in encoding value' => ['  utf-8 '],
+            'undersoce "_" forbidden' => ['utf_8'],
+            'non ascii string forbidden' => ['ütf-8'],
+        ];
     }
 }

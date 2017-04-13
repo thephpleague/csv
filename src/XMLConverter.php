@@ -18,7 +18,6 @@ use DOMAttr;
 use DOMDocument;
 use DOMElement;
 use DOMException;
-use League\Csv\Exception\InvalidArgumentException;
 use Traversable;
 
 /**
@@ -196,7 +195,7 @@ class XMLConverter
      *
      * @param string $encoding
      *
-     * @throws InvalidArgumentException if the encoding charset is malformed
+     * @throws DOMException if the encoding charset is malformed
      *
      * @return self
      */
@@ -209,7 +208,7 @@ class XMLConverter
             return $clone;
         }
 
-        throw new InvalidArgumentException(sprintf('Malformed Encoding Charset: %s', $encoding));
+        throw new DOMException(sprintf('Malformed Encoding Charset: %s', $encoding));
     }
 
     /**

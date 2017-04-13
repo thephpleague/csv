@@ -7,26 +7,19 @@ title: Converting a CSV into a JSON string
 
 `JsonConverter` converts a CSV records collection into a JSON string using PHP's `json_encode` function.
 
-## Settings
-
-### JsonConverter::options
-
-~~~php
-<?php
-
-public JsonConverter::options(int $options): self
-~~~
-
-This method sets PHP's `json_encode` optional flags.
-
 ## Conversion
 
 ~~~php
 <?php
-public JsonConverter::convert(iterable $records): string
+public JsonConverter::convert(iterable $records, int $options): string
 ~~~
 
-The `JsonConverter::convert` accepts an `iterable` which represents the records collection and returns a string.
+The `JsonConverter::convert` accepts:
+
+- an `iterable` which represents the records collection.
+- an optional flags which represents PHP's `json_encode` optional flags.
+
+and returns a string.
 
 <p class="message-warning">If a error occurs during the convertion an <code>RuntimeException</code> exception is thrown with additional information regarding the error.</p>
 
@@ -43,8 +36,7 @@ $csv = Reader::createFromPath('/path/to/file.csv', 'r')
 ;
 
 $json = (new JsonConverter())
-    ->options(JSON_PRETTY_PRINT)
-    ->convert($csv)
+    ->convert($csv, JSON_PRETTY_PRINT)
 ;
 
 echo '<pre>', $json, PHP_EOL;

@@ -14,20 +14,6 @@ The package provides classes which convert any collection of CSV records into:
 - a HTML table using the [HTMLConverter](/9.0/converter/html/) class;
 - a Json string using the [JsonConverter](/9.0/converter/json/) class;
 
-All theses classes expose a common `convert` method defined as follow:
-
-~~~php
-<?php
-
-public Converter::convert(iterable $records): mixed
-~~~
-
-The `$records` argument can be:
-
-- a [Reader](/9.0/reader/) object
-- a [RecordSet](/9.0/reader/records/) object;
-- or any `array` or `Traversable` object which represents a collection of CSV like records;
-
 <p class="message-warning"><strong>Warning:</strong> A <code>League\Csv\Writer</code> object can not be converted.</p>
 
 The returned value type will depend on the converter object used.

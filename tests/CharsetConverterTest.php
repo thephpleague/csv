@@ -37,6 +37,17 @@ class CharsetConverterTest extends TestCase
         $this->assertNotEquals($expected[0], ($converter->outputEncoding('utf-16'))($expected[0]));
     }
 
+    public function testCharsetConverterConvertsAnArray()
+    {
+        $expected = ['Batman','Superman','Anaïs'];
+        $raw = explode(',', mb_convert_encoding(implode(',', $expected), 'iso-8859-15', 'utf-8'));
+        $converter = (new CharsetConverter())
+            ->inputEncoding('iso-8859-15')
+            ->outputEncoding('utf-8')
+        ;
+        $this->assertSame($expected, iterator_to_array($converter->convert([$raw]))[0]);
+    }
+
     public function testCharsetConverterAsStreamFilter()
     {
         CharsetConverter::registerStreamFilter();
