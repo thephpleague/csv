@@ -100,20 +100,19 @@ class RecordSet implements IteratorAggregate, Countable
      */
     public function getIterator(): Generator
     {
-        return $this->iteratorToGenerator($this->iterator, $this->preserve_offset);
+        return $this->iteratorToGenerator($this->iterator);
     }
 
     /**
      * Return the generator depending on the preserveRecordOffset setting
      *
      * @param Iterator $iterator
-     * @param bool     $preserve_offset
      *
      * @return Generator
      */
-    protected function iteratorToGenerator(Iterator $iterator, bool $preserve_offset): Generator
+    protected function iteratorToGenerator(Iterator $iterator): Generator
     {
-        if ($preserve_offset) {
+        if ($this->preserve_offset) {
             foreach ($iterator as $offset => $value) {
                 yield $offset => $value;
             }
@@ -183,7 +182,7 @@ class RecordSet implements IteratorAggregate, Countable
 
         $iterator = new MapIterator(new CallbackFilterIterator($this->iterator, $filter), $select);
 
-        return $this->iteratorToGenerator($iterator, $this->preserve_offset);
+        return $this->iteratorToGenerator($iterator);
     }
 
     /**
