@@ -29,7 +29,6 @@ class XMLConverterTest extends TestCase
         $records = $stmt->process($csv);
 
         $converter = (new XMLConverter())
-            ->encoding('iso-8859-15')
             ->rootElement('csv')
             ->recordElement('record', 'offset')
             ->fieldElement('field', 'name')
@@ -41,7 +40,6 @@ class XMLConverterTest extends TestCase
 
         $this->assertInstanceOf(DOMDocument::class, $dom);
         $this->assertSame('csv', $dom->documentElement->tagName);
-        $this->assertSame('iso-8859-15', $dom->xmlEncoding);
         $this->assertEquals(5, $record_list->length);
         $this->assertTrue($record_list->item(0)->hasAttribute('offset'));
         $this->assertEquals(20, $field_list->length);
@@ -52,23 +50,5 @@ class XMLConverterTest extends TestCase
     {
         $this->expectException(DOMException::class);
         (new XMLConverter())->rootElement('   ');
-    }
-
-    /**
-     * @dataProvider encodingErrorProvider
-     */
-    public function testEncodingTriggersException($encoding)
-    {
-        $this->expectException(DOMException::class);
-        (new XMLConverter())->encoding($encoding);
-    }
-
-    public function encodingErrorProvider()
-    {
-        return [
-            'space forbidden in encoding value' => ['  utf-8 '],
-            'undersoce "_" forbidden' => ['utf_8'],
-            'non ascii string forbidden' => ['ütf-8'],
-        ];
     }
 }

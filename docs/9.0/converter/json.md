@@ -11,7 +11,7 @@ title: Converting a CSV into a JSON string
 
 ~~~php
 <?php
-public JsonConverter::convert(iterable $records, int $options): string
+public JsonConverter::convert(iterable $records, int $options = 0): string
 ~~~
 
 The `JsonConverter::convert` accepts:

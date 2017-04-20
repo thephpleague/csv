@@ -7,10 +7,8 @@ title: Accessing Records from a CSV document
 
 ~~~php
 <?php
-public RecordSet::count(): int
 public RecordSet::isRecordOffsetPreserved(): bool
 public RecordSet::getColumnNames(): array
-public RecordSet::getIterator(): Generator
 public RecordSet::fetchAll(): array
 public RecordSet::fetchOne(int $offset = 0): array
 public RecordSet::fetchPairs(string|int $offsetIndex = 0, string|int $valueIndex = 1): Generator
@@ -22,11 +20,43 @@ The `League\Csv\RecordSet` is a class which manipulates a collection of CSV docu
 
 ## Collection informations
 
+### Accessing the collection column names
+
 ~~~php
 <?php
-public RecordSet::count(): int
 public RecordSet::getColumnNames(): array
 ~~~
+
+`RecordSet::getColumnNames` returns the columns name information associated with the current object. This is usefull if the `RecordSet` object was created from a `Reader` object where [Reader::getHeader](/9.0/reader/#header-detection) is not empty;
+
+#### Example: no header information was given
+
+~~~php
+<?php
+
+use League\Csv\Reader;
+use League\Csv\Statement;
+
+$reader = Reader::createFromPath('/path/to/my/file.csv');
+$records = (new Statement())->process($reader);
+$records->getColumnNames(); // is empty because no header information was given
+~~~
+
+#### Example: header information given by the Reader object
+
+~~~php
+<?php
+
+use League\Csv\Reader;
+
+$reader = Reader::createFromPath('/path/to/my/file.csv')
+    ->setHeaderOffset(0)
+;
+$records = (new Statement())->process($reader);
+$records->getColumnNames(); // returns ['First Name', 'Last Name', 'E-mail'];
+~~~
+
+### Accessing the number of records in the collection
 
 The `RecordSet` class implements implements the `Countable` interface.
 
@@ -41,36 +71,9 @@ $records = (new Statement())->process($reader);
 count($records); //return the total number of records found
 ~~~
 
-`RecordSet::getColumnNames` returns the columns name information associated with the current object. This is usefull if the `RecordSet` object was created from a `Reader` object where [Reader::getHeader](/9.0/reader/#header-detection) is not empty;
-
-### Example: no header information was given
-
-~~~php
-<?php
-
-use League\Csv\Reader;
-use League\Csv\Statement;
-
-$reader = Reader::createFromPath('/path/to/my/file.csv');
-$records = (new Statement())->process($reader);
-$records->getColumnNames(); // is empty because no header information was given
-~~~
-
-### Example: header information given by the Reader object
-
-~~~php
-<?php
-
-use League\Csv\Reader;
-
-$reader = Reader::createFromPath('/path/to/my/file.csv')
-    ->setHeaderOffset(0)
-;
-$records = (new Statement())->process($reader);
-$records->getColumnNames(); // returns ['First Name', 'Last Name', 'E-mail'];
-~~~
-
 ## Collection options
+
+### Preserving the original CSV record offset
 
 ~~~php
 <?php
@@ -79,7 +82,7 @@ public RecordSet::isRecordOffsetPreserved(): bool
 public RecordSet::preserveRecordOffset(bool $status): self
 ~~~
 
-`RecordSet::preserveRecordOffset` indicates if the `RecordSet` must keep the original CSV document records offset or can re-index them. When the `$status` is `true`, the original CSV document record offset will be preserve and output in methods where it makes sense.
+`RecordSet::preserveRecordOffset` indicates if the `RecordSet` must keep the original CSV document records offset or can re-index them. When the `$status` is `true`, the original CSV document record offset will be preserved and outputted in methods where it makes sense.
 
 At any given time you can tell whether the CSV document offset is kept by calling `RecordSet::isRecordOffsetPreserved` which returns a boolean.
 
@@ -87,16 +90,20 @@ At any given time you can tell whether the CSV document offset is kept by callin
 
 ## Iterating over the collection
 
+### Description
+
 ~~~php
 <?php
 
-public RecordSet::getIterator(): Generator
-public RecordSet::fetchAll(): array
+public RecordSet::fetchAll(void): array
 ~~~
 
-Because the `RecordSet` class implements the `IteratorAggregate` interface  you can iterate over each record using the `foreach` construct or by calling directly `RecordSet::getIterator`.
+To iterate over each found records you can:
 
-`RecordSet::fetchAll` behaves exactly like `RecordSet::getIterator` with **one difference**, it returns a sequential `array` of all records instead of the memory efficient `Generator` returned by `RecordSet::getIterator`.
+- call the `RecordSet::fetchAll` method which returns a sequential `array` of all records found;
+- directly use the `foreach` construct as the class implements the `IteratorAggregate` interface;
+
+<p class="message-info">The <code>foreach</code> construct enables using the memory efficient <code>Generator</code> object.</p>
 
 ~~~php
 <?php
@@ -115,6 +122,8 @@ foreach ($records->fetchAll() as $offset => $record) {
 }
 
 ~~~
+
+### Accessing the CSV document record offset
 
 If the `RecordSet::preserveRecordOffset` is set to `true`, the `$offset` parameter will contains the original CSV document offset index, otherwise it will contain a numerical index starting from `0`.
 
@@ -141,7 +150,9 @@ foreach ($records->fetchAll() as $offset => $record) {
 }
 ~~~
 
-If the `RecordSet::getColumnNames` is not an empty `array`.
+### Usage with the column names
+
+If the `RecordSet::getColumnNames` is not an empty `array`. It's result will be combine to the found records to return associated arrays whose indexes are composed of the colum names.
 
 ~~~php
 <?php
@@ -175,7 +186,7 @@ If you are only interested in on particular record from the `RecordSet` you can 
 public RecordSet::fetchOne(int $offset = 0): array
 ~~~
 
-The required argument `$offset` represents the record offset in the record collection starting at `0`. If no argument is given the method will return the first record from the result set. If no record is found an empty `array` is returned.
+The `$offset` argument represents the record offset in the record collection starting at `0`. If no argument is given the method will return the first record from the result set. If no record is found an empty `array` is returned.
 
 ~~~php
 <?php
@@ -203,13 +214,13 @@ $data = $stmt->proce($reader)->fetchOne(3);
 
 ## Selecting a specific column
 
-`RecordSet::fetchColumn` returns a `Generator` of all values in a given column from the `RecordSet` object.
-
 ~~~php
 <?php
 
 public RecordSet::fetchColumn(string|int $columnIndex = 0): Generator
 ~~~
+
+`RecordSet::fetchColumn` returns a `Generator` of all values in a given column from the `RecordSet` object.
 
 the `$columnIndex` parameter can be:
 

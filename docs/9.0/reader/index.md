@@ -8,16 +8,15 @@ title: CSV document Reader connection
 ~~~php
 <?php
 
-public Reader::fetchDelimitersOccurrence(array $delimiters, int $nbRows = 1): array
-public Reader::getHeaderOffset(void): int|null
 public Reader::getHeader(void): array
-public Reader::setHeaderOffset(?int $offset): self
-public Reader::getIterator(void): Iterator
+public Reader::getRecords(void): Iterator
 public Reader::select(Statement $stmt): RecordSet
+public Reader::getHeaderOffset(void): int|null
+public Reader::fetchDelimitersOccurrence(array $delimiters, int $nbRows = 1): array
+public Reader::setHeaderOffset(?int $offset): self
 ~~~
 
 The `League\Csv\Reader` class extends the general connections [capabilities](/9.0/connections/) to ease selecting and manipulating CSV document records.
-
 
 ## CSV example
 
@@ -98,7 +97,9 @@ If no header offset is set:
 - `Reader::getHeader` method will return an empty array.
 - `Reader::getHeaderOffset` will return `null`.
 
-Because the header is lazy loaded, if you provide a positive offset for an invalid record a `RuntimeException` will be triggered when trying to access the invalid record.
+<p class="message-info">By default no header offset is set.</p>
+
+<p class="message-warning">Because the header is lazy loaded, if you provide a positive offset for an invalid record a <code>RuntimeException</code> will be triggered when trying to access the invalid record.</p>
 
 ~~~php
 <?php
@@ -113,17 +114,25 @@ $header = $csv->getHeader(); //triggers a Exception
 
 <p class="message-notice">By setting a header offset you implicitly normalize your CSV document to the fields length of the specified header. Missing fields will be added with <code>null</code> content whereas extra fields will be truncated while iterating the CSV records.</p>
 
-## Iterating over the document records
+## Accessing CSV records
 
-Because the `Reader` class implements the `IteratorAggregate` interface you can iterate over each record using the `foreach` construct. While iterating the `Reader` will:
+### Description
+
+~~~php
+<?php
+
+public Reader::getRecords(void): Iterator
+~~~
+
+The `Reader` class let's you access all its records using the `Reader::getRecords` method. This method which accepts no argument and returns an `Iterator` containing all CSV document records will:
 
 - Filter out the empty lines;
 - Remove the BOM sequence if present;
 - Extract the records using the CSV controls attributes;
 - Apply the stream filters if supplied;
-- Attach the header value as keys to each record array if a valid header is found;
+- And attach the header values as keys to each record `array` if a valid header is found;
 
-### Example without a header
+### Usage without a specified header offset
 
 ~~~php
 <?php
@@ -131,7 +140,8 @@ Because the `Reader` class implements the `IteratorAggregate` interface you can 
 use League\Csv\Reader;
 
 $reader = Reader::createFromPath('/path/to/my/file.csv');
-foreach ($reader as $offset => $record) {
+$records = $reader->getRecords();
+foreach ($records as $offset => $record) {
     //$offset : represents the record offset
     //var_export($record) returns something like
     // array(
@@ -143,7 +153,37 @@ foreach ($reader as $offset => $record) {
 }
 ~~~
 
-### Example with a header
+### Usage with a specified header
+
+If a header offset is set, the found header record will be combine to the CSV records to return associated arrays whose indexes are composed of the header values.
+
+~~~php
+<?php
+
+use League\Csv\Reader;
+
+$reader = Reader::createFromPath('/path/to/my/file.csv');
+$reader->setHeaderOffset(0);
+$records = $reader->getRecords();
+foreach ($records as $offset => $record) {
+    //$offset : represents the record offset
+    //var_export($record) returns something like
+    // array(
+    //  'Fist Name' => 'john',
+    //  'Last Name' => 'doe',
+    //  'E-mail' => john.doe@example.com'
+    // );
+    //
+}
+~~~
+
+<p class="message-notice">If a record header is used, it will be skipped from the iteration.</p>
+
+<p class="message-warning">If the record header contains non unique values, a <code>RuntimeException</code> exception will be triggered.</p>
+
+### Easing iteration
+
+Because the `Reader` class implements the `IteratorAggregate` interface you can directly iterate over each record using the `foreach` construct and an instantiated `Reader` object. You will get the same results as if you had called `Reader::getRecords`.
 
 ~~~php
 <?php
@@ -164,9 +204,9 @@ foreach ($reader as $offset => $record) {
 }
 ~~~
 
-<p class="message-notice">If a record header is selected, it will be skipped from the iteration.</p>
-
 ## Selecting CSV records
+
+### Description
 
 ~~~php
 <?php
@@ -174,7 +214,7 @@ foreach ($reader as $offset => $record) {
 public Reader::select(Statement $stmt): RecordSet
 ~~~
 
-This method uses a [Statement](/reader/statement/) object to process the `Reader` object. The found records are returned as a [RecordSet](/9.0/reader/records) object.
+If you require a more advance record selection, you may use the `Reader::select` method. This method uses a [Statement](/9.0/reader/statement/) object to process the `Reader` object. The found records are returned as a [RecordSet](/9.0/reader/records) object.
 
 ### Example
 

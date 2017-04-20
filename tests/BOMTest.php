@@ -13,6 +13,8 @@ class BOMTest extends TestCase
 {
     /**
      * @dataProvider BOMMatchProvider
+     * @param string $str
+     * @param string $expected
      */
     public function testBOMMatch($str, $expected)
     {

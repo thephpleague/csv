@@ -23,8 +23,8 @@
     },
     "require-dev": {
         "phpunit/phpunit" : "^6.0",
-        "friendsofphp/php-cs-fixer": "^1.9",
-        "ext-curl" : "*"
+        "ext-curl" : "*",
+        "friendsofphp/php-cs-fixer": "^2.0.0"
     },
     "autoload": {
         "psr-4": {
@@ -38,9 +38,9 @@
         }
     },
     "scripts": {
-        "test": "phpunit --coverage-text; php-cs-fixer fix -v --diff --dry-run;",
+        "test": "phpunit --coverage-text; php-cs-fixer fix -v --diff --dry-run --allow-risky=yes;",
         "phpunit": "phpunit --coverage-text",
-        "phpcs": "php-cs-fixer fix -v --diff --dry-run;"
+        "phpcs": "php-cs-fixer fix -v --diff --dry-run --allow-risky=yes;"
     },
     "suggest": {
         "ext-iconv" : "Needed to ease transcoding CSV using iconv stream filters"

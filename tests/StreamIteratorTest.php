@@ -65,18 +65,19 @@ class StreamIteratorTest extends TestCase
 
 
     /**
-     * @param $expected
+     * @param array $records
+     * @param array $expected
      * @dataProvider validBOMSequences
      */
-    public function testStripBOM($expected, $res)
+    public function testStripBOM($records, $expected)
     {
         $fp = fopen('php://temp', 'r+');
-        foreach ($expected as $row) {
+        foreach ($records as $row) {
             fputcsv($fp, $row);
         }
         $csv = Reader::createFromStream($fp);
 
-        $this->assertSame($res, (new Statement())->process($csv)->fetchAll()[0][0]);
+        $this->assertSame($expected, (new Statement())->process($csv)->fetchAll()[0][0]);
     }
 
     public function validBOMSequences()

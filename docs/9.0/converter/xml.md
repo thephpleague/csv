@@ -13,16 +13,6 @@ Prior to converting your records collection into XML, you may wish to configure 
 
 <p class="message-warning">Because we are building a <code>DOMDocument</code> object, the <code>XMLConverter</code> object throws <code>DOMException</code> exceptions that do not implements <a href="/9.0/connections/exceptions/">CsvException</a>.</p>
 
-### XMLConverter::encoding
-
-~~~php
-<?php
-
-public XMLConverter::encoding(string $encoding): self
-~~~
-
-This method sets the XML encoding charset which default to `UTF-8` if none is supplied.
-
 ### XMLConverter::rootElement
 
 ~~~php
@@ -88,7 +78,6 @@ $stmt = (new Statement())
 ;
 
 $converter = (new XMLConverter())
-    ->encoding('iso-8859-15')
     ->rootElement('csv')
     ->recordElement('record', 'offset')
     ->fieldElement('field', 'name')
@@ -99,10 +88,11 @@ $records->preserveRecordOffset(true);
 
 $dom = $converter->convert($records);
 $dom->formatOutput = true;
+$dom->encoding = 'iso-8859-15';
 
 echo '<pre>', PHP_EOL;
 echo htmlentities($dom->saveXML());
-// <?xml version="1.0" encoding="ISO-8859-15"?>
+// <?xml version="1.0" encoding="iso-8859-15"?>
 // <csv>
 //   <record offset="71">
 //     <field name="prenoms">Anaïs</field>

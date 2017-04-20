@@ -107,6 +107,7 @@ class RecordSet implements IteratorAggregate, Countable
      * Return the generator depending on the preserveRecordOffset setting
      *
      * @param Iterator $iterator
+     * @param bool     $preserve_offset
      *
      * @return Generator
      */
@@ -261,7 +262,7 @@ class RecordSet implements IteratorAggregate, Countable
      *
      * @return self
      */
-    public function preserveRecordOffset(bool $status)
+    public function preserveRecordOffset(bool $status): self
     {
         $this->preserve_offset = $status;
 

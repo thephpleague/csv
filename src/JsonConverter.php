@@ -32,6 +32,7 @@ class JsonConverter
      * Convert an Record collection into a Json string
      *
      * @param array|Traversable $records the CSV records collection
+     * @param int               $options
      *
      * @return string
      */

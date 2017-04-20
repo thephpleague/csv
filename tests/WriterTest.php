@@ -11,6 +11,7 @@ use PHPUnit\Framework\TestCase;
 use SplFileObject;
 use SplTempFileObject;
 use stdClass;
+use Traversable;
 
 /**
  * @group writer
@@ -95,8 +96,8 @@ class WriterTest extends TestCase
     }
 
     /**
-     * @param  $argument
-     * @param  $expected
+     * @param array|Traversable $argument
+     * @param string            $expected
      * @dataProvider dataToSave
      */
     public function testSave($argument, $expected)
