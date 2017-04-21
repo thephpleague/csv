@@ -5,14 +5,6 @@ title: Controlling PHP Stream Filters
 
 # Stream Filters
 
-~~~php
-<?php
-
-public AbstractCsv::supportsStreamFilter(void): bool
-public AbstractCsv::hasStreamFilter(string $filtername): bool
-public AbstractCsv::addStreamFilter(string $filtername, mixed $params = null): self
-~~~
-
 To ease performing operations on the CSV document as it is being read from or written to, you can add PHP stream filters to the `Reader` and `Writer` objects.
 
 ## Detecting stream filter support

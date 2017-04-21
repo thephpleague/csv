@@ -15,9 +15,9 @@ use SplTempFileObject;
 /**
  * @group reader
  * @group statement
- * @group recordset
+ * @group resultset
  */
-class RecordSetTest extends TestCase
+class ResultSetTest extends TestCase
 {
     private $csv;
 
@@ -43,6 +43,13 @@ class RecordSetTest extends TestCase
     {
         $this->csv = null;
         $this->stmt = null;
+    }
+
+    public function testJsonSerializable()
+    {
+        $records = $this->stmt->process($this->csv);
+
+        $this->assertSame($this->expected, json_decode(json_encode($records), true));
     }
 
     public function testSetLimit()

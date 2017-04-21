@@ -8,12 +8,16 @@ title: CSV document Reader connection
 ~~~php
 <?php
 
-public Reader::getHeader(void): array
-public Reader::getRecords(void): Iterator
-public Reader::select(Statement $stmt): RecordSet
-public Reader::getHeaderOffset(void): int|null
-public Reader::fetchDelimitersOccurrence(array $delimiters, int $nbRows = 1): array
-public Reader::setHeaderOffset(?int $offset): self
+class Reader extends AbstractCsv implements IteratorAggregate
+{
+    public function fetchDelimitersOccurrence(array $delimiters, int $nbRows = 1): array
+    public function getHeader(): array
+    public function getHeaderOffset(): int|null
+    public function getIterator(): Iterator
+    public function getRecords(): Iterator
+    public function setHeaderOffset(?int $offset): self
+    public function select(Statement $stmt): ResultSet
+}
 ~~~
 
 The `League\Csv\Reader` class extends the general connections [capabilities](/9.0/connections/) to ease selecting and manipulating CSV document records.
@@ -211,10 +215,10 @@ foreach ($reader as $offset => $record) {
 ~~~php
 <?php
 
-public Reader::select(Statement $stmt): RecordSet
+public Reader::select(Statement $stmt): ResultSet
 ~~~
 
-If you require a more advance record selection, you may use the `Reader::select` method. This method uses a [Statement](/9.0/reader/statement/) object to process the `Reader` object. The found records are returned as a [RecordSet](/9.0/reader/records) object.
+If you require a more advance record selection, you may use the `Reader::select` method. This method uses a [Statement](/9.0/reader/statement/) object to process the `Reader` object. The found records are returned as a [ResultSet](/9.0/reader/records) object.
 
 ### Example
 
@@ -230,7 +234,7 @@ $stmt = (new Statement())
     ->limit(5)
 ;
 $records = $reader->select($stmt);
-//$records is a League\Csv\RecordSet object
+//$records is a League\Csv\ResultSet object
 ~~~
 
 <p class="message-info"><strong>Tips:</strong> this method is equivalent of <a href="/9.0/reader/statement/#apply-the-constraints-to-a-csv-document">Statement::process</a>.</p>

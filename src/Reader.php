@@ -73,9 +73,9 @@ class Reader extends AbstractCsv implements IteratorAggregate
      *
      * @param Statement $stmt
      *
-     * @return RecordSet
+     * @return ResultSet
      */
-    public function select(Statement $stmt): RecordSet
+    public function select(Statement $stmt): ResultSet
     {
         return $stmt->process($this);
     }

@@ -3,8 +3,9 @@ version:
         Getting Started:
             Overview: '/9.0/'
             Installation: '/9.0/installation/'
-        Connections:
-            Document Loading: '/9.0/connections/'
+        Connections Settings:
+            Overview: '/9.0/connections/'
+            Document Loading: '/9.0/connections/instantiation/'
             Characters Controls: '/9.0/connections/controls/'
             BOM Sequences: '/9.0/connections/bom/'
             Stream Filters: '/9.0/connections/filters/'
@@ -13,13 +14,13 @@ version:
             Exceptions: '/9.0/connections/exceptions/'
         Inserting Records:
             Writer Connection: '/9.0/writer/'
-            Insertion Filtering: '/9.0/writer/filtering/'
+            Insertion Filters: '/9.0/writer/filtering/'
         Selecting Records:
             Reader Connection: '/9.0/reader/'
             Constraint Builder: '/9.0/reader/statement/'
-            Records Collection: '/9.0/reader/records/'
+            Result Set: '/9.0/reader/records/'
         Converting Records:
-            Records Converter: '/9.0/converter/'
+            Overview: '/9.0/converter/'
             Charset Converter: '/9.0/converter/charset/'
             Json Converter: '/9.0/converter/json/'
             XML Converter: '/9.0/converter/xml/'

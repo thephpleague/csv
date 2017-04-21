@@ -134,9 +134,9 @@ class Statement
      *
      * @param Reader $csv
      *
-     * @return RecordSet
+     * @return ResultSet
      */
-    public function process(Reader $csv): RecordSet
+    public function process(Reader $csv): ResultSet
     {
         $reducer = function (Iterator $iterator, callable $callable): Iterator {
             return new CallbackFilterIterator($iterator, $callable);
@@ -146,7 +146,7 @@ class Statement
         $iterator = $this->buildOrderBy($iterator);
         $iterator = new LimitIterator($iterator, $this->offset, $this->limit);
 
-        return new RecordSet($iterator, $csv->getHeader());
+        return new ResultSet($iterator, $csv->getHeader());
     }
 
     /**

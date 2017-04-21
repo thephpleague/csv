@@ -9,8 +9,8 @@ All Notable changes to `Csv` will be documented in this file
 - Improved CSV Records selection
     - `League\Csv\Reader::getRecords` to access all CSV records
     - `League\Csv\Reader::select` to enable CSV records selection
-    - `League\Csv\Statement` to provide a constraint builder to select CSV records.
-    - `League\Csv\RecordSet` to provide a result set of the selected CSV records.
+    - `League\Csv\Statement` provides a constraint builder to select CSV records.
+    - `League\Csv\ResultSet` represents the result set of the selected CSV records.
 - Improved CSV document header selection.
     - `League\Csv\Reader::getHeader`
     - `League\Csv\Reader::getHeaderOffset`
@@ -43,8 +43,8 @@ All Notable changes to `Csv` will be documented in this file
 ### Fixed
 
 - Improved CSV record insertion
-    - `League\Csv\Writer::insertOne` only accept an array and returns a integer
-    - `League\Csv\Writer::insertAll` only accept an iterable of array and returns an integer
+    - `League\Csv\Writer::insertOne` only accepts an array and returns a integer
+    - `League\Csv\Writer::insertAll` only accepts an iterable of array and returns an integer
 
 ### Removed
 
@@ -84,7 +84,7 @@ All Notable changes to `Csv` will be documented in this file
     - `League\Csv\AbstractCsv::addSortBy`,
     - `League\Csv\AbstractCsv::setOffset`,
     - `League\Csv\AbstractCsv::setLimit`;
-- CSV records selecting methods are removed in favor of the `League\Csv\RecordSet` class:
+- CSV records selecting methods are removed in favor of the `League\Csv\ResultSet` class:
     - `League\Csv\Reader::each`
     - `League\Csv\Reader::fetch`
     - `League\Csv\Reader::fetchAll`

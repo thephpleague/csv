@@ -6,7 +6,6 @@ $finder = PhpCsFixer\Finder::create()
 ;
 
 return PhpCsFixer\Config::create()
-    ->setUsingCache(false)
     ->setRules([
         '@PSR2' => true,
         'array_syntax' => ['syntax' => 'short'],

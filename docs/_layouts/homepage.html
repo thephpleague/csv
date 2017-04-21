@@ -43,12 +43,6 @@
 </header>
 
 <main>
-  <div class="features">
-    <div class="inner-content">
-{{ content }}
-    </div>
-  </div>
-
   <div class="highlights">
     <div class="inner-content">
       <div class="column one">
@@ -67,6 +61,12 @@
     </div>
   </div>
 
+  <div class="features">
+    <div class="inner-content">
+{{ content }}
+    </div>
+  </div>
+
   <div class="documentation">
     <div class="inner-content">
       <h1>Releases</h1>
@@ -74,7 +74,7 @@
       <div class="version next">
         <h2>Upcoming</h2>
         <div class="content">
-          <p><code>{{ site.data.project.title }} {{ site.data.project.releases.next.version }}</code></p>
+          <p><code>league/{{ site.data.project.title | downcase }}:^{{ site.data.project.releases.next.version }}</code></p>
           <ul>
             <li>Requires: <strong>{{ site.data.project.releases.next.requires }}</strong></li>
             <li>Latest: <strong>{{ site.data.project.releases.next.latest }}</strong></li>
@@ -88,7 +88,7 @@
       <div class="version current">
         <h2>Current Stable</h2>
         <div class="content">
-          <p><code>{{ site.data.project.title }} {{ site.data.project.releases.current.version }}</code></p>
+          <p><code>league/{{ site.data.project.title | downcase }}:^{{ site.data.project.releases.current.version }}</code></p>
           <ul>
             <li>Requires: <strong>{{ site.data.project.releases.current.requires }}</strong></li>
             <li>Latest: <strong>{{ site.data.project.releases.current.latest }}</strong></li>
@@ -102,7 +102,7 @@
       <div class="version previous">
         <h2>Unsupported</h2>
         <div class="content">
-          <p><code>{{ site.data.project.title }} {{ site.data.project.releases.previous.version }}</code></p>
+          <p><code>league/{{ site.data.project.title | downcase }}:^{{ site.data.project.releases.previous.version }}</code></p>
           <ul>
             <li>Requires: <strong>{{ site.data.project.releases.previous.requires }}</strong></li>
             <li>Latest: <strong>{{ site.data.project.releases.previous.latest }}</strong></li>
@@ -116,7 +116,7 @@
       <div class="version legacy">
         <h2>Unsupported</h2>
         <div class="content">
-          <p><code>{{ site.data.project.title }} {{ site.data.project.releases.legacy.version }}</code></p>
+          <p><code>league/{{ site.data.project.title | downcase }}:^{{ site.data.project.releases.legacy.version }}</code></p>
           <ul>
             <li>Requires: <strong>{{ site.data.project.releases.legacy.requires }}</strong></li>
             <li>Latest: <strong>{{ site.data.project.releases.legacy.latest }}</strong></li>

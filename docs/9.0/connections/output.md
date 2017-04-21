@@ -5,14 +5,6 @@ title: CSV document output
 
 # CSV document output
 
-~~~php
-<?php
-
-public AbstractCsv::__toString(void): string
-public AbstractCsv::output(string $filename = null): int
-public AbstractCsv::chunk(int $length): Generator
-~~~
-
 Once your CSV document is loaded, you can print or enable downloading it using the methods below.
 
 The methods output **are affected by** [the output BOM sequence](/9.0/connections/bom/) or the supplied [PHP stream filters](/9.0/connections/filters/).
@@ -112,7 +104,6 @@ header('content-disposition: attachment; filename="name-for-your-file.csv"');
 $reader = Reader::createFromPath('/path/to/huge/file.csv', 'r');
 foreach ($reader->chunk(1024) as $chunk) {
     echo dechex(strlen($chunk))."\r\n$chunk\r\n";
-    usleep(5e4);
 }
 echo "0\r\n\r\n";
 ~~~
