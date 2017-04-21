@@ -8,11 +8,14 @@ title: CSV document constraint Builder
 ~~~php
 <?php
 
-public Statement::where(callable $callable): self
-public Statement::orderBy(callable $callable): self
-public Statement::offset(int $offset): self
-public Statement::limit(int $limit): self
-public Statement::process(Reader $reader): RecordSet
+class Statement
+{
+    public function limit(int $limit): self
+    public function offset(int $offset): self
+    public function orderBy(callable $callable): self
+    public function process(Reader $reader): ResultSet
+    public function where(callable $callable): self
+}
 ~~~
 
 The `League\Csv\Statement` class is a constraint builder to help ease selecting records from a CSV document created using the `League\Csv\Reader` class.
@@ -95,10 +98,10 @@ public Statement::limit(int $limit): self
 ~~~php
 <?php
 
-public Statement::process(Reader $reader): RecordSet
+public Statement::process(Reader $reader): ResultSet
 ~~~
 
-This method processes a [Reader](/9.0/reader/) object and returns the found records as a [RecordSet](/9.0/reader/records) object.
+This method processes a [Reader](/9.0/reader/) object and returns the found records as a [ResultSet](/9.0/reader/records) object.
 
 ~~~php
 <?php

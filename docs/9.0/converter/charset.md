@@ -8,13 +8,17 @@ title: Converting Csv records character encoding
 ~~~php
 <?php
 
-const STREAM_FILTERNAME = 'convert.league.csv.';
-public static CharsetConverter::registerStreamFilter(): bool
-public static CharsetConverter::getFiltername(string $input_encoding, string $output_encoding): string
-public CharsetConverter::__invoke(array $record): array
-public CharsetConverter::convert(iterable $records): Iterator
-public CharsetConverter::inputEncoding(string $input_encoding): self
-public CharsetConverter::outputEncoding(string $output_encoding): self
+class CharsetConverter extends php_user_filter
+{
+    const STREAM_FILTERNAME = 'convert.league.csv';
+
+    public function __invoke(array $record): array
+    public function convert(iterable $records): Iterator
+    public static function getFiltername(string $input_encoding, string $output_encoding): string
+    public function inputEncoding(string $input_encoding): self
+    public function outputEncoding(string $output_encoding): self
+    public static function registerStreamFilter(): bool
+}
 ~~~
 
 The `CharsetConverter` class converts your CSV records using the `mbstring` extension and its [supported character encodings](http://php.net/manual/en/mbstring.supported-encodings.php).
@@ -79,7 +83,7 @@ $encoder = (new CharsetConverter())
 ;
 
 $writer = Writer::createFromPath('/path/to/your/csv/file.csv')
-	->addFormatter($encoder)
+    ->addFormatter($encoder)
 ;
 
 $writer->insertOne(["foo", "bébé", "jouet"]);
@@ -101,7 +105,8 @@ The `CharsetConverter::registerStreamFilter` static method registers the `Charse
 
 <p class="message-info"><strong>Tips:</strong> <code>CharsetConverter::registerStreamFilter</code> should be called once during your script execution time. The best place to call this method is in your bootstrap or configuration files script.</p>
 
-Once registered you can use the CSV object's `addStreamFilter` method to configure the stream filter by supplying the correct `$filtername` parameter. For ease, you can use the `CharsetConverter::getFiltername` method.
+Once registered you can use the CSV object's `addStreamFilter` method to configure the stream filter by supplying the correct `$filtername` parameter.  
+For ease, you can use the `CharsetConverter::getFiltername` method.
 
 ~~~php
 <?php

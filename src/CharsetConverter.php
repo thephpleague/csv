@@ -107,7 +107,7 @@ class CharsetConverter extends php_user_filter
     }
 
     /**
-     * @inherit
+     * @inheritdoc
      */
     public function filter($in, $out, &$consumed, $closing)
     {
@@ -121,10 +121,14 @@ class CharsetConverter extends php_user_filter
     }
 
     /**
-     * @inherit
+     * @inheritdoc
      */
     public function onCreate()
     {
+        if (0 !== strpos($this->filtername, self::STREAM_FILTERNAME.'.')) {
+            return false;
+        }
+
         $encodings = substr($this->filtername, strlen(self::STREAM_FILTERNAME) + 1);
         if (!preg_match(',^(?<input>[-\w]+)\/(?<output>[-\w]+)$,', $encodings, $matches)) {
             return false;

@@ -5,18 +5,7 @@ title: Csv character controls
 
 # CSV character controls
 
-~~~php
-<?php
-
-public AbstractCsv::getDelimiter(void): string
-public AbstractCsv::getEnclosure(void): string
-public AbstractCsv::getEscape(void): string
-public AbstractCsv::setDelimiter(string $delimiter): self
-public AbstractCsv::setEnclosure(string $enclosure): self
-public AbstractCsv::setEscape(string $escape): self
-~~~
-
-To correclty parse a CSV document you are required to set the character controls to be used by the `Reader` or the `Writer` object.
+To correctly parse a CSV document you are required to set the character controls to be used by the `Reader` or the `Writer` object.
 
 ## The delimiter character.
 

@@ -67,13 +67,6 @@ class XMLConverter
     protected $offset_attr = '';
 
     /**
-     * XML document encoding
-     *
-     * @var string
-     */
-    protected $encoding = 'UTF-8';
-
-    /**
      * Conversion method list
      *
      * @var array
@@ -100,7 +93,7 @@ class XMLConverter
     {
         $field_encoder = $this->encoder['field']['' !== $this->column_attr];
         $record_encoder = $this->encoder['record']['' !== $this->offset_attr];
-        $doc = new DOMDocument('1.0', $this->encoding);
+        $doc = new DOMDocument('1.0');
         $root = $doc->createElement($this->root_name);
         foreach ($this->filterIterable($records) as $offset => $record) {
             $node = $this->{$record_encoder}($doc, $record, $field_encoder, $offset);
@@ -188,27 +181,6 @@ class XMLConverter
         $item->appendChild($doc->createTextNode($value));
 
         return $item;
-    }
-
-    /**
-     * XML encoding
-     *
-     * @param string $encoding
-     *
-     * @throws DOMException if the encoding charset is malformed
-     *
-     * @return self
-     */
-    public function encoding(string $encoding): self
-    {
-        if (preg_match(',^[a-z0-9-]+$,i', $encoding)) {
-            $clone = clone $this;
-            $clone->encoding = $encoding;
-
-            return $clone;
-        }
-
-        throw new DOMException(sprintf('Malformed Encoding Charset: %s', $encoding));
     }
 
     /**

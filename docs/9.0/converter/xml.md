@@ -5,6 +5,18 @@ title: Converting a CSV into a XML DOMDocument object
 
 # XML conversion
 
+~~~php
+<?php
+
+class XMLConverter
+{
+    public function convert(iterable $records): DOMDocument
+    public function fieldElement(string $node_name, string $fieldname_attribute_name = ''): self
+    public function recordElement(string $node_name, string $record_offset_attribute_name = ''): self
+    public function rootElement(string $node_name): self
+}
+~~~
+
 `XMLConverter` converts a CSV records collection into a PHP `DOMDocument`.
 
 ## Settings
@@ -12,16 +24,6 @@ title: Converting a CSV into a XML DOMDocument object
 Prior to converting your records collection into XML, you may wish to configure the element and its associated attribute names. To do so `XMLConverter` provides methods to setup theses settings.
 
 <p class="message-warning">Because we are building a <code>DOMDocument</code> object, the <code>XMLConverter</code> object throws <code>DOMException</code> exceptions that do not implements <a href="/9.0/connections/exceptions/">CsvException</a>.</p>
-
-### XMLConverter::encoding
-
-~~~php
-<?php
-
-public XMLConverter::encoding(string $encoding): self
-~~~
-
-This method sets the XML encoding charset which default to `UTF-8` if none is supplied.
 
 ### XMLConverter::rootElement
 
@@ -88,7 +90,6 @@ $stmt = (new Statement())
 ;
 
 $converter = (new XMLConverter())
-    ->encoding('iso-8859-15')
     ->rootElement('csv')
     ->recordElement('record', 'offset')
     ->fieldElement('field', 'name')
@@ -99,10 +100,11 @@ $records->preserveRecordOffset(true);
 
 $dom = $converter->convert($records);
 $dom->formatOutput = true;
+$dom->encoding = 'iso-8859-15';
 
 echo '<pre>', PHP_EOL;
 echo htmlentities($dom->saveXML());
-// <?xml version="1.0" encoding="ISO-8859-15"?>
+// <?xml version="1.0" encoding="iso-8859-15"?>
 // <csv>
 //   <record offset="71">
 //     <field name="prenoms">Anaïs</field>

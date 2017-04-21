@@ -146,7 +146,6 @@ $csv = Reader::createFromPath('/path/to/prenoms.csv')
 ;
 
 $converter = (new XMLConverter())
-    ->encoding('iso-8859-15')
     ->rootElement('csv')
     ->recordElement('record', 'offset')
     ->fieldElement('field', 'name')
@@ -154,10 +153,11 @@ $converter = (new XMLConverter())
 
 $dom = $converter->convert($records);
 $dom->formatOutput = true;
+$dom->encoding = 'iso-8859-15';
 
 echo '<pre>', PHP_EOL;
 echo htmlentities($dom->saveXML());
-// <?xml version="1.0" encoding="ISO-8859-15"?>
+// <?xml version="1.0" encoding="iso-8859-15"?>
 // <csv>
 //   <record offset="0">
 //     <field name="prenoms">Anaïs</field>

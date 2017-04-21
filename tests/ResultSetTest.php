@@ -15,9 +15,9 @@ use SplTempFileObject;
 /**
  * @group reader
  * @group statement
- * @group recordset
+ * @group resultset
  */
-class RecordSetTest extends TestCase
+class ResultSetTest extends TestCase
 {
     private $csv;
 
@@ -43,6 +43,13 @@ class RecordSetTest extends TestCase
     {
         $this->csv = null;
         $this->stmt = null;
+    }
+
+    public function testJsonSerializable()
+    {
+        $records = $this->stmt->process($this->csv);
+
+        $this->assertSame($this->expected, json_decode(json_encode($records), true));
     }
 
     public function testSetLimit()
@@ -81,8 +88,10 @@ class RecordSetTest extends TestCase
 
     /**
      * @dataProvider intervalTest
+     * @param int $offset
+     * @param int $limit
      */
-    public function testInterval($offset, $limit, $expected)
+    public function testInterval($offset, $limit)
     {
         $this->assertContains(
             ['jane', 'doe', 'jane.doe@example.com'],
@@ -97,8 +106,8 @@ class RecordSetTest extends TestCase
     public function intervalTest()
     {
         return [
-            'tooHigh' => [1, 10, 1],
-            'normal' => [1, 1, 1],
+            'tooHigh' => [1, 10],
+            'normal' => [1, 1],
         ];
     }
 
@@ -137,6 +146,7 @@ class RecordSetTest extends TestCase
 
     /**
      * @dataProvider invalidFieldNameProvider
+     * @param int|string $field
      */
     public function testFetchColumnTriggersException($field)
     {
@@ -178,17 +188,18 @@ class RecordSetTest extends TestCase
     }
 
     /**
-     * @param  $expected
+     * @param array $records
+     * @param array $expected
      * @dataProvider validBOMSequences
      */
-    public function testStripBOM($expected, $res)
+    public function testStripBOM($records, $expected)
     {
         $tmpFile = new SplTempFileObject();
-        foreach ($expected as $row) {
+        foreach ($records as $row) {
             $tmpFile->fputcsv($row);
         }
         $csv = Reader::createFromFileObject($tmpFile);
-        $this->assertSame($res, $this->stmt->process($csv)->fetchAll()[0][0]);
+        $this->assertSame($expected, $this->stmt->process($csv)->fetchAll()[0][0]);
     }
 
     public function validBOMSequences()
@@ -373,6 +384,9 @@ class RecordSetTest extends TestCase
 
     /**
      * @dataProvider fetchPairsDataProvider
+     * @param int|string $key
+     * @param int|string $value
+     * @param array      $expected
      */
     public function testFetchPairsIteratorMode($key, $value, $expected)
     {

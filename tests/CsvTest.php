@@ -23,7 +23,7 @@ class CsvTest extends TestCase
 
     private $expected = [
         ['john', 'doe', 'john.doe@example.com'],
-        ['jane','doe','jane.doe@example.com'],
+        ['jane', 'doe', 'jane.doe@example.com'],
     ];
 
     public function setUp()
@@ -183,6 +183,8 @@ class CsvTest extends TestCase
 
     /**
      * @dataProvider appliedFlagsProvider
+     * @param int $flag
+     * @param int $fetch_count
      */
     public function testAppliedFlags($flag, $fetch_count)
     {

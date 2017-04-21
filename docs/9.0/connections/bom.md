@@ -10,11 +10,14 @@ title: BOM sequence detection and addition
 ~~~php
 <?php
 
-const BOM::UTF8 = "\xEF\xBB\xBF";
-const BOM::UTF16_BE = "\xFE\xFF";
-const BOM::UTF16_LE = "\xFF\xFE";
-const BOM::UTF32_BE = "\x00\x00\xFE\xFF";
-const BOM::UTF32_LE = "\xFF\xFE\x00\x00";
+interface BOM
+{
+    const UTF8 = "\xEF\xBB\xBF";
+    const UTF16_BE = "\xFE\xFF";
+    const UTF16_LE = "\xFF\xFE";
+    const UTF32_BE = "\x00\x00\xFE\xFF";
+    const UTF32_LE = "\xFF\xFE\x00\x00";
+}
 ~~~
 
 To improve interoperability with programs interacting with CSV, the package now provide an interface `BOM` to help you detect set the appropriate <abbr title="Byte Order Mark">BOM</abbr> sequence.

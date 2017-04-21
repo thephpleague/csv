@@ -141,7 +141,7 @@ abstract class AbstractCsv
     /**
      * Return a new {@link AbstractCsv} from a string
      *
-     * @param string $str the string
+     * @param string $str the CSV document as a string
      *
      * @return static
      */
@@ -240,6 +240,7 @@ abstract class AbstractCsv
     /**
      * Tell whether the specify stream filter is attach to the current stream
      *
+     * @param  string $filtername
      * @return bool
      */
     public function hasStreamFilter(string $filtername): bool
@@ -338,7 +339,7 @@ abstract class AbstractCsv
     }
 
     /**
-     * Reset dynamic CSV document properties to improve performance
+     * Reset dynamic object properties to improve performance
      */
     protected function resetProperties()
     {

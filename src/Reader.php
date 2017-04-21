@@ -73,9 +73,9 @@ class Reader extends AbstractCsv implements IteratorAggregate
      *
      * @param Statement $stmt
      *
-     * @return RecordSet
+     * @return ResultSet
      */
-    public function select(Statement $stmt): RecordSet
+    public function select(Statement $stmt): ResultSet
     {
         return $stmt->process($this);
     }
@@ -152,9 +152,36 @@ class Reader extends AbstractCsv implements IteratorAggregate
     }
 
     /**
-     * Returns the column header associate with the RecordSet
+     * Returns the CSV records in an iterator object.
      *
-     * @throws RuntimeException If no header is found
+     * Each CSV record is represented as a simple array of string or null values.
+     *
+     * If the CSV document has a header record then each record is combined
+     * to each header record and the header record is removed from the iterator.
+     *
+     * If the CSV document is inconsistent. Missing record fields are
+     * filled with null values while extra record fields are strip from
+     * the returned object.
+     *
+     * @see Reader::getIterator()
+     *
+     * @throws RuntimeException If the header contains non unique column name
+     *
+     * @return Iterator
+     */
+    public function getRecords(): Iterator
+    {
+        return $this->getIterator();
+    }
+
+    /**
+     * Returns the CSV record header
+     *
+     * The returned header is represented as an array of string values
+     *
+     * @throws RuntimeException If the header offset is an integer
+     *                          and the corresponding record is missing
+     *                          or is an empty array
      *
      * @return string[]
      */

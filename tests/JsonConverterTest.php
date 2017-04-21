@@ -43,7 +43,8 @@ class JsonConverterTest extends TestCase
     public function testToJson()
     {
         $charset_converter = (new CharsetConverter())->inputEncoding('iso-8859-15');
-        $this->assertContains('[{', $this->converter->convert($charset_converter->convert($this->records)), JSON_HEX_QUOT);
+        $records = $charset_converter->convert($this->records);
+        $this->assertContains('[{', $this->converter->options(JSON_HEX_QUOT)->convert($records));
     }
 
     public function testJsonEncodingThrowsException()

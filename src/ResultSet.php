@@ -19,6 +19,7 @@ use Countable;
 use Generator;
 use Iterator;
 use IteratorAggregate;
+use JsonSerializable;
 use League\Csv\Exception\RuntimeException;
 use LimitIterator;
 
@@ -30,7 +31,7 @@ use LimitIterator;
  * @author  Ignace Nyamagana Butera <nyamsprod@gmail.com>
  *
  */
-class RecordSet implements IteratorAggregate, Countable
+class ResultSet implements Countable, IteratorAggregate, JsonSerializable
 {
     use ValidatorTrait;
 
@@ -76,7 +77,7 @@ class RecordSet implements IteratorAggregate, Countable
     }
 
     /**
-     * Returns the column names associated with the RecordSet
+     * Returns the column names associated with the ResultSet
      *
      * @return string[]
      */
@@ -100,7 +101,7 @@ class RecordSet implements IteratorAggregate, Countable
      */
     public function getIterator(): Generator
     {
-        return $this->iteratorToGenerator($this->iterator, $this->preserve_offset);
+        return $this->iteratorToGenerator($this->iterator);
     }
 
     /**
@@ -110,9 +111,9 @@ class RecordSet implements IteratorAggregate, Countable
      *
      * @return Generator
      */
-    protected function iteratorToGenerator(Iterator $iterator, bool $preserve_offset): Generator
+    protected function iteratorToGenerator(Iterator $iterator): Generator
     {
-        if ($preserve_offset) {
+        if ($this->preserve_offset) {
             foreach ($iterator as $offset => $value) {
                 yield $offset => $value;
             }
@@ -130,6 +131,14 @@ class RecordSet implements IteratorAggregate, Countable
     public function count(): int
     {
         return iterator_count($this->iterator);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function jsonSerialize(): array
+    {
+        return $this->fetchAll();
     }
 
     /**
@@ -182,7 +191,7 @@ class RecordSet implements IteratorAggregate, Countable
 
         $iterator = new MapIterator(new CallbackFilterIterator($this->iterator, $filter), $select);
 
-        return $this->iteratorToGenerator($iterator, $this->preserve_offset);
+        return $this->iteratorToGenerator($iterator);
     }
 
     /**
@@ -261,7 +270,7 @@ class RecordSet implements IteratorAggregate, Countable
      *
      * @return self
      */
-    public function preserveRecordOffset(bool $status)
+    public function preserveRecordOffset(bool $status): self
     {
         $this->preserve_offset = $status;
 

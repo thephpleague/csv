@@ -39,7 +39,7 @@ class CharsetConverterTest extends TestCase
 
     public function testCharsetConverterConvertsAnArray()
     {
-        $expected = ['Batman','Superman','Anaïs'];
+        $expected = ['Batman', 'Superman', 'Anaïs'];
         $raw = explode(',', mb_convert_encoding(implode(',', $expected), 'iso-8859-15', 'utf-8'));
         $converter = (new CharsetConverter())
             ->inputEncoding('iso-8859-15')
@@ -73,5 +73,12 @@ class CharsetConverterTest extends TestCase
             ->addStreamFilter('string.toupper')
             ->addStreamFilter('convert.league.csv.iso-8859-15:utf-8')
         ;
+    }
+
+    public function testOnCreate()
+    {
+        $converter = new CharsetConverter();
+        $converter->filtername = 'toto';
+        $this->assertFalse($converter->onCreate());
     }
 }
