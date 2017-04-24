@@ -218,7 +218,7 @@ foreach ($reader as $offset => $record) {
 public Reader::select(Statement $stmt): ResultSet
 ~~~
 
-If you require a more advance record selection, you may use the `Reader::select` method. This method uses a [Statement](/9.0/reader/statement/) object to process the `Reader` object. The found records are returned as a [ResultSet](/9.0/reader/records) object.
+If you require a more advance record selection, you may use the `Reader::select` method. This method uses a [Statement](/9.0/reader/statement/) object to process the `Reader` object. The found records are returned as a [ResultSet](/9.0/reader/resultset) object.
 
 ### Example
 

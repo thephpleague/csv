@@ -8,7 +8,7 @@ title: Accessing Records from a CSV document
 ~~~php
 <?php
 
-class ResultSet implements Countable, IteratorAggregate, JsonSerializable
+class ResultSet implements Countable, IteratorAggregate
 {
     public function count(): int
     public function fetchAll(): array
@@ -18,7 +18,6 @@ class ResultSet implements Countable, IteratorAggregate, JsonSerializable
     public function getColumnNames(): array
     public function getIterator(): Generator
     public function isRecordOffsetPreserved(): bool
-    public function jsonSerialize(): array
     public function preserveRecordOffset(bool $status): self
 }
 ~~~
@@ -95,28 +94,6 @@ public ResultSet::preserveRecordOffset(bool $status): self
 At any given time you can tell whether the CSV document offset is kept by calling `ResultSet::isRecordOffsetPreserved` which returns a boolean.
 
 <p class="message-notice">By default, the <code>ResultSet</code> object does not preserve the original offset.</p>
-
-
-## Result set conversion
-
-The `ResultSet` class implements the `JsonSerialazable` interface. This means you can directly convert its content into `Json`.
-
-~~~php
-<?php
-
-use League\Csv\Reader;
-use League\Csv\Statement;
-
-$reader = Reader::createFromPath('/path/to/my/file.csv');
-$records = (new Statement())->process($reader);
-$json = json_encode($records, JSON_PRETTY_PRINT);
-//$json is a valid Json string.
-
-~~~
-
-<p class="message-warning">If your CSV document is not <code>UTF-8</code> encoded the conversion may trigger a PHP warning.</p>
-
-<p class="message-info">You may use the <a href="/9.0/converter/json/">JsonConverter</a> class for better conversion.</p>
 
 ## Iterating over the result set
 

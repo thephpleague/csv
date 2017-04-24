@@ -19,7 +19,6 @@ use Countable;
 use Generator;
 use Iterator;
 use IteratorAggregate;
-use JsonSerializable;
 use League\Csv\Exception\RuntimeException;
 use LimitIterator;
 
@@ -31,7 +30,7 @@ use LimitIterator;
  * @author  Ignace Nyamagana Butera <nyamsprod@gmail.com>
  *
  */
-class ResultSet implements Countable, IteratorAggregate, JsonSerializable
+class ResultSet implements Countable, IteratorAggregate
 {
     use ValidatorTrait;
 
@@ -131,14 +130,6 @@ class ResultSet implements Countable, IteratorAggregate, JsonSerializable
     public function count(): int
     {
         return iterator_count($this->iterator);
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function jsonSerialize(): array
-    {
-        return $this->fetchAll();
     }
 
     /**

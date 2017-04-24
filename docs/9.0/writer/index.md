@@ -108,7 +108,7 @@ By default, `getFlushTreshold` returns `null`.
 <p class="message-info">If set to <code>null</code> the inner flush mechanism of <code>SplFileObject::fputcsv</code> or <code>fputcsv</code> will be used.</p>
 
 
-## Data filtering
+## Records filtering
 
 ~~~php
 <?php

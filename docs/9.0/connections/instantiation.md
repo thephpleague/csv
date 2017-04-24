@@ -5,9 +5,18 @@ title: Loading CSV documents
 
 # Document loading
 
+~~~php
+<?php
+
+public static AbstractCsv::createFromString(string $str): self
+public static AbstractCsv::createFromPath(string $path, string $open_mode = 'r+'): self
+public static AbstractCsv::createFromStream(resource $stream): self
+public static AbstractCsv::createFromFileObject(SplFileObject $obj): self
+~~~
+
 Because CSV documents come in different forms we use named constructors to offer several ways to load them.
 
-### Create from a string
+## Create from a string
 
 ~~~php
 <?php
@@ -27,7 +36,7 @@ $reader = Reader::createFromString('john,doe,john.doe@example.com');
 $writer = Writer::createFromString('john,doe,john.doe@example.com');
 ~~~
 
-### Create from a file path
+## Create from a file path
 
 ~~~php
 <?php
@@ -49,9 +58,9 @@ $reader = Reader::createFromPath('/path/to/your/csv/file.csv');
 $writer = Writer::createFromPath('/path/to/your/csv/file.csv', 'w');
 ~~~
 
-<p class="message-notice"> The <code>$open_mode</code> default to <code>r+</code> if none is supplied.</p>
+<p class="message-info"> The <code>$open_mode</code> default to <code>r+</code> if none is supplied.</p>
 
-### Create from a resource stream
+## Create from a resource stream
 
 ~~~php
 <?php
@@ -73,7 +82,7 @@ $writer = Writer::createFromStream(tmpfile());
 
 <p class="message-warning"> The resource stream <strong>MUST</strong> be seekable otherwise a <code>InvalidArgumentException</code> is thrown.</p>
 
-### Create from a SPL file object
+## Create from a SPL file object
 
 ~~~php
 <?php

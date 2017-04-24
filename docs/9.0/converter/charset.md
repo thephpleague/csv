@@ -69,7 +69,7 @@ The resulting data is converted from `iso-8859-15` to the default `UTF-8` since 
 public CharsetConverter::__invoke(array $record): array
 ~~~
 
-Using the `CharsetConverter::__invoke` method, you can register a `CharsetConverter` object as a record formatter using [Writer::addFormatter](/9.0/writer/filtering/#record-formatter) method.
+Using the `CharsetConverter::__invoke` method, you can register a `CharsetConverter` object as a record formatter using [Writer::addFormatter](/9.0/writer/#record-formatter) method.
 
 ~~~php
 <?php

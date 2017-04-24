@@ -14,11 +14,11 @@ version:
             Exceptions: '/9.0/connections/exceptions/'
         Inserting Records:
             Writer Connection: '/9.0/writer/'
-            Insertion Filters: '/9.0/writer/filtering/'
+            Bundled Filters: '/9.0/writer/bundled-filters/'
         Selecting Records:
             Reader Connection: '/9.0/reader/'
             Constraint Builder: '/9.0/reader/statement/'
-            Result Set: '/9.0/reader/records/'
+            Result Set: '/9.0/reader/resultset/'
         Converting Records:
             Overview: '/9.0/converter/'
             Charset Converter: '/9.0/converter/charset/'

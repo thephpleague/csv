@@ -101,7 +101,7 @@ public Statement::limit(int $limit): self
 public Statement::process(Reader $reader): ResultSet
 ~~~
 
-This method processes a [Reader](/9.0/reader/) object and returns the found records as a [ResultSet](/9.0/reader/records) object.
+This method processes a [Reader](/9.0/reader/) object and returns the found records as a [ResultSet](/9.0/reader/resultset) object.
 
 ~~~php
 <?php

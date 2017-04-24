@@ -45,13 +45,6 @@ class ResultSetTest extends TestCase
         $this->stmt = null;
     }
 
-    public function testJsonSerializable()
-    {
-        $records = $this->stmt->process($this->csv);
-
-        $this->assertSame($this->expected, json_decode(json_encode($records), true));
-    }
-
     public function testSetLimit()
     {
         $this->assertCount(1, $this->stmt->limit(1)->process($this->csv)->fetchAll());
