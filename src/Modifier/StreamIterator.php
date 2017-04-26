@@ -156,6 +156,7 @@ class StreamIterator implements Iterator
      * @param array  $fields
      * @param string $delimiter
      * @param string $enclosure
+     * @param string $escape
      *
      * @return int
      */
