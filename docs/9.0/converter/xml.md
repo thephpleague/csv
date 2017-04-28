@@ -33,7 +33,9 @@ Prior to converting your records collection into XML, you may wish to configure 
 public XMLConverter::rootElement(string $node_name): self
 ~~~
 
-This method sets the XML root name which defaults to `csv`.
+This method sets the XML root name.
+
+<p class="message-info">The default root element name is <code>csv</code>.</p>
 
 ### XMLConverter::recordElement
 
@@ -43,9 +45,10 @@ This method sets the XML root name which defaults to `csv`.
 public XMLConverter::recordElement(string $node_name, string $record_offset_attribute_name = ''): self
 ~~~
 
-This method sets the XML record name which defaults to `row`.
+This method sets the XML record name and optionnally the attribute name for the record offset value if you want this information preserved.
 
-Optionnally you can preserve the record offset by providing a name for its attribute on the XML record element using the `$record_offset_attribute_name` argument. If this argument is empty, the offset attribute information won't be added. By default, the attribute is not provided.
+<p class="message-info">The default record element name is <code>row</code>.</p>
+<p class="message-info">The default attribute name is the empty string.</p>
 
 ### XMLConverter::fieldElement
 
@@ -55,9 +58,10 @@ Optionnally you can preserve the record offset by providing a name for its attri
 public XMLConverter::fieldElement(string $node_name, string $fieldname_attribute_name = ''): self
 ~~~
 
-This method sets the XML field name which defaults to `cell`.
+This method sets the XML field name and optionnally the attribute name for the field name value.
 
-Optionnally you can preserve the field name by providing a name for its attribute on the XML field element using the `$fieldname_attribute_name` argument. If this argument is empty, the fieldname information won't be added. By default, the attribute is not provided.
+<p class="message-info">The default field element name is <code>cell</code>.</p>
+<p class="message-info">The default attribute name is the empty string.</p>
 
 ## Conversion
 
@@ -121,4 +125,4 @@ echo htmlentities($dom->saveXML());
 // </csv>
 ~~~
 
-<p class="message-info"><strong>Tip:</strong> if needed you can use the <a href="/9.0/converter/charset/">CharsetConverter</a> object to correctly encode your CSV records before conversion.</p>
+<p class="message-info">If needed you can use the <a href="/9.0/converter/charset/">CharsetConverter</a> object to correctly encode your CSV records before conversion.</p>

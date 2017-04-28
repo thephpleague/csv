@@ -274,4 +274,4 @@ $records = $reader->select($stmt);
 //$records is a League\Csv\ResultSet object
 ~~~
 
-<p class="message-info"><strong>Tips:</strong> this method is equivalent of <a href="/9.0/reader/statement/#apply-the-constraints-to-a-csv-document">Statement::process</a>.</p>
+<p class="message-info">This method is equivalent of <a href="/9.0/reader/statement/#apply-the-constraints-to-a-csv-document">Statement::process</a>.</p>

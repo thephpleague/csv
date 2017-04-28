@@ -34,10 +34,10 @@ Prior to converting your records collection into a HTML table, you may wish to c
 public HTMLConverter::table(string $class_name, string $id_value = ''): self
 ~~~
 
-This method sets:
+This method sets the optional table `class` and `id` attribute values
 
-- the optional table `class` attribute value, if none is uses it will default to `table-csv-data`;
-- the optional table `id` attribute value;
+<p class="message-info">The default <code>class</code> attribute value is <code>table-csv-data</code>.</p>
+<p class="message-info">The default <code>id</code> attribute value is the empty string.</p>
 
 ### HTMLConverter::tr
 
@@ -46,7 +46,9 @@ This method sets:
 public HTMLConverter::tr(string $record_offset_attribute_name): self
 ~~~
 
-This method sets the optional attribute name for the record offset on the HTML `tr` tag. If none is use or an empty string is given, the record offset information won't be exported to the HTML table
+This method sets the optional attribute name for the record offset on the HTML `tr` tag.
+
+<p class="message-info">If none is use or an empty string is given, the record offset information won't be exported to the HTML table.</p>
 
 ### HTMLConverter::td
 
@@ -55,7 +57,9 @@ This method sets the optional attribute name for the record offset on the HTML `
 public HTMLConverter::td(string $fieldname_attribute_name): self
 ~~~
 
-This method sets the optional attribute name for the field name on the HTML `td` tag. If none is use or an empty string is given, the field name information won't be exported to the HTML table;
+This method sets the optional attribute name for the field name on the HTML `td` tag.
+
+<p class="message-info">If none is use or an empty string is given, the field name information won't be exported to the HTML table.</p>
 
 ## Conversion
 
@@ -103,4 +107,4 @@ echo $html;
 // </table>
 ~~~
 
-<p class="message-info"><strong>Tip:</strong> if needed you can use the <a href="/9.0/converter/charset/">CharsetConverter</a> object to correctly encode your CSV records before conversion.</p>
+<p class="message-info">If needed you can use the <a href="/9.0/converter/charset/">CharsetConverter</a> object to correctly encode your CSV records before conversion.</p>

@@ -9,7 +9,7 @@ Once your CSV document is loaded, you can print or enable downloading it using t
 
 The methods output **are affected by** [the output BOM sequence](/9.0/connections/bom/) or the supplied [PHP stream filters](/9.0/connections/filters/).
 
-<p class="message-info"><strong>Tip:</strong> Even though you can use the following methods with the <code>League\Csv\Writer</code> object. It is recommended to do so with the <code>League\Csv\Reader</code> class to avoid losing the file cursor position and getting unexpected results when inserting new data.</p>
+<p class="message-info">Even though you can use the following methods with the <code>League\Csv\Writer</code> object. It is recommended to do so with the <code>League\Csv\Reader</code> class to avoid losing the file cursor position and getting unexpected results when inserting new data.</p>
 
 
 ## Printing the document
@@ -108,4 +108,4 @@ foreach ($reader->chunk(1024) as $chunk) {
 echo "0\r\n\r\n";
 ~~~
 
-<p class="message-info"><strong>Tip:</strong> To avoid breaking the flow of your framework based application, you should create a framework specific <code>Response</code> object when applicable using <code>AbstractCsv::__toString</code> or <code>AbstractCsv::chunk</code> depending on the size of your CSV document.</p>
+<p class="message-info">To avoid breaking the flow of your framework based application, you should create a framework specific <code>Response</code> object when applicable using <code>AbstractCsv::__toString</code> or <code>AbstractCsv::chunk</code> depending on the size of your CSV document.</p>

@@ -103,7 +103,7 @@ If your CSV object supports PHP stream filters then you can register the `Charse
 
 The `CharsetConverter::registerStreamFilter` static method registers the `CharsetConverter` class under the following generic filtername `convert.league.csv.*`.
 
-<p class="message-info"><strong>Tips:</strong> <code>CharsetConverter::registerStreamFilter</code> should be called once during your script execution time. The best place to call this method is in your bootstrap or configuration files script.</p>
+<p class="message-info"><code>CharsetConverter::registerStreamFilter</code> should be called once during your script execution time. The best place to call this method is in your bootstrap or configuration files script.</p>
 
 Once registered you can use the CSV object's `addStreamFilter` method to configure the stream filter by supplying the correct `$filtername` parameter.  
 For ease, you can use the `CharsetConverter::getFiltername` method.
@@ -127,4 +127,4 @@ $writer->insertOne(["foo", "bébé", "jouet"]);
 //all 'utf-8' caracters are now automatically encoded into 'iso-8859-15' charset
 ~~~
 
-<p class="message-info"><strong>Tips:</strong> If your system supports the <code>iconv</code> extension you should use PHP's built in iconv stream filters instead for better performance.</p>
+<p class="message-info">If your system supports the <code>iconv</code> extension you should use PHP's built in iconv stream filters instead for better performance.</p>

@@ -25,13 +25,15 @@ class JsonConverter
 public JsonConverter::options(int $options): self
 ~~~
 
-The `options` methods sets PHP's `json_encode` flag parameter. By default, the flag parameter is set to `0`.
+The `options` methods sets PHP's `json_encode` flag parameter.
+
+<p class="message-info">By default, the flag parameter is set to <code>0</code>.</p>
 
 ## Conversion
 
 ~~~php
 <?php
-public JsonConverter::convert(iterable $records, int $options = 0): string
+public JsonConverter::convert(iterable $records): string
 ~~~
 
 The `JsonConverter::convert` accepts:
@@ -41,9 +43,9 @@ The `JsonConverter::convert` accepts:
 
 and returns a string.
 
-<p class="message-warning">If a error occurs during the convertion an <code>RuntimeException</code> exception is thrown with additional information regarding the error.</p>
+<p class="message-notice"><strong>Notice:</strong> To convert an iterator, <code>iterator_to_array</code> is used, which could lead to a performance penalty if you convert a large <code>Iterator</code>.</p>
 
-<p class="message-warning"><strong>Warning:</strong> To convert an iterator, <code>iterator_to_array</code> is used, which could lead to a performance penalty if you convert a large <code>Iterator</code>.</p>
+<p class="message-warning">If a error occurs during the convertion an <code>RuntimeException</code> exception is thrown with additional information regarding the error.</p>
 
 ~~~php
 <?php
@@ -81,7 +83,7 @@ echo '<pre>', $json, PHP_EOL;
 // ]
 ~~~
 
-<p class="message-info"><strong>Tip:</strong> if needed you can use the <a href="/9.0/converter/charset/">CharsetConverter</a> object to correctly encode your CSV records before conversion.</p>
+<p class="message-info">If needed you can use the <a href="/9.0/converter/charset/">CharsetConverter</a> object to correctly encode your CSV records before conversion.</p>
 
 ~~~php
 <?php

@@ -22,7 +22,7 @@ The `League\Csv\Statement` class is a constraint builder to help ease selecting 
 
 When building a constraint, the methods do not need to be called in any particular order, and may be called multiple times. Because the `Statement` object is immutable, each time its constraint methods are called they will return a new `Statement` object without modifying the current `Statement` object.
 
-<p class="message-info"><strong>Tips:</strong> Because the <code>Statement</code> object is independent of the <code>Reader</code> object it can be re-use on multiple <code>Reader</code> objects.</p>
+<p class="message-info">Because the <code>Statement</code> object is independent of the <code>Reader</code> object it can be re-use on multiple <code>Reader</code> objects.</p>
 
 ## Filtering constraint
 
@@ -130,5 +130,5 @@ $stmt = (new Statement())
 $records = $stmt->process($reader);
 ~~~
 
-<p class="message-info"><strong>Tips:</strong> this method is equivalent of <a href="/9.0/reader/#selecting-csv-records">Reader::select</a>.</p>
+<p class="message-info">This method is equivalent of <a href="/9.0/reader/#selecting-csv-records">Reader::select</a>.</p>
 
