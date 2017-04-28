@@ -120,7 +120,7 @@ $header = $csv->getHeader(); //triggers a Exception
 
 ## Accessing CSV records
 
-### Description
+### Basic usage
 
 ~~~php
 <?php
@@ -130,12 +130,12 @@ public Reader::getRecords(void): Iterator
 public Reader::supportsHeaderAsRecordKeys(): bool
 ~~~
 
-The `Reader` class let's you access all its records using the `Reader::getRecords` method. This method which accepts no argument and returns an `Iterator` containing all CSV document records. It will also:
+The `Reader` class let's you access all its records using the `Reader::getRecords` method. The method which accepts no argument, returns an `Iterator` containing all CSV document records. It will also:
 
 - Filter out the empty lines;
 - Remove the BOM sequence if present;
 - Apply the stream filters if supplied;
-- Extract the records using the CSV controls attributes;
+- Extract the records using the CSV controls characters;
 
 ~~~php
 <?php
@@ -158,7 +158,7 @@ foreach ($records as $offset => $record) {
 
 ### Usage with a specified header
 
-If a header offset is specified, the found header record will be combine to each CSV record to return an associated array whose keys are composed of the header values.
+If a header offset is specified, the found header record will be combine to each CSV record to return an associated array whose keys are composed of the header values. In addition, the header record will be removed from the iteration.
 
 ~~~php
 <?php
@@ -180,28 +180,22 @@ foreach ($records as $offset => $record) {
 }
 ~~~
 
-#### Of Notes:
-
-<p class="message-info">The CSV document is normalized to the number of fields contained in the header record. Missing fields will be added with <code>null</code> content whereas extra fields will be truncated while iterating over the CSV records.</p>
-
-<p class="message-notice">The corresponding header record will be skipped from the iteration.</p>
+<p class="message-notice">The CSV document is normalized to the number of fields contained in the header record. Missing fields will be added with <code>null</code> content whereas extra fields will be truncated while iterating over the CSV records.</p>
 
 <p class="message-warning">A <code>RuntimeException</code> exception will be triggered if the header record contains non unique values.</p>
 
-To determine the state of the selected header record you can used the`Reader::supportsHeaderAsRecordKeys` method which returns `true` if `Reader::getHeader` returns:
+You can avoid this last exception by using the `Reader::supportsHeaderAsRecordKeys` method. The method returns `true` if `Reader::getHeader` returns:
 
-- an empty array;
-- or, an array containing only unique string values;
+- an empty record;
+- or, a record containing only unique string values;
 
 ~~~php
 <?php
 
 use League\Csv\Reader;
 
-$reader = Reader::createFromPath('/path/to/my/file.csv')
-    ->setHeaderOffset(0)
-;
-
+$reader = Reader::createFromPath('/path/to/my/file.csv');
+$reader->->setHeaderOffset(0);
 //var_export($reader->getHeader()) returns something like
 // array(
 //  'First Name',
@@ -222,7 +216,7 @@ $reader->supportsHeaderAsRecordKeys(); //return false;
 $reader->getRecords(); //throws a RuntimeException
 ~~~
 
-### Easing iteration
+### Improving iteration
 
 Because the `Reader` class implements the `IteratorAggregate` interface you can directly iterate over each record using the `foreach` construct and an instantiated `Reader` object. You will get the same results as if you had called `Reader::getRecords`.
 

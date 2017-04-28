@@ -22,8 +22,7 @@ class ResultSet implements Countable, IteratorAggregate
 }
 ~~~
 
-A `League\Csv\ResultSet` object represents the associated result set of processing a [CSV document](/9.0/reader/) with a [constraint builder](/9.0/reader/statement/).  
-This object is returned from [Reader::select](/9.0/reader/#selecting-csv-records) or [Statement::process](/9.0/reader/statement/#apply-the-constraints-to-a-csv-document) execution.
+A `League\Csv\ResultSet` object represents the associated result set of processing a [CSV document](/9.0/reader/) with a [constraint builder](/9.0/reader/statement/). This object is returned from [Reader::select](/9.0/reader/#selecting-csv-records) or [Statement::process](/9.0/reader/statement/#apply-the-constraints-to-a-csv-document) execution.
 
 ## Result set informations
 
@@ -56,9 +55,9 @@ $records->getColumnNames(); // is empty because no header information was given
 
 use League\Csv\Reader;
 
-$reader = Reader::createFromPath('/path/to/my/file.csv')
-    ->setHeaderOffset(0)
-;
+$reader = Reader::createFromPath('/path/to/my/file.csv');
+$reader->setHeaderOffset(0);
+
 $records = (new Statement())->process($reader);
 $records->getColumnNames(); // returns ['First Name', 'Last Name', 'E-mail'];
 ~~~
@@ -120,11 +119,11 @@ use League\Csv\Statement;
 
 $reader = Reader::createFromPath('/path/to/my/file.csv');
 $records = (new Statement())->process($reader);
-foreach ($records as $offset => $record) {
+foreach ($records as $record) {
     //do something here
 }
 
-foreach ($records->fetchAll() as $offset => $record) {
+foreach ($records->fetchAll() as $record) {
     //do something here
 }
 
@@ -147,19 +146,19 @@ $stmt = (new Statement())->offset(5);
 $records = $stmt->process($reader);
 $records->isRecordOffsetPreserved(); //returns false
 foreach ($records as $offset => $record) {
-    //the first iteration will give $offset equal to `0`
+    //during the first iteration $offset will be equal to 0
 }
 
 $records->preserveRecordOffset(true); //we are preserving the original offset
 $records->isRecordOffsetPreserved(); //returns true
 foreach ($records->fetchAll() as $offset => $record) {
-    //the first iteration will give $offset equal to `5`
+    //during the first iteration $offset will be equal to 5
 }
 ~~~
 
 ### Usage with the column names
 
-If the `ResultSet::getColumnNames` is not an empty `array`. It's result will be combine to the found records to return associated arrays whose indexes are composed of the colum names.
+If the `ResultSet::getColumnNames` is not an empty `array` the found records keys will contains the method returned values.
 
 ~~~php
 <?php
@@ -185,7 +184,7 @@ foreach ($records as $record) {
 
 ## Selecting a specific record
 
-If you are only interested in on particular record from the `ResultSet` you can use the `ResultSet::fetchOne` method to return a single record.
+If you are only interested in one particular record from the `ResultSet` you can use the `ResultSet::fetchOne` method to return a single record.
 
 ~~~php
 <?php
@@ -231,7 +230,7 @@ public ResultSet::fetchColumn(string|int $columnIndex = 0): Generator
 
 the `$columnIndex` parameter can be:
 
-- an integer representing the column name index starting from `0`;
+- an integer representing the column index starting from `0`;
 - a string representing one of the value of `ResultSet::getColumnNames`;
 
 ~~~php
@@ -242,22 +241,39 @@ use League\Csv\Statement;
 
 $reader = Reader::createFromPath('/path/to/my/file.csv');
 $records = (new Statement())->process($reader);
-foreach ($records->fetchColumn(2) as $offset => $value) {
+foreach ($records->fetchColumn(2) as $value) {
     //$value is a string representing the value
     //of a given record for the selected column
+    //$value may be equal to 'john.doe@example.com'
 }
 
-$reader = Reader::createFromPath('/path/to/my/file.csv')
-    ->setHeaderOffset(0)
-;
+$reader = Reader::createFromPath('/path/to/my/file.csv');
+$reader->setHeaderOffset(0);
 
 $records = (new Statement())->process($reader);
-foreach ($records->fetchColumn('First Name') as $offset => $value) {
-    //$value may be equal to 'john'
+foreach ($records->fetchColumn('E-mail') as $value) {
+    //$value is a string representing the value
+    //of a given record for the selected column
+    //$value may be equal to 'john.doe@example.com'
 }
 ~~~
 
-If the `ResultSet::preserveRecordOffset` is set to `true`, the `$offset` parameter will contains the original CSV document offset index, otherwise it will contain numerical index starting from `0`.
+<p class="message-notice">If for a given record the column value is <code>null</code>, the record will be skipped.</p>
+
+~~~php
+<?php
+
+use League\Csv\Reader;
+use League\Csv\Statement;
+
+$reader = Reader::createFromPath('/path/to/my/file.csv');
+$records = (new Statement())->process($reader);
+count($records); //returns 10;
+count(iterator_to_array($records->fetchColumn(2), false)); //returns 5
+//5 records were skipped because the column value is null
+~~~
+
+<p class="message-info">The method is affected by <code>ResultSet::preserveRecordOffset</code></p>
 
 ~~~php
 <?php
@@ -271,15 +287,15 @@ $reader = Reader::createFromPath('/path/to/my/file.csv');
 $stmt = (new Statement())->offset(5);
 $records = $stmt->process($reader);
 $records->preserveRecordOffset(true);
-foreach ($records->fetchColumn(2) as $offset => $value) {
+foreach ($records->fetchColumn(0) as $offset => $value) {
     //$value is a string representing the value
-    //of a given record for the selected column
-    //the first iteration will give $offset equal to `5`
+    //of a given record for the column 0
+    //the first iteration will give $offset equal to 5
     //if the record contains the selected column
 }
 ~~~
 
-<p class="message-notice">If for a given record the column does not exist, the record will be skipped.</p>
+<p class="message-warning">If the <code>ResultSet</code> contains column names and the <code>$columnIndex</code> is not found a <code>RuntimeException</code> is thrown.</p>
 
 ~~~php
 <?php
@@ -288,23 +304,7 @@ use League\Csv\Reader;
 use League\Csv\Statement;
 
 $reader = Reader::createFromPath('/path/to/my/file.csv');
-$records = (new Statement())->process($reader);
-count($records); //returns 10;
-count(iterator_to_array($records->fetchColumn(2), false)); //returns 5
-//5 records were skipped because the value column did not exists
-~~~
-
-<p class="message-warning">If the <code>$columnIndex</code> is not found a <code>InvalidArgumentExceptionw</code> may be thrown.</p>
-
-~~~php
-<?php
-
-use League\Csv\Reader;
-use League\Csv\Statement;
-
-$reader = Reader::createFromPath('/path/to/my/file.csv')
-    ->setHeaderOffset(0)
-;
+$reader->setHeaderOffset(0);
 
 $records = (new Statement())->process($reader);
 foreach ($records->fetchColumn('foobar') as $record) {
@@ -372,4 +372,4 @@ foreach ($records->fetchPairs() as $firstname => $lastname) {
 - If no cell is found corresponding to `$offsetIndex` the row is skipped;
 - If no cell is found corresponding to `$valueIndex` the `null` value is used;
 
-<p class="message-warning">If <code>ResultSet::getColumnNames</code> is not empty and the submitted arguments are not found strings, a <code>RuntimeException</code> will be thrown</p>
+<p class="message-warning">If the <code>ResultSet</code> contains column names and the submitted arguments are not found a <code>RuntimeException</code> is thrown.</p>

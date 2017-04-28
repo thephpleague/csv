@@ -45,7 +45,7 @@ trait ValidatorTrait
             return $value;
         }
 
-        throw new OutOfRangeException($error_message);
+        throw new OutOfRangeException(sprintf($error_message, $value));
     }
 
     /**

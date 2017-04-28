@@ -16,7 +16,7 @@ namespace League\Csv;
 
 use ArrayIterator;
 use Iterator;
-use League\Csv\Exception\InvalidArgumentException;
+use League\Csv\Exception\OutOfRangeException;
 use php_user_filter;
 use Traversable;
 
@@ -86,7 +86,7 @@ class CharsetConverter extends php_user_filter
      *
      * @param string $encoding
      *
-     * @throws InvalidArgumentException if the charset is malformed or unsupported
+     * @throws OutOfRangeException if the charset is malformed or unsupported
      *
      * @return string
      */
@@ -103,7 +103,7 @@ class CharsetConverter extends php_user_filter
             return $encoding_list[$key];
         }
 
-        throw new InvalidArgumentException(sprintf('Unsupported charset %s', $encoding));
+        throw new OutOfRangeException(sprintf('The submitted charset %s is not supported by your mbstring extension', $encoding));
     }
 
     /**
