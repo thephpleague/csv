@@ -36,6 +36,8 @@ The `inputEncoding` and `outputEncoding` methods sets the object encoding proper
 
 When building a `CharsetConverter` object, the methods do not need to be called in any particular order, and may be called multiple times. Because the `CharsetConverter` is immutable, each time its setter methods are called they return a new object without modifying the current one.
 
+<p class="message-warning">If the submitted charset is not supported by the <code>mbstring</code> extension an <code>OutOfRangeException</code> will be thrown.</p>
+
 ## Conversion
 
 ~~~php

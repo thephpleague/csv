@@ -16,8 +16,6 @@ The package provides classes which convert any collection of CSV records into:
 
 <p class="message-warning"><strong>Warning:</strong> A <code>League\Csv\Writer</code> object can not be converted.</p>
 
-The returned value type will depend on the converter object used.
-
 ## Converters are immutable
 
 Before conversion, you may want to configure your converter object. Each provided converter exposes additional methods to correctly convert your records.

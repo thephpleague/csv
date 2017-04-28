@@ -5,6 +5,7 @@ namespace LeagueTest\Csv;
 use ArrayIterator;
 use League\Csv\CharsetConverter;
 use League\Csv\Exception\InvalidArgumentException;
+use League\Csv\Exception\OutOfRangeException;
 use League\Csv\Reader;
 use PHPUnit\Framework\TestCase;
 
@@ -15,7 +16,7 @@ class CharsetConverterTest extends TestCase
 {
     public function testCharsetConverterTriggersException()
     {
-        $this->expectException(InvalidArgumentException::class);
+        $this->expectException(OutOfRangeException::class);
         (new CharsetConverter())->inputEncoding('');
     }
 

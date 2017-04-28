@@ -35,7 +35,7 @@ trait ValidatorTrait
      * @param int    $min_value
      * @param string $error_message
      *
-     * @throws InvalidArgumentException If the value is invalid
+     * @throws OutOfRangeException If the value is invalid
      *
      * @return int
      */
@@ -45,7 +45,7 @@ trait ValidatorTrait
             return $value;
         }
 
-        throw new OutOfRangeException($error_message);
+        throw new OutOfRangeException(sprintf($error_message, $value));
     }
 
     /**
