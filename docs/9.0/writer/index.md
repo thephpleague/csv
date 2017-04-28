@@ -44,7 +44,7 @@ public Writer::insertAll(iterable $records): int
 
 use League\Csv\Writer;
 
-$rows = [
+$records = [
     [1, 2, 3],
     ['foo', 'bar', 'baz'],
     ['john', 'doe', 'john.doe@example.com'],
@@ -52,8 +52,8 @@ $rows = [
 
 $writer = Writer::createFromPath('/path/to/saved/file.csv', 'w+');
 $writer->insertOne(['john', 'doe', 'john.doe@example.com']);
-$writer->insertAll($rows); //using an array
-$writer->insertAll(new ArrayIterator($rows)); //using a Traversable object
+$writer->insertAll($records); //using an array
+$writer->insertAll(new ArrayIterator($records)); //using a Traversable object
 ~~~
 
 In the above example, all CSV records are saved to `/path/to/saved/file.csv`

@@ -126,29 +126,11 @@ class Reader extends AbstractCsv implements IteratorAggregate
             return is_array($record) && count($record) > 1;
         };
 
-        $this->document->setFlags(SplFileObject::READ_CSV);
+        $this->document->setFlags(SplFileObject::READ_CSV | SplFileObject::READ_AHEAD | SplFileObject::SKIP_EMPTY);
         $this->document->setCsvControl($delimiter, $this->enclosure, $this->escape);
         $iterator = new CallbackFilterIterator(new LimitIterator($this->document, 0, $nb_records), $filter);
 
         return count(iterator_to_array($iterator, false), COUNT_RECURSIVE);
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function getIterator(): Iterator
-    {
-        $bom = $this->getInputBOM();
-        $header = $this->getHeader();
-        $this->document->setFlags(SplFileObject::READ_CSV | SplFileObject::READ_AHEAD | SplFileObject::SKIP_EMPTY);
-        $this->document->setCsvControl($this->delimiter, $this->enclosure, $this->escape);
-        $normalized = function ($record): bool {
-            return is_array($record) && $record != [null];
-        };
-
-        $iterator = $this->combineHeader(new CallbackFilterIterator($this->document, $normalized), $header);
-
-        return $this->stripBOM($iterator, $bom);
     }
 
     /**
@@ -175,13 +157,43 @@ class Reader extends AbstractCsv implements IteratorAggregate
     }
 
     /**
+     * @inheritdoc
+     */
+    public function getIterator(): Iterator
+    {
+        $bom = $this->getInputBOM();
+        if (!$this->supportsHeaderAsRecordKeys()) {
+            throw new RuntimeException('The header record must be empty or a flat array with unique string values');
+        }
+        $this->document->setFlags(SplFileObject::READ_CSV | SplFileObject::READ_AHEAD | SplFileObject::SKIP_EMPTY);
+        $this->document->setCsvControl($this->delimiter, $this->enclosure, $this->escape);
+        $normalized = function ($record): bool {
+            return is_array($record) && $record != [null];
+        };
+
+        $iterator = $this->combineHeader(new CallbackFilterIterator($this->document, $normalized));
+
+        return $this->stripBOM($iterator, $bom);
+    }
+
+    /**
+     * Returns wether the selected header can be combine to each record
+     *
+     * A valid header must be empty or contains unique string field names
+     *
+     * @return bool
+     */
+    public function supportsHeaderAsRecordKeys(): bool
+    {
+        $header = $this->getHeader();
+
+        return empty($header) || $header === array_unique(array_filter($header, 'is_string'));
+    }
+
+    /**
      * Returns the CSV record header
      *
      * The returned header is represented as an array of string values
-     *
-     * @throws RuntimeException If the header offset is an integer
-     *                          and the corresponding record is missing
-     *                          or is an empty array
      *
      * @return string[]
      */
@@ -192,47 +204,61 @@ class Reader extends AbstractCsv implements IteratorAggregate
         }
 
         $this->is_header_loaded = true;
-        if (null === $this->header_offset) {
-            $this->header = [];
-
-            return $this->header;
-        }
-
-        $this->document->setFlags(SplFileObject::READ_CSV | SplFileObject::READ_AHEAD | SplFileObject::SKIP_EMPTY);
-        $this->document->setCsvControl($this->delimiter, $this->enclosure, $this->escape);
-        $this->document->seek($this->header_offset);
-        $this->header = $this->document->current();
-        if (empty($this->header)) {
-            throw new RuntimeException(sprintf('The header record does not exist or is empty at offset: `%s`', $this->header_offset));
-        }
-
-        if (0 === $this->header_offset) {
-            $this->header = $this->removeBOM($this->header, mb_strlen($this->getInputBOM()), $this->enclosure);
+        $this->header = [];
+        if (null !== $this->header_offset) {
+            $this->header = $this->setHeader($this->header_offset);
         }
 
         return $this->header;
     }
 
     /**
+     * Determine the CSV record header
+     *
+     * @param int $offset
+     *
+     * @throws RuntimeException If the header offset is an integer
+     *                          and the corresponding record is missing
+     *                          or is an empty array
+     *
+     * @return string[]
+     */
+    protected function setHeader(int $offset): array
+    {
+        $this->document->setFlags(SplFileObject::READ_CSV | SplFileObject::READ_AHEAD | SplFileObject::SKIP_EMPTY);
+        $this->document->setCsvControl($this->delimiter, $this->enclosure, $this->escape);
+        $this->document->seek($offset);
+        $header = $this->document->current();
+        if (empty($header)) {
+            throw new RuntimeException(sprintf('The header record does not exist or is empty at offset: `%s`', $offset));
+        }
+
+        if (0 === $offset) {
+            $header = $this->removeBOM($header, mb_strlen($this->getInputBOM()), $this->enclosure);
+        }
+
+        return $header;
+    }
+
+    /**
      * Add the CSV header if present and valid
      *
      * @param Iterator $iterator
-     * @param string[] $header
      *
      * @return Iterator
      */
-    protected function combineHeader(Iterator $iterator, array $header): Iterator
+    protected function combineHeader(Iterator $iterator): Iterator
     {
         if (null === $this->header_offset) {
             return $iterator;
         }
 
-        $header = $this->filterColumnNames($header);
-        $header_count = count($header);
         $iterator = new CallbackFilterIterator($iterator, function (array $record, int $offset): bool {
             return $offset != $this->header_offset;
         });
 
+        $header = $this->getHeader();
+        $header_count = count($header);
         $mapper = function (array $record) use ($header_count, $header): array {
             if ($header_count != count($record)) {
                 $record = array_slice(array_pad($record, $header_count, null), 0, $header_count);
@@ -242,24 +268,6 @@ class Reader extends AbstractCsv implements IteratorAggregate
         };
 
         return new MapIterator($iterator, $mapper);
-    }
-
-    /**
-     * Validates the array to be used by the fetchAssoc method
-     *
-     * @param array $keys
-     *
-     * @throws RuntimeException If the submitted array fails the assertion
-     *
-     * @return array
-     */
-    protected function filterColumnNames(array $keys): array
-    {
-        if (empty($keys) || $keys === array_unique(array_filter($keys, 'is_string'))) {
-            return $keys;
-        }
-
-        throw new RuntimeException('Use a flat array with unique string values');
     }
 
     /**

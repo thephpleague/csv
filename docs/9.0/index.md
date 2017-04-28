@@ -29,7 +29,7 @@ $csv = Reader::createFromPath('/path/to/your/csv/file.csv')
     ->setHeaderOffset(0) //set the CSV header offset
 ;
 
-//get 25 rows starting from the 11th row
+//get 25 records starting from the 11th row
 $stmt = (new Statement())
     ->offset(10)
     ->limit(25)
