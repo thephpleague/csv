@@ -30,7 +30,7 @@ $writer = Writer::createFromFileObject(new SplTempFileObject());
 $writer->supportsStreamFilter(); //return false the API can not be use
 ~~~
 
-<p class="message-warning"><strong>Warning:</strong> A <code>LogicException</code> exception may be thrown if you try to use the API under certain circumstances without prior validation using <code>supportsStreamFilter</code></p>
+<p class="message-warning">A <code>LogicException</code> exception will be thrown if you use the API on a object where <code>supportsStreamFilter</code> returns <code>false</code>.</p>
 
 ### Cheat sheet
 
@@ -59,7 +59,7 @@ The `AbstractCsv::addStreamFilter` method adds a stream filter to the connection
 
 - The `$params` : This filter will be added with the specified paramaters to the end of the list.
 
-<p class="message-warning"><strong>Warning:</strong> Each time your call <code>addStreamFilter</code> with the same argument the corresponding filter is register again.</p>
+<p class="message-warning">Each time your call <code>addStreamFilter</code> with the same argument the corresponding filter is registered again.</p>
 
 The `AbstractCsv::hasStreamFilter`: tells whether a stream filter is already attached to the connection.
 
@@ -87,15 +87,26 @@ foreach ($reader as $row) {
 }
 ~~~
 
-<p class="message-info">Attached stream filters are removed on the CSV object destruction.</p>
+## Stream filters removal
+
+Stream filters attached to the ressource **with** `addStreamFilter` are:
+
+- removed on the CSV object destruction.
+
+Conversely, stream filters added to the resource **without** `addStreamFilter` are:
+
+- not detected by the library.
+- not removed on object destruction.
 
 ~~~php
 <?php
 
 use League\Csv\Reader;
+use MyLib\Transcode;
 
+stream_filter_register('convert.utf8decode', Transcode::class);
 $fp = fopen('/path/to/my/chines.csv', 'r');
-stream_filter_append($fp, 'string.rot13');
+stream_filter_append($fp, 'string.rot13'); //stream filter attached outside of League\Csv
 $reader = Reader::createFromStream($fp);
 $reader->addStreamFilter('convert.utf8decode');
 $reader->addStreamFilter('string.toupper');
@@ -105,5 +116,3 @@ $reader = null;
 // 'string.rot13' is still attached to `$fp`
 // filters added using `addStreamFilter` are removed
 ~~~
-
-<p class="message-warning">Only the filters added by the package are removed, filters added to the resource prior to being used in the library are not affected.</p>

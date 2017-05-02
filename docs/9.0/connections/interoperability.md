@@ -7,7 +7,7 @@ title: CSV document interoperability
 
 Depending on your operating system and on the software you are using to read/import your CSV you may need to adjust the encoding character and add its corresponding BOM character to your CSV.
 
-<p class="message-notice">Out of the box, <code>League\Csv</code> connections do not alter the CSV document original encoding.</p>
+<p class="message-info">Out of the box, <code>League\Csv</code> connections do not alter the CSV document original encoding.</p>
 
 In the examples below we will be using an existing CSV in ISO-8859-15 charset encoding as a starting point. The code will vary if your CSV document is in a different charset.
 
@@ -21,10 +21,11 @@ On Windows, MS Excel, expects an UTF-8 encoded CSV with its corresponding `BOM` 
 use League\Csv\BOM;
 use League\Csv\Reader;
 
-$reader = Reader::createFromPath('/path/to/my/file.csv')
-    ->setOutputBOM(BOM::UTF8)
-    ->addStreamFilter('convert.iconv.ISO-8859-15/UTF-8')
-;
+$reader = Reader::createFromPath('/path/to/my/file.csv');
+//let's set the output BOM
+$reader->setOutputBOM(BOM::UTF8);
+//let's convert the incoming data from iso-88959-15 to utf-8
+$reader->addStreamFilter('convert.iconv.ISO-8859-15/UTF-8');
 //BOM detected and adjusted for the output
 echo $reader->__toString();
 
@@ -42,19 +43,17 @@ use League\Csv\Reader;
 use League\Csv\Writer;
 
 //the current CSV is ISO-8859-15 encoded with a ";" delimiter
-$origin = Reader::createFromPath('/path/to/french.csv', 'r')
-    ->setDelimiter(';')
-;
+$origin = Reader::createFromPath('/path/to/french.csv', 'r');
+$origin->setDelimiter(';');
 
 //let's use stream resource
+$writer = Writer::createFromStream(fopen('php://temp', 'r+'));
 //let's set the output BOM
+$writer->setOutputBOM(BOM::UTF16_LE);
 //we set the tab as the delimiter character
-$writer = Writer::createFromStream(fopen('php://temp', 'r+'))
-    ->setOutputBOM(BOM::UTF16_LE)
-    ->setDelimiter("\t")
-    ->addStreamFilter('convert.iconv.ISO-8859-15/UTF-16')
-;
-
+$writer->setDelimiter("\t");
+//let's convert the incoming data from iso-88959-15 to utf-16
+$writer->addStreamFilter('convert.iconv.ISO-8859-15/UTF-16');
 //we insert csv data
 $writer->insertAll($origin);
 //all is good let's output the results

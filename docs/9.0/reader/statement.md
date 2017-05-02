@@ -89,7 +89,7 @@ public Statement::limit(int $limit): self
 
 `Statement::offset` specifies an optional offset for the return data. By default if no offset was provided the offset equals `0`.
 
-`Statement::Limit` specifies an optional maximum records count for the return data. By default if no limit is provided the limit equals `-1`, which translate to all records.
+`Statement::limit` specifies an optional maximum records count for the return data. By default if no limit is provided the limit equals `-1`, which translate to all records.
 
 <p class="message-notice">When called multiple times, each call override the last settings for these options.</p>
 

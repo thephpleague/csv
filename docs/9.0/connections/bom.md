@@ -20,17 +20,17 @@ interface BOM
 }
 ~~~
 
-To improve interoperability with programs interacting with CSV, the package now provide an interface `BOM` to help you detect set the appropriate <abbr title="Byte Order Mark">BOM</abbr> sequence.
+To improve interoperability with programs interacting with CSV, the package now provides an interface `BOM` to help you detect the appropriate <abbr title="Byte Order Mark">BOM</abbr> sequence.
 
 ### Constants
 
-To ease BOM sequence manipulation, the `BOM` class provides the following constants :
+The `BOM` interface provides the following constants :
 
-* `BOM::UTF8` : `UTF-8` `BOM`;
-* `BOM::UTF16_BE` : `UTF-16` `BOM` with Big-Endian;
-* `BOM::UTF16_LE` : `UTF-16` `BOM` with Little-Endian;
-* `BOM::UTF32_BE` : `UTF-32` `BOM` with Big-Endian;
-* `BOM::UTF32_LE` : `UTF-32` `BOM` with Little-Endian;
+* `BOM::UTF8` : contains `UTF-8` `BOM` sequence;
+* `BOM::UTF16_BE` : contains `UTF-16` `BOM` with Big-Endian sequence;
+* `BOM::UTF16_LE` : contains `UTF-16` `BOM` with Little-Endian sequence;
+* `BOM::UTF32_BE` : contains `UTF-32` `BOM` with Big-Endian sequence;
+* `BOM::UTF32_LE` : contains `UTF-32` `BOM` with Little-Endian sequence;
 
 ### bom_match
 

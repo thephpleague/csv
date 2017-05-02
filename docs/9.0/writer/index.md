@@ -14,8 +14,8 @@ class Writer extends AbstractCsv
     public function addValidator(callable $callable, string $validatorName): Writer
     public function getFlushThreshold(): int|null
     public function getNewline(): string
-    public function insertOne(array $record): int
     public function insertAll(iterable $records): int
+    public function insertOne(array $record): int
     public function setFlushThreshold(?int $threshold): self
     public function setNewline(string $sequence): self
 }

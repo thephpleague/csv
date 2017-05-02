@@ -7,7 +7,7 @@ title: CSV document output
 
 Once your CSV document is loaded, you can print or enable downloading it using the methods below.
 
-The methods output **are affected by** [the output BOM sequence](/9.0/connections/bom/) or the supplied [PHP stream filters](/9.0/connections/filters/).
+The output methods **are affected by** [the output BOM sequence](/9.0/connections/bom/) and/or the supplied [PHP stream filters](/9.0/connections/filters/).
 
 <p class="message-info">Even though you can use the following methods with the <code>League\Csv\Writer</code> object. It is recommended to do so with the <code>League\Csv\Reader</code> class to avoid losing the file cursor position and getting unexpected results when inserting new data.</p>
 
@@ -22,7 +22,7 @@ Returns the string representation of the CSV document
 public AbstractCsv::__toString(void): string
 ~~~
 
-Use the `echo` construct on the instantiated object or use the `__toString` method to show the CSV full content.
+Use the `echo` construct on the instantiated object or use the `__toString` method to return the CSV full content.
 
 ### Example
 
@@ -108,4 +108,4 @@ foreach ($reader->chunk(1024) as $chunk) {
 echo "0\r\n\r\n";
 ~~~
 
-<p class="message-info">To avoid breaking the flow of your framework based application, you should create a framework specific <code>Response</code> object when applicable using <code>AbstractCsv::__toString</code> or <code>AbstractCsv::chunk</code> depending on the size of your CSV document.</p>
+<p class="message-info">If your application is using a framework, to avoid breaking its flow, you should create a framework specific <code>Response</code> object when applicable using <code>AbstractCsv::__toString</code> or <code>AbstractCsv::chunk</code> depending on the size of your CSV document.</p>

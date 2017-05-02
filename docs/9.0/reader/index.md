@@ -71,7 +71,7 @@ $delimiters_list = $reader->fetchDelimitersOccurrence([' ', '|'], 10);
 
 ## Header detection
 
-You can set and retrieve the header offset as well as the header record.
+You can set and retrieve the header offset as well as its corresponding record.
 
 ### Description
 
@@ -158,7 +158,14 @@ foreach ($records as $offset => $record) {
 
 ### Usage with a specified header
 
-If a header offset is specified, the found header record will be combine to each CSV record to return an associated array whose keys are composed of the header values. In addition, the header record will be removed from the iteration.
+If a header offset was specified using the `setHeaderOffset` method
+
+- The found header record is:
+    - combined to each CSV record to return an associated array whose keys are composed of the header values.
+    - removed from the returned iterator.
+- The returned records are normalized to the number of fields contained in the header record
+    - Missing fields are added with `null` content.
+    - Extra fields are truncated.
 
 ~~~php
 <?php
@@ -180,11 +187,9 @@ foreach ($records as $offset => $record) {
 }
 ~~~
 
-<p class="message-notice">The CSV document is normalized to the number of fields contained in the header record. Missing fields will be added with <code>null</code> content whereas extra fields will be truncated while iterating over the CSV records.</p>
+<p class="message-warning">If the header record contains non unique values, a <code>RuntimeException</code> exception is triggered </p>
 
-<p class="message-warning">A <code>RuntimeException</code> exception will be triggered if the header record contains non unique values.</p>
-
-You can avoid this last exception by using the `Reader::supportsHeaderAsRecordKeys` method. The method returns `true` if `Reader::getHeader` returns:
+You can avoid this exception by using the `Reader::supportsHeaderAsRecordKeys` method. The method returns `true` if `Reader::getHeader` returns:
 
 - an empty record;
 - or, a record containing only unique string values;
