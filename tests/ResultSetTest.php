@@ -126,13 +126,25 @@ class ResultSetTest extends TestCase
         );
     }
 
-    public function testSortBy()
+    public function testOrderBy()
     {
-        $func = function ($rowA, $rowB) {
+        $func = function (array $rowA, array $rowB): int {
             return strcmp($rowA[0], $rowB[0]);
         };
         $this->assertSame(
             array_reverse($this->expected),
+            $this->stmt->orderBy($func)->process($this->csv)->fetchAll()
+        );
+    }
+
+    public function testOrderByWithEquity()
+    {
+        $func = function (array $rowA, array $rowB): int {
+            return strlen($rowA[0]) <=> strlen($rowB[0]);
+        };
+
+        $this->assertSame(
+            $this->expected,
             $this->stmt->orderBy($func)->process($this->csv)->fetchAll()
         );
     }

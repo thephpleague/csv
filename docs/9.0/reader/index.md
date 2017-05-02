@@ -189,6 +189,7 @@ foreach ($records as $offset => $record) {
 
 <p class="message-warning">If the header record contains non unique values, a <code>RuntimeException</code> exception is triggered </p>
 
+
 You can avoid this exception by using the `Reader::supportsHeaderAsRecordKeys` method. The method returns `true` if `Reader::getHeader` returns:
 
 - an empty record;
