@@ -80,10 +80,9 @@ use League\Csv\XMLConverter;
 use League\Csv\Statement;
 use League\Csv\Reader;
 
-$csv = Reader::createFromPath('/path/to/prenoms.csv')
-    ->setDelimiter(';')
-    ->setHeaderOffset(0)
-;
+$csv = Reader::createFromPath('/path/to/prenoms.csv');
+$csv->setDelimiter(';');
+$csv->setHeaderOffset(0);
 
 $stmt = (new Statement())
     ->where(function (array $record) {

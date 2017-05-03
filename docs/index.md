@@ -13,8 +13,8 @@ layout: homepage
 use League\Csv\Reader;
 
 //load the CSV document from a file path
-$csv = Reader::createFromPath('/path/to/your/csv/file.csv')
-	->setHeaderOffset(0);
+$csv = Reader::createFromPath('/path/to/your/csv/file.csv');
+$csv->setHeaderOffset(0);
 
 $header = $csv->getHeader(); //returns the CSV header record
 $records = $csv->getRecords(); //returns all the CSV records as an Iterator object
@@ -61,9 +61,9 @@ use League\Csv\Statement;
 
 //load the CSV document from a stream
 $stream = fopen('/path/to/your/csv/file.csv', 'r');
-$csv = Reader::createFromStream($stream)
-    ->setDelimiter(';')
-    ->setHeaderOffset(0);
+$csv = Reader::createFromStream($stream);
+$csv->setDelimiter(';');
+$csv->setHeaderOffset(0);
 
 //build a statement
 $stmt = (new Statement())
@@ -128,8 +128,8 @@ PHP stream filters can directly be used to ease manipulating CSV document
 use League\Csv\BOM;
 use League\Csv\Reader;
 
-$csv = Reader::createFromPath('/path/to/your/csv/file.csv')
-    ->setHeaderOffset(0);
+$csv = Reader::createFromPath('/path/to/your/csv/file.csv');
+$csv->setHeaderOffset(0);
 
 $input_bom = $csv->getInputBOM();
 

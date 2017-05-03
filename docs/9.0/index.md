@@ -25,9 +25,8 @@ Accessing some records from a given CSV documents.
 use League\Csv\Reader;
 use League\Csv\Statement;
 
-$csv = Reader::createFromPath('/path/to/your/csv/file.csv')
-    ->setHeaderOffset(0) //set the CSV header offset
-;
+$csv = Reader::createFromPath('/path/to/your/csv/file.csv');
+$csv->setHeaderOffset(0); //set the CSV header offset
 
 //get 25 records starting from the 11th row
 $stmt = (new Statement())
@@ -116,8 +115,8 @@ When importing csv files, you don't know whether the file is encoded with `UTF-8
 use League\Csv\BOM;
 use League\Csv\Reader;
 
-$csv = Reader::createFromPath('/path/to/your/csv/file.csv')
-    ->setHeaderOffset(0);
+$csv = Reader::createFromPath('/path/to/your/csv/file.csv');
+$csv->setHeaderOffset(0);
 
 $input_bom = $csv->getInputBOM();
 
@@ -141,9 +140,8 @@ use League\Csv\XMLConverter;
 use League\Csv\Reader;
 
 $csv = Reader::createFromPath('/path/to/prenoms.csv')
-    ->setDelimiter(';')
-    ->setHeaderOffset(0)
-;
+$csv->setDelimiter(';');
+$csv->setHeaderOffset(0);
 
 $converter = (new XMLConverter())
     ->rootElement('csv')

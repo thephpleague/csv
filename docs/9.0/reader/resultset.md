@@ -166,9 +166,8 @@ If the `ResultSet::getColumnNames` is not an empty `array` the found records key
 use League\Csv\Reader;
 use League\Csv\Statement;
 
-$reader = Reader::createFromPath('/path/to/my/file.csv')
-    ->setHeaderOffset(0)
-;
+$reader = Reader::createFromPath('/path/to/my/file.csv');
+$reader->setHeaderOffset(0);
 $records = (new Statement())->process($reader);
 $records->getColumnNames(); //returns ['First Name', 'Last Name', 'E-mail']
 foreach ($records as $record) {
@@ -200,9 +199,8 @@ The `$offset` argument represents the record offset in the result set starting a
 use League\Csv\Reader;
 use League\Csv\Statement;
 
-$reader = Reader::createFromPath('/path/to/my/file.csv')
-    ->setHeaderOffset(0)
-;
+$reader = Reader::createFromPath('/path/to/my/file.csv');
+$reader->setHeaderOffset(0);
 
 $stmt = (new Statement())
     ->offset(10)

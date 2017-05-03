@@ -53,9 +53,8 @@ and returns a string.
 use League\Csv\JsonConverter;
 use League\Csv\Reader;
 
-$csv = Reader::createFromPath('/path/to/file.csv', 'r')
-   ->setHeaderOffset(0)
-;
+$csv = Reader::createFromPath('/path/to/file.csv', 'r');
+$csv->setHeaderOffset(0);
 
 $json = (new JsonConverter())
     ->options(JSON_PRETTY_PRINT)

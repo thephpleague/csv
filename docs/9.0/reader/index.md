@@ -201,7 +201,7 @@ You can avoid this exception by using the `Reader::supportsHeaderAsRecordKeys` m
 use League\Csv\Reader;
 
 $reader = Reader::createFromPath('/path/to/my/file.csv');
-$reader->->setHeaderOffset(0);
+$reader->setHeaderOffset(0);
 //var_export($reader->getHeader()) returns something like
 // array(
 //  'First Name',

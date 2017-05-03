@@ -84,9 +84,8 @@ $encoder = (new CharsetConverter())
     ->outputEncoding('iso-8859-15')
 ;
 
-$writer = Writer::createFromPath('/path/to/your/csv/file.csv')
-    ->addFormatter($encoder)
-;
+$writer = Writer::createFromPath('/path/to/your/csv/file.csv');
+$writer->addFormatter($encoder);
 
 $writer->insertOne(["foo", "bébé", "jouet"]);
 //all 'utf-8' caracters are now automatically encoded into 'iso-8859-15' charset
@@ -121,9 +120,8 @@ CharsetConverter::registrerStreamFilter();
 $filtername = CharsetConverter::getFiltername('utf8', 'iso-8859-15');
 echo $filtername; //display 'convert.league.csv.UTF-8/ISO-8859-15';
 
-$writer = Writer::createFromPath('/path/to/your/csv/file.csv')
-    ->addStreamFilter($filtername)
-;
+$writer = Writer::createFromPath('/path/to/your/csv/file.csv');
+$writer->addStreamFilter($filtername);
 
 $writer->insertOne(["foo", "bébé", "jouet"]);
 //all 'utf-8' caracters are now automatically encoded into 'iso-8859-15' charset
