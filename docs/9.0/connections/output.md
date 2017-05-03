@@ -65,6 +65,7 @@ header('content-disposition: attachment; filename="name-for-your-file.csv"');
 
 $reader = Reader::createFromPath('/path/to/my/file.csv');
 $reader->output();
+die;
 ~~~
 
 ### Using the $filename argument
@@ -76,6 +77,7 @@ use League\Csv\Reader;
 
 $reader = Reader::createFromPath('/path/to/my/file.csv');
 $reader->output("name-for-your-file.csv");
+die;
 ~~~
 
 ## Outputting the document into chunks

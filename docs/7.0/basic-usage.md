@@ -48,6 +48,7 @@ If you only wish to make your CSV downloadable by forcing a file download just u
 header('Content-Type: text/csv; charset=UTF-8');
 header('Content-Disposition: attachment; filename="name-for-your-file.csv"');
 $reader->output();
+die;
 ~~~
 
 The output method can take an optional argument `$filename`. When present you
@@ -57,6 +58,7 @@ can even remove more headers.
 <?php
 
 $reader->output("name-for-your-file.csv");
+die;
 ~~~
 
 The output methods **can only be affected by:**

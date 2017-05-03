@@ -91,6 +91,7 @@ header('Content-Disposition: attachment; filename="name-for-your-file.csv"');
 
 $reader = Reader::createFromPath('/path/to/my/file.csv');
 $reader->output();
+die;
 ~~~
 
 #### Example 2 - using the $filename argument
@@ -102,6 +103,7 @@ use League\Csv\Reader;
 
 $reader = Reader::createFromPath('/path/to/my/file.csv');
 $reader->output("name-for-your-file.csv");
+die;
 ~~~
 
 #### Example 3 - using a Response object (Symfony, Laravel, PSR-7 etc)

@@ -286,9 +286,9 @@ class StreamIterator implements SeekableIterator
      */
     public function seek($position)
     {
-        $position = $this->filterMinRange($position, 0, 'Can\'t seek stream to negative line %d');
+        $position = $this->filterMinRange((int) $position, 0, 'Can\'t seek stream to negative line %d');
         foreach ($this as $key => $value) {
-            if ($key == $position || feof($this->stream)) {
+            if ($key === $position || feof($this->stream)) {
                 $this->offset--;
                 break;
             }
@@ -334,7 +334,7 @@ class StreamIterator implements SeekableIterator
      *
      * @return string|false
      */
-    public function fread(int $length)
+    public function fread($length)
     {
         return fread($this->stream, $length);
     }
