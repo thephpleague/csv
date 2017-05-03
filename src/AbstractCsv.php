@@ -107,7 +107,7 @@ abstract class AbstractCsv
     }
 
     /**
-     * Return a new {@link AbstractCsv} from a SplFileObject
+     * Return a new instance from a SplFileObject
      *
      * @param SplFileObject $file
      *
@@ -127,7 +127,7 @@ abstract class AbstractCsv
     }
 
     /**
-     * Return a new {@link AbstractCsv} from a PHP resource stream
+     * Return a new instance from a PHP resource stream
      *
      * @param resource $stream
      *
@@ -139,7 +139,7 @@ abstract class AbstractCsv
     }
 
     /**
-     * Return a new {@link AbstractCsv} from a string
+     * Return a new instance from a string
      *
      * @param string $str the CSV document as a string
      *
@@ -154,7 +154,7 @@ abstract class AbstractCsv
     }
 
     /**
-     * Return a new {@link AbstractCsv} from a file path
+     * Return a new instance from a file path
      *
      * @param string $path      file path
      * @param string $open_mode the file open mode flag
@@ -267,8 +267,6 @@ abstract class AbstractCsv
      * Retuns the CSV document as a Generator of string chunk
      *
      * @param int $length number of bytes read
-     *
-     * @throws InvalidArgumentException If the length is invalid
      *
      * @return Generator
      */

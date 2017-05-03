@@ -125,11 +125,12 @@ class CharsetConverter extends php_user_filter
      */
     public function onCreate()
     {
-        if (0 !== strpos($this->filtername, self::STREAM_FILTERNAME.'.')) {
+        $prefix = self::STREAM_FILTERNAME.'.';
+        if (0 !== strpos($this->filtername, $prefix)) {
             return false;
         }
 
-        $encodings = substr($this->filtername, strlen(self::STREAM_FILTERNAME) + 1);
+        $encodings = substr($this->filtername, strlen($prefix));
         if (!preg_match(',^(?<input>[-\w]+)\/(?<output>[-\w]+)$,', $encodings, $matches)) {
             return false;
         }

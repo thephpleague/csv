@@ -14,14 +14,13 @@ declare(strict_types=1);
 
 namespace League\Csv;
 
-use Iterator;
 use League\Csv\Exception\InvalidArgumentException;
 use League\Csv\Exception\LogicException;
 use SeekableIterator;
 use SplFileObject;
 
 /**
- *  an object oriented interface for a stream resource.
+ * An object oriented API for a seekable stream resource.
  *
  * @package  League.csv
  * @since    8.2.0
@@ -29,7 +28,7 @@ use SplFileObject;
  * @internal used internally to iterate over a stream resource
  *
  */
-class StreamIterator implements Iterator, SeekableIterator
+class StreamIterator implements SeekableIterator
 {
     use ValidatorTrait;
 
@@ -52,14 +51,14 @@ class StreamIterator implements Iterator, SeekableIterator
      *
      * @var mixed
      */
-    protected $current_line;
+    protected $value;
 
     /**
      * Current iterator key
      *
      * @var int
      */
-    protected $current_line_number;
+    protected $offset;
 
     /**
      * Flags for the StreamIterator
@@ -171,6 +170,62 @@ class StreamIterator implements Iterator, SeekableIterator
     }
 
     /**
+     * Get line number
+     *
+     * @see http://php.net/manual/en/splfileobject.key.php
+     *
+     * @return int
+     */
+    public function key()
+    {
+        return $this->offset;
+    }
+
+    /**
+     * Read next line
+     *
+     * @see http://php.net/manual/en/splfileobject.next.php
+     *
+     */
+    public function next()
+    {
+        $this->value = false;
+        $this->offset++;
+    }
+
+    /**
+     * Rewind the file to the first line
+     *
+     * @see http://php.net/manual/en/splfileobject.rewind.php
+     *
+     */
+    public function rewind()
+    {
+        rewind($this->stream);
+        $this->offset = 0;
+        $this->value = false;
+        if ($this->flags & SplFileObject::READ_AHEAD) {
+            $this->current();
+        }
+    }
+
+    /**
+     * Not at EOF
+     *
+     * @see http://php.net/manual/en/splfileobject.valid.php
+     *
+     * @return bool
+     */
+    public function valid()
+    {
+        if ($this->flags & SplFileObject::READ_AHEAD) {
+            return $this->current() !== false;
+        }
+
+        return !feof($this->stream);
+    }
+
+    /**
      * Retrieves the current line of the file.
      *
      * @see http://php.net/manual/en/splfileobject.current.php
@@ -179,19 +234,19 @@ class StreamIterator implements Iterator, SeekableIterator
      */
     public function current()
     {
-        if (false !== $this->current_line) {
-            return $this->current_line;
+        if (false !== $this->value) {
+            return $this->value;
         }
 
         if (($this->flags & SplFileObject::READ_CSV) == SplFileObject::READ_CSV) {
-            $this->current_line = $this->getCurrentRecord();
+            $this->value = $this->getCurrentRecord();
 
-            return $this->current_line;
+            return $this->value;
         }
 
-        $this->current_line = $this->getCurrentLine();
+        $this->value = $this->getCurrentLine();
 
-        return $this->current_line;
+        return $this->value;
     }
 
     /**
@@ -223,59 +278,23 @@ class StreamIterator implements Iterator, SeekableIterator
     }
 
     /**
-     * Get line number
+     * Seek to specified line
      *
-     * @see http://php.net/manual/en/splfileobject.key.php
+     * @see http://php.net/manual/en/splfileobject.seek.php
      *
-     * @return int
+     * @param int $position
      */
-    public function key()
+    public function seek($position)
     {
-        return $this->current_line_number;
-    }
-
-    /**
-     * Read next line
-     *
-     * @see http://php.net/manual/en/splfileobject.next.php
-     *
-     */
-    public function next()
-    {
-        $this->current_line = false;
-        $this->current_line_number++;
-    }
-
-    /**
-     * Rewind the file to the first line
-     *
-     * @see http://php.net/manual/en/splfileobject.rewind.php
-     *
-     */
-    public function rewind()
-    {
-        rewind($this->stream);
-        $this->current_line_number = 0;
-        $this->current_line = false;
-        if ($this->flags & SplFileObject::READ_AHEAD) {
-            $this->current();
-        }
-    }
-
-    /**
-     * Not at EOF
-     *
-     * @see http://php.net/manual/en/splfileobject.valid.php
-     *
-     * @return bool
-     */
-    public function valid()
-    {
-        if ($this->flags & SplFileObject::READ_AHEAD) {
-            return $this->current() !== false;
+        $position = $this->filterMinRange($position, 0, 'Can\'t seek stream to negative line %d');
+        foreach ($this as $key => $value) {
+            if ($key == $position || feof($this->stream)) {
+                $this->offset--;
+                break;
+            }
         }
 
-        return !feof($this->stream);
+        $this->current();
     }
 
     /**
@@ -287,10 +306,11 @@ class StreamIterator implements Iterator, SeekableIterator
      */
     public function fgets()
     {
-        if (false !== $this->current_line) {
+        if (false !== $this->value) {
             $this->next();
         }
-        return $this->current_line = $this->getCurrentLine();
+
+        return $this->value = $this->getCurrentLine();
     }
 
     /**
@@ -314,7 +334,7 @@ class StreamIterator implements Iterator, SeekableIterator
      *
      * @return string|false
      */
-    public function fread($length)
+    public function fread(int $length)
     {
         return fread($this->stream, $length);
     }
@@ -332,31 +352,6 @@ class StreamIterator implements Iterator, SeekableIterator
     public function fseek(int $offset, int $whence = SEEK_SET)
     {
         return fseek($this->stream, $offset, $whence);
-    }
-
-    /**
-     * Seek to specified line
-     *
-     * @see http://php.net/manual/en/splfileobject.seek.php
-     *
-     * @param int $position
-     *
-     * @throws LogicException if the line positon is negative
-     */
-    public function seek($position)
-    {
-        if (0 > $position) {
-            throw new LogicException(sprintf('Can\'t seek stream to negative line %d', $position));
-        }
-
-        foreach ($this as $key => $value) {
-            if ($key == $position || feof($this->stream)) {
-                $this->current_line_number--;
-                break;
-            }
-        }
-
-        $this->current();
     }
 
     /**
@@ -383,6 +378,8 @@ class StreamIterator implements Iterator, SeekableIterator
      * @param int    $read_write
      * @param mixed  $params
      *
+     * @throws InvalidArgumentException if the filter can not be appended
+     *
      * @return resource
      */
     public function appendFilter(string $filter_name, int $read_write, $params = null)
@@ -396,7 +393,7 @@ class StreamIterator implements Iterator, SeekableIterator
     }
 
     /**
-     * remove a registered filter
+     * Removes a registered filter
      *
      * @see http://php.net/manual/en/function.stream-filter-remove.php
      *
