@@ -21,10 +21,13 @@ abstract class AbstractCsv
     public function getDelimiter(): string
     public function getEnclosure(): string
     public function getEscape(): string
+    public function getInputBOM(): string
+    public function getOutputBOM(): string
     public function output(string $filename = null): int
     public function setDelimiter(string $delimiter): self
     public function setEnclosure(string $enclosure): self
     public function setEscape(string $escape): self
+    public function setOutputBOM(): self
     public function supportsStreamFilter(): bool
 }
 ~~~
