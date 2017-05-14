@@ -2,7 +2,6 @@
 
 namespace LeagueTest\Csv;
 
-use League\Csv\BOM;
 use League\Csv\Exception\CsvException;
 use League\Csv\Exception\OutOfRangeException;
 use League\Csv\Exception\RuntimeException;
@@ -211,13 +210,13 @@ class ResultSetTest extends TestCase
     {
         return [
             'withBOM' => [[
-                [BOM::UTF16_LE.'john', 'doe', 'john.doe@example.com'],
+                [Reader::BOM_UTF16_LE.'john', 'doe', 'john.doe@example.com'],
                 ['jane', 'doe', 'jane.doe@example.com'],
             ], 'john'],
             'withDoubleBOM' =>  [[
-                [BOM::UTF16_LE.BOM::UTF16_LE.'john', 'doe', 'john.doe@example.com'],
+                [Reader::BOM_UTF16_LE.Reader::BOM_UTF16_LE.'john', 'doe', 'john.doe@example.com'],
                 ['jane', 'doe', 'jane.doe@example.com'],
-            ], BOM::UTF16_LE.'john'],
+            ], Reader::BOM_UTF16_LE.'john'],
             'withoutBOM' => [[
                 ['john', 'doe', 'john.doe@example.com'],
                 ['jane', 'doe', 'jane.doe@example.com'],
@@ -228,7 +227,7 @@ class ResultSetTest extends TestCase
     public function testStripBOMWithFetchAssoc()
     {
         $source = [
-            [BOM::UTF16_LE.'john', 'doe', 'john.doe@example.com'],
+            [Reader::BOM_UTF16_LE.'john', 'doe', 'john.doe@example.com'],
             ['jane', 'doe', 'jane.doe@example.com'],
         ];
 
@@ -268,7 +267,7 @@ class ResultSetTest extends TestCase
     public function testStripBOMWithEnclosureFetchAssoc()
     {
         $expected = ['parent name', 'parentA'];
-        $source = BOM::UTF8.'"parent name","child name","title"
+        $source = Reader::BOM_UTF8.'"parent name","child name","title"
             "parentA","childA","titleA"';
         $csv = Reader::createFromString($source);
         $csv->setHeaderOffset(0);
@@ -282,7 +281,7 @@ class ResultSetTest extends TestCase
     public function testPreserveOffset()
     {
         $expected = ['parent name', 'parentA'];
-        $source = BOM::UTF8.'"parent name","child name","title"
+        $source = Reader::BOM_UTF8.'"parent name","child name","title"
             "parentA","childA","titleA"';
         $csv = Reader::createFromString($source);
         $csv->setHeaderOffset(0);
@@ -303,7 +302,7 @@ class ResultSetTest extends TestCase
 
     public function testFetchColumnWithColumnname()
     {
-        $source = BOM::UTF8.'"parent name","child name","title"
+        $source = Reader::BOM_UTF8.'"parent name","child name","title"
             "parentA","childA","titleA"';
         $csv = Reader::createFromString($source);
         $csv->setHeaderOffset(0);
@@ -313,7 +312,7 @@ class ResultSetTest extends TestCase
 
     public function testStripBOMWithEnclosureFetchAll()
     {
-        $source = BOM::UTF8.'"parent name","child name","title"
+        $source = Reader::BOM_UTF8.'"parent name","child name","title"
             "parentA","childA","titleA"';
         $csv = Reader::createFromString($source);
         $csv->setHeaderOffset(null);
@@ -322,7 +321,7 @@ class ResultSetTest extends TestCase
 
     public function testStripBOMWithEnclosureFetchOne()
     {
-        $source = BOM::UTF8.'"parent name","child name","title"
+        $source = Reader::BOM_UTF8.'"parent name","child name","title"
             "parentA","childA","titleA"';
         $csv = Reader::createFromString($source);
         $csv->setHeaderOffset(null);

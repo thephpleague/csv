@@ -2,26 +2,26 @@
 
 namespace LeagueTest\Csv;
 
-use League\Csv\BOM;
+use League\Csv\ByteSequence;
 use PHPUnit\Framework\TestCase;
 use function League\Csv\bom_match;
 
 /**
  * @group csv
  */
-class BOMTest extends TestCase
+class ByteSequenceTest extends TestCase
 {
     /**
-     * @dataProvider BOMMatchProvider
+     * @dataProvider ByteSequenceMatchProvider
      * @param string $str
      * @param string $expected
      */
-    public function testBOMMatch($str, $expected)
+    public function testByteSequenceMatch($str, $expected)
     {
         $this->assertSame($expected, bom_match($str));
     }
 
-    public function BOMMatchProvider()
+    public function ByteSequenceMatchProvider()
     {
         return [
             'empty string' => [
@@ -34,14 +34,14 @@ class BOMTest extends TestCase
             ],
             'UTF8 BOM sequence' => [
                 'sequence' => chr(239).chr(187).chr(191),
-                'expected' => BOM::UTF8,
+                'expected' => ByteSequence::BOM_UTF8,
             ],
             'UTF8 BOM sequence at the start of a text' => [
-                'sequence' => BOM::UTF8.'The quick brown fox jumps over the lazy dog',
+                'sequence' => ByteSequence::BOM_UTF8.'The quick brown fox jumps over the lazy dog',
                 'expected' => chr(239).chr(187).chr(191),
             ],
             'UTF8 BOM sequence inside a text' => [
-                'sequence' => 'The quick brown fox '.BOM::UTF8.' jumps over the lazy dog',
+                'sequence' => 'The quick brown fox '.ByteSequence::BOM_UTF8.' jumps over the lazy dog',
                 'expected' => '',
             ],
         ];

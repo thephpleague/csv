@@ -29,7 +29,7 @@ function bom_match(string $str): string
 {
     static $list;
 
-    $list = $list ?? (new ReflectionClass(BOM::class))->getConstants();
+    $list = $list ?? (new ReflectionClass(ByteSequence::class))->getConstants();
 
     foreach ($list as $sequence) {
         if (0 === strpos($str, $sequence)) {

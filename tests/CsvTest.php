@@ -2,7 +2,6 @@
 
 namespace LeagueTest\Csv;
 
-use League\Csv\BOM;
 use League\Csv\Exception\InvalidArgumentException;
 use League\Csv\Exception\OutOfRangeException;
 use League\Csv\Exception\RuntimeException;
@@ -78,8 +77,8 @@ class CsvTest extends TestCase
             $this->markTestSkipped();
         }
 
-        $raw_csv = BOM::UTF8."john,doe,john.doe@example.com\njane,doe,jane.doe@example.com\n";
-        $csv = Reader::createFromString($raw_csv)->setOutputBOM(BOM::UTF32_BE);
+        $raw_csv = Reader::BOM_UTF8."john,doe,john.doe@example.com\njane,doe,jane.doe@example.com\n";
+        $csv = Reader::createFromString($raw_csv)->setOutputBOM(Reader::BOM_UTF32_BE);
         $csv->output('test.csv');
         $headers = \xdebug_get_headers();
 
@@ -106,9 +105,9 @@ class CsvTest extends TestCase
 
     public function testChunk()
     {
-        $raw_csv = BOM::UTF8."john,doe,john.doe@example.com\njane,doe,jane.doe@example.com\n";
-        $csv = Reader::createFromString($raw_csv)->setOutputBOM(BOM::UTF32_BE);
-        $expected = BOM::UTF32_BE."john,doe,john.doe@example.com\njane,doe,jane.doe@example.com\n";
+        $raw_csv = Reader::BOM_UTF8."john,doe,john.doe@example.com\njane,doe,jane.doe@example.com\n";
+        $csv = Reader::createFromString($raw_csv)->setOutputBOM(Reader::BOM_UTF32_BE);
+        $expected = Reader::BOM_UTF32_BE."john,doe,john.doe@example.com\njane,doe,jane.doe@example.com\n";
         $res = '';
         foreach ($csv->chunk(8192) as $chunk) {
             $res .= $chunk;
@@ -127,15 +126,15 @@ class CsvTest extends TestCase
     public function testBOMSettings()
     {
         $this->assertSame('', $this->csv->getOutputBOM());
-        $this->csv->setOutputBOM(BOM::UTF8);
-        $this->assertSame(BOM::UTF8, $this->csv->getOutputBOM());
+        $this->csv->setOutputBOM(Reader::BOM_UTF8);
+        $this->assertSame(Reader::BOM_UTF8, $this->csv->getOutputBOM());
         $this->csv->setOutputBOM('');
         $this->assertSame('', $this->csv->getOutputBOM());
     }
 
     public function testAddBOMSequences()
     {
-        $this->csv->setOutputBOM(BOM::UTF8);
+        $this->csv->setOutputBOM(Reader::BOM_UTF8);
         $expected = chr(239).chr(187).chr(191).'john,doe,john.doe@example.com'.PHP_EOL
             .'jane,doe,jane.doe@example.com'.PHP_EOL;
         $this->assertSame($expected, (string) $this->csv);
@@ -146,16 +145,16 @@ class CsvTest extends TestCase
         $expected = 'john,doe,john.doe@example.com'.PHP_EOL
             .'jane,doe,jane.doe@example.com'.PHP_EOL;
         $reader = Reader::createFromString($expected);
-        $this->assertNotContains(BOM::UTF8, (string) $reader);
+        $this->assertNotContains(Reader::BOM_UTF8, (string) $reader);
     }
 
     public function testChangingBOMOnOutput()
     {
         $text = 'john,doe,john.doe@example.com'.PHP_EOL
             .'jane,doe,jane.doe@example.com'.PHP_EOL;
-        $reader = Reader::createFromString(BOM::UTF32_BE.$text);
-        $reader->setOutputBOM(BOM::UTF8);
-        $this->assertSame(BOM::UTF8.$text, (string) $reader);
+        $reader = Reader::createFromString(Reader::BOM_UTF32_BE.$text);
+        $reader->setOutputBOM(Reader::BOM_UTF8);
+        $this->assertSame(Reader::BOM_UTF8.$text, (string) $reader);
     }
 
     public function testDetectDelimiterList()

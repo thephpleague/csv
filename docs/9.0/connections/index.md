@@ -8,7 +8,7 @@ title: CSV documents configurations
 ~~~php
 <?php
 
-abstract class AbstractCsv
+abstract class AbstractCsv implements ByteSequence
 {
     public function __toString(): string
     public function addStreamFilter(string $filtername, mixed $params = null): self

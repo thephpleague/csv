@@ -28,7 +28,7 @@ use function League\Csv\bom_match;
  * @author  Ignace Nyamagana Butera <nyamsprod@gmail.com>
  *
  */
-abstract class AbstractCsv
+abstract class AbstractCsv implements ByteSequence
 {
     use ValidatorTrait;
 

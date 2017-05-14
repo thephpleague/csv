@@ -18,12 +18,11 @@ On Windows, MS Excel, expects an UTF-8 encoded CSV with its corresponding `BOM` 
 ~~~php
 <?php
 
-use League\Csv\BOM;
 use League\Csv\Reader;
 
 $reader = Reader::createFromPath('/path/to/my/file.csv');
 //let's set the output BOM
-$reader->setOutputBOM(BOM::UTF8);
+$reader->setOutputBOM(Reader::BOM_UTF8);
 //let's convert the incoming data from iso-88959-15 to utf-8
 $reader->addStreamFilter('convert.iconv.ISO-8859-15/UTF-8');
 //BOM detected and adjusted for the output
@@ -38,7 +37,6 @@ On a MacOS system, MS Excel requires a CSV encoded in `UTF-16 LE` using the `tab
 ~~~php
 <?php
 
-use League\Csv\BOM;
 use League\Csv\Reader;
 use League\Csv\Writer;
 
@@ -49,7 +47,7 @@ $origin->setDelimiter(';');
 //let's use stream resource
 $writer = Writer::createFromStream(fopen('php://temp', 'r+'));
 //let's set the output BOM
-$writer->setOutputBOM(BOM::UTF16_LE);
+$writer->setOutputBOM(Reader::BOM_UTF16_LE);
 //we set the tab as the delimiter character
 $writer->setDelimiter("\t");
 //let's convert the incoming data from iso-88959-15 to utf-16
