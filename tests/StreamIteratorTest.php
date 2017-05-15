@@ -3,16 +3,13 @@
 namespace LeagueTest\Csv;
 
 use League\Csv\Exception\InvalidArgumentException;
-use League\Csv\Reader;
-use League\Csv\Statement;
 use League\Csv\StreamIterator;
-use League\Csv\Writer;
 use LogicException;
 use PHPUnit\Framework\TestCase;
 use SplFileObject;
 
 /**
- * @group stream
+ * @group csv
  */
 class StreamIteratorTest extends TestCase
 {
@@ -41,80 +38,6 @@ class StreamIteratorTest extends TestCase
         new StreamIterator(curl_init());
     }
 
-    public function testSetCsvControlTriggersException()
-    {
-        $this->expectException(InvalidArgumentException::class);
-        (new StreamIterator(fopen('php://temp', 'r+')))->setCsvControl('toto');
-    }
-
-    public function testIterator()
-    {
-        $expected = [
-            ['john', 'doe', 'john.doe@example.com'],
-            ['jane', 'doe', 'jane.doe@example.com'],
-        ];
-        $fp = fopen('php://temp', 'r+');
-        foreach ($expected as $row) {
-            fputcsv($fp, $row);
-        }
-        $stream = new StreamIterator($fp);
-        $stream->setFlags(SplFileObject::READ_CSV);
-        $this->assertCount(3, iterator_to_array($stream));
-    }
-
-
-    /**
-     * @param array $records
-     * @param array $expected
-     * @dataProvider validBOMSequences
-     */
-    public function testStripBOM($records, $expected)
-    {
-        $fp = fopen('php://temp', 'r+');
-        foreach ($records as $row) {
-            fputcsv($fp, $row);
-        }
-        $csv = Reader::createFromStream($fp);
-
-        $this->assertSame($expected, (new Statement())->process($csv)->fetchAll()[0][0]);
-    }
-
-    public function validBOMSequences()
-    {
-        return [
-            'withBOM' => [[
-                [Reader::BOM_UTF16_LE.'john', 'doe', 'john.doe@example.com'],
-                ['jane', 'doe', 'jane.doe@example.com'],
-            ], 'john'],
-            'withDoubleBOM' =>  [[
-                [Reader::BOM_UTF16_LE.Reader::BOM_UTF16_LE.'john', 'doe', 'john.doe@example.com'],
-                ['jane', 'doe', 'jane.doe@example.com'],
-            ], Reader::BOM_UTF16_LE.'john'],
-            'withoutBOM' => [[
-                ['john', 'doe', 'john.doe@example.com'],
-                ['jane', 'doe', 'jane.doe@example.com'],
-            ], 'john'],
-        ];
-    }
-
-    public function testToString()
-    {
-        $fp = fopen('php://temp', 'r+');
-        $csv = Writer::createFromStream($fp);
-
-        $expected = [
-            ['john', 'doe', 'john.doe@example.com'],
-            ['jane', 'doe', 'jane.doe@example.com'],
-        ];
-
-        foreach ($expected as $row) {
-            $csv->insertOne($row);
-        }
-
-        $expected = "john,doe,john.doe@example.com\njane,doe,jane.doe@example.com\n";
-        $this->assertSame($expected, $csv->__toString());
-    }
-
     public function testIteratorWithLines()
     {
         $fp = fopen('php://temp', 'r+');
@@ -132,53 +55,5 @@ class StreamIteratorTest extends TestCase
         $stream->rewind();
         $stream->current();
         $this->assertInternalType('string', $stream->fgets());
-    }
-
-    public function testCustomNewline()
-    {
-        $fp = fopen('php://temp', 'r+');
-        $csv = Writer::createFromStream($fp);
-        $this->assertSame("\n", $csv->getNewline());
-        $csv->setNewline("\r\n");
-
-        $csv->insertOne(['jane', 'doe']);
-        $this->assertSame("jane,doe\r\n", (string) $csv);
-    }
-
-    public function testStreamIteratorSeekThrowException()
-    {
-        $this->expectException(LogicException::class);
-        $fp = fopen('php://temp', 'r+');
-        $expected = [
-            ['john', 'doe', 'john.doe@example.com'],
-            ['john', 'doe', 'john.doe@example.com'],
-        ];
-
-        foreach ($expected as $row) {
-            fputcsv($fp, $row);
-        }
-
-        $stream = new StreamIterator($fp);
-        $stream->seek(-1);
-    }
-
-    public function testStreamIteratorSeek()
-    {
-        $fp = fopen('php://temp', 'r+');
-        $expected = [
-            [],
-            ['john', 'doe', 'john.doe@example.com'],
-            ['john', 'doe', 'john.doe@example.com'],
-            [],
-        ];
-
-        foreach ($expected as $row) {
-            fputcsv($fp, $row);
-        }
-
-        $stream = new StreamIterator($fp);
-        $stream->setFlags(SplFileObject::READ_CSV | SplFileObject::READ_AHEAD);
-        $stream->seek(1);
-        $this->assertSame($expected[1], $stream->current());
     }
 }

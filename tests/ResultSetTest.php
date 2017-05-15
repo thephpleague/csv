@@ -13,8 +13,6 @@ use SplTempFileObject;
 
 /**
  * @group reader
- * @group statement
- * @group resultset
  */
 class ResultSetTest extends TestCase
 {

@@ -11,7 +11,7 @@ use SplFileObject;
 use SplTempFileObject;
 
 /**
- * @group validators
+ * @group writer
  */
 class ColumnConsistencyTest extends TestCase
 {

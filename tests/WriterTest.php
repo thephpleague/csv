@@ -118,12 +118,31 @@ class WriterTest extends TestCase
         ];
     }
 
+    public function testToString()
+    {
+        $fp = fopen('php://temp', 'r+');
+        $csv = Writer::createFromStream($fp);
+
+        $expected = [
+            ['john', 'doe', 'john.doe@example.com'],
+            ['jane', 'doe', 'jane.doe@example.com'],
+        ];
+
+        foreach ($expected as $row) {
+            $csv->insertOne($row);
+        }
+
+        $expected = "john,doe,john.doe@example.com\njane,doe,jane.doe@example.com\n";
+        $this->assertSame($expected, $csv->__toString());
+    }
+
     public function testCustomNewline()
     {
-        $this->assertSame("\n", $this->csv->getNewline());
-        $this->csv->setNewline("\r\n");
-        $this->csv->insertOne(['jane', 'doe']);
-        $this->assertSame("jane,doe\r\n", (string) $this->csv);
+        $csv = Writer::createFromStream(tmpfile());
+        $this->assertSame("\n", $csv->getNewline());
+        $csv->setNewline("\r\n");
+        $csv->insertOne(['jane', 'doe']);
+        $this->assertSame("jane,doe\r\n", (string) $csv);
     }
 
     public function testAddValidationRules()

@@ -16,6 +16,7 @@ namespace League\Csv;
 
 use League\Csv\Exception\InvalidArgumentException;
 use League\Csv\Exception\LogicException;
+use League\Csv\Exception\RuntimeException;
 use SeekableIterator;
 use SplFileObject;
 
@@ -45,6 +46,13 @@ class StreamIterator implements SeekableIterator
      * @var resource
      */
     protected $stream;
+
+    /**
+     * Tell whether the stream should be closed on object destruction
+     *
+     * @var bool
+     */
+    protected $should_close_stream = false;
 
     /**
      * Current iterator value
@@ -91,16 +99,18 @@ class StreamIterator implements SeekableIterator
     /**
      * New instance
      *
-     * @param resource $stream stream type resource
+     *
+     * @param  resource                 $stream stream type resource
+     * @throws InvalidArgumentException if the argument passed is not a seeakable stream resource
      */
     public function __construct($stream)
     {
         if (!is_resource($stream)) {
-            throw new InvalidArgumentException(sprintf('Argument passed must be a resource, %s given', is_object($stream) ? get_class($stream) : gettype($stream)));
+            throw new InvalidArgumentException(sprintf('Argument passed must be a seekable stream resource, %s given', is_object($stream) ? get_class($stream) : gettype($stream)));
         }
 
         if ('stream' !== ($type = get_resource_type($stream))) {
-            throw new InvalidArgumentException(sprintf('Argument passed must be a stream resource, %s resource given', $type));
+            throw new InvalidArgumentException(sprintf('Argument passed must be a seekable stream resource, %s resource given', $type));
         }
 
         if (!stream_get_meta_data($stream)['seekable']) {
@@ -115,7 +125,51 @@ class StreamIterator implements SeekableIterator
      */
     public function __destruct()
     {
+        if ($this->should_close_stream) {
+            fclose($this->stream);
+        }
+
         $this->stream = null;
+    }
+
+    /**
+     * Return a new instance from a file path
+     *
+     * @param string $path      file path
+     * @param string $open_mode the file open mode flag
+     *
+     * @throws RuntimeException if the stream resource can not be created
+     *
+     * @return static
+     */
+    public static function createFromPath(string $path, string $open_mode = 'r'): self
+    {
+        if (!$stream = @fopen($path, $open_mode)) {
+            throw new RuntimeException(error_get_last()['message']);
+        }
+
+        $instance = new static($stream);
+        $instance->should_close_stream = true;
+
+        return $instance;
+    }
+
+    /**
+     * Return a new instance from a string
+     *
+     * @param string $content the CSV document as a string
+     *
+     * @return static
+     */
+    public static function createFromString(string $content): self
+    {
+        $stream = fopen('php://temp', 'r+');
+        fwrite($stream, $content);
+
+        $instance = new static($stream);
+        $instance->should_close_stream = true;
+
+        return $instance;
     }
 
     /**

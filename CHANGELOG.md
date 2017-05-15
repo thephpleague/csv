@@ -20,7 +20,7 @@ All Notable changes to `Csv` will be documented in this file
     - `League\Csv\XMLConverter` converts CSV records into DOMDocument
     - `League\Csv\HTMLConverter` converts CSV records into HTML table.
     - `League\Csv\JsonConverter` converts CSV records into a Json string.
-- Improved package Exception handling
+- Improved Exception handling
     - `League\Csv\Exception\CsvException` the default exception interface
     - `League\Csv\Exception\InsertionException`
     - `League\Csv\Exception\InvalidArgumentException`
@@ -50,12 +50,7 @@ All Notable changes to `Csv` will be documented in this file
 
 - `examples` directory
 - `PHP5` support
-- All constants and BOM method are removed because the BOM API is simplified:
-    - `League\Csv\AbstractCsv::BOM_UTF8`
-    - `League\Csv\AbstractCsv::BOM_UTF16_BE`
-    - `League\Csv\AbstractCsv::BOM_UTF16_LE`
-    - `League\Csv\AbstractCsv::BOM_UTF32_BE`
-    - `League\Csv\AbstractCsv::BOM_UTF32_LE`
+- The following method is removed because The BOM API is simplified:
     - `League\Csv\AbstractCsv::stripBOM`
 - All conversion methods are removed in favor of the conversion classes:
     - `League\Csv\AbstractCsv::jsonSerialize`

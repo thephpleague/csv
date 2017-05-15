@@ -16,7 +16,6 @@ namespace League\Csv;
 
 use Generator;
 use League\Csv\Exception\LogicException;
-use League\Csv\Exception\RuntimeException;
 use SplFileObject;
 use function League\Csv\bom_match;
 
@@ -141,16 +140,13 @@ abstract class AbstractCsv implements ByteSequence
     /**
      * Return a new instance from a string
      *
-     * @param string $str the CSV document as a string
+     * @param string $content the CSV document as a string
      *
      * @return static
      */
-    public static function createFromString(string $str): self
+    public static function createFromString(string $content): self
     {
-        $stream = fopen('php://temp', 'r+');
-        fwrite($stream, $str);
-
-        return new static(new StreamIterator($stream));
+        return new static(StreamIterator::createFromString($content));
     }
 
     /**
@@ -163,11 +159,7 @@ abstract class AbstractCsv implements ByteSequence
      */
     public static function createFromPath(string $path, string $open_mode = 'r+'): self
     {
-        if (!$stream = @fopen($path, $open_mode)) {
-            throw new RuntimeException(error_get_last()['message']);
-        }
-
-        return new static(new StreamIterator($stream));
+        return new static(StreamIterator::createFromPath($path, $open_mode));
     }
 
     /**

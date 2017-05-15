@@ -115,4 +115,39 @@ class ReaderTest extends TestCase
         $this->expectException(RuntimeException::class);
         iterator_to_array($csv, true);
     }
+
+    /**
+     * @param array  $records
+     * @param array  $expected
+     * @param string $expected_bom
+     * @dataProvider validBOMSequences
+     */
+    public function testStripBOM($records, $expected, $expected_bom)
+    {
+        $fp = fopen('php://temp', 'r+');
+        foreach ($records as $record) {
+            fputcsv($fp, $record);
+        }
+        $csv = Reader::createFromStream($fp);
+        $this->assertSame($expected_bom, $csv->getInputBOM());
+        $this->assertSame($expected, (new Statement())->process($csv)->fetchAll()[0][0]);
+    }
+
+    public function validBOMSequences()
+    {
+        return [
+            'withBOM' => [[
+                [Reader::BOM_UTF16_LE.'john', 'doe', 'john.doe@example.com'],
+                ['jane', 'doe', 'jane.doe@example.com'],
+            ], 'john', Reader::BOM_UTF16_LE],
+            'withDoubleBOM' =>  [[
+                [Reader::BOM_UTF16_LE.Reader::BOM_UTF16_LE.'john', 'doe', 'john.doe@example.com'],
+                ['jane', 'doe', 'jane.doe@example.com'],
+            ], Reader::BOM_UTF16_LE.'john', Reader::BOM_UTF16_LE],
+            'withoutBOM' => [[
+                ['john', 'doe', 'john.doe@example.com'],
+                ['jane', 'doe', 'jane.doe@example.com'],
+            ], 'john', ''],
+        ];
+    }
 }
