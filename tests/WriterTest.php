@@ -15,6 +15,7 @@ use Traversable;
 
 /**
  * @group writer
+ * @coversDefaultClass League\Csv\Writer
  */
 class WriterTest extends TestCase
 {
@@ -33,6 +34,10 @@ class WriterTest extends TestCase
         $this->csv = null;
     }
 
+    /**
+     * @covers ::getFlushThreshold
+     * @covers ::setFlushThreshold
+     */
     public function testflushThreshold()
     {
         $this->expectException(OutOfRangeException::class);
@@ -60,6 +65,9 @@ class WriterTest extends TestCase
         $this->assertContains('JANE,DOE,JANE@EXAMPLE.COM', (string) $csv);
     }
 
+    /**
+     * @covers ::insertOne
+     */
     public function testInsert()
     {
         $expected = [
@@ -71,6 +79,9 @@ class WriterTest extends TestCase
         $this->assertContains('john,doe,john.doe@example.com', (string) $this->csv);
     }
 
+    /**
+     * @covers ::insertOne
+     */
     public function testInsertNormalFile()
     {
         $csv = Writer::createFromPath(__DIR__.'/data/foo.csv', 'a+');
@@ -78,6 +89,10 @@ class WriterTest extends TestCase
         $this->assertContains('jane,doe,jane.doe@example.com', (string) $csv);
     }
 
+    /**
+     * @covers ::insertOne
+     * @covers League\Csv\Exception\InsertionException
+     */
     public function testInsertThrowsExceptionOnError()
     {
         try {
@@ -89,6 +104,10 @@ class WriterTest extends TestCase
         }
     }
 
+    /**
+     * @covers ::insertAll
+     * @covers League\Csv\ValidatorTrait
+     */
     public function testFailedSaveWithWrongType()
     {
         $this->expectException(InvalidArgumentException::class);
@@ -96,6 +115,8 @@ class WriterTest extends TestCase
     }
 
     /**
+     * @covers ::insertAll
+     * @covers League\Csv\ValidatorTrait
      * @param array|Traversable $argument
      * @param string            $expected
      * @dataProvider dataToSave
@@ -136,6 +157,13 @@ class WriterTest extends TestCase
         $this->assertSame($expected, $csv->__toString());
     }
 
+    /**
+     * @covers ::setNewline
+     * @covers ::getNewline
+     * @covers ::insertOne
+     * @covers ::consolidate
+     * @covers League\Csv\StreamIterator
+     */
     public function testCustomNewline()
     {
         $csv = Writer::createFromStream(tmpfile());

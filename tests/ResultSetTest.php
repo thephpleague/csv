@@ -2,7 +2,7 @@
 
 namespace LeagueTest\Csv;
 
-use League\Csv\Exception\CsvException;
+use Generator;
 use League\Csv\Exception\OutOfRangeException;
 use League\Csv\Exception\RuntimeException;
 use League\Csv\Reader;
@@ -13,6 +13,7 @@ use SplTempFileObject;
 
 /**
  * @group reader
+ * @coversDefaultClass League\Csv\ResultSet
  */
 class ResultSetTest extends TestCase
 {
@@ -42,19 +43,36 @@ class ResultSetTest extends TestCase
         $this->stmt = null;
     }
 
+    /**
+     * @covers League\Csv\Statement::process
+     * @covers League\Csv\Statement::limit
+     * @covers ::getIterator
+     */
     public function testSetLimit()
     {
-        $this->assertCount(1, $this->stmt->limit(1)->process($this->csv)->fetchAll());
+        $this->assertCount(1, $this->stmt->limit(1)->process($this->csv));
     }
 
+    /**
+     * @covers League\Csv\Statement::process
+     * @covers League\Csv\Statement::buildOrderBy
+     * @covers ::count
+     * @covers ::getIterator
+     * @covers ::iteratorToGenerator
+     */
     public function testCountable()
     {
         $records = $this->stmt->limit(1)->process($this->csv);
         $this->assertCount(1, $records);
         $records->preserveRecordOffset(true);
+        $this->assertInstanceOf(Generator::class, $records->getIterator());
         $this->assertSame(iterator_to_array($records, false), $records->fetchAll());
     }
 
+    /**
+     * @covers League\Csv\Statement::limit
+     * @covers League\Csv\Statement::offset
+     */
     public function testStatementSameInstance()
     {
         $stmt_alt = $this->stmt->limit(-1)->offset(0);
@@ -62,12 +80,19 @@ class ResultSetTest extends TestCase
         $this->assertSame($stmt_alt, $this->stmt);
     }
 
+    /**
+     * @covers League\Csv\Statement::limit
+     * @covers League\Csv\Exception\OutOfRangeException
+     */
     public function testSetLimitThrowException()
     {
         $this->expectException(OutOfRangeException::class);
         $this->stmt->limit(-4);
     }
 
+    /**
+     * @covers League\Csv\Statement::offset
+     */
     public function testSetOffset()
     {
         $this->assertContains(
@@ -77,6 +102,9 @@ class ResultSetTest extends TestCase
     }
 
     /**
+     * @covers League\Csv\Statement::limit
+     * @covers League\Csv\Statement::offset
+     * @covers League\Csv\Statement::process
      * @dataProvider intervalTest
      * @param int $offset
      * @param int $limit
@@ -88,6 +116,12 @@ class ResultSetTest extends TestCase
             $this->stmt
                 ->offset($offset)
                 ->limit($limit)
+                ->where(function (array $record): bool {
+                    return true;
+                })
+                ->where(function (array $record): bool {
+                    return !empty($record);
+                })
                 ->process($this->csv)
                 ->fetchAll()
         );
@@ -101,6 +135,12 @@ class ResultSetTest extends TestCase
         ];
     }
 
+    /**
+     * @covers League\Csv\Statement::limit
+     * @covers League\Csv\Statement::offset
+     * @covers League\Csv\Statement::process
+     * @covers League\Csv\Exception\OutOfRangeException
+     */
     public function testIntervalThrowException()
     {
         $this->expectException(OutOfBoundsException::class);
@@ -111,6 +151,9 @@ class ResultSetTest extends TestCase
             ->fetchAll();
     }
 
+    /**
+     * @covers League\Csv\Statement::where
+     */
     public function testFilter()
     {
         $func = function ($row) {
@@ -123,6 +166,10 @@ class ResultSetTest extends TestCase
         );
     }
 
+    /**
+     * @covers League\Csv\Statement::orderBy
+     * @covers League\Csv\Statement::buildOrderBy
+     */
     public function testOrderBy()
     {
         $func = function (array $rowA, array $rowB): int {
@@ -134,6 +181,10 @@ class ResultSetTest extends TestCase
         );
     }
 
+    /**
+     * @covers League\Csv\Statement::orderBy
+     * @covers League\Csv\Statement::buildOrderBy
+     */
     public function testOrderByWithEquity()
     {
         $func = function (array $rowA, array $rowB): int {
@@ -147,12 +198,17 @@ class ResultSetTest extends TestCase
     }
 
     /**
+     * @covers ::fetchColumn
+     * @covers ::getColumnIndex
+     * @covers ::iteratorToGenerator
+     * @covers ::__destruct
+     * @covers League\Csv\Exception\RuntimeException
      * @dataProvider invalidFieldNameProvider
      * @param int|string $field
      */
     public function testFetchColumnTriggersException($field)
     {
-        $this->expectException(CsvException::class);
+        $this->expectException(RuntimeException::class);
         $this->csv->setHeaderOffset(0);
         $res = $this->stmt->process($this->csv)->fetchColumn($field);
         iterator_to_array($res, false);
@@ -161,12 +217,29 @@ class ResultSetTest extends TestCase
     public function invalidFieldNameProvider()
     {
         return [
-            'negative integer offset' => [-1],
             'invalid integer offset' => [24],
             'unknown column name' => ['fooBar'],
         ];
     }
 
+    /**
+     * @covers ::fetchColumn
+     * @covers ::iteratorToGenerator
+     * @covers League\Csv\Exception\OutOfRangeException
+     *
+     * @param int|string $field
+     */
+    public function testFetchColumnTriggersOutOfRangeException()
+    {
+        $this->expectException(OutOfRangeException::class);
+        $this->csv->setHeaderOffset(0);
+        $res = $this->stmt->process($this->csv)->fetchColumn(-1);
+        iterator_to_array($res, false);
+    }
+
+    /**
+     * @covers ::fetchAll
+     */
     public function testFetchAssocWithRowIndex()
     {
         $arr = [
@@ -190,92 +263,10 @@ class ResultSetTest extends TestCase
     }
 
     /**
-     * @param array $records
-     * @param array $expected
-     * @dataProvider validBOMSequences
+     * @covers ::preserveRecordOffset
+     * @covers ::isRecordOffsetPreserved
+     * @covers ::iteratorToGenerator
      */
-    public function testStripBOM($records, $expected)
-    {
-        $tmpFile = new SplTempFileObject();
-        foreach ($records as $row) {
-            $tmpFile->fputcsv($row);
-        }
-        $csv = Reader::createFromFileObject($tmpFile);
-        $this->assertSame($expected, $this->stmt->process($csv)->fetchAll()[0][0]);
-    }
-
-    public function validBOMSequences()
-    {
-        return [
-            'withBOM' => [[
-                [Reader::BOM_UTF16_LE.'john', 'doe', 'john.doe@example.com'],
-                ['jane', 'doe', 'jane.doe@example.com'],
-            ], 'john'],
-            'withDoubleBOM' =>  [[
-                [Reader::BOM_UTF16_LE.Reader::BOM_UTF16_LE.'john', 'doe', 'john.doe@example.com'],
-                ['jane', 'doe', 'jane.doe@example.com'],
-            ], Reader::BOM_UTF16_LE.'john'],
-            'withoutBOM' => [[
-                ['john', 'doe', 'john.doe@example.com'],
-                ['jane', 'doe', 'jane.doe@example.com'],
-            ], 'john'],
-        ];
-    }
-
-    public function testStripBOMWithFetchAssoc()
-    {
-        $source = [
-            [Reader::BOM_UTF16_LE.'john', 'doe', 'john.doe@example.com'],
-            ['jane', 'doe', 'jane.doe@example.com'],
-        ];
-
-        $tmp = new SplTempFileObject();
-        foreach ($source as $row) {
-            $tmp->fputcsv($row);
-        }
-        $csv = Reader::createFromFileObject($tmp);
-        $csv->setHeaderOffset(0);
-        $res = $this->stmt->process($csv)->fetchAll();
-        $first = array_shift($res);
-        $keys = array_keys($first);
-
-        $this->assertSame('john', $keys[0]);
-    }
-
-    public function testFetchAssocWithoutBOM()
-    {
-        $source = [
-            ['john', 'doe', 'john.doe@example.com'],
-            ['jane', 'doe', 'jane.doe@example.com'],
-        ];
-
-        $tmp = new SplTempFileObject();
-        foreach ($source as $row) {
-            $tmp->fputcsv($row);
-        }
-        $csv = Reader::createFromFileObject($tmp);
-        $csv->setHeaderOffset(0);
-        $res = $this->stmt->process($csv)->fetchAll();
-        $first = array_shift($res);
-        $keys = array_keys($first);
-
-        $this->assertSame('john', $keys[0]);
-    }
-
-    public function testStripBOMWithEnclosureFetchAssoc()
-    {
-        $expected = ['parent name', 'parentA'];
-        $source = Reader::BOM_UTF8.'"parent name","child name","title"
-            "parentA","childA","titleA"';
-        $csv = Reader::createFromString($source);
-        $csv->setHeaderOffset(0);
-        $expected = [
-            0 => ['parent name' => 'parentA', 'child name' => 'childA', 'title' => 'titleA'],
-        ];
-        $this->assertSame($expected, $this->stmt->process($csv)->fetchAll());
-    }
-
-
     public function testPreserveOffset()
     {
         $expected = ['parent name', 'parentA'];
@@ -296,8 +287,15 @@ class ResultSetTest extends TestCase
         $records->preserveRecordOffset(true);
         $this->assertTrue($records->isRecordOffsetPreserved());
         $this->assertSame($expectedWithOffset, $records->fetchAll());
+        foreach ($records as $offset => $record) {
+            $this->assertInternalType('int', $offset);
+        }
     }
 
+    /**
+     * @covers ::fetchColumn
+     * @covers ::getColumnIndex
+     */
     public function testFetchColumnWithColumnname()
     {
         $source = Reader::BOM_UTF8.'"parent name","child name","title"
@@ -308,37 +306,21 @@ class ResultSetTest extends TestCase
         $this->assertContains('parentA', $this->stmt->process($csv)->fetchColumn(0));
     }
 
-    public function testStripBOMWithEnclosureFetchAll()
-    {
-        $source = Reader::BOM_UTF8.'"parent name","child name","title"
-            "parentA","childA","titleA"';
-        $csv = Reader::createFromString($source);
-        $csv->setHeaderOffset(null);
-        $this->assertContains(['parent name', 'child name', 'title'], $this->stmt->process($csv)->fetchAll());
-    }
-
-    public function testStripBOMWithEnclosureFetchOne()
-    {
-        $source = Reader::BOM_UTF8.'"parent name","child name","title"
-            "parentA","childA","titleA"';
-        $csv = Reader::createFromString($source);
-        $csv->setHeaderOffset(null);
-        $expected = ['parent name', 'child name', 'title'];
-        $this->assertEquals($expected, $this->stmt->process($csv)->fetchOne());
-    }
-
-    public function testFetchAssocWithUnknownOffset()
-    {
-        $this->expectException(RuntimeException::class);
-        $this->stmt->process($this->csv->setHeaderOffset(23))->fetchAll();
-    }
-
+    /**
+     * @covers ::fetchColumn
+     * @covers ::getColumnIndex
+     */
     public function testFetchColumn()
     {
         $this->assertContains('john', $this->stmt->process($this->csv)->fetchColumn(0));
         $this->assertContains('jane', $this->stmt->process($this->csv)->fetchColumn());
     }
 
+    /**
+     * @covers ::fetchColumn
+     * @covers ::iteratorToGenerator
+     * @covers ::getColumnIndex
+     */
     public function testFetchColumnInconsistentColumnCSV()
     {
         $raw = [
@@ -355,6 +337,10 @@ class ResultSetTest extends TestCase
         $this->assertCount(1, iterator_to_array($res));
     }
 
+    /**
+     * @covers ::fetchColumn
+     * @covers ::getColumnIndex
+     */
     public function testFetchColumnEmptyCol()
     {
         $raw = [
@@ -371,6 +357,9 @@ class ResultSetTest extends TestCase
         $this->assertCount(0, iterator_to_array($res));
     }
 
+    /**
+     * @covers ::fetchOne
+     */
     public function testfetchOne()
     {
         $this->assertSame($this->expected[0], $this->stmt->process($this->csv)->fetchOne(0));
@@ -378,6 +367,9 @@ class ResultSetTest extends TestCase
         $this->assertSame([], $this->stmt->process($this->csv)->fetchOne(35));
     }
 
+    /**
+     * @covers ::fetchOne
+     */
     public function testFetchOneTriggersException()
     {
         $this->expectException(OutOfRangeException::class);
@@ -385,6 +377,8 @@ class ResultSetTest extends TestCase
     }
 
     /**
+     * @covers ::fetchPairs
+     * @covers ::getColumnIndex
      * @dataProvider fetchPairsDataProvider
      * @param int|string $key
      * @param int|string $value
@@ -422,11 +416,19 @@ class ResultSetTest extends TestCase
         ];
     }
 
+    /**
+     * @covers ::fetchPairs
+     * @covers ::getColumnIndex
+     */
     public function testFetchPairsWithInvalidOffset()
     {
         $this->assertCount(0, iterator_to_array($this->stmt->process($this->csv)->fetchPairs(10, 1), true));
     }
 
+    /**
+     * @covers ::fetchPairs
+     * @covers ::getColumnIndex
+     */
     public function testFetchPairsWithInvalidValue()
     {
         $res = $this->stmt->process($this->csv)->fetchPairs(0, 15);
@@ -435,16 +437,17 @@ class ResultSetTest extends TestCase
         }
     }
 
-    public static function getIso8859Csv()
-    {
-        return [[file_get_contents(__DIR__.'/data/prenoms.csv')]];
-    }
-
+    /**
+     * @covers ::getColumnNames
+     */
     public function testGetHeader()
     {
         $this->assertSame([], $this->stmt->process($this->csv)->getColumnNames());
     }
 
+    /**
+     * @covers ::getColumnNames
+     */
     public function testGetComputedHeader()
     {
         $this->csv->setHeaderOffset(0);

@@ -11,6 +11,7 @@ use PHPUnit\Framework\TestCase;
 
 /**
  * @group converter
+ * @coversDefaultClass League\Csv\JsonConverter
  */
 class JsonConverterTest extends TestCase
 {
@@ -40,6 +41,10 @@ class JsonConverterTest extends TestCase
         $this->converter = null;
     }
 
+    /**
+     * @covers ::options
+     * @covers ::convert
+     */
     public function testToJson()
     {
         $charset_converter = (new CharsetConverter())->inputEncoding('iso-8859-15');
@@ -47,6 +52,9 @@ class JsonConverterTest extends TestCase
         $this->assertContains('[{', $this->converter->options(JSON_HEX_QUOT)->convert($records));
     }
 
+    /**
+     * @covers ::convert
+     */
     public function testJsonEncodingThrowsException()
     {
         $this->expectException(RuntimeException::class);

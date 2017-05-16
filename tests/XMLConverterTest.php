@@ -11,9 +11,22 @@ use PHPUnit\Framework\TestCase;
 
 /**
  * @group converter
+ * @coversDefaultClass League\Csv\XMLConverter
  */
 class XMLConverterTest extends TestCase
 {
+    /**
+     * @covers ::rootElement
+     * @covers ::recordElement
+     * @covers ::fieldElement
+     * @covers ::convert
+     * @covers ::recordToElement
+     * @covers ::recordToElementWithAttribute
+     * @covers ::fieldToElement
+     * @covers ::fieldToElementWithAttribute
+     * @covers ::filterAttributeName
+     * @covers ::filterElementName
+     */
     public function testToXML()
     {
         $csv = Reader::createFromPath(__DIR__.'/data/prenoms.csv', 'r')
@@ -46,9 +59,16 @@ class XMLConverterTest extends TestCase
         $this->assertTrue($field_list->item(0)->hasAttribute('name'));
     }
 
+    /**
+     * @covers ::rootElement
+     * @covers ::filterAttributeName
+     * @covers ::filterElementName
+     */
     public function testXmlElementTriggersException()
     {
         $this->expectException(DOMException::class);
-        (new XMLConverter())->rootElement('   ');
+        (new XMLConverter())
+            ->recordElement('record', '')
+            ->rootElement('   ');
     }
 }

@@ -6,15 +6,14 @@ use League\Csv\Exception\InvalidArgumentException;
 use League\Csv\Exception\OutOfRangeException;
 use League\Csv\Exception\RuntimeException;
 use League\Csv\Reader;
-use League\Csv\Statement;
 use League\Csv\Writer;
 use LogicException;
 use PHPUnit\Framework\TestCase;
-use SplFileObject;
 use SplTempFileObject;
 
 /**
  * @group csv
+ * @coversDefaultClass League\Csv\AbstractCsv
  */
 class CsvTest extends TestCase
 {
@@ -41,12 +40,37 @@ class CsvTest extends TestCase
         @unlink(__DIR__.'/data/newline.csv');
     }
 
+    /**
+     * @covers ::createFromFileObject
+     */
+    public function testCreateFromFileObjectPreserveFileObjectCsvControls()
+    {
+        $delimiter = "\t";
+        $enclosure = '?';
+        $escape = '^';
+        $file = new SplTempFileObject();
+        $file->setCsvControl($delimiter, $enclosure, $escape);
+        $obj = Reader::createFromFileObject($file);
+        $this->assertSame($delimiter, $obj->getDelimiter());
+        $this->assertSame($enclosure, $obj->getEnclosure());
+        if (3 === count($file->getCsvControl())) {
+            $this->assertSame($escape, $obj->getEscape());
+        }
+    }
+
+    /**
+     * @covers ::createFromPath
+     * @covers League\Csv\StreamIterator
+     */
     public function testCreateFromPathThrowsRuntimeException()
     {
         $this->expectException(RuntimeException::class);
         Reader::createFromPath(__DIR__.'/foo/bar', 'r');
     }
 
+    /**
+     * @covers ::createFromStream
+     */
     public function testCreateFromStreamWithInvalidParameter()
     {
         $this->expectException(InvalidArgumentException::class);
@@ -54,6 +78,9 @@ class CsvTest extends TestCase
         Reader::createFromStream($path);
     }
 
+    /**
+     * @covers ::__clone
+     */
     public function testCloningIsForbidden()
     {
         $this->expectException(LogicException::class);
@@ -62,6 +89,7 @@ class CsvTest extends TestCase
 
     /**
      * @runInSeparateProcess
+     * @covers ::output
      */
     public function testOutputSize()
     {
@@ -70,6 +98,9 @@ class CsvTest extends TestCase
 
     /**
      * @runInSeparateProcess
+     * @covers ::output
+     * @covers ::createFromString
+     * @covers League\Csv\StreamIterator
      */
     public function testOutputHeaders()
     {
@@ -78,7 +109,7 @@ class CsvTest extends TestCase
         }
 
         $raw_csv = Reader::BOM_UTF8."john,doe,john.doe@example.com\njane,doe,jane.doe@example.com\n";
-        $csv = Reader::createFromString($raw_csv)->setOutputBOM(Reader::BOM_UTF32_BE);
+        $csv = Reader::createFromString($raw_csv);
         $csv->output('test.csv');
         $headers = \xdebug_get_headers();
 
@@ -90,12 +121,18 @@ class CsvTest extends TestCase
         $this->assertSame($headers[3], 'content-disposition: attachment; filename="test.csv"');
     }
 
+    /**
+     * @covers ::__toString
+     */
     public function testToString()
     {
         $expected = "john,doe,john.doe@example.com\njane,doe,jane.doe@example.com\n";
         $this->assertSame($expected, (string) $this->csv);
     }
 
+    /**
+     * @covers ::chunk
+     */
     public function testChunkTriggersException()
     {
         $this->expectException(OutOfRangeException::class);
@@ -103,6 +140,9 @@ class CsvTest extends TestCase
         iterator_to_array($chunk);
     }
 
+    /**
+     * @covers ::chunk
+     */
     public function testChunk()
     {
         $raw_csv = Reader::BOM_UTF8."john,doe,john.doe@example.com\njane,doe,jane.doe@example.com\n";
@@ -115,6 +155,11 @@ class CsvTest extends TestCase
         $this->assertSame($expected, $res);
     }
 
+    /**
+     * @covers ::getDelimiter
+     * @covers ::setDelimiter
+     * @covers ::filterControl
+     */
     public function testDelimeter()
     {
         $this->expectException(InvalidArgumentException::class);
@@ -123,6 +168,10 @@ class CsvTest extends TestCase
         $this->csv->setDelimiter('foo');
     }
 
+    /**
+     * @covers ::getOutputBOM
+     * @covers ::setOutputBOM
+     */
     public function testBOMSettings()
     {
         $this->assertSame('', $this->csv->getOutputBOM());
@@ -132,6 +181,10 @@ class CsvTest extends TestCase
         $this->assertSame('', $this->csv->getOutputBOM());
     }
 
+    /**
+     * @covers ::setOutputBOM
+     * @covers ::__toString
+     */
     public function testAddBOMSequences()
     {
         $this->csv->setOutputBOM(Reader::BOM_UTF8);
@@ -140,14 +193,10 @@ class CsvTest extends TestCase
         $this->assertSame($expected, (string) $this->csv);
     }
 
-    public function testGetBomOnInputWithNoBOM()
-    {
-        $expected = 'john,doe,john.doe@example.com'.PHP_EOL
-            .'jane,doe,jane.doe@example.com'.PHP_EOL;
-        $reader = Reader::createFromString($expected);
-        $this->assertNotContains(Reader::BOM_UTF8, (string) $reader);
-    }
-
+    /**
+     * @covers ::setOutputBOM
+     * @covers ::__toString
+     */
     public function testChangingBOMOnOutput()
     {
         $text = 'john,doe,john.doe@example.com'.PHP_EOL
@@ -157,11 +206,10 @@ class CsvTest extends TestCase
         $this->assertSame(Reader::BOM_UTF8.$text, (string) $reader);
     }
 
-    public function testDetectDelimiterList()
-    {
-        $this->assertSame([',' => 4], $this->csv->fetchDelimitersOccurrence([',']));
-    }
-
+    /**
+     * @covers ::getEscape
+     * @covers ::setEscape
+     */
     public function testEscape()
     {
         $this->expectException(InvalidArgumentException::class);
@@ -171,6 +219,10 @@ class CsvTest extends TestCase
         $this->csv->setEscape('foo');
     }
 
+    /**
+     * @covers ::getEnclosure
+     * @covers ::setEnclosure
+     */
     public function testEnclosure()
     {
         $this->expectException(InvalidArgumentException::class);
@@ -181,37 +233,9 @@ class CsvTest extends TestCase
     }
 
     /**
-     * @dataProvider appliedFlagsProvider
-     * @param int $flag
-     * @param int $fetch_count
+     * @covers ::addStreamFilter
+     * @covers League\Csv\StreamIterator
      */
-    public function testAppliedFlags($flag, $fetch_count)
-    {
-        $path = __DIR__.'/data/tmp.txt';
-        $obj  = new SplFileObject($path, 'w+');
-        $obj->fwrite("1st\n2nd\n");
-        $obj->setFlags($flag);
-        $reader = Reader::createFromFileObject($obj);
-        $this->assertCount($fetch_count, (new Statement())->process($reader)->fetchAll());
-        $reader = null;
-        $obj = null;
-        unlink($path);
-    }
-
-    public function appliedFlagsProvider()
-    {
-        return [
-            'NONE' => [0, 2],
-            'DROP_NEW_LINE' => [SplFileObject::READ_AHEAD | SplFileObject::DROP_NEW_LINE, 2],
-            'READ_AHEAD' => [SplFileObject::READ_AHEAD, 2],
-            'SKIP_EMPTY' => [SplFileObject::SKIP_EMPTY, 2],
-            'READ_AHEAD|DROP_NEW_LINE' => [SplFileObject::READ_AHEAD | SplFileObject::DROP_NEW_LINE, 2],
-            'READ_AHEAD|SKIP_EMPTY' => [SplFileObject::READ_AHEAD | SplFileObject::SKIP_EMPTY, 2],
-            'DROP_NEW_LINE|SKIP_EMPTY' => [SplFileObject::DROP_NEW_LINE | SplFileObject::SKIP_EMPTY, 2],
-            'READ_AHEAD|DROP_NEW_LINE|SKIP_EMPTY' => [SplFileObject::READ_AHEAD | SplFileObject::DROP_NEW_LINE | SplFileObject::SKIP_EMPTY, 2],
-        ];
-    }
-
     public function testAddStreamFilter()
     {
         $csv = Reader::createFromPath(__DIR__.'/data/foo.csv');
@@ -223,6 +247,11 @@ class CsvTest extends TestCase
         }
     }
 
+    /**
+     * @covers ::supportsStreamFilter
+     * @covers ::addStreamFilter
+     * @covers League\Csv\Exception\LogicException
+     */
     public function testFailedAddStreamFilter()
     {
         $this->expectException(LogicException::class);
@@ -231,6 +260,26 @@ class CsvTest extends TestCase
         $csv->addStreamFilter('string.toupper');
     }
 
+
+    /**
+     * @covers ::supportsStreamFilter
+     * @covers ::addStreamFilter
+     * @covers League\Csv\StreamIterator::appendFilter
+     * @covers League\Csv\Exception\InvalidArgumentException
+     */
+    public function testFailedAddStreamFilterWithWrongFilter()
+    {
+        $this->expectException(InvalidArgumentException::class);
+        $csv = Writer::createFromStream(tmpfile());
+        $csv->addStreamFilter('foobar.toupper');
+    }
+
+
+    /**
+     * @covers ::hasStreamFilter
+     * @covers ::supportsStreamFilter
+     * @covers League\Csv\StreamIterator
+     */
     public function testStreamFilterDetection()
     {
         $filtername = 'string.toupper';
@@ -240,6 +289,9 @@ class CsvTest extends TestCase
         $this->assertTrue($csv->hasStreamFilter($filtername));
     }
 
+    /**
+     * @covers ::__destruct
+     */
     public function testClearAttachedStreamFilters()
     {
         $path = __DIR__.'/data/foo.csv';
@@ -250,12 +302,10 @@ class CsvTest extends TestCase
         $this->assertNotContains('JOHN', (string) $csv);
     }
 
-    public function testRemoveStreamFilters()
-    {
-        $csv = Reader::createFromPath(__DIR__.'/data/foo.csv');
-        $this->assertFalse($csv->hasStreamFilter('string.tolower'));
-    }
-
+    /**
+     * @covers ::addStreamFilter
+     * @covers League\Csv\StreamIterator
+     */
     public function testSetStreamFilterOnWriter()
     {
         $csv = Writer::createFromPath(__DIR__.'/data/newline.csv', 'w+');

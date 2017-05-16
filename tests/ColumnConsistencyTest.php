@@ -12,6 +12,7 @@ use SplTempFileObject;
 
 /**
  * @group writer
+ * @coversDefaultClass League\Csv\ColumnConsistency
  */
 class ColumnConsistencyTest extends TestCase
 {
@@ -30,6 +31,12 @@ class ColumnConsistencyTest extends TestCase
         $this->csv = null;
     }
 
+    /**
+     * @covers ::__construct
+     * @covers ::getColumnCount
+     * @covers ::__invoke
+     * @covers League\Csv\Exception\InsertionException
+     */
     public function testAutoDetect()
     {
         try {
@@ -46,6 +53,11 @@ class ColumnConsistencyTest extends TestCase
         }
     }
 
+    /**
+     * @covers ::__construct
+     * @covers ::__invoke
+     * @covers League\Csv\Exception\InsertionException
+     */
     public function testColumnsCount()
     {
         $this->expectException(InsertionException::class);
@@ -54,6 +66,10 @@ class ColumnConsistencyTest extends TestCase
         $this->csv->insertOne(['jane', 'jane.doe@example.com']);
     }
 
+    /**
+     * @covers ::__construct
+     * @covers League\Csv\Exception\OutOfRangeException
+     */
     public function testColumsCountTriggersException()
     {
         $this->expectException(OutOfRangeException::class);

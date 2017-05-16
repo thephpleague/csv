@@ -8,6 +8,7 @@ use function League\Csv\bom_match;
 
 /**
  * @group csv
+ * @coversDefaultClass
  */
 class ByteSequenceTest extends TestCase
 {
@@ -15,6 +16,7 @@ class ByteSequenceTest extends TestCase
      * @dataProvider ByteSequenceMatchProvider
      * @param string $str
      * @param string $expected
+     * @covers League\Csv\bom_match
      */
     public function testByteSequenceMatch($str, $expected)
     {

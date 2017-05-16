@@ -10,9 +10,17 @@ use PHPUnit\Framework\TestCase;
 
 /**
  * @group converter
+ * @coversDefaultClass League\Csv\HTMLConverter
  */
 class HTMLConverterTest extends TestCase
 {
+    /**
+     * @covers ::__construct
+     * @covers ::table
+     * @covers ::tr
+     * @covers ::td
+     * @covers ::convert
+     */
     public function testToHTML()
     {
         $csv = Reader::createFromPath(__DIR__.'/data/prenoms.csv', 'r')
@@ -39,6 +47,10 @@ class HTMLConverterTest extends TestCase
         $this->assertContains('<td title="', $html);
     }
 
+    /**
+     * @covers ::__construct
+     * @covers ::table
+     */
     public function testTableTriggersException()
     {
         $this->expectException(DOMException::class);
