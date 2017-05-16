@@ -116,9 +116,9 @@ class CsvTest extends TestCase
         // Due to the variety of ways the xdebug expresses Content-Type of text files,
         // we cannot count on complete string matching.
         $this->assertContains('content-type: text/csv', strtolower($headers[0]));
-        $this->assertSame($headers[1], 'content-transfer-encoding: binary');
-        $this->assertSame($headers[2], 'content-description: File Transfer');
-        $this->assertSame($headers[3], 'content-disposition: attachment; filename="test.csv"');
+        $this->assertSame($headers[1], 'Content-Transfer-Encoding: binary');
+        $this->assertSame($headers[2], 'Content-Description: File Transfer');
+        $this->assertSame($headers[3], 'Content-Disposition: attachment; filename="test.csv"');
     }
 
     /**

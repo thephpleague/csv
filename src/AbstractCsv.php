@@ -268,7 +268,8 @@ abstract class AbstractCsv implements ByteSequence
         $input_bom = $this->getInputBOM();
         $this->document->rewind();
         if ($input_bom != $this->output_bom) {
-            $this->document->fseek(strlen($input_bom));
+            $bom_length = strlen($input_bom);
+            $this->document->fseek($bom_length);
             $chunk = $this->output_bom.$this->document->fread($length);
             $this->document->fflush();
             yield $chunk;
@@ -292,10 +293,10 @@ abstract class AbstractCsv implements ByteSequence
     public function output(string $filename = null): int
     {
         if (null !== $filename) {
-            header('content-type: text/csv');
-            header('content-transfer-encoding: binary');
-            header('content-description: File Transfer');
-            header('content-disposition: attachment; filename="'.rawurlencode($filename).'"');
+            header('Content-Type: text/csv');
+            header('Content-Transfer-Encoding: binary');
+            header('Content-Description: File Transfer');
+            header('Content-Disposition: attachment; filename="'.rawurlencode($filename).'"');
         }
 
         $res = 0;
