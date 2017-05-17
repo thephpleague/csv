@@ -260,8 +260,13 @@ class Reader extends AbstractCsv implements IteratorAggregate
         $header = $this->getHeader();
         $header_count = count($header);
         $mapper = function (array $record) use ($header_count, $header): array {
-            if ($header_count != count($record)) {
-                $record = array_slice(array_pad($record, $header_count, null), 0, $header_count);
+            $compare = $header_count <=> count($record);
+            if (0 < $compare) {
+                return array_combine($header, array_pad($record, $header_count, null));
+            }
+
+            if (0 > $compare) {
+                return array_combine($header, array_slice($record, 0, $header_count));
             }
 
             return array_combine($header, $record);

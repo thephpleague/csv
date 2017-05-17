@@ -53,11 +53,41 @@ class ReaderTest extends TestCase
             $this->assertCount(4, $record);
         }
 
+        $this->csv->setHeaderOffset(1);
+        foreach ($this->csv as $record) {
+            $this->assertCount(3, $record);
+        }
+
         $this->csv->setHeaderOffset(null);
         foreach ($this->csv->getRecords() as $record) {
             $this->assertInternalType('array', $record);
         }
     }
+
+    /**
+     * @covers ::combineHeader
+     * @covers League\Csv\MapIterator
+     */
+    public function testCombineHeader()
+    {
+        $expected = [
+            ['john', 'doe', 'john.doe@example.com'],
+            ['jane', 'doe', 'jane.doe@example.com'],
+        ];
+
+        $tmp = new SplTempFileObject();
+        foreach ($expected as $record) {
+            $tmp->fputcsv($record);
+        }
+
+        $csv = Reader::createFromFileObject($tmp);
+        $csv->setHeaderOffset(0);
+
+        foreach ($csv as $record) {
+            $this->assertCount(3, $record);
+        }
+    }
+
 
     /**
      * @covers ::setHeaderOffset
