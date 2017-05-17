@@ -39,13 +39,13 @@ class InsertionException extends RuntimeException
     protected $name = '';
 
     /**
-     * Create an Exception from a record insertion
+     * Create an Exception from a record insertion into a stream
      *
      * @param string[] $record
      *
      * @return self
      */
-    public static function createFromCsv(array $record): self
+    public static function createFromStream(array $record): self
     {
         $exception = new static('Unable to write record to the CSV document');
         $exception->record = $record;

@@ -124,7 +124,7 @@ class Writer extends AbstractCsv
         $this->validateRecord($record);
         $bytes = $this->document->fputcsv($record, $this->delimiter, $this->enclosure, $this->escape);
         if (!$bytes) {
-            throw InsertionException::createFromCsv($record);
+            throw InsertionException::createFromStream($record);
         }
 
         return $bytes + $this->consolidate();
