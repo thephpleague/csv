@@ -268,11 +268,12 @@ abstract class AbstractCsv implements ByteSequence
         $input_bom = $this->getInputBOM();
         $this->document->rewind();
         if ($input_bom != $this->output_bom) {
-            $bom_length = strlen($input_bom);
-            $this->document->fseek($bom_length);
-            $chunk = $this->output_bom.$this->document->fread($length);
+            $this->document->fseek(strlen($input_bom));
+            $base_chunk = $this->output_bom.$this->document->fread($length);
             $this->document->fflush();
-            yield $chunk;
+            foreach (str_split($base_chunk, $length) as $chunk) {
+                yield $chunk;
+            }
         }
 
         while ($this->document->valid()) {

@@ -29,8 +29,7 @@ class StreamIteratorTest extends TestCase
     public function testCreateStreamWithInvalidParameter()
     {
         $this->expectException(InvalidArgumentException::class);
-        $path = __DIR__.'/data/foo.csv';
-        new StreamIterator($path);
+        new StreamIterator(__DIR__.'/data/foo.csv');
     }
 
     /**

@@ -8,7 +8,6 @@ use function League\Csv\bom_match;
 
 /**
  * @group csv
- * @coversDefaultClass
  */
 class ByteSequenceTest extends TestCase
 {
