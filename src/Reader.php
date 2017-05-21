@@ -134,6 +134,14 @@ class Reader extends AbstractCsv implements IteratorAggregate
     }
 
     /**
+     * @inheritdoc
+     */
+    public function getIterator(): Iterator
+    {
+        return $this->getRecords();
+    }
+
+    /**
      * Returns the CSV records in an iterator object.
      *
      * Each CSV record is represented as a simple array of string or null values.
@@ -145,35 +153,27 @@ class Reader extends AbstractCsv implements IteratorAggregate
      * filled with null values while extra record fields are strip from
      * the returned object.
      *
-     * @see Reader::getIterator()
-     *
      * @throws RuntimeException If the header contains non unique column name
      *
      * @return Iterator
      */
     public function getRecords(): Iterator
     {
-        return $this->getIterator();
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function getIterator(): Iterator
-    {
-        $bom = $this->getInputBOM();
         if (!$this->supportsHeaderAsRecordKeys()) {
             throw new RuntimeException('The header record must be empty or a flat array with unique string values');
         }
-        $this->document->setFlags(SplFileObject::READ_CSV | SplFileObject::READ_AHEAD | SplFileObject::SKIP_EMPTY);
-        $this->document->setCsvControl($this->delimiter, $this->enclosure, $this->escape);
+
         $normalized = function ($record): bool {
             return is_array($record) && $record != [null];
         };
 
-        $iterator = $this->combineHeader(new CallbackFilterIterator($this->document, $normalized));
+        $bom = $this->getInputBOM();
+        $this->document->setFlags(SplFileObject::READ_CSV | SplFileObject::READ_AHEAD | SplFileObject::SKIP_EMPTY);
+        $this->document->setCsvControl($this->delimiter, $this->enclosure, $this->escape);
 
-        return $this->stripBOM($iterator, $bom);
+        return $this->combineHeader(
+            $this->stripBOM(new CallbackFilterIterator($this->document, $normalized), $bom)
+        );
     }
 
     /**
@@ -258,15 +258,10 @@ class Reader extends AbstractCsv implements IteratorAggregate
         });
 
         $header = $this->getHeader();
-        $header_count = count($header);
-        $mapper = function (array $record) use ($header_count, $header): array {
-            $compare = $header_count <=> count($record);
-            if (0 < $compare) {
-                return array_combine($header, array_pad($record, $header_count, null));
-            }
-
-            if (0 > $compare) {
-                return array_combine($header, array_slice($record, 0, $header_count));
+        $header_field_count = count($header);
+        $mapper = function (array $record) use ($header_field_count, $header): array {
+            if ($header_field_count != count($record)) {
+                $record = array_slice(array_pad($record, $header_field_count, null), 0, $header_field_count);
             }
 
             return array_combine($header, $record);

@@ -121,7 +121,7 @@ class WriterTest extends TestCase
      * @param string            $expected
      * @dataProvider dataToSave
      */
-    public function testSave($argument, $expected)
+    public function testSave($argument, string $expected)
     {
         $this->csv->insertAll($argument);
         $this->assertContains($expected, (string) $this->csv);
@@ -155,6 +155,9 @@ class WriterTest extends TestCase
 
         $expected = "john,doe,john.doe@example.com\njane,doe,jane.doe@example.com\n";
         $this->assertSame($expected, $csv->__toString());
+        $csv = null;
+        fclose($fp);
+        $fp = null;
     }
 
     /**
@@ -171,6 +174,7 @@ class WriterTest extends TestCase
         $csv->setNewline("\r\n");
         $csv->insertOne(['jane', 'doe']);
         $this->assertSame("jane,doe\r\n", (string) $csv);
+        $csv = null;
     }
 
     public function testAddValidationRules()

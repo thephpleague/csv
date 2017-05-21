@@ -214,13 +214,7 @@ class StreamIterator implements SeekableIterator
      */
     public function fputcsv(array $fields, string $delimiter = ',', string $enclosure = '"', string $escape = '\\')
     {
-        return fputcsv(
-            $this->stream,
-            $fields,
-            $this->filterControl($delimiter, 'delimiter'),
-            $this->filterControl($enclosure, 'enclosure'),
-            $this->filterControl($escape, 'escape')
-        );
+        return fputcsv($this->stream, $fields, $this->filterControl($delimiter, 'delimiter'), $this->filterControl($enclosure, 'enclosure'), $this->filterControl($escape, 'escape'));
     }
 
     /**

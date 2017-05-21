@@ -109,7 +109,7 @@ class ResultSetTest extends TestCase
      * @param int $offset
      * @param int $limit
      */
-    public function testInterval($offset, $limit)
+    public function testInterval(int $offset, int $limit)
     {
         $this->assertContains(
             ['jane', 'doe', 'jane.doe@example.com'],
@@ -384,7 +384,7 @@ class ResultSetTest extends TestCase
      * @param int|string $value
      * @param array      $expected
      */
-    public function testFetchPairsIteratorMode($key, $value, $expected)
+    public function testFetchPairsIteratorMode($key, $value, array $expected)
     {
         $iterator = $this->stmt->process($this->csv)->fetchPairs($key, $value);
         foreach ($iterator as $key => $value) {

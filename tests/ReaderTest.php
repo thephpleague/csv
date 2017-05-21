@@ -60,7 +60,7 @@ class ReaderTest extends TestCase
 
         $this->csv->setHeaderOffset(null);
         foreach ($this->csv->getRecords() as $record) {
-            $this->assertInternalType('array', $record);
+            $this->assertTrue(in_array(count($record), [3, 4]));
         }
     }
 
@@ -70,24 +70,11 @@ class ReaderTest extends TestCase
      */
     public function testCombineHeader()
     {
-        $expected = [
-            ['john', 'doe', 'john.doe@example.com'],
-            ['jane', 'doe', 'jane.doe@example.com'],
-        ];
-
-        $tmp = new SplTempFileObject();
-        foreach ($expected as $record) {
-            $tmp->fputcsv($record);
-        }
-
-        $csv = Reader::createFromFileObject($tmp);
-        $csv->setHeaderOffset(0);
-
-        foreach ($csv as $record) {
-            $this->assertCount(3, $record);
+        $this->csv->setHeaderOffset(1);
+        foreach ($this->csv as $record) {
+            $this->assertSame(['jane', 'doe', 'jane.doe@example.com'], array_keys($record));
         }
     }
-
 
     /**
      * @covers ::setHeaderOffset
@@ -157,7 +144,7 @@ class ReaderTest extends TestCase
 
     /**
      * @covers ::getHeader
-     * @covers ::getIterator
+     * @covers ::getRecords
      * @covers ::setHeader
      */
     public function testDuplicateHeaderValueTriggersException()
@@ -174,39 +161,81 @@ class ReaderTest extends TestCase
     }
 
     /**
-     * @covers ::getIterator
-     * @param array  $records
-     * @param array  $expected
-     * @param string $expected_bom
+     * @covers ::stripBOM
+     * @covers ::removeBOM
+     * @covers League\Csv\StreamIterator
      * @dataProvider validBOMSequences
+     * @param array  $record
+     * @param string $expected_bom
+     * @param string $expected
      */
-    public function testStripBOM($records, $expected, $expected_bom)
+    public function testStripBOM(array $record, string $expected_bom, string $expected)
     {
         $fp = fopen('php://temp', 'r+');
-        foreach ($records as $record) {
-            fputcsv($fp, $record);
-        }
+        fputcsv($fp, $record);
         $csv = Reader::createFromStream($fp);
         $this->assertSame($expected_bom, $csv->getInputBOM());
-        $this->assertSame($expected, (new Statement())->process($csv)->fetchAll()[0][0]);
+        foreach ($csv as $offset => $record) {
+            $this->assertSame($expected, $record[0]);
+        }
+        $csv = null;
+        fclose($fp);
+        $fp = null;
     }
 
     public function validBOMSequences()
     {
         return [
-            'withBOM' => [[
+            'withBOM' => [
                 [Reader::BOM_UTF16_LE.'john', 'doe', 'john.doe@example.com'],
-                ['jane', 'doe', 'jane.doe@example.com'],
-            ], 'john', Reader::BOM_UTF16_LE],
-            'withDoubleBOM' =>  [[
+                Reader::BOM_UTF16_LE,
+                'john',
+            ],
+            'withDoubleBOM' =>  [
                 [Reader::BOM_UTF16_LE.Reader::BOM_UTF16_LE.'john', 'doe', 'john.doe@example.com'],
-                ['jane', 'doe', 'jane.doe@example.com'],
-            ], Reader::BOM_UTF16_LE.'john', Reader::BOM_UTF16_LE],
-            'withoutBOM' => [[
+                Reader::BOM_UTF16_LE,
+                Reader::BOM_UTF16_LE.'john',
+            ],
+            'withoutBOM' => [
                 ['john', 'doe', 'john.doe@example.com'],
-                ['jane', 'doe', 'jane.doe@example.com'],
-            ], 'john', ''],
+                '',
+                'john',
+            ],
         ];
+    }
+
+    /**
+     * @covers ::stripBOM
+     * @covers ::removeBOM
+     * @covers League\Csv\StreamIterator
+     */
+    public function testStripBOMWithEnclosure()
+    {
+        $source = Reader::BOM_UTF8.'"parent name","child name","title"
+            "parentA","childA","titleA"';
+        $csv = Reader::createFromString($source);
+        $csv->setHeaderOffset(0);
+        $expected = ['parent name' => 'parentA', 'child name' => 'childA', 'title' => 'titleA'];
+        foreach ($csv->getRecords() as $offset => $record) {
+            $this->assertSame($expected, $record);
+        }
+    }
+
+    /**
+     * @covers ::stripBOM
+     * @covers ::removeBOM
+     * @covers League\Csv\StreamIterator
+     */
+    public function testStripNoBOM()
+    {
+        $source = '"parent name","child name","title"
+            "parentA","childA","titleA"';
+        $csv = Reader::createFromString($source);
+        $csv->setHeaderOffset(0);
+        $expected = ['parent name' => 'parentA', 'child name' => 'childA', 'title' => 'titleA'];
+        foreach ($csv->getRecords() as $offset => $record) {
+            $this->assertSame($expected, $record);
+        }
     }
 
     /**
@@ -215,7 +244,7 @@ class ReaderTest extends TestCase
      * @param int $flag
      * @param int $fetch_count
      */
-    public function testAppliedFlags($flag, $fetch_count)
+    public function testAppliedFlags(int $flag, int $fetch_count)
     {
         $path = __DIR__.'/data/tmp.txt';
         $obj  = new SplFileObject($path, 'w+');
@@ -243,51 +272,9 @@ class ReaderTest extends TestCase
     }
 
     /**
-     * @covers ::stripBOM
-     * @covers ::removeBOM
-     */
-    public function testStripBOMWithEnclosure()
-    {
-        $expected = ['parent name', 'parentA'];
-        $source = Reader::BOM_UTF8.'"parent name","child name","title"
-            "parentA","childA","titleA"';
-        $csv = Reader::createFromString($source);
-        $csv->setHeaderOffset(0);
-        $expected = [
-            0 => ['parent name' => 'parentA', 'child name' => 'childA', 'title' => 'titleA'],
-        ];
-        $this->assertSame($expected, (new Statement())->process($csv)->fetchAll());
-    }
-
-
-    /**
-     * @covers ::stripBOM
-     * @covers ::removeBOM
-     * @covers League\Csv\StreamIterator
-     */
-    public function testStripNoBOM()
-    {
-        $expected = ['parent name', 'parentA'];
-        $source = '"parent name","child name","title"
-            "parentA","childA","titleA"';
-        $csv = Reader::createFromString($source);
-        $csv->setHeaderOffset(0);
-        $expected = [
-            0 => ['parent name' => 'parentA', 'child name' => 'childA', 'title' => 'titleA'],
-        ];
-        $this->assertSame($expected, (new Statement())->process($csv)->fetchAll());
-        foreach ($csv->getRecords() as $offset => $record) {
-            $this->assertInternalType('int', $offset);
-            $this->assertInternalType('array', $record);
-        }
-    }
-
-    /**
-     * @covers ::getRecords
      * @covers ::setHeader
-     * @covers ::supportsHeaderAsRecordKeys
      */
-    public function testFetchAssocWithUnknownOffset()
+    public function testGetHeaderThrowsException()
     {
         $this->expectException(RuntimeException::class);
         $this->csv->setHeaderOffset(23)->getRecords();
