@@ -106,7 +106,7 @@ class StreamIterator implements SeekableIterator
     public function __construct($stream)
     {
         if (!is_resource($stream)) {
-            throw new InvalidArgumentException(sprintf('Argument passed must be a seekable stream resource, %s given', is_object($stream) ? get_class($stream) : gettype($stream)));
+            throw new InvalidArgumentException(sprintf('Argument passed must be a seekable stream resource, %s given', gettype($stream)));
         }
 
         if ('stream' !== ($type = get_resource_type($stream))) {

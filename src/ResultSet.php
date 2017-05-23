@@ -171,7 +171,7 @@ class ResultSet implements Countable, IteratorAggregate
      */
     public function fetchColumn($index = 0): Generator
     {
-        $offset = $this->getColumnIndex($index, 'The column index `%s` value is invalid');
+        $offset = $this->getColumnIndex($index, 'The column index `%s` is invalid or does not exist');
         $filter = function (array $record) use ($offset): bool {
             return isset($record[$offset]);
         };
@@ -191,32 +191,60 @@ class ResultSet implements Countable, IteratorAggregate
      * @param string|int $field         the field name or the field index
      * @param string     $error_message the associated error message
      *
-     * @throws RuntimeException if the field is invalid
-     * @throws RuntimeException if the column is not found
-     *
      * @return string|int
      */
     protected function getColumnIndex($field, string $error_message)
     {
-        if (false !== array_search($field, $this->column_names, true)) {
-            return $field;
-        }
-
+        $method = 'getColumnIndexByKey';
         if (is_string($field)) {
-            throw new RuntimeException(sprintf($error_message, $field));
+            $method = 'getColumnIndexByValue';
         }
 
-        $index = $this->filterMinRange($field, 0, $error_message);
+        return $this->$method($field, $error_message);
+    }
+
+    /**
+     * Returns the selected column name
+     *
+     * @param string $value
+     * @param string $error_message
+     *
+     * @throws RuntimeException if the column is not found
+     *
+     * @return string
+     */
+    protected function getColumnIndexByValue(string $value, string $error_message): string
+    {
+        if (false !== array_search($value, $this->column_names, true)) {
+            return $value;
+        }
+
+        throw new RuntimeException(sprintf($error_message, $value));
+    }
+
+    /**
+     * Returns the selected column name according to its offset
+     *
+     * @param int    $offset
+     * @param string $error_message
+     *
+     * @throws RuntimeException if the field is invalid or not found
+     *
+     * @return int|string
+     */
+    protected function getColumnIndexByKey(int $offset, string $error_message)
+    {
+        $offset = $this->filterMinRange($offset, 0, $error_message);
         if (empty($this->column_names)) {
-            return $index;
+            return $offset;
         }
 
-        $index = array_search($index, array_flip($this->column_names), true);
-        if (false !== $index) {
-            return $index;
+        $value = array_search($offset, array_flip($this->column_names), true);
+        if (false !== $value) {
+            return $value;
         }
 
-        throw new RuntimeException(sprintf($error_message, $field));
+        throw new RuntimeException(sprintf($error_message, $offset));
     }
 
     /**

@@ -133,7 +133,7 @@ class Reader extends AbstractCsv implements IteratorAggregate
         }
 
         if (0 === $offset) {
-            $header = $this->removeBOM($header, mb_strlen($this->getInputBOM()), $this->enclosure);
+            return $this->removeBOM($header, mb_strlen($this->getInputBOM()), $this->enclosure);
         }
 
         return $header;

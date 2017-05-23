@@ -200,6 +200,8 @@ class ResultSetTest extends TestCase
     /**
      * @covers ::fetchColumn
      * @covers ::getColumnIndex
+     * @covers ::getColumnIndexByValue
+     * @covers ::getColumnIndexByKey
      * @covers ::iteratorToGenerator
      * @covers ::__destruct
      * @covers League\Csv\Exception\RuntimeException
@@ -297,6 +299,8 @@ class ResultSetTest extends TestCase
     /**
      * @covers ::fetchColumn
      * @covers ::getColumnIndex
+     * @covers ::getColumnIndexByValue
+     * @covers ::getColumnIndexByKey
      * @covers League\Csv\MapIterator
      */
     public function testFetchColumnWithColumnname()
@@ -312,6 +316,8 @@ class ResultSetTest extends TestCase
     /**
      * @covers ::fetchColumn
      * @covers ::getColumnIndex
+     * @covers ::getColumnIndexByValue
+     * @covers ::getColumnIndexByKey
      * @covers League\Csv\MapIterator
      */
     public function testFetchColumn()
@@ -324,6 +330,7 @@ class ResultSetTest extends TestCase
      * @covers ::fetchColumn
      * @covers ::iteratorToGenerator
      * @covers ::getColumnIndex
+     * @covers ::getColumnIndexByKey
      * @covers League\Csv\MapIterator
      */
     public function testFetchColumnInconsistentColumnCSV()
@@ -345,6 +352,7 @@ class ResultSetTest extends TestCase
     /**
      * @covers ::fetchColumn
      * @covers ::getColumnIndex
+     * @covers ::getColumnIndexByKey
      * @covers League\Csv\MapIterator
      */
     public function testFetchColumnEmptyCol()
