@@ -15,8 +15,10 @@ class Reader extends AbstractCsv implements IteratorAggregate
     public function getHeaderOffset(): int|null
     public function getIterator(): Iterator
     public function getRecords(): Iterator
-    public function setHeaderOffset(?int $offset): self
+    public function getRecordPaddingValue(): mixed
     public function select(Statement $stmt): ResultSet
+    public function setHeaderOffset(?int $offset): self
+    public function setRecordPaddingValue(mixed $padding_value): self
     public function supportsHeaderAsRecordKeys(): bool
 }
 ~~~
@@ -31,6 +33,7 @@ Many examples in this reference require an CSV file. We will use the following f
     john,doe,john.doe@example.com
     jane,doe,jane.doe@example.com
     john,john,john.john@example.com
+    jane,jane
 
 ## Detecting the delimiter character
 
@@ -128,6 +131,8 @@ $header = $csv->getHeader(); //triggers a Exception
 public Reader::getIterator(void): Iterator
 public Reader::getRecords(void): Iterator
 public Reader::supportsHeaderAsRecordKeys(): bool
+public Reader::getRecordPaddingValue(): mixed
+public Reader::setRecordPaddingValue(mixed $padding_value): self
 ~~~
 
 The `Reader` class let's you access all its records using the `Reader::getRecords` method. The method which accepts no argument, returns an `Iterator` containing all CSV document records. It will also:
@@ -164,8 +169,8 @@ If a header offset was specified using the `setHeaderOffset` method
     - combined to each CSV record to return an associated array whose keys are composed of the header values.
     - removed from the returned iterator.
 - The returned records are normalized to the number of fields contained in the header record
-    - Missing fields are added with `null` content.
     - Extra fields are truncated.
+    - Missing fields are added with a default content specified by the `setRecordPaddingValue` method. By default, if no content is specified `null` will be used. You can retrieve the padding value using the `getRecordPaddingValue` method.
 
 ~~~php
 <?php
@@ -174,14 +179,15 @@ use League\Csv\Reader;
 
 $reader = Reader::createFromPath('/path/to/my/file.csv');
 $reader->setHeaderOffset(0);
+$reader->setRecordPaddingValue('')
 $records = $reader->getRecords();
 foreach ($records as $offset => $record) {
     //$offset : represents the record offset
     //var_export($record) returns something like
     // array(
-    //  'Fist Name' => 'john',
-    //  'Last Name' => 'doe',
-    //  'E-mail' => john.doe@example.com'
+    //  'Fist Name' => 'jane',
+    //  'Last Name' => 'jane',
+    //  'E-mail' => ''
     // );
     //
 }

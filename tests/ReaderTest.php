@@ -44,7 +44,6 @@ class ReaderTest extends TestCase
      * @covers ::getRecords
      * @covers ::supportsHeaderAsRecordKeys
      * @covers ::combineHeader
-     * @covers League\Csv\MapIterator
      */
     public function testGetIterator()
     {
@@ -65,8 +64,23 @@ class ReaderTest extends TestCase
     }
 
     /**
+     * @covers ::getRecordPaddingValue
+     * @covers ::setRecordPaddingValue
+     */
+    public function testRecordPaddingValue()
+    {
+        $this->assertNull($this->csv->getRecordPaddingValue());
+        $this->csv->setRecordPaddingValue('toto');
+        $this->assertSame('toto', $this->csv->getRecordPaddingValue());
+        $this->csv->setHeaderOffset(0);
+        foreach ($this->csv as $record) {
+            $this->assertCount(4, $record);
+            $this->assertContains('toto', $record);
+        }
+    }
+
+    /**
      * @covers ::combineHeader
-     * @covers League\Csv\MapIterator
      */
     public function testCombineHeader()
     {
@@ -163,6 +177,7 @@ class ReaderTest extends TestCase
     /**
      * @covers ::stripBOM
      * @covers ::removeBOM
+     * @covers ::combineHeader
      * @covers League\Csv\StreamIterator
      * @dataProvider validBOMSequences
      * @param array  $record
@@ -207,6 +222,7 @@ class ReaderTest extends TestCase
     /**
      * @covers ::stripBOM
      * @covers ::removeBOM
+     * @covers ::combineHeader
      * @covers League\Csv\StreamIterator
      */
     public function testStripBOMWithEnclosure()
@@ -224,6 +240,7 @@ class ReaderTest extends TestCase
     /**
      * @covers ::stripBOM
      * @covers ::removeBOM
+     * @covers ::combineHeader
      * @covers League\Csv\StreamIterator
      */
     public function testStripNoBOM()

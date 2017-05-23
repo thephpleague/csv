@@ -57,6 +57,13 @@ class Reader extends AbstractCsv implements IteratorAggregate
     protected $is_header_loaded = false;
 
     /**
+     * The value to pad if the record is less than header size.
+     *
+     * @var mixed
+     */
+    protected $record_padding_value;
+
+    /**
      * Returns the record offset used as header
      *
      * If no CSV record is used this method MUST return null
@@ -66,6 +73,103 @@ class Reader extends AbstractCsv implements IteratorAggregate
     public function getHeaderOffset()
     {
         return $this->header_offset;
+    }
+
+    /**
+     * Returns wether the selected header can be combine to each record
+     *
+     * A valid header must be empty or contains unique string field names
+     *
+     * @return bool
+     */
+    public function supportsHeaderAsRecordKeys(): bool
+    {
+        $header = $this->getHeader();
+
+        return empty($header) || $header === array_unique(array_filter($header, 'is_string'));
+    }
+
+    /**
+     * Returns the CSV record header
+     *
+     * The returned header is represented as an array of string values
+     *
+     * @return string[]
+     */
+    public function getHeader(): array
+    {
+        if ($this->is_header_loaded) {
+            return $this->header;
+        }
+
+        $this->is_header_loaded = true;
+        $this->header = [];
+        if (null !== $this->header_offset) {
+            $this->header = $this->setHeader($this->header_offset);
+        }
+
+        return $this->header;
+    }
+
+    /**
+     * Determine the CSV record header
+     *
+     * @param int $offset
+     *
+     * @throws RuntimeException If the header offset is an integer
+     *                          and the corresponding record is missing
+     *                          or is an empty array
+     *
+     * @return string[]
+     */
+    protected function setHeader(int $offset): array
+    {
+        $this->document->setFlags(SplFileObject::READ_CSV | SplFileObject::READ_AHEAD | SplFileObject::SKIP_EMPTY);
+        $this->document->setCsvControl($this->delimiter, $this->enclosure, $this->escape);
+        $this->document->seek($offset);
+        $header = $this->document->current();
+        if (empty($header)) {
+            throw new RuntimeException(sprintf('The header record does not exist or is empty at offset: `%s`', $offset));
+        }
+
+        if (0 === $offset) {
+            $header = $this->removeBOM($header, mb_strlen($this->getInputBOM()), $this->enclosure);
+        }
+
+        return $header;
+    }
+
+    /**
+     * Strip the BOM sequence from a record
+     *
+     * @param string[] $record
+     * @param int      $bom_length
+     * @param string   $enclosure
+     *
+     * @return string[]
+     */
+    protected function removeBOM(array $record, int $bom_length, string $enclosure): array
+    {
+        if (0 == $bom_length) {
+            return $record;
+        }
+
+        $record[0] = mb_substr($record[0], $bom_length);
+        if ($enclosure == mb_substr($record[0], 0, 1) && $enclosure == mb_substr($record[0], -1, 1)) {
+            $record[0] = mb_substr($record[0], 1, -1);
+        }
+
+        return $record;
+    }
+
+    /**
+     * Returns the record padding value
+     *
+     * @return mixed
+     */
+    public function getRecordPaddingValue()
+    {
+        return $this->record_padding_value;
     }
 
     /**
@@ -166,78 +270,11 @@ class Reader extends AbstractCsv implements IteratorAggregate
         $normalized = function ($record): bool {
             return is_array($record) && $record != [null];
         };
-
         $bom = $this->getInputBOM();
         $this->document->setFlags(SplFileObject::READ_CSV | SplFileObject::READ_AHEAD | SplFileObject::SKIP_EMPTY);
         $this->document->setCsvControl($this->delimiter, $this->enclosure, $this->escape);
 
-        return $this->combineHeader(
-            $this->stripBOM(new CallbackFilterIterator($this->document, $normalized), $bom)
-        );
-    }
-
-    /**
-     * Returns wether the selected header can be combine to each record
-     *
-     * A valid header must be empty or contains unique string field names
-     *
-     * @return bool
-     */
-    public function supportsHeaderAsRecordKeys(): bool
-    {
-        $header = $this->getHeader();
-
-        return empty($header) || $header === array_unique(array_filter($header, 'is_string'));
-    }
-
-    /**
-     * Returns the CSV record header
-     *
-     * The returned header is represented as an array of string values
-     *
-     * @return string[]
-     */
-    public function getHeader(): array
-    {
-        if ($this->is_header_loaded) {
-            return $this->header;
-        }
-
-        $this->is_header_loaded = true;
-        $this->header = [];
-        if (null !== $this->header_offset) {
-            $this->header = $this->setHeader($this->header_offset);
-        }
-
-        return $this->header;
-    }
-
-    /**
-     * Determine the CSV record header
-     *
-     * @param int $offset
-     *
-     * @throws RuntimeException If the header offset is an integer
-     *                          and the corresponding record is missing
-     *                          or is an empty array
-     *
-     * @return string[]
-     */
-    protected function setHeader(int $offset): array
-    {
-        $this->document->setFlags(SplFileObject::READ_CSV | SplFileObject::READ_AHEAD | SplFileObject::SKIP_EMPTY);
-        $this->document->setCsvControl($this->delimiter, $this->enclosure, $this->escape);
-        $this->document->seek($offset);
-        $header = $this->document->current();
-        if (empty($header)) {
-            throw new RuntimeException(sprintf('The header record does not exist or is empty at offset: `%s`', $offset));
-        }
-
-        if (0 === $offset) {
-            $header = $this->removeBOM($header, mb_strlen($this->getInputBOM()), $this->enclosure);
-        }
-
-        return $header;
+        return $this->combineHeader($this->stripBOM(new CallbackFilterIterator($this->document, $normalized), $bom));
     }
 
     /**
@@ -258,10 +295,10 @@ class Reader extends AbstractCsv implements IteratorAggregate
         });
 
         $header = $this->getHeader();
-        $header_field_count = count($header);
-        $mapper = function (array $record) use ($header_field_count, $header): array {
-            if ($header_field_count != count($record)) {
-                $record = array_slice(array_pad($record, $header_field_count, null), 0, $header_field_count);
+        $field_count = count($header);
+        $mapper = function (array $record) use ($header, $field_count): array {
+            if (count($record) != $field_count) {
+                $record = array_slice(array_pad($record, $field_count, $this->record_padding_value), 0, $field_count);
             }
 
             return array_combine($header, $record);
@@ -296,28 +333,6 @@ class Reader extends AbstractCsv implements IteratorAggregate
         return new MapIterator($iterator, $mapper);
     }
 
-    /**
-     * Strip the BOM sequence from a record
-     *
-     * @param string[] $record
-     * @param int      $bom_length
-     * @param string   $enclosure
-     *
-     * @return string[]
-     */
-    protected function removeBOM(array $record, int $bom_length, string $enclosure): array
-    {
-        if (0 == $bom_length) {
-            return $record;
-        }
-
-        $record[0] = mb_substr($record[0], $bom_length);
-        if ($enclosure == mb_substr($record[0], 0, 1) && $enclosure == mb_substr($record[0], -1, 1)) {
-            $record[0] = mb_substr($record[0], 1, -1);
-        }
-
-        return $record;
-    }
 
     /**
      * Selects the record to be used as the CSV header
@@ -339,6 +354,20 @@ class Reader extends AbstractCsv implements IteratorAggregate
             $this->header_offset = $offset;
             $this->resetProperties();
         }
+
+        return $this;
+    }
+
+    /**
+     * Set the record padding value
+     *
+     * @param mixed $record_padding_value
+     *
+     * @return static
+     */
+    public function setRecordPaddingValue($record_padding_value): self
+    {
+        $this->record_padding_value = $record_padding_value;
 
         return $this;
     }
