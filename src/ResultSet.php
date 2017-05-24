@@ -153,11 +153,15 @@ class ResultSet implements Countable, IteratorAggregate
      */
     public function fetchOne(int $offset = 0): array
     {
-        $offset = $this->filterMinRange($offset, 0, 'The submitted offset must be a positive integer or 0');
-        $it = new LimitIterator($this->iterator, $offset, 1);
-        $it->rewind();
+        $iterator = new LimitIterator(
+            $this->iterator,
+            $this->filterMinRange($offset, 0, 'The submitted offset must be a positive integer or 0'),
+            1
+        );
 
-        return (array) $it->current();
+        $iterator->rewind();
+
+        return (array) $iterator->current();
     }
 
     /**
@@ -225,16 +229,16 @@ class ResultSet implements Countable, IteratorAggregate
     /**
      * Returns the selected column name according to its offset
      *
-     * @param int    $offset
+     * @param int    $index
      * @param string $error_message
      *
      * @throws RuntimeException if the field is invalid or not found
      *
      * @return int|string
      */
-    protected function getColumnIndexByKey(int $offset, string $error_message)
+    protected function getColumnIndexByKey(int $index, string $error_message)
     {
-        $offset = $this->filterMinRange($offset, 0, $error_message);
+        $offset = $this->filterMinRange($index, 0, $error_message);
         if (empty($this->column_names)) {
             return $offset;
         }

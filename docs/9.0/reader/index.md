@@ -170,7 +170,10 @@ If a header offset was specified using the `setHeaderOffset` method
     - removed from the returned iterator.
 - The returned records are normalized to the number of fields contained in the header record
     - Extra fields are truncated.
-    - Missing fields are added with a default content specified by the `setRecordPaddingValue` method. By default, if no content is specified `null` will be used. You can retrieve the padding value using the `getRecordPaddingValue` method.
+    - Missing fields are added with a default content.
+
+The default padding value can be defined using the `setRecordPaddingValue` method. By default, if no content is specified `null` will be used.  
+You can retrieve the padding value using the `getRecordPaddingValue` method.
 
 ~~~php
 <?php
@@ -191,6 +194,7 @@ foreach ($records as $offset => $record) {
     // );
     //
 }
+$reader->getRecordPaddingValue(); //returns 'toto'
 ~~~
 
 <p class="message-warning">If the header record contains non unique values, a <code>RuntimeException</code> exception is triggered </p>

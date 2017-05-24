@@ -2,11 +2,12 @@
 
 namespace LeagueTest\Csv;
 
-use League\Csv\Exception\InvalidArgumentException;
+use League\Csv\Exception\RuntimeException;
 use League\Csv\StreamIterator;
 use LogicException;
 use PHPUnit\Framework\TestCase;
 use SplFileObject;
+use TypeError;
 
 /**
  * @group csv
@@ -28,7 +29,7 @@ class StreamIteratorTest extends TestCase
      */
     public function testCreateStreamWithInvalidParameter()
     {
-        $this->expectException(InvalidArgumentException::class);
+        $this->expectException(TypeError::class);
         new StreamIterator(__DIR__.'/data/foo.csv');
     }
 
@@ -37,7 +38,7 @@ class StreamIteratorTest extends TestCase
      */
     public function testCreateStreamWithNonSeekableStream()
     {
-        $this->expectException(InvalidArgumentException::class);
+        $this->expectException(RuntimeException::class);
         new StreamIterator(fopen('php://stdin', 'r'));
     }
 
@@ -46,7 +47,7 @@ class StreamIteratorTest extends TestCase
      */
     public function testCreateStreamWithWrongResourceType()
     {
-        $this->expectException(InvalidArgumentException::class);
+        $this->expectException(TypeError::class);
         new StreamIterator(curl_init());
     }
 

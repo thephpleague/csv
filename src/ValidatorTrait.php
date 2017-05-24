@@ -17,6 +17,7 @@ namespace League\Csv;
 use League\Csv\Exception\InvalidArgumentException;
 use League\Csv\Exception\OutOfRangeException;
 use Traversable;
+use TypeError;
 
 /**
  *  A trait to validate properties
@@ -53,7 +54,7 @@ trait ValidatorTrait
      *
      * @param array|Traversable $iterable
      *
-     * @throws InvalidArgumentException If the submitted value is not iterable
+     * @throws TypeError If the submitted value is not iterable
      *
      * @return array|Traversable
      */
@@ -63,7 +64,7 @@ trait ValidatorTrait
             return $iterable;
         }
 
-        throw new InvalidArgumentException(sprintf('Argument passed must be iterable, %s given', is_object($iterable) ? get_class($iterable) : gettype($iterable)));
+        throw new TypeError(sprintf('Argument passed must be iterable, %s given', gettype($iterable)));
     }
 
     /**

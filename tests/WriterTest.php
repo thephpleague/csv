@@ -4,7 +4,6 @@ namespace LeagueTest\Csv;
 
 use ArrayIterator;
 use League\Csv\Exception\InsertionException;
-use League\Csv\Exception\InvalidArgumentException;
 use League\Csv\Exception\OutOfRangeException;
 use League\Csv\Writer;
 use PHPUnit\Framework\TestCase;
@@ -12,6 +11,7 @@ use SplFileObject;
 use SplTempFileObject;
 use stdClass;
 use Traversable;
+use TypeError;
 
 /**
  * @group writer
@@ -110,7 +110,7 @@ class WriterTest extends TestCase
      */
     public function testFailedSaveWithWrongType()
     {
-        $this->expectException(InvalidArgumentException::class);
+        $this->expectException(TypeError::class);
         $this->csv->insertAll(new stdClass());
     }
 

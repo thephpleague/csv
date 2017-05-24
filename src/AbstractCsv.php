@@ -321,9 +321,9 @@ abstract class AbstractCsv implements ByteSequence
      */
     public function setDelimiter(string $delimiter): self
     {
-        $delimiter = $this->filterControl($delimiter, 'delimiter');
-        if ($delimiter != $this->delimiter) {
-            $this->delimiter = $delimiter;
+        $char = $this->filterControl($delimiter, 'delimiter');
+        if ($char != $this->delimiter) {
+            $this->delimiter = $char;
             $this->resetProperties();
         }
 
@@ -346,9 +346,9 @@ abstract class AbstractCsv implements ByteSequence
      */
     public function setEnclosure(string $enclosure): self
     {
-        $enclosure = $this->filterControl($enclosure, 'enclosure');
-        if ($enclosure != $this->enclosure) {
-            $this->enclosure = $enclosure;
+        $char = $this->filterControl($enclosure, 'enclosure');
+        if ($char != $this->enclosure) {
+            $this->enclosure = $char;
             $this->resetProperties();
         }
 
@@ -364,9 +364,9 @@ abstract class AbstractCsv implements ByteSequence
      */
     public function setEscape(string $escape): self
     {
-        $escape = $this->filterControl($escape, 'escape');
-        if ($escape != $this->escape) {
-            $this->escape = $escape;
+        $char = $this->filterControl($escape, 'escape');
+        if ($char != $this->escape) {
+            $this->escape = $char;
             $this->resetProperties();
         }
 

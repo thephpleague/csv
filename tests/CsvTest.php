@@ -10,6 +10,7 @@ use League\Csv\Writer;
 use LogicException;
 use PHPUnit\Framework\TestCase;
 use SplTempFileObject;
+use TypeError;
 
 /**
  * @group csv
@@ -73,7 +74,7 @@ class CsvTest extends TestCase
      */
     public function testCreateFromStreamWithInvalidParameter()
     {
-        $this->expectException(InvalidArgumentException::class);
+        $this->expectException(TypeError::class);
         $path = __DIR__.'/data/foo.csv';
         Reader::createFromStream($path);
     }
@@ -265,11 +266,11 @@ class CsvTest extends TestCase
      * @covers ::supportsStreamFilter
      * @covers ::addStreamFilter
      * @covers League\Csv\StreamIterator::appendFilter
-     * @covers League\Csv\Exception\InvalidArgumentException
+     * @covers League\Csv\Exception\RuntimeException
      */
     public function testFailedAddStreamFilterWithWrongFilter()
     {
-        $this->expectException(InvalidArgumentException::class);
+        $this->expectException(RuntimeException::class);
         $csv = Writer::createFromStream(tmpfile());
         $csv->addStreamFilter('foobar.toupper');
     }

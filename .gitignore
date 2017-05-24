@@ -3,3 +3,4 @@ build
 composer.lock
 docs/_site
 vendor
+/nbproject/private/

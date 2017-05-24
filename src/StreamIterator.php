@@ -14,11 +14,11 @@ declare(strict_types=1);
 
 namespace League\Csv;
 
-use League\Csv\Exception\InvalidArgumentException;
 use League\Csv\Exception\LogicException;
 use League\Csv\Exception\RuntimeException;
 use SeekableIterator;
 use SplFileObject;
+use TypeError;
 
 /**
  * An object oriented API for a seekable stream resource.
@@ -100,21 +100,22 @@ class StreamIterator implements SeekableIterator
      * New instance
      *
      *
-     * @param  resource                 $stream stream type resource
-     * @throws InvalidArgumentException if the argument passed is not a seeakable stream resource
+     * @param resource $stream stream type resource
+     *
+     * @throws RuntimeException if the argument passed is not a seeakable stream resource
      */
     public function __construct($stream)
     {
         if (!is_resource($stream)) {
-            throw new InvalidArgumentException(sprintf('Argument passed must be a seekable stream resource, %s given', gettype($stream)));
+            throw new TypeError(sprintf('Argument passed must be a seekable stream resource, %s given', gettype($stream)));
         }
 
         if ('stream' !== ($type = get_resource_type($stream))) {
-            throw new InvalidArgumentException(sprintf('Argument passed must be a seekable stream resource, %s resource given', $type));
+            throw new TypeError(sprintf('Argument passed must be a seekable stream resource, %s resource given', $type));
         }
 
         if (!stream_get_meta_data($stream)['seekable']) {
-            throw new InvalidArgumentException(sprintf('Argument passed must be a seekable stream resource'));
+            throw new RuntimeException('Argument passed must be a seekable stream resource');
         }
 
         $this->stream = $stream;
@@ -334,9 +335,9 @@ class StreamIterator implements SeekableIterator
      */
     public function seek($position)
     {
-        $position = $this->filterMinRange((int) $position, 0, 'Can\'t seek stream to negative line %d');
+        $pos = $this->filterMinRange((int) $position, 0, 'Can\'t seek stream to negative line %d');
         foreach ($this as $key => $value) {
-            if ($key === $position || feof($this->stream)) {
+            if ($key === $pos || feof($this->stream)) {
                 $this->offset--;
                 break;
             }
@@ -426,7 +427,7 @@ class StreamIterator implements SeekableIterator
      * @param int    $read_write
      * @param mixed  $params
      *
-     * @throws InvalidArgumentException if the filter can not be appended
+     * @throws RuntimeException if the filter can not be appended
      *
      * @return resource
      */
@@ -437,7 +438,7 @@ class StreamIterator implements SeekableIterator
             return $res;
         }
 
-        throw new InvalidArgumentException(error_get_last()['message']);
+        throw new RuntimeException(error_get_last()['message']);
     }
 
     /**
