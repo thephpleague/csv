@@ -27,6 +27,14 @@ use SplFileObject;
  * @package League.csv
  * @since  3.0.0
  *
+ * @method int count()
+ * @method array fetchAll()
+ * @method array fetchOne(int $offset = 0)
+ * @method Generator fetchPairs(string|int $offset_index, string|int $value_index)
+ * @method Generator fetchColumn(string|int $column_index)
+ * @method ResultSet preserveRecordOffset(bool $status)
+ * @method bool isRecordOffsetPreserved()
+ * @method array getColumnNames()
  */
 class Reader extends AbstractCsv implements IteratorAggregate
 {
@@ -182,6 +190,14 @@ class Reader extends AbstractCsv implements IteratorAggregate
     public function select(Statement $stmt): ResultSet
     {
         return $stmt->process($this);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function __call($method, array $arguments)
+    {
+        return (new Statement())->process($this)->$method(...$arguments);
     }
 
     /**

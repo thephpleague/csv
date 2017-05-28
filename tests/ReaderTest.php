@@ -118,6 +118,19 @@ class ReaderTest extends TestCase
     }
 
     /**
+     * @covers ::__call
+     * @covers League\Csv\Statement
+     * @covers League\Csv\ResultSet
+     */
+    public function testCall()
+    {
+        $this->assertEquals(
+            $this->csv->fetchOne(5),
+            $this->csv->select(new Statement())->fetchOne(5)
+        );
+    }
+
+    /**
      * @covers ::fetchDelimitersOccurrence
      * @covers League\Csv\ValidatorTrait
      */
