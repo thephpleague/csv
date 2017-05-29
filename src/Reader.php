@@ -14,6 +14,7 @@ declare(strict_types=1);
 
 namespace League\Csv;
 
+use BadMethodCallException;
 use CallbackFilterIterator;
 use Iterator;
 use IteratorAggregate;
@@ -27,14 +28,10 @@ use SplFileObject;
  * @package League.csv
  * @since  3.0.0
  *
- * @method int count()
- * @method array fetchAll()
- * @method array fetchOne(int $offset = 0)
- * @method Generator fetchPairs(string|int $offset_index, string|int $value_index)
- * @method Generator fetchColumn(string|int $column_index)
- * @method ResultSet preserveRecordOffset(bool $status)
- * @method bool isRecordOffsetPreserved()
- * @method array getColumnNames()
+ * @method array fetchAll() Returns a sequential array of all CSV records
+ * @method array fetchOne(int $offset = 0) Returns a single record from the CSV
+ * @method Generator fetchColumn(string|int $column_index) Returns the next value from a single CSV record field
+ * @method Generator fetchPairs(string|int $offset_index, string|int $value_index) Fetches the next key-value pairs from the CSV document
  */
 class Reader extends AbstractCsv implements IteratorAggregate
 {
@@ -197,7 +194,14 @@ class Reader extends AbstractCsv implements IteratorAggregate
      */
     public function __call($method, array $arguments)
     {
-        return (new Statement())->process($this)->$method(...$arguments);
+        $whitelisted = ['fetchColumn' => 1, 'fetchPairs' => 1, 'fetchOne' => 1, 'fetchAll' => 1];
+        if (isset($whitelisted[$method])) {
+            return (new ResultSet($this->getRecords(), $this->getHeader()))
+                ->$method(...$arguments)
+            ;
+        }
+
+        throw new BadMethodCallException(sprintf('Reader::%s does not exists', $method));
     }
 
     /**
