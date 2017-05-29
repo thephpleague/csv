@@ -10,7 +10,6 @@ title: CSV document Reader connection
 
 class Reader extends AbstractCsv implements IteratorAggregate
 {
-    public function count(): int
     public function fetchAll(): array
     public function fetchColumn(string|int $columnIndex = 0): Generator
     public function fetchDelimitersOccurrence(array $delimiters, int $nb_records = 1): array
@@ -266,8 +265,6 @@ foreach ($reader as $offset => $record) {
 
 ~~~php
 <?php
-
-public Reader::__call(string $method, array $arguments): mixed
 
 public Reader::fetchAll(): array
 public Reader::fetchColumn(string|int $columnIndex = 0): Generator
