@@ -2,6 +2,7 @@
 
 namespace LeagueTest\Csv;
 
+use BadMethodCallException;
 use League\Csv\Exception\OutOfRangeException;
 use League\Csv\Exception\RuntimeException;
 use League\Csv\Reader;
@@ -115,6 +116,53 @@ class ReaderTest extends TestCase
     {
         $stmt = new Statement();
         $this->assertEquals($stmt->process($this->csv), $this->csv->select($stmt));
+    }
+
+    /**
+     * @covers ::__call
+     */
+    public function testCall()
+    {
+        $raw = [
+            ['firstname', 'lastname'],
+            ['john', 'doe'],
+            ['lara', 'croft'],
+            ['bruce', 'wayne'],
+            ['clarck', 'kent'],
+        ];
+
+        $file = new SplTempFileObject();
+        foreach ($raw as $row) {
+            $file->fputcsv($row);
+        }
+        $csv = Reader::createFromFileObject($file);
+        $csv->setHeaderOffset(0);
+
+        $res = (new Statement())->process($csv);
+        $this->assertEquals($csv->fetchOne(3), $res->fetchOne(3));
+        $this->assertEquals($csv->fetchAll(), $res->fetchAll());
+        $this->assertEquals($csv->fetchColumn('firstname'), $res->fetchColumn('firstname'));
+        $this->assertEquals($csv->fetchPairs('lastname', 0), $res->fetchPairs('lastname', 0));
+    }
+
+    /**
+     * @covers ::__call
+     *
+     * @param strign $method
+     * @dataProvider invalidMethodCallMethodProvider
+     */
+    public function testCallThrowsException($method)
+    {
+        $this->expectException(BadMethodCallException::class);
+        $this->csv->$method();
+    }
+
+    public function invalidMethodCallMethodProvider()
+    {
+        return [
+            'unknown method' => ['foo'],
+            'ResultSet method not whitelisted' => ['count'],
+        ];
     }
 
     /**

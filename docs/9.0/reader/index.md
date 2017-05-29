@@ -10,7 +10,11 @@ title: CSV document Reader connection
 
 class Reader extends AbstractCsv implements IteratorAggregate
 {
+    public function fetchAll(): array
+    public function fetchColumn(string|int $columnIndex = 0): Generator
     public function fetchDelimitersOccurrence(array $delimiters, int $nb_records = 1): array
+    public function fetchOne(int $offset = 0): array
+    public function fetchPairs(string|int $offsetIndex = 0, string|int $valueIndex = 1): Generator
     public function getHeader(): array
     public function getHeaderOffset(): int|null
     public function getIterator(): Iterator
@@ -257,7 +261,37 @@ foreach ($reader as $offset => $record) {
 
 ## Selecting CSV records
 
-### Description
+### Simple Usage
+
+~~~php
+<?php
+
+public Reader::fetchAll(): array
+public Reader::fetchColumn(string|int $columnIndex = 0): Generator
+public Reader::fetchOne(int $offset = 0): array
+public Reader::fetchPairs(string|int $offsetIndex = 0, string|int $valueIndex = 1): Generator
+~~~
+
+Using method overloading, you can directly access all retrieving methods attached to the [ResultSet](/9.0/reader/resultset) object.
+
+#### Example
+
+~~~php
+<?php
+
+use League\Csv\Reader;
+
+$reader = Reader::createFromPath('/path/to/my/file.csv');
+
+$records = $reader->fetchColumn(2);
+//$records is a Generator representing all the fields of the CSV 3rd column
+~~~
+
+<p class="message-notice">The original record offset <strong>is not preserved</strong>.</p>
+
+<p class="message-warning">If the method called does not exists on <code>Reader</code> and <code>ResultSet</code> object an <code>Error</code> will be thrown.</p>
+
+### Advanced Usage
 
 ~~~php
 <?php
@@ -267,7 +301,7 @@ public Reader::select(Statement $stmt): ResultSet
 
 If you require a more advance record selection, you may use the `Reader::select` method. This method uses a [Statement](/9.0/reader/statement/) object to process the `Reader` object. The found records are returned as a [ResultSet](/9.0/reader/resultset) object.
 
-### Example
+#### Example
 
 ~~~php
 <?php
@@ -280,6 +314,7 @@ $stmt = (new Statement())
     ->offset(3)
     ->limit(5)
 ;
+
 $records = $reader->select($stmt);
 //$records is a League\Csv\ResultSet object
 ~~~
