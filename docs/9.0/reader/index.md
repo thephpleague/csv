@@ -289,8 +289,6 @@ $records = $reader->fetchColumn(2);
 
 <p class="message-notice">The original record offset <strong>is not preserved</strong>.</p>
 
-<p class="message-warning">If the method called does not exists on <code>Reader</code> and <code>ResultSet</code> object an <code>Error</code> will be thrown.</p>
-
 ### Advanced Usage
 
 ~~~php

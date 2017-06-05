@@ -15,6 +15,16 @@ use TypeError;
  */
 class StreamIteratorTest extends TestCase
 {
+    public function setUp()
+    {
+        stream_wrapper_register(StreamWrapper::PROTOCOL, StreamWrapper::class);
+    }
+
+    public function tearDown()
+    {
+        stream_wrapper_unregister(StreamWrapper::PROTOCOL);
+    }
+
     /**
      * @covers ::__clone
      */
@@ -68,6 +78,34 @@ class StreamIteratorTest extends TestCase
         }
 
         $stream = new StreamIterator($fp);
+        $stream->setFlags(SplFileObject::READ_AHEAD);
+        $stream->rewind();
+        $stream->current();
+        $this->assertInternalType('string', $stream->fgets());
+    }
+
+    /**
+     * @covers ::createFromPath
+     * @covers ::fgets
+     * @covers ::current
+     */
+    public function testCreateStreamFromPathWithContext()
+    {
+        $fp = fopen('php://temp', 'r+');
+        $expected = [
+            ['john', 'doe', 'john.doe@example.com'],
+            ['john', 'doe', 'john.doe@example.com'],
+        ];
+
+        foreach ($expected as $row) {
+            fputcsv($fp, $row);
+        }
+
+        $stream = StreamIterator::createFromPath(
+            StreamWrapper::PROTOCOL.'://stream',
+            'r+',
+            stream_context_create([StreamWrapper::PROTOCOL => ['stream' => $fp]])
+        );
         $stream->setFlags(SplFileObject::READ_AHEAD);
         $stream->rewind();
         $stream->current();

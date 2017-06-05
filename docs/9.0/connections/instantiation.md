@@ -32,7 +32,11 @@ $writer = Writer::createFromString('john,doe,john.doe@example.com');
 ~~~php
 <?php
 
-public static AbstractCsv::createFromPath(string $path, string $open_mode = 'r+'): self
+public static AbstractCsv::createFromPath(
+	string $path,
+	string $open_mode = 'r+',
+	resource $context = null
+): self
 ~~~
 
 Creates a new object *à la* `fopen`.

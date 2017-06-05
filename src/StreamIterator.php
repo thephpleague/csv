@@ -136,16 +136,22 @@ class StreamIterator implements SeekableIterator
     /**
      * Return a new instance from a file path
      *
-     * @param string $path      file path
-     * @param string $open_mode the file open mode flag
+     * @param string        $path      file path
+     * @param string        $open_mode the file open mode flag
+     * @param resource|null $context   the resource context
      *
      * @throws RuntimeException if the stream resource can not be created
      *
      * @return static
      */
-    public static function createFromPath(string $path, string $open_mode = 'r'): self
+    public static function createFromPath(string $path, string $open_mode = 'r', $context = null): self
     {
-        if (!$stream = @fopen($path, $open_mode)) {
+        $args = [$path, $open_mode, false];
+        if (null !== $context) {
+            $args[] = $context;
+        }
+
+        if (!$stream = @fopen(...$args)) {
             throw new RuntimeException(error_get_last()['message']);
         }
 
