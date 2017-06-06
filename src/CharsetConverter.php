@@ -182,7 +182,7 @@ class CharsetConverter extends php_user_filter
      */
     public function convert($records): Iterator
     {
-        $records = $this->filterIterable($records);
+        $records = $this->filterIterable($records, __METHOD__);
         if (is_array($records)) {
             $records = new ArrayIterator($records);
         }

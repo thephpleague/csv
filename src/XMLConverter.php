@@ -95,7 +95,7 @@ class XMLConverter
         $record_encoder = $this->encoder['record']['' !== $this->offset_attr];
         $doc = new DOMDocument('1.0');
         $root = $doc->createElement($this->root_name);
-        foreach ($this->filterIterable($records) as $offset => $record) {
+        foreach ($this->filterIterable($records, __METHOD__) as $offset => $record) {
             $node = $this->{$record_encoder}($doc, $record, $field_encoder, $offset);
             $root->appendChild($node);
         }

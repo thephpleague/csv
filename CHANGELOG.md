@@ -8,7 +8,6 @@ All Notable changes to `Csv` will be documented in this file
 
 - Improved CSV Records selection
     - `League\Csv\Reader::getRecords` to access all CSV records
-    - `League\Csv\Reader::select` to enable CSV records selection
     - `League\Csv\Statement` provides a constraint builder to select CSV records.
     - `League\Csv\ResultSet` represents the result set of the selected CSV records.
 - Improved CSV document header selection.

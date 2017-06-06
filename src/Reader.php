@@ -178,18 +178,6 @@ class Reader extends AbstractCsv implements IteratorAggregate
     }
 
     /**
-     * Returns a CSV records collection
-     *
-     * @param Statement $stmt
-     *
-     * @return ResultSet
-     */
-    public function select(Statement $stmt): ResultSet
-    {
-        return $stmt->process($this);
-    }
-
-    /**
      * @inheritdoc
      */
     public function __call($method, array $arguments)
@@ -201,7 +189,7 @@ class Reader extends AbstractCsv implements IteratorAggregate
             ;
         }
 
-        throw new BadMethodCallException(sprintf('Reader::%s does not exists', $method));
+        throw new BadMethodCallException(sprintf('Reader::%s does not exist', $method));
     }
 
     /**
@@ -221,7 +209,7 @@ class Reader extends AbstractCsv implements IteratorAggregate
             return 1 == strlen($value);
         };
 
-        $nb_records = $this->filterMinRange($nb_records, 1, 'The number of records to consider must be a valid positive integer');
+        $nb_records = $this->filterMinRange($nb_records, 1, __METHOD__.'() expects the number of records to consider to be a valid positive integer, %s given');
         $delimiters = array_unique(array_filter($delimiters, $filter));
         $reducer = function (array $res, string $delimiter) use ($nb_records): array {
             $res[$delimiter] = $this->getCellCount($delimiter, $nb_records);
@@ -367,7 +355,7 @@ class Reader extends AbstractCsv implements IteratorAggregate
     public function setHeaderOffset($offset): self
     {
         if (null !== $offset) {
-            $offset = $this->filterMinRange($offset, 0, 'The header offset index must be a positive integer or 0');
+            $offset = $this->filterMinRange($offset, 0, __METHOD__.'() expects the header offset index to be a positive integer or 0, %s given');
         }
 
         if ($offset !== $this->header_offset) {

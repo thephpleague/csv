@@ -155,7 +155,7 @@ class ResultSet implements Countable, IteratorAggregate
     {
         $iterator = new LimitIterator(
             $this->iterator,
-            $this->filterMinRange($offset, 0, 'The submitted offset must be a positive integer or 0'),
+            $this->filterMinRange($offset, 0, __METHOD__.'() expects the submitted offset to be a positive integer or 0, %s given'),
             1
         );
 
@@ -175,7 +175,7 @@ class ResultSet implements Countable, IteratorAggregate
      */
     public function fetchColumn($index = 0): Generator
     {
-        $offset = $this->getColumnIndex($index, 'The column index `%s` is invalid or does not exist');
+        $offset = $this->getColumnIndex($index, __METHOD__.'() expects the column index to be a valid string or integer, `%s` given');
         $filter = function (array $record) use ($offset): bool {
             return isset($record[$offset]);
         };
@@ -266,8 +266,8 @@ class ResultSet implements Countable, IteratorAggregate
      */
     public function fetchPairs($offset_index = 0, $value_index = 1): Generator
     {
-        $offset = $this->getColumnIndex($offset_index, 'The offset index value  `%s` is invalid');
-        $value = $this->getColumnIndex($value_index, 'The value index value `%s` is invalid');
+        $offset = $this->getColumnIndex($offset_index, __METHOD__.'() expects the offset index value to be a valid string or integer, `%s` given');
+        $value = $this->getColumnIndex($value_index, __METHOD__.'() expects the value index value to be a valid string or integer, `%s` given');
 
         $filter = function (array $record) use ($offset): bool {
             return isset($record[$offset]);

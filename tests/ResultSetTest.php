@@ -92,6 +92,7 @@ class ResultSetTest extends TestCase
 
     /**
      * @covers League\Csv\Statement::offset
+     * @covers ::__construct
      */
     public function testSetOffset()
     {

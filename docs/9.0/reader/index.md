@@ -20,7 +20,6 @@ class Reader extends AbstractCsv implements IteratorAggregate
     public function getIterator(): Iterator
     public function getRecords(): Iterator
     public function getRecordPaddingValue(): mixed
-    public function select(Statement $stmt): ResultSet
     public function setHeaderOffset(?int $offset): self
     public function setRecordPaddingValue(mixed $padding_value): self
     public function supportsHeaderAsRecordKeys(): bool
@@ -236,7 +235,7 @@ $reader->supportsHeaderAsRecordKeys(); //return false;
 $reader->getRecords(); //throws a RuntimeException
 ~~~
 
-### Improving iteration
+### Iteration simplified
 
 Because the `Reader` class implements the `IteratorAggregate` interface you can directly iterate over each record using the `foreach` construct and an instantiated `Reader` object. You will get the same results as if you had called `Reader::getRecords`.
 
@@ -291,13 +290,7 @@ $records = $reader->fetchColumn(2);
 
 ### Advanced Usage
 
-~~~php
-<?php
-
-public Reader::select(Statement $stmt): ResultSet
-~~~
-
-If you require a more advance record selection, you may use the `Reader::select` method. This method uses a [Statement](/9.0/reader/statement/) object to process the `Reader` object. The found records are returned as a [ResultSet](/9.0/reader/resultset) object.
+If you require a more advance record selection **or want to preserve the original record offset**, you should use a [Statement](/9.0/reader/statement/) object to process the `Reader` object. The found records are returned as a [ResultSet](/9.0/reader/resultset) object.
 
 #### Example
 
@@ -313,8 +306,6 @@ $stmt = (new Statement())
     ->limit(5)
 ;
 
-$records = $reader->select($stmt);
+$records = $stmt->process($reader);
 //$records is a League\Csv\ResultSet object
 ~~~
-
-<p class="message-info">This method is equivalent of <a href="/9.0/reader/statement/#apply-the-constraints-to-a-csv-document">Statement::process</a>.</p>

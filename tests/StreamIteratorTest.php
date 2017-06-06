@@ -2,6 +2,7 @@
 
 namespace LeagueTest\Csv;
 
+use League\Csv\Exception\InvalidArgumentException;
 use League\Csv\Exception\RuntimeException;
 use League\Csv\StreamIterator;
 use LogicException;
@@ -110,5 +111,30 @@ class StreamIteratorTest extends TestCase
         $stream->rewind();
         $stream->current();
         $this->assertInternalType('string', $stream->fgets());
+    }
+
+
+    /**
+     * @covers ::fputcsv
+     * @dataProvider fputcsvProvider
+     *
+     * @param string $delimiter
+     * @param string $enclosure
+     * @param string $escape
+     */
+    public function testfputcsv($delimiter, $enclosure, $escape)
+    {
+        $this->expectException(InvalidArgumentException::class);
+        $stream = new StreamIterator(fopen('php://temp', 'r+'));
+        $stream->fputcsv(['john', 'doe', 'john.doe@example.com'], $delimiter, $enclosure, $escape);
+    }
+
+    public function fputcsvProvider()
+    {
+        return [
+            'wrong delimiter' => ['toto', '"', '\\'],
+            'wrong enclosure' => [',', 'é', '\\'],
+            'wrong escape' => [',', '"', 'à'],
+        ];
     }
 }

@@ -44,7 +44,7 @@ class JsonConverter
      */
     public function options(int $options): self
     {
-        $options = $this->filterMinRange($options, 0, 'The options must be a positive integer or 0');
+        $options = $this->filterMinRange($options, 0, __METHOD__.'() expectes the options to be a positive integer or 0, %s given');
         $clone = clone $this;
         $clone->options = $options;
 
@@ -62,7 +62,7 @@ class JsonConverter
      */
     public function convert($records): string
     {
-        $records = $this->filterIterable($records);
+        $records = $this->filterIterable($records, __METHOD__);
         if (!is_array($records)) {
             $records = iterator_to_array($records);
         }

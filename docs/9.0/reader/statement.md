@@ -129,6 +129,3 @@ $stmt = (new Statement())
 
 $records = $stmt->process($reader);
 ~~~
-
-<p class="message-info">This method is equivalent of <a href="/9.0/reader/#selecting-csv-records">Reader::select</a>.</p>
-

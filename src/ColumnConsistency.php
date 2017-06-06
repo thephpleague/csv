@@ -40,7 +40,7 @@ class ColumnConsistency
      */
     public function __construct(int $columns_count = -1)
     {
-        $this->columns_count = $this->filterMinRange($columns_count, -1, 'The column count must be greater or equal to -1');
+        $this->columns_count = $this->filterMinRange($columns_count, -1, __METHOD__.'() expects the column count to be greater or equal to -1 %s given');
     }
 
     /**

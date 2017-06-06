@@ -108,17 +108,6 @@ class ReaderTest extends TestCase
     }
 
     /**
-     * @covers ::select
-     * @covers League\Csv\Statement
-     * @covers League\Csv\ResultSet
-     */
-    public function testSelect()
-    {
-        $stmt = new Statement();
-        $this->assertEquals($stmt->process($this->csv), $this->csv->select($stmt));
-    }
-
-    /**
      * @covers ::__call
      */
     public function testCall()

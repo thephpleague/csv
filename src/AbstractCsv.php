@@ -265,7 +265,7 @@ abstract class AbstractCsv implements ByteSequence
      */
     public function chunk(int $length): Generator
     {
-        $length = $this->filterMinRange($length, 1, 'The length must be a positive integer');
+        $length = $this->filterMinRange($length, 1, __METHOD__.'() expects the length to be a positive integer %s given');
         $input_bom = $this->getInputBOM();
         $this->document->rewind();
         if ($input_bom != $this->output_bom) {
@@ -322,7 +322,7 @@ abstract class AbstractCsv implements ByteSequence
      */
     public function setDelimiter(string $delimiter): self
     {
-        $char = $this->filterControl($delimiter, 'delimiter');
+        $char = $this->filterControl($delimiter, 'delimiter', __METHOD__);
         if ($char != $this->delimiter) {
             $this->delimiter = $char;
             $this->resetProperties();
@@ -347,7 +347,7 @@ abstract class AbstractCsv implements ByteSequence
      */
     public function setEnclosure(string $enclosure): self
     {
-        $char = $this->filterControl($enclosure, 'enclosure');
+        $char = $this->filterControl($enclosure, 'enclosure', __METHOD__);
         if ($char != $this->enclosure) {
             $this->enclosure = $char;
             $this->resetProperties();
@@ -365,7 +365,7 @@ abstract class AbstractCsv implements ByteSequence
      */
     public function setEscape(string $escape): self
     {
-        $char = $this->filterControl($escape, 'escape');
+        $char = $this->filterControl($escape, 'escape', __METHOD__);
         if ($char != $this->escape) {
             $this->escape = $char;
             $this->resetProperties();

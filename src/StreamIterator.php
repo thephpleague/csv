@@ -190,9 +190,9 @@ class StreamIterator implements SeekableIterator
      */
     public function setCsvControl(string $delimiter = ',', string $enclosure = '"', string $escape = '\\')
     {
-        $this->delimiter = $this->filterControl($delimiter, 'delimiter');
-        $this->enclosure = $this->filterControl($enclosure, 'enclosure');
-        $this->escape = $this->filterControl($escape, 'escape');
+        $this->delimiter = $this->filterControl($delimiter, 'delimiter', __METHOD__);
+        $this->enclosure = $this->filterControl($enclosure, 'enclosure', __METHOD__);
+        $this->escape = $this->filterControl($escape, 'escape', __METHOD__);
     }
 
     /**
@@ -221,7 +221,13 @@ class StreamIterator implements SeekableIterator
      */
     public function fputcsv(array $fields, string $delimiter = ',', string $enclosure = '"', string $escape = '\\')
     {
-        return fputcsv($this->stream, $fields, $this->filterControl($delimiter, 'delimiter'), $this->filterControl($enclosure, 'enclosure'), $this->filterControl($escape, 'escape'));
+        return fputcsv(
+            $this->stream,
+            $fields,
+            $this->filterControl($delimiter, 'delimiter', __METHOD__),
+            $this->filterControl($enclosure, 'enclosure', __METHOD__),
+            $this->filterControl($escape, 'escape', __METHOD__)
+        );
     }
 
     /**
@@ -341,7 +347,7 @@ class StreamIterator implements SeekableIterator
      */
     public function seek($position)
     {
-        $pos = $this->filterMinRange((int) $position, 0, 'Can\'t seek stream to negative line %d');
+        $pos = $this->filterMinRange((int) $position, 0, __METHOD__.'() Can\'t seek stream to negative line %d');
         foreach ($this as $key => $value) {
             if ($key === $pos || feof($this->stream)) {
                 $this->offset--;

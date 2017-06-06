@@ -14,7 +14,7 @@ abstract class AbstractCsv implements ByteSequence
     public function addStreamFilter(string $filtername, mixed $params = null): self
     public function chunk(int $length): Generator
     public static function createFromFileObject(SplFileObject $obj): self
-    public static function createFromPath(string $path, string $open_mode = 'r+'): self
+    public static function createFromPath(string $path, string $open_mode = 'r+', resource $context = null): self
     public static function createFromStream(resource $stream): self
     public static function createFromString(string $str): self
     public function hasStreamFilter(string $filtername): bool

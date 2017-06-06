@@ -99,7 +99,7 @@ class Writer extends AbstractCsv
     public function insertAll($records): int
     {
         $bytes = 0;
-        foreach ($this->filterIterable($records) as $record) {
+        foreach ($this->filterIterable($records, __METHOD__) as $record) {
             $bytes += $this->insertOne($record);
         }
 
@@ -236,7 +236,7 @@ class Writer extends AbstractCsv
     public function setFlushThreshold($threshold): self
     {
         if (null !== $threshold) {
-            $threshold = $this->filterMinRange($threshold, 1, 'The flush threshold must be a valid positive integer or null');
+            $threshold = $this->filterMinRange($threshold, 1, __METHOD__.'() expects 1 Argument to be null or a valid integer greater or equal to 1, %s given');
         }
 
         if ($threshold === $this->flush_threshold) {
