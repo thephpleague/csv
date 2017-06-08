@@ -10,7 +10,6 @@ version:
             BOM Sequences: '/9.0/connections/bom/'
             Stream Filters: '/9.0/connections/filters/'
             Document output: '/9.0/connections/output/'
-            Interoperability: '/9.0/connections/interoperability/'
             Exceptions: '/9.0/connections/exceptions/'
         Inserting Records:
             Writer Connection: '/9.0/writer/'
@@ -25,6 +24,8 @@ version:
             Json Converter: '/9.0/converter/json/'
             XML Converter: '/9.0/converter/xml/'
             HTML Converter: '/9.0/converter/html/'
+        Interoperability:
+            Overview : '/9.0/interoperability/'
     '8.0':
         Getting Started:
             Overview: '/8.0/'

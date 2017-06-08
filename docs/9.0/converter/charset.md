@@ -13,11 +13,10 @@ class CharsetConverter extends php_user_filter
     const STREAM_FILTERNAME = 'convert.league.csv';
 
     public function __invoke(array $record): array
+    public static function addTo(AbstractCsv $csv, string $input_encoding, string $output_encoding)
     public function convert(iterable $records): Iterator
-    public static function getFiltername(string $input_encoding, string $output_encoding): string
     public function inputEncoding(string $input_encoding): self
     public function outputEncoding(string $output_encoding): self
-    public static function registerStreamFilter(): bool
 }
 ~~~
 
@@ -96,18 +95,16 @@ $writer->insertOne(["foo", "bébé", "jouet"]);
 ~~~php
 <?php
 
-public static CharsetConverter::registerStreamFilter(): bool
-public static CharsetConverter::getFiltername(string $input_encoding, string $output_encoding): string
+public static CharsetConverter::addTo(AbstractCSV $csv, string $input_encoding, string $output_encoding)
 ~~~
 
-If your CSV object supports PHP stream filters then you can register the `CharsetConverter` class as a PHP stream filter and use the library [stream filtering mechanism](/9.0/connections/filters/) instead.
+If your CSV object supports PHP stream filters then you can use the `CharsetConverter` class as a PHP stream filter and use the library [stream filtering mechanism](/9.0/connections/filters/) instead.
 
-The `CharsetConverter::registerStreamFilter` static method registers the `CharsetConverter` class under the following generic filtername `convert.league.csv.*`.
+The `CharsetConverter::addTo` static method:
 
-<p class="message-info"><code>CharsetConverter::registerStreamFilter</code> should be called once during your script execution time. The best place to call this method is in your bootstrap or configuration files script.</p>
-
-Once registered you can use the CSV object's `addStreamFilter` method to configure the stream filter by supplying the correct `$filtername` parameter.  
-For ease, you can use the `CharsetConverter::getFiltername` method.
+- registers the `CharsetConverter` class under the following generic filtername `convert.league.csv.*` if it is not registered yet.
+- configures the stream filter using the supplied parameters.
+- adds the configured stream filter to the submitted CSV object;
 
 ~~~php
 <?php
@@ -115,13 +112,8 @@ For ease, you can use the `CharsetConverter::getFiltername` method.
 use League\Csv\CharsetConverter;
 use League\Csv\Writer;
 
-CharsetConverter::registrerStreamFilter();
-
-$filtername = CharsetConverter::getFiltername('utf8', 'iso-8859-15');
-echo $filtername; //display 'convert.league.csv.UTF-8/ISO-8859-15';
-
 $writer = Writer::createFromPath('/path/to/your/csv/file.csv');
-$writer->addStreamFilter($filtername);
+CharsetConverter::addTo($writer, 'utf8', 'iso-8859-15');
 
 $writer->insertOne(["foo", "bébé", "jouet"]);
 //all 'utf-8' caracters are now automatically encoded into 'iso-8859-15' charset

@@ -5,44 +5,6 @@ title: Bundled record filters on insertion
 
 # Bundled insertion filters
 
-## Charset Converter
-
-[League\Csv\CharsetConverter](/9.0/converter/charset/) will help you encode your records depending on your settings.
-
-~~~php
-<?php
-
-use League\Csv\CharsetConverter;
-use League\Csv\Writer;
-
-$writer = Writer::createFromPath('/path/to/your/csv/file.csv');
-$formatter = (new CharsetConverter())
-    ->inputEncoding('utf-8')
-    ->outputEncoding('iso-8859-15')
-;
-$writer->addFormatter($formatter);
-$writer->insertOne(["foo", "bébé", "jouet"]);
-//all 'utf-8' caracters are now automatically encoded into 'iso-8859-15' charset
-~~~
-
-If your `Writer` object supports PHP stream filters then it's recommended to use the library [stream filtering mechanism](/9.0/connections/filters/) instead.
-
-~~~php
-<?php
-
-use League\Csv\CharsetConverter;
-use League\Csv\Writer;
-
-CharsetConverter::registerStreamFilter();
-
-$filtername = CharsetConverter::getFiltername('utf-8', 'iso-8859-15');
-$writer = Writer::createFromPath('/path/to/your/csv/file.csv')
-    ->addStreamFilter($filtername)
-;
-$writer->insertOne(["foo", "bébé", "jouet"]);
-//all 'utf-8' caracters are now automatically encoded into 'iso-8859-15' charset
-~~~
-
 ## Column consistency checker
 
 ~~~php
@@ -79,3 +41,66 @@ $writer->insertOne(["foo", "bar"]); //will trigger a InsertionException exceptio
 ~~~
 
 <p class="message-info">The default column count is set to <code>-1</code>.</p>
+
+## Charset Converter
+
+[League\Csv\CharsetConverter](/9.0/converter/charset/) will help you encode your records depending on your settings.
+
+~~~php
+<?php
+
+use League\Csv\CharsetConverter;
+use League\Csv\Writer;
+
+$writer = Writer::createFromPath('/path/to/your/csv/file.csv');
+$formatter = (new CharsetConverter())
+    ->inputEncoding('utf-8')
+    ->outputEncoding('iso-8859-15')
+;
+$writer->addFormatter($formatter);
+$writer->insertOne(["foo", "bébé", "jouet"]);
+//all 'utf-8' caracters are now automatically encoded into 'iso-8859-15' charset
+~~~
+
+If your `Writer` object supports PHP stream filters then it's recommended to use the library [stream filtering mechanism](/9.0/connections/filters/) instead.
+
+~~~php
+<?php
+
+use League\Csv\CharsetConverter;
+use League\Csv\Writer;
+
+$writer = Writer::createFromPath('/path/to/your/csv/file.csv');
+CharsetConverter::addTo($writer, 'utf-8', 'iso-8859-15');
+
+$writer->insertOne(["foo", "bébé", "jouet"]);
+//all 'utf-8' caracters are now automatically encoded into 'iso-8859-15' charset
+~~~
+
+## RFC4180 escape character fix
+
+~~~php
+<?php
+
+public static RFC4180Field::addTo(Writer $csv): void
+~~~
+
+If your CSV object supports PHP stream filters then you can register the `RFC4180Field` class as a PHP stream filter and use the library [stream filtering mechanism](/9.0/connections/filters/) to correct field formatting to comply with [RFC4180](https://tools.ietf.org/html/rfc4180#section-2).
+
+The `RFC4180Field::addTo` static method:
+
+- registers the `RFC4180Field` class under the following generic filtername `rfc4180.league.csv`.
+- adds the stream filter to your current `Writer` object using the object CSV control properties.
+
+~~~php
+<?php
+
+use League\Csv\RFC4180Field;
+use League\Csv\Writer;
+
+$writer = Writer::createFromStream(fopen('php://temp', 'r+'));
+$writer->setNewline("\r\n"); //RFC4180 Line feed
+RFC4180Field::addTo($writer); //adds the stream filter to the Writer object fix escape character usage
+$writer->insertAll($data);
+$writer->output('mycsvfile.csv'); //outputting a RFC4180 compliant CSV Document
+~~~

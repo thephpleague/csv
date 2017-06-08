@@ -5,7 +5,11 @@ title: CSV document interoperability
 
 # Document interoperability
 
-Depending on your operating system and on the software you are using to read/import your CSV you may need to adjust the encoding character and add its corresponding BOM character to your CSV.
+Depending on your operating system and on the software you are using to read/import your CSV you may need to adjust:
+
+- the BOM sequence used
+- the encoding character
+- the escape control character
 
 <p class="message-info">Out of the box, <code>League\Csv</code> connections do not alter the CSV document original encoding.</p>
 
@@ -59,3 +63,48 @@ $writer->output('mycsvfile.csv');
 ~~~
 
 <p class="message-notice">In the examples aboves, we assumed that the <code>iconv</code> extension is present. Alternatively your can use the <a href="/9.0/converter/charset/">League\CharsetConverter</a> class to register your PHP stream filter.</p>
+
+## RFC4180 compliance
+
+To comply to RFC4180 a CSV Document **MUST** use:
+
+- *\r\n* as new line sequence;
+- bug fix default PHP behaviour around the escape character usage.
+
+Using the `RFC4180Field` stream filter when fix PHP's `fputcsv` behaviour to comply to RFC4180.
+
+<p class="message-notice">The <code>Writer</code> must supports stream filter</p>
+
+~~~php
+<?php
+
+use League\Csv\RFC4180Field;
+use League\Csv\Writer;
+
+$writer = Writer::createFromStream(fopen('php://temp', 'r+'));
+$writer->setNewline("\r\n"); //RFC4180 Line feed
+$writer->setOutputBOM(Reader::BOM_UTF16_LE);
+$writer->setDelimiter("\t");
+$writer->addStreamFilter('convert.iconv.ISO-8859-15/UTF-16');
+RFC4180Field::addTo($writer); //adding the stream filter to fix the escape character usage
+$writer->insertAll($origin);
+$writer->output('mycsvfile.csv'); //outputting a RFC4180 compliant CSV Document
+~~~
+
+To read a RFC4180 compliant CSV document, you should set the CSV document enclosure and escape character should have the same value when using the `League\Csv\Reader` object.
+
+~~~php
+<?php
+
+use League\Csv\Reader;
+
+//the current CSV is ISO-8859-15 encoded with a ";" delimiter
+$origin = Reader::createFromPath('/path/to/rfc4180-compliant.csv', 'r');
+$origin->setDelimiter(';');
+$origin->setEnclosure('"');
+$origin->setEscape('"');
+
+foreach ($origin as $record) {
+    //do something meaningful here...
+}
+~~~
