@@ -71,35 +71,32 @@ class CharsetConverterTest extends TestCase
     }
 
     /**
-     * @covers ::registerStreamFilter
-     * @covers ::getFiltername
+     * @covers ::addTo
      * @covers ::onCreate
      * @covers ::filter
      */
     public function testCharsetConverterAsStreamFilter()
     {
-        CharsetConverter::registerStreamFilter();
-        $res = stream_get_filters();
-        $this->assertContains(CharsetConverter::STREAM_FILTERNAME.'.*', $res);
-
         $expected = 'Batman,Superman,Anaïs';
         $raw = mb_convert_encoding($expected, 'iso-8859-15', 'utf-8');
         $csv = Reader::createFromString($raw)
-            ->addStreamFilter('string.toupper')
-            ->addStreamFilter(CharsetConverter::getFiltername('iso-8859-15', 'utf-8'))
-        ;
+            ->addStreamFilter('string.toupper');
+        CharsetConverter::addTo($csv, 'iso-8859-15', 'utf-8');
+
+        $res = stream_get_filters();
+        $this->assertContains(CharsetConverter::STREAM_FILTERNAME.'.*', $res);
+
         $this->assertSame(strtoupper($expected), (string) $csv);
     }
 
     /**
-     * @covers ::registerStreamFilter
      * @covers ::onCreate
      * @covers ::filter
      */
     public function testCharsetConverterAsStreamFilterFailed()
     {
         $this->expectException(RuntimeException::class);
-        CharsetConverter::registerStreamFilter();
+        stream_filter_register(CharsetConverter::STREAM_FILTERNAME.'.*', CharsetConverter::class);
         $expected = 'Batman,Superman,Anaïs';
         $raw = mb_convert_encoding($expected, 'iso-8859-15', 'utf-8');
         $csv = Reader::createFromString($raw)
@@ -111,10 +108,21 @@ class CharsetConverterTest extends TestCase
     /**
      * @covers ::onCreate
      */
-    public function testOnCreate()
+    public function testOnCreateFailsWithWrongFiltername()
     {
         $converter = new CharsetConverter();
         $converter->filtername = 'toto';
+        $this->assertFalse($converter->onCreate());
+    }
+
+
+    /**
+     * @covers ::onCreate
+     */
+    public function testOnCreateFailedWithWrongParams()
+    {
+        $converter = new CharsetConverter();
+        $converter->filtername = CharsetConverter::STREAM_FILTERNAME.'.foo/bar';
         $this->assertFalse($converter->onCreate());
     }
 }

@@ -18,6 +18,7 @@ use ArrayIterator;
 use Iterator;
 use League\Csv\Exception\OutOfRangeException;
 use php_user_filter;
+use Throwable;
 use Traversable;
 
 /**
@@ -48,37 +49,24 @@ class CharsetConverter extends php_user_filter
     protected $output_encoding = 'UTF-8';
 
     /**
-     * Static method to register the class as a PHP stream filter
+     * Static method to add the stream filter to a CSV object
      *
-     * @return bool
+     * @param AbstractCsv $csv
+     * @param string      $input_encoding
+     * @param string      $output_encoding
      */
-    public static function registerStreamFilter(): bool
+    public static function addTo(AbstractCsv $csv, string $input_encoding, string $output_encoding)
     {
-        static $is_registered;
-
-        if (null === $is_registered) {
-            $is_registered = stream_filter_register(self::STREAM_FILTERNAME.'.*', CharsetConverter::class);
+        if (!in_array(self::STREAM_FILTERNAME, stream_get_filters())) {
+            stream_filter_register(self::STREAM_FILTERNAME.'.*', __CLASS__);
         }
 
-        return $is_registered;
-    }
-
-    /**
-     * Static method to format the filtername to be used with stream_filter_append
-     *
-     * @param string $input_encoding
-     * @param string $output_encoding
-     *
-     * @return string
-     */
-    public static function getFiltername(string $input_encoding, string $output_encoding): string
-    {
-        return sprintf(
+        $csv->addStreamFilter(sprintf(
             '%s.%s/%s',
             self::STREAM_FILTERNAME,
             self::filterEncoding($input_encoding),
             self::filterEncoding($output_encoding)
-        );
+        ));
     }
 
     /**
@@ -103,7 +91,7 @@ class CharsetConverter extends php_user_filter
             return $encoding_list[$key];
         }
 
-        throw new OutOfRangeException(sprintf('The submitted charset %s is not supported by your mbstring extension', $encoding));
+        throw new OutOfRangeException(sprintf('The submitted charset %s is not supported by the mbstring extension', $encoding));
     }
 
     /**
@@ -135,9 +123,13 @@ class CharsetConverter extends php_user_filter
             return false;
         }
 
-        $this->input_encoding = $this->filterEncoding($matches['input']);
-        $this->output_encoding = $this->filterEncoding($matches['output']);
-        return true;
+        try {
+            $this->input_encoding = $this->filterEncoding($matches['input']);
+            $this->output_encoding = $this->filterEncoding($matches['output']);
+            return true;
+        } catch (Throwable $e) {
+            return false;
+        }
     }
 
     /**

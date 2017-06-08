@@ -34,6 +34,8 @@ All Notable changes to `Csv` will be documented in this file
 - Improved CSV document flush mechanism on insertion
     - `League\Csv\Writer::setFlushThreshold`
     - `League\Csv\Writer::getFlushThreshold`
+- Improve RFC4180 compliance
+    - `League\Csv\RFC4180Field` to format field according to RFC4180 rules
 
 ### Deprecated
 
