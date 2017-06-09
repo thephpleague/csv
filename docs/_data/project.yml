@@ -8,7 +8,7 @@ repository: 'csv'
 releases:
   next:
     version: '9.0'
-    requires: 'PHP >= 7.0.0'
+    requires: 'PHP >= 7.0.10'
     latest: 'TBD'
     supported_until: 'TBD'
     documentation_link: '/9.0/'

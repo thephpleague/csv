@@ -40,6 +40,21 @@ class ReaderTest extends TestCase
     }
 
     /**
+     * @covers ::count
+     * @covers ::getRecords
+     */
+    public function testCountable()
+    {
+        $source = '"parent name","child name","title"
+            "parentA","childA","titleA"';
+        $csv = Reader::createFromString($source);
+        $this->assertCount(2, $csv);
+        $this->assertCount(2, $csv);
+        $csv->setHeaderOffset(0);
+        $this->assertCount(1, $csv);
+    }
+
+    /**
      * @covers ::resetProperties
      * @covers ::getIterator
      * @covers ::getRecords
@@ -150,7 +165,7 @@ class ReaderTest extends TestCase
     {
         return [
             'unknown method' => ['foo'],
-            'ResultSet method not whitelisted' => ['count'],
+            'ResultSet method not whitelisted' => ['isRecordOffsetPreserved'],
         ];
     }
 

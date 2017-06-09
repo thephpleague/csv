@@ -35,7 +35,7 @@ All Notable changes to `Csv` will be documented in this file
     - `League\Csv\Writer::setFlushThreshold`
     - `League\Csv\Writer::getFlushThreshold`
 - Improve RFC4180 compliance
-    - `League\Csv\RFC4180Field` to format field according to RFC4180 rules
+    - `League\Csv\RFC4180FieldFormatter` to format field according to RFC4180 rules
 
 ### Deprecated
 
@@ -62,7 +62,6 @@ All Notable changes to `Csv` will be documented in this file
 - The following methods are removed because the PHP stream filter API is simplified:
     - `League\Csv\AbstractCsv::isActiveStreamFilter`
     - `League\Csv\AbstractCsv::setStreamFilterMode`
-    - `League\Csv\AbstractCsv::getStreamFilterMode`
     - `League\Csv\AbstractCsv::appendStreamFilter`
     - `League\Csv\AbstractCsv::prependStreamFilter`
     - `League\Csv\AbstractCsv::removeStreamFilter`

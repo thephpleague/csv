@@ -2,37 +2,87 @@
 
 namespace LeagueTest\Csv;
 
+use League\Csv\Reader;
 use League\Csv\RFC4180Field;
 use League\Csv\Writer;
 use PHPUnit\Framework\TestCase;
 
 /**
- * @group writer
+ * @group filter
  * @coversDefaultClass League\Csv\RFC4180Field
  */
 class RFC4180FieldTest extends TestCase
 {
     /**
-     * Example taken from PHP bug #43225
-     *
      * @see https://bugs.php.net/bug.php?id=43225
+     * @see https://bugs.php.net/bug.php?id=74713
      *
+     * @covers ::register
+     * @covers ::getFiltername
      * @covers ::addTo
      * @covers ::onCreate
      * @covers ::filter
+     * @covers ::filterMode
+     *
+     * @dataProvider bugsProvider
+     *
+     * @param string $expected
+     * @param array  $record
      */
-    public function testStreamFilter()
+    public function testStreamFilterOnWrite($expected, array $record)
     {
-        $expected = '"a\""",bbb'."\r\n";
-        $csv = Writer::createFromStream(fopen('php://temp', 'r+'));
-
+        $csv = Writer::createFromPath('php://temp');
         RFC4180Field::addTo($csv);
-
-        $res = stream_get_filters();
-        $this->assertContains(RFC4180Field::STREAM_FILTERNAME, $res);
+        $this->assertContains(RFC4180Field::getFiltername(), stream_get_filters());
         $csv->setNewline("\r\n");
-        $csv->insertOne(['a\\"', 'bbb']);
+        $csv->insertOne($record);
         $this->assertSame($expected, (string) $csv);
+    }
+
+    public function bugsProvider()
+    {
+        return [
+            'bug #43225' => [
+                'expected' => '"a\""",bbb'."\r\n",
+                'record' => ['a\\"', 'bbb'],
+            ],
+            'bug #74713' => [
+                'expected' => '"""@@"",""B"""'."\r\n",
+                'record' => ['"@@","B"'],
+            ],
+        ];
+    }
+
+    /**
+     * @see https://bugs.php.net/bug.php?id=55413
+     *
+     * @covers ::register
+     * @covers ::getFiltername
+     * @covers ::addTo
+     * @covers ::onCreate
+     * @covers ::filter
+     * @covers ::filterMode
+     *
+     * @dataProvider readerBugsProvider
+     *
+     * @param string $expected
+     * @param array  $record
+     */
+    public function testStreamFilterOnRead($expected, array $record)
+    {
+        $csv = Reader::createFromString($expected);
+        RFC4180Field::addTo($csv);
+        $this->assertSame($record, $csv->fetchOne());
+    }
+
+    public function readerBugsProvider()
+    {
+        return [
+            'bug #55413' => [
+                'expected' => '"A","Some \"Stuff\"","C"',
+                'record' => ['A', 'Some "Stuff"', 'C'],
+            ],
+        ];
     }
 
     /**
@@ -46,14 +96,35 @@ class RFC4180FieldTest extends TestCase
 
     /**
      * @covers ::onCreate
+     * @covers ::filterMode
+     * @dataProvider wrongParamProvider
+     * @param array $params
      */
-    public function testOnCreateFailedWithWrongParams()
+    public function testOnCreateFailedWithWrongParams(array $params)
     {
         $filter = new RFC4180Field();
-        $filter->params = [
-            'enclosure' => '"',
-            'escape' => 'foo',
-        ];
+        $filter->params = $params;
         $this->assertFalse($filter->onCreate());
+    }
+
+    public function wrongParamProvider()
+    {
+        return [
+            'wrong escape' => [[
+                'enclosure' => '"',
+                'escape' => 'foo',
+                'mode' => STREAM_FILTER_READ,
+            ]],
+            'wrong enclosure' => [[
+                'enclosure' => '',
+                'escape' => '\\',
+                'mode' => STREAM_FILTER_READ,
+            ]],
+            'wrong stream filter mode' => [[
+                'enclosure' => '"',
+                'escape' => '\\',
+                'mode' => STREAM_FILTER_ALL,
+            ]],
+        ];
     }
 }

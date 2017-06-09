@@ -1,9 +1,9 @@
 ---
 layout: default
-title: Bundled record filters on insertion
+title: Bundled Writer helpers
 ---
 
-# Bundled insertion filters
+# Bundled insertion helpers
 
 ## Column consistency checker
 
@@ -77,19 +77,19 @@ $writer->insertOne(["foo", "bébé", "jouet"]);
 //all 'utf-8' caracters are now automatically encoded into 'iso-8859-15' charset
 ~~~
 
-## RFC4180 escape character fix
+## RFC4180 compliance
 
 ~~~php
 <?php
 
-public static RFC4180Field::addTo(Writer $csv): void
+public static RFC4180Field::addTo(AbstractCsv $csv): void
 ~~~
 
-If your CSV object supports PHP stream filters then you can register the `RFC4180Field` class as a PHP stream filter and use the library [stream filtering mechanism](/9.0/connections/filters/) to correct field formatting to comply with [RFC4180](https://tools.ietf.org/html/rfc4180#section-2).
+If your CSV object supports PHP stream filters then you can register the `RFC4180Field` stream filter to correct field formatting to comply with [RFC4180](https://tools.ietf.org/html/rfc4180#section-2).
 
 The `RFC4180Field::addTo` static method:
 
-- registers the `RFC4180Field` class under the following generic filtername `rfc4180.league.csv`.
+- registers the `RFC4180Field` class under the following generic filtername `league.csv.rfc4180.field`.
 - adds the stream filter to your current `Writer` object using the object CSV control properties.
 
 ~~~php

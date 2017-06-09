@@ -71,6 +71,8 @@ class CharsetConverterTest extends TestCase
     }
 
     /**
+     * @covers ::register
+     * @covers ::getFiltername
      * @covers ::addTo
      * @covers ::onCreate
      * @covers ::filter
@@ -83,9 +85,7 @@ class CharsetConverterTest extends TestCase
             ->addStreamFilter('string.toupper');
         CharsetConverter::addTo($csv, 'iso-8859-15', 'utf-8');
 
-        $res = stream_get_filters();
-        $this->assertContains(CharsetConverter::STREAM_FILTERNAME.'.*', $res);
-
+        $this->assertContains(CharsetConverter::FILTERNAME.'.*', stream_get_filters());
         $this->assertSame(strtoupper($expected), (string) $csv);
     }
 
@@ -96,7 +96,7 @@ class CharsetConverterTest extends TestCase
     public function testCharsetConverterAsStreamFilterFailed()
     {
         $this->expectException(RuntimeException::class);
-        stream_filter_register(CharsetConverter::STREAM_FILTERNAME.'.*', CharsetConverter::class);
+        stream_filter_register(CharsetConverter::FILTERNAME.'.*', CharsetConverter::class);
         $expected = 'Batman,Superman,Anaïs';
         $raw = mb_convert_encoding($expected, 'iso-8859-15', 'utf-8');
         $csv = Reader::createFromString($raw)
@@ -122,7 +122,7 @@ class CharsetConverterTest extends TestCase
     public function testOnCreateFailedWithWrongParams()
     {
         $converter = new CharsetConverter();
-        $converter->filtername = CharsetConverter::STREAM_FILTERNAME.'.foo/bar';
+        $converter->filtername = CharsetConverter::FILTERNAME.'.foo/bar';
         $this->assertFalse($converter->onCreate());
     }
 }

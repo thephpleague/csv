@@ -118,9 +118,7 @@ abstract class AbstractCsv implements ByteSequence
         $controls = $file->getCsvControl();
         $csv->delimiter = $controls[0];
         $csv->enclosure = $controls[1];
-        if (isset($controls[2])) {
-            $csv->escape = $controls[2];
-        }
+        $csv->escape = $controls[2];
 
         return $csv;
     }
@@ -218,6 +216,16 @@ abstract class AbstractCsv implements ByteSequence
         }
 
         return $this->input_bom;
+    }
+
+    /**
+     * Returns the stream filter mode
+     *
+     * @return int
+     */
+    public function getStreamFilterMode(): int
+    {
+        return $this->stream_filter_mode;
     }
 
     /**

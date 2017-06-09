@@ -18,7 +18,7 @@
         "issues": "https://github.com/thephpleague/csv/issues"
     },
     "require": {
-        "php" : ">=7.0",
+        "php" : ">=7.0.10",
         "ext-mbstring" : "*"
     },
     "require-dev": {

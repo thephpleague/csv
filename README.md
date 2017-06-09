@@ -33,7 +33,7 @@ Full documentation can be found at [csv.thephpleague.com](http://csv.thephpleagu
 System Requirements
 -------
 
-You need **PHP >= 7.0** and the `mbstring` extension to use `Csv` but the latest stable version of PHP is recommended.
+You need **PHP >= 7.0.10** and the `mbstring` extension to use `Csv` but the latest stable version of PHP is recommended.
 
 Install
 -------

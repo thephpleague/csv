@@ -10,13 +10,13 @@ title: Converting Csv records character encoding
 
 class CharsetConverter extends php_user_filter
 {
-    const STREAM_FILTERNAME = 'convert.league.csv';
-
     public function __invoke(array $record): array
-    public static function addTo(AbstractCsv $csv, string $input_encoding, string $output_encoding)
+    public static function addTo(AbstractCsv $csv, string $input_encoding, string $output_encoding): AbstractCsv
     public function convert(iterable $records): Iterator
+    public static function getFiltername(string $input_encoding, string $output_encoding): string
     public function inputEncoding(string $input_encoding): self
     public function outputEncoding(string $output_encoding): self
+    public static function register(): void
 }
 ~~~
 
@@ -95,8 +95,12 @@ $writer->insertOne(["foo", "bébé", "jouet"]);
 ~~~php
 <?php
 
-public static CharsetConverter::addTo(AbstractCSV $csv, string $input_encoding, string $output_encoding)
+public static CharsetConverter::addTo(AbstractCsv $csv, string $input_encoding, string $output_encoding): AbstractCsv
+public static CharsetConverter::register(): void
+public static CharsetConverter::getFiltername(string $input_encoding, string $output_encoding): string
 ~~~
+
+### Usage with CSV objects
 
 If your CSV object supports PHP stream filters then you can use the `CharsetConverter` class as a PHP stream filter and use the library [stream filtering mechanism](/9.0/connections/filters/) instead.
 
@@ -118,5 +122,32 @@ CharsetConverter::addTo($writer, 'utf8', 'iso-8859-15');
 $writer->insertOne(["foo", "bébé", "jouet"]);
 //all 'utf-8' caracters are now automatically encoded into 'iso-8859-15' charset
 ~~~
+
+### Usage with PHP stream resources
+
+To use this stream filter outside `League\Csv` objects you need to:
+
+- register the stream filter using `CharsetConverter::register` method.
+- use `CharsetConverter::getFiltername` with one of PHP's attaching stream filter functions with the correct arguments as shown below:
+
+~~~php
+<?php
+
+use League\Csv\CharsetConverter;
+
+CharsetConverter::register();
+
+$resource = fopen('/path/to/my/file', 'r');
+$filter = stream_filter_append(
+	$resource,
+	CharsetConverter::getFiltername('utf-8', 'iso-8859-15'),
+	STREAM_FILTER_READ
+);
+
+while (false !== ($record = fgetcsv($resource))) {
+    //$record is correctly encoded
+}
+~~~
+
 
 <p class="message-info">If your system supports the <code>iconv</code> extension you should use PHP's built in iconv stream filters instead for better performance.</p>

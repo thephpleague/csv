@@ -8,8 +8,9 @@ title: CSV document Reader connection
 ~~~php
 <?php
 
-class Reader extends AbstractCsv implements IteratorAggregate
+class Reader extends AbstractCsv implements Countable, IteratorAggregate
 {
+    public function count(): int
     public function fetchAll(): array
     public function fetchColumn(string|int $columnIndex = 0): Generator
     public function fetchDelimitersOccurrence(array $delimiters, int $nb_records = 1): array
@@ -173,7 +174,7 @@ If a header offset was specified using the `setHeaderOffset` method
     - removed from the returned iterator.
 - The returned records are normalized to the number of fields contained in the header record
     - Extra fields are truncated.
-    - Missing fields are added with a default content.
+    - Missing fields are added with a default padding value.
 
 The default padding value can be defined using the `setRecordPaddingValue` method. By default, if no content is specified `null` will be used.  
 You can retrieve the padding value using the `getRecordPaddingValue` method.
@@ -201,7 +202,6 @@ $reader->getRecordPaddingValue(); //returns 'toto'
 ~~~
 
 <p class="message-warning">If the header record contains non unique values, a <code>RuntimeException</code> exception is triggered </p>
-
 
 You can avoid this exception by using the `Reader::supportsHeaderAsRecordKeys` method. The method returns `true` if `Reader::getHeader` returns:
 
@@ -308,4 +308,29 @@ $stmt = (new Statement())
 
 $records = $stmt->process($reader);
 //$records is a League\Csv\ResultSet object
+~~~
+
+## Counting the CSV document records
+
+Because the `Reader` class implements the `Countable` interface you can retrieve to number of records contains in a CSV document using PHP's `count` function. 
+
+~~~php
+<?php
+
+use League\Csv\Reader;
+
+$reader = Reader::createFromPath('/path/to/my/file.csv');
+count($reader); //returns 4
+~~~
+
+If a header offset is specified, the number of records will not take into account the header record
+
+~~~php
+<?php
+
+use League\Csv\Reader;
+
+$reader = Reader::createFromPath('/path/to/my/file.csv');
+$reader->setHeaderOffset(0);
+count($reader); //returns 3
 ~~~
