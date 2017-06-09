@@ -13,19 +13,19 @@ version:
             Exceptions: '/9.0/connections/exceptions/'
         Inserting Records:
             Writer Connection: '/9.0/writer/'
-            Bundled Filters: '/9.0/writer/bundled-filters/'
+            Bundled Helpers: '/9.0/writer/helpers/'
         Selecting Records:
             Reader Connection: '/9.0/reader/'
             Constraint Builder: '/9.0/reader/statement/'
             Result Set: '/9.0/reader/resultset/'
+        Interoperability:
+            Overview : '/9.0/interoperability/'
         Converting Records:
             Overview: '/9.0/converter/'
             Charset Converter: '/9.0/converter/charset/'
             Json Converter: '/9.0/converter/json/'
             XML Converter: '/9.0/converter/xml/'
             HTML Converter: '/9.0/converter/html/'
-        Interoperability:
-            Overview : '/9.0/interoperability/'
     '8.0':
         Getting Started:
             Overview: '/8.0/'

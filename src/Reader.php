@@ -184,9 +184,7 @@ class Reader extends AbstractCsv implements IteratorAggregate
     {
         $whitelisted = ['fetchColumn' => 1, 'fetchPairs' => 1, 'fetchOne' => 1, 'fetchAll' => 1];
         if (isset($whitelisted[$method])) {
-            return (new ResultSet($this->getRecords(), $this->getHeader()))
-                ->$method(...$arguments)
-            ;
+            return (new ResultSet($this->getRecords(), $this->getHeader()))->$method(...$arguments);
         }
 
         throw new BadMethodCallException(sprintf('Reader::%s does not exist', $method));

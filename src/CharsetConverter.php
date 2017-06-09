@@ -57,8 +57,9 @@ class CharsetConverter extends php_user_filter
      */
     public static function addTo(AbstractCsv $csv, string $input_encoding, string $output_encoding)
     {
-        if (!in_array(self::STREAM_FILTERNAME, stream_get_filters())) {
-            stream_filter_register(self::STREAM_FILTERNAME.'.*', __CLASS__);
+        $filtername = self::STREAM_FILTERNAME.'.*';
+        if (!in_array($filtername, stream_get_filters())) {
+            stream_filter_register($filtername, __CLASS__);
         }
 
         $csv->addStreamFilter(sprintf(

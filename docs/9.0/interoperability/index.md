@@ -9,9 +9,9 @@ Depending on your operating system and on the software you are using to read/imp
 
 - the BOM sequence used
 - the encoding character
-- the escape control character
+- the field formatting
 
-<p class="message-info">Out of the box, <code>League\Csv</code> connections do not alter the CSV document original encoding.</p>
+<p class="message-info">Out of the box, <code>League\Csv</code> connections do not alter the CSV document presentation.</p>
 
 In the examples below we will be using an existing CSV in ISO-8859-15 charset encoding as a starting point. The code will vary if your CSV document is in a different charset.
 
@@ -66,32 +66,35 @@ $writer->output('mycsvfile.csv');
 
 ## RFC4180 compliance
 
-To comply to RFC4180 a CSV Document **MUST** use:
+Because `League\Csv` uses PHP's csv native functions, out of the box the library does not follow [RFC4180](https://tools.ietf.org/html/rfc4180#section-2). But you can easily create a compliant CSV document using
 
-- *\r\n* as new line sequence;
-- bug fix default PHP behaviour around the escape character usage.
-
-Using the `RFC4180Field` stream filter when fix PHP's `fputcsv` behaviour to comply to RFC4180.
+- `League\Csv\RFC4180FieldFormatter` stream filter.
+- `League\Csv\Writer::setNewline` method.
 
 <p class="message-notice">The <code>Writer</code> must supports stream filter</p>
 
 ~~~php
 <?php
 
-use League\Csv\RFC4180Field;
+use League\Csv\Reader;
+use League\Csv\RFC4180FieldFormatter;
 use League\Csv\Writer;
 
-$writer = Writer::createFromStream(fopen('php://temp', 'r+'));
+//the current CSV is ISO-8859-15 encoded with a ";" delimiter
+$origin = Reader::createFromPath('/path/to/french.csv', 'r');
+$origin->setDelimiter(';');
+
+$writer = Writer::createFromPath('php://temp');
 $writer->setNewline("\r\n"); //RFC4180 Line feed
 $writer->setOutputBOM(Reader::BOM_UTF16_LE);
 $writer->setDelimiter("\t");
 $writer->addStreamFilter('convert.iconv.ISO-8859-15/UTF-16');
-RFC4180Field::addTo($writer); //adding the stream filter to fix the escape character usage
+RFC4180FieldFormatter::addTo($writer); //adding the stream filter to fix field formatting
 $writer->insertAll($origin);
 $writer->output('mycsvfile.csv'); //outputting a RFC4180 compliant CSV Document
 ~~~
 
-To read a RFC4180 compliant CSV document, you should set the CSV document enclosure and escape character should have the same value when using the `League\Csv\Reader` object.
+Conversely, to read a RFC4180 compliant CSV document, when using the `League\Csv\Reader` object, you only need to set its enclosure and escape control characters with the same value.
 
 ~~~php
 <?php
@@ -99,12 +102,12 @@ To read a RFC4180 compliant CSV document, you should set the CSV document enclos
 use League\Csv\Reader;
 
 //the current CSV is ISO-8859-15 encoded with a ";" delimiter
-$origin = Reader::createFromPath('/path/to/rfc4180-compliant.csv', 'r');
-$origin->setDelimiter(';');
-$origin->setEnclosure('"');
-$origin->setEscape('"');
+$csv = Reader::createFromPath('/path/to/rfc4180-compliant.csv');
+$csv->setDelimiter(';');
+$csv->setEnclosure('"');
+$csv->setEscape($origin->getEnclosure());
 
-foreach ($origin as $record) {
+foreach ($csv as $record) {
     //do something meaningful here...
 }
 ~~~

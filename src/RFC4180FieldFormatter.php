@@ -25,7 +25,7 @@ use Throwable;
  * @since   9.0.0
  * @author  Ignace Nyamagana Butera <nyamsprod@gmail.com>
  */
-class RFC4180Field extends php_user_filter
+class RFC4180FieldFormatter extends php_user_filter
 {
     use ValidatorTrait;
 
