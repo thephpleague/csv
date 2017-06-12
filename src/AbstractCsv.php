@@ -94,6 +94,7 @@ abstract class AbstractCsv implements ByteSequence
      */
     protected function __construct($document)
     {
+        $this->resetProperties();
         $this->document = $document;
     }
 
@@ -161,6 +162,16 @@ abstract class AbstractCsv implements ByteSequence
     public static function createFromPath(string $path, string $open_mode = 'r+', $context = null): self
     {
         return new static(StreamIterator::createFromPath($path, $open_mode, $context));
+    }
+
+    /**
+     * Returns the class filter mode
+     *
+     * @return int
+     */
+    public function getStreamFilterMode(): int
+    {
+        return $this->stream_filter_mode;
     }
 
     /**
@@ -418,8 +429,8 @@ abstract class AbstractCsv implements ByteSequence
     public function __destruct()
     {
         if ($this->document instanceof StreamIterator) {
-            $walker = function ($filter): bool {
-                return $this->document->removeFilter($filter);
+            $walker = function ($filter) {
+                $this->document->removeFilter($filter);
             };
 
             array_walk_recursive($this->stream_filters, $walker);

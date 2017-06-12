@@ -14,6 +14,7 @@ declare(strict_types=1);
 
 namespace League\Csv;
 
+use InvalidArgumentException;
 use php_user_filter;
 use Throwable;
 
@@ -25,7 +26,7 @@ use Throwable;
  * @since   9.0.0
  * @author  Ignace Nyamagana Butera <nyamsprod@gmail.com>
  */
-class RFC4180FieldFormatter extends php_user_filter
+class RFC4180FieldFilter extends php_user_filter
 {
     use ValidatorTrait;
 
@@ -59,6 +60,7 @@ class RFC4180FieldFormatter extends php_user_filter
         $csv->addStreamFilter(self::STREAM_FILTERNAME, [
             'enclosure' => $csv->getEnclosure(),
             'escape' => $csv->getEscape(),
+            'mode' => $csv->getStreamFilterMode(),
         ]);
     }
 
@@ -67,21 +69,43 @@ class RFC4180FieldFormatter extends php_user_filter
      */
     public function onCreate()
     {
-        if (!isset($this->params['enclosure'], $this->params['escape'])) {
+        if (!isset($this->params['enclosure'], $this->params['escape'], $this->params['mode'])) {
             return false;
         }
 
         try {
             $enclosure = $this->filterControl($this->params['enclosure'], 'enclosure', __METHOD__);
             $escape = $this->filterControl($this->params['escape'], 'escape', __METHOD__);
+            $mode = $this->filterMode($this->params['mode']);
 
             $this->search = $escape.$enclosure;
             $this->replace = $escape.$enclosure.$enclosure;
+            if (STREAM_FILTER_READ === $mode) {
+                $this->replace = $enclosure.$enclosure;
+            }
 
             return true;
         } catch (Throwable $e) {
             return false;
         }
+    }
+
+    /**
+     * Filter the given mode
+     *
+     * @param int $mode stream filter mode
+     *
+     * @throws InvalidArgumentException if the mode value is unknown
+     *
+     * @return int
+     */
+    protected function filterMode(int $mode)
+    {
+        if (in_array($mode, [STREAM_FILTER_READ, STREAM_FILTER_WRITE])) {
+            return $mode;
+        }
+
+        throw new InvalidArgumentException(sprintf('The given filter mode `%s` is unknown or unsupported', $mode));
     }
 
     /**

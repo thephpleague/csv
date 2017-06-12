@@ -45,14 +45,14 @@ class StreamIterator implements SeekableIterator
      *
      * @var resource
      */
-    protected $stream;
+    protected $stream_resource;
 
     /**
      * Tell whether the stream should be closed on object destruction
      *
      * @var bool
      */
-    protected $should_close_stream = false;
+    protected $should_close_stream_resource = false;
 
     /**
      * Current iterator value
@@ -100,25 +100,25 @@ class StreamIterator implements SeekableIterator
      * New instance
      *
      *
-     * @param resource $stream stream type resource
+     * @param resource $resource stream type resource
      *
      * @throws RuntimeException if the argument passed is not a seeakable stream resource
      */
-    public function __construct($stream)
+    public function __construct($resource)
     {
-        if (!is_resource($stream)) {
-            throw new TypeError(sprintf('Argument passed must be a seekable stream resource, %s given', gettype($stream)));
+        if (!is_resource($resource)) {
+            throw new TypeError(sprintf('Argument passed must be a seekable stream resource, %s given', gettype($resource)));
         }
 
-        if ('stream' !== ($type = get_resource_type($stream))) {
+        if ('stream' !== ($type = get_resource_type($resource))) {
             throw new TypeError(sprintf('Argument passed must be a seekable stream resource, %s resource given', $type));
         }
 
-        if (!stream_get_meta_data($stream)['seekable']) {
+        if (!stream_get_meta_data($resource)['seekable']) {
             throw new RuntimeException('Argument passed must be a seekable stream resource');
         }
 
-        $this->stream = $stream;
+        $this->stream_resource = $resource;
     }
 
     /**
@@ -126,11 +126,11 @@ class StreamIterator implements SeekableIterator
      */
     public function __destruct()
     {
-        if ($this->should_close_stream) {
-            fclose($this->stream);
+        if ($this->should_close_stream_resource) {
+            fclose($this->stream_resource);
         }
 
-        $this->stream = null;
+        $this->stream_resource = null;
     }
 
     /**
@@ -151,12 +151,12 @@ class StreamIterator implements SeekableIterator
             $args[] = $context;
         }
 
-        if (!$stream = @fopen(...$args)) {
+        if (!$resource = @fopen(...$args)) {
             throw new RuntimeException(error_get_last()['message']);
         }
 
-        $instance = new static($stream);
-        $instance->should_close_stream = true;
+        $instance = new static($resource);
+        $instance->should_close_stream_resource = true;
 
         return $instance;
     }
@@ -170,11 +170,11 @@ class StreamIterator implements SeekableIterator
      */
     public static function createFromString(string $content): self
     {
-        $stream = fopen('php://temp', 'r+');
-        fwrite($stream, $content);
+        $resource = fopen('php://temp', 'r+');
+        fwrite($resource, $content);
 
-        $instance = new static($stream);
-        $instance->should_close_stream = true;
+        $instance = new static($resource);
+        $instance->should_close_stream_resource = true;
 
         return $instance;
     }
@@ -222,7 +222,7 @@ class StreamIterator implements SeekableIterator
     public function fputcsv(array $fields, string $delimiter = ',', string $enclosure = '"', string $escape = '\\')
     {
         return fputcsv(
-            $this->stream,
+            $this->stream_resource,
             $fields,
             $this->filterControl($delimiter, 'delimiter', __METHOD__),
             $this->filterControl($enclosure, 'enclosure', __METHOD__),
@@ -262,7 +262,7 @@ class StreamIterator implements SeekableIterator
      */
     public function rewind()
     {
-        rewind($this->stream);
+        rewind($this->stream_resource);
         $this->offset = 0;
         $this->value = false;
         if ($this->flags & SplFileObject::READ_AHEAD) {
@@ -283,7 +283,7 @@ class StreamIterator implements SeekableIterator
             return $this->current() !== false;
         }
 
-        return !feof($this->stream);
+        return !feof($this->stream_resource);
     }
 
     /**
@@ -318,7 +318,7 @@ class StreamIterator implements SeekableIterator
     protected function getCurrentRecord()
     {
         do {
-            $ret = fgetcsv($this->stream, 0, $this->delimiter, $this->enclosure, $this->escape);
+            $ret = fgetcsv($this->stream_resource, 0, $this->delimiter, $this->enclosure, $this->escape);
         } while ($this->flags & SplFileObject::SKIP_EMPTY && $ret !== false && $ret[0] === null);
 
         return $ret;
@@ -332,7 +332,7 @@ class StreamIterator implements SeekableIterator
     protected function getCurrentLine()
     {
         do {
-            $line = fgets($this->stream);
+            $line = fgets($this->stream_resource);
         } while ($this->flags & SplFileObject::SKIP_EMPTY && $line !== false && rtrim($line, "\r\n") !== '');
 
         return $line;
@@ -349,7 +349,7 @@ class StreamIterator implements SeekableIterator
     {
         $pos = $this->filterMinRange((int) $position, 0, __METHOD__.'() Can\'t seek stream to negative line %d');
         foreach ($this as $key => $value) {
-            if ($key === $pos || feof($this->stream)) {
+            if ($key === $pos || feof($this->stream_resource)) {
                 $this->offset--;
                 break;
             }
@@ -383,7 +383,7 @@ class StreamIterator implements SeekableIterator
      */
     public function fpassthru()
     {
-        return fpassthru($this->stream);
+        return fpassthru($this->stream_resource);
     }
 
     /**
@@ -397,7 +397,7 @@ class StreamIterator implements SeekableIterator
      */
     public function fread($length)
     {
-        return fread($this->stream, $length);
+        return fread($this->stream_resource, $length);
     }
 
     /**
@@ -412,7 +412,7 @@ class StreamIterator implements SeekableIterator
      */
     public function fseek(int $offset, int $whence = SEEK_SET)
     {
-        return fseek($this->stream, $offset, $whence);
+        return fseek($this->stream_resource, $offset, $whence);
     }
 
     /**
@@ -427,7 +427,7 @@ class StreamIterator implements SeekableIterator
      */
     public function fwrite(string $str, int $length = 0)
     {
-        return fwrite($this->stream, $str, $length);
+        return fwrite($this->stream_resource, $str, $length);
     }
 
     /**
@@ -445,7 +445,7 @@ class StreamIterator implements SeekableIterator
      */
     public function appendFilter(string $filter_name, int $read_write, $params = null)
     {
-        $res = @stream_filter_append($this->stream, $filter_name, $read_write, $params);
+        $res = @stream_filter_append($this->stream_resource, $filter_name, $read_write, $params);
         if (is_resource($res)) {
             return $res;
         }
@@ -474,7 +474,7 @@ class StreamIterator implements SeekableIterator
      */
     public function fflush()
     {
-        return fflush($this->stream);
+        return fflush($this->stream_resource);
     }
 
     /**

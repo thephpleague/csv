@@ -156,6 +156,13 @@ class CsvTest extends TestCase
         $this->assertSame($expected, $res);
     }
 
+    public function testStreamFilterMode()
+    {
+        $this->assertSame(STREAM_FILTER_READ, Reader::createFromString('')->getStreamFilterMode());
+        $this->assertSame(STREAM_FILTER_WRITE, Writer::createFromString('')->getStreamFilterMode());
+    }
+
+
     /**
      * @covers ::getDelimiter
      * @covers ::setDelimiter
