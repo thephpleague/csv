@@ -14,7 +14,7 @@ declare(strict_types=1);
 
 namespace League\Csv;
 
-use InvalidArgumentException;
+use League\Csv\Exception\InvalidArgumentException;
 use php_user_filter;
 use Throwable;
 
@@ -79,9 +79,9 @@ class RFC4180FieldFilter extends php_user_filter
             $mode = $this->filterMode($this->params['mode']);
 
             $this->search = $escape.$enclosure;
-            $this->replace = $escape.$enclosure.$enclosure;
-            if (STREAM_FILTER_READ === $mode) {
-                $this->replace = $enclosure.$enclosure;
+            $this->replace = $enclosure.$enclosure;
+            if (STREAM_FILTER_WRITE === $mode) {
+                $this->replace = $escape.$this->replace;
             }
 
             return true;

@@ -459,6 +459,8 @@ class StreamIterator implements SeekableIterator
      * @see http://php.net/manual/en/function.stream-filter-remove.php
      *
      * @param resource $resource
+     *
+     * @return bool
      */
     public function removeFilter($resource)
     {

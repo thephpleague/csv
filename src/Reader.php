@@ -63,13 +63,6 @@ class Reader extends AbstractCsv implements Countable, IteratorAggregate
     protected $header = [];
 
     /**
-     * Records Iterator
-     *
-     * @var Iterator
-     */
-    protected $records;
-
-    /**
      * Records count
      *
      * @var int
@@ -255,22 +248,18 @@ class Reader extends AbstractCsv implements Countable, IteratorAggregate
     public function count(): int
     {
         if (-1 === $this->nb_records) {
-            $this->nb_records = iterator_count($this->getRecords());
+            $this->nb_records = iterator_count($this);
         }
 
         return $this->nb_records;
     }
 
     /**
-     * Returns the CSV records in an iterator object.
-     *
-     * @return Iterator
+     * @inheritdoc
      */
-    public function getRecords(): Iterator
+    public function getIterator(): Iterator
     {
-        $this->records = $this->records ?? $this->setRecords();
-
-        return $this->records;
+        return $this->getRecords();
     }
 
     /**
@@ -289,7 +278,7 @@ class Reader extends AbstractCsv implements Countable, IteratorAggregate
      *
      * @return Iterator
      */
-    protected function setRecords(): Iterator
+    public function getRecords(): Iterator
     {
         if (!$this->supportsHeaderAsRecordKeys()) {
             throw new RuntimeException('The header record must be empty or a flat array with unique string values');
@@ -362,14 +351,6 @@ class Reader extends AbstractCsv implements Countable, IteratorAggregate
     }
 
     /**
-     * @inheritdoc
-     */
-    public function getIterator(): Iterator
-    {
-        return $this->getRecords();
-    }
-
-    /**
      * Set the record padding value
      *
      * @param mixed $record_padding_value
@@ -414,6 +395,5 @@ class Reader extends AbstractCsv implements Countable, IteratorAggregate
     {
         $this->nb_records = -1;
         $this->header = [];
-        $this->records = null;
     }
 }

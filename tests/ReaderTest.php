@@ -59,7 +59,6 @@ class ReaderTest extends TestCase
     /**
      * @covers ::resetProperties
      * @covers ::getIterator
-     * @covers ::setRecords
      * @covers ::getRecords
      * @covers ::supportsHeaderAsRecordKeys
      * @covers ::combineHeader
@@ -214,7 +213,6 @@ class ReaderTest extends TestCase
     /**
      * @covers ::getHeader
      * @covers ::getRecords
-     * @covers ::setRecords
      * @covers ::setHeader
      */
     public function testDuplicateHeaderValueTriggersException()

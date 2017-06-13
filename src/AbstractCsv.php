@@ -94,7 +94,6 @@ abstract class AbstractCsv implements ByteSequence
      */
     protected function __construct($document)
     {
-        $this->resetProperties();
         $this->document = $document;
     }
 
@@ -429,8 +428,8 @@ abstract class AbstractCsv implements ByteSequence
     public function __destruct()
     {
         if ($this->document instanceof StreamIterator) {
-            $walker = function ($filter) {
-                $this->document->removeFilter($filter);
+            $walker = function ($filter): bool {
+                return $this->document->removeFilter($filter);
             };
 
             array_walk_recursive($this->stream_filters, $walker);
