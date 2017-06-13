@@ -16,10 +16,13 @@ public AbstractCsv::supportsStreamFilter(void): bool
 public AbstractCsv::getStreamFilterMode(void): int
 ~~~
 
-The `supportsStreamFilter` tells whether the stream filter API is supported by the current object whereas the `getStreamFilterMode` returns the filter mode used to attach new stream filters to the CSV object. The filter mode value is one of the following PHP's constant:
+The `supportsStreamFilter` tells whether the stream filter API is supported by the current object whereas the `getStreamFilterMode` returns the filter mode used to add new stream filters to the CSV object.  
+The filter mode value is one of the following PHP's constant:
 
 - `STREAM_FILTER_READ` to add stream filter on read
 - `STREAM_FILTER_WRITE` to add stream filter on write
+
+Regardless of stream filter API support by a specific CSV object, `getStreamFilterMode` will always return a value.
 
 ~~~php
 <?php

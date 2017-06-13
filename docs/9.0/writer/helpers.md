@@ -82,25 +82,25 @@ $writer->insertOne(["foo", "bébé", "jouet"]);
 ~~~php
 <?php
 
-public static RFC4180FieldFilter::addTo(AbstractCsv $csv): void
+public static RFC4180Field::addTo(AbstractCsv $csv): void
 ~~~
 
-If your CSV object supports PHP stream filters then you can register the `RFC4180FieldFilter` stream filter to correct field formatting to comply with [RFC4180](https://tools.ietf.org/html/rfc4180#section-2).
+If your CSV object supports PHP stream filters then you can register the `RFC4180Field` stream filter to correct field formatting to comply with [RFC4180](https://tools.ietf.org/html/rfc4180#section-2).
 
-The `RFC4180FieldFilter::addTo` static method:
+The `RFC4180Field::addTo` static method:
 
-- registers the `RFC4180FieldFilter` class under the following generic filtername `rfc4180.league.csv`.
+- registers the `RFC4180Field` class under the following generic filtername `league.csv.rfc4180.field`.
 - adds the stream filter to your current `Writer` object using the object CSV control properties.
 
 ~~~php
 <?php
 
-use League\Csv\RFC4180FieldFilter;
+use League\Csv\RFC4180Field;
 use League\Csv\Writer;
 
 $writer = Writer::createFromStream(fopen('php://temp', 'r+'));
 $writer->setNewline("\r\n"); //RFC4180 Line feed
-RFC4180FieldFilter::addTo($writer); //adds the stream filter to the Writer object fix escape character usage
+RFC4180Field::addTo($writer); //adds the stream filter to the Writer object fix escape character usage
 $writer->insertAll($data);
 $writer->output('mycsvfile.csv'); //outputting a RFC4180 compliant CSV Document
 ~~~

@@ -248,7 +248,7 @@ class Reader extends AbstractCsv implements Countable, IteratorAggregate
     public function count(): int
     {
         if (-1 === $this->nb_records) {
-            $this->nb_records = iterator_count($this);
+            $this->nb_records = iterator_count($this->getRecords());
         }
 
         return $this->nb_records;

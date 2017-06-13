@@ -3,15 +3,15 @@
 namespace LeagueTest\Csv;
 
 use League\Csv\Reader;
-use League\Csv\RFC4180FieldFilter;
+use League\Csv\RFC4180Field;
 use League\Csv\Writer;
 use PHPUnit\Framework\TestCase;
 
 /**
  * @group filter
- * @coversDefaultClass League\Csv\RFC4180FieldFilter
+ * @coversDefaultClass League\Csv\RFC4180Field
  */
-class RFC4180FieldFilterTest extends TestCase
+class RFC4180FieldTest extends TestCase
 {
     /**
      * @see https://bugs.php.net/bug.php?id=43225
@@ -30,8 +30,8 @@ class RFC4180FieldFilterTest extends TestCase
     public function testStreamFilterOnWrite($expected, array $record)
     {
         $csv = Writer::createFromPath('php://temp');
-        RFC4180FieldFilter::addTo($csv);
-        $this->assertContains(RFC4180FieldFilter::STREAM_FILTERNAME, stream_get_filters());
+        RFC4180Field::addTo($csv);
+        $this->assertContains(RFC4180Field::FILTERNAME, stream_get_filters());
         $csv->setNewline("\r\n");
         $csv->insertOne($record);
         $this->assertSame($expected, (string) $csv);
@@ -67,7 +67,7 @@ class RFC4180FieldFilterTest extends TestCase
     public function testStreamFilterOnRead($expected, array $record)
     {
         $csv = Reader::createFromString($expected);
-        RFC4180FieldFilter::addTo($csv);
+        RFC4180Field::addTo($csv);
         $this->assertSame($record, $csv->fetchOne());
     }
 
@@ -86,7 +86,7 @@ class RFC4180FieldFilterTest extends TestCase
      */
     public function testOnCreateFailedWithoutParams()
     {
-        $filter = new RFC4180FieldFilter();
+        $filter = new RFC4180Field();
         $this->assertFalse($filter->onCreate());
     }
 
@@ -98,7 +98,7 @@ class RFC4180FieldFilterTest extends TestCase
      */
     public function testOnCreateFailedWithWrongParams(array $params)
     {
-        $filter = new RFC4180FieldFilter();
+        $filter = new RFC4180Field();
         $filter->params = $params;
         $this->assertFalse($filter->onCreate());
     }

@@ -164,16 +164,6 @@ abstract class AbstractCsv implements ByteSequence
     }
 
     /**
-     * Returns the class filter mode
-     *
-     * @return int
-     */
-    public function getStreamFilterMode(): int
-    {
-        return $this->stream_filter_mode;
-    }
-
-    /**
      * Returns the current field delimiter
      *
      * @return string
@@ -228,6 +218,16 @@ abstract class AbstractCsv implements ByteSequence
         }
 
         return $this->input_bom;
+    }
+
+    /**
+     * Returns the stream filter mode
+     *
+     * @return int
+     */
+    public function getStreamFilterMode(): int
+    {
+        return $this->stream_filter_mode;
     }
 
     /**

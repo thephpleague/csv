@@ -59,9 +59,6 @@ $enclosure = $csv->getEnclosure(); //returns "|"
 
 ## The escape character
 
-<p class="message-warning"><strong>Warning:</strong> The library does not attempt to workaround <a href="https://bugs.php.net/bug.php?id=55413" target="_blank">a reported PHP bug</a>, <strong>Data using the escape character are correctly escaped but the escape character is not removed from the CSV content</strong>.</p>
-
-
 ### Description
 
 ~~~php
@@ -84,6 +81,8 @@ $escape = $csv->getEscape(); //returns "\"
 ~~~
 
 <p class="message-info">The default escape character is <code>\</code>.</p>
+
+<p class="message-notice">To produce RFC4180 compliant CSV documents you should use the <a href="/9.0/interoperability/#rfc4180-compliance">RFC4180Field</a> stream filter to work around bugs associated with the use of the escape character.</p>
 
 ## Inherited character controls
 

@@ -19,18 +19,17 @@ use php_user_filter;
 use Throwable;
 
 /**
- *  A stream filter to conform the written CSV field to RFC4180
- *  This stream filter should be attach to a League\Csv\Writer object
+ *  A stream filter to conform the CSV field to RFC4180
  *
  * @package League.csv
  * @since   9.0.0
  * @author  Ignace Nyamagana Butera <nyamsprod@gmail.com>
  */
-class RFC4180FieldFilter extends php_user_filter
+class RFC4180Field extends php_user_filter
 {
     use ValidatorTrait;
 
-    const STREAM_FILTERNAME = 'rfc4180.league.csv';
+    const FILTERNAME = 'league.csv.rfc4180.field';
 
     /**
      * The value being search for
@@ -47,17 +46,17 @@ class RFC4180FieldFilter extends php_user_filter
     protected $replace;
 
     /**
-     * Static method to add the stream filter to a Writer object
+     * Static method to add the stream filter to a {@link AbstractCsv} object
      *
      * @param AbstractCsv $csv
      */
     public static function addTo(AbstractCsv $csv)
     {
-        if (!in_array(self::STREAM_FILTERNAME, stream_get_filters())) {
-            stream_filter_register(self::STREAM_FILTERNAME, __CLASS__);
+        if (!in_array(self::FILTERNAME, stream_get_filters())) {
+            stream_filter_register(self::FILTERNAME, __CLASS__);
         }
 
-        $csv->addStreamFilter(self::STREAM_FILTERNAME, [
+        $csv->addStreamFilter(self::FILTERNAME, [
             'enclosure' => $csv->getEnclosure(),
             'escape' => $csv->getEscape(),
             'mode' => $csv->getStreamFilterMode(),
@@ -91,17 +90,18 @@ class RFC4180FieldFilter extends php_user_filter
     }
 
     /**
-     * Filter the given mode
+     * Filter the stream filter mode
      *
      * @param int $mode stream filter mode
      *
-     * @throws InvalidArgumentException if the mode value is unknown
+     * @throws InvalidArgumentException if the stream filter mode is unknown or unsupported
      *
      * @return int
      */
     protected function filterMode(int $mode)
     {
-        if (in_array($mode, [STREAM_FILTER_READ, STREAM_FILTER_WRITE])) {
+        static $mode_list = [STREAM_FILTER_READ => 1, STREAM_FILTER_WRITE => 1];
+        if (isset($mode_list[$mode])) {
             return $mode;
         }
 

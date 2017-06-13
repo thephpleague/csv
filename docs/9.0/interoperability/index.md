@@ -66,46 +66,42 @@ $writer->output('mycsvfile.csv');
 
 ## RFC4180 compliance
 
-Because `League\Csv` uses PHP's csv native functions, out of the box the library does not follow [RFC4180](https://tools.ietf.org/html/rfc4180#section-2). But you can easily create a compliant CSV document using
+Because `League\Csv` uses PHP's CSV native functions, out of the box the library does not follow [RFC4180](https://tools.ietf.org/html/rfc4180#section-2). But you can easily create or read a compliant CSV document using `League\Csv\RFC4180Field` stream filter.
 
-- `League\Csv\RFC4180FieldFilter` stream filter.
-- `League\Csv\Writer::setNewline` method.
+<p class="message-warning">The stream filter API must be supported by your CSV object.</p>
 
-<p class="message-notice">The <code>Writer</code> must supports stream filter</p>
+### On records insertion
+
+To comply with RFC4180 you will also need to use `League\Csv\Writer::setNewline` method.
 
 ~~~php
 <?php
 
-use League\Csv\Reader;
-use League\Csv\RFC4180FieldFilter;
+use League\Csv\RFC4180Field;
 use League\Csv\Writer;
-
-//the current CSV is ISO-8859-15 encoded with a ";" delimiter
-$origin = Reader::createFromPath('/path/to/french.csv', 'r');
-$origin->setDelimiter(';');
 
 $writer = Writer::createFromPath('php://temp');
 $writer->setNewline("\r\n"); //RFC4180 Line feed
-$writer->setOutputBOM(Reader::BOM_UTF16_LE);
-$writer->setDelimiter("\t");
 $writer->addStreamFilter('convert.iconv.ISO-8859-15/UTF-16');
-RFC4180FieldFilter::addTo($writer); //adding the stream filter to fix field formatting
-$writer->insertAll($origin);
+RFC4180Field::addTo($writer); //adding the stream filter to fix field formatting
+$writer->insertAll($iterable_data);
 $writer->output('mycsvfile.csv'); //outputting a RFC4180 compliant CSV Document
 ~~~
 
-Conversely, to read a RFC4180 compliant CSV document, when using the `League\Csv\Reader` object, just add the `League\Csv\RFC4180FieldFilter` stream filter as shown below
+### On records extraction
+
+
+Conversely, to read a RFC4180 compliant CSV document, when using the `League\Csv\Reader` object, just need to add the `League\Csv\RFC4180Field` stream filter as shown below:
 
 ~~~php
 <?php
 
 use League\Csv\Reader;
-use League\Csv\RFC4180FieldFilter;
+use League\Csv\RFC4180Field;
 
 //the current CSV is ISO-8859-15 encoded with a ";" delimiter
 $csv = Reader::createFromPath('/path/to/rfc4180-compliant.csv');
-$csv->setDelimiter(';');
-RFC4180FieldFilter::addTo($csv); //adding the stream filter to fix field formatting
+RFC4180Field::addTo($csv); //adding the stream filter to fix field formatting
 
 foreach ($csv as $record) {
     //do something meaningful here...

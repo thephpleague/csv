@@ -32,7 +32,7 @@ class CharsetConverter extends php_user_filter
 {
     use ValidatorTrait;
 
-    const STREAM_FILTERNAME = 'convert.league.csv';
+    const FILTERNAME = 'convert.league.csv';
 
     /**
      * The records input encoding charset
@@ -49,7 +49,7 @@ class CharsetConverter extends php_user_filter
     protected $output_encoding = 'UTF-8';
 
     /**
-     * Static method to add the stream filter to a CSV object
+     * Static method to add the stream filter to a {@link AbstractCsv} object
      *
      * @param AbstractCsv $csv
      * @param string      $input_encoding
@@ -57,14 +57,14 @@ class CharsetConverter extends php_user_filter
      */
     public static function addTo(AbstractCsv $csv, string $input_encoding, string $output_encoding)
     {
-        $filtername = self::STREAM_FILTERNAME.'.*';
+        $filtername = self::FILTERNAME.'.*';
         if (!in_array($filtername, stream_get_filters())) {
             stream_filter_register($filtername, __CLASS__);
         }
 
         $csv->addStreamFilter(sprintf(
             '%s.%s/%s',
-            self::STREAM_FILTERNAME,
+            self::FILTERNAME,
             self::filterEncoding($input_encoding),
             self::filterEncoding($output_encoding)
         ));
@@ -114,7 +114,7 @@ class CharsetConverter extends php_user_filter
      */
     public function onCreate()
     {
-        $prefix = self::STREAM_FILTERNAME.'.';
+        $prefix = self::FILTERNAME.'.';
         if (0 !== strpos($this->filtername, $prefix)) {
             return false;
         }
