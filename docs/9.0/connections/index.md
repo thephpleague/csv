@@ -23,6 +23,7 @@ abstract class AbstractCsv implements ByteSequence
     public function getEscape(): string
     public function getInputBOM(): string
     public function getOutputBOM(): string
+    public function getStreamFilterMode(): int
     public function output(string $filename = null): int
     public function setDelimiter(string $delimiter): self
     public function setEnclosure(string $enclosure): self

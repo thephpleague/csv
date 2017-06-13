@@ -13,7 +13,7 @@ use PHPUnit\Framework\TestCase;
  */
 class RFC4180FieldFilterTest extends TestCase
 {
-   /**
+    /**
      * @see https://bugs.php.net/bug.php?id=43225
      * @see https://bugs.php.net/bug.php?id=74713
      *
@@ -116,7 +116,7 @@ class RFC4180FieldFilterTest extends TestCase
                 'escape' => '\\',
                 'mode' => STREAM_FILTER_READ,
             ]],
-            'wrong mode' => [[
+            'wrong stream filter mode' => [[
                 'enclosure' => '"',
                 'escape' => '\\',
                 'mode' => STREAM_FILTER_ALL,

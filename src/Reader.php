@@ -60,7 +60,7 @@ class Reader extends AbstractCsv implements Countable, IteratorAggregate
      *
      * @var string[]
      */
-    protected $header;
+    protected $header = [];
 
     /**
      * Records Iterator
@@ -74,39 +74,7 @@ class Reader extends AbstractCsv implements Countable, IteratorAggregate
      *
      * @var int
      */
-    protected $nb_records;
-
-    /**
-     * @inheritdoc
-     */
-    protected function resetProperties()
-    {
-        $this->nb_records = null;
-        $this->header = null;
-        $this->records = null;
-    }
-
-    /**
-     * Returns the record padding value
-     *
-     * @return mixed
-     */
-    public function getRecordPaddingValue()
-    {
-        return $this->record_padding_value;
-    }
-
-    /**
-     * Returns the record offset used as header
-     *
-     * If no CSV record is used this method MUST return null
-     *
-     * @return int|null
-     */
-    public function getHeaderOffset()
-    {
-        return $this->header_offset;
-    }
+    protected $nb_records = -1;
 
     /**
      * Detect Delimiters occurences in the CSV
@@ -162,6 +130,28 @@ class Reader extends AbstractCsv implements Countable, IteratorAggregate
     }
 
     /**
+     * Returns the record padding value
+     *
+     * @return mixed
+     */
+    public function getRecordPaddingValue()
+    {
+        return $this->record_padding_value;
+    }
+
+    /**
+     * Returns the record offset used as header
+     *
+     * If no CSV record is used this method MUST return null
+     *
+     * @return int|null
+     */
+    public function getHeaderOffset()
+    {
+        return $this->header_offset;
+    }
+
+    /**
      * Returns wether the selected header can be combine to each record
      *
      * A valid header must be empty or contains unique string field names
@@ -184,12 +174,11 @@ class Reader extends AbstractCsv implements Countable, IteratorAggregate
      */
     public function getHeader(): array
     {
-        if (is_array($this->header)) {
+        if (null === $this->header_offset) {
             return $this->header;
         }
 
-        $this->header = [];
-        if (null !== $this->header_offset) {
+        if (empty($this->header)) {
             $this->header = $this->setHeader($this->header_offset);
         }
 
@@ -265,17 +254,11 @@ class Reader extends AbstractCsv implements Countable, IteratorAggregate
      */
     public function count(): int
     {
-        $this->nb_records = $this->nb_records ?? iterator_count($this->getRecords());
+        if (-1 === $this->nb_records) {
+            $this->nb_records = iterator_count($this->getRecords());
+        }
 
         return $this->nb_records;
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function getIterator(): Iterator
-    {
-        return $this->getRecords();
     }
 
     /**
@@ -378,6 +361,27 @@ class Reader extends AbstractCsv implements Countable, IteratorAggregate
         return new MapIterator($iterator, $mapper);
     }
 
+    /**
+     * @inheritdoc
+     */
+    public function getIterator(): Iterator
+    {
+        return $this->getRecords();
+    }
+
+    /**
+     * Set the record padding value
+     *
+     * @param mixed $record_padding_value
+     *
+     * @return static
+     */
+    public function setRecordPaddingValue($record_padding_value): self
+    {
+        $this->record_padding_value = $record_padding_value;
+
+        return $this;
+    }
 
     /**
      * Selects the record to be used as the CSV header
@@ -404,16 +408,12 @@ class Reader extends AbstractCsv implements Countable, IteratorAggregate
     }
 
     /**
-     * Set the record padding value
-     *
-     * @param mixed $record_padding_value
-     *
-     * @return static
+     * @inheritdoc
      */
-    public function setRecordPaddingValue($record_padding_value): self
+    protected function resetProperties()
     {
-        $this->record_padding_value = $record_padding_value;
-
-        return $this;
+        $this->nb_records = -1;
+        $this->header = [];
+        $this->records = null;
     }
 }

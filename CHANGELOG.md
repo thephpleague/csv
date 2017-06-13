@@ -62,7 +62,6 @@ All Notable changes to `Csv` will be documented in this file
 - The following methods are removed because the PHP stream filter API is simplified:
     - `League\Csv\AbstractCsv::isActiveStreamFilter`
     - `League\Csv\AbstractCsv::setStreamFilterMode`
-    - `League\Csv\AbstractCsv::getStreamFilterMode`
     - `League\Csv\AbstractCsv::appendStreamFilter`
     - `League\Csv\AbstractCsv::prependStreamFilter`
     - `League\Csv\AbstractCsv::removeStreamFilter`

@@ -13,9 +13,13 @@ To ease performing operations on the CSV document as it is being read from or wr
 <?php
 
 public AbstractCsv::supportsStreamFilter(void): bool
+public AbstractCsv::getStreamFilterMode(void): int
 ~~~
 
-Tells whether the stream filter API is supported by the current object.
+The `supportsStreamFilter` tells whether the stream filter API is supported by the current object whereas the `getStreamFilterMode` returns the filter mode used to attach new stream filters to the CSV object. The filter mode value is one of the following PHP's constant:
+
+- `STREAM_FILTER_READ` to add stream filter on read
+- `STREAM_FILTER_WRITE` to add stream filter on write
 
 ~~~php
 <?php
@@ -25,9 +29,11 @@ use League\Csv\Writer;
 
 $reader = Reader::createFromPath('/path/to/my/file.csv');
 $reader->supportsStreamFilter(); //return true
+$reader->getStreamFilterMode(); //return STREAM_FILTER_READ
 
 $writer = Writer::createFromFileObject(new SplTempFileObject());
 $writer->supportsStreamFilter(); //return false the API can not be use
+$writer->getStreamFilterMode(); //return STREAM_FILTER_WRITE
 ~~~
 
 <p class="message-warning">A <code>LogicException</code> exception will be thrown if you use the API on a object where <code>supportsStreamFilter</code> returns <code>false</code>.</p>
