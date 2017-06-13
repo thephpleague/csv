@@ -68,7 +68,7 @@ $writer->output('mycsvfile.csv');
 
 Because `League\Csv` uses PHP's csv native functions, out of the box the library does not follow [RFC4180](https://tools.ietf.org/html/rfc4180#section-2). But you can easily create a compliant CSV document using
 
-- `League\Csv\RFC4180FieldFormatter` stream filter.
+- `League\Csv\RFC4180FieldFilter` stream filter.
 - `League\Csv\Writer::setNewline` method.
 
 <p class="message-notice">The <code>Writer</code> must supports stream filter</p>
@@ -77,7 +77,7 @@ Because `League\Csv` uses PHP's csv native functions, out of the box the library
 <?php
 
 use League\Csv\Reader;
-use League\Csv\RFC4180FieldFormatter;
+use League\Csv\RFC4180FieldFilter;
 use League\Csv\Writer;
 
 //the current CSV is ISO-8859-15 encoded with a ";" delimiter
@@ -89,23 +89,23 @@ $writer->setNewline("\r\n"); //RFC4180 Line feed
 $writer->setOutputBOM(Reader::BOM_UTF16_LE);
 $writer->setDelimiter("\t");
 $writer->addStreamFilter('convert.iconv.ISO-8859-15/UTF-16');
-RFC4180FieldFormatter::addTo($writer); //adding the stream filter to fix field formatting
+RFC4180FieldFilter::addTo($writer); //adding the stream filter to fix field formatting
 $writer->insertAll($origin);
 $writer->output('mycsvfile.csv'); //outputting a RFC4180 compliant CSV Document
 ~~~
 
-Conversely, to read a RFC4180 compliant CSV document, when using the `League\Csv\Reader` object, you only need to set its enclosure and escape control characters with the same value.
+Conversely, to read a RFC4180 compliant CSV document, when using the `League\Csv\Reader` object, just add the `League\Csv\RFC4180FieldFilter` stream filter as shown below
 
 ~~~php
 <?php
 
 use League\Csv\Reader;
+use League\Csv\RFC4180FieldFilter;
 
 //the current CSV is ISO-8859-15 encoded with a ";" delimiter
 $csv = Reader::createFromPath('/path/to/rfc4180-compliant.csv');
 $csv->setDelimiter(';');
-$csv->setEnclosure('"');
-$csv->setEscape($origin->getEnclosure());
+RFC4180FieldFilter::addTo($csv); //adding the stream filter to fix field formatting
 
 foreach ($csv as $record) {
     //do something meaningful here...

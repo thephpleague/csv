@@ -42,7 +42,6 @@ class ReaderTest extends TestCase
     /**
      * @covers ::count
      * @covers ::getRecords
-     * @covers ::__destruct
      */
     public function testCountable()
     {
@@ -53,7 +52,6 @@ class ReaderTest extends TestCase
         $this->assertCount(2, $csv);
         $csv->setHeaderOffset(0);
         $this->assertCount(1, $csv);
-        $csv = null;
     }
 
     /**
@@ -167,7 +165,7 @@ class ReaderTest extends TestCase
     {
         return [
             'unknown method' => ['foo'],
-            'ResultSet method not whitelisted' => ['preserveRecordOffset'],
+            'ResultSet method not whitelisted' => ['isRecordOffsetPreserved'],
         ];
     }
 

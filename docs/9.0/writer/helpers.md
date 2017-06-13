@@ -77,30 +77,30 @@ $writer->insertOne(["foo", "bébé", "jouet"]);
 //all 'utf-8' caracters are now automatically encoded into 'iso-8859-15' charset
 ~~~
 
-## RFC4180 field formatter
+## RFC4180 compliance
 
 ~~~php
 <?php
 
-public static RFC4180FieldFormatter::addTo(Writer $csv): void
+public static RFC4180FieldFilter::addTo(AbstractCsv $csv): void
 ~~~
 
-If your CSV object supports PHP stream filters then you can register the `RFC4180FieldFormatter` class as a PHP stream filter and use the library [stream filtering mechanism](/9.0/connections/filters/) to correct field formatting to comply with [RFC4180](https://tools.ietf.org/html/rfc4180#section-2).
+If your CSV object supports PHP stream filters then you can register the `RFC4180FieldFilter` stream filter to correct field formatting to comply with [RFC4180](https://tools.ietf.org/html/rfc4180#section-2).
 
-The `RFC4180FieldFormatter::addTo` static method:
+The `RFC4180FieldFilter::addTo` static method:
 
-- registers the `RFC4180FieldFormatter` class under the following generic filtername `rfc4180.league.csv`.
+- registers the `RFC4180FieldFilter` class under the following generic filtername `rfc4180.league.csv`.
 - adds the stream filter to your current `Writer` object using the object CSV control properties.
 
 ~~~php
 <?php
 
-use League\Csv\RFC4180FieldFormatter;
+use League\Csv\RFC4180FieldFilter;
 use League\Csv\Writer;
 
 $writer = Writer::createFromStream(fopen('php://temp', 'r+'));
 $writer->setNewline("\r\n"); //RFC4180 Line feed
-RFC4180FieldFormatter::addTo($writer); //adds the stream filter to the Writer object fix escape character usage
+RFC4180FieldFilter::addTo($writer); //adds the stream filter to the Writer object fix escape character usage
 $writer->insertAll($data);
 $writer->output('mycsvfile.csv'); //outputting a RFC4180 compliant CSV Document
 ~~~
