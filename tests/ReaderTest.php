@@ -41,6 +41,7 @@ class ReaderTest extends TestCase
 
     /**
      * @covers ::count
+     * @covers ::computeHeader
      * @covers ::getRecords
      */
     public function testCountable()
@@ -56,9 +57,9 @@ class ReaderTest extends TestCase
 
     /**
      * @covers ::resetProperties
+     * @covers ::computeHeader
      * @covers ::getIterator
      * @covers ::getRecords
-     * @covers ::supportsHeaderAsRecordKeys
      * @covers ::combineHeader
      */
     public function testGetIterator()
@@ -96,6 +97,7 @@ class ReaderTest extends TestCase
     }
 
     /**
+     * @covers ::computeHeader
      * @covers ::combineHeader
      */
     public function testCombineHeader()
@@ -210,6 +212,7 @@ class ReaderTest extends TestCase
 
     /**
      * @covers ::getHeader
+     * @covers ::computeHeader
      * @covers ::getRecords
      * @covers ::setHeader
      */
@@ -347,5 +350,17 @@ class ReaderTest extends TestCase
     {
         $this->expectException(RuntimeException::class);
         $this->csv->setHeaderOffset(23)->getRecords();
+    }
+
+    /**
+     * @covers ::computeHeader
+     */
+    public function testMapRecordsFields()
+    {
+        $keys = ['firstname', 'lastname', 'email'];
+        $res = $this->csv->getRecords($keys);
+        foreach ($res as $record) {
+            $this->assertSame($keys, array_keys($record));
+        }
     }
 }

@@ -145,20 +145,6 @@ class Reader extends AbstractCsv implements Countable, IteratorAggregate
     }
 
     /**
-     * Returns wether the selected header can be combine to each record
-     *
-     * A valid header must be empty or contains unique string field names
-     *
-     * @return bool
-     */
-    public function supportsHeaderAsRecordKeys(): bool
-    {
-        $header = $this->getHeader();
-
-        return empty($header) || $header === array_unique(array_filter($header, 'is_string'));
-    }
-
-    /**
      * Returns the CSV record header
      *
      * The returned header is represented as an array of string values
@@ -274,16 +260,13 @@ class Reader extends AbstractCsv implements Countable, IteratorAggregate
      * filled with null values while extra record fields are strip from
      * the returned object.
      *
-     * @throws RuntimeException If the header contains non unique column name
+     * @param array $header
      *
      * @return Iterator
      */
-    public function getRecords(): Iterator
+    public function getRecords(array $header = []): Iterator
     {
-        if (!$this->supportsHeaderAsRecordKeys()) {
-            throw new RuntimeException('The header record must be empty or a flat array with unique string values');
-        }
-
+        $header = $this->computeHeader($header);
         $normalized = function ($record): bool {
             return is_array($record) && $record != [null];
         };
@@ -291,27 +274,52 @@ class Reader extends AbstractCsv implements Countable, IteratorAggregate
         $this->document->setFlags(SplFileObject::READ_CSV | SplFileObject::READ_AHEAD | SplFileObject::SKIP_EMPTY);
         $this->document->setCsvControl($this->delimiter, $this->enclosure, $this->escape);
 
-        return $this->combineHeader($this->stripBOM(new CallbackFilterIterator($this->document, $normalized), $bom));
+        $records = $this->stripBOM(new CallbackFilterIterator($this->document, $normalized), $bom);
+        if (null !== $this->header_offset) {
+            $records = new CallbackFilterIterator($records, function (array $record, int $offset): bool {
+                return $offset !== $this->header_offset;
+            });
+        }
+
+        return $this->combineHeader($records, $header);
+    }
+
+    /**
+     * Returns the header to be used for iteration
+     *
+     * @param string[] $header
+     *
+     * @throws RuntimeException If the header contains non unique column name
+     *
+     * @return string[]
+     */
+    protected function computeHeader(array $header)
+    {
+        if (empty($header)) {
+            $header = $this->getHeader();
+        }
+
+        if ($header === array_unique(array_filter($header, 'is_string'))) {
+            return $header;
+        }
+
+        throw new RuntimeException('The header record must be empty or a flat array with unique string values');
     }
 
     /**
      * Add the CSV header if present and valid
      *
      * @param Iterator $iterator
+     * @param array    $header
      *
      * @return Iterator
      */
-    protected function combineHeader(Iterator $iterator): Iterator
+    protected function combineHeader(Iterator $iterator, array $header): Iterator
     {
-        if (null === $this->header_offset) {
+        if (empty($header)) {
             return $iterator;
         }
 
-        $iterator = new CallbackFilterIterator($iterator, function (array $record, int $offset): bool {
-            return $offset != $this->header_offset;
-        });
-
-        $header = $this->getHeader();
         $field_count = count($header);
         $mapper = function (array $record) use ($header, $field_count): array {
             if (count($record) != $field_count) {

@@ -13,7 +13,7 @@ class Statement
     public function limit(int $limit): self
     public function offset(int $offset): self
     public function orderBy(callable $callable): self
-    public function process(Reader $reader): ResultSet
+    public function process(Reader $reader, array $header = []): ResultSet
     public function where(callable $callable): self
 }
 ~~~
@@ -98,7 +98,7 @@ public Statement::limit(int $limit): self
 ~~~php
 <?php
 
-public Statement::process(Reader $reader): ResultSet
+public Statement::process(Reader $reader, array $header = []): ResultSet
 ~~~
 
 This method processes a [Reader](/9.0/reader/) object and returns the found records as a [ResultSet](/9.0/reader/resultset) object.
@@ -128,4 +128,34 @@ $stmt = (new Statement())
 ;
 
 $records = $stmt->process($reader);
+~~~
+
+Just like the `Reader:getRecords`, the `Statement::process` method takes an optional `$header` argument to allow mapping CSV fields name to user defined header record.
+
+
+~~~php
+<?php
+
+use League\Csv\Reader;
+use League\Csv\Statement;
+
+function filterByEmail(array $record): bool
+{
+    return (bool) filter_var($record[2], FILTER_VALIDATE_EMAIL);
+}
+
+function sortByLastName(array $recordA, array $recordB): int
+{
+    return strcmp($recordB[1], $recordA[1]);
+}
+
+$reader = Reader::createFromPath('/path/to/file.csv');
+$stmt = (new Statement())
+    ->offset(3)
+    ->limit(2)
+    ->where('filterByEmail')
+    ->orderBy('sortByLastName')
+;
+
+$records = $stmt->process($reader, ['firstname', 'lastname', 'email']);
 ~~~

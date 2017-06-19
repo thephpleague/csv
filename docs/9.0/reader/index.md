@@ -19,11 +19,10 @@ class Reader extends AbstractCsv implements Countable, IteratorAggregate
     public function getHeader(): array
     public function getHeaderOffset(): int|null
     public function getIterator(): Iterator
-    public function getRecords(): Iterator
+    public function getRecords(array $header = []): Iterator
     public function getRecordPaddingValue(): mixed
     public function setHeaderOffset(?int $offset): self
     public function setRecordPaddingValue(mixed $padding_value): self
-    public function supportsHeaderAsRecordKeys(): bool
 }
 ~~~
 
@@ -125,6 +124,31 @@ $header_offset = $csv->getHeaderOffset(); //returns 1000
 $header = $csv->getHeader(); //triggers a Exception
 ~~~
 
+## Counting CSV records
+
+Because the `Reader` class implements the `Countable` interface you can retrieve to number of records contains in a CSV document using PHP's `count` function. 
+
+~~~php
+<?php
+
+use League\Csv\Reader;
+
+$reader = Reader::createFromPath('/path/to/my/file.csv');
+count($reader); //returns 4
+~~~
+
+If a header offset is specified, the number of records will not take into account the header record
+
+~~~php
+<?php
+
+use League\Csv\Reader;
+
+$reader = Reader::createFromPath('/path/to/my/file.csv');
+$reader->setHeaderOffset(0);
+count($reader); //returns 3
+~~~
+
 ## Accessing CSV records
 
 ### Basic usage
@@ -133,13 +157,12 @@ $header = $csv->getHeader(); //triggers a Exception
 <?php
 
 public Reader::getIterator(void): Iterator
-public Reader::getRecords(void): Iterator
-public Reader::supportsHeaderAsRecordKeys(): bool
+public Reader::getRecords(array $header = []): Iterator
 public Reader::getRecordPaddingValue(): mixed
 public Reader::setRecordPaddingValue(mixed $padding_value): self
 ~~~
 
-The `Reader` class let's you access all its records using the `Reader::getRecords` method. The method which accepts no argument, returns an `Iterator` containing all CSV document records. It will also:
+The `Reader` class let's you access all its records using the `Reader::getRecords` method. The method returns an `Iterator` containing all CSV document records. It will also:
 
 - Filter out the empty lines;
 - Remove the BOM sequence if present;
@@ -167,14 +190,82 @@ foreach ($records as $offset => $record) {
 
 ### Usage with a specified header
 
-If a header offset was specified using the `setHeaderOffset` method
+If you specify the CSV header offset using `setHeaderOffset`, the found record will be combined to each CSV record to return an associated array whose keys are composed of the header values.
 
-- The found header record is:
-    - combined to each CSV record to return an associated array whose keys are composed of the header values.
-    - removed from the returned iterator.
-- The returned records are normalized to the number of fields contained in the header record
-    - Extra fields are truncated.
-    - Missing fields are added with a default padding value.
+#### Using setHeaderOffset
+
+~~~php
+<?php
+
+use League\Csv\Reader;
+
+$reader = Reader::createFromPath('/path/to/my/file.csv');
+$reader->setHeaderOffset(0);
+$records = $reader->getRecords();
+foreach ($records as $offset => $record) {
+    //$offset : represents the record offset
+    //var_export($record) returns something like
+    // array(
+    //  'First Name' => 'jane',
+    //  'Last Name' => 'doe',
+    //  'E-mail' => 'jane.doe@example.com'
+    // );
+    //
+}
+~~~
+
+#### Using the optional `$header`  argument of the `getRecords` method.
+
+Conversely, you can submit your own header record using the optional `$header` argument of the `getRecords` method.
+
+~~~php
+<?php
+
+use League\Csv\Reader;
+
+$reader = Reader::createFromPath('/path/to/my/file.csv');
+$records = $reader->getRecords(['firstname', 'lastname', 'email']);
+foreach ($records as $offset => $record) {
+    //$offset : represents the record offset
+    //var_export($record) returns something like
+    // array(
+    //  'firstame' => 'jane',
+    //  'lastname' => 'doe',
+    //  'email' => 'jane.doe@example.com'
+    // );
+}
+~~~
+
+<p class="message-notice">The optional <code>$header</code> argument from  the <code>Reader::getRecords</code> takes precedence over the header offset property but its corresponding record will still be removed from the returned <code>Iterator</code>.</p>
+
+~~~php
+<?php
+
+use League\Csv\Reader;
+
+$reader = Reader::createFromPath('/path/to/my/file.csv');
+$reader->setHeaderOffset(0);
+$records = $reader->getRecords(['firstname', 'lastname', 'email']);
+foreach ($records as $offset => $record) {
+    //$offset : represents the record offset
+    //var_export($record) returns something like
+    // array(
+    //  'firstame' => 'jane',
+    //  'lastname' => 'doe',
+    //  'email' => 'jane.doe@example.com'
+    // );
+}
+//the first record will still be skip!!
+~~~
+
+<p class="message-warning">In both cases, if the header record contains non unique string values, a <code>RuntimeException</code> exception is triggered.</p>
+
+### Records normalization
+
+The returned records are normalized to the number of fields contained in the header record
+
+- Extra fields are truncated.
+- Missing fields are added with a default padding value.
 
 The default padding value can be defined using the `setRecordPaddingValue` method. By default, if no content is specified `null` will be used.  
 You can retrieve the padding value using the `getRecordPaddingValue` method.
@@ -186,53 +277,19 @@ use League\Csv\Reader;
 
 $reader = Reader::createFromPath('/path/to/my/file.csv');
 $reader->setHeaderOffset(0);
-$reader->setRecordPaddingValue('')
+$reader->setRecordPaddingValue('N/A')
 $records = $reader->getRecords();
 foreach ($records as $offset => $record) {
     //$offset : represents the record offset
     //var_export($record) returns something like
     // array(
-    //  'Fist Name' => 'jane',
+    //  'First Name' => 'jane',
     //  'Last Name' => 'jane',
-    //  'E-mail' => ''
+    //  'E-mail' => 'N/A'
     // );
     //
 }
-$reader->getRecordPaddingValue(); //returns 'toto'
-~~~
-
-<p class="message-warning">If the header record contains non unique values, a <code>RuntimeException</code> exception is triggered </p>
-
-You can avoid this exception by using the `Reader::supportsHeaderAsRecordKeys` method. The method returns `true` if `Reader::getHeader` returns:
-
-- an empty record;
-- or, a record containing only unique string values;
-
-~~~php
-<?php
-
-use League\Csv\Reader;
-
-$reader = Reader::createFromPath('/path/to/my/file.csv');
-$reader->setHeaderOffset(0);
-//var_export($reader->getHeader()) returns something like
-// array(
-//  'First Name',
-//  'Last Name',
-//  'E-mail'
-// );
-$reader->supportsHeaderAsRecordKeys(); //return true;
-$reader->getRecords(); //returns an Iterator
-
-$reader->setHeaderOffset(3);
-//var_export($reader->getHeader()) returns something like
-// array(
-//  'john',
-//  'john',
-//  'john.john@example.com'
-// );
-$reader->supportsHeaderAsRecordKeys(); //return false;
-$reader->getRecords(); //throws a RuntimeException
+$reader->getRecordPaddingValue(); //returns 'N/A'
 ~~~
 
 ### Iteration simplified
@@ -250,7 +307,7 @@ foreach ($reader as $offset => $record) {
     //$offset : represents the record offset
     //var_export($record) returns something like
     // array(
-    //  'Fist Name' => 'john',
+    //  'First Name' => 'john',
     //  'Last Name' => 'doe',
     //  'E-mail' => john.doe@example.com'
     // );
@@ -308,29 +365,4 @@ $stmt = (new Statement())
 
 $records = $stmt->process($reader);
 //$records is a League\Csv\ResultSet object
-~~~
-
-## Counting the CSV document records
-
-Because the `Reader` class implements the `Countable` interface you can retrieve to number of records contains in a CSV document using PHP's `count` function. 
-
-~~~php
-<?php
-
-use League\Csv\Reader;
-
-$reader = Reader::createFromPath('/path/to/my/file.csv');
-count($reader); //returns 4
-~~~
-
-If a header offset is specified, the number of records will not take into account the header record
-
-~~~php
-<?php
-
-use League\Csv\Reader;
-
-$reader = Reader::createFromPath('/path/to/my/file.csv');
-$reader->setHeaderOffset(0);
-count($reader); //returns 3
 ~~~

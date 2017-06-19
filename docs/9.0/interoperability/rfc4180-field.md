@@ -9,17 +9,17 @@ title: CSV document interoperability
 <?php
 class RFC4180Field extends php_user_filter
 {
-    public static function register(): void
-    public static function getFiltername(): string
     public static function addTo(AbstractCsv $csv): AbstractCsv
+    public static function getFiltername(): string
+    public static function register(): void
 }
 ~~~
 
 The `RFC4180Field` class enables to work around the following bugs in PHP's native CSV functions:
 
-- [fputcsv incorrectly handles cells ending in \ followed by "](https://bugs.php.net/bug.php?id=43225)
-- [str_getcsv doesnt remove escape characters](https://bugs.php.net/bug.php?id=55413)
-- [CSV cell split after fputcsv() + fgetcsv() round trip.](https://bugs.php.net/bug.php?id=74713)
+- [bug #43225](https://bugs.php.net/bug.php?id=43225): `fputcsv` incorrectly handles cells ending in `\` followed by `"`
+- [bug #55413](https://bugs.php.net/bug.php?id=55413): `str_getcsv` doesn't remove escape characters
+- [bug #74713](https://bugs.php.net/bug.php?id=74713): CSV cell split after `fputcsv()` + `fgetcsv()` round trip.
 
 When using this stream filter you can easily create or read a [RFC4180 compliant CSV document](https://tools.ietf.org/html/rfc4180#section-2) using `League\Csv` connections objects.
 

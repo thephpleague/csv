@@ -29,7 +29,7 @@ class RFC4180Field extends php_user_filter
 {
     use ValidatorTrait;
 
-    const FILTERNAME = 'league.csv.rfc4180.field';
+    const FILTERNAME = 'convert.league.csv.rfc4180';
 
     /**
      * The value being search for

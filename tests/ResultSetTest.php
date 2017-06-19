@@ -455,17 +455,13 @@ class ResultSetTest extends TestCase
     /**
      * @covers ::getColumnNames
      */
-    public function testGetHeader()
+    public function testGetColumnNames()
     {
+        $expected = ['firstname', 'lastname', 'email'];
         $this->assertSame([], $this->stmt->process($this->csv)->getColumnNames());
-    }
-
-    /**
-     * @covers ::getColumnNames
-     */
-    public function testGetComputedHeader()
-    {
+        $this->assertSame($expected, $this->stmt->process($this->csv, $expected)->getColumnNames());
         $this->csv->setHeaderOffset(0);
         $this->assertSame($this->expected[0], $this->stmt->process($this->csv)->getColumnNames());
+        $this->assertSame($expected, $this->stmt->process($this->csv, $expected)->getColumnNames());
     }
 }

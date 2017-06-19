@@ -133,20 +133,25 @@ class Statement
      * Returns the inner CSV Document Iterator object
      *
      * @param Reader $csv
+     * @param array  $header
      *
      * @return ResultSet
      */
-    public function process(Reader $csv): ResultSet
+    public function process(Reader $csv, array $header = []): ResultSet
     {
+        if (empty($header)) {
+            $header = $csv->getHeader();
+        }
+
         $reducer = function (Iterator $iterator, callable $callable): Iterator {
             return new CallbackFilterIterator($iterator, $callable);
         };
 
-        $iterator = array_reduce($this->where, $reducer, $csv->getRecords());
+        $iterator = array_reduce($this->where, $reducer, $csv->getRecords($header));
         $iterator = $this->buildOrderBy($iterator);
         $iterator = new LimitIterator($iterator, $this->offset, $this->limit);
 
-        return new ResultSet($iterator, $csv->getHeader());
+        return new ResultSet($iterator, $header);
     }
 
     /**
