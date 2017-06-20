@@ -93,7 +93,7 @@ public Statement::limit(int $limit): self
 
 <p class="message-notice">When called multiple times, each call override the last settings for these options.</p>
 
-## Apply the constraints to a CSV document
+## Processing a CSV document
 
 ~~~php
 <?php
@@ -131,7 +131,6 @@ $records = $stmt->process($reader);
 ~~~
 
 Just like the `Reader:getRecords`, the `Statement::process` method takes an optional `$header` argument to allow mapping CSV fields name to user defined header record.
-
 
 ~~~php
 <?php

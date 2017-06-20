@@ -38,44 +38,7 @@ Many examples in this reference require an CSV file. We will use the following f
     john,john,john.john@example.com
     jane,jane
 
-## Detecting the delimiter character
-
-This method allow you to find the occurences of some delimiters in a given CSV object.
-
-~~~php
-<?php
-
-public Reader::fetchDelimitersOccurrence(array $delimiters, int $nb_records = 1): array
-~~~
-
-The method takes two arguments:
-
-* an array containing the delimiters to check;
-* an integer which represents the number of CSV records to scan (default to `1`);
-
-~~~php
-<?php
-
-use League\Csv\Reader;
-
-$reader = Reader::createFromPath('/path/to/file.csv');
-$reader->setEnclosure('"');
-$reader->setEscape('\\');
-
-$delimiters_list = $reader->fetchDelimitersOccurrence([' ', '|'], 10);
-// $delimiters_list can be the following
-// [
-//     '|' => 20,
-//     ' ' => 0,
-// ]
-// This seems to be a consistent CSV with:
-// - the delimiter "|" appearing 20 times in the 10 first records
-// - the delimiter " " never appearing
-~~~
-
-<p class="message-warning"><strong>Warning:</strong> This method only test the delimiters you gave it.</p>
-
-## Header detection
+## CSV Header
 
 You can set and retrieve the header offset as well as its corresponding record.
 
@@ -121,7 +84,7 @@ use League\Csv\Reader;
 $csv = Reader::createFromPath('/path/to/file.csv');
 $csv->setHeaderOffset(1000); //valid offset but the CSV does not contain 1000 records
 $header_offset = $csv->getHeaderOffset(); //returns 1000
-$header = $csv->getHeader(); //triggers a Exception
+$header = $csv->getHeader(); //triggers a RuntimeException exception
 ~~~
 
 ## Counting CSV records
@@ -149,25 +112,25 @@ $reader->setHeaderOffset(0);
 count($reader); //returns 3
 ~~~
 
-## Accessing CSV records
+<p class="message-warning">Using the <code>Countable</code> interface is not recommended for large CSV files</p>
 
-### Basic usage
+## Iterating over CSV records
 
 ~~~php
 <?php
 
-public Reader::getIterator(void): Iterator
 public Reader::getRecords(array $header = []): Iterator
+public Reader::getIterator(void): Iterator
 public Reader::getRecordPaddingValue(): mixed
 public Reader::setRecordPaddingValue(mixed $padding_value): self
 ~~~
 
+### Using Reader::getRecords
+
 The `Reader` class let's you access all its records using the `Reader::getRecords` method. The method returns an `Iterator` containing all CSV document records. It will also:
 
 - Filter out the empty lines;
-- Remove the BOM sequence if present;
-- Apply the stream filters if supplied;
-- Extract the records using the CSV controls characters;
+- Extract the records using the [CSV controls characters](/9.0/connections/controls/);
 
 ~~~php
 <?php
@@ -188,11 +151,9 @@ foreach ($records as $offset => $record) {
 }
 ~~~
 
-### Usage with a specified header
+### Using Reader::getRecords with Reader::setHeaderOffset
 
 If you specify the CSV header offset using `setHeaderOffset`, the found record will be combined to each CSV record to return an associated array whose keys are composed of the header values.
-
-#### Using setHeaderOffset
 
 ~~~php
 <?php
@@ -214,7 +175,7 @@ foreach ($records as $offset => $record) {
 }
 ~~~
 
-#### Using the optional `$header`  argument of the `getRecords` method.
+### Using Reader::getRecords with its optional argument
 
 Conversely, you can submit your own header record using the optional `$header` argument of the `getRecords` method.
 
@@ -260,15 +221,41 @@ foreach ($records as $offset => $record) {
 
 <p class="message-warning">In both cases, if the header record contains non unique string values, a <code>RuntimeException</code> exception is triggered.</p>
 
-### Records normalization
+### Using the IteratorAggregate interface
 
-The returned records are normalized to the number of fields contained in the header record
+Because the `Reader` class implements the `IteratorAggregate` interface you can directly iterate over each record using the `foreach` construct and an instantiated `Reader` object.  
+You will get the same results as if you had called `Reader::getRecords` without its optional argument.
 
-- Extra fields are truncated.
-- Missing fields are added with a default padding value.
+~~~php
+<?php
 
-The default padding value can be defined using the `setRecordPaddingValue` method. By default, if no content is specified `null` will be used.  
-You can retrieve the padding value using the `getRecordPaddingValue` method.
+use League\Csv\Reader;
+
+$reader = Reader::createFromPath('/path/to/my/file.csv');
+$reader->setHeaderOffset(0);
+foreach ($reader as $offset => $record) {
+    //$offset : represents the record offset
+    //var_export($record) returns something like
+    // array(
+    //  'First Name' => 'john',
+    //  'Last Name' => 'doe',
+    //  'E-mail' => john.doe@example.com'
+    // );
+    //
+}
+~~~
+
+## CSV Record normalization
+
+The returned records are normalized using the following rules:
+
+- The BOM sequence is removed if present;
+- [Stream filters](/9.0/connections/filters/) are applied if present
+- If a header record was provided, the number of fields is normalized to the number of fields contained in that record:
+    - Extra fields are truncated.
+    - Missing fields are added with a default padding value.
+
+The default padding value can be defined using the `setRecordPaddingValue` method. By default, if no content is specified `null` will be used. You can retrieve the padding value using the `getRecordPaddingValue` method.
 
 ~~~php
 <?php
@@ -292,29 +279,6 @@ foreach ($records as $offset => $record) {
 $reader->getRecordPaddingValue(); //returns 'N/A'
 ~~~
 
-### Iteration simplified
-
-Because the `Reader` class implements the `IteratorAggregate` interface you can directly iterate over each record using the `foreach` construct and an instantiated `Reader` object. You will get the same results as if you had called `Reader::getRecords`.
-
-~~~php
-<?php
-
-use League\Csv\Reader;
-
-$reader = Reader::createFromPath('/path/to/my/file.csv');
-$reader->setHeaderOffset(0);
-foreach ($reader as $offset => $record) {
-    //$offset : represents the record offset
-    //var_export($record) returns something like
-    // array(
-    //  'First Name' => 'john',
-    //  'Last Name' => 'doe',
-    //  'E-mail' => john.doe@example.com'
-    // );
-    //
-}
-~~~
-
 ## Selecting CSV records
 
 ### Simple Usage
@@ -328,7 +292,7 @@ public Reader::fetchOne(int $offset = 0): array
 public Reader::fetchPairs(string|int $offsetIndex = 0, string|int $valueIndex = 1): Generator
 ~~~
 
-Using method overloading, you can directly access all retrieving methods attached to the [ResultSet](/9.0/reader/resultset) object.
+Using method overloading, you can directly access all retrieving methods attached to the [ResultSet](/9.0/reader/resultset/#iterating-over-the-result-set) object.
 
 #### Example
 
@@ -366,3 +330,40 @@ $stmt = (new Statement())
 $records = $stmt->process($reader);
 //$records is a League\Csv\ResultSet object
 ~~~
+
+## Detecting the delimiter character
+
+This method allow you to find the occurences of some delimiters in a given CSV object.
+
+~~~php
+<?php
+
+public Reader::fetchDelimitersOccurrence(array $delimiters, int $nb_records = 1): array
+~~~
+
+The method takes two arguments:
+
+* an array containing the delimiters to check;
+* an integer which represents the number of CSV records to scan (default to `1`);
+
+~~~php
+<?php
+
+use League\Csv\Reader;
+
+$reader = Reader::createFromPath('/path/to/file.csv');
+$reader->setEnclosure('"');
+$reader->setEscape('\\');
+
+$delimiters_list = $reader->fetchDelimitersOccurrence([' ', '|'], 10);
+// $delimiters_list can be the following
+// [
+//     '|' => 20,
+//     ' ' => 0,
+// ]
+// This seems to be a consistent CSV with:
+// - the delimiter "|" appearing 20 times in the 10 first records
+// - the delimiter " " never appearing
+~~~
+
+<p class="message-warning"><strong>Warning:</strong> This method only test the delimiters you gave it.</p>

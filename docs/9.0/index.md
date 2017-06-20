@@ -82,7 +82,6 @@ Importing CSV records into a database using a `PDOStatement` object
 <?php
 
 use League\Csv\Reader;
-use League\Csv\Statement;
 
 //We are going to insert some data into the users table
 $sth = $dbh->prepare(
@@ -107,12 +106,13 @@ foreach ($csv as $record) {
 
 ### Encoding a CSV document into a given charset
 
-When importing csv files, you don't know whether the file is encoded with `UTF-8`, `UTF-16` or anything else. The below example converts yor records to `UTF-8` using the `iconv` extension built-in stream filter.
+When importing csv files, you don't know whether the file is encoded with `UTF-8`, `UTF-16` or anything else.
 
 ~~~php
 <?php
 
 use League\Csv\Reader;
+use League\Csv\CharsetConverter;
 
 $csv = Reader::createFromPath('/path/to/your/csv/file.csv');
 $csv->setHeaderOffset(0);
@@ -120,7 +120,7 @@ $csv->setHeaderOffset(0);
 $input_bom = $csv->getInputBOM();
 
 if ($input_bom === Reader::BOM_UTF16_LE || $input_bom === Reader::BOM_UTF16_BE) {
-    $csv->addStreamFilter('convert.iconv.UTF-16/UTF-8');
+    CharsetConverter::addTo($csv, 'utf-16', 'utf-8');
 }
 
 foreach ($csv as $record) {
