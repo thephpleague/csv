@@ -22,7 +22,7 @@ class RFC4180FieldTest extends TestCase
      * @covers ::addTo
      * @covers ::onCreate
      * @covers ::filter
-     * @covers ::filterMode
+     * @covers ::init
      *
      * @dataProvider bugsProvider
      *
@@ -61,7 +61,7 @@ class RFC4180FieldTest extends TestCase
      * @covers ::addTo
      * @covers ::onCreate
      * @covers ::filter
-     * @covers ::filterMode
+     * @covers ::init
      *
      * @dataProvider readerBugsProvider
      *
@@ -96,7 +96,7 @@ class RFC4180FieldTest extends TestCase
 
     /**
      * @covers ::onCreate
-     * @covers ::filterMode
+     * @covers ::init
      * @dataProvider wrongParamProvider
      * @param array $params
      */
@@ -124,6 +124,10 @@ class RFC4180FieldTest extends TestCase
                 'enclosure' => '"',
                 'escape' => '\\',
                 'mode' => STREAM_FILTER_ALL,
+            ]],
+            'missing parameters' => [[
+                'enclosure' => '"',
+                'escape' => '\\',
             ]],
         ];
     }

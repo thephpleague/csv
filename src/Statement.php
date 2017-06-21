@@ -132,8 +132,8 @@ class Statement
     /**
      * Returns the inner CSV Document Iterator object
      *
-     * @param Reader $csv
-     * @param array  $header
+     * @param Reader   $csv
+     * @param string[] $header an optional header to use instead of the CSV document header
      *
      * @return ResultSet
      */

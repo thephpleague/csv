@@ -39,3 +39,38 @@ function bom_match(string $str): string
 
     return '';
 }
+
+/**
+ * Detect Delimiters usage in a CSV object
+ *
+ * Returns a associative array where each key represents
+ * a submitted delimiter and each value the number CSV fields found
+ * when processing at most $limit CSV records with the given delimiter
+ *
+ * @param Reader   $csv        the CSV object
+ * @param string[] $delimiters the delimiters to consider
+ * @param int      $limit      Detection is made using up to $limit CSV records
+ *
+ * @return int[]
+ */
+function delimiter_detect(Reader $csv, array $delimiters, int $limit = 1): array
+{
+    $found = array_unique(array_filter($delimiters, function (string $value): bool {
+        return 1 == strlen($value);
+    }));
+    $stmt = (new Statement())->limit($limit)->where(function (array $record): bool {
+        return count($record) > 1;
+    });
+    $reducer = function (array $result, string $delimiter) use ($csv, $stmt): array {
+        $result[$delimiter] = count($stmt->process($csv->setDelimiter($delimiter))->fetchAll(), COUNT_RECURSIVE);
+
+        return $result;
+    };
+    $delimiter = $csv->getDelimiter();
+    $header_offset = $csv->getHeaderOffset();
+    $csv->setHeaderOffset(null);
+    $stats = array_reduce($found, $reducer, array_fill_keys($delimiters, 0));
+    $csv->setHeaderOffset($header_offset)->setDelimiter($delimiter);
+
+    return $stats;
+}

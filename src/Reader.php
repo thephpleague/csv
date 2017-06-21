@@ -20,7 +20,6 @@ use Countable;
 use Iterator;
 use IteratorAggregate;
 use League\Csv\Exception\RuntimeException;
-use LimitIterator;
 use SplFileObject;
 
 /**
@@ -68,59 +67,6 @@ class Reader extends AbstractCsv implements Countable, IteratorAggregate
      * @var int
      */
     protected $nb_records = -1;
-
-    /**
-     * Detect Delimiters occurences in the CSV
-     *
-     * Returns a associative array where each key represents
-     * a valid delimiter and each value the number of occurences
-     *
-     * @param string[] $delimiters the delimiters to consider
-     * @param int      $nb_records Detection is made using $nb_records of the CSV
-     *
-     * @return array
-     */
-    public function fetchDelimitersOccurrence(array $delimiters, int $nb_records = 1): array
-    {
-        $filter = function ($value): bool {
-            return 1 == strlen($value);
-        };
-
-        $nb_records = $this->filterMinRange($nb_records, 1, __METHOD__.'() expects the number of records to consider to be a valid positive integer, %s given');
-        $delimiters = array_unique(array_filter($delimiters, $filter));
-        $reducer = function (array $res, string $delimiter) use ($nb_records): array {
-            $res[$delimiter] = $this->getCellCount($delimiter, $nb_records);
-
-            return $res;
-        };
-
-        $res = array_reduce($delimiters, $reducer, []);
-        arsort($res, SORT_NUMERIC);
-
-        return $res;
-    }
-
-    /**
-     * Returns the cell count for a specified delimiter
-     * and a specified number of records
-     *
-     * @param string $delimiter  CSV delimiter
-     * @param int    $nb_records CSV records to consider
-     *
-     * @return int
-     */
-    protected function getCellCount(string $delimiter, int $nb_records): int
-    {
-        $filter = function ($record): bool {
-            return is_array($record) && count($record) > 1;
-        };
-
-        $this->document->setFlags(SplFileObject::READ_CSV | SplFileObject::READ_AHEAD | SplFileObject::SKIP_EMPTY);
-        $this->document->setCsvControl($delimiter, $this->enclosure, $this->escape);
-        $iterator = new CallbackFilterIterator(new LimitIterator($this->document, 0, $nb_records), $filter);
-
-        return count(iterator_to_array($iterator, false), COUNT_RECURSIVE);
-    }
 
     /**
      * Returns the record padding value
@@ -260,7 +206,7 @@ class Reader extends AbstractCsv implements Countable, IteratorAggregate
      * filled with null values while extra record fields are strip from
      * the returned object.
      *
-     * @param array $header
+     * @param string[] $header an optional header to use instead of the CSV document header
      *
      * @return Iterator
      */
@@ -310,7 +256,7 @@ class Reader extends AbstractCsv implements Countable, IteratorAggregate
      * Add the CSV header if present and valid
      *
      * @param Iterator $iterator
-     * @param array    $header
+     * @param string[] $header
      *
      * @return Iterator
      */

@@ -13,7 +13,6 @@ class Reader extends AbstractCsv implements Countable, IteratorAggregate
     public function count(): int
     public function fetchAll(): array
     public function fetchColumn(string|int $columnIndex = 0): Generator
-    public function fetchDelimitersOccurrence(array $delimiters, int $nb_records = 1): array
     public function fetchOne(int $offset = 0): array
     public function fetchPairs(string|int $offsetIndex = 0, string|int $valueIndex = 1): Generator
     public function getHeader(): array
@@ -330,40 +329,3 @@ $stmt = (new Statement())
 $records = $stmt->process($reader);
 //$records is a League\Csv\ResultSet object
 ~~~
-
-## Detecting the delimiter character
-
-This method allow you to find the occurences of some delimiters in a given CSV object.
-
-~~~php
-<?php
-
-public Reader::fetchDelimitersOccurrence(array $delimiters, int $nb_records = 1): array
-~~~
-
-The method takes two arguments:
-
-* an array containing the delimiters to check;
-* an integer which represents the number of CSV records to scan (default to `1`);
-
-~~~php
-<?php
-
-use League\Csv\Reader;
-
-$reader = Reader::createFromPath('/path/to/file.csv');
-$reader->setEnclosure('"');
-$reader->setEscape('\\');
-
-$delimiters_list = $reader->fetchDelimitersOccurrence([' ', '|'], 10);
-// $delimiters_list can be the following
-// [
-//     '|' => 20,
-//     ' ' => 0,
-// ]
-// This seems to be a consistent CSV with:
-// - the delimiter "|" appearing 20 times in the 10 first records
-// - the delimiter " " never appearing
-~~~
-
-<p class="message-warning"><strong>Warning:</strong> This method only test the delimiters you gave it.</p>

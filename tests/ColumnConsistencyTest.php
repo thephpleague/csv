@@ -69,6 +69,7 @@ class ColumnConsistencyTest extends TestCase
     /**
      * @covers ::__construct
      * @covers League\Csv\Exception\OutOfRangeException
+     * @covers League\Csv\ValidatorTrait
      */
     public function testColumsCountTriggersException()
     {

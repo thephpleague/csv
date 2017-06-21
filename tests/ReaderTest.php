@@ -3,7 +3,6 @@
 namespace LeagueTest\Csv;
 
 use BadMethodCallException;
-use League\Csv\Exception\OutOfRangeException;
 use League\Csv\Exception\RuntimeException;
 use League\Csv\Reader;
 use League\Csv\Statement;
@@ -169,45 +168,6 @@ class ReaderTest extends TestCase
             'unknown method' => ['foo'],
             'ResultSet method not whitelisted' => ['isRecordOffsetPreserved'],
         ];
-    }
-
-    /**
-     * @covers ::fetchDelimitersOccurrence
-     * @covers League\Csv\ValidatorTrait
-     */
-    public function testDetectDelimiterListWithInvalidRowLimit()
-    {
-        $this->expectException(OutOfRangeException::class);
-        $this->csv->fetchDelimitersOccurrence([','], -4);
-    }
-
-    /**
-     * @covers ::fetchDelimitersOccurrence
-     */
-    public function testDetectDelimiterListWithNoCSV()
-    {
-        $file = new SplTempFileObject();
-        $file->fwrite("How are you today ?\nI'm doing fine thanks!");
-        $csv = Reader::createFromFileObject($file);
-        $this->assertSame(['|' => 0], $csv->fetchDelimitersOccurrence(['toto', '|'], 5));
-    }
-
-    /**
-     * @covers ::fetchDelimitersOccurrence
-     * @covers ::getCellCount
-     */
-    public function testDetectDelimiterListWithInconsistentCSV()
-    {
-        $data = new SplTempFileObject();
-        $data->setCsvControl(';');
-        $data->fputcsv(['toto', 'tata', 'tutu']);
-        $data->setCsvControl('|');
-        $data->fputcsv(['toto', 'tata', 'tutu']);
-        $data->fputcsv(['toto', 'tata', 'tutu']);
-        $data->fputcsv(['toto', 'tata', 'tutu']);
-
-        $csv = Reader::createFromFileObject($data);
-        $this->assertSame(['|' => 12, ';' => 4], $csv->fetchDelimitersOccurrence(['|', ';'], 5));
     }
 
     /**

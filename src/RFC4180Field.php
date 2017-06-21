@@ -88,20 +88,8 @@ class RFC4180Field extends php_user_filter
      */
     public function onCreate()
     {
-        if (!isset($this->params['enclosure'], $this->params['escape'], $this->params['mode'])) {
-            return false;
-        }
-
         try {
-            $enclosure = $this->filterControl($this->params['enclosure'], 'enclosure', __METHOD__);
-            $escape = $this->filterControl($this->params['escape'], 'escape', __METHOD__);
-            $mode = $this->filterMode($this->params['mode']);
-
-            $this->search = $escape.$enclosure;
-            $this->replace = $enclosure.$enclosure;
-            if (STREAM_FILTER_WRITE === $mode) {
-                $this->replace = $escape.$this->replace;
-            }
+            $this->init();
 
             return true;
         } catch (Throwable $e) {
@@ -110,22 +98,30 @@ class RFC4180Field extends php_user_filter
     }
 
     /**
-     * Filter the stream filter mode
+     * Filter and set param variable
      *
-     * @param int $mode stream filter mode
-     *
+     * @throws InvalidArgumentException if a required parame key is missing
      * @throws InvalidArgumentException if the stream filter mode is unknown or unsupported
      *
-     * @return int
      */
-    protected function filterMode(int $mode)
+    protected function init()
     {
         static $mode_list = [STREAM_FILTER_READ => 1, STREAM_FILTER_WRITE => 1];
-        if (isset($mode_list[$mode])) {
-            return $mode;
+        if (!isset($this->params['enclosure'], $this->params['escape'], $this->params['mode'])) {
+            throw new InvalidArgumentException('a parameter key is missing');
         }
 
-        throw new InvalidArgumentException(sprintf('The given filter mode `%s` is unknown or unsupported', $mode));
+        $enclosure = $this->filterControl($this->params['enclosure'], 'enclosure', __METHOD__);
+        $escape = $this->filterControl($this->params['escape'], 'escape', __METHOD__);
+        if (!isset($mode_list[$this->params['mode']])) {
+            throw new InvalidArgumentException(sprintf('The given filter mode `%s` is unknown or unsupported', $this->params['mode']));
+        }
+
+        $this->search = $escape.$enclosure;
+        $this->replace = $enclosure.$enclosure;
+        if (STREAM_FILTER_WRITE === $this->params['mode']) {
+            $this->replace = $escape.$this->replace;
+        }
     }
 
     /**

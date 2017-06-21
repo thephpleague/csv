@@ -10,6 +10,7 @@ All Notable changes to `Csv` will be documented in this file
     - `League\Csv\Reader::getRecords` to access all CSV records
     - `League\Csv\Statement` provides a constraint builder to select CSV records.
     - `League\Csv\ResultSet` represents the result set of the selected CSV records.
+    - `League\Csv\delimiter_detect` function to detect CSV delimiter character
 - Improved CSV document header selection.
     - `League\Csv\Reader::getHeader`
     - `League\Csv\Reader::getHeaderOffset`
@@ -24,11 +25,12 @@ All Notable changes to `Csv` will be documented in this file
     - `League\Csv\Exception\InsertionException`
     - `League\Csv\Exception\InvalidArgumentException`
     - `League\Csv\Exception\LogicException`
+    - `League\Csv\Exception\OutOfRangeException`
     - `League\Csv\Exception\RuntimeException`
 - Improved CSV document output
     - `League\Csv\AbstractCsv::chunk` method to output the CSV document in chunk
     - `League\Csv\bom_match` function to detect BOM sequence in a given string
-    - `League\Csv\BOM` interface to decoupled BOM sequence from CSV documents
+    - `League\Csv\ByteSequence` interface to decoupled BOM sequence from CSV documents
 - Improved CSV records column count consistency on insertion
     - `League\Csv\ColumnConsistency`
 - Improved CSV document flush mechanism on insertion
@@ -71,7 +73,6 @@ All Notable changes to `Csv` will be documented in this file
     - `League\Csv\AbstractCsv::newWriter`
     - `League\Csv\Reader::getNewline`
     - `League\Csv\Reader::setNewline`
-    - `League\Csv\Writer::fetchDelimitersOccurrence`
 - The Exception mechanism is improved thus the following class is removed:
     - `League\Csv\Exception\InvalidRowException`;
 - The CSV records filtering methods are removed in favor of the `League\Csv\Statement` class:
@@ -100,6 +101,7 @@ All Notable changes to `Csv` will be documented in this file
     - `League\Csv\Plugin\ForbiddenNullValuesValidator`
     - `League\Csv\Plugin\ColumnConsistencyValidator` *replace by `League\Csv\ColumnConsistency`*
 - `League\Csv\Writer` no longers implements the `IteratorAggregate` interface
+- `League\Csv\AbstractCsv::fetchDelimitersOccurrence` is removed *replace by `League\Csv\delimiter_detect` function*
 
 ## 8.2.1 - 2017-02-22
 
