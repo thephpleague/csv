@@ -38,7 +38,7 @@ class StreamIterator implements SeekableIterator
      *
      * @var resource[]
      */
-    protected $filters;
+    protected $filters = [];
 
     /**
      * stream resource
@@ -121,15 +121,29 @@ class StreamIterator implements SeekableIterator
     }
 
     /**
-     * close the file pointer
+     * @inheritdoc
      */
     public function __destruct()
     {
+        $mapper = function ($filter): bool {
+            return stream_filter_remove($filter);
+        };
+
+        array_map($mapper, $this->filters);
+
         if ($this->should_close_stream) {
             fclose($this->stream);
         }
 
         $this->stream = null;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function __clone()
+    {
+        throw new LogicException(sprintf('An object of class %s cannot be cloned', get_class($this)));
     }
 
     /**
@@ -177,6 +191,28 @@ class StreamIterator implements SeekableIterator
         $instance->should_close_stream = true;
 
         return $instance;
+    }
+
+    /**
+     * append a filter
+     *
+     * @see http://php.net/manual/en/function.stream-filter-append.php
+     *
+     * @param string $filter_name
+     * @param int    $read_write
+     * @param mixed  $params
+     *
+     * @throws RuntimeException if the filter can not be appended
+     */
+    public function appendFilter(string $filter_name, int $read_write, $params = null)
+    {
+        $res = @stream_filter_append($this->stream, $filter_name, $read_write, $params);
+        if (is_resource($res)) {
+            $this->filters[] = $res;
+            return;
+        }
+
+        throw new RuntimeException(error_get_last()['message']);
     }
 
     /**
@@ -431,43 +467,6 @@ class StreamIterator implements SeekableIterator
     }
 
     /**
-     * append a filter
-     *
-     * @see http://php.net/manual/en/function.stream-filter-append.php
-     *
-     * @param string $filter_name
-     * @param int    $read_write
-     * @param mixed  $params
-     *
-     * @throws RuntimeException if the filter can not be appended
-     *
-     * @return resource
-     */
-    public function appendFilter(string $filter_name, int $read_write, $params = null)
-    {
-        $res = @stream_filter_append($this->stream, $filter_name, $read_write, $params);
-        if (is_resource($res)) {
-            return $res;
-        }
-
-        throw new RuntimeException(error_get_last()['message']);
-    }
-
-    /**
-     * Removes a registered filter
-     *
-     * @see http://php.net/manual/en/function.stream-filter-remove.php
-     *
-     * @param resource $resource
-     *
-     * @return bool
-     */
-    public function removeFilter($resource)
-    {
-        return stream_filter_remove($resource);
-    }
-
-    /**
      * Flushes the output to a file
      *
      * @see http://php.net/manual/en/splfileobject.fwrite.php
@@ -477,13 +476,5 @@ class StreamIterator implements SeekableIterator
     public function fflush()
     {
         return fflush($this->stream);
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function __clone()
-    {
-        throw new LogicException('An object of class '.StreamIterator::class.' cannot be cloned');
     }
 }

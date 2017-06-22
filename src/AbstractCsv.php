@@ -76,7 +76,7 @@ abstract class AbstractCsv implements ByteSequence
     /**
      * collection of stream filters
      *
-     * @var array
+     * @var bool[]
      */
     protected $stream_filters = [];
 
@@ -100,9 +100,17 @@ abstract class AbstractCsv implements ByteSequence
     /**
      * @inheritdoc
      */
+    public function __destruct()
+    {
+        $this->document = null;
+    }
+
+    /**
+     * @inheritdoc
+     */
     public function __clone()
     {
-        throw new LogicException('An object of class '.get_class($this).' cannot be cloned');
+        throw new LogicException(sprintf('An object of class %s cannot be cloned', get_class($this)));
     }
 
     /**
@@ -241,12 +249,13 @@ abstract class AbstractCsv implements ByteSequence
     /**
      * Tell whether the specify stream filter is attach to the current stream
      *
-     * @param  string $filtername
+     * @param string $filtername
+     *
      * @return bool
      */
     public function hasStreamFilter(string $filtername): bool
     {
-        return isset($this->stream_filters[$filtername]);
+        return $this->stream_filters[$filtername] ?? false;
     }
 
     /**
@@ -413,26 +422,11 @@ abstract class AbstractCsv implements ByteSequence
             throw new LogicException('The stream filter API can not be used');
         }
 
-        $this->stream_filters[$filtername][] = $this->document->appendFilter($filtername, $this->stream_filter_mode, $params);
+        $this->document->appendFilter($filtername, $this->stream_filter_mode, $params);
+        $this->stream_filters[$filtername] = true;
         $this->resetProperties();
         $this->input_bom = null;
 
         return $this;
-    }
-
-    /**
-     * The destructor
-     */
-    public function __destruct()
-    {
-        if ($this->document instanceof StreamIterator) {
-            $walker = function ($filter): bool {
-                return $this->document->removeFilter($filter);
-            };
-
-            array_walk_recursive($this->stream_filters, $walker);
-        }
-
-        $this->document = null;
     }
 }
