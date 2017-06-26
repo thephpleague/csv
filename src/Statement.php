@@ -17,10 +17,11 @@ namespace League\Csv;
 use ArrayIterator;
 use CallbackFilterIterator;
 use Iterator;
+use League\Csv\Exception\OutOfRangeException;
 use LimitIterator;
 
 /**
- *  A trait to manage filtering a CSV
+ * A trait to manage filtering a CSV
  *
  * @package League.csv
  * @since   9.0.0
@@ -29,8 +30,6 @@ use LimitIterator;
  */
 class Statement
 {
-    use ValidatorTrait;
-
     /**
      * Callables to filter the iterator
      *
@@ -94,11 +93,16 @@ class Statement
      *
      * @param $offset
      *
+     * @throws OutOfRangeException if the offset is lesser than 0
+     *
      * @return self
      */
     public function offset(int $offset): self
     {
-        $offset = $this->filterMinRange($offset, 0, __METHOD__.'() expects the offset to be a positive integer or 0, %s given');
+        if (0 > $offset) {
+            throw new OutOfRangeException(sprintf('%() expects the offset to be a positive integer or 0, %s given', __METHOD__, $offset));
+        }
+
         if ($offset === $this->offset) {
             return $this;
         }
@@ -114,11 +118,16 @@ class Statement
      *
      * @param int $limit
      *
+     * @throws OutOfRangeException if the limit is lesser than -1
+     *
      * @return self
      */
     public function limit(int $limit): self
     {
-        $limit = $this->filterMinRange($limit, -1, __METHOD__.'() expects the limit to be greater or equel to -1, %s given');
+        if (-1 > $limit) {
+            throw new OutOfRangeException(sprintf('%s() expects the limit to be greater or equel to -1, %s given', __METHOD__, $limit));
+        }
+
         if ($limit === $this->limit) {
             return $this;
         }

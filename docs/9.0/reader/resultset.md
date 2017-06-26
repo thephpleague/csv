@@ -8,15 +8,13 @@ title: Accessing Records from a CSV document
 ~~~php
 <?php
 
-class ResultSet implements Countable, IteratorAggregate
+class ResultSet implements Countable, IteratorAggregate, JsonSerializable
 {
-    public function count(): int
     public function fetchAll(): array
     public function fetchColumn(string|int $columnIndex = 0): Generator
-    public function fetchOne(int $offset = 0): array
+    public function fetchOne(int $nth_record = 0): array
     public function fetchPairs(string|int $offsetIndex = 0, string|int $valueIndex = 1): Generator
     public function getColumnNames(): array
-    public function getIterator(): Generator
     public function isRecordOffsetPreserved(): bool
     public function preserveRecordOffset(bool $status): self
 }
@@ -24,7 +22,7 @@ class ResultSet implements Countable, IteratorAggregate
 
 A `League\Csv\ResultSet` object represents the associated result set of processing a [CSV document](/9.0/reader/) with a [constraint builder](/9.0/reader/statement/). This object is returned from [Statement::process](/9.0/reader/statement/#apply-the-constraints-to-a-csv-document) execution.
 
-## Result set informations
+## Informations
 
 ### Accessing the result set column names
 
@@ -77,7 +75,7 @@ $records = (new Statement())->process($reader);
 count($records); //return the total number of records found
 ~~~
 
-## Result set options
+## Options
 
 ### Preserving the original CSV record offset
 
@@ -94,7 +92,7 @@ At any given time you can tell whether the CSV document offset is kept by callin
 
 <p class="message-notice">By default, the <code>ResultSet</code> object does not preserve the original offset.</p>
 
-## Iterating over the result set
+## Records
 
 ### Description
 
@@ -188,10 +186,10 @@ If you are only interested in one particular record from the `ResultSet` you can
 ~~~php
 <?php
 
-public ResultSet::fetchOne(int $offset = 0): array
+public ResultSet::fetchOne(int $nth_record = 0): array
 ~~~
 
-The `$offset` argument represents the record offset in the result set starting at `0`. If no argument is given the method will return the first record from the result set. If no record is found an empty `array` is returned.
+The `$nth_record` argument represents the nth record contained in the result set starting at `0`. If no argument is given the method will return the first record from the result set. If no record is found an empty `array` is returned.
 
 ~~~php
 <?php
@@ -214,9 +212,9 @@ $data = $stmt->proce($reader)->fetchOne(3);
 //
 ~~~
 
-<p class="message-notice">The <code>$offset</code> argument is not affected by <code>ResultSet::preserveRecordOffset</code> status.</p>
+<p class="message-notice">The <code>$nth_record</code> argument is not affected by <code>ResultSet::preserveRecordOffset</code> status.</p>
 
-## Selecting a specific column
+## Selecting a single column
 
 ~~~php
 <?php
@@ -306,7 +304,7 @@ $reader->setHeaderOffset(0);
 
 $records = (new Statement())->process($reader);
 foreach ($records->fetchColumn('foobar') as $record) {
-    //throw an InvalidArgumentException if
+    //throw an RuntimeException if
     //no `foobar` column name is found
     //in $records->getColumnNames() result
 }
@@ -371,3 +369,39 @@ foreach ($records->fetchPairs() as $firstname => $lastname) {
 - If no cell is found corresponding to `$valueIndex` the `null` value is used;
 
 <p class="message-warning">If the <code>ResultSet</code> contains column names and the submitted arguments are not found a <code>RuntimeException</code> is thrown.</p>
+
+## Conversions
+
+The `ResultSet` class implements the `JsonSerializable` interface. As such you can use the `json_encode` function directly on the instantiated object.
+
+<p class="message-info">The method is affected by <code>ResultSet::preserveRecordOffset</code></p>
+
+The returned JSON string data depends on the `ResultSet` properties:
+
+- The presence or absence of column names.
+- The preservation or not of the record offset.
+
+~~~php
+<?php
+
+use League\Csv\Reader;
+use League\Csv\Statement;
+
+$reader = Reader::createFromPath('/path/to/file.csv');
+$reader->setHeaderOffset(0);
+$stmt = (new Statement())->offset(3)->limit(1);
+
+$result = $stmt->process($reader);
+
+
+echo json_encode($result);
+//display [{"First Name":"john","Last Name":"doe","E-mail":"john.doe@example.com"}]
+$result->preserverRecordOffset(true);
+//display {"4":{"First Name":"john","Last Name":"doe","E-mail":"john.doe@example.com"}}
+~~~
+
+<p class="message-info">If you wish to convert your <code>ResultSet</code> in <code>XML</code> or <code>HTML</code> please refer to the <a href="/9.0/converter">converters</a> bundled with this library.</p>
+
+<p class="message-notice">To convert your CSV to <code>JSON</code> you must be sure its content is <code>UTF-8</code> encoded, using, for instance, the library <a href="/9.0/converter/charset/">CharsetConverter</a> stream filter.</p>
+
+<p class="message-warning">Using the <code>JsonSerializable</code> interface is not recommended for large CSV files as <code>iterator_to_array</code> is used internally.</p>

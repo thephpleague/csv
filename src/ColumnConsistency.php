@@ -14,8 +14,10 @@ declare(strict_types=1);
 
 namespace League\Csv;
 
+use League\Csv\Exception\OutOfRangeException;
+
 /**
- *  A class to manage column consistency on data insertion into a CSV
+ * A class to manage column consistency on data insertion into a CSV
  *
  * @package League.csv
  * @since   7.0.0
@@ -24,8 +26,6 @@ namespace League\Csv;
  */
 class ColumnConsistency
 {
-    use ValidatorTrait;
-
     /**
      * The number of column per record
      *
@@ -36,11 +36,17 @@ class ColumnConsistency
     /**
      * New Instance
      *
-     * @param int $columns_count
+     *
+     * @param  int                 $columns_count
+     * @throws OutOfRangeException if the column count is lesser than -1
      */
     public function __construct(int $columns_count = -1)
     {
-        $this->columns_count = $this->filterMinRange($columns_count, -1, __METHOD__.'() expects the column count to be greater or equal to -1 %s given');
+        if ($columns_count < -1) {
+            throw new OutOfRangeException(sprintf('%() expects the column count to be greater or equal to -1 %s given', __METHOD__, $columns_count));
+        }
+
+        $this->columns_count = $columns_count;
     }
 
     /**

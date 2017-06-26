@@ -12,7 +12,7 @@ class CharsetConverter extends php_user_filter
 {
     public function __invoke(array $record): array
     public static function addTo(AbstractCsv $csv, string $input_encoding, string $output_encoding): AbstractCsv
-    public function convert(iterable $records): Iterator
+    public function convert(iterable $records): iterable
     public static function getFiltername(string $input_encoding, string $output_encoding): string
     public function inputEncoding(string $input_encoding): self
     public function outputEncoding(string $output_encoding): self
@@ -42,10 +42,10 @@ When building a `CharsetConverter` object, the methods do not need to be called 
 ~~~php
 <?php
 
-public CharsetConverter::convert(iterable $records): Iterator
+public CharsetConverter::convert(iterable $records): iterable
 ~~~
 
-`CharsetConverter::convert` converts the collection of records charset encoding.
+`CharsetConverter::convert` converts the collection of records according to the encoding settings.
 
 ~~~php
 <?php
@@ -59,7 +59,7 @@ $encoder = (new CharsetConverter())->inputEncoding('iso-8859-15');
 $records = $encoder->convert($csv);
 ~~~
 
-The resulting data is converted from `iso-8859-15` to the default `UTF-8` since `outputEncoding` was not called.
+The resulting data is converted from `iso-8859-15` to the default `UTF-8` since  no output encoding charset was set using the `CharsertConverter::outputEncoding` method.
 
 
 ## CharsetConverter as a Writer formatter

@@ -6,6 +6,7 @@ use League\Csv\Reader;
 use League\Csv\RFC4180Field;
 use League\Csv\Writer;
 use PHPUnit\Framework\TestCase;
+use TypeError;
 
 /**
  * @group filter
@@ -21,8 +22,8 @@ class RFC4180FieldTest extends TestCase
      * @covers ::getFiltername
      * @covers ::addTo
      * @covers ::onCreate
+     * @covers ::isValidParams
      * @covers ::filter
-     * @covers ::init
      *
      * @dataProvider bugsProvider
      *
@@ -60,8 +61,8 @@ class RFC4180FieldTest extends TestCase
      * @covers ::getFiltername
      * @covers ::addTo
      * @covers ::onCreate
+     * @covers ::isValidParams
      * @covers ::filter
-     * @covers ::init
      *
      * @dataProvider readerBugsProvider
      *
@@ -87,16 +88,17 @@ class RFC4180FieldTest extends TestCase
 
     /**
      * @covers ::onCreate
+     * @covers ::isValidParams
      */
     public function testOnCreateFailedWithoutParams()
     {
-        $filter = new RFC4180Field();
-        $this->assertFalse($filter->onCreate());
+        $this->expectException(TypeError::class);
+        (new RFC4180Field())->onCreate();
     }
 
     /**
      * @covers ::onCreate
-     * @covers ::init
+     * @covers ::isValidParams
      * @dataProvider wrongParamProvider
      * @param array $params
      */
@@ -110,6 +112,8 @@ class RFC4180FieldTest extends TestCase
     public function wrongParamProvider()
     {
         return [
+            'empty array' => [[
+            ]],
             'wrong escape' => [[
                 'enclosure' => '"',
                 'escape' => 'foo',

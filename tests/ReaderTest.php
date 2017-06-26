@@ -3,12 +3,14 @@
 namespace LeagueTest\Csv;
 
 use BadMethodCallException;
+use League\Csv\Exception\OutOfRangeException;
 use League\Csv\Exception\RuntimeException;
 use League\Csv\Reader;
 use League\Csv\Statement;
 use PHPUnit\Framework\TestCase;
 use SplFileObject;
 use SplTempFileObject;
+use TypeError;
 
 /**
  * @group reader
@@ -76,22 +78,6 @@ class ReaderTest extends TestCase
         $this->csv->setHeaderOffset(null);
         foreach ($this->csv->getRecords() as $record) {
             $this->assertTrue(in_array(count($record), [3, 4]));
-        }
-    }
-
-    /**
-     * @covers ::getRecordPaddingValue
-     * @covers ::setRecordPaddingValue
-     */
-    public function testRecordPaddingValue()
-    {
-        $this->assertNull($this->csv->getRecordPaddingValue());
-        $this->csv->setRecordPaddingValue('toto');
-        $this->assertSame('toto', $this->csv->getRecordPaddingValue());
-        $this->csv->setHeaderOffset(0);
-        foreach ($this->csv as $record) {
-            $this->assertCount(4, $record);
-            $this->assertContains('toto', $record);
         }
     }
 
@@ -193,7 +179,7 @@ class ReaderTest extends TestCase
      * @covers ::stripBOM
      * @covers ::removeBOM
      * @covers ::combineHeader
-     * @covers League\Csv\StreamIterator
+     * @covers League\Csv\Document
      * @dataProvider validBOMSequences
      * @param array  $record
      * @param string $expected_bom
@@ -238,7 +224,7 @@ class ReaderTest extends TestCase
      * @covers ::stripBOM
      * @covers ::removeBOM
      * @covers ::combineHeader
-     * @covers League\Csv\StreamIterator
+     * @covers League\Csv\Document
      */
     public function testStripBOMWithEnclosure()
     {
@@ -256,7 +242,7 @@ class ReaderTest extends TestCase
      * @covers ::stripBOM
      * @covers ::removeBOM
      * @covers ::combineHeader
-     * @covers League\Csv\StreamIterator
+     * @covers League\Csv\Document
      */
     public function testStripNoBOM()
     {
@@ -313,6 +299,26 @@ class ReaderTest extends TestCase
     }
 
     /**
+     * @covers ::setHeader
+     * @covers ::filterNullableInteger
+     */
+    public function testSetHeaderThrowsExceptionOnWrongInput()
+    {
+        $this->expectException(TypeError::class);
+        $this->csv->setHeaderOffset((object) 1);
+    }
+
+    /**
+     * @covers ::setHeader
+     * @covers ::filterNullableInteger
+     */
+    public function testSetHeaderThrowsExceptionOnWrongInputRange()
+    {
+        $this->expectException(OutOfRangeException::class);
+        $this->csv->setHeaderOffset(-1);
+    }
+
+    /**
      * @covers ::computeHeader
      */
     public function testMapRecordsFields()
@@ -322,5 +328,13 @@ class ReaderTest extends TestCase
         foreach ($res as $record) {
             $this->assertSame($keys, array_keys($record));
         }
+    }
+
+    /**
+     * @covers ::jsonSerialize
+     */
+    public function testJsonSerialize()
+    {
+        $this->assertSame(json_encode($this->expected, false), json_encode($this->csv));
     }
 }

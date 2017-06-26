@@ -19,6 +19,7 @@ use DOMDocument;
 use DOMElement;
 use DOMException;
 use Traversable;
+use TypeError;
 
 /**
  * A class to convert CSV records into a DOMDOcument object
@@ -29,8 +30,6 @@ use Traversable;
  */
 class XMLConverter
 {
-    use ValidatorTrait;
-
     /**
      * XML Root name
      *
@@ -91,12 +90,16 @@ class XMLConverter
      */
     public function convert($records): DOMDocument
     {
+        if (!is_iterable($records)) {
+            throw new TypeError(sprintf('%s() expects argument passed to be iterable, %s given', __METHOD__, gettype($records)));
+        }
+
         $field_encoder = $this->encoder['field']['' !== $this->column_attr];
         $record_encoder = $this->encoder['record']['' !== $this->offset_attr];
         $doc = new DOMDocument('1.0');
         $root = $doc->createElement($this->root_name);
-        foreach ($this->filterIterable($records, __METHOD__) as $offset => $record) {
-            $node = $this->{$record_encoder}($doc, $record, $field_encoder, $offset);
+        foreach ($records as $offset => $record) {
+            $node = $this->$record_encoder($doc, $record, $field_encoder, $offset);
             $root->appendChild($node);
         }
         $doc->appendChild($root);
@@ -140,7 +143,7 @@ class XMLConverter
     {
         $node = $doc->createElement($this->record_name);
         foreach ($record as $node_name => $value) {
-            $item = $this->{$field_encoder}($doc, $value, $node_name);
+            $item = $this->$field_encoder($doc, $value, $node_name);
             $node->appendChild($item);
         }
 

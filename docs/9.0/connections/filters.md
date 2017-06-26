@@ -70,7 +70,7 @@ The `AbstractCsv::addStreamFilter` method adds a stream filter to the connection
 
 <p class="message-warning">Each time your call <code>addStreamFilter</code> with the same argument the corresponding filter is registered again.</p>
 
-The `AbstractCsv::hasStreamFilter`: tells whether a stream filter is already attached to the connection.
+The `AbstractCsv::hasStreamFilter` method tells whether a specific stream filter is already attached to the connection.
 
 ~~~php
 <?php
@@ -98,11 +98,11 @@ foreach ($reader as $row) {
 
 ## Stream filters removal
 
-Stream filters attached to the ressource **with** `addStreamFilter` are:
+Stream filters attached **with** `addStreamFilter` are:
 
 - removed on the CSV object destruction.
 
-Conversely, stream filters added to the resource **without** `addStreamFilter` are:
+Conversely, stream filters added **without** `addStreamFilter` are:
 
 - not detected by the library.
 - not removed on object destruction.
@@ -121,7 +121,6 @@ $reader->addStreamFilter('convert.utf8decode');
 $reader->addStreamFilter('string.toupper');
 $reader->hasStreamFilter('string.rot13'); //returns false
 $reader = null;
-// only the filters attached using addStreamFilter to `$fp` are removed.
 // 'string.rot13' is still attached to `$fp`
 // filters added using `addStreamFilter` are removed
 ~~~

@@ -15,13 +15,13 @@ declare(strict_types=1);
 namespace League\Csv\Exception;
 
 /**
- * Thrown when an argument is not of the expected type
+ * Thrown when an argument is not of the expected length
  *
  * @package League.csv
  * @since   9.0.0
  * @author  Ignace Nyamagana Butera <nyamsprod@gmail.com>
  *
  */
-class InvalidArgumentException extends \InvalidArgumentException implements CsvException
+class LengthException extends \LengthException implements CsvException
 {
 }

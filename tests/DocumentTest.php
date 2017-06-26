@@ -2,9 +2,10 @@
 
 namespace LeagueTest\Csv;
 
-use League\Csv\Exception\InvalidArgumentException;
+use League\Csv\Document;
+use League\Csv\Exception\LengthException;
+use League\Csv\Exception\OutOfRangeException;
 use League\Csv\Exception\RuntimeException;
-use League\Csv\StreamIterator;
 use LogicException;
 use PHPUnit\Framework\TestCase;
 use SplFileObject;
@@ -12,9 +13,9 @@ use TypeError;
 
 /**
  * @group csv
- * @coversDefaultClass League\Csv\StreamIterator
+ * @coversDefaultClass League\Csv\Document
  */
-class StreamIteratorTest extends TestCase
+class DocumentTest extends TestCase
 {
     public function setUp()
     {
@@ -32,7 +33,7 @@ class StreamIteratorTest extends TestCase
     public function testCloningIsForbidden()
     {
         $this->expectException(LogicException::class);
-        $toto = clone new StreamIterator(fopen('php://temp', 'r+'));
+        $toto = clone new Document(fopen('php://temp', 'r+'));
     }
 
     /**
@@ -41,7 +42,7 @@ class StreamIteratorTest extends TestCase
     public function testCreateStreamWithInvalidParameter()
     {
         $this->expectException(TypeError::class);
-        new StreamIterator(__DIR__.'/data/foo.csv');
+        new Document(__DIR__.'/data/foo.csv');
     }
 
     /**
@@ -50,7 +51,7 @@ class StreamIteratorTest extends TestCase
     public function testCreateStreamWithNonSeekableStream()
     {
         $this->expectException(RuntimeException::class);
-        new StreamIterator(fopen('php://stdin', 'r'));
+        new Document(fopen('php://stdin', 'r'));
     }
 
     /**
@@ -59,35 +60,11 @@ class StreamIteratorTest extends TestCase
     public function testCreateStreamWithWrongResourceType()
     {
         $this->expectException(TypeError::class);
-        new StreamIterator(curl_init());
-    }
-
-    /**
-     * @covers ::fgets
-     * @covers ::current
-     */
-    public function testIteratorWithLines()
-    {
-        $fp = fopen('php://temp', 'r+');
-        $expected = [
-            ['john', 'doe', 'john.doe@example.com'],
-            ['john', 'doe', 'john.doe@example.com'],
-        ];
-
-        foreach ($expected as $row) {
-            fputcsv($fp, $row);
-        }
-
-        $stream = new StreamIterator($fp);
-        $stream->setFlags(SplFileObject::READ_AHEAD);
-        $stream->rewind();
-        $stream->current();
-        $this->assertInternalType('string', $stream->fgets());
+        new Document(curl_init());
     }
 
     /**
      * @covers ::createFromPath
-     * @covers ::fgets
      * @covers ::current
      */
     public function testCreateStreamFromPathWithContext()
@@ -102,17 +79,15 @@ class StreamIteratorTest extends TestCase
             fputcsv($fp, $row);
         }
 
-        $stream = StreamIterator::createFromPath(
+        $stream = Document::createFromPath(
             StreamWrapper::PROTOCOL.'://stream',
             'r+',
             stream_context_create([StreamWrapper::PROTOCOL => ['stream' => $fp]])
         );
         $stream->setFlags(SplFileObject::READ_AHEAD);
         $stream->rewind();
-        $stream->current();
-        $this->assertInternalType('string', $stream->fgets());
+        $this->assertInternalType('array', $stream->current());
     }
-
 
     /**
      * @covers ::fputcsv
@@ -124,8 +99,8 @@ class StreamIteratorTest extends TestCase
      */
     public function testfputcsv($delimiter, $enclosure, $escape)
     {
-        $this->expectException(InvalidArgumentException::class);
-        $stream = new StreamIterator(fopen('php://temp', 'r+'));
+        $this->expectException(LengthException::class);
+        $stream = new Document(fopen('php://temp', 'r+'));
         $stream->fputcsv(['john', 'doe', 'john.doe@example.com'], $delimiter, $enclosure, $escape);
     }
 
@@ -136,5 +111,36 @@ class StreamIteratorTest extends TestCase
             'wrong enclosure' => [',', 'é', '\\'],
             'wrong escape' => [',', '"', 'à'],
         ];
+    }
+
+    /**
+     * @covers ::__debugInfo
+     */
+    public function testVarDump()
+    {
+        $stream = new Document(fopen('php://temp', 'r+'));
+        $this->assertInternalType('array', $stream->__debugInfo());
+    }
+
+    /**
+     * @covers ::seek
+     */
+    public function testSeekThrowsException()
+    {
+        $this->expectException(OutOfRangeException::class);
+        $stream = new Document(fopen('php://temp', 'r+'));
+        $stream->seek(-1);
+    }
+
+    /**
+     * @covers ::seek
+     */
+    public function testSeek()
+    {
+        $doc = Document::createFromPath(__DIR__.'/data/prenoms.csv');
+        $doc->setCsvControl(';');
+        $doc->setFlags(SplFileObject::READ_CSV);
+        $doc->seek(1);
+        $this->assertSame(['Aaron', '55', 'M', '2004'], $doc->current());
     }
 }

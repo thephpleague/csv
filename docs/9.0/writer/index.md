@@ -136,7 +136,7 @@ You can attach as many formatters as you want to the `Writer` class to manipulat
 
 use League\Csv\Writer;
 
-$formatter = function ($row) {
+$formatter = function (array $row): array {
     return array_map('strtoupper', $row);
 };
 $writer = Writer::createFromFileObject(new SplTempFileObject());
@@ -176,7 +176,7 @@ On failure a [League\Csv\Exception\InsertionException](/9.0/connections/exceptio
 use League\Csv\Writer;
 use League\Csv\Exception\InsertionException;
 
-$writer->addValidator(function (array $row) {
+$writer->addValidator(function (array $row): bool {
     return 10 == count($row);
 }, 'row_must_contain_10_cells');
 try {

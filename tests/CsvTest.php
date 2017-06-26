@@ -2,7 +2,7 @@
 
 namespace LeagueTest\Csv;
 
-use League\Csv\Exception\InvalidArgumentException;
+use League\Csv\Exception\LengthException;
 use League\Csv\Exception\OutOfRangeException;
 use League\Csv\Exception\RuntimeException;
 use League\Csv\Reader;
@@ -61,7 +61,7 @@ class CsvTest extends TestCase
 
     /**
      * @covers ::createFromPath
-     * @covers League\Csv\StreamIterator
+     * @covers League\Csv\Document
      */
     public function testCreateFromPathThrowsRuntimeException()
     {
@@ -78,6 +78,37 @@ class CsvTest extends TestCase
         $path = __DIR__.'/data/foo.csv';
         Reader::createFromStream($path);
     }
+
+    /**
+     * @covers ::getInputBOM
+     *
+     * @dataProvider bomProvider
+     * @param string $expected
+     * @param string $str
+     * @param string $delimiter
+     */
+    public function testGetInputBOM($expected, $str, $delimiter)
+    {
+        $this->assertSame($expected, Reader::createFromString($str)->setDelimiter($delimiter)->getInputBOM());
+    }
+
+    public function bomProvider()
+    {
+        $invalidBOM = <<<EOF
+;\x00\x00\xFE\xFFworld
+bonjour;planète
+EOF;
+        $validBOM = <<<EOF
+\x00\x00\xFE\xFFworld
+bonjour;planète
+EOF;
+
+        return [
+            'invalid UTF32-BE' => ['', $invalidBOM, ';'],
+            'valid UTF32-BE' => [Reader::BOM_UTF32_BE, $validBOM, ';'],
+        ];
+    }
+
 
     /**
      * @covers ::__clone
@@ -101,7 +132,7 @@ class CsvTest extends TestCase
      * @runInSeparateProcess
      * @covers ::output
      * @covers ::createFromString
-     * @covers League\Csv\StreamIterator
+     * @covers League\Csv\Document
      */
     public function testOutputHeaders()
     {
@@ -162,7 +193,6 @@ class CsvTest extends TestCase
         $this->assertSame(STREAM_FILTER_WRITE, Writer::createFromString('')->getStreamFilterMode());
     }
 
-
     /**
      * @covers ::getDelimiter
      * @covers ::setDelimiter
@@ -170,7 +200,7 @@ class CsvTest extends TestCase
      */
     public function testDelimeter()
     {
-        $this->expectException(InvalidArgumentException::class);
+        $this->expectException(LengthException::class);
         $this->csv->setDelimiter('o');
         $this->assertSame('o', $this->csv->getDelimiter());
         $this->csv->setDelimiter('foo');
@@ -220,7 +250,7 @@ class CsvTest extends TestCase
      */
     public function testEscape()
     {
-        $this->expectException(InvalidArgumentException::class);
+        $this->expectException(LengthException::class);
         $this->csv->setEscape('o');
         $this->assertSame('o', $this->csv->getEscape());
 
@@ -233,7 +263,7 @@ class CsvTest extends TestCase
      */
     public function testEnclosure()
     {
-        $this->expectException(InvalidArgumentException::class);
+        $this->expectException(LengthException::class);
         $this->csv->setEnclosure('o');
         $this->assertSame('o', $this->csv->getEnclosure());
 
@@ -242,7 +272,7 @@ class CsvTest extends TestCase
 
     /**
      * @covers ::addStreamFilter
-     * @covers League\Csv\StreamIterator
+     * @covers League\Csv\Document
      */
     public function testAddStreamFilter()
     {
@@ -268,11 +298,10 @@ class CsvTest extends TestCase
         $csv->addStreamFilter('string.toupper');
     }
 
-
     /**
      * @covers ::supportsStreamFilter
      * @covers ::addStreamFilter
-     * @covers League\Csv\StreamIterator::appendFilter
+     * @covers League\Csv\Document::appendFilter
      * @covers League\Csv\Exception\RuntimeException
      */
     public function testFailedAddStreamFilterWithWrongFilter()
@@ -282,11 +311,10 @@ class CsvTest extends TestCase
         $csv->addStreamFilter('foobar.toupper');
     }
 
-
     /**
      * @covers ::hasStreamFilter
      * @covers ::supportsStreamFilter
-     * @covers League\Csv\StreamIterator
+     * @covers League\Csv\Document
      */
     public function testStreamFilterDetection()
     {
@@ -312,7 +340,7 @@ class CsvTest extends TestCase
 
     /**
      * @covers ::addStreamFilter
-     * @covers League\Csv\StreamIterator
+     * @covers League\Csv\Document
      */
     public function testSetStreamFilterOnWriter()
     {
@@ -320,5 +348,38 @@ class CsvTest extends TestCase
         $csv->addStreamFilter('string.toupper');
         $csv->insertOne([1, 'two', 3, "new\r\nline"]);
         $this->assertContains("1,TWO,3,\"NEW\r\nLINE\"", (string) $csv);
+    }
+
+    /**
+     * @covers League\Csv\Document
+     */
+    public function testSetCsvControlWithDocument()
+    {
+        $raw_csv = "john,doe,john.doe@example.com\njane,doe,jane.doe@example.com\n";
+        $csv = Reader::createFromString($raw_csv);
+        $csv
+            ->setDelimiter(',')
+            ->setEnclosure('"')
+            ->setEscape('|');
+        $this->assertSame('|', $csv->getEscape());
+    }
+
+    /**
+     * @covers \League\Csv\is_iterable
+     */
+    public function testIsIterablePolyFill()
+    {
+        if (!version_compare(PHP_VERSION, '7.1.0', '<')) {
+            $this->markTestSkipped('Polyfill for PHP7.0');
+        }
+
+        $this->assertTrue(\League\Csv\is_iterable(['foo']));
+        $this->assertTrue(\League\Csv\is_iterable(Reader::createFromString('')));
+        $this->assertTrue(\League\Csv\is_iterable((function () {
+            yield 1;
+        })()));
+        $this->assertFalse(\League\Csv\is_iterable(1));
+        $this->assertFalse(\League\Csv\is_iterable((object) ['foo']));
+        $this->assertFalse(\League\Csv\is_iterable(Writer::createFromString('')));
     }
 }

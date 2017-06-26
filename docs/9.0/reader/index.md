@@ -8,20 +8,16 @@ title: CSV document Reader connection
 ~~~php
 <?php
 
-class Reader extends AbstractCsv implements Countable, IteratorAggregate
+class Reader extends AbstractCsv implements Countable, IteratorAggregate, JsonSerializable
 {
-    public function count(): int
     public function fetchAll(): array
     public function fetchColumn(string|int $columnIndex = 0): Generator
-    public function fetchOne(int $offset = 0): array
+    public function fetchOne(int $nth_record = 0): array
     public function fetchPairs(string|int $offsetIndex = 0, string|int $valueIndex = 1): Generator
     public function getHeader(): array
     public function getHeaderOffset(): int|null
-    public function getIterator(): Iterator
     public function getRecords(array $header = []): Iterator
-    public function getRecordPaddingValue(): mixed
     public function setHeaderOffset(?int $offset): self
-    public function setRecordPaddingValue(mixed $padding_value): self
 }
 ~~~
 
@@ -37,7 +33,7 @@ Many examples in this reference require an CSV file. We will use the following f
     john,john,john.john@example.com
     jane,jane
 
-## CSV Header
+## CSV header
 
 You can set and retrieve the header offset as well as its corresponding record.
 
@@ -86,45 +82,15 @@ $header_offset = $csv->getHeaderOffset(); //returns 1000
 $header = $csv->getHeader(); //triggers a RuntimeException exception
 ~~~
 
-## Counting CSV records
-
-Because the `Reader` class implements the `Countable` interface you can retrieve to number of records contains in a CSV document using PHP's `count` function. 
-
-~~~php
-<?php
-
-use League\Csv\Reader;
-
-$reader = Reader::createFromPath('/path/to/my/file.csv');
-count($reader); //returns 4
-~~~
-
-If a header offset is specified, the number of records will not take into account the header record
-
-~~~php
-<?php
-
-use League\Csv\Reader;
-
-$reader = Reader::createFromPath('/path/to/my/file.csv');
-$reader->setHeaderOffset(0);
-count($reader); //returns 3
-~~~
-
-<p class="message-warning">Using the <code>Countable</code> interface is not recommended for large CSV files</p>
-
-## Iterating over CSV records
+## CSV records
 
 ~~~php
 <?php
 
 public Reader::getRecords(array $header = []): Iterator
-public Reader::getIterator(void): Iterator
-public Reader::getRecordPaddingValue(): mixed
-public Reader::setRecordPaddingValue(mixed $padding_value): self
 ~~~
 
-### Using Reader::getRecords
+### Reader::getRecords basic usage
 
 The `Reader` class let's you access all its records using the `Reader::getRecords` method. The method returns an `Iterator` containing all CSV document records. It will also:
 
@@ -150,7 +116,7 @@ foreach ($records as $offset => $record) {
 }
 ~~~
 
-### Using Reader::getRecords with Reader::setHeaderOffset
+### Reader::getRecords with Reader::setHeaderOffset
 
 If you specify the CSV header offset using `setHeaderOffset`, the found record will be combined to each CSV record to return an associated array whose keys are composed of the header values.
 
@@ -174,7 +140,7 @@ foreach ($records as $offset => $record) {
 }
 ~~~
 
-### Using Reader::getRecords with its optional argument
+### Reader::getRecords with its optional argument
 
 Conversely, you can submit your own header record using the optional `$header` argument of the `getRecords` method.
 
@@ -244,7 +210,7 @@ foreach ($reader as $offset => $record) {
 }
 ~~~
 
-## CSV Record normalization
+## Records normalization
 
 The returned records are normalized using the following rules:
 
@@ -252,9 +218,7 @@ The returned records are normalized using the following rules:
 - [Stream filters](/9.0/connections/filters/) are applied if present
 - If a header record was provided, the number of fields is normalized to the number of fields contained in that record:
     - Extra fields are truncated.
-    - Missing fields are added with a default padding value.
-
-The default padding value can be defined using the `setRecordPaddingValue` method. By default, if no content is specified `null` will be used. You can retrieve the padding value using the `getRecordPaddingValue` method.
+    - Missing fields are added with a `null` value.
 
 ~~~php
 <?php
@@ -263,7 +227,6 @@ use League\Csv\Reader;
 
 $reader = Reader::createFromPath('/path/to/my/file.csv');
 $reader->setHeaderOffset(0);
-$reader->setRecordPaddingValue('N/A')
 $records = $reader->getRecords();
 foreach ($records as $offset => $record) {
     //$offset : represents the record offset
@@ -271,14 +234,13 @@ foreach ($records as $offset => $record) {
     // array(
     //  'First Name' => 'jane',
     //  'Last Name' => 'jane',
-    //  'E-mail' => 'N/A'
+    //  'E-mail' => null
     // );
     //
 }
-$reader->getRecordPaddingValue(); //returns 'N/A'
 ~~~
 
-## Selecting CSV records
+## Records selection
 
 ### Simple Usage
 
@@ -287,7 +249,7 @@ $reader->getRecordPaddingValue(); //returns 'N/A'
 
 public Reader::fetchAll(): array
 public Reader::fetchColumn(string|int $columnIndex = 0): Generator
-public Reader::fetchOne(int $offset = 0): array
+public Reader::fetchOne(int $nth_record = 0): array
 public Reader::fetchPairs(string|int $offsetIndex = 0, string|int $valueIndex = 1): Generator
 ~~~
 
@@ -329,3 +291,68 @@ $stmt = (new Statement())
 $records = $stmt->process($reader);
 //$records is a League\Csv\ResultSet object
 ~~~
+
+## Records count
+
+Because the `Reader` class implements the `Countable` interface you can retrieve to number of records contains in a CSV document using PHP's `count` function.
+
+~~~php
+<?php
+
+use League\Csv\Reader;
+
+$reader = Reader::createFromPath('/path/to/my/file.csv');
+count($reader); //returns 4
+~~~
+
+If a header offset is specified, the number of records will not take into account the header record
+
+~~~php
+<?php
+
+use League\Csv\Reader;
+
+$reader = Reader::createFromPath('/path/to/my/file.csv');
+$reader->setHeaderOffset(0);
+count($reader); //returns 3
+~~~
+
+<p class="message-warning">Using the <code>Countable</code> interface is not recommended for large CSV files as <code>iterator_count</code> is used internally.</p>
+
+## Records conversion
+
+The `Reader` class implements the `JsonSerializable` interface. As such you can use the `json_encode` function directly on the instantiated object.
+
+The returned JSON string data :
+
+- depends on the presence or absence of a header.
+- does not preserve the record offset
+
+~~~php
+<?php
+
+use League\Csv\Reader;
+
+$expected = [
+    ['firstname', 'lastname', 'e-mail', 'phone'],
+    ['john', 'doe', 'john.doe@example.com', '0123456789'],
+];
+
+$tmp = new SplTempFileObject();
+foreach ($expected as $row) {
+    $tmp->fputcsv($row);
+}
+
+$reader = Reader::createFromFileObject($tmp);
+echo json_encode($reader);
+//display [["First Name","Last Name","E-mail"],["john","doe","john.doe@example.com"]]
+$reader->setHeaderOffset(0);
+echo json_encode($reader);
+//display [{"First Name":"john","Last Name":"doe","E-mail":"john.doe@example.com"}]
+~~~
+
+<p class="message-info">If you wish to convert your CSV document in <code>XML</code> or <code>HTML</code> please refer to the <a href="/9.0/converter">converters</a> bundled with this library.</p>
+
+<p class="message-notice">To convert your CSV to <code>JSON</code> you must be sure its content is <code>UTF-8</code> encoded, using, for instance, the library <a href="/9.0/converter/charset/">CharsetConverter</a> stream filter.</p>
+
+<p class="message-warning">Using the <code>JsonSerializable</code> interface is not recommended for large CSV files as <code>iterator_to_array</code> is used internally.</p>

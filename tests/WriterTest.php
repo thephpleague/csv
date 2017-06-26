@@ -37,6 +37,7 @@ class WriterTest extends TestCase
     /**
      * @covers ::getFlushThreshold
      * @covers ::setFlushThreshold
+     * @covers ::filterNullableInteger
      */
     public function testflushThreshold()
     {
@@ -45,6 +46,16 @@ class WriterTest extends TestCase
         $this->assertSame(12, $this->csv->getFlushThreshold());
         $this->csv->setFlushThreshold(12);
         $this->csv->setFlushThreshold(0);
+    }
+
+    /**
+     * @covers ::setFlushThreshold
+     * @covers ::filterNullableInteger
+     */
+    public function testflushThresholdThrowsTypeError()
+    {
+        $this->expectException(TypeError::class);
+        $this->csv->setFlushThreshold((object) 12);
     }
 
     public function testSupportsStreamFilter()
@@ -106,7 +117,6 @@ class WriterTest extends TestCase
 
     /**
      * @covers ::insertAll
-     * @covers League\Csv\ValidatorTrait
      */
     public function testFailedSaveWithWrongType()
     {
@@ -116,7 +126,7 @@ class WriterTest extends TestCase
 
     /**
      * @covers ::insertAll
-     * @covers League\Csv\ValidatorTrait
+     *
      * @param array|Traversable $argument
      * @param string            $expected
      * @dataProvider dataToSave
@@ -165,7 +175,7 @@ class WriterTest extends TestCase
      * @covers ::getNewline
      * @covers ::insertOne
      * @covers ::consolidate
-     * @covers League\Csv\StreamIterator
+     * @covers League\Csv\Document
      */
     public function testCustomNewline()
     {

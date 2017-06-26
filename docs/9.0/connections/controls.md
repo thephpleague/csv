@@ -7,6 +7,9 @@ title: Csv character controls
 
 To correctly parse a CSV document you are required to set the character controls to be used by the `Reader` or the `Writer` object.
 
+<p>On error the following the character control setter method will throw a <code>LengthException</code> exception if the submitted string length is not equal to <code>1</code>.</p>
+
+
 ## The delimiter character.
 
 ### Description
@@ -100,8 +103,6 @@ $csv = Reader::createFromFileObject($file);
 echo $csv->getDelimiter(); //display '|'
 ~~~
 
-<p class="message-warning">The escape character is only inherited starting with <code>PHP 7.0.10</code>.</p>
-
 ## Detecting the delimiter character
 
 ~~~php
@@ -110,7 +111,7 @@ echo $csv->getDelimiter(); //display '|'
 function League\Csv\delimiter_detect(Reader $csv, array $delimiters, $limit = 1): array
 ~~~
 
-The `delimiter_detect` function helps detect the possible delimiter character used by the CSV document. This function returns the found occurences of submitted delimiters in a given CSV object.
+The `delimiter_detect` function helps detect the possible delimiter character used by the CSV document. This function returns the number of CSV fields found in the document depending on the submitted delimiters given.
 
 The function takes three (3) arguments:
 
@@ -140,6 +141,8 @@ $result = delimiter_detect($reader, [' ', '|'], 10);
 // - 20 fields were counted with the "|" delimiter in the 10 first records;
 // - in contrast no field was detected for the " " delimiter;
 ~~~
+If the submitted delimiter **is invalid or not found** in the document, `0` will be returned as its associated value.
+
 <p class="message-info">To detect the delimiters stats on the full CSV document you need to set <code>$limit</code> to <code>-1</code>.</p>
-<p class="message-notice"><strong>Notice:</strong> This function only returns hints. Only the CSV providers will validate the real CSV delimiter character.</p>
-<p class="message-warning"><strong>Warning:</strong> This function only test the delimiters you gave it.</p>
+<p class="message-notice">This function only returns hints. Only the CSV providers will validate the real CSV delimiter character.</p>
+<p class="message-warning">This function only test the delimiters you gave it.</p>

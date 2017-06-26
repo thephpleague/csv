@@ -54,6 +54,16 @@ class ResultSetTest extends TestCase
     }
 
     /**
+     * @covers League\Csv\Statement::offset
+     */
+    public function testSetOffsetThrowsException()
+    {
+        $this->expectException(OutOfRangeException::class);
+        $this->stmt->offset(-1);
+    }
+
+
+    /**
      * @covers League\Csv\Statement::process
      * @covers League\Csv\Statement::buildOrderBy
      * @covers ::count
@@ -228,6 +238,7 @@ class ResultSetTest extends TestCase
 
     /**
      * @covers ::fetchColumn
+     * @covers ::getColumnIndexByKey
      * @covers ::iteratorToGenerator
      * @covers League\Csv\MapIterator
      * @covers League\Csv\Exception\OutOfRangeException
@@ -463,5 +474,34 @@ class ResultSetTest extends TestCase
         $this->csv->setHeaderOffset(0);
         $this->assertSame($this->expected[0], $this->stmt->process($this->csv)->getColumnNames());
         $this->assertSame($expected, $this->stmt->process($this->csv, $expected)->getColumnNames());
+    }
+
+    /**
+     * @covers ::jsonSerialize
+     */
+    public function testJsonSerialize()
+    {
+        $expected = [
+            ['First Name', 'Last Name', 'E-mail'],
+            ['john', 'doe', 'john.doe@example.com'],
+            ['jane', 'doe', 'jane.doe@example.com'],
+        ];
+
+        $tmp = new SplTempFileObject();
+        foreach ($expected as $row) {
+            $tmp->fputcsv($row);
+        }
+
+        $reader = Reader::createFromFileObject($tmp)->setHeaderOffset(0);
+        $result = (new Statement())->offset(1)->limit(1)->process($reader);
+        $this->assertSame(
+            '[{"First Name":"jane","Last Name":"doe","E-mail":"jane.doe@example.com"}]',
+            json_encode($result)
+        );
+        $result->preserveRecordOffset(true);
+        $this->assertSame(
+            '{"2":{"First Name":"jane","Last Name":"doe","E-mail":"jane.doe@example.com"}}',
+            json_encode($result)
+        );
     }
 }

@@ -1,6 +1,6 @@
 <?php
 
-require __DIR__.DIRECTORY_SEPARATOR.'src'.DIRECTORY_SEPARATOR.'functions_include.php';
+require __DIR__.'/src/functions_include.php';
 
 spl_autoload_register(function ($class) {
 
@@ -9,12 +9,7 @@ spl_autoload_register(function ($class) {
         return;
     }
 
-    $file = __DIR__
-        .DIRECTORY_SEPARATOR
-        .'src'
-        .DIRECTORY_SEPARATOR
-        .str_replace('\\', DIRECTORY_SEPARATOR, substr($class, strlen($prefix)))
-        .'.php';
+    $file = __DIR__.'/src/'.str_replace('\\', '/', substr($class, strlen($prefix))).'.php';
     if (!is_readable($file)) {
         return;
     }

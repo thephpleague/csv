@@ -59,9 +59,9 @@ can even remove more headers.
 
 use League\Csv\Reader;
 
-header('content-type: text/csv; charset=UTF-8');
-header('content-description: File Transfer');
-header('content-disposition: attachment; filename="name-for-your-file.csv"');
+header('Content-Type: text/csv; charset=UTF-8');
+header('Content-Description: File Transfer');
+header('Content-Disposition: attachment; filename="name-for-your-file.csv"');
 
 $reader = Reader::createFromPath('/path/to/my/file.csv');
 $reader->output();
@@ -97,11 +97,11 @@ The `AbstractCsv::chunk` method takes a single `$length` parameter specifying th
 
 use League\Csv\Reader;
 
-header('transfer-encoding: chunked');
-header('content-encoding: none');
-header('content-type: text/csv; charset=UTF-8');
-header('content-description: File Transfer');
-header('content-disposition: attachment; filename="name-for-your-file.csv"');
+header('Transfer-Encoding: chunked');
+header('Content-Encoding: none');
+header('Content-Type: text/csv; charset=UTF-8');
+header('Content-Description: File Transfer');
+header('Content-Disposition: attachment; filename="name-for-your-file.csv"');
 
 $reader = Reader::createFromPath('/path/to/huge/file.csv', 'r');
 foreach ($reader->chunk(1024) as $chunk) {

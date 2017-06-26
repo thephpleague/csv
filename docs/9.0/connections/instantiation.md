@@ -74,9 +74,9 @@ $reader = Reader::createFromStream(fopen('/path/to/the/file.csv', 'r+'));
 $writer = Writer::createFromStream(tmpfile());
 ~~~
 
-<p class="message-warning"> The resource stream <strong>MUST</strong> be seekable otherwise an <code>InvalidArgumentException</code> exception is thrown.</p>
+<p class="message-warning"> The resource stream <strong>MUST</strong> be seekable otherwise an <code>RuntimeException</code> exception is thrown.</p>
 
-## Loading from a SPL file object
+## Loading from a SplFileObject object
 
 ~~~php
 <?php

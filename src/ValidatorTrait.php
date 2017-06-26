@@ -14,13 +14,12 @@ declare(strict_types=1);
 
 namespace League\Csv;
 
-use League\Csv\Exception\InvalidArgumentException;
+use League\Csv\Exception\LengthException;
 use League\Csv\Exception\OutOfRangeException;
-use Traversable;
 use TypeError;
 
 /**
- *  A trait to validate properties
+ * A trait to validate input variables
  *
  * @package  League.csv
  * @since    9.0.0
@@ -30,52 +29,13 @@ use TypeError;
 trait ValidatorTrait
 {
     /**
-     * Validate an integer minimal range
-     *
-     * @param int    $value
-     * @param int    $min_value
-     * @param string $error_message
-     *
-     * @throws OutOfRangeException If the value is invalid
-     *
-     * @return int
-     */
-    protected function filterMinRange(int $value, int $min_value, string $error_message): int
-    {
-        if ($value >= $min_value) {
-            return $value;
-        }
-
-        throw new OutOfRangeException(sprintf($error_message, $value));
-    }
-
-    /**
-     * Validate the argument given is an iterable
-     *
-     * @param array|Traversable $iterable
-     * @param string            $caller   public API method calling the method
-     *
-     * @throws TypeError If the submitted value is not iterable
-     *
-     * @return array|Traversable
-     */
-    protected function filterIterable($iterable, string $caller)
-    {
-        if (is_array($iterable) || $iterable instanceof Traversable) {
-            return $iterable;
-        }
-
-        throw new TypeError(sprintf('%s() expects argument passed to be iterable, %s given', $caller, gettype($iterable)));
-    }
-
-    /**
      * Filter Csv control character
      *
      * @param string $char   Csv control character
      * @param string $type   Csv control character type
      * @param string $caller public API method calling the method
      *
-     * @throws InvalidArgumentException If the Csv control character is not one character only.
+     * @throws LengthException If the Csv control character is not one character only.
      *
      * @return string
      */
@@ -85,6 +45,33 @@ trait ValidatorTrait
             return $char;
         }
 
-        throw new InvalidArgumentException(sprintf('%s() expects %s to be a single character %s given', $caller, $type, $char));
+        throw new LengthException(sprintf('%s() expects %s to be a single character %s given', $caller, $type, $char));
+    }
+
+    /**
+     * Filter Nullable Integer with mininal range check
+     *
+     * @see https://wiki.php.net/rfc/nullable_types
+     *
+     * @param int|null $value
+     * @param int      $min_range
+     * @param string   $error_message
+     *
+     * @throws TypError            if value is not a integer or null
+     * @throws OutOfRangeException if value is not in a valid int range
+     */
+    protected function filterNullableInteger($value, int $min_range, string $error_message)
+    {
+        if (null === $value) {
+            return;
+        }
+
+        if (!is_int($value)) {
+            throw new TypeError(sprintf('Expected argument to be null or a integer %s given', gettype($value)));
+        }
+
+        if ($value < $min_range) {
+            throw new OutOfRangeException($error_message);
+        }
     }
 }

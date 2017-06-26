@@ -16,6 +16,7 @@ namespace League\Csv;
 
 use League\Csv\Exception\InsertionException;
 use Traversable;
+use TypeError;
 
 /**
  * A class to manage records insertion into a CSV Document
@@ -28,9 +29,11 @@ use Traversable;
 class Writer extends AbstractCsv
 {
     /**
-     * @inheritdoc
+     * callable collection to format the record before insertion
+     *
+     * @var callable[]
      */
-    protected $stream_filter_mode = STREAM_FILTER_WRITE;
+    protected $formatters = [];
 
     /**
      * callable collection to validate the record before insertion
@@ -40,11 +43,11 @@ class Writer extends AbstractCsv
     protected $validators = [];
 
     /**
-     * callable collection to format the record before insertion
+     * newline character
      *
-     * @var callable[]
+     * @var string
      */
-    protected $formatters = [];
+    protected $newline = "\n";
 
     /**
      * Insert records count for flushing
@@ -54,18 +57,16 @@ class Writer extends AbstractCsv
     protected $flush_counter = 0;
 
     /**
-     * newline character
-     *
-     * @var string
-     */
-    protected $newline = "\n";
-
-    /**
      * Buffer flush threshold
      *
      * @var int|null
      */
     protected $flush_threshold;
+
+    /**
+     * @inheritdoc
+     */
+    protected $stream_filter_mode = STREAM_FILTER_WRITE;
 
     /**
      * Returns the current newline sequence characters
@@ -98,8 +99,12 @@ class Writer extends AbstractCsv
      */
     public function insertAll($records): int
     {
+        if (!is_iterable($records)) {
+            throw new TypeError(sprintf('%s() expects argument passed to be iterable, %s given', __METHOD__, gettype($records)));
+        }
+
         $bytes = 0;
-        foreach ($this->filterIterable($records, __METHOD__) as $record) {
+        foreach ($records as $record) {
             $bytes += $this->insertOne($record);
         }
 
@@ -122,7 +127,7 @@ class Writer extends AbstractCsv
     {
         $record = array_reduce($this->formatters, [$this, 'formatRecord'], $record);
         $this->validateRecord($record);
-        $bytes = $this->document->fputcsv($record, $this->delimiter, $this->enclosure, $this->escape);
+        $bytes = $this->document->fputcsv($record, ...$this->document->getCsvControl());
         if (!$bytes) {
             throw InsertionException::createFromStream($record);
         }
@@ -232,13 +237,12 @@ class Writer extends AbstractCsv
      * Set the automatic flush threshold on write
      *
      * @param int|null $threshold
+     *
+     * @return static
      */
     public function setFlushThreshold($threshold): self
     {
-        if (null !== $threshold) {
-            $threshold = $this->filterMinRange($threshold, 1, __METHOD__.'() expects 1 Argument to be null or a valid integer greater or equal to 1, %s given');
-        }
-
+        $this->filterNullableInteger($threshold, 1, __METHOD__.'() expects 1 Argument to be null or a valid integer greater or equal to 1');
         if ($threshold === $this->flush_threshold) {
             return $this;
         }

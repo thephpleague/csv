@@ -15,6 +15,7 @@ declare(strict_types=1);
 namespace League\Csv;
 
 use ReflectionClass;
+use Traversable;
 
 /**
  * Returns the BOM sequence found at the start of the string
@@ -73,4 +74,21 @@ function delimiter_detect(Reader $csv, array $delimiters, int $limit = 1): array
     $csv->setHeaderOffset($header_offset)->setDelimiter($delimiter);
 
     return $stats;
+}
+
+
+if (!function_exists('\is_iterable')) {
+    /**
+     * Tell whether the contents of the variable is iterable
+     *
+     * @see http://php.net/manual/en/function.is-iterable.php
+     *
+     * @param array|Traversable $iterable
+     *
+     * @return bool
+     */
+    function is_iterable($iterable): bool
+    {
+        return is_array($iterable) || $iterable instanceof Traversable;
+    }
 }

@@ -25,7 +25,6 @@ version:
         Converting Records:
             Overview: '/9.0/converter/'
             Charset Converter: '/9.0/converter/charset/'
-            Json Converter: '/9.0/converter/json/'
             XML Converter: '/9.0/converter/xml/'
             HTML Converter: '/9.0/converter/html/'
     '8.0':

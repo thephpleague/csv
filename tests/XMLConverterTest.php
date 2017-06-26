@@ -8,6 +8,7 @@ use League\Csv\Reader;
 use League\Csv\Statement;
 use League\Csv\XMLConverter;
 use PHPUnit\Framework\TestCase;
+use TypeError;
 
 /**
  * @group converter
@@ -70,5 +71,14 @@ class XMLConverterTest extends TestCase
         (new XMLConverter())
             ->recordElement('record', '')
             ->rootElement('   ');
+    }
+
+    /**
+     * @covers ::convert
+     */
+    public function testXmlElementTriggersTypeError()
+    {
+        $this->expectException(TypeError::class);
+        (new XMLConverter())->convert('foo');
     }
 }

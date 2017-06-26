@@ -3,11 +3,13 @@
 namespace LeagueTest\Csv;
 
 use ArrayIterator;
+use Iterator;
 use League\Csv\CharsetConverter;
 use League\Csv\Exception\OutOfRangeException;
 use League\Csv\Exception\RuntimeException;
 use League\Csv\Reader;
 use PHPUnit\Framework\TestCase;
+use TypeError;
 
 /**
  * @group converter
@@ -23,6 +25,15 @@ class CharsetConverterTest extends TestCase
     {
         $this->expectException(OutOfRangeException::class);
         (new CharsetConverter())->inputEncoding('');
+    }
+
+    /**
+     * @covers ::convert
+     */
+    public function testCharsetConverterTriggersExceptionOnConversion()
+    {
+        $this->expectException(TypeError::class);
+        (new CharsetConverter())->convert('toto');
     }
 
     /**
@@ -67,7 +78,22 @@ class CharsetConverterTest extends TestCase
             ->inputEncoding('iso-8859-15')
             ->outputEncoding('utf-8')
         ;
-        $this->assertSame($expected, iterator_to_array($converter->convert([$raw]))[0]);
+        $this->assertSame($expected, $converter->convert([$raw])[0]);
+    }
+
+
+    /**
+     * @covers ::convert
+     * @covers ::inputEncoding
+     */
+    public function testCharsetConverterConvertsAnIterator()
+    {
+        $expected = new ArrayIterator(['Batman', 'Superman', 'Anaïs']);
+        $converter = (new CharsetConverter())
+            ->inputEncoding('iso-8859-15')
+            ->outputEncoding('utf-8')
+        ;
+        $this->assertInstanceOf(Iterator::class, $converter->convert($expected));
     }
 
     /**
@@ -114,7 +140,6 @@ class CharsetConverterTest extends TestCase
         $converter->filtername = 'toto';
         $this->assertFalse($converter->onCreate());
     }
-
 
     /**
      * @covers ::onCreate

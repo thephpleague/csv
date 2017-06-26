@@ -15,13 +15,14 @@ declare(strict_types=1);
 namespace League\Csv;
 
 use League\Csv\Exception\LogicException;
+use League\Csv\Exception\OutOfRangeException;
 use League\Csv\Exception\RuntimeException;
 use SeekableIterator;
 use SplFileObject;
 use TypeError;
 
 /**
- * An object oriented API for a seekable stream resource.
+ * An object oriented API for a CSV stream resource.
  *
  * @package  League.csv
  * @since    8.2.0
@@ -29,7 +30,7 @@ use TypeError;
  * @internal used internally to iterate over a stream resource
  *
  */
-class StreamIterator implements SeekableIterator
+class Document implements SeekableIterator
 {
     use ValidatorTrait;
 
@@ -69,7 +70,7 @@ class StreamIterator implements SeekableIterator
     protected $offset;
 
     /**
-     * Flags for the StreamIterator
+     * Flags for the Document
      *
      * @var int
      */
@@ -125,11 +126,11 @@ class StreamIterator implements SeekableIterator
      */
     public function __destruct()
     {
-        $mapper = function ($filter): bool {
+        $walker = function ($filter): bool {
             return stream_filter_remove($filter);
         };
 
-        array_map($mapper, $this->filters);
+        array_walk_recursive($this->filters, $walker);
 
         if ($this->should_close_stream) {
             fclose($this->stream);
@@ -144,6 +145,19 @@ class StreamIterator implements SeekableIterator
     public function __clone()
     {
         throw new LogicException(sprintf('An object of class %s cannot be cloned', get_class($this)));
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function __debugInfo()
+    {
+        return stream_get_meta_data($this->stream) + [
+            'delimiter' => $this->delimiter,
+            'enclosure' => $this->enclosure,
+            'escape' => $this->escape,
+            'stream_filters' => array_keys($this->filters),
+        ];
     }
 
     /**
@@ -198,17 +212,17 @@ class StreamIterator implements SeekableIterator
      *
      * @see http://php.net/manual/en/function.stream-filter-append.php
      *
-     * @param string $filter_name
+     * @param string $filtername
      * @param int    $read_write
      * @param mixed  $params
      *
      * @throws RuntimeException if the filter can not be appended
      */
-    public function appendFilter(string $filter_name, int $read_write, $params = null)
+    public function appendFilter(string $filtername, int $read_write, $params = null)
     {
-        $res = @stream_filter_append($this->stream, $filter_name, $read_write, $params);
+        $res = @stream_filter_append($this->stream, $filtername, $read_write, $params);
         if (is_resource($res)) {
-            $this->filters[] = $res;
+            $this->filters[$filtername][] = $res;
             return;
         }
 
@@ -232,7 +246,19 @@ class StreamIterator implements SeekableIterator
     }
 
     /**
-     * Set StreamIterator Flags
+     * Set CSV control
+     *
+     * @see http://php.net/manual/en/splfileobject.getcsvcontrol.php
+     *
+     * @return string[]
+     */
+    public function getCsvControl()
+    {
+        return [$this->delimiter, $this->enclosure, $this->escape];
+    }
+
+    /**
+     * Set Document Flags
      *
      * @see http://php.net/manual/en/splfileobject.setflags.php
      *
@@ -335,13 +361,7 @@ class StreamIterator implements SeekableIterator
             return $this->value;
         }
 
-        if (($this->flags & SplFileObject::READ_CSV) == SplFileObject::READ_CSV) {
-            $this->value = $this->getCurrentRecord();
-
-            return $this->value;
-        }
-
-        $this->value = $this->getCurrentLine();
+        $this->value = $this->getCurrentRecord();
 
         return $this->value;
     }
@@ -361,20 +381,6 @@ class StreamIterator implements SeekableIterator
     }
 
     /**
-     * Retrieves the current line as a string
-     *
-     * @return string|bool
-     */
-    protected function getCurrentLine()
-    {
-        do {
-            $line = fgets($this->stream);
-        } while ($this->flags & SplFileObject::SKIP_EMPTY && $line !== false && rtrim($line, "\r\n") !== '');
-
-        return $line;
-    }
-
-    /**
      * Seek to specified line
      *
      * @see http://php.net/manual/en/splfileobject.seek.php
@@ -383,31 +389,18 @@ class StreamIterator implements SeekableIterator
      */
     public function seek($position)
     {
-        $pos = $this->filterMinRange((int) $position, 0, __METHOD__.'() Can\'t seek stream to negative line %d');
-        foreach ($this as $key => $value) {
-            if ($key === $pos || feof($this->stream)) {
-                $this->offset--;
-                break;
-            }
+        if ($position < 0) {
+            throw new OutOfRangeException(sprintf('%() can\'t seek stream to negative line %d', __METHOD__, $position));
         }
 
-        $this->current();
-    }
-
-    /**
-     * Gets line from file
-     *
-     * @see http://php.net/manual/en/splfileobject.fgets.php
-     *
-     * @return string|bool
-     */
-    public function fgets()
-    {
-        if (false !== $this->value) {
+        $this->rewind();
+        while ($this->key() !== $position && $this->valid()) {
+            $this->current();
             $this->next();
         }
 
-        return $this->value = $this->getCurrentLine();
+        $this->offset--;
+        $this->current();
     }
 
     /**

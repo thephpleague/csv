@@ -19,6 +19,8 @@ use Countable;
 use Generator;
 use Iterator;
 use IteratorAggregate;
+use JsonSerializable;
+use League\Csv\Exception\OutOfRangeException;
 use League\Csv\Exception\RuntimeException;
 use LimitIterator;
 
@@ -30,10 +32,8 @@ use LimitIterator;
  * @author  Ignace Nyamagana Butera <nyamsprod@gmail.com>
  *
  */
-class ResultSet implements Countable, IteratorAggregate
+class ResultSet implements Countable, IteratorAggregate, JsonSerializable
 {
-    use ValidatorTrait;
-
     /**
      * The CSV records collection
      *
@@ -143,22 +143,31 @@ class ResultSet implements Countable, IteratorAggregate
     }
 
     /**
-     * Returns a single record from the CSV
+     * @inheritdoc
+     */
+    public function jsonSerialize(): array
+    {
+        return $this->fetchAll();
+    }
+
+    /**
+     * Returns a the nth record from the resultset
      *
-     * By default if no offset is provided the first row of the CSV is selected
+     * By default if no index is provided the first record of the resultet is returned
      *
-     * @param int $offset the CSV record offset
+     * @param int $nth_record the CSV record offset
+     *
+     * @throws OutOfRangeException if argument is lesser than 0
      *
      * @return array
      */
-    public function fetchOne(int $offset = 0): array
+    public function fetchOne(int $nth_record = 0): array
     {
-        $iterator = new LimitIterator(
-            $this->iterator,
-            $this->filterMinRange($offset, 0, __METHOD__.'() expects the submitted offset to be a positive integer or 0, %s given'),
-            1
-        );
+        if ($nth_record < 0) {
+            throw new OutOfRangeException(sprintf('%s() expects the submitted offset to be a positive integer or 0, %s given', __METHOD__, $nth_record));
+        }
 
+        $iterator = new LimitIterator($this->iterator, $nth_record, 1);
         $iterator->rewind();
 
         return (array) $iterator->current();
@@ -232,23 +241,27 @@ class ResultSet implements Countable, IteratorAggregate
      * @param int    $index
      * @param string $error_message
      *
-     * @throws RuntimeException if the field is invalid or not found
+     * @throws OutOfRangeException if the field index is invalid
+     * @throws RuntimeException    if the field is invalid or not found
      *
      * @return int|string
      */
     protected function getColumnIndexByKey(int $index, string $error_message)
     {
-        $offset = $this->filterMinRange($index, 0, $error_message);
-        if (empty($this->column_names)) {
-            return $offset;
+        if ($index < 0) {
+            throw new OutOfRangeException($error_message);
         }
 
-        $value = array_search($offset, array_flip($this->column_names), true);
+        if (empty($this->column_names)) {
+            return $index;
+        }
+
+        $value = array_search($index, array_flip($this->column_names), true);
         if (false !== $value) {
             return $value;
         }
 
-        throw new RuntimeException(sprintf($error_message, $offset));
+        throw new RuntimeException(sprintf($error_message, $index));
     }
 
     /**

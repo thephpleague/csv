@@ -19,6 +19,7 @@ use CallbackFilterIterator;
 use Countable;
 use Iterator;
 use IteratorAggregate;
+use JsonSerializable;
 use League\Csv\Exception\RuntimeException;
 use SplFileObject;
 
@@ -33,20 +34,8 @@ use SplFileObject;
  * @method Generator fetchColumn(string|int $column_index) Returns the next value from a single CSV record field
  * @method Generator fetchPairs(string|int $offset_index, string|int $value_index) Fetches the next key-value pairs from the CSV document
  */
-class Reader extends AbstractCsv implements Countable, IteratorAggregate
+class Reader extends AbstractCsv implements Countable, IteratorAggregate, JsonSerializable
 {
-    /**
-     * @inheritdoc
-     */
-    protected $stream_filter_mode = STREAM_FILTER_READ;
-
-    /**
-     * The value to pad if the record is less than header size.
-     *
-     * @var mixed
-     */
-    protected $record_padding_value;
-
     /**
      * CSV Document header offset
      *
@@ -69,14 +58,9 @@ class Reader extends AbstractCsv implements Countable, IteratorAggregate
     protected $nb_records = -1;
 
     /**
-     * Returns the record padding value
-     *
-     * @return mixed
+     * @inheritdoc
      */
-    public function getRecordPaddingValue()
-    {
-        return $this->record_padding_value;
-    }
+    protected $stream_filter_mode = STREAM_FILTER_READ;
 
     /**
      * Returns the record offset used as header
@@ -103,9 +87,11 @@ class Reader extends AbstractCsv implements Countable, IteratorAggregate
             return $this->header;
         }
 
-        if (empty($this->header)) {
-            $this->header = $this->setHeader($this->header_offset);
+        if (!empty($this->header)) {
+            return $this->header;
         }
+
+        $this->header = $this->setHeader($this->header_offset);
 
         return $this->header;
     }
@@ -126,8 +112,7 @@ class Reader extends AbstractCsv implements Countable, IteratorAggregate
         $this->document->setFlags(SplFileObject::READ_CSV | SplFileObject::READ_AHEAD | SplFileObject::SKIP_EMPTY);
         $this->document->setCsvControl($this->delimiter, $this->enclosure, $this->escape);
         $this->document->seek($offset);
-        $header = $this->document->current();
-        if (empty($header)) {
+        if (empty($header = $this->document->current())) {
             throw new RuntimeException(sprintf('The header record does not exist or is empty at offset: `%s`', $offset));
         }
 
@@ -192,6 +177,14 @@ class Reader extends AbstractCsv implements Countable, IteratorAggregate
     public function getIterator(): Iterator
     {
         return $this->getRecords();
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function jsonSerialize(): array
+    {
+        return iterator_to_array($this->getRecords(), false);
     }
 
     /**
@@ -269,7 +262,7 @@ class Reader extends AbstractCsv implements Countable, IteratorAggregate
         $field_count = count($header);
         $mapper = function (array $record) use ($header, $field_count): array {
             if (count($record) != $field_count) {
-                $record = array_slice(array_pad($record, $field_count, $this->record_padding_value), 0, $field_count);
+                $record = array_slice(array_pad($record, $field_count, null), 0, $field_count);
             }
 
             return array_combine($header, $record);
@@ -305,20 +298,6 @@ class Reader extends AbstractCsv implements Countable, IteratorAggregate
     }
 
     /**
-     * Set the record padding value
-     *
-     * @param mixed $record_padding_value
-     *
-     * @return static
-     */
-    public function setRecordPaddingValue($record_padding_value): self
-    {
-        $this->record_padding_value = $record_padding_value;
-
-        return $this;
-    }
-
-    /**
      * Selects the record to be used as the CSV header
      *
      * Because of the header is represented as an array, to be valid
@@ -330,10 +309,7 @@ class Reader extends AbstractCsv implements Countable, IteratorAggregate
      */
     public function setHeaderOffset($offset): self
     {
-        if (null !== $offset) {
-            $offset = $this->filterMinRange($offset, 0, __METHOD__.'() expects the header offset index to be a positive integer or 0, %s given');
-        }
-
+        $this->filterNullableInteger($offset, 0, __METHOD__.'() expects the header offset index to be a positive integer or 0');
         if ($offset !== $this->header_offset) {
             $this->header_offset = $offset;
             $this->resetProperties();

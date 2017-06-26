@@ -15,7 +15,7 @@ declare(strict_types=1);
 namespace League\Csv;
 
 /**
- *  Defines constants for common BOM sequences
+ * Defines constants for common BOM sequences
  *
  * @package League.csv
  * @since   9.0.0

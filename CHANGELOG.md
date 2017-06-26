@@ -19,11 +19,10 @@ All Notable changes to `Csv` will be documented in this file
     - `League\Csv\CharsetConverter` converts CSV records charset.
     - `League\Csv\XMLConverter` converts CSV records into DOMDocument
     - `League\Csv\HTMLConverter` converts CSV records into HTML table.
-    - `League\Csv\JsonConverter` converts CSV records into a Json string.
 - Improved Exception handling
     - `League\Csv\Exception\CsvException` the default exception interface
     - `League\Csv\Exception\InsertionException`
-    - `League\Csv\Exception\InvalidArgumentException`
+    - `League\Csv\Exception\LengthException`
     - `League\Csv\Exception\LogicException`
     - `League\Csv\Exception\OutOfRangeException`
     - `League\Csv\Exception\RuntimeException`
@@ -56,7 +55,7 @@ All Notable changes to `Csv` will be documented in this file
 - The following method is removed because The BOM API is simplified:
     - `League\Csv\AbstractCsv::stripBOM`
 - All conversion methods are removed in favor of the conversion classes:
-    - `League\Csv\AbstractCsv::jsonSerialize`
+    - `League\Csv\Writer::jsonSerialize`
     - `League\Csv\AbstractCsv::toHTML`
     - `League\Csv\AbstractCsv::toXML`
     - `League\Csv\AbstractCsv::setInputEncoding`
