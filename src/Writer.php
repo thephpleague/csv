@@ -16,6 +16,7 @@ use InvalidArgumentException;
 use League\Csv\Modifier\RowFilter;
 use League\Csv\Modifier\StreamIterator;
 use ReflectionMethod;
+use RuntimeException;
 use SplFileObject;
 use Traversable;
 
@@ -109,7 +110,10 @@ class Writer extends AbstractCsv
     protected function addRow(array $row)
     {
         $this->initCsv();
-        $this->fputcsv->invokeArgs($this->csv, $this->getFputcsvParameters($row));
+        if (!$this->fputcsv->invokeArgs($this->csv, $this->getFputcsvParameters($row))) {
+            throw new RuntimeException('Unable to write record to the CSV document');
+        }
+
         if ("\n" !== $this->newline) {
             $this->csv->fseek(-1, SEEK_CUR);
             $this->csv->fwrite($this->newline, strlen($this->newline));

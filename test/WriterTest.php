@@ -67,6 +67,14 @@ class WriterTest extends PHPUnit_Framework_TestCase
     }
 
     /**
+     * @expectedException RuntimeException
+     */
+    public function testInsertOneThrowsRuntimeException()
+    {
+        Writer::createFromPath('php://temp', 'r')->insertOne(['foo', 'bar']);
+    }
+
+    /**
      * @param  $argument
      * @param  $expected
      * @dataProvider dataToSave
