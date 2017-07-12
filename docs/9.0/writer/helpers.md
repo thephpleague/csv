@@ -5,7 +5,7 @@ title: Bundled Writer helpers
 
 # Bundled insertion helpers
 
-## Column consistency checker
+## Column consistency validator
 
 ~~~php
 <?php
@@ -43,7 +43,7 @@ $writer->insertOne(["foo", "bar"]); //will trigger a InsertionException exceptio
 
 <p class="message-info">The default column count is set to <code>-1</code>.</p>
 
-## Charset Converter
+## Charset formatter
 
 [League\Csv\CharsetConverter](/9.0/converter/charset/) will help you encode your records depending on your settings.
 
@@ -63,7 +63,7 @@ $writer->insertOne(["foo", "bébé", "jouet"]);
 //all 'utf-8' caracters are now automatically encoded into 'iso-8859-15' charset
 ~~~
 
-If your `Writer` object supports PHP stream filters then it's recommended to use the library [stream filtering mechanism](/9.0/connections/filters/) instead.
+If your `Writer` object supports PHP stream filters then it's recommended to use the `CharsetConverter` object via the library [stream filtering mechanism](/9.0/connections/filters/) instead as shown below.
 
 ~~~php
 <?php
@@ -78,20 +78,9 @@ $writer->insertOne(["foo", "bébé", "jouet"]);
 //all 'utf-8' caracters are now automatically encoded into 'iso-8859-15' charset
 ~~~
 
-## RFC4180 compliance
+## RFC4180 field formatter
 
-~~~php
-<?php
-
-public static RFC4180Field::addTo(AbstractCsv $csv): void
-~~~
-
-If your CSV object supports PHP stream filters then you can register the `RFC4180Field` stream filter to correct field formatting to comply with [RFC4180](https://tools.ietf.org/html/rfc4180#section-2).
-
-The `RFC4180Field::addTo` static method:
-
-- registers the `RFC4180Field` class under the following generic filtername `league.csv.rfc4180.field`.
-- adds the stream filter to your current `Writer` object using the object CSV control properties.
+If your `Writer` object supports PHP stream filters then you can register the [League\Csv\RFC4180Field](/9.0/interoperability/rfc4180-field/) stream filter to correct field formatting to comply with [RFC4180](https://tools.ietf.org/html/rfc4180#section-2) as seen below:
 
 ~~~php
 <?php
