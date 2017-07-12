@@ -2,7 +2,7 @@
 
 All Notable changes to `Csv` will be documented in this file
 
-## 8.2.2 - TBD
+## 8.2.2 - 2017-07-12
 
 ### Added
 
@@ -14,9 +14,8 @@ All Notable changes to `Csv` will be documented in this file
 
 ### Fixed
 
-- `Writer::insertOne` was silently failing when inserted record in a CSV document in non-writing mode.
+- `Writer::insertOne` was silently failing when inserting record in a CSV document in non-writing mode.
 - bug fix docblock
-
 
 ### Removed
 
