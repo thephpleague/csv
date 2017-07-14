@@ -102,6 +102,25 @@ All Notable changes to `Csv` will be documented in this file
 - `League\Csv\Writer` no longers implements the `IteratorAggregate` interface
 - `League\Csv\AbstractCsv::fetchDelimitersOccurrence` is removed *replace by `League\Csv\delimiter_detect` function*
 
+## 8.2.2 - 2017-07-12
+
+### Added
+
+- None
+
+### Deprecated
+
+- None
+
+### Fixed
+
+- `Writer::insertOne` was silently failing when inserting record in a CSV document in non-writing mode.
+- bug fix docblock
+
+### Removed
+
+- None
+
 ## 8.2.1 - 2017-02-22
 
 ### Added

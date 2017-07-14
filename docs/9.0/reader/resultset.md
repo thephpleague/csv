@@ -14,7 +14,8 @@ class ResultSet implements Countable, IteratorAggregate, JsonSerializable
     public function fetchColumn(string|int $columnIndex = 0): Generator
     public function fetchOne(int $nth_record = 0): array
     public function fetchPairs(string|int $offsetIndex = 0, string|int $valueIndex = 1): Generator
-    public function getColumnNames(): array
+    public function getHeader(): array
+    public function getRecords(): Iterator
     public function isRecordOffsetPreserved(): bool
     public function preserveRecordOffset(bool $status): self
 }
@@ -28,10 +29,10 @@ A `League\Csv\ResultSet` object represents the associated result set of processi
 
 ~~~php
 <?php
-public ResultSet::getColumnNames(): array
+public ResultSet::getHeader(): array
 ~~~
 
-`ResultSet::getColumnNames` returns the columns name information associated with the current object. This is usefull if the `ResultSet` object was created from a `Reader` object where [Reader::getHeader](/9.0/reader/#header-detection) is not empty;
+`ResultSet::getHeader` returns the header associated with the current object.
 
 #### Example: no header information was given
 
@@ -43,7 +44,7 @@ use League\Csv\Statement;
 
 $reader = Reader::createFromPath('/path/to/my/file.csv');
 $records = (new Statement())->process($reader);
-$records->getColumnNames(); // is empty because no header information was given
+$records->getHeader(); // is empty because no header information was given
 ~~~
 
 #### Example: header information given by the Reader object
@@ -57,7 +58,22 @@ $reader = Reader::createFromPath('/path/to/my/file.csv');
 $reader->setHeaderOffset(0);
 
 $records = (new Statement())->process($reader);
-$records->getColumnNames(); // returns ['First Name', 'Last Name', 'E-mail'];
+$records->getHeader(); // returns ['First Name', 'Last Name', 'E-mail'];
+~~~
+
+#### Example: header information given by the Statement object
+
+~~~php
+<?php
+
+use League\Csv\Reader;
+use League\Csv\Statement;
+
+$reader = Reader::createFromPath('/path/to/my/file.csv');
+$reader->setHeaderOffset(0);
+
+$records = (new Statement())->process($reader, ['Prénom', 'Nom', 'E-mail']);
+$records->getHeader(); // returns ['Prénom', 'Nom', 'E-mail'];
 ~~~
 
 ### Accessing the number of records in the result set
@@ -100,14 +116,16 @@ At any given time you can tell whether the CSV document offset is kept by callin
 <?php
 
 public ResultSet::fetchAll(void): array
+public ResultSet::getRecords(void): Iterator
 ~~~
 
 To iterate over each found records you can:
 
 - call the `ResultSet::fetchAll` method which returns a sequential `array` of all records found;
+- call the `ResultSet::getRecords` method which returns an `Iterator` of all records found;
 - directly use the `foreach` construct as the class implements the `IteratorAggregate` interface;
 
-<p class="message-info">The <code>foreach</code> construct enables using the memory efficient <code>Generator</code> object.</p>
+<p class="message-info">The <code>getRecords</code> and the <code>foreach</code> construct enable using the memory efficient <code>Generator</code> object.</p>
 
 ~~~php
 <?php
@@ -117,6 +135,11 @@ use League\Csv\Statement;
 
 $reader = Reader::createFromPath('/path/to/my/file.csv');
 $records = (new Statement())->process($reader);
+
+foreach ($records->getRecords() as $record) {
+    //do something here
+}
+
 foreach ($records as $record) {
     //do something here
 }
@@ -154,9 +177,9 @@ foreach ($records->fetchAll() as $offset => $record) {
 }
 ~~~
 
-### Usage with the column names
+### Usage with the header
 
-If the `ResultSet::getColumnNames` is not an empty `array` the found records keys will contains the method returned values.
+If the `ResultSet::getHeader` is not an empty `array` the found records keys will contains the method returned values.
 
 ~~~php
 <?php
@@ -167,7 +190,7 @@ use League\Csv\Statement;
 $reader = Reader::createFromPath('/path/to/my/file.csv');
 $reader->setHeaderOffset(0);
 $records = (new Statement())->process($reader);
-$records->getColumnNames(); //returns ['First Name', 'Last Name', 'E-mail']
+$records->getHeader(); //returns ['First Name', 'Last Name', 'E-mail']
 foreach ($records as $record) {
     // $records contains the following data
     // array(
@@ -227,7 +250,7 @@ public ResultSet::fetchColumn(string|int $columnIndex = 0): Generator
 the `$columnIndex` parameter can be:
 
 - an integer representing the column index starting from `0`;
-- a string representing one of the value of `ResultSet::getColumnNames`;
+- a string representing one of the value of `ResultSet::getHeader`;
 
 ~~~php
 <?php
@@ -306,7 +329,7 @@ $records = (new Statement())->process($reader);
 foreach ($records->fetchColumn('foobar') as $record) {
     //throw an RuntimeException if
     //no `foobar` column name is found
-    //in $records->getColumnNames() result
+    //in $records->getHeader() result
 }
 ~~~
 

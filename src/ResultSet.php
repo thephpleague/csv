@@ -39,14 +39,14 @@ class ResultSet implements Countable, IteratorAggregate, JsonSerializable
      *
      * @var Iterator
      */
-    protected $iterator;
+    protected $records;
 
     /**
      * The CSV records collection column names
      *
      * @var array
      */
-    protected $column_names = [];
+    protected $header = [];
 
     /**
      * Tell whether the CSV records offset must be kept on output
@@ -58,13 +58,13 @@ class ResultSet implements Countable, IteratorAggregate, JsonSerializable
     /**
      * New instance
      *
-     * @param Iterator $iterator     a CSV records collection iterator
-     * @param array    $column_names the associated collection column names
+     * @param Iterator $records a CSV records collection iterator
+     * @param array    $header  the associated collection column names
      */
-    public function __construct(Iterator $iterator, array $column_names)
+    public function __construct(Iterator $records, array $header)
     {
-        $this->iterator = $iterator;
-        $this->column_names = $column_names;
+        $this->records = $records;
+        $this->header = $header;
     }
 
     /**
@@ -72,7 +72,7 @@ class ResultSet implements Countable, IteratorAggregate, JsonSerializable
      */
     public function __destruct()
     {
-        $this->iterator = null;
+        $this->records = null;
     }
 
     /**
@@ -80,27 +80,17 @@ class ResultSet implements Countable, IteratorAggregate, JsonSerializable
      *
      * @return string[]
      */
-    public function getColumnNames(): array
+    public function getHeader(): array
     {
-        return $this->column_names;
-    }
-
-    /**
-     * Tell whether the CSV document record offset must be kept on output
-     *
-     * @return bool
-     */
-    public function isRecordOffsetPreserved(): bool
-    {
-        return $this->preserve_offset;
+        return $this->header;
     }
 
     /**
      * @inheritdoc
      */
-    public function getIterator(): Generator
+    public function getRecords(): Generator
     {
-        return $this->iteratorToGenerator($this->iterator);
+        return $this->iteratorToGenerator($this->records);
     }
 
     /**
@@ -125,11 +115,29 @@ class ResultSet implements Countable, IteratorAggregate, JsonSerializable
     }
 
     /**
+     * Tell whether the CSV document record offset must be kept on output
+     *
+     * @return bool
+     */
+    public function isRecordOffsetPreserved(): bool
+    {
+        return $this->preserve_offset;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getIterator(): Generator
+    {
+        return $this->getRecords();
+    }
+
+    /**
      * @inheritdoc
      */
     public function count(): int
     {
-        return iterator_count($this->iterator);
+        return iterator_count($this->records);
     }
 
     /**
@@ -139,7 +147,7 @@ class ResultSet implements Countable, IteratorAggregate, JsonSerializable
      */
     public function fetchAll(): array
     {
-        return iterator_to_array($this->iterator, $this->preserve_offset);
+        return iterator_to_array($this->records, $this->preserve_offset);
     }
 
     /**
@@ -167,7 +175,7 @@ class ResultSet implements Countable, IteratorAggregate, JsonSerializable
             throw new OutOfRangeException(sprintf('%s() expects the submitted offset to be a positive integer or 0, %s given', __METHOD__, $nth_record));
         }
 
-        $iterator = new LimitIterator($this->iterator, $nth_record, 1);
+        $iterator = new LimitIterator($this->records, $nth_record, 1);
         $iterator->rewind();
 
         return (array) $iterator->current();
@@ -193,7 +201,7 @@ class ResultSet implements Countable, IteratorAggregate, JsonSerializable
             return $record[$offset];
         };
 
-        $iterator = new MapIterator(new CallbackFilterIterator($this->iterator, $filter), $select);
+        $iterator = new MapIterator(new CallbackFilterIterator($this->records, $filter), $select);
 
         return $this->iteratorToGenerator($iterator);
     }
@@ -228,7 +236,7 @@ class ResultSet implements Countable, IteratorAggregate, JsonSerializable
      */
     protected function getColumnIndexByValue(string $value, string $error_message): string
     {
-        if (false !== array_search($value, $this->column_names, true)) {
+        if (false !== array_search($value, $this->header, true)) {
             return $value;
         }
 
@@ -252,11 +260,11 @@ class ResultSet implements Countable, IteratorAggregate, JsonSerializable
             throw new OutOfRangeException($error_message);
         }
 
-        if (empty($this->column_names)) {
+        if (empty($this->header)) {
             return $index;
         }
 
-        $value = array_search($index, array_flip($this->column_names), true);
+        $value = array_search($index, array_flip($this->header), true);
         if (false !== $value) {
             return $value;
         }
@@ -290,7 +298,7 @@ class ResultSet implements Countable, IteratorAggregate, JsonSerializable
             return [$record[$offset], $record[$value] ?? null];
         };
 
-        $iterator = new MapIterator(new CallbackFilterIterator($this->iterator, $filter), $select);
+        $iterator = new MapIterator(new CallbackFilterIterator($this->records, $filter), $select);
         foreach ($iterator as $pair) {
             yield $pair[0] => $pair[1];
         }

@@ -464,16 +464,29 @@ class ResultSetTest extends TestCase
     }
 
     /**
-     * @covers ::getColumnNames
+     * @covers ::getHeader
      */
-    public function testGetColumnNames()
+    public function testGetHeader()
     {
         $expected = ['firstname', 'lastname', 'email'];
-        $this->assertSame([], $this->stmt->process($this->csv)->getColumnNames());
-        $this->assertSame($expected, $this->stmt->process($this->csv, $expected)->getColumnNames());
+        $this->assertSame([], $this->stmt->process($this->csv)->getHeader());
+        $this->assertSame($expected, $this->stmt->process($this->csv, $expected)->getHeader());
         $this->csv->setHeaderOffset(0);
-        $this->assertSame($this->expected[0], $this->stmt->process($this->csv)->getColumnNames());
-        $this->assertSame($expected, $this->stmt->process($this->csv, $expected)->getColumnNames());
+        $this->assertSame($this->expected[0], $this->stmt->process($this->csv)->getHeader());
+        $this->assertSame($expected, $this->stmt->process($this->csv, $expected)->getHeader());
+    }
+
+    /**
+     * @covers ::getRecords
+     * @covers ::getIterator
+     * @covers ::iteratorToGenerator
+     */
+    public function testGetRecords()
+    {
+        $result = $this->stmt->process($this->csv);
+        $this->assertEquals($result->getIterator(), $result->getRecords());
+        $result->preserveRecordOffset(true);
+        $this->assertEquals($result->getIterator(), $result->getRecords());
     }
 
     /**
