@@ -10,7 +10,6 @@ title: CSV document Reader connection
 
 class Reader extends AbstractCsv implements Countable, IteratorAggregate, JsonSerializable
 {
-    public function fetchAll(): array
     public function fetchColumn(string|int $columnIndex = 0): Generator
     public function fetchOne(int $nth_record = 0): array
     public function fetchPairs(string|int $offsetIndex = 0, string|int $valueIndex = 1): Generator
@@ -247,7 +246,6 @@ foreach ($records as $offset => $record) {
 ~~~php
 <?php
 
-public Reader::fetchAll(): array
 public Reader::fetchColumn(string|int $columnIndex = 0): Generator
 public Reader::fetchOne(int $nth_record = 0): array
 public Reader::fetchPairs(string|int $offsetIndex = 0, string|int $valueIndex = 1): Generator

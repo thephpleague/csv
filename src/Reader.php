@@ -29,7 +29,6 @@ use SplFileObject;
  * @package League.csv
  * @since  3.0.0
  *
- * @method array fetchAll() Returns a sequential array of all CSV records
  * @method array fetchOne(int $offset = 0) Returns a single record from the CSV
  * @method Generator fetchColumn(string|int $column_index) Returns the next value from a single CSV record field
  * @method Generator fetchPairs(string|int $offset_index, string|int $value_index) Fetches the next key-value pairs from the CSV document
@@ -151,7 +150,7 @@ class Reader extends AbstractCsv implements Countable, IteratorAggregate, JsonSe
      */
     public function __call($method, array $arguments)
     {
-        $whitelisted = ['fetchColumn' => 1, 'fetchPairs' => 1, 'fetchOne' => 1, 'fetchAll' => 1];
+        $whitelisted = ['fetchColumn' => 1, 'fetchPairs' => 1, 'fetchOne' => 1];
         if (isset($whitelisted[$method])) {
             return (new ResultSet($this->getRecords(), $this->getHeader()))->$method(...$arguments);
         }

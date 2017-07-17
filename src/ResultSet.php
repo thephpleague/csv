@@ -141,21 +141,11 @@ class ResultSet implements Countable, IteratorAggregate, JsonSerializable
     }
 
     /**
-     * Returns a sequential array of all CSV records found
-     *
-     * @return array
-     */
-    public function fetchAll(): array
-    {
-        return iterator_to_array($this->records, $this->preserve_offset);
-    }
-
-    /**
      * @inheritdoc
      */
     public function jsonSerialize(): array
     {
-        return $this->fetchAll();
+        return iterator_to_array($this->records, $this->preserve_offset);
     }
 
     /**

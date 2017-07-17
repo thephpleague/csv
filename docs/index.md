@@ -71,7 +71,10 @@ $stmt = (new Statement())
     ->limit(25);
 
 //query your records from the document
-$records = $stmt->process($csv)->fetchAll();
+$records = $stmt->process($csv);
+foreach ($records as $record) {
+    //do something here
+}
 ~~~
 
 ## CSV documents converters

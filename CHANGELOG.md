@@ -79,13 +79,11 @@ All Notable changes to `Csv` will be documented in this file
     - `League\Csv\AbstractCsv::addSortBy`,
     - `League\Csv\AbstractCsv::setOffset`,
     - `League\Csv\AbstractCsv::setLimit`;
-- CSV records selecting methods are removed in favor of the `League\Csv\ResultSet` class:
+- CSV records selecting API methods is simplified:
     - `League\Csv\Reader::each`
     - `League\Csv\Reader::fetch`
     - `League\Csv\Reader::fetchAll`
     - `League\Csv\Reader::fetchAssoc`
-    - `League\Csv\Reader::fetchColumn`
-    - `League\Csv\Reader::fetchPairs`
     - `League\Csv\Reader::fetchPairsWithoutDuplicates`
 - Formatting and validating CSV records on insertion is simplified, the following methods are removed:
     - `League\Csv\Writer::hasFormatter`

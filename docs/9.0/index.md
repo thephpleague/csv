@@ -34,7 +34,11 @@ $stmt = (new Statement())
     ->limit(25)
 ;
 
-$res = $stmt->process($csv)->fetchAll();
+$records = $stmt->process($csv);
+foreach ($records as $record) {
+    //do something here
+}
+
 ~~~
 
 ### Exporting a database table as a CSV document

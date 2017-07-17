@@ -131,7 +131,6 @@ class ReaderTest extends TestCase
 
         $res = (new Statement())->process($csv);
         $this->assertEquals($csv->fetchOne(3), $res->fetchOne(3));
-        $this->assertEquals($csv->fetchAll(), $res->fetchAll());
         $this->assertEquals($csv->fetchColumn('firstname'), $res->fetchColumn('firstname'));
         $this->assertEquals($csv->fetchPairs('lastname', 0), $res->fetchPairs('lastname', 0));
     }

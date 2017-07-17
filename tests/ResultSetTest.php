@@ -74,9 +74,7 @@ class ResultSetTest extends TestCase
     {
         $records = $this->stmt->limit(1)->process($this->csv);
         $this->assertCount(1, $records);
-        $records->preserveRecordOffset(true);
         $this->assertInstanceOf(Generator::class, $records->getIterator());
-        $this->assertSame(iterator_to_array($records, false), $records->fetchAll());
     }
 
     /**
@@ -108,7 +106,7 @@ class ResultSetTest extends TestCase
     {
         $this->assertContains(
             ['jane', 'doe', 'jane.doe@example.com'],
-            $this->stmt->offset(1)->process($this->csv)->fetchAll()
+            $this->stmt->offset(1)->process($this->csv)
         );
     }
 
@@ -134,7 +132,6 @@ class ResultSetTest extends TestCase
                     return !empty($record);
                 })
                 ->process($this->csv)
-                ->fetchAll()
         );
     }
 
@@ -155,11 +152,10 @@ class ResultSetTest extends TestCase
     public function testIntervalThrowException()
     {
         $this->expectException(OutOfBoundsException::class);
-        $this->stmt
+        iterator_to_array($this->stmt
             ->offset(1)
             ->limit(0)
-            ->process($this->csv)
-            ->fetchAll();
+            ->process($this->csv));
     }
 
     /**
@@ -173,7 +169,7 @@ class ResultSetTest extends TestCase
 
         $this->assertNotContains(
             ['jane', 'doe', 'jane.doe@example.com'],
-            $this->stmt->where($func)->process($this->csv)->fetchAll()
+            iterator_to_array($this->stmt->where($func)->process($this->csv), false)
         );
     }
 
@@ -188,7 +184,7 @@ class ResultSetTest extends TestCase
         };
         $this->assertSame(
             array_reverse($this->expected),
-            $this->stmt->orderBy($func)->process($this->csv)->fetchAll()
+            iterator_to_array($this->stmt->orderBy($func)->process($this->csv), false)
         );
     }
 
@@ -204,7 +200,7 @@ class ResultSetTest extends TestCase
 
         $this->assertSame(
             $this->expected,
-            $this->stmt->orderBy($func)->process($this->csv)->fetchAll()
+            iterator_to_array($this->stmt->orderBy($func)->process($this->csv), false)
         );
     }
 
@@ -254,7 +250,8 @@ class ResultSetTest extends TestCase
     }
 
     /**
-     * @covers ::fetchAll
+     * @covers ::getRecords
+     * @covers ::getIterator
      */
     public function testFetchAssocWithRowIndex()
     {
@@ -274,7 +271,7 @@ class ResultSetTest extends TestCase
         $csv->setHeaderOffset(2);
         $this->assertContains(
             ['D' => '6', 'E' => '7', 'F' => '8'],
-            $this->stmt->process($csv)->fetchAll()
+            iterator_to_array($this->stmt->process($csv), false)
         );
     }
 
@@ -299,10 +296,10 @@ class ResultSetTest extends TestCase
         $records = $this->stmt->process($csv);
         $records->preserveRecordOffset(false);
         $this->assertFalse($records->isRecordOffsetPreserved());
-        $this->assertSame($expectedNoOffset, $records->fetchAll());
+        $this->assertSame($expectedNoOffset, iterator_to_array($records, false));
         $records->preserveRecordOffset(true);
         $this->assertTrue($records->isRecordOffsetPreserved());
-        $this->assertSame($expectedWithOffset, $records->fetchAll());
+        $this->assertSame($expectedWithOffset, iterator_to_array($records, true));
         foreach ($records as $offset => $record) {
             $this->assertInternalType('int', $offset);
         }

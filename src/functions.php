@@ -63,7 +63,7 @@ function delimiter_detect(Reader $csv, array $delimiters, int $limit = 1): array
         return count($record) > 1;
     });
     $reducer = function (array $result, string $delimiter) use ($csv, $stmt): array {
-        $result[$delimiter] = count($stmt->process($csv->setDelimiter($delimiter))->fetchAll(), COUNT_RECURSIVE);
+        $result[$delimiter] = count(iterator_to_array($stmt->process($csv->setDelimiter($delimiter)), false), COUNT_RECURSIVE);
 
         return $result;
     };
@@ -75,7 +75,6 @@ function delimiter_detect(Reader $csv, array $delimiters, int $limit = 1): array
 
     return $stats;
 }
-
 
 if (!function_exists('\is_iterable')) {
     /**

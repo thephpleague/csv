@@ -10,12 +10,11 @@ title: Accessing Records from a CSV document
 
 class ResultSet implements Countable, IteratorAggregate, JsonSerializable
 {
-    public function fetchAll(): array
     public function fetchColumn(string|int $columnIndex = 0): Generator
     public function fetchOne(int $nth_record = 0): array
     public function fetchPairs(string|int $offsetIndex = 0, string|int $valueIndex = 1): Generator
     public function getHeader(): array
-    public function getRecords(): Iterator
+    public function getRecords(): Generator
     public function isRecordOffsetPreserved(): bool
     public function preserveRecordOffset(bool $status): self
 }
@@ -115,17 +114,13 @@ At any given time you can tell whether the CSV document offset is kept by callin
 ~~~php
 <?php
 
-public ResultSet::fetchAll(void): array
 public ResultSet::getRecords(void): Iterator
 ~~~
 
 To iterate over each found records you can:
 
-- call the `ResultSet::fetchAll` method which returns a sequential `array` of all records found;
-- call the `ResultSet::getRecords` method which returns an `Iterator` of all records found;
+- call the `ResultSet::getRecords` method which returns a `Genarator` of all records found;
 - directly use the `foreach` construct as the class implements the `IteratorAggregate` interface;
-
-<p class="message-info">The <code>getRecords</code> and the <code>foreach</code> construct enable using the memory efficient <code>Generator</code> object.</p>
 
 ~~~php
 <?php
@@ -143,11 +138,6 @@ foreach ($records->getRecords() as $record) {
 foreach ($records as $record) {
     //do something here
 }
-
-foreach ($records->fetchAll() as $record) {
-    //do something here
-}
-
 ~~~
 
 ### Accessing the CSV document record offset
@@ -172,7 +162,7 @@ foreach ($records as $offset => $record) {
 
 $records->preserveRecordOffset(true); //we are preserving the original offset
 $records->isRecordOffsetPreserved(); //returns true
-foreach ($records->fetchAll() as $offset => $record) {
+foreach ($records->getRecords() as $offset => $record) {
     //during the first iteration $offset will be equal to 5
 }
 ~~~
