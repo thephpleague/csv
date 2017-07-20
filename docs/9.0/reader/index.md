@@ -331,26 +331,50 @@ The returned JSON string data :
 
 use League\Csv\Reader;
 
-$expected = [
+$records = [
     ['firstname', 'lastname', 'e-mail', 'phone'],
     ['john', 'doe', 'john.doe@example.com', '0123456789'],
 ];
 
 $tmp = new SplTempFileObject();
-foreach ($expected as $row) {
-    $tmp->fputcsv($row);
+foreach ($records as $record) {
+    $tmp->fputcsv($record);
 }
 
 $reader = Reader::createFromFileObject($tmp);
-echo json_encode($reader);
-//display [["First Name","Last Name","E-mail"],["john","doe","john.doe@example.com"]]
+echo '<pre>', PHP_EOL;
+echo json_encode($reader, JSON_PRETTY_PRINT), PHP_EOL;
+//display
+//[
+//    [
+//        "firstname",
+//        "lastname",
+//        "e-mail",
+//        "phone"
+//    ],
+//    [
+//        "john",
+//        "doe",
+//        "john.doe@example.com",
+//        "0123456789"
+//    ]
+//]
+
 $reader->setHeaderOffset(0);
-echo json_encode($reader);
-//display [{"First Name":"john","Last Name":"doe","E-mail":"john.doe@example.com"}]
+echo json_encode($reader, JSON_PRETTY_PRINT), PHP_EOL;
+//display
+//[
+//    {
+//        "firstname": "john",
+//        "lastname": "doe",
+//        "e-mail": "john.doe@example.com",
+//        "phone": "0123456789"
+//    }
+//]
 ~~~
 
-<p class="message-info">If you wish to convert your CSV document in <code>XML</code> or <code>HTML</code> please refer to the <a href="/9.0/converter">converters</a> bundled with this library.</p>
-
 <p class="message-notice">To convert your CSV to <code>JSON</code> you must be sure its content is <code>UTF-8</code> encoded, using, for instance, the library <a href="/9.0/converter/charset/">CharsetConverter</a> stream filter.</p>
+
+<p class="message-info">If you wish to convert your CSV document in <code>XML</code> or <code>HTML</code> please refer to the <a href="/9.0/converter">converters</a> bundled with this library.</p>
 
 <p class="message-warning">Using the <code>JsonSerializable</code> interface is not recommended for large CSV files as <code>iterator_to_array</code> is used internally.</p>

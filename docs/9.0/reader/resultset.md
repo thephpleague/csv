@@ -400,21 +400,48 @@ The returned JSON string data depends on the `ResultSet` properties:
 use League\Csv\Reader;
 use League\Csv\Statement;
 
-$reader = Reader::createFromPath('/path/to/file.csv');
-$reader->setHeaderOffset(0);
-$stmt = (new Statement())->offset(3)->limit(1);
+$records = [
+    ['firstname', 'lastname', 'e-mail', 'phone'],
+    ['john', 'doe', 'john.doe@example.com', '0123456789'],
+    ['jane', 'doe', 'jane.doe@example.com', '0123456789'],
+];
 
+$tmp = new SplTempFileObject();
+foreach ($records as $record) {
+    $tmp->fputcsv($record);
+}
+
+$reader = Reader::createFromFileObject($tmp)->setHeaderOffset(0);
+$stmt = (new Statement())->offset(1)->limit(1);
 $result = $stmt->process($reader);
 
+echo '<pre>', PHP_EOL;
+echo json_encode($result, JSON_PRETTY_PRINT), PHP_EOL;
+//display
+//[
+//    {
+//        "firstname": "jane",
+//        "lastname": "doe",
+//        "e-mail": "jane.doe@example.com",
+//        "phone": "0123456789"
+//    }
+//]
 
-echo json_encode($result);
-//display [{"First Name":"john","Last Name":"doe","E-mail":"john.doe@example.com"}]
-$result->preserverRecordOffset(true);
-//display {"4":{"First Name":"john","Last Name":"doe","E-mail":"john.doe@example.com"}}
+$result->preserveRecordOffset(true);
+echo json_encode($result, JSON_PRETTY_PRINT), PHP_EOL;
+//display
+//{
+//    "2": {  //here '2' refers to the record offset in the source CSV document
+//        "firstname": "jane",
+//        "lastname": "doe",
+//        "e-mail": "jane.doe@example.com",
+//        "phone": "0123456789"
+//    }
+//}
 ~~~
+
+<p class="message-notice">To convert your <code>ResultSet</code> to <code>JSON</code> you must be sure its content is <code>UTF-8</code> encoded, using, for instance, the library <a href="/9.0/converter/charset/">CharsetConverter</a> stream filter.</p>
 
 <p class="message-info">If you wish to convert your <code>ResultSet</code> in <code>XML</code> or <code>HTML</code> please refer to the <a href="/9.0/converter">converters</a> bundled with this library.</p>
 
-<p class="message-notice">To convert your CSV to <code>JSON</code> you must be sure its content is <code>UTF-8</code> encoded, using, for instance, the library <a href="/9.0/converter/charset/">CharsetConverter</a> stream filter.</p>
-
-<p class="message-warning">Using the <code>JsonSerializable</code> interface is not recommended for large CSV files as <code>iterator_to_array</code> is used internally.</p>
+<p class="message-warning">Using the <code>JsonSerializable</code> interface is not recommended for large <code>ResultSet</code> as <code>iterator_to_array</code> is used internally.</p>
