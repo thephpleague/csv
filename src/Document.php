@@ -136,7 +136,7 @@ class Document implements SeekableIterator
             fclose($this->stream);
         }
 
-        $this->stream = null;
+        unset($this->stream);
     }
 
     /**
@@ -390,7 +390,7 @@ class Document implements SeekableIterator
     public function seek($position)
     {
         if ($position < 0) {
-            throw new OutOfRangeException(sprintf('%() can\'t seek stream to negative line %d', __METHOD__, $position));
+            throw new OutOfRangeException(sprintf('%s() can\'t seek stream to negative line %d', __METHOD__, $position));
         }
 
         $this->rewind();

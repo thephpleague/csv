@@ -72,7 +72,7 @@ class ResultSet implements Countable, IteratorAggregate, JsonSerializable
      */
     public function __destruct()
     {
-        $this->records = null;
+        unset($this->records);
     }
 
     /**

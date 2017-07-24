@@ -106,8 +106,8 @@ class WriterTest extends TestCase
      */
     public function testInsertThrowsExceptionOnError()
     {
+        $expected = ['jane', 'doe', 'jane.doe@example.com'];
         try {
-            $expected = ['jane', 'doe', 'jane.doe@example.com'];
             $csv = Writer::createFromPath(__DIR__.'/data/foo.csv', 'r');
             $csv->insertOne($expected);
         } catch (InsertionException $e) {

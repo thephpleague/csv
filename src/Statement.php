@@ -100,7 +100,7 @@ class Statement
     public function offset(int $offset): self
     {
         if (0 > $offset) {
-            throw new OutOfRangeException(sprintf('%() expects the offset to be a positive integer or 0, %s given', __METHOD__, $offset));
+            throw new OutOfRangeException(sprintf('%s() expects the offset to be a positive integer or 0, %s given', __METHOD__, $offset));
         }
 
         if ($offset === $this->offset) {

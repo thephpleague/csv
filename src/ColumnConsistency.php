@@ -43,7 +43,7 @@ class ColumnConsistency
     public function __construct(int $columns_count = -1)
     {
         if ($columns_count < -1) {
-            throw new OutOfRangeException(sprintf('%() expects the column count to be greater or equal to -1 %s given', __METHOD__, $columns_count));
+            throw new OutOfRangeException(sprintf('%s() expects the column count to be greater or equal to -1 %s given', __METHOD__, $columns_count));
         }
 
         $this->columns_count = $columns_count;

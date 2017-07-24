@@ -138,7 +138,7 @@ class ReaderTest extends TestCase
     /**
      * @covers ::__call
      *
-     * @param strign $method
+     * @param string $method
      * @dataProvider invalidMethodCallMethodProvider
      */
     public function testCallThrowsException($method)
