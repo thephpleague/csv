@@ -213,8 +213,8 @@ foreach ($reader as $offset => $record) {
 
 The returned records are normalized using the following rules:
 
-- The BOM sequence is removed if present;
 - [Stream filters](/9.0/connections/filters/) are applied if present
+- The BOM sequence is removed if present;
 - If a header record was provided, the number of fields is normalized to the number of fields contained in that record:
     - Extra fields are truncated.
     - Missing fields are added with a `null` value.
@@ -239,6 +239,33 @@ foreach ($records as $offset => $record) {
 }
 ~~~
 
+## Records count
+
+You can retrieve the number of records contains in a CSV document using PHP's `count` function because the `Reader` class implements the `Countable` interface.
+
+~~~php
+<?php
+
+use League\Csv\Reader;
+
+$reader = Reader::createFromPath('/path/to/my/file.csv');
+count($reader); //returns 4
+~~~
+
+If a header offset is specified, the number of records will not take into account the header record.
+
+~~~php
+<?php
+
+use League\Csv\Reader;
+
+$reader = Reader::createFromPath('/path/to/my/file.csv');
+$reader->setHeaderOffset(0);
+count($reader); //returns 3
+~~~
+
+<p class="message-notice">The <code>Countable</code> interface is implemented using PHP's <code>iterator_count</code> on the <code>Reader::getRecords</code> method.</p>
+
 ## Records selection
 
 ### Simple Usage
@@ -251,7 +278,7 @@ public Reader::fetchOne(int $nth_record = 0): array
 public Reader::fetchPairs(string|int $offsetIndex = 0, string|int $valueIndex = 1): Generator
 ~~~
 
-Using method overloading, you can directly access all retrieving methods attached to the [ResultSet](/9.0/reader/resultset/#iterating-over-the-result-set) object.
+Using method overloading, you can directly access all retrieving methods attached to the [ResultSet](/9.0/reader/resultset/#records) object.
 
 #### Example
 
@@ -290,38 +317,11 @@ $records = $stmt->process($reader);
 //$records is a League\Csv\ResultSet object
 ~~~
 
-## Records count
-
-Because the `Reader` class implements the `Countable` interface you can retrieve to number of records contains in a CSV document using PHP's `count` function.
-
-~~~php
-<?php
-
-use League\Csv\Reader;
-
-$reader = Reader::createFromPath('/path/to/my/file.csv');
-count($reader); //returns 4
-~~~
-
-If a header offset is specified, the number of records will not take into account the header record
-
-~~~php
-<?php
-
-use League\Csv\Reader;
-
-$reader = Reader::createFromPath('/path/to/my/file.csv');
-$reader->setHeaderOffset(0);
-count($reader); //returns 3
-~~~
-
-<p class="message-warning">Using the <code>Countable</code> interface is not recommended for large CSV files as <code>iterator_count</code> is used internally.</p>
-
 ## Records conversion
 
-The `Reader` class implements the `JsonSerializable` interface. As such you can use the `json_encode` function directly on the instantiated object.
+### Json serialization
 
-The returned JSON string data :
+The `Reader` class implements the `JsonSerializable` interface. As such you can use the `json_encode` function directly on the instantiated object. The interface is implemented using PHP's `iterator_array` on the `Reader::getRecords`method. As such, the returned `JSON` string data :
 
 - depends on the presence or absence of a header.
 - does not preserve the record offset
@@ -373,8 +373,9 @@ echo json_encode($reader, JSON_PRETTY_PRINT), PHP_EOL;
 //]
 ~~~
 
+
 <p class="message-notice">To convert your CSV to <code>JSON</code> you must be sure its content is <code>UTF-8</code> encoded, using, for instance, the library <a href="/9.0/converter/charset/">CharsetConverter</a> stream filter.</p>
 
-<p class="message-info">If you wish to convert your CSV document in <code>XML</code> or <code>HTML</code> please refer to the <a href="/9.0/converter">converters</a> bundled with this library.</p>
+### Other conversions
 
-<p class="message-warning">Using the <code>JsonSerializable</code> interface is not recommended for large CSV files as <code>iterator_to_array</code> is used internally.</p>
+If you wish to convert your CSV document in `XML` or `HTML` please refer to the [converters](/9.0/converter/) bundled with this library.

@@ -80,6 +80,8 @@ $reader->output("name-for-your-file.csv");
 die;
 ~~~
 
+<p class="message-notice">If you just need to make the CSV downloadable, end your script with a call to <code>exit</code> just after the <code>output</code> method. You <strong>should not</strong> return the method returned value.</p>
+
 ## Outputting the document into chunks
 
 ~~~php

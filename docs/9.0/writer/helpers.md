@@ -77,20 +77,3 @@ CharsetConverter::addTo($writer, 'utf-8', 'iso-8859-15');
 $writer->insertOne(["foo", "bébé", "jouet"]);
 //all 'utf-8' caracters are now automatically encoded into 'iso-8859-15' charset
 ~~~
-
-## RFC4180 field formatter
-
-If your `Writer` object supports PHP stream filters then you can register the [League\Csv\RFC4180Field](/9.0/interoperability/rfc4180-field/) stream filter to correct field formatting to comply with [RFC4180](https://tools.ietf.org/html/rfc4180#section-2) as seen below:
-
-~~~php
-<?php
-
-use League\Csv\RFC4180Field;
-use League\Csv\Writer;
-
-$writer = Writer::createFromStream(fopen('php://temp', 'r+'));
-$writer->setNewline("\r\n"); //RFC4180 Line feed
-RFC4180Field::addTo($writer); //adds the stream filter to the Writer object fix escape character usage
-$writer->insertAll($data);
-$writer->output('mycsvfile.csv'); //outputting a RFC4180 compliant CSV Document
-~~~

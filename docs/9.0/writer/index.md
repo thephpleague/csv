@@ -23,7 +23,7 @@ class Writer extends AbstractCsv
 
 The `League\Csv\Writer` class extends the general connections [capabilities](/9.0/connections/) to create or update a CSV document.
 
-<p class="message-warning">When inserting records into a CSV document using <code>League\Csv\Writer</code>, first insert all the data that need to be inserted before starting manipulating the CSV. If you manipulate your CSV document before insertion, you may change the file cursor position and/or erased your data.</p>
+<p class="message-warning">When inserting records into a CSV document using <code>League\Csv\Writer</code>, first insert all the data that need to be inserted before starting manipulating the CSV. If you manipulate your CSV document before insertion, you may change the file cursor position and erase your data.</p>
 
 ## Inserting records
 
@@ -34,7 +34,7 @@ public Writer::insertOne(array $record): int
 public Writer::insertAll(iterable $records): int
 ~~~
 
-`Writer::insertOne` inserts a single record into the CSV document while `Writer::insertAll` adds several records. Both methods returns the length of the written data or throw and `League\Csv\Exception\InsertionException` on error.
+`Writer::insertOne` inserts a single record into the CSV document while `Writer::insertAll` adds several records. Both methods returns the length of the written data or throw an [League\Csv\Exception\InsertionException](/9.0/connections/exceptions/#runtime-exceptions) on error.
 
 `Writer::insertOne` takes a single argument, an `array` which represents a single CSV record.
 `Writer::insertAll` takes a single argument a PHP iterable which contains a collection of CSV records.
@@ -105,7 +105,7 @@ By default, `getFlushTreshold` returns `null`.
 
 <p class="message-info"><code>Writer::insertAll</code> always flush its buffer when all records are inserted regardless of the threshold value.</p>
 
-<p class="message-info">If set to <code>null</code> the inner flush mechanism of <code>SplFileObject::fputcsv</code> or <code>fputcsv</code> will be used.</p>
+<p class="message-info">If set to <code>null</code> the inner flush mechanism of PHP's <code>fputcsv</code> will be used.</p>
 
 
 ## Records filtering
@@ -119,9 +119,11 @@ public Writer::addValidator(callable $callable, string $validatorName): Writer
 
 Sometimes you may want to format and/or validate your records prior to their insertion into your CSV document. the `Writer` class provides a formatter and a validator mechanism to ease these operations.
 
-### Record Formatter
+### Writer::addFormatter
 
-A formatter is a `callable` which accepts an `array` on input and returns a formatted array according to its inner rules.
+#### Record Formatter
+
+A formatter is a `callable` which accepts an single CSV record as an `array` on input and returns an array representing the formatted CSV record according to its inner rules.
 
 ~~~php
 <?php
@@ -129,7 +131,9 @@ A formatter is a `callable` which accepts an `array` on input and returns a form
 function(array $record): array
 ~~~
 
-You can attach as many formatters as you want to the `Writer` class to manipulate your data prior to its insertion use the `Writer::addFormatter` method. The formatters follow the *First In First Out* rule when applied.
+#### Adding a Formatter to a Writer object
+
+You can attach as many formatters as you want to the `Writer` class using the `Writer::addFormatter` method. Formatters are applied following the *First In First Out* rule.
 
 ~~~php
 <?php
@@ -147,9 +151,11 @@ $writer->__toString();
 //will display something like JOHN,DOE,JOHN.DOE@EXAMPLE.COM
 ~~~
 
-### Record Validator
+### Writer::addValidator
 
-A validator is a `callable` which takes an `array` as its sole argument and returns a boolean.
+#### Record Validator
+
+A validator is a `callable` which takes single CSV record as an `array` as its sole argument and returns a `boolean` to indicate if it satisfies the validator inner rules.
 
 ~~~php
 <?php
@@ -161,12 +167,16 @@ The validator **must** return `true` to validate the submitted record.
 
 Any other expression, including thruthy ones like `yes`, `1`,... will make the `insertOne` method throw an `League\Csv\Exception\InsertionException`.
 
-As with the formatter capabilities, you can attach as many validators as you want to your data prior to its insertion using the `Writer::addValidator` method. The record data is checked against your supplied validators **after it has been formatted**.
+#### Adding a Validator to a Writer object
 
-`Writer::addValidator` takes two parameters:
+As with the formatter capabilities, you can attach as many validators as you want using the `Writer::addValidator` method. Validators are applied following the *First In First Out* rule.
 
-- A `callable` which takes an `array` representing a Csv record as its unique parameter;
-- The validator name which is **required**. If another validator was already registered with the given name, it will be overriden.
+<p class="message-warning">The CSV record is checked against your supplied validators <strong>after it has been formatted</strong>.</p>
+
+`Writer::addValidator` takes two (2) **required** parameters:
+
+- A validator `callable`;
+- A validator name. If another validator was already registered with the given name, it will be overriden.
 
 On failure a [League\Csv\Exception\InsertionException](/9.0/connections/exceptions/#runtime-exceptions) exception is thrown by the `Writer` object.
 

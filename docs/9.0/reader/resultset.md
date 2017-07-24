@@ -385,14 +385,12 @@ foreach ($records->fetchPairs() as $firstname => $lastname) {
 
 ## Conversions
 
-The `ResultSet` class implements the `JsonSerializable` interface. As such you can use the `json_encode` function directly on the instantiated object.
+### Json serialization
 
-<p class="message-info">The method is affected by <code>ResultSet::preserveRecordOffset</code></p>
+The `ResultSet` class implements the `JsonSerializable` interface. As such you can use the `json_encode` function directly on the instantiated object. The interface is implemented using PHP's `iterator_array` on the `ResultSet::getRecords` method. As such, the returned `JSON` string data is affected by:
 
-The returned JSON string data depends on the `ResultSet` properties:
-
+- `ResultSet::preserveRecordOffset`
 - The presence or absence of column names.
-- The preservation or not of the record offset.
 
 ~~~php
 <?php
@@ -440,8 +438,8 @@ echo json_encode($result, JSON_PRETTY_PRINT), PHP_EOL;
 //}
 ~~~
 
-<p class="message-notice">To convert your <code>ResultSet</code> to <code>JSON</code> you must be sure its content is <code>UTF-8</code> encoded, using, for instance, the library <a href="/9.0/converter/charset/">CharsetConverter</a> stream filter.</p>
+<p class="message-notice">To convert your CSV records to <code>JSON</code> you must be sure its content is <code>UTF-8</code> encoded, using, for instance, the library <a href="/9.0/converter/charset/">CharsetConverter</a> stream filter.</p>
 
-<p class="message-info">If you wish to convert your <code>ResultSet</code> in <code>XML</code> or <code>HTML</code> please refer to the <a href="/9.0/converter">converters</a> bundled with this library.</p>
+### Other conversions
 
-<p class="message-warning">Using the <code>JsonSerializable</code> interface is not recommended for large <code>ResultSet</code> as <code>iterator_to_array</code> is used internally.</p>
+If you wish to convert your CSV document in `XML` or `HTML` please refer to the [converters](/9.0/converter/) bundled with this library.

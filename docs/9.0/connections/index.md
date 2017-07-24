@@ -42,7 +42,7 @@ Accessing the CSV document is done using one of the following class:
 
 Both classes extend the `League\Csv\AbstractCsv` class and as such share the following features:
 
-- [Loading CSV document](#instantiation)
+- [Loading CSV document](/9.0/connections/instantiation/)
 - [Setting up the CSV controls characters](/9.0/connections/controls/)
 - [Managing the BOM sequence](/9.0/connections/bom/)
 - [Adding PHP stream filters](/9.0/connections/filters/)
