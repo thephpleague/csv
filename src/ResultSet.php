@@ -49,13 +49,6 @@ class ResultSet implements Countable, IteratorAggregate, JsonSerializable
     protected $header = [];
 
     /**
-     * Tell whether the CSV records offset must be kept on output
-     *
-     * @var bool
-     */
-    protected $preserve_offset = false;
-
-    /**
      * New instance
      *
      * @param Iterator $records a CSV records collection iterator
@@ -90,38 +83,9 @@ class ResultSet implements Countable, IteratorAggregate, JsonSerializable
      */
     public function getRecords(): Generator
     {
-        return $this->iteratorToGenerator($this->records);
-    }
-
-    /**
-     * Return the generator depending on the preserveRecordOffset setting
-     *
-     * @param Iterator $iterator
-     *
-     * @return Generator
-     */
-    protected function iteratorToGenerator(Iterator $iterator): Generator
-    {
-        if ($this->preserve_offset) {
-            foreach ($iterator as $offset => $value) {
-                yield $offset => $value;
-            }
-            return;
-        }
-
-        foreach ($iterator as $value) {
+        foreach ($this->records as $value) {
             yield $value;
         }
-    }
-
-    /**
-     * Tell whether the CSV document record offset must be kept on output
-     *
-     * @return bool
-     */
-    public function isRecordOffsetPreserved(): bool
-    {
-        return $this->preserve_offset;
     }
 
     /**
@@ -145,7 +109,7 @@ class ResultSet implements Countable, IteratorAggregate, JsonSerializable
      */
     public function jsonSerialize(): array
     {
-        return iterator_to_array($this->records, $this->preserve_offset);
+        return iterator_to_array($this->records, false);
     }
 
     /**
@@ -192,8 +156,9 @@ class ResultSet implements Countable, IteratorAggregate, JsonSerializable
         };
 
         $iterator = new MapIterator(new CallbackFilterIterator($this->records, $filter), $select);
-
-        return $this->iteratorToGenerator($iterator);
+        foreach ($iterator as $offset => $value) {
+            yield $offset => $value;
+        }
     }
 
     /**
@@ -292,22 +257,5 @@ class ResultSet implements Countable, IteratorAggregate, JsonSerializable
         foreach ($iterator as $pair) {
             yield $pair[0] => $pair[1];
         }
-    }
-
-    /**
-     * Whether we should preserve the CSV document record offset.
-     *
-     * If set to true CSV document record offset will be added to
-     * method output where it makes sense.
-     *
-     * @param bool $status
-     *
-     * @return self
-     */
-    public function preserveRecordOffset(bool $status): self
-    {
-        $this->preserve_offset = $status;
-
-        return $this;
     }
 }

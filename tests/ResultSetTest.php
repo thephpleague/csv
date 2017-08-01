@@ -68,7 +68,6 @@ class ResultSetTest extends TestCase
      * @covers League\Csv\Statement::buildOrderBy
      * @covers ::count
      * @covers ::getIterator
-     * @covers ::iteratorToGenerator
      */
     public function testCountable()
     {
@@ -209,7 +208,6 @@ class ResultSetTest extends TestCase
      * @covers ::getColumnIndex
      * @covers ::getColumnIndexByValue
      * @covers ::getColumnIndexByKey
-     * @covers ::iteratorToGenerator
      * @covers ::__destruct
      * @covers League\Csv\Exception\RuntimeException
      * @covers League\Csv\MapIterator
@@ -235,7 +233,6 @@ class ResultSetTest extends TestCase
     /**
      * @covers ::fetchColumn
      * @covers ::getColumnIndexByKey
-     * @covers ::iteratorToGenerator
      * @covers League\Csv\MapIterator
      * @covers League\Csv\Exception\OutOfRangeException
      *
@@ -276,36 +273,6 @@ class ResultSetTest extends TestCase
     }
 
     /**
-     * @covers ::preserveRecordOffset
-     * @covers ::isRecordOffsetPreserved
-     * @covers ::iteratorToGenerator
-     */
-    public function testPreserveOffset()
-    {
-        $expected = ['parent name', 'parentA'];
-        $source = Reader::BOM_UTF8.'"parent name","child name","title"
-            "parentA","childA","titleA"';
-        $csv = Reader::createFromString($source);
-        $csv->setHeaderOffset(0);
-        $expectedNoOffset = [
-            0 => ['parent name' => 'parentA', 'child name' => 'childA', 'title' => 'titleA'],
-        ];
-        $expectedWithOffset = [
-            1 => ['parent name' => 'parentA', 'child name' => 'childA', 'title' => 'titleA'],
-        ];
-        $records = $this->stmt->process($csv);
-        $records->preserveRecordOffset(false);
-        $this->assertFalse($records->isRecordOffsetPreserved());
-        $this->assertSame($expectedNoOffset, iterator_to_array($records, false));
-        $records->preserveRecordOffset(true);
-        $this->assertTrue($records->isRecordOffsetPreserved());
-        $this->assertSame($expectedWithOffset, iterator_to_array($records, true));
-        foreach ($records as $offset => $record) {
-            $this->assertInternalType('int', $offset);
-        }
-    }
-
-    /**
      * @covers ::fetchColumn
      * @covers ::getColumnIndex
      * @covers ::getColumnIndexByValue
@@ -337,7 +304,6 @@ class ResultSetTest extends TestCase
 
     /**
      * @covers ::fetchColumn
-     * @covers ::iteratorToGenerator
      * @covers ::getColumnIndex
      * @covers ::getColumnIndexByKey
      * @covers League\Csv\MapIterator
@@ -476,13 +442,10 @@ class ResultSetTest extends TestCase
     /**
      * @covers ::getRecords
      * @covers ::getIterator
-     * @covers ::iteratorToGenerator
      */
     public function testGetRecords()
     {
         $result = $this->stmt->process($this->csv);
-        $this->assertEquals($result->getIterator(), $result->getRecords());
-        $result->preserveRecordOffset(true);
         $this->assertEquals($result->getIterator(), $result->getRecords());
     }
 
@@ -506,11 +469,6 @@ class ResultSetTest extends TestCase
         $result = (new Statement())->offset(1)->limit(1)->process($reader);
         $this->assertSame(
             '[{"First Name":"jane","Last Name":"doe","E-mail":"jane.doe@example.com"}]',
-            json_encode($result)
-        );
-        $result->preserveRecordOffset(true);
-        $this->assertSame(
-            '{"2":{"First Name":"jane","Last Name":"doe","E-mail":"jane.doe@example.com"}}',
             json_encode($result)
         );
     }

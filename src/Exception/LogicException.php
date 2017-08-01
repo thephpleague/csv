@@ -14,6 +14,8 @@ declare(strict_types=1);
 
 namespace League\Csv\Exception;
 
+use League\Csv\Exception;
+
 /**
  * Thrown when there is an error in the program logic
  *
@@ -22,6 +24,6 @@ namespace League\Csv\Exception;
  * @author  Ignace Nyamagana Butera <nyamsprod@gmail.com>
  *
  */
-class LogicException extends \LogicException implements CsvException
+class LogicException extends \LogicException implements Exception
 {
 }

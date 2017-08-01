@@ -85,14 +85,14 @@ abstract class AbstractCsv implements ByteSequence
     /**
      * The CSV document
      *
-     * @var Document|SplFileObject
+     * @var SplFileObject|Stream
      */
     protected $document;
 
     /**
      * New instance
      *
-     * @param SplFileObject|Document $document The CSV Object instance
+     * @param SplFileObject|Stream $document The CSV Object instance
      */
     protected function __construct($document)
     {
@@ -137,7 +137,7 @@ abstract class AbstractCsv implements ByteSequence
      */
     public static function createFromStream($stream): self
     {
-        return new static(new Document($stream));
+        return new static(new Stream($stream));
     }
 
     /**
@@ -149,7 +149,7 @@ abstract class AbstractCsv implements ByteSequence
      */
     public static function createFromString(string $content): self
     {
-        return new static(Document::createFromString($content));
+        return new static(Stream::createFromString($content));
     }
 
     /**
@@ -163,7 +163,7 @@ abstract class AbstractCsv implements ByteSequence
      */
     public static function createFromPath(string $path, string $open_mode = 'r+', $context = null): self
     {
-        return new static(Document::createFromPath($path, $open_mode, $context));
+        return new static(Stream::createFromPath($path, $open_mode, $context));
     }
 
     /**
@@ -242,7 +242,7 @@ abstract class AbstractCsv implements ByteSequence
      */
     public function supportsStreamFilter(): bool
     {
-        return $this->document instanceof Document;
+        return $this->document instanceof Stream;
     }
 
     /**
@@ -406,7 +406,7 @@ abstract class AbstractCsv implements ByteSequence
      */
     public function addStreamFilter(string $filtername, $params = null): self
     {
-        if (!$this->document instanceof Document) {
+        if (!$this->document instanceof Stream) {
             throw new LogicException('The stream filter API can not be used');
         }
 

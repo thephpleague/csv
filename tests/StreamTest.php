@@ -2,10 +2,10 @@
 
 namespace LeagueTest\Csv;
 
-use League\Csv\Document;
 use League\Csv\Exception\LengthException;
 use League\Csv\Exception\OutOfRangeException;
 use League\Csv\Exception\RuntimeException;
+use League\Csv\Stream;
 use LogicException;
 use PHPUnit\Framework\TestCase;
 use SplFileObject;
@@ -13,9 +13,9 @@ use TypeError;
 
 /**
  * @group csv
- * @coversDefaultClass League\Csv\Document
+ * @coversDefaultClass League\Csv\Stream
  */
-class DocumentTest extends TestCase
+class StreamTest extends TestCase
 {
     public function setUp()
     {
@@ -33,7 +33,7 @@ class DocumentTest extends TestCase
     public function testCloningIsForbidden()
     {
         $this->expectException(LogicException::class);
-        $toto = clone new Document(fopen('php://temp', 'r+'));
+        $toto = clone new Stream(fopen('php://temp', 'r+'));
     }
 
     /**
@@ -42,7 +42,7 @@ class DocumentTest extends TestCase
     public function testCreateStreamWithInvalidParameter()
     {
         $this->expectException(TypeError::class);
-        new Document(__DIR__.'/data/foo.csv');
+        new Stream(__DIR__.'/data/foo.csv');
     }
 
     /**
@@ -51,7 +51,7 @@ class DocumentTest extends TestCase
     public function testCreateStreamWithNonSeekableStream()
     {
         $this->expectException(RuntimeException::class);
-        new Document(fopen('php://stdin', 'r'));
+        new Stream(fopen('php://stdin', 'r'));
     }
 
     /**
@@ -60,7 +60,7 @@ class DocumentTest extends TestCase
     public function testCreateStreamWithWrongResourceType()
     {
         $this->expectException(TypeError::class);
-        new Document(curl_init());
+        new Stream(curl_init());
     }
 
     /**
@@ -79,7 +79,7 @@ class DocumentTest extends TestCase
             fputcsv($fp, $row);
         }
 
-        $stream = Document::createFromPath(
+        $stream = Stream::createFromPath(
             StreamWrapper::PROTOCOL.'://stream',
             'r+',
             stream_context_create([StreamWrapper::PROTOCOL => ['stream' => $fp]])
@@ -100,7 +100,7 @@ class DocumentTest extends TestCase
     public function testfputcsv($delimiter, $enclosure, $escape)
     {
         $this->expectException(LengthException::class);
-        $stream = new Document(fopen('php://temp', 'r+'));
+        $stream = new Stream(fopen('php://temp', 'r+'));
         $stream->fputcsv(['john', 'doe', 'john.doe@example.com'], $delimiter, $enclosure, $escape);
     }
 
@@ -118,7 +118,7 @@ class DocumentTest extends TestCase
      */
     public function testVarDump()
     {
-        $stream = new Document(fopen('php://temp', 'r+'));
+        $stream = new Stream(fopen('php://temp', 'r+'));
         $this->assertInternalType('array', $stream->__debugInfo());
     }
 
@@ -128,7 +128,7 @@ class DocumentTest extends TestCase
     public function testSeekThrowsException()
     {
         $this->expectException(OutOfRangeException::class);
-        $stream = new Document(fopen('php://temp', 'r+'));
+        $stream = new Stream(fopen('php://temp', 'r+'));
         $stream->seek(-1);
     }
 
@@ -137,7 +137,7 @@ class DocumentTest extends TestCase
      */
     public function testSeek()
     {
-        $doc = Document::createFromPath(__DIR__.'/data/prenoms.csv');
+        $doc = Stream::createFromPath(__DIR__.'/data/prenoms.csv');
         $doc->setCsvControl(';');
         $doc->setFlags(SplFileObject::READ_CSV);
         $doc->seek(1);

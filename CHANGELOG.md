@@ -20,7 +20,7 @@ All Notable changes to `Csv` will be documented in this file
     - `League\Csv\XMLConverter` converts CSV records into DOMDocument
     - `League\Csv\HTMLConverter` converts CSV records into HTML table.
 - Improved Exception handling
-    - `League\Csv\Exception\CsvException` the default exception interface
+    - `League\Csv\Exception` the default exception interface
     - `League\Csv\Exception\InsertionException`
     - `League\Csv\Exception\LengthException`
     - `League\Csv\Exception\LogicException`
@@ -47,6 +47,9 @@ All Notable changes to `Csv` will be documented in this file
 - Improved CSV record insertion
     - `League\Csv\Writer::insertOne` only accepts an array and returns a integer
     - `League\Csv\Writer::insertAll` only accepts an iterable of array and returns an integer
+
+- Normalized CSV offset returned value
+    - `League\Csv\Reader::fetchColumn` always returns the CSV document original offset.
 
 ### Removed
 

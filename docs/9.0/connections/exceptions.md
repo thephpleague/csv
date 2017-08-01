@@ -9,18 +9,18 @@ Specific exceptions are thrown for errors occuring while using the library.
 
 ## Default interface
 
-All exceptions thrown implements the `League\Csv\Exception\CsvException` interface.
+All exceptions thrown implements the `League\Csv\Exception` interface.
 
 ~~~php
 <?php
 
-use League\Csv\Exception\CsvException;
+use League\Csv\Exception;
 use League\Csv\Reader;
 
 try {
     $csv = Reader::createFromPath('/path/to/file.csv');
     $csv->setDelimiter('toto');
-} catch (CsvException $e) {
+} catch (Exception $e) {
     echo $e->getMessage(), PHP_EOL;
 }
 ~~~
@@ -36,6 +36,8 @@ try {
 ~~~php
 <?php
 
+use League\Csv\Exception\LengthException;
+use League\Csv\Exception\RuntimeException;
 use League\Csv\Reader;
 
 try {
@@ -64,6 +66,7 @@ If you try to use PHP stream filtering features on an CSV objects which can't us
 ~~~php
 <?php
 
+use League\Csv\Exception\LogicException;
 use League\Csv\Writer;
 
 try {
@@ -83,6 +86,7 @@ During reading or writing records `RuntimeException` exception can be thrown if 
 ~~~php
 <?php
 
+use League\Csv\Exception\RuntimeException;
 use League\Csv\Reader;
 
 try {
@@ -99,7 +103,7 @@ try {
 On error when using the `Writer` class to add new records to your CSV document a `League\Csv\Exception\InsertionException` is thrown. This exception class
 
 - extends PHP SPL's `RuntimeException`
-- implements `League\Csv\Exception\CsvException`
+- implements `League\Csv\Exception`
 - provides additional public methods:
     - `InsertionException::getData` which returns the record responsible for triggering the exception.
     - `InsertionException::getName` which returns the validator registered name which  triggered the exception or an empty string otherwise.
@@ -107,8 +111,8 @@ On error when using the `Writer` class to add new records to your CSV document a
 ~~~php
 <?php
 
-use League\Csv\Writer;
 use League\Csv\Exception\InsertionException;
+use League\Csv\Writer;
 
 try {
     $writer->insertOne(['john', ['doe'], 'john.doe@example.com']);

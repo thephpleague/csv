@@ -178,7 +178,7 @@ class ReaderTest extends TestCase
      * @covers ::stripBOM
      * @covers ::removeBOM
      * @covers ::combineHeader
-     * @covers League\Csv\Document
+     * @covers League\Csv\Stream
      * @dataProvider validBOMSequences
      * @param array  $record
      * @param string $expected_bom
@@ -223,7 +223,7 @@ class ReaderTest extends TestCase
      * @covers ::stripBOM
      * @covers ::removeBOM
      * @covers ::combineHeader
-     * @covers League\Csv\Document
+     * @covers League\Csv\Stream
      */
     public function testStripBOMWithEnclosure()
     {
@@ -241,7 +241,7 @@ class ReaderTest extends TestCase
      * @covers ::stripBOM
      * @covers ::removeBOM
      * @covers ::combineHeader
-     * @covers League\Csv\Document
+     * @covers League\Csv\Stream
      */
     public function testStripNoBOM()
     {
@@ -334,6 +334,20 @@ class ReaderTest extends TestCase
      */
     public function testJsonSerialize()
     {
-        $this->assertSame(json_encode($this->expected, false), json_encode($this->csv));
+        $expected = [
+            ['First Name', 'Last Name', 'E-mail'],
+            ['jane', 'doe', 'jane.doe@example.com'],
+        ];
+
+        $tmp = new SplTempFileObject();
+        foreach ($expected as $row) {
+            $tmp->fputcsv($row);
+        }
+
+        $reader = Reader::createFromFileObject($tmp)->setHeaderOffset(0);
+        $this->assertSame(
+            '[{"First Name":"jane","Last Name":"doe","E-mail":"jane.doe@example.com"}]',
+            json_encode($reader)
+        );
     }
 }

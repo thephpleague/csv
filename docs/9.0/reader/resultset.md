@@ -15,8 +15,6 @@ class ResultSet implements Countable, IteratorAggregate, JsonSerializable
     public function fetchPairs(string|int $offsetIndex = 0, string|int $valueIndex = 1): Generator
     public function getHeader(): array
     public function getRecords(): Generator
-    public function isRecordOffsetPreserved(): bool
-    public function preserveRecordOffset(bool $status): self
 }
 ~~~
 
@@ -90,23 +88,6 @@ $records = (new Statement())->process($reader);
 count($records); //return the total number of records found
 ~~~
 
-## Options
-
-### Preserving the original CSV record offset
-
-~~~php
-<?php
-
-public ResultSet::isRecordOffsetPreserved(): bool
-public ResultSet::preserveRecordOffset(bool $status): self
-~~~
-
-`ResultSet::preserveRecordOffset` indicates if the `ResultSet` must keep the original CSV document records offset or can re-index them. When the `$status` is `true`, the original CSV document record offset will be preserved and outputted in methods where it makes sense.
-
-At any given time you can tell whether the CSV document offset is kept by calling `ResultSet::isRecordOffsetPreserved` which returns a boolean.
-
-<p class="message-notice">By default, the <code>ResultSet</code> object does not preserve the original offset.</p>
-
 ## Records
 
 ### Description
@@ -117,10 +98,7 @@ At any given time you can tell whether the CSV document offset is kept by callin
 public ResultSet::getRecords(void): Iterator
 ~~~
 
-To iterate over each found records you can:
-
-- call the `ResultSet::getRecords` method which returns a `Genarator` of all records found;
-- directly use the `foreach` construct as the class implements the `IteratorAggregate` interface;
+To iterate over each found records you can call the `ResultSet::getRecords` method which returns a `Genarator` of all records found or directly use the `foreach` construct as the class implements the `IteratorAggregate` interface;
 
 ~~~php
 <?php
@@ -137,33 +115,6 @@ foreach ($records->getRecords() as $record) {
 
 foreach ($records as $record) {
     //do something here
-}
-~~~
-
-### Accessing the CSV document record offset
-
-If the `ResultSet::preserveRecordOffset` is set to `true`, the `$offset` parameter will contains the original CSV document offset index, otherwise it will contain a numerical index starting from `0`.
-
-~~~php
-<?php
-
-use League\Csv\Reader;
-use League\Csv\Statement;
-
-$reader = Reader::createFromPath('/path/to/my/file.csv');
-
- //we will start iterating from the 6th record
-$stmt = (new Statement())->offset(5);
-$records = $stmt->process($reader);
-$records->isRecordOffsetPreserved(); //returns false
-foreach ($records as $offset => $record) {
-    //during the first iteration $offset will be equal to 0
-}
-
-$records->preserveRecordOffset(true); //we are preserving the original offset
-$records->isRecordOffsetPreserved(); //returns true
-foreach ($records->getRecords() as $offset => $record) {
-    //during the first iteration $offset will be equal to 5
 }
 ~~~
 
@@ -225,8 +176,6 @@ $data = $stmt->proce($reader)->fetchOne(3);
 //
 ~~~
 
-<p class="message-notice">The <code>$nth_record</code> argument is not affected by <code>ResultSet::preserveRecordOffset</code> status.</p>
-
 ## Selecting a single column
 
 ~~~php
@@ -280,28 +229,6 @@ $records = (new Statement())->process($reader);
 count($records); //returns 10;
 count(iterator_to_array($records->fetchColumn(2), false)); //returns 5
 //5 records were skipped because the column value is null
-~~~
-
-<p class="message-info">The method is affected by <code>ResultSet::preserveRecordOffset</code></p>
-
-~~~php
-<?php
-
-use League\Csv\Reader;
-use League\Csv\Statement;
-
-$reader = Reader::createFromPath('/path/to/my/file.csv');
-
- //we will start iterating from the 6th record
-$stmt = (new Statement())->offset(5);
-$records = $stmt->process($reader);
-$records->preserveRecordOffset(true);
-foreach ($records->fetchColumn(0) as $offset => $value) {
-    //$value is a string representing the value
-    //of a given record for the column 0
-    //the first iteration will give $offset equal to 5
-    //if the record contains the selected column
-}
 ~~~
 
 <p class="message-warning">If the <code>ResultSet</code> contains column names and the <code>$columnIndex</code> is not found a <code>RuntimeException</code> is thrown.</p>
@@ -387,10 +314,13 @@ foreach ($records->fetchPairs() as $firstname => $lastname) {
 
 ### Json serialization
 
-The `ResultSet` class implements the `JsonSerializable` interface. As such you can use the `json_encode` function directly on the instantiated object. The interface is implemented using PHP's `iterator_array` on the `ResultSet::getRecords` method. As such, the returned `JSON` string data is affected by:
+~~~php
+<?php
 
-- `ResultSet::preserveRecordOffset`
-- The presence or absence of column names.
+public ResultSet::jsonPreserveOffset(bool $status): self
+~~~
+
+The `ResultSet` class implements the `JsonSerializable` interface. As such you can use the `json_encode` function directly on the instantiated object. The interface is implemented using PHP's `iterator_array` on the `ResultSet::getRecords` method. As such, the returned `JSON` string data is affected by the presence or absence of column names.
 
 ~~~php
 <?php
@@ -424,19 +354,9 @@ echo json_encode($result, JSON_PRETTY_PRINT), PHP_EOL;
 //        "phone": "0123456789"
 //    }
 //]
-
-$result->preserveRecordOffset(true);
-echo json_encode($result, JSON_PRETTY_PRINT), PHP_EOL;
-//display
-//{
-//    "2": {  //here '2' refers to the record offset in the source CSV document
-//        "firstname": "jane",
-//        "lastname": "doe",
-//        "e-mail": "jane.doe@example.com",
-//        "phone": "0123456789"
-//    }
-//}
 ~~~
+
+<p class="message-notice">The record offset <strong>is not preserved on conversion</strong></p>
 
 <p class="message-notice">To convert your CSV records to <code>JSON</code> you must be sure its content is <code>UTF-8</code> encoded, using, for instance, the library <a href="/9.0/converter/charset/">CharsetConverter</a> stream filter.</p>
 

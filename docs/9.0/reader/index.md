@@ -14,7 +14,7 @@ class Reader extends AbstractCsv implements Countable, IteratorAggregate, JsonSe
     public function fetchOne(int $nth_record = 0): array
     public function fetchPairs(string|int $offsetIndex = 0, string|int $valueIndex = 1): Generator
     public function getHeader(): array
-    public function getHeaderOffset(): int|null
+    public function getHeaderOffset(): ?int
     public function getRecords(array $header = []): Iterator
     public function setHeaderOffset(?int $offset): self
 }
@@ -42,7 +42,7 @@ You can set and retrieve the header offset as well as its corresponding record.
 <?php
 
 public Reader::setHeaderOffset(?int $offset): self
-public Reader::getHeaderOffset(void): int|null
+public Reader::getHeaderOffset(void): ?int
 public Reader::getHeader(void): array
 ~~~
 
@@ -293,11 +293,9 @@ $records = $reader->fetchColumn(2);
 //$records is a Generator representing all the fields of the CSV 3rd column
 ~~~
 
-<p class="message-notice">The original record offset <strong>is not preserved</strong>.</p>
-
 ### Advanced Usage
 
-If you require a more advance record selection **or want to preserve the original record offset**, you should use a [Statement](/9.0/reader/statement/) object to process the `Reader` object. The found records are returned as a [ResultSet](/9.0/reader/resultset) object.
+If you require a more advance record selection, you should use a [Statement](/9.0/reader/statement/) object to process the `Reader` object. The found records are returned as a [ResultSet](/9.0/reader/resultset) object.
 
 #### Example
 
@@ -321,10 +319,7 @@ $records = $stmt->process($reader);
 
 ### Json serialization
 
-The `Reader` class implements the `JsonSerializable` interface. As such you can use the `json_encode` function directly on the instantiated object. The interface is implemented using PHP's `iterator_array` on the `Reader::getRecords`method. As such, the returned `JSON` string data :
-
-- depends on the presence or absence of a header.
-- does not preserve the record offset
+The `Reader` class implements the `JsonSerializable` interface. As such you can use the `json_encode` function directly on the instantiated object. The interface is implemented using PHP's `iterator_array` on the `Reader::getRecords` method. As such, the returned `JSON` string data depends on the presence or absence of a header.
 
 ~~~php
 <?php
@@ -361,7 +356,8 @@ echo json_encode($reader, JSON_PRETTY_PRINT), PHP_EOL;
 //]
 
 $reader->setHeaderOffset(0);
-echo json_encode($reader, JSON_PRETTY_PRINT), PHP_EOL;
+echo '<pre>', PHP_EOL;
+echo json_encode($result, JSON_PRETTY_PRINT), PHP_EOL;
 //display
 //[
 //    {
@@ -373,6 +369,7 @@ echo json_encode($reader, JSON_PRETTY_PRINT), PHP_EOL;
 //]
 ~~~
 
+<p class="message-notice">The record offset <strong>is not preserved on conversion</strong></p>
 
 <p class="message-notice">To convert your CSV to <code>JSON</code> you must be sure its content is <code>UTF-8</code> encoded, using, for instance, the library <a href="/9.0/converter/charset/">CharsetConverter</a> stream filter.</p>
 

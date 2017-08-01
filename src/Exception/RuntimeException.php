@@ -14,6 +14,8 @@ declare(strict_types=1);
 
 namespace League\Csv\Exception;
 
+use League\Csv\Exception;
+
 /**
  * Thrown if an error which can onlyu be found on runtime occurs.
  *
@@ -22,6 +24,6 @@ namespace League\Csv\Exception;
  * @author  Ignace Nyamagana Butera <nyamsprod@gmail.com>
  *
  */
-class RuntimeException extends \RuntimeException implements CsvException
+class RuntimeException extends \RuntimeException implements Exception
 {
 }

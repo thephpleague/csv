@@ -14,6 +14,8 @@ declare(strict_types=1);
 
 namespace League\Csv\Exception;
 
+use League\Csv\Exception;
+
 /**
  * Thrown when an illegal index was requested
  *
@@ -22,6 +24,6 @@ namespace League\Csv\Exception;
  * @author  Ignace Nyamagana Butera <nyamsprod@gmail.com>
  *
  */
-class OutOfRangeException extends \OutOfRangeException implements CsvException
+class OutOfRangeException extends \OutOfRangeException implements Exception
 {
 }

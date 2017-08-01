@@ -30,7 +30,7 @@ use TypeError;
  * @internal used internally to iterate over a stream resource
  *
  */
-class Document implements SeekableIterator
+class Stream implements SeekableIterator
 {
     use ValidatorTrait;
 
@@ -258,7 +258,7 @@ class Document implements SeekableIterator
     }
 
     /**
-     * Set Document Flags
+     * Set CSV stream flags
      *
      * @see http://php.net/manual/en/splfileobject.setflags.php
      *

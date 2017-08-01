@@ -61,7 +61,7 @@ class CsvTest extends TestCase
 
     /**
      * @covers ::createFromPath
-     * @covers League\Csv\Document
+     * @covers League\Csv\Stream
      */
     public function testCreateFromPathThrowsRuntimeException()
     {
@@ -132,7 +132,7 @@ EOF;
      * @runInSeparateProcess
      * @covers ::output
      * @covers ::createFromString
-     * @covers League\Csv\Document
+     * @covers League\Csv\Stream
      */
     public function testOutputHeaders()
     {
@@ -272,7 +272,7 @@ EOF;
 
     /**
      * @covers ::addStreamFilter
-     * @covers League\Csv\Document
+     * @covers League\Csv\Stream
      */
     public function testAddStreamFilter()
     {
@@ -301,7 +301,7 @@ EOF;
     /**
      * @covers ::supportsStreamFilter
      * @covers ::addStreamFilter
-     * @covers League\Csv\Document::appendFilter
+     * @covers League\Csv\Stream::appendFilter
      * @covers League\Csv\Exception\RuntimeException
      */
     public function testFailedAddStreamFilterWithWrongFilter()
@@ -314,7 +314,7 @@ EOF;
     /**
      * @covers ::hasStreamFilter
      * @covers ::supportsStreamFilter
-     * @covers League\Csv\Document
+     * @covers League\Csv\Stream
      */
     public function testStreamFilterDetection()
     {
@@ -340,7 +340,7 @@ EOF;
 
     /**
      * @covers ::addStreamFilter
-     * @covers League\Csv\Document
+     * @covers League\Csv\Stream
      */
     public function testSetStreamFilterOnWriter()
     {
@@ -351,7 +351,7 @@ EOF;
     }
 
     /**
-     * @covers League\Csv\Document
+     * @covers League\Csv\Stream
      */
     public function testSetCsvControlWithDocument()
     {

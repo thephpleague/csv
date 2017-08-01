@@ -12,7 +12,7 @@
 */
 declare(strict_types=1);
 
-namespace League\Csv\Exception;
+namespace League\Csv;
 
 /**
  *  League Csv Base Exception
@@ -22,6 +22,6 @@ namespace League\Csv\Exception;
  * @author  Ignace Nyamagana Butera <nyamsprod@gmail.com>
  *
  */
-interface CsvException
+interface Exception
 {
 }

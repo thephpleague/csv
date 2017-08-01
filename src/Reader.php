@@ -138,9 +138,11 @@ class Reader extends AbstractCsv implements Countable, IteratorAggregate, JsonSe
         }
 
         $record[0] = mb_substr($record[0], $bom_length);
-        if ($enclosure == mb_substr($record[0], 0, 1) && $enclosure == mb_substr($record[0], -1, 1)) {
-            $record[0] = mb_substr($record[0], 1, -1);
+        if ($enclosure.$enclosure != substr($record[0].$record[0], strlen($record[0]) - 1, 2)) {
+            return $record;
         }
+
+        $record[0] = substr($record[0], 1, -1);
 
         return $record;
     }
@@ -150,7 +152,7 @@ class Reader extends AbstractCsv implements Countable, IteratorAggregate, JsonSe
      */
     public function __call($method, array $arguments)
     {
-        $whitelisted = ['fetchColumn' => 1, 'fetchPairs' => 1, 'fetchOne' => 1];
+        $whitelisted = ['fetchColumn' => 1, 'fetchOne' => 1, 'fetchPairs' => 1];
         if (isset($whitelisted[$method])) {
             return (new ResultSet($this->getRecords(), $this->getHeader()))->$method(...$arguments);
         }

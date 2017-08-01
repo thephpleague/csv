@@ -14,6 +14,8 @@ declare(strict_types=1);
 
 namespace League\Csv\Exception;
 
+use League\Csv\Exception;
+
 /**
  * Thrown when an argument is not of the expected length
  *
@@ -22,6 +24,6 @@ namespace League\Csv\Exception;
  * @author  Ignace Nyamagana Butera <nyamsprod@gmail.com>
  *
  */
-class LengthException extends \LengthException implements CsvException
+class LengthException extends \LengthException implements Exception
 {
 }

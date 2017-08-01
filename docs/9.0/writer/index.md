@@ -12,7 +12,7 @@ class Writer extends AbstractCsv
 {
     public function addFormatter(callable $callable): Writer
     public function addValidator(callable $callable, string $validatorName): Writer
-    public function getFlushThreshold(): int|null
+    public function getFlushThreshold(): ?int
     public function getNewline(): string
     public function insertAll(iterable $records): int
     public function insertOne(array $record): int
@@ -98,7 +98,7 @@ For advanced usages, you can now manually indicates when flushing mechanism occu
 <?php
 
 public Writer::setFlushThreshold(?int $treshold): self
-public Writer::getFlushThreshold(void): int|null
+public Writer::getFlushThreshold(void): ?int
 ~~~
 
 By default, `getFlushTreshold` returns `null`.

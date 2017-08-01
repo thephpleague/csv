@@ -175,7 +175,7 @@ class WriterTest extends TestCase
      * @covers ::getNewline
      * @covers ::insertOne
      * @covers ::consolidate
-     * @covers League\Csv\Document
+     * @covers League\Csv\Stream
      */
     public function testCustomNewline()
     {
