@@ -12,7 +12,7 @@
 */
 declare(strict_types=1);
 
-namespace League\Csv\Exception;
+namespace League\Csv;
 
 /**
  * Thrown when a data is not added to the Csv Document
@@ -22,7 +22,7 @@ namespace League\Csv\Exception;
  * @author  Ignace Nyamagana Butera <nyamsprod@gmail.com>
  *
  */
-class InsertionException extends RuntimeException
+class CannotInsertRecord extends Exception
 {
     /**
      * The record submitted for insertion
@@ -45,7 +45,7 @@ class InsertionException extends RuntimeException
      *
      * @return self
      */
-    public static function createFromStream(array $record): self
+    public static function triggerOnInsertion(array $record): self
     {
         $exception = new static('Unable to write record to the CSV document');
         $exception->record = $record;
@@ -61,7 +61,7 @@ class InsertionException extends RuntimeException
      *
      * @return self
      */
-    public static function createFromValidator(string $name, array $record): self
+    public static function triggerOnValidation(string $name, array $record): self
     {
         $exception = new static('Record validation failed');
         $exception->name = $name;

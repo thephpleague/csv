@@ -23,7 +23,7 @@ class XMLConverter
 
 Prior to converting your records collection into XML, you may wish to configure the element and its associated attribute names. To do so `XMLConverter` provides methods to setup theses settings.
 
-<p class="message-warning">Because we are building a <code>DOMDocument</code> object, the <code>XMLConverter</code> object throws <code>DOMException</code> exceptions that do not implements <a href="/9.0/connections/exceptions/">CsvException</a>.</p>
+<p class="message-warning">Because we are building a <code>DOMDocument</code> object, the <code>XMLConverter</code> object throws <code>DOMException</code> insted of <code>League\Csv\Exception</code>.</p>
 
 ### XMLConverter::rootElement
 

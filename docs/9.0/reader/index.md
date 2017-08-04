@@ -68,7 +68,7 @@ If no header offset is set:
 
 <p class="message-info">By default no header offset is set.</p>
 
-<p class="message-warning">Because the header is lazy loaded, if you provide a positive offset for an invalid record a <code>RuntimeException</code> will be triggered when trying to access the invalid record.</p>
+<p class="message-warning">Because the header is lazy loaded, if you provide a positive offset for an invalid record a <code>Exception</code> exception will be triggered when trying to access the invalid record.</p>
 
 ~~~php
 <?php
@@ -78,7 +78,7 @@ use League\Csv\Reader;
 $csv = Reader::createFromPath('/path/to/file.csv');
 $csv->setHeaderOffset(1000); //valid offset but the CSV does not contain 1000 records
 $header_offset = $csv->getHeaderOffset(); //returns 1000
-$header = $csv->getHeader(); //triggers a RuntimeException exception
+$header = $csv->getHeader(); //triggers a Exception exception
 ~~~
 
 ## CSV records
@@ -183,7 +183,7 @@ foreach ($records as $offset => $record) {
 //the first record will still be skip!!
 ~~~
 
-<p class="message-warning">In both cases, if the header record contains non unique string values, a <code>RuntimeException</code> exception is triggered.</p>
+<p class="message-warning">In both cases, if the header record contains non unique string values, a <code>Exception</code> exception is triggered.</p>
 
 ### Using the IteratorAggregate interface
 

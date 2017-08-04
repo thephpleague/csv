@@ -3,8 +3,7 @@
 namespace LeagueTest\Csv;
 
 use Generator;
-use League\Csv\Exception\OutOfRangeException;
-use League\Csv\Exception\RuntimeException;
+use League\Csv\Exception;
 use League\Csv\Reader;
 use League\Csv\Statement;
 use OutOfBoundsException;
@@ -58,7 +57,7 @@ class ResultSetTest extends TestCase
      */
     public function testSetOffsetThrowsException()
     {
-        $this->expectException(OutOfRangeException::class);
+        $this->expectException(Exception::class);
         $this->stmt->offset(-1);
     }
 
@@ -89,11 +88,10 @@ class ResultSetTest extends TestCase
 
     /**
      * @covers League\Csv\Statement::limit
-     * @covers League\Csv\Exception\OutOfRangeException
      */
     public function testSetLimitThrowException()
     {
-        $this->expectException(OutOfRangeException::class);
+        $this->expectException(Exception::class);
         $this->stmt->limit(-4);
     }
 
@@ -146,7 +144,6 @@ class ResultSetTest extends TestCase
      * @covers League\Csv\Statement::limit
      * @covers League\Csv\Statement::offset
      * @covers League\Csv\Statement::process
-     * @covers League\Csv\Exception\OutOfRangeException
      */
     public function testIntervalThrowException()
     {
@@ -209,14 +206,13 @@ class ResultSetTest extends TestCase
      * @covers ::getColumnIndexByValue
      * @covers ::getColumnIndexByKey
      * @covers ::__destruct
-     * @covers League\Csv\Exception\RuntimeException
      * @covers League\Csv\MapIterator
      * @dataProvider invalidFieldNameProvider
      * @param int|string $field
      */
     public function testFetchColumnTriggersException($field)
     {
-        $this->expectException(RuntimeException::class);
+        $this->expectException(Exception::class);
         $this->csv->setHeaderOffset(0);
         $res = $this->stmt->process($this->csv)->fetchColumn($field);
         iterator_to_array($res, false);
@@ -234,13 +230,12 @@ class ResultSetTest extends TestCase
      * @covers ::fetchColumn
      * @covers ::getColumnIndexByKey
      * @covers League\Csv\MapIterator
-     * @covers League\Csv\Exception\OutOfRangeException
      *
      * @param int|string $field
      */
     public function testFetchColumnTriggersOutOfRangeException()
     {
-        $this->expectException(OutOfRangeException::class);
+        $this->expectException(Exception::class);
         $this->csv->setHeaderOffset(0);
         $res = $this->stmt->process($this->csv)->fetchColumn(-1);
         iterator_to_array($res, false);
@@ -361,7 +356,7 @@ class ResultSetTest extends TestCase
      */
     public function testFetchOneTriggersException()
     {
-        $this->expectException(OutOfRangeException::class);
+        $this->expectException(Exception::class);
         $this->stmt->process($this->csv)->fetchOne(-5);
     }
 

@@ -39,7 +39,7 @@ $writer->supportsStreamFilter(); //return false the API can not be use
 $writer->getStreamFilterMode(); //return STREAM_FILTER_WRITE
 ~~~
 
-<p class="message-warning">A <code>LogicException</code> exception will be thrown if you use the API on a object where <code>supportsStreamFilter</code> returns <code>false</code>.</p>
+<p class="message-warning">A <code>League\Csv\Exception</code> exception will be thrown if you use the API on a object where <code>supportsStreamFilter</code> returns <code>false</code>.</p>
 
 ### Cheat sheet
 

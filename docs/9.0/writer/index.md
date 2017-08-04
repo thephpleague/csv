@@ -34,7 +34,7 @@ public Writer::insertOne(array $record): int
 public Writer::insertAll(iterable $records): int
 ~~~
 
-`Writer::insertOne` inserts a single record into the CSV document while `Writer::insertAll` adds several records. Both methods returns the length of the written data or throw an [League\Csv\Exception\InsertionException](/9.0/connections/exceptions/#runtime-exceptions) on error.
+`Writer::insertOne` inserts a single record into the CSV document while `Writer::insertAll` adds several records. Both methods returns the length of the written data.
 
 `Writer::insertOne` takes a single argument, an `array` which represents a single CSV record.
 `Writer::insertAll` takes a single argument a PHP iterable which contains a collection of CSV records.
@@ -57,6 +57,28 @@ $writer->insertAll(new ArrayIterator($records)); //using a Traversable object
 ~~~
 
 In the above example, all CSV records are saved to `/path/to/saved/file.csv`
+
+If the record can not be inserted into the CSV document a `League\Csv\CannotInsertRecord` exception is thrown. This exception extends `League\Csv\Exception` and adds the ability to get the record on which the insertion failed.
+
+~~~php
+<?php
+
+use League\Csv\CannotInsertRecord;
+use League\Csv\Writer;
+
+$records = [
+    [1, 2, 3],
+    ['foo', 'bar', 'baz'],
+    ['john', 'doe', 'john.doe@example.com'],
+];
+
+try {
+    $writer = Writer::createFromPath('/path/to/saved/file.csv', 'r');
+    $writer->insertAll($records);
+} catch (CannotInsertRecord $e) {
+    $e->getRecords(); //returns [1, 2, 3]
+}
+~~~
 
 ## Handling newline
 
@@ -165,7 +187,7 @@ function(array $record): bool
 
 The validator **must** return `true` to validate the submitted record.
 
-Any other expression, including thruthy ones like `yes`, `1`,... will make the `insertOne` method throw an `League\Csv\Exception\InsertionException`.
+Any other expression, including thruthy ones like `yes`, `1`,... will make the `insertOne` method throw an `League\Csv\CannotInsertRecord`.
 
 #### Adding a Validator to a Writer object
 
@@ -178,20 +200,25 @@ As with the formatter capabilities, you can attach as many validators as you wan
 - A validator `callable`;
 - A validator name. If another validator was already registered with the given name, it will be overriden.
 
-On failure a [League\Csv\Exception\InsertionException](/9.0/connections/exceptions/#runtime-exceptions) exception is thrown by the `Writer` object.
+On failure a `League\Csv\CannotInsertRecord` exception is thrown.  
+This exception will give access to:
+
+- the validator name;
+- the record which failed the validation;
 
 ~~~php
 <?php
 
 use League\Csv\Writer;
-use League\Csv\Exception\InsertionException;
+use League\Csv\CannotInsertRecord;
 
 $writer->addValidator(function (array $row): bool {
     return 10 == count($row);
 }, 'row_must_contain_10_cells');
+
 try {
     $writer->insertOne(['john', 'doe', 'john.doe@example.com']);
-} catch (InsertionException $e) {
+} catch (CannotInsertRecord $e) {
     echo $e->getName(); //display 'row_must_contain_10_cells'
     $e->getData();//will return the invalid data ['john', 'doe', 'john.doe@example.com']
 }

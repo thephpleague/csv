@@ -20,8 +20,6 @@ use Generator;
 use Iterator;
 use IteratorAggregate;
 use JsonSerializable;
-use League\Csv\Exception\OutOfRangeException;
-use League\Csv\Exception\RuntimeException;
 use LimitIterator;
 
 /**
@@ -83,8 +81,8 @@ class ResultSet implements Countable, IteratorAggregate, JsonSerializable
      */
     public function getRecords(): Generator
     {
-        foreach ($this->records as $value) {
-            yield $value;
+        foreach ($this->records as $offset => $value) {
+            yield $offset => $value;
         }
     }
 
@@ -119,14 +117,14 @@ class ResultSet implements Countable, IteratorAggregate, JsonSerializable
      *
      * @param int $nth_record the CSV record offset
      *
-     * @throws OutOfRangeException if argument is lesser than 0
+     * @throws Exception if argument is lesser than 0
      *
      * @return array
      */
     public function fetchOne(int $nth_record = 0): array
     {
         if ($nth_record < 0) {
-            throw new OutOfRangeException(sprintf('%s() expects the submitted offset to be a positive integer or 0, %s given', __METHOD__, $nth_record));
+            throw new Exception(sprintf('%s() expects the submitted offset to be a positive integer or 0, %s given', __METHOD__, $nth_record));
         }
 
         $iterator = new LimitIterator($this->records, $nth_record, 1);
@@ -185,7 +183,7 @@ class ResultSet implements Countable, IteratorAggregate, JsonSerializable
      * @param string $value
      * @param string $error_message
      *
-     * @throws RuntimeException if the column is not found
+     * @throws Exception if the column is not found
      *
      * @return string
      */
@@ -195,7 +193,7 @@ class ResultSet implements Countable, IteratorAggregate, JsonSerializable
             return $value;
         }
 
-        throw new RuntimeException(sprintf($error_message, $value));
+        throw new Exception(sprintf($error_message, $value));
     }
 
     /**
@@ -204,15 +202,14 @@ class ResultSet implements Countable, IteratorAggregate, JsonSerializable
      * @param int    $index
      * @param string $error_message
      *
-     * @throws OutOfRangeException if the field index is invalid
-     * @throws RuntimeException    if the field is invalid or not found
+     * @throws Exception if the field is invalid or not found
      *
      * @return int|string
      */
     protected function getColumnIndexByKey(int $index, string $error_message)
     {
         if ($index < 0) {
-            throw new OutOfRangeException($error_message);
+            throw new Exception($error_message);
         }
 
         if (empty($this->header)) {
@@ -224,7 +221,7 @@ class ResultSet implements Countable, IteratorAggregate, JsonSerializable
             return $value;
         }
 
-        throw new RuntimeException(sprintf($error_message, $index));
+        throw new Exception(sprintf($error_message, $index));
     }
 
     /**

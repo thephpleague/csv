@@ -14,9 +14,7 @@ declare(strict_types=1);
 
 namespace League\Csv;
 
-use League\Csv\Exception\LogicException;
-use League\Csv\Exception\OutOfRangeException;
-use League\Csv\Exception\RuntimeException;
+use RuntimeException;
 use SeekableIterator;
 use SplFileObject;
 use TypeError;
@@ -115,7 +113,7 @@ class Stream implements SeekableIterator
         }
 
         if (!stream_get_meta_data($resource)['seekable']) {
-            throw new RuntimeException('Argument passed must be a seekable stream resource');
+            throw new Exception('Argument passed must be a seekable stream resource');
         }
 
         $this->stream = $resource;
@@ -144,7 +142,7 @@ class Stream implements SeekableIterator
      */
     public function __clone()
     {
-        throw new LogicException(sprintf('An object of class %s cannot be cloned', get_class($this)));
+        throw new Exception(sprintf('An object of class %s cannot be cloned', get_class($this)));
     }
 
     /**
@@ -167,7 +165,7 @@ class Stream implements SeekableIterator
      * @param string        $open_mode the file open mode flag
      * @param resource|null $context   the resource context
      *
-     * @throws RuntimeException if the stream resource can not be created
+     * @throws Exception if the stream resource can not be created
      *
      * @return static
      */
@@ -180,7 +178,7 @@ class Stream implements SeekableIterator
         }
 
         if (!$resource = @fopen(...$args)) {
-            throw new RuntimeException(error_get_last()['message']);
+            throw new Exception(error_get_last()['message']);
         }
 
         $instance = new static($resource);
@@ -216,7 +214,7 @@ class Stream implements SeekableIterator
      * @param int    $read_write
      * @param mixed  $params
      *
-     * @throws RuntimeException if the filter can not be appended
+     * @throws Exception if the filter can not be appended
      */
     public function appendFilter(string $filtername, int $read_write, $params = null)
     {
@@ -226,7 +224,7 @@ class Stream implements SeekableIterator
             return;
         }
 
-        throw new RuntimeException(error_get_last()['message']);
+        throw new Exception(error_get_last()['message']);
     }
 
     /**
@@ -385,12 +383,14 @@ class Stream implements SeekableIterator
      *
      * @see http://php.net/manual/en/splfileobject.seek.php
      *
-     * @param int $position
+     *
+     * @param  int       $position
+     * @throws Exception if the position is negative
      */
     public function seek($position)
     {
         if ($position < 0) {
-            throw new OutOfRangeException(sprintf('%s() can\'t seek stream to negative line %d', __METHOD__, $position));
+            throw new Exception(sprintf('%s() can\'t seek stream to negative line %d', __METHOD__, $position));
         }
 
         $this->rewind();

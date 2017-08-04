@@ -3,8 +3,8 @@
 namespace LeagueTest\Csv;
 
 use ArrayIterator;
-use League\Csv\Exception\InsertionException;
-use League\Csv\Exception\OutOfRangeException;
+use League\Csv\CannotInsertRecord;
+use League\Csv\Exception;
 use League\Csv\Writer;
 use PHPUnit\Framework\TestCase;
 use SplFileObject;
@@ -41,7 +41,7 @@ class WriterTest extends TestCase
      */
     public function testflushThreshold()
     {
-        $this->expectException(OutOfRangeException::class);
+        $this->expectException(Exception::class);
         $this->csv->setFlushThreshold(12);
         $this->assertSame(12, $this->csv->getFlushThreshold());
         $this->csv->setFlushThreshold(12);
@@ -102,7 +102,7 @@ class WriterTest extends TestCase
 
     /**
      * @covers ::insertOne
-     * @covers League\Csv\Exception\InsertionException
+     * @covers League\Csv\CannotInsertRecord
      */
     public function testInsertThrowsExceptionOnError()
     {
@@ -110,7 +110,7 @@ class WriterTest extends TestCase
         try {
             $csv = Writer::createFromPath(__DIR__.'/data/foo.csv', 'r');
             $csv->insertOne($expected);
-        } catch (InsertionException $e) {
+        } catch (CannotInsertRecord $e) {
             $this->assertSame($e->getRecord(), $expected);
         }
     }
@@ -193,7 +193,7 @@ class WriterTest extends TestCase
             return false;
         };
 
-        $this->expectException(InsertionException::class);
+        $this->expectException(CannotInsertRecord::class);
         $this->csv->addValidator($func, 'func1');
         $this->csv->insertOne(['jane', 'doe']);
     }

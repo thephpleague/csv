@@ -15,8 +15,6 @@ declare(strict_types=1);
 namespace League\Csv;
 
 use Generator;
-use League\Csv\Exception\LogicException;
-use League\Csv\Exception\OutOfRangeException;
 use SplFileObject;
 use function League\Csv\bom_match;
 
@@ -105,7 +103,7 @@ abstract class AbstractCsv implements ByteSequence
      */
     public function __destruct()
     {
-        $this->document = null;
+        unset($this->document);
     }
 
     /**
@@ -113,7 +111,7 @@ abstract class AbstractCsv implements ByteSequence
      */
     public function __clone()
     {
-        throw new LogicException(sprintf('An object of class %s cannot be cloned', get_class($this)));
+        throw new Exception(sprintf('An object of class %s cannot be cloned', get_class($this)));
     }
 
     /**
@@ -282,7 +280,7 @@ abstract class AbstractCsv implements ByteSequence
     public function chunk(int $length): Generator
     {
         if ($length < 1) {
-            throw new OutOfRangeException(sprintf('%s() expects the length to be a positive integer %d given', __METHOD__, $length));
+            throw new Exception(sprintf('%s() expects the length to be a positive integer %d given', __METHOD__, $length));
         }
 
         $input_bom = $this->getInputBOM();
@@ -400,14 +398,14 @@ abstract class AbstractCsv implements ByteSequence
      * @param string $filtername a string or an object that implements the '__toString' method
      * @param mixed  $params     additional parameters for the filter
      *
-     * @throws LogicException If the stream filter API can not be used
+     * @throws Exception If the stream filter API can not be used
      *
      * @return static
      */
     public function addStreamFilter(string $filtername, $params = null): self
     {
         if (!$this->document instanceof Stream) {
-            throw new LogicException('The stream filter API can not be used');
+            throw new Exception('The stream filter API can not be used');
         }
 
         $this->document->appendFilter($filtername, $this->stream_filter_mode, $params);

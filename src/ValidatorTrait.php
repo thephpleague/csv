@@ -14,8 +14,6 @@ declare(strict_types=1);
 
 namespace League\Csv;
 
-use League\Csv\Exception\LengthException;
-use League\Csv\Exception\OutOfRangeException;
 use TypeError;
 
 /**
@@ -35,7 +33,7 @@ trait ValidatorTrait
      * @param string $type   Csv control character type
      * @param string $caller public API method calling the method
      *
-     * @throws LengthException If the Csv control character is not one character only.
+     * @throws Exception If the Csv control character is not one character only.
      *
      * @return string
      */
@@ -45,7 +43,7 @@ trait ValidatorTrait
             return $char;
         }
 
-        throw new LengthException(sprintf('%s() expects %s to be a single character %s given', $caller, $type, $char));
+        throw new Exception(sprintf('%s() expects %s to be a single character %s given', $caller, $type, $char));
     }
 
     /**
@@ -57,8 +55,8 @@ trait ValidatorTrait
      * @param int      $min_range
      * @param string   $error_message
      *
-     * @throws TypError            if value is not a integer or null
-     * @throws OutOfRangeException if value is not in a valid int range
+     * @throws TypError  if value is not a integer or null
+     * @throws Exception if value is not in a valid int range
      */
     protected function filterNullableInteger($value, int $min_range, string $error_message)
     {
@@ -71,7 +69,7 @@ trait ValidatorTrait
         }
 
         if ($value < $min_range) {
-            throw new OutOfRangeException($error_message);
+            throw new Exception($error_message);
         }
     }
 }

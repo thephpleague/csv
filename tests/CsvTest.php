@@ -2,15 +2,13 @@
 
 namespace LeagueTest\Csv;
 
-use League\Csv\Exception\LengthException;
-use League\Csv\Exception\OutOfRangeException;
-use League\Csv\Exception\RuntimeException;
+use League\Csv\Exception;
 use League\Csv\Reader;
 use League\Csv\Writer;
-use LogicException;
 use PHPUnit\Framework\TestCase;
 use SplTempFileObject;
 use TypeError;
+use function League\Csv\is_iterable;
 
 /**
  * @group csv
@@ -65,7 +63,7 @@ class CsvTest extends TestCase
      */
     public function testCreateFromPathThrowsRuntimeException()
     {
-        $this->expectException(RuntimeException::class);
+        $this->expectException(Exception::class);
         Reader::createFromPath(__DIR__.'/foo/bar', 'r');
     }
 
@@ -115,7 +113,7 @@ EOF;
      */
     public function testCloningIsForbidden()
     {
-        $this->expectException(LogicException::class);
+        $this->expectException(Exception::class);
         clone $this->csv;
     }
 
@@ -167,7 +165,7 @@ EOF;
      */
     public function testChunkTriggersException()
     {
-        $this->expectException(OutOfRangeException::class);
+        $this->expectException(Exception::class);
         $chunk = $this->csv->chunk(0);
         iterator_to_array($chunk);
     }
@@ -200,7 +198,7 @@ EOF;
      */
     public function testDelimeter()
     {
-        $this->expectException(LengthException::class);
+        $this->expectException(Exception::class);
         $this->csv->setDelimiter('o');
         $this->assertSame('o', $this->csv->getDelimiter());
         $this->csv->setDelimiter('foo');
@@ -250,7 +248,7 @@ EOF;
      */
     public function testEscape()
     {
-        $this->expectException(LengthException::class);
+        $this->expectException(Exception::class);
         $this->csv->setEscape('o');
         $this->assertSame('o', $this->csv->getEscape());
 
@@ -263,7 +261,7 @@ EOF;
      */
     public function testEnclosure()
     {
-        $this->expectException(LengthException::class);
+        $this->expectException(Exception::class);
         $this->csv->setEnclosure('o');
         $this->assertSame('o', $this->csv->getEnclosure());
 
@@ -288,11 +286,11 @@ EOF;
     /**
      * @covers ::supportsStreamFilter
      * @covers ::addStreamFilter
-     * @covers League\Csv\Exception\LogicException
+     * @covers League\Csv\Exception
      */
     public function testFailedAddStreamFilter()
     {
-        $this->expectException(LogicException::class);
+        $this->expectException(Exception::class);
         $csv = Writer::createFromFileObject(new SplTempFileObject());
         $this->assertFalse($csv->supportsStreamFilter());
         $csv->addStreamFilter('string.toupper');
@@ -302,11 +300,10 @@ EOF;
      * @covers ::supportsStreamFilter
      * @covers ::addStreamFilter
      * @covers League\Csv\Stream::appendFilter
-     * @covers League\Csv\Exception\RuntimeException
      */
     public function testFailedAddStreamFilterWithWrongFilter()
     {
-        $this->expectException(RuntimeException::class);
+        $this->expectException(Exception::class);
         $csv = Writer::createFromStream(tmpfile());
         $csv->addStreamFilter('foobar.toupper');
     }
@@ -373,13 +370,13 @@ EOF;
             $this->markTestSkipped('Polyfill for PHP7.0');
         }
 
-        $this->assertTrue(\League\Csv\is_iterable(['foo']));
-        $this->assertTrue(\League\Csv\is_iterable(Reader::createFromString('')));
-        $this->assertTrue(\League\Csv\is_iterable((function () {
+        $this->assertTrue(is_iterable(['foo']));
+        $this->assertTrue(is_iterable(Reader::createFromString('')));
+        $this->assertTrue(is_iterable((function () {
             yield 1;
         })()));
-        $this->assertFalse(\League\Csv\is_iterable(1));
-        $this->assertFalse(\League\Csv\is_iterable((object) ['foo']));
-        $this->assertFalse(\League\Csv\is_iterable(Writer::createFromString('')));
+        $this->assertFalse(is_iterable(1));
+        $this->assertFalse(is_iterable((object) ['foo']));
+        $this->assertFalse(is_iterable(Writer::createFromString('')));
     }
 }

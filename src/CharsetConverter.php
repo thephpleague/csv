@@ -14,9 +14,8 @@ declare(strict_types=1);
 
 namespace League\Csv;
 
-use League\Csv\Exception\OutOfRangeException;
+use OutOfRangeException;
 use php_user_filter;
-use Throwable;
 use Traversable;
 use TypeError;
 
@@ -149,7 +148,7 @@ class CharsetConverter extends php_user_filter
             $this->input_encoding = $this->filterEncoding($matches['input']);
             $this->output_encoding = $this->filterEncoding($matches['output']);
             return true;
-        } catch (Throwable $e) {
+        } catch (OutOfRangeException $e) {
             return false;
         }
     }

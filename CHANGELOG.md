@@ -20,12 +20,8 @@ All Notable changes to `Csv` will be documented in this file
     - `League\Csv\XMLConverter` converts CSV records into DOMDocument
     - `League\Csv\HTMLConverter` converts CSV records into HTML table.
 - Improved Exception handling
-    - `League\Csv\Exception` the default exception interface
-    - `League\Csv\Exception\InsertionException`
-    - `League\Csv\Exception\LengthException`
-    - `League\Csv\Exception\LogicException`
-    - `League\Csv\Exception\OutOfRangeException`
-    - `League\Csv\Exception\RuntimeException`
+    - `League\Csv\Exception` the default exception
+    - `League\Csv\Exception\CannotInsertRecord`
 - Improved CSV document output
     - `League\Csv\AbstractCsv::chunk` method to output the CSV document in chunk
     - `League\Csv\bom_match` function to detect BOM sequence in a given string

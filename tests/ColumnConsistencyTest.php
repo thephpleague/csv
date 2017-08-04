@@ -2,9 +2,9 @@
 
 namespace LeagueTest\Csv;
 
+use League\Csv\CannotInsertRecord;
 use League\Csv\ColumnConsistency;
-use League\Csv\Exception\InsertionException;
-use League\Csv\Exception\OutOfRangeException;
+use League\Csv\Exception;
 use League\Csv\Writer;
 use PHPUnit\Framework\TestCase;
 use SplFileObject;
@@ -35,7 +35,7 @@ class ColumnConsistencyTest extends TestCase
      * @covers ::__construct
      * @covers ::getColumnCount
      * @covers ::__invoke
-     * @covers League\Csv\Exception\InsertionException
+     * @covers League\Csv\CannotInsertRecord
      */
     public function testAutoDetect()
     {
@@ -47,7 +47,7 @@ class ColumnConsistencyTest extends TestCase
             $this->csv->insertOne(['john', 'doe', 'john.doe@example.com']);
             $this->assertSame(3, $validator->getColumnCount());
             $this->csv->insertOne($expected);
-        } catch (InsertionException $e) {
+        } catch (CannotInsertRecord $e) {
             $this->assertSame($e->getName(), 'consistency');
             $this->assertEquals($e->getRecord(), ['jane', 'jane.doe@example.com']);
         }
@@ -56,11 +56,11 @@ class ColumnConsistencyTest extends TestCase
     /**
      * @covers ::__construct
      * @covers ::__invoke
-     * @covers League\Csv\Exception\InsertionException
+     * @covers League\Csv\CannotInsertRecord
      */
     public function testColumnsCount()
     {
-        $this->expectException(InsertionException::class);
+        $this->expectException(CannotInsertRecord::class);
         $this->csv->addValidator(new ColumnConsistency(3), 'consistency');
         $this->csv->insertOne(['john', 'doe', 'john.doe@example.com']);
         $this->csv->insertOne(['jane', 'jane.doe@example.com']);
@@ -68,11 +68,11 @@ class ColumnConsistencyTest extends TestCase
 
     /**
      * @covers ::__construct
-     * @covers League\Csv\Exception\OutOfRangeException
+     * @covers League\Csv\Exception
      */
     public function testColumsCountTriggersException()
     {
-        $this->expectException(OutOfRangeException::class);
+        $this->expectException(Exception::class);
         new ColumnConsistency(-2);
     }
 }

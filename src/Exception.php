@@ -22,6 +22,6 @@ namespace League\Csv;
  * @author  Ignace Nyamagana Butera <nyamsprod@gmail.com>
  *
  */
-interface Exception
+class Exception extends \Exception
 {
 }

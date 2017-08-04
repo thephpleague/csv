@@ -20,3 +20,7 @@ The package provides classes which convert any collection of CSV records into:
 Before conversion, you may want to configure your converter object. Each provided converter exposes additional methods to correctly convert your records.
 
 When building a converter object, the methods do not need to be called in any particular order, and may be called multiple times. Because all provided converters are immutable, each time their setter methods are called they will return a new object without modifying the current one.
+
+## Converters exceptions
+
+Because converters do not directly deals with CSV document but with their contents. On error theses classes trigger PHP's Exceptions instead of `League\Csv\Exception` exception.

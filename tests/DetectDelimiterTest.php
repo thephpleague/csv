@@ -2,7 +2,7 @@
 
 namespace LeagueTest\Csv;
 
-use League\Csv\Exception\OutOfRangeException;
+use League\Csv\Exception;
 use League\Csv\Reader;
 use PHPUnit\Framework\TestCase;
 use SplTempFileObject;
@@ -19,7 +19,7 @@ class DetectDelimiterTest extends TestCase
         $file = new SplTempFileObject();
         $file->fwrite("How are you today ?\nI'm doing fine thanks!");
         $csv = Reader::createFromFileObject($file);
-        $this->expectException(OutOfRangeException::class);
+        $this->expectException(Exception::class);
         delimiter_detect($csv, [','], -4);
     }
 

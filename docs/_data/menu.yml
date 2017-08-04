@@ -10,7 +10,6 @@ version:
             BOM Sequences: '/9.0/connections/bom/'
             Stream Filters: '/9.0/connections/filters/'
             Document output: '/9.0/connections/output/'
-            Exceptions: '/9.0/connections/exceptions/'
         Inserting Records:
             Writer Connection: '/9.0/writer/'
             Bundled Helpers: '/9.0/writer/helpers/'

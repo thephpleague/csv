@@ -61,3 +61,22 @@ if (!ini_get("auto_detect_line_endings")) {
 
 //the rest of the code continues here...
 ~~~
+
+## Exceptions
+
+The default exception class thrown while using this library is `League\Csv\Exception` which extends PHP `Exception` class.
+
+~~~php
+<?php
+
+use League\Csv\Exception;
+use League\Csv\Reader;
+
+try {
+    $csv = Reader::createFromPath('/path/to/file.csv');
+    $csv->setDelimiter('toto');
+} catch (Exception $e) {
+    echo $e->getMessage(), PHP_EOL;
+}
+~~~
+

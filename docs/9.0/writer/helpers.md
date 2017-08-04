@@ -20,9 +20,9 @@ class ColumnConsistency
 
 The `League\Csv\ColumnConsistency` class validates the inserted record column count consistency.
 
-This class constructor accepts a single argument `$column_count` which sets the column count value and validate each record length against the given value. If the value differs an `InsertionException` will be thrown.
+This class constructor accepts a single argument `$column_count` which sets the column count value and validate each record length against the given value. If the value differs an `CannotInsertRecord` will be thrown.
 
-if `$column_count` equals `-1`, the object will lazy set the column count value according to the next inserted record and therefore will also validate it. On the next insert, if the given value differs a `InsertionException` exception is triggered.
+if `$column_count` equals `-1`, the object will lazy set the column count value according to the next inserted record and therefore will also validate it. On the next insert, if the given value differs a `CannotInsertRecord` exception is triggered.
 At any given time you can retrieve the column count value using the `ColumnConsistency::getColumnCount` method.
 
 ~~~php
@@ -38,7 +38,7 @@ $writer->addValidator($validator, 'column_consistency');
 $validator->getColumnCount(); //returns -1
 $writer->insertOne(["foo", "bar", "baz"]);
 $validator->getColumnCount(); //returns 3
-$writer->insertOne(["foo", "bar"]); //will trigger a InsertionException exception
+$writer->insertOne(["foo", "bar"]); //will trigger a CannotInsertRecord exception
 ~~~
 
 <p class="message-info">The default column count is set to <code>-1</code>.</p>

@@ -5,9 +5,9 @@ namespace LeagueTest\Csv;
 use ArrayIterator;
 use Iterator;
 use League\Csv\CharsetConverter;
-use League\Csv\Exception\OutOfRangeException;
-use League\Csv\Exception\RuntimeException;
+use League\Csv\Exception;
 use League\Csv\Reader;
+use OutOfRangeException;
 use PHPUnit\Framework\TestCase;
 use TypeError;
 
@@ -121,7 +121,7 @@ class CharsetConverterTest extends TestCase
      */
     public function testCharsetConverterAsStreamFilterFailed()
     {
-        $this->expectException(RuntimeException::class);
+        $this->expectException(Exception::class);
         stream_filter_register(CharsetConverter::FILTERNAME.'.*', CharsetConverter::class);
         $expected = 'Batman,Superman,Anaïs';
         $raw = mb_convert_encoding($expected, 'iso-8859-15', 'utf-8');

@@ -231,7 +231,7 @@ count(iterator_to_array($records->fetchColumn(2), false)); //returns 5
 //5 records were skipped because the column value is null
 ~~~
 
-<p class="message-warning">If the <code>ResultSet</code> contains column names and the <code>$columnIndex</code> is not found a <code>RuntimeException</code> is thrown.</p>
+<p class="message-warning">If the <code>ResultSet</code> contains column names and the <code>$columnIndex</code> is not found an <code>Exception</code> exception is thrown.</p>
 
 ~~~php
 <?php
@@ -244,7 +244,7 @@ $reader->setHeaderOffset(0);
 
 $records = (new Statement())->process($reader);
 foreach ($records->fetchColumn('foobar') as $record) {
-    //throw an RuntimeException if
+    //throw an Exception exception if
     //no `foobar` column name is found
     //in $records->getHeader() result
 }
@@ -308,17 +308,11 @@ foreach ($records->fetchPairs() as $firstname => $lastname) {
 - If no cell is found corresponding to `$offsetIndex` the row is skipped;
 - If no cell is found corresponding to `$valueIndex` the `null` value is used;
 
-<p class="message-warning">If the <code>ResultSet</code> contains column names and the submitted arguments are not found a <code>RuntimeException</code> is thrown.</p>
+<p class="message-warning">If the <code>ResultSet</code> contains column names and the submitted arguments are not found an <code>Exception</code> exception is thrown.</p>
 
 ## Conversions
 
 ### Json serialization
-
-~~~php
-<?php
-
-public ResultSet::jsonPreserveOffset(bool $status): self
-~~~
 
 The `ResultSet` class implements the `JsonSerializable` interface. As such you can use the `json_encode` function directly on the instantiated object. The interface is implemented using PHP's `iterator_array` on the `ResultSet::getRecords` method. As such, the returned `JSON` string data is affected by the presence or absence of column names.
 

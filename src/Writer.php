@@ -14,7 +14,6 @@ declare(strict_types=1);
 
 namespace League\Csv;
 
-use League\Csv\Exception\InsertionException;
 use Traversable;
 use TypeError;
 
@@ -119,7 +118,7 @@ class Writer extends AbstractCsv
      *
      * @param string[] $record an array
      *
-     * @throws InsertionException If the record can not be inserted
+     * @throws CannotInsertRecord If the record can not be inserted
      *
      * @return int
      */
@@ -129,7 +128,7 @@ class Writer extends AbstractCsv
         $this->validateRecord($record);
         $bytes = $this->document->fputcsv($record, ...$this->document->getCsvControl());
         if (!$bytes) {
-            throw InsertionException::createFromStream($record);
+            throw CannotInsertRecord::triggerOnInsertion($record);
         }
 
         return $bytes + $this->consolidate();
@@ -153,13 +152,13 @@ class Writer extends AbstractCsv
      *
      * @param string[] $record
      *
-     * @throws InsertionException If the validation failed
+     * @throws CannotInsertRecord If the validation failed
      */
     protected function validateRecord(array $record)
     {
         foreach ($this->validators as $name => $validator) {
             if (true !== $validator($record)) {
-                throw InsertionException::createFromValidator($name, $record);
+                throw CannotInsertRecord::triggerOnValidation($name, $record);
             }
         }
     }

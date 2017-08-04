@@ -7,7 +7,7 @@ title: Csv character controls
 
 To correctly parse a CSV document you are required to set the character controls to be used by the `Reader` or the `Writer` object.
 
-<p>On error the setter methods will throw a <code>LengthException</code> exception if the submitted string length is not equal to <code>1</code>.</p>
+<p class="message-warning">On error the setter methods will throw a <code>Exception</code> exception if the submitted string length is not equal to <code>1</code>.</p>
 
 
 ## The delimiter character.

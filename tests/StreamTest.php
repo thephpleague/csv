@@ -2,11 +2,8 @@
 
 namespace LeagueTest\Csv;
 
-use League\Csv\Exception\LengthException;
-use League\Csv\Exception\OutOfRangeException;
-use League\Csv\Exception\RuntimeException;
+use League\Csv\Exception;
 use League\Csv\Stream;
-use LogicException;
 use PHPUnit\Framework\TestCase;
 use SplFileObject;
 use TypeError;
@@ -32,7 +29,7 @@ class StreamTest extends TestCase
      */
     public function testCloningIsForbidden()
     {
-        $this->expectException(LogicException::class);
+        $this->expectException(Exception::class);
         $toto = clone new Stream(fopen('php://temp', 'r+'));
     }
 
@@ -50,7 +47,7 @@ class StreamTest extends TestCase
      */
     public function testCreateStreamWithNonSeekableStream()
     {
-        $this->expectException(RuntimeException::class);
+        $this->expectException(Exception::class);
         new Stream(fopen('php://stdin', 'r'));
     }
 
@@ -99,7 +96,7 @@ class StreamTest extends TestCase
      */
     public function testfputcsv($delimiter, $enclosure, $escape)
     {
-        $this->expectException(LengthException::class);
+        $this->expectException(Exception::class);
         $stream = new Stream(fopen('php://temp', 'r+'));
         $stream->fputcsv(['john', 'doe', 'john.doe@example.com'], $delimiter, $enclosure, $escape);
     }
@@ -127,7 +124,7 @@ class StreamTest extends TestCase
      */
     public function testSeekThrowsException()
     {
-        $this->expectException(OutOfRangeException::class);
+        $this->expectException(Exception::class);
         $stream = new Stream(fopen('php://temp', 'r+'));
         $stream->seek(-1);
     }

@@ -3,8 +3,7 @@
 namespace LeagueTest\Csv;
 
 use BadMethodCallException;
-use League\Csv\Exception\OutOfRangeException;
-use League\Csv\Exception\RuntimeException;
+use League\Csv\Exception;
 use League\Csv\Reader;
 use League\Csv\Statement;
 use PHPUnit\Framework\TestCase;
@@ -160,9 +159,11 @@ class ReaderTest extends TestCase
      * @covers ::computeHeader
      * @covers ::getRecords
      * @covers ::setHeader
+     * @covers League\Csv\Exception
      */
-    public function testDuplicateHeaderValueTriggersException()
+    public function testHeaderThrowsExceptionOnError()
     {
+        $this->expectException(Exception::class);
         $csv = Reader::createFromString(
             'field1,field1,field3
             1,2,3
@@ -170,8 +171,7 @@ class ReaderTest extends TestCase
         );
         $csv->setHeaderOffset(0);
         $this->assertSame(['field1', 'field1', 'field3'], $csv->getHeader());
-        $this->expectException(RuntimeException::class);
-        iterator_to_array($csv, true);
+        iterator_to_array($csv);
     }
 
     /**
@@ -293,7 +293,7 @@ class ReaderTest extends TestCase
      */
     public function testGetHeaderThrowsException()
     {
-        $this->expectException(RuntimeException::class);
+        $this->expectException(Exception::class);
         $this->csv->setHeaderOffset(23)->getRecords();
     }
 
@@ -313,7 +313,7 @@ class ReaderTest extends TestCase
      */
     public function testSetHeaderThrowsExceptionOnWrongInputRange()
     {
-        $this->expectException(OutOfRangeException::class);
+        $this->expectException(Exception::class);
         $this->csv->setHeaderOffset(-1);
     }
 

@@ -20,7 +20,6 @@ use Countable;
 use Iterator;
 use IteratorAggregate;
 use JsonSerializable;
-use League\Csv\Exception\RuntimeException;
 use SplFileObject;
 
 /**
@@ -100,9 +99,8 @@ class Reader extends AbstractCsv implements Countable, IteratorAggregate, JsonSe
      *
      * @param int $offset
      *
-     * @throws RuntimeException If the header offset is an integer
-     *                          and the corresponding record is missing
-     *                          or is an empty array
+     * @throws Exception If the header offset is an integer and the corresponding record is missing
+     *                   or is an empty array
      *
      * @return string[]
      */
@@ -112,7 +110,7 @@ class Reader extends AbstractCsv implements Countable, IteratorAggregate, JsonSe
         $this->document->setCsvControl($this->delimiter, $this->enclosure, $this->escape);
         $this->document->seek($offset);
         if (empty($header = $this->document->current())) {
-            throw new RuntimeException(sprintf('The header record does not exist or is empty at offset: `%s`', $offset));
+            throw new Exception(sprintf('The header record does not exist or is empty at offset: `%s`', $offset));
         }
 
         if (0 === $offset) {
@@ -229,7 +227,7 @@ class Reader extends AbstractCsv implements Countable, IteratorAggregate, JsonSe
      *
      * @param string[] $header
      *
-     * @throws RuntimeException If the header contains non unique column name
+     * @throws Exception If the header contains non unique column name
      *
      * @return string[]
      */
@@ -243,7 +241,7 @@ class Reader extends AbstractCsv implements Countable, IteratorAggregate, JsonSe
             return $header;
         }
 
-        throw new RuntimeException('The header record must be empty or a flat array with unique string values');
+        throw new Exception('The header record must be empty or a flat array with unique string values');
     }
 
     /**
