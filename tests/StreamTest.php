@@ -87,6 +87,32 @@ class StreamTest extends TestCase
     }
 
     /**
+     * @covers ::createFromPath
+     * @covers ::current
+     */
+    public function testCreateStreamFromUrlWithContext()
+    {
+        $fp = fopen('php://temp', 'r+');
+        $expected = [
+            ['john', 'doe', 'john.doe@example.com'],
+            ['john', 'doe', 'john.doe@example.com'],
+        ];
+
+        foreach ($expected as $row) {
+            fputcsv($fp, $row);
+        }
+
+        $stream = Stream::createFromUrl(
+            StreamWrapper::PROTOCOL.'://stream',
+            'r+',
+            stream_context_create([StreamWrapper::PROTOCOL => ['stream' => $fp]])
+        );
+        $stream->setFlags(SplFileObject::READ_AHEAD);
+        $stream->rewind();
+        $this->assertInternalType('array', $stream->current());
+    }
+
+    /**
      * @covers ::fputcsv
      * @dataProvider fputcsvProvider
      *

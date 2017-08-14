@@ -33,6 +33,8 @@ All Notable changes to `Csv` will be documented in this file
     - `League\Csv\Writer::getFlushThreshold`
 - Improve RFC4180 compliance
     - `League\Csv\RFC4180FieldFormatter` to format field according to RFC4180 rules
+- Add connection to non-seekable resources
+    - `League\Csv\Reader::createFromUrl` to connect non-seekable resources like HTTP.
 
 ### Deprecated
 

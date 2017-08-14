@@ -118,6 +118,32 @@ class Stream implements SeekableIterator
     }
 
     /**
+     * Create a resource.
+     *
+     * @param string $url       file url
+     * @param string $open_mode the file open mode flag
+     * @param null   $context   the resource context
+     *
+     * @throws Exception if the stream resource can not be created
+     *
+     * @return resource
+     */
+    private static function createResource(string $url, string $open_mode, $context)
+    {
+        $args = [$url, $open_mode];
+        if (null !== $context) {
+            $args[] = false;
+            $args[] = $context;
+        }
+
+        if (!$resource = @fopen(...$args)) {
+            throw new Exception(error_get_last()['message']);
+        }
+
+        return $resource;
+    }
+
+    /**
      * @inheritdoc
      */
     public function __destruct()
@@ -149,9 +175,9 @@ class Stream implements SeekableIterator
     public function __debugInfo()
     {
         return stream_get_meta_data($this->stream) + [
-            'delimiter' => $this->delimiter,
-            'enclosure' => $this->enclosure,
-            'escape' => $this->escape,
+            'delimiter'      => $this->delimiter,
+            'enclosure'      => $this->enclosure,
+            'escape'         => $this->escape,
             'stream_filters' => array_keys($this->filters),
         ];
     }
@@ -169,17 +195,37 @@ class Stream implements SeekableIterator
      */
     public static function createFromPath(string $path, string $open_mode = 'r', $context = null): self
     {
-        $args = [$path, $open_mode];
-        if (null !== $context) {
-            $args[] = false;
-            $args[] = $context;
-        }
-
-        if (!$resource = @fopen(...$args)) {
-            throw new Exception(error_get_last()['message']);
-        }
+        $resource = self::createResource($path, $open_mode, $context);
 
         $instance = new static($resource);
+        $instance->should_close_stream = true;
+
+        return $instance;
+    }
+
+    /**
+     * Return a new instance from a file url.
+     *
+     * @param string $url       file url
+     * @param string $open_mode the file open mode flag
+     * @param null   $context   the resource context
+     *
+     * @see http://php.net/manual/es/wrappers.php
+     *
+     * @throws Exception if the stream resource can not be created
+     *
+     * @return static
+     */
+    public static function createFromUrl(string $url, string $open_mode = 'r', $context = null): self
+    {
+        $resourceOrigin = self::createResource($url, $open_mode, $context);
+        rewind($resourceOrigin);
+
+        $resourceDestination = fopen('php://temp', 'r+');
+        stream_copy_to_stream($resourceOrigin, $resourceDestination);
+        rewind($resourceDestination);
+
+        $instance = new static($resourceDestination);
         $instance->should_close_stream = true;
 
         return $instance;
@@ -219,6 +265,7 @@ class Stream implements SeekableIterator
         $res = @stream_filter_append($this->stream, $filtername, $read_write, $params);
         if (is_resource($res)) {
             $this->filters[$filtername][] = $res;
+
             return;
         }
 

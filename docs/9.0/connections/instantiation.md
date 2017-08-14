@@ -97,3 +97,35 @@ $writer = Writer::createFromFileObject(new SplTempFileObject());
 ~~~
 
 <p class="message-warning"> The <code>SplFileObject</code> <strong>MUST</strong> be seekable otherwise a <code>RuntimeException</code> exception may be thrown.</p>
+
+## Loading from a Url (Only Reader)
+
+~~~php
+<?php
+
+public static Reader::createFromUrl(
+	string $url,
+	string $open_mode = 'r',
+	resource $context = null
+): self
+~~~
+
+Creates a new object from an `Url`.
+
+~~~php
+<?php
+
+use League\Csv\Reader;
+
+$context = stream_context_create([
+	'http' => [
+		'protocol_version' => 1.1,
+		'header'           => [
+			'Connection: close',
+		],
+	],
+]);
+$reader = Reader::createFromFileObject('http://domain/path/to/file.csv', 'r', $context);
+~~~
+
+<p class="message-warning"> The <code>Url</code> <strong>MAY</strong> be non-seekable because the stream is copied to another one seekable, so you can use HTTP.</p>
