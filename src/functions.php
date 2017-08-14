@@ -78,11 +78,11 @@ function delimiter_detect(Reader $csv, array $delimiters, int $limit = 1): array
 
 if (!function_exists('\is_iterable')) {
     /**
-     * Tell whether the contents of the variable is iterable
+     * Tell whether the content of the variable is iterable
      *
      * @see http://php.net/manual/en/function.is-iterable.php
      *
-     * @param array|Traversable $iterable
+     * @param mixed $iterable
      *
      * @return bool
      */
@@ -90,4 +90,18 @@ if (!function_exists('\is_iterable')) {
     {
         return is_array($iterable) || $iterable instanceof Traversable;
     }
+}
+
+/**
+ * Tell whether the content of the variable is an int or null
+ *
+ * @see https://wiki.php.net/rfc/nullable_types
+ *
+ * @param mixed $value
+ *
+ * @return bool
+ */
+function is_nullable_int($value): bool
+{
+    return null === $value || is_int($value);
 }

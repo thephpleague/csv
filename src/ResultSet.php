@@ -169,10 +169,7 @@ class ResultSet implements Countable, IteratorAggregate, JsonSerializable
      */
     protected function getColumnIndex($field, string $error_message)
     {
-        $method = 'getColumnIndexByKey';
-        if (is_string($field)) {
-            $method = 'getColumnIndexByValue';
-        }
+        $method = is_string($field) ? 'getColumnIndexByValue' : 'getColumnIndexByKey';
 
         return $this->$method($field, $error_message);
     }

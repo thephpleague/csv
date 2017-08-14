@@ -21,6 +21,7 @@ use Iterator;
 use IteratorAggregate;
 use JsonSerializable;
 use SplFileObject;
+use TypeError;
 
 /**
  * A class to manage records selection from a CSV document
@@ -308,11 +309,20 @@ class Reader extends AbstractCsv implements Countable, IteratorAggregate, JsonSe
      */
     public function setHeaderOffset($offset): self
     {
-        $this->filterNullableInteger($offset, 0, __METHOD__.'() expects the header offset index to be a positive integer or 0');
-        if ($offset !== $this->header_offset) {
-            $this->header_offset = $offset;
-            $this->resetProperties();
+        if ($offset === $this->header_offset) {
+            return $this;
         }
+
+        if (!is_nullable_int($offset)) {
+            throw new TypeError(sprintf(__METHOD__.'() expects 1 Argument to be null or an integer %s given', gettype($offset)));
+        }
+
+        if (null !== $offset && 0 > $offset) {
+            throw new Exception(__METHOD__.'() expects 1 Argument to be greater or equal to 0');
+        }
+
+        $this->header_offset = $offset;
+        $this->resetProperties();
 
         return $this;
     }

@@ -37,7 +37,6 @@ class WriterTest extends TestCase
     /**
      * @covers ::getFlushThreshold
      * @covers ::setFlushThreshold
-     * @covers ::filterNullableInteger
      */
     public function testflushThreshold()
     {
@@ -50,7 +49,7 @@ class WriterTest extends TestCase
 
     /**
      * @covers ::setFlushThreshold
-     * @covers ::filterNullableInteger
+     * @covers \League\Csv\is_nullable_int
      */
     public function testflushThresholdThrowsTypeError()
     {

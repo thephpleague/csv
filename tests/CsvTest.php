@@ -194,13 +194,13 @@ EOF;
     /**
      * @covers ::getDelimiter
      * @covers ::setDelimiter
-     * @covers ::filterControl
      */
     public function testDelimeter()
     {
         $this->expectException(Exception::class);
         $this->csv->setDelimiter('o');
         $this->assertSame('o', $this->csv->getDelimiter());
+        $this->assertSame($this->csv, $this->csv->setDelimiter('o'));
         $this->csv->setDelimiter('foo');
     }
 
@@ -251,6 +251,7 @@ EOF;
         $this->expectException(Exception::class);
         $this->csv->setEscape('o');
         $this->assertSame('o', $this->csv->getEscape());
+        $this->assertSame($this->csv, $this->csv->setEscape('o'));
 
         $this->csv->setEscape('foo');
     }
@@ -264,6 +265,7 @@ EOF;
         $this->expectException(Exception::class);
         $this->csv->setEnclosure('o');
         $this->assertSame('o', $this->csv->getEnclosure());
+        $this->assertSame($this->csv, $this->csv->setEnclosure('o'));
 
         $this->csv->setEnclosure('foo');
     }

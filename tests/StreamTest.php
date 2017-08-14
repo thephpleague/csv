@@ -88,6 +88,8 @@ class StreamTest extends TestCase
 
     /**
      * @covers ::fputcsv
+     * @covers ::filterControl
+     *
      * @dataProvider fputcsvProvider
      *
      * @param string $delimiter
@@ -139,5 +141,21 @@ class StreamTest extends TestCase
         $doc->setFlags(SplFileObject::READ_CSV);
         $doc->seek(1);
         $this->assertSame(['Aaron', '55', 'M', '2004'], $doc->current());
+    }
+
+    /**
+     * @covers ::setCsvControl
+     * @covers ::getCsvControl
+     * @covers ::filterControl
+     */
+    public function testCsvControl()
+    {
+        $doc = Stream::createFromString('foo,bar');
+        $this->assertSame([',', '"', '\\'], $doc->getCsvControl());
+        $expected = [';', '|', '"'];
+        $doc->setCsvControl(...$expected);
+        $this->assertSame($expected, $doc->getCsvControl());
+        $this->expectException(Exception::class);
+        $doc->setCsvControl(...['foo']);
     }
 }

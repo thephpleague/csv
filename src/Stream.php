@@ -30,8 +30,6 @@ use TypeError;
  */
 class Stream implements SeekableIterator
 {
-    use ValidatorTrait;
-
     /**
      * Attached filters
      *
@@ -238,9 +236,36 @@ class Stream implements SeekableIterator
      */
     public function setCsvControl(string $delimiter = ',', string $enclosure = '"', string $escape = '\\')
     {
-        $this->delimiter = $this->filterControl($delimiter, 'delimiter', __METHOD__);
-        $this->enclosure = $this->filterControl($enclosure, 'enclosure', __METHOD__);
-        $this->escape = $this->filterControl($escape, 'escape', __METHOD__);
+        list($this->delimiter, $this->enclosure, $this->escape) = $this->filterControl($delimiter, $enclosure, $escape, __METHOD__);
+    }
+
+    /**
+     * Filter Csv control characters
+     *
+     * @param string $delimiter CSV delimiter character
+     * @param string $enclosure CSV enclosure character
+     * @param string $escape    CSV escape character
+     * @param string $caller    public API method calling the method
+     *
+     * @throws Exception If the Csv control character is not one character only.
+     *
+     * @return array
+     */
+    protected function filterControl(string $delimiter, string $enclosure, string $escape, string $caller): array
+    {
+        if (1 !== strlen($delimiter)) {
+            throw new Exception(sprintf('%s() expects delimiter to be a single character', $caller));
+        }
+
+        if (1 !== strlen($enclosure)) {
+            throw new Exception(sprintf('%s() expects enclosure to be a single character', $caller));
+        }
+
+        if (1 !== strlen($escape)) {
+            throw new Exception(sprintf('%s() expects escape to be a single character', $caller));
+        }
+
+        return [$delimiter, $enclosure, $escape];
     }
 
     /**
@@ -281,13 +306,9 @@ class Stream implements SeekableIterator
      */
     public function fputcsv(array $fields, string $delimiter = ',', string $enclosure = '"', string $escape = '\\')
     {
-        return fputcsv(
-            $this->stream,
-            $fields,
-            $this->filterControl($delimiter, 'delimiter', __METHOD__),
-            $this->filterControl($enclosure, 'enclosure', __METHOD__),
-            $this->filterControl($escape, 'escape', __METHOD__)
-        );
+        $controls =  $this->filterControl($delimiter, $enclosure, $escape, __METHOD__);
+
+        return fputcsv($this->stream, $fields, ...$controls);
     }
 
     /**

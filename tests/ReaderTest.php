@@ -298,8 +298,8 @@ class ReaderTest extends TestCase
     }
 
     /**
-     * @covers ::setHeader
-     * @covers ::filterNullableInteger
+     * @covers ::setHeaderOffset
+     * @covers \League\Csv\is_nullable_int
      */
     public function testSetHeaderThrowsExceptionOnWrongInput()
     {
@@ -308,8 +308,7 @@ class ReaderTest extends TestCase
     }
 
     /**
-     * @covers ::setHeader
-     * @covers ::filterNullableInteger
+     * @covers ::setHeaderOffset
      */
     public function testSetHeaderThrowsExceptionOnWrongInputRange()
     {

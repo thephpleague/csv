@@ -21,7 +21,7 @@ All Notable changes to `Csv` will be documented in this file
     - `League\Csv\HTMLConverter` converts CSV records into HTML table.
 - Improved Exception handling
     - `League\Csv\Exception` the default exception
-    - `League\Csv\Exception\CannotInsertRecord`
+    - `League\Csv\CannotInsertRecord`
 - Improved CSV document output
     - `League\Csv\AbstractCsv::chunk` method to output the CSV document in chunk
     - `League\Csv\bom_match` function to detect BOM sequence in a given string
@@ -32,7 +32,7 @@ All Notable changes to `Csv` will be documented in this file
     - `League\Csv\Writer::setFlushThreshold`
     - `League\Csv\Writer::getFlushThreshold`
 - Improve RFC4180 compliance
-    - `League\Csv\RFC4180FieldFormatter` to format field according to RFC4180 rules
+    - `League\Csv\RFC4180Field` to format field according to RFC4180 rules
 
 ### Deprecated
 
