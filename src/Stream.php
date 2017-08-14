@@ -30,8 +30,6 @@ use TypeError;
  */
 class Stream implements SeekableIterator
 {
-    use ValidatorTrait;
-
     /**
      * Attached filters
      *
@@ -241,6 +239,26 @@ class Stream implements SeekableIterator
         $this->delimiter = $this->filterControl($delimiter, 'delimiter', __METHOD__);
         $this->enclosure = $this->filterControl($enclosure, 'enclosure', __METHOD__);
         $this->escape = $this->filterControl($escape, 'escape', __METHOD__);
+    }
+
+    /**
+     * Filter Csv control character
+     *
+     * @param string $char   Csv control character
+     * @param string $type   Csv control character type
+     * @param string $caller public API method calling the method
+     *
+     * @throws Exception If the Csv control character is not one character only.
+     *
+     * @return string
+     */
+    protected function filterControl(string $char, string $type, string $caller): string
+    {
+        if (1 == strlen($char)) {
+            return $char;
+        }
+
+        throw new Exception(sprintf('%s() expects %s to be a single character %s given', $caller, $type, $char));
     }
 
     /**

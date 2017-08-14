@@ -298,7 +298,7 @@ class ReaderTest extends TestCase
     }
 
     /**
-     * @covers ::setHeader
+     * @covers ::setHeaderOffset
      * @covers ::filterNullableInteger
      */
     public function testSetHeaderThrowsExceptionOnWrongInput()
@@ -308,7 +308,7 @@ class ReaderTest extends TestCase
     }
 
     /**
-     * @covers ::setHeader
+     * @covers ::setHeaderOffset
      * @covers ::filterNullableInteger
      */
     public function testSetHeaderThrowsExceptionOnWrongInputRange()

@@ -325,16 +325,24 @@ abstract class AbstractCsv implements ByteSequence
      *
      * @param string $delimiter
      *
+     * @throws Exception If the Csv control character is not one character only.
+     *
      * @return static
      */
     public function setDelimiter(string $delimiter): self
     {
-        if ($delimiter != $this->delimiter) {
-            $this->delimiter = $this->filterControl($delimiter, 'delimiter', __METHOD__);
-            $this->resetProperties();
+        if ($delimiter === $this->delimiter) {
+            return $this;
         }
 
-        return $this;
+        if (1 === strlen($delimiter)) {
+            $this->delimiter = $delimiter;
+            $this->resetProperties();
+
+            return $this;
+        }
+
+        throw new Exception(sprintf('%s() expects delimiter to be a single character %s given', __METHOD__, $delimiter));
     }
 
     /**
@@ -349,16 +357,24 @@ abstract class AbstractCsv implements ByteSequence
      *
      * @param string $enclosure
      *
+     * @throws Exception If the Csv control character is not one character only.
+     *
      * @return static
      */
     public function setEnclosure(string $enclosure): self
     {
-        if ($enclosure != $this->enclosure) {
-            $this->enclosure = $this->filterControl($enclosure, 'enclosure', __METHOD__);
-            $this->resetProperties();
+        if ($enclosure === $this->enclosure) {
+            return $this;
         }
 
-        return $this;
+        if (1 === strlen($enclosure)) {
+            $this->enclosure = $enclosure;
+            $this->resetProperties();
+
+            return $this;
+        }
+
+        throw new Exception(sprintf('%s() expects enclosure to be a single character %s given', __METHOD__, $enclosure));
     }
 
     /**
@@ -366,16 +382,24 @@ abstract class AbstractCsv implements ByteSequence
      *
      * @param string $escape
      *
+     * @throws Exception If the Csv control character is not one character only.
+     *
      * @return static
      */
     public function setEscape(string $escape): self
     {
-        if ($escape != $this->escape) {
-            $this->escape = $this->filterControl($escape, 'escape', __METHOD__);
-            $this->resetProperties();
+        if ($escape === $this->escape) {
+            return $this;
         }
 
-        return $this;
+        if (1 === strlen($escape)) {
+            $this->escape = $escape;
+            $this->resetProperties();
+
+            return $this;
+        }
+
+        throw new Exception(sprintf('%s() expects escape to be a single character %s given', __METHOD__, $escape));
     }
 
     /**

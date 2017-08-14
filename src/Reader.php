@@ -308,11 +308,17 @@ class Reader extends AbstractCsv implements Countable, IteratorAggregate, JsonSe
      */
     public function setHeaderOffset($offset): self
     {
-        $this->filterNullableInteger($offset, 0, __METHOD__.'() expects the header offset index to be a positive integer or 0');
-        if ($offset !== $this->header_offset) {
-            $this->header_offset = $offset;
-            $this->resetProperties();
+        if ($offset === $this->header_offset) {
+            return $this;
         }
+
+        $this->filterNullableInteger($offset);
+        if (null !== $offset && 0 > $offset) {
+            throw new Exception(__METHOD__.'() expects 1 Argument to be null or a valid integer greater or equal to 0');
+        }
+
+        $this->header_offset = $offset;
+        $this->resetProperties();
 
         return $this;
     }

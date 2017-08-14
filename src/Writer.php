@@ -241,16 +241,18 @@ class Writer extends AbstractCsv
      */
     public function setFlushThreshold($threshold): self
     {
-        $this->filterNullableInteger($threshold, 1, __METHOD__.'() expects 1 Argument to be null or a valid integer greater or equal to 1');
         if ($threshold === $this->flush_threshold) {
             return $this;
         }
 
-        $this->flush_threshold = $threshold;
-        if (0 < $this->flush_counter) {
-            $this->flush_counter = 0;
-            $this->document->fflush();
+        $this->filterNullableInteger($threshold);
+        if (null !== $threshold && 1 >= $threshold) {
+            throw new Exception(__METHOD__.'() expects 1 Argument to be null or a valid integer greater or equal to 1');
         }
+
+        $this->flush_threshold = $threshold;
+        $this->flush_counter = 0;
+        $this->document->fflush();
 
         return $this;
     }
