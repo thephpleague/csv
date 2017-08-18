@@ -364,14 +364,10 @@ abstract class AbstractCsv implements ByteSequence
             return $this;
         }
 
-        if (1 === strlen($enclosure)) {
-            $this->enclosure = $enclosure;
-            $this->resetProperties();
+        $this->enclosure = $enclosure;
+        $this->resetProperties();
 
-            return $this;
-        }
-
-        throw new Exception(sprintf('%s() expects enclosure to be a single character %s given', __METHOD__, $enclosure));
+        return $this;
     }
 
     /**
