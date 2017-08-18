@@ -354,9 +354,7 @@ abstract class AbstractCsv implements ByteSequence
      *
      * @param string $enclosure
      *
-     * @throws Exception If the Csv control character is not one character only.
-     *
-     * @return static
+     * @return AbstractCsv
      */
     public function setEnclosure(string $enclosure): self
     {
