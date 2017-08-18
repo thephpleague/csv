@@ -18,7 +18,7 @@ use DOMException;
 use Traversable;
 
 /**
- * A class to convert CSV records into an HTML Table string
+ * A class to convert tabular data into an HTML Table string
  *
  * @package League.csv
  * @since   9.0.0
@@ -60,7 +60,7 @@ class HTMLConverter
     /**
      * Convert an Record collection into a DOMDocument
      *
-     * @param array|Traversable $records the CSV records collection
+     * @param array|Traversable $records the tabular data collection
      *
      * @return string
      */

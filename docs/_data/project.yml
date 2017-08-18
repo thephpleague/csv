@@ -6,25 +6,24 @@ google_analytics_tracking_id: UA-46050814-6
 # Github repository
 repository: 'csv'
 releases:
-  next:
-    version: '9.0'
-    requires: 'PHP >= 7.0.10'
-    latest: 'TBD'
-    supported_until: 'TBD'
-    documentation_link: '/9.0/'
-  current:
-    version: '8.0'
-    requires: 'PHP >= 5.5.0'
-    latest: '8.2.1 - 2017-02-03'
-    supported_until: 'TBD'
-    documentation_link: '/8.0/'
-# Uncomment if needed
-#   previous:
-#    version: '8.0'
+#  next:
+#    version: '10.0'
 #    requires: 'PHP >= 5.5.0'
 #    latest: '8.2.1 - 2017-02-03'
 #    supported_until: 'TBD'
 #    documentation_link: '/8.0/'
+  current:
+    version: '9.0'
+    requires: 'PHP >= 7.0.10'
+    latest: '9.0.0 - 2017-08-18'
+    supported_until: 'TBD'
+    documentation_link: '/9.0/'
+  previous:
+    version: '8.0'
+    requires: 'PHP >= 5.5.0'
+    latest: '8.2.2 - 2017-07-12'
+    supported_until: '2018-02-18'
+    documentation_link: '/8.0/'
   legacy:
     version: '7.0'
     requires: 'PHP >= 5.4.0'

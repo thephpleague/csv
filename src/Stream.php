@@ -26,7 +26,6 @@ use TypeError;
  * @since    8.2.0
  * @author   Ignace Nyamagana Butera <nyamsprod@gmail.com>
  * @internal used internally to iterate over a stream resource
- *
  */
 class Stream implements SeekableIterator
 {
@@ -245,7 +244,7 @@ class Stream implements SeekableIterator
      * @param string $delimiter CSV delimiter character
      * @param string $enclosure CSV enclosure character
      * @param string $escape    CSV escape character
-     * @param string $caller    public API method calling the method
+     * @param string $caller    caller
      *
      * @throws Exception If the Csv control character is not one character only.
      *
@@ -253,19 +252,14 @@ class Stream implements SeekableIterator
      */
     protected function filterControl(string $delimiter, string $enclosure, string $escape, string $caller): array
     {
-        if (1 !== strlen($delimiter)) {
-            throw new Exception(sprintf('%s() expects delimiter to be a single character', $caller));
+        $controls = ['delimiter' => $delimiter, 'enclosure' => $enclosure, 'escape' => $escape];
+        foreach ($controls as $type => $control) {
+            if (1 !== strlen($control)) {
+                throw new Exception(sprintf('%s() expects %s to be a single character', $caller, $type));
+            }
         }
 
-        if (1 !== strlen($enclosure)) {
-            throw new Exception(sprintf('%s() expects enclosure to be a single character', $caller));
-        }
-
-        if (1 !== strlen($escape)) {
-            throw new Exception(sprintf('%s() expects escape to be a single character', $caller));
-        }
-
-        return [$delimiter, $enclosure, $escape];
+        return array_values($controls);
     }
 
     /**

@@ -20,7 +20,6 @@ namespace League\Csv;
  * @package League.csv
  * @since   9.0.0
  * @author  Ignace Nyamagana Butera <nyamsprod@gmail.com>
- *
  */
 class CannotInsertRecord extends Exception
 {

@@ -20,7 +20,7 @@ use Traversable;
 use TypeError;
 
 /**
- * A class to convert your CSV records collection charset
+ * A class to convert resource stream or tabular data content charset
  *
  * @package League.csv
  * @since   9.0.0

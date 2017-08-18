@@ -24,7 +24,6 @@ use Traversable;
  * @since    3.3.0
  * @author   Ignace Nyamagana Butera <nyamsprod@gmail.com>
  * @internal used internally to modify CSV content
- *
  */
 class MapIterator extends IteratorIterator
 {

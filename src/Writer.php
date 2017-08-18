@@ -18,12 +18,11 @@ use Traversable;
 use TypeError;
 
 /**
- * A class to manage records insertion into a CSV Document
+ * A class to insert records into a CSV Document
  *
  * @package League.csv
  * @since   4.0.0
  * @author  Ignace Nyamagana Butera <nyamsprod@gmail.com>
- *
  */
 class Writer extends AbstractCsv
 {
@@ -88,7 +87,7 @@ class Writer extends AbstractCsv
     }
 
     /**
-     * Adds multiple lines to the CSV document
+     * Adds multiple records to the CSV document
      *
      * a simple wrapper method around insertOne
      *
@@ -114,7 +113,7 @@ class Writer extends AbstractCsv
     }
 
     /**
-     * Adds a single line to a CSV document
+     * Adds a single record to a CSV document
      *
      * @param string[] $record an array
      *
@@ -135,7 +134,7 @@ class Writer extends AbstractCsv
     }
 
     /**
-     * Format the given record
+     * Format a record
      *
      * @param string[] $record
      * @param callable $formatter
@@ -190,7 +189,7 @@ class Writer extends AbstractCsv
     }
 
     /**
-     * add a formatter to the collection
+     * Adds a record formatter
      *
      * @param callable $formatter
      *
@@ -204,7 +203,7 @@ class Writer extends AbstractCsv
     }
 
     /**
-     * add a Validator to the collection
+     * Adds a record validator
      *
      * @param callable $validator
      * @param string   $validator_name the validator name
@@ -219,7 +218,7 @@ class Writer extends AbstractCsv
     }
 
     /**
-     * Sets the newline sequence characters
+     * Sets the newline sequence
      *
      * @param string $newline
      *
@@ -233,9 +232,11 @@ class Writer extends AbstractCsv
     }
 
     /**
-     * Set the automatic flush threshold on write
+     * Set the flush threshold
      *
      * @param int|null $threshold
+     *
+     * @throws Exception if the threshold is a integer lesser than 1
      *
      * @return static
      */

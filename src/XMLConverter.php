@@ -22,7 +22,7 @@ use Traversable;
 use TypeError;
 
 /**
- * A class to convert CSV records into a DOMDOcument object
+ * A class to convert tabular data into a DOMDOcument object
  *
  * @package League.csv
  * @since   9.0.0

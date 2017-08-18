@@ -20,12 +20,11 @@ use Iterator;
 use LimitIterator;
 
 /**
- * A trait to manage filtering a CSV
+ * A Prepared statement to be executed on a {@link Reader} object
  *
  * @package League.csv
  * @since   9.0.0
  * @author  Ignace Nyamagana Butera <nyamsprod@gmail.com>
- *
  */
 class Statement
 {
@@ -138,7 +137,7 @@ class Statement
     }
 
     /**
-     * Returns the inner CSV Document Iterator object
+     * Execute the prepared Statement on the {@link Reader} object
      *
      * @param Reader   $csv
      * @param string[] $header an optional header to use instead of the CSV document header
@@ -151,15 +150,23 @@ class Statement
             $header = $csv->getHeader();
         }
 
-        $reducer = function (Iterator $iterator, callable $callable): Iterator {
-            return new CallbackFilterIterator($iterator, $callable);
-        };
-
-        $iterator = array_reduce($this->where, $reducer, $csv->getRecords($header));
+        $iterator = array_reduce($this->where, [$this, 'filter'], $csv->getRecords($header));
         $iterator = $this->buildOrderBy($iterator);
-        $iterator = new LimitIterator($iterator, $this->offset, $this->limit);
 
-        return new ResultSet($iterator, $header);
+        return new ResultSet(new LimitIterator($iterator, $this->offset, $this->limit), $header);
+    }
+
+    /**
+     * Filters elements of an Iterator using a callback function
+     *
+     * @param Iterator $iterator
+     * @param callable $callable
+     *
+     * @return CallbackFilterIterator
+     */
+    protected function filter(Iterator $iterator, callable $callable): CallbackFilterIterator
+    {
+        return new CallbackFilterIterator($iterator, $callable);
     }
 
     /**

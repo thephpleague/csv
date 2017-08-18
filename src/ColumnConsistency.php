@@ -15,12 +15,11 @@ declare(strict_types=1);
 namespace League\Csv;
 
 /**
- * A class to manage column consistency on data insertion into a CSV
+ * A class to validate column consistency when inserting records into a CSV document
  *
  * @package League.csv
  * @since   7.0.0
  * @author  Ignace Nyamagana Butera <nyamsprod@gmail.com>
- *
  */
 class ColumnConsistency
 {

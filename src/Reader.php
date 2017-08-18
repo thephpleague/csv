@@ -24,7 +24,7 @@ use SplFileObject;
 use TypeError;
 
 /**
- * A class to manage records selection from a CSV document
+ * A class to select records from a CSV document
  *
  * @package League.csv
  * @since  3.0.0
@@ -36,21 +36,21 @@ use TypeError;
 class Reader extends AbstractCsv implements Countable, IteratorAggregate, JsonSerializable
 {
     /**
-     * CSV Document header offset
+     * header offset
      *
      * @var int|null
      */
     protected $header_offset;
 
     /**
-     * CSV Document Header record
+     * header record
      *
      * @var string[]
      */
     protected $header = [];
 
     /**
-     * Records count
+     * records count
      *
      * @var int
      */
@@ -62,9 +62,9 @@ class Reader extends AbstractCsv implements Countable, IteratorAggregate, JsonSe
     protected $stream_filter_mode = STREAM_FILTER_READ;
 
     /**
-     * Returns the record offset used as header
+     * Returns the header offset
      *
-     * If no CSV record is used this method MUST return null
+     * If no CSV header offset is set this method MUST return null
      *
      * @return int|null
      */
@@ -74,7 +74,7 @@ class Reader extends AbstractCsv implements Countable, IteratorAggregate, JsonSe
     }
 
     /**
-     * Returns the CSV record header
+     * Returns the CSV record used as header
      *
      * The returned header is represented as an array of string values
      *
@@ -100,8 +100,7 @@ class Reader extends AbstractCsv implements Countable, IteratorAggregate, JsonSe
      *
      * @param int $offset
      *
-     * @throws Exception If the header offset is an integer and the corresponding record is missing
-     *                   or is an empty array
+     * @throws Exception If the header offset is set and no record is found or is the empty array
      *
      * @return string[]
      */
@@ -151,7 +150,7 @@ class Reader extends AbstractCsv implements Countable, IteratorAggregate, JsonSe
      */
     public function __call($method, array $arguments)
     {
-        $whitelisted = ['fetchColumn' => 1, 'fetchOne' => 1, 'fetchPairs' => 1];
+        static $whitelisted = ['fetchColumn' => 1, 'fetchOne' => 1, 'fetchPairs' => 1];
         if (isset($whitelisted[$method])) {
             return (new ResultSet($this->getRecords(), $this->getHeader()))->$method(...$arguments);
         }
@@ -188,12 +187,12 @@ class Reader extends AbstractCsv implements Countable, IteratorAggregate, JsonSe
     }
 
     /**
-     * Returns the CSV records in an iterator object.
+     * Returns the CSV records as an iterator object.
      *
-     * Each CSV record is represented as a simple array of string or null values.
+     * Each CSV record is represented as a simple array containig strings or null values.
      *
      * If the CSV document has a header record then each record is combined
-     * to each header record and the header record is removed from the iterator.
+     * to the header record and the header record is removed from the iterator.
      *
      * If the CSV document is inconsistent. Missing record fields are
      * filled with null values while extra record fields are strip from
@@ -246,7 +245,7 @@ class Reader extends AbstractCsv implements Countable, IteratorAggregate, JsonSe
     }
 
     /**
-     * Add the CSV header if present and valid
+     * Combine the CSV header to each record if present
      *
      * @param Iterator $iterator
      * @param string[] $header
@@ -272,7 +271,7 @@ class Reader extends AbstractCsv implements Countable, IteratorAggregate, JsonSe
     }
 
     /**
-     * Strip the BOM sequence if present
+     * Strip the BOM sequence from the returned records if necessary
      *
      * @param Iterator $iterator
      * @param string   $bom
@@ -300,10 +299,12 @@ class Reader extends AbstractCsv implements Countable, IteratorAggregate, JsonSe
     /**
      * Selects the record to be used as the CSV header
      *
-     * Because of the header is represented as an array, to be valid
+     * Because the header is represented as an array, to be valid
      * a header MUST contain only unique string value.
      *
      * @param int|null $offset the header record offset
+     *
+     * @throws Exception if the offset is a negative integer
      *
      * @return static
      */

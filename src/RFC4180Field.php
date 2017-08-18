@@ -19,6 +19,8 @@ use php_user_filter;
 /**
  * A stream filter to conform the CSV field to RFC4180
  *
+ * @see https://tools.ietf.org/html/rfc4180#section-2
+ *
  * @package League.csv
  * @since   9.0.0
  * @author  Ignace Nyamagana Butera <nyamsprod@gmail.com>

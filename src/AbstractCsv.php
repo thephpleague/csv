@@ -24,7 +24,6 @@ use function League\Csv\bom_match;
  * @package League.csv
  * @since   4.0.0
  * @author  Ignace Nyamagana Butera <nyamsprod@gmail.com>
- *
  */
 abstract class AbstractCsv implements ByteSequence
 {

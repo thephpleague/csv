@@ -42,15 +42,15 @@ function bom_match(string $str): string
 }
 
 /**
- * Detect Delimiters usage in a CSV object
+ * Detect Delimiters usage in a {@link Reader} object
  *
  * Returns a associative array where each key represents
  * a submitted delimiter and each value the number CSV fields found
  * when processing at most $limit CSV records with the given delimiter
  *
  * @param Reader   $csv        the CSV object
- * @param string[] $delimiters the delimiters to consider
- * @param int      $limit      Detection is made using up to $limit CSV records
+ * @param string[] $delimiters list of delimiters to consider
+ * @param int      $limit      Detection is made using up to $limit records
  *
  * @return int[]
  */

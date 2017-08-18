@@ -28,7 +28,6 @@ use LimitIterator;
  * @package League.csv
  * @since   9.0.0
  * @author  Ignace Nyamagana Butera <nyamsprod@gmail.com>
- *
  */
 class ResultSet implements Countable, IteratorAggregate, JsonSerializable
 {
@@ -40,7 +39,7 @@ class ResultSet implements Countable, IteratorAggregate, JsonSerializable
     protected $records;
 
     /**
-     * The CSV records collection column names
+     * The CSV records collection header
      *
      * @var array
      */
@@ -67,7 +66,7 @@ class ResultSet implements Countable, IteratorAggregate, JsonSerializable
     }
 
     /**
-     * Returns the column names associated with the ResultSet
+     * Returns the header associated with the result set
      *
      * @return string[]
      */
@@ -111,7 +110,7 @@ class ResultSet implements Countable, IteratorAggregate, JsonSerializable
     }
 
     /**
-     * Returns a the nth record from the resultset
+     * Returns the nth record from the result set
      *
      * By default if no index is provided the first record of the resultet is returned
      *
@@ -134,9 +133,9 @@ class ResultSet implements Countable, IteratorAggregate, JsonSerializable
     }
 
     /**
-     * Returns the next value from a single CSV record field
+     * Returns a single column from the next record of the result set
      *
-     * By default if no column index is provided the first column of the CSV is selected
+     * By default if no value is supplied the first column is fetch
      *
      * @param string|int $index CSV column index
      *
@@ -160,7 +159,7 @@ class ResultSet implements Countable, IteratorAggregate, JsonSerializable
     }
 
     /**
-     * Filter a column name against the CSV header if any
+     * Filter a column name against the header if any
      *
      * @param string|int $field         the field name or the field index
      * @param string     $error_message the associated error message
@@ -222,12 +221,12 @@ class ResultSet implements Countable, IteratorAggregate, JsonSerializable
     }
 
     /**
-     * Fetches the next key-value pairs from a result set (first
+     * Returns the next key-value pairs from a result set (first
      * column is the key, second column is the value).
      *
      * By default if no column index is provided:
-     * - the first CSV column is used to provide the keys
-     * - the second CSV column is used to provide the value
+     * - the first column is used to provide the keys
+     * - the second column is used to provide the value
      *
      * @param string|int $offset_index The column index to serve as offset
      * @param string|int $value_index  The column index to serve as value
