@@ -4,7 +4,7 @@
 *
 * @license http://opensource.org/licenses/MIT
 * @link https://github.com/thephpleague/csv/
-* @version 9.0.0
+* @version 9.0.1
 * @package League.csv
 *
 * For the full copyright and license information, please view the LICENSE
@@ -125,7 +125,7 @@ class Writer extends AbstractCsv
     {
         $record = array_reduce($this->formatters, [$this, 'formatRecord'], $record);
         $this->validateRecord($record);
-        $bytes = $this->document->fputcsv($record, ...$this->document->getCsvControl());
+        $bytes = $this->document->fputcsv($record, $this->delimiter, $this->enclosure, $this->escape);
         if (!$bytes) {
             throw CannotInsertRecord::triggerOnInsertion($record);
         }

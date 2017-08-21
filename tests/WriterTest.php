@@ -152,6 +152,7 @@ class WriterTest extends TestCase
     {
         $fp = fopen('php://temp', 'r+');
         $csv = Writer::createFromStream($fp);
+        $csv->setDelimiter('|');
 
         $expected = [
             ['john', 'doe', 'john.doe@example.com'],
@@ -162,7 +163,7 @@ class WriterTest extends TestCase
             $csv->insertOne($row);
         }
 
-        $expected = "john,doe,john.doe@example.com\njane,doe,jane.doe@example.com\n";
+        $expected = "john|doe|john.doe@example.com\njane|doe|jane.doe@example.com\n";
         $this->assertSame($expected, $csv->__toString());
         $csv = null;
         fclose($fp);

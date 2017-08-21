@@ -2,6 +2,24 @@
 
 All Notable changes to `Csv` will be documented in this file
 
+## 9.0.1 - 2017-08-21
+
+### Added
+
+- Nothing
+
+### Deprecated
+
+- Nothing
+
+### Fixed
+
+- CSV controls not applied when calling Writer::insertOne
+
+### Removed
+
+- Nothing
+
 ## 9.0.0 - 2017-08-18
 
 ### Added
