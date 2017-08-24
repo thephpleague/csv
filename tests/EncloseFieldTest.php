@@ -2,16 +2,16 @@
 
 namespace LeagueTest\Csv;
 
-use League\Csv\Enclosure;
+use League\Csv\EncloseField;
 use League\Csv\Writer;
-use LengthException;
+use OutOfRangeException;
 use PHPUnit\Framework\TestCase;
 
 /**
  * @group filter
- * @coversDefaultClass League\Csv\Enclosure
+ * @coversDefaultClass League\Csv\EncloseField
  */
-class EnclosureTest extends TestCase
+class EncloseFieldTest extends TestCase
 {
     /**
      * @see https://en.wikipedia.org/wiki/Comma-separated_values#Example
@@ -30,9 +30,8 @@ class EnclosureTest extends TestCase
     /**
      * @covers ::addTo
      * @covers ::register
-     * @covers ::controls
      * @covers ::sequence
-     * @covers ::filterParams
+     * @covers ::isValidSequence
      * @covers ::forceEnclosure
      * @covers ::onCreate
      * @covers ::filter
@@ -42,39 +41,20 @@ class EnclosureTest extends TestCase
     {
         $csv = Writer::createFromString('');
         $csv->setDelimiter('|');
-        Enclosure::addTo($csv, Enclosure::ENCLOSE_ALL, "\t\x1f");
+        EncloseField::addTo($csv, "\t\x1f");
         $csv->insertAll($this->records);
         $this->assertContains('"Grand Cherokee"', (string) $csv);
     }
 
     /**
-     * @covers ::addTo
-     * @covers ::register
-     * @covers ::controls
-     * @covers ::sequence
-     * @covers ::filterParams
-     * @covers ::escapeWhiteSpace
      * @covers ::onCreate
-     * @covers ::filter
-     * @covers ::__invoke
-     */
-    public function testEncloseNone()
-    {
-        $csv = Writer::createFromString('');
-        Enclosure::addTo($csv, Enclosure::ENCLOSE_NONE, "\0");
-        $csv->insertAll($this->records);
-        $this->assertContains('Grand Cherokee', (string) $csv);
-    }
-
-    /**
-     * @covers ::onCreate
-     * @covers ::filterParams
+     * @covers ::isValidSequence
      * @dataProvider wrongParamProvider
      * @param array $params
      */
     public function testOnCreateFailedWithWrongParams(array $params)
     {
-        $filter = new Enclosure();
+        $filter = new EncloseField();
         $filter->params = $params;
         $this->assertFalse($filter->onCreate());
     }
@@ -84,27 +64,23 @@ class EnclosureTest extends TestCase
         return [
             'empty array' => [[
             ]],
-            'wrong type' => [[
-                'type' => 'foo',
-                'sequence' => "\0",
-            ]],
-            'wrong sequence (1)' => [[
-                'type' => Enclosure::ENCLOSE_NONE,
-                'sequence' => "\t",
-            ]],
             'wrong sequence (2)' => [[
-                'type' => Enclosure::ENCLOSE_ALL,
                 'sequence' => ';',
             ]],
             'missing parameters' => [[
-                'type' => Enclosure::ENCLOSE_NONE,
+                'foo' => 'bar',
             ]],
         ];
     }
 
-    public function testSettingControlsFailedWithWrongParams()
+    /**
+     * @covers ::sequence
+     */
+    public function testEncloseFieldImmutability()
     {
-        $this->expectException(LengthException::class);
-        (new Enclosure())->controls(',', 'foo', '\\');
+        $this->expectException(OutOfRangeException::class);
+        $filter = (new EncloseField())->sequence("\r\t");
+        $this->assertSame($filter, $filter->sequence("\r\t"));
+        $filter->sequence('foo');
     }
 }
