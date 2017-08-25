@@ -155,7 +155,7 @@ $csv->insertAll($stmt);
 //see Symfony documentation for more information
 $flush_threshold = 1000; //the flush value should depend on your CSV size.
 $content_callback = function () use ($csv, $flush_threshold) {
-    foreach ($reader->chunk(1024) as $offset => $chunk) {
+    foreach ($csv->chunk(1024) as $offset => $chunk) {
         echo $chunk;
         if ($offset % $flush_threshold === 0) {
             flush();
