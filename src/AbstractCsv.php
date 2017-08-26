@@ -292,7 +292,7 @@ abstract class AbstractCsv implements JsonSerializable, IteratorAggregate
             yield $chunk;
         }
 
-        while (!$document->eof()) {
+        while ($document->valid()) {
             yield $document->fread($length);
         }
     }
