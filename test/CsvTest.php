@@ -108,4 +108,25 @@ class CsvTest extends PHPUnit_Framework_TestCase
         $expected = "john,doe,john.doe@example.com\njane,doe,jane.doe@example.com\n";
         $this->assertSame($expected, $this->csv->__toString());
     }
+
+    /**
+     * @expectedException InvalidArgumentException
+     */
+    public function testChunkTriggersException()
+    {
+        $chunk = $this->csv->chunk(0);
+        iterator_to_array($chunk);
+    }
+
+    public function testChunk()
+    {
+        $raw_csv = Reader::BOM_UTF8."john,doe,john.doe@example.com\njane,doe,jane.doe@example.com\n";
+        $csv = Reader::createFromString($raw_csv)->setOutputBOM(Reader::BOM_UTF32_BE);
+        $expected = Reader::BOM_UTF32_BE."john,doe,john.doe@example.com\njane,doe,jane.doe@example.com\n";
+        $res = '';
+        foreach ($csv->chunk(8192) as $chunk) {
+            $res .= $chunk;
+        }
+        $this->assertSame($expected, $res);
+    }
 }

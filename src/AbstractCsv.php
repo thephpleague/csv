@@ -270,4 +270,30 @@ abstract class AbstractCsv implements JsonSerializable, IteratorAggregate
 
         return new SplFileObject($this->getStreamFilterPath(), $this->open_mode);
     }
+
+    /**
+     * Returns the CSV document as a Generator of string chunk
+     *
+     * @param int $length number of bytes read
+     *
+     * @return Generator
+     */
+    public function chunk($length)
+    {
+        if ($length < 1) {
+            throw new InvalidArgumentException(sprintf('%s() expects the length to be a positive integer %d given', __METHOD__, $length));
+        }
+
+        $document = $this->getIterator();
+        $input_bom = $this->getInputBOM();
+        $document->rewind();
+        $document->fseek(strlen($input_bom));
+        foreach (str_split($this->output_bom.$document->fread($length), $length) as $chunk) {
+            yield $chunk;
+        }
+
+        while ($document->valid()) {
+            yield $document->fread($length);
+        }
+    }
 }
