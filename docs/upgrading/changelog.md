@@ -9,6 +9,6 @@ redirect_from: /changelog/
 All Notable changes to `Csv` will be documented in this file
 
 {% for release in site.github.releases %}
-## {{ release.name }}
+## {{ release.name }} - {{ release.published_at | date: "%Y-%m-%d" }}
 {{ release.body | replace:'```':'~~~' | markdownify }}
 {% endfor %}

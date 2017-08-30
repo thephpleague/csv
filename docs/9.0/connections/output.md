@@ -75,7 +75,7 @@ die;
 
 use League\Csv\Reader;
 
-$reader = Reader::createFromPath('/path/to/my/file.csv');
+$reader = Reader::createFromPath('file.csv');
 $reader->output("name-for-your-file.csv");
 die;
 ~~~

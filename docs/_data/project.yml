@@ -8,14 +8,14 @@ repository: 'csv'
 releases:
 #  next:
 #    version: '10.0'
-#    requires: 'PHP >= 5.5.0'
-#    latest: '8.2.1 - 2017-02-03'
+#    requires: 'PHP >= 7.3.0'
+#    latest: '10.0.0 - 2020-02-29'
 #    supported_until: 'TBD'
-#    documentation_link: '/8.0/'
+#    documentation_link: '/10.0/'
   current:
     version: '9.0'
     requires: 'PHP >= 7.0.10'
-    latest: '9.0.0 - 2017-08-18'
+    latest: '9.0.1 - 2017-08-21'
     supported_until: 'TBD'
     documentation_link: '/9.0/'
   previous:

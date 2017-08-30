@@ -120,15 +120,27 @@ EOF;
     /**
      * @runInSeparateProcess
      * @covers ::output
+     * @covers ::sendHeaders
      */
     public function testOutputSize()
     {
-        $this->assertSame(60, $this->csv->output(__DIR__.'/data/test.csv'));
+        $this->assertSame(60, $this->csv->output('test.csv'));
+    }
+
+    /**
+     * @covers ::output
+     * @covers ::sendHeaders
+     */
+    public function testInvalidOutputFile()
+    {
+        $this->expectException(Exception::class);
+        $this->csv->output('invalid/file.csv');
     }
 
     /**
      * @runInSeparateProcess
      * @covers ::output
+     * @covers ::sendHeaders
      * @covers ::createFromString
      * @covers League\Csv\Stream
      */
@@ -140,15 +152,15 @@ EOF;
 
         $raw_csv = Reader::BOM_UTF8."john,doe,john.doe@example.com\njane,doe,jane.doe@example.com\n";
         $csv = Reader::createFromString($raw_csv);
-        $csv->output('test.csv');
+        $csv->output('tést.csv');
         $headers = \xdebug_get_headers();
 
         // Due to the variety of ways the xdebug expresses Content-Type of text files,
         // we cannot count on complete string matching.
         $this->assertContains('content-type: text/csv', strtolower($headers[0]));
-        $this->assertSame($headers[1], 'Content-Transfer-Encoding: binary');
-        $this->assertSame($headers[2], 'Content-Description: File Transfer');
-        $this->assertSame($headers[3], 'Content-Disposition: attachment; filename="test.csv"');
+        $this->assertSame('Content-Transfer-Encoding: binary', $headers[1]);
+        $this->assertSame('Content-Description: File Transfer', $headers[2]);
+        $this->assertContains('Content-Disposition: attachment; filename="tst.csv"; filename*=utf-8\'\'t%C3%A9st.csv; modification-date="', $headers[3]);
     }
 
     /**

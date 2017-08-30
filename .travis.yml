@@ -9,7 +9,7 @@ matrix:
     - php: 7.1
       env: COLLECT_COVERAGE=true VALIDATE_CODING_STYLE=true
     - php: master
-      env: COLLECT_COVERAGE=true VALIDATE_CODING_STYLE=false
+      env: COLLECT_COVERAGE=false VALIDATE_CODING_STYLE=false
   allow_failures:
     - php: master
   fast_finish: true
