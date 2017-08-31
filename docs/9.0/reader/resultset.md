@@ -98,7 +98,7 @@ count($records); //return the total number of records found
 public ResultSet::getRecords(void): Iterator
 ~~~
 
-To iterate over each found records you can call the `ResultSet::getRecords` method which returns a `Genarator` of all records found or directly use the `foreach` construct as the class implements the `IteratorAggregate` interface;
+To iterate over each found records you can call the `ResultSet::getRecords` method which returns a `Generator` of all records found or directly use the `foreach` construct as the class implements the `IteratorAggregate` interface;
 
 ~~~php
 <?php
