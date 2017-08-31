@@ -9,7 +9,7 @@ title: CSV document interoperability
 <?php
 class RFC4180Field extends php_user_filter
 {
-    public static function addTo(AbstractCsv $csv): AbstractCsv
+    public static function addTo(AbstractCsv $csv, string $whitespace_replace = ''): AbstractCsv
     public static function getFiltername(): string
     public static function register(): void
 }
@@ -20,6 +20,7 @@ The `RFC4180Field` class enables to work around the following bugs in PHP's nati
 - [bug #43225](https://bugs.php.net/bug.php?id=43225): `fputcsv` incorrectly handles cells ending in `\` followed by `"`
 - [bug #55413](https://bugs.php.net/bug.php?id=55413): `str_getcsv` doesn't remove escape characters
 - [bug #74713](https://bugs.php.net/bug.php?id=74713): CSV cell split after `fputcsv()` + `fgetcsv()` round trip.
+- [bug #38301](https://bugs.php.net/bug.php?id=38301): field enclosure behavior in fputcsv (since version 9.1)
 
 When using this stream filter you can easily create or read a [RFC4180 compliant CSV document](https://tools.ietf.org/html/rfc4180#section-2) using `League\Csv` connections objects.
 
@@ -32,7 +33,7 @@ When using this stream filter you can easily create or read a [RFC4180 compliant
 ~~~php
 <?php
 
-public static RFC4180Field::addTo(AbstractCsv $csv): AbstractCsv
+public static RFC4180Field::addTo(AbstractCsv $csv, string $whitespace_replace = ''): AbstractCsv
 ~~~
 
 The `RFC4180Field::addTo` method will register the stream filter if it is not already the case and add the stream filter to the CSV object using the following properties:
@@ -40,10 +41,6 @@ The `RFC4180Field::addTo` method will register the stream filter if it is not al
 - the CSV enclosure property;
 - the CSV escape property;
 - the CSV stream filter mode;
-
-### On records insertion
-
-<p class="message-info">To fully comply with <code>RFC4180</code> you will also need to use <code>League\Csv\Writer::setNewline</code> method.</p>
 
 ~~~php
 <?php
@@ -57,6 +54,37 @@ RFC4180Field::addTo($writer); //adding the stream filter to fix field formatting
 $writer->insertAll($iterable_data);
 $writer->output('mycsvfile.csv'); //outputting a RFC4180 compliant CSV Document
 ~~~
+
+<p class="message-notice">the <code>$whitespace_replace</code> argument is available since version 9.1</p>
+
+When the `$whitespace_replace` sequence is different from the empty space and does not contain:
+
+- one of the current CSV control character;
+- does not contain a character that can trigger field enclosure;
+
+its value will be used to:
+
+- To prevent `fputcsv` default behavior of always using enclosure when a whitespace is found in a record field
+
+<p class="message-warning">The <code>$whitespace_replace</code> sequence should be a sequence not present in the inserted records, otherwise your CSV content will be affected by it.</p>
+
+
+~~~php
+<?php
+
+use League\Csv\RFC4180Field;
+use League\Csv\Writer;
+
+$writer = Writer::createFromPath('php://temp');
+RFC4180Field::addTo($writer, 'fo'); // incorrect sequence this will alter your CSV
+$writer->insertOne(['foo bar', 'bar']);
+echo $writer; //display ' o bar,baz' instead of foo bar,baz
+~~~
+
+### On records insertion
+
+<p class="message-info">To fully comply with <code>RFC4180</code> you will also need to use <code>League\Csv\Writer::setNewline</code> method.</p>
+
 
 ### On records extraction
 

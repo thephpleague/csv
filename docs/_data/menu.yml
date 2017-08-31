@@ -21,6 +21,7 @@ version:
             Overview : '/9.0/interoperability/'
             Document Encoding : '/9.0/interoperability/encoding/'
             RFC4180 Field : '/9.0/interoperability/rfc4180-field/'
+            Force Enclosure : '/9.0/interoperability/enclose-field/'
         Converting Records:
             Overview: '/9.0/converter/'
             Charset Converter: '/9.0/converter/charset/'

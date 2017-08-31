@@ -6,7 +6,8 @@ All Notable changes to `Csv` will be documented in this file
 
 ### Added
 
-- Nothing
+- `League\Csv\EncloseField` to force enclosure insertion on every field
+- `League\Csv\RFC4180Field::addTo` accept an option `$replace_whitespace` argument to improve RFC4180 compliance.
 
 ### Deprecated
 

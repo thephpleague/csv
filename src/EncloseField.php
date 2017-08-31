@@ -4,7 +4,7 @@
 *
 * @license http://opensource.org/licenses/MIT
 * @link https://github.com/thephpleague/csv/
-* @version 9.0.1
+* @version 9.1.0
 * @package League.csv
 *
 * For the full copyright and license information, please view the LICENSE
@@ -14,7 +14,7 @@ declare(strict_types=1);
 
 namespace League\Csv;
 
-use OutOfRangeException;
+use InvalidArgumentException;
 use php_user_filter;
 
 /**
@@ -61,6 +61,16 @@ class EncloseField extends php_user_filter
     protected static $force_enclosure = "\n\r\t ";
 
     /**
+     * Static method to return the stream filter filtername
+     *
+     * @return string
+     */
+    public static function getFiltername(): string
+    {
+        return self::FILTERNAME;
+    }
+
+    /**
      * Static method to register the class as a stream filter
      */
     public static function register()
@@ -76,38 +86,30 @@ class EncloseField extends php_user_filter
      * @param Writer $csv
      * @param string $sequence
      *
+     * @throws InvalidArgumentException if the sequence is malformed
+     *
      * @return AbstractCsv
      */
     public static function addTo(Writer $csv, string $sequence): Writer
     {
         self::register();
 
+        if (!self::isValidSequence($sequence)) {
+            throw new InvalidArgumentException('The sequence must contain at least one character to force enclosure');
+        }
+
+        $formatter = function (array $record) use ($sequence) {
+            foreach ($record as &$value) {
+                $value = $sequence.$value;
+            }
+            unset($value);
+
+            return $record;
+        };
+
         return $csv
-            ->addFormatter((new self())->sequence($sequence))
+            ->addFormatter($formatter)
             ->addStreamFilter(self::FILTERNAME, ['sequence' => $sequence]);
-    }
-
-    /**
-     * Set the Sequence to be used to update enclosure usage
-     *
-     * @param string $sequence sequence used to work around fputcsv limitation
-     *
-     * @return self
-     */
-    public function sequence(string $sequence): self
-    {
-        if ($sequence === $this->sequence) {
-            return $this;
-        }
-
-        if (!$this->isValidSequence($sequence)) {
-            throw new OutOfRangeException('The sequence must contain at least one character to force enclosure');
-        }
-
-        $clone = clone $this;
-        $clone->sequence = $sequence;
-
-        return $clone;
     }
 
     /**
@@ -122,26 +124,6 @@ class EncloseField extends php_user_filter
     protected static function isValidSequence(string $sequence): bool
     {
         return strlen($sequence) != strcspn($sequence, self::$force_enclosure);
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function __invoke(array $record): array
-    {
-        return array_map([$this, 'forceEnclosure'], $record);
-    }
-
-    /**
-     * Format the record field to force the addition of the enclosure by fputcsv
-     *
-     * @param mixed $value
-     *
-     * @return string
-     */
-    protected function forceEnclosure($value)
-    {
-        return $this->sequence.$value;
     }
 
     /**

@@ -82,6 +82,10 @@ die;
 
 <p class="message-notice">If you just need to make the CSV downloadable, end your script with a call to <code>exit</code> just after the <code>output</code> method. You <strong>should not</strong> return the method returned value.</p>
 
+<p class="message-warning">starting with version <code>9.1.0</code>, the <code>output</code> method will throw an <code>Exception</code> if the provided <code>$filename</code> does not comply with <a href="https://tools.ietf.org/html/rfc6266#section-4">RFC6266</a></p>
+
+
+
 ## Outputting the document into chunks
 
 ~~~php

@@ -2,9 +2,9 @@
 
 namespace LeagueTest\Csv;
 
+use InvalidArgumentException;
 use League\Csv\EncloseField;
 use League\Csv\Writer;
-use OutOfRangeException;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -30,18 +30,17 @@ class EncloseFieldTest extends TestCase
     /**
      * @covers ::addTo
      * @covers ::register
-     * @covers ::sequence
+     * @covers ::getFiltername
      * @covers ::isValidSequence
-     * @covers ::forceEnclosure
      * @covers ::onCreate
      * @covers ::filter
-     * @covers ::__invoke
      */
     public function testEncloseAll()
     {
         $csv = Writer::createFromString('');
         $csv->setDelimiter('|');
         EncloseField::addTo($csv, "\t\x1f");
+        $this->assertContains(EncloseField::getFiltername(), stream_get_filters());
         $csv->insertAll($this->records);
         $this->assertContains('"Grand Cherokee"', (string) $csv);
     }
@@ -74,13 +73,13 @@ class EncloseFieldTest extends TestCase
     }
 
     /**
-     * @covers ::sequence
+     * @covers ::addTo
      */
     public function testEncloseFieldImmutability()
     {
-        $this->expectException(OutOfRangeException::class);
-        $filter = (new EncloseField())->sequence("\r\t");
-        $this->assertSame($filter, $filter->sequence("\r\t"));
-        $filter->sequence('foo');
+        $this->expectException(InvalidArgumentException::class);
+        $csv = Writer::createFromString('');
+        $csv->setDelimiter('|');
+        EncloseField::addTo($csv, 'foo');
     }
 }
