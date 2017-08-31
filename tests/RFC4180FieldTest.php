@@ -2,6 +2,7 @@
 
 namespace LeagueTest\Csv;
 
+use InvalidArgumentException;
 use League\Csv\Reader;
 use League\Csv\RFC4180Field;
 use League\Csv\Writer;
@@ -134,5 +135,50 @@ class RFC4180FieldTest extends TestCase
                 'escape' => '\\',
             ]],
         ];
+    }
+
+    /**
+     * @see https://en.wikipedia.org/wiki/Comma-separated_values#Example
+     *
+     * @var array
+     */
+    protected $records = [
+            ['Year', 'Make', 'Model', 'Description', 'Price'],
+            [1997, 'Ford', 'E350', 'ac,abs,moon', '3000.00'],
+            [1999, 'Chevy', 'Venture "Extended Edition"', null, '4900.00'],
+            [1999, 'Chevy', 'Venture "Extended Edition, Very Large"', null, '5000.00'],
+            [1996, 'Jeep', 'Grand Cherokee', 'MUST SELL!
+        air, moon roof, loaded', '4799.00'],
+    ];
+
+    /**
+     * @covers ::addTo
+     * @covers ::addFormatterTo
+     * @covers ::onCreate
+     * @covers ::isValidSequence
+     * @covers ::filter
+     */
+    public function testDoNotEncloseWhiteSpacedField()
+    {
+        $csv = Writer::createFromString('');
+        $csv->setDelimiter('|');
+        RFC4180Field::addTo($csv, "\0");
+        $csv->insertAll($this->records);
+        $contents = (string) $csv;
+        $this->assertContains('Grand Cherokee', $contents);
+        $this->assertNotContains('"Grand Cherokee"', $contents);
+    }
+
+
+    /**
+     * @covers ::addTo
+     * @covers ::addFormatterTo
+     * @covers ::onCreate
+     * @covers ::filter
+     */
+    public function testDoNotEncloseWhiteSpacedFieldThrowsException()
+    {
+        $this->expectException(InvalidArgumentException::class);
+        RFC4180Field::addTo(Writer::createFromString(''), "\t\0");
     }
 }

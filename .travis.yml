@@ -5,11 +5,11 @@ sudo: false
 matrix:
   include:
     - php: 7.0
-      env: COLLECT_COVERAGE=true VALIDATE_CODING_STYLE=false
+      env: COLLECT_COVERAGE=true VALIDATE_CODING_STYLE=true IGNORE_PLATFORMS=false
     - php: 7.1
-      env: COLLECT_COVERAGE=true VALIDATE_CODING_STYLE=true
+      env: COLLECT_COVERAGE=true VALIDATE_CODING_STYLE=true IGNORE_PLATFORMS=false
     - php: master
-      env: COLLECT_COVERAGE=false VALIDATE_CODING_STYLE=false
+      env: COLLECT_COVERAGE=false VALIDATE_CODING_STYLE=false IGNORE_PLATFORMS=true
   allow_failures:
     - php: master
   fast_finish: true
@@ -22,7 +22,8 @@ before_install:
   - travis_retry composer self-update
 
 install:
-  - travis_retry composer update --no-interaction --prefer-source
+  - if [ "$IGNORE_PLATFORMS" == "true" ]; then travis_retry composer update --no-interaction --prefer-source --ignore-platform-reqs; fi
+  - if [ "$IGNORE_PLATFORMS" == "false" ]; then travis_retry composer update --no-interaction --prefer-source; fi
 
 script:
   - composer phpunit
