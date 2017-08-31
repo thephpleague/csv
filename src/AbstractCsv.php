@@ -303,18 +303,51 @@ abstract class AbstractCsv implements ByteSequence
     public function output(string $filename = null): int
     {
         if (null !== $filename) {
-            header('Content-Type: text/csv');
-            header('Content-Transfer-Encoding: binary');
-            header('Content-Description: File Transfer');
-            header('Content-Disposition: attachment; filename="'.rawurlencode($filename).'"');
+            $this->sendHeaders($filename);
         }
-
         $input_bom = $this->getInputBOM();
         $this->document->rewind();
         $this->document->fseek(strlen($input_bom));
         echo $this->output_bom;
 
         return strlen($this->output_bom) + $this->document->fpassthru();
+    }
+
+    /**
+     * Send the CSV headers
+     *
+     * Adapted from Symfony\Component\HttpFoundation\ResponseHeaderBag::makeDisposition
+     *
+     * @param string|null $filename CSV disposition name
+     *
+     * @throws Exception if the submitted header is invalid according to RFC 6266
+     *
+     * @see https://tools.ietf.org/html/rfc6266#section-4.3
+     */
+    protected function sendHeaders(string $filename)
+    {
+        if (strlen($filename) != strcspn($filename, '\\/')) {
+            throw new Exception('The filename cannot contain the "/" and "\\" characters.');
+        }
+
+        $flag = FILTER_FLAG_STRIP_LOW;
+        if (strlen($filename) !== mb_strlen($filename)) {
+            $flag |= FILTER_FLAG_STRIP_HIGH;
+        }
+
+        $filenameFallback = filter_var($filename, FILTER_SANITIZE_STRING, $flag);
+        $filenameFallback = str_replace('%', '', $filenameFallback);
+
+        $disposition = sprintf('attachment; filename="%s"', str_replace('"', '\\"', $filenameFallback));
+        if ($filename !== $filenameFallback) {
+            $disposition .= sprintf("; filename*=utf-8''%s", rawurlencode($filename));
+        }
+        $disposition .= '; modification-date="'.date('r').'"';
+
+        header('Content-Type: text/csv');
+        header('Content-Transfer-Encoding: binary');
+        header('Content-Description: File Transfer');
+        header('Content-Disposition: '.$disposition);
     }
 
     /**

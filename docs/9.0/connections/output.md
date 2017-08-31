@@ -75,7 +75,7 @@ die;
 
 use League\Csv\Reader;
 
-$reader = Reader::createFromPath('/path/to/my/file.csv');
+$reader = Reader::createFromPath('file.csv');
 $reader->output("name-for-your-file.csv");
 die;
 ~~~
@@ -112,4 +112,78 @@ foreach ($reader->chunk(1024) as $chunk) {
 echo "0\r\n\r\n";
 ~~~
 
-<p class="message-info">If your application is using a framework, to avoid breaking its flow, you should create a framework specific <code>Response</code> object when applicable using <code>AbstractCsv::__toString</code> or <code>AbstractCsv::chunk</code> depending on the size of your CSV document.</p>
+## Using a Response object (Symfony, Laravel, PSR-7 etc)
+
+To avoid breaking the flow of your application, you should create a Response object when applicable in your framework. The actual implementation will differ per framework, but you should generally not output headers directly.
+
+~~~php
+<?php
+
+use League\Csv\Reader;
+
+$reader = Reader::createFromPath('/path/to/my/file.csv');
+return new Response((string) $reader, 200, [
+    'Content-Encoding' => 'none',
+    'Content-Type' => 'text/csv; charset=UTF-8',
+    'Content-Disposition' => 'attachment; filename="name-for-your-file.csv"',
+    'Content-Description' => 'File Transfer',
+]);
+~~~
+
+In some cases you can also use a Streaming Response for larger files.  
+The following example uses Symfony's [StreamedResponse](http://symfony.com/doc/current/components/http_foundation/introduction.html#streaming-a-response) object. 
+
+<p class="message-notice"><i>Be sure to adapt the following code to your own framework/situation. The following code is given as an example without warranty of it working out of the box.</i></p>
+
+~~~php
+<?php
+
+use League\Csv\Writer;
+use Symfony\Component\HttpFoundation\ResponseHeaderBag;
+use Symfony\Component\HttpFoundation\StreamedResponse;
+
+//We generate the CSV using the Writer object
+//$dbh is a PDO object
+$stmt = $dbh->prepare("SELECT * FROM users");
+$stmt->setFetchMode(PDO::FETCH_ASSOC);
+$stmt->execute();
+$csv = Writer::createFromPath('php://temp', 'r+');
+$csv->insertAll($stmt);
+
+//we create a callable to output the CSV in chunk
+//with Symfony StreamResponse you can flush the body content if necessary
+//see Symfony documentation for more information
+$flush_threshold = 1000; //the flush value should depend on your CSV size.
+$content_callback = function () use ($csv, $flush_threshold) {
+    foreach ($csv->chunk(1024) as $offset => $chunk) {
+        echo $chunk;
+        if ($offset % $flush_threshold === 0) {
+            flush();
+        }
+    }
+};
+
+//We send the CSV using Symfony StreamedResponse
+$response = new StreamedResponse();
+$response->headers->set('Content-Encoding', 'none');
+$response->headers->set('Content-Type', 'text/csv; charset=UTF-8');
+
+$disposition = $response->headers->makeDisposition(
+    ResponseHeaderBag::DISPOSITION_ATTACHMENT,
+    'name-for-your-file.csv'
+);
+
+$response->headers->set('Content-Disposition', $disposition);
+$response->headers->set('Content-Description', 'File Transfer');
+$response->setCallback($content_callback);
+$response->send();
+~~~
+
+#### Notes
+
+The output methods **can only be affected by:**
+
+- the [library stream filtering mechanism](/8.0/filtering/)
+- the [BOM property](/8.0/bom/)
+
+No other method or property have effect on them.

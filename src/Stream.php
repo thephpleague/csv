@@ -127,7 +127,7 @@ class Stream implements SeekableIterator
 
         array_walk_recursive($this->filters, $walker);
 
-        if ($this->should_close_stream) {
+        if ($this->should_close_stream && is_resource($this->stream)) {
             fclose($this->stream);
         }
 

@@ -2,6 +2,25 @@
 
 All Notable changes to `Csv` will be documented in this file
 
+## Next - TBD
+
+### Added
+
+- Nothing
+
+### Deprecated
+
+- Nothing
+
+### Fixed
+
+- Bug fixes headers from AbstractCsv::output according to RFC6266 [#250](https://github.com/thephpleague/csv/issues/250)
+- Make sure the internal source still exists before closing it [#251](https://github.com/thephpleague/csv/issues/251)
+
+### Removed
+
+- Nothing
+
 ## 9.0.1 - 2017-08-21
 
 ### Added

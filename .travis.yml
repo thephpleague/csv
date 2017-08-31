@@ -7,9 +7,11 @@ matrix:
     - php: 7.0
       env: COLLECT_COVERAGE=true VALIDATE_CODING_STYLE=true IGNORE_PLATFORMS=false
     - php: 7.1
-      env: COLLECT_COVERAGE=true VALIDATE_CODING_STYLE=false IGNORE_PLATFORMS=false
-    - php: 7.2
-      env: COLLECT_COVERAGE=true VALIDATE_CODING_STYLE=false IGNORE_PLATFORMS=true
+      env: COLLECT_COVERAGE=true VALIDATE_CODING_STYLE=true IGNORE_PLATFORMS=false
+    - php: master
+      env: COLLECT_COVERAGE=false VALIDATE_CODING_STYLE=false IGNORE_PLATFORMS=true
+  allow_failures:
+    - php: master
   fast_finish: true
 
 cache:
