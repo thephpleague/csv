@@ -147,7 +147,7 @@ class Stream implements SeekableIterator
      */
     public function __debugInfo()
     {
-        return stream_get_meta_data($this->stream) + [
+        return $this->stream ? stream_get_meta_data($this->stream) : [] + [
             'delimiter' => $this->delimiter,
             'enclosure' => $this->enclosure,
             'escape' => $this->escape,
