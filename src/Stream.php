@@ -44,6 +44,13 @@ class Stream implements SeekableIterator
     protected $stream;
 
     /**
+     * Tell whether the stream support seek operations
+     *
+     * @var bool
+     */
+    protected $seekable;
+
+    /**
      * Tell whether the stream should be closed on object destruction
      *
      * @var bool
@@ -102,17 +109,14 @@ class Stream implements SeekableIterator
     public function __construct($resource)
     {
         if (!is_resource($resource)) {
-            throw new TypeError(sprintf('Argument passed must be a seekable stream resource, %s given', gettype($resource)));
+            throw new TypeError(sprintf('Argument passed must be a stream resource, %s given', gettype($resource)));
         }
 
         if ('stream' !== ($type = get_resource_type($resource))) {
-            throw new TypeError(sprintf('Argument passed must be a seekable stream resource, %s resource given', $type));
+            throw new TypeError(sprintf('Argument passed must be a stream resource, %s resource given', $type));
         }
 
-        if (!stream_get_meta_data($resource)['seekable']) {
-            throw new Exception('Argument passed must be a seekable stream resource');
-        }
-
+        $this->seekable = stream_get_meta_data($resource)['seekable'];
         $this->stream = $resource;
     }
 
@@ -200,6 +204,27 @@ class Stream implements SeekableIterator
         $instance->should_close_stream = true;
 
         return $instance;
+    }
+
+    /**
+     * Assert that stream resource is seekable
+     *
+     * @throws Exception
+     */
+    private function assertSeekable() {
+        if (!$this->seekable) {
+            throw new Exception('stream resource is not seekable');
+        }
+    }
+
+    /**
+     * Tell whether the stream support seek operations
+     *
+     * @return bool
+     */
+    public function isSeekable(): bool
+    {
+        return $this->seekable;
     }
 
     /**
@@ -337,6 +362,7 @@ class Stream implements SeekableIterator
      */
     public function rewind()
     {
+        $this->assertSeekable();
         rewind($this->stream);
         $this->offset = 0;
         $this->value = false;
@@ -404,6 +430,7 @@ class Stream implements SeekableIterator
      */
     public function seek($position)
     {
+        $this->assertSeekable();
         if ($position < 0) {
             throw new Exception(sprintf('%s() can\'t seek stream to negative line %d', __METHOD__, $position));
         }
@@ -456,6 +483,7 @@ class Stream implements SeekableIterator
      */
     public function fseek(int $offset, int $whence = SEEK_SET)
     {
+        $this->assertSeekable();
         return fseek($this->stream, $offset, $whence);
     }
 
