@@ -226,6 +226,9 @@ class Writer extends AbstractCsv
      */
     public function setNewline(string $newline): self
     {
+        if ("\n" !== $this->newline && $this->document instanceof Stream && !$this->document->isSeekable()) {
+            throw new Exception("Only seekable streams supports custom newline sequence");
+        }
         $this->newline = $newline;
 
         return $this;
