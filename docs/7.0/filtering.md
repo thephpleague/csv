@@ -28,7 +28,7 @@ To be sure that the Stream Filter API is available it is recommend to use the me
 use League\Csv\Reader;
 use League\Csv\Writer;
 
-$reader = Reader::createFromPath('/path/to/my/file.csv');
+$reader = Reader::createFromPath('/path/to/my/file.csv', 'r');
 $reader->isActiveStreamFilter(); //return true
 
 $writer = Writer::createFromFileObject(new SplTempFileObject());
@@ -55,7 +55,7 @@ By default:
 
 use \League\Csv\Reader;
 
-$reader = Reader::createFromPath('/path/to/my/file.csv');
+$reader = Reader::createFromPath('/path/to/my/file.csv', 'r');
 if ($reader->isActiveStreamFilter()) {
 	$current_mode = $reader->getStreamFilterMode(); //returns STREAM_FILTER_READ
 	$reader->setStreamFilterMode(STREAM_FILTER_WRITE);
@@ -94,7 +94,7 @@ use League\Csv\Reader;
 stream_filter_register('convert.utf8decode', 'MyLib\Transcode');
 // 'MyLib\Transcode' is a class that extends PHP's php_user_filter class
 
-$reader = Reader::createFromPath('/path/to/my/chinese.csv');
+$reader = Reader::createFromPath('/path/to/my/chinese.csv', 'r');
 if ($reader->isActiveStreamFilter()) {
 	$reader->appendStreamFilter('string.toupper');
 	$reader->appendStreamFilter('string.rot13');
@@ -114,7 +114,7 @@ foreach ($reader as $row) {
 
 use League\Csv\Reader;
 
-$reader = Reader::createFromPath('/path/to/my/chinese.csv');
+$reader = Reader::createFromPath('/path/to/my/chinese.csv', 'r');
 $filter = urlencode('convert.iconv.UTF-8/ASCII//TRANSLIT);
 $reader->appendStreamFilter($filter);
 var_dump($reader->fetchAll());

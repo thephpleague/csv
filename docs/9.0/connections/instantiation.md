@@ -48,7 +48,7 @@ use League\Csv\Reader;
 use League\Csv\Writer;
 
 
-$reader = Reader::createFromPath('/path/to/your/csv/file.csv');
+$reader = Reader::createFromPath('/path/to/your/csv/file.csv', 'r');
 $writer = Writer::createFromPath('/path/to/your/csv/file.csv', 'w');
 ~~~
 

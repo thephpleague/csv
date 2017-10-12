@@ -31,7 +31,7 @@ Use the `echo` construct on the instantiated object or use the `__toString` meth
 
 use League\Csv\Reader;
 
-$reader = Reader::createFromPath('/path/to/my/file.csv');
+$reader = Reader::createFromPath('/path/to/my/file.csv', 'r');
 echo $reader;
 // or
 echo $reader->__toString();
@@ -63,7 +63,7 @@ header('Content-Type: text/csv; charset=UTF-8');
 header('Content-Description: File Transfer');
 header('Content-Disposition: attachment; filename="name-for-your-file.csv"');
 
-$reader = Reader::createFromPath('/path/to/my/file.csv');
+$reader = Reader::createFromPath('/path/to/my/file.csv', 'r');
 $reader->output();
 die;
 ~~~
@@ -125,7 +125,7 @@ To avoid breaking the flow of your application, you should create a Response obj
 
 use League\Csv\Reader;
 
-$reader = Reader::createFromPath('/path/to/my/file.csv');
+$reader = Reader::createFromPath('/path/to/my/file.csv', 'r');
 return new Response((string) $reader, 200, [
     'Content-Encoding' => 'none',
     'Content-Type' => 'text/csv; charset=UTF-8',

@@ -28,7 +28,7 @@ public AbstractCsv::getDelimiter(void): string
 
 use League\Csv\Reader;
 
-$csv = Reader::createFromPath('/path/to/file.csv');
+$csv = Reader::createFromPath('/path/to/file.csv', 'r');
 $csv->setDelimiter(';');
 $delimiter = $csv->getDelimiter(); //returns ";"
 ~~~
@@ -78,7 +78,7 @@ public AbstractCsv::getEscape(void): string
 
 use League\Csv\Reader;
 
-$csv = Reader::createFromPath('/path/to/file.csv');
+$csv = Reader::createFromPath('/path/to/file.csv', 'r');
 $csv->setEscape('\\');
 $escape = $csv->getEscape(); //returns "\"
 ~~~
@@ -127,7 +127,7 @@ and returns an associated array whose keys are the submitted delimiters characte
 use function League\Csv\delimiter_detect;
 use League\Csv\Reader;
 
-$reader = Reader::createFromPath('/path/to/file.csv');
+$reader = Reader::createFromPath('/path/to/file.csv', 'r');
 $reader->setEnclosure('"');
 $reader->setEscape('\\');
 

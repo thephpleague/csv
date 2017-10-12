@@ -25,7 +25,7 @@ Accessing some records from a given CSV documents.
 use League\Csv\Reader;
 use League\Csv\Statement;
 
-$csv = Reader::createFromPath('/path/to/your/csv/file.csv');
+$csv = Reader::createFromPath('/path/to/your/csv/file.csv', 'r');
 $csv->setHeaderOffset(0); //set the CSV header offset
 
 //get 25 records starting from the 11th row
@@ -118,7 +118,7 @@ When importing csv files, you don't know whether the file is encoded with `UTF-8
 use League\Csv\Reader;
 use League\Csv\CharsetConverter;
 
-$csv = Reader::createFromPath('/path/to/your/csv/file.csv');
+$csv = Reader::createFromPath('/path/to/your/csv/file.csv', 'r');
 $csv->setHeaderOffset(0);
 
 $input_bom = $csv->getInputBOM();
@@ -142,7 +142,7 @@ Using the provided `XMLConverter` object you can easily convert a CSV document i
 use League\Csv\XMLConverter;
 use League\Csv\Reader;
 
-$csv = Reader::createFromPath('/path/to/prenoms.csv')
+$csv = Reader::createFromPath('/path/to/prenoms.csv', 'r')
 $csv->setDelimiter(';');
 $csv->setHeaderOffset(0);
 
@@ -175,3 +175,10 @@ echo htmlentities($dom->saveXML());
 //   </record>
 // </csv>
 ~~~
+
+## Notes
+
+By default, the mode for a `Reader::createFromPath()` is
+`'r+'` which looks for write permissions on the file and throws an Exception if
+the file cannot be opened with the permission set. For sake of clarity, it is
+strongly suggested to set `'r'` mode on the file to ensure it can be opened.

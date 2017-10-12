@@ -8,6 +8,13 @@ redirect_from: /reading/
 
 To extract data from a CSV document use `League\Csv\Reader` methods.
 
+## Notes
+
+By default, the mode for a `Reader::createFromPath()` is
+`'r+'` which looks for write permissions on the file and throws an Exception if
+the file cannot be opened with the permission set. For sake of clarity, it is
+strongly suggested to set `'r'` mode on the file to ensure it can be opened.
+
 ## Reader::fetch
 
 The `fetch` method fetches the next row from the `Iterator` result set.
@@ -37,7 +44,7 @@ function(array $row [, int $rowOffset [, Iterator $iterator]]): array
 
 use League\Csv\Reader;
 
-$reader = Reader::createFromPath('/path/to/my/file.csv');
+$reader = Reader::createFromPath('/path/to/my/file.csv', 'r');
 $results = $reader->fetch();
 foreach ($results as $row) {
     //do something here
@@ -55,7 +62,7 @@ $func = function ($row) {
     return array_map('strtoupper', $row);
 };
 
-$reader = Reader::createFromPath('/path/to/my/file.csv');
+$reader = Reader::createFromPath('/path/to/my/file.csv', 'r');
 $results = $reader->fetch($func);
 foreach ($results as $row) {
     //each row member will be uppercased
@@ -95,7 +102,7 @@ The required argument `$offset` represents the row index starting at `0`. If no 
 
 use League\Csv\Reader;
 
-$reader = Reader::createFromPath('/path/to/my/file.csv');
+$reader = Reader::createFromPath('/path/to/my/file.csv', 'r');
 $data = $reader->fetchOne(3); ///accessing the 4th row (indexing starts at 0)
 // will return something like this :
 //
@@ -136,7 +143,7 @@ The callable must return `true` to continue iterating over the CSV;
 
 use League\Csv\Reader;
 
-$reader = Reader::createFromPath('/path/to/my/file.csv');
+$reader = Reader::createFromPath('/path/to/my/file.csv', 'r');
 
 //count the numbers of rows in a CSV
 $nbRows = $reader->each(function ($row) {
@@ -171,7 +178,7 @@ This `$offset_or_keys` argument can be
 
 use League\Csv\Reader;
 
-$reader = Reader::createFromPath('/path/to/my/file.csv');
+$reader = Reader::createFromPath('/path/to/my/file.csv', 'r');
 $keys = ['firstname', 'lastname', 'email'];
 $results = $reader->fetchAssoc($keys);
 // $results is an iterator
@@ -239,7 +246,7 @@ $func = function ($row) {
     return $row;
 };
 $keys = ['firstname', 'lastname', 'date'];
-$reader = Reader::createFromPath('/path/to/my/file.csv');
+$reader = Reader::createFromPath('/path/to/my/file.csv', 'r');
 foreach ($reader->fetchAssoc($keys, $func) as $row) {
     $row['date']->format('Y-m-d H:i:s');
     //because this cell contain a `DateTimeInterface` object
@@ -270,7 +277,7 @@ If for a given row the column does not exist, the row will be skipped.
 
 use League\Csv\Reader;
 
-$reader = Reader::createFromPath('/path/to/my/file.csv');
+$reader = Reader::createFromPath('/path/to/my/file.csv', 'r');
 $result = $reader->fetchColumn(2);
 $data = iterator_to_array($result, false);
 // will return something like this :
@@ -302,7 +309,7 @@ function(string $value [, int $offsetIndex [, Iterator $iterator]]): mixed
 
 use League\Csv\Reader;
 
-$reader = Reader::createFromPath('/path/to/my/file.csv');
+$reader = Reader::createFromPath('/path/to/my/file.csv', 'r');
 foreach ($reader->fetchColumn(2, 'strtoupper') as $value) {
     echo $value; //display 'JOHN.DOE@EXAMPLE.COM'
 }

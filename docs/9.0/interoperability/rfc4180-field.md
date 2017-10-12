@@ -98,7 +98,7 @@ use League\Csv\Reader;
 use League\Csv\RFC4180Field;
 
 //the current CSV is ISO-8859-15 encoded with a ";" delimiter
-$csv = Reader::createFromPath('/path/to/rfc4180-compliant.csv');
+$csv = Reader::createFromPath('/path/to/rfc4180-compliant.csv', 'r');
 RFC4180Field::addTo($csv); //adding the stream filter to fix field formatting
 
 foreach ($csv as $record) {

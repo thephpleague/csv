@@ -24,7 +24,7 @@ This method will detect and return the `BOM` character used in your CSV if any.
 ~~~php
 <?php
 
-$reader = new Reader::createFromPath('path/to/your/file.csv');
+$reader = new Reader::createFromPath('/path/to/your/file.csv', 'r');
 $res = $reader->getInputBOM(); //$res equals null if no BOM is found
 
 $reader = new Reader::createFromPat('path/to/your/msexcel.csv');
@@ -57,7 +57,7 @@ This method will tell you at any given time what `BOM` character will be prepend
 ~~~php
 <?php
 
-$reader = new Reader::createFromPath('path/to/your/file.csv');
+$reader = new Reader::createFromPath('/path/to/your/file.csv', 'r');
 $reader->getOutputBOM(); //$res equals null;
 $reader->setOutputBOM(Reader::BOM_UTF16LE);
 $res = $reader->getOutputBOM(); //$res equals "\xFF\xFE";
@@ -84,7 +84,7 @@ use League\Csv\Reader;
 
 require '../vendor/autoload.php';
 
-$reader = Reader::createFromPath('/path/to/my/file.csv');
+$reader = Reader::createFromPath('/path/to/my/file.csv', 'r');
 $reader->setOutputBOM(Reader::BOM_UTF8);
 //BOM detected and adjusted for the output
 echo $reader->__toString();

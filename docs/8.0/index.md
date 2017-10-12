@@ -17,6 +17,13 @@ layout: default
 PHP. The goal of the library is to be powerful while remaining lightweight,
 by utilizing PHP native classes whenever possible.
 
+## Notes
+
+By default, the mode for a `Reader::createFromPath()` is
+`'r+'` which looks for write permissions on the file and throws an Exception if
+the file cannot be opened with the permission set. For sake of clarity, it is
+strongly suggested to set `'r'` mode on the file to ensure it can be opened.
+
 ## Examples
 
 ### Parsing a document
@@ -28,7 +35,7 @@ A simple example to show you how to parse a CSV document.
 
 use League\Csv\Reader;
 
-$csv = Reader::createFromPath('/path/to/your/csv/file.csv');
+$csv = Reader::createFromPath('/path/to/your/csv/file.csv', 'r');
 
 //get the first row, usually the CSV header
 $headers = $csv->fetchOne();
@@ -88,7 +95,7 @@ $sth = $dbh->prepare(
 	"INSERT INTO users (firstname, lastname, email) VALUES (:firstname, :lastname, :email)"
 );
 
-$csv = Reader::createFromPath('/path/to/your/csv/file.csv');
+$csv = Reader::createFromPath('/path/to/your/csv/file.csv', 'r');
 $csv->setOffset(1); //because we don't want to insert the header
 $nbInsert = $csv->each(function ($row) use (&$sth) {
 	//Do not forget to validate your data before inserting it in your database
@@ -110,7 +117,7 @@ The below example tries to determine the encoding and convert to `UTF-8` using t
 
 use League\Csv\Reader;
 
-$reader = Reader::createFromPath('/path/to/your/csv/file.csv');
+$reader = Reader::createFromPath('/path/to/your/csv/file.csv', 'r');
 
 $input_bom = $reader->getInputBOM();
 

@@ -28,7 +28,7 @@ You can iterate over your CSV object to extract each CSV row using the `foreach`
 
 use League\Csv\Reader;
 
-$reader = Reader::createFromPath('/path/to/my/file.csv');
+$reader = Reader::createFromPath('/path/to/my/file.csv', 'r');
 foreach ($reader as $index => $row) {
     //do something meaningful here with $row !!
     //$row is an array where each item represent a CSV data cell
@@ -59,7 +59,7 @@ Use the `echo` construct on the instantiated object or use the `__toString` meth
 
 use League\Csv\Reader;
 
-$reader = Reader::createFromPath('/path/to/my/file.csv');
+$reader = Reader::createFromPath('/path/to/my/file.csv', 'r');
 echo $reader;
 // or
 echo $reader->__toString();
@@ -89,7 +89,7 @@ use League\Csv\Reader;
 header('Content-Type: text/csv; charset=UTF-8');
 header('Content-Disposition: attachment; filename="name-for-your-file.csv"');
 
-$reader = Reader::createFromPath('/path/to/my/file.csv');
+$reader = Reader::createFromPath('/path/to/my/file.csv', 'r');
 $reader->output();
 die;
 ~~~
@@ -101,7 +101,7 @@ die;
 
 use League\Csv\Reader;
 
-$reader = Reader::createFromPath('/path/to/my/file.csv');
+$reader = Reader::createFromPath('/path/to/my/file.csv', 'r');
 $reader->output("name-for-your-file.csv");
 die;
 ~~~
@@ -116,7 +116,7 @@ In some cases you can also use a Streaming Response for larger files.
 
 use League\Csv\Reader;
 
-$reader = Reader::createFromPath('/path/to/my/file.csv');
+$reader = Reader::createFromPath('/path/to/my/file.csv', 'r');
 return new Response((string) $reader, 200, [
 	'Content-Type' => 'text/csv; charset=UTF-8',
 	'Content-Disposition' => 'attachment; filename="name-for-your-file.csv"',

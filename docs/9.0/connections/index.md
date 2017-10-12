@@ -73,7 +73,7 @@ use League\Csv\Exception;
 use League\Csv\Reader;
 
 try {
-    $csv = Reader::createFromPath('/path/to/file.csv');
+    $csv = Reader::createFromPath('/path/to/file.csv', 'r');
     $csv->setDelimiter('toto');
 } catch (Exception $e) {
     echo $e->getMessage(), PHP_EOL;
