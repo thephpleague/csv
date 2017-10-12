@@ -160,7 +160,7 @@ EOF;
         $this->assertContains('content-type: text/csv', strtolower($headers[0]));
         $this->assertSame('Content-Transfer-Encoding: binary', $headers[1]);
         $this->assertSame('Content-Description: File Transfer', $headers[2]);
-        $this->assertContains('Content-Disposition: attachment; filename="tst.csv"; filename*=utf-8\'\'t%C3%A9st.csv; modification-date="', $headers[3]);
+        $this->assertContains('Content-Disposition: attachment; filename="tst.csv"; filename*=utf-8\'\'t%C3%A9st.csv', $headers[3]);
     }
 
     /**

@@ -335,14 +335,12 @@ abstract class AbstractCsv implements ByteSequence
             $flag |= FILTER_FLAG_STRIP_HIGH;
         }
 
-        $filenameFallback = filter_var($filename, FILTER_SANITIZE_STRING, $flag);
-        $filenameFallback = str_replace('%', '', $filenameFallback);
+        $filenameFallback = str_replace('%', '', filter_var($filename, FILTER_SANITIZE_STRING, $flag));
 
         $disposition = sprintf('attachment; filename="%s"', str_replace('"', '\\"', $filenameFallback));
         if ($filename !== $filenameFallback) {
             $disposition .= sprintf("; filename*=utf-8''%s", rawurlencode($filename));
         }
-        $disposition .= '; modification-date="'.date('r').'"';
 
         header('Content-Type: text/csv');
         header('Content-Transfer-Encoding: binary');
