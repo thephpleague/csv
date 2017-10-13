@@ -80,7 +80,7 @@ use League\Csv\XMLConverter;
 use League\Csv\Statement;
 use League\Csv\Reader;
 
-$csv = Reader::createFromPath('/path/to/prenoms.csv');
+$csv = Reader::createFromPath('/path/to/prenoms.csv', 'r');
 $csv->setDelimiter(';');
 $csv->setHeaderOffset(0);
 

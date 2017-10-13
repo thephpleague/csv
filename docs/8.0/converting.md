@@ -47,7 +47,7 @@ This method accepts 3 optionals arguments to help you customize the XML tree:
 
 use League\Csv\Reader;
 
-$reader = Reader::createFromPath('/path/to/file.csv');
+$reader = Reader::createFromPath('/path/to/file.csv', 'r');
 $dom = $reader->toXML('data', 'line', 'item');
 ~~~
 
@@ -69,7 +69,7 @@ rendering. By defaut the classname given to the table is `table-csv-data`.
 
 use League\Csv\Reader;
 
-$reader = Reader::createFromPath('/path/to/file.csv');
+$reader = Reader::createFromPath('/path/to/file.csv', 'r');
 echo $reader->toHTML('table table-bordered table-hover');
 ~~~
 

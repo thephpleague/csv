@@ -128,7 +128,7 @@ function sortByLastName($rowA, $rowB)
     return strcmp($rowB[1], $rowA[1]);
 }
 
-$reader = Reader::createFromPath('/path/to/file.csv');
+$reader = Reader::createFromPath('/path/to/file.csv', 'r');
 $data = $reader
     ->stripBom(false)
     ->setOffset(3)
@@ -167,7 +167,7 @@ function sortByLastName($rowA, $rowB)
     return strcmp($rowB[1], $rowA[1]);
 }
 
-$reader = Reader::createFromPath('/path/to/file.csv');
+$reader = Reader::createFromPath('/path/to/file.csv', 'r');
 $data = $reader
     ->stripBom(true)
     ->setOffset(3)

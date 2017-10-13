@@ -12,7 +12,7 @@ Once your CSV object is [instantiated](/7.0/instantiation) and [configured](/7.0
 ~~~php
 <?php
 
-$reader = Reader::createFromPath('/path/to/my/file.csv');
+$reader = Reader::createFromPath('/path/to/my/file.csv', 'r');
 foreach ($reader as $index => $row) {
     //do something meaningful here with $row !!
     //$row is an array where each item represent a CSV data cell

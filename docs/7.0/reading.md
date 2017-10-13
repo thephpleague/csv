@@ -7,6 +7,13 @@ title: Extracting data from a CSV
 
 To extract data from a CSV document use `League\Csv\Reader` methods.
 
+## Notes
+
+By default, the mode for a `Reader::createFromPath()` is
+`'r+'` which looks for write permissions on the file and throws an Exception if
+the file cannot be opened with the permission set. For sake of clarity, it is
+strongly suggested to set `'r'` mode on the file to ensure it can be opened.
+
 ## Fetching CSV data
 
 ### query(callable $callable = null)

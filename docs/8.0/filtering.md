@@ -36,7 +36,7 @@ public AbstractCsv::isActiveStreamFilter(void): bool
 use League\Csv\Reader;
 use League\Csv\Writer;
 
-$reader = Reader::createFromPath('/path/to/my/file.csv');
+$reader = Reader::createFromPath('/path/to/my/file.csv', 'r');
 $reader->isActiveStreamFilter(); //return true
 
 $writer = Writer::createFromFileObject(new SplTempFileObject());
@@ -72,7 +72,7 @@ By default:
 
 use League\Csv\Reader;
 
-$reader = Reader::createFromPath('/path/to/my/file.csv');
+$reader = Reader::createFromPath('/path/to/my/file.csv', 'r');
 if ($reader->isActiveStreamFilter()) {
 	$current_mode = $reader->getStreamFilterMode(); //returns STREAM_FILTER_READ
 	$reader->setStreamFilterMode(STREAM_FILTER_WRITE);
@@ -121,7 +121,7 @@ use League\Csv\Reader;
 stream_filter_register('convert.utf8decode', 'MyLib\Transcode');
 // 'MyLib\Transcode' is a class that extends PHP's php_user_filter class
 
-$reader = Reader::createFromPath('/path/to/my/chinese.csv');
+$reader = Reader::createFromPath('/path/to/my/chinese.csv', 'r');
 if ($reader->isActiveStreamFilter()) {
 	$reader->appendStreamFilter('string.toupper');
 	$reader->appendStreamFilter('string.rot13');
@@ -141,7 +141,7 @@ foreach ($reader as $row) {
 
 use League\Csv\Reader;
 
-$reader = Reader::createFromPath('/path/to/my/chinese.csv');
+$reader = Reader::createFromPath('/path/to/my/chinese.csv', 'r');
 $reader->appendStreamFilter('convert.iconv.UTF-8/ASCII//TRANSLIT');
 var_dump($reader->fetchAll());
 ~~~
@@ -180,7 +180,7 @@ echo $writer; //the newly added rows are all uppercased
 
 Please review <a href="https://github.com/thephpleague/csv/tree/8.x/examples/stream.php" target="_blank">the stream filtering example</a> and the attached <a href="https://github.com/thephpleague/csv/tree/8.x/examples/lib/FilterTranscode.php" target="_blank">FilterTranscode</a> Class to understand how to use the filtering mechanism to convert a CSV into another charset.
 
-The `FilterTranscode` class is not attached to the Library because converting your CSV may depend on the extension you choose, in PHP you can use the following extensions : 
+The `FilterTranscode` class is not attached to the Library because converting your CSV may depend on the extension you choose, in PHP you can use the following extensions :
 
 <ul>
 <li><a href="http://php.net/mbstring" target="_blank">The mbstring</a></li>

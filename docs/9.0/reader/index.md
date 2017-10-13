@@ -53,13 +53,18 @@ public Reader::getHeader(void): array
 
 use League\Csv\Reader;
 
-$csv = Reader::createFromPath('/path/to/file.csv');
+$csv = Reader::createFromPath('/path/to/file.csv', 'r');
 $csv->setHeaderOffset(0);
 $header_offset = $csv->getHeaderOffset(); //returns 0
 $header = $csv->getHeader(); //returns ['First Name', 'Last Name', 'E-mail']
 ~~~
 
 ### Notes
+
+By default, the mode for a `Reader::createFromPath()` is
+`'r+'` which looks for write permissions on the file and throws an Exception if
+the file cannot be opened with the permission set. For sake of clarity, it is
+strongly suggested to set `'r'` mode on the file to ensure it can be opened.
 
 If no header offset is set:
 
@@ -75,7 +80,7 @@ If no header offset is set:
 
 use League\Csv\Reader;
 
-$csv = Reader::createFromPath('/path/to/file.csv');
+$csv = Reader::createFromPath('/path/to/file.csv', 'r');
 $csv->setHeaderOffset(1000); //valid offset but the CSV does not contain 1000 records
 $header_offset = $csv->getHeaderOffset(); //returns 1000
 $header = $csv->getHeader(); //triggers a Exception exception
@@ -101,7 +106,7 @@ The `Reader` class let's you access all its records using the `Reader::getRecord
 
 use League\Csv\Reader;
 
-$reader = Reader::createFromPath('/path/to/my/file.csv');
+$reader = Reader::createFromPath('/path/to/my/file.csv', 'r');
 $records = $reader->getRecords();
 foreach ($records as $offset => $record) {
     //$offset : represents the record offset
@@ -124,7 +129,7 @@ If you specify the CSV header offset using `setHeaderOffset`, the found record w
 
 use League\Csv\Reader;
 
-$reader = Reader::createFromPath('/path/to/my/file.csv');
+$reader = Reader::createFromPath('/path/to/my/file.csv', 'r');
 $reader->setHeaderOffset(0);
 $records = $reader->getRecords();
 foreach ($records as $offset => $record) {
@@ -148,7 +153,7 @@ Conversely, you can submit your own header record using the optional `$header` a
 
 use League\Csv\Reader;
 
-$reader = Reader::createFromPath('/path/to/my/file.csv');
+$reader = Reader::createFromPath('/path/to/my/file.csv', 'r');
 $records = $reader->getRecords(['firstname', 'lastname', 'email']);
 foreach ($records as $offset => $record) {
     //$offset : represents the record offset
@@ -168,7 +173,7 @@ foreach ($records as $offset => $record) {
 
 use League\Csv\Reader;
 
-$reader = Reader::createFromPath('/path/to/my/file.csv');
+$reader = Reader::createFromPath('/path/to/my/file.csv', 'r');
 $reader->setHeaderOffset(0);
 $records = $reader->getRecords(['firstname', 'lastname', 'email']);
 foreach ($records as $offset => $record) {
@@ -195,7 +200,7 @@ You will get the same results as if you had called `Reader::getRecords` without 
 
 use League\Csv\Reader;
 
-$reader = Reader::createFromPath('/path/to/my/file.csv');
+$reader = Reader::createFromPath('/path/to/my/file.csv', 'r');
 $reader->setHeaderOffset(0);
 foreach ($reader as $offset => $record) {
     //$offset : represents the record offset
@@ -224,7 +229,7 @@ The returned records are normalized using the following rules:
 
 use League\Csv\Reader;
 
-$reader = Reader::createFromPath('/path/to/my/file.csv');
+$reader = Reader::createFromPath('/path/to/my/file.csv', 'r');
 $reader->setHeaderOffset(0);
 $records = $reader->getRecords();
 foreach ($records as $offset => $record) {
@@ -248,7 +253,7 @@ You can retrieve the number of records contains in a CSV document using PHP's `c
 
 use League\Csv\Reader;
 
-$reader = Reader::createFromPath('/path/to/my/file.csv');
+$reader = Reader::createFromPath('/path/to/my/file.csv', 'r');
 count($reader); //returns 4
 ~~~
 
@@ -259,7 +264,7 @@ If a header offset is specified, the number of records will not take into accoun
 
 use League\Csv\Reader;
 
-$reader = Reader::createFromPath('/path/to/my/file.csv');
+$reader = Reader::createFromPath('/path/to/my/file.csv', 'r');
 $reader->setHeaderOffset(0);
 count($reader); //returns 3
 ~~~
@@ -287,7 +292,7 @@ Using method overloading, you can directly access all retrieving methods attache
 
 use League\Csv\Reader;
 
-$reader = Reader::createFromPath('/path/to/my/file.csv');
+$reader = Reader::createFromPath('/path/to/my/file.csv', 'r');
 
 $records = $reader->fetchColumn(2);
 //$records is a Generator representing all the fields of the CSV 3rd column
@@ -305,7 +310,7 @@ If you require a more advance record selection, you should use a [Statement](/9.
 use League\Csv\Reader;
 use League\Csv\Statement;
 
-$reader = Reader::createFromPath('/path/to/my/file.csv');
+$reader = Reader::createFromPath('/path/to/my/file.csv', 'r');
 $stmt = (new Statement())
     ->offset(3)
     ->limit(5)

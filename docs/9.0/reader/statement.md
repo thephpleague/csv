@@ -119,7 +119,7 @@ function sortByLastName(array $recordA, array $recordB): int
     return strcmp($recordB[1], $recordA[1]);
 }
 
-$reader = Reader::createFromPath('/path/to/file.csv');
+$reader = Reader::createFromPath('/path/to/file.csv', 'r');
 $stmt = (new Statement())
     ->offset(3)
     ->limit(2)
@@ -148,7 +148,7 @@ function sortByLastName(array $recordA, array $recordB): int
     return strcmp($recordB[1], $recordA[1]);
 }
 
-$reader = Reader::createFromPath('/path/to/file.csv');
+$reader = Reader::createFromPath('/path/to/file.csv', 'r');
 $stmt = (new Statement())
     ->offset(3)
     ->limit(2)

@@ -30,7 +30,7 @@ Regardless of stream filter API support by a specific CSV object, `getStreamFilt
 use League\Csv\Reader;
 use League\Csv\Writer;
 
-$reader = Reader::createFromPath('/path/to/my/file.csv');
+$reader = Reader::createFromPath('/path/to/my/file.csv', 'r');
 $reader->supportsStreamFilter(); //return true
 $reader->getStreamFilterMode(); //return STREAM_FILTER_READ
 
@@ -81,7 +81,7 @@ use MyLib\Transcode;
 stream_filter_register('convert.utf8decode', Transcode::class);
 // 'MyLib\Transcode' is a class that extends PHP's php_user_filter class
 
-$reader = Reader::createFromPath('/path/to/my/chinese.csv');
+$reader = Reader::createFromPath('/path/to/my/chinese.csv', 'r');
 if ($reader->supportsStreamFilter()) {
 	$reader->addStreamFilter('convert.utf8decode');
 	$reader->addStreamFilter('string.toupper');

@@ -33,10 +33,10 @@ public AbstractCsv::getInputBOM(void): string
 
 use League\Csv\Reader;
 
-$reader = new Reader::createFromPath('path/to/your/file.csv');
+$reader = new Reader::createFromPath('/path/to/your/file.csv', 'r');
 $res = $reader->getInputBOM(); //$res equals '' if no BOM is found
 
-$reader = new Reader::createFromPath('path/to/your/msexcel.csv');
+$reader = new Reader::createFromPath('/path/to/your/msexcel.csv', 'r');
 if (Reader::BOM_UTF16_LE == $reader->getInputBOM()) {
 	//the CSV file is encoded using UTF-16 LE
 }
@@ -80,7 +80,7 @@ public AbstractCsv::getOutputBOM(void): string
 
 use League\Csv\Reader;
 
-$reader = new Reader::createFromPath('path/to/your/file.csv');
+$reader = new Reader::createFromPath('/path/to/your/file.csv', 'r');
 $reader->getOutputBOM(); //$res equals null;
 $reader->setOutputBOM(Reader::BOM_UTF16_LE);
 $res = $reader->getOutputBOM(); //$res equals "\xFF\xFE";
@@ -105,7 +105,7 @@ On Windows, MS Excel, expects an UTF-8 encoded CSV with its corresponding `BOM` 
 
 use League\Csv\Reader;
 
-$reader = Reader::createFromPath('/path/to/my/file.csv');
+$reader = Reader::createFromPath('/path/to/my/file.csv', 'r');
 $reader->setOutputBOM(Reader::BOM_UTF8);
 //BOM detected and adjusted for the output
 echo $reader->__toString();

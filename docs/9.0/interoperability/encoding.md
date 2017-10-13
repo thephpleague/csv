@@ -18,7 +18,7 @@ On Windows, MS Excel, expects an UTF-8 encoded CSV with its corresponding `BOM` 
 
 use League\Csv\Reader;
 
-$reader = Reader::createFromPath('/path/to/my/file.csv');
+$reader = Reader::createFromPath('/path/to/my/file.csv', 'r');
 //let's set the output BOM
 $reader->setOutputBOM(Reader::BOM_UTF8);
 //let's convert the incoming data from iso-88959-15 to utf-8

@@ -13,7 +13,7 @@ layout: homepage
 use League\Csv\Reader;
 
 //load the CSV document from a file path
-$csv = Reader::createFromPath('/path/to/your/csv/file.csv');
+$csv = Reader::createFromPath('/path/to/your/csv/file.csv', 'r');
 $csv->setHeaderOffset(0);
 
 $header = $csv->getHeader(); //returns the CSV header record
@@ -130,7 +130,7 @@ PHP stream filters can directly be used to ease manipulating CSV document
 
 use League\Csv\Reader;
 
-$csv = Reader::createFromPath('/path/to/your/csv/file.csv');
+$csv = Reader::createFromPath('/path/to/your/csv/file.csv', 'r');
 $csv->setHeaderOffset(0);
 
 $input_bom = $csv->getInputBOM();

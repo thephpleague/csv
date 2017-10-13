@@ -39,7 +39,7 @@ public ResultSet::getHeader(): array
 use League\Csv\Reader;
 use League\Csv\Statement;
 
-$reader = Reader::createFromPath('/path/to/my/file.csv');
+$reader = Reader::createFromPath('/path/to/my/file.csv', 'r');
 $records = (new Statement())->process($reader);
 $records->getHeader(); // is empty because no header information was given
 ~~~
@@ -51,7 +51,7 @@ $records->getHeader(); // is empty because no header information was given
 
 use League\Csv\Reader;
 
-$reader = Reader::createFromPath('/path/to/my/file.csv');
+$reader = Reader::createFromPath('/path/to/my/file.csv', 'r');
 $reader->setHeaderOffset(0);
 
 $records = (new Statement())->process($reader);
@@ -66,7 +66,7 @@ $records->getHeader(); // returns ['First Name', 'Last Name', 'E-mail'];
 use League\Csv\Reader;
 use League\Csv\Statement;
 
-$reader = Reader::createFromPath('/path/to/my/file.csv');
+$reader = Reader::createFromPath('/path/to/my/file.csv', 'r');
 $reader->setHeaderOffset(0);
 
 $records = (new Statement())->process($reader, ['Prénom', 'Nom', 'E-mail']);
@@ -83,7 +83,7 @@ The `ResultSet` class implements implements the `Countable` interface.
 use League\Csv\Reader;
 use League\Csv\Statement;
 
-$reader = Reader::createFromPath('/path/to/my/file.csv');
+$reader = Reader::createFromPath('/path/to/my/file.csv', 'r');
 $records = (new Statement())->process($reader);
 count($records); //return the total number of records found
 ~~~
@@ -106,7 +106,7 @@ To iterate over each found records you can call the `ResultSet::getRecords` meth
 use League\Csv\Reader;
 use League\Csv\Statement;
 
-$reader = Reader::createFromPath('/path/to/my/file.csv');
+$reader = Reader::createFromPath('/path/to/my/file.csv', 'r');
 $records = (new Statement())->process($reader);
 
 foreach ($records->getRecords() as $record) {
@@ -128,7 +128,7 @@ If the `ResultSet::getHeader` is not an empty `array` the found records keys wil
 use League\Csv\Reader;
 use League\Csv\Statement;
 
-$reader = Reader::createFromPath('/path/to/my/file.csv');
+$reader = Reader::createFromPath('/path/to/my/file.csv', 'r');
 $reader->setHeaderOffset(0);
 $records = (new Statement())->process($reader);
 $records->getHeader(); //returns ['First Name', 'Last Name', 'E-mail']
@@ -161,7 +161,7 @@ The `$nth_record` argument represents the nth record contained in the result set
 use League\Csv\Reader;
 use League\Csv\Statement;
 
-$reader = Reader::createFromPath('/path/to/my/file.csv');
+$reader = Reader::createFromPath('/path/to/my/file.csv', 'r');
 $reader->setHeaderOffset(0);
 
 $stmt = (new Statement())
@@ -197,7 +197,7 @@ the `$columnIndex` parameter can be:
 use League\Csv\Reader;
 use League\Csv\Statement;
 
-$reader = Reader::createFromPath('/path/to/my/file.csv');
+$reader = Reader::createFromPath('/path/to/my/file.csv', 'r');
 $records = (new Statement())->process($reader);
 foreach ($records->fetchColumn(2) as $value) {
     //$value is a string representing the value
@@ -205,7 +205,7 @@ foreach ($records->fetchColumn(2) as $value) {
     //$value may be equal to 'john.doe@example.com'
 }
 
-$reader = Reader::createFromPath('/path/to/my/file.csv');
+$reader = Reader::createFromPath('/path/to/my/file.csv', 'r');
 $reader->setHeaderOffset(0);
 
 $records = (new Statement())->process($reader);
@@ -224,7 +224,7 @@ foreach ($records->fetchColumn('E-mail') as $value) {
 use League\Csv\Reader;
 use League\Csv\Statement;
 
-$reader = Reader::createFromPath('/path/to/my/file.csv');
+$reader = Reader::createFromPath('/path/to/my/file.csv', 'r');
 $records = (new Statement())->process($reader);
 count($records); //returns 10;
 count(iterator_to_array($records->fetchColumn(2), false)); //returns 5
@@ -239,7 +239,7 @@ count(iterator_to_array($records->fetchColumn(2), false)); //returns 5
 use League\Csv\Reader;
 use League\Csv\Statement;
 
-$reader = Reader::createFromPath('/path/to/my/file.csv');
+$reader = Reader::createFromPath('/path/to/my/file.csv', 'r');
 $reader->setHeaderOffset(0);
 
 $records = (new Statement())->process($reader);

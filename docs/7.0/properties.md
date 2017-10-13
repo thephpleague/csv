@@ -78,7 +78,7 @@ The method takes two arguments:
 ~~~php
 <?php
 
-$reader = Reader::createFromPath('/path/to/your/csv/file.csv');
+$reader = Reader::createFromPath('/path/to/your/csv/file.csv', 'r');
 
 $reader->setEnclosure('"');
 $reader->setEscape('\\');
@@ -114,7 +114,7 @@ The method takes two arguments:
 ~~~php
 <?php
 
-$reader = Reader::createFromPath('/path/to/your/csv/file.csv');
+$reader = Reader::createFromPath('/path/to/your/csv/file.csv', 'r');
 
 $reader->setEnclosure('"');
 $reader->setEscape('\\');

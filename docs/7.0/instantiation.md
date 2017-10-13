@@ -50,7 +50,7 @@ The resulting string and `$open_mode` parameters are used to lazy load internall
 use League\Csv\Reader;
 use League\Csv\Writer;
 
-$reader = Reader::createFromPath('/path/to/your/csv/file.csv');
+$reader = Reader::createFromPath('/path/to/your/csv/file.csv', 'r');
 //the $reader object will use the 'r+' open mode as no `open_mode` parameter was supplied.
 $writer = Writer::createFromPath(new SplFileObject('/path/to/your/csv/file.csv', 'a+'), 'w');
 //the $writer object open mode will be 'w'!!
