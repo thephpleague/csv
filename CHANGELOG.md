@@ -17,6 +17,7 @@ All Notable changes to `Csv` will be documented in this file
 
 - Bug fixes headers from AbstractCsv::output according to RFC6266 [#250](https://github.com/thephpleague/csv/issues/250)
 - Make sure the internal source still exists before closing it [#251](https://github.com/thephpleague/csv/issues/251)
+- Make sure the `Reader::createFromPath` default open mode is `r` see [#266](https://github.com/thephpleague/csv/pull/266)
 
 ### Removed
 
