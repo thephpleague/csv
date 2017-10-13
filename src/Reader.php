@@ -62,6 +62,14 @@ class Reader extends AbstractCsv implements Countable, IteratorAggregate, JsonSe
     protected $stream_filter_mode = STREAM_FILTER_READ;
 
     /**
+     * @inheritdoc
+     */
+    public static function createFromPath(string $path, string $open_mode = 'r', $context = null): AbstractCsv
+    {
+        return new static(Stream::createFromPath($path, $open_mode, $context));
+    }
+
+    /**
      * Returns the header offset
      *
      * If no CSV header offset is set this method MUST return null

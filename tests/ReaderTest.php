@@ -349,4 +349,13 @@ class ReaderTest extends TestCase
             json_encode($reader)
         );
     }
+
+    /**
+     * @covers ::createFromPath
+     */
+    public function testCreateFromPath()
+    {
+        $csv = Reader::createFromPath(__DIR__.'/data/foo_readonly.csv');
+        $this->assertCount(1, $csv);
+    }
 }
