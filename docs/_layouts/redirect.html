@@ -1,29 +1,88 @@
 <!DOCTYPE html>
-<html lang="en-US">
+<html class="homepage">
 <head>
-  <meta charset="utf-8">
-  <title>{{ site.data.project.tagline }} - {{ site.data.project.title }}</title>
-  <meta http-equiv="refresh" content="0; url={{ page.redirect.to }}">
-  {% if site.data.project.description %}
-      <meta name="description" content="{{ site.data.project.description }}">
-  {% endif %}
-  {% if site.data.images.favicon %}
-      <link rel="icon" type="image/x-icon" href="{{ site.data.images.favicon }}" />
-  {% else %}
-      <link rel="icon" type="image/x-icon" href="//theme.thephpleague.com/img/favicon.ico" />
-  {% endif %}
-  {% if site.data.images.apple_touch %}
-      <link rel="apple-touch-icon-precomposed" href="{{ site.data.images.apple_touch }}">
-  {% else %}
-      <link rel="apple-touch-icon-precomposed" href="//theme.thephpleague.com/img/apple-touch-icon-precomposed.png">
-  {% endif %}
-  <link rel="stylesheet" href="//theme.thephpleague.com/css/all.css?2">
-  <link rel="stylesheet" href="/custom.css?12">
-  <link rel="canonical" href="{{ page.redirect.to }}">
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{{ site.data.project.tagline }} - {{ site.data.project.title }}</title>
+    <meta http-equiv="refresh" content="0; url={{ page.redirect.to }}">
+    {% if site.data.project.description %}
+        <meta name="description" content="{{ site.data.project.description }}">
+    {% endif %}
+    {% if site.data.images.favicon %}
+        <link rel="icon" type="image/x-icon" href="{{ site.data.images.favicon }}" />
+    {% else %}
+        <link rel="icon" type="image/x-icon" href="//theme.thephpleague.com/img/favicon.ico" />
+    {% endif %}
+    {% if site.data.images.apple_touch %}
+        <link rel="apple-touch-icon-precomposed" href="{{ site.data.images.apple_touch }}">
+    {% else %}
+        <link rel="apple-touch-icon-precomposed" href="//theme.thephpleague.com/img/apple-touch-icon-precomposed.png">
+    {% endif %}
+    <link rel="stylesheet" href="//theme.thephpleague.com/css/all.css?12">
+    <link rel="stylesheet" href="/homepage.css?12">
+    <link rel="canonical" href="{{ page.redirect.to }}">
 </head>
+
 <body>
-  <h1>Redirecting…</h1>
-  <a href="{{ page.redirect.to }}">Click here if you are not redirected.</a>
-  <script>location="{{ page.redirect.to }}"</script>
+
+<section class="all_packages">
+    <a href="//thephpleague.com/">
+        <img src="//theme.thephpleague.com/img/loep_logo.png" width="195" height="200" alt="The League of Extraordinary Packages">
+    </a>
+    <h2>Our Packages:</h2>
+    <ul>
+        <!-- Loaded via JavaScript -->
+    </ul>
+</section>
+
+<header>
+    <div class="inner-content">
+      <a href="//thephpleague.com/" class="league">Presented by The League of Extraordinary Packages</a>
+      <h1>{{ site.data.project.title }}</h1>
+      <h2>{{ site.data.project.tagline }}</h2>
+      <p class="composer"><span>{{ site.data.project.composer }}</span></p>
+    </div>
+</header>
+
+<main>
+  <div class="highlights">
+    <div class="inner-content">
+      <h1>Redirecting…</h1>
+      <div class="content">
+      <a href="{{ page.redirect.to }}" style="color:#ff4043">Click here if you are not redirected.</a>
+      <script>location="{{ page.redirect.to }}"</script>
+      </div>
+    </div>
+  </div>
+
+  <div class="questions">
+    <div class="inner-content">
+      <h1>Questions?</h1>
+      <p><a href="https://github.com/thephpleague/{{ site.data.project.repository }}">{{ site.data.project.title }}</a> was created by {{ site.data.project.author.name }}. Find him on Twitter at <a href="https://twitter.com/{{ site.data.project.author.twitter_account }}">@{{ site.data.project.author.twitter_account }}</a>.</p>
+    </div>
+  </div>
+
+</main>
+
+<footer>
+    <span>&copy; Copyright <a href="//thephpleague.com">The League of Extraordinary Packages</a>.</span>
+    <span>Site design by <a href="//reinink.ca">Jonathan Reinink</a>.</span>
+</footer>
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+<script src="//theme.thephpleague.com/js/scripts.js"></script>
+{% if site.data.project.google_analytics_tracking_id %}
+<script>
+    (function(b,o,i,l,e,r){b.GoogleAnalyticsObject=l;b[l]||(b[l]=
+    function(){(b[l].q=b[l].q||[]).push(arguments)});b[l].l=+new Date;
+    e=o.createElement(i);r=o.getElementsByTagName(i)[0];
+    e.src='//www.google-analytics.com/analytics.js';
+    r.parentNode.insertBefore(e,r)}(window,document,'script','ga'));
+    ga('create','{{  site.data.project.google_analytics_tracking_id }}');
+    ga('send','pageview');
+</script>
+{% endif %}
+
 </body>
 </html>

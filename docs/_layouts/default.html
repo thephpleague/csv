@@ -18,12 +18,6 @@
         <title>{{ page.title }} - {{ site.data.project.title }}</title>
     {% endif %}
 
-    {% if site.github.url %}
-        <base href="{{ site.github.url }}/{{ version }}/">
-    {% else %}
-        <base href="/{{ version }}/">
-    {% endif %}
-
     {% if site.data.project.description %}
         <meta name="description" content="{{ site.data.project.description }}">
     {% endif %}
