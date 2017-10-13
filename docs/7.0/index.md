@@ -18,13 +18,6 @@ layout: default
 PHP. The goal of the library is to be as powerful while remaining lightweight,
 by utilizing PHP native classes whenever possible.
 
-## Notes
-
-By default, the mode for a `Reader::createFromPath()` is
-`'r+'` which looks for write permissions on the file and throws an Exception if
-the file cannot be opened with the permission set. For sake of clarity, it is
-strongly suggested to set `'r'` mode on the file to ensure it can be opened.
-
 ## Examples
 
 ### Parsing a document

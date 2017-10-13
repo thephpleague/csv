@@ -22,6 +22,12 @@ class Reader extends AbstractCsv implements Countable, IteratorAggregate, JsonSe
 
 The `League\Csv\Reader` class extends the general connections [capabilities](/9.0/connections/) to ease selecting and manipulating CSV document records.
 
+<p class="message-warning">
+By default, the mode for a <code>Reader::createFromPath</code> is
+<code>r+</code> which looks for write permissions on the file and throws an <code>Exception</code> if
+the file cannot be opened with the permission set. For sake of clarity, it is
+strongly suggested to set <code>r</code> mode on the file to ensure it can be opened.</p>
+
 ## CSV example
 
 Many examples in this reference require an CSV file. We will use the following file `file.csv` containing the following data:
@@ -58,13 +64,6 @@ $csv->setHeaderOffset(0);
 $header_offset = $csv->getHeaderOffset(); //returns 0
 $header = $csv->getHeader(); //returns ['First Name', 'Last Name', 'E-mail']
 ~~~
-
-### Notes
-
-By default, the mode for a `Reader::createFromPath()` is
-`'r+'` which looks for write permissions on the file and throws an Exception if
-the file cannot be opened with the permission set. For sake of clarity, it is
-strongly suggested to set `'r'` mode on the file to ensure it can be opened.
 
 If no header offset is set:
 

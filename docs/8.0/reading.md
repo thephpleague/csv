@@ -8,12 +8,11 @@ redirect_from: /reading/
 
 To extract data from a CSV document use `League\Csv\Reader` methods.
 
-## Notes
-
-By default, the mode for a `Reader::createFromPath()` is
-`'r+'` which looks for write permissions on the file and throws an Exception if
+<p class="message-warning">
+By default, the mode for a <code>Reader::createFromPath</code> is
+<code>r+</code> which looks for write permissions on the file and throws an <code>Exception</code> if
 the file cannot be opened with the permission set. For sake of clarity, it is
-strongly suggested to set `'r'` mode on the file to ensure it can be opened.
+strongly suggested to set <code>r</code> mode on the file to ensure it can be opened.</p>
 
 ## Reader::fetch
 
