@@ -127,7 +127,7 @@ class EncloseField extends php_user_filter
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function onCreate()
     {
@@ -136,7 +136,7 @@ class EncloseField extends php_user_filter
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function filter($in, $out, &$consumed, $closing)
     {

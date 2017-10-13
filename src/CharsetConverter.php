@@ -130,7 +130,7 @@ class CharsetConverter extends php_user_filter
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function onCreate()
     {
@@ -154,7 +154,7 @@ class CharsetConverter extends php_user_filter
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function filter($in, $out, &$consumed, $closing)
     {

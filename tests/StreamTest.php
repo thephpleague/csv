@@ -45,15 +45,6 @@ class StreamTest extends TestCase
     /**
      * @covers ::__construct
      */
-    public function testCreateStreamWithNonSeekableStream()
-    {
-        $this->expectException(Exception::class);
-        new Stream(fopen('php://stdin', 'r'));
-    }
-
-    /**
-     * @covers ::__construct
-     */
     public function testCreateStreamWithWrongResourceType()
     {
         $this->expectException(TypeError::class);
@@ -141,6 +132,26 @@ class StreamTest extends TestCase
         $doc->setFlags(SplFileObject::READ_CSV);
         $doc->seek(1);
         $this->assertSame(['Aaron', '55', 'M', '2004'], $doc->current());
+    }
+
+    /**
+     * @covers ::rewind
+     */
+    public function testRewindThrowsException()
+    {
+        $this->expectException(Exception::class);
+        $stream = new Stream(fopen('php://stdin', 'r'));
+        $stream->rewind();
+    }
+
+    /**
+     * @covers ::seek
+     */
+    public function testCreateStreamWithNonSeekableStream()
+    {
+        $this->expectException(Exception::class);
+        $stream = new Stream(fopen('php://stdin', 'r'));
+        $stream->seek(3);
     }
 
     /**

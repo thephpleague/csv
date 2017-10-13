@@ -208,4 +208,15 @@ class WriterTest extends TestCase
         $this->csv->insertOne(['jane', 'doe']);
         $this->assertSame("JANE,DOE\n", (string) $this->csv);
     }
+
+    /**
+     * @covers League\Csv\Stream::fseek
+     */
+    public function testWriterTriggerExceptionWithNonSeekableStream()
+    {
+        $this->expectException(Exception::class);
+        $writer = Writer::createFromPath('php://output', 'w');
+        $writer->setNewline("\r\n");
+        $writer->insertOne(['foo', 'bar']);
+    }
 }

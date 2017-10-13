@@ -47,7 +47,7 @@ class MapIterator extends IteratorIterator
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function current()
     {

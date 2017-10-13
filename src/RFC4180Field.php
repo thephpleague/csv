@@ -143,7 +143,7 @@ class RFC4180Field extends php_user_filter
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function filter($in, $out, &$consumed, $closing)
     {
@@ -157,7 +157,7 @@ class RFC4180Field extends php_user_filter
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function onCreate()
     {

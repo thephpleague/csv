@@ -57,12 +57,12 @@ class Reader extends AbstractCsv implements Countable, IteratorAggregate, JsonSe
     protected $nb_records = -1;
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     protected $stream_filter_mode = STREAM_FILTER_READ;
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public static function createFromPath(string $path, string $open_mode = 'r', $context = null): AbstractCsv
     {
@@ -154,7 +154,7 @@ class Reader extends AbstractCsv implements Countable, IteratorAggregate, JsonSe
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function __call($method, array $arguments)
     {
@@ -167,7 +167,7 @@ class Reader extends AbstractCsv implements Countable, IteratorAggregate, JsonSe
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function count(): int
     {
@@ -179,7 +179,7 @@ class Reader extends AbstractCsv implements Countable, IteratorAggregate, JsonSe
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function getIterator(): Iterator
     {
@@ -187,7 +187,7 @@ class Reader extends AbstractCsv implements Countable, IteratorAggregate, JsonSe
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function jsonSerialize(): array
     {
@@ -337,7 +337,7 @@ class Reader extends AbstractCsv implements Countable, IteratorAggregate, JsonSe
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     protected function resetProperties()
     {

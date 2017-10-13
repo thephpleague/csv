@@ -62,7 +62,7 @@ class Writer extends AbstractCsv
     protected $flush_threshold;
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     protected $stream_filter_mode = STREAM_FILTER_WRITE;
 

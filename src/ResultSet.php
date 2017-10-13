@@ -58,7 +58,7 @@ class ResultSet implements Countable, IteratorAggregate, JsonSerializable
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function __destruct()
     {
@@ -76,7 +76,7 @@ class ResultSet implements Countable, IteratorAggregate, JsonSerializable
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function getRecords(): Generator
     {
@@ -86,7 +86,7 @@ class ResultSet implements Countable, IteratorAggregate, JsonSerializable
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function getIterator(): Generator
     {
@@ -94,7 +94,7 @@ class ResultSet implements Countable, IteratorAggregate, JsonSerializable
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function count(): int
     {
@@ -102,7 +102,7 @@ class ResultSet implements Countable, IteratorAggregate, JsonSerializable
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function jsonSerialize(): array
     {

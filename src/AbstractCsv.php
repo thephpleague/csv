@@ -96,7 +96,7 @@ abstract class AbstractCsv implements ByteSequence
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function __destruct()
     {
@@ -104,7 +104,7 @@ abstract class AbstractCsv implements ByteSequence
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function __clone()
     {

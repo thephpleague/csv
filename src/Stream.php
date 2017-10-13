@@ -93,6 +93,13 @@ class Stream implements SeekableIterator
     protected $escape = '\\';
 
     /**
+     * Tell whether the current stream is seekable;
+     *
+     * @var bool
+     */
+    protected $isSeekable = false;
+
+    /**
      * New instance
      *
      * @param resource $resource stream type resource
@@ -109,15 +116,12 @@ class Stream implements SeekableIterator
             throw new TypeError(sprintf('Argument passed must be a seekable stream resource, %s resource given', $type));
         }
 
-        if (!stream_get_meta_data($resource)['seekable']) {
-            throw new Exception('Argument passed must be a seekable stream resource');
-        }
-
+        $this->isSeekable = stream_get_meta_data($resource)['seekable'];
         $this->stream = $resource;
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function __destruct()
     {
@@ -135,7 +139,7 @@ class Stream implements SeekableIterator
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function __clone()
     {
@@ -143,7 +147,7 @@ class Stream implements SeekableIterator
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function __debugInfo()
     {
@@ -337,6 +341,10 @@ class Stream implements SeekableIterator
      */
     public function rewind()
     {
+        if (!$this->isSeekable) {
+            throw new Exception('The stream resource must be seekable');
+        }
+
         rewind($this->stream);
         $this->offset = 0;
         $this->value = false;
@@ -404,6 +412,10 @@ class Stream implements SeekableIterator
      */
     public function seek($position)
     {
+        if (!$this->isSeekable) {
+            throw new Exception('The stream resource must be seekable');
+        }
+
         if ($position < 0) {
             throw new Exception(sprintf('%s() can\'t seek stream to negative line %d', __METHOD__, $position));
         }
@@ -456,6 +468,10 @@ class Stream implements SeekableIterator
      */
     public function fseek(int $offset, int $whence = SEEK_SET)
     {
+        if (!$this->isSeekable) {
+            throw new Exception('The stream resource must be seekable');
+        }
+
         return fseek($this->stream, $offset, $whence);
     }
 
