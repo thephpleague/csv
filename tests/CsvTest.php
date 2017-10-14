@@ -165,11 +165,22 @@ EOF;
 
     /**
      * @covers ::__toString
+     * @covers ::getContent
      */
     public function testToString()
     {
         $expected = "john,doe,john.doe@example.com\njane,doe,jane.doe@example.com\n";
         $this->assertSame($expected, (string) $this->csv);
+    }
+
+    /**
+     * @runInSeparateProcess
+     * @covers ::__toString
+     */
+    public function testToStringTriggerUserError()
+    {
+        $this->expectException('\PHPUnit\Framework\Error');
+        $this->assertSame('', @Reader::createFromPath('php://output', 'w')->__toString());
     }
 
     /**

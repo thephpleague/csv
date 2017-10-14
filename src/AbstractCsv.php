@@ -16,6 +16,7 @@ namespace League\Csv;
 
 use Generator;
 use SplFileObject;
+use Throwable;
 use function League\Csv\bom_match;
 
 /**
@@ -253,24 +254,11 @@ abstract class AbstractCsv implements ByteSequence
     }
 
     /**
-     * Retrieves the CSV content
-     *
-     * @return string
-     */
-    public function __toString(): string
-    {
-        $raw = '';
-        foreach ($this->chunk(8192) as $chunk) {
-            $raw .= $chunk;
-        }
-
-        return $raw;
-    }
-
-    /**
      * Retuns the CSV document as a Generator of string chunk
      *
      * @param int $length number of bytes read
+     *
+     * @throws Exception if tje number of bytes is lesser than 1
      *
      * @return Generator
      */
@@ -290,6 +278,41 @@ abstract class AbstractCsv implements ByteSequence
         while ($this->document->valid()) {
             yield $this->document->fread($length);
         }
+    }
+
+    /**
+     * DEPRECATION WARNING! This method will be removed in the next major point release
+     *
+     * @deprecated deprecated since version 9.1.0
+     * @see AbstractCsv::getContent
+     *
+     * Retrieves the CSV content
+     *
+     * @return string
+     */
+    public function __toString(): string
+    {
+        try {
+            return $this->getContent();
+        } catch (Throwable $e) {
+            trigger_error($e->getMessage(), E_USER_ERROR);
+            return '';
+        }
+    }
+
+    /**
+     * Retrieves the CSV content
+     *
+     * @return string
+     */
+    public function getContent(): string
+    {
+        $raw = '';
+        foreach ($this->chunk(8192) as $chunk) {
+            $raw .= $chunk;
+        }
+
+        return $raw;
     }
 
     /**
