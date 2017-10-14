@@ -258,7 +258,7 @@ abstract class AbstractCsv implements ByteSequence
      *
      * @param int $length number of bytes read
      *
-     * @throws Exception if tje number of bytes is lesser than 1
+     * @throws Exception if the number of bytes is lesser than 1
      *
      * @return Generator
      */
