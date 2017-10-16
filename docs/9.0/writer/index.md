@@ -105,7 +105,7 @@ $newline = $writer->getNewline(); // equals "\n";
 $writer->setNewline("\r\n");
 $newline = $writer->getNewline(); // equals "\r\n";
 $writer->insertOne(["one", "two"]);
-echo $writer; // displays "one,two\r\n";
+echo $writer->getContent(); // displays "one,two\r\n";
 ~~~
 
 <p class="message-info">The default newline sequence is <code>\n</code>;</p>
@@ -169,7 +169,7 @@ $writer = Writer::createFromFileObject(new SplTempFileObject());
 $writer->addFormatter($formatter);
 $writer->insertOne(['john', 'doe', 'john.doe@example.com']);
 
-$writer->__toString();
+$writer->getContent();
 //will display something like JOHN,DOE,JOHN.DOE@EXAMPLE.COM
 ~~~
 

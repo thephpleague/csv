@@ -7,6 +7,8 @@ title: Loading CSV documents
 
 Because CSV documents come in different forms we use named constructors to offer several ways to load them.
 
+<p class="message-warning">Since version <code>9.1.0</code> non seekable CSV documents can be used but <code>Exception</code> will be thrown if features requiring seekable CSV document are used.</p>
+
 ## Loading from a string
 
 ~~~php
@@ -74,7 +76,7 @@ $reader = Reader::createFromStream(fopen('/path/to/the/file.csv', 'r+'));
 $writer = Writer::createFromStream(tmpfile());
 ~~~
 
-<p class="message-warning"> The resource stream <strong>MUST</strong> be seekable otherwise an <code>League\Csv\Exception</code> exception is thrown.</p>
+<p class="message-notice">Prior to version <code>9.1.0</code>, the method was throwing <code>League\Csv\Exception</code> for non-seekable stream resource.</p>
 
 ## Loading from a SplFileObject object
 
@@ -95,5 +97,3 @@ use League\Csv\Writer;
 $reader = Reader::createFromFileObject(new SplFileObject('/path/to/your/csv/file.csv'));
 $writer = Writer::createFromFileObject(new SplTempFileObject());
 ~~~
-
-<p class="message-warning"> The <code>SplFileObject</code> <strong>MUST</strong> be seekable otherwise a <code>RuntimeException</code> exception may be thrown.</p>

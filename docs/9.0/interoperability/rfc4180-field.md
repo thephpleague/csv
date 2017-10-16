@@ -78,7 +78,7 @@ use League\Csv\Writer;
 $writer = Writer::createFromPath('php://temp');
 RFC4180Field::addTo($writer, 'fo'); // incorrect sequence this will alter your CSV
 $writer->insertOne(['foo bar', 'bar']);
-echo $writer; //display ' o bar,baz' instead of foo bar,baz
+echo $writer->getContent(); //display ' o bar,baz' instead of foo bar,baz
 ~~~
 
 ### On records insertion

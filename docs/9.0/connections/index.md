@@ -18,6 +18,7 @@ abstract class AbstractCsv implements ByteSequence
     public static function createFromStream(resource $stream): self
     public static function createFromString(string $str): self
     public function hasStreamFilter(string $filtername): bool
+    public function getContent(): string
     public function getDelimiter(): string
     public function getEnclosure(): string
     public function getEscape(): string

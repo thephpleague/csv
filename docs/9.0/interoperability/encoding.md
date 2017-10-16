@@ -24,7 +24,7 @@ $reader->setOutputBOM(Reader::BOM_UTF8);
 //let's convert the incoming data from iso-88959-15 to utf-8
 $reader->addStreamFilter('convert.iconv.ISO-8859-15/UTF-8');
 //BOM detected and adjusted for the output
-echo $reader->__toString();
+echo $reader->getContent();
 
 ~~~
 

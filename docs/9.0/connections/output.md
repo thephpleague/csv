@@ -19,10 +19,13 @@ Returns the string representation of the CSV document
 ~~~php
 <?php
 
+public AbstractCsv::getContent(void): string
 public AbstractCsv::__toString(void): string
 ~~~
 
-Use the `echo` construct on the instantiated object or use the `__toString` method to return the CSV full content.
+<p class="message-notice">The <code>getContent</code> method is added in version <code>9.1.0</code> and replaces the <code>__toString</code> method</p>
+
+Use the `getContent` method to return the CSV full content.
 
 ### Example
 
@@ -32,10 +35,40 @@ Use the `echo` construct on the instantiated object or use the `__toString` meth
 use League\Csv\Reader;
 
 $reader = Reader::createFromPath('/path/to/my/file.csv', 'r');
-echo $reader;
-// or
-echo $reader->__toString();
+echo $reader->getContent();
 ~~~
+
+### Exceptions and Errors
+
+If the CSV document is not seekable a `Exception` or a `RuntimeException` may be thrown when using `getContent`. A `Fatal Error` will be trigger when using the `__toString` method.
+
+#### Using the `getContent` method
+
+~~~php
+<?php
+
+use League\Csv\Writer;
+
+$csv = Writer::createFromFileObject('php://output', 'w');
+$csv->insertOne(['foo', 'bar']);
+echo $csv->getContent();
+//throws an RuntimeException because the SplFileObject is not seekable
+~~~
+
+#### Using the `__toString` method
+
+~~~php
+<?php
+
+use League\Csv\Writer;
+
+$csv = Writer::createFromFileObject('php://output', 'w');
+$csv->insertOne(['foo', 'bar']);
+echo $csv;
+//throws a Fatal Error because no exception can be thrown by the __toString method
+~~~
+
+<p class="message-warning">The <code>__toString</code> method is deprecated in version <code>9.1.0</code> and will be remove in the next major version.</p>
 
 ## Downloading the document
 
@@ -83,8 +116,6 @@ die;
 <p class="message-notice">If you just need to make the CSV downloadable, end your script with a call to <code>exit</code> just after the <code>output</code> method. You <strong>should not</strong> return the method returned value.</p>
 
 <p class="message-warning">starting with version <code>9.1.0</code>, the <code>output</code> method will throw an <code>Exception</code> if the provided <code>$filename</code> does not comply with <a href="https://tools.ietf.org/html/rfc6266#section-4">RFC6266</a></p>
-
-
 
 ## Outputting the document into chunks
 
