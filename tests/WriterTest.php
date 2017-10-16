@@ -72,7 +72,7 @@ class WriterTest extends TestCase
         $csv->insertOne(['jane', 'doe', 'jane@example.com']);
         $csv->insertOne(['jane', 'doe', 'jane@example.com']);
         $csv->setFlushThreshold(null);
-        $this->assertContains('JANE,DOE,JANE@EXAMPLE.COM', (string) $csv);
+        $this->assertContains('JANE,DOE,JANE@EXAMPLE.COM', $csv->getContent());
     }
 
     /**
@@ -86,7 +86,7 @@ class WriterTest extends TestCase
         foreach ($expected as $row) {
             $this->csv->insertOne($row);
         }
-        $this->assertContains('john,doe,john.doe@example.com', (string) $this->csv);
+        $this->assertContains('john,doe,john.doe@example.com', $this->csv->getContent());
     }
 
     /**
@@ -96,7 +96,7 @@ class WriterTest extends TestCase
     {
         $csv = Writer::createFromPath(__DIR__.'/data/foo.csv', 'a+');
         $csv->insertOne(['jane', 'doe', 'jane.doe@example.com']);
-        $this->assertContains('jane,doe,jane.doe@example.com', (string) $csv);
+        $this->assertContains('jane,doe,jane.doe@example.com', $csv->getContent());
     }
 
     /**
@@ -133,7 +133,7 @@ class WriterTest extends TestCase
     public function testSave($argument, string $expected)
     {
         $this->csv->insertAll($argument);
-        $this->assertContains($expected, (string) $this->csv);
+        $this->assertContains($expected, $this->csv->getContent());
     }
 
     public function dataToSave()
@@ -164,7 +164,7 @@ class WriterTest extends TestCase
         }
 
         $expected = "john|doe|john.doe@example.com\njane|doe|jane.doe@example.com\n";
-        $this->assertSame($expected, $csv->__toString());
+        $this->assertSame($expected, $csv->getContent());
         $csv = null;
         fclose($fp);
         $fp = null;
@@ -183,7 +183,7 @@ class WriterTest extends TestCase
         $this->assertSame("\n", $csv->getNewline());
         $csv->setNewline("\r\n");
         $csv->insertOne(['jane', 'doe']);
-        $this->assertSame("jane,doe\r\n", (string) $csv);
+        $this->assertSame("jane,doe\r\n", $csv->getContent());
         $csv = null;
     }
 
@@ -206,7 +206,7 @@ class WriterTest extends TestCase
 
         $this->csv->addFormatter($func);
         $this->csv->insertOne(['jane', 'doe']);
-        $this->assertSame("JANE,DOE\n", (string) $this->csv);
+        $this->assertSame("JANE,DOE\n", $this->csv->getContent());
     }
 
     /**

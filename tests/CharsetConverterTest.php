@@ -112,7 +112,7 @@ class CharsetConverterTest extends TestCase
         CharsetConverter::addTo($csv, 'iso-8859-15', 'utf-8');
 
         $this->assertContains(CharsetConverter::FILTERNAME.'.*', stream_get_filters());
-        $this->assertSame(strtoupper($expected), (string) $csv);
+        $this->assertSame(strtoupper($expected), $csv->getContent());
     }
 
     /**

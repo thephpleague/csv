@@ -38,7 +38,7 @@ class RFC4180FieldTest extends TestCase
         $this->assertContains(RFC4180Field::getFiltername(), stream_get_filters());
         $csv->setNewline("\r\n");
         $csv->insertOne($record);
-        $this->assertSame($expected, (string) $csv);
+        $this->assertSame($expected, $csv->getContent());
     }
 
     public function bugsProvider()
@@ -164,7 +164,7 @@ class RFC4180FieldTest extends TestCase
         $csv->setDelimiter('|');
         RFC4180Field::addTo($csv, "\0");
         $csv->insertAll($this->records);
-        $contents = (string) $csv;
+        $contents = $csv->getContent();
         $this->assertContains('Grand Cherokee', $contents);
         $this->assertNotContains('"Grand Cherokee"', $contents);
     }

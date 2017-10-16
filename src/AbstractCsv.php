@@ -16,7 +16,6 @@ namespace League\Csv;
 
 use Generator;
 use SplFileObject;
-use Throwable;
 use function League\Csv\bom_match;
 
 /**
@@ -292,12 +291,7 @@ abstract class AbstractCsv implements ByteSequence
      */
     public function __toString(): string
     {
-        try {
-            return $this->getContent();
-        } catch (Throwable $e) {
-            trigger_error($e->getMessage(), E_USER_ERROR);
-            return '';
-        }
+        return $this->getContent();
     }
 
     /**

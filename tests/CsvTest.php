@@ -170,17 +170,7 @@ EOF;
     public function testToString()
     {
         $expected = "john,doe,john.doe@example.com\njane,doe,jane.doe@example.com\n";
-        $this->assertSame($expected, (string) $this->csv);
-    }
-
-    /**
-     * @runInSeparateProcess
-     * @covers ::__toString
-     */
-    public function testToStringTriggerUserError()
-    {
-        $this->expectException('\PHPUnit\Framework\Error');
-        $this->assertSame('', @Reader::createFromPath('php://output', 'w')->__toString());
+        $this->assertSame($expected, $this->csv->__toString());
     }
 
     /**
@@ -242,19 +232,19 @@ EOF;
 
     /**
      * @covers ::setOutputBOM
-     * @covers ::__toString
+     * @covers ::getContent
      */
     public function testAddBOMSequences()
     {
         $this->csv->setOutputBOM(Reader::BOM_UTF8);
         $expected = chr(239).chr(187).chr(191).'john,doe,john.doe@example.com'.PHP_EOL
             .'jane,doe,jane.doe@example.com'.PHP_EOL;
-        $this->assertSame($expected, (string) $this->csv);
+        $this->assertSame($expected, $this->csv->getContent());
     }
 
     /**
      * @covers ::setOutputBOM
-     * @covers ::__toString
+     * @covers ::getContent
      */
     public function testChangingBOMOnOutput()
     {
@@ -262,7 +252,7 @@ EOF;
             .'jane,doe,jane.doe@example.com'.PHP_EOL;
         $reader = Reader::createFromString(Reader::BOM_UTF32_BE.$text);
         $reader->setOutputBOM(Reader::BOM_UTF8);
-        $this->assertSame(Reader::BOM_UTF8.$text, (string) $reader);
+        $this->assertSame(Reader::BOM_UTF8.$text, $reader->getContent());
     }
 
     /**
@@ -355,9 +345,9 @@ EOF;
         $path = __DIR__.'/data/foo.csv';
         $csv = Reader::createFromPath($path);
         $csv->addStreamFilter('string.toupper');
-        $this->assertContains('JOHN', (string) $csv);
+        $this->assertContains('JOHN', $csv->getContent());
         $csv = Reader::createFromPath($path);
-        $this->assertNotContains('JOHN', (string) $csv);
+        $this->assertNotContains('JOHN', $csv->getContent());
     }
 
     /**
@@ -369,7 +359,7 @@ EOF;
         $csv = Writer::createFromPath(__DIR__.'/data/newline.csv', 'w+');
         $csv->addStreamFilter('string.toupper');
         $csv->insertOne([1, 'two', 3, "new\r\nline"]);
-        $this->assertContains("1,TWO,3,\"NEW\r\nLINE\"", (string) $csv);
+        $this->assertContains("1,TWO,3,\"NEW\r\nLINE\"", $csv->getContent());
     }
 
     /**
