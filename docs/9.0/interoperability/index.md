@@ -10,6 +10,7 @@ Depending on your operating system and on the software you are using to read/imp
 - [encoding and BOM presence](/9.0/interoperability/encoding/)
 - [rfc4180 field compliance](/9.0/interoperability/rfc4180-field/)
 - [add the enclosure character on all fields](/9.0/interoperability/enclosure-field/)
+- [prevents CSV formula injection](/9.0/interoperability/escape-formula-injection/)
 
 <p class="message-info">Out of the box, <code>League\Csv</code> connections do not alter the CSV document presentation and uses PHP's CSV native functions to read and write CSV records.</p>
 
