@@ -22,7 +22,7 @@ version:
             Document Encoding : '/9.0/interoperability/encoding/'
             RFC4180 Field : '/9.0/interoperability/rfc4180-field/'
             Force Enclosure : '/9.0/interoperability/enclose-field/'
-            Escape Formula Injection : '/9.0/interoperability/escape-formula-injection/'
+            Formula Injection : '/9.0/interoperability/escape-formula-injection/'
         Converting Records:
             Overview: '/9.0/converter/'
             Charset Converter: '/9.0/converter/charset/'
