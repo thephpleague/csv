@@ -3,7 +3,7 @@ layout: default
 title: CSV Formula Injection
 ---
 
-# Escape Formula Injection
+# Prevents Formula Injection
 
 <p class="message-info">Available since <code>version 9.1.0</code></p>
 
@@ -19,10 +19,10 @@ class EscapeFormulaInjection
 }
 ~~~
 
-The `EscapeFormulaInjection` formats CSV records prior to their insertions in the CSV documents to reduce [CSV Formula Injection](http://georgemauer.net/2017/10/07/csv-injection.html).
+
+The `EscapeFormulaInjection` formats CSV records prior to their insertions in the CSV documents to reduce [CSV Formula Injection](http://georgemauer.net/2017/10/07/csv-injection.html) in imported Spreadsheet programs.
 
 ## Usage with Writer objects
-
 
 The `EscapeFormulaInjection` class uses the formatter capabilities of the `Writer` object to escape formula injection.
 
@@ -33,10 +33,10 @@ public function __construct(string $escape = "\t", array $special_chars = [])
 public function __invoke(array $record): array
 ~~~
 
-The `EnclosureField::__construct` method takes two (2) arguments:
+The `EscapeFormulaInjection::__construct` method takes two (2) arguments:
 
-- the `$escape` parameter which will be used to prepend the record field;
-- the `$special_chars` parameter contains additionals characters that need to be escaped;
+- the `$escape` parameter which will be used to prepend the record field, which default to `\t`;
+- the `$special_chars` parameter contains additionals characters that need to be escaped. By default the following characters if found at the start of the field content will be escaped `+`,`-`,`=`,`@`;
 
 ~~~php
 <?php

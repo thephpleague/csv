@@ -14,6 +14,8 @@ declare(strict_types=1);
 
 namespace League\Csv;
 
+use InvalidArgumentException;
+
 /**
  * A League CSV formatter to tackle CSV Formula Injection
  *
@@ -60,10 +62,18 @@ class EscapeFormulaInjection
      *
      * @param string ...$characters
      *
+     * @throws InvalidArgumentException if the string is not a single character
+     *
      * @return string[]
      */
     protected function filterSpecialCharacters(string ...$characters): array
     {
+        foreach ($characters as $str) {
+            if (1 != mb_strlen($str)) {
+                throw new InvalidArgumentException(sprintf('The submitted string %s must be a single character', $str));
+            }
+        }
+
         return $characters;
     }
 

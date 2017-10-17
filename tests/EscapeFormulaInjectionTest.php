@@ -2,6 +2,7 @@
 
 namespace LeagueTest\Csv;
 
+use InvalidArgumentException;
 use League\Csv\EscapeFormulaInjection;
 use League\Csv\Writer;
 use PHPUnit\Framework\TestCase;
@@ -22,6 +23,17 @@ class EscapeFormulaInjectionTest extends TestCase
     {
         $this->expectException(TypeError::class);
         new EscapeFormulaInjection("\t", [(object) 'i']);
+    }
+
+    /**
+     * @covers ::__construct
+     * @covers ::getSpecialCharacters
+     * @covers ::filterSpecialCharacters
+     */
+    public function testConstructorThrowsInvalidArgumentException()
+    {
+        $this->expectException(InvalidArgumentException::class);
+        new EscapeFormulaInjection("\t", ['i', 'foo']);
     }
 
     /**
