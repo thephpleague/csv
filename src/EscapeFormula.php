@@ -25,7 +25,7 @@ use InvalidArgumentException;
  * @since   9.1.0
  * @author  Ignace Nyamagana Butera <nyamsprod@gmail.com>
  */
-class EscapeFormulaInjection
+class EscapeFormula
 {
     /**
      * Special characters that will be escaped

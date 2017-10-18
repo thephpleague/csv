@@ -6,19 +6,20 @@ All Notable changes to `Csv` will be documented in this file
 
 ### Added
 
-- `League\Csv\EncloseField` to force enclosure insertion on every field
+- `League\Csv\EncloseField` to force enclosure insertion on every field. [#269](https://github.com/thephpleague/csv/pull/269)
+- `League\Csv\EscapeFormula` a Leage CSV formatter to prevent CSV Formula Injection in Spreadsheet programs.
 - `League\Csv\RFC4180Field::addTo` accept an option `$replace_whitespace` argument to improve RFC4180 compliance.
 - `League\Csv\Abstract::getContent`
 
 ### Deprecated
 
-- `League\Csv\Abstract::__toString` use `League\Csv\Abstract::getContent` instead
+- `League\Csv\Abstract::__toString` use `League\Csv\Abstract::getContent` instead. the `__toString` triggers a Fatal Error when used on a non-seekable CSV document. use the `getContent` method instead which will trigger an exception instead.
 
 ### Fixed
 
 - Bug fixes headers from AbstractCsv::output according to RFC6266 [#250](https://github.com/thephpleague/csv/issues/250)
 - Make sure the internal source still exists before closing it [#251](https://github.com/thephpleague/csv/issues/251)
-- Make sure the `Reader::createFromPath` default open mode is `r` see [#266](https://github.com/thephpleague/csv/pull/266)
+- Make sure the `Reader::createFromPath` default open mode is `r` see [#258](https://github.com/thephpleague/csv/pull/258) and [#266](https://github.com/thephpleague/csv/pull/266)
 
 ### Removed
 

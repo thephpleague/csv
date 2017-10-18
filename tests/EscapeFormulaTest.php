@@ -3,7 +3,7 @@
 namespace LeagueTest\Csv;
 
 use InvalidArgumentException;
-use League\Csv\EscapeFormulaInjection;
+use League\Csv\EscapeFormula;
 use League\Csv\Writer;
 use PHPUnit\Framework\TestCase;
 use SplTempFileObject;
@@ -11,9 +11,9 @@ use TypeError;
 
 /**
  * @group filter
- * @coversDefaultClass League\Csv\EscapeFormulaInjection
+ * @coversDefaultClass League\Csv\EscapeFormula
  */
-class EscapeFormulaInjectionTest extends TestCase
+class EscapeFormulaTest extends TestCase
 {
     /**
      * @covers ::__construct
@@ -22,7 +22,7 @@ class EscapeFormulaInjectionTest extends TestCase
     public function testConstructorThrowsTypError()
     {
         $this->expectException(TypeError::class);
-        new EscapeFormulaInjection("\t", [(object) 'i']);
+        new EscapeFormula("\t", [(object) 'i']);
     }
 
     /**
@@ -33,7 +33,7 @@ class EscapeFormulaInjectionTest extends TestCase
     public function testConstructorThrowsInvalidArgumentException()
     {
         $this->expectException(InvalidArgumentException::class);
-        new EscapeFormulaInjection("\t", ['i', 'foo']);
+        new EscapeFormula("\t", ['i', 'foo']);
     }
 
     /**
@@ -42,9 +42,9 @@ class EscapeFormulaInjectionTest extends TestCase
      */
     public function testGetEscape()
     {
-        $formatter = new EscapeFormulaInjection();
+        $formatter = new EscapeFormula();
         $this->assertSame("\t", $formatter->getEscape());
-        $formatterBis = new EscapeFormulaInjection("\n");
+        $formatterBis = new EscapeFormula("\n");
         $this->assertSame("\n", $formatterBis->getEscape());
     }
 
@@ -55,9 +55,9 @@ class EscapeFormulaInjectionTest extends TestCase
      */
     public function testGetSpecialChars()
     {
-        $formatter = new EscapeFormulaInjection();
+        $formatter = new EscapeFormula();
         $this->assertNotContains('i', $formatter->getSpecialCharacters());
-        $formatterBis = new EscapeFormulaInjection("\t", ['i']);
+        $formatterBis = new EscapeFormula("\t", ['i']);
         $this->assertContains('i', $formatterBis->getSpecialCharacters());
     }
 
@@ -70,7 +70,7 @@ class EscapeFormulaInjectionTest extends TestCase
     {
         $record = ['2', '2017-07-25', 'Important Client', '=2+5', 240, null, (object) 'yes'];
         $expected = ['2', '2017-07-25', 'Important Client', "\t=2+5", 240, null, (object) 'yes'];
-        $formatter = new EscapeFormulaInjection();
+        $formatter = new EscapeFormula();
         $this->assertEquals($expected, $formatter->escapeRecord($record));
     }
 
@@ -85,7 +85,7 @@ class EscapeFormulaInjectionTest extends TestCase
         $record = ['2', '2017-07-25', 'Important Client', '=2+5', 240, null];
         $expected = "2,2017-07-25,\"Important Client\",\"\t=2+5\",240,\n";
         $csv = Writer::createFromFileObject(new SplTempFileObject());
-        $csv->addFormatter(new EscapeFormulaInjection());
+        $csv->addFormatter(new EscapeFormula());
         $csv->insertOne($record);
         $this->assertContains($expected, $csv->getContent());
     }
