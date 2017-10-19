@@ -17,7 +17,7 @@ class EncloseField extends php_user_filter
 }
 ~~~
 
-The `EnclosureField` force the `Writer` class to enclose all its record fields.
+The `EncloseField` force the `Writer` class to enclose all its record fields.
 
 <p class="message-warning">Changing the CSV objects control characters <strong>after registering the stream filter</strong> may result in unexpected returned records.</p>
 
@@ -27,10 +27,10 @@ The `EnclosureField` force the `Writer` class to enclose all its record fields.
 ~~~php
 <?php
 
-public static EnclosureField::addTo(Writer $csv, string $sequence): Writer
+public static EncloseField::addTo(Writer $csv, string $sequence): Writer
 ~~~
 
-The `EnclosureField::addTo` method will:
+The `EncloseField::addTo` method will:
 
 - register the stream filter if it is not already the case
 - add a formatter to the `Writer` object to force `fputcsv` to enclose all record field
@@ -39,11 +39,11 @@ The `EnclosureField::addTo` method will:
 ~~~php
 <?php
 
-use League\Csv\EnclosureField;
+use League\Csv\EncloseField;
 use League\Csv\Writer;
 
 $writer = Writer::createFromPath('php://temp');
-EnclosureField::addTo($writer, "\t\x1f"); //adding the stream filter to force enclosure
+EncloseField::addTo($writer, "\t\x1f"); //adding the stream filter to force enclosure
 $writer->insertAll($iterable_data);
 $writer->output('mycsvfile.csv'); //outputting a CSV Document with all its field enclosed
 ~~~
@@ -55,26 +55,26 @@ $writer->output('mycsvfile.csv'); //outputting a CSV Document with all its field
 ~~~php
 <?php
 
-public static EnclosureField::register(): void
-public static EnclosureField::getFiltername(): string
+public static EncloseField::register(): void
+public static EncloseField::getFiltername(): string
 ~~~
 
 To use this stream filter outside `League\Csv` objects you need to:
 
-- register the stream filter using `EnclosureField::register` method.
-- use `EnclosureField::getFiltername` with one of PHP's attaching stream filter functions with the correct arguments as shown below:
+- register the stream filter using `EncloseField::register` method.
+- use `EncloseField::getFiltername` with one of PHP's attaching stream filter functions with the correct arguments as shown below:
 
 ~~~php
 <?php
 
-use League\Csv\EnclosureField;
+use League\Csv\EncloseField;
 
-EnclosureField::register();
+EncloseField::register();
 
 $sequence = "\t\x1f";
 
 $resource = fopen('/path/to/my/file', 'r+');
-$filter = stream_filter_append($resource, EnclosureField::getFiltername(), STREAM_FILTER_WRITE, [
+$filter = stream_filter_append($resource, EncloseField::getFiltername(), STREAM_FILTER_WRITE, [
     'sequence' => $sequence,
 ]);
 
