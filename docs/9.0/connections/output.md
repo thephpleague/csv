@@ -23,7 +23,7 @@ public AbstractCsv::getContent(void): string
 public AbstractCsv::__toString(void): string
 ~~~
 
-<p class="message-notice">The <code>getContent</code> method is added in version <code>9.1.0</code> and replaces the <code>__toString</code> method</p>
+<p class="message-notice">The <code>getContent</code> method is added in version <code>9.1.0</code> and replaces the <code>__toString</code> method which is <strong>deprecated</strong>.</p>
 
 Use the `getContent` method to return the CSV full content.
 
@@ -157,7 +157,7 @@ To avoid breaking the flow of your application, you should create a Response obj
 use League\Csv\Reader;
 
 $reader = Reader::createFromPath('/path/to/my/file.csv', 'r');
-return new Response((string) $reader, 200, [
+return new Response($reader->getContent(), 200, [
     'Content-Encoding' => 'none',
     'Content-Type' => 'text/csv; charset=UTF-8',
     'Content-Disposition' => 'attachment; filename="name-for-your-file.csv"',

@@ -22,11 +22,9 @@ class Reader extends AbstractCsv implements Countable, IteratorAggregate, JsonSe
 
 The `League\Csv\Reader` class extends the general connections [capabilities](/9.0/connections/) to ease selecting and manipulating CSV document records.
 
-<p class="message-warning">
-By default, the mode for a <code>Reader::createFromPath</code> is
-<code>r+</code> which looks for write permissions on the file and throws an <code>Exception</code> if
-the file cannot be opened with the permission set. For sake of clarity, it is
-strongly suggested to set <code>r</code> mode on the file to ensure it can be opened.</p>
+<p class="message-notice">Starting with version <code>9.1.0</code>, <code>createFromPath</code> when used from the <code>Reader</code> object will have its default set to <code>r</code>.</p>
+
+<p class="message-notice">Prior to <code>9.1.0</code>, by default, the mode for a <code>Reader::createFromPath</code> is <code>r+</code> which looks for write permissions on the file and throws an <code>Exception</code> if the file cannot be opened with the permission set. For sake of clarity, it is strongly suggested to set <code>r</code> mode on the file to ensure it can be opened.</p>
 
 ## CSV example
 

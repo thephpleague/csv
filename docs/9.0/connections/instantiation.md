@@ -7,7 +7,7 @@ title: Loading CSV documents
 
 Because CSV documents come in different forms we use named constructors to offer several ways to load them.
 
-<p class="message-warning">Since version <code>9.1.0</code> non seekable CSV documents can be used but <code>Exception</code> will be thrown if features requiring seekable CSV document are used.</p>
+<p class="message-warning">Since version <code>9.1.0</code> non seekable CSV documents can be used but <strong>exceptions will be thrown if features requiring seekable CSV document are used.</strong></p>
 
 ## Loading from a string
 
@@ -54,7 +54,13 @@ $reader = Reader::createFromPath('/path/to/your/csv/file.csv', 'r');
 $writer = Writer::createFromPath('/path/to/your/csv/file.csv', 'w');
 ~~~
 
-<p class="message-info"> The <code>$open_mode</code> default to <code>r+</code> if none is supplied.</p>
+<div class="message-notice">
+Starting with version <code>9.1.0</code>, <code>$open_mode</code> default to:
+<ul>
+<li><code>r+</code> for the <code>Writer</code> class</li>
+<li><code>r</code> for the <code>Reader</code> class</li>
+</ul>
+</div>
 
 ## Loading from a resource stream
 

@@ -109,6 +109,7 @@ echo $writer->getContent(); // displays "one,two\r\n";
 ~~~
 
 <p class="message-info">The default newline sequence is <code>\n</code>;</p>
+<p class="message-warning">If you are using a non seekable CSV document, changing the newline character will trigger an exception.</p>
 
 ## Flushing the buffer
 

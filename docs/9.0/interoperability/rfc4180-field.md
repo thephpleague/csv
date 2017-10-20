@@ -20,7 +20,7 @@ The `RFC4180Field` class enables to work around the following bugs in PHP's nati
 - [bug #43225](https://bugs.php.net/bug.php?id=43225): `fputcsv` incorrectly handles cells ending in `\` followed by `"`
 - [bug #55413](https://bugs.php.net/bug.php?id=55413): `str_getcsv` doesn't remove escape characters
 - [bug #74713](https://bugs.php.net/bug.php?id=74713): CSV cell split after `fputcsv()` + `fgetcsv()` round trip.
-- [bug #38301](https://bugs.php.net/bug.php?id=38301): field enclosure behavior in fputcsv (since version 9.1)
+- [bug #38301](https://bugs.php.net/bug.php?id=38301): field enclosure behavior in `fputcsv` (since version `9.1.0`)
 
 When using this stream filter you can easily create or read a [RFC4180 compliant CSV document](https://tools.ietf.org/html/rfc4180#section-2) using `League\Csv` connections objects.
 
@@ -28,7 +28,7 @@ When using this stream filter you can easily create or read a [RFC4180 compliant
 <p class="message-warning">Changing the CSV objects control characters <strong>after registering the stream filter</strong> may result in unexpected returned records.</p>
 
 
-## Usage with CSV objects
+## Usage with League\CSV objects
 
 ~~~php
 <?php
@@ -48,14 +48,14 @@ The `RFC4180Field::addTo` method will register the stream filter if it is not al
 use League\Csv\RFC4180Field;
 use League\Csv\Writer;
 
-$writer = Writer::createFromPath('php://temp');
+$writer = Writer::createFromPath('php://temp', 'r+');
 $writer->setNewline("\r\n"); //RFC4180 Line feed
 RFC4180Field::addTo($writer); //adding the stream filter to fix field formatting
 $writer->insertAll($iterable_data);
 $writer->output('mycsvfile.csv'); //outputting a RFC4180 compliant CSV Document
 ~~~
 
-<p class="message-notice">the <code>$whitespace_replace</code> argument is available since version 9.1</p>
+<p class="message-notice">the <code>$whitespace_replace</code> argument is available since version <code>9.1.0</code></p>
 
 When the `$whitespace_replace` sequence is different from the empty space and does not contain:
 
@@ -66,8 +66,19 @@ its value will be used to:
 
 - To prevent `fputcsv` default behavior of always using enclosure when a whitespace is found in a record field
 
-<p class="message-warning">The <code>$whitespace_replace</code> sequence should be a sequence not present in the inserted records, otherwise your CSV content will be affected by it.</p>
+~~~php
+<?php
 
+use League\Csv\RFC4180Field;
+use League\Csv\Writer;
+
+$writer = Writer::createFromPath('php://temp', 'r+');
+RFC4180Field::addTo($writer, "\0");
+$writer->insertOne(['foo bar', 'bar']);
+echo $writer->getContent(); //display 'foo bar,bar' instead of '"foo bar",bar'
+~~~
+
+<p class="message-warning">The <code>$whitespace_replace</code> sequence should be a sequence not present in the inserted records, otherwise your CSV content will be affected by it.</p>
 
 ~~~php
 <?php
@@ -75,7 +86,7 @@ its value will be used to:
 use League\Csv\RFC4180Field;
 use League\Csv\Writer;
 
-$writer = Writer::createFromPath('php://temp');
+$writer = Writer::createFromPath('php://temp', 'r+');
 RFC4180Field::addTo($writer, 'fo'); // incorrect sequence this will alter your CSV
 $writer->insertOne(['foo bar', 'bar']);
 echo $writer->getContent(); //display ' o bar,baz' instead of foo bar,baz

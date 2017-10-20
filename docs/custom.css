@@ -53,3 +53,14 @@ h5:hover .header-permalink {
     text-decoration: none;
     color:#777;
 }
+
+main article div>code {
+    display: inline-block;
+    padding: 3px 5px;
+    font-family: Consolas,Monaco,'Andale Mono',monospace;
+    font-size: 17px;
+    line-height: 100%;
+    border-radius: 2px;
+    background: #f5f6f7;
+    border: solid #dcdddd 1px;
+}

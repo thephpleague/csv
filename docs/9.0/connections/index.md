@@ -81,3 +81,21 @@ try {
 }
 ~~~
 
+When using a non-seekable `SplFileObject`, a `RuntimeException` is thrown instead of a `League\Csv\Exception` when using features that requires a seekable CSV document. In the following example a seekable CSV document is required to update the inserted newline.
+
+~~~php
+<?php
+
+use League\Csv\Exception;
+use League\Csv\Writer;
+
+try {
+    $csv = Writer::createFromFileObject(new SplFileObject('php://output', 'w');
+    $csv->setNewline("\r\n");
+    $csv->insertOne(["foo", "bar"]);
+} catch (Exception | RuntimeException $e) {
+    echo $e->getMessage(), PHP_EOL;
+}
+
+//in order to change the CSV document newline a seekable CSV document is required
+~~~
