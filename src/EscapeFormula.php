@@ -28,14 +28,19 @@ use InvalidArgumentException;
 class EscapeFormula
 {
     /**
-     * Special characters that will be escaped
+     * Spreadsheet formula starting character
+     */
+    const FORMULA_STARTING_CHARS = ['=', '-', '+', '@'];
+
+    /**
+     * Effective Spreadsheet formula starting characters
      *
-     * @var string[]
+     * @var array
      */
     protected $special_chars = [];
 
     /**
-     * Escape character
+     * Escape character to escape each CSV formula field
      *
      * @var string
      */
@@ -44,8 +49,9 @@ class EscapeFormula
     /**
      * New instance
      *
-     * @param string   $escape
-     * @param string[] $special_chars additional special characters to escape
+     * @param string   $escape        escape character to escape each CSV formula field
+     * @param string[] $special_chars additional spreadsheet formula starting characters
+     *
      */
     public function __construct(string $escape = "\t", array $special_chars = [])
     {
@@ -53,8 +59,10 @@ class EscapeFormula
         if (!empty($special_chars)) {
             $special_chars = $this->filterSpecialCharacters(...$special_chars);
         }
-        $special_chars = array_merge(['=', '-', '+', '@'], $special_chars);
-        $this->special_chars = array_fill_keys(array_unique($special_chars), 1);
+
+        $chars = array_merge(self::FORMULA_STARTING_CHARS, $special_chars);
+        $chars = array_unique($chars);
+        $this->special_chars = array_fill_keys($chars, 1);
     }
 
     /**
@@ -69,7 +77,7 @@ class EscapeFormula
     protected function filterSpecialCharacters(string ...$characters): array
     {
         foreach ($characters as $str) {
-            if (1 != mb_strlen($str)) {
+            if (1 != strlen($str)) {
                 throw new InvalidArgumentException(sprintf('The submitted string %s must be a single character', $str));
             }
         }

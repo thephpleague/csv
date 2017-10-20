@@ -2,14 +2,15 @@
 
 All Notable changes to `Csv` will be documented in this file
 
-## Next - TBD
+## Next - 2017-10-20
 
 ### Added
 
+- Support for non seekable stream. When seekable feature are required an exceptions will be thrown.
 - `League\Csv\EncloseField` to force enclosure insertion on every field. [#269](https://github.com/thephpleague/csv/pull/269)
-- `League\Csv\EscapeFormula` a Leage CSV formatter to prevent CSV Formula Injection in Spreadsheet programs.
+- `League\Csv\EscapeFormula` a League CSV formatter to prevent CSV Formula Injection in Spreadsheet programs.
 - `League\Csv\RFC4180Field::addTo` accept an option `$replace_whitespace` argument to improve RFC4180 compliance.
-- `League\Csv\Abstract::getContent`
+- `League\Csv\Abstract::getContent` to replace `League\Csv\Abstract::__toString`. The `__toString` method may trigger a Fatal Error with non seekable stream, instead you are recommended to used the new `getContent` method which will trigger an exception instead.
 
 ### Deprecated
 
