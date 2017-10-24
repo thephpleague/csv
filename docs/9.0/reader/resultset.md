@@ -168,7 +168,7 @@ $stmt = (new Statement())
     ->offset(10)
     ->limit(12)
 ;
-$data = $stmt->proce($reader)->fetchOne(3);
+$data = $stmt->process($reader)->fetchOne(3);
 // access the 4th record from the recordset (indexing starts at 0)
 // will return something like this :
 //
