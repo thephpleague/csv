@@ -80,7 +80,7 @@ $filter = stream_filter_append($resource, EncloseField::getFiltername(), STREAM_
 
 $record = array_map(function ($value) use ($sequence) {
 	return $sequence.$value;
-}; $record);
+}, $record);
 
 fputcsv($resource, $record);
 ~~~
