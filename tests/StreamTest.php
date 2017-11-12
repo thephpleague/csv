@@ -53,6 +53,20 @@ class StreamTest extends TestCase
 
     /**
      * @covers ::createFromPath
+     */
+    public function testCreateStreamFromPath()
+    {
+        set_error_handler(function () {
+        });
+
+        $this->expectException(Exception::class);
+        Stream::createFromPath('no/such/file.csv');
+
+        restore_error_handler();
+    }
+
+    /**
+     * @covers ::createFromPath
      * @covers ::current
      */
     public function testCreateStreamFromPathWithContext()

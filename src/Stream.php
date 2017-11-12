@@ -176,7 +176,11 @@ class Stream implements SeekableIterator
         }
 
         if (!$resource = @fopen(...$args)) {
-            throw new Exception(error_get_last()['message']);
+            throw new Exception(
+                error_get_last()
+                ? error_get_last()['message']
+                : 'failed to open stream: No such file or directory'
+            );
         }
 
         $instance = new static($resource);
