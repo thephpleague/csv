@@ -2,6 +2,26 @@
 
 All Notable changes to `Csv` will be documented in this file
 
+
+
+## Next - TBD
+
+### Added
+
+- Nothing
+
+### Deprecated
+
+- Nothing
+
+### Fixed
+
+- issue with `error_get_last` usage when using a modified PHP error handler see [#254](https://github.com/thephpleague/csv/issues/254) - fixed by [@csiszarattila](https://github.com/csiszarattila)
+
+### Removed
+
+- Nothing
+
 ## 9.1.0 - 2017-10-20
 
 ### Added

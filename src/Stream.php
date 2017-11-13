@@ -176,11 +176,7 @@ class Stream implements SeekableIterator
         }
 
         if (!$resource = @fopen(...$args)) {
-            throw new Exception(
-                error_get_last()
-                ? error_get_last()['message']
-                : 'failed to open stream: No such file or directory'
-            );
+            throw new Exception(error_get_last()['message'] ?? sprintf('`%s`: failed to open stream: No such file or directory', $path));
         }
 
         $instance = new static($resource);
@@ -226,7 +222,7 @@ class Stream implements SeekableIterator
             return;
         }
 
-        throw new Exception(error_get_last()['message']);
+        throw new Exception(error_get_last()['message'] ?? sprintf('Enable to locate filter `%s`', $filtername));
     }
 
     /**

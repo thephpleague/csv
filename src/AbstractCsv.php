@@ -16,7 +16,6 @@ namespace League\Csv;
 
 use Generator;
 use SplFileObject;
-use function League\Csv\bom_match;
 
 /**
  * An abstract class to enable CSV document loading.
