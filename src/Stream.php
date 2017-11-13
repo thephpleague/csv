@@ -106,11 +106,11 @@ class Stream implements SeekableIterator
     public function __construct($resource)
     {
         if (!is_resource($resource)) {
-            throw new TypeError(sprintf('Argument passed must be a seekable stream resource, %s given', gettype($resource)));
+            throw new TypeError(sprintf('Argument passed must be a stream resource, %s given', gettype($resource)));
         }
 
         if ('stream' !== ($type = get_resource_type($resource))) {
-            throw new TypeError(sprintf('Argument passed must be a seekable stream resource, %s resource given', $type));
+            throw new TypeError(sprintf('Argument passed must be a stream resource, %s resource given', $type));
         }
 
         $this->is_seekable = stream_get_meta_data($resource)['seekable'];
