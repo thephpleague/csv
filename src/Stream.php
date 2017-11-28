@@ -4,7 +4,7 @@
 *
 * @license http://opensource.org/licenses/MIT
 * @link https://github.com/thephpleague/csv/
-* @version 9.1.0
+* @version 9.1.1
 * @package League.csv
 *
 * For the full copyright and license information, please view the LICENSE
@@ -176,7 +176,7 @@ class Stream implements SeekableIterator
         }
 
         if (!$resource = @fopen(...$args)) {
-            throw new Exception(error_get_last()['message'] ?? sprintf('`%s`: failed to open stream: No such file or directory', $path));
+            throw new Exception(sprintf('`%s`: failed to open stream: No such file or directory', $path));
         }
 
         $instance = new static($resource);
@@ -222,7 +222,7 @@ class Stream implements SeekableIterator
             return;
         }
 
-        throw new Exception(error_get_last()['message'] ?? sprintf('Enable to locate filter `%s`', $filtername));
+        throw new Exception(sprintf('unable to locate filter `%s`', $filtername));
     }
 
     /**

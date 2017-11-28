@@ -56,15 +56,10 @@ class StreamTest extends TestCase
      */
     public function testCreateStreamFromPath()
     {
-        set_error_handler(function () {
-        });
-        error_clear_last();
         $path = 'no/such/file.csv';
         $this->expectException(Exception::class);
         $this->expectExceptionMessage('`'.$path.'`: failed to open stream: No such file or directory');
         Stream::createFromPath($path);
-
-        restore_error_handler();
     }
 
     /**
@@ -191,14 +186,10 @@ class StreamTest extends TestCase
      */
     public function testAppendStreamFilterThrowsException()
     {
-        set_error_handler(function () {
-        });
         $filtername = 'foo.bar';
-        error_clear_last();
         $this->expectException(Exception::class);
-        $this->expectExceptionMessage('Enable to locate filter `'.$filtername.'`');
+        $this->expectExceptionMessage('unable to locate filter `'.$filtername.'`');
         $stream = Stream::createFromPath('php://temp', 'r+');
         $stream->appendFilter($filtername, STREAM_FILTER_READ);
-        restore_error_handler();
     }
 }
