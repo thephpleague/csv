@@ -114,7 +114,7 @@ class Reader extends AbstractCsv implements Countable, IteratorAggregate, JsonSe
      */
     protected function setHeader(int $offset): array
     {
-        $header = $this->seekRow($this->document, $offset);
+        $header = $this->seekRow($offset);
         if (empty($header)) {
             throw new Exception(sprintf('The header record does not exist or is empty at offset: `%s`', $offset));
         }
@@ -129,28 +129,28 @@ class Reader extends AbstractCsv implements Countable, IteratorAggregate, JsonSe
     /**
      * Returns the row at a given offset
      *
-     * @param Stream|SplFileObject $stream
-     * @param int                  $offset
+     * @param int $offset
      *
-     * @return false|array
+     * @return mixed
      */
-    protected function seekRow($stream, int $offset)
+    protected function seekRow(int $offset)
     {
-        $stream->setFlags(SplFileObject::READ_CSV | SplFileObject::READ_AHEAD | SplFileObject::SKIP_EMPTY);
-        $stream->setCsvControl($this->delimiter, $this->enclosure, $this->escape);
-        if ($stream instanceof Stream || PHP_VERSION_ID < 70200) {
-            $stream->seek($offset);
+        $this->document->setFlags(SplFileObject::READ_CSV | SplFileObject::READ_AHEAD | SplFileObject::SKIP_EMPTY);
+        $this->document->setCsvControl($this->delimiter, $this->enclosure, $this->escape);
+        $this->document->rewind();
 
-            return $stream->current();
+        if ($this->document instanceof Stream || PHP_VERSION_ID < 70200) {
+            $this->document->seek($offset);
+
+            return $this->document->current();
         }
 
-        $stream->rewind();
-        while ($offset !== $stream->key() && $stream->valid()) {
-            $stream->current();
-            $stream->next();
+        //Workaround for SplFileObject::seek bug in PHP7.2+ see https://bugs.php.net/bug.php?id=75917
+        while ($offset !== $this->document->key() && $this->document->valid()) {
+            $this->document->next();
         }
 
-        return $stream->current();
+        return $this->document->current();
     }
 
     /**
