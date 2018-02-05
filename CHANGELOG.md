@@ -2,6 +2,24 @@
 
 All Notable changes to `Csv` will be documented in this file
 
+## Next - TBD
+
+### Added
+
+- Nothing
+
+### Deprecated
+
+- Nothing
+
+### Fixed
+
+- `is_iterable` polyfill for PHP7.0
+
+### Removed
+
+- Nothing
+
 ## 9.1.1 - 2017-11-28
 
 ### Added

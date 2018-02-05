@@ -28,7 +28,7 @@ Highlights
 Documentation
 -------
 
-Full documentation can be found at [csv.thephpleague.com](http://csv.thephpleague.com).
+Full documentation can be found at [csv.thephpleague.com](https://csv.thephpleague.com).
 
 System Requirements
 -------
