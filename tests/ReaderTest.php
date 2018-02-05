@@ -290,6 +290,7 @@ class ReaderTest extends TestCase
 
     /**
      * @covers ::setHeader
+     * @covers ::seekRow
      */
     public function testGetHeaderThrowsExceptionWithNegativeOffset()
     {
@@ -299,6 +300,7 @@ class ReaderTest extends TestCase
 
     /**
      * @covers ::setHeader
+     * @covers ::seekRow
      */
     public function testGetHeaderThrowsExceptionWithSplFileObject()
     {
@@ -308,6 +310,7 @@ class ReaderTest extends TestCase
 
     /**
      * @covers ::setHeader
+     * @covers ::seekRow
      */
     public function testGetHeaderThrowsExceptionWithStreamObject()
     {
