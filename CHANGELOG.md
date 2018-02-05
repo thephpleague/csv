@@ -15,6 +15,7 @@ All Notable changes to `Csv` will be documented in this file
 ### Fixed
 
 - `is_iterable` polyfill for PHP7.0
+- internal `Reader::setHeader` no longer throws exception because of a bug in PHP7.2+ [issue #279](https://github.com/thephpleague/csv/issues/213)
 
 ### Removed
 

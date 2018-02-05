@@ -4,7 +4,7 @@
 *
 * @license http://opensource.org/licenses/MIT
 * @link https://github.com/thephpleague/csv/
-* @version 9.1.2
+* @version 9.1.1
 * @package League.csv
 *
 * For the full copyright and license information, please view the LICENSE
@@ -20,6 +20,7 @@ use Countable;
 use Iterator;
 use IteratorAggregate;
 use JsonSerializable;
+use LimitIterator;
 use SplFileObject;
 use TypeError;
 
@@ -116,8 +117,9 @@ class Reader extends AbstractCsv implements Countable, IteratorAggregate, JsonSe
     {
         $this->document->setFlags(SplFileObject::READ_CSV | SplFileObject::READ_AHEAD | SplFileObject::SKIP_EMPTY);
         $this->document->setCsvControl($this->delimiter, $this->enclosure, $this->escape);
-        $this->document->seek($offset);
-        if (empty($header = $this->document->current())) {
+        $iterator = iterator_to_array(new LimitIterator($this->document, $offset, 1), false);
+        $header = $iterator[0] ?? [];
+        if (empty($header)) {
             throw new Exception(sprintf('The header record does not exist or is empty at offset: `%s`', $offset));
         }
 
