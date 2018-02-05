@@ -291,10 +291,35 @@ class ReaderTest extends TestCase
     /**
      * @covers ::setHeader
      */
-    public function testGetHeaderThrowsException()
+    public function testGetHeaderThrowsExceptionWithNegativeOffset()
+    {
+        $this->expectException(Exception::class);
+        $this->csv->setHeaderOffset(-3)->getRecords();
+    }
+
+    /**
+     * @covers ::setHeader
+     */
+    public function testGetHeaderThrowsExceptionWithSplFileObject()
     {
         $this->expectException(Exception::class);
         $this->csv->setHeaderOffset(23)->getRecords();
+    }
+
+    /**
+     * @covers ::setHeader
+     */
+    public function testGetHeaderThrowsExceptionWithStreamObject()
+    {
+        $this->expectException(Exception::class);
+
+        $tmp = fopen('php://temp', 'r+');
+        foreach ($this->expected as $row) {
+            fputcsv($tmp, $row);
+        }
+
+        $csv = Reader::createFromStream($tmp);
+        $csv->setHeaderOffset(23)->getRecords();
     }
 
     /**

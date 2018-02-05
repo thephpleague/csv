@@ -114,10 +114,23 @@ class Reader extends AbstractCsv implements Countable, IteratorAggregate, JsonSe
      */
     protected function setHeader(int $offset): array
     {
+        $header = [];
         $this->document->setFlags(SplFileObject::READ_CSV | SplFileObject::READ_AHEAD | SplFileObject::SKIP_EMPTY);
         $this->document->setCsvControl($this->delimiter, $this->enclosure, $this->escape);
-        $this->document->seek($offset);
-        if (empty($header = $this->document->current())) {
+        if ($this->document instanceof Stream || PHP_VERSION_ID < 70200) {
+            $this->document->seek($offset);
+            $header = $this->document->current();
+        } else {
+            $stream->rewind();
+            while ($offset !== $stream->key() && $stream->valid()) {
+                $stream->current();
+                $stream->next();
+            }
+
+            $header = $stream->current();
+        }
+
+        if (empty($header)) {
             throw new Exception(sprintf('The header record does not exist or is empty at offset: `%s`', $offset));
         }
 
