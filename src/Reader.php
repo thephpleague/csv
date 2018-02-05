@@ -139,16 +139,16 @@ class Reader extends AbstractCsv implements Countable, IteratorAggregate, JsonSe
         $this->document->setCsvControl($this->delimiter, $this->enclosure, $this->escape);
         $this->document->rewind();
 
-        if ($this->document instanceof Stream || PHP_VERSION_ID < 70200) {
-            $this->document->seek($offset);
+        //Workaround for SplFileObject::seek bug in PHP7.2+ see https://bugs.php.net/bug.php?id=75917
+        if (PHP_VERSION_ID >= 70200 && !$this->document instanceof Stream) {
+            while ($offset !== $this->document->key() && $this->document->valid()) {
+                $this->document->next();
+            }
 
             return $this->document->current();
         }
 
-        //Workaround for SplFileObject::seek bug in PHP7.2+ see https://bugs.php.net/bug.php?id=75917
-        while ($offset !== $this->document->key() && $this->document->valid()) {
-            $this->document->next();
-        }
+        $this->document->seek($offset);
 
         return $this->document->current();
     }
