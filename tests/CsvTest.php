@@ -8,7 +8,6 @@ use League\Csv\Writer;
 use PHPUnit\Framework\TestCase;
 use SplTempFileObject;
 use TypeError;
-use function League\Csv\is_iterable;
 
 /**
  * @group csv
@@ -385,13 +384,13 @@ EOF;
             $this->markTestSkipped('Polyfill for PHP7.0');
         }
 
-        $this->assertTrue(is_iterable(['foo']));
-        $this->assertTrue(is_iterable(Reader::createFromString('')));
-        $this->assertTrue(is_iterable((function () {
+        $this->assertTrue(\is_iterable(['foo']));
+        $this->assertTrue(\is_iterable(Reader::createFromString('')));
+        $this->assertTrue(\is_iterable((function () {
             yield 1;
         })()));
-        $this->assertFalse(is_iterable(1));
-        $this->assertFalse(is_iterable((object) ['foo']));
-        $this->assertFalse(is_iterable(Writer::createFromString('')));
+        $this->assertFalse(\is_iterable(1));
+        $this->assertFalse(\is_iterable((object) ['foo']));
+        $this->assertFalse(\is_iterable(Writer::createFromString('')));
     }
 }
