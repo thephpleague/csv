@@ -316,10 +316,7 @@ class Reader extends AbstractCsv
      */
     protected function getRow($offset)
     {
-        $fileObj = $this->getIterator();
-        $iterator = new LimitIterator($fileObj, $offset, 1);
-        $iterator->rewind();
-        $row = $iterator->current();
+        $row = $this->seekRow($offset);
         if (empty($row)) {
             throw new InvalidArgumentException('the specified row does not exist or is empty');
         }
@@ -335,5 +332,30 @@ class Reader extends AbstractCsv
         }
 
         return $row;
+    }
+
+    /**
+     * Returns the row at a given offset
+     *
+     * @param int $offset
+     *
+     * @return mixed
+     */
+    protected function seekRow($offset)
+    {
+        $stream = $this->getIterator();
+        //Workaround for SplFileObject::seek bug in PHP7.2+ see https://bugs.php.net/bug.php?id=75917
+        if (PHP_VERSION_ID > 70200 && !$stream instanceof StreamIterator) {
+            while ($offset !== $stream->key() && $stream->valid()) {
+                $stream->next();
+            }
+
+            return $stream->current();
+        }
+
+        $iterator = new LimitIterator($stream, $offset, 1);
+        $iterator->rewind();
+
+        return $iterator->current();
     }
 }
