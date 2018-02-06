@@ -6,19 +6,19 @@ dist: trusty
 matrix:
   include:
     - php: 5.5
-      env: COLLECT_COVERAGE=true VALIDATE_CODING_STYLE=false
+      env: COLLECT_COVERAGE=true VALIDATE_CODING_STYLE=false IGNORE_PLATFORMS=false
     - php: 5.6
-      env: COLLECT_COVERAGE=true VALIDATE_CODING_STYLE=true
+      env: COLLECT_COVERAGE=true VALIDATE_CODING_STYLE=true IGNORE_PLATFORMS=false
     - php: 7.0
-      env: COLLECT_COVERAGE=true VALIDATE_CODING_STYLE=false
+      env: COLLECT_COVERAGE=true VALIDATE_CODING_STYLE=false IGNORE_PLATFORMS=false
     - php: 7.1
-      env: COLLECT_COVERAGE=true VALIDATE_CODING_STYLE=false
+      env: COLLECT_COVERAGE=true VALIDATE_CODING_STYLE=false IGNORE_PLATFORMS=false
     - php: 7.2
       env: COLLECT_COVERAGE=false VALIDATE_CODING_STYLE=false IGNORE_PLATFORMS=true
     - php: nightly
       env: COLLECT_COVERAGE=false VALIDATE_CODING_STYLE=false IGNORE_PLATFORMS=true
     - php: hhvm
-      env: COLLECT_COVERAGE=false VALIDATE_CODING_STYLE=false
+      env: COLLECT_COVERAGE=false VALIDATE_CODING_STYLE=false IGNORE_PLATFORMS=false
   allow_failures:
     - php: hhvm
   fast_finish: true
