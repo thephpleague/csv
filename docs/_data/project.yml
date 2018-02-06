@@ -21,7 +21,7 @@ releases:
   previous:
     version: '8.0'
     requires: 'PHP >= 5.5.0'
-    latest: '8.2.3 - 2018-02-16'
+    latest: '8.2.3 - 2018-02-06'
     supported_until: '2018-02-18'
     documentation_link: '/8.0/'
   legacy:
