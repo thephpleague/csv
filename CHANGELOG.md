@@ -1,6 +1,24 @@
-#Changelog
+# Changelog
 
 All Notable changes to `Csv` will be documented in this file
+
+## 8.2.3 - 2018-02-06
+
+### Added
+
+- None
+
+### Deprecated
+
+- None
+
+### Fixed
+
+- `Reader::fetchAssoc` no longer throws exception because of a bug in PHP7.2+ [issue #279](https://github.com/thephpleague/csv/issues/279)
+
+### Removed
+
+- None
 
 ## 8.2.2 - 2017-07-12
 
