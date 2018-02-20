@@ -89,7 +89,7 @@ class Statement
     /**
      * Set LimitIterator Offset
      *
-     * @param $offset
+     * @param int $offset
      *
      * @throws Exception if the offset is lesser than 0
      *

@@ -334,7 +334,7 @@ abstract class AbstractCsv implements ByteSequence
      *
      * Adapted from Symfony\Component\HttpFoundation\ResponseHeaderBag::makeDisposition
      *
-     * @param string|null $filename CSV disposition name
+     * @param string $filename CSV disposition name
      *
      * @throws Exception if the submitted header is invalid according to RFC 6266
      *

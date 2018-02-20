@@ -115,7 +115,8 @@ class Writer extends AbstractCsv
     /**
      * Adds a single record to a CSV document
      *
-     * @param string[] $record an array
+     * @param array $record An array consisting of nulls or values that can be converted to string (scalar string, int,
+     *                      float, objects implementing __toString() method.
      *
      * @throws CannotInsertRecord If the record can not be inserted
      *
@@ -126,11 +127,10 @@ class Writer extends AbstractCsv
         $record = array_reduce($this->formatters, [$this, 'formatRecord'], $record);
         $this->validateRecord($record);
         $bytes = $this->document->fputcsv($record, $this->delimiter, $this->enclosure, $this->escape);
-        if (!$bytes) {
-            throw CannotInsertRecord::triggerOnInsertion($record);
+        if (false !== $bytes) {
+            return $bytes + $this->consolidate();
         }
-
-        return $bytes + $this->consolidate();
+        throw CannotInsertRecord::triggerOnInsertion($record);
     }
 
     /**

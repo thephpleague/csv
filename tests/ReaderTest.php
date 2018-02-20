@@ -76,7 +76,7 @@ class ReaderTest extends TestCase
 
         $this->csv->setHeaderOffset(null);
         foreach ($this->csv->getRecords() as $record) {
-            $this->assertTrue(in_array(count($record), [3, 4]));
+            $this->assertTrue(in_array(count($record), [3, 4], true));
         }
     }
 
