@@ -1,0 +1,15 @@
+includes:
+	- vendor/phpstan/phpstan-strict-rules/rules.neon
+	- vendor/phpstan/phpstan-phpunit/extension.neon
+	- vendor/phpstan/phpstan-phpunit/rules.neon
+	- vendor/phpstan/phpstan-phpunit/strictRules.neon
+parameters:
+	ignoreErrors:
+		- '#Function xdebug_get_headers not found.#'
+		- '#Call to function is_iterable\(\) will always evaluate to false.#'
+		- '#Parameter \#1 \$stream of static method League\\Csv\\AbstractCsv::createFromStream\(\) expects resource, string given.#'
+		- '#Parameter \#2 \$special_chars of class League\\Csv\\EscapeFormula constructor expects array<string>, array<int, stdClass> given.#'
+		- '#Parameter \#1 \$resource of class League\\Csv\\Stream constructor expects resource, string given.#'
+		- '#Parameter \#1 \$records of method League\\Csv\\CharsetConverter::convert\(\) expects array|Traversable, string given.#'
+		- '#Parameter \#2 \$delimiters of function League\\Csv\\delimiter_detect expects array<string>, array<int, array|string> given.#'
+	reportUnmatchedIgnoredErrors: false

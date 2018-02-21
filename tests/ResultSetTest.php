@@ -160,7 +160,7 @@ class ResultSetTest extends TestCase
     public function testFilter()
     {
         $func = function ($row) {
-            return !in_array('jane', $row);
+            return !in_array('jane', $row, true);
         };
 
         $this->assertNotContains(
@@ -230,8 +230,6 @@ class ResultSetTest extends TestCase
      * @covers ::fetchColumn
      * @covers ::getColumnIndexByKey
      * @covers League\Csv\MapIterator
-     *
-     * @param int|string $field
      */
     public function testFetchColumnTriggersOutOfRangeException()
     {
