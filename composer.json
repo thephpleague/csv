@@ -41,14 +41,18 @@
         }
     },
     "scripts": {
-        "test": "phpunit --coverage-text; php-cs-fixer fix -v --diff --dry-run --allow-risky=yes;",
-        "phpunit": "phpunit --coverage-text",
         "phpcs": "php-cs-fixer fix -v --diff --dry-run --allow-risky=yes;",
         "phpstan-src": "phpstan analyse -l 7 -c phpstan.src.neon src",
         "phpstan-tests": "phpstan analyse -l 7 -c phpstan.tests.neon tests",
         "phpstan": [
             "@phpstan-src",
             "@phpstan-tests"
+        ],
+        "phpunit": "phpunit --coverage-text",
+        "test": [
+            "@phpunit",
+            "@phpcs",
+            "@phpstan"
         ]
     },
     "suggest": {
@@ -58,5 +62,8 @@
         "branch-alias": {
             "dev-master": "9.x-dev"
         }
+    },
+    "config": {
+        "sort-packages": true
     }
 }

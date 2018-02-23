@@ -101,17 +101,11 @@ class WriterTest extends TestCase
 
     /**
      * @covers ::insertOne
-     * @covers League\Csv\CannotInsertRecord
      */
     public function testInsertThrowsExceptionOnError()
     {
-        $expected = ['jane', 'doe', 'jane.doe@example.com'];
-        try {
-            $csv = Writer::createFromPath(__DIR__.'/data/foo.csv', 'r');
-            $csv->insertOne($expected);
-        } catch (CannotInsertRecord $e) {
-            $this->assertSame($e->getRecord(), $expected);
-        }
+        $csv = Writer::createFromPath(__DIR__.'/data/foo.csv', 'r');
+        $this->assertSame(0, $csv->insertOne(['jane', 'doe', 'jane.doe@example.com']));
     }
 
     /**

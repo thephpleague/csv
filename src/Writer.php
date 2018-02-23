@@ -89,7 +89,7 @@ class Writer extends AbstractCsv
     /**
      * Adds multiple records to the CSV document
      *
-     * a simple wrapper method around insertOne
+     * @see Writer::insertOne
      *
      * @param Traversable|array $records a multidimensional array or a Traversable object
      *
@@ -115,8 +115,10 @@ class Writer extends AbstractCsv
     /**
      * Adds a single record to a CSV document
      *
-     * @param array $record An array consisting of nulls or values that can be converted to string (scalar string, int,
-     *                      float, objects implementing __toString() method.
+     * @param array $record An array containing
+     *                      - scalar types values,
+     *                      - NULL values,
+     *                      - or objects implementing the __toString() method.
      *
      * @throws CannotInsertRecord If the record can not be inserted
      *
@@ -130,16 +132,26 @@ class Writer extends AbstractCsv
         if (false !== $bytes) {
             return $bytes + $this->consolidate();
         }
+
         throw CannotInsertRecord::triggerOnInsertion($record);
     }
 
     /**
      * Format a record
      *
-     * @param string[] $record
+     * The returned array must contain
+     *   - scalar types values,
+     *   - NULL values,
+     *   - or objects implementing the __toString() method.
+     *
+     * @param array $record An array containing
+     *                      - scalar types values,
+     *                      - NULL values,
+     *                      - implementing the __toString() method.
+     *
      * @param callable $formatter
      *
-     * @return string[]
+     * @return array
      */
     protected function formatRecord(array $record, callable $formatter): array
     {
@@ -149,7 +161,10 @@ class Writer extends AbstractCsv
     /**
      * Validate a record
      *
-     * @param string[] $record
+     * @param array $record An array containing
+     *                      - scalar types values,
+     *                      - NULL values
+     *                      - or objects implementing __toString() method.
      *
      * @throws CannotInsertRecord If the validation failed
      */
