@@ -64,7 +64,7 @@ class Reader extends AbstractCsv implements Countable, IteratorAggregate, JsonSe
     /**
      * {@inheritdoc}
      */
-    public static function createFromPath(string $path, string $open_mode = 'r', $context = null): AbstractCsv
+    public static function createFromPath(string $path, string $open_mode = 'r', $context = null)
     {
         return new static(Stream::createFromPath($path, $open_mode, $context));
     }
