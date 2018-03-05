@@ -117,7 +117,7 @@ abstract class AbstractCsv implements ByteSequence
      *
      * @return static
      */
-    public static function createFromFileObject(SplFileObject $file): self
+    public static function createFromFileObject(SplFileObject $file)
     {
         return new static($file);
     }
@@ -129,7 +129,7 @@ abstract class AbstractCsv implements ByteSequence
      *
      * @return static
      */
-    public static function createFromStream($stream): self
+    public static function createFromStream($stream)
     {
         return new static(new Stream($stream));
     }
@@ -141,7 +141,7 @@ abstract class AbstractCsv implements ByteSequence
      *
      * @return static
      */
-    public static function createFromString(string $content): self
+    public static function createFromString(string $content)
     {
         return new static(Stream::createFromString($content));
     }

@@ -167,7 +167,7 @@ class Stream implements SeekableIterator
      *
      * @return static
      */
-    public static function createFromPath(string $path, string $open_mode = 'r', $context = null): self
+    public static function createFromPath(string $path, string $open_mode = 'r', $context = null)
     {
         $args = [$path, $open_mode];
         if (null !== $context) {
@@ -192,7 +192,7 @@ class Stream implements SeekableIterator
      *
      * @return static
      */
-    public static function createFromString(string $content): self
+    public static function createFromString(string $content)
     {
         $resource = fopen('php://temp', 'r+');
         fwrite($resource, $content);
