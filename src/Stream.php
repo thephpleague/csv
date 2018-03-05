@@ -4,7 +4,7 @@
 *
 * @license http://opensource.org/licenses/MIT
 * @link https://github.com/thephpleague/csv/
-* @version 9.1.2
+* @version 9.1.3
 * @package League.csv
 *
 * For the full copyright and license information, please view the LICENSE
@@ -297,7 +297,7 @@ class Stream implements SeekableIterator
      * @param string $enclosure
      * @param string $escape
      *
-     * @return int|bool
+     * @return int|null|bool
      */
     public function fputcsv(array $fields, string $delimiter = ',', string $enclosure = '"', string $escape = '\\')
     {

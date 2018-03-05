@@ -4,7 +4,7 @@
 *
 * @license http://opensource.org/licenses/MIT
 * @link https://github.com/thephpleague/csv/
-* @version 9.1.2
+* @version 9.1.3
 * @package League.csv
 *
 * For the full copyright and license information, please view the LICENSE
@@ -90,7 +90,7 @@ class XMLConverter
      */
     public function convert($records): DOMDocument
     {
-        if (!is_iterable($records)) {
+        if (!\is_iterable($records)) {
             throw new TypeError(sprintf('%s() expects argument passed to be iterable, %s given', __METHOD__, gettype($records)));
         }
 

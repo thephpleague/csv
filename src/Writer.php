@@ -4,7 +4,7 @@
 *
 * @license http://opensource.org/licenses/MIT
 * @link https://github.com/thephpleague/csv/
-* @version 9.1.2
+* @version 9.1.3
 * @package League.csv
 *
 * For the full copyright and license information, please view the LICENSE
@@ -97,7 +97,7 @@ class Writer extends AbstractCsv
      */
     public function insertAll($records): int
     {
-        if (!is_iterable($records)) {
+        if (!\is_iterable($records)) {
             throw new TypeError(sprintf('%s() expects argument passed to be iterable, %s given', __METHOD__, gettype($records)));
         }
 
@@ -129,7 +129,7 @@ class Writer extends AbstractCsv
         $record = array_reduce($this->formatters, [$this, 'formatRecord'], $record);
         $this->validateRecord($record);
         $bytes = $this->document->fputcsv($record, $this->delimiter, $this->enclosure, $this->escape);
-        if (false !== $bytes) {
+        if (false !== $bytes && null !== $bytes) {
             return $bytes + $this->consolidate();
         }
 

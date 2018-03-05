@@ -2,6 +2,26 @@
 
 All Notable changes to `Csv` will be documented in this file
 
+## Next - TBD
+
+### Added
+
+- Nothing
+
+### Deprecated
+
+- Nothing
+
+### Fixed
+
+- `Writer::insertOne` allow empty array to be added to the CSV (allow inserting empty row)
+- Removed all return type from named constructor see [#285](https://github.com/thephpleague/csv/pull/285)
+- Added PHPStan for static code analysis
+
+### Removed
+
+- Nothing
+
 ## 9.1.2 - 2018-02-05
 
 ### Added

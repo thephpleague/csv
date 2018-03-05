@@ -7,7 +7,6 @@ use League\Csv\Reader;
 use League\Csv\Writer;
 use PHPUnit\Framework\TestCase;
 use SplTempFileObject;
-use TypeError;
 
 /**
  * @group csv
@@ -64,16 +63,6 @@ class CsvTest extends TestCase
     {
         $this->expectException(Exception::class);
         Reader::createFromPath(__DIR__.'/foo/bar', 'r');
-    }
-
-    /**
-     * @covers ::createFromStream
-     */
-    public function testCreateFromStreamWithInvalidParameter()
-    {
-        $this->expectException(TypeError::class);
-        $path = __DIR__.'/data/foo.csv';
-        Reader::createFromStream($path);
     }
 
     /**
@@ -384,13 +373,13 @@ EOF;
             $this->markTestSkipped('Polyfill for PHP7.0');
         }
 
-        $this->assertTrue(\is_iterable(['foo']));
-        $this->assertTrue(\is_iterable(Reader::createFromString('')));
-        $this->assertTrue(\is_iterable((function () {
+        $this->assertTrue(is_iterable(['foo']));
+        $this->assertTrue(is_iterable(Reader::createFromString('')));
+        $this->assertTrue(is_iterable((function () {
             yield 1;
         })()));
-        $this->assertFalse(\is_iterable(1));
-        $this->assertFalse(\is_iterable((object) ['foo']));
-        $this->assertFalse(\is_iterable(Writer::createFromString('')));
+        $this->assertFalse(is_iterable(1));
+        $this->assertFalse(is_iterable((object) ['foo']));
+        $this->assertFalse(is_iterable(Writer::createFromString('')));
     }
 }
