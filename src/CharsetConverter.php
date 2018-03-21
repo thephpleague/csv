@@ -208,17 +208,17 @@ class CharsetConverter extends php_user_filter
     /**
      * Walker method to convert the offset and the value of a CSV record field
      *
-     * @param string|null $value
-     * @param string|int  $offset
+     * @param mixed $value
+     * @param mixed $offset
      */
     protected function encodeField(&$value, &$offset)
     {
-        if (null !== $value) {
-            $value = mb_convert_encoding($value, $this->output_encoding, $this->input_encoding);
+        if (null !== $value && !is_numeric($value)) {
+            $value = mb_convert_encoding((string) $value, $this->output_encoding, $this->input_encoding);
         }
 
         if (!is_int($offset)) {
-            $offset = mb_convert_encoding($offset, $this->output_encoding, $this->input_encoding);
+            $offset = mb_convert_encoding((string) $offset, $this->output_encoding, $this->input_encoding);
         }
     }
 

@@ -129,7 +129,7 @@ class Writer extends AbstractCsv
         $record = array_reduce($this->formatters, [$this, 'formatRecord'], $record);
         $this->validateRecord($record);
         $bytes = $this->document->fputcsv($record, $this->delimiter, $this->enclosure, $this->escape);
-        if (false !== $bytes && null !== $bytes) {
+        if ('' !== (string) $bytes) {
             return $bytes + $this->consolidate();
         }
 

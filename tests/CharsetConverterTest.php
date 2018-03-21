@@ -150,4 +150,43 @@ class CharsetConverterTest extends TestCase
         $converter->filtername = CharsetConverter::FILTERNAME.'.foo/bar';
         $this->assertFalse($converter->onCreate());
     }
+
+    /**
+     * @covers ::convert
+     * @covers ::encodeField
+     *
+     * @dataProvider converterProvider
+     * @param array $record
+     * @param array $expected
+     */
+    public function testConvertOnlyStringField(array $record, array $expected)
+    {
+        $converter = (new CharsetConverter())
+            ->inputEncoding('iso-8859-15')
+            ->outputEncoding('utf-8');
+        $res = $converter->convert([$record]);
+        $this->assertSame($expected, $res[0]);
+    }
+
+    public function converterProvider()
+    {
+        return [
+            'only numeric values' => [
+                'record' => [1, 2, 3],
+                'expected' => [1, 2, 3],
+            ],
+            'only string values' => [
+                'record' => ['1', '2', '3'],
+                'expected' => ['1', '2', '3'],
+            ],
+            'mixed values' => [
+                'record' => [1, '2', 3],
+                'expected' => [1, '2', 3],
+            ],
+            'mixed offset' => [
+                'record' => [1 => 1, '2' => '2', 3 => 3],
+                'expected' => [1 => 1, '2' => '2', 3 => 3],
+            ],
+        ];
+    }
 }
