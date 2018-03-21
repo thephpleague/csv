@@ -217,7 +217,7 @@ class CharsetConverter extends php_user_filter
             $value = mb_convert_encoding((string) $value, $this->output_encoding, $this->input_encoding);
         }
 
-        if (!is_int($offset)) {
+        if (!is_numeric($offset)) {
             $offset = mb_convert_encoding((string) $offset, $this->output_encoding, $this->input_encoding);
         }
     }
