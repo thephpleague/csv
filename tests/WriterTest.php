@@ -40,10 +40,17 @@ class WriterTest extends TestCase
      */
     public function testflushThreshold()
     {
-        $this->expectException(Exception::class);
         $this->csv->setFlushThreshold(12);
         $this->assertSame(12, $this->csv->getFlushThreshold());
-        $this->csv->setFlushThreshold(12);
+    }
+
+    /**
+     * @covers ::setFlushThreshold
+     */
+    public function testflushThresholdThrowsException()
+    {
+        $this->csv->setFlushThreshold(1);
+        $this->expectException(Exception::class);
         $this->csv->setFlushThreshold(0);
     }
 
