@@ -29,8 +29,8 @@ install:
 
 script:
   - composer phpunit
+  - if [ "$VALIDATE_CODING_STYLE" == "true" ]; then composer phpcs; fi
+  - if [ "$RUN_PHPSTAN" == "true" ]; then composer phpstan; fi
 
 after_script:
  - if [ "$COLLECT_COVERAGE" == "true" ]; then wget https://scrutinizer-ci.com/ocular.phar && php ocular.phar code-coverage:upload --format=php-clover build/clover.xml; fi
- - if [ "$VALIDATE_CODING_STYLE" == "true" ]; then composer phpcs; fi
- - if [ "$RUN_PHPSTAN" == "true" ]; then composer phpstan; fi

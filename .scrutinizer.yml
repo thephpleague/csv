@@ -1,9 +1,20 @@
+build:
+    nodes:
+        analysis:
+            project_setup:
+                override: true
+            tests:
+                override:
+                    - php-scrutinizer-run --enable-security-analysis
 filter:
-    paths: [src/*]
-    excluded_paths: [tests/*]
+    paths:
+        - src/
+    excluded_paths:
+        - tests/
 checks:
     php:
         code_rating: true
+        duplication: true
 tools:
     external_code_coverage:
         timeout: 600
@@ -11,7 +22,11 @@ tools:
     php_code_coverage: false
     php_loc:
         enabled: true
-        excluded_dirs: [tests, vendor]
-    php_cpd:
+        excluded_dirs:
+            - tests/
+            - vendor/
+    php_cpd: false
+    php_sim:
         enabled: true
-        excluded_dirs: [tests, vendor]
+        filter:
+            paths: ['src/']
