@@ -265,7 +265,7 @@ class Writer extends AbstractCsv
             throw new TypeError(sprintf(__METHOD__.'() expects 1 Argument to be null or an integer %s given', gettype($threshold)));
         }
 
-        if (null !== $threshold && 1 >= $threshold) {
+        if (null !== $threshold && 1 > $threshold) {
             throw new Exception(__METHOD__.'() expects 1 Argument to be null or a valid integer greater or equal to 1');
         }
 
