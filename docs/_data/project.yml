@@ -15,7 +15,7 @@ releases:
   current:
     version: '9.0'
     requires: 'PHP >= 7.0.10'
-    latest: '9.1.2 - 2018-02-05'
+    latest: '9.1.4 - 2018-05-01'
     supported_until: 'TBD'
     documentation_link: '/9.0/'
   previous:

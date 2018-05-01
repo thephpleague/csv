@@ -2,6 +2,26 @@
 
 All Notable changes to `Csv` will be documented in this file
 
+## 9.1.4 - 2018-05-01
+
+### Added
+
+- Nothing
+
+### Deprecated
+
+- Nothing
+
+### Fixed
+
+- `Writer::setFlushThreshold` should accept 1 as an argument [#289(https://github.com/thephpleague/csv/issue/289)
+
+- `CharsetConverter::convert` should not try to convert numeric value [#287](https://github.com/thephpleague/csv/issue/287)
+
+### Removed
+
+- Nothing
+
 ## 9.1.3 - 2018-03-12
 
 ### Added
