@@ -17,7 +17,7 @@ checks:
         duplication: true
 tools:
     external_code_coverage:
-        timeout: 600
+        timeout: 3600
         runs: 2
     php_code_coverage: false
     php_loc:
