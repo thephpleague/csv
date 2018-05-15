@@ -82,7 +82,7 @@ try {
 
 ## Handling newline
 
-Because PHP's `fputcsv` implementation has a hardcoded `\n`, we need to be able to replace the last `LF` code with one supplied by the developper for more interoperability between CSV packages on different platforms. The newline sequence will be appended to each newly inserted CSV record.
+Because PHP's `fputcsv` implementation has a hardcoded `\n`, we need to be able to replace the last `LF` code with one supplied by the developer for more interoperability between CSV packages on different platforms. The newline sequence will be appended to each newly inserted CSV record.
 
 ### Description
 
