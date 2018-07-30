@@ -1,15 +1,17 @@
 <?php
+
 /**
-* This file is part of the League.csv library
-*
-* @license http://opensource.org/licenses/MIT
-* @link https://github.com/thephpleague/csv/
-* @version 9.1.4
-* @package League.csv
-*
-* For the full copyright and license information, please view the LICENSE
-* file that was distributed with this source code.
-*/
+ * League.Csv (https://csv.thephpleague.com).
+ *
+ * @author  Ignace Nyamagana Butera <nyamsprod@gmail.com>
+ * @license https://github.com/thephpleague/csv/blob/master/LICENSE (MIT License)
+ * @version 9.1.5
+ * @link    https://github.com/thephpleague/csv
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
 declare(strict_types=1);
 
 namespace League\Csv;
@@ -18,9 +20,11 @@ use ArrayIterator;
 use CallbackFilterIterator;
 use Iterator;
 use LimitIterator;
+use function array_reduce;
+use function iterator_to_array;
 
 /**
- * A Prepared statement to be executed on a {@link Reader} object
+ * A Prepared statement to be executed on a {@link Reader} object.
  *
  * @package League.csv
  * @since   9.0.0
@@ -29,39 +33,35 @@ use LimitIterator;
 class Statement
 {
     /**
-     * Callables to filter the iterator
+     * Callables to filter the iterator.
      *
      * @var callable[]
      */
     protected $where = [];
 
     /**
-     * Callables to sort the iterator
+     * Callables to sort the iterator.
      *
      * @var callable[]
      */
     protected $order_by = [];
 
     /**
-     * iterator Offset
+     * iterator Offset.
      *
      * @var int
      */
     protected $offset = 0;
 
     /**
-     * iterator maximum length
+     * iterator maximum length.
      *
      * @var int
      */
     protected $limit = -1;
 
     /**
-     * Set the Iterator filter method
-     *
-     * @param callable $callable
-     *
-     * @return self
+     * Set the Iterator filter method.
      */
     public function where(callable $callable): self
     {
@@ -72,11 +72,7 @@ class Statement
     }
 
     /**
-     * Set an Iterator sorting callable function
-     *
-     * @param callable $callable
-     *
-     * @return self
+     * Set an Iterator sorting callable function.
      */
     public function orderBy(callable $callable): self
     {
@@ -87,13 +83,9 @@ class Statement
     }
 
     /**
-     * Set LimitIterator Offset
-     *
-     * @param int $offset
+     * Set LimitIterator Offset.
      *
      * @throws Exception if the offset is lesser than 0
-     *
-     * @return self
      */
     public function offset(int $offset): self
     {
@@ -112,13 +104,9 @@ class Statement
     }
 
     /**
-     * Set LimitIterator Count
-     *
-     * @param int $limit
+     * Set LimitIterator Count.
      *
      * @throws Exception if the limit is lesser than -1
-     *
-     * @return self
      */
     public function limit(int $limit): self
     {
@@ -137,16 +125,13 @@ class Statement
     }
 
     /**
-     * Execute the prepared Statement on the {@link Reader} object
+     * Execute the prepared Statement on the {@link Reader} object.
      *
-     * @param Reader   $csv
      * @param string[] $header an optional header to use instead of the CSV document header
-     *
-     * @return ResultSet
      */
     public function process(Reader $csv, array $header = []): ResultSet
     {
-        if (empty($header)) {
+        if ([] === $header) {
             $header = $csv->getHeader();
         }
 
@@ -157,12 +142,7 @@ class Statement
     }
 
     /**
-     * Filters elements of an Iterator using a callback function
-     *
-     * @param Iterator $iterator
-     * @param callable $callable
-     *
-     * @return CallbackFilterIterator
+     * Filters elements of an Iterator using a callback function.
      */
     protected function filter(Iterator $iterator, callable $callable): CallbackFilterIterator
     {
@@ -170,15 +150,11 @@ class Statement
     }
 
     /**
-    * Sort the Iterator
-    *
-    * @param Iterator $iterator
-    *
-    * @return Iterator
-    */
+     * Sort the Iterator.
+     */
     protected function buildOrderBy(Iterator $iterator): Iterator
     {
-        if (empty($this->order_by)) {
+        if ([] === $this->order_by) {
             return $iterator;
         }
 

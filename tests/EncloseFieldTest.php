@@ -1,11 +1,24 @@
 <?php
 
+/**
+ * League.Csv (https://csv.thephpleague.com).
+ *
+ * @author  Ignace Nyamagana Butera <nyamsprod@gmail.com>
+ * @license https://github.com/thephpleague/csv/blob/master/LICENSE (MIT License)
+ * @version 9.1.5
+ * @link    https://github.com/thephpleague/csv
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
 namespace LeagueTest\Csv;
 
 use InvalidArgumentException;
 use League\Csv\EncloseField;
 use League\Csv\Writer;
 use PHPUnit\Framework\TestCase;
+use function stream_get_filters;
 
 /**
  * @group filter
@@ -49,7 +62,6 @@ class EncloseFieldTest extends TestCase
      * @covers ::onCreate
      * @covers ::isValidSequence
      * @dataProvider wrongParamProvider
-     * @param array $params
      */
     public function testOnCreateFailedWithWrongParams(array $params)
     {

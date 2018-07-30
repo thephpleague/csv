@@ -1,5 +1,17 @@
 <?php
 
+/**
+ * League.Csv (https://csv.thephpleague.com).
+ *
+ * @author  Ignace Nyamagana Butera <nyamsprod@gmail.com>
+ * @license https://github.com/thephpleague/csv/blob/master/LICENSE (MIT License)
+ * @version 9.1.5
+ * @link    https://github.com/thephpleague/csv
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
 namespace LeagueTest\Csv;
 
 use ArrayIterator;
@@ -10,6 +22,12 @@ use League\Csv\Reader;
 use OutOfRangeException;
 use PHPUnit\Framework\TestCase;
 use TypeError;
+use function explode;
+use function implode;
+use function mb_convert_encoding;
+use function stream_filter_register;
+use function stream_get_filters;
+use function strtoupper;
 
 /**
  * @group converter
@@ -156,8 +174,6 @@ class CharsetConverterTest extends TestCase
      * @covers ::encodeField
      *
      * @dataProvider converterProvider
-     * @param array $record
-     * @param array $expected
      */
     public function testConvertOnlyStringField(array $record, array $expected)
     {

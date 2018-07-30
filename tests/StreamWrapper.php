@@ -1,17 +1,27 @@
 <?php
 
 /**
-* This file is part of the bakame.psr7-csv-factory library
-*
-* @license http://opensource.org/licenses/MIT
-* @link https://github.com/bakame-php/psr7-csv-factory
-* @version 1.0.0
-*
-* For the full copyright and license information, please view the LICENSE
-* file that was distributed with this source code.
-*/
+ * League.Csv (https://csv.thephpleague.com).
+ *
+ * @author  Ignace Nyamagana Butera <nyamsprod@gmail.com>
+ * @license https://github.com/thephpleague/csv/blob/master/LICENSE (MIT License)
+ * @version 9.1.5
+ * @link    https://github.com/thephpleague/csv
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
 
 namespace LeagueTest\Csv;
+
+use function feof;
+use function fread;
+use function fseek;
+use function ftell;
+use function fwrite;
+use function stream_context_get_options;
+use function stream_get_wrappers;
+use function stream_wrapper_register;
 
 final class StreamWrapper
 {

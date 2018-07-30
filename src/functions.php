@@ -1,30 +1,36 @@
 <?php
+
 /**
-* This file is part of the League.csv library
-*
-* @license http://opensource.org/licenses/MIT
-* @link https://github.com/thephpleague/csv/
-* @version 9.1.4
-* @package League.csv
-*
-* For the full copyright and license information, please view the LICENSE
-* file that was distributed with this source code.
-*/
+ * League.Csv (https://csv.thephpleague.com).
+ *
+ * @author  Ignace Nyamagana Butera <nyamsprod@gmail.com>
+ * @license https://github.com/thephpleague/csv/blob/master/LICENSE (MIT License)
+ * @version 9.1.5
+ * @link    https://github.com/thephpleague/csv
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
 declare(strict_types=1);
 
 namespace League\Csv {
 
     use ReflectionClass;
     use Traversable;
+    use function array_fill_keys;
+    use function array_filter;
+    use function array_reduce;
+    use function array_unique;
+    use function count;
+    use function is_array;
+    use function iterator_to_array;
+    use function strpos;
 
     /**
-     * Returns the BOM sequence found at the start of the string
+     * Returns the BOM sequence found at the start of the string.
      *
      * If no valid BOM sequence is found an empty string is returned
-     *
-     * @param string $str
-     *
-     * @return string
      */
     function bom_match(string $str): string
     {
@@ -42,15 +48,13 @@ namespace League\Csv {
     }
 
     /**
-     * Detect Delimiters usage in a {@link Reader} object
+     * Detect Delimiters usage in a {@link Reader} object.
      *
      * Returns a associative array where each key represents
      * a submitted delimiter and each value the number CSV fields found
      * when processing at most $limit CSV records with the given delimiter
      *
-     * @param Reader   $csv        the CSV object
-     * @param string[] $delimiters list of delimiters to consider
-     * @param int      $limit      Detection is made using up to $limit records
+     * @param string[] $delimiters
      *
      * @return int[]
      */
@@ -77,13 +81,9 @@ namespace League\Csv {
     }
 
     /**
-     * Tell whether the content of the variable is iterable
+     * Tell whether the content of the variable is iterable.
      *
      * @see http://php.net/manual/en/function.is-iterable.php
-     *
-     * @param mixed $iterable
-     *
-     * @return bool
      */
     function is_iterable($iterable): bool
     {
@@ -91,13 +91,9 @@ namespace League\Csv {
     }
 
     /**
-     * Tell whether the content of the variable is an int or null
+     * Tell whether the content of the variable is an int or null.
      *
      * @see https://wiki.php.net/rfc/nullable_types
-     *
-     * @param mixed $value
-     *
-     * @return bool
      */
     function is_nullable_int($value): bool
     {

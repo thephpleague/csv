@@ -1,15 +1,17 @@
 <?php
+
 /**
-* This file is part of the League.csv library
-*
-* @license http://opensource.org/licenses/MIT
-* @link https://github.com/thephpleague/csv/
-* @version 9.1.4
-* @package League.csv
-*
-* For the full copyright and license information, please view the LICENSE
-* file that was distributed with this source code.
-*/
+ * League.Csv (https://csv.thephpleague.com).
+ *
+ * @author  Ignace Nyamagana Butera <nyamsprod@gmail.com>
+ * @license https://github.com/thephpleague/csv/blob/master/LICENSE (MIT License)
+ * @version 9.1.5
+ * @link    https://github.com/thephpleague/csv
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
 declare(strict_types=1);
 
 namespace League\Csv;
@@ -18,7 +20,7 @@ use IteratorIterator;
 use Traversable;
 
 /**
- * Map value from an iterator before yielding
+ * Map value from an iterator before yielding.
  *
  * @package  League.csv
  * @since    3.3.0
@@ -28,17 +30,14 @@ use Traversable;
 class MapIterator extends IteratorIterator
 {
     /**
-     * The callback to apply on all InnerIterator current value
+     * The callback to apply on all InnerIterator current value.
      *
      * @var callable
      */
     protected $callable;
 
     /**
-     * The Constructor
-     *
-     * @param Traversable $iterator
-     * @param callable    $callable
+     * New instance.
      */
     public function __construct(Traversable $iterator, callable $callable)
     {

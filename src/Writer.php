@@ -1,24 +1,32 @@
 <?php
+
 /**
-* This file is part of the League.csv library
-*
-* @license http://opensource.org/licenses/MIT
-* @link https://github.com/thephpleague/csv/
-* @version 9.1.4
-* @package League.csv
-*
-* For the full copyright and license information, please view the LICENSE
-* file that was distributed with this source code.
-*/
+ * League.Csv (https://csv.thephpleague.com).
+ *
+ * @author  Ignace Nyamagana Butera <nyamsprod@gmail.com>
+ * @license https://github.com/thephpleague/csv/blob/master/LICENSE (MIT License)
+ * @version 9.1.5
+ * @link    https://github.com/thephpleague/csv
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
 declare(strict_types=1);
 
 namespace League\Csv;
 
 use Traversable;
 use TypeError;
+use const SEEK_CUR;
+use const STREAM_FILTER_WRITE;
+use function array_reduce;
+use function gettype;
+use function sprintf;
+use function strlen;
 
 /**
- * A class to insert records into a CSV Document
+ * A class to insert records into a CSV Document.
  *
  * @package League.csv
  * @since   4.0.0
@@ -27,35 +35,35 @@ use TypeError;
 class Writer extends AbstractCsv
 {
     /**
-     * callable collection to format the record before insertion
+     * callable collection to format the record before insertion.
      *
      * @var callable[]
      */
     protected $formatters = [];
 
     /**
-     * callable collection to validate the record before insertion
+     * callable collection to validate the record before insertion.
      *
      * @var callable[]
      */
     protected $validators = [];
 
     /**
-     * newline character
+     * newline character.
      *
      * @var string
      */
     protected $newline = "\n";
 
     /**
-     * Insert records count for flushing
+     * Insert records count for flushing.
      *
      * @var int
      */
     protected $flush_counter = 0;
 
     /**
-     * Buffer flush threshold
+     * Buffer flush threshold.
      *
      * @var int|null
      */
@@ -67,9 +75,7 @@ class Writer extends AbstractCsv
     protected $stream_filter_mode = STREAM_FILTER_WRITE;
 
     /**
-     * Returns the current newline sequence characters
-     *
-     * @return string
+     * Returns the current newline sequence characters.
      */
     public function getNewline(): string
     {
@@ -77,7 +83,7 @@ class Writer extends AbstractCsv
     }
 
     /**
-     * Get the flush threshold
+     * Get the flush threshold.
      *
      * @return int|null
      */
@@ -87,13 +93,11 @@ class Writer extends AbstractCsv
     }
 
     /**
-     * Adds multiple records to the CSV document
+     * Adds multiple records to the CSV document.
      *
      * @see Writer::insertOne
      *
-     * @param Traversable|array $records a multidimensional array or a Traversable object
-     *
-     * @return int
+     * @param Traversable|array $records
      */
     public function insertAll($records): int
     {
@@ -113,16 +117,13 @@ class Writer extends AbstractCsv
     }
 
     /**
-     * Adds a single record to a CSV document
+     * Adds a single record to a CSV document.
      *
-     * @param array $record An array containing
-     *                      - scalar types values,
-     *                      - NULL values,
-     *                      - or objects implementing the __toString() method.
+     * A record is an array that can contains scalar types values, NULL values
+     * or objects implementing the __toString method.
+     *
      *
      * @throws CannotInsertRecord If the record can not be inserted
-     *
-     * @return int
      */
     public function insertOne(array $record): int
     {
@@ -137,21 +138,13 @@ class Writer extends AbstractCsv
     }
 
     /**
-     * Format a record
+     * Format a record.
      *
      * The returned array must contain
      *   - scalar types values,
      *   - NULL values,
      *   - or objects implementing the __toString() method.
      *
-     * @param array $record An array containing
-     *                      - scalar types values,
-     *                      - NULL values,
-     *                      - implementing the __toString() method.
-     *
-     * @param callable $formatter
-     *
-     * @return array
      */
     protected function formatRecord(array $record, callable $formatter): array
     {
@@ -159,12 +152,8 @@ class Writer extends AbstractCsv
     }
 
     /**
-     * Validate a record
+     * Validate a record.
      *
-     * @param array $record An array containing
-     *                      - scalar types values,
-     *                      - NULL values
-     *                      - or objects implementing __toString() method.
      *
      * @throws CannotInsertRecord If the validation failed
      */
@@ -178,9 +167,7 @@ class Writer extends AbstractCsv
     }
 
     /**
-     * Apply post insertion actions
-     *
-     * @return int
+     * Apply post insertion actions.
      */
     protected function consolidate(): int
     {
@@ -204,9 +191,7 @@ class Writer extends AbstractCsv
     }
 
     /**
-     * Adds a record formatter
-     *
-     * @param callable $formatter
+     * Adds a record formatter.
      *
      * @return static
      */
@@ -218,10 +203,8 @@ class Writer extends AbstractCsv
     }
 
     /**
-     * Adds a record validator
+     * Adds a record validator.
      *
-     * @param callable $validator
-     * @param string   $validator_name the validator name
      *
      * @return static
      */
@@ -233,9 +216,7 @@ class Writer extends AbstractCsv
     }
 
     /**
-     * Sets the newline sequence
-     *
-     * @param string $newline
+     * Sets the newline sequence.
      *
      * @return static
      */
@@ -247,7 +228,7 @@ class Writer extends AbstractCsv
     }
 
     /**
-     * Set the flush threshold
+     * Set the flush threshold.
      *
      * @param int|null $threshold
      *

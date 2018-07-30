@@ -1,15 +1,17 @@
 <?php
+
 /**
-* This file is part of the League.csv library
-*
-* @license http://opensource.org/licenses/MIT
-* @link https://github.com/thephpleague/csv/
-* @version 9.1.4
-* @package League.csv
-*
-* For the full copyright and license information, please view the LICENSE
-* file that was distributed with this source code.
-*/
+ * League.Csv (https://csv.thephpleague.com).
+ *
+ * @author  Ignace Nyamagana Butera <nyamsprod@gmail.com>
+ * @license https://github.com/thephpleague/csv/blob/master/LICENSE (MIT License)
+ * @version 9.1.5
+ * @link    https://github.com/thephpleague/csv
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
 declare(strict_types=1);
 
 namespace League\Csv;
@@ -18,9 +20,27 @@ use OutOfRangeException;
 use php_user_filter;
 use Traversable;
 use TypeError;
+use function array_combine;
+use function array_map;
+use function array_walk;
+use function gettype;
+use function in_array;
+use function is_iterable;
+use function is_numeric;
+use function mb_convert_encoding;
+use function mb_list_encodings;
+use function preg_match;
+use function sprintf;
+use function stream_bucket_append;
+use function stream_bucket_make_writeable;
+use function stream_filter_register;
+use function stream_get_filters;
+use function strpos;
+use function strtolower;
+use function substr;
 
 /**
- * A class to convert resource stream or tabular data content charset
+ * A class to convert resource stream or tabular data content charset.
  *
  * @package League.csv
  * @since   9.0.0
@@ -31,7 +51,7 @@ class CharsetConverter extends php_user_filter
     const FILTERNAME = 'convert.league.csv';
 
     /**
-     * the filter name used to instantiate the class with
+     * the filter name used to instantiate the class with.
      *
      * @var string
      */
@@ -39,34 +59,28 @@ class CharsetConverter extends php_user_filter
 
     /**
      * Contents of the params parameter passed to stream_filter_append
-     * or stream_filter_prepend functions
+     * or stream_filter_prepend functions.
      *
      * @var mixed
      */
     public $params;
 
     /**
-     * The records input encoding charset
+     * The records input encoding charset.
      *
      * @var string
      */
     protected $input_encoding = 'UTF-8';
 
     /**
-     * The records output encoding charset
+     * The records output encoding charset.
      *
      * @var string
      */
     protected $output_encoding = 'UTF-8';
 
     /**
-     * Static method to add the stream filter to a {@link AbstractCsv} object
-     *
-     * @param AbstractCsv $csv
-     * @param string      $input_encoding
-     * @param string      $output_encoding
-     *
-     * @return AbstractCsv
+     * Static method to add the stream filter to a {@link AbstractCsv} object.
      */
     public static function addTo(AbstractCsv $csv, string $input_encoding, string $output_encoding): AbstractCsv
     {
@@ -76,7 +90,7 @@ class CharsetConverter extends php_user_filter
     }
 
     /**
-     * Static method to register the class as a stream filter
+     * Static method to register the class as a stream filter.
      */
     public static function register()
     {
@@ -87,12 +101,7 @@ class CharsetConverter extends php_user_filter
     }
 
     /**
-     * Static method to return the stream filter filtername
-     *
-     * @param string $input_encoding
-     * @param string $output_encoding
-     *
-     * @return string
+     * Static method to return the stream filter filtername.
      */
     public static function getFiltername(string $input_encoding, string $output_encoding): string
     {
@@ -105,13 +114,9 @@ class CharsetConverter extends php_user_filter
     }
 
     /**
-     * Filter encoding charset
-     *
-     * @param string $encoding
+     * Filter encoding charset.
      *
      * @throws OutOfRangeException if the charset is malformed or unsupported
-     *
-     * @return string
      */
     protected static function filterEncoding(string $encoding): string
     {
@@ -168,15 +173,15 @@ class CharsetConverter extends php_user_filter
     }
 
     /**
-     * Convert Csv file into UTF-8
+     * Convert Csv records collection into UTF-8.
      *
-     * @param array|Traversable $records the CSV records collection
+     * @param array|Traversable $records
      *
      * @return array|Traversable
      */
     public function convert($records)
     {
-        if (!\is_iterable($records)) {
+        if (!is_iterable($records)) {
             throw new TypeError(sprintf('%s() expects argument passed to be iterable, %s given', __METHOD__, gettype($records)));
         }
 
@@ -192,11 +197,7 @@ class CharsetConverter extends php_user_filter
     }
 
     /**
-     * Enable using the class as a formatter for the {@link Writer}
-     *
-     * @param array $record CSV record
-     *
-     * @return array
+     * Enable using the class as a formatter for the {@link Writer}.
      */
     public function __invoke(array $record): array
     {
@@ -206,7 +207,7 @@ class CharsetConverter extends php_user_filter
     }
 
     /**
-     * Walker method to convert the offset and the value of a CSV record field
+     * Walker method to convert the offset and the value of a CSV record field.
      *
      * @param mixed $value
      * @param mixed $offset
@@ -223,11 +224,7 @@ class CharsetConverter extends php_user_filter
     }
 
     /**
-     * Sets the records input encoding charset
-     *
-     * @param string $encoding
-     *
-     * @return self
+     * Sets the records input encoding charset.
      */
     public function inputEncoding(string $encoding): self
     {
@@ -243,11 +240,7 @@ class CharsetConverter extends php_user_filter
     }
 
     /**
-     * Sets the records output encoding charset
-     *
-     * @param string $encoding
-     *
-     * @return self
+     * Sets the records output encoding charset.
      */
     public function outputEncoding(string $encoding): self
     {

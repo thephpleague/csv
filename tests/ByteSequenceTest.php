@@ -1,9 +1,22 @@
 <?php
 
+/**
+ * League.Csv (https://csv.thephpleague.com).
+ *
+ * @author  Ignace Nyamagana Butera <nyamsprod@gmail.com>
+ * @license https://github.com/thephpleague/csv/blob/master/LICENSE (MIT License)
+ * @version 9.1.5
+ * @link    https://github.com/thephpleague/csv
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
 namespace LeagueTest\Csv;
 
 use League\Csv\ByteSequence;
 use PHPUnit\Framework\TestCase;
+use function chr;
 use function League\Csv\bom_match;
 
 /**

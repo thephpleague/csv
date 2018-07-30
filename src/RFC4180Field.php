@@ -1,24 +1,38 @@
 <?php
+
 /**
-* This file is part of the League.csv library
-*
-* @license http://opensource.org/licenses/MIT
-* @link https://github.com/thephpleague/csv/
-* @version 9.1.4
-* @package League.csv
-*
-* For the full copyright and license information, please view the LICENSE
-* file that was distributed with this source code.
-*/
+ * League.Csv (https://csv.thephpleague.com).
+ *
+ * @author  Ignace Nyamagana Butera <nyamsprod@gmail.com>
+ * @license https://github.com/thephpleague/csv/blob/master/LICENSE (MIT License)
+ * @version 9.1.5
+ * @link    https://github.com/thephpleague/csv
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
 declare(strict_types=1);
 
 namespace League\Csv;
 
 use InvalidArgumentException;
 use php_user_filter;
+use const STREAM_FILTER_READ;
+use const STREAM_FILTER_WRITE;
+use function array_map;
+use function in_array;
+use function is_string;
+use function str_replace;
+use function strcspn;
+use function stream_bucket_append;
+use function stream_bucket_make_writeable;
+use function stream_filter_register;
+use function stream_get_filters;
+use function strlen;
 
 /**
- * A stream filter to conform the CSV field to RFC4180
+ * A stream filter to conform the CSV field to RFC4180.
  *
  * @see https://tools.ietf.org/html/rfc4180#section-2
  *
@@ -31,7 +45,7 @@ class RFC4180Field extends php_user_filter
     const FILTERNAME = 'convert.league.csv.rfc4180';
 
     /**
-     * the filter name used to instantiate the class with
+     * the filter name used to instantiate the class with.
      *
      * @var string
      */
@@ -39,40 +53,35 @@ class RFC4180Field extends php_user_filter
 
     /**
      * Contents of the params parameter passed to stream_filter_append
-     * or stream_filter_prepend functions
+     * or stream_filter_prepend functions.
      *
      * @var mixed
      */
     public $params;
 
     /**
-     * The value being search for
+     * The value being search for.
      *
      * @var string[]
      */
     protected $search;
 
     /**
-     * The replacement value that replace found $search values
+     * The replacement value that replace found $search values.
      *
      * @var string[]
      */
     protected $replace;
 
     /**
-     * Characters that triggers enclosure with PHP fputcsv
+     * Characters that triggers enclosure with PHP fputcsv.
      *
      * @var string
      */
     protected static $force_enclosure = "\n\r\t ";
 
     /**
-     * Static method to add the stream filter to a {@link AbstractCsv} object
-     *
-     * @param AbstractCsv $csv
-     * @param string      $whitespace_replace
-     *
-     * @return AbstractCsv
+     * Static method to add the stream filter to a {@link AbstractCsv} object.
      */
     public static function addTo(AbstractCsv $csv, string $whitespace_replace = ''): AbstractCsv
     {
@@ -94,12 +103,7 @@ class RFC4180Field extends php_user_filter
 
     /**
      * Add a formatter to the {@link Writer} object to format the record
-     * field to avoid enclosure around a field with an empty space
-     *
-     * @param Writer $csv
-     * @param string $whitespace_replace
-     *
-     * @return Writer
+     * field to avoid enclosure around a field with an empty space.
      */
     public static function addFormatterTo(Writer $csv, string $whitespace_replace): Writer
     {
@@ -123,7 +127,7 @@ class RFC4180Field extends php_user_filter
     }
 
     /**
-     * Static method to register the class as a stream filter
+     * Static method to register the class as a stream filter.
      */
     public static function register()
     {
@@ -133,9 +137,7 @@ class RFC4180Field extends php_user_filter
     }
 
     /**
-     * Static method to return the stream filter filtername
-     *
-     * @return string
+     * Static method to return the stream filter filtername.
      */
     public static function getFiltername(): string
     {
@@ -182,11 +184,7 @@ class RFC4180Field extends php_user_filter
     }
 
     /**
-     * Validate params property
-     *
-     * @param array $params
-     *
-     * @return bool
+     * Validate params property.
      */
     protected function isValidParams(array $params): bool
     {
@@ -198,9 +196,7 @@ class RFC4180Field extends php_user_filter
     }
 
     /**
-     * Is Valid White space replaced sequence
-     *
-     * @param array $params
+     * Is Valid White space replaced sequence.
      *
      * @return bool
      */

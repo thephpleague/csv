@@ -1,5 +1,17 @@
 <?php
 
+/**
+ * League.Csv (https://csv.thephpleague.com).
+ *
+ * @author  Ignace Nyamagana Butera <nyamsprod@gmail.com>
+ * @license https://github.com/thephpleague/csv/blob/master/LICENSE (MIT License)
+ * @version 9.1.5
+ * @link    https://github.com/thephpleague/csv
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
 namespace LeagueTest\Csv;
 
 use ArrayIterator;
@@ -12,6 +24,10 @@ use SplTempFileObject;
 use stdClass;
 use Traversable;
 use TypeError;
+use function array_map;
+use function fclose;
+use function fopen;
+use function tmpfile;
 
 /**
  * @group writer
@@ -128,7 +144,6 @@ class WriterTest extends TestCase
      * @covers ::insertAll
      *
      * @param array|Traversable $argument
-     * @param string            $expected
      * @dataProvider dataToSave
      */
     public function testSave($argument, string $expected)

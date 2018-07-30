@@ -1,5 +1,17 @@
 <?php
 
+/**
+ * League.Csv (https://csv.thephpleague.com).
+ *
+ * @author  Ignace Nyamagana Butera <nyamsprod@gmail.com>
+ * @license https://github.com/thephpleague/csv/blob/master/LICENSE (MIT License)
+ * @version 9.1.5
+ * @link    https://github.com/thephpleague/csv
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
 namespace LeagueTest\Csv;
 
 use BadMethodCallException;
@@ -10,6 +22,15 @@ use PHPUnit\Framework\TestCase;
 use SplFileObject;
 use SplTempFileObject;
 use TypeError;
+use function array_keys;
+use function count;
+use function fclose;
+use function fopen;
+use function fputcsv;
+use function in_array;
+use function iterator_to_array;
+use function json_encode;
+use function unlink;
 
 /**
  * @group reader
@@ -180,9 +201,6 @@ class ReaderTest extends TestCase
      * @covers ::combineHeader
      * @covers League\Csv\Stream
      * @dataProvider validBOMSequences
-     * @param array  $record
-     * @param string $expected_bom
-     * @param string $expected
      */
     public function testStripBOM(array $record, string $expected_bom, string $expected)
     {
@@ -258,8 +276,6 @@ class ReaderTest extends TestCase
     /**
      * @covers ::getIterator
      * @dataProvider appliedFlagsProvider
-     * @param int $flag
-     * @param int $fetch_count
      */
     public function testAppliedFlags(int $flag, int $fetch_count)
     {

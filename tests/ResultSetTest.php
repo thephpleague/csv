@@ -1,5 +1,17 @@
 <?php
 
+/**
+ * League.Csv (https://csv.thephpleague.com).
+ *
+ * @author  Ignace Nyamagana Butera <nyamsprod@gmail.com>
+ * @license https://github.com/thephpleague/csv/blob/master/LICENSE (MIT License)
+ * @version 9.1.5
+ * @link    https://github.com/thephpleague/csv
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
 namespace LeagueTest\Csv;
 
 use Generator;
@@ -9,6 +21,14 @@ use League\Csv\Statement;
 use OutOfBoundsException;
 use PHPUnit\Framework\TestCase;
 use SplTempFileObject;
+use function array_reverse;
+use function current;
+use function in_array;
+use function iterator_to_array;
+use function json_encode;
+use function next;
+use function strcmp;
+use function strlen;
 
 /**
  * @group reader
@@ -112,8 +132,6 @@ class ResultSetTest extends TestCase
      * @covers League\Csv\Statement::offset
      * @covers League\Csv\Statement::process
      * @dataProvider intervalTest
-     * @param int $offset
-     * @param int $limit
      */
     public function testInterval(int $offset, int $limit)
     {
@@ -364,7 +382,6 @@ class ResultSetTest extends TestCase
      * @dataProvider fetchPairsDataProvider
      * @param int|string $key
      * @param int|string $value
-     * @param array      $expected
      */
     public function testFetchPairsIteratorMode($key, $value, array $expected)
     {

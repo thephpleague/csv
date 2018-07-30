@@ -1,24 +1,34 @@
 <?php
+
 /**
-* This file is part of the League.csv library
-*
-* @license http://opensource.org/licenses/MIT
-* @link https://github.com/thephpleague/csv/
-* @version 9.1.4
-* @package League.csv
-*
-* For the full copyright and license information, please view the LICENSE
-* file that was distributed with this source code.
-*/
+ * League.Csv (https://csv.thephpleague.com).
+ *
+ * @author  Ignace Nyamagana Butera <nyamsprod@gmail.com>
+ * @license https://github.com/thephpleague/csv/blob/master/LICENSE (MIT License)
+ * @version 9.1.5
+ * @link    https://github.com/thephpleague/csv
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
 declare(strict_types=1);
 
 namespace League\Csv;
 
 use InvalidArgumentException;
 use php_user_filter;
+use function in_array;
+use function str_replace;
+use function strcspn;
+use function stream_bucket_append;
+use function stream_bucket_make_writeable;
+use function stream_filter_register;
+use function stream_get_filters;
+use function strlen;
 
 /**
- * A stream filter to improve enclosure character usage
+ * A stream filter to improve enclosure character usage.
  *
  * @see https://tools.ietf.org/html/rfc4180#section-2
  * @see https://bugs.php.net/bug.php?id=38301
@@ -32,7 +42,7 @@ class EncloseField extends php_user_filter
     const FILTERNAME = 'convert.league.csv.enclosure';
 
     /**
-     * the filter name used to instantiate the class with
+     * the filter name used to instantiate the class with.
      *
      * @var string
      */
@@ -40,30 +50,28 @@ class EncloseField extends php_user_filter
 
     /**
      * Contents of the params parameter passed to stream_filter_append
-     * or stream_filter_prepend functions
+     * or stream_filter_prepend functions.
      *
      * @var mixed
      */
     public $params;
 
     /**
-     * Default sequence
+     * Default sequence.
      *
      * @var string
      */
     protected $sequence;
 
     /**
-     * Characters that triggers enclosure in PHP
+     * Characters that triggers enclosure in PHP.
      *
      * @var string
      */
     protected static $force_enclosure = "\n\r\t ";
 
     /**
-     * Static method to return the stream filter filtername
-     *
-     * @return string
+     * Static method to return the stream filter filtername.
      */
     public static function getFiltername(): string
     {
@@ -71,7 +79,7 @@ class EncloseField extends php_user_filter
     }
 
     /**
-     * Static method to register the class as a stream filter
+     * Static method to register the class as a stream filter.
      */
     public static function register()
     {
@@ -81,14 +89,9 @@ class EncloseField extends php_user_filter
     }
 
     /**
-     * Static method to add the stream filter to a {@link Writer} object
-     *
-     * @param Writer $csv
-     * @param string $sequence
+     * Static method to add the stream filter to a {@link Writer} object.
      *
      * @throws InvalidArgumentException if the sequence is malformed
-     *
-     * @return Writer
      */
     public static function addTo(Writer $csv, string $sequence): Writer
     {
@@ -113,13 +116,9 @@ class EncloseField extends php_user_filter
     }
 
     /**
-     * Filter type and sequence parameters
+     * Filter type and sequence parameters.
      *
-     * - The sequence to force enclosure MUST contains one of the following character ("\n\r\t ")
-     *
-     * @param string $sequence
-     *
-     * @return bool
+     * The sequence to force enclosure MUST contains one of the following character ("\n\r\t ")
      */
     protected static function isValidSequence(string $sequence): bool
     {

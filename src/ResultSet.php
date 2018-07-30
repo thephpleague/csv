@@ -1,15 +1,17 @@
 <?php
+
 /**
-* This file is part of the League.csv library
-*
-* @license http://opensource.org/licenses/MIT
-* @link https://github.com/thephpleague/csv/
-* @version 9.1.4
-* @package League.csv
-*
-* For the full copyright and license information, please view the LICENSE
-* file that was distributed with this source code.
-*/
+ * League.Csv (https://csv.thephpleague.com).
+ *
+ * @author  Ignace Nyamagana Butera <nyamsprod@gmail.com>
+ * @license https://github.com/thephpleague/csv/blob/master/LICENSE (MIT License)
+ * @version 9.1.5
+ * @link    https://github.com/thephpleague/csv
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
 declare(strict_types=1);
 
 namespace League\Csv;
@@ -21,9 +23,15 @@ use Iterator;
 use IteratorAggregate;
 use JsonSerializable;
 use LimitIterator;
+use function array_flip;
+use function array_search;
+use function is_string;
+use function iterator_count;
+use function iterator_to_array;
+use function sprintf;
 
 /**
- * Represents the result set of a {@link Reader} processed by a {@link Statement}
+ * Represents the result set of a {@link Reader} processed by a {@link Statement}.
  *
  * @package League.csv
  * @since   9.0.0
@@ -32,21 +40,21 @@ use LimitIterator;
 class ResultSet implements Countable, IteratorAggregate, JsonSerializable
 {
     /**
-     * The CSV records collection
+     * The CSV records collection.
      *
      * @var Iterator
      */
     protected $records;
 
     /**
-     * The CSV records collection header
+     * The CSV records collection header.
      *
      * @var array
      */
     protected $header = [];
 
     /**
-     * New instance
+     * New instance.
      *
      * @param Iterator $records a CSV records collection iterator
      * @param array    $header  the associated collection column names
@@ -66,7 +74,7 @@ class ResultSet implements Countable, IteratorAggregate, JsonSerializable
     }
 
     /**
-     * Returns the header associated with the result set
+     * Returns the header associated with the result set.
      *
      * @return string[]
      */
@@ -110,15 +118,13 @@ class ResultSet implements Countable, IteratorAggregate, JsonSerializable
     }
 
     /**
-     * Returns the nth record from the result set
+     * Returns the nth record from the result set.
      *
      * By default if no index is provided the first record of the resultet is returned
      *
      * @param int $nth_record the CSV record offset
      *
      * @throws Exception if argument is lesser than 0
-     *
-     * @return array
      */
     public function fetchOne(int $nth_record = 0): array
     {
@@ -133,13 +139,11 @@ class ResultSet implements Countable, IteratorAggregate, JsonSerializable
     }
 
     /**
-     * Returns a single column from the next record of the result set
+     * Returns a single column from the next record of the result set.
      *
      * By default if no value is supplied the first column is fetch
      *
      * @param string|int $index CSV column index
-     *
-     * @return Generator
      */
     public function fetchColumn($index = 0): Generator
     {
@@ -159,7 +163,7 @@ class ResultSet implements Countable, IteratorAggregate, JsonSerializable
     }
 
     /**
-     * Filter a column name against the header if any
+     * Filter a column name against the header if any.
      *
      * @param string|int $field         the field name or the field index
      * @param string     $error_message the associated error message
@@ -174,14 +178,9 @@ class ResultSet implements Countable, IteratorAggregate, JsonSerializable
     }
 
     /**
-     * Returns the selected column name
-     *
-     * @param string $value
-     * @param string $error_message
+     * Returns the selected column name.
      *
      * @throws Exception if the column is not found
-     *
-     * @return string
      */
     protected function getColumnIndexByValue(string $value, string $error_message): string
     {
@@ -193,10 +192,7 @@ class ResultSet implements Countable, IteratorAggregate, JsonSerializable
     }
 
     /**
-     * Returns the selected column name according to its offset
-     *
-     * @param int    $index
-     * @param string $error_message
+     * Returns the selected column name according to its offset.
      *
      * @throws Exception if the field is invalid or not found
      *
@@ -208,7 +204,7 @@ class ResultSet implements Countable, IteratorAggregate, JsonSerializable
             throw new Exception($error_message);
         }
 
-        if (empty($this->header)) {
+        if ([] === $this->header) {
             return $index;
         }
 
@@ -230,8 +226,6 @@ class ResultSet implements Countable, IteratorAggregate, JsonSerializable
      *
      * @param string|int $offset_index The column index to serve as offset
      * @param string|int $value_index  The column index to serve as value
-     *
-     * @return Generator
      */
     public function fetchPairs($offset_index = 0, $value_index = 1): Generator
     {
