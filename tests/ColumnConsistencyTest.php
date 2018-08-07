@@ -55,13 +55,13 @@ class ColumnConsistencyTest extends TestCase
             $expected = ['jane', 'jane.doe@example.com'];
             $validator = new ColumnConsistency();
             $this->csv->addValidator($validator, 'consistency');
-            $this->assertSame(-1, $validator->getColumnCount());
+            self::assertSame(-1, $validator->getColumnCount());
             $this->csv->insertOne(['john', 'doe', 'john.doe@example.com']);
-            $this->assertSame(3, $validator->getColumnCount());
+            self::assertSame(3, $validator->getColumnCount());
             $this->csv->insertOne($expected);
         } catch (CannotInsertRecord $e) {
-            $this->assertSame($e->getName(), 'consistency');
-            $this->assertEquals($e->getRecord(), ['jane', 'jane.doe@example.com']);
+            self::assertSame($e->getName(), 'consistency');
+            self::assertEquals($e->getRecord(), ['jane', 'jane.doe@example.com']);
         }
     }
 
@@ -72,7 +72,7 @@ class ColumnConsistencyTest extends TestCase
      */
     public function testColumnsCount()
     {
-        $this->expectException(CannotInsertRecord::class);
+        self::expectException(CannotInsertRecord::class);
         $this->csv->addValidator(new ColumnConsistency(3), 'consistency');
         $this->csv->insertOne(['john', 'doe', 'john.doe@example.com']);
         $this->csv->insertOne(['jane', 'jane.doe@example.com']);
@@ -84,7 +84,7 @@ class ColumnConsistencyTest extends TestCase
      */
     public function testColumsCountTriggersException()
     {
-        $this->expectException(Exception::class);
+        self::expectException(Exception::class);
         new ColumnConsistency(-2);
     }
 }

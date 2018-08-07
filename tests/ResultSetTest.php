@@ -69,7 +69,7 @@ class ResultSetTest extends TestCase
      */
     public function testSetLimit()
     {
-        $this->assertCount(1, $this->stmt->limit(1)->process($this->csv));
+        self::assertCount(1, $this->stmt->limit(1)->process($this->csv));
     }
 
     /**
@@ -77,7 +77,7 @@ class ResultSetTest extends TestCase
      */
     public function testSetOffsetThrowsException()
     {
-        $this->expectException(Exception::class);
+        self::expectException(Exception::class);
         $this->stmt->offset(-1);
     }
 
@@ -91,8 +91,8 @@ class ResultSetTest extends TestCase
     public function testCountable()
     {
         $records = $this->stmt->limit(1)->process($this->csv);
-        $this->assertCount(1, $records);
-        $this->assertInstanceOf(Generator::class, $records->getIterator());
+        self::assertCount(1, $records);
+        self::assertInstanceOf(Generator::class, $records->getIterator());
     }
 
     /**
@@ -103,7 +103,7 @@ class ResultSetTest extends TestCase
     {
         $stmt_alt = $this->stmt->limit(-1)->offset(0);
 
-        $this->assertSame($stmt_alt, $this->stmt);
+        self::assertSame($stmt_alt, $this->stmt);
     }
 
     /**
@@ -111,7 +111,7 @@ class ResultSetTest extends TestCase
      */
     public function testSetLimitThrowException()
     {
-        $this->expectException(Exception::class);
+        self::expectException(Exception::class);
         $this->stmt->limit(-4);
     }
 
@@ -121,7 +121,7 @@ class ResultSetTest extends TestCase
      */
     public function testSetOffset()
     {
-        $this->assertContains(
+        self::assertContains(
             ['jane', 'doe', 'jane.doe@example.com'],
             $this->stmt->offset(1)->process($this->csv)
         );
@@ -135,7 +135,7 @@ class ResultSetTest extends TestCase
      */
     public function testInterval(int $offset, int $limit)
     {
-        $this->assertContains(
+        self::assertContains(
             ['jane', 'doe', 'jane.doe@example.com'],
             $this->stmt
                 ->offset($offset)
@@ -165,7 +165,7 @@ class ResultSetTest extends TestCase
      */
     public function testIntervalThrowException()
     {
-        $this->expectException(OutOfBoundsException::class);
+        self::expectException(OutOfBoundsException::class);
         iterator_to_array($this->stmt
             ->offset(1)
             ->limit(0)
@@ -181,7 +181,7 @@ class ResultSetTest extends TestCase
             return !in_array('jane', $row, true);
         };
 
-        $this->assertNotContains(
+        self::assertNotContains(
             ['jane', 'doe', 'jane.doe@example.com'],
             iterator_to_array($this->stmt->where($func)->process($this->csv), false)
         );
@@ -196,7 +196,7 @@ class ResultSetTest extends TestCase
         $func = function (array $rowA, array $rowB): int {
             return strcmp($rowA[0], $rowB[0]);
         };
-        $this->assertSame(
+        self::assertSame(
             array_reverse($this->expected),
             iterator_to_array($this->stmt->orderBy($func)->process($this->csv), false)
         );
@@ -212,7 +212,7 @@ class ResultSetTest extends TestCase
             return strlen($rowA[0]) <=> strlen($rowB[0]);
         };
 
-        $this->assertSame(
+        self::assertSame(
             $this->expected,
             iterator_to_array($this->stmt->orderBy($func)->process($this->csv), false)
         );
@@ -230,7 +230,7 @@ class ResultSetTest extends TestCase
      */
     public function testFetchColumnTriggersException($field)
     {
-        $this->expectException(Exception::class);
+        self::expectException(Exception::class);
         $this->csv->setHeaderOffset(0);
         $res = $this->stmt->process($this->csv)->fetchColumn($field);
         iterator_to_array($res, false);
@@ -251,7 +251,7 @@ class ResultSetTest extends TestCase
      */
     public function testFetchColumnTriggersOutOfRangeException()
     {
-        $this->expectException(Exception::class);
+        self::expectException(Exception::class);
         $this->csv->setHeaderOffset(0);
         $res = $this->stmt->process($this->csv)->fetchColumn(-1);
         iterator_to_array($res, false);
@@ -277,7 +277,7 @@ class ResultSetTest extends TestCase
 
         $csv = Reader::createFromFileObject($tmp);
         $csv->setHeaderOffset(2);
-        $this->assertContains(
+        self::assertContains(
             ['D' => '6', 'E' => '7', 'F' => '8'],
             iterator_to_array($this->stmt->process($csv), false)
         );
@@ -296,8 +296,8 @@ class ResultSetTest extends TestCase
             "parentA","childA","titleA"';
         $csv = Reader::createFromString($source);
         $csv->setHeaderOffset(0);
-        $this->assertContains('parentA', $this->stmt->process($csv)->fetchColumn('parent name'));
-        $this->assertContains('parentA', $this->stmt->process($csv)->fetchColumn(0));
+        self::assertContains('parentA', $this->stmt->process($csv)->fetchColumn('parent name'));
+        self::assertContains('parentA', $this->stmt->process($csv)->fetchColumn(0));
     }
 
     /**
@@ -309,8 +309,8 @@ class ResultSetTest extends TestCase
      */
     public function testFetchColumn()
     {
-        $this->assertContains('john', $this->stmt->process($this->csv)->fetchColumn(0));
-        $this->assertContains('jane', $this->stmt->process($this->csv)->fetchColumn());
+        self::assertContains('john', $this->stmt->process($this->csv)->fetchColumn(0));
+        self::assertContains('jane', $this->stmt->process($this->csv)->fetchColumn());
     }
 
     /**
@@ -332,7 +332,7 @@ class ResultSetTest extends TestCase
         }
         $csv = Reader::createFromFileObject($file);
         $res = $this->stmt->process($csv)->fetchColumn(2);
-        $this->assertCount(1, iterator_to_array($res));
+        self::assertCount(1, iterator_to_array($res));
     }
 
     /**
@@ -354,7 +354,7 @@ class ResultSetTest extends TestCase
         }
         $csv = Reader::createFromFileObject($file);
         $res = $this->stmt->process($csv)->fetchColumn(2);
-        $this->assertCount(0, iterator_to_array($res));
+        self::assertCount(0, iterator_to_array($res));
     }
 
     /**
@@ -362,9 +362,9 @@ class ResultSetTest extends TestCase
      */
     public function testfetchOne()
     {
-        $this->assertSame($this->expected[0], $this->stmt->process($this->csv)->fetchOne(0));
-        $this->assertSame($this->expected[1], $this->stmt->process($this->csv)->fetchOne(1));
-        $this->assertSame([], $this->stmt->process($this->csv)->fetchOne(35));
+        self::assertSame($this->expected[0], $this->stmt->process($this->csv)->fetchOne(0));
+        self::assertSame($this->expected[1], $this->stmt->process($this->csv)->fetchOne(1));
+        self::assertSame([], $this->stmt->process($this->csv)->fetchOne(35));
     }
 
     /**
@@ -372,7 +372,7 @@ class ResultSetTest extends TestCase
      */
     public function testFetchOneTriggersException()
     {
-        $this->expectException(Exception::class);
+        self::expectException(Exception::class);
         $this->stmt->process($this->csv)->fetchOne(-5);
     }
 
@@ -388,7 +388,7 @@ class ResultSetTest extends TestCase
         $iterator = $this->stmt->process($this->csv)->fetchPairs($key, $value);
         foreach ($iterator as $key => $value) {
             $res = current($expected);
-            $this->assertSame($value, $res[$key]);
+            self::assertSame($value, $res[$key]);
             next($expected);
         }
     }
@@ -421,7 +421,7 @@ class ResultSetTest extends TestCase
      */
     public function testFetchPairsWithInvalidOffset()
     {
-        $this->assertCount(0, iterator_to_array($this->stmt->process($this->csv)->fetchPairs(10, 1), true));
+        self::assertCount(0, iterator_to_array($this->stmt->process($this->csv)->fetchPairs(10, 1), true));
     }
 
     /**
@@ -432,7 +432,7 @@ class ResultSetTest extends TestCase
     {
         $res = $this->stmt->process($this->csv)->fetchPairs(0, 15);
         foreach ($res as $value) {
-            $this->assertNull($value);
+            self::assertNull($value);
         }
     }
 
@@ -442,11 +442,11 @@ class ResultSetTest extends TestCase
     public function testGetHeader()
     {
         $expected = ['firstname', 'lastname', 'email'];
-        $this->assertSame([], $this->stmt->process($this->csv)->getHeader());
-        $this->assertSame($expected, $this->stmt->process($this->csv, $expected)->getHeader());
+        self::assertSame([], $this->stmt->process($this->csv)->getHeader());
+        self::assertSame($expected, $this->stmt->process($this->csv, $expected)->getHeader());
         $this->csv->setHeaderOffset(0);
-        $this->assertSame($this->expected[0], $this->stmt->process($this->csv)->getHeader());
-        $this->assertSame($expected, $this->stmt->process($this->csv, $expected)->getHeader());
+        self::assertSame($this->expected[0], $this->stmt->process($this->csv)->getHeader());
+        self::assertSame($expected, $this->stmt->process($this->csv, $expected)->getHeader());
     }
 
     /**
@@ -456,7 +456,7 @@ class ResultSetTest extends TestCase
     public function testGetRecords()
     {
         $result = $this->stmt->process($this->csv);
-        $this->assertEquals($result->getIterator(), $result->getRecords());
+        self::assertEquals($result->getIterator(), $result->getRecords());
     }
 
     /**
@@ -477,7 +477,7 @@ class ResultSetTest extends TestCase
 
         $reader = Reader::createFromFileObject($tmp)->setHeaderOffset(0);
         $result = (new Statement())->offset(1)->limit(1)->process($reader);
-        $this->assertSame(
+        self::assertSame(
             '[{"First Name":"jane","Last Name":"doe","E-mail":"jane.doe@example.com"}]',
             json_encode($result)
         );

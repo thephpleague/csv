@@ -22,6 +22,7 @@ use const SEEK_CUR;
 use const STREAM_FILTER_WRITE;
 use function array_reduce;
 use function gettype;
+use function is_iterable;
 use function sprintf;
 use function strlen;
 
@@ -101,7 +102,7 @@ class Writer extends AbstractCsv
      */
     public function insertAll($records): int
     {
-        if (!\is_iterable($records)) {
+        if (!is_iterable($records)) {
             throw new TypeError(sprintf('%s() expects argument passed to be iterable, %s given', __METHOD__, gettype($records)));
         }
 
@@ -122,7 +123,6 @@ class Writer extends AbstractCsv
      * A record is an array that can contains scalar types values, NULL values
      * or objects implementing the __toString method.
      *
-     *
      * @throws CannotInsertRecord If the record can not be inserted
      */
     public function insertOne(array $record): int
@@ -130,7 +130,7 @@ class Writer extends AbstractCsv
         $record = array_reduce($this->formatters, [$this, 'formatRecord'], $record);
         $this->validateRecord($record);
         $bytes = $this->document->fputcsv($record, $this->delimiter, $this->enclosure, $this->escape);
-        if ('' !== (string) $bytes) {
+        if (false !== $bytes && 0 !== $bytes) {
             return $bytes + $this->consolidate();
         }
 
@@ -144,7 +144,6 @@ class Writer extends AbstractCsv
      *   - scalar types values,
      *   - NULL values,
      *   - or objects implementing the __toString() method.
-     *
      */
     protected function formatRecord(array $record, callable $formatter): array
     {
@@ -153,7 +152,6 @@ class Writer extends AbstractCsv
 
     /**
      * Validate a record.
-     *
      *
      * @throws CannotInsertRecord If the validation failed
      */
@@ -192,8 +190,6 @@ class Writer extends AbstractCsv
 
     /**
      * Adds a record formatter.
-     *
-     * @return static
      */
     public function addFormatter(callable $formatter): self
     {
@@ -204,9 +200,6 @@ class Writer extends AbstractCsv
 
     /**
      * Adds a record validator.
-     *
-     *
-     * @return static
      */
     public function addValidator(callable $validator, string $validator_name): self
     {
@@ -217,8 +210,6 @@ class Writer extends AbstractCsv
 
     /**
      * Sets the newline sequence.
-     *
-     * @return static
      */
     public function setNewline(string $newline): self
     {
@@ -233,8 +224,6 @@ class Writer extends AbstractCsv
      * @param int|null $threshold
      *
      * @throws Exception if the threshold is a integer lesser than 1
-     *
-     * @return static
      */
     public function setFlushThreshold($threshold): self
     {

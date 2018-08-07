@@ -33,7 +33,7 @@ class EscapeFormulaTest extends TestCase
      */
     public function testConstructorThrowsTypError()
     {
-        $this->expectException(TypeError::class);
+        self::expectException(TypeError::class);
         new EscapeFormula("\t", [(object) 'i']);
     }
 
@@ -44,7 +44,7 @@ class EscapeFormulaTest extends TestCase
      */
     public function testConstructorThrowsInvalidArgumentException()
     {
-        $this->expectException(InvalidArgumentException::class);
+        self::expectException(InvalidArgumentException::class);
         new EscapeFormula("\t", ['i', 'foo']);
     }
 
@@ -55,9 +55,9 @@ class EscapeFormulaTest extends TestCase
     public function testGetEscape()
     {
         $formatter = new EscapeFormula();
-        $this->assertSame("\t", $formatter->getEscape());
+        self::assertSame("\t", $formatter->getEscape());
         $formatterBis = new EscapeFormula("\n");
-        $this->assertSame("\n", $formatterBis->getEscape());
+        self::assertSame("\n", $formatterBis->getEscape());
     }
 
     /**
@@ -68,9 +68,9 @@ class EscapeFormulaTest extends TestCase
     public function testGetSpecialChars()
     {
         $formatter = new EscapeFormula();
-        $this->assertNotContains('i', $formatter->getSpecialCharacters());
+        self::assertNotContains('i', $formatter->getSpecialCharacters());
         $formatterBis = new EscapeFormula("\t", ['i']);
-        $this->assertContains('i', $formatterBis->getSpecialCharacters());
+        self::assertContains('i', $formatterBis->getSpecialCharacters());
     }
 
     /**
@@ -83,7 +83,7 @@ class EscapeFormulaTest extends TestCase
         $record = ['2', '2017-07-25', 'Important Client', '=2+5', 240, null, (object) 'yes'];
         $expected = ['2', '2017-07-25', 'Important Client', "\t=2+5", 240, null, (object) 'yes'];
         $formatter = new EscapeFormula();
-        $this->assertEquals($expected, $formatter->escapeRecord($record));
+        self::assertEquals($expected, $formatter->escapeRecord($record));
     }
 
     /**
@@ -99,6 +99,6 @@ class EscapeFormulaTest extends TestCase
         $csv = Writer::createFromFileObject(new SplTempFileObject());
         $csv->addFormatter(new EscapeFormula());
         $csv->insertOne($record);
-        $this->assertContains($expected, $csv->getContent());
+        self::assertContains($expected, $csv->getContent());
     }
 }

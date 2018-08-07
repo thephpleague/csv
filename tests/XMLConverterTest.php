@@ -64,12 +64,12 @@ class XMLConverterTest extends TestCase
         $record_list = $dom->getElementsByTagName('record');
         $field_list = $dom->getElementsByTagName('field');
 
-        $this->assertInstanceOf(DOMDocument::class, $dom);
-        $this->assertSame('csv', $dom->documentElement->tagName);
-        $this->assertEquals(5, $record_list->length);
-        $this->assertTrue($record_list->item(0)->hasAttribute('offset'));
-        $this->assertEquals(20, $field_list->length);
-        $this->assertTrue($field_list->item(0)->hasAttribute('name'));
+        self::assertInstanceOf(DOMDocument::class, $dom);
+        self::assertSame('csv', $dom->documentElement->tagName);
+        self::assertEquals(5, $record_list->length);
+        self::assertTrue($record_list->item(0)->hasAttribute('offset'));
+        self::assertEquals(20, $field_list->length);
+        self::assertTrue($field_list->item(0)->hasAttribute('name'));
     }
 
     /**
@@ -79,7 +79,7 @@ class XMLConverterTest extends TestCase
      */
     public function testXmlElementTriggersException()
     {
-        $this->expectException(DOMException::class);
+        self::expectException(DOMException::class);
         (new XMLConverter())
             ->recordElement('record', '')
             ->rootElement('   ');
@@ -90,7 +90,7 @@ class XMLConverterTest extends TestCase
      */
     public function testXmlElementTriggersTypeError()
     {
-        $this->expectException(TypeError::class);
+        self::expectException(TypeError::class);
         (new XMLConverter())->convert('foo');
     }
 }

@@ -54,9 +54,9 @@ class HTMLConverterTest extends TestCase
         ;
 
         $html = $converter->convert($records);
-        $this->assertContains('<table class="table-csv-data" id="test">', $html);
-        $this->assertContains('<tr data-record-offset="', $html);
-        $this->assertContains('<td title="', $html);
+        self::assertContains('<table class="table-csv-data" id="test">', $html);
+        self::assertContains('<tr data-record-offset="', $html);
+        self::assertContains('<td title="', $html);
     }
 
     /**
@@ -65,7 +65,7 @@ class HTMLConverterTest extends TestCase
      */
     public function testTableTriggersException()
     {
-        $this->expectException(DOMException::class);
+        self::expectException(DOMException::class);
         (new HTMLConverter())->table('table-csv-data', 'te st');
     }
 }

@@ -41,7 +41,7 @@ class CharsetConverterTest extends TestCase
      */
     public function testCharsetConverterTriggersException()
     {
-        $this->expectException(OutOfRangeException::class);
+        self::expectException(OutOfRangeException::class);
         (new CharsetConverter())->inputEncoding('');
     }
 
@@ -50,7 +50,7 @@ class CharsetConverterTest extends TestCase
      */
     public function testCharsetConverterTriggersExceptionOnConversion()
     {
-        $this->expectException(TypeError::class);
+        self::expectException(TypeError::class);
         (new CharsetConverter())->convert('toto');
     }
 
@@ -61,9 +61,9 @@ class CharsetConverterTest extends TestCase
     public function testCharsetConverterRemainsTheSame()
     {
         $converter = new CharsetConverter();
-        $this->assertSame($converter, $converter->inputEncoding('utf-8'));
-        $this->assertSame($converter, $converter->outputEncoding('UtF-8'));
-        $this->assertNotEquals($converter->outputEncoding('iso-8859-15'), $converter);
+        self::assertSame($converter, $converter->inputEncoding('utf-8'));
+        self::assertSame($converter, $converter->outputEncoding('UtF-8'));
+        self::assertNotEquals($converter->outputEncoding('iso-8859-15'), $converter);
     }
 
     /**
@@ -78,9 +78,9 @@ class CharsetConverterTest extends TestCase
         $converter = new CharsetConverter();
         $data = [['a' => 'bé']];
         $expected = new ArrayIterator($data);
-        $this->assertEquals($expected, $converter->convert($expected));
-        $this->assertEquals($expected[0], ($converter)($expected[0]));
-        $this->assertNotEquals($expected[0], ($converter->outputEncoding('utf-16'))($expected[0]));
+        self::assertEquals($expected, $converter->convert($expected));
+        self::assertEquals($expected[0], ($converter)($expected[0]));
+        self::assertNotEquals($expected[0], ($converter->outputEncoding('utf-16'))($expected[0]));
     }
 
     /**
@@ -96,7 +96,7 @@ class CharsetConverterTest extends TestCase
             ->inputEncoding('iso-8859-15')
             ->outputEncoding('utf-8')
         ;
-        $this->assertSame($expected, $converter->convert([$raw])[0]);
+        self::assertSame($expected, $converter->convert([$raw])[0]);
     }
 
 
@@ -111,7 +111,7 @@ class CharsetConverterTest extends TestCase
             ->inputEncoding('iso-8859-15')
             ->outputEncoding('utf-8')
         ;
-        $this->assertInstanceOf(Iterator::class, $converter->convert($expected));
+        self::assertInstanceOf(Iterator::class, $converter->convert($expected));
     }
 
     /**
@@ -129,8 +129,8 @@ class CharsetConverterTest extends TestCase
             ->addStreamFilter('string.toupper');
         CharsetConverter::addTo($csv, 'iso-8859-15', 'utf-8');
 
-        $this->assertContains(CharsetConverter::FILTERNAME.'.*', stream_get_filters());
-        $this->assertSame(strtoupper($expected), $csv->getContent());
+        self::assertContains(CharsetConverter::FILTERNAME.'.*', stream_get_filters());
+        self::assertSame(strtoupper($expected), $csv->getContent());
     }
 
     /**
@@ -139,7 +139,7 @@ class CharsetConverterTest extends TestCase
      */
     public function testCharsetConverterAsStreamFilterFailed()
     {
-        $this->expectException(Exception::class);
+        self::expectException(Exception::class);
         stream_filter_register(CharsetConverter::FILTERNAME.'.*', CharsetConverter::class);
         $expected = 'Batman,Superman,Anaïs';
         $raw = mb_convert_encoding($expected, 'iso-8859-15', 'utf-8');
@@ -156,7 +156,7 @@ class CharsetConverterTest extends TestCase
     {
         $converter = new CharsetConverter();
         $converter->filtername = 'toto';
-        $this->assertFalse($converter->onCreate());
+        self::assertFalse($converter->onCreate());
     }
 
     /**
@@ -166,7 +166,7 @@ class CharsetConverterTest extends TestCase
     {
         $converter = new CharsetConverter();
         $converter->filtername = CharsetConverter::FILTERNAME.'.foo/bar';
-        $this->assertFalse($converter->onCreate());
+        self::assertFalse($converter->onCreate());
     }
 
     /**
@@ -181,7 +181,7 @@ class CharsetConverterTest extends TestCase
             ->inputEncoding('iso-8859-15')
             ->outputEncoding('utf-8');
         $res = $converter->convert([$record]);
-        $this->assertSame($expected, $res[0]);
+        self::assertSame($expected, $res[0]);
     }
 
     public function converterProvider()

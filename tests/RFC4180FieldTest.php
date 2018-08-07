@@ -49,10 +49,10 @@ class RFC4180FieldTest extends TestCase
     {
         $csv = Writer::createFromPath('php://temp');
         RFC4180Field::addTo($csv);
-        $this->assertContains(RFC4180Field::getFiltername(), stream_get_filters());
+        self::assertContains(RFC4180Field::getFiltername(), stream_get_filters());
         $csv->setNewline("\r\n");
         $csv->insertOne($record);
-        $this->assertSame($expected, $csv->getContent());
+        self::assertSame($expected, $csv->getContent());
     }
 
     public function bugsProvider()
@@ -87,7 +87,7 @@ class RFC4180FieldTest extends TestCase
     {
         $csv = Reader::createFromString($expected);
         RFC4180Field::addTo($csv);
-        $this->assertSame($record, $csv->fetchOne(0));
+        self::assertSame($record, $csv->fetchOne(0));
     }
 
     public function readerBugsProvider()
@@ -106,7 +106,7 @@ class RFC4180FieldTest extends TestCase
      */
     public function testOnCreateFailedWithoutParams()
     {
-        $this->expectException(TypeError::class);
+        self::expectException(TypeError::class);
         (new RFC4180Field())->onCreate();
     }
 
@@ -119,7 +119,7 @@ class RFC4180FieldTest extends TestCase
     {
         $filter = new RFC4180Field();
         $filter->params = $params;
-        $this->assertFalse($filter->onCreate());
+        self::assertFalse($filter->onCreate());
     }
 
     public function wrongParamProvider()
@@ -177,8 +177,8 @@ class RFC4180FieldTest extends TestCase
         RFC4180Field::addTo($csv, "\0");
         $csv->insertAll($this->records);
         $contents = $csv->getContent();
-        $this->assertContains('Grand Cherokee', $contents);
-        $this->assertNotContains('"Grand Cherokee"', $contents);
+        self::assertContains('Grand Cherokee', $contents);
+        self::assertNotContains('"Grand Cherokee"', $contents);
     }
 
 
@@ -190,7 +190,7 @@ class RFC4180FieldTest extends TestCase
      */
     public function testDoNotEncloseWhiteSpacedFieldThrowsException()
     {
-        $this->expectException(InvalidArgumentException::class);
+        self::expectException(InvalidArgumentException::class);
         RFC4180Field::addTo(Writer::createFromString(''), "\t\0");
     }
 }

@@ -32,7 +32,7 @@ class ByteSequenceTest extends TestCase
      */
     public function testByteSequenceMatch($str, $expected)
     {
-        $this->assertSame($expected, bom_match($str));
+        self::assertSame($expected, bom_match($str));
     }
 
     public function ByteSequenceMatchProvider()

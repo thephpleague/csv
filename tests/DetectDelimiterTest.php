@@ -31,7 +31,7 @@ class DetectDelimiterTest extends TestCase
         $file = new SplTempFileObject();
         $file->fwrite("How are you today ?\nI'm doing fine thanks!");
         $csv = Reader::createFromFileObject($file);
-        $this->expectException(Exception::class);
+        self::expectException(Exception::class);
         delimiter_detect($csv, [','], -4);
     }
 
@@ -40,7 +40,7 @@ class DetectDelimiterTest extends TestCase
         $file = new SplTempFileObject();
         $file->fwrite("How are you today ?\nI'm doing fine thanks!");
         $csv = Reader::createFromFileObject($file);
-        $this->expectException(TypeError::class);
+        self::expectException(TypeError::class);
         delimiter_detect($csv, [',', []]);
     }
 
@@ -49,7 +49,7 @@ class DetectDelimiterTest extends TestCase
         $file = new SplTempFileObject();
         $file->fwrite("How are you today ?\nI'm doing fine thanks!");
         $csv = Reader::createFromFileObject($file);
-        $this->assertSame(['toto' => 0, '|' => 0], delimiter_detect($csv, ['toto', '|'], 5));
+        self::assertSame(['toto' => 0, '|' => 0], delimiter_detect($csv, ['toto', '|'], 5));
     }
 
     public function testDetectDelimiterWithNoValidDelimiter()
@@ -57,7 +57,7 @@ class DetectDelimiterTest extends TestCase
         $file = new SplTempFileObject();
         $file->fwrite("How are you today ?\nI'm doing fine thanks!");
         $csv = Reader::createFromFileObject($file);
-        $this->assertSame(['toto' => 0], delimiter_detect($csv, ['toto'], 5));
+        self::assertSame(['toto' => 0], delimiter_detect($csv, ['toto'], 5));
     }
 
     public function testDetectDelimiterListWithInconsistentCSV()
@@ -71,7 +71,7 @@ class DetectDelimiterTest extends TestCase
         $data->fputcsv(['toto', 'tata', 'tutu']);
 
         $csv = Reader::createFromFileObject($data);
-        $this->assertSame(['|' => 12, ';' => 4], delimiter_detect($csv, ['|', ';'], 5));
+        self::assertSame(['|' => 12, ';' => 4], delimiter_detect($csv, ['|', ';'], 5));
     }
 
     public function testDetectDelimiterKeepOriginalDelimiter()
@@ -81,6 +81,6 @@ class DetectDelimiterTest extends TestCase
         $csv = Reader::createFromFileObject($file);
         $csv->setDelimiter('@');
         $res = delimiter_detect($csv, ['toto', '|'], 5);
-        $this->assertSame('@', $csv->getDelimiter());
+        self::assertSame('@', $csv->getDelimiter());
     }
 }

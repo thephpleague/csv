@@ -57,7 +57,8 @@ class WriterTest extends TestCase
     public function testflushThreshold()
     {
         $this->csv->setFlushThreshold(12);
-        $this->assertSame(12, $this->csv->getFlushThreshold());
+        self::assertSame(12, $this->csv->getFlushThreshold());
+        self::assertSame($this->csv, $this->csv->setFlushThreshold(12));
     }
 
     /**
@@ -66,7 +67,7 @@ class WriterTest extends TestCase
     public function testflushThresholdThrowsException()
     {
         $this->csv->setFlushThreshold(1);
-        $this->expectException(Exception::class);
+        self::expectException(Exception::class);
         $this->csv->setFlushThreshold(0);
     }
 
@@ -76,14 +77,14 @@ class WriterTest extends TestCase
      */
     public function testflushThresholdThrowsTypeError()
     {
-        $this->expectException(TypeError::class);
+        self::expectException(TypeError::class);
         $this->csv->setFlushThreshold((object) 12);
     }
 
     public function testSupportsStreamFilter()
     {
         $csv = Writer::createFromPath(__DIR__.'/data/foo.csv');
-        $this->assertTrue($csv->supportsStreamFilter());
+        self::assertTrue($csv->supportsStreamFilter());
         $csv->setFlushThreshold(3);
         $csv->addStreamFilter('string.toupper');
         $csv->insertOne(['jane', 'doe', 'jane@example.com']);
@@ -95,7 +96,7 @@ class WriterTest extends TestCase
         $csv->insertOne(['jane', 'doe', 'jane@example.com']);
         $csv->insertOne(['jane', 'doe', 'jane@example.com']);
         $csv->setFlushThreshold(null);
-        $this->assertContains('JANE,DOE,JANE@EXAMPLE.COM', $csv->getContent());
+        self::assertContains('JANE,DOE,JANE@EXAMPLE.COM', $csv->getContent());
     }
 
     /**
@@ -109,7 +110,7 @@ class WriterTest extends TestCase
         foreach ($expected as $row) {
             $this->csv->insertOne($row);
         }
-        $this->assertContains('john,doe,john.doe@example.com', $this->csv->getContent());
+        self::assertContains('john,doe,john.doe@example.com', $this->csv->getContent());
     }
 
     /**
@@ -119,16 +120,26 @@ class WriterTest extends TestCase
     {
         $csv = Writer::createFromPath(__DIR__.'/data/foo.csv', 'a+');
         $csv->insertOne(['jane', 'doe', 'jane.doe@example.com']);
-        $this->assertContains('jane,doe,jane.doe@example.com', $csv->getContent());
+        self::assertContains('jane,doe,jane.doe@example.com', $csv->getContent());
     }
 
     /**
      * @covers ::insertOne
+     * @dataProvider inputDataProvider
      */
-    public function testInsertThrowsExceptionOnError()
+    public function testInsertThrowsExceptionOnError(array $record)
     {
-        $csv = Writer::createFromPath(__DIR__.'/data/foo.csv', 'r');
-        $this->assertSame(0, $csv->insertOne(['jane', 'doe', 'jane.doe@example.com']));
+        self::expectException(CannotInsertRecord::class);
+        self::expectExceptionMessage('Unable to write record to the CSV document');
+        Writer::createFromPath(__DIR__.'/data/foo.csv', 'r')->insertOne($record);
+    }
+
+    public function inputDataProvider()
+    {
+        return [
+            'normal record' => [['foo', 'bar']],
+            'empty record' => [[]],
+        ];
     }
 
     /**
@@ -136,7 +147,7 @@ class WriterTest extends TestCase
      */
     public function testFailedSaveWithWrongType()
     {
-        $this->expectException(TypeError::class);
+        self::expectException(TypeError::class);
         $this->csv->insertAll(new stdClass());
     }
 
@@ -149,7 +160,7 @@ class WriterTest extends TestCase
     public function testSave($argument, string $expected)
     {
         $this->csv->insertAll($argument);
-        $this->assertContains($expected, $this->csv->getContent());
+        self::assertContains($expected, $this->csv->getContent());
     }
 
     public function dataToSave()
@@ -180,7 +191,7 @@ class WriterTest extends TestCase
         }
 
         $expected = "john|doe|john.doe@example.com\njane|doe|jane.doe@example.com\n";
-        $this->assertSame($expected, $csv->getContent());
+        self::assertSame($expected, $csv->getContent());
         $csv = null;
         fclose($fp);
         $fp = null;
@@ -196,10 +207,10 @@ class WriterTest extends TestCase
     public function testCustomNewline()
     {
         $csv = Writer::createFromStream(tmpfile());
-        $this->assertSame("\n", $csv->getNewline());
+        self::assertSame("\n", $csv->getNewline());
         $csv->setNewline("\r\n");
         $csv->insertOne(['jane', 'doe']);
-        $this->assertSame("jane,doe\r\n", $csv->getContent());
+        self::assertSame("jane,doe\r\n", $csv->getContent());
         $csv = null;
     }
 
@@ -209,7 +220,7 @@ class WriterTest extends TestCase
             return false;
         };
 
-        $this->expectException(CannotInsertRecord::class);
+        self::expectException(CannotInsertRecord::class);
         $this->csv->addValidator($func, 'func1');
         $this->csv->insertOne(['jane', 'doe']);
     }
@@ -222,7 +233,7 @@ class WriterTest extends TestCase
 
         $this->csv->addFormatter($func);
         $this->csv->insertOne(['jane', 'doe']);
-        $this->assertSame("JANE,DOE\n", $this->csv->getContent());
+        self::assertSame("JANE,DOE\n", $this->csv->getContent());
     }
 
     /**
@@ -230,7 +241,7 @@ class WriterTest extends TestCase
      */
     public function testWriterTriggerExceptionWithNonSeekableStream()
     {
-        $this->expectException(Exception::class);
+        self::expectException(Exception::class);
         $writer = Writer::createFromPath('php://output', 'w');
         $writer->setNewline("\r\n");
         $writer->insertOne(['foo', 'bar']);

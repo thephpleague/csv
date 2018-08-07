@@ -70,10 +70,10 @@ class ReaderTest extends TestCase
         $source = '"parent name","child name","title"
             "parentA","childA","titleA"';
         $csv = Reader::createFromString($source);
-        $this->assertCount(2, $csv);
-        $this->assertCount(2, $csv);
+        self::assertCount(2, $csv);
+        self::assertCount(2, $csv);
         $csv->setHeaderOffset(0);
-        $this->assertCount(1, $csv);
+        self::assertCount(1, $csv);
     }
 
     /**
@@ -87,17 +87,17 @@ class ReaderTest extends TestCase
     {
         $this->csv->setHeaderOffset(0);
         foreach ($this->csv as $record) {
-            $this->assertCount(4, $record);
+            self::assertCount(4, $record);
         }
 
         $this->csv->setHeaderOffset(1);
         foreach ($this->csv as $record) {
-            $this->assertCount(3, $record);
+            self::assertCount(3, $record);
         }
 
         $this->csv->setHeaderOffset(null);
         foreach ($this->csv->getRecords() as $record) {
-            $this->assertTrue(in_array(count($record), [3, 4], true));
+            self::assertTrue(in_array(count($record), [3, 4], true));
         }
     }
 
@@ -109,7 +109,7 @@ class ReaderTest extends TestCase
     {
         $this->csv->setHeaderOffset(1);
         foreach ($this->csv as $record) {
-            $this->assertSame(['jane', 'doe', 'jane.doe@example.com'], array_keys($record));
+            self::assertSame(['jane', 'doe', 'jane.doe@example.com'], array_keys($record));
         }
     }
 
@@ -122,11 +122,11 @@ class ReaderTest extends TestCase
     public function testGetHeader()
     {
         $this->csv->setHeaderOffset(1);
-        $this->assertSame(1, $this->csv->getHeaderOffset());
-        $this->assertSame($this->expected[1], $this->csv->getHeader());
+        self::assertSame(1, $this->csv->getHeaderOffset());
+        self::assertSame($this->expected[1], $this->csv->getHeader());
         $this->csv->setHeaderOffset(null);
-        $this->assertNull($this->csv->getHeaderOffset());
-        $this->assertSame([], $this->csv->getHeader());
+        self::assertNull($this->csv->getHeaderOffset());
+        self::assertSame([], $this->csv->getHeader());
     }
 
     /**
@@ -150,9 +150,9 @@ class ReaderTest extends TestCase
         $csv->setHeaderOffset(0);
 
         $res = (new Statement())->process($csv);
-        $this->assertEquals($csv->fetchOne(3), $res->fetchOne(3));
-        $this->assertEquals($csv->fetchColumn('firstname'), $res->fetchColumn('firstname'));
-        $this->assertEquals($csv->fetchPairs('lastname', 0), $res->fetchPairs('lastname', 0));
+        self::assertEquals($csv->fetchOne(3), $res->fetchOne(3));
+        self::assertEquals($csv->fetchColumn('firstname'), $res->fetchColumn('firstname'));
+        self::assertEquals($csv->fetchPairs('lastname', 0), $res->fetchPairs('lastname', 0));
     }
 
     /**
@@ -163,7 +163,7 @@ class ReaderTest extends TestCase
      */
     public function testCallThrowsException($method)
     {
-        $this->expectException(BadMethodCallException::class);
+        self::expectException(BadMethodCallException::class);
         $this->csv->$method();
     }
 
@@ -184,14 +184,14 @@ class ReaderTest extends TestCase
      */
     public function testHeaderThrowsExceptionOnError()
     {
-        $this->expectException(Exception::class);
+        self::expectException(Exception::class);
         $csv = Reader::createFromString(
             'field1,field1,field3
             1,2,3
             4,5,6'
         );
         $csv->setHeaderOffset(0);
-        $this->assertSame(['field1', 'field1', 'field3'], $csv->getHeader());
+        self::assertSame(['field1', 'field1', 'field3'], $csv->getHeader());
         iterator_to_array($csv);
     }
 
@@ -207,9 +207,9 @@ class ReaderTest extends TestCase
         $fp = fopen('php://temp', 'r+');
         fputcsv($fp, $record);
         $csv = Reader::createFromStream($fp);
-        $this->assertSame($expected_bom, $csv->getInputBOM());
+        self::assertSame($expected_bom, $csv->getInputBOM());
         foreach ($csv as $offset => $record) {
-            $this->assertSame($expected, $record[0]);
+            self::assertSame($expected, $record[0]);
         }
         $csv = null;
         fclose($fp);
@@ -251,7 +251,7 @@ class ReaderTest extends TestCase
         $csv->setHeaderOffset(0);
         $expected = ['parent name' => 'parentA', 'child name' => 'childA', 'title' => 'titleA'];
         foreach ($csv->getRecords() as $offset => $record) {
-            $this->assertSame($expected, $record);
+            self::assertSame($expected, $record);
         }
     }
 
@@ -269,7 +269,7 @@ class ReaderTest extends TestCase
         $csv->setHeaderOffset(0);
         $expected = ['parent name' => 'parentA', 'child name' => 'childA', 'title' => 'titleA'];
         foreach ($csv->getRecords() as $offset => $record) {
-            $this->assertSame($expected, $record);
+            self::assertSame($expected, $record);
         }
     }
 
@@ -284,7 +284,7 @@ class ReaderTest extends TestCase
         $obj->fwrite("1st\n2nd\n");
         $obj->setFlags($flag);
         $reader = Reader::createFromFileObject($obj);
-        $this->assertCount($fetch_count, $reader);
+        self::assertCount($fetch_count, $reader);
         $reader = null;
         $obj = null;
         unlink($path);
@@ -310,7 +310,7 @@ class ReaderTest extends TestCase
      */
     public function testGetHeaderThrowsExceptionWithNegativeOffset()
     {
-        $this->expectException(Exception::class);
+        self::expectException(Exception::class);
         $this->csv->setHeaderOffset(-3)->getRecords();
     }
 
@@ -320,7 +320,7 @@ class ReaderTest extends TestCase
      */
     public function testGetHeaderThrowsExceptionWithSplFileObject()
     {
-        $this->expectException(Exception::class);
+        self::expectException(Exception::class);
         $this->csv->setHeaderOffset(23)->getRecords();
     }
 
@@ -330,7 +330,7 @@ class ReaderTest extends TestCase
      */
     public function testGetHeaderThrowsExceptionWithStreamObject()
     {
-        $this->expectException(Exception::class);
+        self::expectException(Exception::class);
 
         $tmp = fopen('php://temp', 'r+');
         foreach ($this->expected as $row) {
@@ -347,7 +347,7 @@ class ReaderTest extends TestCase
      */
     public function testSetHeaderThrowsExceptionOnWrongInput()
     {
-        $this->expectException(TypeError::class);
+        self::expectException(TypeError::class);
         $this->csv->setHeaderOffset((object) 1);
     }
 
@@ -356,7 +356,7 @@ class ReaderTest extends TestCase
      */
     public function testSetHeaderThrowsExceptionOnWrongInputRange()
     {
-        $this->expectException(Exception::class);
+        self::expectException(Exception::class);
         $this->csv->setHeaderOffset(-1);
     }
 
@@ -368,7 +368,7 @@ class ReaderTest extends TestCase
         $keys = ['firstname', 'lastname', 'email'];
         $res = $this->csv->getRecords($keys);
         foreach ($res as $record) {
-            $this->assertSame($keys, array_keys($record));
+            self::assertSame($keys, array_keys($record));
         }
     }
 
@@ -388,7 +388,7 @@ class ReaderTest extends TestCase
         }
 
         $reader = Reader::createFromFileObject($tmp)->setHeaderOffset(0);
-        $this->assertSame(
+        self::assertSame(
             '[{"First Name":"jane","Last Name":"doe","E-mail":"jane.doe@example.com"}]',
             json_encode($reader)
         );
@@ -400,6 +400,6 @@ class ReaderTest extends TestCase
     public function testCreateFromPath()
     {
         $csv = Reader::createFromPath(__DIR__.'/data/foo_readonly.csv');
-        $this->assertCount(1, $csv);
+        self::assertCount(1, $csv);
     }
 }
