@@ -19,7 +19,7 @@ namespace League\Csv;
 use SeekableIterator;
 use SplFileObject;
 use TypeError;
-
+use const SEEK_SET;
 use function array_keys;
 use function array_values;
 use function array_walk_recursive;

@@ -23,6 +23,7 @@ use DOMException;
 use Traversable;
 use TypeError;
 use function gettype;
+use function is_iterable;
 use function sprintf;
 
 /**
@@ -92,7 +93,7 @@ class XMLConverter
      */
     public function convert($records): DOMDocument
     {
-        if (!\is_iterable($records)) {
+        if (!is_iterable($records)) {
             throw new TypeError(sprintf('%s() expects argument passed to be iterable, %s given', __METHOD__, gettype($records)));
         }
 
