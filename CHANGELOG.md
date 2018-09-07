@@ -2,11 +2,12 @@
 
 All Notable changes to `Csv` will be documented in this file
 
-## 9.1.5 - TBD
+## 9.2.0 - TBD
 
 ### Added
 
-- Nothing
+- `Writer::insertOne` and `Writer::insertAll` take an optional argument specifying
+  the writing mode. [#307](https://github.com/thephpleague/csv/issues/307)
 
 ### Deprecated
 

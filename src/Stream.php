@@ -477,6 +477,10 @@ class Stream implements SeekableIterator
      */
     public function fwrite(string $str, int $length = 0)
     {
+        if (0 === $length) {
+            return fwrite($this->stream, $str);
+        }
+
         return fwrite($this->stream, $str, $length);
     }
 

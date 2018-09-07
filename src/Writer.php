@@ -35,6 +35,10 @@ use function strlen;
  */
 class Writer extends AbstractCsv
 {
+    const MODE_PHP = 'MODE_PHP';
+
+    const MODE_RFC4180 = 'MODE_RFC4180';
+
     /**
      * callable collection to format the record before insertion.
      *
@@ -76,6 +80,28 @@ class Writer extends AbstractCsv
     protected $stream_filter_mode = STREAM_FILTER_WRITE;
 
     /**
+     * Writer mode.
+     *
+     * @var string
+     */
+    protected $writing_mode = self::MODE_PHP;
+
+    /**
+     * Regular expression used to detect if enclosure are necessary or not.
+     *
+     * @var string
+     */
+    protected $rfc4180_regexp;
+
+    /**
+     * Returns the current writing mode.
+     */
+    public function getWritingMode(): string
+    {
+        return $this->writing_mode;
+    }
+
+    /**
      * Returns the current newline sequence characters.
      */
     public function getNewline(): string
@@ -100,7 +126,7 @@ class Writer extends AbstractCsv
      *
      * @param Traversable|array $records
      */
-    public function insertAll($records): int
+    public function insertAll($records, string $mode = self::MODE_PHP): int
     {
         if (!is_iterable($records)) {
             throw new TypeError(sprintf('%s() expects argument passed to be iterable, %s given', __METHOD__, gettype($records)));
@@ -108,7 +134,7 @@ class Writer extends AbstractCsv
 
         $bytes = 0;
         foreach ($records as $record) {
-            $bytes += $this->insertOne($record);
+            $bytes += $this->insertOne($record, $mode);
         }
 
         $this->flush_counter = 0;
@@ -125,16 +151,78 @@ class Writer extends AbstractCsv
      *
      * @throws CannotInsertRecord If the record can not be inserted
      */
-    public function insertOne(array $record): int
+    public function insertOne(array $record, string $mode = self::MODE_PHP): int
     {
+        static $method = [self::MODE_PHP => 'fputcsvPHP', self::MODE_RFC4180 => 'fputcsvRFC4180'];
+        if (!isset($method[$mode])) {
+            throw new Exception(sprintf('Unknown or unsupported writing mode %s', $mode));
+        }
+
         $record = array_reduce($this->formatters, [$this, 'formatRecord'], $record);
         $this->validateRecord($record);
-        $bytes = $this->document->fputcsv($record, $this->delimiter, $this->enclosure, $this->escape);
+        $bytes = $this->{$method[$mode]}($record);
         if (false !== $bytes && 0 !== $bytes) {
             return $bytes + $this->consolidate();
         }
 
         throw CannotInsertRecord::triggerOnInsertion($record);
+    }
+
+    /**
+     * Add a single record to a CSV Document using PHP algorithm.
+     */
+    protected function fputcsvPHP(array $record)
+    {
+        return $this->document->fputcsv($record, $this->delimiter, $this->enclosure, $this->escape);
+    }
+
+    /**
+     * Add a single record to a CSV Document using RFC4180 algorithm.
+     *
+     * @throws Exception If the record can not be converted to a string
+     */
+    protected function fputcsvRFC4180(array $record)
+    {
+        $retval = [];
+        foreach ($record as $field) {
+            if (null === ($content = $this->convertField($field))) {
+                throw CannotInsertRecord::triggerOnInsertion($record);
+            }
+
+            $retval[] = $content;
+        }
+
+        return $this->document->fwrite(implode($this->delimiter, $retval)."\n");
+    }
+
+    /**
+     * Convert and Format a record field to be inserted into a CSV Document.
+     *
+     * @return null|string on conversion failure the method returns null
+     */
+    protected function convertField($field)
+    {
+        if (null === $field) {
+            $field = '';
+        }
+
+        if ((is_object($field) && !method_exists($field, '__toString')) || !is_scalar($field)) {
+            return null;
+        }
+
+        if (is_bool($field)) {
+            $field = (int) $field;
+        }
+
+        $field = (string) $field;
+        if (!preg_match($this->rfc4180_regexp, $field)) {
+            return $field;
+        }
+
+        return $this->enclosure
+            .str_replace($this->enclosure, $this->enclosure.$this->enclosure, $field)
+            .$this->enclosure
+        ;
     }
 
     /**
@@ -216,6 +304,18 @@ class Writer extends AbstractCsv
         $this->newline = $newline;
 
         return $this;
+    }
+
+    /**
+     * Reset dynamic object properties to improve performance.
+     */
+    protected function resetProperties()
+    {
+        $this->rfc4180_regexp = "/[\n|\r"
+            .preg_quote($this->delimiter, '/')
+            .'|'
+            .preg_quote($this->enclosure, '/')
+        .']/';
     }
 
     /**

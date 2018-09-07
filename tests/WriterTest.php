@@ -246,4 +246,69 @@ class WriterTest extends TestCase
         $writer->setNewline("\r\n");
         $writer->insertOne(['foo', 'bar']);
     }
+
+    /**
+     * @see https://bugs.php.net/bug.php?id=43225
+     * @see https://bugs.php.net/bug.php?id=74713
+     * @see https://bugs.php.net/bug.php?id=55413
+     *
+     * @covers ::insertOne
+     * @covers ::fputcsvRFC4180
+     * @covers ::convertField
+     *
+     * @dataProvider bugsProvider
+     */
+    public function testRFC4180WriterMode(string $expected, array $record)
+    {
+        $csv = Writer::createFromPath('php://temp');
+        $csv->setNewline("\r\n");
+        $csv->insertOne($record, Writer::MODE_RFC4180);
+        self::assertSame($expected, $csv->getContent());
+    }
+
+    public function bugsProvider()
+    {
+        return [
+            'bug #43225' => [
+                'expected' => '"a\""",bbb'."\r\n",
+                'record' => ['a\\"', 'bbb'],
+            ],
+            'bug #74713' => [
+                'expected' => '"""@@"",""B"""'."\r\n",
+                'record' => ['"@@","B"'],
+            ],
+            'bug #55413' => [
+                'expected' => 'A,"Some ""Stuff""",C'."\r\n",
+                'record' => ['A', 'Some "Stuff"', 'C'],
+            ],
+            'convert boolean' => [
+                'expected' => '0,"Some ""Stuff""",C'."\r\n",
+                'record' => [false, 'Some "Stuff"', 'C'],
+            ],
+            'convert null value' => [
+                'expected' => ',"Some ""Stuff""",C'."\r\n",
+                'record' => [null, 'Some "Stuff"', 'C'],
+            ],
+            'bug #307' => [
+                'expected' => "a text string \\,...\r\n",
+                'record' => ['a text string \\', '...'],
+            ],
+        ];
+    }
+
+    /**
+     * @see https://bugs.php.net/bug.php?id=43225
+     * @see https://bugs.php.net/bug.php?id=74713
+     * @see https://bugs.php.net/bug.php?id=55413
+     *
+     * @covers ::insertOne
+     * @covers ::fputcsvRFC4180
+     * @covers ::convertField
+     */
+    public function testRFC4180WriterModeThrowsException()
+    {
+        self::expectException(Exception::class);
+        $csv = Writer::createFromPath('php://temp');
+        $csv->insertOne([tmpfile()], Writer::MODE_RFC4180);
+    }
 }

@@ -107,6 +107,7 @@ abstract class AbstractCsv implements ByteSequence
     {
         $this->document = $document;
         list($this->delimiter, $this->enclosure, $this->escape) = $this->document->getCsvControl();
+        $this->resetProperties();
     }
 
     /**
