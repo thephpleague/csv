@@ -11,7 +11,7 @@ All Notable changes to `Csv` will be documented in this file
 
 ### Deprecated
 
-- Nothing
+- `League\Csv\RFC4180Field` use `Writer::insertXXX` method with the new `Writer::MODE_RFC4180` instead
 
 ### Fixed
 

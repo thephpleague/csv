@@ -34,6 +34,11 @@ use function strlen;
 /**
  * A stream filter to conform the CSV field to RFC4180.
  *
+ * DEPRECATION WARNING! This class will be removed in the next major point release
+ *
+ * @deprecated deprecated since version 9.2.0
+ * @see Writer::insertOne
+ *
  * @see https://tools.ietf.org/html/rfc4180#section-2
  *
  * @package League.csv

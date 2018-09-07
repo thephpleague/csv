@@ -80,26 +80,11 @@ class Writer extends AbstractCsv
     protected $stream_filter_mode = STREAM_FILTER_WRITE;
 
     /**
-     * Writer mode.
-     *
-     * @var string
-     */
-    protected $writing_mode = self::MODE_PHP;
-
-    /**
      * Regular expression used to detect if enclosure are necessary or not.
      *
      * @var string
      */
     protected $rfc4180_regexp;
-
-    /**
-     * Returns the current writing mode.
-     */
-    public function getWritingMode(): string
-    {
-        return $this->writing_mode;
-    }
 
     /**
      * Returns the current newline sequence characters.
