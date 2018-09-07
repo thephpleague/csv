@@ -297,10 +297,6 @@ class WriterTest extends TestCase
     }
 
     /**
-     * @see https://bugs.php.net/bug.php?id=43225
-     * @see https://bugs.php.net/bug.php?id=74713
-     * @see https://bugs.php.net/bug.php?id=55413
-     *
      * @covers ::insertOne
      * @covers ::fputcsvRFC4180
      * @covers ::convertField
@@ -310,5 +306,15 @@ class WriterTest extends TestCase
         self::expectException(Exception::class);
         $csv = Writer::createFromPath('php://temp');
         $csv->insertOne([tmpfile()], Writer::MODE_RFC4180);
+    }
+
+    /**
+     * @covers ::insertOne
+     */
+    public function testRFC4180WriterModeThrowsException2()
+    {
+        self::expectException(Exception::class);
+        $csv = Writer::createFromString('');
+        $csv->insertOne(['foo', 'bar'], 'baz');
     }
 }
