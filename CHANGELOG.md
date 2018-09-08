@@ -16,6 +16,8 @@ All Notable changes to `Csv` will be documented in this file
 ### Fixed
 
 - `Writer::insertOne` fix throwing exception when record can not be inserted
+- Internal `Stream::fwrite` improved
+- Internal `Abstract::__construct` correctly initializes properties
 
 ### Removed
 
