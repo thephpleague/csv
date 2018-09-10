@@ -20,10 +20,13 @@ use Traversable;
 use TypeError;
 use const SEEK_CUR;
 use const STREAM_FILTER_WRITE;
+use function array_map;
 use function array_reduce;
 use function gettype;
+use function implode;
 use function is_iterable;
 use function sprintf;
+use function str_replace;
 use function strlen;
 
 /**
@@ -154,7 +157,7 @@ class Writer extends AbstractCsv
     }
 
     /**
-     * Add a single record to a CSV Document using PHP algorithm.
+     * Adds a single record to a CSV Document using PHP algorithm.
      */
     protected function fputcsvPHP(array $record)
     {
@@ -162,43 +165,20 @@ class Writer extends AbstractCsv
     }
 
     /**
-     * Add a single record to a CSV Document using RFC4180 algorithm.
-     *
-     * @throws Exception If the record can not be converted to a string
+     * Adds a single record to a CSV Document using RFC4180 algorithm.
      */
     protected function fputcsvRFC4180(array $record)
     {
-        $retval = [];
-        foreach ($record as $field) {
-            if (null === ($content = $this->convertField($field))) {
-                throw CannotInsertRecord::triggerOnInsertion($record);
-            }
-
-            $retval[] = $content;
-        }
-
-        return $this->document->fwrite(implode($this->delimiter, $retval)."\n");
+        return $this->document->fwrite(implode($this->delimiter, array_map([$this, 'convertField'], $record))."\n");
     }
 
     /**
-     * Convert and Format a record field to be inserted into a CSV Document.
+     * Converts and Format a record field to be inserted into a CSV Document.
      *
-     * @return null|string on conversion failure the method returns null
+     * @see https://tools.ietf.org/html/rfc4180
      */
-    protected function convertField($field)
+    protected function convertField($field): string
     {
-        if (null === $field) {
-            $field = '';
-        }
-
-        if ((is_object($field) && !method_exists($field, '__toString')) || !is_scalar($field)) {
-            return null;
-        }
-
-        if (is_bool($field)) {
-            $field = (int) $field;
-        }
-
         $field = (string) $field;
         if (!preg_match($this->rfc4180_regexp, $field)) {
             return $field;

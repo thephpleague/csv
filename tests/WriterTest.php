@@ -282,7 +282,7 @@ class WriterTest extends TestCase
                 'record' => ['A', 'Some "Stuff"', 'C'],
             ],
             'convert boolean' => [
-                'expected' => '0,"Some ""Stuff""",C'."\r\n",
+                'expected' => ',"Some ""Stuff""",C'."\r\n",
                 'record' => [false, 'Some "Stuff"', 'C'],
             ],
             'convert null value' => [
@@ -294,18 +294,6 @@ class WriterTest extends TestCase
                 'record' => ['a text string \\', '...'],
             ],
         ];
-    }
-
-    /**
-     * @covers ::insertOne
-     * @covers ::fputcsvRFC4180
-     * @covers ::convertField
-     */
-    public function testRFC4180WriterModeThrowsException()
-    {
-        self::expectException(Exception::class);
-        $csv = Writer::createFromPath('php://temp');
-        $csv->insertOne([tmpfile()], Writer::MODE_RFC4180);
     }
 
     /**
