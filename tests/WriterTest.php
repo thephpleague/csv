@@ -115,6 +115,7 @@ class WriterTest extends TestCase
 
     /**
      * @covers ::insertOne
+     * @covers ::addRecord
      */
     public function testInsertNormalFile()
     {
@@ -253,8 +254,7 @@ class WriterTest extends TestCase
      * @see https://bugs.php.net/bug.php?id=55413
      *
      * @covers ::insertOne
-     * @covers ::fputcsvRFC4180
-     * @covers ::convertField
+     * @covers ::addRFC4180CompliantRecord
      *
      * @dataProvider bugsProvider
      */

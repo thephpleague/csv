@@ -20,7 +20,6 @@ use Traversable;
 use TypeError;
 use const SEEK_CUR;
 use const STREAM_FILTER_WRITE;
-use function array_map;
 use function array_reduce;
 use function gettype;
 use function implode;
@@ -148,14 +147,15 @@ class Writer extends AbstractCsv
      */
     public function insertOne(array $record, string $mode = self::MODE_PHP): int
     {
-        static $method = [self::MODE_PHP => 'fputcsvPHP', self::MODE_RFC4180 => 'fputcsvRFC4180'];
-        if (!isset($method[$mode])) {
+        static $methodList = [self::MODE_PHP => 'addRecord', self::MODE_RFC4180 => 'addRFC4180CompliantRecord'];
+        $method = $methodList[$mode] ?? null;
+        if (null === $method) {
             throw new Exception(sprintf('Unknown or unsupported writing mode %s', $mode));
         }
 
         $record = array_reduce($this->formatters, [$this, 'formatRecord'], $record);
         $this->validateRecord($record);
-        $bytes = $this->{$method[$mode]}($record);
+        $bytes = $this->$method($record);
         if (false !== $bytes && 0 !== $bytes) {
             return $bytes + $this->consolidate();
         }
@@ -165,57 +165,70 @@ class Writer extends AbstractCsv
 
     /**
      * Adds a single record to a CSV Document using PHP algorithm.
+     *
+     * @see https://php.net/manual/en/function.fputcsv.php
+     *
+     * @return int|bool
      */
-    protected function fputcsvPHP(array $record)
+    protected function addRecord(array $record)
     {
         return $this->document->fputcsv($record, $this->delimiter, $this->enclosure, $this->escape);
     }
 
     /**
      * Adds a single record to a CSV Document using RFC4180 algorithm.
-     */
-    protected function fputcsvRFC4180(array $record)
-    {
-        return $this->document->fwrite(implode($this->delimiter, array_map([$this, 'convertField'], $record))."\n");
-    }
-
-    /**
-     * Converts and Format a record field to be inserted into a CSV Document.
      *
+     * @see https://php.net/manual/en/function.fputcsv.php
+     * @see https://php.net/manual/en/function.fwrite.php
      * @see https://tools.ietf.org/html/rfc4180
      * @see http://edoceo.com/utilitas/csv-file-format
      *
-     * - string conversion is done without any check like fputcsv
+     * Fields must be delimited with enclosures if they contains :
      *
-     * Enclosure addition or doubling is done using the following rules
+     *     - Leading or trailing whitespaces
+     *     - Embedded delimiters
+     *     - Embedded line-breaks
+     *     - Embedded enclosures.
      *
-     * - Preserving Leading and trailing whitespaces - Fields must be delimited with enclosure.
-     * - Embedded delimiter - Fields must be delimited with enclosure.
-     * - Embedded enclosure - Fields must be delimited with enclosure, embedded enclosures must be doubled.
-     * - Embedded line-breaks - Fields must be delimited with enclosure.
+     * Embedded enclosures must be doubled.
+     *
+     * String conversion is done without any check like fputcsv:
+     *
+     *     - Emits E_NOTICE on Array conversion (returns the 'Array' string)
+     *     - Throws catchable fatal error on objects that can not be converted
+     *     - Returns resource id without notice or error (returns 'Resource id #2')
+     *     - Converts boolean true to '1', boolean false to the empty string
+     *     - Converts null value to the empty string
+     *
+     * the LF character is added at the end of each record to mimic fputcsv behavior
+     *
+     * @return int|bool
      */
-    protected function convertField($field): string
+    protected function addRFC4180CompliantRecord(array $record)
     {
-        $field = (string) $field;
-        if (!preg_match($this->rfc4180_regexp, $field)) {
-            return $field;
+        foreach ($record as &$field) {
+            $field = (string) $field;
+            if (preg_match($this->rfc4180_regexp, $field)) {
+                $field = $this->enclosure.str_replace($this->enclosure, $this->rfc4180_enclosure, $field).$this->enclosure;
+            }
         }
+        unset($field);
 
-        return $this->enclosure.str_replace($this->enclosure, $this->rfc4180_enclosure, $field).$this->enclosure;
+        return $this->document->fwrite(implode($this->delimiter, $record)."\n");
     }
 
     /**
-     * Reset dynamic object properties to improve performance.
+     * {@inheritdoc}
      */
     protected function resetProperties()
     {
         parent::resetProperties();
-        $this->rfc4180_regexp = "/^
-            (\ +)
-            |([\n|\r".preg_quote($this->delimiter, '/').'|'.preg_quote($this->enclosure, '/').'])
-            |(\ +)
+        $embedded_characters = "\n|\r".preg_quote($this->delimiter, '/').'|'.preg_quote($this->enclosure, '/');
+        $this->rfc4180_regexp = '/^
+            (\ +)                          # leading whitespaces
+            |(['.$embedded_characters.'])  # embedded characters
+            |(\ +)                         # trailing whitespaces
         $/x';
-
         $this->rfc4180_enclosure = $this->enclosure.$this->enclosure;
     }
 

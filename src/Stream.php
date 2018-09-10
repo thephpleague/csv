@@ -300,7 +300,7 @@ class Stream implements SeekableIterator
      *
      * @see http://php.net/manual/en/splfileobject.fputcsv.php
      *
-     * @return int|null|bool
+     * @return int|bool
      */
     public function fputcsv(array $fields, string $delimiter = ',', string $enclosure = '"', string $escape = '\\')
     {
