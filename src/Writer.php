@@ -83,11 +83,18 @@ class Writer extends AbstractCsv
     protected $stream_filter_mode = STREAM_FILTER_WRITE;
 
     /**
-     * Regular expression used to detect if enclosure are necessary or not.
+     * Regular expression used to detect if RFC4180 formatting is necessary.
      *
      * @var string
      */
     protected $rfc4180_regexp;
+
+    /**
+     * double enclosure for RFC4180 compliance.
+     *
+     * @var string
+     */
+    protected $rfc4180_enclosure;
 
     /**
      * Returns the current newline sequence characters.
@@ -176,6 +183,16 @@ class Writer extends AbstractCsv
      * Converts and Format a record field to be inserted into a CSV Document.
      *
      * @see https://tools.ietf.org/html/rfc4180
+     * @see http://edoceo.com/utilitas/csv-file-format
+     *
+     * - string conversion is done without any check like fputcsv
+     *
+     * Enclosure addition or doubling is done using the following rules
+     *
+     * - Preserving Leading and trailing whitespaces - Fields must be delimited with enclosure.
+     * - Embedded delimiter - Fields must be delimited with enclosure.
+     * - Embedded enclosure - Fields must be delimited with enclosure, embedded enclosures must be doubled.
+     * - Embedded line-breaks - Fields must be delimited with enclosure.
      */
     protected function convertField($field): string
     {
@@ -184,10 +201,22 @@ class Writer extends AbstractCsv
             return $field;
         }
 
-        return $this->enclosure
-            .str_replace($this->enclosure, $this->enclosure.$this->enclosure, $field)
-            .$this->enclosure
-        ;
+        return $this->enclosure.str_replace($this->enclosure, $this->rfc4180_enclosure, $field).$this->enclosure;
+    }
+
+    /**
+     * Reset dynamic object properties to improve performance.
+     */
+    protected function resetProperties()
+    {
+        parent::resetProperties();
+        $this->rfc4180_regexp = "/^
+            (\ +)
+            |([\n|\r".preg_quote($this->delimiter, '/').'|'.preg_quote($this->enclosure, '/').'])
+            |(\ +)
+        $/x';
+
+        $this->rfc4180_enclosure = $this->enclosure.$this->enclosure;
     }
 
     /**
@@ -269,18 +298,6 @@ class Writer extends AbstractCsv
         $this->newline = $newline;
 
         return $this;
-    }
-
-    /**
-     * Reset dynamic object properties to improve performance.
-     */
-    protected function resetProperties()
-    {
-        $this->rfc4180_regexp = "/[\n|\r"
-            .preg_quote($this->delimiter, '/')
-            .'|'
-            .preg_quote($this->enclosure, '/')
-        .']/';
     }
 
     /**

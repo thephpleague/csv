@@ -293,6 +293,18 @@ class WriterTest extends TestCase
                 'expected' => "a text string \\,...\r\n",
                 'record' => ['a text string \\', '...'],
             ],
+            'line starting with space' => [
+                'expected' => '"  a",foo,bar'."\r\n",
+                'record' => ['  a', 'foo', 'bar'],
+            ],
+            'line ending with space' => [
+                'expected' => 'a,foo,"bar "'."\r\n",
+                'record' => ['a', 'foo', 'bar '],
+            ],
+            'line containing space' => [
+                'expected' => 'a,foo bar,bar'."\r\n",
+                'record' => ['a', 'foo bar', 'bar'],
+            ],
         ];
     }
 

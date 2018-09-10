@@ -365,6 +365,7 @@ class Reader extends AbstractCsv implements Countable, IteratorAggregate, JsonSe
      */
     protected function resetProperties()
     {
+        parent::resetProperties();
         $this->nb_records = -1;
         $this->header = [];
     }
