@@ -183,6 +183,14 @@ class Writer extends AbstractCsv
      * @see https://tools.ietf.org/html/rfc4180
      * @see http://edoceo.com/utilitas/csv-file-format
      *
+     * String conversion is done without any check like fputcsv.
+     *
+     *     - Emits E_NOTICE on Array conversion (returns the 'Array' string)
+     *     - Throws catchable fatal error on objects that can not be converted
+     *     - Returns resource id without notice or error (returns 'Resource id #2')
+     *     - Converts boolean true to '1', boolean false to the empty string
+     *     - Converts null value to the empty string
+     *
      * Fields must be delimited with enclosures if they contains :
      *
      *     - Leading or trailing whitespaces
@@ -192,15 +200,7 @@ class Writer extends AbstractCsv
      *
      * Embedded enclosures must be doubled.
      *
-     * String conversion is done without any check like fputcsv:
-     *
-     *     - Emits E_NOTICE on Array conversion (returns the 'Array' string)
-     *     - Throws catchable fatal error on objects that can not be converted
-     *     - Returns resource id without notice or error (returns 'Resource id #2')
-     *     - Converts boolean true to '1', boolean false to the empty string
-     *     - Converts null value to the empty string
-     *
-     * the LF character is added at the end of each record to mimic fputcsv behavior
+     * The LF character is added at the end of each record to mimic fputcsv behavior
      *
      * @return int|bool
      */
@@ -223,12 +223,12 @@ class Writer extends AbstractCsv
     protected function resetProperties()
     {
         parent::resetProperties();
-        $embedded_characters = "\n|\r".preg_quote($this->delimiter, '/').'|'.preg_quote($this->enclosure, '/');
-        $this->rfc4180_regexp = '/^
-            (\ +)                          # leading whitespaces
-            |(['.$embedded_characters.'])  # embedded characters
-            |(\ +)                         # trailing whitespaces
-        $/x';
+        $characters = "\n|\r".preg_quote($this->delimiter, '/').'|'.preg_quote($this->enclosure, '/');
+        $this->rfc4180_regexp = '/
+            ^(\ +)                # leading whitespaces
+            |(['.$characters.'])  # delimiter, enclosure, line-breaks characters
+            |(\ +)$               # trailing whitespaces
+        /x';
         $this->rfc4180_enclosure = $this->enclosure.$this->enclosure;
     }
 

@@ -10,12 +10,14 @@ title: CSV document Writer connection
 
 class Writer extends AbstractCsv
 {
+    const MODE_PHP = 'MODE_PHP';
+    const MODE_RFC4180 = 'MODE_RFC4180';
     public function addFormatter(callable $callable): Writer
     public function addValidator(callable $callable, string $validatorName): Writer
     public function getFlushThreshold(): ?int
     public function getNewline(): string
-    public function insertAll(iterable $records): int
-    public function insertOne(array $record): int
+    public function insertAll(iterable $records, string $mode = self::MODE_PHP): int
+    public function insertOne(array $record, string $mode = self::MODE_PHP): int
     public function setFlushThreshold(?int $threshold): self
     public function setNewline(string $sequence): self
 }
@@ -30,14 +32,14 @@ The `League\Csv\Writer` class extends the general connections [capabilities](/9.
 ~~~php
 <?php
 
-public Writer::insertOne(array $record): int
-public Writer::insertAll(iterable $records): int
+public Writer::insertOne(array $record, string $mode = self::MODE_PHP): int
+public Writer::insertAll(iterable $records, string $mode = self::MODE_PHP): int
 ~~~
 
 `Writer::insertOne` inserts a single record into the CSV document while `Writer::insertAll` adds several records. Both methods returns the length of the written data.
 
-`Writer::insertOne` takes a single argument, an `array` which represents a single CSV record.
-`Writer::insertAll` takes a single argument a PHP iterable which contains a collection of CSV records.
+`Writer::insertOne` takes an argument, an `array` which represents a single CSV record.
+`Writer::insertAll` takes an argument a PHP iterable which contains a collection of CSV records.
 
 ~~~php
 <?php
@@ -79,6 +81,33 @@ try {
     $e->getRecords(); //returns [1, 2, 3]
 }
 ~~~
+
+<p class="message-info">Starting with <code>9.2.0</code> both methods can have a optional second argument to define which algorithm to use to insert the record array</p>
+
+- `Writer::MODE_PHP` uses directly PHP `fputcsv` (this is the default behaviour)
+- `Writer::MODE_RFC4180` produces a record line compliant with the informal [RFC4180](https://tools.ietf.org/html/rfc4180) specification.
+
+~~~php
+<?php
+
+use League\Csv\Writer;
+
+$records = [
+    ['foo', 'foo bar', 'baz '],
+
+];
+
+$writer = Writer::createFromString('');
+$writer->insertOne(['"foo"', 'foo bar', 'baz ', 'foo\\bar']);
+$writer->insertOne(['"foo"', 'foo bar', 'baz ', 'foo\\bar'], Writer::MODE_RFC4180);
+echo $writer->getContents();
+// """foo""","foo bar","baz ","foo\bar"
+// """foo""",foo bar,"baz ",foo\bar
+~~~
+
+<p class="message-notice">The addition of this new argument means the deprecation of [RFC4180Field](/9.0/interoperability/rfc4180-field/).</p>
+
+<p class="message-notice">You still need to set the newline sequence as shown below</p>
 
 ## Handling newline
 

@@ -14,8 +14,11 @@
         }
     ],
     "support": {
+        "docs": "https://csv.thephpleague.com",
         "forum": "https://groups.google.com/forum/#!forum/thephpleague",
-        "issues": "https://github.com/thephpleague/csv/issues"
+        "issues": "https://github.com/thephpleague/csv/issues",
+        "rss": "https://github.com/thephpleague/csv/releases.atom",
+        "source": "https://github.com/thephpleague/csv"
     },
     "require": {
         "php" : ">=7.0.10",
