@@ -293,7 +293,7 @@ class WriterTest extends TestCase
                 'record' => [null, 'Some "Stuff"', 'C'],
             ],
             'bug #307' => [
-                'expected' => "a text string \\,...\r\n",
+                'expected' => '"a text string \\",...'."\r\n",
                 'record' => ['a text string \\', '...'],
             ],
             'line starting with space' => [
@@ -305,7 +305,7 @@ class WriterTest extends TestCase
                 'record' => ['a', 'foo', 'bar '],
             ],
             'line containing space' => [
-                'expected' => 'a,foo bar,bar'."\r\n",
+                'expected' => 'a,"foo bar",bar'."\r\n",
                 'record' => ['a', 'foo bar', 'bar'],
             ],
         ];
