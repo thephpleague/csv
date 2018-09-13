@@ -6,16 +6,16 @@ All Notable changes to `Csv` will be documented in this file
 
 ### Added
 
-- `Writer::insertOne` and `Writer::insertAll` take an optional argument specifying
-  the writing mode. [#307](https://github.com/thephpleague/csv/issues/307)
+- Supports for empty string for the escape character to enable better RFC4180 compliance.
 
 ### Deprecated
 
-- `League\Csv\RFC4180Field` use `Writer::insertXXX` method with the new `Writer::MODE_RFC4180` instead
+- `League\Csv\RFC4180Field` use `Writer::insertXXX` methods instead.
 
 ### Fixed
 
-- `Writer::insertOne` fix throwing exception when record can not be inserted
+- `AbstractCSV::setEscape` now accepts the empty string like `fputcsv` and `fgetcsv`
+- `Writer::insertOne` fixes throwing exception when record can not be inserted
 - Internal `Stream::fwrite` improved
 - Internal `Abstract::__construct` correctly initializes properties
 

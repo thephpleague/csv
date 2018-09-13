@@ -5,7 +5,7 @@ title: CSV document interoperability
 
 # RFC4180 Field compliance
 
-<p class="message-warning">This class is deprecated as of version <code>9.2.0</code>. Please use directly the <code>Writer::insertXXX</code> methods with the <code>Writer::MODE_RFC4180</code> argument instead.</p>
+<p class="message-warning">This class is deprecated as of version <code>9.2.0</code>. Please use directly the <code>Writer::insertXXX</code> methods with the empty escape character argument instead.</p>
 
 ~~~php
 <?php
