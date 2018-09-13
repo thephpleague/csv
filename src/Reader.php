@@ -87,6 +87,16 @@ class Reader extends AbstractCsv implements Countable, IteratorAggregate, JsonSe
     }
 
     /**
+     * {@inheritdoc}
+     */
+    protected function resetProperties()
+    {
+        parent::resetProperties();
+        $this->nb_records = -1;
+        $this->header = [];
+    }
+
+    /**
      * Returns the header offset.
      *
      * If no CSV header offset is set this method MUST return null
@@ -147,7 +157,7 @@ class Reader extends AbstractCsv implements Countable, IteratorAggregate, JsonSe
     protected function seekRow(int $offset)
     {
         $this->document->setFlags(SplFileObject::READ_CSV | SplFileObject::READ_AHEAD | SplFileObject::SKIP_EMPTY);
-        $this->document->setCsvControl($this->delimiter, $this->enclosure, $this->escape);
+        $this->document->setCsvControl($this->delimiter, $this->enclosure, $this->getEscapeChar());
         $this->document->rewind();
 
         //Workaround for SplFileObject::seek bug in PHP7.2+ see https://bugs.php.net/bug.php?id=75917
@@ -250,7 +260,7 @@ class Reader extends AbstractCsv implements Countable, IteratorAggregate, JsonSe
         };
         $bom = $this->getInputBOM();
         $this->document->setFlags(SplFileObject::READ_CSV | SplFileObject::READ_AHEAD | SplFileObject::SKIP_EMPTY);
-        $this->document->setCsvControl($this->delimiter, $this->enclosure, $this->escape);
+        $this->document->setCsvControl($this->delimiter, $this->enclosure, $this->getEscapeChar());
 
         $records = $this->stripBOM(new CallbackFilterIterator($this->document, $normalized), $bom);
         if (null !== $this->header_offset) {
@@ -358,15 +368,5 @@ class Reader extends AbstractCsv implements Countable, IteratorAggregate, JsonSe
         $this->resetProperties();
 
         return $this;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    protected function resetProperties()
-    {
-        parent::resetProperties();
-        $this->nb_records = -1;
-        $this->header = [];
     }
 }

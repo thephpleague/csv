@@ -253,20 +253,23 @@ class WriterTest extends TestCase
      * @see https://bugs.php.net/bug.php?id=74713
      * @see https://bugs.php.net/bug.php?id=55413
      *
+     * @covers ::getInputBOM
+     * @covers ::getEscapeChar
      * @covers ::insertOne
      * @covers ::addRFC4180CompliantRecord
      *
-     * @dataProvider bugsProvider
+     * @dataProvider compliantRFC4180Provider
      */
     public function testRFC4180WriterMode(string $expected, array $record)
     {
         $csv = Writer::createFromPath('php://temp');
         $csv->setNewline("\r\n");
-        $csv->insertOne($record, Writer::MODE_RFC4180);
+        $csv->setEscape('');
+        $csv->insertOne($record);
         self::assertSame($expected, $csv->getContent());
     }
 
-    public function bugsProvider()
+    public function compliantRFC4180Provider()
     {
         return [
             'bug #43225' => [
@@ -306,15 +309,5 @@ class WriterTest extends TestCase
                 'record' => ['a', 'foo bar', 'bar'],
             ],
         ];
-    }
-
-    /**
-     * @covers ::insertOne
-     */
-    public function testRFC4180WriterModeThrowsException2()
-    {
-        self::expectException(Exception::class);
-        $csv = Writer::createFromString('');
-        $csv->insertOne(['foo', 'bar'], 'baz');
     }
 }

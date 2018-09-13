@@ -37,10 +37,6 @@ use function strlen;
  */
 class Writer extends AbstractCsv
 {
-    const MODE_PHP = 'MODE_PHP';
-
-    const MODE_RFC4180 = 'MODE_RFC4180';
-
     /**
      * callable collection to format the record before insertion.
      *
@@ -96,6 +92,21 @@ class Writer extends AbstractCsv
     protected $rfc4180_enclosure;
 
     /**
+     * {@inheritdoc}
+     */
+    protected function resetProperties()
+    {
+        parent::resetProperties();
+        $characters = "\n|\r".preg_quote($this->delimiter, '/').'|'.preg_quote($this->enclosure, '/');
+        $this->rfc4180_regexp = '/
+            ^(\ +)                # leading whitespaces
+            |(['.$characters.'])  # delimiter, enclosure, line-breaks characters
+            |(\ +)$               # trailing whitespaces
+        /x';
+        $this->rfc4180_enclosure = $this->enclosure.$this->enclosure;
+    }
+
+    /**
      * Returns the current newline sequence characters.
      */
     public function getNewline(): string
@@ -120,7 +131,7 @@ class Writer extends AbstractCsv
      *
      * @param Traversable|array $records
      */
-    public function insertAll($records, string $mode = self::MODE_PHP): int
+    public function insertAll($records): int
     {
         if (!is_iterable($records)) {
             throw new TypeError(sprintf('%s() expects argument passed to be iterable, %s given', __METHOD__, gettype($records)));
@@ -128,7 +139,7 @@ class Writer extends AbstractCsv
 
         $bytes = 0;
         foreach ($records as $record) {
-            $bytes += $this->insertOne($record, $mode);
+            $bytes += $this->insertOne($record);
         }
 
         $this->flush_counter = 0;
@@ -145,12 +156,11 @@ class Writer extends AbstractCsv
      *
      * @throws CannotInsertRecord If the record can not be inserted
      */
-    public function insertOne(array $record, string $mode = self::MODE_PHP): int
+    public function insertOne(array $record): int
     {
-        static $methodList = [self::MODE_PHP => 'addRecord', self::MODE_RFC4180 => 'addRFC4180CompliantRecord'];
-        $method = $methodList[$mode] ?? null;
-        if (null === $method) {
-            throw new Exception(sprintf('Unknown or unsupported writing mode %s', $mode));
+        $method = 'addRecord';
+        if ('' === $this->escape && !static::$has_native_support_for_empty_string_escape_char) {
+            $method = 'addRFC4180CompliantRecord';
         }
 
         $record = array_reduce($this->formatters, [$this, 'formatRecord'], $record);
@@ -215,21 +225,6 @@ class Writer extends AbstractCsv
         unset($field);
 
         return $this->document->fwrite(implode($this->delimiter, $record)."\n");
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    protected function resetProperties()
-    {
-        parent::resetProperties();
-        $characters = "\n|\r".preg_quote($this->delimiter, '/').'|'.preg_quote($this->enclosure, '/');
-        $this->rfc4180_regexp = '/
-            ^(\ +)                # leading whitespaces
-            |(['.$characters.'])  # delimiter, enclosure, line-breaks characters
-            |(\ +)$               # trailing whitespaces
-        /x';
-        $this->rfc4180_enclosure = $this->enclosure.$this->enclosure;
     }
 
     /**

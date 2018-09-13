@@ -92,6 +92,12 @@ abstract class AbstractCsv implements ByteSequence
     protected $escape = '\\';
 
     /**
+     * Does (fput|fget)csv supports the empty string escape.
+     * @var bool
+     */
+    protected static $has_native_support_for_empty_string_escape_char;
+
+    /**
      * The CSV document.
      *
      * @var SplFileObject|Stream
@@ -108,6 +114,18 @@ abstract class AbstractCsv implements ByteSequence
         $this->document = $document;
         list($this->delimiter, $this->enclosure, $this->escape) = $this->document->getCsvControl();
         $this->resetProperties();
+    }
+
+    /**
+     * Reset dynamic object properties to improve performance.
+     */
+    protected function resetProperties()
+    {
+        if (null === static::$has_native_support_for_empty_string_escape_char) {
+            //This should be replace by a polyfill targetting PHP_VERSION constant
+            $res = @fgetcsv(tmpfile(), 0, ',', '"', '');
+            static::$has_native_support_for_empty_string_escape_char = false !== $res;
+        }
     }
 
     /**
@@ -153,7 +171,7 @@ abstract class AbstractCsv implements ByteSequence
      *
      * @return static
      */
-    public static function createFromString(string $content)
+    public static function createFromString(string $content = '')
     {
         return new static(Stream::createFromString($content));
     }
@@ -195,6 +213,23 @@ abstract class AbstractCsv implements ByteSequence
     }
 
     /**
+     * Computes the escape character.
+     *
+     * If the escape character is the empty string and the native fgetcsv and fputcsv
+     * do not supports the empty string it is replaced by the null byte character.
+     *
+     * THIS HACK may not work if the CSV content contains a null byte character.
+     */
+    protected function getEscapeChar(): string
+    {
+        if ('' === $this->escape && !self::$has_native_support_for_empty_string_escape_char) {
+            return "\0";
+        }
+
+        return $this->escape;
+    }
+
+    /**
      * Returns the BOM sequence in use on Output methods.
      */
     public function getOutputBOM(): string
@@ -212,7 +247,7 @@ abstract class AbstractCsv implements ByteSequence
         }
 
         $this->document->setFlags(SplFileObject::READ_CSV);
-        $this->document->setCsvControl($this->delimiter, $this->enclosure, $this->escape);
+        $this->document->setCsvControl($this->delimiter, $this->enclosure, $this->getEscapeChar());
         $this->document->rewind();
         $this->input_bom = bom_match(implode(',', (array) $this->document->current()));
 
@@ -371,13 +406,6 @@ abstract class AbstractCsv implements ByteSequence
     }
 
     /**
-     * Reset dynamic object properties to improve performance.
-     */
-    protected function resetProperties()
-    {
-    }
-
-    /**
      * Sets the field enclosure.
      *
      * @throws Exception If the Csv control character is not one character only.
@@ -413,14 +441,14 @@ abstract class AbstractCsv implements ByteSequence
             return $this;
         }
 
-        if (1 === strlen($escape)) {
+        if ('' === $escape || 1 === strlen($escape)) {
             $this->escape = $escape;
             $this->resetProperties();
 
             return $this;
         }
 
-        throw new Exception(sprintf('%s() expects escape to be a single character %s given', __METHOD__, $escape));
+        throw new Exception(sprintf('%s() expects escape to be the empty string or single character %s given', __METHOD__, $escape));
     }
 
     /**
