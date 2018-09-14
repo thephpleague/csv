@@ -135,7 +135,7 @@ class XMLConverter
     {
         $node = $doc->createElement($this->record_name);
         foreach ($record as $node_name => $value) {
-            $item = $this->$field_encoder($doc, $value, $node_name);
+            $item = $this->$field_encoder($doc, (string) $value, $node_name);
             $node->appendChild($item);
         }
 

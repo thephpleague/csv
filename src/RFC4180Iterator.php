@@ -74,20 +74,20 @@ final class RFC4180Iterator implements IteratorAggregate
     {
         //initialisation
         $record = [];
-        $buffer = '';
+        $buffer = null;
         $previous_char = '';
         $enclosed_field = false;
         list($delimiter, $enclosure, ) = $this->document->getCsvControl();
         $this->document->rewind();
 
-        //let's walk through the stream a char by char
+        //let's walk through the stream char by char
         while (false !== ($char = $this->document->fgetc())) {
             switch ($char) {
                 case $enclosure:
                     if (!$enclosed_field) {
                         //the enclosure is at the start of the record
-                        //this is an enclosed field
-                        if ('' === $buffer) {
+                        //so we have an enclosed field
+                        if (null === $buffer) {
                             $enclosed_field = true;
                             break;
                         }
@@ -99,6 +99,8 @@ final class RFC4180Iterator implements IteratorAggregate
                     }
                     //double quoted enclosure let's skip the character and move on
                     if ($previous_char === $enclosure) {
+                        //we reset the previous character
+                        //to avoid stripping to much enclosure character
                         $previous_char = '';
                         break;
                     }
@@ -110,6 +112,7 @@ final class RFC4180Iterator implements IteratorAggregate
                         //the delimiter is enclosed let's add it to the buffer and move on
                         if ($previous_char !== $enclosure) {
                             $buffer .= $char;
+                            $previous_char = $char;
                             break;
                         }
                         //strip the enclosure character present at the
@@ -118,10 +121,11 @@ final class RFC4180Iterator implements IteratorAggregate
                     }
 
                     //the buffer is the field content we add it to the record
-                    $record[] = $buffer;
+                    //and convert it into a string
+                    $record[] = ''.$buffer;
 
                     //reset field parameters
-                    $buffer = '';
+                    $buffer = null;
                     $previous_char = '';
                     $enclosed_field = false;
                     break;
@@ -142,7 +146,7 @@ final class RFC4180Iterator implements IteratorAggregate
                     //adding field content to the record
                     $record[] = $buffer;
                     //reset field parameters
-                    $buffer = '';
+                    $buffer = null;
                     $enclosed_field = false;
                     $previous_char = '';
 
@@ -153,12 +157,14 @@ final class RFC4180Iterator implements IteratorAggregate
                     $record = [];
                     break;
                 default:
+                    $previous_char = $char;
                     $buffer .= $char;
                     break;
             }
         }
         $record[] = $buffer;
 
+        //yield remaining record
         yield $record;
     }
 }
