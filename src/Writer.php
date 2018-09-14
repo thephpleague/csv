@@ -155,7 +155,7 @@ class Writer extends AbstractCsv
     public function insertOne(array $record): int
     {
         $method = 'addRecord';
-        if ('' === $this->escape && !static::$has_native_support_for_empty_string_escape_char) {
+        if ('' === $this->escape && PHP_VERSION_ID < 70400) {
             $method = 'addRFC4180CompliantRecord';
         }
 
@@ -199,7 +199,7 @@ class Writer extends AbstractCsv
      *
      * Fields must be delimited with enclosures if they contains :
      *
-     *     - Leading or trailing whitespaces
+     *     - Embedded whitespaces
      *     - Embedded delimiters
      *     - Embedded line-breaks
      *     - Embedded enclosures.

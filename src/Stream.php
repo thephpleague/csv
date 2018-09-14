@@ -26,6 +26,7 @@ use function array_walk_recursive;
 use function fclose;
 use function feof;
 use function fflush;
+use function fgetc;
 use function fgetcsv;
 use function fopen;
 use function fpassthru;
@@ -447,6 +448,18 @@ class Stream implements SeekableIterator
     public function fread($length)
     {
         return fread($this->stream, $length);
+    }
+
+    /**
+     * Gets character from file.
+     *
+     * @see http://php.net/manual/en/splfileobject.fgetc.php
+     *
+     * @return string|false
+     */
+    public function fgetc()
+    {
+        return fgetc($this->stream);
     }
 
     /**

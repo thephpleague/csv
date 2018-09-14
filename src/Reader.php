@@ -153,25 +153,37 @@ class Reader extends AbstractCsv implements Countable, IteratorAggregate, JsonSe
 
     /**
      * Returns the row at a given offset.
+     *
+     * @return array|false
      */
     protected function seekRow(int $offset)
     {
-        $this->document->setFlags(SplFileObject::READ_CSV | SplFileObject::READ_AHEAD | SplFileObject::SKIP_EMPTY);
-        $this->document->setCsvControl($this->delimiter, $this->enclosure, $this->getEscapeChar());
-        $this->document->rewind();
-
-        //Workaround for SplFileObject::seek bug in PHP7.2+ see https://bugs.php.net/bug.php?id=75917
-        if (PHP_VERSION_ID >= 70200 && !$this->document instanceof Stream) {
-            while ($offset !== $this->document->key() && $this->document->valid()) {
-                $this->document->next();
+        $document = $this->getDocument();
+        foreach ($document as $index => $record) {
+            if ($offset === $index) {
+                return $record;
             }
-
-            return $this->document->current();
         }
 
-        $this->document->seek($offset);
+        return false;
+    }
 
-        return $this->document->current();
+    /**
+     * Returns the document as an Iterator.
+     */
+    protected function getDocument(): Iterator
+    {
+        if ('' === $this->escape && PHP_VERSION_ID < 70400) {
+            $this->document->setCsvControl($this->delimiter, $this->enclosure);
+
+            return (new RFC4180Iterator($this->document))->getIterator();
+        }
+
+        $this->document->setFlags(SplFileObject::READ_CSV | SplFileObject::READ_AHEAD | SplFileObject::SKIP_EMPTY);
+        $this->document->setCsvControl($this->delimiter, $this->enclosure, $this->escape);
+        $this->document->rewind();
+
+        return $this->document;
     }
 
     /**
@@ -183,7 +195,7 @@ class Reader extends AbstractCsv implements Countable, IteratorAggregate, JsonSe
      */
     protected function removeBOM(array $record, int $bom_length, string $enclosure): array
     {
-        if (0 == $bom_length) {
+        if (0 === $bom_length) {
             return $record;
         }
 
@@ -259,10 +271,9 @@ class Reader extends AbstractCsv implements Countable, IteratorAggregate, JsonSe
             return is_array($record) && $record != [null];
         };
         $bom = $this->getInputBOM();
-        $this->document->setFlags(SplFileObject::READ_CSV | SplFileObject::READ_AHEAD | SplFileObject::SKIP_EMPTY);
-        $this->document->setCsvControl($this->delimiter, $this->enclosure, $this->getEscapeChar());
+        $document = $this->getDocument();
 
-        $records = $this->stripBOM(new CallbackFilterIterator($this->document, $normalized), $bom);
+        $records = $this->stripBOM(new CallbackFilterIterator($document, $normalized), $bom);
         if (null !== $this->header_offset) {
             $records = new CallbackFilterIterator($records, function (array $record, int $offset): bool {
                 return $offset !== $this->header_offset;

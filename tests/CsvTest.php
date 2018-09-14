@@ -18,7 +18,6 @@ use League\Csv\Exception;
 use League\Csv\Reader;
 use League\Csv\Writer;
 use PHPUnit\Framework\TestCase;
-use ReflectionClass;
 use SplTempFileObject;
 use const PHP_EOL;
 use const PHP_VERSION;
@@ -422,22 +421,5 @@ EOF;
         self::assertFalse(is_iterable(1));
         self::assertFalse(is_iterable((object) ['foo']));
         self::assertFalse(is_iterable(Writer::createFromString('')));
-    }
-
-    /**
-     * @covers ::setDelimiter
-     * @covers ::resetProperties
-     */
-    public function testResetProperties()
-    {
-        $csv = Writer::createFromString();
-        $csv->setDelimiter('|');
-        $ref = new ReflectionClass($csv);
-        $prop = $ref->getProperty('has_native_support_for_empty_string_escape_char');
-        $prop->setAccessible(true);
-        $prop->setValue(null);
-        self::assertNull($prop->getValue());
-        $csv->setDelimiter(';');
-        self::assertFalse($prop->getValue());
     }
 }
