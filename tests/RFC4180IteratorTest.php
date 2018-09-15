@@ -14,8 +14,8 @@
 
 namespace LeagueTest\Csv;
 
-use League\Csv\Reader;
 use League\Csv\RFC4180Iterator;
+use League\Csv\Stream;
 use PHPUnit\Framework\TestCase;
 use SplTempFileObject;
 use TypeError;
@@ -26,6 +26,9 @@ use TypeError;
  */
 class RFC4180IteratorTest extends TestCase
 {
+    /**
+     * @covers ::__construct
+     */
     public function testConstructorThrowsTypeErrorWithUnknownDocument()
     {
         self::expectException(TypeError::class);
@@ -33,11 +36,11 @@ class RFC4180IteratorTest extends TestCase
     }
 
     /**
+     * @covers ::__construct
      * @covers ::getIterator
      * @covers \League\Csv\Stream::fgetc
-     * @covers \League\Csv\Reader::getDocument
      */
-    public function testReaderWithEmptyEscapeChar1()
+    public function testWorksWithMultiLines()
     {
         $source = <<<EOF
 Year,Make,Model,Description,Price
@@ -47,29 +50,67 @@ Year,Make,Model,Description,Price
 1996,Jeep,Grand Cherokee,"MUST SELL!
 air, moon roof, loaded",4799.00
 EOF;
-        $csv = Reader::createFromString($source);
-        $csv->setEscape('');
-        self::assertCount(5, $csv);
-        $csv->setHeaderOffset(0);
-        self::assertCount(4, $csv);
+
+        $multiline = <<<EOF
+MUST SELL!
+air, moon roof, loaded
+EOF;
+        $iterator = new RFC4180Iterator(Stream::createFromString($source));
+        self::assertCount(5, $iterator);
+        $data = iterator_to_array($iterator->getIterator(), false);
+        self::assertSame($multiline, $data[4][3]);
     }
 
     /**
      * @covers ::getIterator
-     * @covers \League\Csv\Reader::getDocument
      */
-    public function testReaderWithEmptyEscapeChar2()
+    public function testKeepEmptyLines()
     {
-        $source = '"parent name","child name","title"
-            "parentA","childA","titleA"';
+        $source = <<<EOF
+"parent name","child name","title"
 
-        $spl = new SplTempFileObject();
-        $spl->fwrite($source);
 
-        $csv = Reader::createFromFileObject($spl);
-        $csv->setEscape('');
-        self::assertCount(2, $csv);
-        $csv->setHeaderOffset(0);
-        self::assertCount(1, $csv);
+"parentA","childA","titleA"
+EOF;
+
+        $rsrc = new SplTempFileObject();
+        $rsrc->fwrite($source);
+        $iterator = new RFC4180Iterator($rsrc);
+
+        self::assertCount(4, $iterator);
+        $data = iterator_to_array($iterator->getIterator(), false);
+        self::assertSame(['parent name', 'child name', 'title'], $data[0]);
+        self::assertSame([0 => null], $data[1]);
+        self::assertSame([0 => null], $data[2]);
+        self::assertSame(['parentA', 'childA', 'titleA'], $data[3]);
+    }
+
+    /**
+     * @covers ::getIterator
+     */
+    public function testTrimSpaceWithNotEncloseField()
+    {
+        $source = <<<EOF
+Year,Make,Model,,Description,   Price
+1997,Ford,E350,"ac, abs, moon",   3000.00
+EOF;
+        $iterator = new RFC4180Iterator(Stream::createFromString($source));
+        self::assertCount(2, $iterator);
+        $data = iterator_to_array($iterator->getIterator(), false);
+        self::assertSame(['Year', 'Make', 'Model', '', 'Description', 'Price'], $data[0]);
+        self::assertSame(['1997', 'Ford', 'E350', 'ac, abs, moon', '3000.00'], $data[1]);
+    }
+
+    public function testHandlingInvalidCSV()
+    {
+        $source = <<<EOF
+Year",Make,Model,Description,Price
+1997,Ford,E350,"ac, abs, moon",3000.00
+EOF;
+        $iterator = new RFC4180Iterator(Stream::createFromString($source));
+        self::assertCount(2, $iterator);
+        $data = iterator_to_array($iterator->getIterator(), false);
+        self::assertSame(['Year"', 'Make', 'Model', 'Description', 'Price'], $data[0]);
+        self::assertSame(['1997', 'Ford', 'E350', 'ac, abs, moon', '3000.00'], $data[1]);
     }
 }

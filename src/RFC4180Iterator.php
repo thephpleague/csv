@@ -24,6 +24,7 @@ use function gettype;
 use function is_object;
 use function sprintf;
 use function substr;
+use function trim;
 
 /**
  * A RFC4180 Compliant Parser in Pure PHP.
@@ -78,6 +79,7 @@ final class RFC4180Iterator implements IteratorAggregate
         $previous_char = '';
         $enclosed_field = false;
         list($delimiter, $enclosure, ) = $this->document->getCsvControl();
+        $trim_mask = str_replace([$delimiter, $enclosure], '', " \t\0\x0B");
         $this->document->rewind();
 
         //let's walk through the stream char by char
@@ -122,7 +124,12 @@ final class RFC4180Iterator implements IteratorAggregate
 
                     //the buffer is the field content we add it to the record
                     //and convert it into a string
-                    $record[] = ''.$buffer;
+                    $buffer = ''.$buffer;
+                    //if the field is not enclose we trim white spaces
+                    if (!$enclosed_field) {
+                        $buffer = trim($buffer, $trim_mask);
+                    }
+                    $record[] = $buffer;
 
                     //reset field parameters
                     $buffer = null;
@@ -143,6 +150,10 @@ final class RFC4180Iterator implements IteratorAggregate
                         $buffer = substr($buffer, 0, -1);
                     }
 
+                    //if the field is not enclose we trim white spaces
+                    if (null !== $buffer && !$enclosed_field) {
+                        $buffer = trim($buffer, $trim_mask);
+                    }
                     //adding field content to the record
                     $record[] = $buffer;
                     //reset field parameters
@@ -162,9 +173,21 @@ final class RFC4180Iterator implements IteratorAggregate
                     break;
             }
         }
+
+        //yield the remaining buffer
+        if ($enclosed_field && $enclosure === substr($buffer, -1, 1)) {
+            //strip the enclosure character present at the
+            //end of the buffer; this is the end of en enclosed field
+            $buffer = substr($buffer, 0, -1);
+        }
+
+        //if the field is not enclose we trim white spaces
+        if (!$enclosed_field && null !== $buffer) {
+            $buffer = trim($buffer, $trim_mask);
+        }
+
         $record[] = $buffer;
 
-        //yield remaining record
         yield $record;
     }
 }

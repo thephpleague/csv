@@ -76,7 +76,7 @@ class ReaderTest extends TestCase
     }
 
     /**
-     * @covers \League\Csv\RFC4180Iterator
+     * @covers ::getDocument
      */
     public function testReaderWithEmptyEscapeChar1()
     {
@@ -96,7 +96,7 @@ EOF;
     }
 
     /**
-     * @covers \League\Csv\RFC4180Iterator
+     * @covers ::getDocument
      */
     public function testReaderWithEmptyEscapeChar2()
     {
