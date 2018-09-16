@@ -43,8 +43,6 @@ use function trim;
 final class RFC4180Iterator implements IteratorAggregate
 {
     /**
-     * The CSV document.
-     *
      * @var SplFileObject|Stream
      */
     private $document;
@@ -66,12 +64,12 @@ final class RFC4180Iterator implements IteratorAggregate
     /**
      * @var string
      */
-    private $previous_char = '';
+    private $previous_char;
 
     /**
      * @var bool
      */
-    private $enclosed_field = false;
+    private $enclosed_field;
 
     /**
      * @var string
@@ -104,48 +102,47 @@ final class RFC4180Iterator implements IteratorAggregate
     public function getIterator()
     {
         //initialisation
+        $this->init();
         list($this->delimiter, $this->enclosure, ) = $this->document->getCsvControl();
         $this->trim_mask = str_replace([$this->delimiter, $this->enclosure], '', " \t\0\x0B");
         $this->document->setFlags(0);
         $this->document->rewind();
-        $this->flush();
-
-        $methodList = [
-            $this->enclosure => 'processEnclosure',
-            $this->delimiter => 'processBreaks',
-            "\n" => 'processBreaks',
-            "\r" => 'processBreaks',
-        ];
 
         $record = [];
-        while ($this->document->valid()) {
-            //let's walk through the stream char by char
-            foreach (str_split((string) $this->document->fgets()) as $char) {
-                $method = $methodList[$char] ?? 'addCharacter';
-                if ('processBreaks' !== $method) {
-                    $this->$method($char);
+        do {
+            $line = (string) $this->document->fgets();
+            foreach (str_split($line) as $char) {
+                if (!in_array($char, [$this->delimiter, "\n", "\r"], true)) {
+                    $this->processEnclosure($char);
                     continue;
                 }
 
-                $field = $this->$method($char);
+                $field = $this->processBreaks($char);
                 if (null !== $this->buffer) {
                     continue;
                 }
 
                 $record[] = $field;
-                if ($char !== $this->delimiter) {
-                    yield $record;
-
-                    $record = [];
+                if ($char === $this->delimiter) {
+                    continue;
                 }
+
+                yield $record;
+
+                $record = [];
             }
-        }
+        } while ($this->document->valid());
 
         $record[] = $this->clean();
 
         yield $record;
     }
 
+    /**
+     * Flushes and returns the last field content.
+     *
+     * @return string|null
+     */
     private function clean()
     {
         //yield the remaining buffer
@@ -159,68 +156,72 @@ final class RFC4180Iterator implements IteratorAggregate
     }
 
     /**
-     * Format and return the field content.
+     * Flushes and returns the field content.
+     *
+     * If the field is not enclose we trim white spaces cf RFC4180
      *
      * @return string|null
      */
     private function flush()
     {
-        //if the field is not enclose we trim white spaces
         if (null !== $this->buffer && !$this->enclosed_field) {
             $this->buffer = trim($this->buffer, $this->trim_mask);
         }
 
-        //adding field content to the record
         $field = $this->buffer;
-
-        //reset parameters
-        $this->buffer = null;
-        $this->previous_char = '';
-        $this->enclosed_field = false;
+        $this->init();
         
         return $field;
     }
 
     /**
-     * Append a character to the buffer.
-     *
+     * Initialize the internal properties.
      */
-    private function addCharacter(string $char)
+    private function init()
     {
+        $this->buffer = null;
+        $this->previous_char = '';
+        $this->enclosed_field = false;
+    }
+
+    /**
+     * Handles enclosure presence according to RFC4180.
+     *
+     * - detect enclosed field
+     * - convert the double enclosure to one enclosure
+     */
+    private function processEnclosure(string $char)
+    {
+        if ($char !== $this->enclosure) {
+            $this->previous_char = $char;
+            $this->buffer .= $char;
+            return;
+        }
+
+        if (!$this->enclosed_field) {
+            if (null === $this->buffer) {
+                $this->enclosed_field = true;
+                return;
+            }
+            //invalid CSV content
+            $this->previous_char = $char;
+            $this->buffer .= $char;
+            return;
+        }
+
+        //double enclosure
+        if ($this->previous_char === $char) {
+            //safe check to only strip double enclosure characters
+            $this->previous_char = '';
+            return;
+        }
+
         $this->previous_char = $char;
         $this->buffer .= $char;
     }
 
     /**
-     * Handle enclosure presence.
-     */
-    private function processEnclosure(string $char)
-    {
-        if (!$this->enclosed_field) {
-            //the enclosure is at the start of the record
-            //so we have an enclosed field
-            if (null === $this->buffer) {
-                $this->enclosed_field = true;
-                return;
-            }
-            //invalid CSV content let's deal with it like fgetcsv
-            //we add the character to the buffer and we move on
-            return $this->addCharacter($char);
-        }
-
-        //double enclosure let's skip the character and move on
-        if ($this->previous_char === $char) {
-            //we reset the previous character to the empty string
-            //to only strip double enclosure characters
-            $this->previous_char = '';
-            return;
-        }
-
-        return $this->addCharacter($char);
-    }
-
-    /**
-     * Handle delimiter and line breaks.
+     * Handles delimiter and line breaks according to RFC4180.
      *
      * @return null|string
      */
@@ -234,13 +235,15 @@ final class RFC4180Iterator implements IteratorAggregate
             return $this->flush();
         }
 
-        //the line break is enclosed let's add it to the buffer and move on
+        //the delimiter or the line break is enclosed
         if ($this->previous_char !== $this->enclosure) {
-            return $this->addCharacter($char);
+            $this->previous_char = $char;
+            $this->buffer .= $char;
+            return null;
         }
 
         //strip the enclosure character present at the
-        //end of the buffer; this is the end of a record
+        //end of the buffer; this is the end of a field
         $this->buffer = substr($this->buffer, 0, -1);
 
         return $this->flush();

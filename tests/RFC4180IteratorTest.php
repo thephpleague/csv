@@ -37,7 +37,6 @@ class RFC4180IteratorTest extends TestCase
      * @covers ::getIterator
      * @covers ::processBreaks
      * @covers ::processEnclosure
-     * @covers ::addCharacter
      * @covers ::flush
      * @covers ::clean
      */
@@ -73,12 +72,12 @@ Year|Make|Model|Description|Price
 1999|Chevy|'Venture ''Extended Edition'''|''|4900.00
 1999|Chevy|'Venture ''Extended Edition| Very Large'''||5000.00
 1996|Jeep|Grand Cherokee|'MUST SELL!
-air, moon roof, loaded'|4799.00
+air| moon roof| loaded'|4799.00
 EOF;
 
         $multiline = <<<EOF
 MUST SELL!
-air, moon roof, loaded
+air| moon roof| loaded
 EOF;
         $doc = Stream::createFromString($source);
         $doc->setCsvControl('|', "'");
@@ -113,13 +112,13 @@ EOF;
     {
         $source = <<<EOF
 Year,Make,Model,,Description,   Price
-1997,Ford,E350,"ac, abs, moon",   3000.00
+  "1997,Ford,E350,"ac, abs, moon",   3000.00
 EOF;
         $iterator = new RFC4180Iterator(Stream::createFromString($source));
         self::assertCount(2, $iterator);
         $data = iterator_to_array($iterator->getIterator(), false);
         self::assertSame(['Year', 'Make', 'Model', '', 'Description', 'Price'], $data[0]);
-        self::assertSame(['1997', 'Ford', 'E350', 'ac, abs, moon', '3000.00'], $data[1]);
+        self::assertSame(['"1997', 'Ford', 'E350', 'ac, abs, moon', '3000.00'], $data[1]);
     }
 
     /**
