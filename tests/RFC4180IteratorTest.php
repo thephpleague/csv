@@ -26,9 +26,6 @@ use TypeError;
  */
 class RFC4180IteratorTest extends TestCase
 {
-    /**
-     * @covers ::__construct
-     */
     public function testConstructorThrowsTypeErrorWithUnknownDocument()
     {
         self::expectException(TypeError::class);
@@ -36,16 +33,20 @@ class RFC4180IteratorTest extends TestCase
     }
 
     /**
-     * @covers ::__construct
+     * @covers \League\Csv\Stream::fgets
      * @covers ::getIterator
-     * @covers \League\Csv\Stream::fgetc
+     * @covers ::processBreaks
+     * @covers ::processEnclosure
+     * @covers ::addCharacter
+     * @covers ::flush
+     * @covers ::clean
      */
     public function testWorksWithMultiLines()
     {
         $source = <<<EOF
 Year,Make,Model,Description,Price
 1997,Ford,E350,"ac, abs, moon",3000.00
-1999,Chevy,"Venture ""Extenéded Edition""","",4900.00
+1999,Chevy,"Venture ""Extended Edition""","",4900.00
 1999,Chevy,"Venture ""Extended Edition, Very Large""",,5000.00
 1996,Jeep,Grand Cherokee,"MUST SELL!
 air, moon roof, loaded",4799.00
@@ -62,8 +63,31 @@ EOF;
     }
 
     /**
-     * @covers ::getIterator
+     * @covers \League\Csv\Stream::fgets
      */
+    public function testWorksWithMultiLinesWithDifferentDelimiter()
+    {
+        $source = <<<EOF
+Year|Make|Model|Description|Price
+1997|Ford|E350|'ac, abs, moon'|3000.00
+1999|Chevy|'Venture ''Extended Edition'''|''|4900.00
+1999|Chevy|'Venture ''Extended Edition| Very Large'''||5000.00
+1996|Jeep|Grand Cherokee|'MUST SELL!
+air, moon roof, loaded'|4799.00
+EOF;
+
+        $multiline = <<<EOF
+MUST SELL!
+air, moon roof, loaded
+EOF;
+        $doc = Stream::createFromString($source);
+        $doc->setCsvControl('|', "'");
+        $iterator = new RFC4180Iterator($doc);
+        self::assertCount(5, $iterator);
+        $data = iterator_to_array($iterator->getIterator(), false);
+        self::assertSame($multiline, $data[4][3]);
+    }
+
     public function testKeepEmptyLines()
     {
         $source = <<<EOF
@@ -85,9 +109,6 @@ EOF;
         self::assertSame(['parentA', 'childA', 'titleA'], $data[3]);
     }
 
-    /**
-     * @covers ::getIterator
-     */
     public function testTrimSpaceWithNotEncloseField()
     {
         $source = <<<EOF
@@ -101,16 +122,31 @@ EOF;
         self::assertSame(['1997', 'Ford', 'E350', 'ac, abs, moon', '3000.00'], $data[1]);
     }
 
-    public function testHandlingInvalidCSV()
+    /**
+     * @dataProvider invalidCsvRecordProvider
+     */
+    public function testHandlingInvalidCSVwithEnclosure(string $string, array $record)
     {
-        $source = <<<EOF
-Year",Make,Model,Description,Price
-1997,Ford,E350,"ac, abs, moon",3000.00
-EOF;
-        $iterator = new RFC4180Iterator(Stream::createFromString($source));
-        self::assertCount(2, $iterator);
+        $iterator = new RFC4180Iterator(Stream::createFromString($string));
         $data = iterator_to_array($iterator->getIterator(), false);
-        self::assertSame(['Year"', 'Make', 'Model', 'Description', 'Price'], $data[0]);
-        self::assertSame(['1997', 'Ford', 'E350', 'ac, abs, moon', '3000.00'], $data[1]);
+        self::assertSame($record, $data[0]);
+    }
+
+    public function invalidCsvRecordProvider()
+    {
+        return [
+            'enclosure inside a non-unclosed field' => [
+                'string' => 'Ye"ar,Make",Model,Description,Price',
+                'record' => ['Ye"ar', 'Make"', 'Model', 'Description', 'Price'],
+            ],
+            'enclosure at the end of a non-unclosed field' => [
+                'string' => 'Year,Make,Model,Description,Price"',
+                'record' => ['Year', 'Make', 'Model', 'Description', 'Price"'],
+            ],
+            'enclosure at the end of a record field' => [
+                'string' => 'Year,Make,Model,Description,"Price',
+                'record' => ['Year', 'Make', 'Model', 'Description', 'Price'],
+            ],
+        ];
     }
 }

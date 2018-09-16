@@ -23,6 +23,7 @@ use function get_class;
 use function gettype;
 use function is_object;
 use function sprintf;
+use function str_split;
 use function substr;
 use function trim;
 
@@ -30,7 +31,7 @@ use function trim;
  * A RFC4180 Compliant Parser in Pure PHP.
  *
  * @see https://php.net/manual/en/function.fgetcsv.php
- * @see https://php.net/manual/en/function.fgetc.php
+ * @see https://php.net/manual/en/function.fgets.php
  * @see https://tools.ietf.org/html/rfc4180
  * @see http://edoceo.com/utilitas/csv-file-format
  *
@@ -47,6 +48,35 @@ final class RFC4180Iterator implements IteratorAggregate
      * @var SplFileObject|Stream
      */
     private $document;
+
+    /**
+     * @var string
+     */
+    private $delimiter;
+    /**
+     * @var string
+     */
+    private $enclosure;
+
+    /**
+     * @var string|null
+     */
+    private $buffer;
+
+    /**
+     * @var string
+     */
+    private $previous_char = '';
+
+    /**
+     * @var bool
+     */
+    private $enclosed_field = false;
+
+    /**
+     * @var string
+     */
+    private $trim_mask;
 
     /**
      * New instance.
@@ -74,120 +104,145 @@ final class RFC4180Iterator implements IteratorAggregate
     public function getIterator()
     {
         //initialisation
-        $record = [];
-        $buffer = null;
-        $previous_char = '';
-        $enclosed_field = false;
-        list($delimiter, $enclosure, ) = $this->document->getCsvControl();
-        $trim_mask = str_replace([$delimiter, $enclosure], '', " \t\0\x0B");
+        list($this->delimiter, $this->enclosure, ) = $this->document->getCsvControl();
+        $this->trim_mask = str_replace([$this->delimiter, $this->enclosure], '', " \t\0\x0B");
+        $this->document->setFlags(0);
         $this->document->rewind();
+        $this->flush();
 
-        //let's walk through the stream char by char
-        while (false !== ($char = $this->document->fgetc())) {
-            switch ($char) {
-                case $enclosure:
-                    if (!$enclosed_field) {
-                        //the enclosure is at the start of the record
-                        //so we have an enclosed field
-                        if (null === $buffer) {
-                            $enclosed_field = true;
-                            break;
-                        }
-                        //invalid CSV content let's deal with it like fgetcsv
-                        //we add the character to the buffer and we move on
-                        $previous_char = $char;
-                        $buffer .= $char;
-                        break;
-                    }
-                    //double quoted enclosure let's skip the character and move on
-                    if ($previous_char === $enclosure) {
-                        //we reset the previous character
-                        //to avoid stripping to much enclosure character
-                        $previous_char = '';
-                        break;
-                    }
-                    $previous_char = $char;
-                    $buffer .= $char;
-                    break;
-                case $delimiter:
-                    if ($enclosed_field) {
-                        //the delimiter is enclosed let's add it to the buffer and move on
-                        if ($previous_char !== $enclosure) {
-                            $buffer .= $char;
-                            $previous_char = $char;
-                            break;
-                        }
-                        //strip the enclosure character present at the
-                        //end of the buffer; this is the end of en enclosed field
-                        $buffer = substr($buffer, 0, -1);
-                    }
+        $methodList = [
+            $this->enclosure => 'processEnclosure',
+            $this->delimiter => 'processBreaks',
+            "\n" => 'processBreaks',
+            "\r" => 'processBreaks',
+        ];
 
-                    //the buffer is the field content we add it to the record
-                    //and convert it into a string
-                    $buffer = ''.$buffer;
-                    //if the field is not enclose we trim white spaces
-                    if (!$enclosed_field) {
-                        $buffer = trim($buffer, $trim_mask);
-                    }
-                    $record[] = $buffer;
+        $record = [];
+        while ($this->document->valid()) {
+            //let's walk through the stream char by char
+            foreach (str_split((string) $this->document->fgets()) as $char) {
+                $method = $methodList[$char] ?? 'addCharacter';
+                if ('processBreaks' !== $method) {
+                    $this->$method($char);
+                    continue;
+                }
 
-                    //reset field parameters
-                    $buffer = null;
-                    $previous_char = '';
-                    $enclosed_field = false;
-                    break;
-                case "\n":
-                case "\r":
-                    if ($enclosed_field) {
-                        //the line break is enclosed let's add it to the buffer and move on
-                        if ($previous_char !== $enclosure) {
-                            $previous_char = $char;
-                            $buffer .= $char;
-                            break;
-                        }
-                        //strip the enclosure character present at the
-                        //end of the buffer; this is the end of a record
-                        $buffer = substr($buffer, 0, -1);
-                    }
+                $field = $this->$method($char);
+                if (null !== $this->buffer) {
+                    continue;
+                }
 
-                    //if the field is not enclose we trim white spaces
-                    if (null !== $buffer && !$enclosed_field) {
-                        $buffer = trim($buffer, $trim_mask);
-                    }
-                    //adding field content to the record
-                    $record[] = $buffer;
-                    //reset field parameters
-                    $buffer = null;
-                    $enclosed_field = false;
-                    $previous_char = '';
-
-                    //yield the record
+                $record[] = $field;
+                if ($char !== $this->delimiter) {
                     yield $record;
 
-                    //reset record
                     $record = [];
-                    break;
-                default:
-                    $previous_char = $char;
-                    $buffer .= $char;
-                    break;
+                }
             }
         }
 
-        //yield the remaining buffer
-        if ($enclosed_field && $enclosure === substr($buffer, -1, 1)) {
-            //strip the enclosure character present at the
-            //end of the buffer; this is the end of en enclosed field
-            $buffer = substr($buffer, 0, -1);
-        }
-
-        //if the field is not enclose we trim white spaces
-        if (!$enclosed_field && null !== $buffer) {
-            $buffer = trim($buffer, $trim_mask);
-        }
-
-        $record[] = $buffer;
+        $record[] = $this->clean();
 
         yield $record;
+    }
+
+    private function clean()
+    {
+        //yield the remaining buffer
+        if ($this->enclosed_field && $this->enclosure === $this->previous_char) {
+            //strip the enclosure character present at the
+            //end of the buffer; this is the end of en enclosed field
+            $this->buffer = substr($this->buffer, 0, -1);
+        }
+
+        return $this->flush();
+    }
+
+    /**
+     * Format and return the field content.
+     *
+     * @return string|null
+     */
+    private function flush()
+    {
+        //if the field is not enclose we trim white spaces
+        if (null !== $this->buffer && !$this->enclosed_field) {
+            $this->buffer = trim($this->buffer, $this->trim_mask);
+        }
+
+        //adding field content to the record
+        $field = $this->buffer;
+
+        //reset parameters
+        $this->buffer = null;
+        $this->previous_char = '';
+        $this->enclosed_field = false;
+        
+        return $field;
+    }
+
+    /**
+     * Append a character to the buffer.
+     *
+     */
+    private function addCharacter(string $char)
+    {
+        $this->previous_char = $char;
+        $this->buffer .= $char;
+    }
+
+    /**
+     * Handle enclosure presence.
+     */
+    private function processEnclosure(string $char)
+    {
+        if (!$this->enclosed_field) {
+            //the enclosure is at the start of the record
+            //so we have an enclosed field
+            if (null === $this->buffer) {
+                $this->enclosed_field = true;
+                return;
+            }
+            //invalid CSV content let's deal with it like fgetcsv
+            //we add the character to the buffer and we move on
+            return $this->addCharacter($char);
+        }
+
+        //double enclosure let's skip the character and move on
+        if ($this->previous_char === $char) {
+            //we reset the previous character to the empty string
+            //to only strip double enclosure characters
+            $this->previous_char = '';
+            return;
+        }
+
+        return $this->addCharacter($char);
+    }
+
+    /**
+     * Handle delimiter and line breaks.
+     *
+     * @return null|string
+     */
+    private function processBreaks(string $char)
+    {
+        if ($char === $this->delimiter) {
+            $this->buffer = (string) $this->buffer;
+        }
+
+        if (!$this->enclosed_field) {
+            return $this->flush();
+        }
+
+        //the line break is enclosed let's add it to the buffer and move on
+        if ($this->previous_char !== $this->enclosure) {
+            return $this->addCharacter($char);
+        }
+
+        //strip the enclosure character present at the
+        //end of the buffer; this is the end of a record
+        $this->buffer = substr($this->buffer, 0, -1);
+
+        return $this->flush();
     }
 }
