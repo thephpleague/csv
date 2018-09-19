@@ -418,7 +418,7 @@ abstract class AbstractCsv implements ByteSequence
             return $this;
         }
 
-        throw new Exception(sprintf('%s() expects escape to be the empty string or single character %s given', __METHOD__, $escape));
+        throw new Exception(sprintf('%s() expects escape to be a single character or the empty string %s given', __METHOD__, $escape));
     }
 
     /**

@@ -36,8 +36,8 @@ public Writer::insertAll(iterable $records): int
 
 `Writer::insertOne` inserts a single record into the CSV document while `Writer::insertAll` adds several records. Both methods returns the length of the written data.
 
-`Writer::insertOne` takes an argument, an `array` which represents a single CSV record.
-`Writer::insertAll` takes an argument a PHP iterable which contains a collection of CSV records.
+`Writer::insertOne` takes a single argument, an `array` which represents a single CSV record.
+`Writer::insertAll` takes a single argument a PHP iterable which contains a collection of CSV records.
 
 ~~~php
 <?php
@@ -80,7 +80,7 @@ try {
 }
 ~~~
 
-<p class="message-info">Starting with <code>9.2.0</code> if you can provide an empty string for the escape character to enable better <a href="https://tools.ietf.org/html/rfc4180">RFC4180</a> compliance.</p>
+<p class="message-info">Starting with <code>9.2.0</code> you can provide an empty string for the escape character to enable better <a href="https://tools.ietf.org/html/rfc4180">RFC4180</a> compliance.</p>
 
 ~~~php
 <?php

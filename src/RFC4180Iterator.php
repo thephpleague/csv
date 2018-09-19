@@ -114,6 +114,10 @@ final class RFC4180Iterator implements IteratorAggregate
     /**
      * Extract a record from the Stream document.
      *
+     * The return array is similar as to the returned value of fgetcsv
+     * If this the an empty line the record will be an array with a single value
+     * equals to null otherwise the array contains string data.
+     *
      * @param string|bool $line
      */
     private function extractRecord($line): array
@@ -131,7 +135,10 @@ final class RFC4180Iterator implements IteratorAggregate
     }
 
     /**
-     * Extract field without enclosure.
+     * Extract field without enclosure as per RFC4180.
+     *
+     * Leading and trailing whitespaces are trimmed because the field
+     * is not enclosed. trailing line-breaks are also removed.
      *
      * @param bool|string $line
      *
@@ -145,20 +152,23 @@ final class RFC4180Iterator implements IteratorAggregate
             return null;
         }
 
-        //explode the line on the next delimiter character if any
         list($content, $line) = explode($this->delimiter, $line, 2) + [1 => false];
-
-        //remove line breaks characters as per RFC4180
         if (false === $line) {
-            $content = rtrim($content, "\r\n");
+            return trim(rtrim($content, "\r\n"), $this->trim_mask);
         }
 
-        //remove whitespaces as per RFC4180
         return trim($content, $this->trim_mask);
     }
 
     /**
-     * Extract field with enclosure.
+     * Extract field with enclosure as per RFC4180.
+     *
+     * - Leading and trailing whitespaces are preserved because the field
+     * is enclosed.
+     * - The field content can spread on multiple document lines.
+     * - Double enclosure character muse be replaced by single enclosure character.
+     * - Trailing line break are remove if they are not part of the field content.
+     * - Invalid field do not throw as per fgetcsv behavior.
      *
      * @param bool|string $line
      *
@@ -166,37 +176,32 @@ final class RFC4180Iterator implements IteratorAggregate
      */
     private function extractFieldEnclosed(&$line)
     {
-        //remove the starting enclosure char to ease explode usage
+        //remove the starting enclosure character if present
         if ($line[0] ?? '' === $this->enclosure) {
             $line = substr($line, 1);
         }
 
         $content = '';
-        //cover multiline field
         do {
-            //explode the line on the next enclosure character if any
             list($buffer, $line) = explode($this->enclosure, $line, 2) + [1 => false];
             $content .= $buffer;
         } while (false === $line && $this->document->valid() && false !== ($line = $this->document->fgets()));
 
-        //decode the field content as per RFC4180
         $content = str_replace($this->double_enclosure, $this->enclosure, $content);
-
-        //remove line breaks characters as per RFC4180
         if (in_array($line, self::FIELD_BREAKS, true)) {
             $line = false;
 
             return rtrim($content, "\r\n");
         }
 
-        //the field data is extracted since we have a delimiter
-        if (($line[0] ?? '') === $this->delimiter) {
+        $char = $line[0] ?? '';
+        if ($char === $this->delimiter) {
             $line = substr($line, 1);
 
             return $content;
         }
 
         //handles enclosure as per RFC4180 or malformed CSV like fgetcsv
-        return $content.($line[0] ?? '').$this->extractFieldEnclosed($line);
+        return $content.$char.$this->extractFieldEnclosed($line);
     }
 }

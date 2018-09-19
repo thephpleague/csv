@@ -10,12 +10,13 @@ All Notable changes to `Csv` will be documented in this file
 
 ### Deprecated
 
-- `League\Csv\RFC4180Field` use `Writer::insertXXX` methods instead.
+- `League\Csv\RFC4180Field` use `AbstractCSV::setEscape` method with an empty string instead.
 
 ### Fixed
 
 - `AbstractCSV::setEscape` now accepts the empty string like `fputcsv` and `fgetcsv`
 - `Writer::insertOne` fixes throwing exception when record can not be inserted
+- `XMLConverter` convert to string the record value to avoid PHP warning on `null` value
 - Internal `Stream::fwrite` improved
 - Internal `Abstract::__construct` correctly initializes properties
 
