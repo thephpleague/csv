@@ -173,11 +173,6 @@ final class RFC4180Iterator implements IteratorAggregate
             if (false !== $line) {
                 break;
             }
-
-            if (!$this->document->valid()) {
-                break;
-            }
-
             $line = $this->document->fgets();
         }
 

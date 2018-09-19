@@ -219,7 +219,7 @@ class Reader extends AbstractCsv implements Countable, IteratorAggregate, JsonSe
             return (new ResultSet($this->getRecords(), $this->getHeader()))->$method(...$arguments);
         }
 
-        throw new BadMethodCallException(sprintf('%s::%s() method does not exist', __CLASS__, $method));
+        throw new BadMethodCallException(sprintf('%s::%s() method does not exist', self::class, $method));
     }
 
     /**
