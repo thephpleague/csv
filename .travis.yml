@@ -10,8 +10,6 @@ matrix:
       env: COLLECT_COVERAGE=true VALIDATE_CODING_STYLE=true RUN_PHPSTAN=true IGNORE_PLATFORMS=false
     - php: 7.2
       env: COLLECT_COVERAGE=true VALIDATE_CODING_STYLE=false RUN_PHPSTAN=false IGNORE_PLATFORMS=false
-    - php: 7.3
-      env: COLLECT_COVERAGE=false VALIDATE_CODING_STYLE=false RUN_PHPSTAN=false IGNORE_PLATFORMS=false
     - php: nightly
       env: COLLECT_COVERAGE=false VALIDATE_CODING_STYLE=false RUN_PHPSTAN=false IGNORE_PLATFORMS=true
   allow_failures:
