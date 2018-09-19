@@ -19,6 +19,7 @@ use League\Csv\Stream;
 use PHPUnit\Framework\TestCase;
 use SplTempFileObject;
 use TypeError;
+use function iterator_to_array;
 
 /**
  * @group reader

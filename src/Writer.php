@@ -24,6 +24,8 @@ use function array_reduce;
 use function gettype;
 use function implode;
 use function is_iterable;
+use function preg_match;
+use function preg_quote;
 use function sprintf;
 use function str_replace;
 use function strlen;
