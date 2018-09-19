@@ -35,10 +35,6 @@ class RFC4180IteratorTest extends TestCase
     /**
      * @covers \League\Csv\Stream::fgets
      * @covers ::getIterator
-     * @covers ::processBreaks
-     * @covers ::processEnclosure
-     * @covers ::flush
-     * @covers ::clean
      */
     public function testWorksWithMultiLines()
     {
@@ -147,5 +143,27 @@ EOF;
                 'record' => ['Year', 'Make', 'Model', 'Description', 'Price'],
             ],
         ];
+    }
+
+    public function testDoubleEnclosure()
+    {
+        $str = <<<EOF
+Robert;Dupont;rue du Verger, 12;…
+"Michel";"Durand";" av. de la Ferme, 89 ";…
+"Michel ""Michele""";"Durand";" av. de la Ferme, 89";…
+"Michel;Michele";"Durand";"av. de la Ferme, 89";…
+EOF;
+
+        $expected = [
+            ['Robert', 'Dupont', 'rue du Verger, 12', '…'],
+            ['Michel', 'Durand', ' av. de la Ferme, 89 ', '…'],
+            ['Michel "Michele"', 'Durand', ' av. de la Ferme, 89', '…'],
+            ['Michel;Michele', 'Durand',  'av. de la Ferme, 89', '…'],
+        ];
+
+        $stream  = Stream::createFromString($str);
+        $stream->setCsvControl(';');
+        $records = new RFC4180Iterator($stream);
+        self::assertEquals($expected, iterator_to_array($records->getIterator(), false));
     }
 }

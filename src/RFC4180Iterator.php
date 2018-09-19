@@ -19,11 +19,13 @@ namespace League\Csv;
 use IteratorAggregate;
 use SplFileObject;
 use TypeError;
+use function explode;
 use function get_class;
 use function gettype;
 use function is_object;
+use function rtrim;
 use function sprintf;
-use function str_split;
+use function str_replace;
 use function substr;
 use function trim;
 
@@ -57,21 +59,6 @@ final class RFC4180Iterator implements IteratorAggregate
     private $enclosure;
 
     /**
-     * @var string|null
-     */
-    private $buffer;
-
-    /**
-     * @var string
-     */
-    private $previous_char;
-
-    /**
-     * @var bool
-     */
-    private $enclosed_field;
-
-    /**
      * @var string
      */
     private $trim_mask;
@@ -102,150 +89,104 @@ final class RFC4180Iterator implements IteratorAggregate
     public function getIterator()
     {
         //initialisation
-        $this->init();
         list($this->delimiter, $this->enclosure, ) = $this->document->getCsvControl();
         $this->trim_mask = str_replace([$this->delimiter, $this->enclosure], '', " \t\0\x0B");
         $this->document->setFlags(0);
         $this->document->rewind();
+        do {
+            $line = $this->document->fgets();
+            yield $this->extractRecord($line);
+        } while ($this->document->valid());
+    }
 
+    /**
+     * Extract a record from the Stream document.
+     *
+     * @param string|bool $line
+     */
+    private function extractRecord($line): array
+    {
         $record = [];
         do {
-            $line = (string) $this->document->fgets();
-            foreach (str_split($line) as $char) {
-                if (!in_array($char, [$this->delimiter, "\n", "\r"], true)) {
-                    $this->processEnclosure($char);
-                    continue;
-                }
+            $method = ($line[0] ?? '') === $this->enclosure ? 'extractEnclosedField' : 'extractField';
+            $record[] = $this->$method($line);
+        } while (false !== $line);
 
-                $field = $this->processBreaks($char);
-                if (null !== $this->buffer) {
-                    continue;
-                }
-
-                $record[] = $field;
-                if ($char === $this->delimiter) {
-                    continue;
-                }
-
-                yield $record;
-
-                $record = [];
-            }
-        } while ($this->document->valid());
-
-        $record[] = $this->clean();
-
-        yield $record;
+        return $record;
     }
 
     /**
-     * Flushes and returns the last field content.
+     * Extract field without enclosure.
      *
-     * @return string|null
-     */
-    private function clean()
-    {
-        //yield the remaining buffer
-        if ($this->enclosed_field && $this->enclosure === $this->previous_char) {
-            //strip the enclosure character present at the
-            //end of the buffer; this is the end of en enclosed field
-            $this->buffer = substr($this->buffer, 0, -1);
-        }
-
-        return $this->flush();
-    }
-
-    /**
-     * Flushes and returns the field content.
-     *
-     * If the field is not enclose we trim white spaces cf RFC4180
-     *
-     * @return string|null
-     */
-    private function flush()
-    {
-        if (null !== $this->buffer && !$this->enclosed_field) {
-            $this->buffer = trim($this->buffer, $this->trim_mask);
-        }
-
-        $field = $this->buffer;
-        $this->init();
-        
-        return $field;
-    }
-
-    /**
-     * Initialize the internal properties.
-     */
-    private function init()
-    {
-        $this->buffer = null;
-        $this->previous_char = '';
-        $this->enclosed_field = false;
-    }
-
-    /**
-     * Handles enclosure presence according to RFC4180.
-     *
-     * - detect enclosed field
-     * - convert the double enclosure to one enclosure
-     */
-    private function processEnclosure(string $char)
-    {
-        if ($char !== $this->enclosure) {
-            $this->previous_char = $char;
-            $this->buffer .= $char;
-            return;
-        }
-
-        if (!$this->enclosed_field) {
-            if (null === $this->buffer) {
-                $this->enclosed_field = true;
-                return;
-            }
-            //invalid CSV content
-            $this->previous_char = $char;
-            $this->buffer .= $char;
-            return;
-        }
-
-        //double enclosure
-        if ($this->previous_char === $char) {
-            //safe check to only strip double enclosure characters
-            $this->previous_char = '';
-            return;
-        }
-
-        $this->previous_char = $char;
-        $this->buffer .= $char;
-    }
-
-    /**
-     * Handles delimiter and line breaks according to RFC4180.
+     * @param bool|string $line
      *
      * @return null|string
      */
-    private function processBreaks(string $char)
+    private function extractField(& $line)
     {
-        if ($char === $this->delimiter) {
-            $this->buffer = (string) $this->buffer;
-        }
+        //process the line if it is only a line-break or the empty string
+        if ($line === false || $line === "\r" || $line === "\r\n" || $line === "\n" || $line === '') {
+            $line = false;
 
-        if (!$this->enclosed_field) {
-            return $this->flush();
-        }
-
-        //the delimiter or the line break is enclosed
-        if ($this->previous_char !== $this->enclosure) {
-            $this->previous_char = $char;
-            $this->buffer .= $char;
             return null;
         }
 
-        //strip the enclosure character present at the
-        //end of the buffer; this is the end of a field
-        $this->buffer = substr($this->buffer, 0, -1);
+        //explode the line on the next delimiter character
+        list($content, $line) = explode($this->delimiter, $line, 2) + [1 => false];
 
-        return $this->flush();
+        //if this is the end of line remove line breaks
+        if (false === $line) {
+            $content = rtrim($content, "\r\n");
+        }
+
+        //remove whitespaces
+        return trim($content, $this->trim_mask);
+    }
+
+    /**
+     * Extract field with enclosure.
+     *
+     * @param bool|string $line
+     *
+     * @return null|string
+     */
+    private function extractEnclosedField(& $line)
+    {
+        //remove the first enclosure from the line if present to easily use explode
+        if ($line[0] ?? '' === $this->enclosure) {
+            $line = substr($line, 1);
+        }
+
+        //covers multiline fields
+        $content = '';
+        do {
+            //explode the line on the next enclosure character found
+            list($buffer, $line) = explode($this->enclosure, $line, 2) + [1 => false];
+            $content .= $buffer;
+        } while (false === $line && $this->document->valid() && false !== ($line = $this->document->fgets()));
+
+        //format the field content by removing double quoting if present
+        $content = str_replace($this->enclosure.$this->enclosure, $this->enclosure, $content);
+
+        //process the line if it is only a line-break or the empty string
+        if ($line === false || $line === "\r" || $line === "\r\n" || $line === "\n" || $line === '') {
+            $line = false;
+
+            return rtrim($content, "\r\n");
+        }
+
+        //the field data is extracted since we have a delimiter
+        if (($line[0] ?? '') === $this->delimiter) {
+            $line = substr($line, 1);
+
+            return $content;
+        }
+
+        //double quote content found
+        if (($line[0] ?? '') === $this->enclosure) {
+            $content .= '"'.$this->extractEnclosedField($line);
+        }
+
+        return $content;
     }
 }
