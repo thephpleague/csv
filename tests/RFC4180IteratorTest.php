@@ -142,6 +142,10 @@ EOF;
                 'string' => 'Year,Make,Model,Description,"Price',
                 'record' => ['Year', 'Make', 'Model', 'Description', 'Price'],
             ],
+            'enclosure started but not ended' => [
+                'string' => 'Year,Make,Model,Description,"Pri"ce',
+                'record' => ['Year', 'Make', 'Model', 'Description', 'Price'],
+            ],
         ];
     }
 

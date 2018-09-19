@@ -22,6 +22,7 @@ use TypeError;
 use function explode;
 use function get_class;
 use function gettype;
+use function in_array;
 use function is_object;
 use function rtrim;
 use function sprintf;
@@ -45,6 +46,11 @@ use function trim;
 final class RFC4180Iterator implements IteratorAggregate
 {
     /**
+     * @internal
+     */
+    const FIELD_BREAKS = [false, "\r", "\r\n", "\n", ''];
+
+    /**
      * @var SplFileObject|Stream
      */
     private $document;
@@ -53,10 +59,16 @@ final class RFC4180Iterator implements IteratorAggregate
      * @var string
      */
     private $delimiter;
+
     /**
      * @var string
      */
     private $enclosure;
+
+    /**
+     * @var string
+     */
+    private $double_enclosure;
 
     /**
      * @var string
@@ -90,12 +102,12 @@ final class RFC4180Iterator implements IteratorAggregate
     {
         //initialisation
         list($this->delimiter, $this->enclosure, ) = $this->document->getCsvControl();
+        $this->double_enclosure = $this->enclosure.$this->enclosure;
         $this->trim_mask = str_replace([$this->delimiter, $this->enclosure], '', " \t\0\x0B");
         $this->document->setFlags(0);
         $this->document->rewind();
         do {
-            $line = $this->document->fgets();
-            yield $this->extractRecord($line);
+            yield $this->extractRecord($this->document->fgets());
         } while ($this->document->valid());
     }
 
@@ -108,7 +120,10 @@ final class RFC4180Iterator implements IteratorAggregate
     {
         $record = [];
         do {
-            $method = ($line[0] ?? '') === $this->enclosure ? 'extractEnclosedField' : 'extractField';
+            $method = 'extractField';
+            if (($line[0] ?? '') === $this->enclosure) {
+                $method = 'extractFieldEnclosed';
+            }
             $record[] = $this->$method($line);
         } while (false !== $line);
 
@@ -122,24 +137,23 @@ final class RFC4180Iterator implements IteratorAggregate
      *
      * @return null|string
      */
-    private function extractField(& $line)
+    private function extractField(&$line)
     {
-        //process the line if it is only a line-break or the empty string
-        if ($line === false || $line === "\r" || $line === "\r\n" || $line === "\n" || $line === '') {
+        if (in_array($line, self::FIELD_BREAKS, true)) {
             $line = false;
 
             return null;
         }
 
-        //explode the line on the next delimiter character
+        //explode the line on the next delimiter character if any
         list($content, $line) = explode($this->delimiter, $line, 2) + [1 => false];
 
-        //if this is the end of line remove line breaks
+        //remove line breaks characters as per RFC4180
         if (false === $line) {
             $content = rtrim($content, "\r\n");
         }
 
-        //remove whitespaces
+        //remove whitespaces as per RFC4180
         return trim($content, $this->trim_mask);
     }
 
@@ -150,26 +164,26 @@ final class RFC4180Iterator implements IteratorAggregate
      *
      * @return null|string
      */
-    private function extractEnclosedField(& $line)
+    private function extractFieldEnclosed(&$line)
     {
-        //remove the first enclosure from the line if present to easily use explode
+        //remove the starting enclosure char to ease explode usage
         if ($line[0] ?? '' === $this->enclosure) {
             $line = substr($line, 1);
         }
 
-        //covers multiline fields
         $content = '';
+        //cover multiline field
         do {
-            //explode the line on the next enclosure character found
+            //explode the line on the next enclosure character if any
             list($buffer, $line) = explode($this->enclosure, $line, 2) + [1 => false];
             $content .= $buffer;
         } while (false === $line && $this->document->valid() && false !== ($line = $this->document->fgets()));
 
-        //format the field content by removing double quoting if present
-        $content = str_replace($this->enclosure.$this->enclosure, $this->enclosure, $content);
+        //decode the field content as per RFC4180
+        $content = str_replace($this->double_enclosure, $this->enclosure, $content);
 
-        //process the line if it is only a line-break or the empty string
-        if ($line === false || $line === "\r" || $line === "\r\n" || $line === "\n" || $line === '') {
+        //remove line breaks characters as per RFC4180
+        if (in_array($line, self::FIELD_BREAKS, true)) {
             $line = false;
 
             return rtrim($content, "\r\n");
@@ -182,11 +196,7 @@ final class RFC4180Iterator implements IteratorAggregate
             return $content;
         }
 
-        //double quote content found
-        if (($line[0] ?? '') === $this->enclosure) {
-            $content .= '"'.$this->extractEnclosedField($line);
-        }
-
-        return $content;
+        //handles enclosure as per RFC4180 or malformed CSV like fgetcsv
+        return $content.($line[0] ?? '').$this->extractFieldEnclosed($line);
     }
 }
