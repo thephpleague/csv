@@ -91,7 +91,12 @@ final class RFC4180Iterator implements IteratorAggregate
     /**
      * @inheritdoc
      *
-     * Converts the stream into a CSV record iterator
+     * Converts the stream into a CSV record iterator by extracting records one by one
+     *
+     * The returned record array is similar to the returned value of fgetcsv
+     *
+     * - If the line is empty the record will be an array with a single value equals to null
+     * - Otherwise the array contains strings.
      */
     public function getIterator()
     {
@@ -101,38 +106,25 @@ final class RFC4180Iterator implements IteratorAggregate
         $this->document->setFlags(0);
         $this->document->rewind();
         do {
-            yield $this->extractRecord($this->document->fgets());
+            $record = [];
+            $line = $this->document->fgets();
+            do {
+                $method = 'extractField';
+                if (($line[0] ?? '') === $this->enclosure) {
+                    $method = 'extractFieldEnclosed';
+                }
+                $record[] = $this->$method($line);
+            } while (false !== $line);
+
+            yield $record;
         } while ($this->document->valid());
-    }
-
-    /**
-     * Extract a record from the Stream document.
-     *
-     * The return array is similar as to the returned value of fgetcsv
-     * If this the an empty line the record will be an array with a single value
-     * equals to null otherwise the array contains string data.
-     *
-     * @param string|bool $line
-     */
-    private function extractRecord($line): array
-    {
-        $record = [];
-        do {
-            $method = 'extractField';
-            if (($line[0] ?? '') === $this->enclosure) {
-                $method = 'extractFieldEnclosed';
-            }
-            $record[] = $this->$method($line);
-        } while (false !== $line);
-
-        return $record;
     }
 
     /**
      * Extract field without enclosure as per RFC4180.
      *
-     * Leading and trailing whitespaces are trimmed because the field
-     * is not enclosed. trailing line-breaks are also removed.
+     * - Leading and trailing whitespaces must be removed.
+     * - trailing line-breaks must be removed.
      *
      * @param bool|string $line
      *
@@ -157,11 +149,10 @@ final class RFC4180Iterator implements IteratorAggregate
     /**
      * Extract field with enclosure as per RFC4180.
      *
-     * - Leading and trailing whitespaces are preserved because the field
-     * is enclosed.
-     * - The field content can spread on multiple document lines.
-     * - Double enclosure character muse be replaced by single enclosure character.
-     * - Trailing line break are remove if they are not part of the field content.
+     * - Field content can spread on multiple document lines.
+     * - Content inside enclosure must be preserved.
+     * - Double enclosure sequence must be replaced by single enclosure character.
+     * - Trailing line break must be removed if they are not part of the field content.
      * - Invalid field do not throw as per fgetcsv behavior.
      *
      * @param bool|string $line
@@ -176,10 +167,19 @@ final class RFC4180Iterator implements IteratorAggregate
         }
 
         $content = '';
-        do {
+        while (false !== $line) {
             list($buffer, $line) = explode($this->enclosure, $line, 2) + [1 => false];
             $content .= $buffer;
-        } while (false === $line && $this->document->valid() && false !== ($line = $this->document->fgets()));
+            if (false !== $line) {
+                break;
+            }
+
+            if (!$this->document->valid()) {
+                break;
+            }
+
+            $line = $this->document->fgets();
+        }
 
         if (in_array($line, self::FIELD_BREAKS, true)) {
             $line = false;
@@ -188,7 +188,7 @@ final class RFC4180Iterator implements IteratorAggregate
         }
 
         $char = $line[0] ?? '';
-        //handle end of content by delimiter
+        //handles end of content by delimiter
         if ($char === $this->delimiter) {
             $line = substr($line, 1);
 
@@ -200,7 +200,7 @@ final class RFC4180Iterator implements IteratorAggregate
             return $content.$char.$this->extractFieldEnclosed($line);
         }
 
-        //handles malformed CSV like fgetcsv by skipping the enclosure character
+        //handles malformed CSV like fgetcsv
         return $content.$this->extractFieldEnclosed($line);
     }
 }

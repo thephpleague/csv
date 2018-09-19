@@ -27,6 +27,9 @@ use function iterator_to_array;
  */
 class RFC4180IteratorTest extends TestCase
 {
+    /**
+     * @covers ::__construct
+     */
     public function testConstructorThrowsTypeErrorWithUnknownDocument()
     {
         self::expectException(TypeError::class);
@@ -35,7 +38,10 @@ class RFC4180IteratorTest extends TestCase
 
     /**
      * @covers \League\Csv\Stream::fgets
+     * @covers ::__construct
      * @covers ::getIterator
+     * @covers ::extractField
+     * @covers ::extractFieldEnclosed
      */
     public function testWorksWithMultiLines()
     {
@@ -60,6 +66,9 @@ EOF;
 
     /**
      * @covers \League\Csv\Stream::fgets
+     * @covers ::getIterator
+     * @covers ::extractField
+     * @covers ::extractFieldEnclosed
      */
     public function testWorksWithMultiLinesWithDifferentDelimiter()
     {
@@ -84,6 +93,11 @@ EOF;
         self::assertSame($multiline, $data[4][3]);
     }
 
+    /**
+     * @covers ::getIterator
+     * @covers ::extractField
+     * @covers ::extractFieldEnclosed
+     */
     public function testKeepEmptyLines()
     {
         $source = <<<EOF
@@ -105,6 +119,11 @@ EOF;
         self::assertSame(['parentA', 'childA', 'titleA'], $data[3]);
     }
 
+    /**
+     * @covers ::getIterator
+     * @covers ::extractField
+     * @covers ::extractFieldEnclosed
+     */
     public function testTrimSpaceWithNotEncloseField()
     {
         $source = <<<EOF
@@ -119,6 +138,10 @@ EOF;
     }
 
     /**
+     * @covers ::getIterator
+     * @covers ::extractField
+     * @covers ::extractFieldEnclosed
+     *
      * @dataProvider invalidCsvRecordProvider
      */
     public function testHandlingInvalidCSVwithEnclosure(string $string, array $record)
@@ -150,6 +173,11 @@ EOF;
         ];
     }
 
+    /**
+     * @covers ::getIterator
+     * @covers ::extractField
+     * @covers ::extractFieldEnclosed
+     */
     public function testDoubleEnclosure()
     {
         $str = <<<EOF
