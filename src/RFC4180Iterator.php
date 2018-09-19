@@ -48,7 +48,7 @@ final class RFC4180Iterator implements IteratorAggregate
     /**
      * @internal
      */
-    const FIELD_BREAKS = [false, "\r", "\r\n", "\n", ''];
+    const FIELD_BREAKS = [false, '', "\r\n", "\n", "\r"];
 
     /**
      * @var SplFileObject|Stream
@@ -64,11 +64,6 @@ final class RFC4180Iterator implements IteratorAggregate
      * @var string
      */
     private $enclosure;
-
-    /**
-     * @var string
-     */
-    private $double_enclosure;
 
     /**
      * @var string
@@ -102,7 +97,6 @@ final class RFC4180Iterator implements IteratorAggregate
     {
         //initialisation
         list($this->delimiter, $this->enclosure, ) = $this->document->getCsvControl();
-        $this->double_enclosure = $this->enclosure.$this->enclosure;
         $this->trim_mask = str_replace([$this->delimiter, $this->enclosure], '', " \t\0\x0B");
         $this->document->setFlags(0);
         $this->document->rewind();
@@ -177,7 +171,7 @@ final class RFC4180Iterator implements IteratorAggregate
     private function extractFieldEnclosed(&$line)
     {
         //remove the starting enclosure character if present
-        if ($line[0] ?? '' === $this->enclosure) {
+        if (($line[0] ?? '') === $this->enclosure) {
             $line = substr($line, 1);
         }
 
@@ -187,7 +181,6 @@ final class RFC4180Iterator implements IteratorAggregate
             $content .= $buffer;
         } while (false === $line && $this->document->valid() && false !== ($line = $this->document->fgets()));
 
-        $content = str_replace($this->double_enclosure, $this->enclosure, $content);
         if (in_array($line, self::FIELD_BREAKS, true)) {
             $line = false;
 
@@ -195,13 +188,19 @@ final class RFC4180Iterator implements IteratorAggregate
         }
 
         $char = $line[0] ?? '';
+        //handle end of content by delimiter
         if ($char === $this->delimiter) {
             $line = substr($line, 1);
 
             return $content;
         }
 
-        //handles enclosure as per RFC4180 or malformed CSV like fgetcsv
-        return $content.$char.$this->extractFieldEnclosed($line);
+        //handles double quoted data
+        if ($char === $this->enclosure) {
+            return $content.$char.$this->extractFieldEnclosed($line);
+        }
+
+        //handles malformed CSV like fgetcsv by skipping the enclosure character
+        return $content.$this->extractFieldEnclosed($line);
     }
 }
