@@ -7,8 +7,7 @@ title: Csv character controls
 
 To correctly parse a CSV document you are required to set the character controls to be used by the `Reader` or the `Writer` object.
 
-<p class="message-warning">On error the setter methods will throw a <code>Exception</code> exception if the submitted string length is not equal to <code>1</code>.</p>
-
+<p class="message-warning">Setter methods will throw a <code>Exception</code> exception if the submitted string length is not equal to <code>1</code> byte.</p>
 
 ## The delimiter character.
 
@@ -85,7 +84,7 @@ $escape = $csv->getEscape(); //returns "\"
 
 <p class="message-info">The default escape character is <code>\</code>.</p>
 
-<p class="message-info">Starting with <code>9.2.0</code> you can provide an empty string for the escape character to enable better <a href="https://tools.ietf.org/html/rfc4180">RFC4180</a> compliance.</p>
+<p class="message-notice">Since version <code>9.2.0</code> you can provide an empty string for the escape character to enable better <a href="https://tools.ietf.org/html/rfc4180">RFC4180</a> compliance.</p>
 
 ~~~php
 <?php
