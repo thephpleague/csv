@@ -80,7 +80,7 @@ try {
 }
 ~~~
 
-<p class="message-info">Starting with <code>9.2.0</code> you can provide an empty string for the escape character to enable better <a href="https://tools.ietf.org/html/rfc4180">RFC4180</a> compliance.</p>
+<p class="message-info">Since version <code>9.2.0</code> you can provide an empty string for the escape character to enable better <a href="https://tools.ietf.org/html/rfc4180">RFC4180</a> compliance.</p>
 
 ~~~php
 <?php
@@ -101,7 +101,7 @@ echo $writer->getContents();
 // """foo""",foo bar,"baz ",foo\bar
 ~~~
 
-<p class="message-notice">The addition of this new feature means the deprecation of [RFC4180Field](/9.0/interoperability/rfc4180-field/).</p>
+<p class="message-notice">The addition of this new feature means the deprecation of <a href="/9.0/interoperability/rfc4180-field/">RFC4180Field</a>.</p>
 
 <p class="message-notice">You still need to set the newline sequence as shown below</p>
 

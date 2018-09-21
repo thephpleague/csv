@@ -14,7 +14,7 @@ Because CSV documents come in different forms we use named constructors to offer
 ~~~php
 <?php
 
-public static AbstractCsv::createFromString(string $str): self
+public static AbstractCsv::createFromString(string $str = ''): self
 ~~~
 
 Creates a new object from a given string.
@@ -28,6 +28,9 @@ use League\Csv\Writer;
 $reader = Reader::createFromString('john,doe,john.doe@example.com');
 $writer = Writer::createFromString('john,doe,john.doe@example.com');
 ~~~
+
+<p class="message-notice">Since version <code>9.2.0</code> the  <code>$str</code> argument default value is the empty string to ease usage.</p>
+
 
 ## Loading from a file path
 
