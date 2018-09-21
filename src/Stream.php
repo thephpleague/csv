@@ -150,7 +150,7 @@ class Stream implements SeekableIterator
     public function __destruct()
     {
         $walker = function ($filter): bool {
-            return stream_filter_remove($filter);
+            return @stream_filter_remove($filter);
         };
 
         array_walk_recursive($this->filters, $walker);

@@ -83,7 +83,7 @@ class Reader extends AbstractCsv implements Countable, IteratorAggregate, JsonSe
      */
     public static function createFromPath(string $path, string $open_mode = 'r', $context = null)
     {
-        return new static(Stream::createFromPath($path, $open_mode, $context));
+        return parent::createFromPath($path, $open_mode, $context);
     }
 
     /**
@@ -219,7 +219,7 @@ class Reader extends AbstractCsv implements Countable, IteratorAggregate, JsonSe
             return (new ResultSet($this->getRecords(), $this->getHeader()))->$method(...$arguments);
         }
 
-        throw new BadMethodCallException(sprintf('%s::%s() method does not exist', self::class, $method));
+        throw new BadMethodCallException(sprintf('%s::%s() method does not exist', static::class, $method));
     }
 
     /**

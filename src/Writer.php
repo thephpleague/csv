@@ -99,8 +99,8 @@ class Writer extends AbstractCsv
     protected function resetProperties()
     {
         parent::resetProperties();
-        $characters = "\s|".preg_quote($this->delimiter, '/').'|'.preg_quote($this->enclosure, '/');
-        $this->rfc4180_regexp = '/['.$characters.']/x';
+        $characters = preg_quote($this->delimiter, '/').'|'.preg_quote($this->enclosure, '/');
+        $this->rfc4180_regexp = '/[\s|'.$characters.']/x';
         $this->rfc4180_enclosure = $this->enclosure.$this->enclosure;
     }
 

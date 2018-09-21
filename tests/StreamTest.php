@@ -84,6 +84,7 @@ class StreamTest extends TestCase
     /**
      * @covers ::createFromPath
      * @covers ::current
+     * @covers ::getCurrentRecord
      */
     public function testCreateStreamFromPathWithContext()
     {
@@ -102,7 +103,7 @@ class StreamTest extends TestCase
             'r+',
             stream_context_create([StreamWrapper::PROTOCOL => ['stream' => $fp]])
         );
-        $stream->setFlags(SplFileObject::READ_AHEAD);
+        $stream->setFlags(SplFileObject::READ_AHEAD | SplFileObject::READ_CSV);
         $stream->rewind();
         self::assertInternalType('array', $stream->current());
     }
