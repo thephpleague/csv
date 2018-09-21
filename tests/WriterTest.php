@@ -115,6 +115,7 @@ class WriterTest extends TestCase
 
     /**
      * @covers ::insertOne
+     * @covers ::addRecord
      */
     public function testInsertNormalFile()
     {
@@ -245,5 +246,67 @@ class WriterTest extends TestCase
         $writer = Writer::createFromPath('php://output', 'w');
         $writer->setNewline("\r\n");
         $writer->insertOne(['foo', 'bar']);
+    }
+
+    /**
+     * @see https://bugs.php.net/bug.php?id=43225
+     * @see https://bugs.php.net/bug.php?id=74713
+     * @see https://bugs.php.net/bug.php?id=55413
+     *
+     * @covers ::getInputBOM
+     * @covers ::insertOne
+     * @covers ::addRFC4180CompliantRecord
+     *
+     * @dataProvider compliantRFC4180Provider
+     */
+    public function testRFC4180WriterMode(string $expected, array $record)
+    {
+        $csv = Writer::createFromPath('php://temp');
+        $csv->setNewline("\r\n");
+        $csv->setEscape('');
+        $csv->insertOne($record);
+        self::assertSame($expected, $csv->getContent());
+    }
+
+    public function compliantRFC4180Provider()
+    {
+        return [
+            'bug #43225' => [
+                'expected' => '"a\""",bbb'."\r\n",
+                'record' => ['a\\"', 'bbb'],
+            ],
+            'bug #74713' => [
+                'expected' => '"""@@"",""B"""'."\r\n",
+                'record' => ['"@@","B"'],
+            ],
+            'bug #55413' => [
+                'expected' => 'A,"Some ""Stuff""",C'."\r\n",
+                'record' => ['A', 'Some "Stuff"', 'C'],
+            ],
+            'convert boolean' => [
+                'expected' => ',"Some ""Stuff""",C'."\r\n",
+                'record' => [false, 'Some "Stuff"', 'C'],
+            ],
+            'convert null value' => [
+                'expected' => ',"Some ""Stuff""",C'."\r\n",
+                'record' => [null, 'Some "Stuff"', 'C'],
+            ],
+            'bug #307' => [
+                'expected' => '"a text string \\",...'."\r\n",
+                'record' => ['a text string \\', '...'],
+            ],
+            'line starting with space' => [
+                'expected' => '"  a",foo,bar'."\r\n",
+                'record' => ['  a', 'foo', 'bar'],
+            ],
+            'line ending with space' => [
+                'expected' => 'a,foo,"bar "'."\r\n",
+                'record' => ['a', 'foo', 'bar '],
+            ],
+            'line containing space' => [
+                'expected' => 'a,"foo bar",bar'."\r\n",
+                'record' => ['a', 'foo bar', 'bar'],
+            ],
+        ];
     }
 }

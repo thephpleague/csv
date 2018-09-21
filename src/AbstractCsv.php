@@ -23,7 +23,6 @@ use const FILTER_FLAG_STRIP_LOW;
 use const FILTER_SANITIZE_STRING;
 use function filter_var;
 use function get_class;
-use function implode;
 use function mb_strlen;
 use function rawurlencode;
 use function sprintf;
@@ -107,6 +106,14 @@ abstract class AbstractCsv implements ByteSequence
     {
         $this->document = $document;
         list($this->delimiter, $this->enclosure, $this->escape) = $this->document->getCsvControl();
+        $this->resetProperties();
+    }
+
+    /**
+     * Reset dynamic object properties to improve performance.
+     */
+    protected function resetProperties()
+    {
     }
 
     /**
@@ -152,7 +159,7 @@ abstract class AbstractCsv implements ByteSequence
      *
      * @return static
      */
-    public static function createFromString(string $content)
+    public static function createFromString(string $content = '')
     {
         return new static(Stream::createFromString($content));
     }
@@ -211,9 +218,8 @@ abstract class AbstractCsv implements ByteSequence
         }
 
         $this->document->setFlags(SplFileObject::READ_CSV);
-        $this->document->setCsvControl($this->delimiter, $this->enclosure, $this->escape);
         $this->document->rewind();
-        $this->input_bom = bom_match(implode(',', (array) $this->document->current()));
+        $this->input_bom = bom_match((string) $this->document->fread(4));
 
         return $this->input_bom;
     }
@@ -296,7 +302,6 @@ abstract class AbstractCsv implements ByteSequence
     /**
      * Outputs all data on the CSV file.
      *
-     * @param null|string $filename
      *
      * @return int Returns the number of characters read from the handle
      *             and passed through to the output.
@@ -371,13 +376,6 @@ abstract class AbstractCsv implements ByteSequence
     }
 
     /**
-     * Reset dynamic object properties to improve performance.
-     */
-    protected function resetProperties()
-    {
-    }
-
-    /**
      * Sets the field enclosure.
      *
      * @throws Exception If the Csv control character is not one character only.
@@ -413,14 +411,14 @@ abstract class AbstractCsv implements ByteSequence
             return $this;
         }
 
-        if (1 === strlen($escape)) {
+        if ('' === $escape || 1 === strlen($escape)) {
             $this->escape = $escape;
             $this->resetProperties();
 
             return $this;
         }
 
-        throw new Exception(sprintf('%s() expects escape to be a single character %s given', __METHOD__, $escape));
+        throw new Exception(sprintf('%s() expects escape to be a single character or the empty string %s given', __METHOD__, $escape));
     }
 
     /**

@@ -84,7 +84,7 @@ class EncloseField extends php_user_filter
     public static function register()
     {
         if (!in_array(self::FILTERNAME, stream_get_filters(), true)) {
-            stream_filter_register(self::FILTERNAME, __CLASS__);
+            stream_filter_register(self::FILTERNAME, self::class);
         }
     }
 

@@ -22,8 +22,12 @@ use const SEEK_CUR;
 use const STREAM_FILTER_WRITE;
 use function array_reduce;
 use function gettype;
+use function implode;
 use function is_iterable;
+use function preg_match;
+use function preg_quote;
 use function sprintf;
+use function str_replace;
 use function strlen;
 
 /**
@@ -74,6 +78,31 @@ class Writer extends AbstractCsv
      * {@inheritdoc}
      */
     protected $stream_filter_mode = STREAM_FILTER_WRITE;
+
+    /**
+     * Regular expression used to detect if RFC4180 formatting is necessary.
+     *
+     * @var string
+     */
+    protected $rfc4180_regexp;
+
+    /**
+     * double enclosure for RFC4180 compliance.
+     *
+     * @var string
+     */
+    protected $rfc4180_enclosure;
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function resetProperties()
+    {
+        parent::resetProperties();
+        $characters = preg_quote($this->delimiter, '/').'|'.preg_quote($this->enclosure, '/');
+        $this->rfc4180_regexp = '/[\s|'.$characters.']/x';
+        $this->rfc4180_enclosure = $this->enclosure.$this->enclosure;
+    }
 
     /**
      * Returns the current newline sequence characters.
@@ -127,14 +156,73 @@ class Writer extends AbstractCsv
      */
     public function insertOne(array $record): int
     {
+        $method = 'addRecord';
+        if ('' === $this->escape && PHP_VERSION_ID < 70400) {
+            $method = 'addRFC4180CompliantRecord';
+        }
+
         $record = array_reduce($this->formatters, [$this, 'formatRecord'], $record);
         $this->validateRecord($record);
-        $bytes = $this->document->fputcsv($record, $this->delimiter, $this->enclosure, $this->escape);
+        $bytes = $this->$method($record);
         if (false !== $bytes && 0 !== $bytes) {
             return $bytes + $this->consolidate();
         }
 
         throw CannotInsertRecord::triggerOnInsertion($record);
+    }
+
+    /**
+     * Adds a single record to a CSV Document using PHP algorithm.
+     *
+     * @see https://php.net/manual/en/function.fputcsv.php
+     *
+     * @return int|bool
+     */
+    protected function addRecord(array $record)
+    {
+        return $this->document->fputcsv($record, $this->delimiter, $this->enclosure, $this->escape);
+    }
+
+    /**
+     * Adds a single record to a CSV Document using RFC4180 algorithm.
+     *
+     * @see https://php.net/manual/en/function.fputcsv.php
+     * @see https://php.net/manual/en/function.fwrite.php
+     * @see https://tools.ietf.org/html/rfc4180
+     * @see http://edoceo.com/utilitas/csv-file-format
+     *
+     * String conversion is done without any check like fputcsv.
+     *
+     *     - Emits E_NOTICE on Array conversion (returns the 'Array' string)
+     *     - Throws catchable fatal error on objects that can not be converted
+     *     - Returns resource id without notice or error (returns 'Resource id #2')
+     *     - Converts boolean true to '1', boolean false to the empty string
+     *     - Converts null value to the empty string
+     *
+     * Fields must be delimited with enclosures if they contains :
+     *
+     *     - Embedded whitespaces
+     *     - Embedded delimiters
+     *     - Embedded line-breaks
+     *     - Embedded enclosures.
+     *
+     * Embedded enclosures must be doubled.
+     *
+     * The LF character is added at the end of each record to mimic fputcsv behavior
+     *
+     * @return int|bool
+     */
+    protected function addRFC4180CompliantRecord(array $record)
+    {
+        foreach ($record as &$field) {
+            $field = (string) $field;
+            if (preg_match($this->rfc4180_regexp, $field)) {
+                $field = $this->enclosure.str_replace($this->enclosure, $this->rfc4180_enclosure, $field).$this->enclosure;
+            }
+        }
+        unset($field);
+
+        return $this->document->fwrite(implode($this->delimiter, $record)."\n");
     }
 
     /**

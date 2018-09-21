@@ -85,7 +85,17 @@ $escape = $csv->getEscape(); //returns "\"
 
 <p class="message-info">The default escape character is <code>\</code>.</p>
 
-<p class="message-notice">To produce RFC4180 compliant CSV documents you should use the <a href="/9.0/interoperability/rfc4180-field/">RFC4180Field</a> stream filter to work around bugs associated with the use of the escape character.</p>
+<p class="message-info">Starting with <code>9.2.0</code> you can provide an empty string for the escape character to enable better <a href="https://tools.ietf.org/html/rfc4180">RFC4180</a> compliance.</p>
+
+~~~php
+<?php
+
+use League\Csv\Reader;
+
+$csv = Reader::createFromPath('/path/to/file.csv', 'r');
+$csv->setEscape('');
+$escape = $csv->getEscape(); //returns ""
+~~~
 
 ## Inherited character controls
 

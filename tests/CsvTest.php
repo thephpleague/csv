@@ -63,6 +63,7 @@ class CsvTest extends TestCase
 
     /**
      * @covers ::createFromFileObject
+     * @covers ::__construct
      */
     public function testCreateFromFileObjectPreserveFileObjectCsvControls()
     {

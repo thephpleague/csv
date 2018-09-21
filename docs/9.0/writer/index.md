@@ -80,6 +80,31 @@ try {
 }
 ~~~
 
+<p class="message-info">Starting with <code>9.2.0</code> you can provide an empty string for the escape character to enable better <a href="https://tools.ietf.org/html/rfc4180">RFC4180</a> compliance.</p>
+
+~~~php
+<?php
+
+use League\Csv\Writer;
+
+$records = [
+    ['foo', 'foo bar', 'baz '],
+
+];
+
+$writer = Writer::createFromString('');
+$writer->insertOne(['"foo"', 'foo bar', 'baz ', 'foo\\bar']);
+$writer->setEscape('');
+$writer->insertOne(['"foo"', 'foo bar', 'baz ', 'foo\\bar']);
+echo $writer->getContents();
+// """foo""","foo bar","baz ","foo\bar"
+// """foo""",foo bar,"baz ",foo\bar
+~~~
+
+<p class="message-notice">The addition of this new feature means the deprecation of [RFC4180Field](/9.0/interoperability/rfc4180-field/).</p>
+
+<p class="message-notice">You still need to set the newline sequence as shown below</p>
+
 ## Handling newline
 
 Because PHP's `fputcsv` implementation has a hardcoded `\n`, we need to be able to replace the last `LF` code with one supplied by the developer for more interoperability between CSV packages on different platforms. The newline sequence will be appended to each newly inserted CSV record.

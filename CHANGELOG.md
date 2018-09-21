@@ -2,19 +2,25 @@
 
 All Notable changes to `Csv` will be documented in this file
 
-## 9.1.5 - TBD
+## 9.2.0 - TBD
 
 ### Added
 
-- Nothing
+- Supports for empty string for the escape character to enable better RFC4180 compliance.
 
 ### Deprecated
 
-- Nothing
+- `League\Csv\RFC4180Field` use `AbstractCSV::setEscape` method with an empty string instead.
 
 ### Fixed
 
-- `Writer::insertOne` fix throwing exception when record can not be inserted
+- `AbstractCSV::__construct` correctly initializes properties
+- `AbstractCSV::createFromString` named constructor default argument is now the empty string
+- `AbstractCSV::setEscape` now accepts the empty string like `fputcsv` and `fgetcsv`
+- `Writer::insertOne` fixes throwing exception when record can not be inserted
+- `XMLConverter` convert to string the record value to avoid PHP warning on `null` value
+- Internal `Stream::fwrite` improved
+- Internal `Stream::__destruct` no longer emit warning on invalid stream filter removal.
 
 ### Removed
 

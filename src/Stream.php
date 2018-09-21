@@ -27,6 +27,7 @@ use function fclose;
 use function feof;
 use function fflush;
 use function fgetcsv;
+use function fgets;
 use function fopen;
 use function fpassthru;
 use function fputcsv;
@@ -149,7 +150,7 @@ class Stream implements SeekableIterator
     public function __destruct()
     {
         $walker = function ($filter): bool {
-            return stream_filter_remove($filter);
+            return @stream_filter_remove($filter);
         };
 
         array_walk_recursive($this->filters, $walker);
@@ -300,7 +301,7 @@ class Stream implements SeekableIterator
      *
      * @see http://php.net/manual/en/splfileobject.fputcsv.php
      *
-     * @return int|null|bool
+     * @return int|bool
      */
     public function fputcsv(array $fields, string $delimiter = ',', string $enclosure = '"', string $escape = '\\')
     {
@@ -450,6 +451,18 @@ class Stream implements SeekableIterator
     }
 
     /**
+     * Gets a line from file.
+     *
+     * @see http://php.net/manual/en/splfileobject.fgets.php
+     *
+     * @return string|false
+     */
+    public function fgets()
+    {
+        return fgets($this->stream);
+    }
+
+    /**
      * Seek to a position.
      *
      * @see http://php.net/manual/en/splfileobject.fseek.php
@@ -475,9 +488,14 @@ class Stream implements SeekableIterator
      *
      * @return int|bool
      */
-    public function fwrite(string $str, int $length = 0)
+    public function fwrite(string $str, int $length = null)
     {
-        return fwrite($this->stream, $str, $length);
+        $args = [$this->stream, $str];
+        if (null !== $length) {
+            $args[] = $length;
+        }
+
+        return fwrite(...$args);
     }
 
     /**

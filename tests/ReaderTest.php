@@ -71,6 +71,39 @@ class ReaderTest extends TestCase
             "parentA","childA","titleA"';
         $csv = Reader::createFromString($source);
         self::assertCount(2, $csv);
+        $csv->setHeaderOffset(0);
+        self::assertCount(1, $csv);
+    }
+
+    /**
+     * @covers ::getDocument
+     */
+    public function testReaderWithEmptyEscapeChar1()
+    {
+        $source = <<<EOF
+Year,Make,Model,Description,Price
+1997,Ford,E350,"ac, abs, moon",3000.00
+1999,Chevy,"Venture ""Extenéded Edition""","",4900.00
+1999,Chevy,"Venture ""Extended Edition, Very Large""",,5000.00
+1996,Jeep,Grand Cherokee,"MUST SELL!
+air, moon roof, loaded",4799.00
+EOF;
+        $csv = Reader::createFromString($source);
+        $csv->setEscape('');
+        self::assertCount(5, $csv);
+        $csv->setHeaderOffset(0);
+        self::assertCount(4, $csv);
+    }
+
+    /**
+     * @covers ::getDocument
+     */
+    public function testReaderWithEmptyEscapeChar2()
+    {
+        $source = '"parent name","child name","title"
+            "parentA","childA","titleA"';
+        $csv = Reader::createFromString($source);
+        $csv->setEscape('');
         self::assertCount(2, $csv);
         $csv->setHeaderOffset(0);
         self::assertCount(1, $csv);

@@ -34,6 +34,11 @@ use function strlen;
 /**
  * A stream filter to conform the CSV field to RFC4180.
  *
+ * DEPRECATION WARNING! This class will be removed in the next major point release
+ *
+ * @deprecated deprecated since version 9.2.0
+ * @see AbstractCsv::setEscape
+ *
  * @see https://tools.ietf.org/html/rfc4180#section-2
  *
  * @package League.csv
@@ -132,7 +137,7 @@ class RFC4180Field extends php_user_filter
     public static function register()
     {
         if (!in_array(self::FILTERNAME, stream_get_filters(), true)) {
-            stream_filter_register(self::FILTERNAME, __CLASS__);
+            stream_filter_register(self::FILTERNAME, self::class);
         }
     }
 
