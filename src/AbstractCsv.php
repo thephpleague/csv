@@ -47,7 +47,6 @@ abstract class AbstractCsv implements ByteSequence
      */
     protected $stream_filter_mode;
 
-
     /**
      * collection of stream filters.
      *

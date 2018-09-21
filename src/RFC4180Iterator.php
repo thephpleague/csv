@@ -161,7 +161,6 @@ final class RFC4180Iterator implements IteratorAggregate
      */
     private function extractFieldEnclosed(&$line)
     {
-        //remove the starting enclosure character if present
         if (($line[0] ?? '') === $this->enclosure) {
             $line = substr($line, 1);
         }
@@ -183,19 +182,13 @@ final class RFC4180Iterator implements IteratorAggregate
         }
 
         $char = $line[0] ?? '';
-        //handles end of content by delimiter
         if ($char === $this->delimiter) {
             $line = substr($line, 1);
 
             return $content;
         }
 
-        //handles double quoted data
-        if ($char === $this->enclosure) {
-            return $content.$char.$this->extractFieldEnclosed($line);
-        }
-
-        //handles malformed CSV like fgetcsv
-        return $content.$this->extractFieldEnclosed($line);
+        //treat double quote and invalid field content
+        return $content.'"'.$this->extractFieldEnclosed($line);
     }
 }
