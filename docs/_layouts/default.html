@@ -35,19 +35,17 @@
     {% endif %}
     <link rel="stylesheet" href="//theme.thephpleague.com/css/all.css?2">
     <link rel="stylesheet" href="/custom.css?12">
+{% if site.data.project.google_analytics_tracking_id %}
+    <script async src="https://www.googletagmanager.com/gtag/js?id={{  site.data.project.google_analytics_tracking_id }}"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag() { dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', '{{  site.data.project.google_analytics_tracking_id }}');
+    </script>
+{% endif %}
 </head>
 <body>
-
-<section class="all_packages">
-    <a href="//thephpleague.com/">
-        <img src="//theme.thephpleague.com/img/loep_logo.png" width="195" height="200" alt="The League of Extraordinary Packages">
-    </a>
-    <h2>Our Packages:</h2>
-    <ul>
-        <!-- Loaded via JavaScript -->
-    </ul>
-</section>
-
 <header>
     <a class="logo" href="/">
         {% if site.data.images.logo %}
@@ -57,9 +55,6 @@
         {% endif %}
         <span class="name">{{ site.data.project.title }}</span>
         <span class="tagline">{{ site.data.project.tagline }}</span>
-    </a>
-    <a href="//thephpleague.com/" class="league">
-        Presented by The League of Extraordinary Packages
     </a>
 </header>
 
@@ -123,20 +118,8 @@
     <span>Site design by <a href="//reinink.ca">Jonathan Reinink</a>.</span>
 </footer>
 
-<script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
 <script src="//theme.thephpleague.com/js/scripts.js"></script>
 <script src="/custom.js"></script>
-
-{% if site.data.project.google_analytics_tracking_id %}
-    <script>
-        (function(b,o,i,l,e,r){b.GoogleAnalyticsObject=l;b[l]||(b[l]=
-        function(){(b[l].q=b[l].q||[]).push(arguments)});b[l].l=+new Date;
-        e=o.createElement(i);r=o.getElementsByTagName(i)[0];
-        e.src='//www.google-analytics.com/analytics.js';
-        r.parentNode.insertBefore(e,r)}(window,document,'script','ga'));
-        ga('create','{{  site.data.project.google_analytics_tracking_id }}');ga('send','pageview');
-    </script>
-{% endif %}
-
 </body>
 </html>

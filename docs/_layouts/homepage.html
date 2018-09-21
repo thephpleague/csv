@@ -5,37 +5,25 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>{{ site.data.project.tagline }} - {{ site.data.project.title }}</title>
-    {% if site.data.project.description %}
-        <meta name="description" content="{{ site.data.project.description }}">
-    {% endif %}
-    {% if site.data.images.favicon %}
-        <link rel="icon" type="image/x-icon" href="{{ site.data.images.favicon }}" />
-    {% else %}
-        <link rel="icon" type="image/x-icon" href="//theme.thephpleague.com/img/favicon.ico" />
-    {% endif %}
-    {% if site.data.images.apple_touch %}
-        <link rel="apple-touch-icon-precomposed" href="{{ site.data.images.apple_touch }}">
-    {% else %}
-        <link rel="apple-touch-icon-precomposed" href="//theme.thephpleague.com/img/apple-touch-icon-precomposed.png">
-    {% endif %}
+    <meta name="description" content="{{ site.data.project.description }}">
+    <link rel="icon" type="image/x-icon" href="{{ site.data.images.favicon }}" />
+    <link rel="apple-touch-icon-precomposed" href="//theme.thephpleague.com/img/apple-touch-icon-precomposed.png">
     <link rel="stylesheet" href="//theme.thephpleague.com/css/all.css?2">
     <link rel="stylesheet" href="/homepage.css?1">
+{% if site.data.project.google_analytics_tracking_id %}
+    <script async src="https://www.googletagmanager.com/gtag/js?id={{  site.data.project.google_analytics_tracking_id }}"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag() { dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', '{{  site.data.project.google_analytics_tracking_id }}');
+    </script>
+{% endif %}
 </head>
 <body>
 
-<section class="all_packages">
-    <a href="//thephpleague.com/">
-        <img src="//theme.thephpleague.com/img/loep_logo.png" width="195" height="200" alt="The League of Extraordinary Packages">
-    </a>
-    <h2>Our Packages:</h2>
-    <ul>
-        <!-- Loaded via JavaScript -->
-    </ul>
-</section>
-
 <header>
     <div class="inner-content">
-      <a href="//thephpleague.com/" class="league">Presented by The League of Extraordinary Packages</a>
       <h1>{{ site.data.project.title }}</h1>
       <h2>{{ site.data.project.tagline }}</h2>
       <p class="composer"><span>{{ site.data.project.composer }}</span></p>
@@ -144,19 +132,7 @@
     <span>Site design by <a href="//reinink.ca">Jonathan Reinink</a>.</span>
 </footer>
 
-<script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
 <script src="//theme.thephpleague.com/js/scripts.js"></script>
-{% if site.data.project.google_analytics_tracking_id %}
-<script>
-    (function(b,o,i,l,e,r){b.GoogleAnalyticsObject=l;b[l]||(b[l]=
-    function(){(b[l].q=b[l].q||[]).push(arguments)});b[l].l=+new Date;
-    e=o.createElement(i);r=o.getElementsByTagName(i)[0];
-    e.src='//www.google-analytics.com/analytics.js';
-    r.parentNode.insertBefore(e,r)}(window,document,'script','ga'));
-    ga('create','{{  site.data.project.google_analytics_tracking_id }}');
-    ga('send','pageview');
-</script>
-{% endif %}
-
 </body>
 </html>
