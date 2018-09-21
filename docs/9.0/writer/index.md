@@ -87,18 +87,15 @@ try {
 
 use League\Csv\Writer;
 
-$records = [
-    ['foo', 'foo bar', 'baz '],
+$record = ['"foo"', 'foo bar', 'baz ', 'foo\\"bar'];
 
-];
-
-$writer = Writer::createFromString('');
-$writer->insertOne(['"foo"', 'foo bar', 'baz ', 'foo\\bar']);
+$writer = Writer::createFromString();
+$writer->insertOne($record);
 $writer->setEscape('');
-$writer->insertOne(['"foo"', 'foo bar', 'baz ', 'foo\\bar']);
+$writer->insertOne($record);
 echo $writer->getContents();
-// """foo""","foo bar","baz ","foo\bar"
-// """foo""",foo bar,"baz ",foo\bar
+// """foo""","foo bar","baz ","foo\"bar"
+// """foo""","foo bar","baz ","foo\""bar"
 ~~~
 
 <p class="message-notice">The addition of this new feature means the deprecation of <a href="/9.0/interoperability/rfc4180-field/">RFC4180Field</a>.</p>
