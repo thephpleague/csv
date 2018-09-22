@@ -40,8 +40,8 @@ class RFC4180IteratorTest extends TestCase
      * @covers \League\Csv\Stream::fgets
      * @covers ::__construct
      * @covers ::getIterator
-     * @covers ::extractField
-     * @covers ::extractFieldEnclosed
+     * @covers ::extractFieldContent
+     * @covers ::extractEnclosedFieldContent
      */
     public function testWorksWithMultiLines()
     {
@@ -67,8 +67,8 @@ EOF;
     /**
      * @covers \League\Csv\Stream::fgets
      * @covers ::getIterator
-     * @covers ::extractField
-     * @covers ::extractFieldEnclosed
+     * @covers ::extractFieldContent
+     * @covers ::extractEnclosedFieldContent
      */
     public function testWorksWithMultiLinesWithDifferentDelimiter()
     {
@@ -95,8 +95,8 @@ EOF;
 
     /**
      * @covers ::getIterator
-     * @covers ::extractField
-     * @covers ::extractFieldEnclosed
+     * @covers ::extractFieldContent
+     * @covers ::extractEnclosedFieldContent
      */
     public function testKeepEmptyLines()
     {
@@ -121,8 +121,8 @@ EOF;
 
     /**
      * @covers ::getIterator
-     * @covers ::extractField
-     * @covers ::extractFieldEnclosed
+     * @covers ::extractFieldContent
+     * @covers ::extractEnclosedFieldContent
      */
     public function testTrimSpaceWithNotEncloseField()
     {
@@ -139,8 +139,8 @@ EOF;
 
     /**
      * @covers ::getIterator
-     * @covers ::extractField
-     * @covers ::extractFieldEnclosed
+     * @covers ::extractFieldContent
+     * @covers ::extractEnclosedFieldContent
      *
      * @dataProvider invalidCsvRecordProvider
      */
@@ -175,8 +175,8 @@ EOF;
 
     /**
      * @covers ::getIterator
-     * @covers ::extractField
-     * @covers ::extractFieldEnclosed
+     * @covers ::extractFieldContent
+     * @covers ::extractEnclosedFieldContent
      */
     public function testDoubleEnclosure()
     {

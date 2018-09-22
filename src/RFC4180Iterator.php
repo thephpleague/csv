@@ -109,9 +109,9 @@ final class RFC4180Iterator implements IteratorAggregate
             $record = [];
             $line = $this->document->fgets();
             do {
-                $method = 'extractField';
+                $method = 'extractFieldContent';
                 if (($line[0] ?? '') === $this->enclosure) {
-                    $method = 'extractFieldEnclosed';
+                    $method = 'extractEnclosedFieldContent';
                 }
                 $record[] = $this->$method($line);
             } while (false !== $line);
@@ -130,7 +130,7 @@ final class RFC4180Iterator implements IteratorAggregate
      *
      * @return null|string
      */
-    private function extractField(&$line)
+    private function extractFieldContent(&$line)
     {
         if (in_array($line, self::FIELD_BREAKS, true)) {
             $line = false;
@@ -159,7 +159,7 @@ final class RFC4180Iterator implements IteratorAggregate
      *
      * @return null|string
      */
-    private function extractFieldEnclosed(&$line)
+    private function extractEnclosedFieldContent(&$line)
     {
         if (($line[0] ?? '') === $this->enclosure) {
             $line = substr($line, 1);
@@ -188,7 +188,6 @@ final class RFC4180Iterator implements IteratorAggregate
             return $content;
         }
 
-        //treat double quote and invalid field content
-        return $content.'"'.$this->extractFieldEnclosed($line);
+        return $content.$this->enclosure.$this->extractEnclosedFieldContent($line);
     }
 }
