@@ -32,10 +32,6 @@ use function sprintf;
 
 /**
  * Represents the result set of a {@link Reader} processed by a {@link Statement}.
- *
- * @package League.csv
- * @since   9.0.0
- * @author  Ignace Nyamagana Butera <nyamsprod@gmail.com>
  */
 class ResultSet implements Countable, IteratorAggregate, JsonSerializable
 {

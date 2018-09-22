@@ -16,10 +16,6 @@ namespace League\Csv;
 
 /**
  * Defines constants for common BOM sequences.
- *
- * @package League.csv
- * @since   9.0.0
- * @author  Ignace Nyamagana Butera <nyamsprod@gmail.com>
  */
 interface ByteSequence
 {

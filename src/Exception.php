@@ -18,10 +18,6 @@ namespace League\Csv;
 
 /**
  * League Csv Base Exception.
- *
- * @package League.csv
- * @since   9.0.0
- * @author  Ignace Nyamagana Butera <nyamsprod@gmail.com>
  */
 class Exception extends \Exception
 {

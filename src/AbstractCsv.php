@@ -33,10 +33,6 @@ use function strlen;
 
 /**
  * An abstract class to enable CSV document loading.
- *
- * @package League.csv
- * @since   4.0.0
- * @author  Ignace Nyamagana Butera <nyamsprod@gmail.com>
  */
 abstract class AbstractCsv implements ByteSequence
 {

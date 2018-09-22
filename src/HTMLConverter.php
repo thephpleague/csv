@@ -21,11 +21,7 @@ use Traversable;
 use function preg_match;
 
 /**
- * A class to convert tabular data into an HTML Table string.
- *
- * @package League.csv
- * @since   9.0.0
- * @author  Ignace Nyamagana Butera <nyamsprod@gmail.com>
+ * Converts tabular data into an HTML Table string.
  */
 class HTMLConverter
 {

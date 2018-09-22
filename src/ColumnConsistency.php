@@ -20,11 +20,7 @@ use function count;
 use function sprintf;
 
 /**
- * A class to validate column consistency when inserting records into a CSV document.
- *
- * @package League.csv
- * @since   7.0.0
- * @author  Ignace Nyamagana Butera <nyamsprod@gmail.com>
+ * Validates column consistency when inserting records into a CSV document.
  */
 class ColumnConsistency
 {

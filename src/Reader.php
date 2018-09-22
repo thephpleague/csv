@@ -41,10 +41,7 @@ use function strlen;
 use function substr;
 
 /**
- * A class to select records from a CSV document.
- *
- * @package League.csv
- * @since  3.0.0
+ * A class to parse and read records from a CSV document.
  *
  * @method array fetchOne(int $nth_record = 0) Returns a single record from the CSV
  * @method Generator fetchColumn(string|int $column_index) Returns the next value from a single CSV record field

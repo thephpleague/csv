@@ -32,10 +32,6 @@ use function strlen;
 
 /**
  * A class to insert records into a CSV Document.
- *
- * @package League.csv
- * @since   4.0.0
- * @author  Ignace Nyamagana Butera <nyamsprod@gmail.com>
  */
 class Writer extends AbstractCsv
 {

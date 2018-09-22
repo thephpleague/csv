@@ -32,10 +32,6 @@ use function strlen;
  *
  * @see https://tools.ietf.org/html/rfc4180#section-2
  * @see https://bugs.php.net/bug.php?id=38301
- *
- * @package League.csv
- * @since   9.0.0
- * @author  Ignace Nyamagana Butera <nyamsprod@gmail.com>
  */
 class EncloseField extends php_user_filter
 {

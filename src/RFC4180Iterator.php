@@ -38,9 +38,6 @@ use function trim;
  * @see https://tools.ietf.org/html/rfc4180
  * @see http://edoceo.com/utilitas/csv-file-format
  *
- * @package League.csv
- * @since   9.2.0
- * @author  Ignace Nyamagana Butera <nyamsprod@gmail.com>
  * @internal used internally to produce RFC4180 compliant records
  */
 final class RFC4180Iterator implements IteratorAggregate
@@ -100,7 +97,6 @@ final class RFC4180Iterator implements IteratorAggregate
      */
     public function getIterator()
     {
-        //initialisation
         list($this->delimiter, $this->enclosure, ) = $this->document->getCsvControl();
         $this->trim_mask = str_replace([$this->delimiter, $this->enclosure], '', " \t\0\x0B");
         $this->document->setFlags(0);
@@ -156,10 +152,8 @@ final class RFC4180Iterator implements IteratorAggregate
      * - Invalid field do not throw as per fgetcsv behavior.
      *
      * @param bool|string $line
-     *
-     * @return null|string
      */
-    private function extractEnclosedFieldContent(&$line)
+    private function extractEnclosedFieldContent(&$line): string
     {
         if (($line[0] ?? '') === $this->enclosure) {
             $line = substr($line, 1);

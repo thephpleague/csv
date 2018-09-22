@@ -46,11 +46,8 @@ use function stream_get_meta_data;
 use function strlen;
 
 /**
- * An object oriented API for a CSV stream resource.
+ * An object oriented API to handle a PHP stream resource.
  *
- * @package  League.csv
- * @since    8.2.0
- * @author   Ignace Nyamagana Butera <nyamsprod@gmail.com>
  * @internal used internally to iterate over a stream resource
  */
 class Stream implements SeekableIterator

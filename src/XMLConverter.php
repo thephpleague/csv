@@ -27,11 +27,7 @@ use function is_iterable;
 use function sprintf;
 
 /**
- * A class to convert tabular data into a DOMDOcument object.
- *
- * @package League.csv
- * @since   9.0.0
- * @author  Ignace Nyamagana Butera <nyamsprod@gmail.com>
+ * Converts tabular data into a DOMDOcument object.
  */
 class XMLConverter
 {

@@ -24,11 +24,7 @@ use function array_reduce;
 use function iterator_to_array;
 
 /**
- * A Prepared statement to be executed on a {@link Reader} object.
- *
- * @package League.csv
- * @since   9.0.0
- * @author  Ignace Nyamagana Butera <nyamsprod@gmail.com>
+ * Criteria to filter a {@link Reader} object.
  */
 class Statement
 {

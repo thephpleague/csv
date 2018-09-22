@@ -28,13 +28,9 @@ use function method_exists;
 use function sprintf;
 
 /**
- * A League CSV formatter to tackle CSV Formula Injection.
+ * A Formatter to tackle CSV Formula Injection.
  *
  * @see http://georgemauer.net/2017/10/07/csv-injection.html
- *
- * @package League.csv
- * @since   9.1.0
- * @author  Ignace Nyamagana Butera <nyamsprod@gmail.com>
  */
 class EscapeFormula
 {

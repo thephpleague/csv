@@ -40,11 +40,7 @@ use function strtolower;
 use function substr;
 
 /**
- * A class to convert resource stream or tabular data content charset.
- *
- * @package League.csv
- * @since   9.0.0
- * @author  Ignace Nyamagana Butera <nyamsprod@gmail.com>
+ * Converts resource stream or tabular data content charset.
  */
 class CharsetConverter extends php_user_filter
 {

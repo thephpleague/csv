@@ -18,10 +18,6 @@ namespace League\Csv;
 
 /**
  * Thrown when a data is not added to the Csv Document.
- *
- * @package League.csv
- * @since   9.0.0
- * @author  Ignace Nyamagana Butera <nyamsprod@gmail.com>
  */
 class CannotInsertRecord extends Exception
 {
