@@ -182,6 +182,10 @@ final class RFC4180Iterator implements IteratorAggregate
             return $content;
         }
 
-        return $content.$this->enclosure.$this->extractEnclosedFieldContent($line);
+        if ($char === $this->enclosure) {
+            return $content.$this->enclosure.$this->extractEnclosedFieldContent($line);
+        }
+
+        return $content.$this->extractFieldContent($line);
     }
 }

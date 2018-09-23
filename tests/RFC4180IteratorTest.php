@@ -14,6 +14,7 @@
 
 namespace LeagueTest\Csv;
 
+use League\Csv\Reader;
 use League\Csv\RFC4180Iterator;
 use League\Csv\Stream;
 use PHPUnit\Framework\TestCase;
@@ -168,7 +169,7 @@ EOF;
             ],
             'enclosure started but not ended' => [
                 'string' => 'Year,Make,Model,Description,"Pri"ce',
-                'record' => ['Year', 'Make', 'Model', 'Description', 'Pri"ce'],
+                'record' => ['Year', 'Make', 'Model', 'Description', 'Price'],
             ],
         ];
     }
@@ -198,5 +199,20 @@ EOF;
         $stream->setCsvControl(';');
         $records = new RFC4180Iterator($stream);
         self::assertEquals($expected, iterator_to_array($records->getIterator(), false));
+    }
+
+    /**
+     * @covers ::getIterator
+     * @covers ::extractFieldContent
+     * @covers ::extractEnclosedFieldContent
+     */
+    public function testInvalidCsvParseAsFgetcsv()
+    {
+        $str = '"foo"bar",foo"bar'."\r\n".'"foo"'."\r\n".'baz,bar"';
+        $csv = Reader::createFromString($str);
+        $fgetcsv_records = iterator_to_array($csv);
+        $csv->setEscape('');
+        $parser_records = iterator_to_array($csv);
+        self::assertEquals($fgetcsv_records, $parser_records);
     }
 }

@@ -155,8 +155,7 @@ class Reader extends AbstractCsv implements Countable, IteratorAggregate, JsonSe
      */
     protected function seekRow(int $offset)
     {
-        $document = $this->getDocument();
-        foreach ($document as $index => $record) {
+        foreach ($this->getDocument() as $index => $record) {
             if ($offset === $index) {
                 return $record;
             }
