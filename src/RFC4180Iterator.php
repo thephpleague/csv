@@ -27,6 +27,7 @@ use function is_object;
 use function rtrim;
 use function sprintf;
 use function str_replace;
+use function strlen;
 use function substr;
 use function trim;
 
@@ -72,7 +73,7 @@ final class RFC4180Iterator implements IteratorAggregate
      *
      * @param SplFileObject|Stream $document
      */
-    public function __construct($document)
+    public function __construct($document, string $delimiter = ',', string $enclosure = '"')
     {
         if (!$document instanceof Stream && !$document instanceof SplFileObject) {
             throw new TypeError(sprintf(
@@ -82,7 +83,18 @@ final class RFC4180Iterator implements IteratorAggregate
             ));
         }
 
+        if (1 !== strlen($delimiter)) {
+            throw new Exception(sprintf('%s() expects delimiter to be a single character %s given', __METHOD__, $delimiter));
+        }
+
+        if (1 !== strlen($enclosure)) {
+            throw new Exception(sprintf('%s() expects enclosure to be a single character %s given', __METHOD__, $enclosure));
+        }
+
         $this->document = $document;
+        $this->delimiter = $delimiter;
+        $this->enclosure = $enclosure;
+        $this->trim_mask = str_replace([$this->delimiter, $this->enclosure], '', " \t\0\x0B");
     }
 
     /**
@@ -97,8 +109,6 @@ final class RFC4180Iterator implements IteratorAggregate
      */
     public function getIterator()
     {
-        list($this->delimiter, $this->enclosure, ) = $this->document->getCsvControl();
-        $this->trim_mask = str_replace([$this->delimiter, $this->enclosure], '', " \t\0\x0B");
         $this->document->setFlags(0);
         $this->document->rewind();
         do {

@@ -14,6 +14,7 @@
 
 namespace LeagueTest\Csv;
 
+use League\Csv\Exception;
 use League\Csv\Reader;
 use League\Csv\RFC4180Iterator;
 use League\Csv\Stream;
@@ -35,6 +36,24 @@ class RFC4180IteratorTest extends TestCase
     {
         self::expectException(TypeError::class);
         new RFC4180Iterator([]);
+    }
+
+    /**
+     * @covers ::__construct
+     */
+    public function testConstructorThrowExceptionWithInvalidDelimiter()
+    {
+        self::expectException(Exception::class);
+        new RFC4180Iterator(new SplTempFileObject(), 'toto');
+    }
+
+    /**
+     * @covers ::__construct
+     */
+    public function testConstructorThrowExceptionWithInvalidEnclosure()
+    {
+        self::expectException(Exception::class);
+        new RFC4180Iterator(new SplTempFileObject(), ';', 'é');
     }
 
     /**
@@ -87,8 +106,7 @@ MUST SELL!
 air| moon roof| loaded
 EOF;
         $doc = Stream::createFromString($source);
-        $doc->setCsvControl('|', "'");
-        $iterator = new RFC4180Iterator($doc);
+        $iterator = new RFC4180Iterator($doc, '|', "'");
         self::assertCount(5, $iterator);
         $data = iterator_to_array($iterator->getIterator(), false);
         self::assertSame($multiline, $data[4][3]);
@@ -195,9 +213,8 @@ EOF;
             ['Michel;Michele', 'Durand',  'av. de la Ferme, 89', '…'],
         ];
 
-        $stream  = Stream::createFromString($str);
-        $stream->setCsvControl(';');
-        $records = new RFC4180Iterator($stream);
+        $stream = Stream::createFromString($str);
+        $records = new RFC4180Iterator($stream, ';');
         self::assertEquals($expected, iterator_to_array($records->getIterator(), false));
     }
 
