@@ -109,7 +109,6 @@ class XMLConverter
     /**
      * Convert a CSV record into a DOMElement and
      * adds its offset as DOMElement attribute.
-     *
      */
     protected function recordToElementWithAttribute(
         DOMDocument $doc,
@@ -125,7 +124,6 @@ class XMLConverter
 
     /**
      * Convert a CSV record into a DOMElement.
-     *
      */
     protected function recordToElement(DOMDocument $doc, array $record, string $field_encoder): DOMElement
     {
@@ -180,7 +178,6 @@ class XMLConverter
 
     /**
      * Filter XML element name.
-     *
      *
      * @throws DOMException If the Element name is invalid
      */

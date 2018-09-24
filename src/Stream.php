@@ -210,7 +210,6 @@ class Stream implements SeekableIterator
     /**
      * Return a new instance from a string.
      *
-     *
      * @return static
      */
     public static function createFromString(string $content)
@@ -255,7 +254,6 @@ class Stream implements SeekableIterator
 
     /**
      * Filter Csv control characters.
-     *
      *
      * @throws Exception If the Csv control character is not one character only.
      */
@@ -463,7 +461,6 @@ class Stream implements SeekableIterator
      * Seek to a position.
      *
      * @see http://php.net/manual/en/splfileobject.fseek.php
-     *
      *
      * @throws Exception if the stream resource is not seekable
      *

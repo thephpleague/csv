@@ -297,7 +297,6 @@ abstract class AbstractCsv implements ByteSequence
     /**
      * Outputs all data on the CSV file.
      *
-     *
      * @return int Returns the number of characters read from the handle
      *             and passed through to the output.
      */
