@@ -41,7 +41,7 @@ use function trim;
  *
  * @internal used internally to produce RFC4180 compliant records
  */
-final class RFC4180Iterator implements IteratorAggregate
+final class RFC4180Parser implements IteratorAggregate
 {
     /**
      * @internal

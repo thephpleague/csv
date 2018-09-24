@@ -16,7 +16,7 @@ namespace LeagueTest\Csv;
 
 use League\Csv\Exception;
 use League\Csv\Reader;
-use League\Csv\RFC4180Iterator;
+use League\Csv\RFC4180Parser;
 use League\Csv\Stream;
 use PHPUnit\Framework\TestCase;
 use SplTempFileObject;
@@ -25,9 +25,9 @@ use function iterator_to_array;
 
 /**
  * @group reader
- * @coversDefaultClass League\Csv\RFC4180Iterator
+ * @coversDefaultClass League\Csv\RFC4180Parser
  */
-class RFC4180IteratorTest extends TestCase
+class RFC4180ParserTest extends TestCase
 {
     /**
      * @covers ::__construct
@@ -35,7 +35,7 @@ class RFC4180IteratorTest extends TestCase
     public function testConstructorThrowsTypeErrorWithUnknownDocument()
     {
         self::expectException(TypeError::class);
-        new RFC4180Iterator([]);
+        new RFC4180Parser([]);
     }
 
     /**
@@ -44,7 +44,7 @@ class RFC4180IteratorTest extends TestCase
     public function testConstructorThrowExceptionWithInvalidDelimiter()
     {
         self::expectException(Exception::class);
-        new RFC4180Iterator(new SplTempFileObject(), 'toto');
+        new RFC4180Parser(new SplTempFileObject(), 'toto');
     }
 
     /**
@@ -53,7 +53,7 @@ class RFC4180IteratorTest extends TestCase
     public function testConstructorThrowExceptionWithInvalidEnclosure()
     {
         self::expectException(Exception::class);
-        new RFC4180Iterator(new SplTempFileObject(), ';', 'é');
+        new RFC4180Parser(new SplTempFileObject(), ';', 'é');
     }
 
     /**
@@ -78,7 +78,7 @@ EOF;
 MUST SELL!
 air, moon roof, loaded
 EOF;
-        $iterator = new RFC4180Iterator(Stream::createFromString($source));
+        $iterator = new RFC4180Parser(Stream::createFromString($source));
         self::assertCount(5, $iterator);
         $data = iterator_to_array($iterator->getIterator(), false);
         self::assertSame($multiline, $data[4][3]);
@@ -106,7 +106,7 @@ MUST SELL!
 air| moon roof| loaded
 EOF;
         $doc = Stream::createFromString($source);
-        $iterator = new RFC4180Iterator($doc, '|', "'");
+        $iterator = new RFC4180Parser($doc, '|', "'");
         self::assertCount(5, $iterator);
         $data = iterator_to_array($iterator->getIterator(), false);
         self::assertSame($multiline, $data[4][3]);
@@ -128,7 +128,7 @@ EOF;
 
         $rsrc = new SplTempFileObject();
         $rsrc->fwrite($source);
-        $iterator = new RFC4180Iterator($rsrc);
+        $iterator = new RFC4180Parser($rsrc);
 
         self::assertCount(4, $iterator);
         $data = iterator_to_array($iterator->getIterator(), false);
@@ -149,7 +149,7 @@ EOF;
 Year,Make,Model,,Description,   Price
   "1997,Ford,E350,"ac, abs, moon",   3000.00
 EOF;
-        $iterator = new RFC4180Iterator(Stream::createFromString($source));
+        $iterator = new RFC4180Parser(Stream::createFromString($source));
         self::assertCount(2, $iterator);
         $data = iterator_to_array($iterator->getIterator(), false);
         self::assertSame(['Year', 'Make', 'Model', '', 'Description', 'Price'], $data[0]);
@@ -165,7 +165,7 @@ EOF;
      */
     public function testHandlingInvalidCSVwithEnclosure(string $string, array $record)
     {
-        $iterator = new RFC4180Iterator(Stream::createFromString($string));
+        $iterator = new RFC4180Parser(Stream::createFromString($string));
         $data = iterator_to_array($iterator->getIterator(), false);
         self::assertSame($record, $data[0]);
     }
@@ -214,7 +214,7 @@ EOF;
         ];
 
         $stream = Stream::createFromString($str);
-        $records = new RFC4180Iterator($stream, ';');
+        $records = new RFC4180Parser($stream, ';');
         self::assertEquals($expected, iterator_to_array($records->getIterator(), false));
     }
 
