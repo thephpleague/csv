@@ -24,12 +24,12 @@ use function get_class;
 use function gettype;
 use function in_array;
 use function is_object;
+use function ltrim;
 use function rtrim;
 use function sprintf;
 use function str_replace;
 use function strlen;
 use function substr;
-use function trim;
 
 /**
  * A RFC4180 Compliant Parser in Pure PHP.
@@ -132,19 +132,22 @@ final class RFC4180Parser implements IteratorAggregate
     {
         $this->document->setFlags(0);
         $this->document->rewind();
-        do {
+        while ($this->document->valid()) {
             $record = [];
             $this->line = $this->document->fgets();
             do {
                 $method = 'extractFieldContent';
-                if (($this->line[0] ?? '') === $this->enclosure) {
+                $buffer = ltrim($this->line, $this->trim_mask);
+                if (($buffer[0] ?? '') === $this->enclosure) {
                     $method = 'extractEnclosedFieldContent';
+                    $this->line = $buffer;
                 }
+
                 $record[] = $this->$method();
             } while (false !== $this->line);
 
             yield $record;
-        } while ($this->document->valid());
+        }
     }
 
     /**
@@ -165,10 +168,10 @@ final class RFC4180Parser implements IteratorAggregate
 
         list($content, $this->line) = explode($this->delimiter, $this->line, 2) + [1 => false];
         if (false === $this->line) {
-            return trim(rtrim($content, "\r\n"), $this->trim_mask);
+            return rtrim($content, "\r\n");
         }
 
-        return trim($content, $this->trim_mask);
+        return $content;
     }
 
     /**
@@ -204,15 +207,16 @@ final class RFC4180Parser implements IteratorAggregate
         }
 
         $char = $this->line[0] ?? '';
-        if ($char === $this->delimiter) {
+        if ($this->delimiter === $char) {
             $this->line = substr($this->line, 1);
 
             return $content;
         }
 
-        if ($char === $this->enclosure) {
+        if ($this->enclosure === $char) {
             return $content.$this->enclosure.$this->extractEnclosedFieldContent();
         }
+
 
         return $content.$this->extractFieldContent();
     }

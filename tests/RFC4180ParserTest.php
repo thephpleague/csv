@@ -147,17 +147,17 @@ EOF;
      * @covers ::extractFieldContent
      * @covers ::extractEnclosedFieldContent
      */
-    public function testTrimSpaceWithNotEncloseField()
+    public function testNoTrimmedSpaceWithNotEncloseField()
     {
         $source = <<<EOF
 Year,Make,Model,,Description,   Price
-  "1997,Ford,E350,"ac, abs, moon",   3000.00
+1997,  Ford  ,E350  ,ac, abs, moon,   3000.00
 EOF;
         $iterator = new RFC4180Parser(Stream::createFromString($source));
         self::assertCount(2, $iterator);
         $data = iterator_to_array($iterator->getIterator(), false);
-        self::assertSame(['Year', 'Make', 'Model', '', 'Description', 'Price'], $data[0]);
-        self::assertSame(['"1997', 'Ford', 'E350', 'ac, abs, moon', '3000.00'], $data[1]);
+        self::assertSame(['Year', 'Make', 'Model', '', 'Description', '   Price'], $data[0]);
+        self::assertSame(['1997', '  Ford  ', 'E350  ', 'ac', ' abs', ' moon', '   3000.00'], $data[1]);
     }
 
     /**
@@ -235,5 +235,17 @@ EOF;
         $csv->setEscape('');
         $parser_records = iterator_to_array($csv);
         self::assertEquals($fgetcsv_records, $parser_records);
+    }
+
+    public function testCsvParsedAsFgetcsv($value='')
+    {
+        $str = <<<EOF
+"foo","foo bar","boo bar baz"
+  "foo"  , "foo bar" ,    "boo bar baz"
+EOF;
+        $stream = Stream::createFromString($str);
+        $records = iterator_to_array((new RFC4180Parser($stream))->getIterator(), false);
+        self::assertEquals(['foo', 'foo bar', 'boo bar baz'], $records[0]);
+        self::assertEquals(['foo  ', 'foo bar ', 'boo bar baz'], $records[1]);
     }
 }
