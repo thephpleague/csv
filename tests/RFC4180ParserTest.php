@@ -31,6 +31,7 @@ class RFC4180ParserTest extends TestCase
 {
     /**
      * @covers ::__construct
+     * @covers ::filterDocument
      */
     public function testConstructorThrowsTypeErrorWithUnknownDocument()
     {
@@ -40,6 +41,7 @@ class RFC4180ParserTest extends TestCase
 
     /**
      * @covers ::__construct
+     * @covers ::filterControl
      */
     public function testConstructorThrowExceptionWithInvalidDelimiter()
     {
@@ -49,6 +51,7 @@ class RFC4180ParserTest extends TestCase
 
     /**
      * @covers ::__construct
+     * @covers ::filterControl
      */
     public function testConstructorThrowExceptionWithInvalidEnclosure()
     {
@@ -59,6 +62,7 @@ class RFC4180ParserTest extends TestCase
     /**
      * @covers \League\Csv\Stream::fgets
      * @covers ::__construct
+     * @covers ::filterDocument
      * @covers ::getIterator
      * @covers ::extractFieldContent
      * @covers ::extractEnclosedFieldContent

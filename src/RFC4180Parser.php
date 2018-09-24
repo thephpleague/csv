@@ -75,26 +75,42 @@ final class RFC4180Parser implements IteratorAggregate
      */
     public function __construct($document, string $delimiter = ',', string $enclosure = '"')
     {
-        if (!$document instanceof Stream && !$document instanceof SplFileObject) {
-            throw new TypeError(sprintf(
-                'Expected a %s or an SplFileObject object, % given',
-                Stream::class,
-                is_object($document) ? get_class($document) : gettype($document)
-            ));
-        }
-
-        if (1 !== strlen($delimiter)) {
-            throw new Exception(sprintf('%s() expects delimiter to be a single character %s given', __METHOD__, $delimiter));
-        }
-
-        if (1 !== strlen($enclosure)) {
-            throw new Exception(sprintf('%s() expects enclosure to be a single character %s given', __METHOD__, $enclosure));
-        }
-
-        $this->document = $document;
-        $this->delimiter = $delimiter;
-        $this->enclosure = $enclosure;
+        $this->document = $this->filterDocument($document);
+        $this->delimiter = $this->filterControl($delimiter, 'delimiter');
+        $this->enclosure = $this->filterControl($enclosure, 'enclosure');
         $this->trim_mask = str_replace([$this->delimiter, $this->enclosure], '', " \t\0\x0B");
+    }
+
+    /**
+     * Filter the submitted document.
+     *
+     * @param SplFileObject|Stream $document
+     *
+     * @return SplFileObject|Stream
+     */
+    private function filterDocument($document)
+    {
+        if ($document instanceof Stream || $document instanceof SplFileObject) {
+            return $document;
+        }
+
+        throw new TypeError(sprintf(
+            'Expected a %s or an SplFileObject object, % given',
+            Stream::class,
+            is_object($document) ? get_class($document) : gettype($document)
+        ));
+    }
+
+    /**
+     * Filter the control characters.
+     */
+    private function filterControl(string $control, string $name): string
+    {
+        if (1 === strlen($control)) {
+            return $control;
+        }
+
+        throw new Exception(sprintf('Expected %s to be a single character %s given', $name, $control));
     }
 
     /**
