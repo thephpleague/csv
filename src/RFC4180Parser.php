@@ -95,22 +95,22 @@ final class RFC4180Parser implements IteratorAggregate
         }
 
         throw new TypeError(sprintf(
-            'Expected a %s or an SplFileObject object, % given',
+            'Expected a %s or an SplFileObject object, %s given',
             Stream::class,
             is_object($document) ? get_class($document) : gettype($document)
         ));
     }
 
     /**
-     * Filter the control characters.
+     * Filter a control character.
      */
-    private function filterControl(string $control, string $name): string
+    private function filterControl(string $value, string $name): string
     {
-        if (1 === strlen($control)) {
-            return $control;
+        if (1 === strlen($value)) {
+            return $value;
         }
 
-        throw new Exception(sprintf('Expected %s to be a single character %s given', $name, $control));
+        throw new Exception(sprintf('Expected %s to be a single character %s given', $name, $value));
     }
 
     /**
