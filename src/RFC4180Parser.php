@@ -69,6 +69,11 @@ final class RFC4180Parser implements IteratorAggregate
     private $trim_mask;
 
     /**
+     * @var string|bool
+     */
+    private $line = false;
+
+    /**
      * New instance.
      *
      * @param SplFileObject|Stream $document
@@ -129,14 +134,14 @@ final class RFC4180Parser implements IteratorAggregate
         $this->document->rewind();
         do {
             $record = [];
-            $line = $this->document->fgets();
+            $this->line = $this->document->fgets();
             do {
                 $method = 'extractFieldContent';
-                if (($line[0] ?? '') === $this->enclosure) {
+                if (($this->line[0] ?? '') === $this->enclosure) {
                     $method = 'extractEnclosedFieldContent';
                 }
-                $record[] = $this->$method($line);
-            } while (false !== $line);
+                $record[] = $this->$method();
+            } while (false !== $this->line);
 
             yield $record;
         } while ($this->document->valid());
@@ -148,20 +153,18 @@ final class RFC4180Parser implements IteratorAggregate
      * - Leading and trailing whitespaces must be removed.
      * - trailing line-breaks must be removed.
      *
-     * @param bool|string $line
-     *
      * @return null|string
      */
-    private function extractFieldContent(&$line)
+    private function extractFieldContent()
     {
-        if (in_array($line, self::FIELD_BREAKS, true)) {
-            $line = false;
+        if (in_array($this->line, self::FIELD_BREAKS, true)) {
+            $this->line = false;
 
             return null;
         }
 
-        list($content, $line) = explode($this->delimiter, $line, 2) + [1 => false];
-        if (false === $line) {
+        list($content, $this->line) = explode($this->delimiter, $this->line, 2) + [1 => false];
+        if (false === $this->line) {
             return trim(rtrim($content, "\r\n"), $this->trim_mask);
         }
 
@@ -176,42 +179,41 @@ final class RFC4180Parser implements IteratorAggregate
      * - Double enclosure sequence must be replaced by single enclosure character.
      * - Trailing line break must be removed if they are not part of the field content.
      * - Invalid field do not throw as per fgetcsv behavior.
-     *
-     * @param bool|string $line
      */
-    private function extractEnclosedFieldContent(&$line): string
+    private function extractEnclosedFieldContent(): string
     {
-        if (($line[0] ?? '') === $this->enclosure) {
-            $line = substr($line, 1);
+        if (($this->line[0] ?? '') === $this->enclosure) {
+            $this->line = substr($this->line, 1);
         }
 
         $content = '';
-        while (false !== $line) {
-            list($buffer, $line) = explode($this->enclosure, $line, 2) + [1 => false];
+        while (false !== $this->line) {
+            list($buffer, $remainder) = explode($this->enclosure, $this->line, 2) + [1 => false];
             $content .= $buffer;
-            if (false !== $line) {
+            if (false !== $remainder) {
+                $this->line = $remainder;
                 break;
             }
-            $line = $this->document->fgets();
+            $this->line = $this->document->fgets();
         }
 
-        if (in_array($line, self::FIELD_BREAKS, true)) {
-            $line = false;
+        if (in_array($this->line, self::FIELD_BREAKS, true)) {
+            $this->line = false;
 
             return rtrim($content, "\r\n");
         }
 
-        $char = $line[0] ?? '';
+        $char = $this->line[0] ?? '';
         if ($char === $this->delimiter) {
-            $line = substr($line, 1);
+            $this->line = substr($this->line, 1);
 
             return $content;
         }
 
         if ($char === $this->enclosure) {
-            return $content.$this->enclosure.$this->extractEnclosedFieldContent($line);
+            return $content.$this->enclosure.$this->extractEnclosedFieldContent();
         }
 
-        return $content.$this->extractFieldContent($line);
+        return $content.$this->extractFieldContent();
     }
 }
