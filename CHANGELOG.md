@@ -21,6 +21,7 @@ All Notable changes to `Csv` will be documented in this file
 - `XMLConverter` convert to string the record value to avoid PHP warning on `null` value
 - Internal `Stream::fwrite` improved
 - Internal `Stream::__destruct` no longer emit warning on invalid stream filter removal.
+- `Reader:getHeader` when the record is an empty line.
 
 ### Removed
 

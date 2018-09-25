@@ -228,6 +228,29 @@ EOF;
         iterator_to_array($csv);
     }
 
+
+    /**
+     * @covers ::getHeader
+     * @covers ::seekRow
+     * @covers ::setHeaderOffset
+     * @covers League\Csv\Exception
+     */
+    public function testHeaderThrowsExceptionOnEmptyLine()
+    {
+        self::expectException(Exception::class);
+        $str = <<<EOF
+foo,bar,baz
+
+
+1,2,3
+EOF;
+        $csv = Reader::createFromString($str);
+        $csv->setHeaderOffset(2);
+        $csv->getHeader();
+    }
+
+
+
     /**
      * @covers ::stripBOM
      * @covers ::removeBOM
