@@ -15,8 +15,8 @@
 namespace LeagueTest\Csv;
 
 use League\Csv\Exception;
+use League\Csv\Parser;
 use League\Csv\Reader;
-use League\Csv\RFC4180Parser;
 use League\Csv\Stream;
 use PHPUnit\Framework\TestCase;
 use SplTempFileObject;
@@ -25,45 +25,48 @@ use function iterator_to_array;
 
 /**
  * @group reader
- * @coversDefaultClass League\Csv\RFC4180Parser
+ * @coversDefaultClass League\Csv\Parser
  */
-class RFC4180ParserTest extends TestCase
+class ParserTest extends TestCase
 {
     /**
-     * @covers ::__construct
+     * @covers ::parse
      * @covers ::filterDocument
      */
     public function testConstructorThrowsTypeErrorWithUnknownDocument()
     {
         self::expectException(TypeError::class);
-        new RFC4180Parser([]);
+        foreach (Parser::parse([]) as $record) {
+        }
     }
 
     /**
-     * @covers ::__construct
+     * @covers ::parse
      * @covers ::filterControl
      */
     public function testConstructorThrowExceptionWithInvalidDelimiter()
     {
         self::expectException(Exception::class);
-        new RFC4180Parser(new SplTempFileObject(), 'toto');
+        foreach (Parser::parse(new SplTempFileObject(), 'toto') as $record) {
+        }
     }
 
     /**
-     * @covers ::__construct
+     * @covers ::parse
      * @covers ::filterControl
      */
     public function testConstructorThrowExceptionWithInvalidEnclosure()
     {
         self::expectException(Exception::class);
-        new RFC4180Parser(new SplTempFileObject(), ';', 'é');
+        foreach (Parser::parse(new SplTempFileObject(), ',', 'é') as $record) {
+        }
     }
 
     /**
      * @covers \League\Csv\Stream::fgets
-     * @covers ::__construct
+     * @covers ::parse
      * @covers ::filterDocument
-     * @covers ::getIterator
+     * @covers ::parse
      * @covers ::extractFieldContent
      * @covers ::extractEnclosedFieldContent
      */
@@ -82,15 +85,15 @@ EOF;
 MUST SELL!
 air, moon roof, loaded
 EOF;
-        $iterator = new RFC4180Parser(Stream::createFromString($source));
-        self::assertCount(5, $iterator);
-        $data = iterator_to_array($iterator->getIterator(), false);
+        $iterator = Parser::parse(Stream::createFromString($source));
+        $data = iterator_to_array($iterator, false);
+        self::assertCount(5, $data);
         self::assertSame($multiline, $data[4][3]);
     }
 
     /**
      * @covers \League\Csv\Stream::fgets
-     * @covers ::getIterator
+     * @covers ::parse
      * @covers ::extractFieldContent
      * @covers ::extractEnclosedFieldContent
      */
@@ -110,14 +113,13 @@ MUST SELL!
 air| moon roof| loaded
 EOF;
         $doc = Stream::createFromString($source);
-        $iterator = new RFC4180Parser($doc, '|', "'");
-        self::assertCount(5, $iterator);
-        $data = iterator_to_array($iterator->getIterator(), false);
+        $data = iterator_to_array(Parser::parse($doc, '|', "'"), false);
+        self::assertCount(5, $data);
         self::assertSame($multiline, $data[4][3]);
     }
 
     /**
-     * @covers ::getIterator
+     * @covers ::parse
      * @covers ::extractFieldContent
      * @covers ::extractEnclosedFieldContent
      */
@@ -132,10 +134,9 @@ EOF;
 
         $rsrc = new SplTempFileObject();
         $rsrc->fwrite($source);
-        $iterator = new RFC4180Parser($rsrc);
 
-        self::assertCount(4, $iterator);
-        $data = iterator_to_array($iterator->getIterator(), false);
+        $data = iterator_to_array(Parser::parse($rsrc), false);
+        self::assertCount(4, $data);
         self::assertSame(['parent name', 'child name', 'title'], $data[0]);
         self::assertSame([0 => null], $data[1]);
         self::assertSame([0 => null], $data[2]);
@@ -143,7 +144,7 @@ EOF;
     }
 
     /**
-     * @covers ::getIterator
+     * @covers ::parse
      * @covers ::extractFieldContent
      * @covers ::extractEnclosedFieldContent
      */
@@ -153,15 +154,14 @@ EOF;
 Year,Make,Model,,Description,   Price
 1997,  Ford  ,E350  ,ac, abs, moon,   3000.00
 EOF;
-        $iterator = new RFC4180Parser(Stream::createFromString($source));
-        self::assertCount(2, $iterator);
-        $data = iterator_to_array($iterator->getIterator(), false);
+        $data = iterator_to_array(Parser::parse(Stream::createFromString($source)), false);
+        self::assertCount(2, $data);
         self::assertSame(['Year', 'Make', 'Model', '', 'Description', '   Price'], $data[0]);
         self::assertSame(['1997', '  Ford  ', 'E350  ', 'ac', ' abs', ' moon', '   3000.00'], $data[1]);
     }
 
     /**
-     * @covers ::getIterator
+     * @covers ::parse
      * @covers ::extractFieldContent
      * @covers ::extractEnclosedFieldContent
      *
@@ -169,8 +169,8 @@ EOF;
      */
     public function testHandlingInvalidCSVwithEnclosure(string $string, array $record)
     {
-        $iterator = new RFC4180Parser(Stream::createFromString($string));
-        $data = iterator_to_array($iterator->getIterator(), false);
+        $iterator = Parser::parse(Stream::createFromString($string));
+        $data = iterator_to_array($iterator, false);
         self::assertSame($record, $data[0]);
     }
 
@@ -197,7 +197,7 @@ EOF;
     }
 
     /**
-     * @covers ::getIterator
+     * @covers ::parse
      * @covers ::extractFieldContent
      * @covers ::extractEnclosedFieldContent
      */
@@ -218,12 +218,12 @@ EOF;
         ];
 
         $stream = Stream::createFromString($str);
-        $records = new RFC4180Parser($stream, ';');
-        self::assertEquals($expected, iterator_to_array($records->getIterator(), false));
+        $records = Parser::parse($stream, ';');
+        self::assertEquals($expected, iterator_to_array($records, false));
     }
 
     /**
-     * @covers ::getIterator
+     * @covers ::parse
      * @covers ::extractFieldContent
      * @covers ::extractEnclosedFieldContent
      */
@@ -244,7 +244,7 @@ EOF;
   "foo"  , "foo bar" ,    "boo bar baz"
 EOF;
         $stream = Stream::createFromString($str);
-        $records = iterator_to_array((new RFC4180Parser($stream))->getIterator(), false);
+        $records = iterator_to_array((Parser::parse($stream)), false);
         self::assertEquals(['foo', 'foo bar', 'boo bar baz'], $records[0]);
         self::assertEquals(['foo  ', 'foo bar ', 'boo bar baz'], $records[1]);
     }

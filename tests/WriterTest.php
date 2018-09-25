@@ -261,7 +261,7 @@ class WriterTest extends TestCase
      */
     public function testRFC4180WriterMode(string $expected, array $record)
     {
-        $csv = Writer::createFromPath('php://temp');
+        $csv = Writer::createFromString();
         $csv->setNewline("\r\n");
         $csv->setEscape('');
         $csv->insertOne($record);
@@ -270,42 +270,48 @@ class WriterTest extends TestCase
 
     public function compliantRFC4180Provider()
     {
+        $eol = "\r\n";
+
         return [
             'bug #43225' => [
-                'expected' => '"a\""",bbb'."\r\n",
+                'expected' => '"a\""",bbb'.$eol,
                 'record' => ['a\\"', 'bbb'],
             ],
             'bug #74713' => [
-                'expected' => '"""@@"",""B"""'."\r\n",
+                'expected' => '"""@@"",""B"""'.$eol,
                 'record' => ['"@@","B"'],
             ],
             'bug #55413' => [
-                'expected' => 'A,"Some ""Stuff""",C'."\r\n",
+                'expected' => 'A,"Some ""Stuff""",C'.$eol,
                 'record' => ['A', 'Some "Stuff"', 'C'],
             ],
             'convert boolean' => [
-                'expected' => ',"Some ""Stuff""",C'."\r\n",
+                'expected' => ',"Some ""Stuff""",C'.$eol,
                 'record' => [false, 'Some "Stuff"', 'C'],
             ],
             'convert null value' => [
-                'expected' => ',"Some ""Stuff""",C'."\r\n",
+                'expected' => ',"Some ""Stuff""",C'.$eol,
                 'record' => [null, 'Some "Stuff"', 'C'],
             ],
             'bug #307' => [
-                'expected' => '"a text string \\",...'."\r\n",
+                'expected' => '"a text string \\",...'.$eol,
                 'record' => ['a text string \\', '...'],
             ],
             'line starting with space' => [
-                'expected' => '"  a",foo,bar'."\r\n",
+                'expected' => '"  a",foo,bar'.$eol,
                 'record' => ['  a', 'foo', 'bar'],
             ],
             'line ending with space' => [
-                'expected' => 'a,foo,"bar "'."\r\n",
+                'expected' => 'a,foo,"bar "'.$eol,
                 'record' => ['a', 'foo', 'bar '],
             ],
             'line containing space' => [
-                'expected' => 'a,"foo bar",bar'."\r\n",
+                'expected' => 'a,"foo bar",bar'.$eol,
                 'record' => ['a', 'foo bar', 'bar'],
+            ],
+            'multiline' => [
+                'expected' => "a,\"foo bar\",\"multiline\r\nfield\",bar$eol",
+                'record' => ['a', 'foo bar', "multiline\r\nfield", 'bar'],
             ],
         ];
     }

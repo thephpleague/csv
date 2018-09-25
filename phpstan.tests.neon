@@ -10,5 +10,5 @@ parameters:
 		- '#Parameter \#1 \$resource of class League\\Csv\\Stream constructor expects resource, string given.#'
 		- '#Parameter \#1 \$records of method League\\Csv\\CharsetConverter::convert\(\) expects array|Traversable, string given.#'
 		- '#Parameter \#2 \$delimiters of function League\\Csv\\delimiter_detect expects array<string>, array<int, array|string> given.#'
-		- '#Parameter \#1 \$document of class League\\Csv\\RFC4180Parser constructor expects League\\Csv\\Stream\|SplFileObject, array given.#'
+		- '#Parameter \#1 \$document of static method League\\Csv\\Parser::parse\(\) expects League\\Csv\\Stream\|SplFileObject, array given.#'
 	reportUnmatchedIgnoredErrors: false

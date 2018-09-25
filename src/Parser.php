@@ -16,7 +16,7 @@ declare(strict_types=1);
 
 namespace League\Csv;
 
-use IteratorAggregate;
+use Generator;
 use SplFileObject;
 use TypeError;
 use function explode;
@@ -32,16 +32,16 @@ use function strlen;
 use function substr;
 
 /**
- * A RFC4180 Compliant Parser in Pure PHP.
+ * A Polyfill to PHP's fgetcsv behavior with the empty string as the escape parameter.
  *
  * @see https://php.net/manual/en/function.fgetcsv.php
  * @see https://php.net/manual/en/function.fgets.php
  * @see https://tools.ietf.org/html/rfc4180
  * @see http://edoceo.com/utilitas/csv-file-format
  *
- * @internal used internally to produce RFC4180 compliant records
+ * @internal used internally to parse document without using the escape character
  */
-final class RFC4180Parser implements IteratorAggregate
+final class Parser
 {
     /**
      * @internal
@@ -51,39 +51,62 @@ final class RFC4180Parser implements IteratorAggregate
     /**
      * @var SplFileObject|Stream
      */
-    private $document;
+    private static $document;
 
     /**
      * @var string
      */
-    private $delimiter;
+    private static $delimiter;
 
     /**
      * @var string
      */
-    private $enclosure;
+    private static $enclosure;
 
     /**
      * @var string
      */
-    private $trim_mask;
+    private static $trim_mask;
 
     /**
      * @var string|bool
      */
-    private $line = false;
+    private static $line;
 
     /**
-     * New instance.
+     * Converts the document into a CSV record iterator.
+     *
+     * The returned record array is similar to the returned value of fgetcsv
+     *
+     * - If the line is empty the record will be an array with a single value equals to null
+     * - Otherwise the array contains strings.
      *
      * @param SplFileObject|Stream $document
      */
-    public function __construct($document, string $delimiter = ',', string $enclosure = '"')
+    public static function parse($document, string $delimiter = ',', string $enclosure = '"'): Generator
     {
-        $this->document = $this->filterDocument($document);
-        $this->delimiter = $this->filterControl($delimiter, 'delimiter');
-        $this->enclosure = $this->filterControl($enclosure, 'enclosure');
-        $this->trim_mask = str_replace([$this->delimiter, $this->enclosure], '', " \t\0\x0B");
+        self::$document = self::filterDocument($document);
+        self::$delimiter = self::filterControl($delimiter, 'delimiter');
+        self::$enclosure = self::filterControl($enclosure, 'enclosure');
+        self::$trim_mask = str_replace([self::$delimiter, self::$enclosure], '', " \t\0\x0B");
+        self::$document->setFlags(0);
+        self::$document->rewind();
+        while (self::$document->valid()) {
+            $record = [];
+            self::$line = self::$document->fgets();
+            do {
+                $method = 'extractFieldContent';
+                $buffer = ltrim(self::$line, self::$trim_mask);
+                if (($buffer[0] ?? '') === self::$enclosure) {
+                    $method = 'extractEnclosedFieldContent';
+                    self::$line = $buffer;
+                }
+
+                $record[] = self::$method();
+            } while (false !== self::$line);
+
+            yield $record;
+        }
     }
 
     /**
@@ -93,7 +116,7 @@ final class RFC4180Parser implements IteratorAggregate
      *
      * @return SplFileObject|Stream
      */
-    private function filterDocument($document)
+    private static function filterDocument($document)
     {
         if ($document instanceof Stream || $document instanceof SplFileObject) {
             return $document;
@@ -108,46 +131,16 @@ final class RFC4180Parser implements IteratorAggregate
 
     /**
      * Filter a control character.
+     *
+     * @throws Exception if the string is not a single byte character
      */
-    private function filterControl(string $value, string $name): string
+    private static function filterControl(string $value, string $name): string
     {
         if (1 === strlen($value)) {
             return $value;
         }
 
         throw new Exception(sprintf('Expected %s to be a single character %s given', $name, $value));
-    }
-
-    /**
-     * @inheritdoc
-     *
-     * Converts the stream into a CSV record iterator by extracting records one by one
-     *
-     * The returned record array is similar to the returned value of fgetcsv
-     *
-     * - If the line is empty the record will be an array with a single value equals to null
-     * - Otherwise the array contains strings.
-     */
-    public function getIterator()
-    {
-        $this->document->setFlags(0);
-        $this->document->rewind();
-        while ($this->document->valid()) {
-            $record = [];
-            $this->line = $this->document->fgets();
-            do {
-                $method = 'extractFieldContent';
-                $buffer = ltrim($this->line, $this->trim_mask);
-                if (($buffer[0] ?? '') === $this->enclosure) {
-                    $method = 'extractEnclosedFieldContent';
-                    $this->line = $buffer;
-                }
-
-                $record[] = $this->$method();
-            } while (false !== $this->line);
-
-            yield $record;
-        }
     }
 
     /**
@@ -158,16 +151,16 @@ final class RFC4180Parser implements IteratorAggregate
      *
      * @return null|string
      */
-    private function extractFieldContent()
+    private static function extractFieldContent()
     {
-        if (in_array($this->line, self::FIELD_BREAKS, true)) {
-            $this->line = false;
+        if (in_array(self::$line, self::FIELD_BREAKS, true)) {
+            self::$line = false;
 
             return null;
         }
 
-        list($content, $this->line) = explode($this->delimiter, $this->line, 2) + [1 => false];
-        if (false === $this->line) {
+        list($content, self::$line) = explode(self::$delimiter, self::$line, 2) + [1 => false];
+        if (false === self::$line) {
             return rtrim($content, "\r\n");
         }
 
@@ -181,43 +174,43 @@ final class RFC4180Parser implements IteratorAggregate
      * - Content inside enclosure must be preserved.
      * - Double enclosure sequence must be replaced by single enclosure character.
      * - Trailing line break must be removed if they are not part of the field content.
-     * - Invalid field do not throw as per fgetcsv behavior.
+     * - Invalid fields content are treated as per fgetcsv behavior.
      */
-    private function extractEnclosedFieldContent(): string
+    private static function extractEnclosedFieldContent(): string
     {
-        if (($this->line[0] ?? '') === $this->enclosure) {
-            $this->line = substr($this->line, 1);
+        if ((self::$line[0] ?? '') === self::$enclosure) {
+            self::$line = substr(self::$line, 1);
         }
 
         $content = '';
-        while (false !== $this->line) {
-            list($buffer, $remainder) = explode($this->enclosure, $this->line, 2) + [1 => false];
+        while (false !== self::$line) {
+            list($buffer, $remainder) = explode(self::$enclosure, self::$line, 2) + [1 => false];
             $content .= $buffer;
             if (false !== $remainder) {
-                $this->line = $remainder;
+                self::$line = $remainder;
                 break;
             }
-            $this->line = $this->document->fgets();
+            self::$line = self::$document->fgets();
         }
 
-        if (in_array($this->line, self::FIELD_BREAKS, true)) {
-            $this->line = false;
+        if (in_array(self::$line, self::FIELD_BREAKS, true)) {
+            self::$line = false;
 
             return rtrim($content, "\r\n");
         }
 
-        $char = $this->line[0] ?? '';
-        if ($this->delimiter === $char) {
-            $this->line = substr($this->line, 1);
+        $char = self::$line[0] ?? '';
+        if (self::$delimiter === $char) {
+            self::$line = substr(self::$line, 1);
 
             return $content;
         }
 
-        if ($this->enclosure === $char) {
-            return $content.$this->enclosure.$this->extractEnclosedFieldContent();
+        if (self::$enclosure === $char) {
+            return $content.self::$enclosure.self::extractEnclosedFieldContent();
         }
 
 
-        return $content.$this->extractFieldContent();
+        return $content.self::extractFieldContent();
     }
 }
