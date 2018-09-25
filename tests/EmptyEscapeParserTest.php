@@ -14,8 +14,8 @@
 
 namespace LeagueTest\Csv;
 
+use League\Csv\EmptyEscapeParser;
 use League\Csv\Exception;
-use League\Csv\Parser;
 use League\Csv\Reader;
 use League\Csv\Stream;
 use PHPUnit\Framework\TestCase;
@@ -25,9 +25,9 @@ use function iterator_to_array;
 
 /**
  * @group reader
- * @coversDefaultClass League\Csv\Parser
+ * @coversDefaultClass League\Csv\EmptyEscapeParser
  */
-class ParserTest extends TestCase
+class EmptyEscapeParserTest extends TestCase
 {
     /**
      * @covers ::parse
@@ -36,7 +36,7 @@ class ParserTest extends TestCase
     public function testConstructorThrowsTypeErrorWithUnknownDocument()
     {
         self::expectException(TypeError::class);
-        foreach (Parser::parse([]) as $record) {
+        foreach (EmptyEscapeParser::parse([]) as $record) {
         }
     }
 
@@ -47,7 +47,7 @@ class ParserTest extends TestCase
     public function testConstructorThrowExceptionWithInvalidDelimiter()
     {
         self::expectException(Exception::class);
-        foreach (Parser::parse(new SplTempFileObject(), 'toto') as $record) {
+        foreach (EmptyEscapeParser::parse(new SplTempFileObject(), 'toto') as $record) {
         }
     }
 
@@ -58,7 +58,7 @@ class ParserTest extends TestCase
     public function testConstructorThrowExceptionWithInvalidEnclosure()
     {
         self::expectException(Exception::class);
-        foreach (Parser::parse(new SplTempFileObject(), ',', 'é') as $record) {
+        foreach (EmptyEscapeParser::parse(new SplTempFileObject(), ',', 'é') as $record) {
         }
     }
 
@@ -85,7 +85,7 @@ EOF;
 MUST SELL!
 air, moon roof, loaded
 EOF;
-        $iterator = Parser::parse(Stream::createFromString($source));
+        $iterator = EmptyEscapeParser::parse(Stream::createFromString($source));
         $data = iterator_to_array($iterator, false);
         self::assertCount(5, $data);
         self::assertSame($multiline, $data[4][3]);
@@ -113,7 +113,7 @@ MUST SELL!
 air| moon roof| loaded
 EOF;
         $doc = Stream::createFromString($source);
-        $data = iterator_to_array(Parser::parse($doc, '|', "'"), false);
+        $data = iterator_to_array(EmptyEscapeParser::parse($doc, '|', "'"), false);
         self::assertCount(5, $data);
         self::assertSame($multiline, $data[4][3]);
     }
@@ -135,12 +135,16 @@ EOF;
         $rsrc = new SplTempFileObject();
         $rsrc->fwrite($source);
 
-        $data = iterator_to_array(Parser::parse($rsrc), false);
-        self::assertCount(4, $data);
-        self::assertSame(['parent name', 'child name', 'title'], $data[0]);
-        self::assertSame([0 => null], $data[1]);
-        self::assertSame([0 => null], $data[2]);
-        self::assertSame(['parentA', 'childA', 'titleA'], $data[3]);
+        $expected = [
+            ['parent name', 'child name', 'title'],
+            [null],
+            [null],
+            ['parentA', 'childA', 'titleA'],
+        ];
+
+        foreach (EmptyEscapeParser::parse($rsrc) as $offset => $record) {
+            self::assertSame($expected[$offset], $record);
+        }
     }
 
     /**
@@ -154,10 +158,16 @@ EOF;
 Year,Make,Model,,Description,   Price
 1997,  Ford  ,E350  ,ac, abs, moon,   3000.00
 EOF;
-        $data = iterator_to_array(Parser::parse(Stream::createFromString($source)), false);
-        self::assertCount(2, $data);
-        self::assertSame(['Year', 'Make', 'Model', '', 'Description', '   Price'], $data[0]);
-        self::assertSame(['1997', '  Ford  ', 'E350  ', 'ac', ' abs', ' moon', '   3000.00'], $data[1]);
+
+        $expected = [
+            ['Year', 'Make', 'Model', '', 'Description', '   Price'],
+            ['1997', '  Ford  ', 'E350  ', 'ac', ' abs', ' moon', '   3000.00'],
+        ];
+
+        $stream = Stream::createFromString($source);
+        foreach (EmptyEscapeParser::parse($stream) as $offset => $record) {
+            self::assertSame($expected[$offset], $record);
+        }
     }
 
     /**
@@ -167,11 +177,12 @@ EOF;
      *
      * @dataProvider invalidCsvRecordProvider
      */
-    public function testHandlingInvalidCSVwithEnclosure(string $string, array $record)
+    public function testHandlingInvalidCSVwithEnclosure(string $string, array $expected)
     {
-        $iterator = Parser::parse(Stream::createFromString($string));
-        $data = iterator_to_array($iterator, false);
-        self::assertSame($record, $data[0]);
+        $stream = Stream::createFromString($string);
+        foreach (EmptyEscapeParser::parse($stream) as $record) {
+            self::assertSame($expected, $record);
+        }
     }
 
     public function invalidCsvRecordProvider()
@@ -218,8 +229,10 @@ EOF;
         ];
 
         $stream = Stream::createFromString($str);
-        $records = Parser::parse($stream, ';');
-        self::assertEquals($expected, iterator_to_array($records, false));
+        $records = EmptyEscapeParser::parse($stream, ';');
+        foreach ($records as $offset => $record) {
+            self::assertSame($expected[$offset], $record);
+        }
     }
 
     /**
@@ -233,8 +246,7 @@ EOF;
         $csv = Reader::createFromString($str);
         $fgetcsv_records = iterator_to_array($csv);
         $csv->setEscape('');
-        $parser_records = iterator_to_array($csv);
-        self::assertEquals($fgetcsv_records, $parser_records);
+        self::assertEquals($fgetcsv_records, iterator_to_array($csv));
     }
 
     public function testCsvParsedAsFgetcsv($value='')
@@ -243,9 +255,14 @@ EOF;
 "foo","foo bar","boo bar baz"
   "foo"  , "foo bar" ,    "boo bar baz"
 EOF;
+        $expected = [
+            ['foo', 'foo bar', 'boo bar baz'],
+            ['foo  ', 'foo bar ', 'boo bar baz'],
+        ];
+
         $stream = Stream::createFromString($str);
-        $records = iterator_to_array((Parser::parse($stream)), false);
-        self::assertEquals(['foo', 'foo bar', 'boo bar baz'], $records[0]);
-        self::assertEquals(['foo  ', 'foo bar ', 'boo bar baz'], $records[1]);
+        foreach (EmptyEscapeParser::parse($stream) as $offset => $record) {
+            self::assertEquals($expected[$offset], $record);
+        }
     }
 }

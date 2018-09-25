@@ -41,7 +41,7 @@ use function substr;
  *
  * @internal used internally to parse document without using the escape character
  */
-final class Parser
+final class EmptyEscapeParser
 {
     /**
      * @internal
@@ -209,7 +209,6 @@ final class Parser
         if (self::$enclosure === $char) {
             return $content.self::$enclosure.self::extractEnclosedFieldContent();
         }
-
 
         return $content.self::extractFieldContent();
     }
