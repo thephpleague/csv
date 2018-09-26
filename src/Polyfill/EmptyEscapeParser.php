@@ -107,7 +107,9 @@ final class EmptyEscapeParser
                 $record[] = self::$method();
             } while (false !== self::$line);
 
-            yield $record;
+            if ([null] !== $record) {
+                yield $record;
+            }
         }
     }
 
