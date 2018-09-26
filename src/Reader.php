@@ -22,6 +22,7 @@ use Countable;
 use Iterator;
 use IteratorAggregate;
 use JsonSerializable;
+use League\Csv\Polyfill\EmptyEscapeParser;
 use SplFileObject;
 use TypeError;
 use const STREAM_FILTER_READ;

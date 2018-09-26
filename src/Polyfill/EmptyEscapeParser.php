@@ -14,9 +14,11 @@
 
 declare(strict_types=1);
 
-namespace League\Csv;
+namespace League\Csv\Polyfill;
 
 use Generator;
+use League\Csv\Exception;
+use League\Csv\Stream;
 use SplFileObject;
 use TypeError;
 use function explode;

@@ -12,10 +12,10 @@
  * file that was distributed with this source code.
  */
 
-namespace LeagueTest\Csv;
+namespace LeagueTest\Csv\Polyfill;
 
-use League\Csv\EmptyEscapeParser;
 use League\Csv\Exception;
+use League\Csv\Polyfill\EmptyEscapeParser;
 use League\Csv\Reader;
 use League\Csv\Stream;
 use PHPUnit\Framework\TestCase;
@@ -25,7 +25,7 @@ use function iterator_to_array;
 
 /**
  * @group reader
- * @coversDefaultClass League\Csv\EmptyEscapeParser
+ * @coversDefaultClass League\Csv\Polyfill\EmptyEscapeParser
  */
 class EmptyEscapeParserTest extends TestCase
 {
