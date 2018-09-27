@@ -158,7 +158,7 @@ class Reader extends AbstractCsv implements Countable, IteratorAggregate, JsonSe
     {
         foreach ($this->getDocument() as $index => $record) {
             if ($offset === $index) {
-                return [null] === $record ? false : $record;
+                return $record;
             }
         }
 

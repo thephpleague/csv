@@ -32,14 +32,16 @@ use function str_replace;
 use function substr;
 
 /**
- * A Polyfill to PHP's fgetcsv behavior with the empty string as the escape parameter.
+ * A Polyfill to PHP's SplFileObject behavior when reading a CSV document
+ * with the SplFileObject::READ_CSV and SplFileObject::SKIP_EMPTY flags on
+ * and the empty string as the escape parameter.
  *
  * @see https://php.net/manual/en/function.fgetcsv.php
  * @see https://php.net/manual/en/function.fgets.php
  * @see https://tools.ietf.org/html/rfc4180
  * @see http://edoceo.com/utilitas/csv-file-format
  *
- * @internal used internally to parse document without using the escape character
+ * @internal used internally to parse a CSV document without using the escape character
  */
 final class EmptyEscapeParser
 {
@@ -78,7 +80,7 @@ final class EmptyEscapeParser
      *
      * The returned record array is similar to the returned value of fgetcsv
      *
-     * - If the line is empty the record will be an array with a single value equals to null
+     * - If the line is empty the record is skipped
      * - Otherwise the array contains strings.
      *
      * @param SplFileObject|Stream $document
@@ -104,7 +106,9 @@ final class EmptyEscapeParser
                 $record[] = self::$method();
             } while (false !== self::$line);
 
-            yield $record;
+            if ([null] !== $record) {
+                yield $record;
+            }
         }
     }
 

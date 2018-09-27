@@ -115,8 +115,6 @@ EOF;
 
         $expected = [
             ['parent name', 'child name', 'title'],
-            [null],
-            [null],
             ['parentA', 'childA', 'titleA'],
         ];
 
