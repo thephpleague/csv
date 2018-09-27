@@ -36,6 +36,21 @@ use function substr;
  * with the SplFileObject::READ_CSV and SplFileObject::SKIP_EMPTY flags on
  * and the empty string as the escape parameter.
  *
+ * <code>
+ * $file = new SplFileObject('/path/to/file.csv', 'r');
+ * $file->setFlags(SplFileObject::READ_CSV | SplFileObject::READ_AHEAD | SplFileObject::SKIP_EMPTY);
+ * $file->setCsvControl($delimiter, $enclosure, ''); //this does not currently in any PHP stable release
+ * </code>
+ *
+ * instead you can do this
+ *
+ * <code>
+ * $file = new SplFileObject('/path/to/file.csv', 'r');
+ * $file->setFlags(SplFileObject::READ_CSV | SplFileObject::READ_AHEAD | SplFileObject::SKIP_EMPTY);
+ * $file->setCsvControl($delimiter, $enclosure, $escape);
+ * EmptyEscapeParser::parse($file); //parsing will be done while ignoring the escape character value.
+ * </code>
+ *
  * @see https://php.net/manual/en/function.fgetcsv.php
  * @see https://php.net/manual/en/function.fgets.php
  * @see https://tools.ietf.org/html/rfc4180
@@ -78,12 +93,11 @@ final class EmptyEscapeParser
     /**
      * Converts the document into a CSV record iterator.
      *
-     * The returned record array is similar to the returned value of fgetcsv
-     *
-     * - If the line is empty the record is skipped
-     * - Otherwise the array contains strings.
+     * Each record array contains strings elements.
      *
      * @param SplFileObject|Stream $document
+     *
+     * @return Generator|array[]
      */
     public static function parse($document): Generator
     {
@@ -93,19 +107,7 @@ final class EmptyEscapeParser
         self::$document->setFlags(0);
         self::$document->rewind();
         while (self::$document->valid()) {
-            $record = [];
-            self::$line = self::$document->fgets();
-            do {
-                $method = 'extractFieldContent';
-                $buffer = ltrim(self::$line, self::$trim_mask);
-                if (($buffer[0] ?? '') === self::$enclosure) {
-                    $method = 'extractEnclosedFieldContent';
-                    self::$line = $buffer;
-                }
-
-                $record[] = self::$method();
-            } while (false !== self::$line);
-
+            $record = self::extractRecord();
             if ([null] !== $record) {
                 yield $record;
             }
@@ -113,7 +115,7 @@ final class EmptyEscapeParser
     }
 
     /**
-     * Filter the submitted document.
+     * Filters the submitted document.
      *
      * @param SplFileObject|Stream $document
      *
@@ -133,7 +135,28 @@ final class EmptyEscapeParser
     }
 
     /**
-     * Extract field without enclosure as per RFC4180.
+     * Extracts a record form the CSV document.
+     */
+    private static function extractRecord(): array
+    {
+        $record = [];
+        self::$line = self::$document->fgets();
+        do {
+            $method = 'extractFieldContent';
+            $buffer = ltrim(self::$line, self::$trim_mask);
+            if (($buffer[0] ?? '') === self::$enclosure) {
+                $method = 'extractEnclosedFieldContent';
+                self::$line = $buffer;
+            }
+
+            $record[] = self::$method();
+        } while (false !== self::$line);
+
+        return $record;
+    }
+
+    /**
+     * Extracts the content from a field without enclosure.
      *
      * - Leading and trailing whitespaces must be removed.
      * - trailing line-breaks must be removed.
@@ -157,13 +180,13 @@ final class EmptyEscapeParser
     }
 
     /**
-     * Extract field with enclosure as per RFC4180.
+     * Extracts the content from a field with enclosure.
      *
      * - Field content can spread on multiple document lines.
      * - Content inside enclosure must be preserved.
      * - Double enclosure sequence must be replaced by single enclosure character.
      * - Trailing line break must be removed if they are not part of the field content.
-     * - Invalid fields content are treated as per fgetcsv behavior.
+     * - Invalid field content are treated as per fgetcsv behavior.
      */
     private static function extractEnclosedFieldContent(): string
     {
