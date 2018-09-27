@@ -14,7 +14,6 @@
 
 namespace LeagueTest\Csv\Polyfill;
 
-use League\Csv\Exception;
 use League\Csv\Polyfill\EmptyEscapeParser;
 use League\Csv\Reader;
 use League\Csv\Stream;
@@ -37,28 +36,6 @@ class EmptyEscapeParserTest extends TestCase
     {
         self::expectException(TypeError::class);
         foreach (EmptyEscapeParser::parse([]) as $record) {
-        }
-    }
-
-    /**
-     * @covers ::parse
-     * @covers ::filterControl
-     */
-    public function testConstructorThrowExceptionWithInvalidDelimiter()
-    {
-        self::expectException(Exception::class);
-        foreach (EmptyEscapeParser::parse(new SplTempFileObject(), 'toto') as $record) {
-        }
-    }
-
-    /**
-     * @covers ::parse
-     * @covers ::filterControl
-     */
-    public function testConstructorThrowExceptionWithInvalidEnclosure()
-    {
-        self::expectException(Exception::class);
-        foreach (EmptyEscapeParser::parse(new SplTempFileObject(), ',', 'é') as $record) {
         }
     }
 
@@ -113,7 +90,8 @@ MUST SELL!
 air| moon roof| loaded
 EOF;
         $doc = Stream::createFromString($source);
-        $data = iterator_to_array(EmptyEscapeParser::parse($doc, '|', "'"), false);
+        $doc->setCsvControl('|', "'");
+        $data = iterator_to_array(EmptyEscapeParser::parse($doc), false);
         self::assertCount(5, $data);
         self::assertSame($multiline, $data[4][3]);
     }
@@ -229,7 +207,8 @@ EOF;
         ];
 
         $stream = Stream::createFromString($str);
-        $records = EmptyEscapeParser::parse($stream, ';');
+        $stream->setCsvControl(';', '"');
+        $records = EmptyEscapeParser::parse($stream);
         foreach ($records as $offset => $record) {
             self::assertSame($expected[$offset], $record);
         }

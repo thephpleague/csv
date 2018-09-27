@@ -170,8 +170,10 @@ class Reader extends AbstractCsv implements Countable, IteratorAggregate, JsonSe
      */
     protected function getDocument(): Iterator
     {
-        if ('' === $this->escape && PHP_VERSION_ID < 70400) {
-            return EmptyEscapeParser::parse($this->document, $this->delimiter, $this->enclosure);
+        if ('' === $this->escape) {
+            $this->document->setCsvControl($this->delimiter, $this->enclosure);
+
+            return EmptyEscapeParser::parse($this->document);
         }
 
         $this->document->setFlags(SplFileObject::READ_CSV | SplFileObject::READ_AHEAD | SplFileObject::SKIP_EMPTY);

@@ -17,7 +17,6 @@ declare(strict_types=1);
 namespace League\Csv\Polyfill;
 
 use Generator;
-use League\Csv\Exception;
 use League\Csv\Stream;
 use SplFileObject;
 use TypeError;
@@ -30,7 +29,6 @@ use function ltrim;
 use function rtrim;
 use function sprintf;
 use function str_replace;
-use function strlen;
 use function substr;
 
 /**
@@ -85,11 +83,10 @@ final class EmptyEscapeParser
      *
      * @param SplFileObject|Stream $document
      */
-    public static function parse($document, string $delimiter = ',', string $enclosure = '"'): Generator
+    public static function parse($document): Generator
     {
         self::$document = self::filterDocument($document);
-        self::$delimiter = self::filterControl($delimiter, 'delimiter');
-        self::$enclosure = self::filterControl($enclosure, 'enclosure');
+        list(self::$delimiter, self::$enclosure, ) = self::$document->getCsvControl();
         self::$trim_mask = str_replace([self::$delimiter, self::$enclosure], '', " \t\0\x0B");
         self::$document->setFlags(0);
         self::$document->rewind();
@@ -129,20 +126,6 @@ final class EmptyEscapeParser
             Stream::class,
             is_object($document) ? get_class($document) : gettype($document)
         ));
-    }
-
-    /**
-     * Filter a control character.
-     *
-     * @throws Exception if the string is not a single byte character
-     */
-    private static function filterControl(string $value, string $name): string
-    {
-        if (1 === strlen($value)) {
-            return $value;
-        }
-
-        throw new Exception(sprintf('Expected %s to be a single character %s given', $name, $value));
     }
 
     /**
