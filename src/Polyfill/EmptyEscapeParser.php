@@ -32,24 +32,8 @@ use function str_replace;
 use function substr;
 
 /**
- * A Polyfill to PHP's SplFileObject behavior when reading a CSV document
- * with the SplFileObject::READ_CSV and SplFileObject::SKIP_EMPTY flags on
- * and the empty string as the escape parameter.
- *
- * <code>
- * $file = new SplFileObject('/path/to/file.csv', 'r');
- * $file->setFlags(SplFileObject::READ_CSV | SplFileObject::READ_AHEAD | SplFileObject::SKIP_EMPTY);
- * $file->setCsvControl($delimiter, $enclosure, ''); //this does not currently in any PHP stable release
- * </code>
- *
- * instead you can do this
- *
- * <code>
- * $file = new SplFileObject('/path/to/file.csv', 'r');
- * $file->setFlags(SplFileObject::READ_CSV | SplFileObject::READ_AHEAD | SplFileObject::SKIP_EMPTY);
- * $file->setCsvControl($delimiter, $enclosure, $escape);
- * EmptyEscapeParser::parse($file); //parsing will be done while ignoring the escape character value.
- * </code>
+ * A Polyfill to PHP's SplFileObject to enable parsing the CSV document
+ * without taking into account the escape character.
  *
  * @see https://php.net/manual/en/function.fgetcsv.php
  * @see https://php.net/manual/en/function.fgets.php
@@ -93,6 +77,27 @@ final class EmptyEscapeParser
     /**
      * Converts the document into a CSV record iterator.
      *
+     * In PH7.4+ you'll be able to do
+     *
+     * <code>
+     * $file = new SplFileObject('/path/to/file.csv', 'r');
+     * $file->setFlags(SplFileObject::READ_CSV | SplFileObject::READ_AHEAD | SplFileObject::SKIP_EMPTY);
+     * $file->setCsvControl($delimiter, $enclosure, '');
+     * foreach ($file as $record) {
+     *    //$record escape mechanism is blocked by the empty string
+     * }
+     * </code>
+     *
+     * In PHP7.3- you can do
+     *
+     * <code>
+     * $file = new SplFileObject('/path/to/file.csv', 'r');
+     * $it = EmptyEscapeParser::parse($file); //parsing will be done while ignoring the escape character value.
+     * foreach ($it as $record) {
+     *    //fgetcsv is not directly use hence the escape char is not taken into account
+     * }
+     * </code>
+     *
      * Each record array contains strings elements.
      *
      * @param SplFileObject|Stream $document
@@ -108,7 +113,7 @@ final class EmptyEscapeParser
         self::$document->rewind();
         while (self::$document->valid()) {
             $record = self::extractRecord();
-            if ([null] !== $record) {
+            if (!in_array(null, $record, true)) {
                 yield $record;
             }
         }
@@ -159,10 +164,11 @@ final class EmptyEscapeParser
     /**
      * Extracts the content from a field without enclosure.
      *
-     * - Leading and trailing whitespaces must be removed.
-     * - trailing line-breaks must be removed.
+     * - Field content can not spread on multiple document lines.
+     * - Content must be preserved.
+     * - Trailing line-breaks must be removed.
      *
-     * @return null|string
+     * @return string|null
      */
     private static function extractFieldContent()
     {
@@ -184,12 +190,14 @@ final class EmptyEscapeParser
      * Extracts the content from a field with enclosure.
      *
      * - Field content can spread on multiple document lines.
-     * - Content inside enclosure must be preserved.
+     * - Content between consecutive enclosure characters must be preserved.
      * - Double enclosure sequence must be replaced by single enclosure character.
      * - Trailing line break must be removed if they are not part of the field content.
-     * - Invalid field content are treated as per fgetcsv behavior.
+     * - Invalid field content is treated as per fgetcsv behavior.
+     *
+     * @return string|null
      */
-    private static function extractEnclosedFieldContent(): string
+    private static function extractEnclosedFieldContent()
     {
         if ((self::$line[0] ?? '') === self::$enclosure) {
             self::$line = substr(self::$line, 1);
@@ -199,10 +207,22 @@ final class EmptyEscapeParser
         while (false !== self::$line) {
             list($buffer, $remainder) = explode(self::$enclosure, self::$line, 2) + [1 => false];
             $content .= $buffer;
+
             if (false !== $remainder) {
                 self::$line = $remainder;
                 break;
             }
+
+            if (!self::$document->valid() && $content === $buffer) {
+                if ($content !== rtrim($content, "\r\n")) {
+                    self::$line = false;
+
+                    return $content;
+                }
+
+                return null;
+            }
+
             self::$line = self::$document->fgets();
         }
 

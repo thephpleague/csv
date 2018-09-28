@@ -150,43 +150,6 @@ EOF;
      * @covers ::parse
      * @covers ::extractFieldContent
      * @covers ::extractEnclosedFieldContent
-     *
-     * @dataProvider invalidCsvRecordProvider
-     */
-    public function testHandlingInvalidCSVwithEnclosure(string $string, array $expected)
-    {
-        $stream = Stream::createFromString($string);
-        foreach (EmptyEscapeParser::parse($stream) as $record) {
-            self::assertSame($expected, $record);
-        }
-    }
-
-    public function invalidCsvRecordProvider()
-    {
-        return [
-            'enclosure inside a non-unclosed field' => [
-                'string' => 'Ye"ar,Make",Model,Description,Price',
-                'record' => ['Ye"ar', 'Make"', 'Model', 'Description', 'Price'],
-            ],
-            'enclosure at the end of a non-unclosed field' => [
-                'string' => 'Year,Make,Model,Description,Price"',
-                'record' => ['Year', 'Make', 'Model', 'Description', 'Price"'],
-            ],
-            'enclosure at the end of a record field' => [
-                'string' => 'Year,Make,Model,Description,"Price',
-                'record' => ['Year', 'Make', 'Model', 'Description', 'Price'],
-            ],
-            'enclosure started but not ended' => [
-                'string' => 'Year,Make,Model,Description,"Pri"ce',
-                'record' => ['Year', 'Make', 'Model', 'Description', 'Price'],
-            ],
-        ];
-    }
-
-    /**
-     * @covers ::parse
-     * @covers ::extractFieldContent
-     * @covers ::extractEnclosedFieldContent
      */
     public function testDoubleEnclosure()
     {
@@ -210,6 +173,59 @@ EOF;
         foreach ($records as $offset => $record) {
             self::assertSame($expected[$offset], $record);
         }
+    }
+
+    /***********************************************************
+     * TEST FOR MATCHING FGETCSV BEHAVIOR WITH INVALID CSV LINES
+     ************************************************************/
+
+    /**
+     * @covers ::parse
+     * @covers ::extractFieldContent
+     * @covers ::extractEnclosedFieldContent
+     *
+     * @dataProvider invalidCsvRecordProvider
+     */
+    public function testHandlingInvalidCSVLikeFgetcsv(string $string, array $expected)
+    {
+        $records = EmptyEscapeParser::parse(Stream::createFromString($string));
+        self::assertSame($expected, iterator_to_array($records)[0]);
+    }
+
+    public function invalidCsvRecordProvider()
+    {
+        return [
+            'enclosure inside a non-unclosed field' => [
+                'string' => 'Ye"ar,Make",Model,Description,Price',
+                'record' => ['Ye"ar', 'Make"', 'Model', 'Description', 'Price'],
+            ],
+            'enclosure at the end of a non-unclosed field' => [
+                'string' => 'Year,Make,Model,Description,Price"',
+                'record' => ['Year', 'Make', 'Model', 'Description', 'Price"'],
+            ],
+            'enclosure started but not ended' => [
+                'string' => 'Year,Make,Model,Description,"Pri"ce',
+                'record' => ['Year', 'Make', 'Model', 'Description', 'Price'],
+            ],
+            'enclosure ended with a non close enclosure field but with a end line' => [
+                'string' => 'Year,Make,Model,Description,"Price'."\r\n",
+                'record' => ['Year', 'Make', 'Model', 'Description', 'Price'."\r\n"],
+            ],
+        ];
+    }
+
+    public function testHandlingInvalidCSVLikeFgetcsvWithMissingEndEnclosureAndEOLAtTheEndOfTheDocument()
+    {
+        $it = EmptyEscapeParser::parse(Stream::createFromString('Year,Make,Model,Description,"Price'));
+        $records = iterator_to_array($it, false);
+        self::assertSame([], $records);
+    }
+
+    public function testHandlingInvalidCSVLikeFgetcsvWithMissingEndEnclosureAtTheEndOfTheDocumentMultipleLine()
+    {
+        $it = EmptyEscapeParser::parse(Stream::createFromString('Year,Make,Model,Description,"Price'."\r\nfoo,bar"));
+        $records = iterator_to_array($it, false);
+        self::assertSame("Price\r\nfoo,bar", $records[0][4]);
     }
 
     /**
