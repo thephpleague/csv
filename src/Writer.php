@@ -153,7 +153,7 @@ class Writer extends AbstractCsv
     public function insertOne(array $record): int
     {
         $method = 'addRecord';
-        if ('' === $this->escape && PHP_VERSION_ID < 70400) {
+        if ('' === $this->escape) {
             $method = 'addRFC4180CompliantRecord';
         }
 

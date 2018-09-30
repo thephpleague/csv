@@ -213,17 +213,21 @@ final class EmptyEscapeParser
                 break;
             }
 
-            if (!self::$document->valid() && $content === $buffer) {
-                if ($content !== rtrim($content, "\r\n")) {
-                    self::$line = false;
-
-                    return $content;
-                }
-
-                return null;
+            if (self::$document->valid()) {
+                self::$line = self::$document->fgets();
+                continue;
             }
 
-            self::$line = self::$document->fgets();
+            self::$line = false;
+            if ($content !== $buffer) {
+                break;
+            }
+
+            if ($content !== rtrim($content, "\r\n")) {
+                return $content;
+            }
+
+            return null;
         }
 
         if (in_array(self::$line, self::FIELD_BREAKS, true)) {

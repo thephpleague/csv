@@ -43,7 +43,7 @@ class EmptyEscapeParserTest extends TestCase
      * @covers \League\Csv\Stream::fgets
      * @covers ::parse
      * @covers ::filterDocument
-     * @covers ::parse
+     * @covers ::extractRecord
      * @covers ::extractFieldContent
      * @covers ::extractEnclosedFieldContent
      */
@@ -71,6 +71,7 @@ EOF;
     /**
      * @covers \League\Csv\Stream::fgets
      * @covers ::parse
+     * @covers ::extractRecord
      * @covers ::extractFieldContent
      * @covers ::extractEnclosedFieldContent
      */
@@ -98,6 +99,7 @@ EOF;
 
     /**
      * @covers ::parse
+     * @covers ::extractRecord
      * @covers ::extractFieldContent
      * @covers ::extractEnclosedFieldContent
      */
@@ -125,6 +127,7 @@ EOF;
 
     /**
      * @covers ::parse
+     * @covers ::extractRecord
      * @covers ::extractFieldContent
      * @covers ::extractEnclosedFieldContent
      */
@@ -148,6 +151,7 @@ EOF;
 
     /**
      * @covers ::parse
+     * @covers ::extractRecord
      * @covers ::extractFieldContent
      * @covers ::extractEnclosedFieldContent
      */
@@ -180,82 +184,56 @@ EOF;
      ************************************************************/
 
     /**
+     * @test
+     *
      * @covers ::parse
+     * @covers ::extractRecord
      * @covers ::extractFieldContent
      * @covers ::extractEnclosedFieldContent
      *
      * @dataProvider invalidCsvRecordProvider
      */
-    public function testHandlingInvalidCSVLikeFgetcsv(string $string, array $expected)
+    public function it_comparse_polyfill_result_against_php_result($string)
     {
-        $records = EmptyEscapeParser::parse(Stream::createFromString($string));
-        self::assertSame($expected, iterator_to_array($records)[0]);
+        $csv = Reader::createFromString($string);
+        $php_parser_result = iterator_to_array($csv);
+        $csv->setEscape('');
+        $polyfill_result = iterator_to_array($csv);
+        self::assertEquals($php_parser_result, $polyfill_result);
     }
 
     public function invalidCsvRecordProvider()
-    {
-        return [
-            'enclosure inside a non-unclosed field' => [
-                'string' => 'Ye"ar,Make",Model,Description,Price',
-                'record' => ['Ye"ar', 'Make"', 'Model', 'Description', 'Price'],
-            ],
-            'enclosure at the end of a non-unclosed field' => [
-                'string' => 'Year,Make,Model,Description,Price"',
-                'record' => ['Year', 'Make', 'Model', 'Description', 'Price"'],
-            ],
-            'enclosure started but not ended' => [
-                'string' => 'Year,Make,Model,Description,"Pri"ce',
-                'record' => ['Year', 'Make', 'Model', 'Description', 'Price'],
-            ],
-            'enclosure ended with a non close enclosure field but with a end line' => [
-                'string' => 'Year,Make,Model,Description,"Price'."\r\n",
-                'record' => ['Year', 'Make', 'Model', 'Description', 'Price'."\r\n"],
-            ],
-        ];
-    }
-
-    public function testHandlingInvalidCSVLikeFgetcsvWithMissingEndEnclosureAndEOLAtTheEndOfTheDocument()
-    {
-        $it = EmptyEscapeParser::parse(Stream::createFromString('Year,Make,Model,Description,"Price'));
-        $records = iterator_to_array($it, false);
-        self::assertSame([], $records);
-    }
-
-    public function testHandlingInvalidCSVLikeFgetcsvWithMissingEndEnclosureAtTheEndOfTheDocumentMultipleLine()
-    {
-        $it = EmptyEscapeParser::parse(Stream::createFromString('Year,Make,Model,Description,"Price'."\r\nfoo,bar"));
-        $records = iterator_to_array($it, false);
-        self::assertSame("Price\r\nfoo,bar", $records[0][4]);
-    }
-
-    /**
-     * @covers ::parse
-     * @covers ::extractFieldContent
-     * @covers ::extractEnclosedFieldContent
-     */
-    public function testInvalidCsvParseAsFgetcsv()
-    {
-        $str = '"foo"bar",foo"bar'."\r\n".'"foo"'."\r\n".'baz,bar"';
-        $csv = Reader::createFromString($str);
-        $fgetcsv_records = iterator_to_array($csv);
-        $csv->setEscape('');
-        self::assertEquals($fgetcsv_records, iterator_to_array($csv));
-    }
-
-    public function testCsvParsedAsFgetcsv($value='')
     {
         $str = <<<EOF
 "foo","foo bar","boo bar baz"
   "foo"  , "foo bar" ,    "boo bar baz"
 EOF;
-        $expected = [
-            ['foo', 'foo bar', 'boo bar baz'],
-            ['foo  ', 'foo bar ', 'boo bar baz'],
-        ];
 
-        $stream = Stream::createFromString($str);
-        foreach (EmptyEscapeParser::parse($stream) as $offset => $record) {
-            self::assertEquals($expected[$offset], $record);
-        }
+        return [
+            'enclosure inside a non-unclosed field' => [
+                'Ye"ar,Make",Model,Description,Price',
+            ],
+            'enclosure at the end of a non-unclosed field' => [
+                'Year,Make,Model,Description,Price"',
+            ],
+            'enclosure started but not ended' => [
+                'Year,Make,Model,Description,"Pri"ce',
+            ],
+            'missing end enclosure at the end of the document' => [
+                'Year,Make,Model,Description,"Price',
+            ],
+            'enclosure ended with a non close enclosure field but with a end line' => [
+                'Year,Make,Model,Description,"Price'."\r\n",
+            ],
+            'missing end enclosure at the en of document with multiline field' => [
+                'Year,Make,Model,Description,"Price'."\r\nfoo,bar",
+            ],
+            'test invalid csv parsing' => [
+                '"foo"bar",foo"bar'."\r\n".'"foo"'."\r\n".'baz,bar"',
+            ],
+            'empty string between fields' => [
+                $str,
+            ],
+        ];
     }
 }
