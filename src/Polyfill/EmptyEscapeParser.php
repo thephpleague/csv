@@ -232,6 +232,9 @@ final class EmptyEscapeParser
 
         if (in_array(self::$line, self::FIELD_BREAKS, true)) {
             self::$line = false;
+            if (!self::$document->valid()) {
+                return $content;
+            }
 
             return rtrim($content, "\r\n");
         }

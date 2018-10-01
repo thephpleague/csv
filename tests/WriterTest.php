@@ -270,7 +270,7 @@ class WriterTest extends TestCase
         }
     }
 
-    public function compliantRFC4180Provider()
+    public function compliantRFC4180Provider(): array
     {
         return [
             'bug #43225' => [

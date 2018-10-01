@@ -393,7 +393,7 @@ class ResultSetTest extends TestCase
         }
     }
 
-    public function fetchPairsDataProvider()
+    public function fetchPairsDataProvider(): array
     {
         return [
             'default values' => [

@@ -122,7 +122,7 @@ class RFC4180FieldTest extends TestCase
         self::assertFalse($filter->onCreate());
     }
 
-    public function wrongParamProvider()
+    public function wrongParamProvider(): array
     {
         return [
             'empty array' => [[

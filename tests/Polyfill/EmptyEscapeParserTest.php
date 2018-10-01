@@ -179,13 +179,7 @@ EOF;
         }
     }
 
-    /***********************************************************
-     * TEST FOR MATCHING FGETCSV BEHAVIOR WITH INVALID CSV LINES
-     ************************************************************/
-
     /**
-     * @test
-     *
      * @covers ::parse
      * @covers ::extractRecord
      * @covers ::extractFieldContent
@@ -193,7 +187,7 @@ EOF;
      *
      * @dataProvider invalidCsvRecordProvider
      */
-    public function it_parses_like_splfileobject_with_invalid_csv($string)
+    public function testParsesLikeSplFileObjectInvalidCsv($string)
     {
         $spl = new SplTempFileObject();
         $spl->fwrite($string);
@@ -204,7 +198,7 @@ EOF;
         self::assertEquals($spl_result, $polyfill_result);
     }
 
-    public function invalidCsvRecordProvider()
+    public function invalidCsvRecordProvider(): array
     {
         $str = <<<EOF
 "foo","foo bar","boo bar baz"
@@ -227,7 +221,7 @@ EOF;
             'enclosure ended with a non close enclosure field but with a end line' => [
                 'Year,Make,Model,Description,"Price'."\r\n",
             ],
-            'missing end enclosure at the en of document with multiline field' => [
+            'missing end enclosure at the end of document with multiline field' => [
                 'Year,Make,Model,Description,"Price'."\r\nfoo,bar",
             ],
             'test invalid csv parsing' => [

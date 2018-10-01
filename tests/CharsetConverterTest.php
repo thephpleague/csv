@@ -184,7 +184,7 @@ class CharsetConverterTest extends TestCase
         self::assertSame($expected, $res[0]);
     }
 
-    public function converterProvider()
+    public function converterProvider(): array
     {
         return [
             'only numeric values' => [

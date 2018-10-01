@@ -35,7 +35,7 @@ class ByteSequenceTest extends TestCase
         self::assertSame($expected, bom_match($str));
     }
 
-    public function ByteSequenceMatchProvider()
+    public function ByteSequenceMatchProvider(): array
     {
         return [
             'empty string' => [
