@@ -193,13 +193,15 @@ EOF;
      *
      * @dataProvider invalidCsvRecordProvider
      */
-    public function it_comparse_polyfill_result_against_php_result($string)
+    public function it_parses_like_splfileobject_with_invalid_csv($string)
     {
-        $csv = Reader::createFromString($string);
-        $php_parser_result = iterator_to_array($csv);
+        $spl = new SplTempFileObject();
+        $spl->fwrite($string);
+        $csv = Reader::createFromFileObject($spl);
+        $spl_result = iterator_to_array($csv);
         $csv->setEscape('');
         $polyfill_result = iterator_to_array($csv);
-        self::assertEquals($php_parser_result, $polyfill_result);
+        self::assertEquals($spl_result, $polyfill_result);
     }
 
     public function invalidCsvRecordProvider()
