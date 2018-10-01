@@ -103,7 +103,7 @@ EOF;
      * @covers ::extractFieldContent
      * @covers ::extractEnclosedFieldContent
      */
-    public function testKeepEmptyLines()
+    public function testRemoveEmptyLines()
     {
         $source = <<<EOF
 "parent name","child name","title"

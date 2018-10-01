@@ -207,9 +207,8 @@ final class EmptyEscapeParser
         while (false !== self::$line) {
             list($buffer, $remainder) = explode(self::$enclosure, self::$line, 2) + [1 => false];
             $content .= $buffer;
-
-            if (false !== $remainder) {
-                self::$line = $remainder;
+            self::$line = $remainder;
+            if (false !== self::$line) {
                 break;
             }
 
@@ -218,16 +217,9 @@ final class EmptyEscapeParser
                 continue;
             }
 
-            self::$line = false;
-            if ($content !== $buffer) {
-                break;
+            if ($buffer === rtrim($content, "\r\n")) {
+                return null;
             }
-
-            if ($content !== rtrim($content, "\r\n")) {
-                return $content;
-            }
-
-            return null;
         }
 
         if (in_array(self::$line, self::FIELD_BREAKS, true)) {
@@ -240,13 +232,13 @@ final class EmptyEscapeParser
         }
 
         $char = self::$line[0] ?? '';
-        if (self::$delimiter === $char) {
+        if ($char === self::$delimiter) {
             self::$line = substr(self::$line, 1);
 
             return $content;
         }
 
-        if (self::$enclosure === $char) {
+        if ($char === self::$enclosure) {
             return $content.self::$enclosure.self::extractEnclosedFieldContent();
         }
 
