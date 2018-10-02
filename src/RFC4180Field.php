@@ -112,7 +112,7 @@ class RFC4180Field extends php_user_filter
             throw new InvalidArgumentException('The sequence contains a character that enforces enclosure or is a CSV control character or is the empty string.');
         }
 
-        $mapper = function ($value) use ($whitespace_replace) {
+        $mapper = static function ($value) use ($whitespace_replace) {
             if (is_string($value)) {
                 return str_replace(' ', $whitespace_replace, $value);
             }
@@ -120,7 +120,7 @@ class RFC4180Field extends php_user_filter
             return $value;
         };
 
-        $formatter = function (array $record) use ($mapper): array {
+        $formatter = static function (array $record) use ($mapper): array {
             return array_map($mapper, $record);
         };
 

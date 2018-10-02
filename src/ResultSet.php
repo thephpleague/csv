@@ -144,11 +144,11 @@ class ResultSet implements Countable, IteratorAggregate, JsonSerializable
     public function fetchColumn($index = 0): Generator
     {
         $offset = $this->getColumnIndex($index, __METHOD__.'() expects the column index to be a valid string or integer, `%s` given');
-        $filter = function (array $record) use ($offset): bool {
+        $filter = static function (array $record) use ($offset): bool {
             return isset($record[$offset]);
         };
 
-        $select = function (array $record) use ($offset): string {
+        $select = static function (array $record) use ($offset): string {
             return $record[$offset];
         };
 
@@ -228,11 +228,11 @@ class ResultSet implements Countable, IteratorAggregate, JsonSerializable
         $offset = $this->getColumnIndex($offset_index, __METHOD__.'() expects the offset index value to be a valid string or integer, `%s` given');
         $value = $this->getColumnIndex($value_index, __METHOD__.'() expects the value index value to be a valid string or integer, `%s` given');
 
-        $filter = function (array $record) use ($offset): bool {
+        $filter = static function (array $record) use ($offset): bool {
             return isset($record[$offset]);
         };
 
-        $select = function (array $record) use ($offset, $value): array {
+        $select = static function (array $record) use ($offset, $value): array {
             return [$record[$offset], $record[$value] ?? null];
         };
 

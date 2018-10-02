@@ -97,7 +97,7 @@ class EncloseField extends php_user_filter
             throw new InvalidArgumentException('The sequence must contain at least one character to force enclosure');
         }
 
-        $formatter = function (array $record) use ($sequence) {
+        $formatter = static function (array $record) use ($sequence) {
             foreach ($record as &$value) {
                 $value = $sequence.$value;
             }

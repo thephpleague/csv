@@ -60,13 +60,13 @@ namespace League\Csv {
      */
     function delimiter_detect(Reader $csv, array $delimiters, int $limit = 1): array
     {
-        $found = array_unique(array_filter($delimiters, function (string $value): bool {
+        $found = array_unique(array_filter($delimiters, static function (string $value): bool {
             return 1 == strlen($value);
         }));
         $stmt = (new Statement())->limit($limit)->where(function (array $record): bool {
             return count($record) > 1;
         });
-        $reducer = function (array $result, string $delimiter) use ($csv, $stmt): array {
+        $reducer = static function (array $result, string $delimiter) use ($csv, $stmt): array {
             $result[$delimiter] = count(iterator_to_array($stmt->process($csv->setDelimiter($delimiter)), false), COUNT_RECURSIVE);
 
             return $result;

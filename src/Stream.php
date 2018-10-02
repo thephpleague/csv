@@ -146,7 +146,7 @@ class Stream implements SeekableIterator
      */
     public function __destruct()
     {
-        $walker = function ($filter): bool {
+        $walker = static function ($filter): bool {
             return @stream_filter_remove($filter);
         };
 

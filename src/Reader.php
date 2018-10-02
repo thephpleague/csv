@@ -264,7 +264,7 @@ class Reader extends AbstractCsv implements Countable, IteratorAggregate, JsonSe
     public function getRecords(array $header = []): Iterator
     {
         $header = $this->computeHeader($header);
-        $normalized = function ($record): bool {
+        $normalized = static function ($record): bool {
             return is_array($record) && $record != [null];
         };
         $bom = $this->getInputBOM();
@@ -314,7 +314,7 @@ class Reader extends AbstractCsv implements Countable, IteratorAggregate, JsonSe
         }
 
         $field_count = count($header);
-        $mapper = function (array $record) use ($header, $field_count): array {
+        $mapper = static function (array $record) use ($header, $field_count): array {
             if (count($record) != $field_count) {
                 $record = array_slice(array_pad($record, $field_count, null), 0, $field_count);
             }
