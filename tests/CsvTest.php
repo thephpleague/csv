@@ -20,7 +20,6 @@ use League\Csv\Writer;
 use PHPUnit\Framework\TestCase;
 use SplTempFileObject;
 use const PHP_EOL;
-use const PHP_VERSION;
 use const STREAM_FILTER_READ;
 use const STREAM_FILTER_WRITE;
 use function chr;
@@ -30,7 +29,6 @@ use function League\Csv\is_iterable as CSVIsiterable;
 use function strtolower;
 use function tmpfile;
 use function unlink;
-use function version_compare;
 
 /**
  * @group csv
@@ -402,24 +400,5 @@ EOF;
         self::assertFalse(CSVIsiterable(1));
         self::assertFalse(CSVIsiterable((object) ['foo']));
         self::assertFalse(CSVIsiterable(Writer::createFromString('')));
-    }
-
-    /**
-     * @covers \League\Csv\is_iterable
-     */
-    public function testIsIterablePolyFill()
-    {
-        if (!version_compare(PHP_VERSION, '7.1.0', '<')) {
-            self::markTestSkipped(sprintf('%s test PHP7.0 Polyfill for is_iterable', __METHOD__));
-        }
-
-        self::assertTrue(is_iterable(['foo']));
-        self::assertTrue(is_iterable(Reader::createFromString('')));
-        self::assertTrue(is_iterable((function () {
-            yield 1;
-        })()));
-        self::assertFalse(is_iterable(1));
-        self::assertFalse(is_iterable((object) ['foo']));
-        self::assertFalse(is_iterable(Writer::createFromString('')));
     }
 }

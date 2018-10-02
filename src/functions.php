@@ -106,6 +106,9 @@ namespace {
     use League\Csv;
 
     if (PHP_VERSION_ID < 70100 && !function_exists('\is_iterable')) {
+        /**
+         * @codeCoverageIgnore
+         */
         function is_iterable($iterable)
         {
             return Csv\is_iterable($iterable);
