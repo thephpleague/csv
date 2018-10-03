@@ -34,7 +34,6 @@ use function fputcsv;
 use function fread;
 use function fseek;
 use function fwrite;
-use function get_class;
 use function get_resource_type;
 use function gettype;
 use function is_resource;
@@ -164,7 +163,7 @@ class Stream implements SeekableIterator
      */
     public function __clone()
     {
-        throw new Exception(sprintf('An object of class %s cannot be cloned', get_class($this)));
+        throw new Exception(sprintf('An object of class %s cannot be cloned', static::class));
     }
 
     /**

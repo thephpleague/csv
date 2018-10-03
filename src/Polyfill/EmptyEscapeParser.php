@@ -134,7 +134,7 @@ final class EmptyEscapeParser
 
         throw new TypeError(sprintf(
             '%s::parse expects parameter 1 to be a %s or a SplFileObject object, %s given',
-            static::class,
+            self::class,
             Stream::class,
             is_object($document) ? get_class($document) : gettype($document)
         ));

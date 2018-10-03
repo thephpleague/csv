@@ -336,7 +336,7 @@ class Reader extends AbstractCsv implements Countable, IteratorAggregate, JsonSe
 
         $bom_length = mb_strlen($bom);
         $mapper = function (array $record, int $index) use ($bom_length): array {
-            if (0 != $index) {
+            if (0 !== $index) {
                 return $record;
             }
 

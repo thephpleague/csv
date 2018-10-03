@@ -63,7 +63,7 @@ namespace League\Csv {
         $found = array_unique(array_filter($delimiters, static function (string $value): bool {
             return 1 == strlen($value);
         }));
-        $stmt = (new Statement())->limit($limit)->where(function (array $record): bool {
+        $stmt = (new Statement())->limit($limit)->where(static function (array $record): bool {
             return count($record) > 1;
         });
         $reducer = static function (array $result, string $delimiter) use ($csv, $stmt): array {

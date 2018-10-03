@@ -22,7 +22,6 @@ use const FILTER_FLAG_STRIP_HIGH;
 use const FILTER_FLAG_STRIP_LOW;
 use const FILTER_SANITIZE_STRING;
 use function filter_var;
-use function get_class;
 use function mb_strlen;
 use function rawurlencode;
 use function sprintf;
@@ -124,7 +123,7 @@ abstract class AbstractCsv implements ByteSequence
      */
     public function __clone()
     {
-        throw new Exception(sprintf('An object of class %s cannot be cloned', get_class($this)));
+        throw new Exception(sprintf('An object of class %s cannot be cloned', static::class));
     }
 
     /**
