@@ -1,20 +1,19 @@
-$(function() {
-    $('.versions').change(function (e) {
-        location.href = $(this).find('option:selected').data('url');
-    });
-});
+(() => {
+  const uri = new URL(location.href);
 
-(function (w) {
-  var d = w.document,
-      headerList = d.querySelector('main').querySelectorAll("h2[id]"),
-      uri = location.href.split('#', 2).pop();
+  document.querySelector('.versions').addEventListener('change', function() {
+    uri.hash = '';
+    uri.pathname = this.options[this.options.selectedIndex].dataset.url;
+    location.href = uri.toString();
+  }, false);
 
-  for (var i = 0, header, link; header = headerList[i]; ++i) {
-    link = d.createElement("a");
+  document.querySelectorAll("main h2[id]").forEach((header) => {
+    uri.hash = header.id;
+    let link = document.createElement("a");
     link.className = "header-permalink";
     link.title = "Permalink";
-    link.href = uri + "#" + header.id;
+    link.href = uri.toString();
     link.innerHTML = "&#182;";
     header.appendChild(link);
-  }
-})(window);
+  });
+})();

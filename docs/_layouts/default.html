@@ -4,6 +4,10 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    {% if site.data.project.description %}
+        <meta name="description" content="{{ site.data.project.description }}">
+    {% endif %}
+
     {% assign version = page.url | remove_first: "/" | split: "/" | first %}
 
     {% if version == '' or version == 'upgrading' %}
@@ -16,10 +20,6 @@
         <title>{{ site.data.project.title }} - {{ site.data.project.tagline }}</title>
     {% else %}
         <title>{{ page.title }} - {{ site.data.project.title }}</title>
-    {% endif %}
-
-    {% if site.data.project.description %}
-        <meta name="description" content="{{ site.data.project.description }}">
     {% endif %}
 
     {% if site.data.images.favicon %}
@@ -117,9 +117,6 @@
     <span>&copy; Copyright <a href="//thephpleague.com">The League of Extraordinary Packages</a>.</span>
     <span>Site design by <a href="//reinink.ca">Jonathan Reinink</a>.</span>
 </footer>
-
-<script src="//cdnjs.cloudflare.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
-<script src="//theme.thephpleague.com/js/scripts.js"></script>
-<script src="/custom.js"></script>
+<script src="/custom.js?1"></script>
 </body>
 </html>
