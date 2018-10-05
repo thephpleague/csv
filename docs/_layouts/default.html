@@ -36,7 +36,7 @@
         <link rel="apple-touch-icon-precomposed" href="//theme.thephpleague.com/img/apple-touch-icon-precomposed.png">
     {% endif %}
     <link rel="stylesheet" href="//theme.thephpleague.com/css/all.css?2">
-    <link rel="stylesheet" href="/custom.css?15">
+    <link rel="stylesheet" href="/custom.css?16">
 {% if site.data.project.google_analytics_tracking_id %}
     <script async src="https://www.googletagmanager.com/gtag/js?id={{  site.data.project.google_analytics_tracking_id }}"></script>
     <script>
@@ -49,25 +49,26 @@
 </head>
 <body>
 <header>
-    <a class="logo" href="/">
-        {% if site.data.images.logo %}
-            <span class="icon">
-                <img src="{{ site.data.images.logo }}" width="50" height="40" alt="{{ site.data.project.title }} - {{ site.data.project.tagline }}">
-            </span>
-        {% endif %}
-        <span class="name">{{ site.data.project.title }}</span>
-        <span class="tagline">{{ site.data.project.tagline }}</span>
-    </a>
-    <div class="tool">
-    <label><span>Version:</span>
-    <select class="versions">
-        {% if upgrading == true %}<option>choose</option>{% endif %}
-        {% for v in site.data.menu.version %}
-            <option data-url="/{{ v[0] }}/" {% if version == v[0] and upgrading == false %}selected="selected"{% endif %}>{{ v[0] }}</option>
-        {% endfor %}
-    </select>
-    </label>
-</div>
+    <div class="header-content">
+        <a class="logo" href="/">
+            {% if site.data.images.logo %}
+                <span class="icon">
+                    <img src="{{ site.data.images.logo }}" width="50" height="40" alt="{{ site.data.project.title }} - {{ site.data.project.tagline }}">
+                </span>
+            {% endif %}
+            <span class="name">{{ site.data.project.title }}</span>
+        </a>
+        <div class="tool">
+            <label><span>Version:</span>
+            <select class="versions">
+                {% if upgrading == true %}<option>choose</option>{% endif %}
+                {% for v in site.data.menu.version %}
+                    <option data-url="/{{ v[0] }}/" {% if version == v[0] and upgrading == false %}selected="selected"{% endif %}>{{ v[0] }}</option>
+                {% endfor %}
+            </select>
+            </label>
+        </div>
+    </div>
 </header>
 
 
@@ -92,6 +93,7 @@
 
         {% if upgrading == false %}
             {% for section in site.data.menu.version[version] %}
+            <div class="menu-section">
                 <h2>{{ section[0] }}</h2>
                 <ul>
                     {% for link in section[1] %}
@@ -100,6 +102,7 @@
                         </li>
                     {% endfor %}
                 </ul>
+            </div>
             {% endfor %}
         {% else %}
             {% for section in site.data.menu.upgrading %}
@@ -133,7 +136,7 @@
 
 <footer>
     <span>&copy; Copyright <a href="//thephpleague.com">The League of Extraordinary Packages</a>.</span>
-    <span>Site design by <a href="//reinink.ca">Jonathan Reinink</a>.</span>
+    <span>Site design by <a href="//reinink.ca">Jonathan Reinink</a> and <a href="//nyamsprod.com">Ignace Nyamagana Butera</a>.</span>
 </footer>
 <script src="/custom.js?2"></script>
 </body>

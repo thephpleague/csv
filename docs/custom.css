@@ -1,21 +1,55 @@
 header {
     max-width: none;
     width: 100%;
+    padding:0;
+    margin:0;
 }
 
 @media screen and (min-width: 550px) {
+    html {
+        background:#f4f4f4;
+    }
+
+    footer {
+        border-top:1px solid #c7c7c7;
+        background:#fff;
+        max-width: none;
+        text-align:center;
+        color:#a1a1a1;
+    }
+
+    footer span a {
+        color:orange;
+    }
+
     header {
         position:fixed;
+        border-bottom:1px solid #c7c7c7;
         height:4.5em;
-        background:#19242f;
-        z-index:8;
+        background:#fff;
+        z-index:1;
     }
+
     main {
-        background: #ffffff;
-        padding-top:4.5em;
+        background: none;
+        padding-top:4em;
+    }
+
+    main menu {
+        border-right: 1px dashed #d7d7d7;
+    }
+
+    main menu .menu-section {
+        border-bottom:1px dashed #d7d7d7;
+        padding-bottom:1em;
+    }
+
+    main menu .menu-section:last-of-type {
+        border-bottom:none;
     }
 
     main menu h2 {
+        margin-top:1.5em;
         color:#2b3d50;
         font-size:1em;
         font-weight: bold;
@@ -81,30 +115,45 @@ blockquote {
     padding:0 10px;
 }
 
+header .tool {
+    display:none;
+}
+
 /** --------------- select menu --------- */
 
-.tool {
-    display:none;
-    width:160px;
-    margin:0;
-    padding:0;
-    position:absolute;
-    top:1em;
-    right:5px;
-    z-index: 10;
-}
-
-.tool span {
-    font-family: "Museo Sans 500";
-    color: #69bbdc;
-    font-size: 12px;
-    line-height: 100%;
-    text-transform: uppercase;
-}
-
 @media screen and (min-width: 550px) {
-    .tool {
+
+    header .header-content {
+        box-sizing: border-box;
+        max-width:1192px;
+        margin:0 auto;
+        padding:1em;
+    }
+
+    header .header-content:after {
+        content: "";
+        display: table;
+        clear: both;
+    }
+
+    header .logo {
+        float:left;
+        text-align:right;
+    }
+
+    header .tool {
         display:block;
+        float:right;
+        margin:0;
+        padding:0;
+    }
+
+    header .tool span {
+        font-family: "Museo Sans 500";
+        color: #69bbdc;
+        font-size: 12px;
+        line-height: 100%;
+        text-transform: uppercase;
     }
 
     .versions-small {
@@ -113,8 +162,13 @@ blockquote {
 }
 
 @media screen and (min-width: 1200px) {
-    .tool {
-        left: 1000px;
+    header .header-content {
+        width:1192px;
+    }
+    main {
+        margin-left:auto;
+        margin-right:auto;
+        width:1192px;
     }
 }
 
