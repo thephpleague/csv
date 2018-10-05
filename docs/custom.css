@@ -7,11 +7,11 @@ header {
 
 @media screen and (min-width: 550px) {
     html {
-        background:#f4f4f4;
+        background:#f2f7fc;
     }
 
     footer {
-        border-top:1px solid #c7c7c7;
+        border-top:1px solid #cfe4f9;
         background:#fff;
         max-width: none;
         text-align:center;
@@ -19,12 +19,12 @@ header {
     }
 
     footer span a {
-        color:orange;
+        color:#169090;
     }
 
     header {
         position:fixed;
-        border-bottom:1px solid #c7c7c7;
+        border-bottom:1px solid #cfe4f9;
         height:4.5em;
         background:#fff;
         z-index:1;
@@ -36,11 +36,11 @@ header {
     }
 
     main menu {
-        border-right: 1px dashed #d7d7d7;
+        border-right: 1px dashed #cfe4f9;
     }
 
     main menu .menu-section {
-        border-bottom:1px dashed #d7d7d7;
+        border-bottom:1px dashed #cfe4f9;
         padding-bottom:1em;
     }
 
