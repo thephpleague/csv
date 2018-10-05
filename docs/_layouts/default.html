@@ -10,8 +10,10 @@
 
     {% assign version = page.url | remove_first: "/" | split: "/" | first %}
 
+    {% assign upgrading = false %}
     {% if version == '' or version == 'upgrading' %}
         {% assign version = site.data.project.releases.current.version %}
+        {% assign upgrading = true %}
     {% endif %}
 
     {% capture version_home %}/{{ version }}/{% endcapture %}
@@ -34,7 +36,7 @@
         <link rel="apple-touch-icon-precomposed" href="//theme.thephpleague.com/img/apple-touch-icon-precomposed.png">
     {% endif %}
     <link rel="stylesheet" href="//theme.thephpleague.com/css/all.css?2">
-    <link rel="stylesheet" href="/custom.css?13">
+    <link rel="stylesheet" href="/custom.css?14">
 {% if site.data.project.google_analytics_tracking_id %}
     <script async src="https://www.googletagmanager.com/gtag/js?id={{  site.data.project.google_analytics_tracking_id }}"></script>
     <script>
@@ -62,8 +64,9 @@
 <div class="tool">
 <label><span>Version:</span>
 <select class="versions">
+    {% if upgrading == true %}<option>choose</option>{% endif %}
     {% for v in site.data.menu.version %}
-        <option data-url="/{{ v[0] }}/" {% if version == v[0] %}selected="selected"{% endif %}>{{ v[0] }}</option>
+        <option data-url="/{{ v[0] }}/" {% if version == v[0] and upgrading == false %}selected="selected"{% endif %}>{{ v[0] }}</option>
     {% endfor %}
 </select>
 </label>
@@ -77,27 +80,40 @@
 
 <main>
     <menu>
-        {% for section in site.data.menu.version[version] %}
-            <h2>{{ section[0] }}</h2>
+        <div class="versions-small">
+        <h2>Versions</h2>
             <ul>
-                {% for link in section[1] %}
-                    <li {% if page.url == link[1] %}class="selected"{% endif %}>
-                        <a href="{{ link[1] }}">{{ link[0] }}</a>
-                    </li>
-                {% endfor %}
-            </ul>
+        {% for v in site.data.menu.version %}
+                <li {% if version == v[0] and upgrading == false %}class="selected"{% endif %}>
+                    <a href="/{{ v[0] }}/">{{ v[0] }}</a>
+                </li>
         {% endfor %}
+            </ul>
+        </div>
 
-        {% for section in site.data.menu.upgrading %}
-            <h2>{{ section[0] }}</h2>
-            <ul>
-                {% for link in section[1] %}
-                    <li {% if page.url == link[1] %}class="selected"{% endif %}>
-                        <a href="{{ link[1] }}">{{ link[0] }}</a>
-                    </li>
-                {% endfor %}
-            </ul>
-        {% endfor %}
+        {% if upgrading == false %}
+            {% for section in site.data.menu.version[version] %}
+                <h2>{{ section[0] }}</h2>
+                <ul>
+                    {% for link in section[1] %}
+                        <li {% if page.url == link[1] %}class="selected"{% endif %}>
+                            <a href="{{ link[1] }}">{{ link[0] }}</a>
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% endfor %}
+        {% else %}
+            {% for section in site.data.menu.upgrading %}
+                <h2>{{ section[0] }}</h2>
+                <ul>
+                    {% for link in section[1] %}
+                        <li {% if page.url == link[1] %}class="selected"{% endif %}>
+                            <a href="{{ link[1] }}">{{ link[0] }}</a>
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% endfor %}
+        {% endif %}
     </menu>
     <article>
     {% if version == site.data.project.releases.next.version %}
@@ -120,6 +136,6 @@
     <span>&copy; Copyright <a href="//thephpleague.com">The League of Extraordinary Packages</a>.</span>
     <span>Site design by <a href="//reinink.ca">Jonathan Reinink</a>.</span>
 </footer>
-<script src="/custom.js?1"></script>
+<script src="/custom.js?2"></script>
 </body>
 </html>

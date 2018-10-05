@@ -3,6 +3,9 @@ menu .documentation {
 }
 
 @media screen and (max-width: 549px) {
+    header {
+        padding: 20px 10px 25px 10px;
+    }
     menu {
         text-align: center;
     }
@@ -31,7 +34,8 @@ blockquote {
 /** --------------- select menu --------- */
 
 .tool {
-    width:225px;
+    display:none;
+    width:300px;
     margin:15px auto;
     padding:0 45px;
 }
@@ -44,19 +48,22 @@ blockquote {
     text-transform: uppercase;
 }
 
-
 @media screen and (min-width: 550px) {
     .tool {
+        display:block;
         margin: 15px 0 0 30px;
         position:absolute;
         top:0;
         right: 5px;
     }
+    .versions-small {
+        display:none;
+    }
 }
 
 @media screen and (min-width: 1200px) {
     .tool {
-        left: 985px;
+        left: 980px;
     }
 }
 

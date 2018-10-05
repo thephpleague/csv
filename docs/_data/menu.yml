@@ -3,6 +3,8 @@ version:
         Getting Started:
             Overview: '/9.0/'
             Installation: '/9.0/installation/'
+            Upgrading from 8.x: '/9.0/upgrading/'
+            Changelog: '/upgrading/changelog/'
         Connections Settings:
             Overview: '/9.0/connections/'
             Document Loading: '/9.0/connections/instantiation/'
@@ -32,6 +34,8 @@ version:
         Getting Started:
             Overview: '/8.0/'
             Installation: '/8.0/installation/'
+            Upgrading from 7.x: '/8.0/upgrading/'
+            Changelog: '/upgrading/changelog/'
         The API:
             Instantiation: '/8.0/instantiation/'
             CSV Properties: '/8.0/properties/'
@@ -46,6 +50,8 @@ version:
         Getting Started:
             Overview: '/7.0/'
             Installation: '/7.0/installation/'
+            Upgrading from 6.x: '/7.0/upgrading/'
+            Changelog: '/upgrading/changelog/'
         The API:
             Instantiation: '/7.0/instantiation/'
             CSV Properties: '/7.0/properties/'
@@ -57,10 +63,9 @@ version:
             Stream Filters: '/7.0/filtering/'
             BOM Handling: '/7.0/bom/'
 upgrading:
-    'Upgrading Guide':
-        Introduction: '/upgrading/'
-        Changelog: '/upgrading/changelog/'
-        8.x to 9.x: '/upgrading/9.0/'
-        7.x to 8.x: '/upgrading/8.0/'
-        6.x to 7.x: '/upgrading/7.0/'
-        5.x to 6.x: '/upgrading/6.0/'
+    'Upgrading guide':
+        Release Notes: '/upgrading/'
+        From 8.x to 9.x: '/9.0/upgrading/'
+        From 7.x to 8.x: '/8.0/upgrading/'
+        From 6.x to 7.x: '/7.0/upgrading/'
+        From 5.x to 6.x: '/upgrading/6.0/'

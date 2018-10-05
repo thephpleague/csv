@@ -1,6 +1,7 @@
 ---
 layout: default
 title: Upgrading from 6.x to 7.x
+redirect_from: /upgrading/7.0/
 ---
 
 # Upgrading from 6.x to 7.x

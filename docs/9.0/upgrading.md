@@ -1,9 +1,8 @@
 ---
 layout: default
 title: Upgrading from 8.x to 9.x
+redirect_from: /upgrading/9.0/
 ---
-
-<!--p class="message-notice">This is the documentation for the upcoming <code>version 9.0</code>. This is a work in progress.</p-->
 
 # Upgrading from 8.x to 9.x
 

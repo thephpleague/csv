@@ -1,6 +1,7 @@
 ---
 layout: default
 title: Upgrading from 7.x to 8.x
+redirect_from: /upgrading/8.0/
 ---
 
 # Upgrading from 7.x to 8.x
