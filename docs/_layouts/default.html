@@ -58,19 +58,18 @@
         <span class="name">{{ site.data.project.title }}</span>
         <span class="tagline">{{ site.data.project.tagline }}</span>
     </a>
-
+    <div class="tool">
+    <label><span>Version:</span>
+    <select class="versions">
+        {% if upgrading == true %}<option>choose</option>{% endif %}
+        {% for v in site.data.menu.version %}
+            <option data-url="/{{ v[0] }}/" {% if version == v[0] and upgrading == false %}selected="selected"{% endif %}>{{ v[0] }}</option>
+        {% endfor %}
+    </select>
+    </label>
+</div>
 </header>
 
-<div class="tool">
-<label><span>Version:</span>
-<select class="versions">
-    {% if upgrading == true %}<option>choose</option>{% endif %}
-    {% for v in site.data.menu.version %}
-        <option data-url="/{{ v[0] }}/" {% if version == v[0] and upgrading == false %}selected="selected"{% endif %}>{{ v[0] }}</option>
-    {% endfor %}
-</select>
-</label>
-</div>
 
 <input type="checkbox" id="menu">
 <label for="menu" onclick>

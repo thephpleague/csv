@@ -4,7 +4,7 @@ version:
             Overview: '/9.0/'
             Installation: '/9.0/installation/'
             Upgrading from 8.x: '/9.0/upgrading/'
-            Changelog: '/upgrading/changelog/'
+            Changelog: '/upgrading/'
         Connections Settings:
             Overview: '/9.0/connections/'
             Document Loading: '/9.0/connections/instantiation/'
@@ -35,7 +35,7 @@ version:
             Overview: '/8.0/'
             Installation: '/8.0/installation/'
             Upgrading from 7.x: '/8.0/upgrading/'
-            Changelog: '/upgrading/changelog/'
+            Changelog: '/upgrading/'
         The API:
             Instantiation: '/8.0/instantiation/'
             CSV Properties: '/8.0/properties/'
@@ -51,7 +51,7 @@ version:
             Overview: '/7.0/'
             Installation: '/7.0/installation/'
             Upgrading from 6.x: '/7.0/upgrading/'
-            Changelog: '/upgrading/changelog/'
+            Changelog: '/upgrading/'
         The API:
             Instantiation: '/7.0/instantiation/'
             CSV Properties: '/7.0/properties/'

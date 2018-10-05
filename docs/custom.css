@@ -1,3 +1,20 @@
+header {
+    max-width: none;
+    width: 100%;
+}
+
+@media screen and (min-width: 550px) {
+    header {
+        position:fixed;
+        height:4.5em;
+        background:#19242f;
+        z-index:8;
+    }
+    main {
+        padding-top:4.5em;
+    }
+}
+
 menu .documentation {
     margin: 15px 0 0 50px;
 }
@@ -35,9 +52,13 @@ blockquote {
 
 .tool {
     display:none;
-    width:300px;
-    margin:15px auto;
-    padding:0 45px;
+    width:160px;
+    margin:0;
+    padding:0;
+    position:absolute;
+    top:1em;
+    right:5px;
+    z-index: 10;
 }
 
 .tool span {
@@ -51,11 +72,8 @@ blockquote {
 @media screen and (min-width: 550px) {
     .tool {
         display:block;
-        margin: 15px 0 0 30px;
-        position:absolute;
-        top:0;
-        right: 5px;
     }
+
     .versions-small {
         display:none;
     }
@@ -63,7 +81,7 @@ blockquote {
 
 @media screen and (min-width: 1200px) {
     .tool {
-        left: 980px;
+        left: 1000px;
     }
 }
 
