@@ -11,7 +11,40 @@ header {
         z-index:8;
     }
     main {
+        background: #ffffff;
         padding-top:4.5em;
+    }
+
+    main menu h2 {
+        color:#2b3d50;
+        font-size:1em;
+        font-weight: bold;
+        text-transform: none;
+        box-shadow: none;
+    }
+
+    main menu ul li a {
+        border-radius:.1em;
+        font-size:1em;
+        margin:.2em;
+        padding:.6em;
+        color:#1672ce;
+    }
+
+    main menu ul li a:hover {
+        color:#1672ce;
+        padding:.6em;
+        background:#e7e7e7;
+    }
+
+    main menu ul li.selected {
+        background: none;
+    }
+
+    main menu ul li.selected a {
+        color:#fff;
+        background:#1672ce;
+        padding:.6em;
     }
 }
 
