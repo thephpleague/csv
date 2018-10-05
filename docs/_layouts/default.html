@@ -34,7 +34,7 @@
         <link rel="apple-touch-icon-precomposed" href="//theme.thephpleague.com/img/apple-touch-icon-precomposed.png">
     {% endif %}
     <link rel="stylesheet" href="//theme.thephpleague.com/css/all.css?2">
-    <link rel="stylesheet" href="/custom.css?12">
+    <link rel="stylesheet" href="/custom.css?13">
 {% if site.data.project.google_analytics_tracking_id %}
     <script async src="https://www.googletagmanager.com/gtag/js?id={{  site.data.project.google_analytics_tracking_id }}"></script>
     <script>
@@ -56,7 +56,18 @@
         <span class="name">{{ site.data.project.title }}</span>
         <span class="tagline">{{ site.data.project.tagline }}</span>
     </a>
+
 </header>
+
+<div class="tool">
+<label><span>Version:</span>
+<select class="versions">
+    {% for v in site.data.menu.version %}
+        <option data-url="/{{ v[0] }}/" {% if version == v[0] %}selected="selected"{% endif %}>{{ v[0] }}</option>
+    {% endfor %}
+</select>
+</label>
+</div>
 
 <input type="checkbox" id="menu">
 <label for="menu" onclick>
@@ -66,14 +77,6 @@
 
 <main>
     <menu>
-        <div class="tool">
-        <select class="versions">
-            {% for v in site.data.menu.version %}
-                <option data-url="/{{ v[0] }}/" {% if version == v[0] %}selected="selected"{% endif %}>Version: {{ v[0] }}</option>
-            {% endfor %}
-        </select>
-        </div>
-
         {% for section in site.data.menu.version[version] %}
             <h2>{{ section[0] }}</h2>
             <ul>

@@ -31,8 +31,33 @@ blockquote {
 /** --------------- select menu --------- */
 
 .tool {
-    margin:15px 0 0 0;
+    width:225px;
+    margin:15px auto;
     padding:0 45px;
+}
+
+.tool span {
+    font-family: "Museo Sans 500";
+    color: #69bbdc;
+    font-size: 12px;
+    line-height: 100%;
+    text-transform: uppercase;
+}
+
+
+@media screen and (min-width: 550px) {
+    .tool {
+        margin: 15px 0 0 30px;
+        position:absolute;
+        top:0;
+        right: 5px;
+    }
+}
+
+@media screen and (min-width: 1200px) {
+    .tool {
+        left: 985px;
+    }
 }
 
 /* ---------- header automatic permalink -----------*/
