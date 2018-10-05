@@ -30,8 +30,15 @@ header .logo {
 }
 
 header .logo em {
-    color:#1672ce;
+    color:#777;
     font-style:normal;
+}
+
+header .logo sup {
+    color:#777;
+    font-size:.5em;
+    font-family:monospace;
+    font-weight: bold;
 }
 
 label[for=menu] {
