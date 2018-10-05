@@ -36,7 +36,7 @@
         <link rel="apple-touch-icon-precomposed" href="//theme.thephpleague.com/img/apple-touch-icon-precomposed.png">
     {% endif %}
     <link rel="stylesheet" href="//theme.thephpleague.com/css/all.css?2">
-    <link rel="stylesheet" href="/custom.css?17">
+    <link rel="stylesheet" href="/custom.css?18">
 {% if site.data.project.google_analytics_tracking_id %}
     <script async src="https://www.googletagmanager.com/gtag/js?id={{  site.data.project.google_analytics_tracking_id }}"></script>
     <script>
@@ -51,13 +51,9 @@
 <header>
     <div class="header-content">
         <a class="logo" href="/">
-            {% if site.data.images.logo %}
-                <span class="icon">
-                    <img src="{{ site.data.images.logo }}" width="50" height="40" alt="{{ site.data.project.title }} - {{ site.data.project.tagline }}">
-                </span>
-            {% endif %}
-            <span class="name">{{ site.data.project.title }}</span>
+            <span class="name"><em>League\</em>Csv</span>
         </a>
+
         <div class="tool">
             <label><span>Version:</span>
             <select class="versions">
@@ -71,11 +67,10 @@
     </div>
 </header>
 
-
 <input type="checkbox" id="menu">
 <label for="menu" onclick>
-    <div class="closed">&#9776; Menu</div>
-    <div class="open">&#9776; Hide Menu</div>
+    <div class="closed">&#9776;</div>
+    <div class="open">&#10799;</div>
 </label>
 
 <main>
