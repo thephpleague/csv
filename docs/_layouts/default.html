@@ -36,7 +36,7 @@
         <link rel="apple-touch-icon-precomposed" href="//theme.thephpleague.com/img/apple-touch-icon-precomposed.png">
     {% endif %}
     <link rel="stylesheet" href="//theme.thephpleague.com/css/all.css?2">
-    <link rel="stylesheet" href="/custom.css?19">
+    <link rel="stylesheet" href="/custom.css?20">
 {% if site.data.project.google_analytics_tracking_id %}
     <script async src="https://www.googletagmanager.com/gtag/js?id={{  site.data.project.google_analytics_tracking_id }}"></script>
     <script>
@@ -55,14 +55,15 @@
         </a>
 
         <div class="tool">
-            <label><span>Version:</span>
-            <select class="versions">
-                {% if upgrading == true %}<option>choose</option>{% endif %}
+            <nav>
+                <h2>{% if upgrading == true %}Notes{% else %}v{{ version }}{% endif %} &#9662;</h2>
+                <ul>
                 {% for v in site.data.menu.version %}
-                    <option data-url="/{{ v[0] }}/" {% if version == v[0] and upgrading == false %}selected="selected"{% endif %}>{{ v[0] }}</option>
+                    <li {% if version == v[0] and upgrading == false %}class="selected"{% endif %}><a href="/{{ v[0] }}/">v{{ v[0] }}</a></li>
                 {% endfor %}
-            </select>
-            </label>
+                    <li {% if upgrading == true %}class="selected"{% endif %}><a href="/upgrading/">Notes</a></li>
+                </ul>
+            </nav>
         </div>
     </div>
 </header>
@@ -133,6 +134,6 @@
     <span>&copy; Copyright <a href="//thephpleague.com">The League of Extraordinary Packages</a>.</span>
     <span>Site design by <a href="//reinink.ca">Jonathan Reinink</a> and <a href="//nyamsprod.com">Ignace Nyamagana Butera</a>.</span>
 </footer>
-<script src="/custom.js?2"></script>
+<script src="/custom.js?3"></script>
 </body>
 </html>
