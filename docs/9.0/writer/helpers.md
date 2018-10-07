@@ -7,17 +7,6 @@ title: Bundled Writer helpers
 
 ## Column consistency validator
 
-~~~php
-<?php
-
-class ColumnConsistency
-{
-    public function __construct(int $column_count = -1)
-    public function __invoke(array $record): bool
-    public function getColumnCount(): int
-}
-~~~
-
 The `League\Csv\ColumnConsistency` class validates the inserted record column count consistency.
 
 This class constructor accepts a single argument `$column_count` which sets the column count value and validate each record length against the given value. If the value differs an `CannotInsertRecord` will be thrown.

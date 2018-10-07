@@ -5,35 +5,6 @@ title: CSV documents configurations
 
 # Overview
 
-~~~php
-<?php
-
-abstract class AbstractCsv implements ByteSequence
-{
-    public function __toString(): string
-    public function addStreamFilter(string $filtername, mixed $params = null): self
-    public function chunk(int $length): Generator
-    public static function createFromFileObject(SplFileObject $obj): self
-    public static function createFromPath(string $path, string $open_mode = 'r+', resource $context = null): self
-    public static function createFromStream(resource $stream): self
-    public static function createFromString(string $str): self
-    public function hasStreamFilter(string $filtername): bool
-    public function getContent(): string
-    public function getDelimiter(): string
-    public function getEnclosure(): string
-    public function getEscape(): string
-    public function getInputBOM(): string
-    public function getOutputBOM(): string
-    public function getStreamFilterMode(): int
-    public function output(string $filename = null): int
-    public function setDelimiter(string $delimiter): self
-    public function setEnclosure(string $enclosure): self
-    public function setEscape(string $escape): self
-    public function setOutputBOM(): self
-    public function supportsStreamFilter(): bool
-}
-~~~
-
 ## Connection type
 
 Accessing the CSV document is done using one of the following class:

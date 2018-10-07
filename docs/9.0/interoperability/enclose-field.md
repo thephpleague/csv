@@ -7,17 +7,7 @@ title: Force Enclosure
 
 <p class="message-info">Available since <code>version 9.1.0</code></p>
 
-~~~php
-<?php
-class EncloseField extends php_user_filter
-{
-    public static function addTo(Writer $csv, string $sequence): Writer
-    public static function getFiltername(): string
-    public static function register(): void
-}
-~~~
-
-The `EncloseField` force the `Writer` class to enclose all its record fields.
+The `EncloseField` is a PHP stream filter which forces the `Writer` class to enclose all its record fields.
 
 <p class="message-warning">Changing the CSV objects control characters <strong>after registering the stream filter</strong> may result in unexpected returned records.</p>
 

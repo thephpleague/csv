@@ -7,16 +7,6 @@ title: CSV document interoperability
 
 <p class="message-warning">This class is deprecated as of version <code>9.2.0</code>. Please use directly the <code>setEscape</code> method with the empty escape character argument instead with the <code>Reader</code> or the <code>Writer</code> object.</p>
 
-~~~php
-<?php
-class RFC4180Field extends php_user_filter
-{
-    public static function addTo(AbstractCsv $csv, string $whitespace_replace = ''): AbstractCsv
-    public static function getFiltername(): string
-    public static function register(): void
-}
-~~~
-
 The `RFC4180Field` class enables to work around the following bugs in PHP's native CSV functions:
 
 - [bug #43225](https://bugs.php.net/bug.php?id=43225): `fputcsv` incorrectly handles cells ending in `\` followed by `"`
@@ -26,9 +16,7 @@ The `RFC4180Field` class enables to work around the following bugs in PHP's nati
 
 When using this stream filter you can easily create or read a [RFC4180 compliant CSV document](https://tools.ietf.org/html/rfc4180#section-2) using `League\Csv` connections objects.
 
-
 <p class="message-warning">Changing the CSV objects control characters <strong>after registering the stream filter</strong> may result in unexpected returned records.</p>
-
 
 ## Usage with League\CSV objects
 

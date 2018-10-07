@@ -5,19 +5,6 @@ title: Accessing Records from a CSV document
 
 # Result Set
 
-~~~php
-<?php
-
-class ResultSet implements Countable, IteratorAggregate, JsonSerializable
-{
-    public function fetchColumn(string|int $columnIndex = 0): Generator
-    public function fetchOne(int $nth_record = 0): array
-    public function fetchPairs(string|int $offsetIndex = 0, string|int $valueIndex = 1): Generator
-    public function getHeader(): array
-    public function getRecords(): Generator
-}
-~~~
-
 A `League\Csv\ResultSet` object represents the associated result set of processing a [CSV document](/9.0/reader/) with a [constraint builder](/9.0/reader/statement/). This object is returned from [Statement::process](/9.0/reader/statement/#apply-the-constraints-to-a-csv-document) execution.
 
 ## Informations

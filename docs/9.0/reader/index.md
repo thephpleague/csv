@@ -5,21 +5,6 @@ title: CSV document Reader connection
 
 # Reader Connection
 
-~~~php
-<?php
-
-class Reader extends AbstractCsv implements Countable, IteratorAggregate, JsonSerializable
-{
-    public function fetchColumn(string|int $columnIndex = 0): Generator
-    public function fetchOne(int $nth_record = 0): array
-    public function fetchPairs(string|int $offsetIndex = 0, string|int $valueIndex = 1): Generator
-    public function getHeader(): array
-    public function getHeaderOffset(): ?int
-    public function getRecords(array $header = []): Iterator
-    public function setHeaderOffset(?int $offset): self
-}
-~~~
-
 The `League\Csv\Reader` class extends the general connections [capabilities](/9.0/connections/) to ease selecting and manipulating CSV document records.
 
 <p class="message-notice">Starting with version <code>9.1.0</code>, <code>createFromPath</code> when used from the <code>Reader</code> object will have its default set to <code>r</code>.</p>

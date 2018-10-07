@@ -5,19 +5,7 @@ title: Converting a CSV into a XML DOMDocument object
 
 # XML conversion
 
-~~~php
-<?php
-
-class XMLConverter
-{
-    public function convert(iterable $records): DOMDocument
-    public function fieldElement(string $node_name, string $fieldname_attribute_name = ''): self
-    public function recordElement(string $node_name, string $record_offset_attribute_name = ''): self
-    public function rootElement(string $node_name): self
-}
-~~~
-
-`XMLConverter` converts a CSV records collection into a PHP `DOMDocument`.
+The `XMLConverter` converts a CSV records collection into a PHP `DOMDocument`.
 
 ## Settings
 

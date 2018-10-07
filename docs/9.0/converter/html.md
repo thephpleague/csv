@@ -5,21 +5,7 @@ title: Converting a CSV into an HTML table
 
 # HTML conversion
 
-
-~~~php
-<?php
-
-class HTMLConverter
-{
-    public function convert(iterable $records): string
-    public function table(string $class_name, string $id_value = ''): self
-    public function td(string $fieldname_attribute_name): self
-    public function tr(string $record_offset_attribute_name): self
-}
-~~~
-
-`HTMLConverter` converts a CSV records collection into a HTML Table using PHP's `DOMDocument` class.
-
+The `HTMLConverter` converts a CSV records collection into a HTML Table using PHP's `DOMDocument` class.
 
 ## Settings
 

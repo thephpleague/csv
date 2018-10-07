@@ -5,22 +5,6 @@ title: CSV document Writer connection
 
 # Writer connection
 
-~~~php
-<?php
-
-class Writer extends AbstractCsv
-{
-    public function addFormatter(callable $callable): Writer
-    public function addValidator(callable $callable, string $validatorName): Writer
-    public function getFlushThreshold(): ?int
-    public function getNewline(): string
-    public function insertAll(iterable $records): int
-    public function insertOne(array $record): int
-    public function setFlushThreshold(?int $threshold): self
-    public function setNewline(string $sequence): self
-}
-~~~
-
 The `League\Csv\Writer` class extends the general connections [capabilities](/9.0/connections/) to create or update a CSV document.
 
 <p class="message-warning">When inserting records into a CSV document using <code>League\Csv\Writer</code>, first insert all the data that need to be inserted before starting manipulating the CSV. If you manipulate your CSV document before insertion, you may change the file cursor position and erase your data.</p>

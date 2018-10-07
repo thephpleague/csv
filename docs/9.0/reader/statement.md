@@ -5,19 +5,6 @@ title: CSV document constraint Builder
 
 # Constraint Builder
 
-~~~php
-<?php
-
-class Statement
-{
-    public function limit(int $limit): self
-    public function offset(int $offset): self
-    public function orderBy(callable $callable): self
-    public function process(Reader $reader, array $header = []): ResultSet
-    public function where(callable $callable): self
-}
-~~~
-
 The `League\Csv\Statement` class is a constraint builder to help ease selecting records from a CSV document created using the `League\Csv\Reader` class.
 
 When building a constraint, the methods do not need to be called in any particular order, and may be called multiple times. Because the `Statement` object is immutable, each time its constraint methods are called they will return a new `Statement` object without modifying the current `Statement` object.

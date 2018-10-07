@@ -7,19 +7,6 @@ title: CSV Formula Injection
 
 <p class="message-notice">Available since <code>version 9.1.0</code></p>
 
-~~~php
-<?php
-class EscapeFormula
-{
-    public function __construct(string $escape = "\t", array $special_chars = [])
-    public function __invoke(array $record): array
-    public function escapeRecord(array $record): array
-    public function getEscape(): string
-    public function getSpecialCharacters(): array
-}
-~~~
-
-
 The `EscapeFormula` Formatter formats CSV records to reduce [CSV Formula Injection](http://georgemauer.net/2017/10/07/csv-injection.html) in imported Spreadsheet programs.
 
 ## Usage with Writer objects

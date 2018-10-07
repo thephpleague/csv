@@ -5,21 +5,6 @@ title: Converting Csv records character encoding
 
 # Charset conversion
 
-~~~php
-<?php
-
-class CharsetConverter extends php_user_filter
-{
-    public function __invoke(array $record): array
-    public static function addTo(AbstractCsv $csv, string $input_encoding, string $output_encoding): AbstractCsv
-    public function convert(iterable $records): iterable
-    public static function getFiltername(string $input_encoding, string $output_encoding): string
-    public function inputEncoding(string $input_encoding): self
-    public function outputEncoding(string $output_encoding): self
-    public static function register(): void
-}
-~~~
-
 The `CharsetConverter` class converts your CSV records using the `mbstring` extension and its [supported character encodings](http://php.net/manual/en/mbstring.supported-encodings.php).
 
 ## Settings
