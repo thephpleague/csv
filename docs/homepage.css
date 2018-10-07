@@ -8,6 +8,10 @@ blockquote {
     padding:0 10px;
 }
 
+footer {
+    text-align: center;
+}
+
 /* -------- homepage css -----------------*/
 
 .homepage header {
