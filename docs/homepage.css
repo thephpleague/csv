@@ -10,6 +10,7 @@ blockquote {
 
 footer {
     text-align: center;
+    color:#fff;
 }
 
 /* -------- homepage css -----------------*/
@@ -94,17 +95,18 @@ footer {
 }
 
 .features {
-    background:#fff;
+    background: #F2F7FC;
+    border-bottom:1px solid #CFE4F9;
     color:#666;
     font:normal 18px/1.5 "Museo 300";
 }
 
 .features h1 {
-    color:#ffb554;
+    color:#6abcdd;
 }
 
 .features h2 {
-    color:#ffb554;
+    color:#6abcdd;
     font-weight: normal;
 }
 
@@ -117,7 +119,8 @@ footer {
 }
 
 .highlights {
-    background:#eff0f1;
+    background:#fff;
+    border-bottom:1px solid #CFE4F9;
 }
 
 .highlights .description {
@@ -151,12 +154,14 @@ footer {
 }
 
 .documentation {
-    background: #6abcdd;
+    background: #F2F7FC;
+    border-bottom:1px solid #CFE4F9;
 }
 
 .documentation h1 {
     margin-bottom:.5em;
     font-size:36px;
+    color:#6abcdd;
 }
 
 .documentation .footnote {
@@ -282,13 +287,14 @@ footer {
 
 .questions {
     padding:0;
-    background:#283b4f;
-    color:#fff;
+    background:#fff;
+    color:#666;
+    border-bottom:1px solid #CFE4F9;
 }
 
 .questions h1 {
     font-size:36px;
-    color:#6abcdd;
+    color:#ff4043;
 }
 
 .questions a {
@@ -349,7 +355,6 @@ footer {
 }
 
 @media screen and (min-width: 910px) {
-
     .documentation .version {
         float:left;
         width:30%;
