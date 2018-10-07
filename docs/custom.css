@@ -24,14 +24,70 @@ header {
     background:#fff;
 }
 
-header .tool {
+header nav {
     display:none;
+    font-family: "Museo Sans 500";
+    font-weight: normal;
+}    
+
+header nav h2 {
+    font-family: "Museo Sans 500";
+    font-weight: normal;
+    font-size: 16px;
+    background:#1672ce;
+    color:#fff;
+    margin:0;
+    width: 70px;
+    text-align: center;
+    border-radius: .3em;
+    margin-bottom:.4em;
+    padding:.5em .3em;
+    cursor: pointer;
 }
 
-header .tool nav {
+header nav ul {
     display:none;
+    z-index: 5;
+    margin:0;
+    padding:0;
+    list-style:none;
+    width:70px;
 }
 
+header nav .show {
+    display:block;
+}
+
+header nav li {
+    margin:0;
+    padding:0;
+    text-align: center;
+}
+
+header nav a {
+    display:block;
+    margin:0;
+    padding:.5em .3em;
+    text-decoration:none;
+    color:#1672ce;
+    background: #fff;
+    border:solid #c7c7c7;
+    border-width:0 1px 1px;
+}
+
+header nav a:hover {
+    background:#f1f1f1;
+}
+
+header nav li:first-of-type a {
+    border-top-width: 1px;
+    border-radius:.3em .3em 0 0;
+}
+
+header nav li:last-of-type a {
+    border-radius:0 0 .3em .3em;
+}
+    
 header .logo {
     text-align:left;
 }
@@ -43,13 +99,6 @@ header .logo .name {
 header .logo em {
     color:#777;
     font-style:normal;
-}
-
-header .logo sup {
-    color:#777;
-    font-size:.5em;
-    font-family:monospace;
-    font-weight: bold;
 }
 
 label[for=menu] {
@@ -164,11 +213,27 @@ main menu ul li.selected a {
 
 @media screen and (max-width: 549px) {
     header {
-        padding: 20px 10px 25px 10px;
+        padding: 20px 0 25px 10px;
     }
 
     menu {
         text-align: center;
+    }
+}
+
+@media screen and (min-width: 404px) {
+    header nav {
+        display:block;
+        position:fixed;
+        z-index: 2;
+        top:20px;
+        right:50px;
+        padding:0;
+        margin:0;
+    }
+
+    main menu .versions-small {
+        display:none;
     }
 }
 
@@ -195,83 +260,11 @@ main menu ul li.selected a {
         text-align:right;
     }
 
-    header .tool {
-        display:block;
+    header nav {
+        position: static;
         float:right;
         margin:0;
         padding:0;
-    }
-
-    header .tool nav {
-        display:block;
-        font-family: "Museo Sans 500";
-        font-weight: normal;
-    }    
-
-    header .tool nav h2 {
-        font-family: "Museo Sans 500";
-        font-weight: normal;
-        font-size: 16px;
-        background:#1672ce;
-        color:#fff;
-        margin:0;
-        width: 70px;
-        text-align: center;
-        border-radius: .3em;
-        margin-bottom:.4em;
-        padding:.5em .3em;
-        cursor: pointer;
-    }
-    
-    header .tool nav ul {
-        display:none;
-        z-index: 5;
-        margin:0;
-        padding:0;
-        list-style:none;
-        width:70px;
-    }
-    
-    header .tool nav ul.show-nav {
-        display:block;
-    }
-
-    header .tool nav li {
-        margin:0;
-        padding:0;
-        text-align: center;
-    }
-    
-    header .tool nav a {
-        display:block;
-        margin:0;
-        padding:.5em .3em;
-        text-decoration:none;
-        color:#1672ce;
-        background: #fff;
-        border:solid #c7c7c7;
-        border-width:0 1px 1px;
-   }
-    
-    header .tool nav ul li:first-of-type a {
-        border-top-width: 1px;
-        border-radius:.3em .3em 0 0;
-    }
-    
-    header .tool nav ul li:last-of-type a {
-        border-radius:0 0 .3em .3em;
-    }
-    
-    header .tool nav a:hover {
-        background:#f1f1f1;
-    }
-    
-    header .tool span {
-        font-family: "Museo Sans 500";
-        color: #69bbdc;
-        font-size: 12px;
-        line-height: 100%;
-        text-transform: uppercase;
     }
 
     label[for=menu] {
@@ -284,10 +277,6 @@ main menu ul li.selected a {
 
     main menu {
         border-right: 1px dashed #cfe4f9;
-    }
-
-    main menu .versions-small {
-        display:none;
     }
 }
 
