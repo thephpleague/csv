@@ -7,8 +7,6 @@ title: Csv character controls
 
 To correctly parse a CSV document you are required to set the character controls to be used by the `Reader` or the `Writer` object.
 
-<p class="message-warning">Setter methods will throw a <code>Exception</code> exception if the submitted string length is not equal to <code>1</code> byte.</p>
-
 ## The delimiter character.
 
 ### Description
@@ -33,6 +31,8 @@ $delimiter = $csv->getDelimiter(); //returns ";"
 ~~~
 
 <p class="message-info">The default delimiter character is <code>,</code>.</p>
+
+<p class="message-warning"><code>setDelimiter</code> will throw a <code>Exception</code> exception if the submitted string length is not equal to <code>1</code> byte.</p>
 
 ## The enclosure character
 
@@ -59,7 +59,11 @@ $enclosure = $csv->getEnclosure(); //returns "|"
 
 <p class="message-info">The default enclosure character is <code>"</code>.</p>
 
+<p class="message-warning"><code>setEnclosure</code> will throw a <code>Exception</code> exception if the submitted string length is not equal to <code>1</code> byte.</p>
+
 ## The escape character
+
+This is PHP specific control character which sometimes interfere with CSV parsing and writing. It is recommanded in version preceding `9.2.0` to never change its defaut value unless you do understand its usage and its consequences.
 
 ### Description
 
@@ -86,6 +90,8 @@ $escape = $csv->getEscape(); //returns "\"
 
 <p class="message-notice">Since version <code>9.2.0</code> you can provide an empty string for the escape character to enable better <a href="https://tools.ietf.org/html/rfc4180">RFC4180</a> compliance.</p>
 
+<p class="message-warning"><code>setEscape</code> will throw a <code>Exception</code> exception if the submitted string length is not equal to <code>1</code> byte or the empty string.</p>
+
 ~~~php
 <?php
 
@@ -105,11 +111,13 @@ When using a `SplFileObject`, the returned `AbstractCsv` object will inherit the
 
 $file = new SplTempFileObject();
 $file->setFlags(SplFileObject::READ_CSV);
-$file->setCsvControl('|');
+$file->setCsvControl('|', "'", "\\");
 
 $csv = Reader::createFromFileObject($file);
 
 echo $csv->getDelimiter(); //display '|'
+echo $csv->getEnclosure(); //display "'"
+echo $csv->getEscape();    //display '\'
 ~~~
 
 ## Detecting the delimiter character
