@@ -1,43 +1,27 @@
+{% assign version = page.url | remove_first: "/" | split: "/" | first %}
+{% assign upgrading = false %}
+{% if version == '' or version == 'releases' or version == 'upgrading' %}
+    {% assign version = site.data.project.releases.current.version %}
+    {% assign upgrading = true %}
+{% endif %}
+{% capture version_home %}/{{ version }}/{% endcapture %}
 <!DOCTYPE html>
 <html>
 <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    {% if site.data.project.description %}
-        <meta name="description" content="{{ site.data.project.description }}">
-    {% endif %}
-
-    {% assign version = page.url | remove_first: "/" | split: "/" | first %}
-
-    {% assign upgrading = false %}
-    {% if version == '' or version == 'releases' or version == 'upgrading' %}
-        {% assign version = site.data.project.releases.current.version %}
-        {% assign upgrading = true %}
-    {% endif %}
-
-    {% capture version_home %}/{{ version }}/{% endcapture %}
-
-    {% if page.url == '/'  or page.url == version_home %}
-        <title>{{ site.data.project.title }} - {{ site.data.project.tagline }}</title>
-    {% else %}
-        <title>{{ page.title }} - {{ site.data.project.title }}</title>
-    {% endif %}
-
-    {% if site.data.images.favicon %}
-        <link rel="icon" type="image/x-icon" href="{{ site.data.images.favicon }}" />
-    {% else %}
-        <link rel="icon" type="image/x-icon" href="//theme.thephpleague.com/img/favicon.ico" />
-    {% endif %}
-
-    {% if site.data.images.apple_touch %}
-        <link rel="apple-touch-icon-precomposed" href="{{ site.data.images.apple_touch }}">
-    {% else %}
-        <link rel="apple-touch-icon-precomposed" href="//theme.thephpleague.com/img/apple-touch-icon-precomposed.png">
-    {% endif %}
+    <meta name="docsearch:version" content="4.0">
+    <meta name="description" content="{{ site.data.project.description }}">
+{% if page.url == '/'  or page.url == version_home %}
+    <title>{{ site.data.project.title }} - {{ site.data.project.tagline }}</title>
+{% else %}
+    <title>{{ page.title }} - {{ site.data.project.title }}</title>
+{% endif %}
+    <link rel="icon" type="image/x-icon" href="//theme.thephpleague.com/img/favicon.ico" />
+    <link rel="apple-touch-icon-precomposed" href="//theme.thephpleague.com/img/apple-touch-icon-precomposed.png">
     <link rel="stylesheet" href="//theme.thephpleague.com/css/all.css?2">
     <link rel="stylesheet" href="/custom.css?24">
-{% if site.data.project.google_analytics_tracking_id %}
     <script async src="https://www.googletagmanager.com/gtag/js?id={{  site.data.project.google_analytics_tracking_id }}"></script>
     <script>
         window.dataLayer = window.dataLayer || [];
@@ -45,7 +29,6 @@
         gtag('js', new Date());
         gtag('config', '{{  site.data.project.google_analytics_tracking_id }}');
     </script>
-{% endif %}
 </head>
 <body>
 <header>

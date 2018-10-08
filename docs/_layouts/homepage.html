@@ -5,12 +5,12 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="description" content="{{ site.data.project.description }}">
+    <meta name="docsearch:version" content="4.0">
     <title>{{ site.data.project.tagline }} - {{ site.data.project.title }}</title>
     <link rel="icon" type="image/x-icon" href="{{ site.data.images.favicon }}" />
     <link rel="apple-touch-icon-precomposed" href="//theme.thephpleague.com/img/apple-touch-icon-precomposed.png">
     <link rel="stylesheet" href="//theme.thephpleague.com/css/all.css?2">
     <link rel="stylesheet" href="/homepage.css?15">
-{% if site.data.project.google_analytics_tracking_id %}
     <script async src="https://www.googletagmanager.com/gtag/js?id={{  site.data.project.google_analytics_tracking_id }}"></script>
     <script>
         window.dataLayer = window.dataLayer || [];
@@ -18,7 +18,6 @@
         gtag('js', new Date());
         gtag('config', '{{  site.data.project.google_analytics_tracking_id }}');
     </script>
-{% endif %}
 </head>
 <body>
 
