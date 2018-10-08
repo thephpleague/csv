@@ -13,6 +13,11 @@ footer {
     color:#fff;
 }
 
+pre {
+    background:#fff;
+    border-radius:.3em .3em 0 0;
+}
+
 /* -------- homepage css -----------------*/
 
 .homepage header {
