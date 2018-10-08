@@ -185,6 +185,7 @@ main menu .menu-section:last-of-type {
 
 main menu h2 {
     margin-top:1.5em;
+    padding-left:.7em;
     color:#2b3d50;
     font-size:1em;
     font-weight: bold;
@@ -203,7 +204,8 @@ main menu ul li a {
 main menu ul li a:hover {
     color:#1672ce;
     padding:.6em;
-    background:#e7e7e7;
+    background:transparent;
+    text-decoration: underline;
 }
 
 main menu ul li.selected {
@@ -214,6 +216,10 @@ main menu ul li.selected a {
     color:#fff;
     background:#1672ce;
     padding:.6em;
+}
+
+main menu ul li.selected a:hover {
+    text-decoration: none;
 }
 
 @media screen and (max-width: 549px) {
