@@ -28,7 +28,7 @@ header nav {
     display:none;
     font-family: "Museo Sans 500";
     font-weight: normal;
-}    
+}
 
 header nav h2 {
     font-family: "Museo Sans 500";
@@ -87,7 +87,7 @@ header nav li:first-of-type a {
 header nav li:last-of-type a {
     border-radius:0 0 .3em .3em;
 }
-    
+
 header .logo {
     text-align:left;
 }
@@ -125,6 +125,11 @@ label[for=menu]:hover {
 main {
     padding-top:4em;
     background:none;
+}
+
+pre {
+    background:#fff;
+    border-radius:.3em .3em 0 0;
 }
 
 /* ---------- header automatic permalink -----------*/
@@ -270,13 +275,18 @@ main menu ul li.selected a {
     label[for=menu] {
         display:none;
     }
-    
+
     main {
         background: none;
     }
 
     main menu {
         border-right: 1px dashed #cfe4f9;
+    }
+
+    main article p,
+    main article li {
+        font-size:.9em;
     }
 }
 
