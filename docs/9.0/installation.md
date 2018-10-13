@@ -30,8 +30,6 @@ The library is compatible with any [PSR-4](http://www.php-fig.org/psr/psr-4/) co
 Also, `League\Csv` comes bundle with its own autoloader script `autoload.php` located in the root directory.
 
 ~~~php
-<?php
-
 use League\Csv\Reader;
 use League\Csv\Writer;
 

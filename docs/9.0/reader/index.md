@@ -28,8 +28,6 @@ You can set and retrieve the header offset as well as its corresponding record.
 ### Description
 
 ~~~php
-<?php
-
 public Reader::setHeaderOffset(?int $offset): self
 public Reader::getHeaderOffset(void): ?int
 public Reader::getHeader(void): array
@@ -38,8 +36,6 @@ public Reader::getHeader(void): array
 ### Example
 
 ~~~php
-<?php
-
 use League\Csv\Reader;
 
 $csv = Reader::createFromPath('/path/to/file.csv', 'r');
@@ -58,8 +54,6 @@ If no header offset is set:
 <p class="message-warning">Because the header is lazy loaded, if you provide a positive offset for an invalid record a <code>Exception</code> exception will be triggered when trying to access the invalid record.</p>
 
 ~~~php
-<?php
-
 use League\Csv\Reader;
 
 $csv = Reader::createFromPath('/path/to/file.csv', 'r');
@@ -71,8 +65,6 @@ $header = $csv->getHeader(); //triggers a Exception exception
 ## CSV records
 
 ~~~php
-<?php
-
 public Reader::getRecords(array $header = []): Iterator
 ~~~
 
@@ -84,8 +76,6 @@ The `Reader` class let's you access all its records using the `Reader::getRecord
 - Extract the records using the [CSV controls characters](/9.0/connections/controls/);
 
 ~~~php
-<?php
-
 use League\Csv\Reader;
 
 $reader = Reader::createFromPath('/path/to/my/file.csv', 'r');
@@ -107,8 +97,6 @@ foreach ($records as $offset => $record) {
 If you specify the CSV header offset using `setHeaderOffset`, the found record will be combined to each CSV record to return an associated array whose keys are composed of the header values.
 
 ~~~php
-<?php
-
 use League\Csv\Reader;
 
 $reader = Reader::createFromPath('/path/to/my/file.csv', 'r');
@@ -131,8 +119,6 @@ foreach ($records as $offset => $record) {
 Conversely, you can submit your own header record using the optional `$header` argument of the `getRecords` method.
 
 ~~~php
-<?php
-
 use League\Csv\Reader;
 
 $reader = Reader::createFromPath('/path/to/my/file.csv', 'r');
@@ -151,8 +137,6 @@ foreach ($records as $offset => $record) {
 <p class="message-notice">The optional <code>$header</code> argument from  the <code>Reader::getRecords</code> takes precedence over the header offset property but its corresponding record will still be removed from the returned <code>Iterator</code>.</p>
 
 ~~~php
-<?php
-
 use League\Csv\Reader;
 
 $reader = Reader::createFromPath('/path/to/my/file.csv', 'r');
@@ -178,8 +162,6 @@ Because the `Reader` class implements the `IteratorAggregate` interface you can 
 You will get the same results as if you had called `Reader::getRecords` without its optional argument.
 
 ~~~php
-<?php
-
 use League\Csv\Reader;
 
 $reader = Reader::createFromPath('/path/to/my/file.csv', 'r');
@@ -207,8 +189,6 @@ The returned records are normalized using the following rules:
     - Missing fields are added with a `null` value.
 
 ~~~php
-<?php
-
 use League\Csv\Reader;
 
 $reader = Reader::createFromPath('/path/to/my/file.csv', 'r');
@@ -231,8 +211,6 @@ foreach ($records as $offset => $record) {
 You can retrieve the number of records contains in a CSV document using PHP's `count` function because the `Reader` class implements the `Countable` interface.
 
 ~~~php
-<?php
-
 use League\Csv\Reader;
 
 $reader = Reader::createFromPath('/path/to/my/file.csv', 'r');
@@ -242,8 +220,6 @@ count($reader); //returns 4
 If a header offset is specified, the number of records will not take into account the header record.
 
 ~~~php
-<?php
-
 use League\Csv\Reader;
 
 $reader = Reader::createFromPath('/path/to/my/file.csv', 'r');
@@ -258,8 +234,6 @@ count($reader); //returns 3
 ### Simple Usage
 
 ~~~php
-<?php
-
 public Reader::fetchColumn(string|int $columnIndex = 0): Generator
 public Reader::fetchOne(int $nth_record = 0): array
 public Reader::fetchPairs(string|int $offsetIndex = 0, string|int $valueIndex = 1): Generator
@@ -270,8 +244,6 @@ Using method overloading, you can directly access all retrieving methods attache
 #### Example
 
 ~~~php
-<?php
-
 use League\Csv\Reader;
 
 $reader = Reader::createFromPath('/path/to/my/file.csv', 'r');
@@ -287,8 +259,6 @@ If you require a more advance record selection, you should use a [Statement](/9.
 #### Example
 
 ~~~php
-<?php
-
 use League\Csv\Reader;
 use League\Csv\Statement;
 
@@ -309,8 +279,6 @@ $records = $stmt->process($reader);
 The `Reader` class implements the `JsonSerializable` interface. As such you can use the `json_encode` function directly on the instantiated object. The interface is implemented using PHP's `iterator_array` on the `Reader::getRecords` method. As such, the returned `JSON` string data depends on the presence or absence of a header.
 
 ~~~php
-<?php
-
 use League\Csv\Reader;
 
 $records = [

@@ -128,8 +128,19 @@ main {
 }
 
 pre {
-    background:#fff;
-    border-radius:.3em .3em 0 0;
+    border-width:0 0 0 4px;
+    background: #fff;
+}
+
+table {
+    border:1px solid #eee;
+    background: #fff;
+    box-shadow:0 6px 6px 0 rgba(80, 88, 94, .24);
+}
+
+table th {
+    color:#fff;
+    background: #1672ce;
 }
 
 /* ---------- header automatic permalink -----------*/
@@ -151,15 +162,15 @@ h5:hover .header-permalink {
     color:#777;
 }
 
-main article div>code {
-    display: inline-block;
-    padding: 3px 5px;
+main article p code,
+main article li code,
+main article div > code {
     font-family: Consolas,Monaco,'Andale Mono',monospace;
     font-size: 17px;
     line-height: 100%;
-    border-radius: 2px;
-    background: #f5f6f7;
-    border: solid #dcdddd 1px;
+    color:#1672ce;
+    background: #fff;
+    border:none;
 }
 
 footer {

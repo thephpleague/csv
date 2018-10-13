@@ -12,8 +12,6 @@ To correctly parse a CSV document you are required to set the character controls
 ### Description
 
 ~~~php
-<?php
-
 public AbstractCsv::setDelimiter(string $delimiter): self
 public AbstractCsv::getDelimiter(void): string
 ~~~
@@ -21,8 +19,6 @@ public AbstractCsv::getDelimiter(void): string
 ### Example
 
 ~~~php
-<?php
-
 use League\Csv\Reader;
 
 $csv = Reader::createFromPath('/path/to/file.csv', 'r');
@@ -39,8 +35,6 @@ $delimiter = $csv->getDelimiter(); //returns ";"
 ### Description
 
 ~~~php
-<?php
-
 public AbstractCsv::setEnclosure(string $enclosure): self
 public AbstractCsv::getEnclosure(void): string
 ~~~
@@ -48,8 +42,6 @@ public AbstractCsv::getEnclosure(void): string
 ### Example
 
 ~~~php
-<?php
-
 use League\Csv\Writer;
 
 $csv = Writer::createFromPath('/path/to/file.csv');
@@ -68,8 +60,6 @@ This is PHP specific control character which sometimes interfere with CSV parsin
 ### Description
 
 ~~~php
-<?php
-
 public AbstractCsv::setEscape(string $escape): self
 public AbstractCsv::getEscape(void): string
 ~~~
@@ -77,8 +67,6 @@ public AbstractCsv::getEscape(void): string
 ### Example
 
 ~~~php
-<?php
-
 use League\Csv\Reader;
 
 $csv = Reader::createFromPath('/path/to/file.csv', 'r');
@@ -93,8 +81,6 @@ $escape = $csv->getEscape(); //returns "\"
 <p class="message-warning"><code>setEscape</code> will throw a <code>Exception</code> exception if the submitted string length is not equal to <code>1</code> byte or the empty string.</p>
 
 ~~~php
-<?php
-
 use League\Csv\Reader;
 
 $csv = Reader::createFromPath('/path/to/file.csv', 'r');
@@ -107,8 +93,6 @@ $escape = $csv->getEscape(); //returns ""
 When using a `SplFileObject`, the returned `AbstractCsv` object will inherit the object underlying CSV controls.
 
 ~~~php
-<?php
-
 $file = new SplTempFileObject();
 $file->setFlags(SplFileObject::READ_CSV);
 $file->setCsvControl('|', "'", "\\");
@@ -123,8 +107,6 @@ echo $csv->getEscape();    //display '\'
 ## Detecting the delimiter character
 
 ~~~php
-<?php
-
 function League\Csv\delimiter_detect(Reader $csv, array $delimiters, $limit = 1): array
 ~~~
 
@@ -139,8 +121,6 @@ The function takes three (3) arguments:
 and returns an associated array whose keys are the submitted delimiters characters and whose values represents the field numbers found depending on the delimiter value.
 
 ~~~php
-<?php
-
 use function League\Csv\delimiter_detect;
 use League\Csv\Reader;
 

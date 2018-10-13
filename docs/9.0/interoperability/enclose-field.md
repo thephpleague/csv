@@ -15,8 +15,6 @@ The `EncloseField` is a PHP stream filter which forces the `Writer` class to enc
 ## Usage with Writer objects
 
 ~~~php
-<?php
-
 public static EncloseField::addTo(Writer $csv, string $sequence): Writer
 ~~~
 
@@ -27,8 +25,6 @@ The `EncloseField::addTo` method will:
 - add a stream filter to the `Writer` object to remove the added sequence from the final CSV.
 
 ~~~php
-<?php
-
 use League\Csv\EncloseField;
 use League\Csv\Writer;
 
@@ -43,8 +39,6 @@ $writer->output('mycsvfile.csv'); //outputting a CSV Document with all its field
 ## Usage with PHP stream resources
 
 ~~~php
-<?php
-
 public static EncloseField::register(): void
 public static EncloseField::getFiltername(): string
 ~~~
@@ -55,8 +49,6 @@ To use this stream filter outside `League\Csv` objects you need to:
 - use `EncloseField::getFiltername` with one of PHP's attaching stream filter functions with the correct arguments as shown below:
 
 ~~~php
-<?php
-
 use League\Csv\EncloseField;
 
 EncloseField::register();

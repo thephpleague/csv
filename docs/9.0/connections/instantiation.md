@@ -12,16 +12,12 @@ Because CSV documents come in different forms we use named constructors to offer
 ## Loading from a string
 
 ~~~php
-<?php
-
 public static AbstractCsv::createFromString(string $str = ''): self
 ~~~
 
 Creates a new object from a given string.
 
 ~~~php
-<?php
-
 use League\Csv\Reader;
 use League\Csv\Writer;
 
@@ -35,8 +31,6 @@ $writer = Writer::createFromString('john,doe,john.doe@example.com');
 ## Loading from a file path
 
 ~~~php
-<?php
-
 public static AbstractCsv::createFromPath(
 	string $path,
 	string $open_mode = 'r+',
@@ -47,8 +41,6 @@ public static AbstractCsv::createFromPath(
 Creates a new object *à la* `fopen`.
 
 ~~~php
-<?php
-
 use League\Csv\Reader;
 use League\Csv\Writer;
 
@@ -68,16 +60,12 @@ Starting with version <code>9.1.0</code>, <code>$open_mode</code> default to:
 ## Loading from a resource stream
 
 ~~~php
-<?php
-
 public static AbstractCsv::createFromStream(resource $stream): self
 ~~~
 
 Creates a new object from a stream resource.
 
 ~~~php
-<?php
-
 use League\Csv\Reader;
 use League\Csv\Writer;
 
@@ -90,16 +78,12 @@ $writer = Writer::createFromStream(tmpfile());
 ## Loading from a SplFileObject object
 
 ~~~php
-<?php
-
 public static AbstractCsv::createFromFileObject(SplFileObject $obj): self
 ~~~
 
 Creates a new object from a `SplFileObject` object.
 
 ~~~php
-<?php
-
 use League\Csv\Reader;
 use League\Csv\Writer;
 

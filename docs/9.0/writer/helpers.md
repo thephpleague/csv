@@ -15,8 +15,6 @@ if `$column_count` equals `-1`, the object will lazy set the column count value 
 At any given time you can retrieve the column count value using the `ColumnConsistency::getColumnCount` method.
 
 ~~~php
-<?php
-
 use League\Csv\Writer;
 use League\Csv\ColumnConsistency;
 
@@ -37,8 +35,6 @@ $writer->insertOne(["foo", "bar"]); //will trigger a CannotInsertRecord exceptio
 [League\Csv\CharsetConverter](/9.0/converter/charset/) will help you encode your records depending on your settings.
 
 ~~~php
-<?php
-
 use League\Csv\CharsetConverter;
 use League\Csv\Writer;
 
@@ -55,8 +51,6 @@ $writer->insertOne(["foo", "bébé", "jouet"]);
 If your `Writer` object supports PHP stream filters then it's recommended to use the `CharsetConverter` object via the library [stream filtering mechanism](/9.0/connections/filters/) instead as shown below.
 
 ~~~php
-<?php
-
 use League\Csv\CharsetConverter;
 use League\Csv\Writer;
 

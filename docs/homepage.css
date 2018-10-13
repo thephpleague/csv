@@ -14,8 +14,19 @@ footer {
 }
 
 pre {
-    background:#fff;
-    border-radius:.3em .3em 0 0;
+    border-width:0 0 0 4px;
+    background: #fff;
+}
+
+main p code,
+main li code,
+main div > code {
+    font-family: Consolas,Monaco,'Andale Mono',monospace;
+    font-size: 17px;
+    line-height: 100%;
+    color:#1672ce;
+    background: #fff;
+    border:none;
 }
 
 /* -------- homepage css -----------------*/

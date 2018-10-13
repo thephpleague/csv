@@ -17,8 +17,6 @@ The output methods **are affected by** [the output BOM sequence](/9.0/connection
 Returns the string representation of the CSV document
 
 ~~~php
-<?php
-
 public AbstractCsv::getContent(void): string
 public AbstractCsv::__toString(void): string
 ~~~
@@ -30,8 +28,6 @@ Use the `getContent` method to return the CSV full content.
 ### Example
 
 ~~~php
-<?php
-
 use League\Csv\Reader;
 
 $reader = Reader::createFromPath('/path/to/my/file.csv', 'r');
@@ -45,8 +41,6 @@ If the CSV document is not seekable a `Exception` or a `RuntimeException` may be
 #### Using the `getContent` method
 
 ~~~php
-<?php
-
 use League\Csv\Writer;
 
 $csv = Writer::createFromFileObject('php://output', 'w');
@@ -58,8 +52,6 @@ echo $csv->getContent();
 #### Using the `__toString` method
 
 ~~~php
-<?php
-
 use League\Csv\Writer;
 
 $csv = Writer::createFromFileObject('php://output', 'w');
@@ -75,8 +67,6 @@ echo $csv;
 To make your CSV document downloadable use the `output` method to force the use of the output buffer on the CSV content.
 
 ~~~php
-<?php
-
 public AbstractCsv::output(string $filename = null): int
 ~~~
 
@@ -88,8 +78,6 @@ can even remove more headers.
 ### Default usage
 
 ~~~php
-<?php
-
 use League\Csv\Reader;
 
 header('Content-Type: text/csv; charset=UTF-8');
@@ -104,8 +92,6 @@ die;
 ### Using the $filename argument
 
 ~~~php
-<?php
-
 use League\Csv\Reader;
 
 $reader = Reader::createFromPath('file.csv');
@@ -120,8 +106,6 @@ die;
 ## Outputting the document into chunks
 
 ~~~php
-<?php
-
 public AbstractCsv::chunk(int $length): Generator
 ~~~
 
@@ -130,8 +114,6 @@ The `AbstractCsv::chunk` method takes a single `$length` parameter specifying th
 <p class="message-warning">if the <code>$length</code> parameter is not a positive integer a <code>OutOfRangeException</code> will be thrown.</p>
 
 ~~~php
-<?php
-
 use League\Csv\Reader;
 
 header('Transfer-Encoding: chunked');
@@ -152,8 +134,6 @@ echo "0\r\n\r\n";
 To avoid breaking the flow of your application, you should create a Response object when applicable in your framework. The actual implementation will differ per framework, but you should generally not output headers directly.
 
 ~~~php
-<?php
-
 use League\Csv\Reader;
 
 $reader = Reader::createFromPath('/path/to/my/file.csv', 'r');
@@ -171,8 +151,6 @@ The following example uses Symfony's [StreamedResponse](http://symfony.com/doc/c
 <p class="message-notice"><i>Be sure to adapt the following code to your own framework/situation. The following code is given as an example without warranty of it working out of the box.</i></p>
 
 ~~~php
-<?php
-
 use League\Csv\Writer;
 use Symfony\Component\HttpFoundation\ResponseHeaderBag;
 use Symfony\Component\HttpFoundation\StreamedResponse;

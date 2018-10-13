@@ -21,8 +21,6 @@ public ResultSet::getHeader(): array
 #### Example: no header information was given
 
 ~~~php
-<?php
-
 use League\Csv\Reader;
 use League\Csv\Statement;
 
@@ -34,8 +32,6 @@ $records->getHeader(); // is empty because no header information was given
 #### Example: header information given by the Reader object
 
 ~~~php
-<?php
-
 use League\Csv\Reader;
 
 $reader = Reader::createFromPath('/path/to/my/file.csv', 'r');
@@ -48,8 +44,6 @@ $records->getHeader(); // returns ['First Name', 'Last Name', 'E-mail'];
 #### Example: header information given by the Statement object
 
 ~~~php
-<?php
-
 use League\Csv\Reader;
 use League\Csv\Statement;
 
@@ -65,8 +59,6 @@ $records->getHeader(); // returns ['Prénom', 'Nom', 'E-mail'];
 The `ResultSet` class implements implements the `Countable` interface.
 
 ~~~php
-<?php
-
 use League\Csv\Reader;
 use League\Csv\Statement;
 
@@ -80,16 +72,12 @@ count($records); //return the total number of records found
 ### Description
 
 ~~~php
-<?php
-
 public ResultSet::getRecords(void): Iterator
 ~~~
 
 To iterate over each found records you can call the `ResultSet::getRecords` method which returns a `Generator` of all records found or directly use the `foreach` construct as the class implements the `IteratorAggregate` interface;
 
 ~~~php
-<?php
-
 use League\Csv\Reader;
 use League\Csv\Statement;
 
@@ -110,8 +98,6 @@ foreach ($records as $record) {
 If the `ResultSet::getHeader` is not an empty `array` the found records keys will contains the method returned values.
 
 ~~~php
-<?php
-
 use League\Csv\Reader;
 use League\Csv\Statement;
 
@@ -135,16 +121,12 @@ foreach ($records as $record) {
 If you are only interested in one particular record from the `ResultSet` you can use the `ResultSet::fetchOne` method to return a single record.
 
 ~~~php
-<?php
-
 public ResultSet::fetchOne(int $nth_record = 0): array
 ~~~
 
 The `$nth_record` argument represents the nth record contained in the result set starting at `0`. If no argument is given the method will return the first record from the result set. If no record is found an empty `array` is returned.
 
 ~~~php
-<?php
-
 use League\Csv\Reader;
 use League\Csv\Statement;
 
@@ -166,8 +148,6 @@ $data = $stmt->process($reader)->fetchOne(3);
 ## Selecting a single column
 
 ~~~php
-<?php
-
 public ResultSet::fetchColumn(string|int $columnIndex = 0): Generator
 ~~~
 
@@ -179,8 +159,6 @@ the `$columnIndex` parameter can be:
 - a string representing one of the value of `ResultSet::getHeader`;
 
 ~~~php
-<?php
-
 use League\Csv\Reader;
 use League\Csv\Statement;
 
@@ -206,8 +184,6 @@ foreach ($records->fetchColumn('E-mail') as $value) {
 <p class="message-notice">If for a given record the column value is <code>null</code>, the record will be skipped.</p>
 
 ~~~php
-<?php
-
 use League\Csv\Reader;
 use League\Csv\Statement;
 
@@ -221,8 +197,6 @@ count(iterator_to_array($records->fetchColumn(2), false)); //returns 5
 <p class="message-warning">If the <code>ResultSet</code> contains column names and the <code>$columnIndex</code> is not found an <code>Exception</code> exception is thrown.</p>
 
 ~~~php
-<?php
-
 use League\Csv\Reader;
 use League\Csv\Statement;
 
@@ -242,8 +216,6 @@ foreach ($records->fetchColumn('foobar') as $record) {
 `ResultSet::fetchPairs` method returns a `Generator` of key-value pairs.
 
 ~~~php
-<?php
-
 public ResultSet::fetchPairs(string|int $offsetIndex = 0, string|int $valueIndex = 1): Generator
 ~~~
 
@@ -255,8 +227,6 @@ Both arguments, `$offsetIndex` and `$valueIndex` can be:
 These arguments behave exactly like the `$columnIndex` from `ResultSet::fetchColumn`.
 
 ~~~php
-<?php
-
 use League\Csv\Reader;
 
 $str = <<EOF
@@ -304,8 +274,6 @@ foreach ($records->fetchPairs() as $firstname => $lastname) {
 The `ResultSet` class implements the `JsonSerializable` interface. As such you can use the `json_encode` function directly on the instantiated object. The interface is implemented using PHP's `iterator_array` on the `ResultSet::getRecords` method. As such, the returned `JSON` string data is affected by the presence or absence of column names.
 
 ~~~php
-<?php
-
 use League\Csv\Reader;
 use League\Csv\Statement;
 

@@ -10,8 +10,6 @@ To ease performing operations on the CSV document as it is being read from or wr
 ## Detecting stream filter support
 
 ~~~php
-<?php
-
 public AbstractCsv::supportsStreamFilter(void): bool
 public AbstractCsv::getStreamFilterMode(void): int
 ~~~
@@ -25,8 +23,6 @@ The filter mode value is one of the following PHP's constant:
 Regardless of stream filter API support by a specific CSV object, `getStreamFilterMode` will always return a value.
 
 ~~~php
-<?php
-
 use League\Csv\Reader;
 use League\Csv\Writer;
 
@@ -45,7 +41,7 @@ $writer->getStreamFilterMode(); //return STREAM_FILTER_WRITE
 
 Here's a table to quickly determine if PHP stream filters works depending on how the CSV object was instantiated.
 
-| Named constructor      | `supportsStreamFilter` |
+| Named constructor      |   supports stream      |
 |------------------------|------------------------|
 | `createFromString`     |         true           |
 | `createFromPath  `     |         true           |
@@ -56,8 +52,6 @@ Here's a table to quickly determine if PHP stream filters works depending on how
 ## Adding a stream filter
 
 ~~~php
-<?php
-
 public AbstractCsv::addStreamFilter(string $filtername, mixed $params = null): self
 public AbstractCsv::hasStreamFilter(string $filtername): bool
 ~~~
@@ -73,8 +67,6 @@ The `AbstractCsv::addStreamFilter` method adds a stream filter to the connection
 The `AbstractCsv::hasStreamFilter` method tells whether a specific stream filter is already attached to the connection.
 
 ~~~php
-<?php
-
 use League\Csv\Reader;
 use MyLib\Transcode;
 
@@ -108,8 +100,6 @@ Conversely, stream filters added **without** `addStreamFilter` are:
 - not removed on object destruction.
 
 ~~~php
-<?php
-
 use League\Csv\Reader;
 use MyLib\Transcode;
 

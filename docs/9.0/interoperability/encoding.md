@@ -14,8 +14,6 @@ Depending on the software you are using to read your CSV you may need to adjust 
 On Windows, MS Excel, expects an UTF-8 encoded CSV with its corresponding `BOM` character. To fullfill this requirement, you simply need to add the `UTF-8` `BOM` character if needed as explained below:
 
 ~~~php
-<?php
-
 use League\Csv\Reader;
 
 $reader = Reader::createFromPath('/path/to/my/file.csv', 'r');
@@ -35,8 +33,6 @@ echo $reader->getContent();
 On a MacOS system, MS Excel requires a CSV encoded in `UTF-16 LE` using the `tab` character as delimiter. Here's an example on how to meet those requirements using the `League\Csv` package.
 
 ~~~php
-<?php
-
 use League\Csv\CharsetConverter;
 use League\Csv\Reader;
 use League\Csv\Writer;

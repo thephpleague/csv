@@ -57,8 +57,6 @@ public HTMLConverter::convert(iterable $records): string
 The `HTMLConverter::convert` accepts an `iterable` which represents the records collection and returns a string.
 
 ~~~php
-<?php
-
 use League\Csv\HTMLConverter;
 
 //we fetch the info from a DB using a PDO object

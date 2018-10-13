@@ -16,8 +16,6 @@ Prior to converting your records collection into XML, you may wish to configure 
 ### XMLConverter::rootElement
 
 ~~~php
-<?php
-
 public XMLConverter::rootElement(string $node_name): self
 ~~~
 
@@ -28,8 +26,6 @@ This method sets the XML root name.
 ### XMLConverter::recordElement
 
 ~~~php
-<?php
-
 public XMLConverter::recordElement(string $node_name, string $record_offset_attribute_name = ''): self
 ~~~
 
@@ -41,8 +37,6 @@ This method sets the XML record name and optionnally the attribute name for the 
 ### XMLConverter::fieldElement
 
 ~~~php
-<?php
-
 public XMLConverter::fieldElement(string $node_name, string $fieldname_attribute_name = ''): self
 ~~~
 
@@ -54,16 +48,12 @@ This method sets the XML field name and optionnally the attribute name for the f
 ## Conversion
 
 ~~~php
-<?php
-
 public XMLConverter::convert(iterable $records): DOMDocument
 ~~~
 
 The `XMLConverter::convert` accepts an `iterable` which represents the records collection and returns a `DOMDocument` object.
 
 ~~~php
-<?php
-
 use League\Csv\XMLConverter;
 use League\Csv\Statement;
 use League\Csv\Reader;

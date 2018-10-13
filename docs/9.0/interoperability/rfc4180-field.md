@@ -21,8 +21,6 @@ When using this stream filter you can easily create or read a [RFC4180 compliant
 ## Usage with League\CSV objects
 
 ~~~php
-<?php
-
 public static RFC4180Field::addTo(AbstractCsv $csv, string $whitespace_replace = ''): AbstractCsv
 ~~~
 
@@ -33,8 +31,6 @@ The `RFC4180Field::addTo` method will register the stream filter if it is not al
 - the CSV stream filter mode;
 
 ~~~php
-<?php
-
 use League\Csv\RFC4180Field;
 use League\Csv\Writer;
 
@@ -57,8 +53,6 @@ its value will be used to:
 - To prevent `fputcsv` default behavior of always using enclosure when a whitespace is found in a record field
 
 ~~~php
-<?php
-
 use League\Csv\RFC4180Field;
 use League\Csv\Writer;
 
@@ -71,8 +65,6 @@ echo $writer->getContent(); //display 'foo bar,bar' instead of '"foo bar",bar'
 <p class="message-warning">The <code>$whitespace_replace</code> sequence should be a sequence not present in the inserted records, otherwise your CSV content will be affected by it.</p>
 
 ~~~php
-<?php
-
 use League\Csv\RFC4180Field;
 use League\Csv\Writer;
 
@@ -93,8 +85,6 @@ echo $writer->getContent(); //display ' o bar,baz' instead of foo bar,baz
 Conversely, to read a RFC4180 compliant CSV document, when using the `League\Csv\Reader` object, just need to add the `League\Csv\RFC4180Field` stream filter as shown below:
 
 ~~~php
-<?php
-
 use League\Csv\Reader;
 use League\Csv\RFC4180Field;
 
@@ -110,8 +100,6 @@ foreach ($csv as $record) {
 ## Usage with PHP stream resources
 
 ~~~php
-<?php
-
 public static RFC4180Field::register(): void
 public static RFC4180Field::getFiltername(): string
 ~~~
@@ -122,8 +110,6 @@ To use this stream filter outside `League\Csv` objects you need to:
 - use `RFC4180Field::getFiltername` with one of PHP's attaching stream filter functions with the correct arguments as shown below:
 
 ~~~php
-<?php
-
 use League\Csv\RFC4180Field;
 
 RFC4180Field::register();

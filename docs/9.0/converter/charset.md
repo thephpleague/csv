@@ -10,8 +10,6 @@ The `CharsetConverter` class converts your CSV records using the `mbstring` exte
 ## Settings
 
 ~~~php
-<?php
-
 public CharsetConverter::inputEncoding(string $input_encoding): self
 public CharsetConverter::outputEncoding(string $output_encoding): self
 ~~~
@@ -25,16 +23,12 @@ When building a `CharsetConverter` object, the methods do not need to be called 
 ## Conversion
 
 ~~~php
-<?php
-
 public CharsetConverter::convert(iterable $records): iterable
 ~~~
 
 `CharsetConverter::convert` converts the collection of records according to the encoding settings.
 
 ~~~php
-<?php
-
 use League\Csv\CharsetConverter;
 
 $csv = new SplFileObject('/path/to/french.csv', 'r');
@@ -50,16 +44,12 @@ The resulting data is converted from `iso-8859-15` to the default `UTF-8` since 
 ## CharsetConverter as a Writer formatter
 
 ~~~php
-<?php
-
 public CharsetConverter::__invoke(array $record): array
 ~~~
 
 Using the `CharsetConverter::__invoke` method, you can register a `CharsetConverter` object as a record formatter using [Writer::addFormatter](/9.0/writer/#record-formatter) method.
 
 ~~~php
-<?php
-
 use League\Csv\CharsetConverter;
 use League\Csv\Writer;
 
@@ -78,8 +68,6 @@ $writer->insertOne(["foo", "bébé", "jouet"]);
 ## CharsetConverter as a PHP stream filter
 
 ~~~php
-<?php
-
 public static CharsetConverter::addTo(AbstractCsv $csv, string $input_encoding, string $output_encoding): AbstractCsv
 public static CharsetConverter::register(): void
 public static CharsetConverter::getFiltername(string $input_encoding, string $output_encoding): string
@@ -96,8 +84,6 @@ The `CharsetConverter::addTo` static method:
 - adds the configured stream filter to the submitted CSV object;
 
 ~~~php
-<?php
-
 use League\Csv\CharsetConverter;
 use League\Csv\Writer;
 
@@ -116,8 +102,6 @@ To use this stream filter outside `League\Csv` objects you need to:
 - use `CharsetConverter::getFiltername` with one of PHP's attaching stream filter functions with the correct arguments as shown below:
 
 ~~~php
-<?php
-
 use League\Csv\CharsetConverter;
 
 CharsetConverter::register();

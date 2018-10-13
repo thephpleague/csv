@@ -16,16 +16,12 @@ When building a constraint, the methods do not need to be called in any particul
 The filters attached using the `Statement::where` method **are the first settings applied to the CSV before anything else**. This option follow the *First In First Out* rule.
 
 ~~~php
-<?php
-
 public Statement::where(callable $callable): self
 ~~~
 
 The callable filter signature is as follows:
 
 ~~~php
-<?php
-
 function(array $record [, int $offset [, Iterator $iterator]]): self
 ~~~
 
@@ -46,16 +42,12 @@ The sorting options are applied **after the Statement::where options**. The sort
 `Statement::orderBy` method adds a sorting function each time it is called.
 
 ~~~php
-<?php
-
 public Statement::orderBy(callable $callable): self
 ~~~
 
 The callable sort function signature is as follows:
 
 ~~~php
-<?php
-
 function(array $recordA, array $recordB): int
 ~~~
 
@@ -68,8 +60,6 @@ The interval methods enable returning a specific interval of CSV records. When c
 The interval API is made of the following method
 
 ~~~php
-<?php
-
 public Statement::offset(int $offset): self
 public Statement::limit(int $limit): self
 ~~~
@@ -83,16 +73,12 @@ public Statement::limit(int $limit): self
 ## Processing a CSV document
 
 ~~~php
-<?php
-
 public Statement::process(Reader $reader, array $header = []): ResultSet
 ~~~
 
 This method processes a [Reader](/9.0/reader/) object and returns the found records as a [ResultSet](/9.0/reader/resultset) object.
 
 ~~~php
-<?php
-
 use League\Csv\Reader;
 use League\Csv\Statement;
 
@@ -120,8 +106,6 @@ $records = $stmt->process($reader);
 Just like the `Reader:getRecords`, the `Statement::process` method takes an optional `$header` argument to allow mapping CSV fields name to user defined header record.
 
 ~~~php
-<?php
-
 use League\Csv\Reader;
 use League\Csv\Statement;
 

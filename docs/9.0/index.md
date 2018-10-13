@@ -20,8 +20,6 @@ layout: default
 Accessing some records from a given CSV documents.
 
 ~~~php
-<?php
-
 use League\Csv\Reader;
 use League\Csv\Statement;
 
@@ -46,8 +44,6 @@ foreach ($records as $record) {
 Create and download a CSV from a `PDOStatement` object
 
 ~~~php
-<?php
-
 use League\Csv\Writer;
 
 //we fetch the info from a DB using a PDO object
@@ -83,8 +79,6 @@ die;
 Importing CSV records into a database using a `PDOStatement` object
 
 ~~~php
-<?php
-
 use League\Csv\Reader;
 
 //We are going to insert some data into the users table
@@ -113,8 +107,6 @@ foreach ($csv as $record) {
 When importing csv files, you don't know whether the file is encoded with `UTF-8`, `UTF-16` or anything else.
 
 ~~~php
-<?php
-
 use League\Csv\Reader;
 use League\Csv\CharsetConverter;
 
@@ -137,8 +129,6 @@ foreach ($csv as $record) {
 Using the provided `XMLConverter` object you can easily convert a CSV document into a `DOMDocument` object.
 
 ~~~php
-<?php
-
 use League\Csv\XMLConverter;
 use League\Csv\Reader;
 
