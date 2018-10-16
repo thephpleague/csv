@@ -32,7 +32,7 @@ main div > code {
 
 .homepage header {
     margin:0 auto;
-    padding:3em 0;
+    padding:0 0 3em;
     box-sizing: border-box;
     background:#19242F url(//thephpleague.com/img/header_bg.png) no-repeat top center;
     background-size: cover;
@@ -44,7 +44,7 @@ main div > code {
 .homepage header h1 {
     margin:.3em auto;
     font-family: "Museo 300";
-    font-size:96px;
+    font-size:72px;
     font-weight: normal;
 }
 
@@ -61,6 +61,7 @@ main div > code {
     padding:.3em 1em;
     background-color:rgba(0, 0, 0, .3);
     color:#fff;
+    font-size:.9rem;
     font-family: Consolas, Monaco ,'Andale Mono', monospace;
     line-height: 140%;
     text-align: left;
@@ -76,52 +77,48 @@ main div > code {
     margin:0 auto;
     padding:0;
     list-style:none;
-    width:342px;
-    text-align:center;
-}
-
-.homepage .hot-links:after {
-    content: '';
-    display:table;
-    clear:both;
+    width:300px;
+    display:flex;
+    align-content: top;
+    align-items: center;
 }
 
 .homepage .hot-links li {
-    box-sizing: border-box;
-    float:left;
-    margin:0 1px;
     padding:0;
+    margin:0;
 }
 
 .homepage .hot-links a {
     display:block;
+    margin:0;
     padding:1em;
-    text-decoration: none;
+    width:150px;
+    border-radius:2px 0 0 2px;
+    text-decoration:none;
     text-align:center;
-    width:168px;
-    font-weight: bold;
-    text-shadow: none;
-    box-shadow: none;
-}
-
-.homepage .hot-links .source a {
+    font-weight:bold;
     background:#fff;
     color:#ff4043;
-    border-radius:.3em 0 0 .3em;
 }
 
-.homepage .hot-links .source a:hover {
-    background:#d8d8d8;
+.homepage .hot-links :last-child a {
+    border-radius:0 2px 2px 0;
+    background:#ff4043;
+    color:#fff;
 }
 
-.homepage .hot-links .documentation a {
+.homepage .hot-links:hover :last-child a {
+    color:#ff4043;
+}
+
+.homepage .hot-links:hover a {
+    background:#fff;
+    color:#ff4043;
+}
+
+.homepage .hot-links:hover a:hover {
     background: #ff4043;
     color: #fff;
-    border-radius:0 .3em .3em 0;
-}
-
-.homepage .hot-links .documentation a:hover {
-    background: #d33737;
 }
 
 .homepage main {
@@ -244,6 +241,20 @@ main div > code {
 
 .questions a:hover {
     text-decoration: none;
+}
+
+@media screen and (min-width: 404px) {
+    .homepage header {
+        padding:3em 0;
+    }
+
+    .homepage header h1 {
+        font-size:96px;
+    }
+
+    .homepage .composer span {
+        font-size:1rem;
+    }
 }
 
 @media screen and (min-width: 549px) {
