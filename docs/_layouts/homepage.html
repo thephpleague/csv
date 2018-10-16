@@ -10,7 +10,7 @@
     <link rel="icon" type="image/x-icon" href="{{ site.data.images.favicon }}" />
     <link rel="apple-touch-icon-precomposed" href="//theme.thephpleague.com/img/apple-touch-icon-precomposed.png">
     <link rel="stylesheet" href="//theme.thephpleague.com/css/all.css?2">
-    <link rel="stylesheet" href="/homepage.css?16">
+    <link rel="stylesheet" href="/homepage.css?17">
     <script async src="https://www.googletagmanager.com/gtag/js?id={{  site.data.project.google_analytics_tracking_id }}"></script>
     <script>
         window.dataLayer = window.dataLayer || [];
@@ -26,73 +26,15 @@
       <h1>{{ site.data.project.title }}</h1>
       <h2>{{ site.data.project.tagline }}</h2>
       <p class="composer"><span>{{ site.data.project.composer }}</span></p>
+      <ul class="hot-links clearfix">
+        <li class="source"><a href="//github.com/thephpleague/csv">source code</a></li>
+        <li class="documentation"><a href="{{ site.data.project.releases.current.documentation_link}}">documentation</a></li>
+      </ul>
+      <p class="footnote">{{ site.data.project.support }}</p>
     </div>
 </header>
 
 <main>
-  <div class="documentation">
-    <div class="inner-content">
-      <h1>Releases</h1>
-{% if site.data.project.releases.next %}
-      <div class="version next">
-        <h2>Upcoming</h2>
-        <div class="content">
-          <p><code>league/{{ site.data.project.title | downcase }}:^{{ site.data.project.releases.next.version }}</code></p>
-          <ul>
-            <li>Requires: <strong>{{ site.data.project.releases.next.requires }}</strong></li>
-            <li>Latest: <strong>{{ site.data.project.releases.next.latest }}</strong></li>
-            <li>Supported Until: <strong>{{ site.data.project.releases.next.supported_until }}</strong></li>
-          </ul>
-          <p><a href="{{ site.data.project.releases.next.documentation_link }}">Full Documentation</a></p>
-        </div>
-      </div>
-{% endif %}
-{% if site.data.project.releases.current %}
-      <div class="version current">
-        <h2>Current Stable</h2>
-        <div class="content">
-          <p><code>league/{{ site.data.project.title | downcase }}:^{{ site.data.project.releases.current.version }}</code></p>
-          <ul>
-            <li>Requires: <strong>{{ site.data.project.releases.current.requires }}</strong></li>
-            <li>Latest: <strong>{{ site.data.project.releases.current.latest }}</strong></li>
-            <li>Supported Until: <strong>{{ site.data.project.releases.current.supported_until }}</strong></li>
-          </ul>
-          <p><a href="{{ site.data.project.releases.current.documentation_link }}">Full Documentation</a></p>
-        </div>
-      </div>
-{% endif %}
-{% if site.data.project.releases.previous %}
-      <div class="version previous">
-        <h2>Old Stable Release</h2>
-        <div class="content">
-          <p><code>league/{{ site.data.project.title | downcase }}:^{{ site.data.project.releases.previous.version }}</code></p>
-          <ul>
-            <li>Requires: <strong>{{ site.data.project.releases.previous.requires }}</strong></li>
-            <li>Latest: <strong>{{ site.data.project.releases.previous.latest }}</strong></li>
-            <li>Supported Until: <strong>{{ site.data.project.releases.previous.supported_until }}</strong></li>
-          </ul>
-          <p><a href="{{ site.data.project.releases.previous.documentation_link }}">Full Documentation</a></p>
-        </div>
-      </div>
-{% endif %}
-{% if site.data.project.releases.legacy %}
-      <div class="version legacy">
-        <h2>Unsupported</h2>
-        <div class="content">
-          <p><code>league/{{ site.data.project.title | downcase }}:^{{ site.data.project.releases.legacy.version }}</code></p>
-          <ul>
-            <li>Requires: <strong>{{ site.data.project.releases.legacy.requires }}</strong></li>
-            <li>Latest: <strong>{{ site.data.project.releases.legacy.latest }}</strong></li>
-            <li>Supported Until: <strong>{{ site.data.project.releases.legacy.supported_until }}</strong></li>
-          </ul>
-          <p><a href="{{ site.data.project.releases.legacy.documentation_link }}">Full Documentation</a></p>
-        </div>
-      </div>
-{% endif %}
-      <p class="footnote">{{ site.data.project.support }}</p>
-    </div>
-  </div>
-
   <div class="highlights">
     <div class="inner-content">
       <div class="column one">
