@@ -77,7 +77,7 @@ final class EmptyEscapeParser
     /**
      * Converts the document into a CSV record iterator.
      *
-     * In PH7.4+ you'll be able to do
+     * In PHP7.4+ you'll be able to do
      *
      * <code>
      * $file = new SplFileObject('/path/to/file.csv', 'r');
