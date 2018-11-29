@@ -107,7 +107,7 @@ class Statement
     public function limit(int $limit): self
     {
         if (-1 > $limit) {
-            throw new Exception(sprintf('%s() expects the limit to be greater or equel to -1, %s given', __METHOD__, $limit));
+            throw new Exception(sprintf('%s() expects the limit to be greater or equal to -1, %s given', __METHOD__, $limit));
         }
 
         if ($limit === $this->limit) {
