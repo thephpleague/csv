@@ -440,5 +440,6 @@ EOF;
     {
         self::assertSame('php://temp', Writer::createFromString('')->getPathname());
         self::assertSame('php://temp', Writer::createFromString(new SplTempFileObject())->getPathname());
+        self::assertSame('php://temp', Writer::createFromFileObject(new SplTempFileObject())->getPathname());
     }
 }
