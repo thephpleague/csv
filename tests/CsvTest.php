@@ -412,6 +412,8 @@ EOF;
     {
         self::assertSame($expected, Reader::createFromPath($path)->getPathname());
         self::assertSame($expected, Reader::createFromFileObject(new SplFileObject($path))->getPathname());
+        self::assertSame($expected, Writer::createFromFileObject(new SplFileObject($path))->getPathname());
+        self::assertSame($expected, Writer::createFromFileObject(new SplFileObject($path))->getPathname());
     }
 
     public function getPathnameProvider()
@@ -438,6 +440,9 @@ EOF;
      */
     public function testGetPathnameWithTempFile()
     {
+        self::assertSame('php://temp', Reader::createFromString('')->getPathname());
+        self::assertSame('php://temp', Reader::createFromString(new SplTempFileObject())->getPathname());
+        self::assertSame('php://temp', Reader::createFromFileObject(new SplTempFileObject())->getPathname());
         self::assertSame('php://temp', Writer::createFromString('')->getPathname());
         self::assertSame('php://temp', Writer::createFromString(new SplTempFileObject())->getPathname());
         self::assertSame('php://temp', Writer::createFromFileObject(new SplTempFileObject())->getPathname());
