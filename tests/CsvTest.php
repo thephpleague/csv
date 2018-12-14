@@ -3,10 +3,7 @@
 /**
  * League.Csv (https://csv.thephpleague.com).
  *
- * @author  Ignace Nyamagana Butera <nyamsprod@gmail.com>
- * @license https://github.com/thephpleague/csv/blob/master/LICENSE (MIT License)
- * @version 9.2.0
- * @link    https://github.com/thephpleague/csv
+ * (c) Ignace Nyamagana Butera <nyamsprod@gmail.com>
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -20,9 +17,6 @@ use League\Csv\Writer;
 use PHPUnit\Framework\TestCase;
 use SplFileObject;
 use SplTempFileObject;
-use const PHP_EOL;
-use const STREAM_FILTER_READ;
-use const STREAM_FILTER_WRITE;
 use function chr;
 use function function_exists;
 use function iterator_to_array;
@@ -30,6 +24,9 @@ use function League\Csv\is_iterable as CSVIsiterable;
 use function strtolower;
 use function tmpfile;
 use function unlink;
+use const PHP_EOL;
+use const STREAM_FILTER_READ;
+use const STREAM_FILTER_WRITE;
 
 /**
  * @group csv

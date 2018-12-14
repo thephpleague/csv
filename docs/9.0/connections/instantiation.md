@@ -90,3 +90,23 @@ use League\Csv\Writer;
 $reader = Reader::createFromFileObject(new SplFileObject('/path/to/your/csv/file.csv'));
 $writer = Writer::createFromFileObject(new SplTempFileObject());
 ~~~
+
+## Accessing the CSV document path
+
+<p class="message-notice">New in version <code>9.2.0</code></p>
+
+~~~php
+public static AbstractCsv::getPathname(): string
+~~~
+
+Once instantiated, the `getPathname` method returns the pathname of the underlying document.
+
+~~~php
+use League\Csv\Reader;
+use League\Csv\Writer;
+
+Reader::createFromFileObject(new SplFileObject('/path/to/your/csv/file.csv'))->getPathname();
+//returns '/path/to/your/csv/file.csv'
+Writer::createFromFileObject(new SplTempFileObject())->getPathname();
+// returns php://temp
+~~~

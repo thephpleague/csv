@@ -3,10 +3,7 @@
 $header = <<<EOF
 League.Csv (https://csv.thephpleague.com)
 
-@author  Ignace Nyamagana Butera <nyamsprod@gmail.com>
-@license https://github.com/thephpleague/csv/blob/master/LICENSE (MIT License)
-@version 9.2.0
-@link    https://github.com/thephpleague/csv
+(c) Ignace Nyamagana Butera <nyamsprod@gmail.com>
 
 For the full copyright and license information, please view the LICENSE
 file that was distributed with this source code.
@@ -36,7 +33,7 @@ return PhpCsFixer\Config::create()
         'no_superfluous_phpdoc_tags' => true,
         'no_trailing_comma_in_singleline_array' => true,
         'no_unused_imports' => true,
-        'ordered_imports' => ['imports_order' => null, 'sort_algorithm' => 'alpha'],
+        'ordered_imports' => ['imports_order' => ['class', 'function', 'const'], 'sort_algorithm' => 'alpha'],
         'phpdoc_add_missing_param_annotation' => ['only_untyped' => false],
         'phpdoc_align' => true,
         'phpdoc_no_empty_return' => true,
@@ -57,3 +54,4 @@ return PhpCsFixer\Config::create()
     ])
     ->setFinder($finder)
 ;
+

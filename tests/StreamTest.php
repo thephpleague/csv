@@ -3,10 +3,7 @@
 /**
  * League.Csv (https://csv.thephpleague.com).
  *
- * @author  Ignace Nyamagana Butera <nyamsprod@gmail.com>
- * @license https://github.com/thephpleague/csv/blob/master/LICENSE (MIT License)
- * @version 9.2.0
- * @link    https://github.com/thephpleague/csv
+ * (c) Ignace Nyamagana Butera <nyamsprod@gmail.com>
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -19,13 +16,13 @@ use League\Csv\Stream;
 use PHPUnit\Framework\TestCase;
 use SplFileObject;
 use TypeError;
-use const STREAM_FILTER_READ;
 use function curl_init;
 use function fopen;
 use function fputcsv;
 use function stream_context_create;
 use function stream_wrapper_register;
 use function stream_wrapper_unregister;
+use const STREAM_FILTER_READ;
 
 /**
  * @group csv

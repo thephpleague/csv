@@ -3,10 +3,7 @@
 /**
  * League.Csv (https://csv.thephpleague.com).
  *
- * @author  Ignace Nyamagana Butera <nyamsprod@gmail.com>
- * @license https://github.com/thephpleague/csv/blob/master/LICENSE (MIT License)
- * @version 9.2.0
- * @link    https://github.com/thephpleague/csv
+ * (c) Ignace Nyamagana Butera <nyamsprod@gmail.com>
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -25,7 +22,6 @@ use JsonSerializable;
 use League\Csv\Polyfill\EmptyEscapeParser;
 use SplFileObject;
 use TypeError;
-use const STREAM_FILTER_READ;
 use function array_combine;
 use function array_filter;
 use function array_pad;
@@ -40,6 +36,7 @@ use function mb_substr;
 use function sprintf;
 use function strlen;
 use function substr;
+use const STREAM_FILTER_READ;
 
 /**
  * A class to parse and read records from a CSV document.

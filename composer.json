@@ -45,17 +45,17 @@
     },
     "scripts": {
         "phpcs": "php-cs-fixer fix -v --diff --dry-run --allow-risky=yes;",
-        "phpstan-src": "phpstan analyse -l 7 -c phpstan.src.neon src",
-        "phpstan-tests": "phpstan analyse -l 7 -c phpstan.tests.neon tests",
+        "phpstan-src": "phpstan analyse -l max -c phpstan.src.neon src",
+        "phpstan-tests": "phpstan analyse -l max -c phpstan.tests.neon tests",
         "phpstan": [
             "@phpstan-src",
             "@phpstan-tests"
         ],
         "phpunit": "phpunit --coverage-text",
         "test": [
-            "@phpunit",
             "@phpcs",
-            "@phpstan"
+            "@phpstan",
+            "@phpunit"
         ]
     },
     "suggest": {

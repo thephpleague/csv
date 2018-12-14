@@ -3,10 +3,7 @@
 /**
  * League.Csv (https://csv.thephpleague.com).
  *
- * @author  Ignace Nyamagana Butera <nyamsprod@gmail.com>
- * @license https://github.com/thephpleague/csv/blob/master/LICENSE (MIT License)
- * @version 9.2.0
- * @link    https://github.com/thephpleague/csv
+ * (c) Ignace Nyamagana Butera <nyamsprod@gmail.com>
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -19,7 +16,6 @@ namespace League\Csv;
 use SeekableIterator;
 use SplFileObject;
 use TypeError;
-use const SEEK_SET;
 use function array_keys;
 use function array_values;
 use function array_walk_recursive;
@@ -43,6 +39,7 @@ use function stream_filter_append;
 use function stream_filter_remove;
 use function stream_get_meta_data;
 use function strlen;
+use const SEEK_SET;
 
 /**
  * An object oriented API to handle a PHP stream resource.
@@ -227,8 +224,7 @@ class Stream implements SeekableIterator
      */
     public function getPathname(): string
     {
-        $stream_meta = stream_get_meta_data($this->stream);
-        return $stream_meta['uri'];
+        return stream_get_meta_data($this->stream)['uri'];
     }
 
     /**

@@ -3,10 +3,7 @@
 /**
  * League.Csv (https://csv.thephpleague.com).
  *
- * @author  Ignace Nyamagana Butera <nyamsprod@gmail.com>
- * @license https://github.com/thephpleague/csv/blob/master/LICENSE (MIT License)
- * @version 9.2.0
- * @link    https://github.com/thephpleague/csv
+ * (c) Ignace Nyamagana Butera <nyamsprod@gmail.com>
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -18,8 +15,6 @@ namespace League\Csv;
 
 use InvalidArgumentException;
 use php_user_filter;
-use const STREAM_FILTER_READ;
-use const STREAM_FILTER_WRITE;
 use function array_map;
 use function in_array;
 use function is_string;
@@ -30,6 +25,8 @@ use function stream_bucket_make_writeable;
 use function stream_filter_register;
 use function stream_get_filters;
 use function strlen;
+use const STREAM_FILTER_READ;
+use const STREAM_FILTER_WRITE;
 
 /**
  * A stream filter to conform the CSV field to RFC4180.

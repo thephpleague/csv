@@ -3,10 +3,7 @@
 /**
  * League.Csv (https://csv.thephpleague.com).
  *
- * @author  Ignace Nyamagana Butera <nyamsprod@gmail.com>
- * @license https://github.com/thephpleague/csv/blob/master/LICENSE (MIT License)
- * @version 9.2.0
- * @link    https://github.com/thephpleague/csv
+ * (c) Ignace Nyamagana Butera <nyamsprod@gmail.com>
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -73,6 +70,13 @@ final class EmptyEscapeParser
      * @var string|bool
      */
     private static $line;
+
+    /**
+     * @codeCoverageIgnore
+     */
+    private function __construct()
+    {
+    }
 
     /**
      * Converts the document into a CSV record iterator.

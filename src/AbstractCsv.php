@@ -3,10 +3,7 @@
 /**
  * League.Csv (https://csv.thephpleague.com).
  *
- * @author  Ignace Nyamagana Butera <nyamsprod@gmail.com>
- * @license https://github.com/thephpleague/csv/blob/master/LICENSE (MIT License)
- * @version 9.2.0
- * @link    https://github.com/thephpleague/csv
+ * (c) Ignace Nyamagana Butera <nyamsprod@gmail.com>
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -18,9 +15,6 @@ namespace League\Csv;
 
 use Generator;
 use SplFileObject;
-use const FILTER_FLAG_STRIP_HIGH;
-use const FILTER_FLAG_STRIP_LOW;
-use const FILTER_SANITIZE_STRING;
 use function filter_var;
 use function mb_strlen;
 use function rawurlencode;
@@ -29,6 +23,9 @@ use function str_replace;
 use function str_split;
 use function strcspn;
 use function strlen;
+use const FILTER_FLAG_STRIP_HIGH;
+use const FILTER_FLAG_STRIP_LOW;
+use const FILTER_SANITIZE_STRING;
 
 /**
  * An abstract class to enable CSV document loading.
