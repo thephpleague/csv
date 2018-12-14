@@ -19,6 +19,7 @@ use League\Csv\Reader;
 use League\Csv\Writer;
 use PHPUnit\Framework\TestCase;
 use SplTempFileObject;
+use SplFileObject;
 use const PHP_EOL;
 use const STREAM_FILTER_READ;
 use const STREAM_FILTER_WRITE;
