@@ -187,6 +187,14 @@ abstract class AbstractCsv implements ByteSequence
     }
 
     /**
+     * Returns the pathname of the underlying document.
+     */
+    public function getPathname(): string
+    {
+        return $this->document->getPathname();
+    }
+
+    /**
      * Returns the current field escape character.
      */
     public function getEscape(): string

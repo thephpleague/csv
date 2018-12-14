@@ -18,6 +18,7 @@ use League\Csv\Exception;
 use League\Csv\Reader;
 use League\Csv\Writer;
 use PHPUnit\Framework\TestCase;
+use SplFileObject;
 use SplTempFileObject;
 use const PHP_EOL;
 use const STREAM_FILTER_READ;
@@ -400,5 +401,50 @@ EOF;
         self::assertFalse(CSVIsiterable(1));
         self::assertFalse(CSVIsiterable((object) ['foo']));
         self::assertFalse(CSVIsiterable(Writer::createFromString('')));
+    }
+
+    /**
+     * @covers ::getPathname
+     * @covers League\Csv\Stream::getPathname
+     * @dataProvider getPathnameProvider
+     */
+    public function testGetPathname($path, string $expected)
+    {
+        self::assertSame($expected, Reader::createFromPath($path)->getPathname());
+        self::assertSame($expected, Reader::createFromFileObject(new SplFileObject($path))->getPathname());
+        self::assertSame($expected, Writer::createFromFileObject(new SplFileObject($path))->getPathname());
+        self::assertSame($expected, Writer::createFromFileObject(new SplFileObject($path))->getPathname());
+    }
+
+    public function getPathnameProvider()
+    {
+        return [
+            'absolute path' => [
+                'path' => __DIR__.'/data/foo.csv',
+                'expected' => __DIR__.'/data/foo.csv',
+            ],
+            'relative path' => [
+                'path' => 'tests/data/foo.csv',
+                'expected' => 'tests/data/foo.csv',
+            ],
+            'external uri' => [
+                'path' => 'https://raw.githubusercontent.com/thephpleague/csv/8.x/test/data/foo.csv',
+                'expected' => 'https://raw.githubusercontent.com/thephpleague/csv/8.x/test/data/foo.csv',
+            ],
+        ];
+    }
+
+    /**
+     * @covers ::getPathname
+     * @covers League\Csv\Stream::getPathname
+     */
+    public function testGetPathnameWithTempFile()
+    {
+        self::assertSame('php://temp', Reader::createFromString('')->getPathname());
+        self::assertSame('php://temp', Reader::createFromString(new SplTempFileObject())->getPathname());
+        self::assertSame('php://temp', Reader::createFromFileObject(new SplTempFileObject())->getPathname());
+        self::assertSame('php://temp', Writer::createFromString('')->getPathname());
+        self::assertSame('php://temp', Writer::createFromString(new SplTempFileObject())->getPathname());
+        self::assertSame('php://temp', Writer::createFromFileObject(new SplTempFileObject())->getPathname());
     }
 }
