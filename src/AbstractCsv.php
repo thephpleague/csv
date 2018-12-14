@@ -189,7 +189,7 @@ abstract class AbstractCsv implements ByteSequence
     /**
      * Returns the pathname of the underlying document.
      */
-    public function getPathname() : string
+    public function getPathname(): string
     {
         return $this->document->getPathname();
     }

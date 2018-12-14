@@ -223,11 +223,11 @@ class Stream implements SeekableIterator
     }
 
     /**
-     * Return the URI of the underlying stream
+     * Return the URI of the underlying stream.
      */
-    public function getPathname() : string
+    public function getPathname(): string
     {
-        $stream_meta = stream_get_meta_data( $this->stream );
+        $stream_meta = stream_get_meta_data($this->stream);
         return $stream_meta['uri'];
     }
 
