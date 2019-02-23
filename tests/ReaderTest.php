@@ -148,12 +148,14 @@ EOF;
      * @covers ::getHeaderOffset
      * @covers ::getHeader
      * @covers ::setHeader
+     * @covers ::seekRow
      */
     public function testGetHeader()
     {
         $this->csv->setHeaderOffset(1);
         self::assertSame(1, $this->csv->getHeaderOffset());
         self::assertSame($this->expected[1], $this->csv->getHeader());
+
         $this->csv->setHeaderOffset(null);
         self::assertNull($this->csv->getHeaderOffset());
         self::assertSame([], $this->csv->getHeader());

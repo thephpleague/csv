@@ -22,6 +22,7 @@ use function fputcsv;
 use function stream_context_create;
 use function stream_wrapper_register;
 use function stream_wrapper_unregister;
+use const PHP_VERSION_ID;
 use const STREAM_FILTER_READ;
 
 /**
@@ -194,15 +195,29 @@ class StreamTest extends TestCase
         $expected = [';', '|', '"'];
         $doc->setCsvControl(...$expected);
         self::assertSame($expected, $doc->getCsvControl());
-
-        if (70400 <= \PHP_VERSION_ID) {
-            $expected = [';', '|', ''];
-            $doc->setCsvControl(...$expected);
-            self::assertSame($expected, $doc->getCsvControl());
-        }
-
         self::expectException(Exception::class);
         $doc->setCsvControl(...['foo']);
+    }
+
+    public function testCsvControlThrowsOnEmptyEscapeString()
+    {
+        if (70400 <= PHP_VERSION_ID) {
+            $this->markTestSkipped('This test is only for PHP7.4- versions');
+        }
+        self::expectException(Exception::class);
+        $doc = Stream::createFromString();
+        $doc->setCsvControl(...[';', '|', '']);
+    }
+
+    public function testCsvControlAcceptsEmptyEscapeString()
+    {
+        if (70400 > PHP_VERSION_ID) {
+            $this->markTestSkipped('This test is only for PHP7.4+ versions');
+        }
+        $doc = Stream::createFromString();
+        $expected = [';', '|', ''];
+        $doc->setCsvControl(...$expected);
+        self::assertSame($expected, $doc->getCsvControl());
     }
 
     /**
