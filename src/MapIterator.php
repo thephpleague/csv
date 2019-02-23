@@ -1,7 +1,7 @@
 <?php
 
 /**
- * League.Csv (https://csv.thephpleague.com).
+ * League.Csv (https://csv.thephpleague.com)
  *
  * (c) Ignace Nyamagana Butera <nyamsprod@gmail.com>
  *
