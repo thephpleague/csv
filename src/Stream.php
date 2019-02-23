@@ -209,7 +209,7 @@ class Stream implements SeekableIterator
      *
      * @return static
      */
-    public static function createFromString(string $content)
+    public static function createFromString(string $content = '')
     {
         $resource = fopen('php://temp', 'r+');
         fwrite($resource, $content);
@@ -266,7 +266,7 @@ class Stream implements SeekableIterator
     {
         $controls = ['delimiter' => $delimiter, 'enclosure' => $enclosure, 'escape' => $escape];
         foreach ($controls as $type => $control) {
-            if (70400 <= PHP_VERSION_ID && 'escape' === $type && '' === $control) {
+            if (70400 < PHP_VERSION_ID && 'escape' === $type && '' === $control) {
                 continue;
             }
 

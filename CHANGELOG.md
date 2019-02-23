@@ -20,6 +20,7 @@ All Notable changes to `Csv` will be documented in this file
 - `AbstractCSV::setEscape` now accepts the empty string like `fputcsv` and `fgetcsv`
 - `Writer::insertOne` fixes throwing exception when record can not be inserted
 - `XMLConverter` convert to string the record value to avoid PHP warning on `null` value
+- Internal `Stream::createFromString` named constructor default argument is now the empty string
 - Internal `Stream::fwrite` improved
 - Internal `Stream::__destruct` no longer emit warning on invalid stream filter removal.
 - `Reader:getHeader` when the record is an empty line.
