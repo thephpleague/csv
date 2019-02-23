@@ -36,6 +36,7 @@ use function mb_substr;
 use function sprintf;
 use function strlen;
 use function substr;
+use const PHP_VERSION_ID;
 use const STREAM_FILTER_READ;
 
 /**
@@ -167,7 +168,7 @@ class Reader extends AbstractCsv implements Countable, IteratorAggregate, JsonSe
      */
     protected function getDocument(): Iterator
     {
-        if (70400 > \PHP_VERSION_ID && '' === $this->escape) {
+        if (70400 > PHP_VERSION_ID && '' === $this->escape) {
             $this->document->setCsvControl($this->delimiter, $this->enclosure);
 
             return EmptyEscapeParser::parse($this->document);

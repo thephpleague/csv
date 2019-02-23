@@ -39,6 +39,7 @@ use function stream_filter_append;
 use function stream_filter_remove;
 use function stream_get_meta_data;
 use function strlen;
+use const PHP_VERSION_ID;
 use const SEEK_SET;
 
 /**
@@ -265,7 +266,7 @@ class Stream implements SeekableIterator
     {
         $controls = ['delimiter' => $delimiter, 'enclosure' => $enclosure, 'escape' => $escape];
         foreach ($controls as $type => $control) {
-            if (70400 <= \PHP_VERSION_ID && 'escape' === $type && '' === $control) {
+            if (70400 <= PHP_VERSION_ID && 'escape' === $type && '' === $control) {
                 continue;
             }
 
