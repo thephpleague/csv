@@ -24,6 +24,7 @@ use function preg_quote;
 use function sprintf;
 use function str_replace;
 use function strlen;
+use const PHP_VERSION_ID;
 use const SEEK_CUR;
 use const STREAM_FILTER_WRITE;
 
@@ -150,7 +151,7 @@ class Writer extends AbstractCsv
     public function insertOne(array $record): int
     {
         $method = 'addRecord';
-        if ('' === $this->escape) {
+        if (70400 > PHP_VERSION_ID && '' === $this->escape) {
             $method = 'addRFC4180CompliantRecord';
         }
 

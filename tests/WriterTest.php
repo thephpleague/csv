@@ -253,6 +253,7 @@ class WriterTest extends TestCase
      * @covers ::getInputBOM
      * @covers ::insertOne
      * @covers ::addRFC4180CompliantRecord
+     * @covers ::addRecord
      *
      * @dataProvider compliantRFC4180Provider
      */
