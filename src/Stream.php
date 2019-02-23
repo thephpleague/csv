@@ -265,6 +265,10 @@ class Stream implements SeekableIterator
     {
         $controls = ['delimiter' => $delimiter, 'enclosure' => $enclosure, 'escape' => $escape];
         foreach ($controls as $type => $control) {
+            if (70400 <= \PHP_VERSION_ID && 'escape' === $type && '' === $control) {
+                continue;
+            }
+
             if (1 !== strlen($control)) {
                 throw new Exception(sprintf('%s() expects %s to be a single character', $caller, $type));
             }

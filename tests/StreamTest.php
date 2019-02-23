@@ -194,6 +194,13 @@ class StreamTest extends TestCase
         $expected = [';', '|', '"'];
         $doc->setCsvControl(...$expected);
         self::assertSame($expected, $doc->getCsvControl());
+
+        if (70400 <= \PHP_VERSION_ID) {
+            $expected = [';', '|', ''];
+            $doc->setCsvControl(...$expected);
+            self::assertSame($expected, $doc->getCsvControl());
+        }
+
         self::expectException(Exception::class);
         $doc->setCsvControl(...['foo']);
     }
