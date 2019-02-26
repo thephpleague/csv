@@ -423,8 +423,11 @@ class Stream implements SeekableIterator
             $this->current();
             $this->next();
         }
-
-        $this->offset--;
+        
+        if ($position !== 0) {
+            $this->offset--;
+        }
+        
         $this->current();
     }
 
