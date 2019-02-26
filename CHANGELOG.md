@@ -23,6 +23,8 @@ All Notable changes to `Csv` will be documented in this file
 - Internal `Stream::createFromString` named constructor default argument is now the empty string
 - Internal `Stream::fwrite` improved
 - Internal `Stream::__destruct` no longer emit warning on invalid stream filter removal.
+- Internal `Stream::seek` returns `0` if the seeked position `0` is valid see [#321](https://github.com/thephpleague/csv/pull/332) thanks [@HaozhouChen](https://github.com/HaozhouChen) 
+
 - `Reader:getHeader` when the record is an empty line.
 
 ### Removed

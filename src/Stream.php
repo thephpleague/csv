@@ -424,7 +424,7 @@ class Stream implements SeekableIterator
             $this->next();
         }
         
-        if ($position !== 0) {
+        if (0 !== $position) {
             $this->offset--;
         }
         

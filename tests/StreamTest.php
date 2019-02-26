@@ -164,6 +164,17 @@ class StreamTest extends TestCase
     }
 
     /**
+     * @covers ::seek
+     * @covers ::key
+     */
+    public function testSeekToPositionZero()
+    {
+        $doc = Stream::createFromString();
+        $doc->seek(0);
+        self::assertSame(0, $doc->key());
+    }
+
+    /**
      * @covers ::rewind
      */
     public function testRewindThrowsException()
