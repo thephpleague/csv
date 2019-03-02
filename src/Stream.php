@@ -266,7 +266,7 @@ class Stream implements SeekableIterator
     {
         $controls = ['delimiter' => $delimiter, 'enclosure' => $enclosure, 'escape' => $escape];
         foreach ($controls as $type => $control) {
-            if (70400 < PHP_VERSION_ID && 'escape' === $type && '' === $control) {
+            if ('escape' === $type && '' === $control && 70400 <= PHP_VERSION_ID) {
                 continue;
             }
 

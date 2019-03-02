@@ -23,6 +23,7 @@ namespace League\Csv {
     use function is_array;
     use function iterator_to_array;
     use function strpos;
+    use const COUNT_RECURSIVE;
 
     /**
      * Returns the BOM sequence found at the start of the string.
