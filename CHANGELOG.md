@@ -6,7 +6,8 @@ All Notable changes to `Csv` will be documented in this file
 
 ### Added
 
-- Supports for empty string for the escape character to enable better RFC4180 compliance.
+- Supports for PHP7.4 empty string for the escape character
+- Supports for empty string for the escape character with a polyfill for PHP7.4- versions.
 - `AbstractCSV::getPathname` see [#321](https://github.com/thephpleague/csv/pull/321) thanks [@tomkyle](https://github.com/tomkyle)
 
 ### Deprecated
