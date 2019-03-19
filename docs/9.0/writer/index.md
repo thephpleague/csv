@@ -69,7 +69,7 @@ $writer = Writer::createFromString();
 $writer->insertOne($record);
 $writer->setEscape('');
 $writer->insertOne($record);
-echo $writer->getContents();
+echo $writer->getContent();
 // """foo""","foo bar","baz ","foo\"bar"
 // """foo""","foo bar","baz ","foo\""bar"
 ~~~
