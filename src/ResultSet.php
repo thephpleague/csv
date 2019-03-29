@@ -107,7 +107,7 @@ class ResultSet implements Countable, IteratorAggregate, JsonSerializable
      */
     public function jsonSerialize(): array
     {
-        return iterator_to_array($this->records, false);
+        return json_encode(iterator_to_array($this->records, false));
     }
 
     /**
