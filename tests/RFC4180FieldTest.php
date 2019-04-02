@@ -172,8 +172,8 @@ class RFC4180FieldTest extends TestCase
         RFC4180Field::addTo($csv, "\0");
         $csv->insertAll($this->records);
         $contents = $csv->getContent();
-        self::assertContains('Grand Cherokee', $contents);
-        self::assertNotContains('"Grand Cherokee"', $contents);
+        self::assertStringContainsString('Grand Cherokee', $contents);
+        self::assertStringNotContainsString('"Grand Cherokee"', $contents);
     }
 
 

@@ -41,6 +41,8 @@ class MapIterator extends IteratorIterator
 
     /**
      * {@inheritdoc}
+     *
+     * @return mixed the return value calculated using the callable.
      */
     public function current()
     {

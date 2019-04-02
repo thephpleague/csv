@@ -103,7 +103,7 @@ class StreamTest extends TestCase
         );
         $stream->setFlags(SplFileObject::READ_AHEAD | SplFileObject::READ_CSV);
         $stream->rewind();
-        self::assertInternalType('array', $stream->current());
+        self::assertIsArray($stream->current());
     }
 
     /**
@@ -134,7 +134,7 @@ class StreamTest extends TestCase
     public function testVarDump(): void
     {
         $stream = new Stream(fopen('php://temp', 'r+'));
-        self::assertInternalType('array', $stream->__debugInfo());
+        self::assertIsArray($stream->__debugInfo());
     }
 
     /**

@@ -67,7 +67,7 @@ final class EmptyEscapeParser
     private static $trim_mask;
 
     /**
-     * @var string|bool
+     * @var mixed
      */
     private static $line;
 
@@ -111,7 +111,7 @@ final class EmptyEscapeParser
     public static function parse($document): Generator
     {
         self::$document = self::filterDocument($document);
-        list(self::$delimiter, self::$enclosure, ) = self::$document->getCsvControl();
+        [self::$delimiter, self::$enclosure, ] = self::$document->getCsvControl();
         self::$trim_mask = str_replace([self::$delimiter, self::$enclosure], '', " \t\0\x0B");
         self::$document->setFlags(0);
         self::$document->rewind();
@@ -126,7 +126,7 @@ final class EmptyEscapeParser
     /**
      * Filters the submitted document.
      *
-     * @param SplFileObject|Stream $document
+     * @param mixed $document the submitted object
      *
      * @return SplFileObject|Stream
      */
@@ -151,18 +151,26 @@ final class EmptyEscapeParser
     {
         $record = [];
         self::$line = self::$document->fgets();
-        do {
-            $method = 'extractFieldContent';
-            $buffer = ltrim(self::$line, self::$trim_mask);
-            if (($buffer[0] ?? '') === self::$enclosure) {
-                $method = 'extractEnclosedFieldContent';
-                self::$line = $buffer;
-            }
 
-            $record[] = self::$method();
+        do {
+            $record[] = self::addFieldContent();
         } while (false !== self::$line);
 
         return $record;
+    }
+
+    /**
+     * Extract a field from the record.
+     */
+    private static function addFieldContent(): ?string
+    {
+        $buffer = ltrim(self::$line, self::$trim_mask);
+        if (($buffer[0] ?? '') === self::$enclosure) {
+            self::$line = $buffer;
+            return self::extractEnclosedFieldContent();
+        }
+
+        return self::extractFieldContent();
     }
 
     /**
@@ -171,10 +179,8 @@ final class EmptyEscapeParser
      * - Field content can not spread on multiple document lines.
      * - Content must be preserved.
      * - Trailing line-breaks must be removed.
-     *
-     * @return string|null
      */
-    private static function extractFieldContent()
+    private static function extractFieldContent(): ?string
     {
         if (in_array(self::$line, self::FIELD_BREAKS, true)) {
             self::$line = false;
@@ -182,7 +188,7 @@ final class EmptyEscapeParser
             return null;
         }
 
-        list($content, self::$line) = explode(self::$delimiter, self::$line, 2) + [1 => false];
+        [$content, self::$line] = explode(self::$delimiter, self::$line, 2) + [1 => false];
         if (false === self::$line) {
             return rtrim($content, "\r\n");
         }
@@ -198,18 +204,18 @@ final class EmptyEscapeParser
      * - Double enclosure sequence must be replaced by single enclosure character.
      * - Trailing line break must be removed if they are not part of the field content.
      * - Invalid field content is treated as per fgetcsv behavior.
-     *
-     * @return string|null
      */
-    private static function extractEnclosedFieldContent()
+    private static function extractEnclosedFieldContent(): ?string
     {
-        if ((self::$line[0] ?? '') === self::$enclosure) {
+        self::$line = self::$line ?? '';
+        if (false !== self::$line && '' !== self::$line && self::$line[0] === self::$enclosure) {
             self::$line = substr(self::$line, 1);
         }
 
         $content = '';
         while (false !== self::$line) {
-            list($buffer, $remainder) = explode(self::$enclosure, self::$line, 2) + [1 => false];
+            $res = explode(self::$enclosure, self::$line, 2);
+            [$buffer, $remainder] = $res + [1 => false];
             $content .= $buffer;
             self::$line = $remainder;
             if (false !== self::$line) {

@@ -51,9 +51,9 @@ class HTMLConverterTest extends TestCase
         ;
 
         $html = $converter->convert($records);
-        self::assertContains('<table class="table-csv-data" id="test">', $html);
-        self::assertContains('<tr data-record-offset="', $html);
-        self::assertContains('<td title="', $html);
+        self::assertStringContainsString('<table class="table-csv-data" id="test">', $html);
+        self::assertStringContainsString('<tr data-record-offset="', $html);
+        self::assertStringContainsString('<td title="', $html);
     }
 
     /**

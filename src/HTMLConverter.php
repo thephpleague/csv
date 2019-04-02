@@ -14,7 +14,6 @@ declare(strict_types=1);
 namespace League\Csv;
 
 use DOMException;
-use Traversable;
 use function preg_match;
 
 /**
@@ -55,8 +54,6 @@ class HTMLConverter
 
     /**
      * Convert an Record collection into a DOMDocument.
-     *
-     * @param array|Traversable $records the tabular data collection
      */
     public function convert(iterable $records): string
     {
@@ -64,7 +61,7 @@ class HTMLConverter
         $doc->documentElement->setAttribute('class', $this->class_name);
         $doc->documentElement->setAttribute('id', $this->id_value);
 
-        return $doc->saveHTML($doc->documentElement);
+        return (string) $doc->saveHTML($doc->documentElement);
     }
 
     /**
@@ -74,7 +71,7 @@ class HTMLConverter
      */
     public function table(string $class_name, string $id_value = ''): self
     {
-        if (preg_match(",\s,", $id_value)) {
+        if (1 === preg_match(",\s,", $id_value)) {
             throw new DOMException("the id attribute's value must not contain whitespace (spaces, tabs etc.)");
         }
         $clone = clone $this;

@@ -136,7 +136,7 @@ abstract class AbstractCsv implements ByteSequence
     /**
      * Return a new instance from a PHP resource stream.
      *
-     * @param resource $stream
+     * @param mixed $stream a resource
      *
      * @return static
      */
@@ -263,7 +263,8 @@ abstract class AbstractCsv implements ByteSequence
         $input_bom = $this->getInputBOM();
         $this->document->rewind();
         $this->document->fseek(strlen($input_bom));
-        foreach (str_split($this->output_bom.$this->document->fread($length), $length) as $chunk) {
+        $start = (array) str_split($this->output_bom.$this->document->fread($length), $length);
+        foreach ($start as $chunk) {
             yield $chunk;
         }
 
@@ -337,7 +338,7 @@ abstract class AbstractCsv implements ByteSequence
             $flag |= FILTER_FLAG_STRIP_HIGH;
         }
 
-        $filenameFallback = str_replace('%', '', filter_var($filename, FILTER_SANITIZE_STRING, $flag));
+        $filenameFallback = str_replace('%', '', (string) filter_var($filename, FILTER_SANITIZE_STRING, $flag));
 
         $disposition = sprintf('attachment; filename="%s"', str_replace('"', '\\"', $filenameFallback));
         if ($filename !== $filenameFallback) {

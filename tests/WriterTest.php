@@ -82,7 +82,7 @@ class WriterTest extends TestCase
         $csv->insertOne(['jane', 'doe', 'jane@example.com']);
         $csv->insertOne(['jane', 'doe', 'jane@example.com']);
         $csv->setFlushThreshold(null);
-        self::assertContains('JANE,DOE,JANE@EXAMPLE.COM', $csv->getContent());
+        self::assertStringContainsString('JANE,DOE,JANE@EXAMPLE.COM', $csv->getContent());
     }
 
     /**
@@ -96,7 +96,7 @@ class WriterTest extends TestCase
         foreach ($expected as $row) {
             $this->csv->insertOne($row);
         }
-        self::assertContains('john,doe,john.doe@example.com', $this->csv->getContent());
+        self::assertStringContainsString('john,doe,john.doe@example.com', $this->csv->getContent());
     }
 
     /**
@@ -107,7 +107,7 @@ class WriterTest extends TestCase
     {
         $csv = Writer::createFromPath(__DIR__.'/data/foo.csv', 'a+');
         $csv->insertOne(['jane', 'doe', 'jane.doe@example.com']);
-        self::assertContains('jane,doe,jane.doe@example.com', $csv->getContent());
+        self::assertStringContainsString('jane,doe,jane.doe@example.com', $csv->getContent());
     }
 
     /**
@@ -146,7 +146,7 @@ class WriterTest extends TestCase
     public function testSave(iterable $argument, string $expected): void
     {
         $this->csv->insertAll($argument);
-        self::assertContains($expected, $this->csv->getContent());
+        self::assertStringContainsString($expected, $this->csv->getContent());
     }
 
     public function dataToSave(): iterable

@@ -141,17 +141,17 @@ class ResultSet implements Countable, IteratorAggregate, JsonSerializable
     public function fetchColumn($index = 0): Generator
     {
         $offset = $this->getColumnIndex($index, __METHOD__.'() expects the column index to be a valid string or integer, `%s` given');
-        $filter = static function (array $record) use ($offset): bool {
+        $filter = function (array $record) use ($offset): bool {
             return isset($record[$offset]);
         };
 
-        $select = static function (array $record) use ($offset): string {
+        $select = function (array $record) use ($offset): string {
             return $record[$offset];
         };
 
         $iterator = new MapIterator(new CallbackFilterIterator($this->records, $filter), $select);
-        foreach ($iterator as $offset => $value) {
-            yield $offset => $value;
+        foreach ($iterator as $key => $value) {
+            yield $key => $value;
         }
     }
 

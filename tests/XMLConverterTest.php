@@ -12,12 +12,13 @@
 namespace LeagueTest\Csv;
 
 use DOMDocument;
+use DOMElement;
 use DOMException;
+use DOMNodeList;
 use League\Csv\Reader;
 use League\Csv\Statement;
 use League\Csv\XMLConverter;
 use PHPUnit\Framework\TestCase;
-use TypeError;
 
 /**
  * @group converter
@@ -60,13 +61,20 @@ class XMLConverterTest extends TestCase
         $dom = $converter->convert($records);
         $record_list = $dom->getElementsByTagName('record');
         $field_list = $dom->getElementsByTagName('field');
+        self::assertInstanceOf(DOMNodeList::class, $field_list);
+        self::assertEquals(20, $field_list->length);
+
+        $node = $field_list->item(0);
+        self::assertInstanceOf(DOMElement::class, $node);
+        self::assertTrue($node->hasAttribute('name'));
 
         self::assertInstanceOf(DOMDocument::class, $dom);
         self::assertSame('csv', $dom->documentElement->tagName);
         self::assertEquals(5, $record_list->length);
-        self::assertTrue($record_list->item(0)->hasAttribute('offset'));
-        self::assertEquals(20, $field_list->length);
-        self::assertTrue($field_list->item(0)->hasAttribute('name'));
+
+        $node = $record_list->item(0);
+        self::assertInstanceOf(DOMElement::class, $node);
+        self::assertTrue($node->hasAttribute('offset'));
     }
 
     /**
@@ -80,14 +88,5 @@ class XMLConverterTest extends TestCase
         (new XMLConverter())
             ->recordElement('record', '')
             ->rootElement('   ');
-    }
-
-    /**
-     * @covers ::convert
-     */
-    public function testXmlElementTriggersTypeError(): void
-    {
-        self::expectException(TypeError::class);
-        (new XMLConverter())->convert('foo');
     }
 }

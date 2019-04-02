@@ -128,6 +128,8 @@ class EscapeFormula
     /**
      * Escape a CSV cell.
      *
+     * @param mixed $cell the content of one cell.
+     *
      * @return string|int
      */
     protected function escapeField($cell)
@@ -146,6 +148,8 @@ class EscapeFormula
 
     /**
      * Tell whether the submitted value is stringable.
+     *
+     * @param mixed $value the content of one cell.
      */
     protected function isStringable($value): bool
     {

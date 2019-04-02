@@ -83,7 +83,10 @@ class CharsetConverterTest extends TestCase
             ->inputEncoding('iso-8859-15')
             ->outputEncoding('utf-8')
         ;
-        self::assertSame($expected, $converter->convert([$raw])[0]);
+
+        foreach ($converter->convert([$raw]) as $converted) {
+            self::assertSame($expected, $converted);
+        }
     }
 
     /**
@@ -167,7 +170,9 @@ class CharsetConverterTest extends TestCase
             ->inputEncoding('iso-8859-15')
             ->outputEncoding('utf-8');
         $res = $converter->convert([$record]);
-        self::assertSame($expected, $res[0]);
+        foreach ($converter->convert([$record]) as $converted) {
+            self::assertSame($expected, $converted);
+        }
     }
 
     public function converterProvider(): iterable

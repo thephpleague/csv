@@ -31,7 +31,7 @@ class ColumnConsistency
     /**
      * New Instance.
      *
-     * @throws OutOfRangeException if the column count is lesser than -1
+     * @throws Exception if the column count is lesser than -1
      */
     public function __construct(int $columns_count = -1)
     {

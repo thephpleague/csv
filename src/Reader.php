@@ -147,7 +147,7 @@ class Reader extends AbstractCsv implements Countable, IteratorAggregate, JsonSe
     /**
      * Returns the row at a given offset.
      *
-     * @return array|false
+     * @return string[]|false
      */
     protected function seekRow(int $offset)
     {
@@ -204,11 +204,20 @@ class Reader extends AbstractCsv implements Countable, IteratorAggregate, JsonSe
     /**
      * {@inheritdoc}
      */
-    public function __call($method, array $arguments)
+    public function __call(string $method, array $arguments): iterable
     {
-        static $whitelisted = ['fetchColumn' => 1, 'fetchOne' => 1, 'fetchPairs' => 1];
-        if (isset($whitelisted[$method])) {
-            return (new ResultSet($this->getRecords(), $this->getHeader()))->$method(...$arguments);
+        $resultset = new ResultSet($this->getRecords(), $this->getHeader());
+        $normalized = strtolower($method);
+        if ('fetchcolumn' === $normalized) {
+            return $resultset->fetchColumn(...$arguments);
+        }
+
+        if ('fetchpairs' === $normalized) {
+            return $resultset->fetchPairs(...$arguments);
+        }
+
+        if ('fetchone' === $normalized) {
+            return $resultset->fetchOne(...$arguments);
         }
 
         throw new BadMethodCallException(sprintf('%s::%s() method does not exist', static::class, $method));
@@ -308,13 +317,13 @@ class Reader extends AbstractCsv implements Countable, IteratorAggregate, JsonSe
             return $iterator;
         }
 
-        $field_count = count($header);
-        $mapper = static function (array $record) use ($header, $field_count): array {
-            if (count($record) != $field_count) {
-                $record = array_slice(array_pad($record, $field_count, null), 0, $field_count);
+        $count = count($header);
+        $mapper = function (array $record) use ($header, $count): array {
+            if (count($record) != $count) {
+                $record = array_slice(array_pad($record, $count, null), 0, $count);
             }
 
-            return array_combine($header, $record);
+            return (array) array_combine($header, $record);
         };
 
         return new MapIterator($iterator, $mapper);

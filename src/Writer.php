@@ -198,7 +198,7 @@ class Writer extends AbstractCsv
     {
         foreach ($record as &$field) {
             $field = (string) $field;
-            if (preg_match($this->rfc4180_regexp, $field)) {
+            if (1 === preg_match($this->rfc4180_regexp, $field)) {
                 $field = $this->enclosure.str_replace($this->enclosure, $this->rfc4180_enclosure, $field).$this->enclosure;
             }
         }
@@ -242,7 +242,7 @@ class Writer extends AbstractCsv
         $bytes = 0;
         if ("\n" !== $this->newline) {
             $this->document->fseek(-1, SEEK_CUR);
-            $bytes = $this->document->fwrite($this->newline, strlen($this->newline)) - 1;
+            $bytes =  (int) $this->document->fwrite($this->newline, strlen($this->newline)) - 1;
         }
 
         if (null === $this->flush_threshold) {

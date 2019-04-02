@@ -144,6 +144,11 @@ class RFC4180Field extends php_user_filter
 
     /**
      * {@inheritdoc}
+     *
+     * @param resource $in
+     * @param resource $out
+     * @param int      $consumed
+     * @param bool     $closing
      */
     public function filter($in, $out, &$consumed, $closing): int
     {

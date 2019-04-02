@@ -162,10 +162,10 @@ EOF;
 
         // Due to the variety of ways the xdebug expresses Content-Type of text files,
         // we cannot count on complete string matching.
-        self::assertContains('content-type: text/csv', strtolower($headers[0]));
+        self::assertStringContainsString('content-type: text/csv', strtolower($headers[0]));
         self::assertSame('Content-Transfer-Encoding: binary', $headers[1]);
         self::assertSame('Content-Description: File Transfer', $headers[2]);
-        self::assertContains('Content-Disposition: attachment; filename="tst.csv"; filename*=utf-8\'\'t%C3%A9st.csv', $headers[3]);
+        self::assertStringContainsString('Content-Disposition: attachment; filename="tst.csv"; filename*=utf-8\'\'t%C3%A9st.csv', $headers[3]);
     }
 
     /**
@@ -350,9 +350,9 @@ EOF;
         $path = __DIR__.'/data/foo.csv';
         $csv = Reader::createFromPath($path);
         $csv->addStreamFilter('string.toupper');
-        self::assertContains('JOHN', $csv->getContent());
+        self::assertStringContainsString('JOHN', $csv->getContent());
         $csv = Reader::createFromPath($path);
-        self::assertNotContains('JOHN', $csv->getContent());
+        self::assertStringNotContainsString('JOHN', $csv->getContent());
     }
 
     /**
@@ -364,7 +364,7 @@ EOF;
         $csv = Writer::createFromPath(__DIR__.'/data/newline.csv', 'w+');
         $csv->addStreamFilter('string.toupper');
         $csv->insertOne([1, 'two', 3, "new\r\nline"]);
-        self::assertContains("1,TWO,3,\"NEW\r\nLINE\"", $csv->getContent());
+        self::assertStringContainsString("1,TWO,3,\"NEW\r\nLINE\"", $csv->getContent());
     }
 
     /**

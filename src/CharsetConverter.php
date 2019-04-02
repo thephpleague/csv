@@ -140,8 +140,8 @@ class CharsetConverter extends php_user_filter
         }
 
         try {
-            $this->input_encoding = $this->filterEncoding($matches['input']);
-            $this->output_encoding = $this->filterEncoding($matches['output']);
+            $this->input_encoding = self::filterEncoding($matches['input']);
+            $this->output_encoding = self::filterEncoding($matches['output']);
             return true;
         } catch (OutOfRangeException $e) {
             return false;
@@ -150,6 +150,11 @@ class CharsetConverter extends php_user_filter
 
     /**
      * {@inheritdoc}
+     *
+     * @param resource $in
+     * @param resource $out
+     * @param int      $consumed
+     * @param bool     $closing
      */
     public function filter($in, $out, &$consumed, $closing): int
     {
@@ -210,7 +215,7 @@ class CharsetConverter extends php_user_filter
      */
     public function inputEncoding(string $encoding): self
     {
-        $encoding = $this->filterEncoding($encoding);
+        $encoding = self::filterEncoding($encoding);
         if ($encoding === $this->input_encoding) {
             return $this;
         }
@@ -226,7 +231,7 @@ class CharsetConverter extends php_user_filter
      */
     public function outputEncoding(string $encoding): self
     {
-        $encoding = $this->filterEncoding($encoding);
+        $encoding = self::filterEncoding($encoding);
         if ($encoding === $this->output_encoding) {
             return $this;
         }

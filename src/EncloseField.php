@@ -124,12 +124,16 @@ class EncloseField extends php_user_filter
      */
     public function onCreate(): bool
     {
-        return isset($this->params['sequence'])
-            && $this->isValidSequence($this->params['sequence']);
+        return isset($this->params['sequence']) && self::isValidSequence($this->params['sequence']);
     }
 
     /**
      * {@inheritdoc}
+     *
+     * @param resource $in
+     * @param resource $out
+     * @param int      $consumed
+     * @param bool     $closing
      */
     public function filter($in, $out, &$consumed, $closing): int
     {

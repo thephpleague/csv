@@ -1,7 +1,8 @@
 .idea
+.php_cs.cache
+.phpunit.result.cache
 build
 composer.lock
 docs/_site
 vendor
 /nbproject/private/
-.php_cs.cache

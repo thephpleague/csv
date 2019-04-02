@@ -52,7 +52,7 @@ class Stream implements SeekableIterator
     /**
      * Attached filters.
      *
-     * @var resource[]
+     * @var array
      */
     protected $filters = [];
 
@@ -122,7 +122,7 @@ class Stream implements SeekableIterator
     /**
      * New instance.
      *
-     * @param resource $resource stream type resource
+     * @param mixed $resource stream type resource
      */
     public function __construct($resource)
     {
@@ -149,7 +149,7 @@ class Stream implements SeekableIterator
 
         array_walk_recursive($this->filters, $walker);
 
-        if ($this->should_close_stream && is_resource($this->stream)) {
+        if ($this->should_close_stream) {
             fclose($this->stream);
         }
 
@@ -194,7 +194,8 @@ class Stream implements SeekableIterator
             $args[] = $context;
         }
 
-        if (!$resource = @fopen(...$args)) {
+        $resource = @fopen(...$args);
+        if (false === $resource) {
             throw new Exception(sprintf('`%s`: failed to open stream: No such file or directory', $path));
         }
 
@@ -352,7 +353,7 @@ class Stream implements SeekableIterator
         rewind($this->stream);
         $this->offset = 0;
         $this->value = false;
-        if ($this->flags & SplFileObject::READ_AHEAD) {
+        if (0 !== ($this->flags & SplFileObject::READ_AHEAD)) {
             $this->current();
         }
     }
@@ -365,7 +366,7 @@ class Stream implements SeekableIterator
      */
     public function valid(): bool
     {
-        if ($this->flags & SplFileObject::READ_AHEAD) {
+        if (0 !== ($this->flags & SplFileObject::READ_AHEAD)) {
             return $this->current() !== false;
         }
 
@@ -376,6 +377,8 @@ class Stream implements SeekableIterator
      * Retrieves the current line of the file.
      *
      * @see http://php.net/manual/en/splfileobject.current.php
+     *
+     * @return mixed the current line content.
      */
     public function current()
     {
@@ -391,13 +394,13 @@ class Stream implements SeekableIterator
     /**
      * Retrieves the current line as a CSV Record.
      *
-     * @return array|bool
+     * @return mixed the current line content.
      */
     protected function getCurrentRecord()
     {
         do {
             $ret = fgetcsv($this->stream, 0, $this->delimiter, $this->enclosure, $this->escape);
-        } while ($this->flags & SplFileObject::SKIP_EMPTY && $ret !== false && $ret[0] === null);
+        } while (0 !== ($this->flags & SplFileObject::SKIP_EMPTY) && $ret !== false && $ret[0] === null);
 
         return $ret;
     }
@@ -488,8 +491,8 @@ class Stream implements SeekableIterator
      *
      * @see http://php.net/manual/en/splfileobject.fwrite.php
      *
-     * @param  ?int     $length
-     * @return int|bool
+     * @param  ?int      $length
+     * @return int|false
      */
     public function fwrite(string $str, ?int $length = null)
     {

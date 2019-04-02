@@ -41,6 +41,7 @@ class EmptyEscapeParserTest extends TestCase
      * @covers ::parse
      * @covers ::filterDocument
      * @covers ::extractRecord
+     * @covers ::addFieldContent
      * @covers ::extractFieldContent
      * @covers ::extractEnclosedFieldContent
      */
@@ -69,6 +70,7 @@ EOF;
      * @covers \League\Csv\Stream::fgets
      * @covers ::parse
      * @covers ::extractRecord
+     * @covers ::addFieldContent
      * @covers ::extractFieldContent
      * @covers ::extractEnclosedFieldContent
      */
@@ -97,6 +99,7 @@ EOF;
     /**
      * @covers ::parse
      * @covers ::extractRecord
+     * @covers ::addFieldContent
      * @covers ::extractFieldContent
      * @covers ::extractEnclosedFieldContent
      */
@@ -125,6 +128,7 @@ EOF;
     /**
      * @covers ::parse
      * @covers ::extractRecord
+     * @covers ::addFieldContent
      * @covers ::extractFieldContent
      * @covers ::extractEnclosedFieldContent
      */
@@ -149,6 +153,7 @@ EOF;
     /**
      * @covers ::parse
      * @covers ::extractRecord
+     * @covers ::addFieldContent
      * @covers ::extractFieldContent
      * @covers ::extractEnclosedFieldContent
      */
@@ -179,6 +184,7 @@ EOF;
     /**
      * @covers ::parse
      * @covers ::extractRecord
+     * @covers ::addFieldContent
      * @covers ::extractFieldContent
      * @covers ::extractEnclosedFieldContent
      *

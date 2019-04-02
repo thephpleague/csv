@@ -52,7 +52,7 @@ class EncloseFieldTest extends TestCase
         EncloseField::addTo($csv, "\t\x1f");
         self::assertContains(EncloseField::getFiltername(), stream_get_filters());
         $csv->insertAll($this->records);
-        self::assertContains('"Grand Cherokee"', $csv->getContent());
+        self::assertStringContainsString('"Grand Cherokee"', $csv->getContent());
     }
 
     /**
