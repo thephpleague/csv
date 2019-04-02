@@ -18,7 +18,6 @@ use League\Csv\Statement;
 use PHPUnit\Framework\TestCase;
 use SplFileObject;
 use SplTempFileObject;
-use TypeError;
 use function array_keys;
 use function count;
 use function fclose;
@@ -394,16 +393,6 @@ EOF;
 
         $csv = Reader::createFromStream($tmp);
         $csv->setHeaderOffset(23)->getRecords();
-    }
-
-    /**
-     * @covers ::setHeaderOffset
-     * @covers \League\Csv\is_nullable_int
-     */
-    public function testSetHeaderThrowsExceptionOnWrongInput()
-    {
-        self::expectException(TypeError::class);
-        $this->csv->setHeaderOffset((object) 1);
     }
 
     /**

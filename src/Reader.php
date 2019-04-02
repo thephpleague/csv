@@ -21,13 +21,11 @@ use IteratorAggregate;
 use JsonSerializable;
 use League\Csv\Polyfill\EmptyEscapeParser;
 use SplFileObject;
-use TypeError;
 use function array_combine;
 use function array_filter;
 use function array_pad;
 use function array_slice;
 use function array_unique;
-use function gettype;
 use function is_array;
 use function iterator_count;
 use function iterator_to_array;
@@ -356,14 +354,10 @@ class Reader extends AbstractCsv implements Countable, IteratorAggregate, JsonSe
      *
      * @return static
      */
-    public function setHeaderOffset($offset): self
+    public function setHeaderOffset(?int $offset): self
     {
         if ($offset === $this->header_offset) {
             return $this;
-        }
-
-        if (!is_nullable_int($offset)) {
-            throw new TypeError(sprintf(__METHOD__.'() expects 1 Argument to be null or an integer %s given', gettype($offset)));
         }
 
         if (null !== $offset && 0 > $offset) {

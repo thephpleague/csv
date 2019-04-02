@@ -303,18 +303,13 @@ class Writer extends AbstractCsv
     /**
      * Set the flush threshold.
      *
-     * @param int|null $threshold
      *
      * @throws Exception if the threshold is a integer lesser than 1
      */
-    public function setFlushThreshold($threshold): self
+    public function setFlushThreshold(?int $threshold): self
     {
         if ($threshold === $this->flush_threshold) {
             return $this;
-        }
-
-        if (!is_nullable_int($threshold)) {
-            throw new TypeError(sprintf(__METHOD__.'() expects 1 Argument to be null or an integer %s given', gettype($threshold)));
         }
 
         if (null !== $threshold && 1 > $threshold) {

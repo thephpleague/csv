@@ -20,7 +20,6 @@ use SplTempFileObject;
 use function chr;
 use function function_exists;
 use function iterator_to_array;
-use function League\Csv\is_iterable as CSVIsiterable;
 use function strtolower;
 use function tmpfile;
 use function unlink;
@@ -383,21 +382,6 @@ EOF;
             ->setEnclosure('"')
             ->setEscape('|');
         self::assertSame('|', $csv->getEscape());
-    }
-
-    /**
-     * @covers \League\Csv\is_iterable
-     */
-    public function testLeagueCsvIsIterable()
-    {
-        self::assertTrue(CSVIsiterable(['foo']));
-        self::assertTrue(CSVIsiterable(Reader::createFromString('')));
-        self::assertTrue(CSVIsiterable((function () {
-            yield 1;
-        })()));
-        self::assertFalse(CSVIsiterable(1));
-        self::assertFalse(CSVIsiterable((object) ['foo']));
-        self::assertFalse(CSVIsiterable(Writer::createFromString('')));
     }
 
     /**

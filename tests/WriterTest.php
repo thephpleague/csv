@@ -68,16 +68,6 @@ class WriterTest extends TestCase
         $this->csv->setFlushThreshold(0);
     }
 
-    /**
-     * @covers ::setFlushThreshold
-     * @covers \League\Csv\is_nullable_int
-     */
-    public function testflushThresholdThrowsTypeError()
-    {
-        self::expectException(TypeError::class);
-        $this->csv->setFlushThreshold((object) 12);
-    }
-
     public function testSupportsStreamFilter()
     {
         $csv = Writer::createFromPath(__DIR__.'/data/foo.csv');
