@@ -18,7 +18,9 @@ All Notable changes to `Csv` will be documented in this file
 
 ### Removed
 
-- Nothing
+- PHP7.0 support.
+- `League\Csv\is_iterable` function
+- `League\Csv\is_nullable_int` function
 
 ## 9.2.0 - 2019-03-08
 
