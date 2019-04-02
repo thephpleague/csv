@@ -27,12 +27,12 @@ class ColumnConsistencyTest extends TestCase
 {
     private $csv;
 
-    public function setUp()
+    public function setUp(): void
     {
         $this->csv = Writer::createFromFileObject(new SplTempFileObject());
     }
 
-    public function tearDown()
+    public function tearDown(): void
     {
         $csv = new SplFileObject(__DIR__.'/data/foo.csv', 'w');
         $csv->setCsvControl();

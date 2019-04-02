@@ -19,7 +19,6 @@ use PHPUnit\Framework\TestCase;
 use SplFileObject;
 use SplTempFileObject;
 use stdClass;
-use Traversable;
 use TypeError;
 use function array_map;
 use function fclose;
@@ -34,12 +33,12 @@ class WriterTest extends TestCase
 {
     private $csv;
 
-    public function setUp()
+    public function setUp(): void
     {
         $this->csv = Writer::createFromFileObject(new SplTempFileObject());
     }
 
-    public function tearDown()
+    public function tearDown(): void
     {
         $csv = new SplFileObject(__DIR__.'/data/foo.csv', 'w');
         $csv->setCsvControl();
@@ -51,7 +50,7 @@ class WriterTest extends TestCase
      * @covers ::getFlushThreshold
      * @covers ::setFlushThreshold
      */
-    public function testflushThreshold()
+    public function testflushThreshold(): void
     {
         $this->csv->setFlushThreshold(12);
         self::assertSame(12, $this->csv->getFlushThreshold());
@@ -61,14 +60,14 @@ class WriterTest extends TestCase
     /**
      * @covers ::setFlushThreshold
      */
-    public function testflushThresholdThrowsException()
+    public function testflushThresholdThrowsException(): void
     {
         $this->csv->setFlushThreshold(1);
         self::expectException(Exception::class);
         $this->csv->setFlushThreshold(0);
     }
 
-    public function testSupportsStreamFilter()
+    public function testSupportsStreamFilter(): void
     {
         $csv = Writer::createFromPath(__DIR__.'/data/foo.csv');
         self::assertTrue($csv->supportsStreamFilter());
@@ -89,7 +88,7 @@ class WriterTest extends TestCase
     /**
      * @covers ::insertOne
      */
-    public function testInsert()
+    public function testInsert(): void
     {
         $expected = [
             ['john', 'doe', 'john.doe@example.com'],
@@ -104,7 +103,7 @@ class WriterTest extends TestCase
      * @covers ::insertOne
      * @covers ::addRecord
      */
-    public function testInsertNormalFile()
+    public function testInsertNormalFile(): void
     {
         $csv = Writer::createFromPath(__DIR__.'/data/foo.csv', 'a+');
         $csv->insertOne(['jane', 'doe', 'jane.doe@example.com']);
@@ -115,14 +114,14 @@ class WriterTest extends TestCase
      * @covers ::insertOne
      * @dataProvider inputDataProvider
      */
-    public function testInsertThrowsExceptionOnError(array $record)
+    public function testInsertThrowsExceptionOnError(array $record): void
     {
         self::expectException(CannotInsertRecord::class);
         self::expectExceptionMessage('Unable to write record to the CSV document');
         Writer::createFromPath(__DIR__.'/data/foo.csv', 'r')->insertOne($record);
     }
 
-    public function inputDataProvider()
+    public function inputDataProvider(): iterable
     {
         return [
             'normal record' => [['foo', 'bar']],
@@ -133,7 +132,7 @@ class WriterTest extends TestCase
     /**
      * @covers ::insertAll
      */
-    public function testFailedSaveWithWrongType()
+    public function testFailedSaveWithWrongType(): void
     {
         self::expectException(TypeError::class);
         $this->csv->insertAll(new stdClass());
@@ -142,16 +141,15 @@ class WriterTest extends TestCase
     /**
      * @covers ::insertAll
      *
-     * @param array|Traversable $argument
      * @dataProvider dataToSave
      */
-    public function testSave($argument, string $expected)
+    public function testSave(iterable $argument, string $expected): void
     {
         $this->csv->insertAll($argument);
         self::assertContains($expected, $this->csv->getContent());
     }
 
-    public function dataToSave()
+    public function dataToSave(): iterable
     {
         $multipleArray = [
             ['john', 'doe', 'john.doe@example.com'],
@@ -163,7 +161,7 @@ class WriterTest extends TestCase
         ];
     }
 
-    public function testToString()
+    public function testToString(): void
     {
         $fp = fopen('php://temp', 'r+');
         $csv = Writer::createFromStream($fp);
@@ -192,7 +190,7 @@ class WriterTest extends TestCase
      * @covers ::consolidate
      * @covers League\Csv\Stream
      */
-    public function testCustomNewline()
+    public function testCustomNewline(): void
     {
         $csv = Writer::createFromStream(tmpfile());
         self::assertSame("\n", $csv->getNewline());
@@ -202,7 +200,7 @@ class WriterTest extends TestCase
         $csv = null;
     }
 
-    public function testAddValidationRules()
+    public function testAddValidationRules(): void
     {
         $func = function (array $row) {
             return false;
@@ -213,7 +211,7 @@ class WriterTest extends TestCase
         $this->csv->insertOne(['jane', 'doe']);
     }
 
-    public function testFormatterRules()
+    public function testFormatterRules(): void
     {
         $func = function (array $row) {
             return array_map('strtoupper', $row);
@@ -227,7 +225,7 @@ class WriterTest extends TestCase
     /**
      * @covers League\Csv\Stream::fseek
      */
-    public function testWriterTriggerExceptionWithNonSeekableStream()
+    public function testWriterTriggerExceptionWithNonSeekableStream(): void
     {
         self::expectException(Exception::class);
         $writer = Writer::createFromPath('php://output', 'w');
@@ -247,7 +245,7 @@ class WriterTest extends TestCase
      *
      * @dataProvider compliantRFC4180Provider
      */
-    public function testRFC4180WriterMode(string $expected, array $record)
+    public function testRFC4180WriterMode(string $expected, array $record): void
     {
         foreach (["\r\n", "\n", "\r"] as $eol) {
             $csv = Writer::createFromString();
@@ -258,7 +256,7 @@ class WriterTest extends TestCase
         }
     }
 
-    public function compliantRFC4180Provider(): array
+    public function compliantRFC4180Provider(): iterable
     {
         return [
             'bug #43225' => [

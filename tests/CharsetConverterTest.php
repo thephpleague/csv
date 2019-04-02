@@ -18,7 +18,6 @@ use League\Csv\Exception;
 use League\Csv\Reader;
 use OutOfRangeException;
 use PHPUnit\Framework\TestCase;
-use TypeError;
 use function explode;
 use function implode;
 use function mb_convert_encoding;
@@ -36,26 +35,17 @@ class CharsetConverterTest extends TestCase
      * @covers ::inputEncoding
      * @covers ::filterEncoding
      */
-    public function testCharsetConverterTriggersException()
+    public function testCharsetConverterTriggersException(): void
     {
         self::expectException(OutOfRangeException::class);
         (new CharsetConverter())->inputEncoding('');
     }
 
     /**
-     * @covers ::convert
-     */
-    public function testCharsetConverterTriggersExceptionOnConversion()
-    {
-        self::expectException(TypeError::class);
-        (new CharsetConverter())->convert('toto');
-    }
-
-    /**
      * @covers ::inputEncoding
      * @covers ::outputEncoding
      */
-    public function testCharsetConverterRemainsTheSame()
+    public function testCharsetConverterRemainsTheSame(): void
     {
         $converter = new CharsetConverter();
         self::assertSame($converter, $converter->inputEncoding('utf-8'));
@@ -70,7 +60,7 @@ class CharsetConverterTest extends TestCase
      * @covers ::inputEncoding
      * @covers ::__invoke
      */
-    public function testCharsetConverterDoesNothing()
+    public function testCharsetConverterDoesNothing(): void
     {
         $converter = new CharsetConverter();
         $data = [['a' => 'bé']];
@@ -84,7 +74,7 @@ class CharsetConverterTest extends TestCase
      * @covers ::convert
      * @covers ::inputEncoding
      */
-    public function testCharsetConverterConvertsAnArray()
+    public function testCharsetConverterConvertsAnArray(): void
     {
         $expected = ['Batman', 'Superman', 'Anaïs'];
         $raw = explode(',', mb_convert_encoding(implode(',', $expected), 'iso-8859-15', 'utf-8'));
@@ -96,12 +86,11 @@ class CharsetConverterTest extends TestCase
         self::assertSame($expected, $converter->convert([$raw])[0]);
     }
 
-
     /**
      * @covers ::convert
      * @covers ::inputEncoding
      */
-    public function testCharsetConverterConvertsAnIterator()
+    public function testCharsetConverterConvertsAnIterator(): void
     {
         $expected = new ArrayIterator(['Batman', 'Superman', 'Anaïs']);
         $converter = (new CharsetConverter())
@@ -118,7 +107,7 @@ class CharsetConverterTest extends TestCase
      * @covers ::onCreate
      * @covers ::filter
      */
-    public function testCharsetConverterAsStreamFilter()
+    public function testCharsetConverterAsStreamFilter(): void
     {
         $expected = 'Batman,Superman,Anaïs';
         $raw = mb_convert_encoding($expected, 'iso-8859-15', 'utf-8');
@@ -134,7 +123,7 @@ class CharsetConverterTest extends TestCase
      * @covers ::onCreate
      * @covers ::filter
      */
-    public function testCharsetConverterAsStreamFilterFailed()
+    public function testCharsetConverterAsStreamFilterFailed(): void
     {
         self::expectException(Exception::class);
         stream_filter_register(CharsetConverter::FILTERNAME.'.*', CharsetConverter::class);
@@ -149,7 +138,7 @@ class CharsetConverterTest extends TestCase
     /**
      * @covers ::onCreate
      */
-    public function testOnCreateFailsWithWrongFiltername()
+    public function testOnCreateFailsWithWrongFiltername(): void
     {
         $converter = new CharsetConverter();
         $converter->filtername = 'toto';
@@ -159,7 +148,7 @@ class CharsetConverterTest extends TestCase
     /**
      * @covers ::onCreate
      */
-    public function testOnCreateFailedWithWrongParams()
+    public function testOnCreateFailedWithWrongParams(): void
     {
         $converter = new CharsetConverter();
         $converter->filtername = CharsetConverter::FILTERNAME.'.foo/bar';
@@ -172,7 +161,7 @@ class CharsetConverterTest extends TestCase
      *
      * @dataProvider converterProvider
      */
-    public function testConvertOnlyStringField(array $record, array $expected)
+    public function testConvertOnlyStringField(array $record, array $expected): void
     {
         $converter = (new CharsetConverter())
             ->inputEncoding('iso-8859-15')
@@ -181,7 +170,7 @@ class CharsetConverterTest extends TestCase
         self::assertSame($expected, $res[0]);
     }
 
-    public function converterProvider(): array
+    public function converterProvider(): iterable
     {
         return [
             'only numeric values' => [

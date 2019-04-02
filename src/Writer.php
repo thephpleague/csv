@@ -13,15 +13,10 @@ declare(strict_types=1);
 
 namespace League\Csv;
 
-use Traversable;
-use TypeError;
 use function array_reduce;
-use function gettype;
 use function implode;
-use function is_iterable;
 use function preg_match;
 use function preg_quote;
-use function sprintf;
 use function str_replace;
 use function strlen;
 use const PHP_VERSION_ID;
@@ -90,7 +85,7 @@ class Writer extends AbstractCsv
     /**
      * {@inheritdoc}
      */
-    protected function resetProperties()
+    protected function resetProperties(): void
     {
         parent::resetProperties();
         $characters = preg_quote($this->delimiter, '/').'|'.preg_quote($this->enclosure, '/');
@@ -109,9 +104,8 @@ class Writer extends AbstractCsv
     /**
      * Get the flush threshold.
      *
-     * @return int|null
      */
-    public function getFlushThreshold()
+    public function getFlushThreshold(): ?int
     {
         return $this->flush_threshold;
     }
@@ -120,15 +114,9 @@ class Writer extends AbstractCsv
      * Adds multiple records to the CSV document.
      *
      * @see Writer::insertOne
-     *
-     * @param Traversable|array $records
      */
-    public function insertAll($records): int
+    public function insertAll(iterable $records): int
     {
-        if (!is_iterable($records)) {
-            throw new TypeError(sprintf('%s() expects argument passed to be iterable, %s given', __METHOD__, gettype($records)));
-        }
-
         $bytes = 0;
         foreach ($records as $record) {
             $bytes += $this->insertOne($record);
@@ -237,7 +225,7 @@ class Writer extends AbstractCsv
      *
      * @throws CannotInsertRecord If the validation failed
      */
-    protected function validateRecord(array $record)
+    protected function validateRecord(array $record): void
     {
         foreach ($this->validators as $name => $validator) {
             if (true !== $validator($record)) {
@@ -304,6 +292,7 @@ class Writer extends AbstractCsv
      * Set the flush threshold.
      *
      *
+     * @param  ?int      $threshold
      * @throws Exception if the threshold is a integer lesser than 1
      */
     public function setFlushThreshold(?int $threshold): self

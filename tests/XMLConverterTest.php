@@ -37,7 +37,7 @@ class XMLConverterTest extends TestCase
      * @covers ::filterAttributeName
      * @covers ::filterElementName
      */
-    public function testToXML()
+    public function testToXML(): void
     {
         $csv = Reader::createFromPath(__DIR__.'/data/prenoms.csv', 'r')
             ->setDelimiter(';')
@@ -74,7 +74,7 @@ class XMLConverterTest extends TestCase
      * @covers ::filterAttributeName
      * @covers ::filterElementName
      */
-    public function testXmlElementTriggersException()
+    public function testXmlElementTriggersException(): void
     {
         self::expectException(DOMException::class);
         (new XMLConverter())
@@ -85,7 +85,7 @@ class XMLConverterTest extends TestCase
     /**
      * @covers ::convert
      */
-    public function testXmlElementTriggersTypeError()
+    public function testXmlElementTriggersTypeError(): void
     {
         self::expectException(TypeError::class);
         (new XMLConverter())->convert('foo');

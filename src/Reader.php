@@ -83,7 +83,7 @@ class Reader extends AbstractCsv implements Countable, IteratorAggregate, JsonSe
     /**
      * {@inheritdoc}
      */
-    protected function resetProperties()
+    protected function resetProperties(): void
     {
         parent::resetProperties();
         $this->nb_records = -1;
@@ -95,9 +95,8 @@ class Reader extends AbstractCsv implements Countable, IteratorAggregate, JsonSe
      *
      * If no CSV header offset is set this method MUST return null
      *
-     * @return int|null
      */
-    public function getHeaderOffset()
+    public function getHeaderOffset(): ?int
     {
         return $this->header_offset;
     }
@@ -285,7 +284,7 @@ class Reader extends AbstractCsv implements Countable, IteratorAggregate, JsonSe
      *
      * @return string[]
      */
-    protected function computeHeader(array $header)
+    protected function computeHeader(array $header): array
     {
         if ([] === $header) {
             $header = $this->getHeader();

@@ -58,7 +58,7 @@ class HTMLConverter
      *
      * @param array|Traversable $records the tabular data collection
      */
-    public function convert($records): string
+    public function convert(iterable $records): string
     {
         $doc = $this->xml_converter->convert($records);
         $doc->documentElement->setAttribute('class', $this->class_name);

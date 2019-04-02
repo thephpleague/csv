@@ -30,7 +30,7 @@ class HTMLConverterTest extends TestCase
      * @covers ::td
      * @covers ::convert
      */
-    public function testToHTML()
+    public function testToHTML(): void
     {
         $csv = Reader::createFromPath(__DIR__.'/data/prenoms.csv', 'r')
             ->setDelimiter(';')
@@ -60,7 +60,7 @@ class HTMLConverterTest extends TestCase
      * @covers ::__construct
      * @covers ::table
      */
-    public function testTableTriggersException()
+    public function testTableTriggersException(): void
     {
         self::expectException(DOMException::class);
         (new HTMLConverter())->table('table-csv-data', 'te st');

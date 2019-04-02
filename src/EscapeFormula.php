@@ -127,6 +127,8 @@ class EscapeFormula
 
     /**
      * Escape a CSV cell.
+     *
+     * @return string|int
      */
     protected function escapeField($cell)
     {

@@ -23,6 +23,7 @@ use function stream_bucket_make_writeable;
 use function stream_filter_register;
 use function stream_get_filters;
 use function strlen;
+use const PSFS_PASS_ON;
 
 /**
  * A stream filter to improve enclosure character usage.
@@ -74,7 +75,7 @@ class EncloseField extends php_user_filter
     /**
      * Static method to register the class as a stream filter.
      */
-    public static function register()
+    public static function register(): void
     {
         if (!in_array(self::FILTERNAME, stream_get_filters(), true)) {
             stream_filter_register(self::FILTERNAME, self::class);
@@ -121,7 +122,7 @@ class EncloseField extends php_user_filter
     /**
      * {@inheritdoc}
      */
-    public function onCreate()
+    public function onCreate(): bool
     {
         return isset($this->params['sequence'])
             && $this->isValidSequence($this->params['sequence']);
@@ -130,7 +131,7 @@ class EncloseField extends php_user_filter
     /**
      * {@inheritdoc}
      */
-    public function filter($in, $out, &$consumed, $closing)
+    public function filter($in, $out, &$consumed, $closing): int
     {
         while ($res = stream_bucket_make_writeable($in)) {
             $res->data = str_replace($this->params['sequence'], '', $res->data);

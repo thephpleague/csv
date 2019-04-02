@@ -41,7 +41,7 @@ class ReaderTest extends TestCase
         ['jane', 'doe', 'jane.doe@example.com'],
     ];
 
-    public function setUp()
+    public function setUp(): void
     {
         $tmp = new SplTempFileObject();
         foreach ($this->expected as $row) {
@@ -51,7 +51,7 @@ class ReaderTest extends TestCase
         $this->csv = Reader::createFromFileObject($tmp);
     }
 
-    public function tearDown()
+    public function tearDown(): void
     {
         $this->csv = null;
     }
@@ -61,7 +61,7 @@ class ReaderTest extends TestCase
      * @covers ::computeHeader
      * @covers ::getRecords
      */
-    public function testCountable()
+    public function testCountable(): void
     {
         $source = '"parent name","child name","title"
             "parentA","childA","titleA"';
@@ -74,7 +74,7 @@ class ReaderTest extends TestCase
     /**
      * @covers ::getDocument
      */
-    public function testReaderWithEmptyEscapeChar1()
+    public function testReaderWithEmptyEscapeChar1(): void
     {
         $source = <<<EOF
 Year,Make,Model,Description,Price
@@ -94,7 +94,7 @@ EOF;
     /**
      * @covers ::getDocument
      */
-    public function testReaderWithEmptyEscapeChar2()
+    public function testReaderWithEmptyEscapeChar2(): void
     {
         $source = '"parent name","child name","title"
             "parentA","childA","titleA"';
@@ -112,7 +112,7 @@ EOF;
      * @covers ::getRecords
      * @covers ::combineHeader
      */
-    public function testGetIterator()
+    public function testGetIterator(): void
     {
         $this->csv->setHeaderOffset(0);
         foreach ($this->csv as $record) {
@@ -134,7 +134,7 @@ EOF;
      * @covers ::computeHeader
      * @covers ::combineHeader
      */
-    public function testCombineHeader()
+    public function testCombineHeader(): void
     {
         $this->csv->setHeaderOffset(1);
         foreach ($this->csv as $record) {
@@ -149,7 +149,7 @@ EOF;
      * @covers ::setHeader
      * @covers ::seekRow
      */
-    public function testGetHeader()
+    public function testGetHeader(): void
     {
         $this->csv->setHeaderOffset(1);
         self::assertSame(1, $this->csv->getHeaderOffset());
@@ -163,7 +163,7 @@ EOF;
     /**
      * @covers ::__call
      */
-    public function testCall()
+    public function testCall(): void
     {
         $raw = [
             ['firstname', 'lastname'],
@@ -192,13 +192,13 @@ EOF;
      * @param string $method
      * @dataProvider invalidMethodCallMethodProvider
      */
-    public function testCallThrowsException($method)
+    public function testCallThrowsException($method): void
     {
         self::expectException(BadMethodCallException::class);
         $this->csv->$method();
     }
 
-    public function invalidMethodCallMethodProvider()
+    public function invalidMethodCallMethodProvider(): iterable
     {
         return [
             'unknown method' => ['foo'],
@@ -213,7 +213,7 @@ EOF;
      * @covers ::setHeader
      * @covers League\Csv\Exception
      */
-    public function testHeaderThrowsExceptionOnError()
+    public function testHeaderThrowsExceptionOnError(): void
     {
         self::expectException(Exception::class);
         $csv = Reader::createFromString(
@@ -233,7 +233,7 @@ EOF;
      * @covers ::setHeaderOffset
      * @covers League\Csv\Exception
      */
-    public function testHeaderThrowsExceptionOnEmptyLine()
+    public function testHeaderThrowsExceptionOnEmptyLine(): void
     {
         self::expectException(Exception::class);
         $str = <<<EOF
@@ -256,7 +256,7 @@ EOF;
      * @covers League\Csv\Stream
      * @dataProvider validBOMSequences
      */
-    public function testStripBOM(array $record, string $expected_bom, string $expected)
+    public function testStripBOM(array $record, string $expected_bom, string $expected): void
     {
         $fp = fopen('php://temp', 'r+');
         fputcsv($fp, $record);
@@ -270,7 +270,7 @@ EOF;
         $fp = null;
     }
 
-    public function validBOMSequences()
+    public function validBOMSequences(): iterable
     {
         return [
             'withBOM' => [
@@ -297,7 +297,7 @@ EOF;
      * @covers ::combineHeader
      * @covers League\Csv\Stream
      */
-    public function testStripBOMWithEnclosure()
+    public function testStripBOMWithEnclosure(): void
     {
         $source = Reader::BOM_UTF8.'"parent name","child name","title"
             "parentA","childA","titleA"';
@@ -315,7 +315,7 @@ EOF;
      * @covers ::combineHeader
      * @covers League\Csv\Stream
      */
-    public function testStripNoBOM()
+    public function testStripNoBOM(): void
     {
         $source = '"parent name","child name","title"
             "parentA","childA","titleA"';
@@ -331,7 +331,7 @@ EOF;
      * @covers ::getIterator
      * @dataProvider appliedFlagsProvider
      */
-    public function testAppliedFlags(int $flag, int $fetch_count)
+    public function testAppliedFlags(int $flag, int $fetch_count): void
     {
         $path = __DIR__.'/data/tmp.txt';
         $obj  = new SplFileObject($path, 'w+');
@@ -344,7 +344,7 @@ EOF;
         unlink($path);
     }
 
-    public function appliedFlagsProvider()
+    public function appliedFlagsProvider(): iterable
     {
         return [
             'NONE' => [0, 2],
@@ -362,7 +362,7 @@ EOF;
      * @covers ::setHeader
      * @covers ::seekRow
      */
-    public function testGetHeaderThrowsExceptionWithNegativeOffset()
+    public function testGetHeaderThrowsExceptionWithNegativeOffset(): void
     {
         self::expectException(Exception::class);
         $this->csv->setHeaderOffset(-3)->getRecords();
@@ -372,7 +372,7 @@ EOF;
      * @covers ::setHeader
      * @covers ::seekRow
      */
-    public function testGetHeaderThrowsExceptionWithSplFileObject()
+    public function testGetHeaderThrowsExceptionWithSplFileObject(): void
     {
         self::expectException(Exception::class);
         $this->csv->setHeaderOffset(23)->getRecords();
@@ -382,7 +382,7 @@ EOF;
      * @covers ::setHeader
      * @covers ::seekRow
      */
-    public function testGetHeaderThrowsExceptionWithStreamObject()
+    public function testGetHeaderThrowsExceptionWithStreamObject(): void
     {
         self::expectException(Exception::class);
 
@@ -398,7 +398,7 @@ EOF;
     /**
      * @covers ::setHeaderOffset
      */
-    public function testSetHeaderThrowsExceptionOnWrongInputRange()
+    public function testSetHeaderThrowsExceptionOnWrongInputRange(): void
     {
         self::expectException(Exception::class);
         $this->csv->setHeaderOffset(-1);
@@ -407,7 +407,7 @@ EOF;
     /**
      * @covers ::computeHeader
      */
-    public function testMapRecordsFields()
+    public function testMapRecordsFields(): void
     {
         $keys = ['firstname', 'lastname', 'email'];
         $res = $this->csv->getRecords($keys);
@@ -419,7 +419,7 @@ EOF;
     /**
      * @covers ::jsonSerialize
      */
-    public function testJsonSerialize()
+    public function testJsonSerialize(): void
     {
         $expected = [
             ['First Name', 'Last Name', 'E-mail'],
@@ -441,7 +441,7 @@ EOF;
     /**
      * @covers ::createFromPath
      */
-    public function testCreateFromPath()
+    public function testCreateFromPath(): void
     {
         $csv = Reader::createFromPath(__DIR__.'/data/foo_readonly.csv');
         self::assertCount(1, $csv);

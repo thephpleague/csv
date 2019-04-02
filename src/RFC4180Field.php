@@ -127,7 +127,7 @@ class RFC4180Field extends php_user_filter
     /**
      * Static method to register the class as a stream filter.
      */
-    public static function register()
+    public static function register(): void
     {
         if (!in_array(self::FILTERNAME, stream_get_filters(), true)) {
             stream_filter_register(self::FILTERNAME, self::class);
@@ -145,7 +145,7 @@ class RFC4180Field extends php_user_filter
     /**
      * {@inheritdoc}
      */
-    public function filter($in, $out, &$consumed, $closing)
+    public function filter($in, $out, &$consumed, $closing): int
     {
         while ($bucket = stream_bucket_make_writeable($in)) {
             $bucket->data = str_replace($this->search, $this->replace, $bucket->data);
@@ -159,7 +159,7 @@ class RFC4180Field extends php_user_filter
     /**
      * {@inheritdoc}
      */
-    public function onCreate()
+    public function onCreate(): bool
     {
         if (!$this->isValidParams($this->params)) {
             return false;
@@ -196,9 +196,8 @@ class RFC4180Field extends php_user_filter
     /**
      * Is Valid White space replaced sequence.
      *
-     * @return bool
      */
-    protected function isValidSequence(array $params)
+    protected function isValidSequence(array $params): bool
     {
         return isset($params['whitespace_replace'])
             && strlen($params['whitespace_replace']) == strcspn($params['whitespace_replace'], self::$force_enclosure);

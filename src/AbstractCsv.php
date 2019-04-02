@@ -103,7 +103,7 @@ abstract class AbstractCsv implements ByteSequence
     /**
      * Reset dynamic object properties to improve performance.
      */
-    protected function resetProperties()
+    protected function resetProperties(): void
     {
     }
 
@@ -326,7 +326,7 @@ abstract class AbstractCsv implements ByteSequence
      *
      * @see https://tools.ietf.org/html/rfc6266#section-4.3
      */
-    protected function sendHeaders(string $filename)
+    protected function sendHeaders(string $filename): void
     {
         if (strlen($filename) != strcspn($filename, '\\/')) {
             throw new Exception('The filename cannot contain the "/" and "\\" characters.');

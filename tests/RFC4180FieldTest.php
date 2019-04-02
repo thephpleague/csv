@@ -42,7 +42,7 @@ class RFC4180FieldTest extends TestCase
      *
      * @param string $expected
      */
-    public function testStreamFilterOnWrite($expected, array $record)
+    public function testStreamFilterOnWrite($expected, array $record): void
     {
         $csv = Writer::createFromPath('php://temp');
         RFC4180Field::addTo($csv);
@@ -52,7 +52,7 @@ class RFC4180FieldTest extends TestCase
         self::assertSame($expected, $csv->getContent());
     }
 
-    public function bugsProvider()
+    public function bugsProvider(): iterable
     {
         return [
             'bug #43225' => [
@@ -77,17 +77,15 @@ class RFC4180FieldTest extends TestCase
      * @covers ::filter
      *
      * @dataProvider readerBugsProvider
-     *
-     * @param string $expected
      */
-    public function testStreamFilterOnRead($expected, array $record)
+    public function testStreamFilterOnRead(string $expected, array $record): void
     {
         $csv = Reader::createFromString($expected);
         RFC4180Field::addTo($csv);
         self::assertSame($record, $csv->fetchOne(0));
     }
 
-    public function readerBugsProvider()
+    public function readerBugsProvider(): iterable
     {
         return [
             'bug #55413' => [
@@ -101,7 +99,7 @@ class RFC4180FieldTest extends TestCase
      * @covers ::onCreate
      * @covers ::isValidParams
      */
-    public function testOnCreateFailedWithoutParams()
+    public function testOnCreateFailedWithoutParams(): void
     {
         self::expectException(TypeError::class);
         (new RFC4180Field())->onCreate();
@@ -112,14 +110,14 @@ class RFC4180FieldTest extends TestCase
      * @covers ::isValidParams
      * @dataProvider wrongParamProvider
      */
-    public function testOnCreateFailedWithWrongParams(array $params)
+    public function testOnCreateFailedWithWrongParams(array $params): void
     {
         $filter = new RFC4180Field();
         $filter->params = $params;
         self::assertFalse($filter->onCreate());
     }
 
-    public function wrongParamProvider(): array
+    public function wrongParamProvider(): iterable
     {
         return [
             'empty array' => [[
@@ -167,7 +165,7 @@ class RFC4180FieldTest extends TestCase
      * @covers ::isValidSequence
      * @covers ::filter
      */
-    public function testDoNotEncloseWhiteSpacedField()
+    public function testDoNotEncloseWhiteSpacedField(): void
     {
         $csv = Writer::createFromString('');
         $csv->setDelimiter('|');
@@ -185,7 +183,7 @@ class RFC4180FieldTest extends TestCase
      * @covers ::onCreate
      * @covers ::filter
      */
-    public function testDoNotEncloseWhiteSpacedFieldThrowsException()
+    public function testDoNotEncloseWhiteSpacedFieldThrowsException(): void
     {
         self::expectException(InvalidArgumentException::class);
         RFC4180Field::addTo(Writer::createFromString(''), "\t\0");
