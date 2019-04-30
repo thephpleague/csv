@@ -248,7 +248,7 @@ class Reader extends AbstractCsv implements Countable, IteratorAggregate, JsonSe
     /**
      * Returns the CSV records as an iterator object.
      *
-     * Each CSV record is represented as a simple array containig strings or null values.
+     * Each CSV record is represented as a simple array containing strings or null values.
      *
      * If the CSV document has a header record then each record is combined
      * to the header record and the header record is removed from the iterator.
