@@ -311,6 +311,7 @@ abstract class AbstractCsv implements ByteSequence
         }
         $input_bom = $this->getInputBOM();
         $this->document->rewind();
+        $this->document->setFlags(0);
         $this->document->fseek(strlen($input_bom));
         echo $this->output_bom;
 
