@@ -15,6 +15,7 @@ All Notable changes to `Csv` will be documented in this file
 ### Fixed
 
 - `AbstractCSV::chunk` see [#325](https://github.com/thephpleague/csv/pull/325) remove CSV flags from the Stream class to avoid infinite loop.
+- Internal improve `HTMLConverter`.
 
 ### Removed
 

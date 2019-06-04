@@ -13,6 +13,8 @@ declare(strict_types=1);
 
 namespace League\Csv;
 
+use DOMDocument;
+use DOMElement;
 use DOMException;
 use Traversable;
 use function preg_match;
@@ -60,11 +62,15 @@ class HTMLConverter
      */
     public function convert($records): string
     {
+        /** @var DOMDocument $doc */
         $doc = $this->xml_converter->convert($records);
-        $doc->documentElement->setAttribute('class', $this->class_name);
-        $doc->documentElement->setAttribute('id', $this->id_value);
 
-        return $doc->saveHTML($doc->documentElement);
+        /** @var DOMElement $table */
+        $table = $doc->getElementsByTagName('table')->item(0);
+        $table->setAttribute('class', $this->class_name);
+        $table->setAttribute('id', $this->id_value);
+
+        return $doc->saveHTML($table);
     }
 
     /**
