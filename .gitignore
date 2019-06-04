@@ -4,5 +4,6 @@
 build
 composer.lock
 docs/_site
+docs/node_modules
 vendor
 /nbproject/private/

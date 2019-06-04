@@ -69,7 +69,7 @@ class XMLConverterTest extends TestCase
         self::assertTrue($node->hasAttribute('name'));
 
         self::assertInstanceOf(DOMDocument::class, $dom);
-        self::assertSame('csv', $dom->documentElement->tagName);
+        self::assertSame(1, $dom->getElementsByTagName('csv')->count());
         self::assertEquals(5, $record_list->length);
 
         $node = $record_list->item(0);

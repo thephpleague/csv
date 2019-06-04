@@ -212,6 +212,7 @@ class Stream implements SeekableIterator
      */
     public static function createFromString(string $content = '')
     {
+        /** @var resource $resource */
         $resource = fopen('php://temp', 'r+');
         fwrite($resource, $content);
 

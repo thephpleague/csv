@@ -4,6 +4,5 @@ parameters:
     ignoreErrors:
         - '#Variable method call on \$this\(League\\Csv\\([a-zA-Z0-9]*)\).#'
         - '#Access to an undefined property object::\$data(len)?#'
-        - '#Parameter \#1 \$fp of function fwrite expects resource, resource\|false given.#'
         - '#Binary operation "\+" between array<int, string>\|false and array\(1 => false\) results in an error.#'
     reportUnmatchedIgnoredErrors: false
