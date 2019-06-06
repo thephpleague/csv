@@ -173,6 +173,18 @@ EOF;
     }
 
     /**
+     * @covers ::chunk
+     * @covers ::getContent
+     */
+    public function testChunkDoesNotTimeoutAfterReading()
+    {
+        $raw_csv = "john,doe,john.doe@example.com\njane,doe,jane.doe@example.com\n";
+        $csv = Reader::createFromString($raw_csv);
+        iterator_to_array($csv->getRecords());
+        self::assertSame($raw_csv, $csv->getContent());
+    }
+
+    /**
      * @covers ::__toString
      * @covers ::getContent
      */
