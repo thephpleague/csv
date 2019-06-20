@@ -31,8 +31,8 @@ $reader->supportsStreamFilter(); //return true
 $reader->getStreamFilterMode(); //return STREAM_FILTER_READ
 
 $writer = Writer::createFromFileObject(new SplTempFileObject());
-$writer->supportsStreamFilter(); //return false the API can not be use
-$writer->getStreamFilterMode(); //return STREAM_FILTER_WRITE
+$writer->supportsStreamFilter(); // returns false, the API can not be used
+$writer->getStreamFilterMode(); // returns STREAM_FILTER_WRITE
 ~~~
 
 <p class="message-warning">A <code>League\Csv\Exception</code> exception will be thrown if you use the API on a object where <code>supportsStreamFilter</code> returns <code>false</code>.</p>
