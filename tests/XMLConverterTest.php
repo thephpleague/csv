@@ -86,10 +86,20 @@ class XMLConverterTest extends TestCase
     /**
      * @covers ::convert
      */
-    public function testXmlElementTriggersTypeError()
+    public function testConvertRecordsTriggersTypeError()
     {
         self::expectException(TypeError::class);
         (new XMLConverter())->convert('foo');
+    }
+
+    /**
+     * @covers ::import
+     */
+    public function testImportRecordsTriggersTypeError()
+    {
+        $dom = new DOMDocument('1.0');
+        self::expectException(TypeError::class);
+        (new XMLConverter())->import('foo', $dom);
     }
 
     /**

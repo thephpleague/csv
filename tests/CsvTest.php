@@ -139,6 +139,7 @@ EOF;
     /**
      * @covers ::output
      * @covers ::sendHeaders
+     * @covers \League\Csv\Stream
      */
     public function testInvalidOutputFile()
     {
@@ -151,7 +152,7 @@ EOF;
      * @covers ::output
      * @covers ::sendHeaders
      * @covers ::createFromString
-     * @covers League\Csv\Stream
+     * @covers \League\Csv\Stream
      */
     public function testOutputHeaders()
     {
