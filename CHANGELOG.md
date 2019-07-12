@@ -6,6 +6,25 @@ All Notable changes to `Csv` will be documented in this file
 
 ### Added
 
+- `XMLConverter::import` see [#348](https://github.com/thephpleague/csv/pull/348) thanks [@kusabi](https://github.com/kusabi)
+- support for `thead`, `tfoot` and `tbody` in footer `HTMLConverter::convert` see [#348](https://github.com/thephpleague/csv/pull/348) thanks [@kusabi](https://github.com/kusabi)
+
+### Deprecated
+
+- Nothing
+
+### Fixed
+
+- Internal improvement in `Reader` dockblock  thanks [@ghobaty](https://github.com/ghobaty).
+
+### Removed
+
+- Nothing
+
+## 9.2.1 - 2019-06-08
+
+### Added
+
 - Nothing
 
 ### Deprecated

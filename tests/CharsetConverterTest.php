@@ -28,7 +28,7 @@ use function strtoupper;
 
 /**
  * @group converter
- * @coversDefaultClass League\Csv\CharsetConverter
+ * @coversDefaultClass \League\Csv\CharsetConverter
  */
 class CharsetConverterTest extends TestCase
 {

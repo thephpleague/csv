@@ -27,7 +27,7 @@ use const STREAM_FILTER_READ;
 
 /**
  * @group csv
- * @coversDefaultClass League\Csv\Stream
+ * @coversDefaultClass \League\Csv\Stream
  */
 class StreamTest extends TestCase
 {

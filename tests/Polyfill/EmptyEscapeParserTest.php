@@ -21,7 +21,7 @@ use function iterator_to_array;
 
 /**
  * @group reader
- * @coversDefaultClass League\Csv\Polyfill\EmptyEscapeParser
+ * @coversDefaultClass \League\Csv\Polyfill\EmptyEscapeParser
  */
 class EmptyEscapeParserTest extends TestCase
 {

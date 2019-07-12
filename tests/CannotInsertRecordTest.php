@@ -16,7 +16,7 @@ use PHPUnit\Framework\TestCase;
 
 /**
  * @group converter
- * @coversDefaultClass League\Csv\CannotInsertRecord
+ * @coversDefaultClass \League\Csv\CannotInsertRecord
  */
 class CannotInsertRecordTest extends TestCase
 {

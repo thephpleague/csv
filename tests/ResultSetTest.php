@@ -29,7 +29,7 @@ use function strlen;
 
 /**
  * @group reader
- * @coversDefaultClass League\Csv\ResultSet
+ * @coversDefaultClass \League\Csv\ResultSet
  */
 class ResultSetTest extends TestCase
 {

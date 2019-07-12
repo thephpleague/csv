@@ -58,15 +58,13 @@ class HTMLConverter
     /**
      * Convert an Record collection into a DOMDocument.
      *
-     * @param array|Traversable $records      The tabular data collection
-     * @param array             $headerRecord An optional array of headers to output to the table using `<thead>` and `<th>` elements
-     * @param array             $footerRecord An optional array of footers to output to the table using `<tfoot>` and `<th>` elements
-     *
-     * @return string
+     * @param array|Traversable $records       The tabular data collection
+     * @param string[]          $header_record An optional array of headers to output to the table using `<thead>` and `<th>` elements
+     * @param string[]          $footer_record An optional array of footers to output to the table using `<tfoot>` and `<th>` elements
      */
-    public function convert($records, array $headerRecord = [], array $footerRecord = []): string
+    public function convert($records, array $header_record = [], array $footer_record = []): string
     {
-        if ([] === $headerRecord && [] === $footerRecord) {
+        if ([] === $header_record && [] === $footer_record) {
             /** @var DOMDocument $doc */
             $doc = $this->xml_converter->convert($records);
 
@@ -78,25 +76,15 @@ class HTMLConverter
         };
 
         $doc = new DOMDocument('1.0');
-
-        $tbody = $this->xml_converter->rootElement('tbody')->import($records, $doc);
         $table = $doc->createElement('table');
         $this->styleTableElement($table);
-        if (!empty($headerRecord)) {
-            $table->appendChild(
-                $this->createRecordRow('thead', 'th', $headerRecord, $doc)
-            );
-        }
+        $this->appendTableHeader('thead', $header_record, $table);
+        $this->appendTableHeader('tfoot', $footer_record, $table);
+        $tbody = $this->xml_converter->rootElement('tbody')->import($records, $doc);
         $table->appendChild($tbody);
-        if (!empty($footerRecord)) {
-            $table->appendChild(
-                $this->createRecordRow('tfoot', 'th', $footerRecord, $doc)
-            );
-        }
-
         $doc->appendChild($table);
 
-        return $doc->saveHTML();
+        return $doc->saveHTML($table);
     }
 
     /**
@@ -106,7 +94,7 @@ class HTMLConverter
      */
     public function table(string $class_name, string $id_value = ''): self
     {
-        if (preg_match(",\s,", $id_value)) {
+        if (1 === preg_match(",\s,", $id_value)) {
             throw new DOMException("the id attribute's value must not contain whitespace (spaces, tabs etc.)");
         }
         $clone = clone $this;
@@ -139,31 +127,31 @@ class HTMLConverter
     }
 
     /**
-     * Create a DOMElement representing a single record of data
-     *
-     * @param string $recordTagName
-     * @param string $fieldTagName
-     * @param array $record
-     * @param DOMDocument $doc
-     *
-     * @return DOMElement
+     * Create a DOMElement representing a single record of data.
      */
-    private function createRecordRow(string $recordTagName, string $fieldTagName, array $record, DOMDocument $doc) : DOMElement
+    private function appendTableHeader(string $node_name, array $record, DOMElement $table)
     {
-        $node = $this->xml_converter->rootElement($recordTagName)->fieldElement($fieldTagName)->import([$record], $doc);
+        if ([] === $record) {
+            return;
+        }
+
+        $node = (new XMLConverter())
+            ->rootElement($node_name)
+            ->recordElement('tr')
+            ->fieldElement('th')
+            ->import([$record], $table->ownerDocument)
+        ;
 
         /** @var DOMElement $element */
-        foreach ($node->getElementsByTagName($fieldTagName) as $element) {
+        foreach ($node->getElementsByTagName('th') as $element) {
             $element->setAttribute('scope', 'col');
         }
 
-        return $node;
+        $table->appendChild($node);
     }
 
     /**
-     * Style the table dom element
-     *
-     * @param DOMElement $table_element
+     * Style the table dom element.
      */
     private function styleTableElement(DOMElement $table_element)
     {

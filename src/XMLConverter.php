@@ -83,18 +83,17 @@ class XMLConverter
      * Convert a Record collection into a DOMDocument.
      *
      * @param array|Traversable $records the CSV records collection
-     *
-     * @return DOMDocument
      */
     public function convert($records): DOMDocument
     {
         if (!is_iterable($records)) {
             throw new TypeError(sprintf('%s() expects argument passed to be iterable, %s given', __METHOD__, gettype($records)));
         }
+
         $doc = new DOMDocument('1.0');
-        $doc->appendChild(
-            $this->import($records, $doc)
-        );
+        $node = $this->import($records, $doc);
+        $doc->appendChild($node);
+
         return $doc;
     }
 
@@ -103,9 +102,7 @@ class XMLConverter
      *
      * **DOES NOT** attach to the DOMDocument
      *
-     * @param iterable $records
-     *
-     * @return DOMElement
+     * @param array|Traversable $records
      */
     public function import($records, DOMDocument $doc): DOMElement
     {

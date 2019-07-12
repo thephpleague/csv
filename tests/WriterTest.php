@@ -28,7 +28,7 @@ use function tmpfile;
 
 /**
  * @group writer
- * @coversDefaultClass League\Csv\Writer
+ * @coversDefaultClass \League\Csv\Writer
  */
 class WriterTest extends TestCase
 {
@@ -132,7 +132,7 @@ class WriterTest extends TestCase
         Writer::createFromPath(__DIR__.'/data/foo.csv', 'r')->insertOne($record);
     }
 
-    public function inputDataProvider()
+    public function inputDataProvider(): array
     {
         return [
             'normal record' => [['foo', 'bar']],
@@ -200,7 +200,7 @@ class WriterTest extends TestCase
      * @covers ::getNewline
      * @covers ::insertOne
      * @covers ::consolidate
-     * @covers League\Csv\Stream
+     * @covers \League\Csv\Stream
      */
     public function testCustomNewline()
     {
@@ -235,7 +235,7 @@ class WriterTest extends TestCase
     }
 
     /**
-     * @covers League\Csv\Stream::fseek
+     * @covers \League\Csv\Stream::fseek
      */
     public function testWriterTriggerExceptionWithNonSeekableStream()
     {

@@ -31,7 +31,7 @@ use function unlink;
 
 /**
  * @group reader
- * @coversDefaultClass League\Csv\Reader
+ * @coversDefaultClass \League\Csv\Reader
  */
 class ReaderTest extends TestCase
 {

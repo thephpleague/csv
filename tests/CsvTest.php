@@ -30,7 +30,7 @@ use const STREAM_FILTER_WRITE;
 
 /**
  * @group csv
- * @coversDefaultClass League\Csv\AbstractCsv
+ * @coversDefaultClass \League\Csv\AbstractCsv
  */
 class CsvTest extends TestCase
 {

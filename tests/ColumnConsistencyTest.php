@@ -21,7 +21,7 @@ use SplTempFileObject;
 
 /**
  * @group writer
- * @coversDefaultClass League\Csv\ColumnConsistency
+ * @coversDefaultClass \League\Csv\ColumnConsistency
  */
 class ColumnConsistencyTest extends TestCase
 {

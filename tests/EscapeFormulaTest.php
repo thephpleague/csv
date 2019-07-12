@@ -20,7 +20,7 @@ use TypeError;
 
 /**
  * @group filter
- * @coversDefaultClass League\Csv\EscapeFormula
+ * @coversDefaultClass \League\Csv\EscapeFormula
  */
 class EscapeFormulaTest extends TestCase
 {

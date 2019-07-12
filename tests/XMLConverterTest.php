@@ -22,7 +22,7 @@ use TypeError;
 
 /**
  * @group converter
- * @coversDefaultClass League\Csv\XMLConverter
+ * @coversDefaultClass \League\Csv\XMLConverter
  */
 class XMLConverterTest extends TestCase
 {

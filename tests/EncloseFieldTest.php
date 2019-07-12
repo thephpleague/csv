@@ -19,7 +19,7 @@ use function stream_get_filters;
 
 /**
  * @group filter
- * @coversDefaultClass League\Csv\EncloseField
+ * @coversDefaultClass \League\Csv\EncloseField
  */
 class EncloseFieldTest extends TestCase
 {

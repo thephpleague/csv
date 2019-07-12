@@ -23,7 +23,7 @@ use const STREAM_FILTER_READ;
 
 /**
  * @group filter
- * @coversDefaultClass League\Csv\RFC4180Field
+ * @coversDefaultClass \League\Csv\RFC4180Field
  */
 class RFC4180FieldTest extends TestCase
 {
@@ -39,10 +39,8 @@ class RFC4180FieldTest extends TestCase
      * @covers ::filter
      *
      * @dataProvider bugsProvider
-     *
-     * @param string $expected
      */
-    public function testStreamFilterOnWrite($expected, array $record)
+    public function testStreamFilterOnWrite(string $expected, array $record)
     {
         $csv = Writer::createFromPath('php://temp');
         RFC4180Field::addTo($csv);
@@ -77,10 +75,8 @@ class RFC4180FieldTest extends TestCase
      * @covers ::filter
      *
      * @dataProvider readerBugsProvider
-     *
-     * @param string $expected
      */
-    public function testStreamFilterOnRead($expected, array $record)
+    public function testStreamFilterOnRead(string $expected, array $record)
     {
         $csv = Reader::createFromString($expected);
         RFC4180Field::addTo($csv);

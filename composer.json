@@ -22,8 +22,9 @@
     },
     "require": {
         "php" : ">=7.0.10",
-        "ext-mbstring" : "*",
-        "ext-dom" : "*"
+        "ext-dom" : "*",
+        "ext-json" : "*",
+        "ext-mbstring" : "*"
     },
     "require-dev": {
         "ext-curl" : "*",

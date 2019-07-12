@@ -49,12 +49,20 @@ This method sets the optional attribute name for the field name on the HTML `td`
 
 ## Conversion
 
+<p class="message-info">Since version <code>9.3.0</code> this method accepts optional header and footer records to display them in the exported HTML table.</p>
+
 ~~~php
 <?php
-public HTMLConverter::convert(iterable $records): string
+public HTMLConverter::convert(iterable $records, array $header_record = [], array $footer_record = []): string
 ~~~
 
 The `HTMLConverter::convert` accepts an `iterable` which represents the records collection and returns a string.
+It optionally accepts:
+
+- an array of string representing the tabular header;
+- an array of string representing the tabular footer;
+
+If any of these array is present and non-empty the tabular data will be contained in a `tbody` tag as per HTML specification.
 
 ~~~php
 use League\Csv\HTMLConverter;
@@ -89,6 +97,34 @@ echo $html;
 // <td title="email">jane.doe@example.com</td>
 // </tr>
 // </table>
+
+
+$html = $converter->convert($sth, ['First Name', 'Last Name', 'E-mail']);
+
+echo $html;
+
+// <table class="table-csv-data" id="users">
+// <thead>
+// <tr>
+// <th scope="col">First Name</th>
+// <th scope="col">Last Name</th>
+// <th scope="col">E-mail</th>
+// </tr>
+// </thead>
+// <tbody>
+// <tr data-record-offset="0">
+// <td title="firstname">john</td>
+// <td title="lastname">doe</td>
+// <td title="email">john.doe@example.com</td>
+// </tr>
+// <tr data-record-offset="1">
+// <td title="firstname">jane</td>
+// <td title="lastname">doe</td>
+// <td title="email">jane.doe@example.com</td>
+// </tr>
+// </tbody>
+// </table>
+
 ~~~
 
 <p class="message-info">If needed you can use the <a href="/9.0/converter/charset/">CharsetConverter</a> object to correctly encode your CSV records before conversion.</p>

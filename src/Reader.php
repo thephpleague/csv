@@ -16,6 +16,7 @@ namespace League\Csv;
 use BadMethodCallException;
 use CallbackFilterIterator;
 use Countable;
+use Generator;
 use Iterator;
 use IteratorAggregate;
 use JsonSerializable;
@@ -43,8 +44,8 @@ use const STREAM_FILTER_READ;
  * A class to parse and read records from a CSV document.
  *
  * @method array fetchOne(int $nth_record = 0) Returns a single record from the CSV
- * @method \Generator fetchColumn(string|int $column_index) Returns the next value from a single CSV record field
- * @method \Generator fetchPairs(string|int $offset_index = 0, string|int $value_index = 1) Fetches the next key-value pairs from the CSV document
+ * @method Generator fetchColumn(string|int $column_index) Returns the next value from a single CSV record field
+ * @method Generator fetchPairs(string|int $offset_index = 0, string|int $value_index = 1) Fetches the next key-value pairs from the CSV document
  */
 class Reader extends AbstractCsv implements Countable, IteratorAggregate, JsonSerializable
 {
