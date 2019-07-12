@@ -12,6 +12,7 @@
 namespace LeagueTest\Csv;
 
 use DOMDocument;
+use DOMElement;
 use DOMException;
 use League\Csv\Reader;
 use League\Csv\Statement;
@@ -89,5 +90,46 @@ class XMLConverterTest extends TestCase
     {
         self::expectException(TypeError::class);
         (new XMLConverter())->convert('foo');
+    }
+
+    /**
+     * @covers ::rootElement
+     * @covers ::recordElement
+     * @covers ::fieldElement
+     * @covers ::import
+     * @covers ::recordToElement
+     * @covers ::recordToElementWithAttribute
+     * @covers ::fieldToElement
+     * @covers ::fieldToElementWithAttribute
+     * @covers ::filterAttributeName
+     * @covers ::filterElementName
+     */
+    public function testImport()
+    {
+        $csv = Reader::createFromPath(__DIR__.'/data/prenoms.csv', 'r')
+            ->setDelimiter(';')
+            ->setHeaderOffset(0)
+        ;
+
+        $stmt = (new Statement())
+            ->offset(3)
+            ->limit(5)
+        ;
+
+        $records = $stmt->process($csv);
+
+        $converter = (new XMLConverter())
+            ->rootElement('csv')
+            ->recordElement('record', 'offset')
+            ->fieldElement('field', 'name')
+        ;
+
+        $doc = new DOMDocument('1.0');
+        $element = $converter->import($records, $doc);
+
+        self::assertInstanceOf(DOMDocument::class, $doc);
+        self::assertCount(0, $doc->childNodes);
+        self::assertInstanceOf(DOMElement::class, $element);
+        self::assertCount(5, $element->childNodes);
     }
 }

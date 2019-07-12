@@ -58,19 +58,45 @@ class HTMLConverter
     /**
      * Convert an Record collection into a DOMDocument.
      *
-     * @param array|Traversable $records the tabular data collection
+     * @param array|Traversable $records      The tabular data collection
+     * @param array             $headerRecord An optional array of headers to output to the table using `<thead>` and `<th>` elements
+     * @param array             $footerRecord An optional array of footers to output to the table using `<tfoot>` and `<th>` elements
+     *
+     * @return string
      */
-    public function convert($records): string
+    public function convert($records, array $headerRecord = [], array $footerRecord = []): string
     {
-        /** @var DOMDocument $doc */
-        $doc = $this->xml_converter->convert($records);
+        if ([] === $headerRecord && [] === $footerRecord) {
+            /** @var DOMDocument $doc */
+            $doc = $this->xml_converter->convert($records);
 
-        /** @var DOMElement $table */
-        $table = $doc->getElementsByTagName('table')->item(0);
-        $table->setAttribute('class', $this->class_name);
-        $table->setAttribute('id', $this->id_value);
+            /** @var DOMElement $table */
+            $table = $doc->getElementsByTagName('table')->item(0);
+            $this->styleTableElement($table);
 
-        return $doc->saveHTML($table);
+            return $doc->saveHTML($table);
+        };
+
+        $doc = new DOMDocument('1.0');
+
+        $tbody = $this->xml_converter->rootElement('tbody')->import($records, $doc);
+        $table = $doc->createElement('table');
+        $this->styleTableElement($table);
+        if (!empty($headerRecord)) {
+            $table->appendChild(
+                $this->createRecordRow('thead', 'th', $headerRecord, $doc)
+            );
+        }
+        $table->appendChild($tbody);
+        if (!empty($footerRecord)) {
+            $table->appendChild(
+                $this->createRecordRow('tfoot', 'th', $footerRecord, $doc)
+            );
+        }
+
+        $doc->appendChild($table);
+
+        return $doc->saveHTML();
     }
 
     /**
@@ -110,5 +136,38 @@ class HTMLConverter
         $clone->xml_converter = $this->xml_converter->fieldElement('td', $fieldname_attribute_name);
 
         return $clone;
+    }
+
+    /**
+     * Create a DOMElement representing a single record of data
+     *
+     * @param string $recordTagName
+     * @param string $fieldTagName
+     * @param array $record
+     * @param DOMDocument $doc
+     *
+     * @return DOMElement
+     */
+    private function createRecordRow(string $recordTagName, string $fieldTagName, array $record, DOMDocument $doc) : DOMElement
+    {
+        $node = $this->xml_converter->rootElement($recordTagName)->fieldElement($fieldTagName)->import([$record], $doc);
+
+        /** @var DOMElement $element */
+        foreach ($node->getElementsByTagName($fieldTagName) as $element) {
+            $element->setAttribute('scope', 'col');
+        }
+
+        return $node;
+    }
+
+    /**
+     * Style the table dom element
+     *
+     * @param DOMElement $table_element
+     */
+    private function styleTableElement(DOMElement $table_element)
+    {
+        $table_element->setAttribute('class', $this->class_name);
+        $table_element->setAttribute('id', $this->id_value);
     }
 }

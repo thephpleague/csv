@@ -80,11 +80,34 @@ class XMLConverter
     ];
 
     /**
-     * Convert an Record collection into a DOMDocument.
+     * Convert a Record collection into a DOMDocument.
      *
      * @param array|Traversable $records the CSV records collection
+     *
+     * @return DOMDocument
      */
     public function convert($records): DOMDocument
+    {
+        if (!is_iterable($records)) {
+            throw new TypeError(sprintf('%s() expects argument passed to be iterable, %s given', __METHOD__, gettype($records)));
+        }
+        $doc = new DOMDocument('1.0');
+        $doc->appendChild(
+            $this->import($records, $doc)
+        );
+        return $doc;
+    }
+
+    /**
+     * Create a new DOMElement related to the given DOMDocument.
+     *
+     * **DOES NOT** attach to the DOMDocument
+     *
+     * @param iterable $records
+     *
+     * @return DOMElement
+     */
+    public function import($records, DOMDocument $doc): DOMElement
     {
         if (!is_iterable($records)) {
             throw new TypeError(sprintf('%s() expects argument passed to be iterable, %s given', __METHOD__, gettype($records)));
@@ -92,15 +115,13 @@ class XMLConverter
 
         $field_encoder = $this->encoder['field']['' !== $this->column_attr];
         $record_encoder = $this->encoder['record']['' !== $this->offset_attr];
-        $doc = new DOMDocument('1.0');
         $root = $doc->createElement($this->root_name);
         foreach ($records as $offset => $record) {
             $node = $this->$record_encoder($doc, $record, $field_encoder, $offset);
             $root->appendChild($node);
         }
-        $doc->appendChild($root);
 
-        return $doc;
+        return $root;
     }
 
     /**
