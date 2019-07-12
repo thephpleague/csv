@@ -22,7 +22,8 @@
     },
     "require": {
         "php" : ">=7.0.10",
-        "ext-mbstring" : "*"
+        "ext-mbstring" : "*",
+        "ext-dom" : "*"
     },
     "require-dev": {
         "ext-curl" : "*",

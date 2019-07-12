@@ -54,6 +54,59 @@ class HTMLConverterTest extends TestCase
         self::assertContains('<table class="table-csv-data" id="test">', $html);
         self::assertContains('<tr data-record-offset="', $html);
         self::assertContains('<td title="', $html);
+        self::assertNotContains('<thead>', $html);
+        self::assertNotContains('<tbody>', $html);
+        self::assertNotContains('<tfoot>', $html);
+    }
+
+    /**
+     * @covers ::__construct
+     * @covers ::table
+     * @covers ::tr
+     * @covers ::td
+     * @covers ::convert
+     */
+    public function testToHTMLWithHeaders()
+    {
+        $csv = Reader::createFromPath(__DIR__.'/data/prenoms.csv', 'r')
+            ->setDelimiter(';')
+            ->setHeaderOffset(0)
+        ;
+
+        $stmt = (new Statement())
+            ->offset(3)
+            ->limit(5)
+        ;
+
+        $records = $stmt->process($csv);
+
+        $converter = (new HTMLConverter())
+            ->table('table-csv-data', 'test')
+            ->td('title')
+            ->tr('data-record-offset')
+        ;
+
+        $html = $converter->convert($records, $records->getHeader());
+        self::assertContains('<table class="table-csv-data" id="test">', $html);
+        self::assertContains('<th scope="col">prenoms</th>', $html);
+        self::assertContains('<thead>', $html);
+        self::assertContains('<tbody>', $html);
+        self::assertNotContains('<tfoot>', $html);
+
+        $html = $converter->convert($records, [], $records->getHeader());
+        self::assertContains('<table class="table-csv-data" id="test">', $html);
+        self::assertContains('<th scope="col">prenoms</th>', $html);
+        self::assertNotContains('<thead>', $html);
+        self::assertContains('<tbody>', $html);
+        self::assertContains('<tfoot>', $html);
+
+        $html = $converter->convert($records, $records->getHeader(), $records->getHeader());
+        self::assertContains('<table class="table-csv-data" id="test">', $html);
+        self::assertContains('<thead>', $html);
+        self::assertContains('<tbody>', $html);
+        self::assertContains('<tfoot>', $html);
+        self::assertNotContains('<thead><tr data-record-offset="0"></tr></thead>', $html);
+        self::assertNotContains('<tfoot><tr data-record-offset="0"></tr></tfoot>', $html);
     }
 
     /**
