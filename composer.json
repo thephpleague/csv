@@ -46,9 +46,9 @@
         }
     },
     "scripts": {
-        "phpcs": "php-cs-fixer fix -v --diff --dry-run --allow-risky=yes;",
-        "phpstan-src": "phpstan analyse -l max -c phpstan.src.neon src",
-        "phpstan-tests": "phpstan analyse -l max -c phpstan.tests.neon tests",
+        "phpcs": "php-cs-fixer fix -v --diff --dry-run --allow-risky=yes --ansi",
+        "phpstan-src": "phpstan analyse -l max -c phpstan.src.neon src --ansi",
+        "phpstan-tests": "phpstan analyse -l max -c phpstan.tests.neon tests --ansi",
         "phpstan": [
             "@phpstan-src",
             "@phpstan-tests"
