@@ -210,7 +210,7 @@ class Writer extends AbstractCsv
     {
         foreach ($record as &$field) {
             $field = (string) $field;
-            if (preg_match($this->rfc4180_regexp, $field)) {
+            if (1 === preg_match($this->rfc4180_regexp, $field)) {
                 $field = $this->enclosure.str_replace($this->enclosure, $this->rfc4180_enclosure, $field).$this->enclosure;
             }
         }
