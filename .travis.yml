@@ -6,7 +6,6 @@ cache:
 env:
     global:
         - COMPOSER_ARGS="--no-interaction --prefer-source --no-suggest"
-        - secure: PSPHZzussniQ7oyqB+mnW2yUMPctJNI0gjtg9bUyCWlYAaSTSa8nu6ZAzzLI7qNftKL9rp3rPNUTk+6envmivEfj6FQDl9Z7YiDRl8t+UcLI2hUSANdL4KF/4Ier4io8qoU9aIaQnhBe3SxbB4CORWC5pdmGFznx6NHI7pxq0qE=
 matrix:
     include:
         - php: 7.0
