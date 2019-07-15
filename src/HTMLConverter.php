@@ -64,27 +64,23 @@ class HTMLConverter
      */
     public function convert($records, array $header_record = [], array $footer_record = []): string
     {
-        if ([] === $header_record && [] === $footer_record) {
-            /** @var DOMDocument $doc */
-            $doc = $this->xml_converter->convert($records);
-
-            /** @var DOMElement $table */
-            $table = $doc->getElementsByTagName('table')->item(0);
-            $this->styleTableElement($table);
-
-            return $doc->saveHTML($table);
-        };
-
         $doc = new DOMDocument('1.0');
+        if ([] === $header_record && [] === $footer_record) {
+            $table = $this->xml_converter->import($records, $doc);
+            $this->styleTableElement($table);
+            $doc->appendChild($table);
+
+            return $doc->saveHTML();
+        }
+
         $table = $doc->createElement('table');
         $this->styleTableElement($table);
-        $this->appendTableHeader('thead', $header_record, $table);
-        $this->appendTableHeader('tfoot', $footer_record, $table);
-        $tbody = $this->xml_converter->rootElement('tbody')->import($records, $doc);
-        $table->appendChild($tbody);
+        $this->appendTableHeaderSection('thead', $header_record, $table);
+        $this->appendTableHeaderSection('tfoot', $footer_record, $table);
+        $table->appendChild($this->xml_converter->rootElement('tbody')->import($records, $doc));
         $doc->appendChild($table);
 
-        return $doc->saveHTML($table);
+        return $doc->saveHTML();
     }
 
     /**
@@ -129,13 +125,13 @@ class HTMLConverter
     /**
      * Create a DOMElement representing a single record of data.
      */
-    private function appendTableHeader(string $node_name, array $record, DOMElement $table)
+    private function appendTableHeaderSection(string $node_name, array $record, DOMElement $table)
     {
         if ([] === $record) {
             return;
         }
 
-        $node = (new XMLConverter())
+        $node = $this->xml_converter
             ->rootElement($node_name)
             ->recordElement('tr')
             ->fieldElement('th')
@@ -153,9 +149,9 @@ class HTMLConverter
     /**
      * Style the table dom element.
      */
-    private function styleTableElement(DOMElement $table_element)
+    private function styleTableElement(DOMElement $node)
     {
-        $table_element->setAttribute('class', $this->class_name);
-        $table_element->setAttribute('id', $this->id_value);
+        $node->setAttribute('class', $this->class_name);
+        $node->setAttribute('id', $this->id_value);
     }
 }
