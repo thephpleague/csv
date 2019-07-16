@@ -61,8 +61,8 @@ class HTMLConverterTest extends TestCase
 
     /**
      * @covers ::convert
-     * @covers ::appendTableHeaderSection
-     * @covers ::styleTableElement
+     * @covers ::appendHeaderSection
+     * @covers ::addHTMLAttributes
      */
     public function testToHTMLWithTHeadTableSection()
     {
@@ -97,8 +97,8 @@ class HTMLConverterTest extends TestCase
 
     /**
      * @covers ::convert
-     * @covers ::appendTableHeaderSection
-     * @covers ::styleTableElement
+     * @covers ::appendHeaderSection
+     * @covers ::addHTMLAttributes
      */
     public function testToHTMLWithTFootTableSection()
     {
@@ -133,8 +133,8 @@ class HTMLConverterTest extends TestCase
 
     /**
      * @covers ::convert
-     * @covers ::appendTableHeaderSection
-     * @covers ::styleTableElement
+     * @covers ::appendHeaderSection
+     * @covers ::addHTMLAttributes
      */
     public function testToHTMLWithBothTableHeaderSection()
     {

@@ -7,7 +7,8 @@ All Notable changes to `Csv` will be documented in this file
 ### Added
 
 - `XMLConverter::import` see [#348](https://github.com/thephpleague/csv/pull/348) thanks [@kusabi](https://github.com/kusabi)
-- support for `thead`, `tfoot` and `tbody` in footer `HTMLConverter::convert` see [#348](https://github.com/thephpleague/csv/pull/348) thanks [@kusabi](https://github.com/kusabi)
+- Support for `thead`, `tfoot` and `tbody` in `HTMLConverter::convert` via the addition of 
+protected methods `HTMLConverter::addHTMLAttributes` and `HTMLConverter::appendHeaderSection` [#348](https://github.com/thephpleague/csv/pull/348) thanks [@kusabi](https://github.com/kusabi)
 
 ### Deprecated
 
@@ -15,7 +16,9 @@ All Notable changes to `Csv` will be documented in this file
 
 ### Fixed
 
-- Internal improvement in `Reader` dockblock  thanks [@ghobaty](https://github.com/ghobaty).
+- Internal improvement in `Reader` dockblock thanks [@ghobaty](https://github.com/ghobaty).
+- Improve strict comparison when using `preg_match`.
+- Improve CSV control in `Stream`. 
 
 ### Removed
 

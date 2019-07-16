@@ -17,7 +17,6 @@ use SeekableIterator;
 use SplFileObject;
 use TypeError;
 use function array_keys;
-use function array_values;
 use function array_walk_recursive;
 use function fclose;
 use function feof;
@@ -264,18 +263,19 @@ class Stream implements SeekableIterator
      */
     protected function filterControl(string $delimiter, string $enclosure, string $escape, string $caller): array
     {
-        $controls = ['delimiter' => $delimiter, 'enclosure' => $enclosure, 'escape' => $escape];
-        foreach ($controls as $type => $control) {
-            if ('escape' === $type && '' === $control && 70400 <= PHP_VERSION_ID) {
-                continue;
-            }
-
-            if (1 !== strlen($control)) {
-                throw new Exception(sprintf('%s() expects %s to be a single character', $caller, $type));
-            }
+        if (1 !== strlen($delimiter)) {
+            throw new Exception(sprintf('%s() expects delimiter to be a single character', $caller));
         }
 
-        return array_values($controls);
+        if (1 !== strlen($enclosure)) {
+            throw new Exception(sprintf('%s() expects enclosure to be a single character', $caller));
+        }
+
+        if (1 === strlen($escape) || ('' === $escape && 70400 <= PHP_VERSION_ID)) {
+            return [$delimiter, $enclosure, $escape];
+        }
+
+        throw new Exception(sprintf('%s() expects escape to be a single character', $caller));
     }
 
     /**
@@ -423,11 +423,11 @@ class Stream implements SeekableIterator
             $this->current();
             $this->next();
         }
-        
+
         if (0 !== $position) {
             $this->offset--;
         }
-        
+
         $this->current();
     }
 

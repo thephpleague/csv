@@ -56,10 +56,10 @@ class HTMLConverter
     }
 
     /**
-     * Convert an Record collection into a DOMDocument.
+     * Converts a tabular data collection into a HTML table string.
      *
      * @param array|Traversable $records       The tabular data collection
-     * @param string[]          $header_record An optional array of headers to output to the table using `<thead>` and `<th>` elements
+     * @param string[]          $header_record An optional array of headers outputted using the`<thead>` section
      * @param string[]          $footer_record An optional array of footers to output to the table using `<tfoot>` and `<th>` elements
      */
     public function convert($records, array $header_record = [], array $footer_record = []): string
@@ -67,20 +67,53 @@ class HTMLConverter
         $doc = new DOMDocument('1.0');
         if ([] === $header_record && [] === $footer_record) {
             $table = $this->xml_converter->import($records, $doc);
-            $this->styleTableElement($table);
+            $this->addHTMLAttributes($table);
             $doc->appendChild($table);
 
             return $doc->saveHTML();
         }
 
         $table = $doc->createElement('table');
-        $this->styleTableElement($table);
-        $this->appendTableHeaderSection('thead', $header_record, $table);
-        $this->appendTableHeaderSection('tfoot', $footer_record, $table);
+        $this->addHTMLAttributes($table);
+        $this->appendHeaderSection('thead', $header_record, $table);
+        $this->appendHeaderSection('tfoot', $footer_record, $table);
         $table->appendChild($this->xml_converter->rootElement('tbody')->import($records, $doc));
         $doc->appendChild($table);
 
         return $doc->saveHTML();
+    }
+
+    /**
+     * Creates a DOMElement representing a HTML table heading section.
+     */
+    protected function appendHeaderSection(string $node_name, array $record, DOMElement $table)
+    {
+        if ([] === $record) {
+            return;
+        }
+
+        $node = $this->xml_converter
+            ->rootElement($node_name)
+            ->recordElement('tr')
+            ->fieldElement('th')
+            ->import([$record], $table->ownerDocument)
+        ;
+
+        /** @var DOMElement $element */
+        foreach ($node->getElementsByTagName('th') as $element) {
+            $element->setAttribute('scope', 'col');
+        }
+
+        $table->appendChild($node);
+    }
+
+    /**
+     * Adds class and id attributes to an HTML tag.
+     */
+    protected function addHTMLAttributes(DOMElement $node)
+    {
+        $node->setAttribute('class', $this->class_name);
+        $node->setAttribute('id', $this->id_value);
     }
 
     /**
@@ -120,38 +153,5 @@ class HTMLConverter
         $clone->xml_converter = $this->xml_converter->fieldElement('td', $fieldname_attribute_name);
 
         return $clone;
-    }
-
-    /**
-     * Create a DOMElement representing a single record of data.
-     */
-    private function appendTableHeaderSection(string $node_name, array $record, DOMElement $table)
-    {
-        if ([] === $record) {
-            return;
-        }
-
-        $node = $this->xml_converter
-            ->rootElement($node_name)
-            ->recordElement('tr')
-            ->fieldElement('th')
-            ->import([$record], $table->ownerDocument)
-        ;
-
-        /** @var DOMElement $element */
-        foreach ($node->getElementsByTagName('th') as $element) {
-            $element->setAttribute('scope', 'col');
-        }
-
-        $table->appendChild($node);
-    }
-
-    /**
-     * Style the table dom element.
-     */
-    private function styleTableElement(DOMElement $node)
-    {
-        $node->setAttribute('class', $this->class_name);
-        $node->setAttribute('id', $this->id_value);
     }
 }
