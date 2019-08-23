@@ -76,3 +76,34 @@ $bom = $csv->getOutputBOM(); //returns "\xEF\xBB\xBF"
 <p class="message-info">The default output <code>BOM</code> character is set to an empty string.</p>
 <p class="message-warning">The output BOM sequence is <strong>never</strong> saved to the CSV document.</p>
 
+### Controlling BOM sequence removal
+
+<p class="message-info">Since version <code>9.4.0</code>.</p>
+
+~~~php
+AbstractCsv::enableBOMStripping(): self;
+AbstractCsv::disableBOMStripping(): self;
+AbstractCsv::isBOMStrippingEnabled(): bool;
+~~~
+
+- `enableBOMStripping`: enables stripping the input BOM from your CSV document.
+- `disableBOMStripping`: disables stripping the input BOM from your CSV document.
+- `isBOMStrippingEnabled`: tells whether stripping the input BOM will be done.
+
+<p class="message-notice">By default and to avoid BC Break, BOM stripping is enabled.</p>
+
+If your document does not contains any BOM sequence you can speed up the CSV iterator by removing the step that checks and the BOM sequence if it is present.
+
+~~~php
+$raw_csv = Reader::BOM_UTF8."john,doe,john.doe@example.com\njane,doe,jane.doe@example.com\n";
+$csv = Reader::createFromString($raw_csv);
+$csv->setOutputBOM(Reader::BOM_UTF16_BE);
+$csv->disableBOMStripping();
+ob_start();
+$csv->output();
+$document = ob_get_clean();
+~~~
+
+the returned `$document` will contains **2** BOM marker instead of one.
+
+<p class="message-warning">If you are using a <code>stream</code> that can not be seekable you should disabled BOM stripping otherwise an <code>Exception</code> will be triggered.</p>

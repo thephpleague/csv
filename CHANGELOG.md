@@ -6,7 +6,10 @@ All Notable changes to `Csv` will be documented in this file
 
 ### Added
 
-- Nothing
+- Support for disabling/enabling BOM stripping via adding:
+    - `AbstractCsv::enableBOMStripping`
+    - `AbstractCsv::disableBOMStripping`
+    - `AbstractCsv::isBOMStrippingEnabled`
 
 ### Deprecated
 
