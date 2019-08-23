@@ -21,6 +21,8 @@ use function chr;
 use function function_exists;
 use function iterator_to_array;
 use function League\Csv\is_iterable as CSVIsiterable;
+use function ob_get_clean;
+use function ob_start;
 use function strtolower;
 use function tmpfile;
 use function unlink;
@@ -456,5 +458,44 @@ EOF;
         self::assertSame('php://temp', Writer::createFromString('')->getPathname());
         self::assertSame('php://temp', Writer::createFromString(new SplTempFileObject())->getPathname());
         self::assertSame('php://temp', Writer::createFromFileObject(new SplTempFileObject())->getPathname());
+    }
+
+    /**
+     * @covers ::isBOMStrippingEnabled
+     * @covers ::disableBOMStripping
+     * @covers ::enableBOMStripping
+     */
+    public function testBOMStripping()
+    {
+        $reader = Reader::createFromString();
+        self::assertTrue($reader->isBOMStrippingEnabled());
+        $reader->disableBOMStripping();
+        self::assertFalse($reader->isBOMStrippingEnabled());
+        $reader->enableBOMStripping();
+        self::assertTrue($reader->isBOMStrippingEnabled());
+    }
+
+    /**
+     * @runInSeparateProcess
+     * @covers ::output
+     */
+    public function testOutputDoesNotStripBOM()
+    {
+        $raw_csv = Reader::BOM_UTF8."john,doe,john.doe@example.com\njane,doe,jane.doe@example.com\n";
+        $csv = Reader::createFromString($raw_csv);
+        $csv->setOutputBOM(Reader::BOM_UTF16_BE);
+        ob_start();
+        $csv->output();
+        $result = ob_get_clean();
+        self::assertNotContains(Reader::BOM_UTF8, $result);
+        self::assertContains(Reader::BOM_UTF16_BE, $result);
+
+        $csv->disableBOMStripping();
+        ob_start();
+        $csv->output();
+        $result = ob_get_clean();
+        self::assertContains(Reader::BOM_UTF16_BE, $result);
+        self::assertContains(Reader::BOM_UTF8, $result);
+        self::assertTrue(0 === strpos($result, Reader::BOM_UTF16_BE.Reader::BOM_UTF8));
     }
 }

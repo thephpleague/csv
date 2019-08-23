@@ -89,6 +89,13 @@ abstract class AbstractCsv implements ByteSequence
     protected $document;
 
     /**
+     * Tells whether the BOM must be stripped.
+     *
+     * @var bool
+     */
+    protected $is_enable_BOM_stripping = true;
+
+    /**
      * New instance.
      *
      * @param SplFileObject|Stream $document The CSV Object instance
@@ -248,6 +255,14 @@ abstract class AbstractCsv implements ByteSequence
     }
 
     /**
+     * Tells whether the BOM can be stripped if presents.
+     */
+    public function isBOMStrippingEnabled(): bool
+    {
+        return $this->is_enable_BOM_stripping;
+    }
+
+    /**
      * Retuns the CSV document as a Generator of string chunk.
      *
      * @param int $length number of bytes read
@@ -310,9 +325,12 @@ abstract class AbstractCsv implements ByteSequence
         if (null !== $filename) {
             $this->sendHeaders($filename);
         }
-        $input_bom = $this->getInputBOM();
+
         $this->document->rewind();
-        $this->document->fseek(strlen($input_bom));
+        if ($this->is_enable_BOM_stripping) {
+            $this->document->fseek(strlen($this->getInputBOM()));
+        }
+
         echo $this->output_bom;
 
         return strlen($this->output_bom) + $this->document->fpassthru();
@@ -418,6 +436,30 @@ abstract class AbstractCsv implements ByteSequence
         }
 
         throw new Exception(sprintf('%s() expects escape to be a single character or the empty string %s given', __METHOD__, $escape));
+    }
+
+    /**
+     * Enables BOM Stripping.
+     *
+     * @return static
+     */
+    public function enableBOMStripping(): self
+    {
+        $this->is_enable_BOM_stripping = true;
+
+        return $this;
+    }
+
+    /**
+     * Disables BOM Stripping.
+     *
+     * @return static
+     */
+    public function disableBOMStripping(): self
+    {
+        $this->is_enable_BOM_stripping = false;
+
+        return $this;
     }
 
     /**
