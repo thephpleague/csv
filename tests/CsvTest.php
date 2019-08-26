@@ -461,18 +461,18 @@ EOF;
     }
 
     /**
-     * @covers ::isBOMStrippingEnabled
-     * @covers ::disableBOMStripping
-     * @covers ::enableBOMStripping
+     * @covers ::isBOMSkippingEnabled
+     * @covers ::disableBOMSkipping
+     * @covers ::enableBOMSkipping
      */
     public function testBOMStripping()
     {
         $reader = Reader::createFromString();
-        self::assertTrue($reader->isBOMStrippingEnabled());
-        $reader->disableBOMStripping();
-        self::assertFalse($reader->isBOMStrippingEnabled());
-        $reader->enableBOMStripping();
-        self::assertTrue($reader->isBOMStrippingEnabled());
+        self::assertTrue($reader->isBOMSkippingEnabled());
+        $reader->disableBOMSkipping();
+        self::assertFalse($reader->isBOMSkippingEnabled());
+        $reader->enableBOMSkipping();
+        self::assertTrue($reader->isBOMSkippingEnabled());
     }
 
     /**
@@ -490,7 +490,7 @@ EOF;
         self::assertNotContains(Reader::BOM_UTF8, $result);
         self::assertContains(Reader::BOM_UTF16_BE, $result);
 
-        $csv->disableBOMStripping();
+        $csv->disableBOMSkipping();
         ob_start();
         $csv->output();
         $result = ob_get_clean();

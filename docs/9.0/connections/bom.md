@@ -76,29 +76,29 @@ $bom = $csv->getOutputBOM(); //returns "\xEF\xBB\xBF"
 <p class="message-info">The default output <code>BOM</code> character is set to an empty string.</p>
 <p class="message-warning">The output BOM sequence is <strong>never</strong> saved to the CSV document.</p>
 
-### Controlling BOM sequence removal
+### Controlling BOM sequence skipping
 
 <p class="message-info">Since version <code>9.4.0</code>.</p>
 
 ~~~php
-AbstractCsv::enableBOMStripping(): self;
-AbstractCsv::disableBOMStripping(): self;
-AbstractCsv::isBOMStrippingEnabled(): bool;
+AbstractCsv::enableBOMSkipping(): self;
+AbstractCsv::disableBOMSkipping(): self;
+AbstractCsv::isBOMSkippingEnabled(): bool;
 ~~~
 
-- `enableBOMStripping`: enables stripping the input BOM from your CSV document.
-- `disableBOMStripping`: disables stripping the input BOM from your CSV document.
-- `isBOMStrippingEnabled`: tells whether stripping the input BOM will be done.
+- `enableBOMSkipping`: enables skipping the input BOM from your CSV document.
+- `disableBOMSkipping`: disables skipping the input BOM from your CSV document.
+- `isBOMSkippingEnabled`: tells whether skipping the input BOM will be done.
 
-<p class="message-notice">By default and to avoid BC Break, BOM stripping is enabled.</p>
+<p class="message-notice">By default and to avoid BC Break, BOM skipping is enabled.</p>
 
-If your document does not contains any BOM sequence you can speed up the CSV iterator by removing the step that checks and the BOM sequence if it is present.
+If your document does not contains any BOM sequence you can speed up the CSV iterator by removing the step that ensure the BOM sequence if present is skipped.
 
 ~~~php
 $raw_csv = Reader::BOM_UTF8."john,doe,john.doe@example.com\njane,doe,jane.doe@example.com\n";
 $csv = Reader::createFromString($raw_csv);
 $csv->setOutputBOM(Reader::BOM_UTF16_BE);
-$csv->disableBOMStripping();
+$csv->disableBOMSkipping();
 ob_start();
 $csv->output();
 $document = ob_get_clean();
@@ -106,4 +106,5 @@ $document = ob_get_clean();
 
 the returned `$document` will contains **2** BOM marker instead of one.
 
-<p class="message-warning">If you are using a <code>stream</code> that can not be seekable you should disabled BOM stripping otherwise an <code>Exception</code> will be triggered.</p>
+<p class="message-warning">If you are using a <code>stream</code> that can not be seekable you should disabled BOM skipping otherwise an <code>Exception</code> will be triggered.</p>
+<p class="message-warning">The BOM sequence is never removed from the CSV document, it is only skipped from the result set.</p>
