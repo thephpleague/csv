@@ -486,6 +486,8 @@ EOF;
         foreach ($reader as $offset => $record) {
             self::assertSame($expected_with_skipping[$offset], $record);
         }
+
+        unset($reader);
     }
 
     public function sourceProvider(): array
@@ -497,17 +499,15 @@ EOF;
 "parentA","childA","titleA"
 EOF;
         $expected_with_no_skipping = [
-            ['parent name', 'child name', 'title'],
-            [],
-            [],
-            ['parentA', 'childA', 'titleA'],
+            0 => ['parent name', 'child name', 'title'],
+            1 => [],
+            2 => [],
+            3 => ['parentA', 'childA', 'titleA'],
         ];
 
         $expected_with_skipping = [
-            ['parent name', 'child name', 'title'],
-            [],
-            [],
-            ['parentA', 'childA', 'titleA'],
+            0 => ['parent name', 'child name', 'title'],
+            3 => ['parentA', 'childA', 'titleA'],
         ];
 
         $rsrc = new SplTempFileObject();

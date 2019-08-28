@@ -438,8 +438,8 @@ EOF;
                 'expected' => 'tests/data/foo.csv',
             ],
             'external uri' => [
-                'path' => 'https://raw.githubusercontent.com/thephpleague/csv/8.x/test/data/foo.csv',
-                'expected' => 'https://raw.githubusercontent.com/thephpleague/csv/8.x/test/data/foo.csv',
+                'path' => 'https://raw.githubusercontent.com/thephpleague/csv/8.2.3/test/data/foo.csv',
+                'expected' => 'https://raw.githubusercontent.com/thephpleague/csv/8.2.3/test/data/foo.csv',
             ],
         ];
     }
