@@ -457,4 +457,83 @@ EOF;
         $csv = Reader::createFromPath(__DIR__.'/data/foo_readonly.csv');
         self::assertCount(1, $csv);
     }
+
+    /**
+     * @dataProvider sourceProvider
+     * @covers ::disableEmptyRecordsSkipping
+     * @covers ::enableEmptyRecordsSkipping
+     * @covers ::isEmptyRecordsSkipped
+     * @covers ::getRecords
+     */
+    public function testSkippingEmptyRecords(Reader $reader, array $expected_with_skipping, array $expected_with_no_skipping)
+    {
+        self::assertCount(2, $reader);
+        self::assertTrue($reader->isEmptyRecordsSkipped());
+        foreach ($reader as $offset => $record) {
+            self::assertSame($expected_with_skipping[$offset], $record);
+        }
+
+        $reader->disableEmptyRecordsSkipping();
+        self::assertFalse($reader->isEmptyRecordsSkipped());
+        self::assertCount(4, $reader);
+        foreach ($reader as $offset => $record) {
+            self::assertSame($expected_with_no_skipping[$offset], $record);
+        }
+
+        $reader->enableEmptyRecordsSkipping();
+        self::assertCount(2, $reader);
+        self::assertTrue($reader->isEmptyRecordsSkipped());
+        foreach ($reader as $offset => $record) {
+            self::assertSame($expected_with_skipping[$offset], $record);
+        }
+    }
+
+    public function sourceProvider(): array
+    {
+        $source = <<<EOF
+"parent name","child name","title"
+
+
+"parentA","childA","titleA"
+EOF;
+        $expected_with_no_skipping = [
+            ['parent name', 'child name', 'title'],
+            [],
+            [],
+            ['parentA', 'childA', 'titleA'],
+        ];
+
+        $expected_with_skipping = [
+            ['parent name', 'child name', 'title'],
+            [],
+            [],
+            ['parentA', 'childA', 'titleA'],
+        ];
+
+        $rsrc = new SplTempFileObject();
+        $rsrc->fwrite($source);
+
+        return [
+            'FileObject' => [
+                Reader::createFromFileObject($rsrc),
+                $expected_with_skipping,
+                $expected_with_no_skipping,
+            ],
+            'Stream' => [
+                Reader::createFromString($source),
+                $expected_with_skipping,
+                $expected_with_no_skipping,
+            ],
+            'FileObject with empty escape char' =>  [
+                Reader::createFromFileObject($rsrc)->setEscape(''),
+                $expected_with_skipping,
+                $expected_with_no_skipping,
+            ],
+            'Stream with empty escape char' => [
+                Reader::createFromString($source)->setEscape(''),
+                $expected_with_skipping,
+                $expected_with_no_skipping,
+            ],
+        ];
+    }
 }

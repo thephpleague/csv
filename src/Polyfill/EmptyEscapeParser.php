@@ -117,7 +117,7 @@ final class EmptyEscapeParser
         self::$document->rewind();
         while (self::$document->valid()) {
             $record = self::extractRecord();
-            if (!in_array(null, $record, true)) {
+            if ([null] === $record || !in_array(null, $record, true)) {
                 yield $record;
             }
         }
