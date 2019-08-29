@@ -89,6 +89,13 @@ abstract class AbstractCsv implements ByteSequence
     protected $document;
 
     /**
+     * Tells whether the Input BOM must be stripped.
+     *
+     * @var bool
+     */
+    protected $is_input_bom_skipped = true;
+
+    /**
      * New instance.
      *
      * @param SplFileObject|Stream $document The CSV Object instance
@@ -248,6 +255,14 @@ abstract class AbstractCsv implements ByteSequence
     }
 
     /**
+     * Tells whether the BOM can be stripped if presents.
+     */
+    public function isInputBOMSkipped(): bool
+    {
+        return $this->is_input_bom_skipped;
+    }
+
+    /**
      * Retuns the CSV document as a Generator of string chunk.
      *
      * @param int $length number of bytes read
@@ -310,9 +325,12 @@ abstract class AbstractCsv implements ByteSequence
         if (null !== $filename) {
             $this->sendHeaders($filename);
         }
-        $input_bom = $this->getInputBOM();
+
         $this->document->rewind();
-        $this->document->fseek(strlen($input_bom));
+        if ($this->is_input_bom_skipped) {
+            $this->document->fseek(strlen($this->getInputBOM()));
+        }
+
         echo $this->output_bom;
 
         return strlen($this->output_bom) + $this->document->fpassthru();
@@ -418,6 +436,30 @@ abstract class AbstractCsv implements ByteSequence
         }
 
         throw new Exception(sprintf('%s() expects escape to be a single character or the empty string %s given', __METHOD__, $escape));
+    }
+
+    /**
+     * Enables BOM Stripping.
+     *
+     * @return static
+     */
+    public function skipInputBOM(): self
+    {
+        $this->is_input_bom_skipped = true;
+
+        return $this;
+    }
+
+    /**
+     * Disables skipping Input BOM.
+     *
+     * @return static
+     */
+    public function preserveInputBOM(): self
+    {
+        $this->is_input_bom_skipped = false;
+
+        return $this;
     }
 
     /**

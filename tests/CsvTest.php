@@ -21,6 +21,8 @@ use function chr;
 use function function_exists;
 use function iterator_to_array;
 use function League\Csv\is_iterable as CSVIsiterable;
+use function ob_get_clean;
+use function ob_start;
 use function strtolower;
 use function tmpfile;
 use function unlink;
@@ -438,8 +440,8 @@ EOF;
                 'expected' => 'tests/data/foo.csv',
             ],
             'external uri' => [
-                'path' => 'https://raw.githubusercontent.com/thephpleague/csv/8.x/test/data/foo.csv',
-                'expected' => 'https://raw.githubusercontent.com/thephpleague/csv/8.x/test/data/foo.csv',
+                'path' => 'https://raw.githubusercontent.com/thephpleague/csv/8.2.3/test/data/foo.csv',
+                'expected' => 'https://raw.githubusercontent.com/thephpleague/csv/8.2.3/test/data/foo.csv',
             ],
         ];
     }
@@ -456,5 +458,44 @@ EOF;
         self::assertSame('php://temp', Writer::createFromString('')->getPathname());
         self::assertSame('php://temp', Writer::createFromString(new SplTempFileObject())->getPathname());
         self::assertSame('php://temp', Writer::createFromFileObject(new SplTempFileObject())->getPathname());
+    }
+
+    /**
+     * @covers ::isInputBOMSkipped
+     * @covers ::preserveInputBOM
+     * @covers ::skipInputBOM
+     */
+    public function testBOMStripping()
+    {
+        $reader = Reader::createFromString();
+        self::assertTrue($reader->isInputBOMSkipped());
+        $reader->preserveInputBOM();
+        self::assertFalse($reader->isInputBOMSkipped());
+        $reader->skipInputBOM();
+        self::assertTrue($reader->isInputBOMSkipped());
+    }
+
+    /**
+     * @runInSeparateProcess
+     * @covers ::output
+     */
+    public function testOutputDoesNotStripBOM()
+    {
+        $raw_csv = Reader::BOM_UTF8."john,doe,john.doe@example.com\njane,doe,jane.doe@example.com\n";
+        $csv = Reader::createFromString($raw_csv);
+        $csv->setOutputBOM(Reader::BOM_UTF16_BE);
+        ob_start();
+        $csv->output();
+        $result = ob_get_clean();
+        self::assertNotContains(Reader::BOM_UTF8, $result);
+        self::assertContains(Reader::BOM_UTF16_BE, $result);
+
+        $csv->preserveInputBOM();
+        ob_start();
+        $csv->output();
+        $result = ob_get_clean();
+        self::assertContains(Reader::BOM_UTF16_BE, $result);
+        self::assertContains(Reader::BOM_UTF8, $result);
+        self::assertTrue(0 === strpos($result, Reader::BOM_UTF16_BE.Reader::BOM_UTF8));
     }
 }

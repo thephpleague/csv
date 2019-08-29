@@ -328,6 +328,22 @@ EOF;
         }
     }
 
+    public function testDisablingBOMStripping()
+    {
+        $expected_record = [Reader::BOM_UTF16_LE.'john', 'doe', 'john.doe@example.com'];
+        $fp = fopen('php://temp', 'r+');
+        fputcsv($fp, $expected_record);
+        $csv = Reader::createFromStream($fp);
+        $csv->preserveInputBOM();
+        self::assertSame(Reader::BOM_UTF16_LE, $csv->getInputBOM());
+        foreach ($csv as $offset => $record) {
+            self::assertSame($expected_record, $record);
+        }
+        $csv = null;
+        fclose($fp);
+        $fp = null;
+    }
+
     /**
      * @covers ::getIterator
      * @dataProvider appliedFlagsProvider
