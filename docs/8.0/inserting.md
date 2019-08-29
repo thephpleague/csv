@@ -19,7 +19,7 @@ The `Writer` class will:
 - See if the row is an `array`, if not it will try to convert it into a proper `array`;
 - If supplied, formatters will further format the given `array`;
 - If supplied, validators will validate the formatted `array` according to their rules;
-- While writing the data to your CSV document, if supplied, <a href="/fitering/">stream filters</a> will apply further formatting to the inserted row;
+- While writing the data to your CSV document, if supplied, <a href="/8.0/filtering/">stream filters</a> will apply further formatting to the inserted row;
 - If needed the newline sequence will be updated;
 
 To add new data to your CSV the `Writer` class uses the following methods
@@ -286,7 +286,7 @@ $nb_column_count = $validator->getColumnsCount(); //returns 3
 
 ## Stream filtering
 
-Some data formatting can still occur while writing the data to the CSV document after validation using the [Stream Filters capabilities](/8.0/fitering/).
+Some data formatting can still occur while writing the data to the CSV document after validation using the [Stream Filters capabilities](/8.0/filtering/).
 
 ## Handling newline
 

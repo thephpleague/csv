@@ -11,6 +11,12 @@ All Notable changes to `Csv` will be documented in this file
     - `Reader::skipEmptyRecord`
     - `Reader::isEmptyRecordSkipped`
 
+- Support for disabling/enabling BOM stripping via adding:
+    - `AbstractCsv::skipInputBOM`
+    - `AbstractCsv::preserveInputBOM`
+    - `AbstractCsv::isInputBOMSkipped`
+
+
 ### Deprecated
 
 - Nothing

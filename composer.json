@@ -60,6 +60,14 @@
             "@phpunit"
         ]
     },
+    "scripts-descriptions": {
+        "phpcs": "Runs coding style test suite",
+        "phpstan": "Runs complete codebase static analysis",
+        "phpstan-src": "Runs source code static analysis",
+        "phpstan-test": "Runs test suite static analysis",
+        "phpunit": "Runs unit and functional testing",
+        "test": "Runs full test suite"
+    },
     "suggest": {
         "ext-iconv" : "Needed to ease transcoding CSV using iconv stream filters"
     },

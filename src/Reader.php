@@ -272,9 +272,13 @@ class Reader extends AbstractCsv implements Countable, IteratorAggregate, JsonSe
         $normalized = function ($record): bool {
             return is_array($record) && (!$this->is_empty_records_skipped || $record != [null]);
         };
-        $bom = $this->getInputBOM();
-        $document = $this->getDocument();
 
+        $bom = '';
+        if ($this->is_input_bom_skipped) {
+            $bom = $this->getInputBOM();
+        }
+
+        $document = $this->getDocument();
         $records = $this->stripBOM(new CallbackFilterIterator($document, $normalized), $bom);
         if (null !== $this->header_offset) {
             $records = new CallbackFilterIterator($records, function (array $record, int $offset): bool {
