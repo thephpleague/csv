@@ -70,10 +70,8 @@ public Reader::getRecords(array $header = []): Iterator
 
 ### Reader::getRecords basic usage
 
-The `Reader` class let's you access all its records using the `Reader::getRecords` method. The method returns an `Iterator` containing all CSV document records. It will also:
-
-- Filter out the empty lines;
-- Extract the records using the [CSV controls characters](/9.0/connections/controls/);
+The `Reader` class let's you access all its records using the `Reader::getRecords` method.
+The method returns an `Iterator` containing all CSV document records. It will extract the records using the [CSV controls characters](/9.0/connections/controls/);
 
 ~~~php
 use League\Csv\Reader;
@@ -183,7 +181,8 @@ foreach ($reader as $offset => $record) {
 The returned records are normalized using the following rules:
 
 - [Stream filters](/9.0/connections/filters/) are applied if present
-- The BOM sequence is removed if present;
+- Empty records are skipped if present;
+- The document BOM sequence is skipped if present;
 - If a header record was provided, the number of fields is normalized to the number of fields contained in that record:
     - Extra fields are truncated.
     - Missing fields are added with a `null` value.
@@ -206,6 +205,72 @@ foreach ($records as $offset => $record) {
 }
 ~~~
 
+### Controlling the presence of empty records
+
+<p class="message-info">New since version <code>9.4.0</code></p>
+
+By default the CSV document normalization removes empty records. But you can control the presence of such records using the following methods:
+
+~~~php
+Reader::skipEmptyRecord(): self;
+Reader::preserveEmptyRecord(): self;
+Reader::isEmptyRecordSkipped(): bool;
+~~~
+
+- Calling `Reader::preserveEmptyRecord` will ensure empty records are left in the `Iterator` returned by `Reader::getRecords`,
+conversely `Reader::skipEmptyRecord` will ensure empty records are skipped.  
+- At any given time you can ask you Reader instance if empty records will be stripped using the `Reader::isEmptyRecordSkipped` method.
+- If no header offset is specified, the empty record will be represented by a empty `array`, conversely,
+for consistency, an empty record will be represented by an array filled with `null` values as expected from header presence normalization.
+
+<p class="message-notice">The record offset are always independent of the presence of empty records.</p>
+
+~~~php
+<?php
+use League\Csv\Reader;
+
+$source = <<<EOF
+"parent name","child name","title"
+
+
+"parentA","childA","titleA"
+EOF;
+
+$reader = Reader::createFromString($source);
+$reader->isEmptyRecordSkipped(); // return true;
+iterator_to_array($reader, true);
+// [
+//     0 => ['parent name', 'child name', 'title'],
+//     3 => ['parentA', 'childA', 'titleA'],
+// ];
+
+$reader->preserveEmptyRecord();
+$reader->isEmptyRecordSkipped(); // return false;
+iterator_to_array($reader, true);
+// [
+//     0 => ['parent name', 'child name', 'title'],
+//     1 => [],
+//     2 => [],
+//     3 => ['parentA', 'childA', 'titleA'],
+// ];
+
+$reader->setHeaderOffset(0);
+iterator_to_array($reader, true);
+// [
+//     1 => ['parent name' => null, 'child name' => null, 'title' => null],
+//     2 => ['parent name' => null, 'child name' => null, 'title' => null],
+//     3 => ['parent name' => 'parentA', 'child name' => 'childA', 'title' => 'titleA'],
+// ]; 
+
+$reader->skipEmptyRecord();
+$reader->isEmptyRecordSkipped(); // return true;
+$res = iterator_to_array($reader, true);
+// [
+//     3 => ['parent name' => 'parentA', 'child name' => 'childA', 'title' => 'titleA'],
+// ]; 
+~~~ 
+
+
 ## Records count
 
 You can retrieve the number of records contains in a CSV document using PHP's `count` function because the `Reader` class implements the `Countable` interface.
@@ -225,6 +290,22 @@ use League\Csv\Reader;
 $reader = Reader::createFromPath('/path/to/my/file.csv', 'r');
 $reader->setHeaderOffset(0);
 count($reader); //returns 3
+~~~
+
+<p class="message-info">New since version <code>9.4.0</code></p>
+
+If empty record are to be preserved, the number of records will be affected.
+
+~~~php
+use League\Csv\Reader;
+
+$reader = Reader::createFromPath('/path/to/my/file-with-two-empty-records.csv', 'r');
+$reader->isEmptyRecordSkipped(); //returns true
+count($records); // returns 2
+
+$reader->preserveEmptyRecords();
+$reader->isEmptyRecordSkipped(); //returns false
+count($records); // returns 4
 ~~~
 
 <p class="message-notice">The <code>Countable</code> interface is implemented using PHP's <code>iterator_count</code> on the <code>Reader::getRecords</code> method.</p>
