@@ -460,34 +460,44 @@ EOF;
 
     /**
      * @dataProvider sourceProvider
-     * @covers ::disableEmptyRecordsSkipping
-     * @covers ::enableEmptyRecordsSkipping
-     * @covers ::isEmptyRecordsSkipped
+     * @covers ::preserveEmptyRecord
+     * @covers ::skipEmptyRecord
+     * @covers ::isEmptyRecordSkipped
      * @covers ::getRecords
      */
-    public function testSkippingEmptyRecords(Reader $reader, array $expected_with_skipping, array $expected_with_no_skipping)
-    {
-        self::assertCount(2, $reader);
-        self::assertTrue($reader->isEmptyRecordsSkipped());
+    public function testSkippingEmptyRecords(
+        Reader $reader,
+        array $expected_with_skipping,
+        array $expected_with_preserving,
+        array $expected_with_skipping_with_header,
+        array $expected_with_preserving_with_header
+    ) {
+        self::assertTrue($reader->isEmptyRecordSkipped());
+        self::assertSame(count($expected_with_skipping), count($reader));
         foreach ($reader as $offset => $record) {
             self::assertSame($expected_with_skipping[$offset], $record);
         }
 
-        $reader->disableEmptyRecordsSkipping();
-        self::assertFalse($reader->isEmptyRecordsSkipped());
-        self::assertCount(4, $reader);
+        $reader->preserveEmptyRecord();
+        self::assertFalse($reader->isEmptyRecordSkipped());
+        self::assertSame(count($expected_with_preserving), count($reader));
         foreach ($reader as $offset => $record) {
-            self::assertSame($expected_with_no_skipping[$offset], $record);
+            self::assertSame($expected_with_preserving[$offset], $record);
         }
 
-        $reader->enableEmptyRecordsSkipping();
-        self::assertCount(2, $reader);
-        self::assertTrue($reader->isEmptyRecordsSkipped());
+        $reader->setHeaderOffset(0);
+        self::assertFalse($reader->isEmptyRecordSkipped());
+        self::assertSame(count($expected_with_preserving_with_header), count($reader));
         foreach ($reader as $offset => $record) {
-            self::assertSame($expected_with_skipping[$offset], $record);
+            self::assertSame($expected_with_preserving_with_header[$offset], $record);
         }
 
-        unset($reader);
+        $reader->skipEmptyRecord();
+        self::assertTrue($reader->isEmptyRecordSkipped());
+        self::assertSame(count($expected_with_skipping_with_header), count($reader));
+        foreach ($reader as $offset => $record) {
+            self::assertSame($expected_with_skipping_with_header[$offset], $record);
+        }
     }
 
     public function sourceProvider(): array
@@ -498,16 +508,26 @@ EOF;
 
 "parentA","childA","titleA"
 EOF;
-        $expected_with_no_skipping = [
+        $expected_with_preserving = [
             0 => ['parent name', 'child name', 'title'],
             1 => [],
             2 => [],
             3 => ['parentA', 'childA', 'titleA'],
         ];
 
+        $expected_with_preserving_with_header = [
+            1 => ['parent name' => null, 'child name' => null, 'title' => null],
+            2 => ['parent name' => null, 'child name' => null, 'title' => null],
+            3 => ['parent name' => 'parentA', 'child name' => 'childA', 'title' => 'titleA'],
+        ];
+
         $expected_with_skipping = [
             0 => ['parent name', 'child name', 'title'],
             3 => ['parentA', 'childA', 'titleA'],
+        ];
+
+        $expected_with_skipping_with_header = [
+            3 => ['parent name' => 'parentA', 'child name' => 'childA', 'title' => 'titleA'],
         ];
 
         $rsrc = new SplTempFileObject();
@@ -517,22 +537,30 @@ EOF;
             'FileObject' => [
                 Reader::createFromFileObject($rsrc),
                 $expected_with_skipping,
-                $expected_with_no_skipping,
+                $expected_with_preserving,
+                $expected_with_skipping_with_header,
+                $expected_with_preserving_with_header,
             ],
             'Stream' => [
                 Reader::createFromString($source),
                 $expected_with_skipping,
-                $expected_with_no_skipping,
+                $expected_with_preserving,
+                $expected_with_skipping_with_header,
+                $expected_with_preserving_with_header,
             ],
             'FileObject with empty escape char' =>  [
                 Reader::createFromFileObject($rsrc)->setEscape(''),
                 $expected_with_skipping,
-                $expected_with_no_skipping,
+                $expected_with_preserving,
+                $expected_with_skipping_with_header,
+                $expected_with_preserving_with_header,
             ],
             'Stream with empty escape char' => [
                 Reader::createFromString($source)->setEscape(''),
                 $expected_with_skipping,
-                $expected_with_no_skipping,
+                $expected_with_preserving,
+                $expected_with_skipping_with_header,
+                $expected_with_preserving_with_header,
             ],
         ];
     }

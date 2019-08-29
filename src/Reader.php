@@ -398,7 +398,7 @@ class Reader extends AbstractCsv implements Countable, IteratorAggregate, JsonSe
     /**
      * Enable skipping empty records.
      */
-    public function enableEmptyRecordsSkipping(): self
+    public function skipEmptyRecord(): self
     {
         if (!$this->is_empty_records_skipped) {
             $this->is_empty_records_skipped = true;
@@ -411,7 +411,7 @@ class Reader extends AbstractCsv implements Countable, IteratorAggregate, JsonSe
     /**
      * Disable skipping empty records.
      */
-    public function disableEmptyRecordsSkipping(): self
+    public function preserveEmptyRecord(): self
     {
         if ($this->is_empty_records_skipped) {
             $this->is_empty_records_skipped = false;
@@ -424,7 +424,7 @@ class Reader extends AbstractCsv implements Countable, IteratorAggregate, JsonSe
     /**
      * Tells whether empty records are skipped by the instance.
      */
-    public function isEmptyRecordsSkipped(): bool
+    public function isEmptyRecordSkipped(): bool
     {
         return $this->is_empty_records_skipped;
     }

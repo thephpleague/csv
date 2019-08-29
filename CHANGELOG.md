@@ -6,7 +6,10 @@ All Notable changes to `Csv` will be documented in this file
 
 ### Added
 
-- Nothing
+- Adding support for controlling empty record presence in `Reader::getRecords` return value.
+    - `Reader::preserveEmptyRecord`
+    - `Reader::skipEmptyRecord`
+    - `Reader::isEmptyRecordSkipped`
 
 ### Deprecated
 
