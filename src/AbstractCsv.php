@@ -89,11 +89,11 @@ abstract class AbstractCsv implements ByteSequence
     protected $document;
 
     /**
-     * Tells whether the BOM must be stripped.
+     * Tells whether the Input BOM must be stripped.
      *
      * @var bool
      */
-    protected $is_BOM_skipping_enabled = true;
+    protected $is_input_bom_skipped = true;
 
     /**
      * New instance.
@@ -257,9 +257,9 @@ abstract class AbstractCsv implements ByteSequence
     /**
      * Tells whether the BOM can be stripped if presents.
      */
-    public function isBOMSkippingEnabled(): bool
+    public function isInputBOMSkipped(): bool
     {
-        return $this->is_BOM_skipping_enabled;
+        return $this->is_input_bom_skipped;
     }
 
     /**
@@ -327,7 +327,7 @@ abstract class AbstractCsv implements ByteSequence
         }
 
         $this->document->rewind();
-        if ($this->is_BOM_skipping_enabled) {
+        if ($this->is_input_bom_skipped) {
             $this->document->fseek(strlen($this->getInputBOM()));
         }
 
@@ -443,21 +443,21 @@ abstract class AbstractCsv implements ByteSequence
      *
      * @return static
      */
-    public function enableBOMSkipping(): self
+    public function skipInputBOM(): self
     {
-        $this->is_BOM_skipping_enabled = true;
+        $this->is_input_bom_skipped = true;
 
         return $this;
     }
 
     /**
-     * Disables BOM Stripping.
+     * Disables skipping Input BOM.
      *
      * @return static
      */
-    public function disableBOMSkipping(): self
+    public function preserveInputBOM(): self
     {
-        $this->is_BOM_skipping_enabled = false;
+        $this->is_input_bom_skipped = false;
 
         return $this;
     }

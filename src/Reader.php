@@ -268,7 +268,7 @@ class Reader extends AbstractCsv implements Countable, IteratorAggregate, JsonSe
         };
 
         $bom = '';
-        if ($this->is_BOM_skipping_enabled) {
+        if ($this->is_input_bom_skipped) {
             $bom = $this->getInputBOM();
         }
 

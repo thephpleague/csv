@@ -440,8 +440,8 @@ EOF;
                 'expected' => 'tests/data/foo.csv',
             ],
             'external uri' => [
-                'path' => 'https://raw.githubusercontent.com/thephpleague/csv/8.x/test/data/foo.csv',
-                'expected' => 'https://raw.githubusercontent.com/thephpleague/csv/8.x/test/data/foo.csv',
+                'path' => 'https://raw.githubusercontent.com/thephpleague/csv/8.2.3/test/data/foo.csv',
+                'expected' => 'https://raw.githubusercontent.com/thephpleague/csv/8.2.3/test/data/foo.csv',
             ],
         ];
     }
@@ -461,18 +461,18 @@ EOF;
     }
 
     /**
-     * @covers ::isBOMSkippingEnabled
-     * @covers ::disableBOMSkipping
-     * @covers ::enableBOMSkipping
+     * @covers ::isInputBOMSkipped
+     * @covers ::preserveInputBOM
+     * @covers ::skipInputBOM
      */
     public function testBOMStripping()
     {
         $reader = Reader::createFromString();
-        self::assertTrue($reader->isBOMSkippingEnabled());
-        $reader->disableBOMSkipping();
-        self::assertFalse($reader->isBOMSkippingEnabled());
-        $reader->enableBOMSkipping();
-        self::assertTrue($reader->isBOMSkippingEnabled());
+        self::assertTrue($reader->isInputBOMSkipped());
+        $reader->preserveInputBOM();
+        self::assertFalse($reader->isInputBOMSkipped());
+        $reader->skipInputBOM();
+        self::assertTrue($reader->isInputBOMSkipped());
     }
 
     /**
@@ -490,7 +490,7 @@ EOF;
         self::assertNotContains(Reader::BOM_UTF8, $result);
         self::assertContains(Reader::BOM_UTF16_BE, $result);
 
-        $csv->disableBOMSkipping();
+        $csv->preserveInputBOM();
         ob_start();
         $csv->output();
         $result = ob_get_clean();

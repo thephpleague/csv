@@ -76,23 +76,24 @@ $bom = $csv->getOutputBOM(); //returns "\xEF\xBB\xBF"
 <p class="message-info">The default output <code>BOM</code> character is set to an empty string.</p>
 <p class="message-warning">The output BOM sequence is <strong>never</strong> saved to the CSV document.</p>
 
-### Controlling BOM sequence skipping
+### Controlling Input BOM usage
 
 <p class="message-info">Since version <code>9.4.0</code>.</p>
 
 ~~~php
-AbstractCsv::enableBOMSkipping(): self;
-AbstractCsv::disableBOMSkipping(): self;
-AbstractCsv::isBOMSkippingEnabled(): bool;
+AbstractCsv::skipInputBOM(): self;
+AbstractCsv::preserveInputBOM(): self;
+AbstractCsv::isInputBOMSkipped(): bool;
 ~~~
 
-- `enableBOMSkipping`: enables skipping the input BOM from your CSV document.
-- `disableBOMSkipping`: disables skipping the input BOM from your CSV document.
-- `isBOMSkippingEnabled`: tells whether skipping the input BOM will be done.
+- `skipInputBOM`: enables skipping the input BOM from your CSV document.
+- `preserveInputBOM`: preserves the input BOM from your CSV document while accessing its content.
+- `isInputBOMSkipped`: tells whether skipping the input BOM will be done.
 
-<p class="message-notice">By default and to avoid BC Break, BOM skipping is enabled.</p>
+<p class="message-notice">By default and to avoid BC Break, the Input BOM is skipped.</p>
 
-If your document does not contains any BOM sequence you can speed up the CSV iterator by removing the step that ensure the BOM sequence if present is skipped.
+If your document does not contains any BOM sequence you can speed up the CSV iterator by preserving its presence which means
+ that no operation to detect and remove it if present will take place.
 
 ~~~php
 $raw_csv = Reader::BOM_UTF8."john,doe,john.doe@example.com\njane,doe,jane.doe@example.com\n";

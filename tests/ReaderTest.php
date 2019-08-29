@@ -334,7 +334,7 @@ EOF;
         $fp = fopen('php://temp', 'r+');
         fputcsv($fp, $expected_record);
         $csv = Reader::createFromStream($fp);
-        $csv->disableBOMSkipping();
+        $csv->preserveInputBOM();
         self::assertSame(Reader::BOM_UTF16_LE, $csv->getInputBOM());
         foreach ($csv as $offset => $record) {
             self::assertSame($expected_record, $record);
