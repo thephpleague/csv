@@ -100,7 +100,7 @@ EOF;
      * @covers ::extractFieldContent
      * @covers ::extractEnclosedFieldContent
      */
-    public function testRemoveEmptyLines()
+    public function testPreserveEmptyLines()
     {
         $source = <<<EOF
 "parent name","child name","title"
@@ -114,6 +114,8 @@ EOF;
 
         $expected = [
             ['parent name', 'child name', 'title'],
+            [null],
+            [null],
             ['parentA', 'childA', 'titleA'],
         ];
 

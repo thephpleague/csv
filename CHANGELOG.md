@@ -6,10 +6,16 @@ All Notable changes to `Csv` will be documented in this file
 
 ### Added
 
+- Adding support for controlling empty record presence in `Reader::getRecords` return value.
+    - `Reader::preserveEmptyRecord`
+    - `Reader::skipEmptyRecord`
+    - `Reader::isEmptyRecordSkipped`
+
 - Support for disabling/enabling BOM stripping via adding:
     - `AbstractCsv::skipInputBOM`
     - `AbstractCsv::preserveInputBOM`
     - `AbstractCsv::isInputBOMSkipped`
+
 
 ### Deprecated
 
