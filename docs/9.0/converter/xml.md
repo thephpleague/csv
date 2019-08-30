@@ -77,7 +77,6 @@ $converter = (new XMLConverter())
 ;
 
 $records = $stmt->process($csv);
-$records->preserveRecordOffset(true);
 
 $dom = $converter->convert($records);
 $dom->formatOutput = true;

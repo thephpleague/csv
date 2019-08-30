@@ -99,7 +99,7 @@ If your document does not contains any BOM sequence you can speed up the CSV ite
 $raw_csv = Reader::BOM_UTF8."john,doe,john.doe@example.com\njane,doe,jane.doe@example.com\n";
 $csv = Reader::createFromString($raw_csv);
 $csv->setOutputBOM(Reader::BOM_UTF16_BE);
-$csv->disableBOMSkipping();
+$csv->preserveInputBOM();
 ob_start();
 $csv->output();
 $document = ob_get_clean();
