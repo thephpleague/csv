@@ -479,4 +479,34 @@ class ResultSetTest extends TestCase
             json_encode($result)
         );
     }
+
+    public function testResultSetProcess()
+    {
+        $data = [
+            ['c1', 'c2', 'c3'],
+            ['one', 'one', 'one'],
+            ['two', 'two', 'two'],
+            ['three', 'three', 'three'],
+        ];
+
+        $tmp = new SplTempFileObject();
+        foreach ($data as $row) {
+            $tmp->fputcsv($row);
+        }
+
+        $reader = Reader::createFromFileObject($tmp)->setHeaderOffset(0);
+        $result = (new Statement())->where(static function (array $row) {
+            return $row['c1'] !== 'three';
+        })->process($reader);
+
+        self::assertEquals(2, $result->count());
+        self::assertSame(array_combine($data[0], $data[1]), $result->fetchOne());
+
+        $result = (new Statement())->where(static function (array $row) {
+            return $row['c1'] !== 'one';
+        })->processResultSet($result);
+
+        self::assertEquals(1, $result->count());
+        self::assertSame(array_combine($data[0], $data[2]), $result->fetchOne());
+    }
 }

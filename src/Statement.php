@@ -134,6 +134,18 @@ class Statement
         return new ResultSet(new LimitIterator($iterator, $this->offset, $this->limit), $header);
     }
 
+    public function processResultSet(ResultSet $resultSet, array $header = []): ResultSet
+    {
+        if ([] === $header) {
+            $header = $resultSet->getHeader();
+        }
+
+        $iterator = array_reduce($this->where, [$this, 'filter'], $resultSet->getRecords());
+        $iterator = $this->buildOrderBy($iterator);
+
+        return new ResultSet(new LimitIterator($iterator, $this->offset, $this->limit), $header);
+    }
+
     /**
      * Filters elements of an Iterator using a callback function.
      */
