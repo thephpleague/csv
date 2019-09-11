@@ -24,7 +24,8 @@
         "php" : ">=7.0.10",
         "ext-dom" : "*",
         "ext-json" : "*",
-        "ext-mbstring" : "*"
+        "ext-mbstring" : "*",
+        "ext-iconv": "*"
     },
     "require-dev": {
         "ext-curl" : "*",
