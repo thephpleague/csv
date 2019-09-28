@@ -212,14 +212,14 @@ foreach ($records as $offset => $record) {
 By default the CSV document normalization removes empty records. But you can control the presence of such records using the following methods:
 
 ~~~php
-Reader::skipEmptyRecord(): self;
-Reader::preserveEmptyRecord(): self;
-Reader::isEmptyRecordSkipped(): bool;
+Reader::skipEmptyRecords(): self;
+Reader::includeEmptyRecords(): self;
+Reader::isEmptyRecordsIncluded(): bool;
 ~~~
 
-- Calling `Reader::preserveEmptyRecord` will ensure empty records are left in the `Iterator` returned by `Reader::getRecords`,
-conversely `Reader::skipEmptyRecord` will ensure empty records are skipped.  
-- At any given time you can ask you Reader instance if empty records will be stripped using the `Reader::isEmptyRecordSkipped` method.
+- Calling `Reader::includeEmptyRecords` will ensure empty records are left in the `Iterator` returned by `Reader::getRecords`,
+conversely `Reader::skipEmptyRecords` will ensure empty records are skipped.  
+- At any given time you can ask you Reader instance if empty records will be stripped or included using the `Reader::isEmptyRecordsIncluded` method.
 - If no header offset is specified, the empty record will be represented by a empty `array`, conversely,
 for consistency, an empty record will be represented by an array filled with `null` values as expected from header presence normalization.
 
@@ -237,15 +237,15 @@ $source = <<<EOF
 EOF;
 
 $reader = Reader::createFromString($source);
-$reader->isEmptyRecordSkipped(); // return true;
+$reader->isEmptyRecordsIncluded(); // return true;
 iterator_to_array($reader, true);
 // [
 //     0 => ['parent name', 'child name', 'title'],
 //     3 => ['parentA', 'childA', 'titleA'],
 // ];
 
-$reader->preserveEmptyRecord();
-$reader->isEmptyRecordSkipped(); // return false;
+$reader->includeEmptyRecords();
+$reader->isEmptyRecordsIncluded(); // return false;
 iterator_to_array($reader, true);
 // [
 //     0 => ['parent name', 'child name', 'title'],
@@ -262,8 +262,8 @@ iterator_to_array($reader, true);
 //     3 => ['parent name' => 'parentA', 'child name' => 'childA', 'title' => 'titleA'],
 // ]; 
 
-$reader->skipEmptyRecord();
-$reader->isEmptyRecordSkipped(); // return true;
+$reader->skipEmptyRecords();
+$reader->isEmptyRecordsIncluded(); // return false;
 $res = iterator_to_array($reader, true);
 // [
 //     3 => ['parent name' => 'parentA', 'child name' => 'childA', 'title' => 'titleA'],
@@ -300,11 +300,11 @@ If empty record are to be preserved, the number of records will be affected.
 use League\Csv\Reader;
 
 $reader = Reader::createFromPath('/path/to/my/file-with-two-empty-records.csv', 'r');
-$reader->isEmptyRecordSkipped(); //returns true
+$reader->isEmptyRecordsIncluded(); //returns false
 count($records); // returns 2
 
-$reader->preserveEmptyRecords();
-$reader->isEmptyRecordSkipped(); //returns false
+$reader->includeEmptyRecordss();
+$reader->isEmptyRecordsIncluded(); //returns true
 count($records); // returns 4
 ~~~
 

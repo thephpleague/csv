@@ -79,7 +79,7 @@ class Reader extends AbstractCsv implements Countable, IteratorAggregate, JsonSe
     /**
      * @var bool
      */
-    protected $is_empty_records_skipped = true;
+    protected $is_empty_records_included = false;
 
     /**
      * {@inheritdoc}
@@ -270,11 +270,11 @@ class Reader extends AbstractCsv implements Countable, IteratorAggregate, JsonSe
     {
         $header = $this->computeHeader($header);
         $normalized = function ($record): bool {
-            return is_array($record) && (!$this->is_empty_records_skipped || $record != [null]);
+            return is_array($record) && ($this->is_empty_records_included || $record != [null]);
         };
 
         $bom = '';
-        if ($this->is_input_bom_skipped) {
+        if (!$this->is_input_bom_included) {
             $bom = $this->getInputBOM();
         }
 
@@ -286,7 +286,7 @@ class Reader extends AbstractCsv implements Countable, IteratorAggregate, JsonSe
             });
         }
 
-        if (!$this->is_empty_records_skipped) {
+        if ($this->is_empty_records_included) {
             $normalized_empty_records = static function (array $record): array {
                 if ([null] === $record) {
                     return [];
@@ -402,10 +402,10 @@ class Reader extends AbstractCsv implements Countable, IteratorAggregate, JsonSe
     /**
      * Enable skipping empty records.
      */
-    public function skipEmptyRecord(): self
+    public function skipEmptyRecords(): self
     {
-        if (!$this->is_empty_records_skipped) {
-            $this->is_empty_records_skipped = true;
+        if ($this->is_empty_records_included) {
+            $this->is_empty_records_included = false;
             $this->nb_records = -1;
         }
 
@@ -415,10 +415,10 @@ class Reader extends AbstractCsv implements Countable, IteratorAggregate, JsonSe
     /**
      * Disable skipping empty records.
      */
-    public function preserveEmptyRecord(): self
+    public function includeEmptyRecords(): self
     {
-        if ($this->is_empty_records_skipped) {
-            $this->is_empty_records_skipped = false;
+        if (!$this->is_empty_records_included) {
+            $this->is_empty_records_included = true;
             $this->nb_records = -1;
         }
 
@@ -428,8 +428,8 @@ class Reader extends AbstractCsv implements Countable, IteratorAggregate, JsonSe
     /**
      * Tells whether empty records are skipped by the instance.
      */
-    public function isEmptyRecordSkipped(): bool
+    public function isEmptyRecordsIncluded(): bool
     {
-        return $this->is_empty_records_skipped;
+        return $this->is_empty_records_included;
     }
 }

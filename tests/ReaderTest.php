@@ -334,7 +334,7 @@ EOF;
         $fp = fopen('php://temp', 'r+');
         fputcsv($fp, $expected_record);
         $csv = Reader::createFromStream($fp);
-        $csv->preserveInputBOM();
+        $csv->includeInputBOM();
         self::assertSame(Reader::BOM_UTF16_LE, $csv->getInputBOM());
         foreach ($csv as $offset => $record) {
             self::assertSame($expected_record, $record);
@@ -476,9 +476,9 @@ EOF;
 
     /**
      * @dataProvider sourceProvider
-     * @covers ::preserveEmptyRecord
-     * @covers ::skipEmptyRecord
-     * @covers ::isEmptyRecordSkipped
+     * @covers ::includeEmptyRecords
+     * @covers ::skipEmptyRecords
+     * @covers ::isEmptyRecordsIncluded
      * @covers ::getRecords
      */
     public function testSkippingEmptyRecords(
@@ -488,28 +488,28 @@ EOF;
         array $expected_with_skipping_with_header,
         array $expected_with_preserving_with_header
     ) {
-        self::assertTrue($reader->isEmptyRecordSkipped());
+        self::assertFalse($reader->isEmptyRecordsIncluded());
         self::assertSame(count($expected_with_skipping), count($reader));
         foreach ($reader as $offset => $record) {
             self::assertSame($expected_with_skipping[$offset], $record);
         }
 
-        $reader->preserveEmptyRecord();
-        self::assertFalse($reader->isEmptyRecordSkipped());
+        $reader->includeEmptyRecords();
+        self::assertTrue($reader->isEmptyRecordsIncluded());
         self::assertSame(count($expected_with_preserving), count($reader));
         foreach ($reader as $offset => $record) {
             self::assertSame($expected_with_preserving[$offset], $record);
         }
 
         $reader->setHeaderOffset(0);
-        self::assertFalse($reader->isEmptyRecordSkipped());
+        self::assertTrue($reader->isEmptyRecordsIncluded());
         self::assertSame(count($expected_with_preserving_with_header), count($reader));
         foreach ($reader as $offset => $record) {
             self::assertSame($expected_with_preserving_with_header[$offset], $record);
         }
 
-        $reader->skipEmptyRecord();
-        self::assertTrue($reader->isEmptyRecordSkipped());
+        $reader->skipEmptyRecords();
+        self::assertFalse($reader->isEmptyRecordsIncluded());
         self::assertSame(count($expected_with_skipping_with_header), count($reader));
         foreach ($reader as $offset => $record) {
             self::assertSame($expected_with_skipping_with_header[$offset], $record);

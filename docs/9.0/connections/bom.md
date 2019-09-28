@@ -82,13 +82,13 @@ $bom = $csv->getOutputBOM(); //returns "\xEF\xBB\xBF"
 
 ~~~php
 AbstractCsv::skipInputBOM(): self;
-AbstractCsv::preserveInputBOM(): self;
-AbstractCsv::isInputBOMSkipped(): bool;
+AbstractCsv::includeInputBOM(): self;
+AbstractCsv::isInputBOMIncluded(): bool;
 ~~~
 
 - `skipInputBOM`: enables skipping the input BOM from your CSV document.
-- `preserveInputBOM`: preserves the input BOM from your CSV document while accessing its content.
-- `isInputBOMSkipped`: tells whether skipping the input BOM will be done.
+- `includeInputBOM`: preserves the input BOM from your CSV document while accessing its content.
+- `isInputBOMIncluded`: tells whether skipping or including the input BOM will be done.
 
 <p class="message-notice">By default and to avoid BC Break, the Input BOM is skipped.</p>
 
@@ -99,7 +99,7 @@ If your document does not contains any BOM sequence you can speed up the CSV ite
 $raw_csv = Reader::BOM_UTF8."john,doe,john.doe@example.com\njane,doe,jane.doe@example.com\n";
 $csv = Reader::createFromString($raw_csv);
 $csv->setOutputBOM(Reader::BOM_UTF16_BE);
-$csv->preserveInputBOM();
+$csv->includeInputBOM();
 ob_start();
 $csv->output();
 $document = ob_get_clean();
