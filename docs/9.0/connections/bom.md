@@ -80,6 +80,8 @@ $bom = $csv->getOutputBOM(); //returns "\xEF\xBB\xBF"
 
 <p class="message-info">Since version <code>9.4.0</code>.</p>
 
+If your document contains a BOM sequence by the following methods control its presence when processing it.
+
 ~~~php
 AbstractCsv::skipInputBOM(): self;
 AbstractCsv::includeInputBOM(): self;
@@ -90,7 +92,7 @@ AbstractCsv::isInputBOMIncluded(): bool;
 - `includeInputBOM`: preserves the input BOM from your CSV document while accessing its content.
 - `isInputBOMIncluded`: tells whether skipping or including the input BOM will be done.
 
-<p class="message-notice">By default and to avoid BC Break, the Input BOM is skipped.</p>
+<p class="message-notice">By default and to avoid BC Break, the Input BOM, if present, is skipped.</p>
 
 If your document does not contains any BOM sequence you can speed up the CSV iterator by preserving its presence which means
  that no operation to detect and remove it if present will take place.
