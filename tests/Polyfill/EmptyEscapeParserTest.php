@@ -130,6 +130,34 @@ EOF;
      * @covers ::extractFieldContent
      * @covers ::extractEnclosedFieldContent
      */
+    public function testReadingOnlyStream()
+    {
+        $source = <<<EOF
+"1","2"
+
+EOF;
+
+        $expected = [
+            ['1','2'],
+        ];
+
+        $path = sys_get_temp_dir() . '/test.csv';
+        file_put_contents($path, $source);
+
+        $stream = Stream::createFromPath($path);
+        foreach (EmptyEscapeParser::parse($stream) as $offset => $record) {
+            self::assertSame($expected[$offset], $record);
+        }
+
+        unlink($path);
+    }
+
+    /**
+     * @covers ::parse
+     * @covers ::extractRecord
+     * @covers ::extractFieldContent
+     * @covers ::extractEnclosedFieldContent
+     */
     public function testNoTrimmedSpaceWithNotEncloseField()
     {
         $source = <<<EOF
