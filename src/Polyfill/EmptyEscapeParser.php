@@ -150,8 +150,7 @@ final class EmptyEscapeParser
     private static function extractRecord(): array
     {
         $record = [];
-        self::$line = self::$document->fgets();
-        if (self::$line === false) {
+        if (false === (self::$line = self::$document->fgets())) {
             return [null];
         }
         do {

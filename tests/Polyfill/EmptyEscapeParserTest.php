@@ -138,11 +138,11 @@ EOF;
 EOF;
 
         $expected = [
-            ['1','2'],
-            [null]
+            ['1', '2'],
+            [null],
         ];
 
-        $path = sys_get_temp_dir() . '/test.csv';
+        $path = sys_get_temp_dir().'/test.csv';
         file_put_contents($path, $source);
 
         $stream = Stream::createFromPath($path);
