@@ -151,6 +151,9 @@ final class EmptyEscapeParser
     {
         $record = [];
         self::$line = self::$document->fgets();
+        if (self::$line === false) {
+            return [null];
+        }
         do {
             $method = 'extractFieldContent';
             $buffer = ltrim(self::$line, self::$trim_mask);

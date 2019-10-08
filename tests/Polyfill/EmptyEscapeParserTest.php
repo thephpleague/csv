@@ -139,6 +139,7 @@ EOF;
 
         $expected = [
             ['1','2'],
+            [null]
         ];
 
         $path = sys_get_temp_dir() . '/test.csv';
