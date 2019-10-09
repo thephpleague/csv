@@ -67,7 +67,7 @@ final class EmptyEscapeParser
     private static $trim_mask;
 
     /**
-     * @var string|bool
+     * @var string|false
      */
     private static $line;
 

@@ -305,7 +305,7 @@ class Stream implements SeekableIterator
      *
      * @see http://php.net/manual/en/splfileobject.fputcsv.php
      *
-     * @return int|bool
+     * @return int|false
      */
     public function fputcsv(array $fields, string $delimiter = ',', string $enclosure = '"', string $escape = '\\')
     {
@@ -393,7 +393,7 @@ class Stream implements SeekableIterator
     /**
      * Retrieves the current line as a CSV Record.
      *
-     * @return array|bool
+     * @return array|false
      */
     protected function getCurrentRecord()
     {
@@ -492,7 +492,7 @@ class Stream implements SeekableIterator
      *
      * @see http://php.net/manual/en/splfileobject.fwrite.php
      *
-     * @return int|bool
+     * @return int|false
      */
     public function fwrite(string $str, int $length = null)
     {

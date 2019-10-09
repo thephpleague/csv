@@ -170,7 +170,7 @@ class Writer extends AbstractCsv
      *
      * @see https://php.net/manual/en/function.fputcsv.php
      *
-     * @return int|bool
+     * @return int|false
      */
     protected function addRecord(array $record)
     {
@@ -204,7 +204,7 @@ class Writer extends AbstractCsv
      *
      * The LF character is added at the end of each record to mimic fputcsv behavior
      *
-     * @return int|bool
+     * @return int|false
      */
     protected function addRFC4180CompliantRecord(array $record)
     {

@@ -14,7 +14,7 @@ All Notable changes to `Csv` will be documented in this file
 
 ### Fixed
 
-- Nothing
+- bug fix issue [#358](https://github.com/thephpleague/csv/pull/358) with the escape mechanism polyfill fixed by [on2](https://github.com/on2)
 
 ### Removed
 
