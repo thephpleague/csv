@@ -132,25 +132,15 @@ EOF;
      */
     public function testReadingOnlyStream()
     {
-        $source = <<<EOF
-"1","2"
-
-EOF;
-
         $expected = [
-            ['1', '2'],
+            ['john', 'doe', 'john.doe@example.com'],
             [null],
         ];
 
-        $path = sys_get_temp_dir().'/test.csv';
-        file_put_contents($path, $source);
-
-        $stream = Stream::createFromPath($path);
+        $stream = Stream::createFromPath(__DIR__.'/../data/foo_readonly.csv');
         foreach (EmptyEscapeParser::parse($stream) as $offset => $record) {
             self::assertSame($expected[$offset], $record);
         }
-
-        unlink($path);
     }
 
     /**
