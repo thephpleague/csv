@@ -7,7 +7,7 @@ parameters:
 		- '#Call to function is_iterable\(\) will always evaluate to false.#'
 		- '#Parameter \#1 \$stream of static method League\\Csv\\AbstractCsv::createFromStream\(\) expects resource, string given.#'
 		- '#Parameter \#2 \$special_chars of class League\\Csv\\EscapeFormula constructor expects array<string>, array<int, stdClass> given.#'
-		- '#Parameter \#1 \$resource of class League\\Csv\\Stream constructor expects resource, string given.#'
+		- '#Parameter \#1 \$stream of class League\\Csv\\Stream constructor expects resource, string given.#'
 		- '#Parameter \#1 \$records of method League\\Csv\\CharsetConverter::convert\(\) expects array|Traversable, string given.#'
 		- '#Parameter \#2 \$delimiters of function League\\Csv\\delimiter_detect expects array<string>, array<int, array|string> given.#'
 		- '#Parameter \#1 \$document of static method League\\Csv\\Polyfill\\EmptyEscapeParser::parse\(\) expects League\\Csv\\Stream\|SplFileObject, array given.#'
