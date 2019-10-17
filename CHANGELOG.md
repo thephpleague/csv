@@ -2,6 +2,24 @@
 
 All Notable changes to `Csv` will be documented in this file
 
+## Next - TBD
+
+### Added
+
+- Nothing
+
+### Deprecated
+
+- Nothing
+
+### Fixed
+
+- Nothing
+
+### Removed
+
+- Nothing
+
 ## 9.4.1 - 2019-10-17
 
 ### Added
@@ -14,7 +32,7 @@ All Notable changes to `Csv` will be documented in this file
 
 ### Fixed
 
-- bug fix issue [#358](https://github.com/thephpleague/csv/pull/358) with the escape mechanism polyfill fixed by [on2](https://github.com/on2)
+- bug fix the escape mechanism polyfill  [#358](https://github.com/thephpleague/csv/pull/358) fix provided by [on2](https://github.com/on2)
 
 ### Removed
 
