@@ -486,7 +486,7 @@ abstract class AbstractCsv implements ByteSequence
     public function addStreamFilter(string $filtername, $params = null): self
     {
         if (!$this->document instanceof Stream) {
-            throw new CannotAddStreamFilter('The stream filter API can not be used');
+            throw new StreamFilterSupportMissing('The stream filter API can not be used');
         }
 
         $this->document->appendFilter($filtername, $this->stream_filter_mode, $params);

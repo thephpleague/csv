@@ -14,8 +14,8 @@ declare(strict_types=1);
 namespace League\Csv;
 
 /**
- * CannotAddStreamFilter Exception.
+ * StreamFilterSupportMissing Exception.
  */
-class CannotAddStreamFilter extends Exception
+class StreamFilterSupportMissing extends Exception
 {
 }

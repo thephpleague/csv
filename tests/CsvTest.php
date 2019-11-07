@@ -11,10 +11,10 @@
 
 namespace LeagueTest\Csv;
 
-use League\Csv\CannotAddStreamFilter;
 use League\Csv\Exception;
 use League\Csv\InvalidArgument;
 use League\Csv\Reader;
+use League\Csv\StreamFilterSupportMissing;
 use League\Csv\Writer;
 use PHPUnit\Framework\TestCase;
 use SplFileObject;
@@ -331,7 +331,7 @@ EOF;
      */
     public function testFailedAddStreamFilter()
     {
-        self::expectException(CannotAddStreamFilter::class);
+        self::expectException(StreamFilterSupportMissing::class);
         $csv = Writer::createFromFileObject(new SplTempFileObject());
         self::assertFalse($csv->supportsStreamFilter());
         $csv->addStreamFilter('string.toupper');
