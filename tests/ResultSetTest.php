@@ -13,6 +13,7 @@ namespace LeagueTest\Csv;
 
 use Generator;
 use League\Csv\Exception;
+use League\Csv\InvalidArgument;
 use League\Csv\Reader;
 use League\Csv\Statement;
 use OutOfBoundsException;
@@ -26,7 +27,6 @@ use function json_encode;
 use function next;
 use function strcmp;
 use function strlen;
-use League\Csv\InvalidArgument;
 
 /**
  * @group reader

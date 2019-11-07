@@ -11,6 +11,7 @@
 
 namespace LeagueTest\Csv;
 
+use League\Csv\CannotAddStreamFilter;
 use League\Csv\Exception;
 use League\Csv\Reader;
 use League\Csv\Writer;
@@ -29,7 +30,6 @@ use function unlink;
 use const PHP_EOL;
 use const STREAM_FILTER_READ;
 use const STREAM_FILTER_WRITE;
-use League\Csv\CannotAddStreamFilter;
 
 /**
  * @group csv

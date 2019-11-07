@@ -15,6 +15,7 @@ use BadMethodCallException;
 use League\Csv\Exception;
 use League\Csv\Reader;
 use League\Csv\Statement;
+use League\Csv\SyntaxError;
 use PHPUnit\Framework\TestCase;
 use SplFileObject;
 use SplTempFileObject;
@@ -28,7 +29,6 @@ use function in_array;
 use function iterator_to_array;
 use function json_encode;
 use function unlink;
-use League\Csv\SyntaxError;
 
 /**
  * @group reader

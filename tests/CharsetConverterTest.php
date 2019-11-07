@@ -13,6 +13,7 @@ namespace LeagueTest\Csv;
 
 use ArrayIterator;
 use Iterator;
+use League\Csv\CannotAddStreamFilter;
 use League\Csv\CharsetConverter;
 use League\Csv\Exception;
 use League\Csv\Reader;
@@ -25,7 +26,6 @@ use function mb_convert_encoding;
 use function stream_filter_register;
 use function stream_get_filters;
 use function strtoupper;
-use League\Csv\CannotAddStreamFilter;
 
 /**
  * @group converter
