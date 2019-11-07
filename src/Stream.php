@@ -243,7 +243,7 @@ class Stream implements SeekableIterator
             return;
         }
 
-        throw new CannotAddStreamFilter(sprintf('unable to locate filter `%s`', $filtername));
+        throw new InvalidArgument(sprintf('unable to locate filter `%s`', $filtername));
     }
 
     /**

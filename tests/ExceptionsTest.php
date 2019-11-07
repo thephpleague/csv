@@ -11,20 +11,20 @@
 
 namespace LeagueTest\Csv;
 
-use League\Csv\SyntaxError;
-use League\Csv\InvalidArgument;
-use PHPUnit\Framework\TestCase;
-use League\Csv\CannotInsertRecord;
 use League\Csv\CannotAddStreamFilter;
+use League\Csv\CannotInsertRecord;
 use League\Csv\Exception as BaseException;
+use League\Csv\InvalidArgument;
+use League\Csv\SyntaxError;
+use PHPUnit\Framework\TestCase;
 
 class ExceptionsTest extends TestCase
 {
     public function testExceptionsExtendBaseClass()
     {
-        $this->assertInstanceOf(BaseException::class, new CannotAddStreamFilter);
-        $this->assertInstanceOf(BaseException::class, new CannotInsertRecord);
-        $this->assertInstanceOf(BaseException::class, new InvalidArgument);
-        $this->assertInstanceOf(BaseException::class, new SyntaxError);
+        $this->assertInstanceOf(BaseException::class, new CannotAddStreamFilter());
+        $this->assertInstanceOf(BaseException::class, new CannotInsertRecord());
+        $this->assertInstanceOf(BaseException::class, new InvalidArgument());
+        $this->assertInstanceOf(BaseException::class, new SyntaxError());
     }
 }

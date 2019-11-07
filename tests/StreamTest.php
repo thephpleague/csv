@@ -11,8 +11,8 @@
 
 namespace LeagueTest\Csv;
 
-use League\Csv\CannotAddStreamFilter;
 use League\Csv\Exception;
+use League\Csv\InvalidArgument;
 use League\Csv\Stream;
 use PHPUnit\Framework\TestCase;
 use SplFileObject;
@@ -238,7 +238,7 @@ class StreamTest extends TestCase
     public function testAppendStreamFilterThrowsException()
     {
         $filtername = 'foo.bar';
-        self::expectException(CannotAddStreamFilter::class);
+        self::expectException(InvalidArgument::class);
         self::expectExceptionMessage('unable to locate filter `'.$filtername.'`');
         $stream = Stream::createFromPath('php://temp', 'r+');
         $stream->appendFilter($filtername, STREAM_FILTER_READ);

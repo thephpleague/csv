@@ -13,6 +13,7 @@ namespace LeagueTest\Csv;
 
 use League\Csv\CannotAddStreamFilter;
 use League\Csv\Exception;
+use League\Csv\InvalidArgument;
 use League\Csv\Reader;
 use League\Csv\Writer;
 use PHPUnit\Framework\TestCase;
@@ -343,7 +344,7 @@ EOF;
      */
     public function testFailedAddStreamFilterWithWrongFilter()
     {
-        self::expectException(CannotAddStreamFilter::class);
+        self::expectException(InvalidArgument::class);
         $csv = Writer::createFromStream(tmpfile());
         $csv->addStreamFilter('foobar.toupper');
     }
