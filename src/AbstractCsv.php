@@ -15,16 +15,16 @@ namespace League\Csv;
 
 use Generator;
 use SplFileObject;
-use function strlen;
-use function sprintf;
-use function strcspn;
-use function mb_strlen;
-use function str_split;
 use function filter_var;
-use function str_replace;
+use function mb_strlen;
 use function rawurlencode;
-use const FILTER_FLAG_STRIP_LOW;
+use function sprintf;
+use function str_replace;
+use function str_split;
+use function strcspn;
+use function strlen;
 use const FILTER_FLAG_STRIP_HIGH;
+use const FILTER_FLAG_STRIP_LOW;
 use const FILTER_SANITIZE_STRING;
 
 /**

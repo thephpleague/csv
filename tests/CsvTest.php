@@ -11,25 +11,25 @@
 
 namespace LeagueTest\Csv;
 
-use function chr;
-use SplFileObject;
-use const PHP_EOL;
-use function unlink;
-use function tmpfile;
+use League\Csv\Exception;
 use League\Csv\Reader;
 use League\Csv\Writer;
+use PHPUnit\Framework\TestCase;
+use SplFileObject;
 use SplTempFileObject;
+use function chr;
+use function function_exists;
+use function iterator_to_array;
+use function League\Csv\is_iterable as CSVIsiterable;
+use function ob_get_clean;
 use function ob_start;
 use function strtolower;
-use League\Csv\Exception;
-use function ob_get_clean;
+use function tmpfile;
+use function unlink;
+use const PHP_EOL;
 use const STREAM_FILTER_READ;
-use function function_exists;
 use const STREAM_FILTER_WRITE;
-use PHPUnit\Framework\TestCase;
-use function iterator_to_array;
 use League\Csv\CannotAddStreamFilter;
-use function League\Csv\is_iterable as CSVIsiterable;
 
 /**
  * @group csv

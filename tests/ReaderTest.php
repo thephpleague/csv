@@ -11,24 +11,24 @@
 
 namespace LeagueTest\Csv;
 
-use TypeError;
-use SplFileObject;
-use function count;
-use function fopen;
-use function fclose;
-use function unlink;
-use function fputcsv;
-use League\Csv\Reader;
-use SplTempFileObject;
-use function in_array;
-use function array_keys;
-use League\Csv\Exception;
-use League\Csv\Statement;
-use function json_encode;
 use BadMethodCallException;
-use League\Csv\SyntaxError;
+use League\Csv\Exception;
+use League\Csv\Reader;
+use League\Csv\Statement;
 use PHPUnit\Framework\TestCase;
+use SplFileObject;
+use SplTempFileObject;
+use TypeError;
+use function array_keys;
+use function count;
+use function fclose;
+use function fopen;
+use function fputcsv;
+use function in_array;
 use function iterator_to_array;
+use function json_encode;
+use function unlink;
+use League\Csv\SyntaxError;
 
 /**
  * @group reader

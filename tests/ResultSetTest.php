@@ -12,21 +12,21 @@
 namespace LeagueTest\Csv;
 
 use Generator;
+use League\Csv\Exception;
+use League\Csv\Reader;
+use League\Csv\Statement;
+use OutOfBoundsException;
+use PHPUnit\Framework\TestCase;
+use SplTempFileObject;
+use function array_reverse;
+use function current;
+use function in_array;
+use function iterator_to_array;
+use function json_encode;
 use function next;
 use function strcmp;
 use function strlen;
-use function current;
-use League\Csv\Reader;
-use SplTempFileObject;
-use function in_array;
-use League\Csv\Exception;
-use League\Csv\Statement;
-use OutOfBoundsException;
-use function json_encode;
-use function array_reverse;
 use League\Csv\InvalidArgument;
-use PHPUnit\Framework\TestCase;
-use function iterator_to_array;
 
 /**
  * @group reader

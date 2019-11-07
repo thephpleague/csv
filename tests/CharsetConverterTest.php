@@ -11,20 +11,20 @@
 
 namespace LeagueTest\Csv;
 
-use Iterator;
-use TypeError;
 use ArrayIterator;
-use function explode;
-use function implode;
+use Iterator;
+use League\Csv\CharsetConverter;
+use League\Csv\Exception;
 use League\Csv\Reader;
 use OutOfRangeException;
-use function strtoupper;
-use League\Csv\Exception;
 use PHPUnit\Framework\TestCase;
-use League\Csv\CharsetConverter;
-use function stream_get_filters;
+use TypeError;
+use function explode;
+use function implode;
 use function mb_convert_encoding;
 use function stream_filter_register;
+use function stream_get_filters;
+use function strtoupper;
 use League\Csv\CannotAddStreamFilter;
 
 /**

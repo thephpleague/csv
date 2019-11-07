@@ -13,33 +13,33 @@ declare(strict_types=1);
 
 namespace League\Csv;
 
-use Iterator;
-use Countable;
-use Generator;
-use TypeError;
-use SplFileObject;
-use function count;
-use function strlen;
-use function substr;
-use JsonSerializable;
-use function gettype;
-use function sprintf;
-use IteratorAggregate;
-use function is_array;
-use function array_pad;
-use function mb_strlen;
-use function mb_substr;
-use const PHP_VERSION_ID;
-use function array_slice;
-use function array_filter;
-use function array_unique;
 use BadMethodCallException;
 use CallbackFilterIterator;
-use function array_combine;
-use function iterator_count;
-use const STREAM_FILTER_READ;
-use function iterator_to_array;
+use Countable;
+use Generator;
+use Iterator;
+use IteratorAggregate;
+use JsonSerializable;
 use League\Csv\Polyfill\EmptyEscapeParser;
+use SplFileObject;
+use TypeError;
+use function array_combine;
+use function array_filter;
+use function array_pad;
+use function array_slice;
+use function array_unique;
+use function count;
+use function gettype;
+use function is_array;
+use function iterator_count;
+use function iterator_to_array;
+use function mb_strlen;
+use function mb_substr;
+use function sprintf;
+use function strlen;
+use function substr;
+use const PHP_VERSION_ID;
+use const STREAM_FILTER_READ;
 
 /**
  * A class to parse and read records from a CSV document.

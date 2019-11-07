@@ -13,11 +13,11 @@ declare(strict_types=1);
 
 namespace League\Csv;
 
-use Iterator;
 use ArrayIterator;
+use CallbackFilterIterator;
+use Iterator;
 use LimitIterator;
 use function array_reduce;
-use CallbackFilterIterator;
 use function iterator_to_array;
 
 /**

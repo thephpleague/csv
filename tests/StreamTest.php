@@ -11,20 +11,20 @@
 
 namespace LeagueTest\Csv;
 
-use TypeError;
+use League\Csv\Exception;
+use League\Csv\Stream;
+use PHPUnit\Framework\TestCase;
 use SplFileObject;
+use TypeError;
+use function curl_init;
 use function fopen;
 use function fputcsv;
-use League\Csv\Stream;
-use function curl_init;
-use League\Csv\Exception;
-use const PHP_VERSION_ID;
-use const STREAM_FILTER_READ;
-use PHPUnit\Framework\TestCase;
 use function stream_context_create;
-use League\Csv\CannotAddStreamFilter;
 use function stream_wrapper_register;
 use function stream_wrapper_unregister;
+use const PHP_VERSION_ID;
+use const STREAM_FILTER_READ;
+use League\Csv\CannotAddStreamFilter;
 
 /**
  * @group csv

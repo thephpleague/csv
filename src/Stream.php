@@ -13,33 +13,33 @@ declare(strict_types=1);
 
 namespace League\Csv;
 
-use TypeError;
+use SeekableIterator;
 use SplFileObject;
+use TypeError;
+use function array_keys;
+use function array_walk_recursive;
+use function fclose;
 use function feof;
-use const SEEK_SET;
+use function fflush;
+use function fgetcsv;
 use function fgets;
 use function fopen;
+use function fpassthru;
+use function fputcsv;
 use function fread;
 use function fseek;
-use function fclose;
-use function fflush;
 use function fwrite;
-use function rewind;
-use function strlen;
-use SeekableIterator;
-use function fgetcsv;
-use function fputcsv;
-use function gettype;
-use function sprintf;
-use function fpassthru;
-use function array_keys;
-use const PHP_VERSION_ID;
-use function is_resource;
 use function get_resource_type;
-use function array_walk_recursive;
+use function gettype;
+use function is_resource;
+use function rewind;
+use function sprintf;
 use function stream_filter_append;
 use function stream_filter_remove;
 use function stream_get_meta_data;
+use function strlen;
+use const PHP_VERSION_ID;
+use const SEEK_SET;
 
 /**
  * An object oriented API to handle a PHP stream resource.
