@@ -243,7 +243,7 @@ class Stream implements SeekableIterator
             return;
         }
 
-        throw new Exception(sprintf('unable to locate filter `%s`', $filtername));
+        throw new InvalidArgument(sprintf('unable to locate filter `%s`', $filtername));
     }
 
     /**
@@ -264,18 +264,18 @@ class Stream implements SeekableIterator
     protected function filterControl(string $delimiter, string $enclosure, string $escape, string $caller): array
     {
         if (1 !== strlen($delimiter)) {
-            throw new Exception(sprintf('%s() expects delimiter to be a single character', $caller));
+            throw new InvalidArgument(sprintf('%s() expects delimiter to be a single character', $caller));
         }
 
         if (1 !== strlen($enclosure)) {
-            throw new Exception(sprintf('%s() expects enclosure to be a single character', $caller));
+            throw new InvalidArgument(sprintf('%s() expects enclosure to be a single character', $caller));
         }
 
         if (1 === strlen($escape) || ('' === $escape && 70400 <= PHP_VERSION_ID)) {
             return [$delimiter, $enclosure, $escape];
         }
 
-        throw new Exception(sprintf('%s() expects escape to be a single character', $caller));
+        throw new InvalidArgument(sprintf('%s() expects escape to be a single character', $caller));
     }
 
     /**

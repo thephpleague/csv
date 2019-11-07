@@ -13,6 +13,7 @@ namespace LeagueTest\Csv;
 
 use Generator;
 use League\Csv\Exception;
+use League\Csv\InvalidArgument;
 use League\Csv\Reader;
 use League\Csv\Statement;
 use OutOfBoundsException;
@@ -227,7 +228,7 @@ class ResultSetTest extends TestCase
      */
     public function testFetchColumnTriggersException($field)
     {
-        self::expectException(Exception::class);
+        self::expectException(InvalidArgument::class);
         $this->csv->setHeaderOffset(0);
         $res = $this->stmt->process($this->csv)->fetchColumn($field);
         iterator_to_array($res, false);
@@ -248,7 +249,7 @@ class ResultSetTest extends TestCase
      */
     public function testFetchColumnTriggersOutOfRangeException()
     {
-        self::expectException(Exception::class);
+        self::expectException(InvalidArgument::class);
         $this->csv->setHeaderOffset(0);
         $res = $this->stmt->process($this->csv)->fetchColumn(-1);
         iterator_to_array($res, false);

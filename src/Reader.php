@@ -144,7 +144,7 @@ class Reader extends AbstractCsv implements Countable, IteratorAggregate, JsonSe
     {
         $header = $this->seekRow($offset);
         if (false === $header || [] === $header || [null] === $header) {
-            throw new Exception(sprintf('The header record does not exist or is empty at offset: `%s`', $offset));
+            throw new SyntaxError(sprintf('The header record does not exist or is empty at offset: `%s`', $offset));
         }
 
         if (0 === $offset) {
@@ -320,7 +320,7 @@ class Reader extends AbstractCsv implements Countable, IteratorAggregate, JsonSe
             return $header;
         }
 
-        throw new Exception('The header record must be empty or a flat array with unique string values');
+        throw new SyntaxError('The header record must be empty or a flat array with unique string values');
     }
 
     /**
@@ -390,7 +390,7 @@ class Reader extends AbstractCsv implements Countable, IteratorAggregate, JsonSe
         }
 
         if (null !== $offset && 0 > $offset) {
-            throw new Exception(__METHOD__.'() expects 1 Argument to be greater or equal to 0');
+            throw new InvalidArgument(__METHOD__.'() expects 1 Argument to be greater or equal to 0');
         }
 
         $this->header_offset = $offset;

@@ -318,7 +318,7 @@ class Writer extends AbstractCsv
         }
 
         if (null !== $threshold && 1 > $threshold) {
-            throw new Exception(__METHOD__.'() expects 1 Argument to be null or a valid integer greater or equal to 1');
+            throw new InvalidArgument(__METHOD__.'() expects 1 Argument to be null or a valid integer greater or equal to 1');
         }
 
         $this->flush_threshold = $threshold;
