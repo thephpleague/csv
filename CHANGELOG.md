@@ -6,7 +6,9 @@ All Notable changes to `Csv` will be documented in this file
 
 ### Added
 
-- Nothing
+- Improve Package exception throwing by adding new Exceptions that extends 
+the `League\Csv\Exception` exception marker class [#360](https://github.com/thephpleague/csv/issues/360), [#361](https://github.com/thephpleague/csv/issues/360)
+feature proposed and developed by [Darren Miller](https://github.com/dmlogic)
 
 ### Deprecated
 
