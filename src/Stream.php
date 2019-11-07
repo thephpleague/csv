@@ -13,33 +13,33 @@ declare(strict_types=1);
 
 namespace League\Csv;
 
-use SeekableIterator;
-use SplFileObject;
 use TypeError;
-use function array_keys;
-use function array_walk_recursive;
-use function fclose;
+use SplFileObject;
 use function feof;
-use function fflush;
-use function fgetcsv;
+use const SEEK_SET;
 use function fgets;
 use function fopen;
-use function fpassthru;
-use function fputcsv;
 use function fread;
 use function fseek;
+use function fclose;
+use function fflush;
 use function fwrite;
-use function get_resource_type;
-use function gettype;
-use function is_resource;
 use function rewind;
+use function strlen;
+use SeekableIterator;
+use function fgetcsv;
+use function fputcsv;
+use function gettype;
 use function sprintf;
+use function fpassthru;
+use function array_keys;
+use const PHP_VERSION_ID;
+use function is_resource;
+use function get_resource_type;
+use function array_walk_recursive;
 use function stream_filter_append;
 use function stream_filter_remove;
 use function stream_get_meta_data;
-use function strlen;
-use const PHP_VERSION_ID;
-use const SEEK_SET;
 
 /**
  * An object oriented API to handle a PHP stream resource.
@@ -243,7 +243,7 @@ class Stream implements SeekableIterator
             return;
         }
 
-        throw new Exception(sprintf('unable to locate filter `%s`', $filtername));
+        throw new CannotAddStreamFilter(sprintf('unable to locate filter `%s`', $filtername));
     }
 
     /**
@@ -264,18 +264,18 @@ class Stream implements SeekableIterator
     protected function filterControl(string $delimiter, string $enclosure, string $escape, string $caller): array
     {
         if (1 !== strlen($delimiter)) {
-            throw new Exception(sprintf('%s() expects delimiter to be a single character', $caller));
+            throw new InvalidArgument(sprintf('%s() expects delimiter to be a single character', $caller));
         }
 
         if (1 !== strlen($enclosure)) {
-            throw new Exception(sprintf('%s() expects enclosure to be a single character', $caller));
+            throw new InvalidArgument(sprintf('%s() expects enclosure to be a single character', $caller));
         }
 
         if (1 === strlen($escape) || ('' === $escape && 70400 <= PHP_VERSION_ID)) {
             return [$delimiter, $enclosure, $escape];
         }
 
-        throw new Exception(sprintf('%s() expects escape to be a single character', $caller));
+        throw new InvalidArgument(sprintf('%s() expects escape to be a single character', $caller));
     }
 
     /**

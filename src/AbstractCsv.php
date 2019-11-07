@@ -15,16 +15,16 @@ namespace League\Csv;
 
 use Generator;
 use SplFileObject;
-use function filter_var;
-use function mb_strlen;
-use function rawurlencode;
-use function sprintf;
-use function str_replace;
-use function str_split;
-use function strcspn;
 use function strlen;
-use const FILTER_FLAG_STRIP_HIGH;
+use function sprintf;
+use function strcspn;
+use function mb_strlen;
+use function str_split;
+use function filter_var;
+use function str_replace;
+use function rawurlencode;
 use const FILTER_FLAG_STRIP_LOW;
+use const FILTER_FLAG_STRIP_HIGH;
 use const FILTER_SANITIZE_STRING;
 
 /**
@@ -272,7 +272,7 @@ abstract class AbstractCsv implements ByteSequence
     public function chunk(int $length): Generator
     {
         if ($length < 1) {
-            throw new Exception(sprintf('%s() expects the length to be a positive integer %d given', __METHOD__, $length));
+            throw new InvalidArgument(sprintf('%s() expects the length to be a positive integer %d given', __METHOD__, $length));
         }
 
         $input_bom = $this->getInputBOM();
@@ -348,7 +348,7 @@ abstract class AbstractCsv implements ByteSequence
     protected function sendHeaders(string $filename)
     {
         if (strlen($filename) != strcspn($filename, '\\/')) {
-            throw new Exception('The filename cannot contain the "/" and "\\" characters.');
+            throw new InvalidArgument('The filename cannot contain the "/" and "\\" characters.');
         }
 
         $flag = FILTER_FLAG_STRIP_LOW;
@@ -389,7 +389,7 @@ abstract class AbstractCsv implements ByteSequence
             return $this;
         }
 
-        throw new Exception(sprintf('%s() expects delimiter to be a single character %s given', __METHOD__, $delimiter));
+        throw new InvalidArgument(sprintf('%s() expects delimiter to be a single character %s given', __METHOD__, $delimiter));
     }
 
     /**
@@ -412,7 +412,7 @@ abstract class AbstractCsv implements ByteSequence
             return $this;
         }
 
-        throw new Exception(sprintf('%s() expects enclosure to be a single character %s given', __METHOD__, $enclosure));
+        throw new InvalidArgument(sprintf('%s() expects enclosure to be a single character %s given', __METHOD__, $enclosure));
     }
 
     /**
@@ -435,7 +435,7 @@ abstract class AbstractCsv implements ByteSequence
             return $this;
         }
 
-        throw new Exception(sprintf('%s() expects escape to be a single character or the empty string %s given', __METHOD__, $escape));
+        throw new InvalidArgument(sprintf('%s() expects escape to be a single character or the empty string %s given', __METHOD__, $escape));
     }
 
     /**
@@ -486,7 +486,7 @@ abstract class AbstractCsv implements ByteSequence
     public function addStreamFilter(string $filtername, $params = null): self
     {
         if (!$this->document instanceof Stream) {
-            throw new Exception('The stream filter API can not be used');
+            throw new CannotAddStreamFilter('The stream filter API can not be used');
         }
 
         $this->document->appendFilter($filtername, $this->stream_filter_mode, $params);

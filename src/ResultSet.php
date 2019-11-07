@@ -122,7 +122,7 @@ class ResultSet implements Countable, IteratorAggregate, JsonSerializable
     public function fetchOne(int $nth_record = 0): array
     {
         if ($nth_record < 0) {
-            throw new Exception(sprintf('%s() expects the submitted offset to be a positive integer or 0, %s given', __METHOD__, $nth_record));
+            throw new InvalidArgument(sprintf('%s() expects the submitted offset to be a positive integer or 0, %s given', __METHOD__, $nth_record));
         }
 
         $iterator = new LimitIterator($this->records, $nth_record, 1);
@@ -181,7 +181,7 @@ class ResultSet implements Countable, IteratorAggregate, JsonSerializable
             return $value;
         }
 
-        throw new Exception(sprintf($error_message, $value));
+        throw new InvalidArgument(sprintf($error_message, $value));
     }
 
     /**
@@ -194,7 +194,7 @@ class ResultSet implements Countable, IteratorAggregate, JsonSerializable
     protected function getColumnIndexByKey(int $index, string $error_message)
     {
         if ($index < 0) {
-            throw new Exception($error_message);
+            throw new InvalidArgument($error_message);
         }
 
         if ([] === $this->header) {
@@ -206,7 +206,7 @@ class ResultSet implements Countable, IteratorAggregate, JsonSerializable
             return $value;
         }
 
-        throw new Exception(sprintf($error_message, $index));
+        throw new InvalidArgument(sprintf($error_message, $index));
     }
 
     /**

@@ -11,23 +11,24 @@
 
 namespace LeagueTest\Csv;
 
-use BadMethodCallException;
-use League\Csv\Exception;
-use League\Csv\Reader;
-use League\Csv\Statement;
-use PHPUnit\Framework\TestCase;
-use SplFileObject;
-use SplTempFileObject;
 use TypeError;
-use function array_keys;
+use SplFileObject;
 use function count;
-use function fclose;
 use function fopen;
-use function fputcsv;
-use function in_array;
-use function iterator_to_array;
-use function json_encode;
+use function fclose;
 use function unlink;
+use function fputcsv;
+use League\Csv\Reader;
+use SplTempFileObject;
+use function in_array;
+use function array_keys;
+use League\Csv\Exception;
+use League\Csv\Statement;
+use function json_encode;
+use BadMethodCallException;
+use League\Csv\SyntaxError;
+use PHPUnit\Framework\TestCase;
+use function iterator_to_array;
 
 /**
  * @group reader
@@ -216,7 +217,7 @@ EOF;
      */
     public function testHeaderThrowsExceptionOnError()
     {
-        self::expectException(Exception::class);
+        self::expectException(SyntaxError::class);
         $csv = Reader::createFromString(
             'field1,field1,field3
             1,2,3
@@ -236,7 +237,7 @@ EOF;
      */
     public function testHeaderThrowsExceptionOnEmptyLine()
     {
-        self::expectException(Exception::class);
+        self::expectException(SyntaxError::class);
         $str = <<<EOF
 foo,bar,baz
 
@@ -391,7 +392,7 @@ EOF;
      */
     public function testGetHeaderThrowsExceptionWithSplFileObject()
     {
-        self::expectException(Exception::class);
+        self::expectException(SyntaxError::class);
         $this->csv->setHeaderOffset(23)->getRecords();
     }
 
@@ -401,7 +402,7 @@ EOF;
      */
     public function testGetHeaderThrowsExceptionWithStreamObject()
     {
-        self::expectException(Exception::class);
+        self::expectException(SyntaxError::class);
 
         $tmp = fopen('php://temp', 'r+');
         foreach ($this->expected as $row) {

@@ -11,19 +11,20 @@
 
 namespace LeagueTest\Csv;
 
-use League\Csv\Exception;
-use League\Csv\Stream;
-use PHPUnit\Framework\TestCase;
-use SplFileObject;
 use TypeError;
-use function curl_init;
+use SplFileObject;
 use function fopen;
 use function fputcsv;
-use function stream_context_create;
-use function stream_wrapper_register;
-use function stream_wrapper_unregister;
+use League\Csv\Stream;
+use function curl_init;
+use League\Csv\Exception;
 use const PHP_VERSION_ID;
 use const STREAM_FILTER_READ;
+use PHPUnit\Framework\TestCase;
+use function stream_context_create;
+use League\Csv\CannotAddStreamFilter;
+use function stream_wrapper_register;
+use function stream_wrapper_unregister;
 
 /**
  * @group csv
@@ -237,7 +238,7 @@ class StreamTest extends TestCase
     public function testAppendStreamFilterThrowsException()
     {
         $filtername = 'foo.bar';
-        self::expectException(Exception::class);
+        self::expectException(CannotAddStreamFilter::class);
         self::expectExceptionMessage('unable to locate filter `'.$filtername.'`');
         $stream = Stream::createFromPath('php://temp', 'r+');
         $stream->appendFilter($filtername, STREAM_FILTER_READ);
