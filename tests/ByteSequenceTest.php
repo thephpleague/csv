@@ -43,15 +43,15 @@ class ByteSequenceTest extends TestCase
                 'sequence' => 'foo bar',
                 'expected' => '',
             ],
-            'UTF8 BOM sequence' => [
+            'UTF-8 BOM sequence' => [
                 'sequence' => chr(239).chr(187).chr(191),
                 'expected' => ByteSequence::BOM_UTF8,
             ],
-            'UTF8 BOM sequence at the start of a text' => [
+            'UTF-8 BOM sequence at the start of a text' => [
                 'sequence' => ByteSequence::BOM_UTF8.'The quick brown fox jumps over the lazy dog',
                 'expected' => chr(239).chr(187).chr(191),
             ],
-            'UTF8 BOM sequence inside a text' => [
+            'UTF-8 BOM sequence inside a text' => [
                 'sequence' => 'The quick brown fox '.ByteSequence::BOM_UTF8.' jumps over the lazy dog',
                 'expected' => '',
             ],
