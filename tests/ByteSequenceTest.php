@@ -55,6 +55,10 @@ class ByteSequenceTest extends TestCase
                 'sequence' => 'The quick brown fox '.ByteSequence::BOM_UTF8.' jumps over the lazy dog',
                 'expected' => '',
             ],
+            'UTF32 LE BOM sequence' => [
+                'sequence' => chr(255).chr(254).chr(0).chr(0),
+                'expected' => ByteSequence::BOM_UTF32_LE,
+            ],
         ];
     }
 }

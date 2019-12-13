@@ -22,6 +22,7 @@ namespace League\Csv {
     use function count;
     use function is_array;
     use function iterator_to_array;
+    use function rsort;
     use function strpos;
     use const COUNT_RECURSIVE;
 
@@ -33,8 +34,11 @@ namespace League\Csv {
     function bom_match(string $str): string
     {
         static $list;
+        if (null === $list) {
+            $list = (new ReflectionClass(ByteSequence::class))->getConstants();
 
-        $list = $list ?? (new ReflectionClass(ByteSequence::class))->getConstants();
+            rsort($list);
+        }
 
         foreach ($list as $sequence) {
             if (0 === strpos($str, $sequence)) {
