@@ -2,7 +2,7 @@
 
 All Notable changes to `Csv` will be documented in this file
 
-## Next - TBD
+## 9.5.0 - TBD
 
 ### Added
 
@@ -16,7 +16,8 @@ feature proposed and developed by [Darren Miller](https://github.com/dmlogic)
 
 ### Fixed
 
-- Nothing
+- bug fix `bom_match` function see issue [#363](https://github.com/thephpleague/csv/issues/363) resolved based on PR from [@jmwebservices](https://github.com/jmwebservices)
+- bug fix `delemiter_detect` function see issue [#366](https://github.com/thephpleague/csv/issues/366)
 
 ### Removed
 
