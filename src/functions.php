@@ -23,6 +23,7 @@ namespace League\Csv {
     use function is_array;
     use function iterator_to_array;
     use function rsort;
+    use function strlen;
     use function strpos;
     use const COUNT_RECURSIVE;
 
@@ -62,22 +63,38 @@ namespace League\Csv {
      */
     function delimiter_detect(Reader $csv, array $delimiters, int $limit = 1): array
     {
-        $found = array_unique(array_filter($delimiters, static function (string $value): bool {
-            return 1 == strlen($value);
-        }));
-        $stmt = (new Statement())->limit($limit)->where(static function (array $record): bool {
+        $filter = static function (string $value): bool {
+            return 1 === strlen($value);
+        };
+
+        $record_filter = static function (array $record): bool {
             return count($record) > 1;
-        });
-        $reducer = static function (array $result, string $delimiter) use ($csv, $stmt): array {
-            $result[$delimiter] = count(iterator_to_array($stmt->process($csv->setDelimiter($delimiter)), false), COUNT_RECURSIVE);
+        };
+
+        $stmt = (new Statement())->limit($limit);
+
+        $unique_delimiters = array_unique(array_filter($delimiters, $filter));
+
+        $reducer = static function (array $result, string $delimiter) use ($csv, $stmt, $record_filter): array {
+            $csv->setDelimiter($delimiter);
+            $found_records = array_filter(
+                iterator_to_array($stmt->process($csv), false),
+                $record_filter
+            );
+
+            $result[$delimiter] = count($found_records, COUNT_RECURSIVE);
 
             return $result;
         };
-        $delimiter = $csv->getDelimiter();
-        $header_offset = $csv->getHeaderOffset();
+
+        $current_delimiter = $csv->getDelimiter();
+        $current_header_offset = $csv->getHeaderOffset();
         $csv->setHeaderOffset(null);
-        $stats = array_reduce($found, $reducer, array_fill_keys($delimiters, 0));
-        $csv->setHeaderOffset($header_offset)->setDelimiter($delimiter);
+
+        $stats = array_reduce($unique_delimiters, $reducer, array_fill_keys($delimiters, 0));
+
+        $csv->setHeaderOffset($current_header_offset);
+        $csv->setDelimiter($current_delimiter);
 
         return $stats;
     }
