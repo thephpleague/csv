@@ -80,4 +80,16 @@ class DetectDelimiterTest extends TestCase
         $res = delimiter_detect($csv, ['toto', '|'], 5);
         self::assertSame('@', $csv->getDelimiter());
     }
+
+    public function testExpectedLimitIsUsedIssue366()
+    {
+        $text = <<<EOF
+foo;bar;hello_world
+42;1,2,3,4,5;true
+EOF;
+        $expected = [';' => 4, ',' => 0];
+        $reader = Reader::createFromString($text);
+        $result = delimiter_detect($reader, [';', ','], 1);
+        self::assertSame($expected, $result);
+    }
 }
