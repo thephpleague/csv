@@ -16,6 +16,6 @@ namespace League\Csv;
 /**
  * StreamFilterSupportMissing Exception.
  */
-class StreamFilterSupportMissing extends Exception
+class UnavailableFeature extends Exception
 {
 }

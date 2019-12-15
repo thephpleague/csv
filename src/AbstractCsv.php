@@ -16,6 +16,7 @@ namespace League\Csv;
 use Generator;
 use SplFileObject;
 use function filter_var;
+use function get_class;
 use function mb_strlen;
 use function rawurlencode;
 use function sprintf;
@@ -486,7 +487,7 @@ abstract class AbstractCsv implements ByteSequence
     public function addStreamFilter(string $filtername, $params = null): self
     {
         if (!$this->document instanceof Stream) {
-            throw new StreamFilterSupportMissing('The stream filter API can not be used');
+            throw new UnavailableFeature('The stream filter API can not be used with a '.get_class($this->document).' instance.');
         }
 
         $this->document->appendFilter($filtername, $this->stream_filter_mode, $params);
