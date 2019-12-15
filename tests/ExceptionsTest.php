@@ -22,9 +22,9 @@ class ExceptionsTest extends TestCase
 {
     public function testExceptionsExtendBaseClass()
     {
-        $this->assertInstanceOf(BaseException::class, new UnavailableFeature());
-        $this->assertInstanceOf(BaseException::class, new CannotInsertRecord());
-        $this->assertInstanceOf(BaseException::class, new InvalidArgument());
-        $this->assertInstanceOf(BaseException::class, new SyntaxError());
+        self::assertInstanceOf(BaseException::class, new UnavailableFeature());
+        self::assertInstanceOf(BaseException::class, new CannotInsertRecord());
+        self::assertInstanceOf(BaseException::class, new InvalidArgument());
+        self::assertInstanceOf(BaseException::class, new SyntaxError());
     }
 }
