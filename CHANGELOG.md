@@ -2,21 +2,24 @@
 
 All Notable changes to `Csv` will be documented in this file
 
-## 9.5.0 - TBD
+## 9.5.0 - 2019-12-15
 
 ### Added
 
-- Improve Package exception throwing by adding new Exceptions that extends 
+- Improve package exception throwing by adding new exceptions classes that extends 
 the `League\Csv\Exception` exception marker class [#360](https://github.com/thephpleague/csv/issues/360), [#361](https://github.com/thephpleague/csv/issues/360)
 feature proposed and developed by [Darren Miller](https://github.com/dmlogic)
-
+    - `League\Csv\UnavailableFeature`
+    - `League\Csv\InvalidArgument`
+    - `League\Csv\SyntaxError`
+    
 ### Deprecated
 
 - Nothing
 
 ### Fixed
 
-- bug fix `bom_match` function see issue [#363](https://github.com/thephpleague/csv/issues/363) resolved based on PR from [@jmwebservices](https://github.com/jmwebservices)
+- bug fix `bom_match` function see issue [#363](https://github.com/thephpleague/csv/issues/363) resolved based on PR from [Jerry Martinez](https://github.com/jmwebservices)
 - bug fix `delemiter_detect` function see issue [#366](https://github.com/thephpleague/csv/issues/366)
 
 ### Removed
