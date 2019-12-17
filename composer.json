@@ -21,7 +21,7 @@
         "source": "https://github.com/thephpleague/csv"
     },
     "require": {
-        "php" : ">=7.0.10",
+        "php" : "^7.0.10",
         "ext-dom" : "*",
         "ext-json" : "*",
         "ext-mbstring" : "*"

@@ -45,7 +45,6 @@ matrix:
               - RUN_PHPSTAN=true
               - VALIDATE_CODING_STYLE=false
     allow_failures:
-        - php: 7.4
         - php: nightly
     fast_finish: true
 before_install:

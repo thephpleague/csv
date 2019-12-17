@@ -158,11 +158,11 @@ class Writer extends AbstractCsv
         $record = array_reduce($this->formatters, [$this, 'formatRecord'], $record);
         $this->validateRecord($record);
         $bytes = $this->$method($record);
-        if (false !== $bytes && 0 !== $bytes) {
-            return $bytes + $this->consolidate();
+        if (false === $bytes || 0 >= $bytes) {
+            throw CannotInsertRecord::triggerOnInsertion($record);
         }
 
-        throw CannotInsertRecord::triggerOnInsertion($record);
+        return $bytes + $this->consolidate();
     }
 
     /**
