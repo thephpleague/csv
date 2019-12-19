@@ -301,11 +301,11 @@ use League\Csv\Reader;
 
 $reader = Reader::createFromPath('/path/to/my/file-with-two-empty-records.csv', 'r');
 $reader->isEmptyRecordsIncluded(); //returns false
-count($records); // returns 2
+count($reader); // returns 2
 
-$reader->includeEmptyRecordss();
+$reader->includeEmptyRecords();
 $reader->isEmptyRecordsIncluded(); //returns true
-count($records); // returns 4
+count($reader); // returns 4
 ~~~
 
 <p class="message-notice">The <code>Countable</code> interface is implemented using PHP's <code>iterator_count</code> on the <code>Reader::getRecords</code> method.</p>
