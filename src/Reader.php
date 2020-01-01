@@ -86,6 +86,28 @@ class Reader extends AbstractCsv implements Countable, IteratorAggregate, JsonSe
      */
     public static function createFromPath(string $path, string $open_mode = 'r', $context = null)
     {
+        # Endswith zip extension for compressed file
+        if(substr_compare(strtolower($path), ".zip", -strlen(".zip")) === 0)
+        {
+            $tempFile=tempnam(sys_get_temp_dir(),'');
+            if (file_exists($tempFile)) { 
+                unlink($tempFile);
+            }            
+            mkdir($tempFile);
+            if (!is_dir($tempFile)) { 
+                throw new AccessControl('Temproary folder creation failed. Permission error.');
+            }
+            
+            $zip = new \ZipArchive();
+            if ($zip->open($path) === true) {
+                for($i = 0; $i < $zip->numFiles; $i++) {
+                    $zip->extractTo($tempFile, array($zip->getNameIndex($i)));
+                    $path = $tempFile.'/'.$zip->getNameIndex($i);
+                    break;
+                }
+            }
+            $zip->close();
+        }
         return parent::createFromPath($path, $open_mode, $context);
     }
 
@@ -250,6 +272,33 @@ class Reader extends AbstractCsv implements Countable, IteratorAggregate, JsonSe
     public function jsonSerialize(): array
     {
         return iterator_to_array($this->getRecords(), false);
+    }
+
+    /**
+     * Returns the CSV file path after uncompressed the file.
+     *
+     * Supported compressions are zip, gz
+     *
+     * @param String - File path of the input CSV compressed file
+     */
+    public function decompressCSV(String $path): String
+    {
+        $temp_file=tempnam(sys_get_temp_dir(),'');
+        if (file_exists($temp_file)) { 
+            unlink($temp_file);
+        }
+
+        mkdir($tempfile);
+        if (!is_dir($tempfile)) { 
+            throw new AccessControl('Temproary folder creation failed. Permission error.');
+        }
+
+        $zip = new ZipArchive;
+        for($i = 0; $i < $zip->numFiles; $i++) {                        
+            $zip->extractTo($tempfile, array($zip->getNameIndex($i)));
+            echo $zip->getNameIndex($i);
+        }
+        $zip->close();
     }
 
     /**
