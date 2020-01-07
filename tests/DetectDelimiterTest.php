@@ -23,7 +23,7 @@ use function League\Csv\delimiter_detect;
  */
 class DetectDelimiterTest extends TestCase
 {
-    public function testDetectDelimiterListWithInvalidRowLimit()
+    public function testDetectDelimiterListWithInvalidRowLimit(): void
     {
         $file = new SplTempFileObject();
         $file->fwrite("How are you today ?\nI'm doing fine thanks!");
@@ -32,7 +32,7 @@ class DetectDelimiterTest extends TestCase
         delimiter_detect($csv, [','], -4);
     }
 
-    public function testDetectDelimiterListWithInvalidDelimiter()
+    public function testDetectDelimiterListWithInvalidDelimiter(): void
     {
         $file = new SplTempFileObject();
         $file->fwrite("How are you today ?\nI'm doing fine thanks!");
@@ -41,7 +41,7 @@ class DetectDelimiterTest extends TestCase
         delimiter_detect($csv, [',', []]);
     }
 
-    public function testDetectDelimiterListWithNoCSV()
+    public function testDetectDelimiterListWithNoCSV(): void
     {
         $file = new SplTempFileObject();
         $file->fwrite("How are you today ?\nI'm doing fine thanks!");
@@ -49,7 +49,7 @@ class DetectDelimiterTest extends TestCase
         self::assertSame(['toto' => 0, '|' => 0], delimiter_detect($csv, ['toto', '|'], 5));
     }
 
-    public function testDetectDelimiterWithNoValidDelimiter()
+    public function testDetectDelimiterWithNoValidDelimiter(): void
     {
         $file = new SplTempFileObject();
         $file->fwrite("How are you today ?\nI'm doing fine thanks!");
@@ -57,7 +57,7 @@ class DetectDelimiterTest extends TestCase
         self::assertSame(['toto' => 0], delimiter_detect($csv, ['toto'], 5));
     }
 
-    public function testDetectDelimiterListWithInconsistentCSV()
+    public function testDetectDelimiterListWithInconsistentCSV(): void
     {
         $data = new SplTempFileObject();
         $data->setCsvControl(';');
@@ -71,7 +71,7 @@ class DetectDelimiterTest extends TestCase
         self::assertSame(['|' => 12, ';' => 4], delimiter_detect($csv, ['|', ';'], 5));
     }
 
-    public function testDetectDelimiterKeepOriginalDelimiter()
+    public function testDetectDelimiterKeepOriginalDelimiter(): void
     {
         $file = new SplTempFileObject();
         $file->fwrite("How are you today ?\nI'm doing fine thanks!");
@@ -81,7 +81,7 @@ class DetectDelimiterTest extends TestCase
         self::assertSame('@', $csv->getDelimiter());
     }
 
-    public function testExpectedLimitIsUsedIssue366()
+    public function testExpectedLimitIsUsedIssue366(): void
     {
         $text = <<<EOF
 foo;bar;hello_world

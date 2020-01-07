@@ -14,13 +14,11 @@ declare(strict_types=1);
 namespace League\Csv {
 
     use ReflectionClass;
-    use Traversable;
     use function array_fill_keys;
     use function array_filter;
     use function array_reduce;
     use function array_unique;
     use function count;
-    use function is_array;
     use function iterator_to_array;
     use function rsort;
     use function strlen;
@@ -99,40 +97,5 @@ namespace League\Csv {
         $csv->setDelimiter($current_delimiter);
 
         return $stats;
-    }
-
-    /**
-     * Tell whether the content of the variable is iterable.
-     *
-     * @see http://php.net/manual/en/function.is-iterable.php
-     */
-    function is_iterable($iterable): bool
-    {
-        return is_array($iterable) || $iterable instanceof Traversable;
-    }
-
-    /**
-     * Tell whether the content of the variable is an int or null.
-     *
-     * @see https://wiki.php.net/rfc/nullable_types
-     */
-    function is_nullable_int($value): bool
-    {
-        return null === $value || is_int($value);
-    }
-}
-
-namespace {
-
-    use League\Csv;
-
-    if (PHP_VERSION_ID < 70100 && !function_exists('\is_iterable')) {
-        /**
-         * @codeCoverageIgnore
-         */
-        function is_iterable($iterable)
-        {
-            return Csv\is_iterable($iterable);
-        }
     }
 }

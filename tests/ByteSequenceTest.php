@@ -27,7 +27,7 @@ class ByteSequenceTest extends TestCase
      * @param string $expected
      * @covers League\Csv\bom_match
      */
-    public function testByteSequenceMatch($str, $expected)
+    public function testByteSequenceMatch($str, $expected): void
     {
         self::assertSame($expected, bom_match($str));
     }

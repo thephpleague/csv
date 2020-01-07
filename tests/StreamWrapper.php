@@ -24,11 +24,17 @@ final class StreamWrapper
 {
     const PROTOCOL = 'leaguetest';
 
+    /**
+     * @var resource
+     */
     public $context;
 
+    /**
+     * @var resource
+     */
     private $stream;
 
-    public static function register()
+    public static function register(): void
     {
         if (!in_array(self::PROTOCOL, stream_get_wrappers(), true)) {
             stream_wrapper_register(self::PROTOCOL, __CLASS__);
@@ -38,7 +44,7 @@ final class StreamWrapper
     /**
      * {@inheritdoc}
      */
-    public function stream_open($path, $mode, $options, &$opened_path)
+    public function stream_open(string $path, string $mode, int $options, string &$opened_path = null): bool
     {
         $options = stream_context_get_options($this->context);
         if (!isset($options[self::PROTOCOL]['stream'])) {
@@ -52,22 +58,28 @@ final class StreamWrapper
 
     /**
      * {@inheritdoc}
+     *
+     * @return string|false
      */
-    public function stream_read($count)
+    public function stream_read(int $count)
     {
         return fread($this->stream, $count);
     }
 
     /**
      * {@inheritdoc}
+     *
+     * @return int|false
      */
-    public function stream_write($data)
+    public function stream_write(string $data)
     {
         return fwrite($this->stream, $data);
     }
 
     /**
      * {@inheritdoc}
+     *
+     * @return int|false
      */
     public function stream_tell()
     {
@@ -77,7 +89,7 @@ final class StreamWrapper
     /**
      * {@inheritdoc}
      */
-    public function stream_eof()
+    public function stream_eof(): bool
     {
         return feof($this->stream);
     }
@@ -85,7 +97,7 @@ final class StreamWrapper
     /**
      * {@inheritdoc}
      */
-    public function stream_seek($offset, $whence)
+    public function stream_seek(int $offset, int $whence): bool
     {
         fseek($this->stream, $whence);
 
@@ -95,7 +107,7 @@ final class StreamWrapper
     /**
      * {@inheritdoc}
      */
-    public function stream_stat()
+    public function stream_stat(): array
     {
         return [
             'dev'     => 0,

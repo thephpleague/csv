@@ -70,7 +70,10 @@ class HTMLConverter
             $this->addHTMLAttributes($table);
             $doc->appendChild($table);
 
-            return $doc->saveHTML();
+            /** @var string $content */
+            $content = $doc->saveHTML();
+
+            return $content;
         }
 
         $table = $doc->createElement('table');
@@ -80,13 +83,16 @@ class HTMLConverter
         $table->appendChild($this->xml_converter->rootElement('tbody')->import($records, $doc));
         $doc->appendChild($table);
 
-        return $doc->saveHTML();
+        /** @var string $content */
+        $content = $doc->saveHTML();
+
+        return $content;
     }
 
     /**
      * Creates a DOMElement representing a HTML table heading section.
      */
-    protected function appendHeaderSection(string $node_name, array $record, DOMElement $table)
+    protected function appendHeaderSection(string $node_name, array $record, DOMElement $table): void
     {
         if ([] === $record) {
             return;
@@ -110,7 +116,7 @@ class HTMLConverter
     /**
      * Adds class and id attributes to an HTML tag.
      */
-    protected function addHTMLAttributes(DOMElement $node)
+    protected function addHTMLAttributes(DOMElement $node): void
     {
         $node->setAttribute('class', $this->class_name);
         $node->setAttribute('id', $this->id_value);

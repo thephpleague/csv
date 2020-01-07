@@ -20,7 +20,7 @@ use PHPUnit\Framework\TestCase;
 
 class ExceptionsTest extends TestCase
 {
-    public function testExceptionsExtendBaseClass()
+    public function testExceptionsExtendBaseClass(): void
     {
         self::assertInstanceOf(BaseException::class, new UnavailableFeature());
         self::assertInstanceOf(BaseException::class, new CannotInsertRecord());

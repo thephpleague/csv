@@ -22,7 +22,6 @@ use SplTempFileObject;
 use function chr;
 use function function_exists;
 use function iterator_to_array;
-use function League\Csv\is_iterable as CSVIsiterable;
 use function ob_get_clean;
 use function ob_start;
 use function strtolower;
@@ -38,14 +37,16 @@ use const STREAM_FILTER_WRITE;
  */
 class CsvTest extends TestCase
 {
+    /** @var Reader  */
     private $csv;
 
+    /** @var array  */
     private $expected = [
         ['john', 'doe', 'john.doe@example.com'],
         ['jane', 'doe', 'jane.doe@example.com'],
     ];
 
-    public function setUp()
+    public function setUp(): void
     {
         $tmp = new SplTempFileObject();
         foreach ($this->expected as $row) {
@@ -55,9 +56,9 @@ class CsvTest extends TestCase
         $this->csv = Reader::createFromFileObject($tmp);
     }
 
-    public function tearDown()
+    public function tearDown(): void
     {
-        $this->csv = null;
+        unset($this->csv);
         @unlink(__DIR__.'/data/newline.csv');
     }
 
@@ -65,7 +66,7 @@ class CsvTest extends TestCase
      * @covers ::createFromFileObject
      * @covers ::__construct
      */
-    public function testCreateFromFileObjectPreserveFileObjectCsvControls()
+    public function testCreateFromFileObjectPreserveFileObjectCsvControls(): void
     {
         $delimiter = "\t";
         $enclosure = '?';
@@ -84,7 +85,7 @@ class CsvTest extends TestCase
      * @covers ::createFromPath
      * @covers League\Csv\Stream
      */
-    public function testCreateFromPathThrowsRuntimeException()
+    public function testCreateFromPathThrowsRuntimeException(): void
     {
         self::expectException(Exception::class);
         Reader::createFromPath(__DIR__.'/foo/bar', 'r');
@@ -94,16 +95,13 @@ class CsvTest extends TestCase
      * @covers ::getInputBOM
      *
      * @dataProvider bomProvider
-     * @param string $expected
-     * @param string $str
-     * @param string $delimiter
      */
-    public function testGetInputBOM($expected, $str, $delimiter)
+    public function testGetInputBOM(string $expected, string $str, string $delimiter): void
     {
         self::assertSame($expected, Reader::createFromString($str)->setDelimiter($delimiter)->getInputBOM());
     }
 
-    public function bomProvider()
+    public function bomProvider(): array
     {
         $invalidBOM = <<<EOF
 ;\x00\x00\xFE\xFFworld
@@ -124,7 +122,7 @@ EOF;
     /**
      * @covers ::__clone
      */
-    public function testCloningIsForbidden()
+    public function testCloningIsForbidden(): void
     {
         self::expectException(Exception::class);
         clone $this->csv;
@@ -135,7 +133,7 @@ EOF;
      * @covers ::output
      * @covers ::sendHeaders
      */
-    public function testOutputSize()
+    public function testOutputSize(): void
     {
         self::assertSame(60, $this->csv->output('test.csv'));
     }
@@ -145,7 +143,7 @@ EOF;
      * @covers ::sendHeaders
      * @covers \League\Csv\Stream
      */
-    public function testInvalidOutputFile()
+    public function testInvalidOutputFile(): void
     {
         self::expectException(Exception::class);
         $this->csv->output('invalid/file.csv');
@@ -158,7 +156,7 @@ EOF;
      * @covers ::createFromString
      * @covers \League\Csv\Stream
      */
-    public function testOutputHeaders()
+    public function testOutputHeaders(): void
     {
         if (!function_exists('xdebug_get_headers')) {
             self::markTestSkipped(sprintf('%s needs the xdebug extension to run', __METHOD__));
@@ -171,17 +169,17 @@ EOF;
 
         // Due to the variety of ways the xdebug expresses Content-Type of text files,
         // we cannot count on complete string matching.
-        self::assertContains('content-type: text/csv', strtolower($headers[0]));
+        self::assertStringContainsString('content-type: text/csv', strtolower($headers[0]));
         self::assertSame('Content-Transfer-Encoding: binary', $headers[1]);
         self::assertSame('Content-Description: File Transfer', $headers[2]);
-        self::assertContains('Content-Disposition: attachment; filename="tst.csv"; filename*=utf-8\'\'t%C3%A9st.csv', $headers[3]);
+        self::assertStringContainsString('Content-Disposition: attachment; filename="tst.csv"; filename*=utf-8\'\'t%C3%A9st.csv', $headers[3]);
     }
 
     /**
      * @covers ::chunk
      * @covers ::getContent
      */
-    public function testChunkDoesNotTimeoutAfterReading()
+    public function testChunkDoesNotTimeoutAfterReading(): void
     {
         $raw_csv = "john,doe,john.doe@example.com\njane,doe,jane.doe@example.com\n";
         $csv = Reader::createFromString($raw_csv);
@@ -193,7 +191,7 @@ EOF;
      * @covers ::__toString
      * @covers ::getContent
      */
-    public function testToString()
+    public function testToString(): void
     {
         $expected = "john,doe,john.doe@example.com\njane,doe,jane.doe@example.com\n";
         self::assertSame($expected, $this->csv->__toString());
@@ -202,7 +200,7 @@ EOF;
     /**
      * @covers ::chunk
      */
-    public function testChunkTriggersException()
+    public function testChunkTriggersException(): void
     {
         self::expectException(Exception::class);
         $chunk = $this->csv->chunk(0);
@@ -212,7 +210,7 @@ EOF;
     /**
      * @covers ::chunk
      */
-    public function testChunk()
+    public function testChunk(): void
     {
         $raw_csv = Reader::BOM_UTF8."john,doe,john.doe@example.com\njane,doe,jane.doe@example.com\n";
         $csv = Reader::createFromString($raw_csv)->setOutputBOM(Reader::BOM_UTF32_BE);
@@ -224,7 +222,7 @@ EOF;
         self::assertSame($expected, $res);
     }
 
-    public function testStreamFilterMode()
+    public function testStreamFilterMode(): void
     {
         self::assertSame(STREAM_FILTER_READ, Reader::createFromString('')->getStreamFilterMode());
         self::assertSame(STREAM_FILTER_WRITE, Writer::createFromString('')->getStreamFilterMode());
@@ -234,7 +232,7 @@ EOF;
      * @covers ::getDelimiter
      * @covers ::setDelimiter
      */
-    public function testDelimeter()
+    public function testDelimiter(): void
     {
         self::expectException(Exception::class);
         $this->csv->setDelimiter('o');
@@ -247,7 +245,7 @@ EOF;
      * @covers ::getOutputBOM
      * @covers ::setOutputBOM
      */
-    public function testBOMSettings()
+    public function testBOMSettings(): void
     {
         self::assertSame('', $this->csv->getOutputBOM());
         $this->csv->setOutputBOM(Reader::BOM_UTF8);
@@ -260,7 +258,7 @@ EOF;
      * @covers ::setOutputBOM
      * @covers ::getContent
      */
-    public function testAddBOMSequences()
+    public function testAddBOMSequences(): void
     {
         $this->csv->setOutputBOM(Reader::BOM_UTF8);
         $expected = chr(239).chr(187).chr(191).'john,doe,john.doe@example.com'.PHP_EOL
@@ -272,7 +270,7 @@ EOF;
      * @covers ::setOutputBOM
      * @covers ::getContent
      */
-    public function testChangingBOMOnOutput()
+    public function testChangingBOMOnOutput(): void
     {
         $text = 'john,doe,john.doe@example.com'.PHP_EOL
             .'jane,doe,jane.doe@example.com'.PHP_EOL;
@@ -285,7 +283,7 @@ EOF;
      * @covers ::getEscape
      * @covers ::setEscape
      */
-    public function testEscape()
+    public function testEscape(): void
     {
         self::expectException(Exception::class);
         $this->csv->setEscape('o');
@@ -299,7 +297,7 @@ EOF;
      * @covers ::getEnclosure
      * @covers ::setEnclosure
      */
-    public function testEnclosure()
+    public function testEnclosure(): void
     {
         self::expectException(Exception::class);
         $this->csv->setEnclosure('o');
@@ -313,7 +311,7 @@ EOF;
      * @covers ::addStreamFilter
      * @covers League\Csv\Stream
      */
-    public function testAddStreamFilter()
+    public function testAddStreamFilter(): void
     {
         $csv = Reader::createFromPath(__DIR__.'/data/foo.csv');
         $csv->addStreamFilter('string.rot13');
@@ -329,7 +327,7 @@ EOF;
      * @covers ::addStreamFilter
      * @covers League\Csv\Exception
      */
-    public function testFailedAddStreamFilter()
+    public function testFailedAddStreamFilter(): void
     {
         self::expectException(UnavailableFeature::class);
         $csv = Writer::createFromFileObject(new SplTempFileObject());
@@ -342,10 +340,12 @@ EOF;
      * @covers ::addStreamFilter
      * @covers League\Csv\Stream::appendFilter
      */
-    public function testFailedAddStreamFilterWithWrongFilter()
+    public function testFailedAddStreamFilterWithWrongFilter(): void
     {
         self::expectException(InvalidArgument::class);
-        $csv = Writer::createFromStream(tmpfile());
+        /** @var resource $tmpfile */
+        $tmpfile = tmpfile();
+        $csv = Writer::createFromStream($tmpfile);
         $csv->addStreamFilter('foobar.toupper');
     }
 
@@ -354,7 +354,7 @@ EOF;
      * @covers ::supportsStreamFilter
      * @covers League\Csv\Stream
      */
-    public function testStreamFilterDetection()
+    public function testStreamFilterDetection(): void
     {
         $filtername = 'string.toupper';
         $csv = Reader::createFromPath(__DIR__.'/data/foo.csv');
@@ -366,32 +366,32 @@ EOF;
     /**
      * @covers ::__destruct
      */
-    public function testClearAttachedStreamFilters()
+    public function testClearAttachedStreamFilters(): void
     {
         $path = __DIR__.'/data/foo.csv';
         $csv = Reader::createFromPath($path);
         $csv->addStreamFilter('string.toupper');
-        self::assertContains('JOHN', $csv->getContent());
+        self::assertStringContainsString('JOHN', $csv->getContent());
         $csv = Reader::createFromPath($path);
-        self::assertNotContains('JOHN', $csv->getContent());
+        self::assertStringNotContainsString('JOHN', $csv->getContent());
     }
 
     /**
      * @covers ::addStreamFilter
      * @covers League\Csv\Stream
      */
-    public function testSetStreamFilterOnWriter()
+    public function testSetStreamFilterOnWriter(): void
     {
         $csv = Writer::createFromPath(__DIR__.'/data/newline.csv', 'w+');
         $csv->addStreamFilter('string.toupper');
         $csv->insertOne([1, 'two', 3, "new\r\nline"]);
-        self::assertContains("1,TWO,3,\"NEW\r\nLINE\"", $csv->getContent());
+        self::assertStringContainsString("1,TWO,3,\"NEW\r\nLINE\"", $csv->getContent());
     }
 
     /**
      * @covers League\Csv\Stream
      */
-    public function testSetCsvControlWithDocument()
+    public function testSetCsvControlWithDocument(): void
     {
         $raw_csv = "john,doe,john.doe@example.com\njane,doe,jane.doe@example.com\n";
         $csv = Reader::createFromString($raw_csv);
@@ -403,26 +403,11 @@ EOF;
     }
 
     /**
-     * @covers \League\Csv\is_iterable
-     */
-    public function testLeagueCsvIsIterable()
-    {
-        self::assertTrue(CSVIsiterable(['foo']));
-        self::assertTrue(CSVIsiterable(Reader::createFromString('')));
-        self::assertTrue(CSVIsiterable((function () {
-            yield 1;
-        })()));
-        self::assertFalse(CSVIsiterable(1));
-        self::assertFalse(CSVIsiterable((object) ['foo']));
-        self::assertFalse(CSVIsiterable(Writer::createFromString('')));
-    }
-
-    /**
      * @covers ::getPathname
      * @covers League\Csv\Stream::getPathname
      * @dataProvider getPathnameProvider
      */
-    public function testGetPathname($path, string $expected)
+    public function testGetPathname(string $path, string $expected): void
     {
         self::assertSame($expected, Reader::createFromPath($path)->getPathname());
         self::assertSame($expected, Reader::createFromFileObject(new SplFileObject($path))->getPathname());
@@ -430,7 +415,7 @@ EOF;
         self::assertSame($expected, Writer::createFromFileObject(new SplFileObject($path))->getPathname());
     }
 
-    public function getPathnameProvider()
+    public function getPathnameProvider(): array
     {
         return [
             'absolute path' => [
@@ -452,7 +437,7 @@ EOF;
      * @covers ::getPathname
      * @covers League\Csv\Stream::getPathname
      */
-    public function testGetPathnameWithTempFile()
+    public function testGetPathnameWithTempFile(): void
     {
         self::assertSame('php://temp', Reader::createFromString('')->getPathname());
         self::assertSame('php://temp', Reader::createFromString(new SplTempFileObject())->getPathname());
@@ -467,7 +452,7 @@ EOF;
      * @covers ::includeInputBOM
      * @covers ::skipInputBOM
      */
-    public function testBOMStripping()
+    public function testBOMStripping(): void
     {
         $reader = Reader::createFromString();
         self::assertFalse($reader->isInputBOMIncluded());
@@ -481,23 +466,25 @@ EOF;
      * @runInSeparateProcess
      * @covers ::output
      */
-    public function testOutputDoesNotStripBOM()
+    public function testOutputDoesNotStripBOM(): void
     {
         $raw_csv = Reader::BOM_UTF8."john,doe,john.doe@example.com\njane,doe,jane.doe@example.com\n";
         $csv = Reader::createFromString($raw_csv);
         $csv->setOutputBOM(Reader::BOM_UTF16_BE);
         ob_start();
         $csv->output();
+        /** @var string $result */
         $result = ob_get_clean();
-        self::assertNotContains(Reader::BOM_UTF8, $result);
-        self::assertContains(Reader::BOM_UTF16_BE, $result);
+        self::assertStringNotContainsString(Reader::BOM_UTF8, $result);
+        self::assertStringContainsString(Reader::BOM_UTF16_BE, $result);
 
         $csv->includeInputBOM();
         ob_start();
         $csv->output();
+        /** @var string $result */
         $result = ob_get_clean();
-        self::assertContains(Reader::BOM_UTF16_BE, $result);
-        self::assertContains(Reader::BOM_UTF8, $result);
+        self::assertStringContainsString(Reader::BOM_UTF16_BE, $result);
+        self::assertStringContainsString(Reader::BOM_UTF8, $result);
         self::assertTrue(0 === strpos($result, Reader::BOM_UTF16_BE.Reader::BOM_UTF8));
     }
 }

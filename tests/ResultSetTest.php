@@ -34,16 +34,25 @@ use function strlen;
  */
 class ResultSetTest extends TestCase
 {
+    /**
+     * @var Reader
+     */
     private $csv;
 
+    /**
+     * @var Statement
+     */
     private $stmt;
 
+    /**
+     * @var array
+     */
     private $expected = [
         ['john', 'doe', 'john.doe@example.com'],
         ['jane', 'doe', 'jane.doe@example.com'],
     ];
 
-    public function setUp()
+    public function setUp(): void
     {
         $tmp = new SplTempFileObject();
         foreach ($this->expected as $row) {
@@ -54,18 +63,18 @@ class ResultSetTest extends TestCase
         $this->stmt = new Statement();
     }
 
-    public function tearDown()
+    public function tearDown(): void
     {
-        $this->csv = null;
-        $this->stmt = null;
+        unset($this->csv, $this->stmt);
     }
 
     /**
+     * @covers League\Csv\Statement::filter
      * @covers League\Csv\Statement::process
      * @covers League\Csv\Statement::limit
      * @covers ::getIterator
      */
-    public function testSetLimit()
+    public function testSetLimit(): void
     {
         self::assertCount(1, $this->stmt->limit(1)->process($this->csv));
     }
@@ -73,7 +82,7 @@ class ResultSetTest extends TestCase
     /**
      * @covers League\Csv\Statement::offset
      */
-    public function testSetOffsetThrowsException()
+    public function testSetOffsetThrowsException(): void
     {
         self::expectException(Exception::class);
         $this->stmt->offset(-1);
@@ -86,7 +95,7 @@ class ResultSetTest extends TestCase
      * @covers ::count
      * @covers ::getIterator
      */
-    public function testCountable()
+    public function testCountable(): void
     {
         $records = $this->stmt->limit(1)->process($this->csv);
         self::assertCount(1, $records);
@@ -97,7 +106,7 @@ class ResultSetTest extends TestCase
      * @covers League\Csv\Statement::limit
      * @covers League\Csv\Statement::offset
      */
-    public function testStatementSameInstance()
+    public function testStatementSameInstance(): void
     {
         $stmt_alt = $this->stmt->limit(-1)->offset(0);
 
@@ -107,7 +116,7 @@ class ResultSetTest extends TestCase
     /**
      * @covers League\Csv\Statement::limit
      */
-    public function testSetLimitThrowException()
+    public function testSetLimitThrowException(): void
     {
         self::expectException(Exception::class);
         $this->stmt->limit(-4);
@@ -117,7 +126,7 @@ class ResultSetTest extends TestCase
      * @covers League\Csv\Statement::offset
      * @covers ::__construct
      */
-    public function testSetOffset()
+    public function testSetOffset(): void
     {
         self::assertContains(
             ['jane', 'doe', 'jane.doe@example.com'],
@@ -129,9 +138,10 @@ class ResultSetTest extends TestCase
      * @covers League\Csv\Statement::limit
      * @covers League\Csv\Statement::offset
      * @covers League\Csv\Statement::process
+     * @covers League\Csv\Statement::filter
      * @dataProvider intervalTest
      */
-    public function testInterval(int $offset, int $limit)
+    public function testInterval(int $offset, int $limit): void
     {
         self::assertContains(
             ['jane', 'doe', 'jane.doe@example.com'],
@@ -148,7 +158,7 @@ class ResultSetTest extends TestCase
         );
     }
 
-    public function intervalTest()
+    public function intervalTest(): array
     {
         return [
             'tooHigh' => [1, 10],
@@ -161,7 +171,7 @@ class ResultSetTest extends TestCase
      * @covers League\Csv\Statement::offset
      * @covers League\Csv\Statement::process
      */
-    public function testIntervalThrowException()
+    public function testIntervalThrowException(): void
     {
         self::expectException(OutOfBoundsException::class);
         iterator_to_array($this->stmt
@@ -173,7 +183,7 @@ class ResultSetTest extends TestCase
     /**
      * @covers League\Csv\Statement::where
      */
-    public function testFilter()
+    public function testFilter(): void
     {
         $func = function ($row) {
             return !in_array('jane', $row, true);
@@ -189,7 +199,7 @@ class ResultSetTest extends TestCase
      * @covers League\Csv\Statement::orderBy
      * @covers League\Csv\Statement::buildOrderBy
      */
-    public function testOrderBy()
+    public function testOrderBy(): void
     {
         $func = function (array $rowA, array $rowB): int {
             return strcmp($rowA[0], $rowB[0]);
@@ -204,7 +214,7 @@ class ResultSetTest extends TestCase
      * @covers League\Csv\Statement::orderBy
      * @covers League\Csv\Statement::buildOrderBy
      */
-    public function testOrderByWithEquity()
+    public function testOrderByWithEquity(): void
     {
         $func = function (array $rowA, array $rowB): int {
             return strlen($rowA[0]) <=> strlen($rowB[0]);
@@ -226,7 +236,7 @@ class ResultSetTest extends TestCase
      * @dataProvider invalidFieldNameProvider
      * @param int|string $field
      */
-    public function testFetchColumnTriggersException($field)
+    public function testFetchColumnTriggersException($field): void
     {
         self::expectException(InvalidArgument::class);
         $this->csv->setHeaderOffset(0);
@@ -234,7 +244,7 @@ class ResultSetTest extends TestCase
         iterator_to_array($res, false);
     }
 
-    public function invalidFieldNameProvider()
+    public function invalidFieldNameProvider(): array
     {
         return [
             'invalid integer offset' => [24],
@@ -247,7 +257,7 @@ class ResultSetTest extends TestCase
      * @covers ::getColumnIndexByKey
      * @covers League\Csv\MapIterator
      */
-    public function testFetchColumnTriggersOutOfRangeException()
+    public function testFetchColumnTriggersOutOfRangeException(): void
     {
         self::expectException(InvalidArgument::class);
         $this->csv->setHeaderOffset(0);
@@ -259,7 +269,7 @@ class ResultSetTest extends TestCase
      * @covers ::getRecords
      * @covers ::getIterator
      */
-    public function testFetchAssocWithRowIndex()
+    public function testFetchAssocWithRowIndex(): void
     {
         $arr = [
             ['A', 'B', 'C'],
@@ -288,7 +298,7 @@ class ResultSetTest extends TestCase
      * @covers ::getColumnIndexByKey
      * @covers League\Csv\MapIterator
      */
-    public function testFetchColumnWithColumnname()
+    public function testFetchColumnWithColumnname(): void
     {
         $source = Reader::BOM_UTF8.'"parent name","child name","title"
             "parentA","childA","titleA"';
@@ -305,7 +315,7 @@ class ResultSetTest extends TestCase
      * @covers ::getColumnIndexByKey
      * @covers League\Csv\MapIterator
      */
-    public function testFetchColumn()
+    public function testFetchColumn(): void
     {
         self::assertContains('john', $this->stmt->process($this->csv)->fetchColumn(0));
         self::assertContains('jane', $this->stmt->process($this->csv)->fetchColumn());
@@ -317,7 +327,7 @@ class ResultSetTest extends TestCase
      * @covers ::getColumnIndexByKey
      * @covers League\Csv\MapIterator
      */
-    public function testFetchColumnInconsistentColumnCSV()
+    public function testFetchColumnInconsistentColumnCSV(): void
     {
         $raw = [
             ['john', 'doe'],
@@ -339,7 +349,7 @@ class ResultSetTest extends TestCase
      * @covers ::getColumnIndexByKey
      * @covers League\Csv\MapIterator
      */
-    public function testFetchColumnEmptyCol()
+    public function testFetchColumnEmptyCol(): void
     {
         $raw = [
             ['john', 'doe'],
@@ -358,7 +368,7 @@ class ResultSetTest extends TestCase
     /**
      * @covers ::fetchOne
      */
-    public function testfetchOne()
+    public function testfetchOne(): void
     {
         self::assertSame($this->expected[0], $this->stmt->process($this->csv)->fetchOne(0));
         self::assertSame($this->expected[1], $this->stmt->process($this->csv)->fetchOne(1));
@@ -368,7 +378,7 @@ class ResultSetTest extends TestCase
     /**
      * @covers ::fetchOne
      */
-    public function testFetchOneTriggersException()
+    public function testFetchOneTriggersException(): void
     {
         self::expectException(Exception::class);
         $this->stmt->process($this->csv)->fetchOne(-5);
@@ -381,7 +391,7 @@ class ResultSetTest extends TestCase
      * @param int|string $key
      * @param int|string $value
      */
-    public function testFetchPairsIteratorMode($key, $value, array $expected)
+    public function testFetchPairsIteratorMode($key, $value, array $expected): void
     {
         $iterator = $this->stmt->process($this->csv)->fetchPairs($key, $value);
         foreach ($iterator as $key => $value) {
@@ -417,7 +427,7 @@ class ResultSetTest extends TestCase
      * @covers ::fetchPairs
      * @covers ::getColumnIndex
      */
-    public function testFetchPairsWithInvalidOffset()
+    public function testFetchPairsWithInvalidOffset(): void
     {
         self::assertCount(0, iterator_to_array($this->stmt->process($this->csv)->fetchPairs(10, 1), true));
     }
@@ -426,7 +436,7 @@ class ResultSetTest extends TestCase
      * @covers ::fetchPairs
      * @covers ::getColumnIndex
      */
-    public function testFetchPairsWithInvalidValue()
+    public function testFetchPairsWithInvalidValue(): void
     {
         $res = $this->stmt->process($this->csv)->fetchPairs(0, 15);
         foreach ($res as $value) {
@@ -437,7 +447,7 @@ class ResultSetTest extends TestCase
     /**
      * @covers ::getHeader
      */
-    public function testGetHeader()
+    public function testGetHeader(): void
     {
         $expected = ['firstname', 'lastname', 'email'];
         self::assertSame([], $this->stmt->process($this->csv)->getHeader());
@@ -451,7 +461,7 @@ class ResultSetTest extends TestCase
      * @covers ::getRecords
      * @covers ::getIterator
      */
-    public function testGetRecords()
+    public function testGetRecords(): void
     {
         $result = $this->stmt->process($this->csv);
         self::assertEquals($result->getIterator(), $result->getRecords());
@@ -460,7 +470,7 @@ class ResultSetTest extends TestCase
     /**
      * @covers ::jsonSerialize
      */
-    public function testJsonSerialize()
+    public function testJsonSerialize(): void
     {
         $expected = [
             ['First Name', 'Last Name', 'E-mail'],

@@ -8,18 +8,6 @@ env:
         - COMPOSER_ARGS="--no-interaction --prefer-source --no-suggest"
 matrix:
     include:
-        - php: 7.0
-          env:
-              - COLLECT_COVERAGE=true
-              - IGNORE_PLATFORMS=false
-              - RUN_PHPSTAN=true
-              - VALIDATE_CODING_STYLE=false
-        - php: 7.1
-          env:
-              - COLLECT_COVERAGE=true
-              - IGNORE_PLATFORMS=false
-              - RUN_PHPSTAN=true
-              - VALIDATE_CODING_STYLE=false
         - php: 7.2
           env:
               - COLLECT_COVERAGE=true
