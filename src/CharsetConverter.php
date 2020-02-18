@@ -13,7 +13,6 @@ declare(strict_types=1);
 
 namespace League\Csv;
 
-use php_user_filter;
 use function array_combine;
 use function array_map;
 use function array_walk;
@@ -34,7 +33,7 @@ use function substr;
 /**
  * Converts resource stream or tabular data content charset.
  */
-class CharsetConverter extends php_user_filter
+class CharsetConverter extends \php_user_filter
 {
     const FILTERNAME = 'convert.league.csv';
 

@@ -13,8 +13,6 @@ declare(strict_types=1);
 
 namespace League\Csv;
 
-use InvalidArgumentException;
-use php_user_filter;
 use function array_map;
 use function in_array;
 use function is_string;
@@ -38,7 +36,7 @@ use const STREAM_FILTER_WRITE;
  *
  * @see https://tools.ietf.org/html/rfc4180#section-2
  */
-class RFC4180Field extends php_user_filter
+class RFC4180Field extends \php_user_filter
 {
     const FILTERNAME = 'convert.league.csv.rfc4180';
 
@@ -106,7 +104,7 @@ class RFC4180Field extends php_user_filter
     public static function addFormatterTo(Writer $csv, string $whitespace_replace): Writer
     {
         if ('' == $whitespace_replace || strlen($whitespace_replace) != strcspn($whitespace_replace, self::$force_enclosure)) {
-            throw new InvalidArgumentException('The sequence contains a character that enforces enclosure or is a CSV control character or is the empty string.');
+            throw new \InvalidArgumentException('The sequence contains a character that enforces enclosure or is a CSV control character or is the empty string.');
         }
 
         $mapper = static function ($value) use ($whitespace_replace) {

@@ -13,7 +13,6 @@ declare(strict_types=1);
 
 namespace League\Csv;
 
-use Traversable;
 use function array_reduce;
 use function implode;
 use function preg_match;
@@ -116,8 +115,6 @@ class Writer extends AbstractCsv
      * Adds multiple records to the CSV document.
      *
      * @see Writer::insertOne
-     *
-     * @param Traversable|array $records
      */
     public function insertAll(iterable $records): int
     {

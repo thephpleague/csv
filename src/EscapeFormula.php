@@ -13,7 +13,6 @@ declare(strict_types=1);
 
 namespace League\Csv;
 
-use InvalidArgumentException;
 use function array_fill_keys;
 use function array_keys;
 use function array_map;
@@ -73,7 +72,7 @@ class EscapeFormula
      *
      * @param string ...$characters
      *
-     * @throws InvalidArgumentException if the string is not a single character
+     * @throws \InvalidArgumentException if the string is not a single character
      *
      * @return string[]
      */
@@ -81,7 +80,7 @@ class EscapeFormula
     {
         foreach ($characters as $str) {
             if (1 != strlen($str)) {
-                throw new InvalidArgumentException(sprintf('The submitted string %s must be a single character', $str));
+                throw new \InvalidArgumentException(sprintf('The submitted string %s must be a single character', $str));
             }
         }
 

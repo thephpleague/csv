@@ -13,10 +13,6 @@ declare(strict_types=1);
 
 namespace League\Csv;
 
-use ArrayIterator;
-use CallbackFilterIterator;
-use Iterator;
-use LimitIterator;
 use function array_reduce;
 use function iterator_to_array;
 
@@ -76,7 +72,7 @@ class Statement
     }
 
     /**
-     * Set LimitIterator Offset.
+     * Set \LimitIterator Offset.
      *
      * @throws Exception if the offset is lesser than 0
      */
@@ -97,7 +93,7 @@ class Statement
     }
 
     /**
-     * Set LimitIterator Count.
+     * Set \LimitIterator Count.
      *
      * @throws Exception if the limit is lesser than -1
      */
@@ -131,21 +127,21 @@ class Statement
         $iterator = array_reduce($this->where, [$this, 'filter'], $csv->getRecords($header));
         $iterator = $this->buildOrderBy($iterator);
 
-        return new ResultSet(new LimitIterator($iterator, $this->offset, $this->limit), $header);
+        return new ResultSet(new \LimitIterator($iterator, $this->offset, $this->limit), $header);
     }
 
     /**
      * Filters elements of an Iterator using a callback function.
      */
-    protected function filter(Iterator $iterator, callable $callable): CallbackFilterIterator
+    protected function filter(\Iterator $iterator, callable $callable): \CallbackFilterIterator
     {
-        return new CallbackFilterIterator($iterator, $callable);
+        return new \CallbackFilterIterator($iterator, $callable);
     }
 
     /**
      * Sort the Iterator.
      */
-    protected function buildOrderBy(Iterator $iterator): Iterator
+    protected function buildOrderBy(\Iterator $iterator): \Iterator
     {
         if ([] === $this->order_by) {
             return $iterator;
@@ -161,7 +157,7 @@ class Statement
             return $cmp ?? 0;
         };
 
-        $iterator = new ArrayIterator(iterator_to_array($iterator));
+        $iterator = new \ArrayIterator(iterator_to_array($iterator));
         $iterator->uasort($compare);
 
         return $iterator;

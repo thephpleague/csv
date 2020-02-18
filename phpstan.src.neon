@@ -8,7 +8,7 @@ parameters:
           path: src/XMLConverter.php
         - message: '#Variable method call on \$this\(League\\Csv\\Writer\)#'
           path: src/Writer.php
-        - message: '#Variable method call on \League\\Csv\\ResultSet#'
+        - message: '#Variable method call on League\\Csv\\ResultSet#'
           path: src/Reader.php
         - message: '#Method League\\Csv\\Reader::__call\(\) has no return typehint specified.#'
           path: src/Reader.php

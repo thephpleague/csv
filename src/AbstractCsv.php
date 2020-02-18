@@ -13,8 +13,6 @@ declare(strict_types=1);
 
 namespace League\Csv;
 
-use Generator;
-use SplFileObject;
 use function filter_var;
 use function get_class;
 use function mb_strlen;
@@ -85,7 +83,7 @@ abstract class AbstractCsv implements ByteSequence
     /**
      * The CSV document.
      *
-     * @var SplFileObject|Stream
+     * @var \SplFileObject|Stream
      */
     protected $document;
 
@@ -99,7 +97,7 @@ abstract class AbstractCsv implements ByteSequence
     /**
      * New instance.
      *
-     * @param SplFileObject|Stream $document The CSV Object instance
+     * @param \SplFileObject|Stream $document The CSV Object instance
      */
     private function __construct($document)
     {
@@ -136,7 +134,7 @@ abstract class AbstractCsv implements ByteSequence
      *
      * @return static
      */
-    public static function createFromFileObject(SplFileObject $file)
+    public static function createFromFileObject(\SplFileObject $file)
     {
         return new static($file);
     }
@@ -224,7 +222,7 @@ abstract class AbstractCsv implements ByteSequence
             return $this->input_bom;
         }
 
-        $this->document->setFlags(SplFileObject::READ_CSV);
+        $this->document->setFlags(\SplFileObject::READ_CSV);
         $this->document->rewind();
         $this->input_bom = bom_match((string) $this->document->fread(4));
 
@@ -270,7 +268,7 @@ abstract class AbstractCsv implements ByteSequence
      *
      * @throws Exception if the number of bytes is lesser than 1
      */
-    public function chunk(int $length): Generator
+    public function chunk(int $length): \Generator
     {
         if ($length < 1) {
             throw new InvalidArgument(sprintf('%s() expects the length to be a positive integer %d given', __METHOD__, $length));

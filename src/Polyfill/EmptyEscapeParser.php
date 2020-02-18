@@ -13,10 +13,7 @@ declare(strict_types=1);
 
 namespace League\Csv\Polyfill;
 
-use Generator;
 use League\Csv\Stream;
-use SplFileObject;
-use TypeError;
 use function explode;
 use function get_class;
 use function in_array;
@@ -27,7 +24,7 @@ use function str_replace;
 use function substr;
 
 /**
- * A Polyfill to PHP's SplFileObject to enable parsing the CSV document
+ * A Polyfill to PHP's \SplFileObject to enable parsing the CSV document
  * without taking into account the escape character.
  *
  * @see https://php.net/manual/en/function.fgetcsv.php
@@ -45,7 +42,7 @@ final class EmptyEscapeParser
     const FIELD_BREAKS = [false, '', "\r\n", "\n", "\r"];
 
     /**
-     * @var SplFileObject|Stream
+     * @var \SplFileObject|Stream
      */
     private static $document;
 
@@ -82,8 +79,8 @@ final class EmptyEscapeParser
      * In PHP7.4+ you'll be able to do
      *
      * <code>
-     * $file = new SplFileObject('/path/to/file.csv', 'r');
-     * $file->setFlags(SplFileObject::READ_CSV | SplFileObject::READ_AHEAD | SplFileObject::SKIP_EMPTY);
+     * $file = new \SplFileObject('/path/to/file.csv', 'r');
+     * $file->setFlags(\SplFileObject::READ_CSV | \SplFileObject::READ_AHEAD | \SplFileObject::SKIP_EMPTY);
      * $file->setCsvControl($delimiter, $enclosure, '');
      * foreach ($file as $record) {
      *    //$record escape mechanism is blocked by the empty string
@@ -93,7 +90,7 @@ final class EmptyEscapeParser
      * In PHP7.3- you can do
      *
      * <code>
-     * $file = new SplFileObject('/path/to/file.csv', 'r');
+     * $file = new \SplFileObject('/path/to/file.csv', 'r');
      * $it = EmptyEscapeParser::parse($file); //parsing will be done while ignoring the escape character value.
      * foreach ($it as $record) {
      *    //fgetcsv is not directly use hence the escape char is not taken into account
@@ -102,11 +99,11 @@ final class EmptyEscapeParser
      *
      * Each record array contains strings elements.
      *
-     * @param SplFileObject|Stream $document
+     * @param \SplFileObject|Stream $document
      *
-     * @return Generator|array[]
+     * @return \Generator|array[]
      */
-    public static function parse($document): Generator
+    public static function parse($document): \Generator
     {
         self::$document = self::filterDocument($document);
         list(self::$delimiter, self::$enclosure, ) = self::$document->getCsvControl();
@@ -124,16 +121,16 @@ final class EmptyEscapeParser
     /**
      * Filters the submitted document.
      *
-     * @return SplFileObject|Stream
+     * @return \SplFileObject|Stream
      */
     private static function filterDocument(object $document)
     {
-        if ($document instanceof Stream || $document instanceof SplFileObject) {
+        if ($document instanceof Stream || $document instanceof \SplFileObject) {
             return $document;
         }
 
-        throw new TypeError(sprintf(
-            '%s::parse expects parameter 1 to be a %s or a SplFileObject object, %s given',
+        throw new \TypeError(sprintf(
+            '%s::parse expects parameter 1 to be a %s or a \SplFileObject object, %s given',
             self::class,
             Stream::class,
             get_class($document)

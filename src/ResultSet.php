@@ -13,13 +13,6 @@ declare(strict_types=1);
 
 namespace League\Csv;
 
-use CallbackFilterIterator;
-use Countable;
-use Generator;
-use Iterator;
-use IteratorAggregate;
-use JsonSerializable;
-use LimitIterator;
 use function array_flip;
 use function array_search;
 use function is_string;
@@ -30,12 +23,12 @@ use function sprintf;
 /**
  * Represents the result set of a {@link Reader} processed by a {@link Statement}.
  */
-class ResultSet implements Countable, IteratorAggregate, JsonSerializable
+class ResultSet implements \Countable, \IteratorAggregate, \JsonSerializable
 {
     /**
      * The CSV records collection.
      *
-     * @var Iterator
+     * @var \Iterator
      */
     protected $records;
 
@@ -48,11 +41,8 @@ class ResultSet implements Countable, IteratorAggregate, JsonSerializable
 
     /**
      * New instance.
-     *
-     * @param Iterator $records a CSV records collection iterator
-     * @param array    $header  the associated collection column names
      */
-    public function __construct(Iterator $records, array $header)
+    public function __construct(\Iterator $records, array $header)
     {
         $this->records = $records;
         $this->header = $header;
@@ -79,7 +69,7 @@ class ResultSet implements Countable, IteratorAggregate, JsonSerializable
     /**
      * {@inheritdoc}
      */
-    public function getRecords(): Generator
+    public function getRecords(): \Generator
     {
         foreach ($this->records as $offset => $value) {
             yield $offset => $value;
@@ -89,7 +79,7 @@ class ResultSet implements Countable, IteratorAggregate, JsonSerializable
     /**
      * {@inheritdoc}
      */
-    public function getIterator(): Generator
+    public function getIterator(): \Generator
     {
         return $this->getRecords();
     }
@@ -125,7 +115,7 @@ class ResultSet implements Countable, IteratorAggregate, JsonSerializable
             throw new InvalidArgument(sprintf('%s() expects the submitted offset to be a positive integer or 0, %s given', __METHOD__, $nth_record));
         }
 
-        $iterator = new LimitIterator($this->records, $nth_record, 1);
+        $iterator = new \LimitIterator($this->records, $nth_record, 1);
         $iterator->rewind();
 
         return (array) $iterator->current();
@@ -138,7 +128,7 @@ class ResultSet implements Countable, IteratorAggregate, JsonSerializable
      *
      * @param string|int $index CSV column index
      */
-    public function fetchColumn($index = 0): Generator
+    public function fetchColumn($index = 0): \Generator
     {
         $offset = $this->getColumnIndex($index, __METHOD__.'() expects the column index to be a valid string or integer, `%s` given');
         $filter = static function (array $record) use ($offset): bool {
@@ -149,7 +139,7 @@ class ResultSet implements Countable, IteratorAggregate, JsonSerializable
             return $record[$offset];
         };
 
-        $iterator = new MapIterator(new CallbackFilterIterator($this->records, $filter), $select);
+        $iterator = new MapIterator(new \CallbackFilterIterator($this->records, $filter), $select);
         foreach ($iterator as $tKey => $tValue) {
             yield $tKey => $tValue;
         }
@@ -222,7 +212,7 @@ class ResultSet implements Countable, IteratorAggregate, JsonSerializable
      * @param string|int $offset_index The column index to serve as offset
      * @param string|int $value_index  The column index to serve as value
      */
-    public function fetchPairs($offset_index = 0, $value_index = 1): Generator
+    public function fetchPairs($offset_index = 0, $value_index = 1): \Generator
     {
         $offset = $this->getColumnIndex($offset_index, __METHOD__.'() expects the offset index value to be a valid string or integer, `%s` given');
         $value = $this->getColumnIndex($value_index, __METHOD__.'() expects the value index value to be a valid string or integer, `%s` given');
@@ -235,7 +225,7 @@ class ResultSet implements Countable, IteratorAggregate, JsonSerializable
             return [$record[$offset], $record[$value] ?? null];
         };
 
-        $iterator = new MapIterator(new CallbackFilterIterator($this->records, $filter), $select);
+        $iterator = new MapIterator(new \CallbackFilterIterator($this->records, $filter), $select);
         foreach ($iterator as $pair) {
             yield $pair[0] => $pair[1];
         }
