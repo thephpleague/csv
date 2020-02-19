@@ -18,4 +18,8 @@ parameters:
           path: src/Stream.php
         - message: '#Unsafe usage of new static\(\).#'
           path: src/AbstractCsv.php
+        - message: '#Instanceof between League\\Csv\\ResultSet and League\\Csv\\ResultSet will always evaluate to true.#'
+          path: src/Statement.php
+        - message: '#Result of && is always false.#'
+          path: src/Statement.php
     reportUnmatchedIgnoredErrors: false

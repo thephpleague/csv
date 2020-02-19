@@ -19,6 +19,8 @@ use League\Csv\Statement;
 use OutOfBoundsException;
 use PHPUnit\Framework\TestCase;
 use SplTempFileObject;
+use stdClass;
+use TypeError;
 use function array_reverse;
 use function current;
 use function in_array;
@@ -113,6 +115,13 @@ class ResultSetTest extends TestCase
         self::assertSame($stmt_alt, $this->stmt);
     }
 
+    public function testProcessThrowsOnUnsupportedFormat(): void
+    {
+        self::expectException(TypeError::class);
+        $stmt = Statement::create();
+        $stmt->process(new stdClass());
+    }
+
     /**
      * @covers League\Csv\Statement::limit
      */
@@ -183,17 +192,32 @@ class ResultSetTest extends TestCase
     /**
      * @covers League\Csv\Statement::where
      * @covers League\Csv\Statement::create
+     * @covers League\Csv\Statement::process
+     * @covers League\Csv\Statement::combineHeader
      */
     public function testFilter(): void
     {
-        $func = function ($row) {
+        $func1 = function ($row) {
             return !in_array('jane', $row, true);
         };
 
+        $func2 = function ($row) {
+            return !in_array('john', $row, true);
+        };
+
+        $stmt = Statement::create($func1);
+        $result1 = $stmt->process($this->csv);
+
+        $result2 = $stmt->where($func2)->process($result1, ['foo', 'bar']);
+        $result3 = $stmt->where($func2)->process($result2, ['foo', 'bar']);
+
         self::assertNotContains(
             ['jane', 'doe', 'jane.doe@example.com'],
-            iterator_to_array(Statement::create($func)->process($this->csv), false)
+            iterator_to_array($result1, false)
         );
+
+        self::assertCount(0, $result2);
+        self::assertEquals($result3, $result2);
     }
 
     /**
