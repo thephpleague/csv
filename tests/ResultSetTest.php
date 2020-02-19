@@ -60,7 +60,7 @@ class ResultSetTest extends TestCase
         }
 
         $this->csv = Reader::createFromFileObject($tmp);
-        $this->stmt = new Statement();
+        $this->stmt = Statement::create();
     }
 
     public function tearDown(): void
@@ -182,6 +182,7 @@ class ResultSetTest extends TestCase
 
     /**
      * @covers League\Csv\Statement::where
+     * @covers League\Csv\Statement::create
      */
     public function testFilter(): void
     {
@@ -191,7 +192,7 @@ class ResultSetTest extends TestCase
 
         self::assertNotContains(
             ['jane', 'doe', 'jane.doe@example.com'],
-            iterator_to_array($this->stmt->where($func)->process($this->csv), false)
+            iterator_to_array(Statement::create($func)->process($this->csv), false)
         );
     }
 
@@ -469,6 +470,7 @@ class ResultSetTest extends TestCase
 
     /**
      * @covers ::jsonSerialize
+     * @covers \League\Csv\Statement::create
      */
     public function testJsonSerialize(): void
     {
@@ -484,7 +486,7 @@ class ResultSetTest extends TestCase
         }
 
         $reader = Reader::createFromFileObject($tmp)->setHeaderOffset(0);
-        $result = (new Statement())->offset(1)->limit(1)->process($reader);
+        $result = Statement::create(null, 1, 1)->process($reader);
         self::assertSame(
             '[{"First Name":"jane","Last Name":"doe","E-mail":"jane.doe@example.com"}]',
             json_encode($result)

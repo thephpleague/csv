@@ -54,6 +54,21 @@ class Statement
     protected $limit = -1;
 
     /**
+     * Named Constructor to ease Statement instantiation.
+     *
+     * @throws Exception
+     */
+    public static function create(callable $where = null, int $offset = 0, int $limit = -1): self
+    {
+        $stmt = new self();
+        if (null !== $where) {
+            $stmt = $stmt->where($where);
+        }
+
+        return $stmt->offset($offset)->limit($limit);
+    }
+
+    /**
      * Set the Iterator filter method.
      */
     public function where(callable $callable): self
