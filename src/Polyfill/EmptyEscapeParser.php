@@ -27,7 +27,7 @@ use function str_replace;
 use function substr;
 
 /**
- * A Polyfill to PHP's \SplFileObject to enable parsing the CSV document
+ * A Polyfill to PHP's SplFileObject to enable parsing the CSV document
  * without taking into account the escape character.
  *
  * @see https://php.net/manual/en/function.fgetcsv.php
@@ -82,8 +82,8 @@ final class EmptyEscapeParser
      * In PHP7.4+ you'll be able to do
      *
      * <code>
-     * $file = new \SplFileObject('/path/to/file.csv', 'r');
-     * $file->setFlags(\SplFileObject::READ_CSV | \SplFileObject::READ_AHEAD | \SplFileObject::SKIP_EMPTY);
+     * $file = new SplFileObject('/path/to/file.csv', 'r');
+     * $file->setFlags(SplFileObject::READ_CSV | SplFileObject::READ_AHEAD | SplFileObject::SKIP_EMPTY);
      * $file->setCsvControl($delimiter, $enclosure, '');
      * foreach ($file as $record) {
      *    //$record escape mechanism is blocked by the empty string
@@ -93,7 +93,7 @@ final class EmptyEscapeParser
      * In PHP7.3- you can do
      *
      * <code>
-     * $file = new \SplFileObject('/path/to/file.csv', 'r');
+     * $file = new SplFileObject('/path/to/file.csv', 'r');
      * $it = EmptyEscapeParser::parse($file); //parsing will be done while ignoring the escape character value.
      * foreach ($it as $record) {
      *    //fgetcsv is not directly use hence the escape char is not taken into account
@@ -133,7 +133,7 @@ final class EmptyEscapeParser
         }
 
         throw new TypeError(sprintf(
-            '%s::parse expects parameter 1 to be a %s or a \SplFileObject object, %s given',
+            '%s::parse expects parameter 1 to be a %s or a SplFileObject object, %s given',
             self::class,
             Stream::class,
             get_class($document)

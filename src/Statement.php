@@ -76,7 +76,7 @@ class Statement
     }
 
     /**
-     * Set \LimitIterator Offset.
+     * Set LimitIterator Offset.
      *
      * @throws Exception if the offset is lesser than 0
      */
@@ -97,7 +97,7 @@ class Statement
     }
 
     /**
-     * Set \LimitIterator Count.
+     * Set LimitIterator Count.
      *
      * @throws Exception if the limit is lesser than -1
      */

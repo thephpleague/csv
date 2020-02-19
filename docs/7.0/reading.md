@@ -203,5 +203,5 @@ $nbIteration = $reader->each(function ($row, $index, $iterator) use (&$res, $fun
     }
     $res[] = $row;
     return true;
-})
+});
 ~~~

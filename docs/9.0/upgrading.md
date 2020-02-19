@@ -346,7 +346,7 @@ use League\Csv\Reader;
 $reader = Reader::createFromPath('/path/to/file.csv', 'r');
 foreach ($records->fetchColumn(0) as $value) {
     $value = strtoupper($value);
-}
+};
 ~~~
 
 ## Stream Filtering

@@ -88,7 +88,7 @@ class HTMLConverter
     }
 
     /**
-     * Creates a \DOMElement representing a HTML table heading section.
+     * Creates a DOMElement representing a HTML table heading section.
      */
     protected function appendHeaderSection(string $node_name, array $record, DOMElement $table): void
     {

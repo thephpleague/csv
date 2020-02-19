@@ -246,7 +246,7 @@ class Stream implements SeekableIterator
     /**
      * Set CSV control.
      *
-     * @see http://php.net/manual/en/\SplFileObject.setcsvcontrol.php
+     * @see http://php.net/manual/en/SplFileObject.setcsvcontrol.php
      */
     public function setCsvControl(string $delimiter = ',', string $enclosure = '"', string $escape = '\\'): void
     {
@@ -278,7 +278,7 @@ class Stream implements SeekableIterator
     /**
      * Set CSV control.
      *
-     * @see http://php.net/manual/en/\SplFileObject.getcsvcontrol.php
+     * @see http://php.net/manual/en/SplFileObject.getcsvcontrol.php
      *
      * @return string[]
      */
@@ -290,7 +290,7 @@ class Stream implements SeekableIterator
     /**
      * Set CSV stream flags.
      *
-     * @see http://php.net/manual/en/\SplFileObject.setflags.php
+     * @see http://php.net/manual/en/SplFileObject.setflags.php
      */
     public function setFlags(int $flags): void
     {
@@ -300,7 +300,7 @@ class Stream implements SeekableIterator
     /**
      * Write a field array as a CSV line.
      *
-     * @see http://php.net/manual/en/\SplFileObject.fputcsv.php
+     * @see http://php.net/manual/en/SplFileObject.fputcsv.php
      *
      * @return int|false
      */
@@ -314,7 +314,7 @@ class Stream implements SeekableIterator
     /**
      * Get line number.
      *
-     * @see http://php.net/manual/en/\SplFileObject.key.php
+     * @see http://php.net/manual/en/SplFileObject.key.php
      *
      * @return int
      */
@@ -326,7 +326,7 @@ class Stream implements SeekableIterator
     /**
      * Read next line.
      *
-     * @see http://php.net/manual/en/\SplFileObject.next.php
+     * @see http://php.net/manual/en/SplFileObject.next.php
      */
     public function next(): void
     {
@@ -337,7 +337,7 @@ class Stream implements SeekableIterator
     /**
      * Rewind the file to the first line.
      *
-     * @see http://php.net/manual/en/\SplFileObject.rewind.php
+     * @see http://php.net/manual/en/SplFileObject.rewind.php
      *
      * @throws Exception if the stream resource is not seekable
      */
@@ -358,7 +358,7 @@ class Stream implements SeekableIterator
     /**
      * Not at EOF.
      *
-     * @see http://php.net/manual/en/\SplFileObject.valid.php
+     * @see http://php.net/manual/en/SplFileObject.valid.php
      *
      * @return bool
      */
@@ -374,7 +374,7 @@ class Stream implements SeekableIterator
     /**
      * Retrieves the current line of the file.
      *
-     * @see http://php.net/manual/en/\SplFileObject.current.php
+     * @see http://php.net/manual/en/SplFileObject.current.php
      *
      * @return mixed The value of the current element.
      */
@@ -406,7 +406,7 @@ class Stream implements SeekableIterator
     /**
      * Seek to specified line.
      *
-     * @see http://php.net/manual/en/\SplFileObject.seek.php
+     * @see http://php.net/manual/en/SplFileObject.seek.php
      *
      * @param  int       $position
      * @throws Exception if the position is negative
@@ -433,7 +433,7 @@ class Stream implements SeekableIterator
     /**
      * Output all remaining data on a file pointer.
      *
-     * @see http://php.net/manual/en/\SplFileObject.fpatssthru.php
+     * @see http://php.net/manual/en/SplFileObject.fpatssthru.php
      *
      * @return int|false
      */
@@ -445,7 +445,7 @@ class Stream implements SeekableIterator
     /**
      * Read from file.
      *
-     * @see http://php.net/manual/en/\SplFileObject.fread.php
+     * @see http://php.net/manual/en/SplFileObject.fread.php
      *
      * @param int $length The number of bytes to read
      *
@@ -459,7 +459,7 @@ class Stream implements SeekableIterator
     /**
      * Gets a line from file.
      *
-     * @see http://php.net/manual/en/\SplFileObject.fgets.php
+     * @see http://php.net/manual/en/SplFileObject.fgets.php
      *
      * @return string|false
      */
@@ -471,7 +471,7 @@ class Stream implements SeekableIterator
     /**
      * Seek to a position.
      *
-     * @see http://php.net/manual/en/\SplFileObject.fseek.php
+     * @see http://php.net/manual/en/SplFileObject.fseek.php
      *
      * @throws Exception if the stream resource is not seekable
      */
@@ -487,7 +487,7 @@ class Stream implements SeekableIterator
     /**
      * Write to stream.
      *
-     * @see http://php.net/manual/en/\SplFileObject.fwrite.php
+     * @see http://php.net/manual/en/SplFileObject.fwrite.php
      *
      * @return int|false
      */
@@ -504,7 +504,7 @@ class Stream implements SeekableIterator
     /**
      * Flushes the output to a file.
      *
-     * @see http://php.net/manual/en/\SplFileObject.fwrite.php
+     * @see http://php.net/manual/en/SplFileObject.fwrite.php
      */
     public function fflush(): bool
     {

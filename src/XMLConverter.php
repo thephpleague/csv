@@ -19,7 +19,7 @@ use DOMElement;
 use DOMException;
 
 /**
- * Converts tabular data into a \DOMDocument object.
+ * Converts tabular data into a DOMDocument object.
  */
 class XMLConverter
 {
@@ -75,7 +75,7 @@ class XMLConverter
     ];
 
     /**
-     * Convert a Record collection into a \DOMDocument.
+     * Convert a Record collection into a DOMDocument.
      */
     public function convert(iterable $records): DOMDocument
     {
@@ -87,9 +87,9 @@ class XMLConverter
     }
 
     /**
-     * Create a new \DOMElement related to the given \DOMDocument.
+     * Create a new DOMElement related to the given DOMDocument.
      *
-     * **DOES NOT** attach to the \DOMDocument
+     * **DOES NOT** attach to the DOMDocument
      */
     public function import(iterable $records, DOMDocument $doc): DOMElement
     {
@@ -105,8 +105,8 @@ class XMLConverter
     }
 
     /**
-     * Convert a CSV record into a \DOMElement and
-     * adds its offset as \DOMElement attribute.
+     * Convert a CSV record into a DOMElement and
+     * adds its offset as DOMElement attribute.
      */
     protected function recordToElementWithAttribute(
         DOMDocument $doc,
@@ -121,7 +121,7 @@ class XMLConverter
     }
 
     /**
-     * Convert a CSV record into a \DOMElement.
+     * Convert a CSV record into a DOMElement.
      */
     protected function recordToElement(DOMDocument $doc, array $record, string $field_encoder): DOMElement
     {
@@ -137,8 +137,8 @@ class XMLConverter
     /**
      * Convert Cell to Item.
      *
-     * Convert the CSV item into a \DOMElement and adds the item offset
-     * as attribute to the returned \DOMElement
+     * Convert the CSV item into a DOMElement and adds the item offset
+     * as attribute to the returned DOMElement
      *
      * @param int|string $node_name
      */
