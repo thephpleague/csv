@@ -27,6 +27,7 @@ use function ob_start;
 use function strtolower;
 use function tmpfile;
 use function unlink;
+use function xdebug_get_headers;
 use const PHP_EOL;
 use const STREAM_FILTER_READ;
 use const STREAM_FILTER_WRITE;
@@ -165,7 +166,7 @@ EOF;
         $raw_csv = Reader::BOM_UTF8."john,doe,john.doe@example.com\njane,doe,jane.doe@example.com\n";
         $csv = Reader::createFromString($raw_csv);
         $csv->output('tést.csv');
-        $headers = \xdebug_get_headers();
+        $headers = xdebug_get_headers();
 
         // Due to the variety of ways the xdebug expresses Content-Type of text files,
         // we cannot count on complete string matching.

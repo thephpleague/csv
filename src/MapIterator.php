@@ -13,12 +13,15 @@ declare(strict_types=1);
 
 namespace League\Csv;
 
+use IteratorIterator;
+use Traversable;
+
 /**
  * Map value from an iterator before yielding.
  *
  * @internal used internally to modify CSV content
  */
-class MapIterator extends \IteratorIterator
+class MapIterator extends IteratorIterator
 {
     /**
      * The callback to apply on all InnerIterator current value.
@@ -30,7 +33,7 @@ class MapIterator extends \IteratorIterator
     /**
      * New instance.
      */
-    public function __construct(\Traversable $iterator, callable $callable)
+    public function __construct(Traversable $iterator, callable $callable)
     {
         parent::__construct($iterator);
         $this->callable = $callable;

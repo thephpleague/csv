@@ -13,6 +13,8 @@ declare(strict_types=1);
 
 namespace League\Csv;
 
+use OutOfRangeException;
+use php_user_filter;
 use function array_combine;
 use function array_map;
 use function array_walk;
@@ -33,7 +35,7 @@ use function substr;
 /**
  * Converts resource stream or tabular data content charset.
  */
-class CharsetConverter extends \php_user_filter
+class CharsetConverter extends php_user_filter
 {
     const FILTERNAME = 'convert.league.csv';
 
@@ -103,7 +105,7 @@ class CharsetConverter extends \php_user_filter
     /**
      * Filter encoding charset.
      *
-     * @throws \OutOfRangeException if the charset is malformed or unsupported
+     * @throws OutOfRangeException if the charset is malformed or unsupported
      */
     protected static function filterEncoding(string $encoding): string
     {
@@ -118,7 +120,7 @@ class CharsetConverter extends \php_user_filter
             return $encoding_list[$key];
         }
 
-        throw new \OutOfRangeException(sprintf('The submitted charset %s is not supported by the mbstring extension', $encoding));
+        throw new OutOfRangeException(sprintf('The submitted charset %s is not supported by the mbstring extension', $encoding));
     }
 
     /**
@@ -139,7 +141,7 @@ class CharsetConverter extends \php_user_filter
         try {
             $this->input_encoding = self::filterEncoding($matches['input']);
             $this->output_encoding = self::filterEncoding($matches['output']);
-        } catch (\OutOfRangeException $e) {
+        } catch (OutOfRangeException $e) {
             return false;
         }
 

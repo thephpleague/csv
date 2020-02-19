@@ -60,15 +60,15 @@ class XMLConverterTest extends TestCase
         $dom = $converter->convert($records);
         $record_list = $dom->getElementsByTagName('record');
 
-        /** @var \DOMElement $record_node */
+        /** @var DOMElement $record_node */
         $record_node = $record_list->item(0);
 
         $field_list = $dom->getElementsByTagName('field');
 
-        /** @var \DOMElement $field_node */
+        /** @var DOMElement $field_node */
         $field_node = $field_list->item(0);
 
-        /** @var \DOMElement $baseTag */
+        /** @var DOMElement $baseTag */
         $baseTag = $dom->documentElement;
 
         self::assertInstanceOf(DOMDocument::class, $dom);

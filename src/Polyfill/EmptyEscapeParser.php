@@ -13,7 +13,10 @@ declare(strict_types=1);
 
 namespace League\Csv\Polyfill;
 
+use Generator;
 use League\Csv\Stream;
+use SplFileObject;
+use TypeError;
 use function explode;
 use function get_class;
 use function in_array;
@@ -42,7 +45,7 @@ final class EmptyEscapeParser
     const FIELD_BREAKS = [false, '', "\r\n", "\n", "\r"];
 
     /**
-     * @var \SplFileObject|Stream
+     * @var SplFileObject|Stream
      */
     private static $document;
 
@@ -99,11 +102,11 @@ final class EmptyEscapeParser
      *
      * Each record array contains strings elements.
      *
-     * @param \SplFileObject|Stream $document
+     * @param SplFileObject|Stream $document
      *
-     * @return \Generator|array[]
+     * @return Generator|array[]
      */
-    public static function parse($document): \Generator
+    public static function parse($document): Generator
     {
         self::$document = self::filterDocument($document);
         list(self::$delimiter, self::$enclosure, ) = self::$document->getCsvControl();
@@ -121,15 +124,15 @@ final class EmptyEscapeParser
     /**
      * Filters the submitted document.
      *
-     * @return \SplFileObject|Stream
+     * @return SplFileObject|Stream
      */
     private static function filterDocument(object $document)
     {
-        if ($document instanceof Stream || $document instanceof \SplFileObject) {
+        if ($document instanceof Stream || $document instanceof SplFileObject) {
             return $document;
         }
 
-        throw new \TypeError(sprintf(
+        throw new TypeError(sprintf(
             '%s::parse expects parameter 1 to be a %s or a \SplFileObject object, %s given',
             self::class,
             Stream::class,

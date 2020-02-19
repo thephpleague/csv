@@ -13,6 +13,9 @@ declare(strict_types=1);
 
 namespace League\Csv;
 
+use DOMDocument;
+use DOMElement;
+use DOMException;
 use function preg_match;
 
 /**
@@ -59,7 +62,7 @@ class HTMLConverter
      */
     public function convert(iterable $records, array $header_record = [], array $footer_record = []): string
     {
-        $doc = new \DOMDocument('1.0');
+        $doc = new DOMDocument('1.0');
         if ([] === $header_record && [] === $footer_record) {
             $table = $this->xml_converter->import($records, $doc);
             $this->addHTMLAttributes($table);
@@ -87,7 +90,7 @@ class HTMLConverter
     /**
      * Creates a \DOMElement representing a HTML table heading section.
      */
-    protected function appendHeaderSection(string $node_name, array $record, \DOMElement $table): void
+    protected function appendHeaderSection(string $node_name, array $record, DOMElement $table): void
     {
         if ([] === $record) {
             return;
@@ -100,7 +103,7 @@ class HTMLConverter
             ->import([$record], $table->ownerDocument)
         ;
 
-        /** @var \DOMElement $element */
+        /** @var DOMElement $element */
         foreach ($node->getElementsByTagName('th') as $element) {
             $element->setAttribute('scope', 'col');
         }
@@ -111,7 +114,7 @@ class HTMLConverter
     /**
      * Adds class and id attributes to an HTML tag.
      */
-    protected function addHTMLAttributes(\DOMElement $node): void
+    protected function addHTMLAttributes(DOMElement $node): void
     {
         $node->setAttribute('class', $this->class_name);
         $node->setAttribute('id', $this->id_value);
@@ -120,12 +123,12 @@ class HTMLConverter
     /**
      * HTML table class name setter.
      *
-     * @throws \DOMException if the id_value contains any type of whitespace
+     * @throws DOMException if the id_value contains any type of whitespace
      */
     public function table(string $class_name, string $id_value = ''): self
     {
         if (1 === preg_match(",\s,", $id_value)) {
-            throw new \DOMException("the id attribute's value must not contain whitespace (spaces, tabs etc.)");
+            throw new DOMException("the id attribute's value must not contain whitespace (spaces, tabs etc.)");
         }
         $clone = clone $this;
         $clone->class_name = $class_name;

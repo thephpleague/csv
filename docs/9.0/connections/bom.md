@@ -22,7 +22,7 @@ The `ByteSequence` interface provides the following constants :
 ### bom_match
 
 ~~~php
-function League\Csv\bom_match(string $str): string
+use function Csv\bom_match;function Leaguebom_match(string $str): string
 ~~~
 
 The `League\Csv\bom_match` function expects a string and returns the BOM sequence found at its start or an empty string otherwise.

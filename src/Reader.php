@@ -13,7 +13,15 @@ declare(strict_types=1);
 
 namespace League\Csv;
 
+use BadMethodCallException;
+use CallbackFilterIterator;
+use Countable;
+use Generator;
+use Iterator;
+use IteratorAggregate;
+use JsonSerializable;
 use League\Csv\Polyfill\EmptyEscapeParser;
+use SplFileObject;
 use function array_combine;
 use function array_filter;
 use function array_pad;
@@ -35,10 +43,10 @@ use const STREAM_FILTER_READ;
  * A class to parse and read records from a CSV document.
  *
  * @method array fetchOne(int $nth_record = 0) Returns a single record from the CSV
- * @method \Generator fetchColumn(string|int $column_index) Returns the next value from a single CSV record field
- * @method \Generator fetchPairs(string|int $offset_index = 0, string|int $value_index = 1) Fetches the next key-value pairs from the CSV document
+ * @method Generator fetchColumn(string|int $column_index) Returns the next value from a single CSV record field
+ * @method Generator fetchPairs(string|int $offset_index = 0, string|int $value_index = 1) Fetches the next key-value pairs from the CSV document
  */
-class Reader extends AbstractCsv implements \Countable, \IteratorAggregate, \JsonSerializable
+class Reader extends AbstractCsv implements Countable, IteratorAggregate, JsonSerializable
 {
     /**
      * header offset.
@@ -161,7 +169,7 @@ class Reader extends AbstractCsv implements \Countable, \IteratorAggregate, \Jso
     /**
      * Returns the document as an Iterator.
      */
-    protected function getDocument(): \Iterator
+    protected function getDocument(): Iterator
     {
         if (70400 > PHP_VERSION_ID && '' === $this->escape) {
             $this->document->setCsvControl($this->delimiter, $this->enclosure);
@@ -169,7 +177,7 @@ class Reader extends AbstractCsv implements \Countable, \IteratorAggregate, \Jso
             return EmptyEscapeParser::parse($this->document);
         }
 
-        $this->document->setFlags(\SplFileObject::READ_CSV | \SplFileObject::READ_AHEAD);
+        $this->document->setFlags(SplFileObject::READ_CSV | SplFileObject::READ_AHEAD);
         $this->document->setCsvControl($this->delimiter, $this->enclosure, $this->escape);
         $this->document->rewind();
 
@@ -209,7 +217,7 @@ class Reader extends AbstractCsv implements \Countable, \IteratorAggregate, \Jso
             return (new ResultSet($this->getRecords(), $this->getHeader()))->$method(...$arguments);
         }
 
-        throw new \BadMethodCallException(sprintf('%s::%s() method does not exist', static::class, $method));
+        throw new BadMethodCallException(sprintf('%s::%s() method does not exist', static::class, $method));
     }
 
     /**
@@ -227,7 +235,7 @@ class Reader extends AbstractCsv implements \Countable, \IteratorAggregate, \Jso
     /**
      * {@inheritdoc}
      */
-    public function getIterator(): \Iterator
+    public function getIterator(): Iterator
     {
         return $this->getRecords();
     }
@@ -254,7 +262,7 @@ class Reader extends AbstractCsv implements \Countable, \IteratorAggregate, \Jso
      *
      * @param string[] $header an optional header to use instead of the CSV document header
      */
-    public function getRecords(array $header = []): \Iterator
+    public function getRecords(array $header = []): Iterator
     {
         $header = $this->computeHeader($header);
         $normalized = function ($record): bool {
@@ -267,9 +275,9 @@ class Reader extends AbstractCsv implements \Countable, \IteratorAggregate, \Jso
         }
 
         $document = $this->getDocument();
-        $records = $this->stripBOM(new \CallbackFilterIterator($document, $normalized), $bom);
+        $records = $this->stripBOM(new CallbackFilterIterator($document, $normalized), $bom);
         if (null !== $this->header_offset) {
-            $records = new \CallbackFilterIterator($records, function (array $record, int $offset): bool {
+            $records = new CallbackFilterIterator($records, function (array $record, int $offset): bool {
                 return $offset !== $this->header_offset;
             });
         }
@@ -316,7 +324,7 @@ class Reader extends AbstractCsv implements \Countable, \IteratorAggregate, \Jso
      *
      * @param string[] $header
      */
-    protected function combineHeader(\Iterator $iterator, array $header): \Iterator
+    protected function combineHeader(Iterator $iterator, array $header): Iterator
     {
         if ([] === $header) {
             return $iterator;
@@ -340,7 +348,7 @@ class Reader extends AbstractCsv implements \Countable, \IteratorAggregate, \Jso
     /**
      * Strip the BOM sequence from the returned records if necessary.
      */
-    protected function stripBOM(\Iterator $iterator, string $bom): \Iterator
+    protected function stripBOM(Iterator $iterator, string $bom): Iterator
     {
         if ('' === $bom) {
             return $iterator;

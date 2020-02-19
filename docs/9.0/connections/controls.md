@@ -107,7 +107,7 @@ echo $csv->getEscape();    //display '\'
 ## Detecting the delimiter character
 
 ~~~php
-function League\Csv\delimiter_detect(Reader $csv, array $delimiters, $limit = 1): array
+use function Csv\delimiter_detect;function Leaguedelimiter_detect(Reader $csv, array $delimiters, $limit = 1): array
 ~~~
 
 The `delimiter_detect` function helps detect the possible delimiter character used by the CSV document. This function returns the number of CSV fields found in the document depending on the submitted delimiters given.

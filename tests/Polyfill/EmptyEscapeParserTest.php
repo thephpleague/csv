@@ -16,6 +16,7 @@ use League\Csv\Reader;
 use League\Csv\Stream;
 use PHPUnit\Framework\TestCase;
 use SplTempFileObject;
+use stdClass;
 use TypeError;
 use function iterator_to_array;
 
@@ -32,7 +33,7 @@ class EmptyEscapeParserTest extends TestCase
     public function testConstructorThrowsTypeErrorWithUnknownDocument(): void
     {
         self::expectException(TypeError::class);
-        $records = EmptyEscapeParser::parse(new \stdClass());
+        $records = EmptyEscapeParser::parse(new stdClass());
         $records->rewind();
     }
 

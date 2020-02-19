@@ -13,6 +13,7 @@ declare(strict_types=1);
 
 namespace League\Csv;
 
+use ReflectionClass;
 use function array_fill_keys;
 use function array_filter;
 use function array_reduce;
@@ -33,7 +34,7 @@ function bom_match(string $str): string
 {
     static $list;
     if (null === $list) {
-        $list = (new \ReflectionClass(ByteSequence::class))->getConstants();
+        $list = (new ReflectionClass(ByteSequence::class))->getConstants();
 
         rsort($list);
     }

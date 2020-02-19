@@ -13,6 +13,11 @@ declare(strict_types=1);
 
 namespace League\Csv;
 
+use DOMAttr;
+use DOMDocument;
+use DOMElement;
+use DOMException;
+
 /**
  * Converts tabular data into a \DOMDocument object.
  */
@@ -72,9 +77,9 @@ class XMLConverter
     /**
      * Convert a Record collection into a \DOMDocument.
      */
-    public function convert(iterable $records): \DOMDocument
+    public function convert(iterable $records): DOMDocument
     {
-        $doc = new \DOMDocument('1.0');
+        $doc = new DOMDocument('1.0');
         $node = $this->import($records, $doc);
         $doc->appendChild($node);
 
@@ -86,7 +91,7 @@ class XMLConverter
      *
      * **DOES NOT** attach to the \DOMDocument
      */
-    public function import(iterable $records, \DOMDocument $doc): \DOMElement
+    public function import(iterable $records, DOMDocument $doc): DOMElement
     {
         $field_encoder = $this->encoder['field']['' !== $this->column_attr];
         $record_encoder = $this->encoder['record']['' !== $this->offset_attr];
@@ -104,11 +109,11 @@ class XMLConverter
      * adds its offset as \DOMElement attribute.
      */
     protected function recordToElementWithAttribute(
-        \DOMDocument $doc,
+        DOMDocument $doc,
         array $record,
         string $field_encoder,
         int $offset
-    ): \DOMElement {
+    ): DOMElement {
         $node = $this->recordToElement($doc, $record, $field_encoder);
         $node->setAttribute($this->offset_attr, (string) $offset);
 
@@ -118,7 +123,7 @@ class XMLConverter
     /**
      * Convert a CSV record into a \DOMElement.
      */
-    protected function recordToElement(\DOMDocument $doc, array $record, string $field_encoder): \DOMElement
+    protected function recordToElement(DOMDocument $doc, array $record, string $field_encoder): DOMElement
     {
         $node = $doc->createElement($this->record_name);
         foreach ($record as $node_name => $value) {
@@ -137,7 +142,7 @@ class XMLConverter
      *
      * @param int|string $node_name
      */
-    protected function fieldToElementWithAttribute(\DOMDocument $doc, string $value, $node_name): \DOMElement
+    protected function fieldToElementWithAttribute(DOMDocument $doc, string $value, $node_name): DOMElement
     {
         $item = $this->fieldToElement($doc, $value);
         $item->setAttribute($this->column_attr, (string) $node_name);
@@ -150,7 +155,7 @@ class XMLConverter
      *
      * @param string $value Record item value
      */
-    protected function fieldToElement(\DOMDocument $doc, string $value): \DOMElement
+    protected function fieldToElement(DOMDocument $doc, string $value): DOMElement
     {
         $item = $doc->createElement($this->field_name);
         $item->appendChild($doc->createTextNode($value));
@@ -172,11 +177,11 @@ class XMLConverter
     /**
      * Filter XML element name.
      *
-     * @throws \DOMException If the Element name is invalid
+     * @throws DOMException If the Element name is invalid
      */
     protected function filterElementName(string $value): string
     {
-        return (new \DOMElement($value))->tagName;
+        return (new DOMElement($value))->tagName;
     }
 
     /**
@@ -196,7 +201,7 @@ class XMLConverter
      *
      * @param string $value Element name
      *
-     * @throws \DOMException If the Element attribute name is invalid
+     * @throws DOMException If the Element attribute name is invalid
      */
     protected function filterAttributeName(string $value): string
     {
@@ -204,7 +209,7 @@ class XMLConverter
             return $value;
         }
 
-        return (new \DOMAttr($value))->name;
+        return (new DOMAttr($value))->name;
     }
 
     /**
