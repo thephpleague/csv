@@ -25,7 +25,7 @@ class CannotInsertRecordTest extends TestCase
      * @covers ::getName
      * @covers ::getRecord
      */
-    public function testTriggerOnInsertion()
+    public function testTriggerOnInsertion(): void
     {
         $record = ['jane', 'doe', 'jane.doe@example.com'];
         $exception = CannotInsertRecord::triggerOnInsertion($record);
@@ -40,7 +40,7 @@ class CannotInsertRecordTest extends TestCase
      * @covers ::getName
      * @covers ::getRecord
      */
-    public function testTriggerOnValidation()
+    public function testTriggerOnValidation(): void
     {
         $record = ['jane', 'doe', 'jane.doe@example.com'];
         $exception = CannotInsertRecord::triggerOnValidation('foo bar', $record);

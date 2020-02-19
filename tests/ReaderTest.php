@@ -19,7 +19,6 @@ use League\Csv\SyntaxError;
 use PHPUnit\Framework\TestCase;
 use SplFileObject;
 use SplTempFileObject;
-use TypeError;
 use function array_keys;
 use function count;
 use function fclose;
@@ -36,14 +35,16 @@ use function unlink;
  */
 class ReaderTest extends TestCase
 {
+    /** @var Reader */
     private $csv;
 
+    /** @var array */
     private $expected = [
         ['john', 'doe', 'john.doe@example.com', '0123456789'],
         ['jane', 'doe', 'jane.doe@example.com'],
     ];
 
-    public function setUp()
+    public function setUp(): void
     {
         $tmp = new SplTempFileObject();
         foreach ($this->expected as $row) {
@@ -53,9 +54,9 @@ class ReaderTest extends TestCase
         $this->csv = Reader::createFromFileObject($tmp);
     }
 
-    public function tearDown()
+    public function tearDown(): void
     {
-        $this->csv = null;
+        unset($this->csv);
     }
 
     /**
@@ -63,7 +64,7 @@ class ReaderTest extends TestCase
      * @covers ::computeHeader
      * @covers ::getRecords
      */
-    public function testCountable()
+    public function testCountable(): void
     {
         $source = '"parent name","child name","title"
             "parentA","childA","titleA"';
@@ -76,7 +77,7 @@ class ReaderTest extends TestCase
     /**
      * @covers ::getDocument
      */
-    public function testReaderWithEmptyEscapeChar1()
+    public function testReaderWithEmptyEscapeChar1(): void
     {
         $source = <<<EOF
 Year,Make,Model,Description,Price
@@ -96,7 +97,7 @@ EOF;
     /**
      * @covers ::getDocument
      */
-    public function testReaderWithEmptyEscapeChar2()
+    public function testReaderWithEmptyEscapeChar2(): void
     {
         $source = '"parent name","child name","title"
             "parentA","childA","titleA"';
@@ -114,7 +115,7 @@ EOF;
      * @covers ::getRecords
      * @covers ::combineHeader
      */
-    public function testGetIterator()
+    public function testGetIterator(): void
     {
         $this->csv->setHeaderOffset(0);
         foreach ($this->csv as $record) {
@@ -136,7 +137,7 @@ EOF;
      * @covers ::computeHeader
      * @covers ::combineHeader
      */
-    public function testCombineHeader()
+    public function testCombineHeader(): void
     {
         $this->csv->setHeaderOffset(1);
         foreach ($this->csv as $record) {
@@ -151,7 +152,7 @@ EOF;
      * @covers ::setHeader
      * @covers ::seekRow
      */
-    public function testGetHeader()
+    public function testGetHeader(): void
     {
         $this->csv->setHeaderOffset(1);
         self::assertSame(1, $this->csv->getHeaderOffset());
@@ -165,7 +166,7 @@ EOF;
     /**
      * @covers ::__call
      */
-    public function testCall()
+    public function testCall(): void
     {
         $raw = [
             ['firstname', 'lastname'],
@@ -194,13 +195,13 @@ EOF;
      * @param string $method
      * @dataProvider invalidMethodCallMethodProvider
      */
-    public function testCallThrowsException($method)
+    public function testCallThrowsException($method): void
     {
         self::expectException(BadMethodCallException::class);
         $this->csv->$method();
     }
 
-    public function invalidMethodCallMethodProvider()
+    public function invalidMethodCallMethodProvider(): iterable
     {
         return [
             'unknown method' => ['foo'],
@@ -215,7 +216,7 @@ EOF;
      * @covers ::setHeader
      * @covers League\Csv\Exception
      */
-    public function testHeaderThrowsExceptionOnError()
+    public function testHeaderThrowsExceptionOnError(): void
     {
         self::expectException(SyntaxError::class);
         $csv = Reader::createFromString(
@@ -235,7 +236,7 @@ EOF;
      * @covers ::setHeaderOffset
      * @covers League\Csv\Exception
      */
-    public function testHeaderThrowsExceptionOnEmptyLine()
+    public function testHeaderThrowsExceptionOnEmptyLine(): void
     {
         self::expectException(SyntaxError::class);
         $str = <<<EOF
@@ -258,8 +259,9 @@ EOF;
      * @covers League\Csv\Stream
      * @dataProvider validBOMSequences
      */
-    public function testStripBOM(array $record, string $expected_bom, string $expected)
+    public function testStripBOM(array $record, string $expected_bom, string $expected): void
     {
+        /** @var resource $fp */
         $fp = fopen('php://temp', 'r+');
         fputcsv($fp, $record);
         $csv = Reader::createFromStream($fp);
@@ -272,7 +274,7 @@ EOF;
         $fp = null;
     }
 
-    public function validBOMSequences()
+    public function validBOMSequences(): array
     {
         return [
             'withBOM' => [
@@ -299,7 +301,7 @@ EOF;
      * @covers ::combineHeader
      * @covers League\Csv\Stream
      */
-    public function testStripBOMWithEnclosure()
+    public function testStripBOMWithEnclosure(): void
     {
         $source = Reader::BOM_UTF8.'"parent name","child name","title"
             "parentA","childA","titleA"';
@@ -317,7 +319,7 @@ EOF;
      * @covers ::combineHeader
      * @covers League\Csv\Stream
      */
-    public function testStripNoBOM()
+    public function testStripNoBOM(): void
     {
         $source = '"parent name","child name","title"
             "parentA","childA","titleA"';
@@ -329,9 +331,10 @@ EOF;
         }
     }
 
-    public function testDisablingBOMStripping()
+    public function testDisablingBOMStripping(): void
     {
         $expected_record = [Reader::BOM_UTF16_LE.'john', 'doe', 'john.doe@example.com'];
+        /** @var resource $fp */
         $fp = fopen('php://temp', 'r+');
         fputcsv($fp, $expected_record);
         $csv = Reader::createFromStream($fp);
@@ -349,7 +352,7 @@ EOF;
      * @covers ::getIterator
      * @dataProvider appliedFlagsProvider
      */
-    public function testAppliedFlags(int $flag, int $fetch_count)
+    public function testAppliedFlags(int $flag, int $fetch_count): void
     {
         $path = __DIR__.'/data/tmp.txt';
         $obj  = new SplFileObject($path, 'w+');
@@ -362,7 +365,7 @@ EOF;
         unlink($path);
     }
 
-    public function appliedFlagsProvider()
+    public function appliedFlagsProvider(): array
     {
         return [
             'NONE' => [0, 2],
@@ -380,7 +383,7 @@ EOF;
      * @covers ::setHeader
      * @covers ::seekRow
      */
-    public function testGetHeaderThrowsExceptionWithNegativeOffset()
+    public function testGetHeaderThrowsExceptionWithNegativeOffset(): void
     {
         self::expectException(Exception::class);
         $this->csv->setHeaderOffset(-3)->getRecords();
@@ -390,7 +393,7 @@ EOF;
      * @covers ::setHeader
      * @covers ::seekRow
      */
-    public function testGetHeaderThrowsExceptionWithSplFileObject()
+    public function testGetHeaderThrowsExceptionWithSplFileObject(): void
     {
         self::expectException(SyntaxError::class);
         $this->csv->setHeaderOffset(23)->getRecords();
@@ -400,10 +403,11 @@ EOF;
      * @covers ::setHeader
      * @covers ::seekRow
      */
-    public function testGetHeaderThrowsExceptionWithStreamObject()
+    public function testGetHeaderThrowsExceptionWithStreamObject(): void
     {
         self::expectException(SyntaxError::class);
 
+        /** @var resource $tmp */
         $tmp = fopen('php://temp', 'r+');
         foreach ($this->expected as $row) {
             fputcsv($tmp, $row);
@@ -415,18 +419,8 @@ EOF;
 
     /**
      * @covers ::setHeaderOffset
-     * @covers \League\Csv\is_nullable_int
      */
-    public function testSetHeaderThrowsExceptionOnWrongInput()
-    {
-        self::expectException(TypeError::class);
-        $this->csv->setHeaderOffset((object) 1);
-    }
-
-    /**
-     * @covers ::setHeaderOffset
-     */
-    public function testSetHeaderThrowsExceptionOnWrongInputRange()
+    public function testSetHeaderThrowsExceptionOnWrongInputRange(): void
     {
         self::expectException(Exception::class);
         $this->csv->setHeaderOffset(-1);
@@ -435,7 +429,7 @@ EOF;
     /**
      * @covers ::computeHeader
      */
-    public function testMapRecordsFields()
+    public function testMapRecordsFields(): void
     {
         $keys = ['firstname', 'lastname', 'email'];
         $res = $this->csv->getRecords($keys);
@@ -447,7 +441,7 @@ EOF;
     /**
      * @covers ::jsonSerialize
      */
-    public function testJsonSerialize()
+    public function testJsonSerialize(): void
     {
         $expected = [
             ['First Name', 'Last Name', 'E-mail'],
@@ -469,7 +463,7 @@ EOF;
     /**
      * @covers ::createFromPath
      */
-    public function testCreateFromPath()
+    public function testCreateFromPath(): void
     {
         $csv = Reader::createFromPath(__DIR__.'/data/foo_readonly.csv');
         self::assertCount(1, $csv);
@@ -488,30 +482,30 @@ EOF;
         array $expected_with_preserving,
         array $expected_with_skipping_with_header,
         array $expected_with_preserving_with_header
-    ) {
+    ): void {
         self::assertFalse($reader->isEmptyRecordsIncluded());
-        self::assertSame(count($expected_with_skipping), count($reader));
+        self::assertCount(count($expected_with_skipping), $reader);
         foreach ($reader as $offset => $record) {
             self::assertSame($expected_with_skipping[$offset], $record);
         }
 
         $reader->includeEmptyRecords();
         self::assertTrue($reader->isEmptyRecordsIncluded());
-        self::assertSame(count($expected_with_preserving), count($reader));
+        self::assertCount(count($expected_with_preserving), $reader);
         foreach ($reader as $offset => $record) {
             self::assertSame($expected_with_preserving[$offset], $record);
         }
 
         $reader->setHeaderOffset(0);
         self::assertTrue($reader->isEmptyRecordsIncluded());
-        self::assertSame(count($expected_with_preserving_with_header), count($reader));
+        self::assertCount(count($expected_with_preserving_with_header), $reader);
         foreach ($reader as $offset => $record) {
             self::assertSame($expected_with_preserving_with_header[$offset], $record);
         }
 
         $reader->skipEmptyRecords();
         self::assertFalse($reader->isEmptyRecordsIncluded());
-        self::assertSame(count($expected_with_skipping_with_header), count($reader));
+        self::assertCount(count($expected_with_skipping_with_header), $reader);
         foreach ($reader as $offset => $record) {
             self::assertSame($expected_with_skipping_with_header[$offset], $record);
         }

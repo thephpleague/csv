@@ -48,9 +48,6 @@ class ResultSet implements Countable, IteratorAggregate, JsonSerializable
 
     /**
      * New instance.
-     *
-     * @param Iterator $records a CSV records collection iterator
-     * @param array    $header  the associated collection column names
      */
     public function __construct(Iterator $records, array $header)
     {
@@ -150,8 +147,8 @@ class ResultSet implements Countable, IteratorAggregate, JsonSerializable
         };
 
         $iterator = new MapIterator(new CallbackFilterIterator($this->records, $filter), $select);
-        foreach ($iterator as $offset => $value) {
-            yield $offset => $value;
+        foreach ($iterator as $tKey => $tValue) {
+            yield $tKey => $tValue;
         }
     }
 
@@ -165,9 +162,11 @@ class ResultSet implements Countable, IteratorAggregate, JsonSerializable
      */
     protected function getColumnIndex($field, string $error_message)
     {
-        $method = is_string($field) ? 'getColumnIndexByValue' : 'getColumnIndexByKey';
+        if (is_string($field)) {
+            return $this->getColumnIndexByValue($field, $error_message);
+        }
 
-        return $this->$method($field, $error_message);
+        return $this->getColumnIndexByKey($field, $error_message);
     }
 
     /**

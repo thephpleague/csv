@@ -40,7 +40,7 @@ class RFC4180FieldTest extends TestCase
      *
      * @dataProvider bugsProvider
      */
-    public function testStreamFilterOnWrite(string $expected, array $record)
+    public function testStreamFilterOnWrite(string $expected, array $record): void
     {
         $csv = Writer::createFromPath('php://temp');
         RFC4180Field::addTo($csv);
@@ -50,7 +50,7 @@ class RFC4180FieldTest extends TestCase
         self::assertSame($expected, $csv->getContent());
     }
 
-    public function bugsProvider()
+    public function bugsProvider(): array
     {
         return [
             'bug #43225' => [
@@ -76,14 +76,14 @@ class RFC4180FieldTest extends TestCase
      *
      * @dataProvider readerBugsProvider
      */
-    public function testStreamFilterOnRead(string $expected, array $record)
+    public function testStreamFilterOnRead(string $expected, array $record): void
     {
         $csv = Reader::createFromString($expected);
         RFC4180Field::addTo($csv);
         self::assertSame($record, $csv->fetchOne(0));
     }
 
-    public function readerBugsProvider()
+    public function readerBugsProvider(): array
     {
         return [
             'bug #55413' => [
@@ -97,7 +97,7 @@ class RFC4180FieldTest extends TestCase
      * @covers ::onCreate
      * @covers ::isValidParams
      */
-    public function testOnCreateFailedWithoutParams()
+    public function testOnCreateFailedWithoutParams(): void
     {
         self::expectException(TypeError::class);
         (new RFC4180Field())->onCreate();
@@ -108,7 +108,7 @@ class RFC4180FieldTest extends TestCase
      * @covers ::isValidParams
      * @dataProvider wrongParamProvider
      */
-    public function testOnCreateFailedWithWrongParams(array $params)
+    public function testOnCreateFailedWithWrongParams(array $params): void
     {
         $filter = new RFC4180Field();
         $filter->params = $params;
@@ -163,15 +163,15 @@ class RFC4180FieldTest extends TestCase
      * @covers ::isValidSequence
      * @covers ::filter
      */
-    public function testDoNotEncloseWhiteSpacedField()
+    public function testDoNotEncloseWhiteSpacedField(): void
     {
         $csv = Writer::createFromString('');
         $csv->setDelimiter('|');
         RFC4180Field::addTo($csv, "\0");
         $csv->insertAll($this->records);
         $contents = $csv->getContent();
-        self::assertContains('Grand Cherokee', $contents);
-        self::assertNotContains('"Grand Cherokee"', $contents);
+        self::assertStringContainsString('Grand Cherokee', $contents);
+        self::assertStringNotContainsString('"Grand Cherokee"', $contents);
     }
 
 
@@ -181,7 +181,7 @@ class RFC4180FieldTest extends TestCase
      * @covers ::onCreate
      * @covers ::filter
      */
-    public function testDoNotEncloseWhiteSpacedFieldThrowsException()
+    public function testDoNotEncloseWhiteSpacedFieldThrowsException(): void
     {
         self::expectException(InvalidArgumentException::class);
         RFC4180Field::addTo(Writer::createFromString(''), "\t\0");

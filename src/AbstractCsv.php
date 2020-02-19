@@ -104,14 +104,14 @@ abstract class AbstractCsv implements ByteSequence
     protected function __construct($document)
     {
         $this->document = $document;
-        list($this->delimiter, $this->enclosure, $this->escape) = $this->document->getCsvControl();
+        [$this->delimiter, $this->enclosure, $this->escape] = $this->document->getCsvControl();
         $this->resetProperties();
     }
 
     /**
      * Reset dynamic object properties to improve performance.
      */
-    protected function resetProperties()
+    protected function resetProperties(): void
     {
     }
 
@@ -280,7 +280,9 @@ abstract class AbstractCsv implements ByteSequence
         $this->document->rewind();
         $this->document->setFlags(0);
         $this->document->fseek(strlen($input_bom));
-        foreach (str_split($this->output_bom.$this->document->fread($length), $length) as $chunk) {
+        /** @var  array<int, string> $chunks */
+        $chunks = str_split($this->output_bom.$this->document->fread($length), $length);
+        foreach ($chunks as $chunk) {
             yield $chunk;
         }
 
@@ -334,7 +336,7 @@ abstract class AbstractCsv implements ByteSequence
 
         echo $this->output_bom;
 
-        return strlen($this->output_bom) + $this->document->fpassthru();
+        return strlen($this->output_bom) + (int) $this->document->fpassthru();
     }
 
     /**
@@ -346,7 +348,7 @@ abstract class AbstractCsv implements ByteSequence
      *
      * @see https://tools.ietf.org/html/rfc6266#section-4.3
      */
-    protected function sendHeaders(string $filename)
+    protected function sendHeaders(string $filename): void
     {
         if (strlen($filename) != strcspn($filename, '\\/')) {
             throw new InvalidArgument('The filename cannot contain the "/" and "\\" characters.');
@@ -357,10 +359,12 @@ abstract class AbstractCsv implements ByteSequence
             $flag |= FILTER_FLAG_STRIP_HIGH;
         }
 
-        $filenameFallback = str_replace('%', '', filter_var($filename, FILTER_SANITIZE_STRING, $flag));
+        /** @var string $filtered_name */
+        $filtered_name = filter_var($filename, FILTER_SANITIZE_STRING, $flag);
+        $filename_fallback = str_replace('%', '', $filtered_name);
 
-        $disposition = sprintf('attachment; filename="%s"', str_replace('"', '\\"', $filenameFallback));
-        if ($filename !== $filenameFallback) {
+        $disposition = sprintf('attachment; filename="%s"', str_replace('"', '\\"', $filename_fallback));
+        if ($filename !== $filename_fallback) {
             $disposition .= sprintf("; filename*=utf-8''%s", rawurlencode($filename));
         }
 

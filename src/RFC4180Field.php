@@ -127,7 +127,7 @@ class RFC4180Field extends php_user_filter
     /**
      * Static method to register the class as a stream filter.
      */
-    public static function register()
+    public static function register(): void
     {
         if (!in_array(self::FILTERNAME, stream_get_filters(), true)) {
             stream_filter_register(self::FILTERNAME, self::class);
@@ -143,9 +143,12 @@ class RFC4180Field extends php_user_filter
     }
 
     /**
-     * {@inheritdoc}
+     * @param resource $in
+     * @param resource $out
+     * @param int      $consumed
+     * @param bool     $closing
      */
-    public function filter($in, $out, &$consumed, $closing)
+    public function filter($in, $out, &$consumed, $closing): int
     {
         while ($bucket = stream_bucket_make_writeable($in)) {
             $bucket->data = str_replace($this->search, $this->replace, $bucket->data);
@@ -159,7 +162,7 @@ class RFC4180Field extends php_user_filter
     /**
      * {@inheritdoc}
      */
-    public function onCreate()
+    public function onCreate(): bool
     {
         if (!$this->isValidParams($this->params)) {
             return false;

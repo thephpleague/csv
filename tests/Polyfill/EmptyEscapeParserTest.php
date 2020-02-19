@@ -16,6 +16,7 @@ use League\Csv\Reader;
 use League\Csv\Stream;
 use PHPUnit\Framework\TestCase;
 use SplTempFileObject;
+use stdClass;
 use TypeError;
 use function iterator_to_array;
 
@@ -29,10 +30,10 @@ class EmptyEscapeParserTest extends TestCase
      * @covers ::parse
      * @covers ::filterDocument
      */
-    public function testConstructorThrowsTypeErrorWithUnknownDocument()
+    public function testConstructorThrowsTypeErrorWithUnknownDocument(): void
     {
         self::expectException(TypeError::class);
-        $records = EmptyEscapeParser::parse([]);
+        $records = EmptyEscapeParser::parse(new stdClass());
         $records->rewind();
     }
 
@@ -44,7 +45,7 @@ class EmptyEscapeParserTest extends TestCase
      * @covers ::extractFieldContent
      * @covers ::extractEnclosedFieldContent
      */
-    public function testWorksWithMultiLines()
+    public function testWorksWithMultiLines(): void
     {
         $source = <<<EOF
 Year,Make,Model,Description,Price
@@ -72,7 +73,7 @@ EOF;
      * @covers ::extractFieldContent
      * @covers ::extractEnclosedFieldContent
      */
-    public function testWorksWithMultiLinesWithDifferentDelimiter()
+    public function testWorksWithMultiLinesWithDifferentDelimiter(): void
     {
         $source = <<<EOF
 Year|Make|Model|Description|Price
@@ -100,7 +101,7 @@ EOF;
      * @covers ::extractFieldContent
      * @covers ::extractEnclosedFieldContent
      */
-    public function testPreserveEmptyLines()
+    public function testPreserveEmptyLines(): void
     {
         $source = <<<EOF
 "parent name","child name","title"
@@ -130,7 +131,7 @@ EOF;
      * @covers ::extractFieldContent
      * @covers ::extractEnclosedFieldContent
      */
-    public function testReadingOnlyStream()
+    public function testReadingOnlyStream(): void
     {
         $expected = [
             ['john', 'doe', 'john.doe@example.com'],
@@ -149,7 +150,7 @@ EOF;
      * @covers ::extractFieldContent
      * @covers ::extractEnclosedFieldContent
      */
-    public function testNoTrimmedSpaceWithNotEncloseField()
+    public function testNoTrimmedSpaceWithNotEncloseField(): void
     {
         $source = <<<EOF
 Year,Make,Model,,Description,   Price
@@ -173,7 +174,7 @@ EOF;
      * @covers ::extractFieldContent
      * @covers ::extractEnclosedFieldContent
      */
-    public function testDoubleEnclosure()
+    public function testDoubleEnclosure(): void
     {
         $str = <<<EOF
 Robert;Dupont;rue du Verger, 12;…
@@ -205,7 +206,7 @@ EOF;
      *
      * @dataProvider invalidCsvRecordProvider
      */
-    public function testParsesLikeSplFileObjectInvalidCsv($string)
+    public function testParsesLikeSplFileObjectInvalidCsv(string $string): void
     {
         $spl = new SplTempFileObject();
         $spl->fwrite($string);

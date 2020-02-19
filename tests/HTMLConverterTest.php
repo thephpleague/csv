@@ -30,7 +30,7 @@ class HTMLConverterTest extends TestCase
      * @covers ::td
      * @covers ::convert
      */
-    public function testToHTML()
+    public function testToHTML(): void
     {
         $csv = Reader::createFromPath(__DIR__.'/data/prenoms.csv', 'r')
             ->setDelimiter(';')
@@ -51,12 +51,12 @@ class HTMLConverterTest extends TestCase
         ;
 
         $html = $converter->convert($records);
-        self::assertContains('<table class="table-csv-data" id="test">', $html);
-        self::assertContains('<tr data-record-offset="', $html);
-        self::assertContains('<td title="', $html);
-        self::assertNotContains('<thead>', $html);
-        self::assertNotContains('<tbody>', $html);
-        self::assertNotContains('<tfoot>', $html);
+        self::assertStringContainsString('<table class="table-csv-data" id="test">', $html);
+        self::assertStringContainsString('<tr data-record-offset="', $html);
+        self::assertStringContainsString('<td title="', $html);
+        self::assertStringNotContainsString('<thead>', $html);
+        self::assertStringNotContainsString('<tbody>', $html);
+        self::assertStringNotContainsString('<tfoot>', $html);
     }
 
     /**
@@ -64,7 +64,7 @@ class HTMLConverterTest extends TestCase
      * @covers ::appendHeaderSection
      * @covers ::addHTMLAttributes
      */
-    public function testToHTMLWithTHeadTableSection()
+    public function testToHTMLWithTHeadTableSection(): void
     {
         $csv = Reader::createFromPath(__DIR__.'/data/prenoms.csv', 'r')
             ->setDelimiter(';')
@@ -87,12 +87,12 @@ class HTMLConverterTest extends TestCase
         $headers = $records->getHeader();
 
         $html = $converter->convert($records, $headers);
-        self::assertContains('<table class="table-csv-data" id="test">', $html);
-        self::assertContains('<th scope="col">prenoms</th>', $html);
-        self::assertContains('<thead>', $html);
-        self::assertContains('<tbody>', $html);
-        self::assertNotContains('<tfoot>', $html);
-        self::assertNotContains('<thead><tr data-record-offset="0"></tr></thead>', $html);
+        self::assertStringContainsString('<table class="table-csv-data" id="test">', $html);
+        self::assertStringContainsString('<th scope="col">prenoms</th>', $html);
+        self::assertStringContainsString('<thead>', $html);
+        self::assertStringContainsString('<tbody>', $html);
+        self::assertStringNotContainsString('<tfoot>', $html);
+        self::assertStringNotContainsString('<thead><tr data-record-offset="0"></tr></thead>', $html);
     }
 
     /**
@@ -100,7 +100,7 @@ class HTMLConverterTest extends TestCase
      * @covers ::appendHeaderSection
      * @covers ::addHTMLAttributes
      */
-    public function testToHTMLWithTFootTableSection()
+    public function testToHTMLWithTFootTableSection(): void
     {
         $csv = Reader::createFromPath(__DIR__.'/data/prenoms.csv', 'r')
             ->setDelimiter(';')
@@ -123,12 +123,12 @@ class HTMLConverterTest extends TestCase
         $headers = $records->getHeader();
 
         $html = $converter->convert($records, [], $headers);
-        self::assertContains('<table class="table-csv-data" id="test">', $html);
-        self::assertContains('<th scope="col">prenoms</th>', $html);
-        self::assertNotContains('<thead>', $html);
-        self::assertContains('<tbody>', $html);
-        self::assertContains('<tfoot>', $html);
-        self::assertNotContains('<tfoot><tr data-record-offset="0"></tr></tfoot>', $html);
+        self::assertStringContainsString('<table class="table-csv-data" id="test">', $html);
+        self::assertStringContainsString('<th scope="col">prenoms</th>', $html);
+        self::assertStringNotContainsString('<thead>', $html);
+        self::assertStringContainsString('<tbody>', $html);
+        self::assertStringContainsString('<tfoot>', $html);
+        self::assertStringNotContainsString('<tfoot><tr data-record-offset="0"></tr></tfoot>', $html);
     }
 
     /**
@@ -136,7 +136,7 @@ class HTMLConverterTest extends TestCase
      * @covers ::appendHeaderSection
      * @covers ::addHTMLAttributes
      */
-    public function testToHTMLWithBothTableHeaderSection()
+    public function testToHTMLWithBothTableHeaderSection(): void
     {
         $csv = Reader::createFromPath(__DIR__.'/data/prenoms.csv', 'r')
             ->setDelimiter(';')
@@ -159,19 +159,19 @@ class HTMLConverterTest extends TestCase
         $headers = $records->getHeader();
 
         $html = $converter->convert($records, $headers, $headers);
-        self::assertContains('<table class="table-csv-data" id="test">', $html);
-        self::assertContains('<thead>', $html);
-        self::assertContains('<tbody>', $html);
-        self::assertContains('<tfoot>', $html);
-        self::assertNotContains('<thead><tr data-record-offset="0"></tr></thead>', $html);
-        self::assertNotContains('<tfoot><tr data-record-offset="0"></tr></tfoot>', $html);
+        self::assertStringContainsString('<table class="table-csv-data" id="test">', $html);
+        self::assertStringContainsString('<thead>', $html);
+        self::assertStringContainsString('<tbody>', $html);
+        self::assertStringContainsString('<tfoot>', $html);
+        self::assertStringNotContainsString('<thead><tr data-record-offset="0"></tr></thead>', $html);
+        self::assertStringNotContainsString('<tfoot><tr data-record-offset="0"></tr></tfoot>', $html);
     }
 
     /**
      * @covers ::__construct
      * @covers ::table
      */
-    public function testTableTriggersException()
+    public function testTableTriggersException(): void
     {
         self::expectException(DOMException::class);
         (new HTMLConverter())->table('table-csv-data', 'te st');

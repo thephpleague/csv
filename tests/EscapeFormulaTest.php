@@ -28,7 +28,7 @@ class EscapeFormulaTest extends TestCase
      * @covers ::__construct
      * @covers ::filterSpecialCharacters
      */
-    public function testConstructorThrowsTypError()
+    public function testConstructorThrowsTypError(): void
     {
         self::expectException(TypeError::class);
         new EscapeFormula("\t", [(object) 'i']);
@@ -39,7 +39,7 @@ class EscapeFormulaTest extends TestCase
      * @covers ::getSpecialCharacters
      * @covers ::filterSpecialCharacters
      */
-    public function testConstructorThrowsInvalidArgumentException()
+    public function testConstructorThrowsInvalidArgumentException(): void
     {
         self::expectException(InvalidArgumentException::class);
         new EscapeFormula("\t", ['i', 'foo']);
@@ -49,7 +49,7 @@ class EscapeFormulaTest extends TestCase
      * @covers ::__construct
      * @covers ::getEscape
      */
-    public function testGetEscape()
+    public function testGetEscape(): void
     {
         $formatter = new EscapeFormula();
         self::assertSame("\t", $formatter->getEscape());
@@ -62,7 +62,7 @@ class EscapeFormulaTest extends TestCase
      * @covers ::getSpecialCharacters
      * @covers ::filterSpecialCharacters
      */
-    public function testGetSpecialChars()
+    public function testGetSpecialChars(): void
     {
         $formatter = new EscapeFormula();
         self::assertNotContains('i', $formatter->getSpecialCharacters());
@@ -75,7 +75,7 @@ class EscapeFormulaTest extends TestCase
      * @covers ::escapeField
      * @covers ::isStringable
      */
-    public function testEscapeRecord()
+    public function testEscapeRecord(): void
     {
         $record = ['2', '2017-07-25', 'Important Client', '=2+5', 240, null, (object) 'yes'];
         $expected = ['2', '2017-07-25', 'Important Client', "\t=2+5", 240, null, (object) 'yes'];
@@ -89,13 +89,13 @@ class EscapeFormulaTest extends TestCase
      * @covers ::escapeField
      * @covers ::isStringable
      */
-    public function testFormatterOnWriter()
+    public function testFormatterOnWriter(): void
     {
         $record = ['2', '2017-07-25', 'Important Client', '=2+5', 240, null];
         $expected = "2,2017-07-25,\"Important Client\",\"\t=2+5\",240,\n";
         $csv = Writer::createFromFileObject(new SplTempFileObject());
         $csv->addFormatter(new EscapeFormula());
         $csv->insertOne($record);
-        self::assertContains($expected, $csv->getContent());
+        self::assertStringContainsString($expected, $csv->getContent());
     }
 }

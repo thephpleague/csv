@@ -32,12 +32,12 @@ use const STREAM_FILTER_READ;
  */
 class StreamTest extends TestCase
 {
-    public function setUp()
+    public function setUp(): void
     {
         stream_wrapper_register(StreamWrapper::PROTOCOL, StreamWrapper::class);
     }
 
-    public function tearDown()
+    public function tearDown(): void
     {
         stream_wrapper_unregister(StreamWrapper::PROTOCOL);
     }
@@ -45,7 +45,7 @@ class StreamTest extends TestCase
     /**
      * @covers ::__clone
      */
-    public function testCloningIsForbidden()
+    public function testCloningIsForbidden(): void
     {
         self::expectException(Exception::class);
         $toto = clone new Stream(fopen('php://temp', 'r+'));
@@ -54,7 +54,7 @@ class StreamTest extends TestCase
     /**
      * @covers ::__construct
      */
-    public function testCreateStreamWithInvalidParameter()
+    public function testCreateStreamWithInvalidParameter(): void
     {
         self::expectException(TypeError::class);
         new Stream(__DIR__.'/data/foo.csv');
@@ -63,7 +63,7 @@ class StreamTest extends TestCase
     /**
      * @covers ::__construct
      */
-    public function testCreateStreamWithWrongResourceType()
+    public function testCreateStreamWithWrongResourceType(): void
     {
         self::expectException(TypeError::class);
         new Stream(curl_init());
@@ -72,7 +72,7 @@ class StreamTest extends TestCase
     /**
      * @covers ::createFromPath
      */
-    public function testCreateStreamFromPath()
+    public function testCreateStreamFromPath(): void
     {
         $path = 'no/such/file.csv';
         self::expectException(Exception::class);
@@ -85,8 +85,9 @@ class StreamTest extends TestCase
      * @covers ::current
      * @covers ::getCurrentRecord
      */
-    public function testCreateStreamFromPathWithContext()
+    public function testCreateStreamFromPathWithContext(): void
     {
+        /** @var resource $fp */
         $fp = fopen('php://temp', 'r+');
         $expected = [
             ['john', 'doe', 'john.doe@example.com'],
@@ -104,7 +105,7 @@ class StreamTest extends TestCase
         );
         $stream->setFlags(SplFileObject::READ_AHEAD | SplFileObject::READ_CSV);
         $stream->rewind();
-        self::assertInternalType('array', $stream->current());
+        self::assertIsArray($stream->current());
     }
 
     /**
@@ -112,19 +113,15 @@ class StreamTest extends TestCase
      * @covers ::filterControl
      *
      * @dataProvider fputcsvProvider
-     *
-     * @param string $delimiter
-     * @param string $enclosure
-     * @param string $escape
      */
-    public function testfputcsv($delimiter, $enclosure, $escape)
+    public function testfputcsv(string $delimiter, string $enclosure, string $escape): void
     {
         self::expectException(Exception::class);
         $stream = new Stream(fopen('php://temp', 'r+'));
         $stream->fputcsv(['john', 'doe', 'john.doe@example.com'], $delimiter, $enclosure, $escape);
     }
 
-    public function fputcsvProvider()
+    public function fputcsvProvider(): array
     {
         return [
             'wrong delimiter' => ['toto', '"', '\\'],
@@ -136,16 +133,16 @@ class StreamTest extends TestCase
     /**
      * @covers ::__debugInfo
      */
-    public function testVarDump()
+    public function testVarDump(): void
     {
         $stream = new Stream(fopen('php://temp', 'r+'));
-        self::assertInternalType('array', $stream->__debugInfo());
+        self::assertIsArray($stream->__debugInfo());
     }
 
     /**
      * @covers ::seek
      */
-    public function testSeekThrowsException()
+    public function testSeekThrowsException(): void
     {
         self::expectException(Exception::class);
         $stream = new Stream(fopen('php://temp', 'r+'));
@@ -155,7 +152,7 @@ class StreamTest extends TestCase
     /**
      * @covers ::seek
      */
-    public function testSeek()
+    public function testSeek(): void
     {
         $doc = Stream::createFromPath(__DIR__.'/data/prenoms.csv');
         $doc->setCsvControl(';');
@@ -168,7 +165,7 @@ class StreamTest extends TestCase
      * @covers ::seek
      * @covers ::key
      */
-    public function testSeekToPositionZero()
+    public function testSeekToPositionZero(): void
     {
         $doc = Stream::createFromString();
         $doc->seek(0);
@@ -178,7 +175,7 @@ class StreamTest extends TestCase
     /**
      * @covers ::rewind
      */
-    public function testRewindThrowsException()
+    public function testRewindThrowsException(): void
     {
         self::expectException(Exception::class);
         $stream = new Stream(fopen('php://stdin', 'r'));
@@ -188,7 +185,7 @@ class StreamTest extends TestCase
     /**
      * @covers ::seek
      */
-    public function testCreateStreamWithNonSeekableStream()
+    public function testCreateStreamWithNonSeekableStream(): void
     {
         self::expectException(Exception::class);
         $stream = new Stream(fopen('php://stdin', 'r'));
@@ -200,7 +197,7 @@ class StreamTest extends TestCase
      * @covers ::getCsvControl
      * @covers ::filterControl
      */
-    public function testCsvControl()
+    public function testCsvControl(): void
     {
         $doc = Stream::createFromString('foo,bar');
         self::assertSame([',', '"', '\\'], $doc->getCsvControl());
@@ -211,7 +208,7 @@ class StreamTest extends TestCase
         $doc->setCsvControl(...['foo']);
     }
 
-    public function testCsvControlThrowsOnEmptyEscapeString()
+    public function testCsvControlThrowsOnEmptyEscapeString(): void
     {
         if (70400 <= PHP_VERSION_ID) {
             $this->markTestSkipped('This test is only for PHP7.4- versions');
@@ -221,7 +218,7 @@ class StreamTest extends TestCase
         $doc->setCsvControl(...[';', '|', '']);
     }
 
-    public function testCsvControlAcceptsEmptyEscapeString()
+    public function testCsvControlAcceptsEmptyEscapeString(): void
     {
         if (70400 > PHP_VERSION_ID) {
             $this->markTestSkipped('This test is only for PHP7.4+ versions');
@@ -235,7 +232,7 @@ class StreamTest extends TestCase
     /**
      * @covers ::appendFilter
      */
-    public function testAppendStreamFilterThrowsException()
+    public function testAppendStreamFilterThrowsException(): void
     {
         $filtername = 'foo.bar';
         self::expectException(InvalidArgument::class);

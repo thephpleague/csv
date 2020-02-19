@@ -25,19 +25,20 @@ use SplTempFileObject;
  */
 class ColumnConsistencyTest extends TestCase
 {
+    /** @var Writer  */
     private $csv;
 
-    public function setUp()
+    public function setUp(): void
     {
         $this->csv = Writer::createFromFileObject(new SplTempFileObject());
     }
 
-    public function tearDown()
+    public function tearDown(): void
     {
         $csv = new SplFileObject(__DIR__.'/data/foo.csv', 'w');
         $csv->setCsvControl();
         $csv->fputcsv(['john', 'doe', 'john.doe@example.com'], ',', '"');
-        $this->csv = null;
+        unset($this->csv);
     }
 
     /**
@@ -46,7 +47,7 @@ class ColumnConsistencyTest extends TestCase
      * @covers ::__invoke
      * @covers League\Csv\CannotInsertRecord
      */
-    public function testAutoDetect()
+    public function testAutoDetect(): void
     {
         try {
             $expected = ['jane', 'jane.doe@example.com'];
@@ -67,7 +68,7 @@ class ColumnConsistencyTest extends TestCase
      * @covers ::__invoke
      * @covers League\Csv\CannotInsertRecord
      */
-    public function testColumnsCount()
+    public function testColumnsCount(): void
     {
         self::expectException(CannotInsertRecord::class);
         $this->csv->addValidator(new ColumnConsistency(3), 'consistency');
@@ -79,7 +80,7 @@ class ColumnConsistencyTest extends TestCase
      * @covers ::__construct
      * @covers League\Csv\Exception
      */
-    public function testColumsCountTriggersException()
+    public function testColumsCountTriggersException(): void
     {
         self::expectException(Exception::class);
         new ColumnConsistency(-2);

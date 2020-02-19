@@ -19,7 +19,6 @@ use function array_keys;
 use function array_map;
 use function array_merge;
 use function array_unique;
-use function is_object;
 use function is_string;
 use function method_exists;
 use function sprintf;
@@ -126,7 +125,11 @@ class EscapeFormula
     }
 
     /**
-     * Escape a CSV cell.
+     * Escape a CSV cell if its content is stringable.
+     *
+     * @param mixed $cell the content of the cell
+     *
+     * @return mixed|string the escaped content
      */
     protected function escapeField($cell)
     {
@@ -143,10 +146,12 @@ class EscapeFormula
     }
 
     /**
-     * Tell whether the submitted value is stringable.
+     * Tells whether the submitted value is stringable.
+     *
+     * @param string|object $value
      */
     protected function isStringable($value): bool
     {
-        return is_string($value) || (is_object($value) && method_exists($value, '__toString'));
+        return is_string($value) || method_exists($value, '__toString');
     }
 }

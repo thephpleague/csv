@@ -37,7 +37,7 @@ class CannotInsertRecord extends Exception
      */
     public static function triggerOnInsertion(array $record): self
     {
-        $exception = new static('Unable to write record to the CSV document');
+        $exception = new self('Unable to write record to the CSV document');
         $exception->record = $record;
 
         return $exception;
@@ -48,7 +48,7 @@ class CannotInsertRecord extends Exception
      */
     public static function triggerOnValidation(string $name, array $record): self
     {
-        $exception = new static('Record validation failed');
+        $exception = new self('Record validation failed');
         $exception->name = $name;
         $exception->record = $record;
 

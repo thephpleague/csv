@@ -1,5 +1,21 @@
 includes:
 	- vendor/phpstan/phpstan-strict-rules/rules.neon
 parameters:
-	ignoreErrors:
-	reportUnmatchedIgnoredErrors: false
+    checkGenericClassInNonGenericObjectType: false
+    checkMissingIterableValueType: false
+    ignoreErrors:
+        - message: '#Variable method call on \$this\(League\\Csv\\XMLConverter\)#'
+          path: src/XMLConverter.php
+        - message: '#Variable method call on \$this\(League\\Csv\\Writer\)#'
+          path: src/Writer.php
+        - message: '#Variable method call on League\\Csv\\ResultSet#'
+          path: src/Reader.php
+        - message: '#Method League\\Csv\\Reader::__call\(\) has no return typehint specified.#'
+          path: src/Reader.php
+        - '#Access to an undefined property object::\$data.#'
+        - '#Unreachable statement - code above always terminates.#'
+        - message: '#Call to function is_resource\(\) with resource will always evaluate to true.#'
+          path: src/Stream.php
+        - message: '#Unsafe usage of new static\(\).#'
+          path: src/AbstractCsv.php
+    reportUnmatchedIgnoredErrors: false

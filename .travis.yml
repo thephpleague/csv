@@ -8,18 +8,6 @@ env:
         - COMPOSER_ARGS="--no-interaction --prefer-source --no-suggest"
 matrix:
     include:
-        - php: 7.0
-          env:
-              - COLLECT_COVERAGE=true
-              - IGNORE_PLATFORMS=false
-              - RUN_PHPSTAN=true
-              - VALIDATE_CODING_STYLE=false
-        - php: 7.1
-          env:
-              - COLLECT_COVERAGE=true
-              - IGNORE_PLATFORMS=false
-              - RUN_PHPSTAN=true
-              - VALIDATE_CODING_STYLE=false
         - php: 7.2
           env:
               - COLLECT_COVERAGE=true
@@ -34,15 +22,15 @@ matrix:
               - VALIDATE_CODING_STYLE=false
         - php: 7.4
           env:
-              - COLLECT_COVERAGE=false
+              - COLLECT_COVERAGE=true
+              - IGNORE_PLATFORMS=false
+              - RUN_PHPSTAN=true
               - VALIDATE_CODING_STYLE=false
-              - RUN_PHPSTAN=false
-              - IGNORE_PLATFORMS=true
         - php: nightly
           env:
               - COLLECT_COVERAGE=false
               - IGNORE_PLATFORMS=true
-              - RUN_PHPSTAN=true
+              - RUN_PHPSTAN=false
               - VALIDATE_CODING_STYLE=false
     allow_failures:
         - php: nightly
@@ -50,13 +38,11 @@ matrix:
 before_install:
     - travis_retry composer self-update
 install:
-    - if [ "$IGNORE_PLATFORMS" == "true" ]; then travis_retry composer update $COMPOSER_ARGS
-        --ignore-platform-reqs; fi
-    - if [ "$IGNORE_PLATFORMS" == "false" ]; then travis_retry composer update $COMPOSER_ARGS;
-        fi
+    - if [ "$IGNORE_PLATFORMS" == "true" ]; then travis_retry composer update $COMPOSER_ARGS --ignore-platform-reqs; fi
+    - if [ "$IGNORE_PLATFORMS" == "false" ]; then travis_retry composer update $COMPOSER_ARGS; fi
 script:
-    - if [ "$RUN_PHPSTAN" == "true" ]; then composer phpstan; fi
     - if [ "$VALIDATE_CODING_STYLE" == "true" ]; then composer phpcs; fi
+    - if [ "$RUN_PHPSTAN" == "true" ]; then composer phpstan; fi
     - composer phpunit
 after_script:
     - if [ "$COLLECT_COVERAGE" == "true" ]; then wget https://scrutinizer-ci.com/ocular.phar

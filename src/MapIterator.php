@@ -40,7 +40,7 @@ class MapIterator extends IteratorIterator
     }
 
     /**
-     * {@inheritdoc}
+     * @return mixed The value of the current element.
      */
     public function current()
     {

@@ -45,14 +45,14 @@ class EncloseFieldTest extends TestCase
      * @covers ::onCreate
      * @covers ::filter
      */
-    public function testEncloseAll()
+    public function testEncloseAll(): void
     {
         $csv = Writer::createFromString('');
         $csv->setDelimiter('|');
         EncloseField::addTo($csv, "\t\x1f");
         self::assertContains(EncloseField::getFiltername(), stream_get_filters());
         $csv->insertAll($this->records);
-        self::assertContains('"Grand Cherokee"', $csv->getContent());
+        self::assertStringContainsString('"Grand Cherokee"', $csv->getContent());
     }
 
     /**
@@ -60,14 +60,14 @@ class EncloseFieldTest extends TestCase
      * @covers ::isValidSequence
      * @dataProvider wrongParamProvider
      */
-    public function testOnCreateFailedWithWrongParams(array $params)
+    public function testOnCreateFailedWithWrongParams(array $params): void
     {
         $filter = new EncloseField();
         $filter->params = $params;
         self::assertFalse($filter->onCreate());
     }
 
-    public function wrongParamProvider()
+    public function wrongParamProvider(): iterable
     {
         return [
             'empty array' => [[
@@ -84,7 +84,7 @@ class EncloseFieldTest extends TestCase
     /**
      * @covers ::addTo
      */
-    public function testEncloseFieldImmutability()
+    public function testEncloseFieldImmutability(): void
     {
         self::expectException(InvalidArgumentException::class);
         $csv = Writer::createFromString('');
