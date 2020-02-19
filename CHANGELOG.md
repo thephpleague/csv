@@ -6,7 +6,7 @@ All Notable changes to `Csv` will be documented in this file
 
 ### Added
 
-- Nothing
+- More return types and type parameters as supported in PHP7.2+
 
 ### Deprecated
 
@@ -18,7 +18,9 @@ All Notable changes to `Csv` will be documented in this file
 
 ### Removed
 
-- Nothing
+- polyfill for `is_iterable`
+- polyfill for `is_nullable_int`
+- Support for PHP7.0 and PHP7.1
 
 ## 9.5.0 - 2019-12-15
 

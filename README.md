@@ -17,7 +17,6 @@ Highlights
 
 * Simple API
 * Read and Write to CSV documents in a memory efficient and scalable way
-* Use SPL to interact with the CSV documents
 * Support PHP Stream filtering capabilities
 * Transform CSV documents into popular format (JSON, XML or HTML)
 * Fully documented
@@ -33,7 +32,7 @@ Full documentation can be found at [csv.thephpleague.com](https://csv.thephpleag
 System Requirements
 -------
 
-You need **PHP >= 7.0.10** and the `mbstring` extension to use `Csv` but the latest stable version of PHP is recommended.
+You need **PHP >= 7.2.0** and the `mbstring` extension to use `Csv` but the latest stable version of PHP is recommended.
 
 Install
 -------
