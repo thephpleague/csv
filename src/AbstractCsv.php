@@ -99,7 +99,7 @@ abstract class AbstractCsv implements ByteSequence
      *
      * @param \SplFileObject|Stream $document The CSV Object instance
      */
-    private function __construct($document)
+    protected function __construct($document)
     {
         $this->document = $document;
         [$this->delimiter, $this->enclosure, $this->escape] = $this->document->getCsvControl();

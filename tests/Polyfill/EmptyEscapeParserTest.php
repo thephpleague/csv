@@ -32,7 +32,7 @@ class EmptyEscapeParserTest extends TestCase
     public function testConstructorThrowsTypeErrorWithUnknownDocument(): void
     {
         self::expectException(TypeError::class);
-        $records = EmptyEscapeParser::parse([]);
+        $records = EmptyEscapeParser::parse(new \stdClass());
         $records->rewind();
     }
 

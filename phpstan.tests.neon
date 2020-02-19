@@ -7,7 +7,7 @@ parameters:
           path: tests/EscapeFormulaTest.php
         - message: '#Parameter \#2 \$delimiters of function League\\Csv\\delimiter_detect expects array<string>, array<int, array\|string> given.#'
           path: tests/DetectDelimiterTest.php
-        - message: '#Parameter \#1 \$document of static method League\\Csv\\Polyfill\\EmptyEscapeParser::parse\(\) expects League\\Csv\\Stream\|SplFileObject, array given.#'
+        - message: '#Parameter \#1 \$document of static method League\\Csv\\Polyfill\\EmptyEscapeParser::parse\(\) expects League\\Csv\\Stream\|SplFileObject, stdClass given.#'
           path: tests/Polyfill/EmptyEscapeParserTest.php
     reportUnmatchedIgnoredErrors: true
     checkMissingIterableValueType: false
