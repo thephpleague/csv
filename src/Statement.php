@@ -142,8 +142,8 @@ class Statement
     {
         if (!($records instanceof Reader) && !($records instanceof ResultSet)) {
             throw new TypeError(sprintf(
-                '%s::parse expects parameter 1 to be a %s or a %s object, %s given',
-                Statement::class,
+                '%s expects parameter 1 to be a %s or a %s object, %s given',
+                __METHOD__,
                 ResultSet::class,
                 Reader::class,
                 get_class($records)
@@ -154,42 +154,11 @@ class Statement
             $header = $records->getHeader();
         }
 
-        $iterator = $this->combineHeader($records, $header);
+        $iterator = $records->getRecords($header);
         $iterator = array_reduce($this->where, [$this, 'filter'], $iterator);
         $iterator = $this->buildOrderBy($iterator);
 
         return new ResultSet(new LimitIterator($iterator, $this->offset, $this->limit), $header);
-    }
-
-    /**
-     * Combine the CSV header to each record if present.
-     *
-     * @param Reader|ResultSet $iterator
-     * @param string[]         $header
-     */
-    protected function combineHeader($iterator, array $header): Iterator
-    {
-        if ($iterator instanceof Reader) {
-            return $iterator->getRecords($header);
-        }
-
-        if ($header === $iterator->getHeader()) {
-            return $iterator->getRecords();
-        }
-
-        $field_count = count($header);
-        $mapper = static function (array $record) use ($header, $field_count): array {
-            if (count($record) != $field_count) {
-                $record = array_slice(array_pad($record, $field_count, null), 0, $field_count);
-            }
-
-            /** @var array<string|null> $assocRecord */
-            $assocRecord = array_combine($header, $record);
-
-            return $assocRecord;
-        };
-
-        return new MapIterator($iterator, $mapper);
     }
 
     /**
