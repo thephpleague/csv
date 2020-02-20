@@ -7,6 +7,10 @@ All Notable changes to `Csv` will be documented in this file
 ### Added
 
 - More return types and type parameters as supported in PHP7.2+
+- `League\Csv\Statement::create` named constructor to ease constraint builder instantiation
+- `League\Csv\Statement` can now also process `League\Csv\ResultSet` instances.
+- `League\Csv\ResultSet::getRecords` has an optional `$header` second argument to make the method works like `League\Csv\Reader::getRecords` 
+- `League\Csv\TabularDataReader` interface to represent how to read tabular data
 
 ### Deprecated
 
@@ -14,7 +18,7 @@ All Notable changes to `Csv` will be documented in this file
 
 ### Fixed
 
-- Nothing
+- `League\Csv\Reader` no longer uses `__call` to implement `fetchOne`, `fetchPairs` and `fetchColumn` methods.
 
 ### Removed
 

@@ -9,8 +9,5 @@ parameters:
           path: tests/DetectDelimiterTest.php
         - message: '#Parameter \#1 \$document of static method League\\Csv\\Polyfill\\EmptyEscapeParser::parse\(\) expects League\\Csv\\Stream\|SplFileObject, stdClass given.#'
           path: tests/Polyfill/EmptyEscapeParserTest.php
-        - message: '#Parameter \#1 \$records of method League\\Csv\\Statement::process\(\) expects League\\Csv\\Reader\|League\\Csv\\ResultSet, stdClass given.#'
-          path: tests/ResultSetTest.php
-
     reportUnmatchedIgnoredErrors: true
     checkMissingIterableValueType: false

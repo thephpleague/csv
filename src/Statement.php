@@ -17,7 +17,6 @@ use ArrayIterator;
 use CallbackFilterIterator;
 use Iterator;
 use LimitIterator;
-use TypeError;
 use function array_reduce;
 
 /**
@@ -71,10 +70,10 @@ class Statement
     /**
      * Set the Iterator filter method.
      */
-    public function where(callable $callable): self
+    public function where(callable $where): self
     {
         $clone = clone $this;
-        $clone->where[] = $callable;
+        $clone->where[] = $where;
 
         return $clone;
     }
@@ -82,10 +81,10 @@ class Statement
     /**
      * Set an Iterator sorting callable function.
      */
-    public function orderBy(callable $callable): self
+    public function orderBy(callable $order_by): self
     {
         $clone = clone $this;
-        $clone->order_by[] = $callable;
+        $clone->order_by[] = $order_by;
 
         return $clone;
     }
@@ -135,26 +134,15 @@ class Statement
     /**
      * Execute the prepared Statement on the {@link Reader} object.
      *
-     * @param Reader|ResultSet $records
-     * @param string[]         $header  an optional header to use instead of the CSV document header
+     * @param string[] $header an optional header to use instead of the CSV document header
      */
-    public function process($records, array $header = []): ResultSet
+    public function process(TabularDataReader $tabular_data, array $header = []): TabularDataReader
     {
-        if (!($records instanceof Reader) && !($records instanceof ResultSet)) {
-            throw new TypeError(sprintf(
-                '%s expects parameter 1 to be a %s or a %s object, %s given',
-                __METHOD__,
-                ResultSet::class,
-                Reader::class,
-                get_class($records)
-            ));
-        }
-
         if ([] === $header) {
-            $header = $records->getHeader();
+            $header = $tabular_data->getHeader();
         }
 
-        $iterator = $records->getRecords($header);
+        $iterator = $tabular_data->getRecords($header);
         $iterator = array_reduce($this->where, [$this, 'filter'], $iterator);
         $iterator = $this->buildOrderBy($iterator);
 

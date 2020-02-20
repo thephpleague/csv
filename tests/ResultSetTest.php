@@ -20,8 +20,6 @@ use League\Csv\SyntaxError;
 use OutOfBoundsException;
 use PHPUnit\Framework\TestCase;
 use SplTempFileObject;
-use stdClass;
-use TypeError;
 use function array_reverse;
 use function current;
 use function in_array;
@@ -114,13 +112,6 @@ class ResultSetTest extends TestCase
         $stmt_alt = $this->stmt->limit(-1)->offset(0);
 
         self::assertSame($stmt_alt, $this->stmt);
-    }
-
-    public function testProcessThrowsOnUnsupportedFormat(): void
-    {
-        self::expectException(TypeError::class);
-        $stmt = Statement::create();
-        $stmt->process(new stdClass());
     }
 
     /**

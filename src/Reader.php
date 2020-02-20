@@ -13,12 +13,8 @@ declare(strict_types=1);
 
 namespace League\Csv;
 
-use BadMethodCallException;
 use CallbackFilterIterator;
-use Countable;
-use Generator;
 use Iterator;
-use IteratorAggregate;
 use JsonSerializable;
 use League\Csv\Polyfill\EmptyEscapeParser;
 use SplFileObject;
@@ -41,12 +37,8 @@ use const STREAM_FILTER_READ;
 
 /**
  * A class to parse and read records from a CSV document.
- *
- * @method array fetchOne(int $nth_record = 0) Returns a single record from the CSV
- * @method Generator fetchColumn(string|int $column_index) Returns the next value from a single CSV record field
- * @method Generator fetchPairs(string|int $offset_index = 0, string|int $value_index = 1) Fetches the next key-value pairs from the CSV document
  */
-class Reader extends AbstractCsv implements Countable, IteratorAggregate, JsonSerializable
+class Reader extends AbstractCsv implements TabularDataReader, JsonSerializable
 {
     /**
      * header offset.
@@ -109,11 +101,7 @@ class Reader extends AbstractCsv implements Countable, IteratorAggregate, JsonSe
     }
 
     /**
-     * Returns the CSV record used as header.
-     *
-     * The returned header is represented as an array of string values
-     *
-     * @return string[]
+     * {@inheritDoc}
      */
     public function getHeader(): array
     {
@@ -153,7 +141,6 @@ class Reader extends AbstractCsv implements Countable, IteratorAggregate, JsonSe
 
     /**
      * Returns the row at a given offset.
-     *
      */
     protected function seekRow(int $offset): array
     {
@@ -210,14 +197,31 @@ class Reader extends AbstractCsv implements Countable, IteratorAggregate, JsonSe
     /**
      * {@inheritdoc}
      */
-    public function __call(string $method, array $arguments)
+    public function fetchColumn($index = 0): Iterator
     {
-        static $whitelisted = ['fetchColumn' => 1, 'fetchOne' => 1, 'fetchPairs' => 1];
-        if (isset($whitelisted[$method])) {
-            return (new ResultSet($this->getRecords(), $this->getHeader()))->$method(...$arguments);
-        }
+        $tabular_data = new ResultSet($this->getRecords(), $this->getHeader());
 
-        throw new BadMethodCallException(sprintf('%s::%s() method does not exist', static::class, $method));
+        return $tabular_data->fetchColumn($index);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function fetchOne(int $nth_record = 0): array
+    {
+        $tabular_data = new ResultSet($this->getRecords(), $this->getHeader());
+
+        return $tabular_data->fetchOne($nth_record);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function fetchPairs($offset_index = 0, $value_index = 1): Iterator
+    {
+        $tabular_data = new ResultSet($this->getRecords(), $this->getHeader());
+
+        return $tabular_data->fetchPairs($offset_index, $value_index);
     }
 
     /**
