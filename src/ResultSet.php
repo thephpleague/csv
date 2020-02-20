@@ -52,7 +52,18 @@ class ResultSet implements Countable, IteratorAggregate, JsonSerializable
     public function __construct(Iterator $records, array $header)
     {
         $this->records = $records;
+        $this->validateHeader($header);
         $this->header = $header;
+    }
+
+    /**
+     * @throws SyntaxError if the header syntax is invalid
+     */
+    protected function validateHeader(array $header): void
+    {
+        if ($header !== array_unique(array_filter($header, 'is_string'))) {
+            throw new SyntaxError('The header record must be an empty or a flat array with unique string values.');
+        }
     }
 
     /**
@@ -86,6 +97,7 @@ class ResultSet implements Countable, IteratorAggregate, JsonSerializable
      */
     public function getRecords(array $header = []): Generator
     {
+        $this->validateHeader($header);
         $records = $this->combineHeader($header);
         foreach ($records as $offset => $value) {
             yield $offset => $value;

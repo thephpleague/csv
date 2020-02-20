@@ -316,7 +316,7 @@ class Reader extends AbstractCsv implements Countable, IteratorAggregate, JsonSe
             return $header;
         }
 
-        throw new SyntaxError('The header record must be empty or a flat array with unique string values');
+        throw new SyntaxError('The header record must be an empty or a flat array with unique string values.');
     }
 
     /**

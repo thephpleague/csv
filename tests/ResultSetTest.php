@@ -16,6 +16,7 @@ use League\Csv\Exception;
 use League\Csv\InvalidArgument;
 use League\Csv\Reader;
 use League\Csv\Statement;
+use League\Csv\SyntaxError;
 use OutOfBoundsException;
 use PHPUnit\Framework\TestCase;
 use SplTempFileObject;
@@ -193,7 +194,8 @@ class ResultSetTest extends TestCase
      * @covers League\Csv\Statement::where
      * @covers League\Csv\Statement::create
      * @covers League\Csv\Statement::process
-     * @covers League\Csv\Statement::combineHeader
+     * @covers League\Csv\ResultSet::combineHeader
+     * @covers League\Csv\ResultSet::getRecords
      */
     public function testFilter(): void
     {
@@ -515,5 +517,21 @@ class ResultSetTest extends TestCase
             '[{"First Name":"jane","Last Name":"doe","E-mail":"jane.doe@example.com"}]',
             json_encode($result)
         );
+    }
+
+    /**
+     * @covers ::validateHeader
+     */
+    public function testHeaderThrowsExceptionOnError(): void
+    {
+        self::expectException(SyntaxError::class);
+        $csv = Reader::createFromString(
+            'field1,field1,field3
+            1,2,3
+            4,5,6'
+        );
+        $csv->setDelimiter(',');
+        $resultSet = Statement::create()->process($csv);
+        Statement::create()->process($resultSet, ['foo', 'foo']);
     }
 }
