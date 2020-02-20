@@ -183,7 +183,7 @@ EOF;
         $csv = Reader::createFromFileObject($file);
         $csv->setHeaderOffset(0);
 
-        $res = (new Statement())->process($csv);
+        $res = Statement::create()->process($csv);
         self::assertEquals($csv->fetchOne(3), $res->fetchOne(3));
         self::assertEquals($csv->fetchColumn('firstname'), $res->fetchColumn('firstname'));
         self::assertEquals($csv->fetchPairs('lastname', 0), $res->fetchPairs('lastname', 0));

@@ -16,9 +16,12 @@ use League\Csv\Exception;
 use League\Csv\InvalidArgument;
 use League\Csv\Reader;
 use League\Csv\Statement;
+use League\Csv\SyntaxError;
 use OutOfBoundsException;
 use PHPUnit\Framework\TestCase;
 use SplTempFileObject;
+use stdClass;
+use TypeError;
 use function array_reverse;
 use function current;
 use function in_array;
@@ -60,7 +63,7 @@ class ResultSetTest extends TestCase
         }
 
         $this->csv = Reader::createFromFileObject($tmp);
-        $this->stmt = new Statement();
+        $this->stmt = Statement::create();
     }
 
     public function tearDown(): void
@@ -111,6 +114,13 @@ class ResultSetTest extends TestCase
         $stmt_alt = $this->stmt->limit(-1)->offset(0);
 
         self::assertSame($stmt_alt, $this->stmt);
+    }
+
+    public function testProcessThrowsOnUnsupportedFormat(): void
+    {
+        self::expectException(TypeError::class);
+        $stmt = Statement::create();
+        $stmt->process(new stdClass());
     }
 
     /**
@@ -182,17 +192,34 @@ class ResultSetTest extends TestCase
 
     /**
      * @covers League\Csv\Statement::where
+     * @covers League\Csv\Statement::create
+     * @covers League\Csv\Statement::process
+     * @covers League\Csv\ResultSet::combineHeader
+     * @covers League\Csv\ResultSet::getRecords
      */
     public function testFilter(): void
     {
-        $func = function ($row) {
+        $func1 = function ($row) {
             return !in_array('jane', $row, true);
         };
 
+        $func2 = function ($row) {
+            return !in_array('john', $row, true);
+        };
+
+        $stmt = Statement::create($func1);
+        $result1 = $stmt->process($this->csv);
+
+        $result2 = $stmt->where($func2)->process($result1, ['foo', 'bar']);
+        $result3 = $stmt->where($func2)->process($result2, ['foo', 'bar']);
+
         self::assertNotContains(
             ['jane', 'doe', 'jane.doe@example.com'],
-            iterator_to_array($this->stmt->where($func)->process($this->csv), false)
+            iterator_to_array($result1, false)
         );
+
+        self::assertCount(0, $result2);
+        self::assertEquals($result3, $result2);
     }
 
     /**
@@ -469,6 +496,7 @@ class ResultSetTest extends TestCase
 
     /**
      * @covers ::jsonSerialize
+     * @covers \League\Csv\Statement::create
      */
     public function testJsonSerialize(): void
     {
@@ -484,10 +512,26 @@ class ResultSetTest extends TestCase
         }
 
         $reader = Reader::createFromFileObject($tmp)->setHeaderOffset(0);
-        $result = (new Statement())->offset(1)->limit(1)->process($reader);
+        $result = Statement::create(null, 1, 1)->process($reader);
         self::assertSame(
             '[{"First Name":"jane","Last Name":"doe","E-mail":"jane.doe@example.com"}]',
             json_encode($result)
         );
+    }
+
+    /**
+     * @covers ::validateHeader
+     */
+    public function testHeaderThrowsExceptionOnError(): void
+    {
+        self::expectException(SyntaxError::class);
+        $csv = Reader::createFromString(
+            'field1,field1,field3
+            1,2,3
+            4,5,6'
+        );
+        $csv->setDelimiter(',');
+        $resultSet = Statement::create()->process($csv);
+        Statement::create()->process($resultSet, ['foo', 'foo']);
     }
 }

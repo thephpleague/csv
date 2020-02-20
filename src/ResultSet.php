@@ -52,7 +52,18 @@ class ResultSet implements Countable, IteratorAggregate, JsonSerializable
     public function __construct(Iterator $records, array $header)
     {
         $this->records = $records;
+        $this->validateHeader($header);
         $this->header = $header;
+    }
+
+    /**
+     * @throws SyntaxError if the header syntax is invalid
+     */
+    protected function validateHeader(array $header): void
+    {
+        if ($header !== array_unique(array_filter($header, 'is_string'))) {
+            throw new SyntaxError('The header record must be an empty or a flat array with unique string values.');
+        }
     }
 
     /**
@@ -76,19 +87,45 @@ class ResultSet implements Countable, IteratorAggregate, JsonSerializable
     /**
      * {@inheritdoc}
      */
-    public function getRecords(): Generator
+    public function getIterator(): Generator
     {
-        foreach ($this->records as $offset => $value) {
-            yield $offset => $value;
-        }
+        return $this->getRecords();
     }
 
     /**
      * {@inheritdoc}
      */
-    public function getIterator(): Generator
+    public function getRecords(array $header = []): Generator
     {
-        return $this->getRecords();
+        $this->validateHeader($header);
+        $records = $this->combineHeader($header);
+        foreach ($records as $offset => $value) {
+            yield $offset => $value;
+        }
+    }
+
+    /**
+     * Combine the header to each record if present.
+     */
+    protected function combineHeader(array $header): Iterator
+    {
+        if ($header === $this->header || [] === $header) {
+            return $this->records;
+        }
+
+        $field_count = count($header);
+        $mapper = static function (array $record) use ($header, $field_count): array {
+            if (count($record) != $field_count) {
+                $record = array_slice(array_pad($record, $field_count, null), 0, $field_count);
+            }
+
+            /** @var array<string|null> $assocRecord */
+            $assocRecord = array_combine($header, $record);
+
+            return $assocRecord;
+        };
+
+        return new MapIterator($this->records, $mapper);
     }
 
     /**

@@ -17,8 +17,8 @@ use ArrayIterator;
 use CallbackFilterIterator;
 use Iterator;
 use LimitIterator;
+use TypeError;
 use function array_reduce;
-use function iterator_to_array;
 
 /**
  * Criteria to filter a {@link Reader} object.
@@ -52,6 +52,21 @@ class Statement
      * @var int
      */
     protected $limit = -1;
+
+    /**
+     * Named Constructor to ease Statement instantiation.
+     *
+     * @throws Exception
+     */
+    public static function create(callable $where = null, int $offset = 0, int $limit = -1): self
+    {
+        $stmt = new self();
+        if (null !== $where) {
+            $stmt = $stmt->where($where);
+        }
+
+        return $stmt->offset($offset)->limit($limit);
+    }
 
     /**
      * Set the Iterator filter method.
@@ -120,15 +135,27 @@ class Statement
     /**
      * Execute the prepared Statement on the {@link Reader} object.
      *
-     * @param string[] $header an optional header to use instead of the CSV document header
+     * @param Reader|ResultSet $records
+     * @param string[]         $header  an optional header to use instead of the CSV document header
      */
-    public function process(Reader $csv, array $header = []): ResultSet
+    public function process($records, array $header = []): ResultSet
     {
-        if ([] === $header) {
-            $header = $csv->getHeader();
+        if (!($records instanceof Reader) && !($records instanceof ResultSet)) {
+            throw new TypeError(sprintf(
+                '%s expects parameter 1 to be a %s or a %s object, %s given',
+                __METHOD__,
+                ResultSet::class,
+                Reader::class,
+                get_class($records)
+            ));
         }
 
-        $iterator = array_reduce($this->where, [$this, 'filter'], $csv->getRecords($header));
+        if ([] === $header) {
+            $header = $records->getHeader();
+        }
+
+        $iterator = $records->getRecords($header);
+        $iterator = array_reduce($this->where, [$this, 'filter'], $iterator);
         $iterator = $this->buildOrderBy($iterator);
 
         return new ResultSet(new LimitIterator($iterator, $this->offset, $this->limit), $header);
@@ -161,9 +188,12 @@ class Statement
             return $cmp ?? 0;
         };
 
-        $iterator = new ArrayIterator(iterator_to_array($iterator));
-        $iterator->uasort($compare);
+        $it = new ArrayIterator();
+        foreach ($iterator as $offset => $value) {
+            $it[$offset] = $value;
+        }
+        $it->uasort($compare);
 
-        return $iterator;
+        return $it;
     }
 }
