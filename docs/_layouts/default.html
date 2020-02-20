@@ -17,7 +17,8 @@
     <link rel="icon" type="image/x-icon" href="//theme.thephpleague.com/img/favicon.ico" />
     <link rel="apple-touch-icon-precomposed" href="//theme.thephpleague.com/img/apple-touch-icon-precomposed.png">
     <link rel="stylesheet" href="//theme.thephpleague.com/css/all.css?2">
-    <link rel="stylesheet" href="/custom.css?25">
+    <link rel="stylesheet" href="/custom.css?26">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/docsearch.js@2/dist/cdn/docsearch.min.css" />
     <script async src="https://www.googletagmanager.com/gtag/js?id={{  site.data.project.google_analytics_tracking_id }}"></script>
     <script>
         window.dataLayer = window.dataLayer || [];
@@ -29,16 +30,14 @@
 <body>
 <header>
     <div class="header-content">
-        <a class="logo" href="/">
-            <span class="name"><em>League\</em>Csv</span>
-        </a>
-
-        <nav>
+        <h1 class="title"><a href="/"><span>League\</span>{{ site.data.project.title }}</a></h1>
+        <div class="search"><input type="search" id="doc-search" placeholder="search the docs..."></div>
+        <nav class="versions">
             <h2>{% if upgrading == true %}Notes{% else %}v{{ version }}{% endif %} &#9662;</h2>
             <ul>
-            {% for v in site.data.menu.version %}
+                {% for v in site.data.menu.version %}
                 <li {% if version == v[0] and upgrading == false %}class="selected"{% endif %}><a href="/{{ v[0] }}/">v{{ v[0] }}</a></li>
-            {% endfor %}
+                {% endfor %}
                 <li {% if upgrading == true %}class="selected"{% endif %}><a href="/releases/">Notes</a></li>
             </ul>
         </nav>
@@ -113,5 +112,14 @@
     <span>Site design by <a href="//reinink.ca">Jonathan Reinink</a> and <a href="//nyamsprod.com">Ignace Nyamagana Butera</a>.</span>
 </footer>
 <script src="/custom.js?4"></script>
+<script src="https://cdn.jsdelivr.net/npm/docsearch.js@2/dist/cdn/docsearch.min.js"></script>
+<script> docsearch({
+    apiKey: '63ba748e8f5bceb91934667c118972d0',
+    indexName: 'thephpleague_csv',
+    inputSelector: '#doc-search',
+    algoliaOptions: { 'facetFilters': ["version:{{ version }}"] },
+    debug: false // Set debug to true if you want to inspect the dropdown
+});
+</script>
 </body>
 </html>
