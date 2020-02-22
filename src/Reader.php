@@ -199,9 +199,7 @@ class Reader extends AbstractCsv implements TabularDataReader, JsonSerializable
      */
     public function fetchColumn($index = 0): Iterator
     {
-        $tabular_data = new ResultSet($this->getRecords(), $this->getHeader());
-
-        return $tabular_data->fetchColumn($index);
+        return ResultSet::createFromReader($this)->fetchColumn($index);
     }
 
     /**
@@ -209,9 +207,7 @@ class Reader extends AbstractCsv implements TabularDataReader, JsonSerializable
      */
     public function fetchOne(int $nth_record = 0): array
     {
-        $tabular_data = new ResultSet($this->getRecords(), $this->getHeader());
-
-        return $tabular_data->fetchOne($nth_record);
+        return ResultSet::createFromReader($this)->fetchOne($nth_record);
     }
 
     /**
@@ -219,9 +215,7 @@ class Reader extends AbstractCsv implements TabularDataReader, JsonSerializable
      */
     public function fetchPairs($offset_index = 0, $value_index = 1): Iterator
     {
-        $tabular_data = new ResultSet($this->getRecords(), $this->getHeader());
-
-        return $tabular_data->fetchPairs($offset_index, $value_index);
+        return ResultSet::createFromReader($this)->fetchPairs($offset_index, $value_index);
     }
 
     /**
@@ -253,18 +247,7 @@ class Reader extends AbstractCsv implements TabularDataReader, JsonSerializable
     }
 
     /**
-     * Returns the CSV records as an iterator object.
-     *
-     * Each CSV record is represented as a simple array containing strings or null values.
-     *
-     * If the CSV document has a header record then each record is combined
-     * to the header record and the header record is removed from the iterator.
-     *
-     * If the CSV document is inconsistent. Missing record fields are
-     * filled with null values while extra record fields are strip from
-     * the returned object.
-     *
-     * @param string[] $header an optional header to use instead of the CSV document header
+     * {@inheritDoc}
      */
     public function getRecords(array $header = []): Iterator
     {

@@ -23,30 +23,10 @@ use IteratorAggregate;
 interface TabularDataReader extends Countable, IteratorAggregate
 {
     /**
-     * Returns the header associated with the tabular data.
-     *
-     * The header must contains unique string or is an empty array
-     * if no header was specified.
-     *
-     * @return string[]
+     * Returns the number of records contained in the tabular data structure
+     * excluding the header record.
      */
-    public function getHeader(): array;
-
-    /**
-     * Returns the tabular data records as an iterator object.
-     *
-     * Each record is represented as a simple array containing strings or null values.
-     *
-     * If the CSV document has a header record then each record is combined
-     * to the header record and the header record is removed from the iterator.
-     *
-     * If the CSV document is inconsistent. Missing record fields are
-     * filled with null values while extra record fields are strip from
-     * the returned object.
-     *
-     * @param string[] $header an optional header to use instead of the CSV document header
-     */
-    public function getRecords(array $header = []): Iterator;
+    public function count(): int;
 
     /**
      * Returns the tabular data records as an iterator object.
@@ -63,9 +43,30 @@ interface TabularDataReader extends Countable, IteratorAggregate
     public function getIterator(): Iterator;
 
     /**
-     * Returns the number of records contained in the tabular data structure.
+     * Returns the header associated with the tabular data.
+     *
+     * The header must contains unique string or is an empty array
+     * if no header was specified.
+     *
+     * @return string[]
      */
-    public function count(): int;
+    public function getHeader(): array;
+
+    /**
+     * Returns the tabular data records as an iterator object.
+     *
+     * Each record is represented as a simple array containing strings or null values.
+     *
+     * If the tabular data has a header record then each record is combined
+     * to the header record and the header record is removed from the iterator.
+     *
+     * If the tabular data is inconsistent. Missing record fields are
+     * filled with null values while extra record fields are strip from
+     * the returned object.
+     *
+     * @param string[] $header an optional header to use instead of the CSV document header
+     */
+    public function getRecords(array $header = []): Iterator;
 
     /**
      * Returns the nth record from the tabular data.
