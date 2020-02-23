@@ -69,12 +69,12 @@ function delimiter_detect(Reader $csv, array $delimiters, int $limit = 1): array
         return count($record) > 1;
     };
 
-    $stmt = (new Statement())->limit($limit);
+    $stmt = Statement::create(null, 0, $limit);
 
     $delimiter_stats = static function (array $stats, string $delimiter) use ($csv, $stmt, $record_filter): array {
         $csv->setDelimiter($delimiter);
         $found_records = array_filter(
-            iterator_to_array($stmt->process($csv), false),
+            iterator_to_array($stmt->process($csv)->getRecords(), false),
             $record_filter
         );
 

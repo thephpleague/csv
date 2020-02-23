@@ -11,7 +11,6 @@
 
 namespace LeagueTest\Csv;
 
-use BadMethodCallException;
 use League\Csv\Exception;
 use League\Csv\Reader;
 use League\Csv\Statement;
@@ -164,7 +163,9 @@ EOF;
     }
 
     /**
-     * @covers ::__call
+     * @covers ::fetchColumn
+     * @covers ::fetchOne
+     * @covers ::fetchPairs
      */
     public function testCall(): void
     {
@@ -187,26 +188,6 @@ EOF;
         self::assertEquals($csv->fetchOne(3), $res->fetchOne(3));
         self::assertEquals($csv->fetchColumn('firstname'), $res->fetchColumn('firstname'));
         self::assertEquals($csv->fetchPairs('lastname', 0), $res->fetchPairs('lastname', 0));
-    }
-
-    /**
-     * @covers ::__call
-     *
-     * @param string $method
-     * @dataProvider invalidMethodCallMethodProvider
-     */
-    public function testCallThrowsException($method): void
-    {
-        self::expectException(BadMethodCallException::class);
-        $this->csv->$method();
-    }
-
-    public function invalidMethodCallMethodProvider(): iterable
-    {
-        return [
-            'unknown method' => ['foo'],
-            'ResultSet method not whitelisted' => ['isRecordOffsetPreserved'],
-        ];
     }
 
     /**

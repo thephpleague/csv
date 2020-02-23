@@ -14,10 +14,7 @@ declare(strict_types=1);
 namespace League\Csv;
 
 use CallbackFilterIterator;
-use Countable;
-use Generator;
 use Iterator;
-use IteratorAggregate;
 use JsonSerializable;
 use LimitIterator;
 use function array_flip;
@@ -30,7 +27,7 @@ use function sprintf;
 /**
  * Represents the result set of a {@link Reader} processed by a {@link Statement}.
  */
-class ResultSet implements Countable, IteratorAggregate, JsonSerializable
+class ResultSet implements TabularDataReader, JsonSerializable
 {
     /**
      * The CSV records collection.
@@ -51,8 +48,9 @@ class ResultSet implements Countable, IteratorAggregate, JsonSerializable
      */
     public function __construct(Iterator $records, array $header)
     {
-        $this->records = $records;
         $this->validateHeader($header);
+
+        $this->records = $records;
         $this->header = $header;
     }
 
@@ -75,6 +73,14 @@ class ResultSet implements Countable, IteratorAggregate, JsonSerializable
     }
 
     /**
+     * Returns a new instance from a League\Csv\Reader object.
+     */
+    public static function createFromReader(Reader $reader): self
+    {
+        return new self($reader->getRecords(), $reader->getHeader());
+    }
+
+    /**
      * Returns the header associated with the result set.
      *
      * @return string[]
@@ -87,7 +93,7 @@ class ResultSet implements Countable, IteratorAggregate, JsonSerializable
     /**
      * {@inheritdoc}
      */
-    public function getIterator(): Generator
+    public function getIterator(): Iterator
     {
         return $this->getRecords();
     }
@@ -95,7 +101,7 @@ class ResultSet implements Countable, IteratorAggregate, JsonSerializable
     /**
      * {@inheritdoc}
      */
-    public function getRecords(array $header = []): Generator
+    public function getRecords(array $header = []): Iterator
     {
         $this->validateHeader($header);
         $records = $this->combineHeader($header);
@@ -145,13 +151,7 @@ class ResultSet implements Countable, IteratorAggregate, JsonSerializable
     }
 
     /**
-     * Returns the nth record from the result set.
-     *
-     * By default if no index is provided the first record of the resultet is returned
-     *
-     * @param int $nth_record the CSV record offset
-     *
-     * @throws Exception if argument is lesser than 0
+     * {@inheritdoc}
      */
     public function fetchOne(int $nth_record = 0): array
     {
@@ -166,13 +166,9 @@ class ResultSet implements Countable, IteratorAggregate, JsonSerializable
     }
 
     /**
-     * Returns a single column from the next record of the result set.
-     *
-     * By default if no value is supplied the first column is fetch
-     *
-     * @param string|int $index CSV column index
+     * {@inheritdoc}
      */
-    public function fetchColumn($index = 0): Generator
+    public function fetchColumn($index = 0): Iterator
     {
         $offset = $this->getColumnIndex($index, __METHOD__.'() expects the column index to be a valid string or integer, `%s` given');
         $filter = static function (array $record) use ($offset): bool {
@@ -246,17 +242,9 @@ class ResultSet implements Countable, IteratorAggregate, JsonSerializable
     }
 
     /**
-     * Returns the next key-value pairs from a result set (first
-     * column is the key, second column is the value).
-     *
-     * By default if no column index is provided:
-     * - the first column is used to provide the keys
-     * - the second column is used to provide the value
-     *
-     * @param string|int $offset_index The column index to serve as offset
-     * @param string|int $value_index  The column index to serve as value
+     * {@inheritdoc}
      */
-    public function fetchPairs($offset_index = 0, $value_index = 1): Generator
+    public function fetchPairs($offset_index = 0, $value_index = 1): Iterator
     {
         $offset = $this->getColumnIndex($offset_index, __METHOD__.'() expects the offset index value to be a valid string or integer, `%s` given');
         $value = $this->getColumnIndex($value_index, __METHOD__.'() expects the value index value to be a valid string or integer, `%s` given');
