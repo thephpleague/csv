@@ -199,7 +199,7 @@ class Reader extends AbstractCsv implements TabularDataReader, JsonSerializable
      */
     public function fetchColumn($index = 0): Iterator
     {
-        return ResultSet::createFromReader($this)->fetchColumn($index);
+        return ResultSet::createFromTabularDataReader($this)->fetchColumn($index);
     }
 
     /**
@@ -207,7 +207,7 @@ class Reader extends AbstractCsv implements TabularDataReader, JsonSerializable
      */
     public function fetchOne(int $nth_record = 0): array
     {
-        return ResultSet::createFromReader($this)->fetchOne($nth_record);
+        return ResultSet::createFromTabularDataReader($this)->fetchOne($nth_record);
     }
 
     /**
@@ -215,7 +215,7 @@ class Reader extends AbstractCsv implements TabularDataReader, JsonSerializable
      */
     public function fetchPairs($offset_index = 0, $value_index = 1): Iterator
     {
-        return ResultSet::createFromReader($this)->fetchPairs($offset_index, $value_index);
+        return ResultSet::createFromTabularDataReader($this)->fetchPairs($offset_index, $value_index);
     }
 
     /**
