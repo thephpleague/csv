@@ -11,7 +11,7 @@ All Notable changes to `Csv` will be documented in this file
 - `League\Csv\Statement` can now also process `League\Csv\ResultSet` instances.
 - `League\Csv\TabularDataReader` interface to represent how to read tabular data
 - `League\Csv\ResultSet::getRecords` has an optional `$header` second argument to make the method works like `League\Csv\Reader::getRecords` 
-- `League\Csv\ResultSet::createFromReader` create a new instance from `League\Csv\Reader` 
+- `League\Csv\ResultSet::createFromTabularDataReader` create a new instance from `League\Csv\TabularDataReader` implementing class.
 
 ### Deprecated
 

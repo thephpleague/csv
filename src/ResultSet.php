@@ -75,7 +75,7 @@ class ResultSet implements TabularDataReader, JsonSerializable
     /**
      * Returns a new instance from a League\Csv\Reader object.
      */
-    public static function createFromReader(Reader $reader): self
+    public static function createFromTabularDataReader(Reader $reader): self
     {
         return new self($reader->getRecords(), $reader->getHeader());
     }
