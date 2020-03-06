@@ -17,12 +17,11 @@ Highlights
 
 * Simple API
 * Read and Write to CSV documents in a memory efficient and scalable way
-* Support PHP Stream filtering capabilities
+* Support PHP stream filtering capabilities
 * Transform CSV documents into popular format (JSON, XML or HTML)
 * Fully documented
 * Fully unit tested
 * Framework-agnostic
-* Composer ready, [PSR-2] and [PSR-4] compliant
 
 Documentation
 -------
@@ -32,7 +31,7 @@ Full documentation can be found at [csv.thephpleague.com](https://csv.thephpleag
 System Requirements
 -------
 
-You need **PHP >= 7.2.0** and the `mbstring` extension to use `Csv` but the latest stable version of PHP is recommended.
+You need **PHP >= 7.2.5** and the `mbstring` extension to use `Csv` but the latest stable version of PHP is recommended.
 
 Install
 -------
@@ -94,6 +93,3 @@ License
 -------
 
 The MIT License (MIT). Please see [LICENSE](LICENSE) for more information.
-
-[PSR-2]: http://www.php-fig.org/psr/psr-2/
-[PSR-4]: http://www.php-fig.org/psr/psr-4/
