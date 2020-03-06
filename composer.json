@@ -1,8 +1,8 @@
 {
     "name": "league/csv",
     "type": "library",
-    "description" : "Csv data manipulation made easy in PHP",
-    "keywords": ["csv", "import", "export", "read", "write", "filter"],
+    "description" : "CSV data manipulation made easy in PHP",
+    "keywords": ["csv", "import", "export", "read", "write", "filter", "convert", "transform"],
     "license": "MIT",
     "homepage" : "http://csv.thephpleague.com",
     "authors": [
@@ -15,13 +15,12 @@
     ],
     "support": {
         "docs": "https://csv.thephpleague.com",
-        "forum": "https://groups.google.com/forum/#!forum/thephpleague",
         "issues": "https://github.com/thephpleague/csv/issues",
         "rss": "https://github.com/thephpleague/csv/releases.atom",
         "source": "https://github.com/thephpleague/csv"
     },
     "require": {
-        "php" : "^7.2",
+        "php" : "^7.2.5",
         "ext-json" : "*",
         "ext-mbstring" : "*"
     },
@@ -69,7 +68,7 @@
     },
     "suggest": {
         "ext-iconv" : "Needed to ease transcoding CSV using iconv stream filters",
-        "ext-dom" : "Need to use the XMLConverter class"
+        "ext-dom" : "Required to use the XMLConverter and or the HTMLConverter classes"
     },
     "extra": {
         "branch-alias": {
