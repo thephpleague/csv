@@ -7,6 +7,8 @@ title: Accessing Records from a CSV document
 
 A `League\Csv\ResultSet` object represents the associated result set of processing a [CSV document](/9.0/reader/) with a [constraint builder](/9.0/reader/statement/). This object is returned from [Statement::process](/9.0/reader/statement/#apply-the-constraints-to-a-csv-document) execution.
 
+<p class="message-info">Starting with version <code>9.6.0</code>, the class implements the <code>League\Csv\TabularDataReader</code> interface.</p>
+
 ## Informations
 
 ### Accessing the result set column names
@@ -25,7 +27,7 @@ use League\Csv\Reader;
 use League\Csv\Statement;
 
 $reader = Reader::createFromPath('/path/to/my/file.csv', 'r');
-$records = (new Statement())->process($reader);
+$records = Statement::create()->process($reader);
 $records->getHeader(); // is empty because no header information was given
 ~~~
 
@@ -37,7 +39,7 @@ use League\Csv\Reader;
 $reader = Reader::createFromPath('/path/to/my/file.csv', 'r');
 $reader->setHeaderOffset(0);
 
-$records = (new Statement())->process($reader);
+$records = Statement::create()->process($reader);
 $records->getHeader(); // returns ['First Name', 'Last Name', 'E-mail'];
 ~~~
 
@@ -50,7 +52,7 @@ use League\Csv\Statement;
 $reader = Reader::createFromPath('/path/to/my/file.csv', 'r');
 $reader->setHeaderOffset(0);
 
-$records = (new Statement())->process($reader, ['Prénom', 'Nom', 'E-mail']);
+$records = Statement::create()->process($reader, ['Prénom', 'Nom', 'E-mail']);
 $records->getHeader(); // returns ['Prénom', 'Nom', 'E-mail'];
 ~~~
 
@@ -63,7 +65,7 @@ use League\Csv\Reader;
 use League\Csv\Statement;
 
 $reader = Reader::createFromPath('/path/to/my/file.csv', 'r');
-$records = (new Statement())->process($reader);
+$records = Statement::create()->process($reader);
 count($records); //return the total number of records found
 ~~~
 
@@ -72,8 +74,9 @@ count($records); //return the total number of records found
 ### Description
 
 ~~~php
-public ResultSet::getRecords(void): Iterator
+public ResultSet::getRecords(array $header = []): Iterator
 ~~~
+<p class="message-info">Starting with version <code>9.6.0</code>, the class implements the <code>ResultSet::getRecords</code> methods matches the same arguments and the same signature as the <code>Reader::getRecords</code> method.</p>
 
 To iterate over each found records you can call the `ResultSet::getRecords` method which returns a `Generator` of all records found or directly use the `foreach` construct as the class implements the `IteratorAggregate` interface;
 
@@ -82,7 +85,7 @@ use League\Csv\Reader;
 use League\Csv\Statement;
 
 $reader = Reader::createFromPath('/path/to/my/file.csv', 'r');
-$records = (new Statement())->process($reader);
+$records = Statement::create()->process($reader);
 
 foreach ($records->getRecords() as $record) {
     //do something here
@@ -103,7 +106,7 @@ use League\Csv\Statement;
 
 $reader = Reader::createFromPath('/path/to/my/file.csv', 'r');
 $reader->setHeaderOffset(0);
-$records = (new Statement())->process($reader);
+$records = Statement::create()->process($reader);
 $records->getHeader(); //returns ['First Name', 'Last Name', 'E-mail']
 foreach ($records as $record) {
     // $records contains the following data
@@ -133,7 +136,7 @@ use League\Csv\Statement;
 $reader = Reader::createFromPath('/path/to/my/file.csv', 'r');
 $reader->setHeaderOffset(0);
 
-$stmt = (new Statement())
+$stmt = Statement::create()
     ->offset(10)
     ->limit(12)
 ;
@@ -163,7 +166,7 @@ use League\Csv\Reader;
 use League\Csv\Statement;
 
 $reader = Reader::createFromPath('/path/to/my/file.csv', 'r');
-$records = (new Statement())->process($reader);
+$records = Statement::create()->process($reader);
 foreach ($records->fetchColumn(2) as $value) {
     //$value is a string representing the value
     //of a given record for the selected column
@@ -173,7 +176,7 @@ foreach ($records->fetchColumn(2) as $value) {
 $reader = Reader::createFromPath('/path/to/my/file.csv', 'r');
 $reader->setHeaderOffset(0);
 
-$records = (new Statement())->process($reader);
+$records = Statement::create()->process($reader);
 foreach ($records->fetchColumn('E-mail') as $value) {
     //$value is a string representing the value
     //of a given record for the selected column
@@ -188,7 +191,7 @@ use League\Csv\Reader;
 use League\Csv\Statement;
 
 $reader = Reader::createFromPath('/path/to/my/file.csv', 'r');
-$records = (new Statement())->process($reader);
+$records = Statement::create()->process($reader);
 count($records); //returns 10;
 count(iterator_to_array($records->fetchColumn(2), false)); //returns 5
 //5 records were skipped because the column value is null
@@ -203,7 +206,7 @@ use League\Csv\Statement;
 $reader = Reader::createFromPath('/path/to/my/file.csv', 'r');
 $reader->setHeaderOffset(0);
 
-$records = (new Statement())->process($reader);
+$records = Statement::create()->process($reader);
 foreach ($records->fetchColumn('foobar') as $record) {
     //throw an Exception exception if
     //no `foobar` column name is found
@@ -240,7 +243,7 @@ use League\Csv\Reader;
 use League\Csv\Statement;
 
 $reader = Reader::createFromString($str);
-$records = (new Statement())->process($reader);
+$records = Statement::create()->process($reader);
 
 foreach ($records->fetchPairs() as $firstname => $lastname) {
     // - first iteration
@@ -289,7 +292,7 @@ foreach ($records as $record) {
 }
 
 $reader = Reader::createFromFileObject($tmp)->setHeaderOffset(0);
-$stmt = (new Statement())->offset(1)->limit(1);
+$stmt = Statement::create()->offset(1)->limit(1);
 $result = $stmt->process($reader);
 
 echo '<pre>', PHP_EOL;

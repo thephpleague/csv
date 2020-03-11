@@ -23,8 +23,8 @@ All Notable changes to `Csv` will be documented in this file
 
 ### Removed
 
-- polyfill for `is_iterable`
-- polyfill for `is_nullable_int`
+- Internal polyfill for `is_iterable`
+- Internal polyfill for `is_nullable_int`
 - Support for PHP7.0 and PHP7.1
 
 ## 9.5.0 - 2019-12-15

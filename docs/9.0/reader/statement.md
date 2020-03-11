@@ -11,6 +11,8 @@ When building a constraint, the methods do not need to be called in any particul
 
 <p class="message-info">Because the <code>Statement</code> object is independent of the <code>Reader</code> object it can be re-use on multiple <code>Reader</code> objects.</p>
 
+<p class="message-info">Starting with version <code>9.6.0</code>, the class exposes the <code>Statement::create</code> named constructor to ease object creation.</p>
+
 ## Filtering constraint
 
 The filters attached using the `Statement::where` method **are the first settings applied to the CSV before anything else**. This option follow the *First In First Out* rule.
@@ -109,23 +111,33 @@ Just like the `Reader:getRecords`, the `Statement::process` method takes an opti
 use League\Csv\Reader;
 use League\Csv\Statement;
 
-function filterByEmail(array $record): bool
-{
-    return (bool) filter_var($record[2], FILTER_VALIDATE_EMAIL);
-}
-
-function sortByLastName(array $recordA, array $recordB): int
-{
-    return strcmp($recordB[1], $recordA[1]);
-}
-
 $reader = Reader::createFromPath('/path/to/file.csv', 'r');
-$stmt = (new Statement())
+$stmt = Statement::create()
     ->offset(3)
     ->limit(2)
-    ->where('filterByEmail')
-    ->orderBy('sortByLastName')
+    ->where(fn(array $record) => (bool) filter_var($record[2], FILTER_VALIDATE_EMAIL))
+    ->orderBy(fn(array $recordA, array $recordB) => strcmp($recordB[1], $recordA[1]))
 ;
 
 $records = $stmt->process($reader, ['firstname', 'lastname', 'email']);
 ~~~
+
+<p class="message-notice">Starting with version <code>9.6.0</code>, the <code>Statement::process</code> method can also be used on the <code>ResultSet</code> class because it implements the <code>TabularDataReader</code> interface.</p>
+
+~~~php
+use League\Csv\Reader;
+use League\Csv\Statement;
+
+$reader = Reader::createFromPath('/path/to/file.csv', 'r');
+$stmt = Statement::create()
+    ->where(fn(array $record) => (bool) filter_var($record[2], FILTER_VALIDATE_EMAIL))
+    ->orderBy(fn(array $recordA, array $recordB) => strcmp($recordB[1], $recordA[1]))
+;
+
+$resultSet = $stmt->process($reader, ['firstname', 'lastname', 'email']);
+
+$stmt2 = Statement::create(null, 3, 2);
+$records = $stmt2->process($resultSet);
+// the $records and the $resultSet parameters are distinct League\Csv\ResultSet instances.
+~~~
+

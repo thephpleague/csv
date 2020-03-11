@@ -19,6 +19,12 @@
         "rss": "https://github.com/thephpleague/csv/releases.atom",
         "source": "https://github.com/thephpleague/csv"
     },
+    "funding": [
+        {
+            "type": "github",
+            "url": "https://github.com/sponsors/nyamsprod"
+        }
+    ],
     "require": {
         "php" : "^7.2.5",
         "ext-json" : "*",

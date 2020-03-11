@@ -11,6 +11,8 @@ The `League\Csv\Reader` class extends the general connections [capabilities](/9.
 
 <p class="message-notice">Prior to <code>9.1.0</code>, by default, the mode for a <code>Reader::createFromPath</code> is <code>r+</code> which looks for write permissions on the file and throws an <code>Exception</code> if the file cannot be opened with the permission set. For sake of clarity, it is strongly suggested to set <code>r</code> mode on the file to ensure it can be opened.</p>
 
+<p class="message-info">Starting with version <code>9.6.0</code>, the class implements the <code>League\Csv\TabularDataReader</code> interface.</p>
+
 ## CSV example
 
 Many examples in this reference require an CSV file. We will use the following file `file.csv` containing the following data:
