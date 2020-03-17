@@ -66,7 +66,7 @@ function delimiter_detect(Reader $csv, array $delimiters, int $limit = 1): array
     };
 
     $record_filter = static function (array $record): bool {
-        return count($record) > 1;
+        return 1 < count($record);
     };
 
     $stmt = Statement::create(null, 0, $limit);
