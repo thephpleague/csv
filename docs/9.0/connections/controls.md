@@ -55,7 +55,7 @@ $enclosure = $csv->getEnclosure(); //returns "|"
 
 ## The escape character
 
-This is PHP specific control character which sometimes interfere with CSV parsing and writing. It is recommanded in version preceding `9.2.0` to never change its defaut value unless you do understand its usage and its consequences.
+This is PHP specific control character which sometimes interfere with CSV parsing and writing. It is recommended in version preceding `9.2.0` to never change its defaut value unless you do understand its usage and its consequences.
 
 ### Description
 
