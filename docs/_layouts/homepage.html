@@ -11,7 +11,7 @@
     <link rel="icon" type="image/x-icon" href="{{ site.data.images.favicon }}" />
     <link rel="apple-touch-icon-precomposed" href="//theme.thephpleague.com/img/apple-touch-icon-precomposed.png">
     <link rel="stylesheet" href="//theme.thephpleague.com/css/all.css?2">
-    <link rel="stylesheet" href="/homepage.css?18">
+    <link rel="stylesheet" href="/homepage.css?19">
     <script async src="https://www.googletagmanager.com/gtag/js?id={{  site.data.project.google_analytics_tracking_id }}"></script>
     <script>
         window.dataLayer = window.dataLayer || [];
@@ -34,6 +34,10 @@
       <p class="footnote">{{ site.data.project.support }}</p>
     </div>
 </header>
+
+<aside class="sponsors hide">
+    <p><a class="close" title="hide this message">x</a> Love this package ? Support its development via <a href="https://github.com/sponsors/{{ site.data.project.author.github_account }}">monthly sponsorship!</a></p>
+</aside>
 
 <main>
   <div class="highlights">
@@ -72,5 +76,8 @@
     <span>&copy; Copyright <a href="//thephpleague.com">The League of Extraordinary Packages</a>.</span>
     <span>Site design by <a href="//reinink.ca">Jonathan Reinink</a> and <a href="//nyamsprod.com">Ignace Nyamagana Butera</a>.</span>
 </footer>
+
+<script src="/custom.js?5"></script>
+
 </body>
 </html>
