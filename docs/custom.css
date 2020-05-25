@@ -362,8 +362,11 @@ main menu ul li.selected a:hover {
   color:#ea0a86;
   background: transparent;
   font-weight: bold;
-  font-size:1.2em;
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-size:2em;
   cursor: pointer;
+  padding:0;
+  margin-right:0;
 }
 
 .hide {
