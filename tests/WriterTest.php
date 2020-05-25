@@ -122,7 +122,7 @@ class WriterTest extends TestCase
             self::expectExceptionMessage('Unable to write record to the CSV document');
         } else {
             self::expectException(Notice::class);
-            self::expectExceptionMessageRegExp('/write of \d+ bytes failed with errno=9 Bad file descriptor/');
+            self::expectExceptionMessageMatches('/write of \d+ bytes failed with errno=9 Bad file descriptor/');
         }
 
         Writer::createFromPath(__DIR__.'/data/foo.csv', 'r')->insertOne($record);
