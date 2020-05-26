@@ -351,24 +351,29 @@ main menu ul li.selected a:hover {
 
 .sponsors a {
   display:inline-block;
+  padding:.4em;
   background: #ea0a86;
   color: #fff;
   border-radius: .3em;
   text-decoration: none;
-  padding:.4em;
+  cursor: pointer;
 }
 
 .sponsors a.close {
-  color:#ea0a86;
   background: transparent;
-  font-weight: bold;
-  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-  font-size:2em;
-  cursor: pointer;
-  padding:0;
-  margin-right:0;
+  color:#ea0a86;
+  text-decoration: underline;
+  padding:.2em;
+  font-size: .8em;
 }
 
 .hide {
   display:none;
+}
+
+@media screen and (max-width: 520px) {
+  .sponsors p {
+    width: 250px;
+    margin: .3em auto 0;
+  }
 }
