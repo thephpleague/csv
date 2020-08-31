@@ -556,4 +556,75 @@ EOF;
             ],
         ];
     }
+
+    public function testRemovingEmptyRecordsWhenBOMStringIsPresent(): void
+    {
+        $bom = Reader::BOM_UTF8;
+        $text = <<<CSV
+$bom
+column 1,column 2,column 3
+cell11,cell12,cell13
+CSV;
+        $csv = Reader::createFromString($text);
+        $csv->setHeaderOffset(1);
+
+        self::assertCount(1, $csv);
+        self::assertSame([
+            'column 1' => 'cell11',
+            'column 2' => 'cell12',
+            'column 3' => 'cell13',
+        ], $csv->fetchOne(0));
+
+        $csv->includeEmptyRecords();
+
+        self::assertCount(2, $csv);
+        self::assertSame([
+            'column 1' => null,
+            'column 2' => null,
+            'column 3' => null,
+        ], $csv->fetchOne(0));
+    }
+
+    public function testRemovingEmptyRecordsWithoutBOMString(): void
+    {
+        $text = <<<CSV
+
+column 1,column 2,column 3
+cell11,cell12,cell13
+CSV;
+        $csv = Reader::createFromString($text);
+        $csv->setHeaderOffset(1);
+
+        self::assertCount(1, $csv);
+        self::assertSame([
+            'column 1' => 'cell11',
+            'column 2' => 'cell12',
+            'column 3' => 'cell13',
+        ], $csv->fetchOne(0));
+
+        $csv->includeEmptyRecords();
+
+        self::assertCount(2, $csv);
+        self::assertSame([
+            'column 1' => null,
+            'column 2' => null,
+            'column 3' => null,
+        ], $csv->fetchOne(0));
+    }
+
+
+    public function testGetHeaderThrowsIfTheFirstRecordOnlyContainsBOMString(): void
+    {
+        $bom = Reader::BOM_UTF8;
+        $text = <<<CSV
+$bom
+column 1,column 2,column 3
+cell11,cell12,cell13
+CSV;
+        $csv = Reader::createFromString($text);
+        $csv->setHeaderOffset(0);
+
+        self::expectException(Exception::class);
+        $csv->getHeader();
+    }
 }

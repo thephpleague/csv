@@ -14,7 +14,7 @@ All Notable changes to `Csv` will be documented in this file
 
 ### Fixed
 
-- None
+- BOM string and empty records stripping fix [#394](https://github.com/thephpleague/csv/issues/394)
 
 ### Removed
 
