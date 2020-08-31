@@ -374,6 +374,28 @@ abstract class AbstractCsv implements ByteSequence
         header('Content-Disposition: '.$disposition);
     }
 
+	public function detectDelimiter(): string
+	{
+		$this->document->rewind();
+	    $delimiters = array(
+	        ';' => 0,
+	        ',' => 0,
+	        "\t" => 0,
+	        "|" => 0
+	    );
+
+	    $firstLine = $this->document->fgets();
+	    foreach ($delimiters as $delimiter => &$count) {
+	        $count = count(str_getcsv($firstLine, $delimiter));
+	    }
+
+		if(max($delimiters) == 0)
+			throw new DelimiterNotFound("Standard delimiter not found in file");
+
+	    $this->delimiter = array_search(max($delimiters), $delimiters);
+		return $this->delimiter
+	}
+
     /**
      * Sets the field delimiter.
      *
