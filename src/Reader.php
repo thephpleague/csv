@@ -132,8 +132,13 @@ class Reader extends AbstractCsv implements TabularDataReader, JsonSerializable
             throw new SyntaxError(sprintf('The header record does not exist or is empty at offset: `%s`', $offset));
         }
 
-        if (0 === $offset) {
-            return $this->removeBOM($header, mb_strlen($this->getInputBOM()), $this->enclosure);
+        if (0 !== $offset) {
+            return $header;
+        }
+
+        $header = $this->removeBOM($header, mb_strlen($this->getInputBOM()), $this->enclosure);
+        if ([''] === $header) {
+            throw new SyntaxError(sprintf('The header record does not exist or is empty at offset: `%s`', $offset));
         }
 
         return $header;
@@ -347,10 +352,19 @@ class Reader extends AbstractCsv implements TabularDataReader, JsonSerializable
                 return $record;
             }
 
-            return $this->removeBOM($record, $bom_length, $this->enclosure);
+            $record = $this->removeBOM($record, $bom_length, $this->enclosure);
+            if ([''] === $record) {
+                return [null];
+            }
+
+            return $record;
         };
 
-        return new MapIterator($iterator, $mapper);
+        $filter = function (array $record): bool {
+            return $this->is_empty_records_included || $record != [null];
+        };
+
+        return new CallbackFilterIterator(new MapIterator($iterator, $mapper), $filter);
     }
 
     /**
