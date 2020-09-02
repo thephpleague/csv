@@ -32,6 +32,7 @@
     },
     "require-dev": {
         "ext-curl" : "*",
+        "ext-dom": "*",
         "friendsofphp/php-cs-fixer": "^2.16",
         "phpunit/phpunit" : "^8.5",
         "phpstan/phpstan": "^0.12.0",
