@@ -2,7 +2,7 @@
 
 All Notable changes to `Csv` will be documented in this file
 
-## Next - TBD
+## 9.6.1 - 2020-09-05
 
 ### Added 
 
@@ -14,7 +14,7 @@ All Notable changes to `Csv` will be documented in this file
 
 ### Fixed
 
-- BOM string and empty records stripping fix [#394](https://github.com/thephpleague/csv/issues/394)
+- BOM sequence processing fix [#394](https://github.com/thephpleague/csv/issues/394)
 
 ### Removed
 
