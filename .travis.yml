@@ -7,46 +7,42 @@ matrix:
     include:
         - php: 7.2
           env:
-              - COLLECT_COVERAGE=false
               - COMPOSER_ARGS="--no-interaction --no-suggest --prefer-source --prefer-lowest --prefer-stable"
               - RUN_PHPSTAN=false
               - VALIDATE_CODING_STYLE=false
         - php: 7.2
           env:
-              - COLLECT_COVERAGE=true
               - COMPOSER_ARGS="--no-interaction --no-suggest --prefer-source"
-              - RUN_PHPSTAN=true
-              - VALIDATE_CODING_STYLE=true
+              - RUN_PHPSTAN=false
+              - VALIDATE_CODING_STYLE=false
         - php: 7.3
           env:
-              - COLLECT_COVERAGE=false
               - COMPOSER_ARGS="--no-interaction --no-suggest --prefer-source --prefer-lowest --prefer-stable"
               - RUN_PHPSTAN=false
               - VALIDATE_CODING_STYLE=false
         - php: 7.3
           env:
-              - COLLECT_COVERAGE=true
               - COMPOSER_ARGS="--no-interaction --no-suggest --prefer-source"
-              - RUN_PHPSTAN=true
-              - VALIDATE_CODING_STYLE=true
+              - RUN_PHPSTAN=false
+              - VALIDATE_CODING_STYLE=false
         - php: 7.4
           env:
-              - COLLECT_COVERAGE=false
               - COMPOSER_ARGS="--no-interaction --no-suggest --prefer-source --prefer-lowest --prefer-stable"
               - RUN_PHPSTAN=false
               - VALIDATE_CODING_STYLE=false
         - php: 7.4
           env:
-              - COLLECT_COVERAGE=true
               - COMPOSER_ARGS="--no-interaction --no-suggest --prefer-source"
               - RUN_PHPSTAN=true
               - VALIDATE_CODING_STYLE=true
         - php: nightly
           env:
-              - COLLECT_COVERAGE=false
-              - COMPOSER_ARGS="--no-interaction --no-suggest --prefer-source --ignore-platform-reqs"
+              - COMPOSER_ARGS="--no-interaction --no-suggest --prefer-source"
               - RUN_PHPSTAN=false
               - VALIDATE_CODING_STYLE=false
+          install:
+              - composer remove --no-interaction --no-update --dev "friendsofphp/php-cs-fixer"
+              - travis_retry composer update $COMPOSER_ARGS
     allow_failures:
         - php: nightly
     fast_finish: true
@@ -58,6 +54,3 @@ script:
     - if [ "$VALIDATE_CODING_STYLE" == "true" ]; then composer phpcs; fi
     - if [ "$RUN_PHPSTAN" == "true" ]; then composer phpstan; fi
     - composer phpunit
-after_script:
-    - if [ "$COLLECT_COVERAGE" == "true" ]; then wget https://scrutinizer-ci.com/ocular.phar
-        && php ocular.phar code-coverage:upload --format=php-clover build/clover.xml; fi
