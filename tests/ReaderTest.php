@@ -210,7 +210,6 @@ EOF;
         iterator_to_array($csv);
     }
 
-
     /**
      * @covers ::getHeader
      * @covers ::seekRow
@@ -230,8 +229,6 @@ EOF;
         $csv->setHeaderOffset(2);
         $csv->getHeader();
     }
-
-
 
     /**
      * @covers ::stripBOM

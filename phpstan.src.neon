@@ -22,4 +22,10 @@ parameters:
           path: src/Statement.php
         - message: '#Result of && is always false.#'
           path: src/Statement.php
+        - message: '#Parameter \#3 \$consumed \(int\) of method League\\Csv\\CharsetConverter::filter\(\) should be contravariant with parameter \$consumed \(mixed\) of method php_user_filter::filter\(\)#'
+          path: src/CharsetConverter.php
+        - message: '#Parameter \#3 \$consumed \(int\) of method League\\Csv\\EncloseField::filter\(\) should be contravariant with parameter \$consumed \(mixed\) of method php_user_filter::filter\(\)#'
+          path: src/EncloseField.php
+        - message: '#Parameter \#3 \$consumed \(int\) of method League\\Csv\\RFC4180Field::filter\(\) should be contravariant with parameter \$consumed \(mixed\) of method php_user_filter::filter\(\)#'
+          path: src/RFC4180Field.php
     reportUnmatchedIgnoredErrors: false

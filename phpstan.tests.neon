@@ -9,5 +9,11 @@ parameters:
           path: tests/DetectDelimiterTest.php
         - message: '#Parameter \#1 \$document of static method League\\Csv\\Polyfill\\EmptyEscapeParser::parse\(\) expects League\\Csv\\Stream\|SplFileObject, stdClass given.#'
           path: tests/Polyfill/EmptyEscapeParserTest.php
+        - message: '#Call to function iterator_to_array\(\) on a separate line has no effect.#'
+          path: tests/ResultSetTest.php
+        - message: '#Call to function iterator_to_array\(\) on a separate line has no effect.#'
+          path: tests/ReaderTest.php
+        - message: '#Call to function iterator_to_array\(\) on a separate line has no effect.#'
+          path: tests/CsvTest.php
     reportUnmatchedIgnoredErrors: true
     checkMissingIterableValueType: false
