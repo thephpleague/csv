@@ -2,6 +2,24 @@
 
 All Notable changes to `Csv` will be documented in this file
 
+## 9.6.2 - TBD
+
+### Added 
+
+- Using Github actions as development tools.
+
+### Deprecated
+
+- None
+
+### Fixed
+
+- Adding support for PHP8
+
+### Removed
+
+- Removing Travis and Scrutinizr as development tools
+
 ## 9.6.1 - 2020-09-05
 
 ### Added 
