@@ -19,6 +19,7 @@ use function array_keys;
 use function array_map;
 use function array_merge;
 use function array_unique;
+use function is_object;
 use function is_string;
 use function method_exists;
 use function sprintf;
@@ -148,10 +149,15 @@ class EscapeFormula
     /**
      * Tells whether the submitted value is stringable.
      *
-     * @param string|object $value
+     * @param mixed $value value to check if it is stringable
      */
     protected function isStringable($value): bool
     {
-        return is_string($value) || method_exists($value, '__toString');
+        if (is_string($value)) {
+            return true;
+        }
+
+        return is_object($value)
+            && method_exists($value, '__toString');
     }
 }
