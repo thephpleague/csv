@@ -15,7 +15,6 @@ use ArrayIterator;
 use League\Csv\CannotInsertRecord;
 use League\Csv\Exception;
 use League\Csv\Writer;
-use PHPUnit\Framework\Error\Notice;
 use PHPUnit\Framework\TestCase;
 use SplFileObject;
 use SplTempFileObject;
@@ -121,8 +120,8 @@ class WriterTest extends TestCase
             self::expectException(CannotInsertRecord::class);
             self::expectExceptionMessage('Unable to write record to the CSV document');
         } else {
-            self::expectException(Notice::class);
-            self::expectExceptionMessageMatches('/write of \d+ bytes failed with errno=9 Bad file descriptor/');
+            self::expectNotice();
+            self::expectExceptionMessageMatches('/write of \d+ bytes failed with errno=9 Bad file descriptor/i');
         }
 
         Writer::createFromPath(__DIR__.'/data/foo.csv', 'r')->insertOne($record);
