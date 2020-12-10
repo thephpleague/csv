@@ -99,7 +99,7 @@ class RFC4180FieldTest extends TestCase
      */
     public function testOnCreateFailedWithoutParams(): void
     {
-        self::expectException(TypeError::class);
+        $this->expectException(TypeError::class);
         (new RFC4180Field())->onCreate();
     }
 
@@ -183,7 +183,7 @@ class RFC4180FieldTest extends TestCase
      */
     public function testDoNotEncloseWhiteSpacedFieldThrowsException(): void
     {
-        self::expectException(InvalidArgumentException::class);
+        $this->expectException(InvalidArgumentException::class);
         RFC4180Field::addTo(Writer::createFromString(''), "\t\0");
     }
 }

@@ -173,7 +173,7 @@ class HTMLConverterTest extends TestCase
      */
     public function testTableTriggersException(): void
     {
-        self::expectException(DOMException::class);
+        $this->expectException(DOMException::class);
         (new HTMLConverter())->table('table-csv-data', 'te st');
     }
 }

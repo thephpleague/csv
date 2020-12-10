@@ -37,7 +37,7 @@ class CharsetConverterTest extends TestCase
      */
     public function testCharsetConverterTriggersException(): void
     {
-        self::expectException(OutOfRangeException::class);
+        $this->expectException(OutOfRangeException::class);
         (new CharsetConverter())->inputEncoding('');
     }
 
@@ -131,7 +131,7 @@ class CharsetConverterTest extends TestCase
      */
     public function testCharsetConverterAsStreamFilterFailed(): void
     {
-        self::expectException(InvalidArgument::class);
+        $this->expectException(InvalidArgument::class);
         stream_filter_register(CharsetConverter::FILTERNAME.'.*', CharsetConverter::class);
         $expected = 'Batman,Superman,Anaïs';
         $raw = mb_convert_encoding($expected, 'iso-8859-15', 'utf-8');

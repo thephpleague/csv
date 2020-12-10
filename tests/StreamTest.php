@@ -47,7 +47,7 @@ class StreamTest extends TestCase
      */
     public function testCloningIsForbidden(): void
     {
-        self::expectException(Exception::class);
+        $this->expectException(Exception::class);
         $toto = clone new Stream(fopen('php://temp', 'r+'));
     }
 
@@ -56,7 +56,7 @@ class StreamTest extends TestCase
      */
     public function testCreateStreamWithInvalidParameter(): void
     {
-        self::expectException(TypeError::class);
+        $this->expectException(TypeError::class);
         new Stream(__DIR__.'/data/foo.csv');
     }
 
@@ -65,7 +65,7 @@ class StreamTest extends TestCase
      */
     public function testCreateStreamWithWrongResourceType(): void
     {
-        self::expectException(TypeError::class);
+        $this->expectException(TypeError::class);
         new Stream(curl_init());
     }
 
@@ -75,8 +75,8 @@ class StreamTest extends TestCase
     public function testCreateStreamFromPath(): void
     {
         $path = 'no/such/file.csv';
-        self::expectException(Exception::class);
-        self::expectExceptionMessage('`'.$path.'`: failed to open stream: No such file or directory');
+        $this->expectException(Exception::class);
+        $this->expectExceptionMessage('`'.$path.'`: failed to open stream: No such file or directory');
         Stream::createFromPath($path);
     }
 
@@ -116,7 +116,7 @@ class StreamTest extends TestCase
      */
     public function testfputcsv(string $delimiter, string $enclosure, string $escape): void
     {
-        self::expectException(Exception::class);
+        $this->expectException(Exception::class);
         $stream = new Stream(fopen('php://temp', 'r+'));
         $stream->fputcsv(['john', 'doe', 'john.doe@example.com'], $delimiter, $enclosure, $escape);
     }
@@ -144,7 +144,7 @@ class StreamTest extends TestCase
      */
     public function testSeekThrowsException(): void
     {
-        self::expectException(Exception::class);
+        $this->expectException(Exception::class);
         $stream = new Stream(fopen('php://temp', 'r+'));
         $stream->seek(-1);
     }
@@ -177,7 +177,7 @@ class StreamTest extends TestCase
      */
     public function testRewindThrowsException(): void
     {
-        self::expectException(Exception::class);
+        $this->expectException(Exception::class);
         $stream = new Stream(fopen('php://stdin', 'r'));
         $stream->rewind();
     }
@@ -187,7 +187,7 @@ class StreamTest extends TestCase
      */
     public function testCreateStreamWithNonSeekableStream(): void
     {
-        self::expectException(Exception::class);
+        $this->expectException(Exception::class);
         $stream = new Stream(fopen('php://stdin', 'r'));
         $stream->seek(3);
     }
@@ -204,7 +204,7 @@ class StreamTest extends TestCase
         $expected = [';', '|', '"'];
         $doc->setCsvControl(...$expected);
         self::assertSame($expected, $doc->getCsvControl());
-        self::expectException(Exception::class);
+        $this->expectException(Exception::class);
         $doc->setCsvControl(...['foo']);
     }
 
@@ -213,7 +213,7 @@ class StreamTest extends TestCase
         if (70400 <= PHP_VERSION_ID) {
             $this->markTestSkipped('This test is only for PHP7.4- versions');
         }
-        self::expectException(Exception::class);
+        $this->expectException(Exception::class);
         $doc = Stream::createFromString();
         $doc->setCsvControl(...[';', '|', '']);
     }
@@ -235,8 +235,8 @@ class StreamTest extends TestCase
     public function testAppendStreamFilterThrowsException(): void
     {
         $filtername = 'foo.bar';
-        self::expectException(InvalidArgument::class);
-        self::expectExceptionMessage('unable to locate filter `'.$filtername.'`');
+        $this->expectException(InvalidArgument::class);
+        $this->expectExceptionMessage('unable to locate filter `'.$filtername.'`');
         $stream = Stream::createFromPath('php://temp', 'r+');
         $stream->appendFilter($filtername, STREAM_FILTER_READ);
     }

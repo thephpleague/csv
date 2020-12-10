@@ -88,7 +88,7 @@ class CsvTest extends TestCase
      */
     public function testCreateFromPathThrowsRuntimeException(): void
     {
-        self::expectException(Exception::class);
+        $this->expectException(Exception::class);
         Reader::createFromPath(__DIR__.'/foo/bar', 'r');
     }
 
@@ -125,7 +125,7 @@ EOF;
      */
     public function testCloningIsForbidden(): void
     {
-        self::expectException(Exception::class);
+        $this->expectException(Exception::class);
         clone $this->csv;
     }
 
@@ -136,7 +136,10 @@ EOF;
      */
     public function testOutputSize(): void
     {
-        self::assertSame(60, $this->csv->output('test.csv'));
+        ob_start();
+        $length = $this->csv->output('test.csv');
+        ob_end_clean();
+        self::assertSame(60, $length);
     }
 
     /**
@@ -146,7 +149,7 @@ EOF;
      */
     public function testInvalidOutputFile(): void
     {
-        self::expectException(Exception::class);
+        $this->expectException(Exception::class);
         $this->csv->output('invalid/file.csv');
     }
 
@@ -165,7 +168,9 @@ EOF;
 
         $raw_csv = Reader::BOM_UTF8."john,doe,john.doe@example.com\njane,doe,jane.doe@example.com\n";
         $csv = Reader::createFromString($raw_csv);
+        ob_start();
         $csv->output('tést.csv');
+        ob_end_clean();
         $headers = xdebug_get_headers();
 
         // Due to the variety of ways the xdebug expresses Content-Type of text files,
@@ -203,7 +208,7 @@ EOF;
      */
     public function testChunkTriggersException(): void
     {
-        self::expectException(Exception::class);
+        $this->expectException(Exception::class);
         $chunk = $this->csv->chunk(0);
         iterator_to_array($chunk);
     }
@@ -235,7 +240,7 @@ EOF;
      */
     public function testDelimiter(): void
     {
-        self::expectException(Exception::class);
+        $this->expectException(Exception::class);
         $this->csv->setDelimiter('o');
         self::assertSame('o', $this->csv->getDelimiter());
         self::assertSame($this->csv, $this->csv->setDelimiter('o'));
@@ -286,7 +291,7 @@ EOF;
      */
     public function testEscape(): void
     {
-        self::expectException(Exception::class);
+        $this->expectException(Exception::class);
         $this->csv->setEscape('o');
         self::assertSame('o', $this->csv->getEscape());
         self::assertSame($this->csv, $this->csv->setEscape('o'));
@@ -300,7 +305,7 @@ EOF;
      */
     public function testEnclosure(): void
     {
-        self::expectException(Exception::class);
+        $this->expectException(Exception::class);
         $this->csv->setEnclosure('o');
         self::assertSame('o', $this->csv->getEnclosure());
         self::assertSame($this->csv, $this->csv->setEnclosure('o'));
@@ -330,7 +335,7 @@ EOF;
      */
     public function testFailedAddStreamFilter(): void
     {
-        self::expectException(UnavailableFeature::class);
+        $this->expectException(UnavailableFeature::class);
         $csv = Writer::createFromFileObject(new SplTempFileObject());
         self::assertFalse($csv->supportsStreamFilter());
         $csv->addStreamFilter('string.toupper');
@@ -343,7 +348,7 @@ EOF;
      */
     public function testFailedAddStreamFilterWithWrongFilter(): void
     {
-        self::expectException(InvalidArgument::class);
+        $this->expectException(InvalidArgument::class);
         /** @var resource $tmpfile */
         $tmpfile = tmpfile();
         $csv = Writer::createFromStream($tmpfile);
