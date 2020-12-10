@@ -63,7 +63,7 @@ class WriterTest extends TestCase
     public function testflushThresholdThrowsException(): void
     {
         $this->csv->setFlushThreshold(1);
-        self::expectException(Exception::class);
+        $this->expectException(Exception::class);
         $this->csv->setFlushThreshold(0);
     }
 
@@ -117,11 +117,11 @@ class WriterTest extends TestCase
     public function testInsertThrowsExceptionOnError(array $record): void
     {
         if (70400 > PHP_VERSION_ID) {
-            self::expectException(CannotInsertRecord::class);
-            self::expectExceptionMessage('Unable to write record to the CSV document');
+            $this->expectException(CannotInsertRecord::class);
+            $this->expectExceptionMessage('Unable to write record to the CSV document');
         } else {
             self::expectNotice();
-            self::expectExceptionMessageMatches('/write of \d+ bytes failed with errno=9 Bad file descriptor/i');
+            $this->expectExceptionMessageMatches('/write of \d+ bytes failed with errno=9 Bad file descriptor/i');
         }
 
         Writer::createFromPath(__DIR__.'/data/foo.csv', 'r')->insertOne($record);
@@ -206,7 +206,7 @@ class WriterTest extends TestCase
             return false;
         };
 
-        self::expectException(CannotInsertRecord::class);
+        $this->expectException(CannotInsertRecord::class);
         $this->csv->addValidator($func, 'func1');
         $this->csv->insertOne(['jane', 'doe']);
     }
@@ -227,8 +227,8 @@ class WriterTest extends TestCase
      */
     public function testWriterTriggerExceptionWithNonSeekableStream(): void
     {
-        self::expectException(Exception::class);
-        $writer = Writer::createFromPath('php://output', 'w');
+        $this->expectException(Exception::class);
+        $writer = Writer::createFromPath('php://null', 'w');
         $writer->setNewline("\r\n");
         $writer->insertOne(['foo', 'bar']);
     }

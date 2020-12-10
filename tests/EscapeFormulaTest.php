@@ -30,7 +30,7 @@ class EscapeFormulaTest extends TestCase
      */
     public function testConstructorThrowsTypError(): void
     {
-        self::expectException(TypeError::class);
+        $this->expectException(TypeError::class);
         new EscapeFormula("\t", [(object) 'i']);
     }
 
@@ -41,7 +41,7 @@ class EscapeFormulaTest extends TestCase
      */
     public function testConstructorThrowsInvalidArgumentException(): void
     {
-        self::expectException(InvalidArgumentException::class);
+        $this->expectException(InvalidArgumentException::class);
         new EscapeFormula("\t", ['i', 'foo']);
     }
 

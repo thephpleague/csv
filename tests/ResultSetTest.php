@@ -85,7 +85,7 @@ class ResultSetTest extends TestCase
      */
     public function testSetOffsetThrowsException(): void
     {
-        self::expectException(Exception::class);
+        $this->expectException(Exception::class);
         $this->stmt->offset(-1);
     }
 
@@ -119,7 +119,7 @@ class ResultSetTest extends TestCase
      */
     public function testSetLimitThrowException(): void
     {
-        self::expectException(Exception::class);
+        $this->expectException(Exception::class);
         $this->stmt->limit(-4);
     }
 
@@ -174,7 +174,7 @@ class ResultSetTest extends TestCase
      */
     public function testIntervalThrowException(): void
     {
-        self::expectException(OutOfBoundsException::class);
+        $this->expectException(OutOfBoundsException::class);
         iterator_to_array($this->stmt
             ->offset(1)
             ->limit(0)
@@ -256,7 +256,7 @@ class ResultSetTest extends TestCase
      */
     public function testFetchColumnTriggersException($field): void
     {
-        self::expectException(InvalidArgument::class);
+        $this->expectException(InvalidArgument::class);
         $this->csv->setHeaderOffset(0);
         $res = $this->stmt->process($this->csv)->fetchColumn($field);
         iterator_to_array($res, false);
@@ -277,7 +277,7 @@ class ResultSetTest extends TestCase
      */
     public function testFetchColumnTriggersOutOfRangeException(): void
     {
-        self::expectException(InvalidArgument::class);
+        $this->expectException(InvalidArgument::class);
         $this->csv->setHeaderOffset(0);
         $res = $this->stmt->process($this->csv)->fetchColumn(-1);
         iterator_to_array($res, false);
@@ -398,7 +398,7 @@ class ResultSetTest extends TestCase
      */
     public function testFetchOneTriggersException(): void
     {
-        self::expectException(Exception::class);
+        $this->expectException(Exception::class);
         $this->stmt->process($this->csv)->fetchOne(-5);
     }
 
@@ -515,7 +515,7 @@ class ResultSetTest extends TestCase
      */
     public function testHeaderThrowsExceptionOnError(): void
     {
-        self::expectException(SyntaxError::class);
+        $this->expectException(SyntaxError::class);
         $csv = Reader::createFromString(
             'field1,field1,field3
             1,2,3

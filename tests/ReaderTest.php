@@ -199,7 +199,7 @@ EOF;
      */
     public function testHeaderThrowsExceptionOnError(): void
     {
-        self::expectException(SyntaxError::class);
+        $this->expectException(SyntaxError::class);
         $csv = Reader::createFromString(
             'field1,field1,field3
             1,2,3
@@ -218,7 +218,7 @@ EOF;
      */
     public function testHeaderThrowsExceptionOnEmptyLine(): void
     {
-        self::expectException(SyntaxError::class);
+        $this->expectException(SyntaxError::class);
         $str = <<<EOF
 foo,bar,baz
 
@@ -363,7 +363,7 @@ EOF;
      */
     public function testGetHeaderThrowsExceptionWithNegativeOffset(): void
     {
-        self::expectException(Exception::class);
+        $this->expectException(Exception::class);
         $this->csv->setHeaderOffset(-3)->getRecords();
     }
 
@@ -373,7 +373,7 @@ EOF;
      */
     public function testGetHeaderThrowsExceptionWithSplFileObject(): void
     {
-        self::expectException(SyntaxError::class);
+        $this->expectException(SyntaxError::class);
         $this->csv->setHeaderOffset(23)->getRecords();
     }
 
@@ -383,7 +383,7 @@ EOF;
      */
     public function testGetHeaderThrowsExceptionWithStreamObject(): void
     {
-        self::expectException(SyntaxError::class);
+        $this->expectException(SyntaxError::class);
 
         /** @var resource $tmp */
         $tmp = fopen('php://temp', 'r+');
@@ -400,7 +400,7 @@ EOF;
      */
     public function testSetHeaderThrowsExceptionOnWrongInputRange(): void
     {
-        self::expectException(Exception::class);
+        $this->expectException(Exception::class);
         $this->csv->setHeaderOffset(-1);
     }
 
@@ -621,7 +621,7 @@ CSV;
         $csv = Reader::createFromString($text);
         $csv->setHeaderOffset(0);
 
-        self::expectException(Exception::class);
+        $this->expectException(Exception::class);
         $csv->getHeader();
     }
 }

@@ -70,7 +70,7 @@ class ColumnConsistencyTest extends TestCase
      */
     public function testColumnsCount(): void
     {
-        self::expectException(CannotInsertRecord::class);
+        $this->expectException(CannotInsertRecord::class);
         $this->csv->addValidator(new ColumnConsistency(3), 'consistency');
         $this->csv->insertOne(['john', 'doe', 'john.doe@example.com']);
         $this->csv->insertOne(['jane', 'jane.doe@example.com']);
@@ -82,7 +82,7 @@ class ColumnConsistencyTest extends TestCase
      */
     public function testColumsCountTriggersException(): void
     {
-        self::expectException(Exception::class);
+        $this->expectException(Exception::class);
         new ColumnConsistency(-2);
     }
 }

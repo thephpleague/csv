@@ -28,7 +28,7 @@ class DetectDelimiterTest extends TestCase
         $file = new SplTempFileObject();
         $file->fwrite("How are you today ?\nI'm doing fine thanks!");
         $csv = Reader::createFromFileObject($file);
-        self::expectException(Exception::class);
+        $this->expectException(Exception::class);
         delimiter_detect($csv, [','], -4);
     }
 
@@ -37,7 +37,7 @@ class DetectDelimiterTest extends TestCase
         $file = new SplTempFileObject();
         $file->fwrite("How are you today ?\nI'm doing fine thanks!");
         $csv = Reader::createFromFileObject($file);
-        self::expectException(TypeError::class);
+        $this->expectException(TypeError::class);
         delimiter_detect($csv, [',', []]);
     }
 

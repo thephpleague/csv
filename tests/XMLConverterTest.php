@@ -86,7 +86,7 @@ class XMLConverterTest extends TestCase
      */
     public function testXmlElementTriggersException(): void
     {
-        self::expectException(DOMException::class);
+        $this->expectException(DOMException::class);
         (new XMLConverter())
             ->recordElement('record', '')
             ->rootElement('   ');

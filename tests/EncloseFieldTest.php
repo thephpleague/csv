@@ -86,7 +86,7 @@ class EncloseFieldTest extends TestCase
      */
     public function testEncloseFieldImmutability(): void
     {
-        self::expectException(InvalidArgumentException::class);
+        $this->expectException(InvalidArgumentException::class);
         $csv = Writer::createFromString('');
         $csv->setDelimiter('|');
         EncloseField::addTo($csv, 'foo');
