@@ -2,7 +2,7 @@
 
 All Notable changes to `Csv` will be documented in this file
 
-## 9.6.2 - TBD
+## 9.6.2 - 2020-12-10
 
 ### Added 
 
@@ -14,7 +14,7 @@ All Notable changes to `Csv` will be documented in this file
 
 ### Fixed
 
-- Adding support for PHP8
+- Adding official support for PHP8 [#405](https://github.com/thephpleague/csv/pull/405) and [#406](https://github.com/thephpleague/csv/pull/406) by [Ion Bazan](https://github.com/IonBazan)
 
 ### Removed
 
