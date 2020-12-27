@@ -52,17 +52,12 @@
     },
     "scripts": {
         "phpcs": "php-cs-fixer fix -v --diff --dry-run --allow-risky=yes --ansi",
-        "phpstan-src": "phpstan analyse -l max -c phpstan.src.neon src --ansi",
-        "phpstan-tests": "phpstan analyse -l max -c phpstan.tests.neon tests --ansi",
-        "phpstan": [
-            "@phpstan-src",
-            "@phpstan-tests"
-        ],
+        "phpstan": "phpstan analyse -l max -c phpstan.neon src --ansi",
         "phpunit": "phpunit --coverage-text",
         "test": [
-            "@phpcs",
             "@phpstan",
-            "@phpunit"
+            "@phpunit",
+            "@phpcs"
         ]
     },
     "scripts-descriptions": {

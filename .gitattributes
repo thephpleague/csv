@@ -7,9 +7,8 @@
 /.php_cs            export-ignore
 /docs               export-ignore
 /build              export-ignore
-/phpstan.src.neon   export-ignore
-/phpstan.tests.neon export-ignore
+/test_files         export-ignore
+/phpstan.neon       export-ignore
 /phpunit.xml        export-ignore
-/tests              export-ignore
 /CONDUCT.md         export-ignore
 /README.md          export-ignore
