@@ -9,14 +9,11 @@
  * file that was distributed with this source code.
  */
 
-namespace LeagueTest\Csv;
+namespace League\Csv;
 
-use League\Csv\Exception;
-use League\Csv\Reader;
 use PHPUnit\Framework\TestCase;
 use SplTempFileObject;
 use TypeError;
-use function League\Csv\delimiter_detect;
 
 /**
  * @group reader

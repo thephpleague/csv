@@ -9,25 +9,21 @@
  * file that was distributed with this source code.
  */
 
-namespace LeagueTest\Csv;
+namespace League\Csv;
 
-use League\Csv\ByteSequence;
 use PHPUnit\Framework\TestCase;
 use function chr;
-use function League\Csv\bom_match;
 
 /**
  * @group csv
  */
-class ByteSequenceTest extends TestCase
+final class ByteSequenceTest extends TestCase
 {
     /**
      * @dataProvider ByteSequenceMatchProvider
-     * @param string $str
-     * @param string $expected
      * @covers League\Csv\bom_match
      */
-    public function testByteSequenceMatch($str, $expected): void
+    public function testByteSequenceMatch(string $str, string $expected): void
     {
         self::assertSame($expected, bom_match($str));
     }

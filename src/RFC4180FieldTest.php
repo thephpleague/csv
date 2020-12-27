@@ -9,12 +9,9 @@
  * file that was distributed with this source code.
  */
 
-namespace LeagueTest\Csv;
+namespace League\Csv;
 
 use InvalidArgumentException;
-use League\Csv\Reader;
-use League\Csv\RFC4180Field;
-use League\Csv\Writer;
 use PHPUnit\Framework\TestCase;
 use TypeError;
 use function stream_get_filters;
@@ -25,7 +22,7 @@ use const STREAM_FILTER_READ;
  * @group filter
  * @coversDefaultClass \League\Csv\RFC4180Field
  */
-class RFC4180FieldTest extends TestCase
+final class RFC4180FieldTest extends TestCase
 {
     /**
      * @see https://bugs.php.net/bug.php?id=43225

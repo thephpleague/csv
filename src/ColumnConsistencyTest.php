@@ -9,12 +9,8 @@
  * file that was distributed with this source code.
  */
 
-namespace LeagueTest\Csv;
+namespace League\Csv;
 
-use League\Csv\CannotInsertRecord;
-use League\Csv\ColumnConsistency;
-use League\Csv\Exception;
-use League\Csv\Writer;
 use PHPUnit\Framework\TestCase;
 use SplFileObject;
 use SplTempFileObject;
@@ -23,7 +19,7 @@ use SplTempFileObject;
  * @group writer
  * @coversDefaultClass \League\Csv\ColumnConsistency
  */
-class ColumnConsistencyTest extends TestCase
+final class ColumnConsistencyTest extends TestCase
 {
     /** @var Writer  */
     private $csv;
@@ -35,7 +31,7 @@ class ColumnConsistencyTest extends TestCase
 
     public function tearDown(): void
     {
-        $csv = new SplFileObject(__DIR__.'/data/foo.csv', 'w');
+        $csv = new SplFileObject(__DIR__.'/../test_files/foo.csv', 'w');
         $csv->setCsvControl();
         $csv->fputcsv(['john', 'doe', 'john.doe@example.com'], ',', '"');
         unset($this->csv);
@@ -57,9 +53,9 @@ class ColumnConsistencyTest extends TestCase
             $this->csv->insertOne(['john', 'doe', 'john.doe@example.com']);
             self::assertSame(3, $validator->getColumnCount());
             $this->csv->insertOne($expected);
-        } catch (CannotInsertRecord $e) {
-            self::assertSame($e->getName(), 'consistency');
-            self::assertEquals($e->getRecord(), ['jane', 'jane.doe@example.com']);
+        } catch (CannotInsertRecord $exception) {
+            self::assertSame($exception->getName(), 'consistency');
+            self::assertEquals($exception->getRecord(), ['jane', 'jane.doe@example.com']);
         }
     }
 
@@ -71,6 +67,7 @@ class ColumnConsistencyTest extends TestCase
     public function testColumnsCount(): void
     {
         $this->expectException(CannotInsertRecord::class);
+
         $this->csv->addValidator(new ColumnConsistency(3), 'consistency');
         $this->csv->insertOne(['john', 'doe', 'john.doe@example.com']);
         $this->csv->insertOne(['jane', 'jane.doe@example.com']);
@@ -80,9 +77,10 @@ class ColumnConsistencyTest extends TestCase
      * @covers ::__construct
      * @covers League\Csv\Exception
      */
-    public function testColumsCountTriggersException(): void
+    public function testColumnsCountTriggersException(): void
     {
         $this->expectException(Exception::class);
+
         new ColumnConsistency(-2);
     }
 }

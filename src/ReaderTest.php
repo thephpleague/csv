@@ -9,12 +9,8 @@
  * file that was distributed with this source code.
  */
 
-namespace LeagueTest\Csv;
+namespace League\Csv;
 
-use League\Csv\Exception;
-use League\Csv\Reader;
-use League\Csv\Statement;
-use League\Csv\SyntaxError;
 use PHPUnit\Framework\TestCase;
 use SplFileObject;
 use SplTempFileObject;
@@ -32,7 +28,7 @@ use function unlink;
  * @group reader
  * @coversDefaultClass \League\Csv\Reader
  */
-class ReaderTest extends TestCase
+final class ReaderTest extends TestCase
 {
     /** @var Reader */
     private $csv;
@@ -244,8 +240,8 @@ EOF;
         fputcsv($fp, $record);
         $csv = Reader::createFromStream($fp);
         self::assertSame($expected_bom, $csv->getInputBOM());
-        foreach ($csv as $offset => $record) {
-            self::assertSame($expected, $record[0]);
+        foreach ($csv as $offset => $row) {
+            self::assertSame($expected, $row[0]);
         }
         $csv = null;
         fclose($fp);
@@ -332,7 +328,7 @@ EOF;
      */
     public function testAppliedFlags(int $flag, int $fetch_count): void
     {
-        $path = __DIR__.'/data/tmp.txt';
+        $path = __DIR__.'/../test_files/tmp.txt';
         $obj  = new SplFileObject($path, 'w+');
         $obj->fwrite("1st\n2nd\n");
         $obj->setFlags($flag);
@@ -443,7 +439,7 @@ EOF;
      */
     public function testCreateFromPath(): void
     {
-        $csv = Reader::createFromPath(__DIR__.'/data/foo_readonly.csv');
+        $csv = Reader::createFromPath(__DIR__.'/../test_files/foo_readonly.csv');
         self::assertCount(1, $csv);
     }
 

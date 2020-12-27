@@ -9,21 +9,18 @@
  * file that was distributed with this source code.
  */
 
-namespace LeagueTest\Csv;
+namespace League\Csv;
 
 use DOMDocument;
 use DOMElement;
 use DOMException;
-use League\Csv\Reader;
-use League\Csv\Statement;
-use League\Csv\XMLConverter;
 use PHPUnit\Framework\TestCase;
 
 /**
  * @group converter
  * @coversDefaultClass \League\Csv\XMLConverter
  */
-class XMLConverterTest extends TestCase
+final class XMLConverterTest extends TestCase
 {
     /**
      * @covers ::rootElement
@@ -39,7 +36,7 @@ class XMLConverterTest extends TestCase
      */
     public function testToXML(): void
     {
-        $csv = Reader::createFromPath(__DIR__.'/data/prenoms.csv', 'r')
+        $csv = Reader::createFromPath(__DIR__.'/../test_files/prenoms.csv', 'r')
             ->setDelimiter(';')
             ->setHeaderOffset(0)
         ;
@@ -71,7 +68,6 @@ class XMLConverterTest extends TestCase
         /** @var DOMElement $baseTag */
         $baseTag = $dom->documentElement;
 
-        self::assertInstanceOf(DOMDocument::class, $dom);
         self::assertSame('csv', $baseTag->tagName);
         self::assertEquals(5, $record_list->length);
         self::assertTrue($record_node->hasAttribute('offset'));
@@ -106,7 +102,7 @@ class XMLConverterTest extends TestCase
      */
     public function testImport(): void
     {
-        $csv = Reader::createFromPath(__DIR__.'/data/prenoms.csv', 'r')
+        $csv = Reader::createFromPath(__DIR__.'/../test_files/prenoms.csv', 'r')
             ->setDelimiter(';')
             ->setHeaderOffset(0)
         ;
@@ -127,9 +123,7 @@ class XMLConverterTest extends TestCase
         $doc = new DOMDocument('1.0');
         $element = $converter->import($records, $doc);
 
-        self::assertInstanceOf(DOMDocument::class, $doc);
         self::assertCount(0, $doc->childNodes);
-        self::assertInstanceOf(DOMElement::class, $element);
         self::assertCount(5, $element->childNodes);
     }
 }

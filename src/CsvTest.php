@@ -9,13 +9,8 @@
  * file that was distributed with this source code.
  */
 
-namespace LeagueTest\Csv;
+namespace League\Csv;
 
-use League\Csv\Exception;
-use League\Csv\InvalidArgument;
-use League\Csv\Reader;
-use League\Csv\UnavailableFeature;
-use League\Csv\Writer;
 use PHPUnit\Framework\TestCase;
 use SplFileObject;
 use SplTempFileObject;
@@ -36,7 +31,7 @@ use const STREAM_FILTER_WRITE;
  * @group csv
  * @coversDefaultClass \League\Csv\AbstractCsv
  */
-class CsvTest extends TestCase
+final class CsvTest extends TestCase
 {
     /** @var Reader  */
     private $csv;
@@ -60,7 +55,7 @@ class CsvTest extends TestCase
     public function tearDown(): void
     {
         unset($this->csv);
-        @unlink(__DIR__.'/data/newline.csv');
+        @unlink(__DIR__.'/../test_files/newline.csv');
     }
 
     /**
@@ -319,7 +314,7 @@ EOF;
      */
     public function testAddStreamFilter(): void
     {
-        $csv = Reader::createFromPath(__DIR__.'/data/foo.csv');
+        $csv = Reader::createFromPath(__DIR__.'/../test_files/foo.csv');
         $csv->addStreamFilter('string.rot13');
         $csv->addStreamFilter('string.tolower');
         $csv->addStreamFilter('string.toupper');
@@ -363,7 +358,7 @@ EOF;
     public function testStreamFilterDetection(): void
     {
         $filtername = 'string.toupper';
-        $csv = Reader::createFromPath(__DIR__.'/data/foo.csv');
+        $csv = Reader::createFromPath(__DIR__.'/../test_files/foo.csv');
         self::assertFalse($csv->hasStreamFilter($filtername));
         $csv->addStreamFilter($filtername);
         self::assertTrue($csv->hasStreamFilter($filtername));
@@ -374,7 +369,7 @@ EOF;
      */
     public function testClearAttachedStreamFilters(): void
     {
-        $path = __DIR__.'/data/foo.csv';
+        $path = __DIR__.'/../test_files/foo.csv';
         $csv = Reader::createFromPath($path);
         $csv->addStreamFilter('string.toupper');
         self::assertStringContainsString('JOHN', $csv->getContent());
@@ -388,7 +383,7 @@ EOF;
      */
     public function testSetStreamFilterOnWriter(): void
     {
-        $csv = Writer::createFromPath(__DIR__.'/data/newline.csv', 'w+');
+        $csv = Writer::createFromPath(__DIR__.'/../test_files/newline.csv', 'w+');
         $csv->addStreamFilter('string.toupper');
         $csv->insertOne([1, 'two', 3, "new\r\nline"]);
         self::assertStringContainsString("1,TWO,3,\"NEW\r\nLINE\"", $csv->getContent());
@@ -425,12 +420,12 @@ EOF;
     {
         return [
             'absolute path' => [
-                'path' => __DIR__.'/data/foo.csv',
-                'expected' => __DIR__.'/data/foo.csv',
+                'path' => __DIR__.'/../test_files/foo.csv',
+                'expected' => __DIR__.'/../test_files/foo.csv',
             ],
             'relative path' => [
-                'path' => 'tests/data/foo.csv',
-                'expected' => 'tests/data/foo.csv',
+                'path' => __DIR__.'/../test_files/foo.csv',
+                'expected' => __DIR__.'/../test_files/foo.csv',
             ],
             'external uri' => [
                 'path' => 'https://raw.githubusercontent.com/thephpleague/csv/8.2.3/test/data/foo.csv',

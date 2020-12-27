@@ -9,9 +9,8 @@
  * file that was distributed with this source code.
  */
 
-namespace LeagueTest\Csv\Polyfill;
+namespace League\Csv\Polyfill;
 
-use League\Csv\Polyfill\EmptyEscapeParser;
 use League\Csv\Reader;
 use League\Csv\Stream;
 use PHPUnit\Framework\TestCase;
@@ -24,7 +23,7 @@ use function iterator_to_array;
  * @group reader
  * @coversDefaultClass \League\Csv\Polyfill\EmptyEscapeParser
  */
-class EmptyEscapeParserTest extends TestCase
+final class EmptyEscapeParserTest extends TestCase
 {
     /**
      * @covers ::parse
@@ -138,7 +137,7 @@ EOF;
             [null],
         ];
 
-        $stream = Stream::createFromPath(__DIR__.'/../data/foo_readonly.csv');
+        $stream = Stream::createFromPath(__DIR__.'/../../test_files/foo_readonly.csv');
         foreach (EmptyEscapeParser::parse($stream) as $offset => $record) {
             self::assertSame($expected[$offset], $record);
         }

@@ -9,14 +9,9 @@
  * file that was distributed with this source code.
  */
 
-namespace LeagueTest\Csv;
+namespace League\Csv;
 
 use Generator;
-use League\Csv\Exception;
-use League\Csv\InvalidArgument;
-use League\Csv\Reader;
-use League\Csv\Statement;
-use League\Csv\SyntaxError;
 use OutOfBoundsException;
 use PHPUnit\Framework\TestCase;
 use SplTempFileObject;
@@ -33,7 +28,7 @@ use function strlen;
  * @group reader
  * @coversDefaultClass \League\Csv\ResultSet
  */
-class ResultSetTest extends TestCase
+final class ResultSetTest extends TestCase
 {
     /**
      * @var Reader
@@ -153,7 +148,7 @@ class ResultSetTest extends TestCase
                     return true;
                 })
                 ->where(function (array $record): bool {
-                    return !empty($record);
+                    return [] !== $record;
                 })
                 ->process($this->csv)
         );
@@ -190,11 +185,11 @@ class ResultSetTest extends TestCase
      */
     public function testFilter(): void
     {
-        $func1 = function ($row) {
+        $func1 = function (array $row): bool {
             return !in_array('jane', $row, true);
         };
 
-        $func2 = function ($row) {
+        $func2 = function (array $row): bool {
             return !in_array('john', $row, true);
         };
 
@@ -406,12 +401,12 @@ class ResultSetTest extends TestCase
      * @covers ::fetchPairs
      * @covers ::getColumnIndex
      * @dataProvider fetchPairsDataProvider
-     * @param int|string $key
-     * @param int|string $value
+     * @param int|string $index
+     * @param int|string $item
      */
-    public function testFetchPairsIteratorMode($key, $value, array $expected): void
+    public function testFetchPairsIteratorMode($index, $item, array $expected): void
     {
-        $iterator = $this->stmt->process($this->csv)->fetchPairs($key, $value);
+        $iterator = $this->stmt->process($this->csv)->fetchPairs($index, $item);
         foreach ($iterator as $key => $value) {
             $res = current($expected);
             self::assertSame($value, $res[$key]);

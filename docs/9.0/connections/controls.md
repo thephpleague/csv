@@ -107,10 +107,18 @@ echo $csv->getEscape();    //display '\'
 ## Detecting the delimiter character
 
 ~~~php
+function League\Csv\Info::getDelimiterStats(Reader $csv, array $delimiters, $limit = 1): array
+~~~
+
+or
+
+~~~php
 function League\Csv\delimiter_detect(Reader $csv, array $delimiters, $limit = 1): array
 ~~~
 
-The `delimiter_detect` function helps detect the possible delimiter character used by the CSV document. This function returns the number of CSV fields found in the document depending on the submitted delimiters given.
+<p class="message-warning">Since <code>version 9.7</code> this function is deprecated and you are encouraged to use <code>Util::fetchDelimiters</code> instead.</p>
+
+The `Info::getDelimiterStats` static method helps detect the possible delimiter character used by the CSV document. This function returns the number of CSV fields found in the document depending on the submitted delimiters given.
 
 The function takes three (3) arguments:
 
@@ -121,14 +129,14 @@ The function takes three (3) arguments:
 and returns an associated array whose keys are the submitted delimiters characters and whose values represents the field numbers found depending on the delimiter value.
 
 ~~~php
-use function League\Csv\delimiter_detect;
+use League\Csv\Info;
 use League\Csv\Reader;
 
 $reader = Reader::createFromPath('/path/to/file.csv', 'r');
 $reader->setEnclosure('"');
 $reader->setEscape('\\');
 
-$result = delimiter_detect($reader, [' ', '|'], 10);
+$result = Info::getDelimiterStats($reader, [' ', '|'], 10);
 // $result can be the following
 // [
 //     '|' => 20,

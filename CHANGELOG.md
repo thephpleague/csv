@@ -2,6 +2,28 @@
 
 All Notable changes to `Csv` will be documented in this file
 
+## Next - TBD
+
+### Added
+
+- `League\Csv\Info::fetchDelimiters` to replace the namespace function `delimiter_detect`
+- `League\Csv\Info::fetchBOMSequence` to replace the namespace function `bom_match`
+
+### Deprecated
+
+- `League\Csv\delimiter_detect` use `League\Csv\Info::getDelimiterStats`
+- `League\Csv\bom_match` use `League\Csv\Info::fetchBOMSequence`
+
+### Fixed
+
+- Move tests into the `src` directory
+
+### Removed
+
+- None
+
+
+
 ## 9.6.2 - 2020-12-10
 
 ### Added 

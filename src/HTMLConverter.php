@@ -75,10 +75,13 @@ class HTMLConverter
         }
 
         $table = $doc->createElement('table');
+
         $this->addHTMLAttributes($table);
         $this->appendHeaderSection('thead', $header_record, $table);
         $this->appendHeaderSection('tfoot', $footer_record, $table);
+
         $table->appendChild($this->xml_converter->rootElement('tbody')->import($records, $doc));
+
         $doc->appendChild($table);
 
         /** @var string $content */
@@ -110,7 +113,7 @@ class HTMLConverter
             $element->setAttribute('scope', 'col');
         }
 
-        $table->appendChild($node);
+        $newNode = $table->appendChild($node);
     }
 
     /**
