@@ -34,7 +34,7 @@
         "ext-curl" : "*",
         "ext-dom": "*",
         "friendsofphp/php-cs-fixer": "^2.16",
-        "phpunit/phpunit" : "^8.5",
+        "phpunit/phpunit" : "^8.5 || ^9.5",
         "phpstan/phpstan": "^0.12.0",
         "phpstan/phpstan-strict-rules": "^0.12.0",
         "phpstan/phpstan-phpunit": "^0.12.0"
