@@ -17,9 +17,6 @@ use DOMAttr;
 use DOMDocument;
 use DOMElement;
 use DOMException;
-use DOMNode;
-use DOMText;
-use RuntimeException;
 
 /**
  * Converts tabular data into a DOMDocument object.
@@ -99,15 +96,9 @@ class XMLConverter
         $field_encoder = $this->encoder['field']['' !== $this->column_attr];
         $record_encoder = $this->encoder['record']['' !== $this->offset_attr];
         $root = $doc->createElement($this->root_name);
-        if (!$root instanceof DOMElement) {
-            throw new RuntimeException();
-        }
         foreach ($records as $offset => $record) {
             $node = $this->$record_encoder($doc, $record, $field_encoder, $offset);
-            $newNode = $root->appendChild($node);
-            if (!$newNode instanceof DOMNode) {
-                throw new RuntimeException();
-            }
+            $root->appendChild($node);
         }
 
         return $root;
@@ -135,15 +126,9 @@ class XMLConverter
     protected function recordToElement(DOMDocument $doc, array $record, string $field_encoder): DOMElement
     {
         $node = $doc->createElement($this->record_name);
-        if (!$node instanceof DOMElement) {
-            throw new RuntimeException();
-        }
         foreach ($record as $node_name => $value) {
             $item = $this->$field_encoder($doc, (string) $value, $node_name);
-            $newNode = $node->appendChild($item);
-            if (!$newNode instanceof DOMNode) {
-                throw new RuntimeException();
-            }
+            $node->appendChild($item);
         }
 
         return $node;
@@ -173,19 +158,7 @@ class XMLConverter
     protected function fieldToElement(DOMDocument $doc, string $value): DOMElement
     {
         $item = $doc->createElement($this->field_name);
-        if (!$item instanceof DOMElement) {
-            throw new RuntimeException();
-        }
-
-        $textNode = $doc->createTextNode($value);
-        if (!$textNode instanceof DOMText) {
-            throw new RuntimeException();
-        }
-
-        $newNode = $item->appendChild($textNode);
-        if (!$newNode instanceof DOMNode) {
-            throw new RuntimeException();
-        }
+        $item->appendChild($doc->createTextNode($value));
 
         return $item;
     }

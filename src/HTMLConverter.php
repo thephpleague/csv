@@ -16,8 +16,6 @@ namespace League\Csv;
 use DOMDocument;
 use DOMElement;
 use DOMException;
-use DOMNode;
-use RuntimeException;
 use function preg_match;
 
 /**
@@ -68,10 +66,7 @@ class HTMLConverter
         if ([] === $header_record && [] === $footer_record) {
             $table = $this->xml_converter->import($records, $doc);
             $this->addHTMLAttributes($table);
-            $newNode = $doc->appendChild($table);
-            if (!$newNode instanceof DOMNode) {
-                throw new RuntimeException();
-            }
+            $doc->appendChild($table);
 
             /** @var string $content */
             $content = $doc->saveHTML();
@@ -80,22 +75,14 @@ class HTMLConverter
         }
 
         $table = $doc->createElement('table');
-        if (!$table instanceof DOMElement) {
-            throw new RuntimeException();
-        }
 
         $this->addHTMLAttributes($table);
         $this->appendHeaderSection('thead', $header_record, $table);
         $this->appendHeaderSection('tfoot', $footer_record, $table);
-        $newNode = $table->appendChild($this->xml_converter->rootElement('tbody')->import($records, $doc));
-        if (!$newNode instanceof DOMNode) {
-            throw new RuntimeException();
-        }
 
-        $newNode = $doc->appendChild($table);
-        if (!$newNode instanceof DOMNode) {
-            throw new RuntimeException();
-        }
+        $table->appendChild($this->xml_converter->rootElement('tbody')->import($records, $doc));
+
+        $doc->appendChild($table);
 
         /** @var string $content */
         $content = $doc->saveHTML();
@@ -127,9 +114,6 @@ class HTMLConverter
         }
 
         $newNode = $table->appendChild($node);
-        if (!$newNode instanceof DOMNode) {
-            throw new RuntimeException();
-        }
     }
 
     /**
