@@ -226,7 +226,7 @@ abstract class AbstractCsv implements ByteSequence
 
         $this->document->setFlags(SplFileObject::READ_CSV);
         $this->document->rewind();
-        $this->input_bom = bom_match((string) $this->document->fread(4));
+        $this->input_bom = Info::fetchBOMSequence((string) $this->document->fread(4)) ?? '';
 
         return $this->input_bom;
     }
