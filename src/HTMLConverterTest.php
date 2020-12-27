@@ -9,19 +9,16 @@
  * file that was distributed with this source code.
  */
 
-namespace LeagueTest\Csv;
+namespace League\Csv;
 
 use DOMException;
-use League\Csv\HTMLConverter;
-use League\Csv\Reader;
-use League\Csv\Statement;
 use PHPUnit\Framework\TestCase;
 
 /**
  * @group converter
  * @coversDefaultClass \League\Csv\HTMLConverter
  */
-class HTMLConverterTest extends TestCase
+final class HTMLConverterTest extends TestCase
 {
     /**
      * @covers ::__construct
@@ -32,7 +29,7 @@ class HTMLConverterTest extends TestCase
      */
     public function testToHTML(): void
     {
-        $csv = Reader::createFromPath(__DIR__.'/data/prenoms.csv', 'r')
+        $csv = Reader::createFromPath(__DIR__.'/../test_files/prenoms.csv', 'r')
             ->setDelimiter(';')
             ->setHeaderOffset(0)
         ;
@@ -66,7 +63,7 @@ class HTMLConverterTest extends TestCase
      */
     public function testToHTMLWithTHeadTableSection(): void
     {
-        $csv = Reader::createFromPath(__DIR__.'/data/prenoms.csv', 'r')
+        $csv = Reader::createFromPath(__DIR__.'/../test_files/prenoms.csv', 'r')
             ->setDelimiter(';')
             ->setHeaderOffset(0)
         ;
@@ -102,7 +99,7 @@ class HTMLConverterTest extends TestCase
      */
     public function testToHTMLWithTFootTableSection(): void
     {
-        $csv = Reader::createFromPath(__DIR__.'/data/prenoms.csv', 'r')
+        $csv = Reader::createFromPath(__DIR__.'/../test_files/prenoms.csv', 'r')
             ->setDelimiter(';')
             ->setHeaderOffset(0)
         ;
@@ -138,7 +135,7 @@ class HTMLConverterTest extends TestCase
      */
     public function testToHTMLWithBothTableHeaderSection(): void
     {
-        $csv = Reader::createFromPath(__DIR__.'/data/prenoms.csv', 'r')
+        $csv = Reader::createFromPath(__DIR__.'/../test_files/prenoms.csv', 'r')
             ->setDelimiter(';')
             ->setHeaderOffset(0)
         ;

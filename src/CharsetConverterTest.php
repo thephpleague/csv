@@ -9,13 +9,10 @@
  * file that was distributed with this source code.
  */
 
-namespace LeagueTest\Csv;
+namespace League\Csv;
 
 use ArrayIterator;
 use Iterator;
-use League\Csv\CharsetConverter;
-use League\Csv\InvalidArgument;
-use League\Csv\Reader;
 use OutOfRangeException;
 use PHPUnit\Framework\TestCase;
 use function explode;
@@ -29,7 +26,7 @@ use function strtoupper;
  * @group converter
  * @coversDefaultClass \League\Csv\CharsetConverter
  */
-class CharsetConverterTest extends TestCase
+final class CharsetConverterTest extends TestCase
 {
     /**
      * @covers ::inputEncoding

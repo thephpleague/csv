@@ -9,18 +9,23 @@
  * file that was distributed with this source code.
  */
 
-namespace LeagueTest\Csv;
+namespace League\Csv;
 
-use League\Csv\Exception;
-use League\Csv\InvalidArgument;
-use League\Csv\Stream;
 use PHPUnit\Framework\TestCase;
 use SplFileObject;
 use TypeError;
 use function curl_init;
+use function feof;
 use function fopen;
 use function fputcsv;
+use function fread;
+use function fseek;
+use function ftell;
+use function fwrite;
+use function in_array;
 use function stream_context_create;
+use function stream_context_get_options;
+use function stream_get_wrappers;
 use function stream_wrapper_register;
 use function stream_wrapper_unregister;
 use const PHP_VERSION_ID;
@@ -30,7 +35,7 @@ use const STREAM_FILTER_READ;
  * @group csv
  * @coversDefaultClass \League\Csv\Stream
  */
-class StreamTest extends TestCase
+final class StreamTest extends TestCase
 {
     public function setUp(): void
     {
@@ -57,7 +62,7 @@ class StreamTest extends TestCase
     public function testCreateStreamWithInvalidParameter(): void
     {
         $this->expectException(TypeError::class);
-        new Stream(__DIR__.'/data/foo.csv');
+        new Stream(__DIR__.'/../test_files/foo.csv');
     }
 
     /**
@@ -136,7 +141,12 @@ class StreamTest extends TestCase
     public function testVarDump(): void
     {
         $stream = new Stream(fopen('php://temp', 'r+'));
-        self::assertIsArray($stream->__debugInfo());
+        $debugInfo = $stream->__debugInfo();
+
+        self::assertArrayHasKey('delimiter', $debugInfo);
+        self::assertArrayHasKey('enclosure', $debugInfo);
+        self::assertArrayHasKey('escape', $debugInfo);
+        self::assertArrayHasKey('stream_filters', $debugInfo);
     }
 
     /**
@@ -154,7 +164,7 @@ class StreamTest extends TestCase
      */
     public function testSeek(): void
     {
-        $doc = Stream::createFromPath(__DIR__.'/data/prenoms.csv');
+        $doc = Stream::createFromPath(__DIR__.'/../test_files/prenoms.csv');
         $doc->setCsvControl(';');
         $doc->setFlags(SplFileObject::READ_CSV);
         $doc->seek(1);
@@ -211,7 +221,7 @@ class StreamTest extends TestCase
     public function testCsvControlThrowsOnEmptyEscapeString(): void
     {
         if (70400 <= PHP_VERSION_ID) {
-            $this->markTestSkipped('This test is only for PHP7.4- versions');
+            self::markTestSkipped('This test is only for PHP7.4- versions');
         }
         $this->expectException(Exception::class);
         $doc = Stream::createFromString();
@@ -221,7 +231,7 @@ class StreamTest extends TestCase
     public function testCsvControlAcceptsEmptyEscapeString(): void
     {
         if (70400 > PHP_VERSION_ID) {
-            $this->markTestSkipped('This test is only for PHP7.4+ versions');
+            self::markTestSkipped('This test is only for PHP7.4+ versions');
         }
         $doc = Stream::createFromString();
         $expected = [';', '|', ''];
@@ -241,3 +251,111 @@ class StreamTest extends TestCase
         $stream->appendFilter($filtername, STREAM_FILTER_READ);
     }
 }
+
+final class StreamWrapper
+{
+    const PROTOCOL = 'leaguetest';
+
+    /**
+     * @var resource
+     */
+    public $context;
+
+    /**
+     * @var resource
+     */
+    private $stream;
+
+    public static function register(): void
+    {
+        if (!in_array(self::PROTOCOL, stream_get_wrappers(), true)) {
+            stream_wrapper_register(self::PROTOCOL, __CLASS__);
+        }
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function stream_open(string $path, string $mode, int $options, string &$opened_path = null): bool
+    {
+        $options = stream_context_get_options($this->context);
+        if (!isset($options[self::PROTOCOL]['stream'])) {
+            return false;
+        }
+
+        $this->stream = $options[self::PROTOCOL]['stream'];
+
+        return true;
+    }
+
+    /**
+     * {@inheritdoc}
+     *
+     * @return string|false
+     */
+    public function stream_read(int $count)
+    {
+        return fread($this->stream, $count);
+    }
+
+    /**
+     * {@inheritdoc}
+     *
+     * @return int|false
+     */
+    public function stream_write(string $data)
+    {
+        return fwrite($this->stream, $data);
+    }
+
+    /**
+     * {@inheritdoc}
+     *
+     * @return int|false
+     */
+    public function stream_tell()
+    {
+        return ftell($this->stream);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function stream_eof(): bool
+    {
+        return feof($this->stream);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function stream_seek(int $offset, int $whence): bool
+    {
+        fseek($this->stream, $whence);
+
+        return true;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function stream_stat(): array
+    {
+        return [
+            'dev'     => 0,
+            'ino'     => 0,
+            'mode'    => 33206,
+            'nlink'   => 0,
+            'uid'     => 0,
+            'gid'     => 0,
+            'rdev'    => 0,
+            'size'    => 0,
+            'atime'   => 0,
+            'mtime'   => 0,
+            'ctime'   => 0,
+            'blksize' => 0,
+            'blocks'  => 0,
+        ];
+    }
+}
+

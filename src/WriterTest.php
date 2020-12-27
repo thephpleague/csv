@@ -9,12 +9,9 @@
  * file that was distributed with this source code.
  */
 
-namespace LeagueTest\Csv;
+namespace League\Csv;
 
 use ArrayIterator;
-use League\Csv\CannotInsertRecord;
-use League\Csv\Exception;
-use League\Csv\Writer;
 use PHPUnit\Framework\TestCase;
 use SplFileObject;
 use SplTempFileObject;
@@ -28,9 +25,9 @@ use const PHP_VERSION_ID;
  * @group writer
  * @coversDefaultClass \League\Csv\Writer
  */
-class WriterTest extends TestCase
+final class WriterTest extends TestCase
 {
-    /** @var Writer  */
+    /** @var Writer */
     private $csv;
 
     public function setUp(): void
@@ -40,7 +37,7 @@ class WriterTest extends TestCase
 
     public function tearDown(): void
     {
-        $csv = new SplFileObject(__DIR__.'/data/foo.csv', 'w');
+        $csv = new SplFileObject(__DIR__.'/../test_files/foo.csv', 'w');
         $csv->setCsvControl();
         $csv->fputcsv(['john', 'doe', 'john.doe@example.com'], ',', '"');
         unset($this->csv);
@@ -50,7 +47,7 @@ class WriterTest extends TestCase
      * @covers ::getFlushThreshold
      * @covers ::setFlushThreshold
      */
-    public function testflushThreshold(): void
+    public function testFlushThreshold(): void
     {
         $this->csv->setFlushThreshold(12);
         self::assertSame(12, $this->csv->getFlushThreshold());
@@ -60,7 +57,7 @@ class WriterTest extends TestCase
     /**
      * @covers ::setFlushThreshold
      */
-    public function testflushThresholdThrowsException(): void
+    public function testFlushThresholdThrowsException(): void
     {
         $this->csv->setFlushThreshold(1);
         $this->expectException(Exception::class);
@@ -69,7 +66,7 @@ class WriterTest extends TestCase
 
     public function testSupportsStreamFilter(): void
     {
-        $csv = Writer::createFromPath(__DIR__.'/data/foo.csv');
+        $csv = Writer::createFromPath(__DIR__.'/../test_files/foo.csv');
         self::assertTrue($csv->supportsStreamFilter());
         $csv->setFlushThreshold(3);
         $csv->addStreamFilter('string.toupper');
@@ -105,7 +102,7 @@ class WriterTest extends TestCase
      */
     public function testInsertNormalFile(): void
     {
-        $csv = Writer::createFromPath(__DIR__.'/data/foo.csv', 'a+');
+        $csv = Writer::createFromPath(__DIR__.'/../test_files/foo.csv', 'a+');
         $csv->insertOne(['jane', 'doe', 'jane.doe@example.com']);
         self::assertStringContainsString('jane,doe,jane.doe@example.com', $csv->getContent());
     }
@@ -124,7 +121,7 @@ class WriterTest extends TestCase
             $this->expectExceptionMessageMatches('/write of \d+ bytes failed with errno=9 Bad file descriptor/i');
         }
 
-        Writer::createFromPath(__DIR__.'/data/foo.csv', 'r')->insertOne($record);
+        Writer::createFromPath(__DIR__.'/../test_files/foo.csv', 'r')->insertOne($record);
     }
 
     public function inputDataProvider(): array
@@ -202,7 +199,7 @@ class WriterTest extends TestCase
 
     public function testAddValidationRules(): void
     {
-        $func = function (array $row) {
+        $func = function (array $row): bool {
             return false;
         };
 
@@ -213,7 +210,7 @@ class WriterTest extends TestCase
 
     public function testFormatterRules(): void
     {
-        $func = function (array $row) {
+        $func = function (array $row): array {
             return array_map('strtoupper', $row);
         };
 

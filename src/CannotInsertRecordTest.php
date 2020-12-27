@@ -9,16 +9,15 @@
  * file that was distributed with this source code.
  */
 
-namespace LeagueTest\Csv;
+namespace League\Csv;
 
-use League\Csv\CannotInsertRecord;
 use PHPUnit\Framework\TestCase;
 
 /**
  * @group converter
  * @coversDefaultClass \League\Csv\CannotInsertRecord
  */
-class CannotInsertRecordTest extends TestCase
+final class CannotInsertRecordTest extends TestCase
 {
     /**
      * @covers ::triggerOnInsertion

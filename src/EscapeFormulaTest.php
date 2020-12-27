@@ -9,11 +9,9 @@
  * file that was distributed with this source code.
  */
 
-namespace LeagueTest\Csv;
+namespace League\Csv;
 
 use InvalidArgumentException;
-use League\Csv\EscapeFormula;
-use League\Csv\Writer;
 use PHPUnit\Framework\TestCase;
 use SplTempFileObject;
 use TypeError;
@@ -22,7 +20,7 @@ use TypeError;
  * @group filter
  * @coversDefaultClass \League\Csv\EscapeFormula
  */
-class EscapeFormulaTest extends TestCase
+final class EscapeFormulaTest extends TestCase
 {
     /**
      * @covers ::__construct
