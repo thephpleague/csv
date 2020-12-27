@@ -34,6 +34,7 @@ function bom_match(string $str): string
 {
     static $list;
     if (null === $list) {
+        /** @var array $list */
         $list = (new ReflectionClass(ByteSequence::class))->getConstants();
 
         rsort($list);

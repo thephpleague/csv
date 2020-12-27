@@ -31,6 +31,7 @@ use function fseek;
 use function fwrite;
 use function get_resource_type;
 use function gettype;
+use function is_array;
 use function is_resource;
 use function rewind;
 use function sprintf;
@@ -398,7 +399,8 @@ class Stream implements SeekableIterator
     {
         do {
             $ret = fgetcsv($this->stream, 0, $this->delimiter, $this->enclosure, $this->escape);
-        } while ((0 !== ($this->flags & SplFileObject::SKIP_EMPTY)) && $ret !== null && $ret !== false && $ret[0] === null);
+            $flag = 0 !== ($this->flags & SplFileObject::SKIP_EMPTY);
+        } while ($flag && is_array($ret) && $ret[0] === null);
 
         return $ret;
     }
