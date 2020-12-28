@@ -113,7 +113,7 @@ class HTMLConverter
             $element->setAttribute('scope', 'col');
         }
 
-        $newNode = $table->appendChild($node);
+        $table->appendChild($node);
     }
 
     /**

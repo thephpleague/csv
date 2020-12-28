@@ -19,13 +19,13 @@ The `ByteSequence` interface provides the following constants :
 * `ByteSequence::BOM_UTF32_BE` : contains `UTF-32` `BOM` with Big-Endian sequence;
 * `ByteSequence::BOM_UTF32_LE` : contains `UTF-32` `BOM` with Little-Endian sequence;
 
-### Util::fetchBOMSequence
+### Info::fetchBOMSequence
 
 ~~~php
 function League\Csv\Info::fetchBOMSequence(string $str): ?string
 ~~~
 
-The `Util::fetchBOMSequence` static method expects a string and returns the BOM sequence found at its start or null otherwise.
+The `Info::fetchBOMSequence` static method expects a string and returns the BOM sequence found at its start or null otherwise.
 
 ~~~php
 use League\Csv\Info;
@@ -39,7 +39,7 @@ This
 
 ### bom_match
 
-<p class="message-warning">Since <code>version 9.7</code> this function is deprecated and you are encouraged to use <code>Util::fetchBOMSequence</code> instead.</p>
+<p class="message-warning">Since <code>version 9.7</code> this function is deprecated and you are encouraged to use <code>Info::fetchBOMSequence</code> instead.</p>
 
 ~~~php
 function League\Csv\bom_match(string $str): string

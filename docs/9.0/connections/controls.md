@@ -116,7 +116,7 @@ or
 function League\Csv\delimiter_detect(Reader $csv, array $delimiters, $limit = 1): array
 ~~~
 
-<p class="message-warning">Since <code>version 9.7</code> this function is deprecated and you are encouraged to use <code>Util::fetchDelimiters</code> instead.</p>
+<p class="message-warning">Since <code>version 9.7</code> this function is deprecated and you are encouraged to use <code>Info::getDelimiterStats</code> instead.</p>
 
 The `Info::getDelimiterStats` static method helps detect the possible delimiter character used by the CSV document. This function returns the number of CSV fields found in the document depending on the submitted delimiters given.
 
