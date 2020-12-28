@@ -17,13 +17,15 @@ The output methods **are affected by** [the output BOM sequence](/9.0/connection
 Returns the string representation of the CSV document
 
 ~~~php
+public AbstractCsv::toString(void): string
 public AbstractCsv::getContent(void): string
 public AbstractCsv::__toString(void): string
 ~~~
 
+<p class="message-notice">The <code>toString</code> method is added in version <code>9.7.0</code> and replaces the <code>getContent</code> method which is <strong>deprecated</strong>.</p>
 <p class="message-notice">The <code>getContent</code> method is added in version <code>9.1.0</code> and replaces the <code>__toString</code> method which is <strong>deprecated</strong>.</p>
 
-Use the `getContent` method to return the CSV full content.
+Use the `toString` method to return the CSV full content.
 
 ### Example
 
@@ -31,25 +33,25 @@ Use the `getContent` method to return the CSV full content.
 use League\Csv\Reader;
 
 $reader = Reader::createFromPath('/path/to/my/file.csv', 'r');
-echo $reader->getContent();
+echo $reader->toString();
 ~~~
 
 ### Exceptions and Errors
 
 If the CSV document is not seekable a `Exception` or a `RuntimeException` may be thrown when using `getContent`. A `Fatal Error` will be trigger when using the `__toString` method.
 
-#### Using the `getContent` method
+#### Using the `toString` method
 
 ~~~php
 use League\Csv\Writer;
 
 $csv = Writer::createFromFileObject('php://output', 'w');
 $csv->insertOne(['foo', 'bar']);
-echo $csv->getContent();
+echo $csv->toString();
 //throws an RuntimeException because the SplFileObject is not seekable
 ~~~
 
-#### Using the `__toString` method
+#### Using the `__toString` or `getContent` methods
 
 ~~~php
 use League\Csv\Writer;
@@ -57,6 +59,7 @@ use League\Csv\Writer;
 $csv = Writer::createFromFileObject('php://output', 'w');
 $csv->insertOne(['foo', 'bar']);
 echo $csv;
+echo $csv->getContent();
 //throws a Fatal Error because no exception can be thrown by the __toString method
 ~~~
 
