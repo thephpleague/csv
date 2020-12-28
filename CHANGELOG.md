@@ -8,11 +8,13 @@ All Notable changes to `Csv` will be documented in this file
 
 - `League\Csv\Info::fetchDelimiters` to replace the namespace function `delimiter_detect`
 - `League\Csv\Info::fetchBOMSequence` to replace the namespace function `bom_match`
+- `League\Csv\AbstractCsv::toString` to replace `League\Csv\AbstractCsv::getContent` and `League\Csv\AbstractCsv::__toString`
 
 ### Deprecated
 
 - `League\Csv\delimiter_detect` use `League\Csv\Info::getDelimiterStats`
 - `League\Csv\bom_match` use `League\Csv\Info::fetchBOMSequence`
+- `League\Csv\AbstractCsv::getContent` use `League\Csv\AbstractCsv::toString`
 
 ### Fixed
 

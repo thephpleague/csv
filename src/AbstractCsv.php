@@ -295,19 +295,34 @@ abstract class AbstractCsv implements ByteSequence
      * DEPRECATION WARNING! This method will be removed in the next major point release.
      *
      * @deprecated deprecated since version 9.1.0
-     * @see AbstractCsv::getContent
+     * @see AbstractCsv::toString
      *
      * Retrieves the CSV content
      */
     public function __toString(): string
     {
-        return $this->getContent();
+        return $this->toString();
     }
 
     /**
      * Retrieves the CSV content.
+     *
+     * DEPRECATION WARNING! This method will be removed in the next major point release
+     *
+     * @deprecated deprecated since version 9.7.0
+     * @see AbstractCsv::toString
      */
     public function getContent(): string
+    {
+        return $this->toString();
+    }
+
+    /**
+     * Retrieves the CSV content.
+     *
+     * @throws Exception If the string representation can not be returned
+     */
+    public function toString(): string
     {
         $raw = '';
         foreach ($this->chunk(8192) as $chunk) {
