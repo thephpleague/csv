@@ -1,5 +1,5 @@
 ---
-name: Quality Assurance
+name: build
 on:
     push: ~
     pull_request: ~
@@ -10,7 +10,7 @@ jobs:
         runs-on: ubuntu-latest
         strategy:
             matrix:
-                php: [ '7.2', '7.3', '7.4', '8.0' ]
+                php: ['7.3', '7.4', '8.0' ]
                 composer-flags: [ '' ]
                 phpunit-flags: [ '--coverage-text' ]
         steps:

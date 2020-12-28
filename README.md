@@ -3,7 +3,7 @@ CSV
 
 [![Latest Version](https://img.shields.io/github/release/thephpleague/csv.svg?style=flat-square)](https://github.com/thephpleague/csv/releases)
 [![Software License](https://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat-square)](LICENSE.md)
-[![Quality Assurance](https://github.com/thephpleague/csv/workflows/Quality%20Assurance/badge.svg)](https://github.com/thephpleague/csv/actions?query=workflow%3A%22Quality+Assurance%22)
+[![Build](https://github.com/thephpleague/csv/workflows/build/badge.svg)](https://github.com/thephpleague/csv/actions?query=workflow%3A%22build%22)
 [![Total Downloads](https://img.shields.io/packagist/dt/league/csv.svg?style=flat-square)](https://packagist.org/packages/league/csv)
 
 Csv is a simple library to ease CSV parsing, writing and filtering in
