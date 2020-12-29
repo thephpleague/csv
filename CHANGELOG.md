@@ -19,6 +19,7 @@ All Notable changes to `Csv` will be documented in this file
 ### Fixed
 
 - Move tests into the `src` directory
+- Fixed encoder method resolver implementation 
 
 ### Removed
 

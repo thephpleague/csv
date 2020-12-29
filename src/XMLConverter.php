@@ -65,12 +65,12 @@ class XMLConverter
      */
     protected $encoder = [
         'field' => [
-            true => 'fieldToElementWithAttribute',
-            false => 'fieldToElement',
+            'fieldToElementWithAttribute' => 'fieldToElementWithAttribute',
+            'fieldToElement' => 'fieldToElement',
         ],
         'record' => [
-            true => 'recordToElementWithAttribute',
-            false => 'recordToElement',
+            'recordToElementWithAttribute' => 'recordToElementWithAttribute',
+            'recordToElement' => 'recordToElement',
         ],
     ];
 
@@ -93,8 +93,10 @@ class XMLConverter
      */
     public function import(iterable $records, DOMDocument $doc): DOMElement
     {
-        $field_encoder = $this->encoder['field']['' !== $this->column_attr];
-        $record_encoder = $this->encoder['record']['' !== $this->offset_attr];
+        $column_key = '' !== $this->column_attr ? 'fieldToElementWithAttribute' : 'fieldToElement';
+        $record_key = '' !== $this->offset_attr ? 'recordToElementWithAttribute' : 'recordToElement';
+        $field_encoder = $this->encoder['field'][$column_key];
+        $record_encoder = $this->encoder['record'][$record_key];
         $root = $doc->createElement($this->root_name);
         foreach ($records as $offset => $record) {
             $node = $this->$record_encoder($doc, $record, $field_encoder, $offset);
