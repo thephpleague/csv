@@ -31,7 +31,7 @@ use const STREAM_FILTER_WRITE;
  * @group csv
  * @coversDefaultClass \League\Csv\AbstractCsv
  */
-final class CsvTest extends TestCase
+final class AbstractCsvTest extends TestCase
 {
     /** @var Reader  */
     private $csv;
