@@ -28,9 +28,7 @@ final class XMLConverterTest extends TestCase
      * @covers ::fieldElement
      * @covers ::convert
      * @covers ::recordToElement
-     * @covers ::recordToElementWithAttribute
      * @covers ::fieldToElement
-     * @covers ::fieldToElementWithAttribute
      * @covers ::filterAttributeName
      * @covers ::filterElementName
      */
@@ -94,9 +92,7 @@ final class XMLConverterTest extends TestCase
      * @covers ::fieldElement
      * @covers ::import
      * @covers ::recordToElement
-     * @covers ::recordToElementWithAttribute
      * @covers ::fieldToElement
-     * @covers ::fieldToElementWithAttribute
      * @covers ::filterAttributeName
      * @covers ::filterElementName
      */

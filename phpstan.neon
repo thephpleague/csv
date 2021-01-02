@@ -7,8 +7,6 @@ parameters:
     checkMissingIterableValueType: false
     ignoreErrors:
         - '#Access to an undefined property object::\$data.#'
-        - message: '#Variable method call on \$this\(League\\Csv\\XMLConverter\)#'
-          path: src/XMLConverter.php
         - message: '#Variable method call on \$this\(League\\Csv\\Writer\)#'
           path: src/Writer.php
         - message: '#Call to function is_resource\(\) with resource will always evaluate to true.#'
