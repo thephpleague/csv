@@ -21,14 +21,14 @@ use Traversable;
  *
  * @internal used internally to modify CSV content
  */
-class MapIterator extends IteratorIterator
+final class MapIterator extends IteratorIterator
 {
     /**
      * The callback to apply on all InnerIterator current value.
      *
      * @var callable
      */
-    protected $callable;
+    private $callable;
 
     /**
      * New instance.
@@ -44,6 +44,6 @@ class MapIterator extends IteratorIterator
      */
     public function current()
     {
-        return ($this->callable)(parent::current(), $this->key());
+        return ($this->callable)(parent::current(), parent::key());
     }
 }

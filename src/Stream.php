@@ -47,77 +47,77 @@ use const SEEK_SET;
  *
  * @internal used internally to iterate over a stream resource
  */
-class Stream implements SeekableIterator
+final class Stream implements SeekableIterator
 {
     /**
      * Attached filters.
      *
      * @var array<string, array<resource>>
      */
-    protected $filters = [];
+    private $filters = [];
 
     /**
      * stream resource.
      *
      * @var resource
      */
-    protected $stream;
+    private $stream;
 
     /**
      * Tell whether the stream should be closed on object destruction.
      *
      * @var bool
      */
-    protected $should_close_stream = false;
+    private $should_close_stream = false;
 
     /**
      * Current iterator value.
      *
      * @var mixed can be a null false or a scalar type value
      */
-    protected $value;
+    private $value;
 
     /**
      * Current iterator key.
      *
      * @var int
      */
-    protected $offset;
+    private $offset;
 
     /**
      * Flags for the Document.
      *
      * @var int
      */
-    protected $flags = 0;
+    private $flags = 0;
 
     /**
      * the field delimiter (one character only).
      *
      * @var string
      */
-    protected $delimiter = ',';
+    private $delimiter = ',';
 
     /**
      * the field enclosure character (one character only).
      *
      * @var string
      */
-    protected $enclosure = '"';
+    private $enclosure = '"';
 
     /**
      * the field escape character (one character only).
      *
      * @var string
      */
-    protected $escape = '\\';
+    private $escape = '\\';
 
     /**
      * Tell whether the current stream is seekable;.
      *
      * @var bool
      */
-    protected $is_seekable = false;
+    private $is_seekable = false;
 
     /**
      * New instance.
@@ -259,7 +259,7 @@ class Stream implements SeekableIterator
      *
      * @throws Exception If the Csv control character is not one character only.
      */
-    protected function filterControl(string $delimiter, string $enclosure, string $escape, string $caller): array
+    private function filterControl(string $delimiter, string $enclosure, string $escape, string $caller): array
     {
         if (1 !== strlen($delimiter)) {
             throw new InvalidArgument(sprintf('%s() expects delimiter to be a single character', $caller));
@@ -393,14 +393,14 @@ class Stream implements SeekableIterator
     /**
      * Retrieves the current line as a CSV Record.
      *
-     * @return array|false|null
+     * @return array|false
      */
-    protected function getCurrentRecord()
+    private function getCurrentRecord()
     {
+        $flag = 0 !== ($this->flags & SplFileObject::SKIP_EMPTY);
         do {
             $ret = fgetcsv($this->stream, 0, $this->delimiter, $this->enclosure, $this->escape);
-            $flag = 0 !== ($this->flags & SplFileObject::SKIP_EMPTY);
-        } while ($flag && is_array($ret) && $ret[0] === null);
+        } while ($flag && is_array($ret) && null === $ret[0]);
 
         return $ret;
     }

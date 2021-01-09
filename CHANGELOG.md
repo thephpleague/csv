@@ -20,12 +20,11 @@ All Notable changes to `Csv` will be documented in this file
 
 - Move tests into the `src` directory
 - Fixed encoder method resolver implementation 
+- all classes marked as `@internal` are now final
 
 ### Removed
 
 - None
-
-
 
 ## 9.6.2 - 2020-12-10
 
