@@ -605,7 +605,6 @@ CSV;
         ], $csv->fetchOne(0));
     }
 
-
     public function testGetHeaderThrowsIfTheFirstRecordOnlyContainsBOMString(): void
     {
         $bom = Reader::BOM_UTF8;
