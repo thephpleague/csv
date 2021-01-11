@@ -6,6 +6,7 @@ All Notable changes to `Csv` will be documented in this file
 
 ### Added
 
+- `League\Csv\UnableToProcessCsv` as the new Exception Marker Interface
 - `League\Csv\Info::getDelimiterStats` to replace the namespace function `delimiter_detect`
 - `League\Csv\Info::fetchBOMSequence` to replace the namespace function `bom_match`
 - `League\Csv\AbstractCsv::toString` to replace `League\Csv\AbstractCsv::getContent` and `League\Csv\AbstractCsv::__toString`

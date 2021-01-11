@@ -27,9 +27,9 @@ function bom_match(string $str): string
 }
 
 /**
- * @param string[] $delimiters
+ * @param array<string> $delimiters
  *
- * @return int[]
+ * @return array<string,int>
  * @deprecated since version 9.7.0
  * @see Info::getDelimiterStats()
  *

@@ -191,6 +191,8 @@ class ResultSet implements TabularDataReader, JsonSerializable
      * @param string|int $field         the field name or the field index
      * @param string     $error_message the associated error message
      *
+     * @throws Exception if the field is invalid or not found
+     *
      * @return string|int
      */
     protected function getColumnIndex($field, string $error_message)
