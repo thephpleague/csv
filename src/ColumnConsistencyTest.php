@@ -41,7 +41,7 @@ final class ColumnConsistencyTest extends TestCase
      * @covers ::__construct
      * @covers ::getColumnCount
      * @covers ::__invoke
-     * @covers League\Csv\CannotInsertRecord
+     * @covers \League\Csv\CannotInsertRecord
      */
     public function testAutoDetect(): void
     {
@@ -62,7 +62,7 @@ final class ColumnConsistencyTest extends TestCase
     /**
      * @covers ::__construct
      * @covers ::__invoke
-     * @covers League\Csv\CannotInsertRecord
+     * @covers \League\Csv\CannotInsertRecord
      */
     public function testColumnsCount(): void
     {
@@ -75,11 +75,11 @@ final class ColumnConsistencyTest extends TestCase
 
     /**
      * @covers ::__construct
-     * @covers League\Csv\Exception
+     * @covers \League\Csv\InvalidArgument
      */
     public function testColumnsCountTriggersException(): void
     {
-        $this->expectException(Exception::class);
+        $this->expectException(InvalidArgument::class);
 
         new ColumnConsistency(-2);
     }

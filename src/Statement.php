@@ -97,7 +97,7 @@ class Statement
     public function offset(int $offset): self
     {
         if (0 > $offset) {
-            throw new InvalidArgument(__METHOD__.'() expects the offset to be a positive integer or 0, '.$offset.' given.');
+            throw InvalidArgument::dueToInvalidRecordOffset($offset, __METHOD__);
         }
 
         if ($offset === $this->offset) {
@@ -118,7 +118,7 @@ class Statement
     public function limit(int $limit): self
     {
         if (-1 > $limit) {
-            throw new InvalidArgument(__METHOD__.'() expects the limit to be greater or equal to -1, '.$limit.' given.');
+            throw InvalidArgument::dueToInvalidLimit($limit, __METHOD__);
         }
 
         if ($limit === $this->limit) {

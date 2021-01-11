@@ -72,7 +72,7 @@ class EscapeFormula
      *
      * @param string ...$characters
      *
-     * @throws InvalidArgument if the string is not a single character
+     * @throws InvalidArgumentException if the string is not a single character
      *
      * @return string[]
      */

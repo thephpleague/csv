@@ -160,7 +160,7 @@ final class Stream implements SeekableIterator
      */
     public function __clone()
     {
-        throw new Exception('An object of class '.self::class.' cannot be cloned');
+        throw UnavailableFeature::dueToForbiddenCloning(self::class);
     }
 
     /**
@@ -193,7 +193,7 @@ final class Stream implements SeekableIterator
 
         $resource = @fopen(...$args);
         if (!is_resource($resource)) {
-            throw new Exception('`'.$path.'`: failed to open stream: No such file or directory.');
+            throw UnavailableFeature::dueToPathNotFound($path);
         }
 
         $instance = new self($resource);
@@ -230,14 +230,14 @@ final class Stream implements SeekableIterator
      *
      * @see http://php.net/manual/en/function.stream-filter-append.php
      *
-     * @param  null|mixed $params
-     * @throws Exception  if the filter can not be appended
+     * @param  null|mixed      $params
+     * @throws InvalidArgument if the filter can not be appended
      */
     public function appendFilter(string $filtername, int $read_write, $params = null): void
     {
         $res = @stream_filter_append($this->stream, $filtername, $read_write, $params);
         if (!is_resource($res)) {
-            throw new InvalidArgument('unable to locate filter `'.$filtername.'`');
+            throw InvalidArgument::dueToStreamFilterNotFound($filtername);
         }
 
         $this->filters[$filtername][] = $res;
@@ -256,23 +256,23 @@ final class Stream implements SeekableIterator
     /**
      * Filter Csv control characters.
      *
-     * @throws Exception If the Csv control character is not one character only.
+     * @throws InvalidArgument If the Csv control character is not one character only.
      */
     private function filterControl(string $delimiter, string $enclosure, string $escape, string $caller): array
     {
         if (1 !== strlen($delimiter)) {
-            throw new InvalidArgument($caller.'() expects delimiter to be a single character.');
+            throw InvalidArgument::dueToInvalidDelimiterCharacter($delimiter, $caller);
         }
 
         if (1 !== strlen($enclosure)) {
-            throw new InvalidArgument($caller.'() expects enclosure to be a single character.');
+            throw InvalidArgument::dueToInvalidEnclosureCharacter($enclosure, $caller);
         }
 
         if (1 === strlen($escape) || ('' === $escape && 70400 <= PHP_VERSION_ID)) {
             return [$delimiter, $enclosure, $escape];
         }
 
-        throw new InvalidArgument($caller.'() expects escape to be a single character or the empty string.');
+        throw InvalidArgument::dueToInvalidEscapeCharacter($escape, $caller);
     }
 
     /**
@@ -344,7 +344,7 @@ final class Stream implements SeekableIterator
     public function rewind(): void
     {
         if (!$this->is_seekable) {
-            throw new Exception('stream does not support seeking');
+            throw UnavailableFeature::dueToMissingStreamSeekability();
         }
 
         rewind($this->stream);
@@ -415,7 +415,7 @@ final class Stream implements SeekableIterator
     public function seek($position): void
     {
         if ($position < 0) {
-            throw new Exception(__METHOD__.'() can\'t seek stream to negative line '.$position);
+            throw InvalidArgument::dueToInvalidSeekingPosition($position, __METHOD__);
         }
 
         $this->rewind();
@@ -479,7 +479,7 @@ final class Stream implements SeekableIterator
     public function fseek(int $offset, int $whence = SEEK_SET): int
     {
         if (!$this->is_seekable) {
-            throw new Exception('stream does not support seeking');
+            throw UnavailableFeature::dueToMissingStreamSeekability();
         }
 
         return fseek($this->stream, $offset, $whence);

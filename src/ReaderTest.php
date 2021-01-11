@@ -191,7 +191,7 @@ EOF;
      * @covers ::computeHeader
      * @covers ::getRecords
      * @covers ::setHeader
-     * @covers League\Csv\Exception
+     * @covers \League\Csv\SyntaxError::dueToInvalidHeaderContent
      */
     public function testHeaderThrowsExceptionOnError(): void
     {
@@ -210,7 +210,7 @@ EOF;
      * @covers ::getHeader
      * @covers ::seekRow
      * @covers ::setHeaderOffset
-     * @covers League\Csv\Exception
+     * @covers \League\Csv\SyntaxError::dueToHeaderNotFound
      */
     public function testHeaderThrowsExceptionOnEmptyLine(): void
     {
@@ -230,7 +230,8 @@ EOF;
      * @covers ::stripBOM
      * @covers ::removeBOM
      * @covers ::combineHeader
-     * @covers League\Csv\Stream
+     * @covers \League\Csv\Stream
+     *
      * @dataProvider validBOMSequences
      */
     public function testStripBOM(array $record, string $expected_bom, string $expected): void
@@ -273,7 +274,7 @@ EOF;
      * @covers ::stripBOM
      * @covers ::removeBOM
      * @covers ::combineHeader
-     * @covers League\Csv\Stream
+     * @covers \League\Csv\Stream
      */
     public function testStripBOMWithEnclosure(): void
     {
@@ -291,7 +292,7 @@ EOF;
      * @covers ::stripBOM
      * @covers ::removeBOM
      * @covers ::combineHeader
-     * @covers League\Csv\Stream
+     * @covers \League\Csv\Stream
      */
     public function testStripNoBOM(): void
     {
@@ -356,16 +357,20 @@ EOF;
     /**
      * @covers ::setHeader
      * @covers ::seekRow
+     *
+     * @covers \League\Csv\InvalidArgument::dueToInvalidHeaderOffset
      */
     public function testGetHeaderThrowsExceptionWithNegativeOffset(): void
     {
-        $this->expectException(Exception::class);
+        $this->expectException(InvalidArgument::class);
         $this->csv->setHeaderOffset(-3)->getRecords();
     }
 
     /**
      * @covers ::setHeader
      * @covers ::seekRow
+     *
+     * @covers \League\Csv\SyntaxError::dueToHeaderNotFound
      */
     public function testGetHeaderThrowsExceptionWithSplFileObject(): void
     {
@@ -376,6 +381,8 @@ EOF;
     /**
      * @covers ::setHeader
      * @covers ::seekRow
+     *
+     * @covers \League\Csv\SyntaxError::dueToHeaderNotFound
      */
     public function testGetHeaderThrowsExceptionWithStreamObject(): void
     {
@@ -393,10 +400,13 @@ EOF;
 
     /**
      * @covers ::setHeaderOffset
+     *
+     * @covers \League\Csv\InvalidArgument::dueToInvalidHeaderOffset
      */
     public function testSetHeaderThrowsExceptionOnWrongInputRange(): void
     {
-        $this->expectException(Exception::class);
+        $this->expectException(InvalidArgument::class);
+
         $this->csv->setHeaderOffset(-1);
     }
 

@@ -82,6 +82,7 @@ class EncloseField extends php_user_filter
      * Static method to add the stream filter to a {@link Writer} object.
      *
      * @throws InvalidArgumentException if the sequence is malformed
+     * @throws Exception
      */
     public static function addTo(Writer $csv, string $sequence): Writer
     {

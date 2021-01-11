@@ -30,12 +30,12 @@ class ColumnConsistency
     /**
      * New Instance.
      *
-     * @throws Exception if the column count is lesser than -1
+     * @throws InvalidArgument if the column count is lesser than -1
      */
     public function __construct(int $columns_count = -1)
     {
         if ($columns_count < -1) {
-            throw new Exception(__METHOD__.'() expects the column count to be greater or equal to -1 '.$columns_count.' given.');
+            throw InvalidArgument::dueToInvalidColumnCount($columns_count, __METHOD__);
         }
 
         $this->columns_count = $columns_count;

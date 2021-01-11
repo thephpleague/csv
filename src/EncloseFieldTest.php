@@ -57,6 +57,8 @@ final class EncloseFieldTest extends TestCase
      * @covers ::onCreate
      * @covers ::isValidSequence
      * @dataProvider wrongParamProvider
+     *
+     * @param array<string> $params
      */
     public function testOnCreateFailedWithWrongParams(array $params): void
     {
@@ -85,6 +87,7 @@ final class EncloseFieldTest extends TestCase
     public function testEncloseFieldImmutability(): void
     {
         $this->expectException(InvalidArgumentException::class);
+
         $csv = Writer::createFromString('');
         $csv->setDelimiter('|');
         EncloseField::addTo($csv, 'foo');

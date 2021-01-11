@@ -40,7 +40,7 @@ use const STREAM_FILTER_WRITE;
  */
 class RFC4180Field extends php_user_filter
 {
-    const FILTERNAME = 'convert.league.csv.rfc4180';
+    public const FILTERNAME = 'convert.league.csv.rfc4180';
 
     /**
      * the filter name used to instantiate the class with.

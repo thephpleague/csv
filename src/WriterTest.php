@@ -56,11 +56,12 @@ final class WriterTest extends TestCase
 
     /**
      * @covers ::setFlushThreshold
+     * @covers \League\Csv\InvalidArgument::dueToInvalidThreshold
      */
     public function testFlushThresholdThrowsException(): void
     {
         $this->csv->setFlushThreshold(1);
-        $this->expectException(Exception::class);
+        $this->expectException(InvalidArgument::class);
         $this->csv->setFlushThreshold(0);
     }
 
@@ -79,7 +80,7 @@ final class WriterTest extends TestCase
         $csv->insertOne(['jane', 'doe', 'jane@example.com']);
         $csv->insertOne(['jane', 'doe', 'jane@example.com']);
         $csv->setFlushThreshold(null);
-        self::assertStringContainsString('JANE,DOE,JANE@EXAMPLE.COM', $csv->getContent());
+        self::assertStringContainsString('JANE,DOE,JANE@EXAMPLE.COM', $csv->toString());
     }
 
     /**
@@ -93,7 +94,7 @@ final class WriterTest extends TestCase
         foreach ($expected as $row) {
             $this->csv->insertOne($row);
         }
-        self::assertStringContainsString('john,doe,john.doe@example.com', $this->csv->getContent());
+        self::assertStringContainsString('john,doe,john.doe@example.com', $this->csv->toString());
     }
 
     /**
@@ -104,7 +105,7 @@ final class WriterTest extends TestCase
     {
         $csv = Writer::createFromPath(__DIR__.'/../test_files/foo.csv', 'a+');
         $csv->insertOne(['jane', 'doe', 'jane.doe@example.com']);
-        self::assertStringContainsString('jane,doe,jane.doe@example.com', $csv->getContent());
+        self::assertStringContainsString('jane,doe,jane.doe@example.com', $csv->toString());
     }
 
     /**
@@ -140,7 +141,7 @@ final class WriterTest extends TestCase
     public function testSave(iterable $argument, string $expected): void
     {
         $this->csv->insertAll($argument);
-        self::assertStringContainsString($expected, $this->csv->getContent());
+        self::assertStringContainsString($expected, $this->csv->toString());
     }
 
     public function dataToSave(): array
@@ -172,7 +173,7 @@ final class WriterTest extends TestCase
         }
 
         $expected = "john|doe|john.doe@example.com\njane|doe|jane.doe@example.com\n";
-        self::assertSame($expected, $csv->getContent());
+        self::assertSame($expected, $csv->toString());
         $csv = null;
         fclose($fp);
         $fp = null;
@@ -193,7 +194,7 @@ final class WriterTest extends TestCase
         self::assertSame("\n", $csv->getNewline());
         $csv->setNewline("\r\n");
         $csv->insertOne(['jane', 'doe']);
-        self::assertSame("jane,doe\r\n", $csv->getContent());
+        self::assertSame("jane,doe\r\n", $csv->toString());
         $csv = null;
     }
 
@@ -216,15 +217,16 @@ final class WriterTest extends TestCase
 
         $this->csv->addFormatter($func);
         $this->csv->insertOne(['jane', 'doe']);
-        self::assertSame("JANE,DOE\n", $this->csv->getContent());
+        self::assertSame("JANE,DOE\n", $this->csv->toString());
     }
 
     /**
      * @covers \League\Csv\Stream::fseek
+     * @covers \League\Csv\UnavailableFeature::dueToMissingStreamSeekability
      */
     public function testWriterTriggerExceptionWithNonSeekableStream(): void
     {
-        $this->expectException(Exception::class);
+        $this->expectException(UnavailableFeature::class);
         $writer = Writer::createFromPath('php://null', 'w');
         $writer->setNewline("\r\n");
         $writer->insertOne(['foo', 'bar']);
@@ -249,7 +251,7 @@ final class WriterTest extends TestCase
             $csv->setNewline($eol);
             $csv->setEscape('');
             $csv->insertOne($record);
-            self::assertSame($expected.$eol, $csv->getContent());
+            self::assertSame($expected.$eol, $csv->toString());
         }
     }
 

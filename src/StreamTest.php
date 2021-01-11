@@ -49,11 +49,13 @@ final class StreamTest extends TestCase
 
     /**
      * @covers ::__clone
+     * @covers \League\Csv\UnavailableFeature::dueToForbiddenCloning
      */
     public function testCloningIsForbidden(): void
     {
-        $this->expectException(Exception::class);
-        $toto = clone new Stream(fopen('php://temp', 'r+'));
+        $this->expectException(UnavailableFeature::class);
+
+        clone new Stream(fopen('php://temp', 'r+'));
     }
 
     /**
@@ -76,11 +78,12 @@ final class StreamTest extends TestCase
 
     /**
      * @covers ::createFromPath
+     * @covers \League\Csv\UnavailableFeature::dueToPathNotFound
      */
     public function testCreateStreamFromPath(): void
     {
         $path = 'no/such/file.csv';
-        $this->expectException(Exception::class);
+        $this->expectException(UnavailableFeature::class);
         $this->expectExceptionMessage('`'.$path.'`: failed to open stream: No such file or directory');
         Stream::createFromPath($path);
     }
@@ -116,12 +119,15 @@ final class StreamTest extends TestCase
     /**
      * @covers ::fputcsv
      * @covers ::filterControl
+     * @covers \League\Csv\InvalidArgument::dueToInvalidEscapeCharacter
+     * @covers \League\Csv\InvalidArgument::dueToInvalidEnclosureCharacter
+     * @covers \League\Csv\InvalidArgument::dueToInvalidDelimiterCharacter
      *
      * @dataProvider fputcsvProvider
      */
     public function testfputcsv(string $delimiter, string $enclosure, string $escape): void
     {
-        $this->expectException(Exception::class);
+        $this->expectException(InvalidArgument::class);
         $stream = new Stream(fopen('php://temp', 'r+'));
         $stream->fputcsv(['john', 'doe', 'john.doe@example.com'], $delimiter, $enclosure, $escape);
     }
@@ -151,10 +157,11 @@ final class StreamTest extends TestCase
 
     /**
      * @covers ::seek
+     * @covers \League\Csv\InvalidArgument::dueToInvalidSeekingPosition
      */
     public function testSeekThrowsException(): void
     {
-        $this->expectException(Exception::class);
+        $this->expectException(InvalidArgument::class);
         $stream = new Stream(fopen('php://temp', 'r+'));
         $stream->seek(-1);
     }
@@ -184,20 +191,22 @@ final class StreamTest extends TestCase
 
     /**
      * @covers ::rewind
+     * @covers \League\Csv\UnavailableFeature::dueToMissingStreamSeekability
      */
     public function testRewindThrowsException(): void
     {
-        $this->expectException(Exception::class);
+        $this->expectException(UnavailableFeature::class);
         $stream = new Stream(fopen('php://stdin', 'r'));
         $stream->rewind();
     }
 
     /**
      * @covers ::seek
+     * @covers \League\Csv\UnavailableFeature::dueToMissingStreamSeekability
      */
     public function testCreateStreamWithNonSeekableStream(): void
     {
-        $this->expectException(Exception::class);
+        $this->expectException(UnavailableFeature::class);
         $stream = new Stream(fopen('php://stdin', 'r'));
         $stream->seek(3);
     }
@@ -206,6 +215,7 @@ final class StreamTest extends TestCase
      * @covers ::setCsvControl
      * @covers ::getCsvControl
      * @covers ::filterControl
+     * @covers \League\Csv\InvalidArgument::dueToInvalidDelimiterCharacter
      */
     public function testCsvControl(): void
     {
@@ -214,16 +224,19 @@ final class StreamTest extends TestCase
         $expected = [';', '|', '"'];
         $doc->setCsvControl(...$expected);
         self::assertSame($expected, $doc->getCsvControl());
-        $this->expectException(Exception::class);
+        $this->expectException(InvalidArgument::class);
         $doc->setCsvControl(...['foo']);
     }
 
+    /**
+     * @covers \League\Csv\InvalidArgument::dueToInvalidEscapeCharacter
+     */
     public function testCsvControlThrowsOnEmptyEscapeString(): void
     {
         if (70400 <= PHP_VERSION_ID) {
             self::markTestSkipped('This test is only for PHP7.4- versions');
         }
-        $this->expectException(Exception::class);
+        $this->expectException(InvalidArgument::class);
         $doc = Stream::createFromString();
         $doc->setCsvControl(...[';', '|', '']);
     }
@@ -240,6 +253,7 @@ final class StreamTest extends TestCase
     }
 
     /**
+     * @covers \League\Csv\InvalidArgument::dueToStreamFilterNotFound
      * @covers ::appendFilter
      */
     public function testAppendStreamFilterThrowsException(): void

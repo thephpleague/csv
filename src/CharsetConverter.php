@@ -174,6 +174,7 @@ class CharsetConverter extends php_user_filter
             return array_map($this, $records);
         }
 
+        /* @var \Traversable $records */
         return new MapIterator($records, $this);
     }
 

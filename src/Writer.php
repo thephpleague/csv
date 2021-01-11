@@ -294,9 +294,9 @@ class Writer extends AbstractCsv
     /**
      * Set the flush threshold.
      *
+     * @param ?int $threshold
      *
-     * @param  ?int      $threshold
-     * @throws Exception if the threshold is a integer lesser than 1
+     * @throws InvalidArgument if the threshold is a integer lesser than 1
      */
     public function setFlushThreshold(?int $threshold): self
     {
@@ -305,7 +305,7 @@ class Writer extends AbstractCsv
         }
 
         if (null !== $threshold && 1 > $threshold) {
-            throw new InvalidArgument(__METHOD__.'() expects 1 Argument to be null or a valid integer greater or equal to 1');
+            throw InvalidArgument::dueToInvalidThreshold($threshold, __METHOD__);
         }
 
         $this->flush_threshold = $threshold;

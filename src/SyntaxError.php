@@ -13,9 +13,28 @@ declare(strict_types=1);
 
 namespace League\Csv;
 
+use Throwable;
+
 /**
  * SyntaxError Exception.
  */
 class SyntaxError extends Exception
 {
+    /**
+     * @deprecated
+     */
+    public function __construct(string $message = '', int $code = 0, Throwable $previous = null)
+    {
+        parent::__construct($message, $code, $previous);
+    }
+
+    public static function dueToHeaderNotFound(int $offset): self
+    {
+        return new self('The header record does not exist or is empty at offset: `'.$offset.'`');
+    }
+
+    public static function dueToInvalidHeaderContent(): self
+    {
+        return new self('The header record must be an empty or a flat array with unique string values.');
+    }
 }

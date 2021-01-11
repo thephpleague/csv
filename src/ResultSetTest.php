@@ -65,9 +65,9 @@ final class ResultSetTest extends TestCase
     }
 
     /**
-     * @covers League\Csv\Statement::filter
-     * @covers League\Csv\Statement::process
-     * @covers League\Csv\Statement::limit
+     * @covers \League\Csv\Statement::filter
+     * @covers \League\Csv\Statement::process
+     * @covers \League\Csv\Statement::limit
      * @covers ::getIterator
      */
     public function testSetLimit(): void
@@ -76,18 +76,20 @@ final class ResultSetTest extends TestCase
     }
 
     /**
-     * @covers League\Csv\Statement::offset
+     * @covers \League\Csv\Statement::offset
+     * @covers \League\Csv\InvalidArgument::dueToInvalidRecordOffset
      */
     public function testSetOffsetThrowsException(): void
     {
-        $this->expectException(Exception::class);
+        $this->expectException(InvalidArgument::class);
+
         $this->stmt->offset(-1);
     }
 
 
     /**
-     * @covers League\Csv\Statement::process
-     * @covers League\Csv\Statement::buildOrderBy
+     * @covers \League\Csv\Statement::process
+     * @covers \League\Csv\Statement::buildOrderBy
      * @covers ::count
      * @covers ::getIterator
      */
@@ -99,8 +101,8 @@ final class ResultSetTest extends TestCase
     }
 
     /**
-     * @covers League\Csv\Statement::limit
-     * @covers League\Csv\Statement::offset
+     * @covers \League\Csv\Statement::limit
+     * @covers \League\Csv\Statement::offset
      */
     public function testStatementSameInstance(): void
     {
@@ -110,16 +112,18 @@ final class ResultSetTest extends TestCase
     }
 
     /**
-     * @covers League\Csv\Statement::limit
+     * @covers \League\Csv\Statement::limit
+     * @covers \League\Csv\InvalidArgument::dueToInvalidLimit
      */
     public function testSetLimitThrowException(): void
     {
-        $this->expectException(Exception::class);
+        $this->expectException(InvalidArgument::class);
+
         $this->stmt->limit(-4);
     }
 
     /**
-     * @covers League\Csv\Statement::offset
+     * @covers \League\Csv\Statement::offset
      * @covers ::__construct
      */
     public function testSetOffset(): void
@@ -131,10 +135,11 @@ final class ResultSetTest extends TestCase
     }
 
     /**
-     * @covers League\Csv\Statement::limit
-     * @covers League\Csv\Statement::offset
-     * @covers League\Csv\Statement::process
-     * @covers League\Csv\Statement::filter
+     * @covers \League\Csv\Statement::limit
+     * @covers \League\Csv\Statement::offset
+     * @covers \League\Csv\Statement::process
+     * @covers \League\Csv\Statement::filter
+     *
      * @dataProvider intervalTest
      */
     public function testInterval(int $offset, int $limit): void
@@ -163,9 +168,9 @@ final class ResultSetTest extends TestCase
     }
 
     /**
-     * @covers League\Csv\Statement::limit
-     * @covers League\Csv\Statement::offset
-     * @covers League\Csv\Statement::process
+     * @covers \League\Csv\Statement::limit
+     * @covers \League\Csv\Statement::offset
+     * @covers \League\Csv\Statement::process
      */
     public function testIntervalThrowException(): void
     {
@@ -177,11 +182,11 @@ final class ResultSetTest extends TestCase
     }
 
     /**
-     * @covers League\Csv\Statement::where
-     * @covers League\Csv\Statement::create
-     * @covers League\Csv\Statement::process
-     * @covers League\Csv\ResultSet::combineHeader
-     * @covers League\Csv\ResultSet::getRecords
+     * @covers \League\Csv\Statement::where
+     * @covers \League\Csv\Statement::create
+     * @covers \League\Csv\Statement::process
+     * @covers \League\Csv\ResultSet::combineHeader
+     * @covers \League\Csv\ResultSet::getRecords
      */
     public function testFilter(): void
     {
@@ -209,8 +214,8 @@ final class ResultSetTest extends TestCase
     }
 
     /**
-     * @covers League\Csv\Statement::orderBy
-     * @covers League\Csv\Statement::buildOrderBy
+     * @covers \League\Csv\Statement::orderBy
+     * @covers \League\Csv\Statement::buildOrderBy
      */
     public function testOrderBy(): void
     {
@@ -224,8 +229,8 @@ final class ResultSetTest extends TestCase
     }
 
     /**
-     * @covers League\Csv\Statement::orderBy
-     * @covers League\Csv\Statement::buildOrderBy
+     * @covers \League\Csv\Statement::orderBy
+     * @covers \League\Csv\Statement::buildOrderBy
      */
     public function testOrderByWithEquity(): void
     {
@@ -245,7 +250,10 @@ final class ResultSetTest extends TestCase
      * @covers ::getColumnIndexByValue
      * @covers ::getColumnIndexByKey
      * @covers ::__destruct
+     * @covers \League\Csv\InvalidArgument::dueToInvalidColumnIndex
+     *
      * @dataProvider invalidFieldNameProvider
+     *
      * @param int|string $field
      */
     public function testFetchColumnTriggersException($field): void
@@ -267,10 +275,12 @@ final class ResultSetTest extends TestCase
     /**
      * @covers ::fetchColumn
      * @covers ::getColumnIndexByKey
+     * @covers \League\Csv\InvalidArgument::dueToInvalidColumnIndex
      */
     public function testFetchColumnTriggersOutOfRangeException(): void
     {
         $this->expectException(InvalidArgument::class);
+
         $this->csv->setHeaderOffset(0);
         $res = $this->stmt->process($this->csv)->fetchColumn(-1);
         iterator_to_array($res, false);
@@ -387,7 +397,7 @@ final class ResultSetTest extends TestCase
      */
     public function testFetchOneTriggersException(): void
     {
-        $this->expectException(Exception::class);
+        $this->expectException(InvalidArgument::class);
         $this->stmt->process($this->csv)->fetchOne(-5);
     }
 

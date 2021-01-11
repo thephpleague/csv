@@ -128,7 +128,7 @@ abstract class AbstractCsv implements ByteSequence
      */
     public function __clone()
     {
-        throw new Exception('An object of class '.static::class.' cannot be cloned');
+        throw UnavailableFeature::dueToForbiddenCloning(static::class);
     }
 
     /**
@@ -273,7 +273,7 @@ abstract class AbstractCsv implements ByteSequence
     public function chunk(int $length): Generator
     {
         if ($length < 1) {
-            throw new InvalidArgument(__METHOD__.'() expects the length to be a positive integer '.$length.' given.');
+            throw InvalidArgument::dueToInvalidChunkSize($length, __METHOD__);
         }
 
         $input_bom = $this->getInputBOM();
@@ -366,7 +366,7 @@ abstract class AbstractCsv implements ByteSequence
     protected function sendHeaders(string $filename): void
     {
         if (strlen($filename) != strcspn($filename, '\\/')) {
-            throw new InvalidArgument('The filename cannot contain the "/" and "\\" characters.');
+            throw InvalidArgument::dueToInvalidHeaderFilename($filename);
         }
 
         $flag = FILTER_FLAG_STRIP_LOW;
@@ -392,7 +392,7 @@ abstract class AbstractCsv implements ByteSequence
     /**
      * Sets the field delimiter.
      *
-     * @throws Exception If the Csv control character is not one character only.
+     * @throws InvalidArgument If the Csv control character is not one character only.
      *
      * @return static
      */
@@ -402,20 +402,20 @@ abstract class AbstractCsv implements ByteSequence
             return $this;
         }
 
-        if (1 === strlen($delimiter)) {
-            $this->delimiter = $delimiter;
-            $this->resetProperties();
-
-            return $this;
+        if (1 !== strlen($delimiter)) {
+            throw InvalidArgument::dueToInvalidDelimiterCharacter($delimiter, __METHOD__);
         }
 
-        throw new InvalidArgument(__METHOD__.'() expects delimiter to be a single character '.$delimiter.' given.');
+        $this->delimiter = $delimiter;
+        $this->resetProperties();
+
+        return $this;
     }
 
     /**
      * Sets the field enclosure.
      *
-     * @throws Exception If the Csv control character is not one character only.
+     * @throws InvalidArgument If the Csv control character is not one character only.
      *
      * @return static
      */
@@ -425,20 +425,20 @@ abstract class AbstractCsv implements ByteSequence
             return $this;
         }
 
-        if (1 === strlen($enclosure)) {
-            $this->enclosure = $enclosure;
-            $this->resetProperties();
-
-            return $this;
+        if (1 !== strlen($enclosure)) {
+            throw InvalidArgument::dueToInvalidEnclosureCharacter($enclosure, __METHOD__);
         }
 
-        throw new InvalidArgument(__METHOD__.'() expects enclosure to be a single character '.$enclosure.' given.');
+        $this->enclosure = $enclosure;
+        $this->resetProperties();
+
+        return $this;
     }
 
     /**
      * Sets the field escape character.
      *
-     * @throws Exception If the Csv control character is not one character only.
+     * @throws InvalidArgument If the Csv control character is not one character only.
      *
      * @return static
      */
@@ -448,14 +448,14 @@ abstract class AbstractCsv implements ByteSequence
             return $this;
         }
 
-        if ('' === $escape || 1 === strlen($escape)) {
-            $this->escape = $escape;
-            $this->resetProperties();
-
-            return $this;
+        if ('' !== $escape && 1 !== strlen($escape)) {
+            throw InvalidArgument::dueToInvalidEscapeCharacter($escape, __METHOD__);
         }
 
-        throw new InvalidArgument(__METHOD__.'() expects escape to be a single character or the empty string '.$escape.' given.');
+        $this->escape = $escape;
+        $this->resetProperties();
+
+        return $this;
     }
 
     /**
@@ -499,14 +499,15 @@ abstract class AbstractCsv implements ByteSequence
      *
      * @param null|mixed $params
      *
-     * @throws Exception If the stream filter API can not be used
+     * @throws InvalidArgument    If the stream filter API can not be appended
+     * @throws UnavailableFeature If the stream filter API can not be used
      *
      * @return static
      */
     public function addStreamFilter(string $filtername, $params = null): self
     {
         if (!$this->document instanceof Stream) {
-            throw new UnavailableFeature('The stream filter API can not be used with a '.get_class($this->document).' instance.');
+            throw UnavailableFeature::dueToUnsupportedStreamFilterApi(get_class($this->document));
         }
 
         $this->document->appendFilter($filtername, $this->stream_filter_mode, $params);

@@ -128,7 +128,7 @@ class Reader extends AbstractCsv implements TabularDataReader, JsonSerializable
     {
         $header = $this->seekRow($offset);
         if (in_array($header, [[], [null]], true)) {
-            throw new SyntaxError('The header record does not exist or is empty at offset: `'.$offset.'`');
+            throw SyntaxError::dueToHeaderNotFound($offset);
         }
 
         if (0 !== $offset) {
@@ -137,7 +137,7 @@ class Reader extends AbstractCsv implements TabularDataReader, JsonSerializable
 
         $header = $this->removeBOM($header, mb_strlen($this->getInputBOM()), $this->enclosure);
         if ([''] === $header) {
-            throw new SyntaxError('The header record does not exist or is empty at offset: `'.$offset.'`');
+            throw SyntaxError::dueToHeaderNotFound($offset);
         }
 
         return $header;
@@ -303,11 +303,11 @@ class Reader extends AbstractCsv implements TabularDataReader, JsonSerializable
             $header = $this->getHeader();
         }
 
-        if ($header === array_unique(array_filter($header, 'is_string'))) {
-            return $header;
+        if ($header !== array_unique(array_filter($header, 'is_string'))) {
+            throw SyntaxError::dueToInvalidHeaderContent();
         }
 
-        throw new SyntaxError('The header record must be an empty or a flat array with unique string values.');
+        return $header;
     }
 
     /**
@@ -385,7 +385,7 @@ class Reader extends AbstractCsv implements TabularDataReader, JsonSerializable
         }
 
         if (null !== $offset && 0 > $offset) {
-            throw new InvalidArgument(__METHOD__.'() expects 1 Argument to be greater or equal to 0');
+            throw InvalidArgument::dueToInvalidHeaderOffset($offset, __METHOD__);
         }
 
         $this->header_offset = $offset;
