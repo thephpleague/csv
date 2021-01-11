@@ -158,7 +158,7 @@ EOF;
     public function testOutputHeaders(): void
     {
         if (!function_exists('xdebug_get_headers')) {
-            self::markTestSkipped(sprintf('%s needs the xdebug extension to run', __METHOD__));
+            self::markTestSkipped(__METHOD__.' needs the xdebug extension to run');
         }
 
         $raw_csv = Reader::BOM_UTF8."john,doe,john.doe@example.com\njane,doe,jane.doe@example.com\n";

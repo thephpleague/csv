@@ -97,7 +97,7 @@ class Statement
     public function offset(int $offset): self
     {
         if (0 > $offset) {
-            throw new InvalidArgument(sprintf('%s() expects the offset to be a positive integer or 0, %s given', __METHOD__, $offset));
+            throw new InvalidArgument(__METHOD__.'() expects the offset to be a positive integer or 0, '.$offset.' given.');
         }
 
         if ($offset === $this->offset) {
@@ -118,7 +118,7 @@ class Statement
     public function limit(int $limit): self
     {
         if (-1 > $limit) {
-            throw new InvalidArgument(sprintf('%s() expects the limit to be greater or equal to -1, %s given', __METHOD__, $limit));
+            throw new InvalidArgument(__METHOD__.'() expects the limit to be greater or equal to -1, '.$limit.' given.');
         }
 
         if ($limit === $this->limit) {

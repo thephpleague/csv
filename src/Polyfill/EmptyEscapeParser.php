@@ -22,7 +22,6 @@ use function get_class;
 use function in_array;
 use function ltrim;
 use function rtrim;
-use function sprintf;
 use function str_replace;
 use function substr;
 
@@ -132,12 +131,7 @@ final class EmptyEscapeParser
             return $document;
         }
 
-        throw new TypeError(sprintf(
-            '%s::parse expects parameter 1 to be a %s or a SplFileObject object, %s given',
-            self::class,
-            Stream::class,
-            get_class($document)
-        ));
+        throw new TypeError(__METHOD__.' expects parameter 1 to be a '.Stream::class.' or a SplFileObject object, '.get_class($document).' given.');
     }
 
     /**

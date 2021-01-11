@@ -34,7 +34,6 @@ use function gettype;
 use function is_array;
 use function is_resource;
 use function rewind;
-use function sprintf;
 use function stream_filter_append;
 use function stream_filter_remove;
 use function stream_get_meta_data;
@@ -127,11 +126,11 @@ final class Stream implements SeekableIterator
     public function __construct($stream)
     {
         if (!is_resource($stream)) {
-            throw new TypeError(sprintf('Argument passed must be a stream resource, %s given', gettype($stream)));
+            throw new TypeError('Argument passed must be a stream resource, '.gettype($stream).' given.');
         }
 
         if ('stream' !== ($type = get_resource_type($stream))) {
-            throw new TypeError(sprintf('Argument passed must be a stream resource, %s resource given', $type));
+            throw new TypeError('Argument passed must be a stream resource, '.$type.' resource given');
         }
 
         $this->is_seekable = stream_get_meta_data($stream)['seekable'];
@@ -161,7 +160,7 @@ final class Stream implements SeekableIterator
      */
     public function __clone()
     {
-        throw new Exception(sprintf('An object of class %s cannot be cloned', static::class));
+        throw new Exception('An object of class '.self::class.' cannot be cloned');
     }
 
     /**
@@ -194,7 +193,7 @@ final class Stream implements SeekableIterator
 
         $resource = @fopen(...$args);
         if (!is_resource($resource)) {
-            throw new Exception(sprintf('`%s`: failed to open stream: No such file or directory', $path));
+            throw new Exception('`'.$path.'`: failed to open stream: No such file or directory.');
         }
 
         $instance = new self($resource);
@@ -238,7 +237,7 @@ final class Stream implements SeekableIterator
     {
         $res = @stream_filter_append($this->stream, $filtername, $read_write, $params);
         if (!is_resource($res)) {
-            throw new InvalidArgument(sprintf('unable to locate filter `%s`', $filtername));
+            throw new InvalidArgument('unable to locate filter `'.$filtername.'`');
         }
 
         $this->filters[$filtername][] = $res;
@@ -262,18 +261,18 @@ final class Stream implements SeekableIterator
     private function filterControl(string $delimiter, string $enclosure, string $escape, string $caller): array
     {
         if (1 !== strlen($delimiter)) {
-            throw new InvalidArgument(sprintf('%s() expects delimiter to be a single character', $caller));
+            throw new InvalidArgument($caller.'() expects delimiter to be a single character.');
         }
 
         if (1 !== strlen($enclosure)) {
-            throw new InvalidArgument(sprintf('%s() expects enclosure to be a single character', $caller));
+            throw new InvalidArgument($caller.'() expects enclosure to be a single character.');
         }
 
         if (1 === strlen($escape) || ('' === $escape && 70400 <= PHP_VERSION_ID)) {
             return [$delimiter, $enclosure, $escape];
         }
 
-        throw new InvalidArgument(sprintf('%s() expects escape to be a single character', $caller));
+        throw new InvalidArgument($caller.'() expects escape to be a single character or the empty string.');
     }
 
     /**
@@ -416,7 +415,7 @@ final class Stream implements SeekableIterator
     public function seek($position): void
     {
         if ($position < 0) {
-            throw new Exception(sprintf('%s() can\'t seek stream to negative line %d', __METHOD__, $position));
+            throw new Exception(__METHOD__.'() can\'t seek stream to negative line '.$position);
         }
 
         $this->rewind();

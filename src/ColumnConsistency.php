@@ -14,7 +14,6 @@ declare(strict_types=1);
 namespace League\Csv;
 
 use function count;
-use function sprintf;
 
 /**
  * Validates column consistency when inserting records into a CSV document.
@@ -36,7 +35,7 @@ class ColumnConsistency
     public function __construct(int $columns_count = -1)
     {
         if ($columns_count < -1) {
-            throw new Exception(sprintf('%s() expects the column count to be greater or equal to -1 %s given', __METHOD__, $columns_count));
+            throw new Exception(__METHOD__.'() expects the column count to be greater or equal to -1 '.$columns_count.' given.');
         }
 
         $this->columns_count = $columns_count;

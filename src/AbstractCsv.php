@@ -128,7 +128,7 @@ abstract class AbstractCsv implements ByteSequence
      */
     public function __clone()
     {
-        throw new Exception(sprintf('An object of class %s cannot be cloned', static::class));
+        throw new Exception('An object of class '.static::class.' cannot be cloned');
     }
 
     /**
@@ -273,7 +273,7 @@ abstract class AbstractCsv implements ByteSequence
     public function chunk(int $length): Generator
     {
         if ($length < 1) {
-            throw new InvalidArgument(sprintf('%s() expects the length to be a positive integer %d given', __METHOD__, $length));
+            throw new InvalidArgument(__METHOD__.'() expects the length to be a positive integer '.$length.' given.');
         }
 
         $input_bom = $this->getInputBOM();
@@ -409,7 +409,7 @@ abstract class AbstractCsv implements ByteSequence
             return $this;
         }
 
-        throw new InvalidArgument(sprintf('%s() expects delimiter to be a single character %s given', __METHOD__, $delimiter));
+        throw new InvalidArgument(__METHOD__.'() expects delimiter to be a single character '.$delimiter.' given.');
     }
 
     /**
@@ -432,7 +432,7 @@ abstract class AbstractCsv implements ByteSequence
             return $this;
         }
 
-        throw new InvalidArgument(sprintf('%s() expects enclosure to be a single character %s given', __METHOD__, $enclosure));
+        throw new InvalidArgument(__METHOD__.'() expects enclosure to be a single character '.$enclosure.' given.');
     }
 
     /**
@@ -455,7 +455,7 @@ abstract class AbstractCsv implements ByteSequence
             return $this;
         }
 
-        throw new InvalidArgument(sprintf('%s() expects escape to be a single character or the empty string %s given', __METHOD__, $escape));
+        throw new InvalidArgument(__METHOD__.'() expects escape to be a single character or the empty string '.$escape.' given.');
     }
 
     /**

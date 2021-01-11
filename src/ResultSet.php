@@ -22,7 +22,6 @@ use function array_search;
 use function is_string;
 use function iterator_count;
 use function iterator_to_array;
-use function sprintf;
 
 /**
  * Represents the result set of a {@link Reader} processed by a {@link Statement}.
@@ -156,7 +155,7 @@ class ResultSet implements TabularDataReader, JsonSerializable
     public function fetchOne(int $nth_record = 0): array
     {
         if ($nth_record < 0) {
-            throw new InvalidArgument(sprintf('%s() expects the submitted offset to be a positive integer or 0, %s given', __METHOD__, $nth_record));
+            throw new InvalidArgument(__METHOD__.'() expects the submitted offset to be a positive integer or 0, '.$nth_record.' given');
         }
 
         $iterator = new LimitIterator($this->records, $nth_record, 1);
@@ -170,7 +169,7 @@ class ResultSet implements TabularDataReader, JsonSerializable
      */
     public function fetchColumn($index = 0): Iterator
     {
-        $offset = $this->getColumnIndex($index, __METHOD__.'() expects the column index to be a valid string or integer, `%s` given');
+        $offset = $this->getColumnIndex($index, __METHOD__.'() expects the column index to be a valid string or integer, `'.$index.'` given');
         $filter = static function (array $record) use ($offset): bool {
             return isset($record[$offset]);
         };
@@ -215,7 +214,7 @@ class ResultSet implements TabularDataReader, JsonSerializable
             return $value;
         }
 
-        throw new InvalidArgument(sprintf($error_message, $value));
+        throw new InvalidArgument($error_message);
     }
 
     /**
@@ -236,11 +235,11 @@ class ResultSet implements TabularDataReader, JsonSerializable
         }
 
         $value = array_search($index, array_flip($this->header), true);
-        if (false !== $value) {
-            return $value;
+        if (false === $value) {
+            throw new InvalidArgument($error_message);
         }
 
-        throw new InvalidArgument(sprintf($error_message, $index));
+        return $value;
     }
 
     /**

@@ -29,7 +29,6 @@ use function iterator_count;
 use function iterator_to_array;
 use function mb_strlen;
 use function mb_substr;
-use function sprintf;
 use function strlen;
 use function substr;
 use const PHP_VERSION_ID;
@@ -129,7 +128,7 @@ class Reader extends AbstractCsv implements TabularDataReader, JsonSerializable
     {
         $header = $this->seekRow($offset);
         if (in_array($header, [[], [null]], true)) {
-            throw new SyntaxError(sprintf('The header record does not exist or is empty at offset: `%s`', $offset));
+            throw new SyntaxError('The header record does not exist or is empty at offset: `'.$offset.'`');
         }
 
         if (0 !== $offset) {
@@ -138,7 +137,7 @@ class Reader extends AbstractCsv implements TabularDataReader, JsonSerializable
 
         $header = $this->removeBOM($header, mb_strlen($this->getInputBOM()), $this->enclosure);
         if ([''] === $header) {
-            throw new SyntaxError(sprintf('The header record does not exist or is empty at offset: `%s`', $offset));
+            throw new SyntaxError('The header record does not exist or is empty at offset: `'.$offset.'`');
         }
 
         return $header;
