@@ -75,7 +75,7 @@ interface TabularDataReader extends Countable, IteratorAggregate
      *
      * @param int $nth_record the tabular data record offset
      *
-     * @throws Exception if argument is lesser than 0
+     * @throws UnableToProcessCsv if argument is lesser than 0
      */
     public function fetchOne(int $nth_record = 0): array;
 
@@ -85,6 +85,8 @@ interface TabularDataReader extends Countable, IteratorAggregate
      * By default if no value is supplied the first column is fetch
      *
      * @param string|int $index CSV column index
+     *
+     * @throws UnableToProcessCsv if the column index is invalid or not found
      */
     public function fetchColumn($index = 0): Iterator;
 
@@ -98,6 +100,8 @@ interface TabularDataReader extends Countable, IteratorAggregate
      *
      * @param string|int $offset_index The column index to serve as offset
      * @param string|int $value_index  The column index to serve as value
+     *
+     * @throws UnableToProcessCsv if the column index is invalid or not found
      */
     public function fetchPairs($offset_index = 0, $value_index = 1): Iterator;
 }

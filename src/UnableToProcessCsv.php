@@ -13,11 +13,8 @@ declare(strict_types=1);
 
 namespace League\Csv;
 
-use Exception as PhpException;
+use Throwable;
 
-/**
- * League Csv Base Exception.
- */
-class Exception extends PhpException implements UnableToProcessCsv
+interface UnableToProcessCsv extends Throwable
 {
 }
