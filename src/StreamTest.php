@@ -49,11 +49,11 @@ final class StreamTest extends TestCase
 
     /**
      * @covers ::__clone
-     * @covers \League\Csv\UnavailableFeature::dueToForbiddenCloning
+     * @covers \League\Csv\UnavailableStream::dueToForbiddenCloning
      */
     public function testCloningIsForbidden(): void
     {
-        $this->expectException(UnavailableFeature::class);
+        $this->expectException(UnavailableStream::class);
 
         clone new Stream(fopen('php://temp', 'r+'));
     }
@@ -78,12 +78,12 @@ final class StreamTest extends TestCase
 
     /**
      * @covers ::createFromPath
-     * @covers \League\Csv\UnavailableFeature::dueToPathNotFound
+     * @covers \League\Csv\UnavailableStream::dueToPathNotFound
      */
     public function testCreateStreamFromPath(): void
     {
         $path = 'no/such/file.csv';
-        $this->expectException(UnavailableFeature::class);
+        $this->expectException(UnavailableStream::class);
         $this->expectExceptionMessage('`'.$path.'`: failed to open stream: No such file or directory');
         Stream::createFromPath($path);
     }

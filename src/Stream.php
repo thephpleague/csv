@@ -160,7 +160,7 @@ final class Stream implements SeekableIterator
      */
     public function __clone()
     {
-        throw UnavailableFeature::dueToForbiddenCloning(self::class);
+        throw UnavailableStream::dueToForbiddenCloning(self::class);
     }
 
     /**
@@ -193,7 +193,7 @@ final class Stream implements SeekableIterator
 
         $resource = @fopen(...$args);
         if (!is_resource($resource)) {
-            throw UnavailableFeature::dueToPathNotFound($path);
+            throw UnavailableStream::dueToPathNotFound($path);
         }
 
         $instance = new self($resource);

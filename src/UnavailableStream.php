@@ -15,10 +15,7 @@ namespace League\Csv;
 
 use Throwable;
 
-/**
- * StreamFilterSupportMissing Exception.
- */
-class UnavailableFeature extends Exception
+final class UnavailableStream extends Exception
 {
     /**
      * @deprecated
@@ -28,13 +25,13 @@ class UnavailableFeature extends Exception
         parent::__construct($message, $code, $previous);
     }
 
-    public static function dueToUnsupportedStreamFilterApi(string $className): self
+    public static function dueToPathNotFound(string $path): self
     {
-        return new self('The stream filter API can not be used with a '.$className.' instance.');
+        return new self('`'.$path.'`: failed to open stream: No such file or directory.');
     }
 
-    public static function dueToMissingStreamSeekability(): self
+    public static function dueToForbiddenCloning(string $class_name): self
     {
-        return new self('stream does not support seeking');
+        return new self('An object of class '.$class_name.' cannot be cloned.');
     }
 }

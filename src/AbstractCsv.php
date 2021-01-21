@@ -128,7 +128,7 @@ abstract class AbstractCsv implements ByteSequence
      */
     public function __clone()
     {
-        throw UnavailableFeature::dueToForbiddenCloning(static::class);
+        throw UnavailableStream::dueToForbiddenCloning(static::class);
     }
 
     /**

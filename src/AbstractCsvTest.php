@@ -83,7 +83,7 @@ final class AbstractCsvTest extends TestCase
      */
     public function testCreateFromPathThrowsRuntimeException(): void
     {
-        $this->expectException(UnavailableFeature::class);
+        $this->expectException(UnavailableStream::class);
 
         Reader::createFromPath(__DIR__.'/foo/bar', 'r');
     }
@@ -121,7 +121,7 @@ EOF;
      */
     public function testCloningIsForbidden(): void
     {
-        $this->expectException(UnavailableFeature::class);
+        $this->expectException(UnavailableStream::class);
 
         clone $this->csv;
     }

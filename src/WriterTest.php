@@ -222,11 +222,11 @@ final class WriterTest extends TestCase
 
     /**
      * @covers \League\Csv\Stream::fseek
-     * @covers \League\Csv\UnavailableFeature::dueToMissingStreamSeekability
+     * @covers \League\Csv\UnavailableStream::dueToPathNotFound
      */
     public function testWriterTriggerExceptionWithNonSeekableStream(): void
     {
-        $this->expectException(UnavailableFeature::class);
+        $this->expectException(UnavailableStream::class);
         $writer = Writer::createFromPath('php://null', 'w');
         $writer->setNewline("\r\n");
         $writer->insertOne(['foo', 'bar']);

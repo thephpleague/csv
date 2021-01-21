@@ -21,5 +21,6 @@ final class ExceptionsTest extends TestCase
         self::assertInstanceOf(Exception::class, new CannotInsertRecord());
         self::assertInstanceOf(Exception::class, new InvalidArgument());
         self::assertInstanceOf(Exception::class, new SyntaxError());
+        self::assertInstanceOf(Exception::class, new UnavailableStream());
     }
 }
