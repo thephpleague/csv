@@ -193,6 +193,22 @@ EOF;
     }
 
     /**
+     * @covers ::__toString
+     * @covers ::getContent
+     * @covers ::toString
+     */
+    public function testStringRepresentation(): void
+    {
+        $raw_csv = "john,doe,john.doe@example.com\njane,doe,jane.doe@example.com\n";
+        $csv = Reader::createFromString($raw_csv);
+
+        self::assertSame($raw_csv, $csv->__toString());
+        self::assertSame($raw_csv, $csv->getContent());
+        self::assertSame($raw_csv, $csv->toString());
+    }
+
+
+    /**
      * @covers ::toString
      */
     public function testToString(): void

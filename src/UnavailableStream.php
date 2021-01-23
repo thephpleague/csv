@@ -13,16 +13,11 @@ declare(strict_types=1);
 
 namespace League\Csv;
 
-use Throwable;
-
 final class UnavailableStream extends Exception
 {
-    /**
-     * @deprecated
-     */
-    public function __construct(string $message = '', int $code = 0, Throwable $previous = null)
+    private function __construct(string $message)
     {
-        parent::__construct($message, $code, $previous);
+        parent::__construct($message);
     }
 
     public static function dueToPathNotFound(string $path): self

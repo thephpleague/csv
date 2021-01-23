@@ -78,7 +78,7 @@ final class StreamTest extends TestCase
 
     /**
      * @covers ::createFromPath
-     * @covers \League\Csv\UnavailableStream::dueToPathNotFound
+     * @covers \League\Csv\UnavailableStream
      */
     public function testCreateStreamFromPath(): void
     {
