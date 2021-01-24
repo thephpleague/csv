@@ -33,7 +33,7 @@ use const STREAM_FILTER_WRITE;
  *
  * DEPRECATION WARNING! This class will be removed in the next major point release
  *
- * @deprecated deprecated since version 9.2.0
+ * @deprecated since version 9.2.0
  * @see AbstractCsv::setEscape
  *
  * @see https://tools.ietf.org/html/rfc4180#section-2

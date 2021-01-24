@@ -14,6 +14,8 @@ declare(strict_types=1);
 namespace League\Csv;
 
 /**
+ * DEPRECATION WARNING! This class will be removed in the next major point release.
+ *
  * @deprecated since version 9.7.0
  * @see Info::fetchBOMSequence()
  *

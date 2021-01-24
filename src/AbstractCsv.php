@@ -294,7 +294,7 @@ abstract class AbstractCsv implements ByteSequence
     /**
      * DEPRECATION WARNING! This method will be removed in the next major point release.
      *
-     * @deprecated deprecated since version 9.1.0
+     * @deprecated since version 9.1.0
      * @see AbstractCsv::toString
      *
      * Retrieves the CSV content
@@ -309,7 +309,7 @@ abstract class AbstractCsv implements ByteSequence
      *
      * DEPRECATION WARNING! This method will be removed in the next major point release
      *
-     * @deprecated deprecated since version 9.7.0
+     * @deprecated since version 9.7.0
      * @see AbstractCsv::toString
      */
     public function getContent(): string

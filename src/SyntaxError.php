@@ -21,7 +21,9 @@ use Throwable;
 class SyntaxError extends Exception
 {
     /**
-     * @deprecated
+     * DEPRECATION WARNING! This class will be removed in the next major point release.
+     *
+     * @deprecated since version 9.7.0
      */
     public function __construct(string $message = '', int $code = 0, Throwable $previous = null)
     {
