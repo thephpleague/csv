@@ -39,7 +39,7 @@ $records = [
 ];
 
 //load the CSV document from a string
-$csv = Writer::createFromString('');
+$csv = Writer::createFromString();
 
 //insert the header
 $csv->insertOne($header);
@@ -91,7 +91,7 @@ use League\Csv\XMLConverter;
 $file = new SplFileObject('/path/to/your/csv/file.csv', 'r');
 $csv = Reader::createFromFileObject($file);
 
-$converter = (new XMLConverter())
+$converter = XMLConverter::create()
     ->rootElement('csv')
     ->recordElement('record', 'offset')
     ->fieldElement('field', 'name');
