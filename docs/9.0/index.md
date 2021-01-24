@@ -8,7 +8,7 @@ layout: default
 [![Source Code](//img.shields.io/badge/source-league/csv-blue.svg?style=flat-square)](//github.com/thephpleague/csv)
 [![Latest Version](//img.shields.io/github/release/thephpleague/csv.svg?style=flat-square)](//github.com/thephpleague/csv/releases)
 [![Software License](//img.shields.io/badge/license-MIT-brightgreen.svg?style=flat-square)](//github.com/thephpleague/csv/blob/master/LICENSE)
-[![Build Status](//img.shields.io/travis/thephpleague/csv/master.svg?style=flat-square)](//travis-ci.org/thephpleague/csv)
+[![Build](https://github.com/thephpleague/csv/workflows/build/badge.svg)](https://github.com/thephpleague/csv/actions?query=workflow%3A%22build%22)
 [![Total Downloads](//img.shields.io/packagist/dt/league/csv.svg?style=flat-square)](//packagist.org/packages/league/csv)
 
 **League\Csv** is a simple library to ease CSV documents [loading](/9.0/connections/) as well as [writing](/9.0/writer/), [selecting](/9.0/reader/) and [converting](/9.0/converter/) CSV records.
@@ -27,7 +27,7 @@ $csv = Reader::createFromPath('/path/to/your/csv/file.csv', 'r');
 $csv->setHeaderOffset(0); //set the CSV header offset
 
 //get 25 records starting from the 11th row
-$stmt = (new Statement())
+$stmt = Statement::create()
     ->offset(10)
     ->limit(25)
 ;

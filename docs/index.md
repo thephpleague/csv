@@ -19,7 +19,7 @@ $csv->setHeaderOffset(0);
 $header = $csv->getHeader(); //returns the CSV header record
 $records = $csv->getRecords(); //returns all the CSV records as an Iterator object
 
-echo $csv->getContent(); //returns the CSV document as a string
+echo $csv->toString(); //returns the CSV document as a string
 ~~~
 
 ## Adding new CSV records is made simple
@@ -47,7 +47,7 @@ $csv->insertOne($header);
 //insert all the records
 $csv->insertAll($records);
 
-echo $csv->getContent(); //returns the CSV document as a string
+echo $csv->toString(); //returns the CSV document as a string
 ~~~
 
 ## Advanced CSV records selection
@@ -66,7 +66,7 @@ $csv->setDelimiter(';');
 $csv->setHeaderOffset(0);
 
 //build a statement
-$stmt = (new Statement())
+$stmt = Statement::create()
     ->offset(10)
     ->limit(25);
 

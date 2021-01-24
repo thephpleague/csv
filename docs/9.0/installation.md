@@ -7,7 +7,17 @@ title: Installation
 
 ## System Requirements
 
-You need **PHP >= 7.0.10** and the `mbstring` extension to use `Csv` but the latest stable version of PHP is recommended.
+You need:
+
+- the `mbstring` extension
+- at least **PHP >= 7.0.10** for version **9.0.0**
+- at least **PHP >= 7.2.5** for version **9.6.0**
+- at least **PHP >= 7.3** for version **9.7.0**
+
+If you are using **PHP >= 8.0**, please use at least version **9.6.2** for compatibility.
+
+**Of note:** It is recommended to use the latest stable version of the package in
+combinaison with the latest PHP version.
 
 ## Composer
 
