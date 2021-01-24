@@ -21,6 +21,7 @@ use PHPUnit\Framework\TestCase;
 final class HTMLConverterTest extends TestCase
 {
     /**
+     * @covers ::create
      * @covers ::__construct
      * @covers ::table
      * @covers ::tr
@@ -34,14 +35,14 @@ final class HTMLConverterTest extends TestCase
             ->setHeaderOffset(0)
         ;
 
-        $stmt = (new Statement())
+        $stmt = Statement::create()
             ->offset(3)
             ->limit(5)
         ;
 
         $records = $stmt->process($csv);
 
-        $converter = (new HTMLConverter())
+        $converter = HTMLConverter::create()
             ->table('table-csv-data', 'test')
             ->td('title')
             ->tr('data-record-offset')
@@ -68,14 +69,14 @@ final class HTMLConverterTest extends TestCase
             ->setHeaderOffset(0)
         ;
 
-        $stmt = (new Statement())
+        $stmt = Statement::create()
             ->offset(3)
             ->limit(5)
         ;
 
         $records = $stmt->process($csv);
 
-        $converter = (new HTMLConverter())
+        $converter = HTMLConverter::create()
             ->table('table-csv-data', 'test')
             ->td('title')
             ->tr('data-record-offset')
@@ -104,14 +105,14 @@ final class HTMLConverterTest extends TestCase
             ->setHeaderOffset(0)
         ;
 
-        $stmt = (new Statement())
+        $stmt = Statement::create()
             ->offset(3)
             ->limit(5)
         ;
 
         $records = $stmt->process($csv);
 
-        $converter = (new HTMLConverter())
+        $converter = HTMLConverter::create()
             ->table('table-csv-data', 'test')
             ->td('title')
             ->tr('data-record-offset')
@@ -140,14 +141,14 @@ final class HTMLConverterTest extends TestCase
             ->setHeaderOffset(0)
         ;
 
-        $stmt = (new Statement())
+        $stmt = Statement::create()
             ->offset(3)
             ->limit(5)
         ;
 
         $records = $stmt->process($csv);
 
-        $converter = (new HTMLConverter())
+        $converter = HTMLConverter::create()
             ->table('table-csv-data', 'test')
             ->td('title')
             ->tr('data-record-offset')
@@ -171,6 +172,6 @@ final class HTMLConverterTest extends TestCase
     public function testTableTriggersException(): void
     {
         $this->expectException(DOMException::class);
-        (new HTMLConverter())->table('table-csv-data', 'te st');
+        HTMLConverter::create()->table('table-csv-data', 'te st');
     }
 }

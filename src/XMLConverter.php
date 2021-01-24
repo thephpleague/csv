@@ -58,6 +58,21 @@ class XMLConverter
      */
     protected $offset_attr = '';
 
+    public static function create(): self
+    {
+        return new self();
+    }
+
+    /**
+     * DEPRECATION WARNING! This method will be removed in the next major point release.
+     *
+     * @deprecated since version 9.7.0
+     * @see XMLConverter::create()
+     */
+    public function __construct()
+    {
+    }
+
     /**
      * Convert a Record collection into a DOMDocument.
      */

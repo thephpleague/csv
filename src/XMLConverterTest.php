@@ -23,6 +23,8 @@ use PHPUnit\Framework\TestCase;
 final class XMLConverterTest extends TestCase
 {
     /**
+     * @covers ::create
+     * @covers ::__construct
      * @covers ::rootElement
      * @covers ::recordElement
      * @covers ::fieldElement
@@ -39,14 +41,14 @@ final class XMLConverterTest extends TestCase
             ->setHeaderOffset(0)
         ;
 
-        $stmt = (new Statement())
+        $stmt = Statement::create()
             ->offset(3)
             ->limit(5)
         ;
 
         $records = $stmt->process($csv);
 
-        $converter = (new XMLConverter())
+        $converter = XMLConverter::create()
             ->rootElement('csv')
             ->recordElement('record', 'offset')
             ->fieldElement('field', 'name')
@@ -74,6 +76,7 @@ final class XMLConverterTest extends TestCase
     }
 
     /**
+     * @covers ::create
      * @covers ::rootElement
      * @covers ::filterAttributeName
      * @covers ::filterElementName
@@ -81,12 +84,13 @@ final class XMLConverterTest extends TestCase
     public function testXmlElementTriggersException(): void
     {
         $this->expectException(DOMException::class);
-        (new XMLConverter())
+        XMLConverter::create()
             ->recordElement('record', '')
             ->rootElement('   ');
     }
 
     /**
+     * @covers ::create
      * @covers ::rootElement
      * @covers ::recordElement
      * @covers ::fieldElement
@@ -103,14 +107,14 @@ final class XMLConverterTest extends TestCase
             ->setHeaderOffset(0)
         ;
 
-        $stmt = (new Statement())
+        $stmt = Statement::create()
             ->offset(3)
             ->limit(5)
         ;
 
         $records = $stmt->process($csv);
 
-        $converter = (new XMLConverter())
+        $converter = XMLConverter::create()
             ->rootElement('csv')
             ->recordElement('record', 'offset')
             ->fieldElement('field', 'name')
