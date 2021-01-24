@@ -70,7 +70,7 @@ final class Info implements ByteSequence
             return 1 < count($record);
         };
 
-        $stmt = Statement::create(null, 0, $limit);
+        $stmt = Statement::create()->offset(0)->limit($limit);
 
         $delimiterStats = static function (array $stats, string $delimiter) use ($csv, $stmt, $recordFilter): array {
             $csv->setDelimiter($delimiter);
