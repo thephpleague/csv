@@ -11,7 +11,7 @@ Pick the target branch based according to these criteria:
   * submitting a BC-breaking change: target the master branch
 -->
 
-### New Feature
+## New Feature
 
 _(Fill in the relevant information below to help triage your issue.)_
 
@@ -21,6 +21,16 @@ _(Fill in the relevant information below to help triage your issue.)_
 | BC Break    | yes/no
 
 
-#### Proposal
+### Proposal
 
 _(Please explain in plain english the feature you would like to see implemented.)_
+
+## Checks before submitting
+
+* [ ] Be sure that there isn't already a pull request about this. See: [Pull requests](https://github.com/thephpleague/csv/pulls)
+* [ ] This pull request is about 1 new feature and nothing more.
+* [ ] Be sure to always target the lowest supported PHP version.
+* [ ] Be sure to include tests.
+* [ ] Be sure to have run `composer test` before submitting the fix.
+* [ ] Be sure to update the `CHANGELOG.md`
+* [ ] Be sure to update the documentation.
