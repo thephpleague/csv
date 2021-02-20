@@ -303,8 +303,12 @@ class Reader extends AbstractCsv implements TabularDataReader, JsonSerializable
             $header = $this->getHeader();
         }
 
-        if ($header !== array_unique(array_filter($header, 'is_string'))) {
-            throw SyntaxError::dueToInvalidHeaderContent($header);
+        if ($header !== ($filtered_header = array_filter($header, 'is_string'))) {
+            throw SyntaxError::dueToInvalidHeaderColumnNames();
+        }
+
+        if ($header !== array_unique($filtered_header)) {
+            throw SyntaxError::dueToDuplicateHeaderColumnNames($header);
         }
 
         return $header;

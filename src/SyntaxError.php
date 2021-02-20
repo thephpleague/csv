@@ -40,13 +40,18 @@ class SyntaxError extends Exception
         return new self('The header record does not exist or is empty at offset: `'.$offset.'`');
     }
 
-    public static function dueToInvalidHeaderContent(array $header): self
+    public static function dueToInvalidHeaderColumnNames(): self
+    {
+        return new self('The header record contains non string colum names.');
+    }
+
+    public static function dueToDuplicateHeaderColumnNames(array $header): self
     {
         $duplicates = array_keys(array_filter(array_count_values($header), function (int $value): bool {
             return $value > 1;
         }));
 
-        $instance = new self('The header record must be an empty or a flat array with unique string values.');
+        $instance = new self('The header record contains duplicate column names.');
         $instance->duplicateColumnNames = $duplicates;
 
         return $instance;

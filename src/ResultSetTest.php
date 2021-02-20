@@ -524,4 +524,20 @@ final class ResultSetTest extends TestCase
         $resultSet = Statement::create()->process($csv);
         Statement::create()->process($resultSet, ['foo', 'foo']);
     }
+
+    /**
+     * @covers ::validateHeader
+     */
+    public function testHeaderThrowsExceptionOnInvalidColumnNames(): void
+    {
+        $this->expectException(SyntaxError::class);
+        $csv = Reader::createFromString(
+            'field1,field1,field3
+            1,2,3
+            4,5,6'
+        );
+        $csv->setDelimiter(',');
+        $resultSet = Statement::create()->process($csv);
+        Statement::create()->process($resultSet, ['foo', 3]);
+    }
 }

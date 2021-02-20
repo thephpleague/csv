@@ -191,8 +191,8 @@ EOF;
      * @covers ::computeHeader
      * @covers ::getRecords
      * @covers ::setHeader
-     * @covers \League\Csv\SyntaxError::dueToInvalidHeaderContent
-     * @covers \League\Csv\SyntaxError::fetchDuplicates
+     * @covers \League\Csv\SyntaxError::dueToDuplicateHeaderColumnNames
+     * @covers \League\Csv\SyntaxError::duplicateColumnNames
      */
     public function testHeaderThrowsExceptionOnError(): void
     {
@@ -215,7 +215,7 @@ EOF;
      * @covers ::seekRow
      * @covers ::setHeaderOffset
      * @covers \League\Csv\SyntaxError::dueToHeaderNotFound
-     * @covers \League\Csv\SyntaxError::fetchDuplicates
+     * @covers \League\Csv\SyntaxError::duplicateColumnNames
      */
     public function testHeaderThrowsExceptionOnEmptyLine(): void
     {
@@ -232,6 +232,19 @@ EOF;
         } catch (SyntaxError $exception) {
             self::assertSame([], $exception->duplicateColumnNames());
         }
+    }
+
+    /**
+     * @covers ::getHeader
+     * @covers ::computeHeader
+     * @covers ::setHeaderOffset
+     * @covers \League\Csv\SyntaxError::dueToInvalidHeaderColumnNames
+     */
+    public function testHeaderThrowsIfItContainsNonStringNames(): void
+    {
+        $this->expectException(SyntaxError::class);
+
+        iterator_to_array($this->csv->getRecords(['field1', 2, 'field3']));
     }
 
     /**
