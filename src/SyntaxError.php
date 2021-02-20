@@ -21,6 +21,11 @@ use Throwable;
 class SyntaxError extends Exception
 {
     /**
+     * @var array<string>
+     */
+    protected $duplicateColumnNames = [];
+
+    /**
      * DEPRECATION WARNING! This class will be removed in the next major point release.
      *
      * @deprecated since version 9.7.0
@@ -35,8 +40,20 @@ class SyntaxError extends Exception
         return new self('The header record does not exist or is empty at offset: `'.$offset.'`');
     }
 
-    public static function dueToInvalidHeaderContent(): self
+    public static function dueToInvalidHeaderContent(array $header): self
     {
-        return new self('The header record must be an empty or a flat array with unique string values.');
+        $duplicates = array_keys(array_filter(array_count_values($header), function (int $value): bool {
+            return $value > 1;
+        }));
+
+        $instance = new self('The header record must be an empty or a flat array with unique string values.');
+        $instance->duplicateColumnNames = $duplicates;
+
+        return $instance;
+    }
+
+    public function duplicateColumnNames(): array
+    {
+        return $this->duplicateColumnNames;
     }
 }

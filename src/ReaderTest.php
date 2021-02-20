@@ -192,10 +192,10 @@ EOF;
      * @covers ::getRecords
      * @covers ::setHeader
      * @covers \League\Csv\SyntaxError::dueToInvalidHeaderContent
+     * @covers \League\Csv\SyntaxError::fetchDuplicates
      */
     public function testHeaderThrowsExceptionOnError(): void
     {
-        $this->expectException(SyntaxError::class);
         $csv = Reader::createFromString(
             'field1,field1,field3
             1,2,3
@@ -203,7 +203,11 @@ EOF;
         );
         $csv->setHeaderOffset(0);
         self::assertSame(['field1', 'field1', 'field3'], $csv->getHeader());
-        iterator_to_array($csv);
+        try {
+            iterator_to_array($csv);
+        } catch (SyntaxError $exception) {
+            self::assertSame(['field1'], $exception->duplicateColumnNames());
+        }
     }
 
     /**
@@ -211,10 +215,10 @@ EOF;
      * @covers ::seekRow
      * @covers ::setHeaderOffset
      * @covers \League\Csv\SyntaxError::dueToHeaderNotFound
+     * @covers \League\Csv\SyntaxError::fetchDuplicates
      */
     public function testHeaderThrowsExceptionOnEmptyLine(): void
     {
-        $this->expectException(SyntaxError::class);
         $str = <<<EOF
 foo,bar,baz
 
@@ -223,7 +227,11 @@ foo,bar,baz
 EOF;
         $csv = Reader::createFromString($str);
         $csv->setHeaderOffset(2);
-        $csv->getHeader();
+        try {
+            $csv->getHeader();
+        } catch (SyntaxError $exception) {
+            self::assertSame([], $exception->duplicateColumnNames());
+        }
     }
 
     /**

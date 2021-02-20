@@ -64,6 +64,36 @@ $header_offset = $csv->getHeaderOffset(); //returns 1000
 $header = $csv->getHeader(); //triggers a Exception exception
 ~~~
 
+Because the csv document is treated as a tabular data the header can not contain duplicate entries. 
+If the header contains duplicates an exception will be thrown on usage.
+
+~~~php
+use League\Csv\Reader;
+
+$csv = Reader::createFromPath('/path/to/file.csv', 'r');
+$csv->fetchOne(0); // returns ['field1', 'field2', 'field1', 'field4']
+$csv->setHeaderOffset(0); //valid offset but the record contain duplicates
+$header_offset = $csv->getHeaderOffset(); //returns 0
+$header = $csv->getHeader(); //triggers a Exception exception
+~~~
+
+<p class="message-info">Starting with <code>9.7.0</code> the <code>SyntaxError</code> exception thrown will return the list of duplicate column names.</p>
+
+~~~php
+use League\Csv\Reader;
+use League\Csv\SyntaxError;
+
+$csv = Reader::createFromPath('/path/to/file.csv', 'r');
+$csv->fetchOne(0); // returns ['field1', 'field2', 'field1', 'field4']
+$csv->setHeaderOffset(0); //valid offset but the record contain duplicates
+$header_offset = $csv->getHeaderOffset(); //returns 0
+try {
+    $header = $csv->getHeader(); //triggers a Exception exception
+} catch (SyntaxError $exception) {
+   $duplicates = $exception->duplicateColumnNames(); // returns ['field1']
+}
+~~~
+
 ## CSV records
 
 ~~~php

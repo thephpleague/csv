@@ -6,6 +6,7 @@ All Notable changes to `Csv` will be documented in this file
 
 ### Added
 
+- `League\Csv\SyntaxError::duplicateColumnNames` to expose column name duplicates during header usage
 - `League\Csv\UnableToProcessCsv` as the new Exception Marker Interface
 - `League\Csv\UnavailableStream` as the new Exception
 - `League\Csv\Info::getDelimiterStats` to replace the namespace function `delimiter_detect`

@@ -59,7 +59,7 @@ class ResultSet implements TabularDataReader, JsonSerializable
     protected function validateHeader(array $header): void
     {
         if ($header !== array_unique(array_filter($header, 'is_string'))) {
-            throw SyntaxError::dueToInvalidHeaderContent();
+            throw SyntaxError::dueToInvalidHeaderContent($header);
         }
     }
 

@@ -55,8 +55,8 @@
         "phpstan": "phpstan analyse -l max -c phpstan.neon src --ansi --memory-limit=192M",
         "phpunit": "phpunit --coverage-text",
         "test": [
-            "@phpstan",
             "@phpunit",
+            "@phpstan",
             "@phpcs"
         ]
     },
