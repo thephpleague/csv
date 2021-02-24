@@ -178,7 +178,7 @@ echo $writer; //the newly added rows are all uppercased
 
 ## Example
 
-Please review <a href="https://github.com/thephpleague/csv/tree/8.x/examples/stream.php" target="_blank">the stream filtering example</a> and the attached <a href="https://github.com/thephpleague/csv/tree/8.x/examples/lib/FilterTranscode.php" target="_blank">FilterTranscode</a> Class to understand how to use the filtering mechanism to convert a CSV into another charset.
+Please review <a href="https://github.com/thephpleague/csv/tree/8.2.3/examples/stream.php" target="_blank">the stream filtering example</a> and the attached <a href="https://github.com/thephpleague/csv/tree/8.2.3/examples/lib/FilterTranscode.php" target="_blank">FilterTranscode</a> Class to understand how to use the filtering mechanism to convert a CSV into another charset.
 
 The `FilterTranscode` class is not attached to the Library because converting your CSV may depend on the extension you choose, in PHP you can use the following extensions :
 
