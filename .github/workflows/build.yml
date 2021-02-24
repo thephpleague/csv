@@ -25,4 +25,4 @@ jobs:
             - run: composer phpstan
               if: ${{ matrix.php == '8.0' }}
             - run: composer phpcs
-              if: ${{ matrix.php == '7.4' }}
+              if: ${{ matrix.php == '8.0' }}
