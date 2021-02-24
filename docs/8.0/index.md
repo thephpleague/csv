@@ -125,15 +125,15 @@ foreach ($reader->fetchAssoc(0) as $row) {
 
 ## More Examples
 
-* [Selecting specific rows in the CSV](https://github.com/thephpleague/csv/tree/8.x/examples/extract.php)
-* [Querying a CSV](https://github.com/thephpleague/csv/tree/8.x/examples/filtering.php)
-* [Creating a CSV](https://github.com/thephpleague/csv/tree/8.x/examples/writing.php)
-* [Merging 2 CSV documents](https://github.com/thephpleague/csv/tree/8.x/examples/merge.php)
-* [Switching between modes from Writer to Reader mode](https://github.com/thephpleague/csv/tree/8.x/examples/switchmode.php)
-* [Downloading the CSV](https://github.com/thephpleague/csv/tree/8.x/examples/download.php)
-* [Converting the CSV into a Json String](https://github.com/thephpleague/csv/tree/8.x/examples/json.php)
-* [Converting the CSV into a XML file](https://github.com/thephpleague/csv/tree/8.x/examples/xml.php)
-* [Converting the CSV into a HTML Table](https://github.com/thephpleague/csv/tree/8.x/examples/table.php)
-* [Using stream Filter on the CSV](https://github.com/thephpleague/csv/tree/8.x/examples/stream.php)
+* [Selecting specific rows in the CSV](https://github.com/thephpleague/csv/tree/8.2.3/examples/extract.php)
+* [Querying a CSV](https://github.com/thephpleague/csv/tree/8.2.3/examples/filtering.php)
+* [Creating a CSV](https://github.com/thephpleague/csv/tree/8.2.3/examples/writing.php)
+* [Merging 2 CSV documents](https://github.com/thephpleague/csv/tree/8.2.3/examples/merge.php)
+* [Switching between modes from Writer to Reader mode](https://github.com/thephpleague/csv/tree/8.2.3/examples/switchmode.php)
+* [Downloading the CSV](https://github.com/thephpleague/csv/tree/8.2.3/examples/download.php)
+* [Converting the CSV into a Json String](https://github.com/thephpleague/csv/tree/8.2.3/examples/json.php)
+* [Converting the CSV into a XML file](https://github.com/thephpleague/csv/tree/8.2.3/examples/xml.php)
+* [Converting the CSV into a HTML Table](https://github.com/thephpleague/csv/tree/8.2.3/examples/table.php)
+* [Using stream Filter on the CSV](https://github.com/thephpleague/csv/tree/8.2.3/examples/stream.php)
 
 > The CSV data use for the examples are taken from [Paris Opendata](//opendata.paris.fr/opendata/jsp/site/Portal.jsp?document_id=60&portlet_id=121)

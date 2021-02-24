@@ -155,4 +155,4 @@ $csv->output('mycsvfile.csv');
 
 Of note, we used the [filtering capability](/8.0/filtering) of the library to convert the CSV encoding character from `UTF-8` to `UTF-16 LE`.
 
-You can found the code and the associated filter class in the [examples directory](https://github.com/thephpleague/csv/tree/8.x/examples).
+You can found the code and the associated filter class in the [examples directory](https://github.com/thephpleague/csv/tree/8.2.3/examples).
