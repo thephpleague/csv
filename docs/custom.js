@@ -2,7 +2,7 @@
 
   let headers = document.querySelector('header nav h2');
   if (headers) {
-    headers.addEventListener('click', ()  => {
+    headers.addEventListener('click', function () {
       this.parentNode.querySelector('ul').classList.toggle('show');
     }, false);
   }
