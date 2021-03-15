@@ -241,7 +241,7 @@ $sol3 = Writer::createFromPath($fileObject, 'w');
 
 ### CSV properties
 
-- The new default `SplFileObject` flags used are `SplFileObject::READ_CSV` and `SplFileObject::DROP_NEW_LINE`. The `SplFileObject::READ_CSV` is the only flag that can not be overidden by the developer to ensure consistency in methods usage.
+- The new default `SplFileObject` flags used are `SplFileObject::READ_CSV` and `SplFileObject::DROP_NEW_LINE`. The `SplFileObject::READ_CSV` is the only flag that can not be overridden by the developer to ensure consistency in methods usage.
 - CSV properties setter methods no longer provides default values. When used, you are require to provide a value to the method.
 
 ### Detecting CSV Delimiters
@@ -256,10 +256,10 @@ use League\Csv\Reader;
 $reader = Reader::createFromPath('/path/to/your/csv/file.csv', 'r');
 
 $delimiters_list = $reader->detectDelimiterList(10, [' ', '|']);
-foreach ($delimiters_list as $occurences => $delimiter) {
-    echo "$delimiter appeared $occurences times in 10 CSV row", PHP_EOL;
+foreach ($delimiters_list as $occurrences => $delimiter) {
+    echo "$delimiter appeared $occurrences times in 10 CSV row", PHP_EOL;
 }
-//$occurences can not be less than 1
+//$occurrences can not be less than 1
 //since it would mean that the delimiter is not used
 //if you are only interested in getting
 // the most use delimiter you can still do as follow

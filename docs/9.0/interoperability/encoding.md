@@ -11,7 +11,7 @@ Depending on the software you are using to read your CSV you may need to adjust 
 
 ## MS Excel on Windows
 
-On Windows, MS Excel, expects an UTF-8 encoded CSV with its corresponding `BOM` character. To fullfill this requirement, you simply need to add the `UTF-8` `BOM` character if needed as explained below:
+On Windows, MS Excel, expects an UTF-8 encoded CSV with its corresponding `BOM` character. To fulfill this requirement, you simply need to add the `UTF-8` `BOM` character if needed as explained below:
 
 ~~~php
 use League\Csv\Reader;

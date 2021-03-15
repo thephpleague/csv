@@ -115,7 +115,7 @@ The default escape character is `\`.
 
 ### fetchDelimitersOccurrence
 
-This method allow you to find the occurences of some delimiters in a given CSV object.
+This method allow you to find the occurrences of some delimiters in a given CSV object.
 
 ~~~php
 <?php
@@ -243,7 +243,7 @@ $bom = $csv->getOutputBOM(); //returns "\xEF\xBB\xBF"
 - The default output `BOM` character is set to an empty string.
 - The `AbstractCsv` class provide constants to ease BOM sequence manipulation.
 
-<p class="message-info">Please refer to <a href="/8.0/bom/">the BOM character dedicated documentation page</a> for more informations on how the library helps you manage this feature.</p>
+<p class="message-info">Please refer to <a href="/8.0/bom/">the BOM character dedicated documentation page</a> for more information on how the library helps you manage this feature.</p>
 
 ## Conversion only properties
 

@@ -62,7 +62,7 @@ public AbstractCsv::toHTML(string $classAttribute = 'table-csv-data'): string
 ~~~
 
 This method accepts an optional argument `$classAttribute` to help you customize the table
-rendering. By defaut the classname given to the table is `table-csv-data`.
+rendering. By default, the classname given to the table is `table-csv-data`.
 
 ~~~php
 <?php

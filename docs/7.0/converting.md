@@ -11,7 +11,7 @@ When this is not possible/applicable you can fallback to using the `setEncodingF
 
 If your CSV is not UTF-8 encoded some unexpected results and some errors could be thrown when trying to convert your data.
 
-<p class="message-notice">Starting with <code>version 7.0</code>, when used with the <code>League\Csv\Reader</code> class, the conversion methods behavior are affected by the query options methods. Please refer to the <a href="/7.0/query-filtering">Query Filters page</a> for more informations and examples.</p>
+<p class="message-notice">Starting with <code>version 7.0</code>, when used with the <code>League\Csv\Reader</code> class, the conversion methods behavior are affected by the query options methods. Please refer to the <a href="/7.0/query-filtering">Query Filters page</a> for more information and examples.</p>
 
 <p class="message-notice">Starting with <code>version 7.1</code>,  query filters are also available for conversion methods when using the <code>League\Csv\Writer</code> class</p>
 
@@ -44,7 +44,7 @@ $dom = $reader->toXML('data', 'line', 'item');
 
 Use the `toHTML` method to convert the CSV data into an HTML table. This method
 accepts an optional argument `$classname` to help you customize the table
-rendering, by defaut the classname given to the table is `table-csv-data`.
+rendering, by default the classname given to the table is `table-csv-data`.
 
 ~~~php
 <?php

@@ -168,7 +168,7 @@ function(array $row): bool
 
 The validator **must** return `true` to validate the submitted row.
 
-Any other expression, including thruthy ones like `yes`, `1`,... will make the `insertOne` method throw an `League\Csv\Exception\InvalidRowException`.
+Any other expression, including truthy ones like `yes`, `1`,... will make the `insertOne` method throw an `League\Csv\Exception\InvalidRowException`.
 
 As with the new formatter capabilities, you can attach as many validators as you want to your data prior to its insertion. The row data is checked against your supplied validators **after being formatted**.
 
@@ -187,7 +187,7 @@ public Writer::clearValidators(void): Writer
 
 - `addValidator`: Adds a validator each time it is called. The method takes two parameters:
     - A `callable` which takes an `array` as its unique parameter;
-    - The validator name which is **required**. If another validator was already registered with the given name, it will be overriden.
+    - The validator name which is **required**. If another validator was already registered with the given name, it will be overridden.
 - `removeValidator`: Removes an already registered validator by using the validator registrated name.
 - `hasValidator`: Checks if the validator is already registered
 - `clearValidators`: removes all registered validator.
@@ -290,7 +290,7 @@ Some data formatting can still occur while writing the data to the CSV document 
 
 ## Handling newline
 
-Because the php `fputcsv` implementation has a hardcoded `\n`, we need to be able to replace the last `LF` code with one supplied by the developper for more interoperability between CSV packages on different platforms. The newline sequence will be appended to each CSV newly inserted line.
+Because the php `fputcsv` implementation has a hardcoded `\n`, we need to be able to replace the last `LF` code with one supplied by the developer for more interoperability between CSV packages on different platforms. The newline sequence will be appended to each CSV newly inserted line.
 
 At any given time you can get and modify the `$newline` property using the `getNewline` and `setNewline` methods described in <a href="/8.0/properties/">CSV properties documentation page</a>.
 
@@ -307,5 +307,5 @@ $writer->insertOne(["one", "two"]);
 echo $writer; // displays "one,two\r\n";
 ~~~
 
-<p class="message-info">Please refer to <a href="/8.0/bom/">the BOM character dedicated documentation page</a> for more informations on how the library manage the BOM character.</p>
+<p class="message-info">Please refer to <a href="/8.0/bom/">the BOM character dedicated documentation page</a> for more information on how the library manage the BOM character.</p>
 

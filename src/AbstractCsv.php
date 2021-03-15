@@ -264,7 +264,7 @@ abstract class AbstractCsv implements ByteSequence
     }
 
     /**
-     * Retuns the CSV document as a Generator of string chunk.
+     * Returns the CSV document as a Generator of string chunk.
      *
      * @param int $length number of bytes read
      *

@@ -11,7 +11,7 @@ The `XMLConverter` converts a CSV records collection into a PHP `DOMDocument`.
 
 Prior to converting your records collection into XML, you may wish to configure the element and its associated attribute names. To do so `XMLConverter` provides methods to setup theses settings.
 
-<p class="message-warning">Because we are building a <code>DOMDocument</code> object, the <code>XMLConverter</code> object throws <code>DOMException</code> insted of <code>League\Csv\Exception</code>.</p>
+<p class="message-warning">Because we are building a <code>DOMDocument</code> object, the <code>XMLConverter</code> object throws <code>DOMException</code> instead of <code>League\Csv\Exception</code>.</p>
 
 ### XMLConverter::rootElement
 
@@ -29,7 +29,7 @@ This method sets the XML root name.
 public XMLConverter::recordElement(string $node_name, string $record_offset_attribute_name = ''): self
 ~~~
 
-This method sets the XML record name and optionnally the attribute name for the record offset value if you want this information preserved.
+This method sets the XML record name and optionally the attribute name for the record offset value if you want this information preserved.
 
 <p class="message-info">The default record element name is <code>row</code>.</p>
 <p class="message-info">The default attribute name is the empty string.</p>
@@ -40,7 +40,7 @@ This method sets the XML record name and optionnally the attribute name for the 
 public XMLConverter::fieldElement(string $node_name, string $fieldname_attribute_name = ''): self
 ~~~
 
-This method sets the XML field name and optionnally the attribute name for the field name value.
+This method sets the XML field name and optionally the attribute name for the field name value.
 
 <p class="message-info">The default field element name is <code>cell</code>.</p>
 <p class="message-info">The default attribute name is the empty string.</p>

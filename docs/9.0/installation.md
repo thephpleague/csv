@@ -17,7 +17,7 @@ You need:
 If you are using **PHP >= 8.0**, please use at least version **9.6.2** for compatibility.
 
 **Of note:** It is recommended to use the latest stable version of the package in
-combinaison with the latest PHP version.
+combination with the latest PHP version.
 
 ## Composer
 

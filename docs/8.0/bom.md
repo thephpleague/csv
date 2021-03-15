@@ -98,7 +98,7 @@ In the examples below we will be using an existing CSV as a starting point. The 
 
 ### MS Excel on Windows
 
-On Windows, MS Excel, expects an UTF-8 encoded CSV with its corresponding `BOM` character. To fullfill this requirement, you simply need to add the `UTF-8` `BOM` character if needed as explained below:
+On Windows, MS Excel, expects an UTF-8 encoded CSV with its corresponding `BOM` character. To fulfill this requirement, you simply need to add the `UTF-8` `BOM` character if needed as explained below:
 
 ~~~php
 <?php
@@ -155,4 +155,4 @@ $csv->output('mycsvfile.csv');
 
 Of note, we used the [filtering capability](/8.0/filtering) of the library to convert the CSV encoding character from `UTF-8` to `UTF-16 LE`.
 
-You can found the code and the associated filter class in the [examples directory](https://github.com/thephpleague/csv/tree/8.2.3/examples).
+You can find the code, and the associated filter class in the [examples directory](https://github.com/thephpleague/csv/tree/8.2.3/examples).
