@@ -55,7 +55,7 @@ use League\Csv\Exception;
 use League\Csv\Writer;
 
 try {
-    $csv = Writer::createFromFileObject(new SplFileObject('php://output', 'w');
+    $csv = Writer::createFromFileObject(new SplFileObject('php://output', 'w'));
     $csv->setNewline("\r\n");
     $csv->insertOne(["foo", "bar"]);
 } catch (Exception | RuntimeException $e) {
