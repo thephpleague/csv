@@ -55,7 +55,7 @@ $flags = $csv->getFlags(); //returns an integer
 
 <p class="message-notice">Since version <code>7.0.1</code>, the <code>setFlags</code> method has been fixed to prevent a <a href="https://bugs.php.net/bug.php?id=69181" target="_blank">bug in SplFileObject</a>.</p>
 
-<p class="message-notice">Since version <code>7.2.0</code>, the flags on instantiaton are have been changed to correct a bug when parsing row cells with multiple lines</p>
+<p class="message-notice">Since version <code>7.2.0</code>, the flags on instantiation are have been changed to correct a bug when parsing row cells with multiple lines</p>
 
 - On instantiation the flags set are :
     - `SplFileObject::READ_CSV`
@@ -134,10 +134,10 @@ $delimiters_list = $reader->detectDelimiterList(10, [' ', '|']);
 The more rows and delimiters you add, the more time and memory consuming the operation will be. The method returns an `array` of the delimiters found.
 
 * If a single delimiter is found the array will contain only one delimiter;
-* If multiple delimiters are found the array will contain the found delimiters sorted descendingly according to their occurences in the defined rows set;
+* If multiple delimiters are found the array will contain the found delimiters sorted descendingly according to their occurrences in the defined rows set;
 * If no delimiter is found or your CSV is composed of a single column, the array will be empty;
 
-<p class="message-warning"><strong>BC Break:</strong> Starting with version <code>7.0</code>, the index of each found delimiter represents the occurence of the found delimiter in the selected rows.</p>
+<p class="message-warning"><strong>BC Break:</strong> Starting with version <code>7.0</code>, the index of each found delimiter represents the occurrences of the found delimiter in the selected rows.</p>
 
 Whenever a user creates a new CSV object using the `newWriter` or the `newReader` methods, the current CSV object properties are copied to the new instance.
 
@@ -181,7 +181,7 @@ $bom = $csv->getOutputBOM(); //returns "\xEF\xBB\xBF"
 ~~~
 The default output `BOM` character is set to `null`.
 
-<p class="message-info">Please refer to <a href="/7.0/bom/">the BOM character dedicated documentation page</a> for more informations on how the library helps you manage this feature.</p>
+<p class="message-info">Please refer to <a href="/7.0/bom/">the BOM character dedicated documentation page</a> for more information on how the library helps you manage this feature.</p>
 
 ## Conversion only properties
 

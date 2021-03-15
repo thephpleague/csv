@@ -461,7 +461,7 @@ $csv = Reader::createFromPath('/path/to/file.csv', 'r');
 $dom = (new XMLConverter())->convert($csv); //$dom is a DOMDocument
 ~~~
 
-## Miscellanous
+## Miscellaneous
 
 ### Switching between connections
 

@@ -42,7 +42,7 @@ If you wish to remove the BOM character while processing your data, you can rely
 This method will manage the addition of a BOM character in front of your outputted CSV when you are:
 
 - downloading a file using the `output` method
-- ouputting the CSV directly using the `__toString()` method
+- outputting the CSV directly using the `__toString()` method
 
 `$bom` is a string representing the BOM character. To remove the `BOM` character just set `$bom` to an empty value like `null` or an empty string.
 
@@ -75,7 +75,7 @@ In the examples below we will be using an existing CSV as a starting point. The 
 
 ### MS Excel on Windows
 
-On Windows, MS Excel, expects an UTF-8 encoded CSV with its corresponding `BOM` character. To fullfill this requirement, you simply need to add the `UTF-8` `BOM` character if needed as explained below:
+On Windows, MS Excel, expects an UTF-8 encoded CSV with its corresponding `BOM` character. To fulfill this requirement, you simply need to add the `UTF-8` `BOM` character if needed as explained below:
 
 ~~~php
 <?php

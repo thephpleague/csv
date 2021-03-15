@@ -172,7 +172,7 @@ function(array $record): bool
 
 The validator **must** return `true` to validate the submitted record.
 
-Any other expression, including thruthy ones like `yes`, `1`,... will make the `insertOne` method throw an `League\Csv\CannotInsertRecord`.
+Any other expression, including truthy ones like `yes`, `1`,... will make the `insertOne` method throw an `League\Csv\CannotInsertRecord`.
 
 #### Adding a Validator to a Writer object
 
@@ -183,7 +183,7 @@ As with the formatter capabilities, you can attach as many validators as you wan
 `Writer::addValidator` takes two (2) **required** parameters:
 
 - A validator `callable`;
-- A validator name. If another validator was already registered with the given name, it will be overriden.
+- A validator name. If another validator was already registered with the given name, it will be overridden.
 
 On failure a `League\Csv\CannotInsertRecord` exception is thrown.  
 This exception will give access to:

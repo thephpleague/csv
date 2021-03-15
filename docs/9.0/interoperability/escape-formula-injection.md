@@ -21,7 +21,7 @@ public function __invoke(array $record): array
 The `EscapeFormula::__construct` method takes two (2) arguments:
 
 - the `$escape` parameter which will be used to prepend the record field, which default to `\t`;
-- the `$special_chars` parameter which is an `array` with additionals characters that need to be escaped. By default the following characters if found at the start of any record field content will be escaped `+`,`-`,`=`,`@`;
+- the `$special_chars` parameter which is an `array` with additional characters that need to be escaped. By default the following characters if found at the start of any record field content will be escaped `+`,`-`,`=`,`@`;
 
 ~~~php
 use League\Csv\EscapeFormula;
@@ -37,7 +37,7 @@ $writer->getContent();
 
 ## Usage with PHP stream resources
 
-You can use the `EscapeFormula` to format your records before callng `fputcsv` or `SplFileObject::fputcsv`.
+You can use the `EscapeFormula` to format your records before calling `fputcsv` or `SplFileObject::fputcsv`.
 
 ~~~php
 use League\Csv\EscapeFormula;

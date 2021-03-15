@@ -62,7 +62,7 @@ $writer = Writer::createFromPath('/path/to/your/csv/file.csv');
 $writer->addFormatter($encoder);
 
 $writer->insertOne(["foo", "bébé", "jouet"]);
-//all 'utf-8' caracters are now automatically encoded into 'iso-8859-15' charset
+//all 'utf-8' characters are now automatically encoded into 'iso-8859-15' charset
 ~~~
 
 ## CharsetConverter as a PHP stream filter
@@ -91,7 +91,7 @@ $writer = Writer::createFromPath('/path/to/your/csv/file.csv');
 CharsetConverter::addTo($writer, 'utf8', 'iso-8859-15');
 
 $writer->insertOne(["foo", "bébé", "jouet"]);
-//all 'utf-8' caracters are now automatically encoded into 'iso-8859-15' charset
+//all 'utf-8' characters are now automatically encoded into 'iso-8859-15' charset
 ~~~
 
 ### Usage with PHP stream resources

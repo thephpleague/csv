@@ -39,7 +39,7 @@ We accept contributions via Pull Requests on [Github](https://github.com/thephpl
 - **Send coherent history** - Make sure each individual commit in your pull request is meaningful. If you had to make multiple intermediate commits while developing, please squash them before submitting.
 
 
-- **Run the test suite** - If you want your PR to be reviewed ASAP please consider runing this command before submitting it.
+- **Run the test suite** - If you want your PR to be reviewed ASAP please consider running this command before submitting it.
 
 ``` bash
 $ composer test
