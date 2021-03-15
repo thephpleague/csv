@@ -37,12 +37,12 @@ use const STREAM_FILTER_READ;
  */
 final class StreamTest extends TestCase
 {
-    public function setUp(): void
+    protected function setUp(): void
     {
         stream_wrapper_register(StreamWrapper::PROTOCOL, StreamWrapper::class);
     }
 
-    public function tearDown(): void
+    protected function tearDown(): void
     {
         stream_wrapper_unregister(StreamWrapper::PROTOCOL);
     }

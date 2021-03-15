@@ -30,12 +30,12 @@ final class WriterTest extends TestCase
     /** @var Writer */
     private $csv;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->csv = Writer::createFromFileObject(new SplTempFileObject());
     }
 
-    public function tearDown(): void
+    protected function tearDown(): void
     {
         $csv = new SplFileObject(__DIR__.'/../test_files/foo.csv', 'w');
         $csv->setCsvControl();
