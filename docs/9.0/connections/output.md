@@ -45,7 +45,7 @@ If the CSV document is not seekable a `Exception` or a `RuntimeException` may be
 ~~~php
 use League\Csv\Writer;
 
-$csv = Writer::createFromFileObject('php://output', 'w');
+$csv = Writer::createFromFileObject(new SplFileObject('php://output', 'w'));
 $csv->insertOne(['foo', 'bar']);
 echo $csv->toString();
 //throws an RuntimeException because the SplFileObject is not seekable
@@ -56,7 +56,7 @@ echo $csv->toString();
 ~~~php
 use League\Csv\Writer;
 
-$csv = Writer::createFromFileObject('php://output', 'w');
+$csv = Writer::createFromFileObject(new SplFileObject('php://output', 'w'));
 $csv->insertOne(['foo', 'bar']);
 echo $csv;
 echo $csv->getContent();
