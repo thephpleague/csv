@@ -48,7 +48,7 @@ final class ResultSetTest extends TestCase
         ['jane', 'doe', 'jane.doe@example.com'],
     ];
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $tmp = new SplTempFileObject();
         foreach ($this->expected as $row) {
@@ -59,7 +59,7 @@ final class ResultSetTest extends TestCase
         $this->stmt = Statement::create();
     }
 
-    public function tearDown(): void
+    protected function tearDown(): void
     {
         unset($this->csv, $this->stmt);
     }

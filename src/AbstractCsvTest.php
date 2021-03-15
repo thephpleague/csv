@@ -42,7 +42,7 @@ final class AbstractCsvTest extends TestCase
         ['jane', 'doe', 'jane.doe@example.com'],
     ];
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $tmp = new SplTempFileObject();
         foreach ($this->expected as $row) {
@@ -52,7 +52,7 @@ final class AbstractCsvTest extends TestCase
         $this->csv = Reader::createFromFileObject($tmp);
     }
 
-    public function tearDown(): void
+    protected function tearDown(): void
     {
         unset($this->csv);
         @unlink(__DIR__.'/../test_files/newline.csv');

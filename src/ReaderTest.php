@@ -19,7 +19,6 @@ use function count;
 use function fclose;
 use function fopen;
 use function fputcsv;
-use function in_array;
 use function iterator_to_array;
 use function json_encode;
 use function unlink;
@@ -39,7 +38,7 @@ final class ReaderTest extends TestCase
         ['jane', 'doe', 'jane.doe@example.com'],
     ];
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $tmp = new SplTempFileObject();
         foreach ($this->expected as $row) {
@@ -49,7 +48,7 @@ final class ReaderTest extends TestCase
         $this->csv = Reader::createFromFileObject($tmp);
     }
 
-    public function tearDown(): void
+    protected function tearDown(): void
     {
         unset($this->csv);
     }
@@ -124,7 +123,7 @@ EOF;
 
         $this->csv->setHeaderOffset(null);
         foreach ($this->csv->getRecords() as $record) {
-            self::assertTrue(in_array(count($record), [3, 4], true));
+            self::assertContains(count($record), [3, 4]);
         }
     }
 
