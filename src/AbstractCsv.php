@@ -33,12 +33,7 @@ use const FILTER_SANITIZE_STRING;
  */
 abstract class AbstractCsv implements ByteSequence
 {
-    /**
-     * The stream filter mode (read or write).
-     *
-     * @var int
-     */
-    protected $stream_filter_mode;
+    protected const STREAM_FILTER_MODE = STREAM_FILTER_READ;
 
     /**
      * collection of stream filters.
@@ -111,9 +106,7 @@ abstract class AbstractCsv implements ByteSequence
     /**
      * Reset dynamic object properties to improve performance.
      */
-    protected function resetProperties(): void
-    {
-    }
+    abstract protected function resetProperties(): void;
 
     /**
      * {@inheritdoc}
@@ -232,19 +225,49 @@ abstract class AbstractCsv implements ByteSequence
     }
 
     /**
+     * DEPRECATION WARNING! This method will be removed in the next major point release.
+     *
+     * @deprecated since version 9.7.0
+     * @see AbstractCsv::supportsStreamFilterOnRead
+     * @see AbstractCsv::supportsStreamFilterOnWrite
+     *
      * Returns the stream filter mode.
      */
     public function getStreamFilterMode(): int
     {
-        return $this->stream_filter_mode;
+        return static::STREAM_FILTER_MODE;
     }
 
     /**
+     * DEPRECATION WARNING! This method will be removed in the next major point release.
+     *
+     * @deprecated since version 9.7.0
+     * @see AbstractCsv::supportsStreamFilterOnRead
+     * @see AbstractCsv::supportsStreamFilterOnWrite
+     *
      * Tells whether the stream filter capabilities can be used.
      */
     public function supportsStreamFilter(): bool
     {
         return $this->document instanceof Stream;
+    }
+
+    /**
+     * Tells whether the stream filter read capabilities can be used.
+     */
+    public function supportsStreamFilterOnRead(): bool
+    {
+        return $this->document instanceof Stream
+            && ((static::STREAM_FILTER_MODE & STREAM_FILTER_READ) === STREAM_FILTER_READ);
+    }
+
+    /**
+     * Tells whether the stream filter write capabilities can be used.
+     */
+    public function supportsStreamFilterOnWrite(): bool
+    {
+        return $this->document instanceof Stream
+            && ((static::STREAM_FILTER_MODE & STREAM_FILTER_WRITE) === STREAM_FILTER_WRITE);
     }
 
     /**
@@ -510,7 +533,7 @@ abstract class AbstractCsv implements ByteSequence
             throw UnavailableFeature::dueToUnsupportedStreamFilterApi(get_class($this->document));
         }
 
-        $this->document->appendFilter($filtername, $this->stream_filter_mode, $params);
+        $this->document->appendFilter($filtername, self::STREAM_FILTER_MODE, $params);
         $this->stream_filters[$filtername] = true;
         $this->resetProperties();
         $this->input_bom = null;

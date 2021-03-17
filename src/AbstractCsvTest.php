@@ -246,10 +246,55 @@ EOF;
         self::assertSame($expected, $res);
     }
 
-    public function testStreamFilterMode(): void
+    /**
+     * @dataProvider provideCsvFilterTestingData
+     */
+    public function testStreamFilterMode(
+        AbstractCsv $csv,
+        int $filterMode,
+        bool $supportFilter,
+        bool $useFilterRead,
+        bool $useFilterWrite
+    ): void {
+        self::assertSame($filterMode, $csv->getStreamFilterMode());
+        self::assertSame($supportFilter, $csv->supportsStreamFilter());
+        self::assertSame($useFilterRead, $csv->supportsStreamFilterOnRead());
+        self::assertSame($useFilterWrite, $csv->supportsStreamFilterOnWrite());
+    }
+
+    public function provideCsvFilterTestingData(): iterable
     {
-        self::assertSame(STREAM_FILTER_READ, Reader::createFromString('')->getStreamFilterMode());
-        self::assertSame(STREAM_FILTER_WRITE, Writer::createFromString('')->getStreamFilterMode());
+        yield 'Reader with stream capability' => [
+            'csv' => Reader::createFromString(),
+            'filterMode' => STREAM_FILTER_READ,
+            'supportsFilter' => true,
+            'useFilterRead' => true,
+            'useFilterWrite' => false,
+        ];
+
+        yield 'Reader without stream capability' => [
+            'csv' => Reader::createFromFileObject(new SplTempFileObject()),
+            'filterMode' => STREAM_FILTER_READ,
+            'supportsFilter' => false,
+            'useFilterRead' => false,
+            'useFilterWrite' => false,
+        ];
+
+        yield 'Writer with stream capability' => [
+            'csv' => Writer::createFromString(),
+            'filterMode' => STREAM_FILTER_WRITE,
+            'supportsFilter' => true,
+            'useFilterRead' => false,
+            'useFilterWrite' => true,
+        ];
+
+        yield 'Writer without stream capability' => [
+            'csv' => Writer::createFromFileObject(new SplTempFileObject()),
+            'filterMode' => STREAM_FILTER_WRITE,
+            'supportsFilter' => false,
+            'useFilterRead' => false,
+            'useFilterWrite' => false,
+        ];
     }
 
     /**

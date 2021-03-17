@@ -39,6 +39,8 @@ use const STREAM_FILTER_READ;
  */
 class Reader extends AbstractCsv implements TabularDataReader, JsonSerializable
 {
+    protected const STREAM_FILTER_MODE = STREAM_FILTER_READ;
+
     /**
      * header offset.
      *
@@ -61,11 +63,6 @@ class Reader extends AbstractCsv implements TabularDataReader, JsonSerializable
     protected $nb_records = -1;
 
     /**
-     * {@inheritdoc}
-     */
-    protected $stream_filter_mode = STREAM_FILTER_READ;
-
-    /**
      * @var bool
      */
     protected $is_empty_records_included = false;
@@ -83,7 +80,6 @@ class Reader extends AbstractCsv implements TabularDataReader, JsonSerializable
      */
     protected function resetProperties(): void
     {
-        parent::resetProperties();
         $this->nb_records = -1;
         $this->header = [];
     }

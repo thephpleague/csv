@@ -13,13 +13,16 @@ All Notable changes to `Csv` will be documented in this file
 - `League\Csv\Info::fetchBOMSequence` to replace the namespace function `bom_match`
 - `League\Csv\AbstractCsv::toString` to replace `League\Csv\AbstractCsv::getContent` and `League\Csv\AbstractCsv::__toString`
 - `League\Csv\XMLConverter::create` to replace `League\Csv\XMLConverter::__construct`
-- `League\Csv\HTMLConverter::__create` to replace `League\Csv\HTMLConverter::__construct`
+- `League\Csv\HTMLConverter::create` to replace `League\Csv\HTMLConverter::__construct`
+- `League\Csv\AbstractCsv::supportsStreamFilterOnRead` and `League\Csv\AbstractCsv::supportsStreamFilterOnWrite` to replace `League\Csv\AbstractCsv::supportsStreamFilter` and `League\Csv\AbstractCsv::getStreamFilterMode`
 
 ### Deprecated
 
 - `League\Csv\delimiter_detect` use `League\Csv\Info::getDelimiterStats`
 - `League\Csv\bom_match` use `League\Csv\Info::fetchBOMSequence`
 - `League\Csv\AbstractCsv::getContent` use `League\Csv\AbstractCsv::toString`
+- `League\Csv\AbstractCsv::getStreamFilterMode` use `League\Csv\AbstractCsv::supportsStreamFilterOnRead` or `League\Csv\AbstractCsv::supportsStreamFilterOnWrite`
+- `League\Csv\AbstractCsv::supportsStreamFilter` use `League\Csv\AbstractCsv::supportsStreamFilterOnRead` or `League\Csv\AbstractCsv::supportsStreamFilterOnWrite`
 - Calling exceptions constructor, use named constructors instead.
 - `League\Csv\XMLConverter::__construct` use `League\Csv\XMLConverter::create`
 - `League\Csv\HTMLConverter::__construct` use `League\Csv\HTMLConverter::create`
@@ -29,10 +32,13 @@ All Notable changes to `Csv` will be documented in this file
 - Move tests into the `src` directory
 - Fixed encoder method resolver implementation 
 - all classes marked as `@internal` are now final
+- `League\Csv\AbstractCsv::STREAM_FILTER_MODE` constant replaces `League\Csv\AbstractCsv::$stream_filter_mode`
 
 ### Removed
 
 - None
+- `League\Csv\AbstractCsv::$stream_filter_mode`
+
 
 ## 9.6.2 - 2020-12-10
 

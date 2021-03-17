@@ -9,6 +9,33 @@ To ease performing operations on the CSV document as it is being read from or wr
 
 ## Detecting stream filter support
 
+<p class="message-notice">Since version <code>9.7.0</code> the detection mechanism is simplified</p>
+
+The following methods are added:
+
+- `supportsStreamFilterOnRead` tells whether the stream filter API on reading mode is supported by the CSV object;
+- `supportsStreamFilterOnWrite` tells whether the stream filter API on writing mode is supported by the CSV object;
+
+~~~php
+public AbstractCsv::supportsStreamFilterOnRead(void): bool
+public AbstractCsv::supportsStreamFilterOnWrite(void): bool
+~~~
+
+~~~php
+use League\Csv\Reader;
+use League\Csv\Writer;
+
+$reader = Reader::createFromPath('/path/to/my/file.csv', 'r');
+$reader->supportsStreamFilterOnRead(); //return true
+$reader->supportsStreamFilterOnWrite(); //return false
+
+$writer = Writer::createFromFileObject(new SplTempFileObject());
+$writer->supportsStreamFilterOnRead(); // returns false, the API can not be used
+$writer->supportsStreamFilterOnWrite(); // returns false, the API can not be used
+~~~
+
+<p class="message-notice">The following methods still work but are deprecated since version <code>9.7.0</code></p>
+
 ~~~php
 public AbstractCsv::supportsStreamFilter(void): bool
 public AbstractCsv::getStreamFilterMode(void): int
@@ -74,7 +101,7 @@ stream_filter_register('convert.utf8decode', Transcode::class);
 // 'MyLib\Transcode' is a class that extends PHP's php_user_filter class
 
 $reader = Reader::createFromPath('/path/to/my/chinese.csv', 'r');
-if ($reader->supportsStreamFilter()) {
+if ($reader->supportsStreamFilterOnRead()) {
 	$reader->addStreamFilter('convert.utf8decode');
 	$reader->addStreamFilter('string.toupper');
 }
