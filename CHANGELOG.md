@@ -2,6 +2,24 @@
 
 All Notable changes to `Csv` will be documented in this file
 
+## Next - TBD
+
+### Added
+
+- None
+
+### Deprecated
+
+- None
+
+### Fixed
+
+- None
+
+### Removed
+
+- None
+
 ## 9.7.0 - 2021-03-26
 
 ### Added
@@ -36,7 +54,7 @@ All Notable changes to `Csv` will be documented in this file
 
 ### Removed
 
-- None
+- PHP7.2 support
 - `League\Csv\AbstractCsv::$stream_filter_mode`
 
 
