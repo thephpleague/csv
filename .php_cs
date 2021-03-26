@@ -24,6 +24,11 @@ return PhpCsFixer\Config::create()
             'location' => 'after_open',
             'separate' => 'both',
         ],
+        'global_namespace_import' => [
+            'import_classes' => true,
+            'import_constants' => true,
+            'import_functions' => true,
+        ],
         'new_with_braces' => true,
         'no_blank_lines_after_phpdoc' => true,
         'no_empty_phpdoc' => true,
