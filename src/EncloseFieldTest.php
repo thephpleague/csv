@@ -50,7 +50,16 @@ final class EncloseFieldTest extends TestCase
         EncloseField::addTo($csv, "\t\x1f");
         self::assertContains(EncloseField::getFiltername(), stream_get_filters());
         $csv->insertAll($this->records);
-        self::assertStringContainsString('"Grand Cherokee"', $csv->getContent());
+        $expected = <<<CSV
+"Year"|"Make"|"Model"|"Description"|"Price"
+"1997"|"Ford"|"E350"|"ac,abs,moon"|"3000.00"
+"1999"|"Chevy"|"Venture ""Extended Edition"""|""|"4900.00"
+"1999"|"Chevy"|"Venture ""Extended Edition, Very Large"""|""|"5000.00"
+"1996"|"Jeep"|"Grand Cherokee"|"MUST SELL!
+        air, moon roof, loaded"|"4799.00"
+
+CSV;
+        self::assertStringContainsString($expected, $csv->toString());
     }
 
     /**

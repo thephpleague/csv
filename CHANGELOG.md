@@ -14,7 +14,7 @@ All Notable changes to `Csv` will be documented in this file
 
 ### Fixed
 
-- None
+- fix writer filter [#421](https://github.com/thephpleague/csv/pull/421) by [LosingBattle](https://github.com/cpj555)
 
 ### Removed
 
