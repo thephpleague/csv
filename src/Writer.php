@@ -142,6 +142,7 @@ class Writer extends AbstractCsv
 
         $record = array_reduce($this->formatters, [$this, 'formatRecord'], $record);
         $this->validateRecord($record);
+        $record = $this->smoothIndex($record);
         $bytes = $this->$method($record);
         if (false === $bytes || 0 >= $bytes) {
             throw CannotInsertRecord::triggerOnInsertion($record);
@@ -229,6 +230,21 @@ class Writer extends AbstractCsv
                 throw CannotInsertRecord::triggerOnValidation($name, $record);
             }
         }
+    }
+
+    /**
+     * Fill array taking care of key index.
+     * 
+     * If array keys does folow each, create an empty field to save csv respective column.
+     * 
+     * @return Array $record : array with generated index.
+     * @return Array $record : the provided one if empty.
+     */
+    protected function smoothIndex(array $record): array
+    {
+        if (0 === count($record)) return $record;
+        else $record = array_replace(array_map(function($v): string {return '';}, range(0, max(array_keys($record)))), $record);
+        return $record;
     }
 
     /**

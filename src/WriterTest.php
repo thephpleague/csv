@@ -300,4 +300,23 @@ final class WriterTest extends TestCase
             ],
         ];
     }
+    
+    /**
+     * @cover :: insertOne
+     * @cover :: smoothIndex
+     */
+    public function testInsertDistantIndex(): void
+    {
+        $expected = [
+            ['Name', 'age', 'pets', 'job'],
+            [0 => 'Mike', 27, 3=>'Cook'],
+            [0 => 'John Doe', 33,'cat', 3=>'Engineer', ],
+        ];
+        foreach ($expected as $row) {
+            $this->csv->insertOne($row);
+        }
+        self::assertStringContainsString('Name,age,pets,job', $this->csv->toString());
+        self::assertStringContainsString('Mike,27,,Cook', $this->csv->toString());
+        self::assertStringContainsString('"John Doe",33,cat,Engineer', $this->csv->toString());
+    }
 }
