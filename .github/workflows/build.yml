@@ -6,21 +6,32 @@ on:
 
 jobs:
     phpunit:
-        name: PHPUnit tests on ${{ matrix.php }} ${{ matrix.composer-flags }}
-        runs-on: ubuntu-18.04
+        name: PHP on ${{ matrix.php }} - ${{ matrix.stability }} - ${{ matrix.composer-flags }}
+        runs-on: ubuntu-20.04
         strategy:
             matrix:
                 php: ['7.3', '7.4', '8.0']
+                stability: [prefer-lowest, prefer-stable]
+                include:
+                    -   php: '8.1'
+                        flags: "--ignore-platform-req=php"
+                        stability: prefer-stable
                 composer-flags: [ '' ]
                 phpunit-flags: [ '--coverage-text' ]
         steps:
-            - uses: actions/checkout@v2
-            - uses: shivammathur/setup-php@v2
+            - name: Checkout code
+              uses: actions/checkout@v2
+
+            - name: Setup PHP
+              uses: shivammathur/setup-php@v2
               with:
                   php-version: ${{ matrix.php }}
                   coverage: xdebug
                   tools: composer:v2
-            - run: composer update --no-progress ${{ matrix.composer-flags }}
+
+            - name: Install dependencies
+              run: composer update --no-progress ${{ matrix.composer-flags }}
+
             - run: composer phpunit
             - run: composer phpstan
               if: ${{ matrix.php == '8.0' }}
