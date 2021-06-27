@@ -39,18 +39,6 @@ class CharsetConverter extends php_user_filter
     const FILTERNAME = 'convert.league.csv';
 
     /**
-     * the filter name used to instantiate the class with.
-     *
-     * @var string
-     */
-    public $filtername;
-
-    /**
-     * @var mixed value passed to passed to stream_filter_append or stream_filter_prepend functions.
-     */
-    public $params;
-
-    /**
      * The records input encoding charset.
      *
      * @var string
