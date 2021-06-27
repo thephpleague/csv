@@ -5,7 +5,7 @@ on:
     pull_request: ~
 
 jobs:
-    phpunit:
+    linux_tests:
         name: PHP on ${{ matrix.php }} - ${{ matrix.stability }} - ${{ matrix.composer-flags }}
         runs-on: ubuntu-20.04
         strategy:
