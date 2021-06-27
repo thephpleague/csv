@@ -100,9 +100,8 @@ class Writer extends AbstractCsv
     /**
      * Get the flush threshold.
      *
-     * @return int|null
      */
-    public function getFlushThreshold()
+    public function getFlushThreshold(): ?int
     {
         return $this->flush_threshold;
     }
@@ -159,6 +158,10 @@ class Writer extends AbstractCsv
      */
     protected function addRecord(array $record)
     {
+        if (80100 <= PHP_VERSION_ID) {
+            return $this->document->fputcsv($record, $this->delimiter, $this->enclosure, $this->escape, $this->newline);
+        }
+
         return $this->document->fputcsv($record, $this->delimiter, $this->enclosure, $this->escape);
     }
 
@@ -201,7 +204,12 @@ class Writer extends AbstractCsv
         }
         unset($field);
 
-        return $this->document->fwrite(implode($this->delimiter, $record)."\n");
+        $newline = "\n";
+        if (80100 <= PHP_VERSION_ID) {
+            $newline = $this->newline;
+        }
+
+        return $this->document->fwrite(implode($this->delimiter, $record).$newline);
     }
 
     /**
@@ -237,7 +245,7 @@ class Writer extends AbstractCsv
     protected function consolidate(): int
     {
         $bytes = 0;
-        if ("\n" !== $this->newline) {
+        if (80100 > PHP_VERSION_ID && "\n" !== $this->newline) {
             $this->document->fseek(-1, SEEK_CUR);
             /** @var int $newlineBytes */
             $newlineBytes = $this->document->fwrite($this->newline, strlen($this->newline));
