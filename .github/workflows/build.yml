@@ -30,7 +30,7 @@ jobs:
                   tools: composer:v2
 
             - name: Install dependencies
-              run: composer update --no-progress ${{ matrix.composer-flags }}
+              run: composer update --${{ matrix.stability }} --prefer-dist --no-interaction --no-progress ${{ matrix.flags }}
 
             - run: composer phpunit
             - run: composer phpstan
