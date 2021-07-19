@@ -35,9 +35,9 @@
         "ext-dom": "*",
         "friendsofphp/php-cs-fixer": "^2.19",
         "phpunit/phpunit" : "^9.5",
-        "phpstan/phpstan": "^0.12.90",
-        "phpstan/phpstan-strict-rules": "^0.12.9",
-        "phpstan/phpstan-phpunit": "^0.12.20"
+        "phpstan/phpstan": "^0.12.92",
+        "phpstan/phpstan-strict-rules": "^0.12.10",
+        "phpstan/phpstan-phpunit": "^0.12.21"
     },
     "autoload": {
         "psr-4": {
