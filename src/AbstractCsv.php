@@ -26,7 +26,7 @@ use function strcspn;
 use function strlen;
 use const FILTER_FLAG_STRIP_HIGH;
 use const FILTER_FLAG_STRIP_LOW;
-use const FILTER_SANITIZE_STRING;
+use const FILTER_UNSAFE_RAW;
 
 /**
  * An abstract class to enable CSV document loading.
@@ -398,7 +398,7 @@ abstract class AbstractCsv implements ByteSequence
         }
 
         /** @var string $filtered_name */
-        $filtered_name = filter_var($filename, FILTER_SANITIZE_STRING, $flag);
+        $filtered_name = filter_var($filename, FILTER_UNSAFE_RAW, $flag);
         $filename_fallback = str_replace('%', '', $filtered_name);
 
         $disposition = sprintf('attachment; filename="%s"', str_replace('"', '\\"', $filename_fallback));
