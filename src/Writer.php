@@ -158,11 +158,11 @@ class Writer extends AbstractCsv
      */
     protected function addRecord(array $record)
     {
-        if (80100 <= PHP_VERSION_ID) {
-            return $this->document->fputcsv($record, $this->delimiter, $this->enclosure, $this->escape, $this->newline);
+        if (PHP_VERSION_ID < 80100) {
+            return $this->document->fputcsv($record, $this->delimiter, $this->enclosure, $this->escape);
         }
 
-        return $this->document->fputcsv($record, $this->delimiter, $this->enclosure, $this->escape);
+        return $this->document->fputcsv($record, $this->delimiter, $this->enclosure, $this->escape, $this->newline);
     }
 
     /**
@@ -204,9 +204,9 @@ class Writer extends AbstractCsv
         }
         unset($field);
 
-        $newline = "\n";
-        if (80100 <= PHP_VERSION_ID) {
-            $newline = $this->newline;
+        $newline = $this->newline;
+        if (PHP_VERSION_ID < 80100) {
+            $newline = "\n";
         }
 
         return $this->document->fwrite(implode($this->delimiter, $record).$newline);

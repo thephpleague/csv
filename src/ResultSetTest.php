@@ -12,17 +12,13 @@
 namespace League\Csv;
 
 use Generator;
-use OutOfBoundsException;
 use PHPUnit\Framework\TestCase;
 use SplTempFileObject;
-use function array_reverse;
 use function current;
 use function in_array;
 use function iterator_to_array;
 use function json_encode;
 use function next;
-use function strcmp;
-use function strlen;
 
 /**
  * @group reader
@@ -65,29 +61,6 @@ final class ResultSetTest extends TestCase
     }
 
     /**
-     * @covers \League\Csv\Statement::filter
-     * @covers \League\Csv\Statement::process
-     * @covers \League\Csv\Statement::limit
-     * @covers ::getIterator
-     */
-    public function testSetLimit(): void
-    {
-        self::assertCount(1, $this->stmt->limit(1)->process($this->csv));
-    }
-
-    /**
-     * @covers \League\Csv\Statement::offset
-     * @covers \League\Csv\InvalidArgument::dueToInvalidRecordOffset
-     */
-    public function testSetOffsetThrowsException(): void
-    {
-        $this->expectException(InvalidArgument::class);
-
-        $this->stmt->offset(-1);
-    }
-
-
-    /**
      * @covers \League\Csv\Statement::process
      * @covers \League\Csv\Statement::buildOrderBy
      * @covers ::count
@@ -101,92 +74,8 @@ final class ResultSetTest extends TestCase
     }
 
     /**
-     * @covers \League\Csv\Statement::limit
-     * @covers \League\Csv\Statement::offset
-     */
-    public function testStatementSameInstance(): void
-    {
-        $stmt_alt = $this->stmt->limit(-1)->offset(0);
-
-        self::assertSame($stmt_alt, $this->stmt);
-    }
-
-    /**
-     * @covers \League\Csv\Statement::limit
-     * @covers \League\Csv\InvalidArgument::dueToInvalidLimit
-     */
-    public function testSetLimitThrowException(): void
-    {
-        $this->expectException(InvalidArgument::class);
-
-        $this->stmt->limit(-4);
-    }
-
-    /**
-     * @covers \League\Csv\Statement::offset
-     * @covers ::__construct
-     */
-    public function testSetOffset(): void
-    {
-        self::assertContains(
-            ['jane', 'doe', 'jane.doe@example.com'],
-            $this->stmt->offset(1)->process($this->csv)
-        );
-    }
-
-    /**
-     * @covers \League\Csv\Statement::limit
-     * @covers \League\Csv\Statement::offset
-     * @covers \League\Csv\Statement::process
-     * @covers \League\Csv\Statement::filter
-     *
-     * @dataProvider intervalTest
-     */
-    public function testInterval(int $offset, int $limit): void
-    {
-        self::assertContains(
-            ['jane', 'doe', 'jane.doe@example.com'],
-            $this->stmt
-                ->offset($offset)
-                ->limit($limit)
-                ->where(function (array $record): bool {
-                    return true;
-                })
-                ->where(function (array $record): bool {
-                    return [] !== $record;
-                })
-                ->process($this->csv)
-        );
-    }
-
-    public function intervalTest(): array
-    {
-        return [
-            'tooHigh' => [1, 10],
-            'normal' => [1, 1],
-        ];
-    }
-
-    /**
-     * @covers \League\Csv\Statement::limit
-     * @covers \League\Csv\Statement::offset
-     * @covers \League\Csv\Statement::process
-     */
-    public function testIntervalThrowException(): void
-    {
-        $this->expectException(OutOfBoundsException::class);
-        iterator_to_array($this->stmt
-            ->offset(1)
-            ->limit(0)
-            ->process($this->csv));
-    }
-
-    /**
-     * @covers \League\Csv\Statement::where
-     * @covers \League\Csv\Statement::create
-     * @covers \League\Csv\Statement::process
-     * @covers \League\Csv\ResultSet::combineHeader
-     * @covers \League\Csv\ResultSet::getRecords
+     * @covers ::combineHeader
+     * @covers ::getRecords
      */
     public function testFilter(): void
     {
@@ -211,37 +100,6 @@ final class ResultSetTest extends TestCase
 
         self::assertCount(0, $result2);
         self::assertEquals($result3, $result2);
-    }
-
-    /**
-     * @covers \League\Csv\Statement::orderBy
-     * @covers \League\Csv\Statement::buildOrderBy
-     */
-    public function testOrderBy(): void
-    {
-        $func = function (array $rowA, array $rowB): int {
-            return strcmp($rowA[0], $rowB[0]);
-        };
-        self::assertSame(
-            array_reverse($this->expected),
-            iterator_to_array($this->stmt->orderBy($func)->process($this->csv), false)
-        );
-    }
-
-    /**
-     * @covers \League\Csv\Statement::orderBy
-     * @covers \League\Csv\Statement::buildOrderBy
-     */
-    public function testOrderByWithEquity(): void
-    {
-        $func = function (array $rowA, array $rowB): int {
-            return strlen($rowA[0]) <=> strlen($rowB[0]);
-        };
-
-        self::assertSame(
-            $this->expected,
-            iterator_to_array($this->stmt->orderBy($func)->process($this->csv), false)
-        );
     }
 
     /**
