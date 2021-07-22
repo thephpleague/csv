@@ -33,14 +33,14 @@ class Writer extends AbstractCsv
     /**
      * callable collection to format the record before insertion.
      *
-     * @var callable[]
+     * @var array<callable>
      */
     protected $formatters = [];
 
     /**
      * callable collection to validate the record before insertion.
      *
-     * @var callable[]
+     * @var array<callable>
      */
     protected $validators = [];
 

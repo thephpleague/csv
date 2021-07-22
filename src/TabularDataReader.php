@@ -48,7 +48,7 @@ interface TabularDataReader extends Countable, IteratorAggregate
      * The header must contains unique string or is an empty array
      * if no header was specified.
      *
-     * @return string[]
+     * @return array<string>
      */
     public function getHeader(): array;
 
@@ -64,7 +64,7 @@ interface TabularDataReader extends Countable, IteratorAggregate
      * filled with null values while extra record fields are strip from
      * the returned object.
      *
-     * @param string[] $header an optional header to use instead of the CSV document header
+     * @param array<string> $header an optional header to use instead of the CSV document header
      */
     public function getRecords(array $header = []): Iterator;
 

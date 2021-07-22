@@ -51,7 +51,7 @@ class Reader extends AbstractCsv implements TabularDataReader, JsonSerializable
     /**
      * header record.
      *
-     * @var string[]
+     * @var array<string>
      */
     protected $header = [];
 

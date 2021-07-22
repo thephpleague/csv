@@ -37,9 +37,7 @@ class HTMLConverter
      */
     protected $id_value = '';
 
-    /**
-     * @var XMLConverter
-     */
+    /** @var XMLConverter */
     protected $xml_converter;
 
     public static function create(): self
