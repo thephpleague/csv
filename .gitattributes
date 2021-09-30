@@ -5,11 +5,9 @@
 /.github            export-ignore
 /.gitignore         export-ignore
 /.php_cs            export-ignore
-/docs               export-ignore
 /build              export-ignore
 /test_files         export-ignore
 /phpstan.neon       export-ignore
 /phpunit.xml        export-ignore
 /CONDUCT.md         export-ignore
-/README.md          export-ignore
 /**/*Test.php       export-ignore
