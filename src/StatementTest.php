@@ -83,7 +83,6 @@ final class StatementTest extends TestCase
 
     /**
      * @covers ::offset
-     * @covers ::__construct
      */
     public function testSetOffset(): void
     {

@@ -2,6 +2,27 @@
 
 All Notable changes to `Csv` will be documented in this file
 
+## 9.7.2 - 2021-10-05
+
+### Added
+
+- None
+
+### Deprecated
+
+- None
+
+### Fixed
+
+- Update dependencies requirement for development
+- PHP8.1 compliance: replace `FILTER_SANITIZE_STRING` by `FILTER_UNSAFE_RAW` 
+- PHP8.1 compliance: remove duplicated public properties declaration
+- PHP8.1 compliance: add support for fputcsv `$eol` argument
+
+### Removed
+
+- None
+
 ## 9.7.1 - 2021-04-17
 
 ### Added
