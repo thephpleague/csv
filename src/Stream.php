@@ -321,6 +321,7 @@ final class Stream implements SeekableIterator
      *
      * @return int
      */
+    #[\ReturnTypeWillChange]
     public function key()
     {
         return $this->offset;
@@ -365,6 +366,7 @@ final class Stream implements SeekableIterator
      *
      * @return bool
      */
+    #[\ReturnTypeWillChange]
     public function valid()
     {
         if (0 !== ($this->flags & SplFileObject::READ_AHEAD)) {
@@ -381,6 +383,7 @@ final class Stream implements SeekableIterator
      *
      * @return mixed The value of the current element.
      */
+    #[\ReturnTypeWillChange]
     public function current()
     {
         if (false !== $this->value) {
