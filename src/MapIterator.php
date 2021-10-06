@@ -42,6 +42,7 @@ final class MapIterator extends IteratorIterator
     /**
      * @return mixed The value of the current element.
      */
+    #[\ReturnTypeWillChange]
     public function current()
     {
         return ($this->callable)(parent::current(), parent::key());
