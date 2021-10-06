@@ -13,6 +13,7 @@ declare(strict_types=1);
 
 namespace League\Csv;
 
+use ReturnTypeWillChange;
 use SeekableIterator;
 use SplFileObject;
 use TypeError;
@@ -318,11 +319,8 @@ final class Stream implements SeekableIterator
      * Get line number.
      *
      * @see http://php.net/manual/en/SplFileObject.key.php
-     *
-     * @return int
      */
-    #[\ReturnTypeWillChange]
-    public function key()
+    public function key(): int
     {
         return $this->offset;
     }
@@ -363,11 +361,8 @@ final class Stream implements SeekableIterator
      * Not at EOF.
      *
      * @see http://php.net/manual/en/SplFileObject.valid.php
-     *
-     * @return bool
      */
-    #[\ReturnTypeWillChange]
-    public function valid()
+    public function valid(): bool
     {
         if (0 !== ($this->flags & SplFileObject::READ_AHEAD)) {
             return $this->current() !== false;
@@ -383,7 +378,7 @@ final class Stream implements SeekableIterator
      *
      * @return mixed The value of the current element.
      */
-    #[\ReturnTypeWillChange]
+    #[ReturnTypeWillChange]
     public function current()
     {
         if (false !== $this->value) {

@@ -14,6 +14,7 @@ declare(strict_types=1);
 namespace League\Csv;
 
 use IteratorIterator;
+use ReturnTypeWillChange;
 use Traversable;
 
 /**
@@ -42,7 +43,7 @@ final class MapIterator extends IteratorIterator
     /**
      * @return mixed The value of the current element.
      */
-    #[\ReturnTypeWillChange]
+    #[ReturnTypeWillChange]
     public function current()
     {
         return ($this->callable)(parent::current(), parent::key());
