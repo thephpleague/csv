@@ -1,0 +1,16 @@
+default: true
+line-length: false
+no-inline-html: false # Ignore for fontawesome usage
+
+single-title:
+  front_matter_title: '' # Ignore Jekyll titles as headers
+heading-style:
+  style: atx
+
+ul-style:
+  style: dash
+
+code-block-style:
+  style: fenced
+code-fence-style:
+  style: backtick
