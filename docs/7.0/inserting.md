@@ -209,4 +209,3 @@ echo $writer; // displays "one,two\r\n";
 ~~~
 
 <p class="message-info">Please refer to <a href="/7.0/bom/">the BOM character dedicated documentation page</a> for more information on how the library manage the BOM character.</p>
-

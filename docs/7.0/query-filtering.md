@@ -9,10 +9,10 @@ title: Query Filtering
 
 You can restrict [extract methods](/7.0/reading/) and [conversion methods](/7.0/converting/) output by setting query options. To set those options you will need to use the methods described below. But keep in mind that:
 
-* The query options methods are all chainable *except when they have to return a boolean*;
-* The query options methods can be call in any sort of order before any extract/conversion method;
-* After an extract/conversion method call, all query options are cleared;
-* The optional extract method callable function is called after all query options have been applied;
+- The query options methods are all chainable *except when they have to return a boolean*;
+- The query options methods can be call in any sort of order before any extract/conversion method;
+- After an extract/conversion method call, all query options are cleared;
+- The optional extract method callable function is called after all query options have been applied;
 
 <p class="message-info">The options methods are described in the same order as they are applied on the CSV iterator. The order is similar to one found in SQL statement construct.</p>
 
@@ -40,9 +40,9 @@ The filtering options **are the first settings applied to the CSV before anythin
 
 The `addFilter` method adds a callable filter function each time it is called. The function can take up to three parameters:
 
-* the current csv row data;
-* the current csv key;
-* the current csv iterator object;
+- the current csv row data;
+- the current csv key;
+- the current csv iterator object;
 
 ### removeFilter(callable $callable)
 

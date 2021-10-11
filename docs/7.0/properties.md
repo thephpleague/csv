@@ -17,6 +17,7 @@ Once your object is [instantiated](/7.0/instantiation/) you can optionally set s
 $csv->setDelimiter(';');
 $delimiter = $csv->getDelimiter(); //returns ";"
 ~~~
+
 The default delimiter character is `,`.
 
 ### The enclosure character
@@ -27,6 +28,7 @@ The default delimiter character is `,`.
 $csv->setEnclosure('|');
 $enclosure = $csv->getEnclosure(); //returns "|"
 ~~~
+
 The default enclosure character is `"`.
 
 ### The escape character
@@ -40,6 +42,7 @@ A possible workaround to this issue while waiting for a PHP bug fix is to <a hre
 $csv->setEscape('\\');
 $escape = $csv->getEscape(); //returns "\"
 ~~~
+
 The default escape character is `\`.
 
 ### The SplFileObject flags
@@ -58,9 +61,9 @@ $flags = $csv->getFlags(); //returns an integer
 <p class="message-notice">Since version <code>7.2.0</code>, the flags on instantiation are have been changed to correct a bug when parsing row cells with multiple lines</p>
 
 - On instantiation the flags set are :
-    - `SplFileObject::READ_CSV`
-    - `SplFileObject::READ_AHEAD`
-    - `SplFileObject::SKIP_EMPTY`
+  - `SplFileObject::READ_CSV`
+  - `SplFileObject::READ_AHEAD`
+  - `SplFileObject::SKIP_EMPTY`
 
 - On update you can add or remove any `SplFileObject` flags except for the `SplFileObject::READ_CSV` flag.
 
@@ -72,8 +75,8 @@ $flags = $csv->getFlags(); //returns an integer
 
 The method takes two arguments:
 
-* an array containing the delimiters to check;
-* an integer which represents the number of rows to scan (default to `1`);
+- an array containing the delimiters to check;
+- an integer which represents the number of rows to scan (default to `1`);
 
 ~~~php
 <?php
@@ -108,8 +111,8 @@ If you are no sure about the delimiter you can ask the library to detect it for 
 
 The method takes two arguments:
 
-* the number of rows to scan (default to `1`);
-* the possible delimiters to check (you don't need to specify the following delimiters as they are already checked by the method: `",", ";", "\t"`);
+- the number of rows to scan (default to `1`);
+- the possible delimiters to check (you don't need to specify the following delimiters as they are already checked by the method: `",", ";", "\t"`);
 
 ~~~php
 <?php
@@ -133,9 +136,9 @@ $delimiters_list = $reader->detectDelimiterList(10, [' ', '|']);
 
 The more rows and delimiters you add, the more time and memory consuming the operation will be. The method returns an `array` of the delimiters found.
 
-* If a single delimiter is found the array will contain only one delimiter;
-* If multiple delimiters are found the array will contain the found delimiters sorted descendingly according to their occurrences in the defined rows set;
-* If no delimiter is found or your CSV is composed of a single column, the array will be empty;
+- If a single delimiter is found the array will contain only one delimiter;
+- If multiple delimiters are found the array will contain the found delimiters sorted descendingly according to their occurrences in the defined rows set;
+- If no delimiter is found or your CSV is composed of a single column, the array will be empty;
 
 <p class="message-warning"><strong>BC Break:</strong> Starting with version <code>7.0</code>, the index of each found delimiter represents the occurrences of the found delimiter in the selected rows.</p>
 
@@ -155,6 +158,7 @@ The newline sequence is appended to each CSV newly inserted line. To improve int
 $csv->setNewline("\r\n");
 $newline = $csv->getNewline(); //returns "\r\n"
 ~~~
+
 The default newline sequence is `\n`;
 
 <p class="message-notice">Since version 7.0, the <code>$newline</code> getter and setter methods are also available on the <code>Reader</code> class.</p>
@@ -179,6 +183,7 @@ You can of course set the outputting BOM you want your CSV to be associated with
 $csv->setOutputBOM(Reader::BOM_UTF8);
 $bom = $csv->getOutputBOM(); //returns "\xEF\xBB\xBF"
 ~~~
+
 The default output `BOM` character is set to `null`.
 
 <p class="message-info">Please refer to <a href="/7.0/bom/">the BOM character dedicated documentation page</a> for more information on how the library helps you manage this feature.</p>

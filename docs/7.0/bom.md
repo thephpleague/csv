@@ -9,11 +9,11 @@ title: CSV and BOM character
 
 To improve interoperability with programs interacting with CSV, you can now manage the presence of a <abbr title="Byte Order Mark">BOM</abbr> character in your CSV content. <a href="http://en.wikipedia.org/wiki/Endianness" target="_blank">The character signals the endianness</a> of the CSV and its value depends on the CSV encoding character. To help you work with `BOM`, we are adding the following constants to the `Reader` and the `Writer` class:
 
-* `BOM_UTF8` : `UTF-8` `BOM`;
-* `BOM_UTF16_BE` : `UTF-16` `BOM` with Big-Endian;
-* `BOM_UTF16_LE` : `UTF-16` `BOM` with Little-Endian;
-* `BOM_UTF32_BE` : `UTF-32` `BOM` with Big-Endian;
-* `BOM_UTF32_LE` : `UTF-32` `BOM` with Little-Endian;
+- `BOM_UTF8` : `UTF-8` `BOM`;
+- `BOM_UTF16_BE` : `UTF-16` `BOM` with Big-Endian;
+- `BOM_UTF16_LE` : `UTF-16` `BOM` with Little-Endian;
+- `BOM_UTF32_BE` : `UTF-32` `BOM` with Big-Endian;
+- `BOM_UTF32_LE` : `UTF-32` `BOM` with Little-Endian;
 
 They each represent the `BOM` character for each encoding character.
 
@@ -29,7 +29,7 @@ $res = $reader->getInputBOM(); //$res equals null if no BOM is found
 
 $reader = new Reader::createFromPat('path/to/your/msexcel.csv');
 if (Reader::BOM_UTF16_LE == $reader->getInputBOM()) {
-	//the CSV file is encoded using UTF-16 LE
+    //the CSV file is encoded using UTF-16 LE
 }
 ~~~
 
@@ -37,7 +37,7 @@ If you wish to remove the BOM character while processing your data, you can rely
 
 ## Adding the BOM character to your CSV
 
-### setOutputBOM($bom = null);
+### setOutputBOM($bom = null)
 
 This method will manage the addition of a BOM character in front of your outputted CSV when you are:
 

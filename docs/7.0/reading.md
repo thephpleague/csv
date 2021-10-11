@@ -140,9 +140,9 @@ $data = $reader->fetchColumn(2);
 
 The methods listed above (`query`, `fetchAll`, `fetchAssoc`, `fetchColumn`) can all take a optional `callable` argument to further manipulate each row before being returned. This callable function can take up to three parameters:
 
-* the current csv row data
-* the current csv key
-* the current csv iterator object
+- the current csv row data
+- the current csv key
+- the current csv iterator object
 
 ~~~php
 <?php
@@ -181,11 +181,11 @@ $data = $reader->fetchOne(3); ///accessing the 4th row (indexing starts at 0)
 
 `each` apply a callable function on each CSV row. The callable function:
 
-* **must** return `true` to continue iterating over the CSV;
-* can take up to three parameters:
-    * the current csv row data;
-    * the current csv key;
-    * the current csv iterator object;
+- **must** return `true` to continue iterating over the CSV;
+- can take up to three parameters:
+  - the current csv row data;
+  - the current csv key;
+  - the current csv iterator object;
 
 The method returns the number of successful iterations.
 

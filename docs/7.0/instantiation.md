@@ -7,8 +7,8 @@ title: Instantiation using named constructors
 
 The library is composed of two main classes:
 
-* `League\Csv\Reader` to read data from a CSV
-* `League\Csv\Writer` to write new data into a CSV
+- `League\Csv\Reader` to read data from a CSV
+- `League\Csv\Writer` to write new data into a CSV
 
 Both classes extend the `League\Csv\AbstractCsv` class and as such share methods for instantiation.
 
@@ -34,10 +34,10 @@ Because CSVs come in different forms we used named constructors to offer several
 
 This named constructor will create a new object *à la* `fopen`:
 
-* The `$path` parameter can be:
-    * a `SplFileInfo` object, the string path will be fetch from the object public methods.
-    * an object implementing the `__toString` method the path will be the object string representation.
-    * a string.
+- The `$path` parameter can be:
+  - a `SplFileInfo` object, the string path will be fetch from the object public methods.
+  - an object implementing the `__toString` method the path will be the object string representation.
+  - a string.
 
 <p class="message-warning"><strong>Warning:</strong> The method throws an <code>InvalidArgumentException</code> if a <code>SplTempFileObject</code> is given as no path can be retrieve from such object.</p>
 * The `$open_mode` parameter which defaults to `r+` if none is supplied.
@@ -100,13 +100,13 @@ $writer = Writer::createFromString('john,doe,john.doe@example.com', "\r\n");
 
 At any given time you can switch or create a new `League\Csv\Writer` or a new `League\Csv\Reader` from the current object. to do so you can use the following methods.
 
-* the `newReader` to create a new `League\Csv\Reader` object;
-* the `newWriter` to create a new `League\Csv\Writer` object;
+- the `newReader` to create a new `League\Csv\Reader` object;
+- the `newWriter` to create a new `League\Csv\Writer` object;
 
 Both methods accept an optional `$open_mode` parameter.
 
-* When not explicitly set, the `$open_mode` default value is `r+` for both methods.
-* If the initial object `$open_mode` parameter was not taken into account any new CSV object created with these methods won't take into account the given `$open_mode`.
+- When not explicitly set, the `$open_mode` default value is `r+` for both methods.
+- If the initial object `$open_mode` parameter was not taken into account any new CSV object created with these methods won't take into account the given `$open_mode`.
 
 ~~~php
 <?php
