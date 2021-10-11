@@ -7,16 +7,15 @@ title: Stream Filtering
 
 To ease performing operations on the CSV as it is being read from or written to, the `Reader` and `Writer` classes now include methods to ease PHP stream filtering usage.
 
-
 ## Stream Filter API
 
 While in PHP the stream filter mode is attached to its associated filter, in `League\Csv` the filter mode is attached to the CSV object. This means that when you change the filter mode, you also clear all previously attached stream filters.
 
 To be able to use the stream filtering mechanism you need to:
 
-* validate that the stream filter API is active;
-* set the class filtering mode;
-* attached your stream filters to the CSV object;
+- validate that the stream filter API is active;
+- set the class filtering mode;
+- attached your stream filters to the CSV object;
 
 ### Detecting if the API is active
 
@@ -41,8 +40,8 @@ $writer->isActiveStreamFilter(); //return false the API can not be use
 
 The stream filter mode property is set using PHP internal stream filter constant `STREAM_FILTER_*`, but unlike `fopen`, the mode is attached to the object and not to a stream filter.
 
-* `setStreamFilterMode($mode)`: set the object stream filter mode **and** remove all previously attached stream filters;
-* `getStreamFilterMode()`: returns the current stream filter mode;
+- `setStreamFilterMode($mode)`: set the object stream filter mode **and** remove all previously attached stream filters;
+- `getStreamFilterMode()`: returns the current stream filter mode;
 
 By default:
 
@@ -57,11 +56,11 @@ use \League\Csv\Reader;
 
 $reader = Reader::createFromPath('/path/to/my/file.csv', 'r');
 if ($reader->isActiveStreamFilter()) {
-	$current_mode = $reader->getStreamFilterMode(); //returns STREAM_FILTER_READ
-	$reader->setStreamFilterMode(STREAM_FILTER_WRITE);
-	//this means that any filter you will set will have no effect when reading the CSV
-	//all previously attached stream filters if they existed have been removed
-	$current_mode = $reader->getStreamFilterMode(); //returns STREAM_FILTER_WRITE
+    $current_mode = $reader->getStreamFilterMode(); //returns STREAM_FILTER_READ
+    $reader->setStreamFilterMode(STREAM_FILTER_WRITE);
+    //this means that any filter you will set will have no effect when reading the CSV
+    //all previously attached stream filters if they existed have been removed
+    $current_mode = $reader->getStreamFilterMode(); //returns STREAM_FILTER_WRITE
 }
 ~~~
 
@@ -79,8 +78,8 @@ The `$filtername` parameter is a string that represents the filter as registered
 
 Since the stream filters are attached to the CSV object:
 
-* The filters will not be cleared between method calls unless specified
-* The filters will not be copied to the new class when using `newReader` or `newWriter` methods
+- The filters will not be cleared between method calls unless specified
+- The filters will not be copied to the new class when using `newReader` or `newWriter` methods
 
 The filters are automatically applied when the stream filter mode matches the method you are using.
 
@@ -96,14 +95,14 @@ stream_filter_register('convert.utf8decode', 'MyLib\Transcode');
 
 $reader = Reader::createFromPath('/path/to/my/chinese.csv', 'r');
 if ($reader->isActiveStreamFilter()) {
-	$reader->appendStreamFilter('string.toupper');
-	$reader->appendStreamFilter('string.rot13');
-	$reader->prependStreamFilter('convert.utf8decode');
-	$reader->removeStreamFilter('string.rot13');
+    $reader->appendStreamFilter('string.toupper');
+    $reader->appendStreamFilter('string.rot13');
+    $reader->prependStreamFilter('convert.utf8decode');
+    $reader->removeStreamFilter('string.rot13');
 }
 foreach ($reader as $row) {
-	// each row cell now contains strings that have been:
-	// first UTF8 decoded and then uppercased
+    // each row cell now contains strings that have been:
+    // first UTF8 decoded and then uppercased
 }
 ~~~
 
@@ -134,13 +133,13 @@ use League\Csv\Writer;
 $writer = Writer::createFromPath('/path/to/my/file.csv');
 $writer->setDelimiter(',');
 if ($writer->isActiveStreamFilter()) {
-	$writer->addStreamFilter('string.toupper');
+    $writer->addStreamFilter('string.toupper');
 }
 //first insert -> file.csv will contain uppercased data.
 $writer->insertOne(['bill', 'gates', 'bill@microsoft.com']);
 if ($writer->isActiveStreamFilter()) {
-	//isActiveStreamFilter returns false so this code is never executed
-	$writer->addStreamFilter('string.rot13');
+    //isActiveStreamFilter returns false so this code is never executed
+    $writer->addStreamFilter('string.rot13');
 }
 //this filter is added to the collection but will never be applied!!
 $writer->addStreamFilter('string.rot13');

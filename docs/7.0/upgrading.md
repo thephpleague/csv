@@ -11,7 +11,7 @@ redirect_from: /upgrading/7.0/
 If you are using composer then you should update the require section of your `composer.json` file.
 
 ~~~
-$ composer require league/csv:~7.0
+composer require league/csv:~7.0
 ~~~
 
 This will edit (or create) your `composer.json` file.
