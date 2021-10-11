@@ -186,8 +186,8 @@ public Writer::clearValidators(void): Writer
 ~~~
 
 - `addValidator`: Adds a validator each time it is called. The method takes two parameters:
-    - A `callable` which takes an `array` as its unique parameter;
-    - The validator name which is **required**. If another validator was already registered with the given name, it will be overridden.
+  - A `callable` which takes an `array` as its unique parameter;
+  - The validator name which is **required**. If another validator was already registered with the given name, it will be overridden.
 - `removeValidator`: Removes an already registered validator by using the validator registrated name.
 - `hasValidator`: Checks if the validator is already registered
 - `clearValidators`: removes all registered validator.
@@ -308,4 +308,3 @@ echo $writer; // displays "one,two\r\n";
 ~~~
 
 <p class="message-info">Please refer to <a href="/8.0/bom/">the BOM character dedicated documentation page</a> for more information on how the library manage the BOM character.</p>
-

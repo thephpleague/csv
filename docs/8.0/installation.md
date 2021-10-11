@@ -15,7 +15,7 @@ You need **PHP >= 5.5.0** and the `mbstring` extension to use `Csv` but the late
 `Csv` is available on [Packagist](https://packagist.org/packages/league/csv) and can be installed using [Composer](https://getcomposer.org/):
 
 ~~~
-$ composer require league/csv:^8.0
+composer require league/csv:^8.0
 ~~~
 
 ## Going Solo

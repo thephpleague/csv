@@ -8,8 +8,8 @@ redirect_from: /instantiation/
 
 The library is composed of two main classes:
 
-* `League\Csv\Reader` to read data from a CSV
-* `League\Csv\Writer` to write new data into a CSV
+- `League\Csv\Reader` to read data from a CSV
+- `League\Csv\Writer` to write new data into a CSV
 
 Both classes extend the `League\Csv\AbstractCsv` class and as such share methods for instantiation.
 
@@ -39,15 +39,15 @@ This named constructor will create a new object *à la* `fopen`.
 <?php
 
 public static AbstractCsv::createFromPath(
-	mixed $path,
-	string $open_mode = 'r+'
+    mixed $path,
+    string $open_mode = 'r+'
 ): AbstractCsv
 ~~~
 
-* The `$path` parameter can be:
-    * a `SplFileInfo` object, the string path will be fetch from the object public methods.
-    * an object implementing the `__toString` method the path will be the object string representation.
-    * a string.
+- The `$path` parameter can be:
+  - a `SplFileInfo` object, the string path will be fetch from the object public methods.
+  - an object implementing the `__toString` method the path will be the object string representation.
+  - a string.
 
 <p class="message-warning"><strong>Warning:</strong> The method throws an <code>InvalidArgumentException</code> if a <code>SplTempFileObject</code> is given as no path can be retrieve from such object.</p>
 * The `$open_mode` parameter which defaults to `r+` if none is supplied.
@@ -77,7 +77,6 @@ public static AbstractCsv::createFromFileObject(SplFileObject $obj): AbstractCsv
 ~~~
 
 This method accepts only one single parameter, a `SplFileObject` object.
-
 
 ~~~php
 <?php
@@ -116,7 +115,6 @@ $writer = Writer::createFromString('john,doe,john.doe@example.com');
 
 <p class="message-notice">New since <code>version 8.2.0</code></p>
 
-
 This named constructor will create a new object from a stream resource.
 
 ~~~php
@@ -141,8 +139,8 @@ $writer = Writer::createFromStream(fopen('php://temp', 'r+'));
 
 At any given time you can switch or create a new `League\Csv\Writer` or a new `League\Csv\Reader` from the current object. to do so you can use the following methods.
 
-* the `newReader` to create a new `League\Csv\Reader` object;
-* the `newWriter` to create a new `League\Csv\Writer` object;
+- the `newReader` to create a new `League\Csv\Reader` object;
+- the `newWriter` to create a new `League\Csv\Writer` object;
 
 Both methods accept an optional `$open_mode` parameter.
 
@@ -153,8 +151,8 @@ public AbstractCsv::newReader(string $open_mode = 'r+'): Reader
 public AbstractCsv::newWriter(string $open_mode = 'r+'): Writer
 ~~~
 
-* When not explicitly set, the `$open_mode` default value is `r+` for both methods.
-* If the initial object `$open_mode` parameter was not taken into account any new CSV object created with these methods won't take into account the given `$open_mode`.
+- When not explicitly set, the `$open_mode` default value is `r+` for both methods.
+- If the initial object `$open_mode` parameter was not taken into account any new CSV object created with these methods won't take into account the given `$open_mode`.
 
 ~~~php
 <?php
