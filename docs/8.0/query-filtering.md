@@ -18,7 +18,7 @@ You can restrict [extract methods](/8.0/reading/) and [conversion methods](/8.0/
 
 ### AbstractCsv::stripBOM
 
- This method specifies if the [BOM sequence](/bom/) must be removed or not from the CSV's first cell of the first row.
+This method specifies if the [BOM sequence](/bom/) must be removed or not from the CSV's first cell of the first row.
 
 ```php
 <?php

@@ -86,7 +86,6 @@ use League\Csv\Writer;
 
 $reader = Reader::createFromFileObject(new SplFileObject('/path/to/your/csv/file.csv'));
 $writer = Writer::createFromFileObject(new SplTempFileObject());
-
 ```
 
 ### AbstractCsv::createFromString

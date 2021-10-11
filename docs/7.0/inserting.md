@@ -81,7 +81,7 @@ A formatter is a `callable` which accepts an `array` on input and returns the sa
 
 You can attach as many formatters as you want to the `Writer` class to manipulate your data prior to its insertion. The formatters follow the *First In First Out* rule when inserted, deleted and/or applied.
 
- The formatter API comes with the following public API:
+The formatter API comes with the following public API:
 
 ### addFormatter(callable $callable)
 
