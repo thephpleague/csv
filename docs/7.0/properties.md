@@ -12,8 +12,6 @@ Once your object is [instantiated](/7.0/instantiation/) you can optionally set s
 ### The delimiter character
 
 ```php
-<?php
-
 $csv->setDelimiter(';');
 $delimiter = $csv->getDelimiter(); //returns ";"
 ```
@@ -23,8 +21,6 @@ The default delimiter character is `,`.
 ### The enclosure character
 
 ```php
-<?php
-
 $csv->setEnclosure('|');
 $enclosure = $csv->getEnclosure(); //returns "|"
 ```
@@ -37,8 +33,6 @@ The default enclosure character is `"`.
 A possible workaround to this issue while waiting for a PHP bug fix is to <a href="/7.0/reading/#using-a-callable-to-modify-the-returned-resultset">register a callable that will format your content.</a></p>
 
 ```php
-<?php
-
 $csv->setEscape('\\');
 $escape = $csv->getEscape(); //returns "\"
 ```
@@ -50,8 +44,6 @@ The default escape character is `\`.
 `League\Csv` objects rely internally on the `SplFileObject` class. In order to fine tune the class behavior you can adjust the [SplFileObject flags](http://php.net/manual/en/class.splfileobject.php#splfileobject.constants) used.
 
 ```php
-<?php
-
 $csv->setFlags(SplFileObject::READ_AHEAD|SplFileObject::SKIP_EMPTY);
 $flags = $csv->getFlags(); //returns an integer
 ```
@@ -79,8 +71,6 @@ The method takes two arguments:
 - an integer which represents the number of rows to scan (default to `1`);
 
 ```php
-<?php
-
 $reader = Reader::createFromPath('/path/to/your/csv/file.csv', 'r');
 
 $reader->setEnclosure('"');
@@ -115,8 +105,6 @@ The method takes two arguments:
 - the possible delimiters to check (you don't need to specify the following delimiters as they are already checked by the method: `",", ";", "\t"`);
 
 ```php
-<?php
-
 $reader = Reader::createFromPath('/path/to/your/csv/file.csv', 'r');
 
 $reader->setEnclosure('"');
@@ -153,8 +141,6 @@ The following properties only affect the CSV when you are writing or saving data
 The newline sequence is appended to each CSV newly inserted line. To improve interoperability with programs interacting with CSV and because the php `fputcsv` implementation has a hardcoded `"\n"`, we need to be able to replace this last `LF` code with one supplied by the developer.
 
 ```php
-<?php
-
 $csv->setNewline("\r\n");
 $newline = $csv->getNewline(); //returns "\r\n"
 ```
@@ -170,16 +156,12 @@ To improve interoperability with programs interacting with CSV, you can now mana
 Detect the current BOM character is done using the `getInputBOM` method. This method returns the currently used BOM character or `null` if none is found or recognized.
 
 ```php
-<?php
-
 $bom = $csv->getInputBOM();
 ```
 
 You can of course set the outputting BOM you want your CSV to be associated with.
 
 ```php
-<?php
-
 $csv->setOutputBOM(Reader::BOM_UTF8);
 $bom = $csv->getOutputBOM(); //returns "\xEF\xBB\xBF"
 ```
@@ -201,8 +183,6 @@ When this is not the case, you should transcode it using the <a href="/7.0/filte
 When this is not applicable you can fallback by providing the CSV original encoding charset to the CSV class using the following method:
 
 ```php
-<?php
-
 $reader->setEncodingFrom('iso-8859-15');
 echo $reader->getEncodingFrom(); //returns iso-8859-15;
 ```
@@ -212,8 +192,6 @@ By default `getEncodingFrom` returns `UTF-8` if `setEncodingFrom` was not used.
 <div class="message-warning">The encoding properties have no effect when reading or writing to a CSV document. You should instead use <a href="/7.0/filtering/">the Stream Filter API</a> or <a href="/7.0/inserting/#row-formatting">the Writing Formatter API</a>.</div>
 
 ```php
-<?php
-
 $reader = Reader::createFromFileObject(new SplFileObject('/path/to/bengali.csv'));
 //we are using the setEncodingFrom method to transcode the CSV into UTF-8
 $reader->setEncodingFrom('iso-8859-15');

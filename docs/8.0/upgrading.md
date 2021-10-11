@@ -40,8 +40,6 @@ In version 8.0 the optional second argument from `createFromString` is removed. 
 **Old code:**
 
 ```php
-<?php
-
 use League\Csv\Writer;
 
 $writer = Writer::createFromString($str, "\r\n");
@@ -51,8 +49,6 @@ $writer->insertOne(["foo", null, "bar"]);
 **New code:**
 
 ```php
-<?php
-
 use League\Csv\Writer;
 
 $writer = Writer::createFromString($str);
@@ -72,8 +68,6 @@ The `SplFileObject` flags are normalized to have a normalized CSV filtering inde
 **Old code:**
 
 ```php
-<?php
-
 use League\Csv\Reader;
 
 $csv = Reader::createFromPath('/path/to/file.csv', 'r');
@@ -84,8 +78,6 @@ $csv->fetchAssoc(); //empty lines where removed
 **New code:**
 
 ```php
-<?php
-
 use League\Csv\Reader;
 
 $csv = Reader::createFromPath('/path/to/file.csv', 'r');
@@ -99,8 +91,6 @@ $csv->fetchAssoc(); //empty lines are automatically removed
 **Old code:**
 
 ```php
-<?php
-
 use League\Csv\Reader;
 
 $csv = Reader::createFromPath('/path/to/file.csv', 'r');
@@ -112,8 +102,6 @@ echo $res[0]['lastname']; //would return the first row 'lastname' index
 **New code:**
 
 ```php
-<?php
-
 use League\Csv\Reader;
 
 $csv = Reader::createFromPath('/path/to/file.csv', 'r');
@@ -129,8 +117,6 @@ The optional callable argument from `Reader::fetchAssoc` now expects its first a
 **Old code:**
 
 ```php
-<?php
-
 use League\Csv\Reader;
 
 $func = function (array $row) {
@@ -147,8 +133,6 @@ $res = $csv->fetchAssoc(['lastname', 'firstname'], $func);
 **New code:**
 
 ```php
-<?php
-
 use League\Csv\Reader;
 
 $func = function (array $row) {
@@ -169,8 +153,6 @@ The optional callable argument from `Reader::fetchColumn` now expects its first 
 **Old code:**
 
 ```php
-<?php
-
 use League\Csv\Reader;
 
 $func = function (array $row) {
@@ -186,8 +168,6 @@ $res = $csv->fetchColumn(2, $func);
 **New code:**
 
 ```php
-<?php
-
 use League\Csv\Reader;
 
 $func = function ($value) {

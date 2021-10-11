@@ -17,8 +17,6 @@ Both classes extend the `League\Csv\AbstractCsv` class and as such share methods
 **If you are on a Mac OS X Server**, add the following lines before using the library to help [PHP detect line ending in Mac OS X](http://php.net/manual/en/function.fgetcsv.php#refsect1-function.fgetcsv-returnvalues).
 
 ```php
-<?php
-
 if (! ini_get("auto_detect_line_endings")) {
     ini_set("auto_detect_line_endings", '1');
 }
@@ -45,8 +43,6 @@ This named constructor will create a new object *à la* `fopen`:
 The resulting string and `$open_mode` parameters are used to lazy load internally a `SplFileObject` object.
 
 ```php
-<?php
-
 use League\Csv\Reader;
 use League\Csv\Writer;
 
@@ -61,8 +57,6 @@ $writer = Writer::createFromPath(new SplFileObject('/path/to/your/csv/file.csv',
 If you have a `SplFileObject` and you want to directly work with it you should use the `createFromFileObject` named constructor. This method accepts only one single parameter, a `SplFileObject` object.
 
 ```php
-<?php
-
 use League\Csv\Reader;
 use League\Csv\Writer;
 
@@ -84,8 +78,6 @@ If no newline sequence is specified, the newline sequence used will be `\n` to m
 <p class="message-warning">The <code>$newline</code> argument is deprecated since version 7.2 and will be removed in the next major release.</p>
 
 ```php
-<?php
-
 use League\Csv\Reader;
 use League\Csv\Writer;
 
@@ -108,8 +100,6 @@ Both methods accept an optional `$open_mode` parameter.
 - If the initial object `$open_mode` parameter was not taken into account any new CSV object created with these methods won't take into account the given `$open_mode`.
 
 ```php
-<?php
-
 $reader = $writer->newReader('r+');
 $newWriter = $reader->newWriter('a');
 $anotherWriter = $newWriter->newWriter('r+');
