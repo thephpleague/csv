@@ -18,19 +18,19 @@ strongly suggested to set <code>r</code> mode on the file to ensure it can be op
 
 The `fetch` method fetches the next row from the `Iterator` result set.
 
-~~~php
+```php
 <?php
 
 public Reader::fetch(callable $callable = null): Iterator
-~~~
+```
 
 The method takes an optional callable parameter to apply to each row of the resultset before returning. The callable signature is as follow:
 
-~~~php
+```php
 <?php
 
 function(array $row [, int $rowOffset [, Iterator $iterator]]): array
-~~~
+```
 
 - `$row`: the CSV current row as an array
 - `$rowOffset`: the CSV current row offset
@@ -38,7 +38,7 @@ function(array $row [, int $rowOffset [, Iterator $iterator]]): array
 
 ### Example 1
 
-~~~php
+```php
 <?php
 
 use League\Csv\Reader;
@@ -48,11 +48,11 @@ $results = $reader->fetch();
 foreach ($results as $row) {
     //do something here
 }
-~~~
+```
 
 ### Example 2 - with a callable
 
-~~~php
+```php
 <?php
 
 use League\Csv\Reader;
@@ -66,17 +66,17 @@ $results = $reader->fetch($func);
 foreach ($results as $row) {
     //each row member will be uppercased
 }
-~~~
+```
 
 ## Reader::fetchAll
 
 `fetchAll` returns a sequential `array` of all rows.
 
-~~~php
+```php
 <?php
 
 public Reader::fetchAll(callable $callable = null): array
-~~~
+```
 
 `fetchAll` behaves exactly like `fetch` with one difference:
 
@@ -86,17 +86,17 @@ public Reader::fetchAll(callable $callable = null): array
 
 `fetchOne` return one single row from the CSV data as an `array`.
 
-~~~php
+```php
 <?php
 
 public Reader::fetchOne($offset = 0): array
-~~~
+```
 
 The required argument `$offset` represents the row index starting at `0`. If no argument is given the method will return the first row from the CSV data.
 
 ### Example
 
-~~~php
+```php
 <?php
 
 use League\Csv\Reader;
@@ -107,27 +107,27 @@ $data = $reader->fetchOne(3); ///accessing the 4th row (indexing starts at 0)
 //
 //   ['john', 'doe', 'john.doe@example.com']
 //
-~~~
+```
 
 ## Reader::each
 
 `each` applies a callable function on each CSV row.
 
-~~~php
+```php
 <?php
 
 public Reader::each(callable $callable): int
-~~~
+```
 
 The method returns the number of successful iterations.
 
 The callable signature is as follows:
 
-~~~php
+```php
 <?php
 
 function(array $row [, int $rowOffset [, Iterator $iterator]]): bool
-~~~
+```
 
 - `$row`: the CSV current row as an array
 - `$rowOffset`: the CSV current row offset
@@ -137,7 +137,7 @@ The callable must return `true` to continue iterating over the CSV;
 
 ### Example - Counting the CSV total number of rows
 
-~~~php
+```php
 <?php
 
 use League\Csv\Reader;
@@ -148,7 +148,7 @@ $reader = Reader::createFromPath('/path/to/my/file.csv', 'r');
 $nbRows = $reader->each(function ($row) {
     return true;
 });
-~~~
+```
 
 ## Reader::fetchAssoc
 
@@ -156,14 +156,14 @@ $nbRows = $reader->each(function ($row) {
 
 `fetchAssoc` returns an `Iterator` of all rows. The rows themselves are associative arrays where the keys are a one dimension array. This array must only contain unique `string` and/or `scalar` values.
 
-~~~php
+```php
 <?php
 
 public Reader::fetchAssoc(
     mixed $offset_or_keys = 0,
     callable $callable = null
 ): Iterator
-~~~
+```
 
 This `$offset_or_keys` argument can be
 
@@ -172,7 +172,7 @@ This `$offset_or_keys` argument can be
 
 ### Example 1 - Using an array to specify the keys
 
-~~~php
+```php
 <?php
 
 use League\Csv\Reader;
@@ -190,11 +190,11 @@ foreach ($results as $row) {
 //       ];
 //
 }
-~~~
+```
 
 ### Example 2 - Using a CSV offset
 
-~~~php
+```php
 <?php
 
 $offset = 0;
@@ -209,7 +209,7 @@ foreach ($results as $row) {
 //     ];
 //
 }
-~~~
+```
 
 ### Notes
 
@@ -224,9 +224,9 @@ foreach ($results as $row) {
 
 The method takes an optional callable which signature is as follow:
 
-~~~php
+```php
 function(array $row [, int $rowOffset [, Iterator $iterator]]): array
-~~~
+```
 
 - `$row`: the CSV current row combined with the submitted indexes **(new in version 8.0.0)**
 - `$rowOffset`: the CSV current row offset
@@ -234,7 +234,7 @@ function(array $row [, int $rowOffset [, Iterator $iterator]]): array
 
 ### Example 3 - Using a callable
 
-~~~php
+```php
 <?php
 
 use League\Csv\Reader;
@@ -250,7 +250,7 @@ foreach ($reader->fetchAssoc($keys, $func) as $row) {
     $row['date']->format('Y-m-d H:i:s');
     //because this cell contain a `DateTimeInterface` object
 }
-~~~
+```
 
 ## Reader::fetchColumn
 
@@ -258,20 +258,20 @@ foreach ($reader->fetchAssoc($keys, $func) as $row) {
 
 `fetchColumn` returns a `Iterator` of all values in a given column from the CSV data.
 
-~~~php
+```php
 <?php
 
 public Reader::fetchColumn(
     int $columnIndex = 0,
     callable $callable = null
 ): Iterator
-~~~
+```
 
 If for a given row the column does not exist, the row will be skipped.
 
 ### Example 1 - with a given column index
 
-~~~php
+```php
 <?php
 
 use League\Csv\Reader;
@@ -283,7 +283,7 @@ $data = iterator_to_array($result, false);
 //
 // ['john.doe@example.com', 'jane.doe@example.com', ...]
 //
-~~~
+```
 
 ### The optional callable argument
 
@@ -291,11 +291,11 @@ $data = iterator_to_array($result, false);
 
 The method takes an optional callable which signature is as follow:
 
-~~~php
+```php
 <?php
 
 function(string $value [, int $offsetIndex [, Iterator $iterator]]): mixed
-~~~
+```
 
 - `$value`: the CSV current column value **(new to version 8.0.0)**
 - `$offsetIndex`: the CSV current row offset
@@ -303,7 +303,7 @@ function(string $value [, int $offsetIndex [, Iterator $iterator]]): mixed
 
 ### Example 2 - with a callable
 
-~~~php
+```php
 <?php
 
 use League\Csv\Reader;
@@ -312,7 +312,7 @@ $reader = Reader::createFromPath('/path/to/my/file.csv', 'r');
 foreach ($reader->fetchColumn(2, 'strtoupper') as $value) {
     echo $value; //display 'JOHN.DOE@EXAMPLE.COM'
 }
-~~~
+```
 
 ## Reader::fetchPairs
 
@@ -320,7 +320,7 @@ foreach ($reader->fetchColumn(2, 'strtoupper') as $value) {
 
 The `fetchPairs` method returns a `Generator` of key-value pairs.
 
-~~~php
+```php
 <?php
 
 public Reader::fetchPairs(
@@ -328,14 +328,14 @@ public Reader::fetchPairs(
     int $valueIndex = 1,
     callable $callable = null
 ): Generator
-~~~
+```
 
 - The key is taken from the submitted column index parameter (ie: `$offsetIndex`).
 - The value is taken from the submitted column value parameter (ie: `$valueIndex`).
 
 ### Example 1 - default usage
 
-~~~php
+```php
 <?php
 
 use League\Csv\Reader;
@@ -358,7 +358,7 @@ foreach ($reader->fetchPairs() as $firstname => $lastname) {
     // echo $firstname; -> 'foo'
     // echo $lastname; -> 'bar'
 }
-~~~
+```
 
 ### Notes
 
@@ -371,11 +371,11 @@ foreach ($reader->fetchPairs() as $firstname => $lastname) {
 
 The method takes an optional callable which signature is as follow:
 
-~~~php
+```php
 <?php
 
 function(array $pairs [, int $rowOffset [, Iterator $iterator]]): array
-~~~
+```
 
 - `$pairs`: an array where
   - the first value contains the value of the offset column index
@@ -385,7 +385,7 @@ function(array $pairs [, int $rowOffset [, Iterator $iterator]]): array
 
 ### Example 2 - with a callable
 
-~~~php
+```php
 <?php
 
 use League\Csv\Reader;
@@ -414,7 +414,7 @@ foreach ($reader->fetchPairs(1, 0, $func) as $lastname => $firstname) {
     // echo $lastname; -> 'BAR'
     // echo $firstname; -> 'foo'
 }
-~~~
+```
 
 ## Reader::fetchPairsWithoutDuplicates
 
@@ -422,7 +422,7 @@ foreach ($reader->fetchPairs(1, 0, $func) as $lastname => $firstname) {
 
 The `fetchPairsWithoutDuplicates` method returns data in an `array` of key-value pairs, as an associative array with a single entry per row.
 
-~~~php
+```php
 <?php
 
 public Reader::fetchPairsWithoutDuplicates(
@@ -430,14 +430,14 @@ public Reader::fetchPairsWithoutDuplicates(
     int $valueIndex = 1,
     callable $callable = null
 ): array
-~~~
+```
 
 `fetchPairsWithoutDuplicates` behaves exactly like `fetchPairs` with two differences:
 
 - `fetchPairsWithoutDuplicates` returns an `array`
 - When using `fetchPairsWithoutDuplicates` entries in the associative array will be overwritten if there are duplicates values in the column index.
 
-~~~php
+```php
 <?php
 
 $str = <<EOF
@@ -450,4 +450,4 @@ $reader = Reader::createFromString($str);
 $data = $reader->fetchPairsWithoutDuplicates(1, 0);
 // will return ['doe' => 'jane', 'foo' => 'bar'];
 // the 'john' value has been overwritten by 'jane'
-~~~
+```

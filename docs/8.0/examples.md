@@ -10,7 +10,7 @@ redirect_from: /examples/
 
 A simple example to show you how to parse a CSV document.
 
-~~~php
+```php
 <?php
 
 use League\Csv\Reader;
@@ -22,13 +22,13 @@ $headers = $csv->fetchOne();
 
 //get 25 rows starting from the 11th row
 $res = $csv->setOffset(10)->setLimit(25)->fetchAll();
-~~~
+```
 
 ## Exporting a database table as a CSV document
 
 A simple example to show you how to create and download a CSV from a `PDOStatement` object
 
-~~~php
+```php
 <?php
 
 use League\Csv\Writer;
@@ -59,13 +59,13 @@ $csv->insertAll($sth);
 // The file is downloadable
 $csv->output('users.csv');
 die;
-~~~
+```
 
 ## Importing a CSV into a database table
 
 A simple example to show you how to import some CSV data into a database using a `PDOStatement` object
 
-~~~php
+```php
 <?php
 
 use League\Csv\Reader;
@@ -85,14 +85,14 @@ $nbInsert = $csv->each(function ($row) use (&$sth) {
 
     return $sth->execute(); //if the function return false then the iteration will stop
 });
-~~~
+```
 
 ## Converting a UTF-16 CSV file contents to UTF-8
 
 When importing csv files, you don't know whether the file is encoded with `UTF-8`, `UTF-16` or anything else.
 The below example tries to determine the encoding and convert to `UTF-8` using the iconv extension.
 
-~~~php
+```php
 <?php
 
 use League\Csv\Reader;
@@ -108,7 +108,7 @@ if ($input_bom === Reader::BOM_UTF16_LE || $input_bom === Reader::BOM_UTF16_BE) 
 foreach ($reader->fetchAssoc(0) as $row) {
     echo json_encode($row, JSON_PRETTY_PRINT), PHP_EOL;
 }
-~~~
+```
 
 ## More Examples
 
