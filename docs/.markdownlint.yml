@@ -14,3 +14,6 @@ code-block-style:
   style: fenced
 code-fence-style:
   style: backtick
+
+no-hard-tabs:
+  spaces_per_tab: 4
