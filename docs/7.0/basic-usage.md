@@ -9,7 +9,7 @@ title: Basic Usage
 
 Once your CSV object is [instantiated](/7.0/instantiation) and [configured](/7.0/properties/), you can start interacting with the data using a number of methods available to you. For starters, you can iterate over your newly object to extract each CSV row using the `foreach` construct.
 
-~~~php
+```php
 <?php
 
 $reader = Reader::createFromPath('/path/to/my/file.csv', 'r');
@@ -18,7 +18,7 @@ foreach ($reader as $index => $row) {
     //$row is an array where each item represent a CSV data cell
     //$index is the CSV row index
 }
-~~~
+```
 
 <p class="message-notice">You can do more complex iterations <a href="/7.0/reading/">using the query methods</a> available on the <code>League\Csv\Reader</code> class only.</a></p>
 
@@ -28,13 +28,13 @@ foreach ($reader as $index => $row) {
 
 Use the `echo` construct on the instantiated object or use the `__toString` method to show the CSV full content.
 
-~~~php
+```php
 <?php
 
 echo $reader;
 // or
 echo $reader->__toString();
-~~~
+```
 
 ### output($filename = null)
 
@@ -42,24 +42,24 @@ If you only wish to make your CSV downloadable by forcing a file download just u
 
 <p class="message-notice"> Since <code>version 7.0</code>, the method returns the number of characters read from the handle and passed through to the output.</p>
 
-~~~php
+```php
 <?php
 
 header('Content-Type: text/csv; charset=UTF-8');
 header('Content-Disposition: attachment; filename="name-for-your-file.csv"');
 $reader->output();
 die;
-~~~
+```
 
 The output method can take an optional argument `$filename`. When present you
 can even remove more headers.
 
-~~~php
+```php
 <?php
 
 $reader->output("name-for-your-file.csv");
 die;
-~~~
+```
 
 The output methods **can only be affected by:**
 

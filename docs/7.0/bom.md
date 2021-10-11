@@ -21,7 +21,7 @@ They each represent the `BOM` character for each encoding character.
 
 This method will detect and return the `BOM` character used in your CSV if any.
 
-~~~php
+```php
 <?php
 
 $reader = new Reader::createFromPath('/path/to/your/file.csv', 'r');
@@ -31,7 +31,7 @@ $reader = new Reader::createFromPat('path/to/your/msexcel.csv');
 if (Reader::BOM_UTF16_LE == $reader->getInputBOM()) {
     //the CSV file is encoded using UTF-16 LE
 }
-~~~
+```
 
 If you wish to remove the BOM character while processing your data, you can rely on the [query filters](/7.0/query-filtering/#stripbomstatus) to do so.
 
@@ -54,7 +54,7 @@ This method will tell you at any given time what `BOM` character will be prepend
 
 <p class="message-info">For Backward compatibility by default <code>getOutputBOM</code> returns <code>null</code>.</p>
 
-~~~php
+```php
 <?php
 
 $reader = new Reader::createFromPath('/path/to/your/file.csv', 'r');
@@ -62,8 +62,7 @@ $reader->getOutputBOM(); //$res equals null;
 $reader->setOutputBOM(Reader::BOM_UTF16LE);
 $res = $reader->getOutputBOM(); //$res equals "\xFF\xFE";
 echo $reader; //the BOM sequence is prepended to the CSV
-
-~~~
+```
 
 ## Software dependency
 
@@ -77,7 +76,7 @@ In the examples below we will be using an existing CSV as a starting point. The 
 
 On Windows, MS Excel, expects an UTF-8 encoded CSV with its corresponding `BOM` character. To fulfill this requirement, you simply need to add the `UTF-8` `BOM` character if needed as explained below:
 
-~~~php
+```php
 <?php
 
 use League\Csv\Reader;
@@ -89,13 +88,13 @@ $reader->setOutputBOM(Reader::BOM_UTF8);
 //BOM detected and adjusted for the output
 echo $reader->__toString();
 
-~~~
+```
 
 ### MS Excel on MacOS
 
 On a MacOS system, MS Excel requires a CSV encoded in `UTF-16 LE` using the `tab` character as delimiter. Here's an example on how to meet those requirements using the `League\Csv` package.
 
-~~~php
+```php
 <?php
 
 use League\Csv\Reader;
@@ -131,8 +130,7 @@ $csv->appendStreamFilter(FilterTranscode::FILTER_NAME."UTF-8:UTF-16LE");
 $csv->setOutputBOM(Reader::BOM_UTF16_LE);
 //all is good let's output the results
 $csv->output('mycsvfile.csv');
-
-~~~
+```
 
 Of note, we used the [filtering capability](/7.0/filtering) of the library to convert the CSV encoding character from `UTF-8` to `UTF-16 LE`.
 

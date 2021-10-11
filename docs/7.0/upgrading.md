@@ -10,9 +10,9 @@ redirect_from: /upgrading/7.0/
 
 If you are using composer then you should update the require section of your `composer.json` file.
 
-~~~
+```bash
 composer require league/csv:~7.0
-~~~
+```
 
 This will edit (or create) your `composer.json` file.
 
@@ -45,7 +45,7 @@ When using the `__toString` or `output` methods the input BOM if it exists is st
 
 **If you are on a Mac OS X Server**, add the following lines before using the library to help [PHP detect line ending in Mac OS X](http://php.net/manual/en/function.fgetcsv.php#refsect1-function.fgetcsv-returnvalues).
 
-~~~php
+```php
 <?php
 
 if (! ini_get("auto_detect_line_endings")) {
@@ -53,7 +53,7 @@ if (! ini_get("auto_detect_line_endings")) {
 }
 
 //the rest of the code continue here...
-~~~
+```
 
 ### Null Handling
 
@@ -68,18 +68,18 @@ By default `null` value cells are converted to empty string so the old behavior 
 
 **Old code:**
 
-~~~php
+```php
 <?php
 
 use League\Csv\Writer;
 
 $writer = Writer::createFromPath('/path/to/your/csv/file.csv');
 $writer->insertOne(["foo", null, "bar"]); //will throw an RuntimeException
-~~~
+```
 
 **New code:**
 
-~~~php
+```php
 <?php
 
 use League\Csv\Writer;
@@ -89,13 +89,13 @@ $validator = new ForbiddenNullValuesValidator();
 $writer = Writer::createFromPath('/path/to/your/csv/file.csv');
 $writer->addValidator($validator, 'null_as_exception');
 $writer->insertOne(["foo", null, "bar"]); //will throw an League\Csv\Exception\InvalidRowException
-~~~
+```
 
 #### Example 2 : Null value formatting
 
 **Old code:**
 
-~~~php
+```php
 <?php
 
 use League\Csv\Writer;
@@ -104,11 +104,11 @@ $writer = Writer::createFromPath('/path/to/your/csv/file.csv');
 $writer->setNullHandlingMode(Writer::NULL_AS_SKIP_CELL);
 $writer->insertOne(["foo", null, "bar"]);
 //the actual inserted row will be ["foo", "bar"]
-~~~
+```
 
 **New code:**
 
-~~~php
+```php
 <?php
 
 use League\Csv\Writer;
@@ -120,7 +120,7 @@ $writer = Writer::createFromPath('/path/to/your/csv/file.csv');
 $writer->addFormatter($formatter);
 $writer->insertOne(["foo", null, "bar"]);
 //the actual inserted row will be ["foo", "bar"]
-~~~
+```
 
 ### Row consistency check
 
@@ -130,7 +130,7 @@ Directly checking row consistency has been removed from the `Writer` class. If y
 
 **Old code:**
 
-~~~php
+```php
 <?php
 
 use League\Csv\Writer;
@@ -142,11 +142,11 @@ $writer->getColumnsCount(); //returns -1
 
 $writer->insertOne(["foo", null, "bar"]);
 $nb_column_count = $writer->getColumnsCount(); //returns 3
-~~~
+```
 
 **New code:**
 
-~~~php
+```php
 <?php
 
 use League\Csv\Writer;
@@ -161,7 +161,7 @@ $writer->addValidator($validator, 'column_consistency');
 
 $writer->insertOne(["foo", null, "bar"]);
 $nb_column_count = $validator->getColumnsCount(); //returns 3
-~~~
+```
 
 ### CSV conversion methods
 
@@ -173,7 +173,7 @@ Because prior to version 7.0 the conversion methods were not affected, you may h
 
 **Old behavior:**
 
-~~~php
+```php
 <?php
 
 use League\Csv\Reader;
@@ -182,11 +182,11 @@ $reader = Reader::createFromPath('/path/to/your/csv/file.csv', 'r');
 $reader->setOffset(1);
 $reader->setLimit(5);
 $reader->toHTML(); //would convert the full CSV
-~~~
+```
 
 **New behavior:**
 
-~~~php
+```php
 <?php
 
 use League\Csv\Reader;
@@ -195,7 +195,7 @@ $reader = Reader::createFromPath('/path/to/your/csv/file.csv', 'r');
 $reader->setOffset(1);
 $reader->setLimit(5);
 $reader->toHTML(); //will only convert the 5 specified rows
-~~~
+```
 
 Of course, since the query options methods do not exist on the `Writer` class. The changed behavior does not affect the latter class.
 
@@ -205,7 +205,7 @@ You can no longer use `Reader` and `Writer` default constructors. You are requir
 
 **Removed behavior:**
 
-~~~php
+```php
 <?php
 
 use League\Csv\Writer;
@@ -215,14 +215,14 @@ $fileObject = new SplFileObject($file, 'r+');
 
 $sol1 = new Writer($file, 'w');
 $sol2 = new Writer($fileObject, 'w');
-~~~
+```
 
 - `$sol1` open mode will be `w` and new `SplFileObject` object is created internally
 - `$sol2` open mode will be `r+` and `$fileObject` is directly used. The provided `$open_mode` argument has no effect.
 
-**Supported behavior**
+**Supported behavior:**
 
-~~~php
+```php
 <?php
 
 use League\Csv\Writer;
@@ -233,7 +233,7 @@ $fileObject = new SplFileObject($file, 'r+');
 $sol1 = Writer::createFromPath($file, 'w');
 $sol2 = Writer::createFromFileObject($fileObject);
 $sol3 = Writer::createFromPath($fileObject, 'w');
-~~~
+```
 
 - `$sol1` open mode will be `w` and new `SplFileObject` object is created internally;
 - `$sol2` open mode will be `r+` and `$fileObject` is directly used;
@@ -248,7 +248,7 @@ $sol3 = Writer::createFromPath($fileObject, 'w');
 
 Starting with version 7.0, each found delimiter index represents the character occurences in the specify CSV data.
 
-~~~php
+```php
 <?php
 
 use League\Csv\Reader;
@@ -266,7 +266,7 @@ foreach ($delimiters_list as $occurrences => $delimiter) {
 if (count($delimiters_list)) {
     $delimiter = array_shift($delimiters);
 }
-~~~
+```
 
 ### Reader::fetchColumn
 
@@ -274,7 +274,7 @@ Prior to version 7.0 when, if the column did not exist in the csv data the metho
 
 **Old behavior:**
 
-~~~php
+```php
 <?php
 
 use League\Csv\Reader;
@@ -283,11 +283,11 @@ use League\Csv\Reader;
 $reader = Reader::createFromPath('/path/to/your/csv/file.csv', 'r');
 $arr = $reader->fetchColumn(3);
 //$arr is a array containing only null values;
-~~~
+```
 
 **New behavior:**
 
-~~~php
+```php
 <?php
 
 use League\Csv\Reader;
@@ -296,6 +296,6 @@ use League\Csv\Reader;
 $reader = Reader::createFromPath('/path/to/your/csv/file.csv', 'r');
 $arr = $reader->fetchColumn(3);
 //$arr is empty
-~~~
+```
 
 Row with non existing values are skipped from the result set.

@@ -21,14 +21,14 @@ strongly suggested to set <code>r</code> mode on the file to ensure it can be op
 
 The `query` method prepares and issues queries on the CSV data. It returns an `Iterator` that represents the result that you can further manipulate as you wish.
 
-~~~php
+```php
 <?php
 
 $data = $reader->query();
 foreach ($data as $lineIndex => $row) {
     //do something here
 }
-~~~
+```
 
 ### fetch(callable $callable = null)
 
@@ -36,19 +36,19 @@ foreach ($data as $lineIndex => $row) {
 
 The `fetch` method returns an `Iterator`.
 
-~~~php
+```php
 <?php
 
 foreach ($reader->fetch() as $row) {
     //do something here
 }
-~~~
+```
 
 ### fetchAll(callable $callable = null)
 
 `fetchAll` returns a sequential array of all rows.
 
-~~~php
+```php
 <?php
 
 $data = $reader->fetchAll();
@@ -61,7 +61,7 @@ $data = $reader->fetchAll();
 // ]
 //
 $nb_rows = count($data);
-~~~
+```
 
 ### fetchAssoc($offset_or_keys = 0, callable $callable = null)
 
@@ -74,7 +74,7 @@ This array keys can be specified as the first argument as
 
 Using a non empty array:
 
-~~~php
+```php
 <?php
 
 $data = $reader->fetchAssoc(['firstname', 'lastname', 'email']);
@@ -87,11 +87,11 @@ $data = $reader->fetchAssoc(['firstname', 'lastname', 'email']);
 //   ...
 // ]
 //
-~~~
+```
 
 Using a specific offset:
 
-~~~php
+```php
 <?php
 
 $data = $reader->fetchAssoc();
@@ -103,7 +103,7 @@ $data = $reader->fetchAssoc();
 //   ...
 // ]
 //
-~~~
+```
 
 Of note:
 
@@ -118,7 +118,7 @@ Of note:
 
 If for a given row the column does not exist, the row will be skipped.
 
-~~~php
+```php
 <?php
 
 $data = $reader->fetchColumn(2);
@@ -126,7 +126,7 @@ $data = $reader->fetchColumn(2);
 //
 // ['john.doe@example.com', 'jane.doe@example.com', ...]
 //
-~~~
+```
 
 <div class="message-warning">
 <strong>BC break starting with <code>version 7.0</code> :</strong>
@@ -144,7 +144,7 @@ The methods listed above (`query`, `fetchAll`, `fetchAssoc`, `fetchColumn`) can 
 - the current csv key
 - the current csv iterator object
 
-~~~php
+```php
 <?php
 
 $data = $reader->fetchAll(function ($row) {
@@ -159,7 +159,7 @@ $data = $reader->fetchAll(function ($row) {
 // ]
 //
 $nb_rows = count($data);
-~~~
+```
 
 <p class="message-warning">In case of the <code>fetchAssoc</code> method, it's the callable result which is combine to the array key.</p>
 
@@ -167,7 +167,7 @@ $nb_rows = count($data);
 
 `fetchOne` return one single row from the CSV data. The required argument $offset represent the row index starting at 0. If no argument is given to the method it will return the first row from the CSV data.
 
-~~~php
+```php
 <?php
 
 $data = $reader->fetchOne(3); ///accessing the 4th row (indexing starts at 0)
@@ -175,7 +175,7 @@ $data = $reader->fetchOne(3); ///accessing the 4th row (indexing starts at 0)
 //
 //   ['john', 'doe', 'john.doe@example.com']
 //
-~~~
+```
 
 ### each(callable $callable)
 
@@ -189,7 +189,7 @@ $data = $reader->fetchOne(3); ///accessing the 4th row (indexing starts at 0)
 
 The method returns the number of successful iterations.
 
-~~~php
+```php
 <?php
 
 <?php
@@ -204,4 +204,4 @@ $nbIteration = $reader->each(function ($row, $index, $iterator) use (&$res, $fun
     $res[] = $row;
     return true;
 });
-~~~
+```
