@@ -13,9 +13,9 @@ The `EncloseField` is a PHP stream filter which forces the `Writer` class to enc
 
 ## Usage with Writer objects
 
-~~~php
+```php
 public static EncloseField::addTo(Writer $csv, string $sequence): Writer
-~~~
+```
 
 The `EncloseField::addTo` method will:
 
@@ -23,7 +23,7 @@ The `EncloseField::addTo` method will:
 - add a formatter to the `Writer` object to force `fputcsv` to enclose all record field
 - add a stream filter to the `Writer` object to remove the added sequence from the final CSV.
 
-~~~php
+```php
 use League\Csv\EncloseField;
 use League\Csv\Writer;
 
@@ -31,23 +31,23 @@ $writer = Writer::createFromPath('php://temp');
 EncloseField::addTo($writer, "\t\x1f"); //adding the stream filter to force enclosure
 $writer->insertAll($iterable_data);
 $writer->output('mycsvfile.csv'); //outputting a CSV Document with all its field enclosed
-~~~
+```
 
 <p class="message-warning">The <code>$sequence</code> argument should be a sequence containing at least one character that forces <code>fputcsv</code> to enclose the field value. If not, an <code>InvalidArgumentException</code> exception will be thrown.</p>
 
 ## Usage with PHP stream resources
 
-~~~php
+```php
 public static EncloseField::register(): void
 public static EncloseField::getFiltername(): string
-~~~
+```
 
 To use this stream filter outside `League\Csv` objects you need to:
 
 - register the stream filter using `EncloseField::register` method.
 - use `EncloseField::getFiltername` with one of PHP's attaching stream filter functions with the correct arguments as shown below:
 
-~~~php
+```php
 use League\Csv\EncloseField;
 
 EncloseField::register();
@@ -64,4 +64,4 @@ $record = array_map(function ($value) use ($sequence) {
 }, $record);
 
 fputcsv($resource, $record);
-~~~
+```

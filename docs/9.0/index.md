@@ -19,7 +19,7 @@ layout: default
 
 Accessing some records from a given CSV documents.
 
-~~~php
+```php
 use League\Csv\Reader;
 use League\Csv\Statement;
 
@@ -36,14 +36,13 @@ $records = $stmt->process($csv);
 foreach ($records as $record) {
     //do something here
 }
-
-~~~
+```
 
 ### Exporting a database table as a CSV document
 
 Create and download a CSV from a `PDOStatement` object
 
-~~~php
+```php
 use League\Csv\Writer;
 
 //we fetch the info from a DB using a PDO object
@@ -72,13 +71,13 @@ $csv->insertAll($sth);
 // The file is downloadable
 $csv->output('users.csv');
 die;
-~~~
+```
 
 ### Importing CSV records into a database table
 
 Importing CSV records into a database using a `PDOStatement` object
 
-~~~php
+```php
 use League\Csv\Reader;
 
 //We are going to insert some data into the users table
@@ -100,13 +99,13 @@ foreach ($csv as $record) {
     $sth->bindValue(':email', $record['E-mail'], PDO::PARAM_STR);
     $sth->execute();
 }
-~~~
+```
 
 ### Encoding a CSV document into a given charset
 
 When importing csv files, you don't know whether the file is encoded with `UTF-8`, `UTF-16` or anything else.
 
-~~~php
+```php
 use League\Csv\Reader;
 use League\Csv\CharsetConverter;
 
@@ -122,13 +121,13 @@ if ($input_bom === Reader::BOM_UTF16_LE || $input_bom === Reader::BOM_UTF16_BE) 
 foreach ($csv as $record) {
     //all fields from the record are converted into UTF-8 charset
 }
-~~~
+```
 
 ### Converting a CSV document into a XML document
 
 Using the provided `XMLConverter` object you can easily convert a CSV document into a `DOMDocument` object.
 
-~~~php
+```php
 use League\Csv\XMLConverter;
 use League\Csv\Reader;
 
@@ -164,4 +163,4 @@ echo htmlentities($dom->saveXML());
 //     <field name="annee">2005</field>
 //   </record>
 // </csv>
-~~~
+```

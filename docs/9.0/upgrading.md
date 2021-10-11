@@ -14,9 +14,9 @@ This guide will help you migrate from a 8.x version to 9.0. It will only explain
 
 If you are using composer then you should update the require section of your `composer.json` file.
 
-~~~
+```bash
 composer require league/csv:^9.0
-~~~
+```
 
 This will edit (or create) your `composer.json` file.
 
@@ -34,19 +34,18 @@ The `Writer::insertOne` and `Writer::insertAll` methods no longer accept string 
 
 Before:
 
-~~~php
+```php
 use League\Csv\Writer;
 
 $writer = Writer::createFromFileObject(new SplTempFileObject());
 $str = 'john,doe,john.doe@example.com';
 $writer->insertOne($str);
 $writer->insertAll([$str]);
-
-~~~
+```
 
 After:
 
-~~~php
+```php
 use League\Csv\Reader;
 use League\Csv\Writer;
 
@@ -54,7 +53,7 @@ $writer = Writer::createFromFileObject(new SplTempFileObject());
 $reader = Reader::createFromString('john,doe,john.doe@example.com');
 $writer->insertOne($reader->fetchOne());
 $writer->insertAll($reader);
-~~~
+```
 
 ### Reduced method chaining
 
@@ -62,7 +61,7 @@ The `Writer::insertOne` and `Writer::insertAll` methods are no longer chainable.
 
 Before:
 
-~~~php
+```php
 use League\Csv\Writer;
 
 $writer = Writer::createFromFileObject(new SplTempFileObject());
@@ -72,11 +71,11 @@ $writer
     ->insertAll([$record])
     ->insertOne($record)
 ;
-~~~
+```
 
 After:
 
-~~~php
+```php
 use League\Csv\Writer;
 
 $writer = Writer::createFromFileObject(new SplTempFileObject());
@@ -84,7 +83,7 @@ $record = ['john', 'doe', 'john.doe@example.com'];
 $writer->insertOne($record);
 $writer->insertAll([$record]);
 $writer->insertOne($record);
-~~~
+```
 
 ### Removed methods
 
@@ -118,7 +117,7 @@ You are required to specify the CSV header using `Reader::setHeaderOffset`.
 
 Before:
 
-~~~php
+```php
 use League\Csv\Reader;
 
 $reader = Reader::createFromPath('/path/to/file.csv', 'r');
@@ -127,11 +126,11 @@ foreach ($reader->fetchAssoc() as $records) {
     //and as the index of each found record
     //the CSV header offset is removed from iteration
 }
-~~~
+```
 
 After:
 
-~~~php
+```php
 use League\Csv\Reader;
 
 $reader = Reader::createFromPath('/path/to/file.csv', 'r');
@@ -141,33 +140,33 @@ foreach ($reader->getRecords() as $records) {
     //and as the index of each found record
     //the CSV header offset is removed from iteration
 }
-~~~
+```
 
 or you can use the optional `$header` argument from the `Reader::getRecords` method.
 
 Before:
 
-~~~php
+```php
 use League\Csv\Reader;
 
 $reader = Reader::createFromPath('/path/to/file.csv', 'r');
 $records = $reader->fetchAssoc(['firstname', 'lastname', 'email']);
-~~~
+```
 
 After:
 
-~~~php
+```php
 use League\Csv\Reader;
 
 $reader = Reader::createFromPath('/path/to/file.csv', 'r');
 $records = $reader->getRecords(['firstname', 'lastname', 'email']);
-~~~
+```
 
 Last but not least if you are using query filters then use the optional `$header` argument from the `Statement::process` method.
 
 Before:
 
-~~~php
+```php
 use League\Csv\Reader;
 
 $reader = Reader::createFromPath('/path/to/file.csv', 'r');
@@ -176,11 +175,11 @@ $records = $reader
     ->offset(3)
     ->fetchAssoc(['firstname', 'lastname', 'email'])
 ;
-~~~
+```
 
 After:
 
-~~~php
+```php
 use League\Csv\Reader;
 
 $reader = Reader::createFromPath('/path/to/file.csv', 'r');
@@ -190,7 +189,7 @@ $stmt = (new Statement())
 ;
 
 $records = $stmt->process($reader, ['firstname', 'lastname', 'email']);
-~~~
+```
 
 #### Reader::fetchAll, Reader::fetch, Reader::each
 
@@ -198,29 +197,29 @@ Theses methods are removed because the `Reader` and the `ResultSet` implements t
 
 Before:
 
-~~~php
+```php
 use League\Csv\Reader;
 
 $reader = Reader::createFromPath('/path/to/file.csv', 'r');
 foreach ($reader->fetchAll() as $key => $value) {
     // do something here
 }
-~~~
+```
 
 After:
 
-~~~php
+```php
 use League\Csv\Reader;
 
 $reader = Reader::createFromPath('/path/to/file.csv', 'r');
 foreach ($reader as $record) {
     // do something here
 }
-~~~
+```
 
 Before:
 
-~~~php
+```php
 use League\Csv\Reader;
 
 $reader = Reader::createFromPath('/path/to/file.csv', 'r');
@@ -238,11 +237,11 @@ $records = $reader
 foreach ($records as $record) {
     // do something here
 }
-~~~
+```
 
 After:
 
-~~~php
+```php
 use League\Csv\Reader;
 use League\Csv\Statement;
 
@@ -256,7 +255,7 @@ foreach ($records as $record) {
     $res = array_map('strtoupper', $record);
     // do something here
 }
-~~~
+```
 
 #### Reader::fetchPairsWithoutDuplicates
 
@@ -264,7 +263,7 @@ The `Reader::fetchPairsWithoutDuplicates` is removed as it is redundant with the
 
 Before:
 
-~~~php
+```php
 use League\Csv\Reader;
 
 $reader = Reader::createFromPath('/path/to/file.csv', 'r');
@@ -277,11 +276,11 @@ $pairs_without_duplicates = $reader
 foreach ($pairs_without_duplicates as $key => $value) {
     // do something here
 }
-~~~
+```
 
 After:
 
-~~~php
+```php
 use League\Csv\Reader;
 use League\Csv\Statement;
 
@@ -295,7 +294,7 @@ $pairs_without_duplicates = iterator_to_array($records->fetchPairs(), true);
 foreach ($pairs_without_duplicates as $record) {
     // do something here
 }
-~~~
+```
 
 #### Reader::fetchDelimitersOccurrence
 
@@ -303,22 +302,22 @@ Use the `League\Csv\delimiter_detect` function instead with a `Reader` object.
 
 Before:
 
-~~~php
+```php
 use League\Csv\Reader;
 
 $reader = Reader::createFromPath('/path/to/file.csv', 'r');
 $stats = $reader->fetchDelimitersOccurrence([',', ';', "\t"], 10);
-~~~
+```
 
 After:
 
-~~~php
+```php
 use League\Csv\Reader;
 use function League\Csv\delimiter_detect;
 
 $reader = Reader::createFromPath('/path/to/file.csv', 'r');
 $stats = delimiter_detect($reader, [',', ';', "\t"], 10);
-~~~
+```
 
 ### Optional callable arguments are removed
 
@@ -329,25 +328,25 @@ The following methods no longer accept an optional callable as argument because 
 
 Before:
 
-~~~php
+```php
 use League\Csv\Reader;
 
 $reader = Reader::createFromPath('/path/to/file.csv', 'r');
 $records = $reader->fetchColumn(0, function ($value) {
     return strtoupper($value);
 });
-~~~
+```
 
 After:
 
-~~~php
+```php
 use League\Csv\Reader;
 
 $reader = Reader::createFromPath('/path/to/file.csv', 'r');
 foreach ($records->fetchColumn(0) as $value) {
     $value = strtoupper($value);
 };
-~~~
+```
 
 ## Stream Filtering
 
@@ -357,21 +356,21 @@ To detect if PHP stream filters are supported you need to call `AbstractCsv::sup
 
 Before:
 
-~~~php
+```php
 use League\Csv\Writer;
 
 $csv = Writer::createFromPath('/path/to/file.csv');
 $csv->isActiveStreamFilter(); //true
-~~~
+```
 
 After:
 
-~~~php
+```php
 use League\Csv\Writer;
 
 $csv = Writer::createFromPath('/path/to/file.csv');
 $csv->supportsStreamFilter(); //true
-~~~
+```
 
 ### Stream mode
 
@@ -386,24 +385,24 @@ To add a stream filter you will only need the `AbstractCsv::addStreamFilter` met
 
 Before:
 
-~~~php
+```php
 use League\Csv\Writer;
 
 $csv = Writer::createFromPath('/path/to/file.csv');
 $csv->appendStreamFilter('string.toupper');
 $csv->prependStreamFilter('string.rot13');
-~~~
+```
 
 After:
 
-~~~php
+```php
 use League\Csv\Writer;
 
 $csv = Writer::createFromPath('/path/to/file.csv');
 $csv->addStreamFilter('string.rot13');
 $csv->addStreamFilter('string.toupper');
 //the insertion order has changed
-~~~
+```
 
 ### stream filter removal
 
@@ -411,7 +410,7 @@ PHP Stream filters will only be removed on CSV object destruction.
 
 Before:
 
-~~~php
+```php
 use League\Csv\Writer;
 
 $csv = Writer::createFromPath('/path/to/file.csv');
@@ -419,18 +418,18 @@ $csv->appendStreamFilter('string.toupper');
 $csv->prependStreamFilter('string.rot13');
 $csv->removeStreamFilter('string.rot13');
 $csv->clearStreamFilters();
-~~~
+```
 
 After:
 
-~~~php
+```php
 use League\Csv\Writer;
 
 $csv = Writer::createFromPath('/path/to/file.csv');
 $csv->addStreamFilter('string.rot13');
 $csv->addStreamFilter('string.toupper');
 $csv = null;
-~~~
+```
 
 ## Conversion methods
 
@@ -444,22 +443,22 @@ And you can no longer convert a `Writer` class.
 
 Before:
 
-~~~php
+```php
 use League\Csv\Writer;
 
 $csv = Writer::createFromPath('/path/to/file.csv');
 $dom = $csv->toXML(); //$dom is a DOMDocument
-~~~
+```
 
 After:
 
-~~~php
+```php
 use League\Csv\XMLConverter;
 use League\Csv\Reader;
 
 $csv = Reader::createFromPath('/path/to/file.csv', 'r');
 $dom = (new XMLConverter())->convert($csv); //$dom is a DOMDocument
-~~~
+```
 
 ## Miscellaneous
 
@@ -476,7 +475,7 @@ You can no longer switch between connection. You are require to explicitly load 
 
 Before:
 
-~~~php
+```php
 use League\Csv\Plugin\ColumnConsistencyValidator;
 use League\Csv\Writer;
 
@@ -485,14 +484,14 @@ $validator->autodetectColumnCount();
 
 $csv = Writer::createFromPath('/path/to/file.csv');
 $csv->addValidator($validator, 'columns_consistency');
-~~~
+```
 
 After:
 
-~~~php
+```php
 use League\Csv\ColumnConsistency;
 use League\Csv\Writer;
 
 $csv = Writer::createFromPath('/path/to/file.csv');
 $csv->addValidator(new ColumnConsistency(), 'columns_consistency');
-~~~
+```

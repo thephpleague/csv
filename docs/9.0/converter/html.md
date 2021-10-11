@@ -15,10 +15,10 @@ Prior to converting your records collection into a HTML table, you may wish to c
 
 ### HTMLConverter::table
 
-~~~php
+```php
 <?php
 public HTMLConverter::table(string $class_name, string $id_value = ''): self
-~~~
+```
 
 This method sets the optional table `class` and `id` attribute values
 
@@ -27,10 +27,10 @@ This method sets the optional table `class` and `id` attribute values
 
 ### HTMLConverter::tr
 
-~~~php
+```php
 <?php
 public HTMLConverter::tr(string $record_offset_attribute_name): self
-~~~
+```
 
 This method sets the optional attribute name for the record offset on the HTML `tr` tag.
 
@@ -38,10 +38,10 @@ This method sets the optional attribute name for the record offset on the HTML `
 
 ### HTMLConverter::td
 
-~~~php
+```php
 <?php
 public HTMLConverter::td(string $fieldname_attribute_name): self
-~~~
+```
 
 This method sets the optional attribute name for the field name on the HTML `td` tag.
 
@@ -51,10 +51,10 @@ This method sets the optional attribute name for the field name on the HTML `td`
 
 <p class="message-info">Since version <code>9.3.0</code> this method accepts optional header and footer records to display them in the exported HTML table.</p>
 
-~~~php
+```php
 <?php
 public HTMLConverter::convert(iterable $records, array $header_record = [], array $footer_record = []): string
-~~~
+```
 
 The `HTMLConverter::convert` accepts an `iterable` which represents the records collection and returns a string.
 It optionally accepts:
@@ -64,7 +64,7 @@ It optionally accepts:
 
 If any of these array is present and non-empty the tabular data will be contained in a `tbody` tag as per HTML specification.
 
-~~~php
+```php
 use League\Csv\HTMLConverter;
 
 //we fetch the info from a DB using a PDO object
@@ -124,7 +124,6 @@ echo $html;
 // </tr>
 // </tbody>
 // </table>
-
-~~~
+```
 
 <p class="message-info">If needed you can use the <a href="/9.0/converter/charset/">CharsetConverter</a> object to correctly encode your CSV records before conversion.</p>

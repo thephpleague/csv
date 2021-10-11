@@ -16,12 +16,12 @@ The following methods are added:
 - `supportsStreamFilterOnRead` tells whether the stream filter API on reading mode is supported by the CSV object;
 - `supportsStreamFilterOnWrite` tells whether the stream filter API on writing mode is supported by the CSV object;
 
-~~~php
+```php
 public AbstractCsv::supportsStreamFilterOnRead(void): bool
 public AbstractCsv::supportsStreamFilterOnWrite(void): bool
-~~~
+```
 
-~~~php
+```php
 use League\Csv\Reader;
 use League\Csv\Writer;
 
@@ -32,14 +32,14 @@ $reader->supportsStreamFilterOnWrite(); //return false
 $writer = Writer::createFromFileObject(new SplTempFileObject());
 $writer->supportsStreamFilterOnRead(); // returns false, the API can not be used
 $writer->supportsStreamFilterOnWrite(); // returns false, the API can not be used
-~~~
+```
 
 <p class="message-notice">The following methods still work but are deprecated since version <code>9.7.0</code></p>
 
-~~~php
+```php
 public AbstractCsv::supportsStreamFilter(void): bool
 public AbstractCsv::getStreamFilterMode(void): int
-~~~
+```
 
 The `supportsStreamFilter` tells whether the stream filter API is supported by the current object whereas the `getStreamFilterMode` returns the filter mode used to add new stream filters to the CSV object.
 The filter mode value is one of the following PHP's constant:
@@ -49,7 +49,7 @@ The filter mode value is one of the following PHP's constant:
 
 Regardless of stream filter API support by a specific CSV object, `getStreamFilterMode` will always return a value.
 
-~~~php
+```php
 use League\Csv\Reader;
 use League\Csv\Writer;
 
@@ -60,7 +60,7 @@ $reader->getStreamFilterMode(); //return STREAM_FILTER_READ
 $writer = Writer::createFromFileObject(new SplTempFileObject());
 $writer->supportsStreamFilter(); // returns false, the API can not be used
 $writer->getStreamFilterMode(); // returns STREAM_FILTER_WRITE
-~~~
+```
 
 <p class="message-warning">A <code>League\Csv\Exception</code> exception will be thrown if you use the API on a object where <code>supportsStreamFilter</code> returns <code>false</code>.</p>
 
@@ -77,10 +77,10 @@ Here's a table to quickly determine if PHP stream filters works depending on how
 
 ## Adding a stream filter
 
-~~~php
+```php
 public AbstractCsv::addStreamFilter(string $filtername, mixed $params = null): self
 public AbstractCsv::hasStreamFilter(string $filtername): bool
-~~~
+```
 
 The `AbstractCsv::addStreamFilter` method adds a stream filter to the connection.
 
@@ -92,7 +92,7 @@ The `AbstractCsv::addStreamFilter` method adds a stream filter to the connection
 
 The `AbstractCsv::hasStreamFilter` method tells whether a specific stream filter is already attached to the connection.
 
-~~~php
+```php
 use League\Csv\Reader;
 use MyLib\Transcode;
 
@@ -112,7 +112,7 @@ foreach ($reader as $row) {
     // each row cell now contains strings that have been:
     // first UTF8 decoded and then uppercased
 }
-~~~
+```
 
 ## Stream filters removal
 
@@ -125,7 +125,7 @@ Conversely, stream filters added **without** `addStreamFilter` are:
 - not detected by the library.
 - not removed on object destruction.
 
-~~~php
+```php
 use League\Csv\Reader;
 use MyLib\Transcode;
 
@@ -139,7 +139,7 @@ $reader->hasStreamFilter('string.rot13'); //returns false
 $reader = null;
 // 'string.rot13' is still attached to `$fp`
 // filters added using `addStreamFilter` are removed
-~~~
+```
 
 ## Bundled stream filters
 
