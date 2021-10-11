@@ -10,9 +10,9 @@ redirect_from: /upgrading/8.0/
 
 If you are using composer then you should update the require section of your `composer.json` file.
 
-~~~
+```bash
 composer require league/csv:^8.0
-~~~
+```
 
 This will edit (or create) your `composer.json` file.
 
@@ -39,18 +39,18 @@ In version 8.0 the optional second argument from `createFromString` is removed. 
 
 **Old code:**
 
-~~~php
+```php
 <?php
 
 use League\Csv\Writer;
 
 $writer = Writer::createFromString($str, "\r\n");
 $writer->insertOne(["foo", null, "bar"]);
-~~~
+```
 
 **New code:**
 
-~~~php
+```php
 <?php
 
 use League\Csv\Writer;
@@ -58,7 +58,7 @@ use League\Csv\Writer;
 $writer = Writer::createFromString($str);
 $writer->setNewline("\r\n")
 $writer->insertOne(["foo", null, "bar"]);
-~~~
+```
 
 ### Remove SplFileObject flags usage
 
@@ -71,7 +71,7 @@ The `SplFileObject` flags are normalized to have a normalized CSV filtering inde
 
 **Old code:**
 
-~~~php
+```php
 <?php
 
 use League\Csv\Reader;
@@ -79,18 +79,18 @@ use League\Csv\Reader;
 $csv = Reader::createFromPath('/path/to/file.csv', 'r');
 $csv->setFlags(SplFileObject::READ_AHEAD | SplFileObject::SKIP_EMPTY);
 $csv->fetchAssoc(); //empty lines where removed
-~~~
+```
 
 **New code:**
 
-~~~php
+```php
 <?php
 
 use League\Csv\Reader;
 
 $csv = Reader::createFromPath('/path/to/file.csv', 'r');
 $csv->fetchAssoc(); //empty lines are automatically removed
-~~~
+```
 
 ### fetchAssoc and fetchColumn return Iterator
 
@@ -98,7 +98,7 @@ $csv->fetchAssoc(); //empty lines are automatically removed
 
 **Old code:**
 
-~~~php
+```php
 <?php
 
 use League\Csv\Reader;
@@ -107,11 +107,11 @@ $csv = Reader::createFromPath('/path/to/file.csv', 'r');
 $res = $csv->fetchAssoc(['lastname', 'firstname']);
 
 echo $res[0]['lastname']; //would return the first row 'lastname' index
-~~~
+```
 
 **New code:**
 
-~~~php
+```php
 <?php
 
 use League\Csv\Reader;
@@ -120,7 +120,7 @@ $csv = Reader::createFromPath('/path/to/file.csv', 'r');
 $res = $csv->fetchAssoc(['lastname', 'firstname']);
 
 echo iterator_to_array($res, false)[0]['lastname'];
-~~~
+```
 
 ### fetchAssoc callable argument
 
@@ -128,7 +128,7 @@ The optional callable argument from `Reader::fetchAssoc` now expects its first a
 
 **Old code:**
 
-~~~php
+```php
 <?php
 
 use League\Csv\Reader;
@@ -142,11 +142,11 @@ $func = function (array $row) {
 
 $csv = Reader::createFromPath('/path/to/file.csv', 'r');
 $res = $csv->fetchAssoc(['lastname', 'firstname'], $func);
-~~~
+```
 
 **New code:**
 
-~~~php
+```php
 <?php
 
 use League\Csv\Reader;
@@ -160,7 +160,7 @@ $func = function (array $row) {
 
 $csv = Reader::createFromPath('/path/to/file.csv', 'r');
 $res = $csv->fetchAssoc(['lastname', 'firstname'], $func);
-~~~
+```
 
 ### fetchColumn callable argument
 
@@ -168,7 +168,7 @@ The optional callable argument from `Reader::fetchColumn` now expects its first 
 
 **Old code:**
 
-~~~php
+```php
 <?php
 
 use League\Csv\Reader;
@@ -181,11 +181,11 @@ $func = function (array $row) {
 
 $csv = Reader::createFromPath('/path/to/file.csv', 'r');
 $res = $csv->fetchColumn(2, $func);
-~~~
+```
 
 **New code:**
 
-~~~php
+```php
 <?php
 
 use League\Csv\Reader;
@@ -196,7 +196,7 @@ $func = function ($value) {
 
 $csv = Reader::createFromPath('/path/to/file.csv', 'r');
 $res = $csv->fetchColum(2, $func);
-~~~
+```
 
 ## Deprecated methods in 7.0 series, removed in 8.0
 

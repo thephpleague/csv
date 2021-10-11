@@ -16,17 +16,17 @@ If your CSV is not UTF-8 encoded some unexpected results and some errors may be 
 
 `AbstractCsv` implements the `JsonSerializable` interface. As such you can use the `json_encode` function directly on the instantiated object.
 
-~~~php
+```php
 <?php
 
 echo json_encode($reader);
-~~~
+```
 
 ## Convert to XML
 
 Use the `toXML` method to convert the CSV data into a `DomDocument` object.
 
-~~~php
+```php
 <?php
 
 public AbstractCsv::toXML(
@@ -34,7 +34,7 @@ public AbstractCsv::toXML(
     string $row_name = 'row',
     string $cell_name = 'cell'
 ): DOMDocument
-~~~
+```
 
 This method accepts 3 optionals arguments to help you customize the XML tree:
 
@@ -42,40 +42,40 @@ This method accepts 3 optionals arguments to help you customize the XML tree:
 - `$row_name`, the XML node element representing a CSV row which defaults to `row`;
 - `$cell_name`, the XML node element for each CSV cell which defaults value is `cell`;
 
-~~~php
+```php
 <?php
 
 use League\Csv\Reader;
 
 $reader = Reader::createFromPath('/path/to/file.csv', 'r');
 $dom = $reader->toXML('data', 'line', 'item');
-~~~
+```
 
 ## Convert to HTML table
 
 Use the `toHTML` method to convert the CSV data into an HTML table.
 
-~~~php
+```php
 <?php
 
 public AbstractCsv::toHTML(string $classAttribute = 'table-csv-data'): string
-~~~
+```
 
 This method accepts an optional argument `$classAttribute` to help you customize the table
 rendering. By default, the classname given to the table is `table-csv-data`.
 
-~~~php
+```php
 <?php
 
 use League\Csv\Reader;
 
 $reader = Reader::createFromPath('/path/to/file.csv', 'r');
 echo $reader->toHTML('table table-bordered table-hover');
-~~~
+```
 
 ## Example using data transcode before conversion
 
-~~~php
+```php
 <?php
 
 use League\Csv\Reader;
@@ -87,4 +87,4 @@ echo json_encode($reader);
 //the CSV is transcoded from iso-8859-15 to UTF-8
 //before being converted to JSON format;
 echo $reader; //outputting the data is not affected by the conversion
-~~~
+```
