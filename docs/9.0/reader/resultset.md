@@ -76,6 +76,7 @@ count($records); //return the total number of records found
 ~~~php
 public ResultSet::getRecords(array $header = []): Iterator
 ~~~
+
 <p class="message-info">Starting with version <code>9.6.0</code>, the class implements the <code>ResultSet::getRecords</code> methods matches the same arguments and the same signature as the <code>Reader::getRecords</code> method.</p>
 
 To iterate over each found records you can call the `ResultSet::getRecords` method which returns a `Generator` of all records found or directly use the `foreach` construct as the class implements the `IteratorAggregate` interface;

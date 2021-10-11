@@ -7,7 +7,7 @@ title: Csv character controls
 
 To correctly parse a CSV document you are required to set the character controls to be used by the `Reader` or the `Writer` object.
 
-## The delimiter character.
+## The delimiter character
 
 ### Description
 
@@ -122,9 +122,9 @@ The `Info::getDelimiterStats` static method helps detect the possible delimiter 
 
 The function takes three (3) arguments:
 
-* a [Reader](/9.0/reader/) object
-* an array containing the delimiters to check;
-* an integer which represents the number of CSV records to scan (default to `1`);
+- a [Reader](/9.0/reader/) object
+- an array containing the delimiters to check;
+- an integer which represents the number of CSV records to scan (default to `1`);
 
 and returns an associated array whose keys are the submitted delimiters characters and whose values represents the field numbers found depending on the delimiter value.
 
@@ -146,6 +146,7 @@ $result = Info::getDelimiterStats($reader, [' ', '|'], 10);
 // - 20 fields were counted with the "|" delimiter in the 10 first records;
 // - in contrast no field was detected for the " " delimiter;
 ~~~
+
 If the submitted delimiter **is invalid or not found** in the document, `0` will be returned as its associated value.
 
 <p class="message-info">To detect the delimiters stats on the full CSV document you need to set <code>$limit</code> to <code>-1</code>.</p>

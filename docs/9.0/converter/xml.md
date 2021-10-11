@@ -121,7 +121,7 @@ This method takes two arguments:
 
  Of note the resulting `DOMElement` is attached to the given `DOMDocument` object but not yet included in the document tree.
  To include it, you still need to call a DOM insertion method like `appendChild` or `insertBefore` with a node that *is* currently in the document tree.
- 
+
  ~~~php
  use League\Csv\XMLConverter;
  use League\Csv\Statement;

@@ -40,7 +40,6 @@ The sorting options are applied **after the Statement::where options**. The sort
 <p class="message-warning"><strong>Warning:</strong> To sort the data <code>iterator_to_array</code> is used, which could lead to a performance penalty if you have a heavy CSV file to sort
 </p>
 
-
 `Statement::orderBy` method adds a sorting function each time it is called.
 
 ~~~php
@@ -140,4 +139,3 @@ $stmt2 = Statement::create(null, 3, 2);
 $records = $stmt2->process($resultSet);
 // the $records and the $resultSet parameters are distinct League\Csv\ResultSet instances.
 ~~~
-

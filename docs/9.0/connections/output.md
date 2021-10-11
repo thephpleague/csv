@@ -11,7 +11,6 @@ The output methods **are affected by** [the output BOM sequence](/9.0/connection
 
 <p class="message-info">Even though you can use the following methods with the <code>League\Csv\Writer</code> object. It is recommended to do so with the <code>League\Csv\Reader</code> class to avoid losing the file cursor position and getting unexpected results when inserting new data.</p>
 
-
 ## Printing the document
 
 Returns the string representation of the CSV document
@@ -149,7 +148,7 @@ return new Response($reader->getContent(), 200, [
 ~~~
 
 In some cases you can also use a Streaming Response for larger files.  
-The following example uses Symfony's [StreamedResponse](http://symfony.com/doc/current/components/http_foundation/introduction.html#streaming-a-response) object. 
+The following example uses Symfony's [StreamedResponse](http://symfony.com/doc/current/components/http_foundation/introduction.html#streaming-a-response) object.
 
 <p class="message-notice"><i>Be sure to adapt the following code to your own framework/situation. The following code is given as an example without warranty of it working out of the box.</i></p>
 

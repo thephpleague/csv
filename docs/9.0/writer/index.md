@@ -122,7 +122,6 @@ By default, `getFlushTreshold` returns `null`.
 
 <p class="message-info">If set to <code>null</code> the inner flush mechanism of PHP's <code>fputcsv</code> will be used.</p>
 
-
 ## Records filtering
 
 ~~~php
@@ -206,4 +205,3 @@ try {
     $e->getData();//will return the invalid data ['john', 'doe', 'john.doe@example.com']
 }
 ~~~
-

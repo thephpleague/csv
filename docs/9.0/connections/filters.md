@@ -41,7 +41,7 @@ public AbstractCsv::supportsStreamFilter(void): bool
 public AbstractCsv::getStreamFilterMode(void): int
 ~~~
 
-The `supportsStreamFilter` tells whether the stream filter API is supported by the current object whereas the `getStreamFilterMode` returns the filter mode used to add new stream filters to the CSV object.  
+The `supportsStreamFilter` tells whether the stream filter API is supported by the current object whereas the `getStreamFilterMode` returns the filter mode used to add new stream filters to the CSV object.
 The filter mode value is one of the following PHP's constant:
 
 - `STREAM_FILTER_READ` to add stream filter on read
@@ -71,10 +71,9 @@ Here's a table to quickly determine if PHP stream filters works depending on how
 | Named constructor      |   supports stream      |
 |------------------------|------------------------|
 | `createFromString`     |         true           |
-| `createFromPath  `     |         true           |
+| `createFromPath`       |         true           |
 | `createFromStream`     |         true           |
 | `createFromFileObject` |       **false**        |
-
 
 ## Adding a stream filter
 
@@ -102,16 +101,16 @@ stream_filter_register('convert.utf8decode', Transcode::class);
 
 $reader = Reader::createFromPath('/path/to/my/chinese.csv', 'r');
 if ($reader->supportsStreamFilterOnRead()) {
-	$reader->addStreamFilter('convert.utf8decode');
-	$reader->addStreamFilter('string.toupper');
+    $reader->addStreamFilter('convert.utf8decode');
+    $reader->addStreamFilter('string.toupper');
 }
 
 $reader->hasStreamFilter('string.toupper'); //returns true
 $reader->hasStreamFilter('string.tolower'); //returns false
 
 foreach ($reader as $row) {
-	// each row cell now contains strings that have been:
-	// first UTF8 decoded and then uppercased
+    // each row cell now contains strings that have been:
+    // first UTF8 decoded and then uppercased
 }
 ~~~
 

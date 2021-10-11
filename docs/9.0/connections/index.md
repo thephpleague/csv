@@ -9,8 +9,8 @@ title: CSV documents configurations
 
 Accessing the CSV document is done using one of the following class:
 
-* `League\Csv\Reader` to connect on a [read only mode](/9.0/reader/)
-* `League\Csv\Writer` to connect on a [write only mode](/9.0/writer/)
+- `League\Csv\Reader` to connect on a [read only mode](/9.0/reader/)
+- `League\Csv\Writer` to connect on a [write only mode](/9.0/writer/)
 
 Both classes extend the `League\Csv\AbstractCsv` class and as such share the following features:
 
