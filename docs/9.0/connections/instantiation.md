@@ -27,14 +27,13 @@ $writer = Writer::createFromString('john,doe,john.doe@example.com');
 
 <p class="message-notice">Since version <code>9.2.0</code> the  <code>$str</code> argument default value is the empty string to ease usage.</p>
 
-
 ## Loading from a file path
 
 ~~~php
 public static AbstractCsv::createFromPath(
-	string $path,
-	string $open_mode = 'r+',
-	resource $context = null
+    string $path,
+    string $open_mode = 'r+',
+    resource $context = null
 ): self
 ~~~
 

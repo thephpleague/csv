@@ -13,11 +13,11 @@ To improve interoperability with programs interacting with CSV, the package now 
 
 The `ByteSequence` interface provides the following constants :
 
-* `ByteSequence::BOM_UTF8` : contains `UTF-8` `BOM` sequence;
-* `ByteSequence::BOM_UTF16_BE` : contains `UTF-16` `BOM` with Big-Endian sequence;
-* `ByteSequence::BOM_UTF16_LE` : contains `UTF-16` `BOM` with Little-Endian sequence;
-* `ByteSequence::BOM_UTF32_BE` : contains `UTF-32` `BOM` with Big-Endian sequence;
-* `ByteSequence::BOM_UTF32_LE` : contains `UTF-32` `BOM` with Little-Endian sequence;
+- `ByteSequence::BOM_UTF8` : contains `UTF-8` `BOM` sequence;
+- `ByteSequence::BOM_UTF16_BE` : contains `UTF-16` `BOM` with Big-Endian sequence;
+- `ByteSequence::BOM_UTF16_LE` : contains `UTF-16` `BOM` with Little-Endian sequence;
+- `ByteSequence::BOM_UTF32_BE` : contains `UTF-32` `BOM` with Big-Endian sequence;
+- `ByteSequence::BOM_UTF32_LE` : contains `UTF-32` `BOM` with Little-Endian sequence;
 
 ### Info::fetchBOMSequence
 
@@ -35,7 +35,7 @@ Info::fetchBOMSequence(Info::BOM_UTF8.'hello world!'); //returns '\xEF\xBB\xBF'
 Info::fetchBOMSequence('hello world!'.Info::BOM_UTF16_BE); //returns null
 ~~~
 
-This 
+This
 
 ### bom_match
 

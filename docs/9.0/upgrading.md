@@ -68,8 +68,8 @@ use League\Csv\Writer;
 $writer = Writer::createFromFileObject(new SplTempFileObject());
 $record = ['john', 'doe', 'john.doe@example.com'];
 $writer
-	->insertOne($record)
-	->insertAll([$record])
+    ->insertOne($record)
+    ->insertAll([$record])
     ->insertOne($record)
 ;
 ~~~

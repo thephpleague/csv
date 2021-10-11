@@ -78,9 +78,7 @@ echo $writer->getContent(); //display ' o bar,baz' instead of foo bar,baz
 
 <p class="message-info">To fully comply with <code>RFC4180</code> you will also need to use <code>League\Csv\Writer::setNewline</code> method.</p>
 
-
 ### On records extraction
-
 
 Conversely, to read a RFC4180 compliant CSV document, when using the `League\Csv\Reader` object, just need to add the `League\Csv\RFC4180Field` stream filter as shown below:
 

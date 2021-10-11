@@ -40,7 +40,6 @@ $records = $encoder->convert($csv);
 
 The resulting data is converted from `iso-8859-15` to the default `UTF-8` since  no output encoding charset was set using the `CharsertConverter::outputEncoding` method.
 
-
 ## CharsetConverter as a Writer formatter
 
 ~~~php
@@ -108,15 +107,14 @@ CharsetConverter::register();
 
 $resource = fopen('/path/to/my/file', 'r');
 $filter = stream_filter_append(
-	$resource,
-	CharsetConverter::getFiltername('utf-8', 'iso-8859-15'),
-	STREAM_FILTER_READ
+    $resource,
+    CharsetConverter::getFiltername('utf-8', 'iso-8859-15'),
+    STREAM_FILTER_READ
 );
 
 while (false !== ($record = fgetcsv($resource))) {
     //$record is correctly encoded
 }
 ~~~
-
 
 <p class="message-info">If your system supports the <code>iconv</code> extension you should use PHP's built in iconv stream filters instead for better performance.</p>

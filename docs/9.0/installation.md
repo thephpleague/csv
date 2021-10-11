@@ -24,7 +24,7 @@ combination with the latest PHP version.
 `Csv` is available on [Packagist](https://packagist.org/packages/league/csv) and can be installed using [Composer](https://getcomposer.org/):
 
 ~~~
-$ composer require league/csv:^9.0
+composer require league/csv:^9.0
 ~~~
 
 ## Going Solo

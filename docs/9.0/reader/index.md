@@ -64,7 +64,7 @@ $header_offset = $csv->getHeaderOffset(); //returns 1000
 $header = $csv->getHeader(); //triggers a Exception exception
 ~~~
 
-Because the csv document is treated as a tabular data the header can not contain duplicate entries. 
+Because the csv document is treated as a tabular data the header can not contain duplicate entries.
 If the header contains duplicates an exception will be thrown on usage.
 
 ~~~php
@@ -216,8 +216,8 @@ The returned records are normalized using the following rules:
 - Empty records are skipped if present;
 - The document BOM sequence is skipped if present;
 - If a header record was provided, the number of fields is normalized to the number of fields contained in that record:
-    - Extra fields are truncated.
-    - Missing fields are added with a `null` value.
+  - Extra fields are truncated.
+  - Missing fields are added with a `null` value.
 
 ~~~php
 use League\Csv\Reader;
@@ -300,8 +300,7 @@ $res = iterator_to_array($reader, true);
 // [
 //     3 => ['parent name' => 'parentA', 'child name' => 'childA', 'title' => 'titleA'],
 // ]; 
-~~~ 
-
+~~~
 
 ## Records count
 

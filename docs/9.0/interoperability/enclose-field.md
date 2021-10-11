@@ -11,7 +11,6 @@ The `EncloseField` is a PHP stream filter which forces the `Writer` class to enc
 
 <p class="message-warning">Changing the CSV objects control characters <strong>after registering the stream filter</strong> may result in unexpected returned records.</p>
 
-
 ## Usage with Writer objects
 
 ~~~php
@@ -61,7 +60,7 @@ $filter = stream_filter_append($resource, EncloseField::getFiltername(), STREAM_
 ]);
 
 $record = array_map(function ($value) use ($sequence) {
-	return $sequence.$value;
+    return $sequence.$value;
 }, $record);
 
 fputcsv($resource, $record);
