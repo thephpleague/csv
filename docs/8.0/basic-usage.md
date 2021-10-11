@@ -10,7 +10,6 @@ redirect_from: /basic-usage/
 
 Once your CSV object is [instantiated](/8.0/instantiation) and [configured](/8.0/properties/), you can start interacting with the data using a number of methods available to you.
 
-
 ## Iterating over the CSV rows
 
 The CSV object implements PHP's `IteratorAggregate` interface
@@ -118,8 +117,8 @@ use League\Csv\Reader;
 
 $reader = Reader::createFromPath('/path/to/my/file.csv', 'r');
 return new Response((string) $reader, 200, [
-	'Content-Type' => 'text/csv; charset=UTF-8',
-	'Content-Disposition' => 'attachment; filename="name-for-your-file.csv"',
+    'Content-Type' => 'text/csv; charset=UTF-8',
+    'Content-Disposition' => 'attachment; filename="name-for-your-file.csv"',
 ]);
 ~~~
 

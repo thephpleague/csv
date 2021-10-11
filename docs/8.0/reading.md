@@ -378,8 +378,8 @@ function(array $pairs [, int $rowOffset [, Iterator $iterator]]): array
 ~~~
 
 - `$pairs`: an array where
-    - the first value contains the value of the offset column index
-    - the second value contains the value of the value column index
+  - the first value contains the value of the offset column index
+  - the second value contains the value of the value column index
 - `$rowOffset`: the CSV current row offset
 - `$iterator`: the current CSV iterator
 

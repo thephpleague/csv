@@ -10,7 +10,6 @@ Once your object is [instantiated](/8.0/instantiation/) you can optionally set s
 
 <p class="message-notice">Since <code>version 8.1.1</code> The underlying CSV controls from the submitted CSV are inherited by the return <code>AbstractCsv</code> object.</p>
 
-
 ~~~php
 <?php
 
@@ -25,10 +24,9 @@ echo $csv->getDelimiter(); //display '|'
 
 <p class="message-warning">Of note, The escape character is only inherited starting with <code>PHP 5.6.25</code> in the PHP5 line and <code>7.0.10</code> in the PHP7 version.</p>
 
-
 ## Accessing and Setting CSV properties
 
-### The CSV delimiter character.
+### The CSV delimiter character
 
 #### Description
 
@@ -87,7 +85,6 @@ The default enclosure character is `"`.
 <p class="message-warning"><strong>Warning:</strong> The library depends on PHP <code>SplFileObject</code> class. Since this class exhibits <a href="https://bugs.php.net/bug.php?id=55413" target="_blank">a reported bug</a>, <strong>Data using the escape character are correctly escaped but the escape character is not removed from the CSV content</strong>.<br>
 A possible workaround to this issue while waiting for a PHP bug fix is <a href="/8.0/reading/">to register a callable to your extracting method when possible.</a></p>
 
-
 #### Description
 
 ~~~php
@@ -121,15 +118,15 @@ This method allow you to find the occurrences of some delimiters in a given CSV 
 <?php
 
 public AbstractCsv::fetchDelimitersOccurrence(
-	array $delimiters,
-	int $nbRows = 1
+    array $delimiters,
+    int $nbRows = 1
 ): array
 ~~~
 
 The method takes two arguments:
 
-* an array containing the delimiters to check;
-* an integer which represents the number of rows to scan (default to `1`);
+- an array containing the delimiters to check;
+- an integer which represents the number of rows to scan (default to `1`);
 
 ~~~php
 <?php
@@ -158,7 +155,6 @@ $delimiters_list = $reader->fetchDelimitersOccurrence([' ', '|'], 10);
 The following properties only affect the CSV object when you are writing and/or saving data to it.
 
 <p class="message-notice">The <code>Reader</code> class still have access to them.</p>
-
 
 ### The newline sequence
 
