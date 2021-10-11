@@ -21,7 +21,7 @@ To be able to use the stream filtering mechanism you need to:
 
 To be sure that the Stream Filter API is available it is recommend to use the method `isActiveStreamFilter`, which returns `true` if you can safely use the API:
 
-~~~php
+```php
 <?php
 
 use League\Csv\Reader;
@@ -32,7 +32,7 @@ $reader->isActiveStreamFilter(); //return true
 
 $writer = Writer::createFromFileObject(new SplTempFileObject());
 $writer->isActiveStreamFilter(); //return false the API can not be use
-~~~
+```
 
 <p class="message-warning"><strong>Warning:</strong> A <code>LogicException</code> exception may be thrown if you try to use the API under certain circumstances without prior validation using <code>isActiveStreamFilter</code></p>
 
@@ -49,7 +49,7 @@ By default:
 - when using the `Writer` class the property is equal to `STREAM_FILTER_WRITE`;
 - If you instantiate the class using a PHP filter meta wrapper (ie: `php://filter/`), the mode will be the one used by the meta wrapper;
 
-~~~php
+```php
 <?php
 
 use \League\Csv\Reader;
@@ -62,7 +62,7 @@ if ($reader->isActiveStreamFilter()) {
     //all previously attached stream filters if they existed have been removed
     $current_mode = $reader->getStreamFilterMode(); //returns STREAM_FILTER_WRITE
 }
-~~~
+```
 
 ### Managing Stream filter
 
@@ -85,7 +85,7 @@ The filters are automatically applied when the stream filter mode matches the me
 
 See below an example using `League\Csv\Reader` to illustrate:
 
-~~~php
+```php
 <?php
 
 use League\Csv\Reader;
@@ -104,11 +104,11 @@ foreach ($reader as $row) {
     // each row cell now contains strings that have been:
     // first UTF8 decoded and then uppercased
 }
-~~~
+```
 
 <p class="message-warning"><strong>Warning:</strong> If your filter contains <code>/</code> characters, to be sure that it will be taken into account and won't trigger any exception or error, you should URL encode it prior to adding it to the filter collections.</p>
 
-~~~php
+```php
 <?php
 
 use League\Csv\Reader;
@@ -117,7 +117,7 @@ $reader = Reader::createFromPath('/path/to/my/chinese.csv', 'r');
 $filter = urlencode('convert.iconv.UTF-8/ASCII//TRANSLIT);
 $reader->appendStreamFilter($filter);
 var_dump($reader->fetchAll());
-~~~
+```
 
 ## Limitations
 
@@ -125,7 +125,7 @@ var_dump($reader->fetchAll());
 
 <p class="message-warning"><strong>Warning:</strong> To preserve file cursor position during editing the stream filter mode and the stream filter collection are frozen after the first insert is made using any of the <code>insert*</code> method. Any attempt to modify the stream filter status will fail silently.</p>
 
-~~~php
+```php
 <?php
 
 use League\Csv\Writer;
@@ -147,7 +147,7 @@ $writer->addStreamFilter('string.rot13');
 $writer->insertOne('steve,job,job@apple.com');
 
 echo $writer; //the newly added rows are all uppercased
-~~~
+```
 
 ## Example
 

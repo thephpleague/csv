@@ -11,23 +11,23 @@ Once your object is [instantiated](/7.0/instantiation/) you can optionally set s
 
 ### The delimiter character
 
-~~~php
+```php
 <?php
 
 $csv->setDelimiter(';');
 $delimiter = $csv->getDelimiter(); //returns ";"
-~~~
+```
 
 The default delimiter character is `,`.
 
 ### The enclosure character
 
-~~~php
+```php
 <?php
 
 $csv->setEnclosure('|');
 $enclosure = $csv->getEnclosure(); //returns "|"
-~~~
+```
 
 The default enclosure character is `"`.
 
@@ -36,12 +36,12 @@ The default enclosure character is `"`.
 <p class="message-warning"><strong>Warning:</strong> The library depends on PHP <code>SplFileObject</code> class. Since this class exhibits <a href="https://bugs.php.net/bug.php?id=55413" target="_blank">a reported bug</a>, <strong>Data using the escape character a correctly escaped but the escape character is not removed from the CSV content</strong>.<br>
 A possible workaround to this issue while waiting for a PHP bug fix is to <a href="/7.0/reading/#using-a-callable-to-modify-the-returned-resultset">register a callable that will format your content.</a></p>
 
-~~~php
+```php
 <?php
 
 $csv->setEscape('\\');
 $escape = $csv->getEscape(); //returns "\"
-~~~
+```
 
 The default escape character is `\`.
 
@@ -49,12 +49,12 @@ The default escape character is `\`.
 
 `League\Csv` objects rely internally on the `SplFileObject` class. In order to fine tune the class behavior you can adjust the [SplFileObject flags](http://php.net/manual/en/class.splfileobject.php#splfileobject.constants) used.
 
-~~~php
+```php
 <?php
 
 $csv->setFlags(SplFileObject::READ_AHEAD|SplFileObject::SKIP_EMPTY);
 $flags = $csv->getFlags(); //returns an integer
-~~~
+```
 
 <p class="message-notice">Since version <code>7.0.1</code>, the <code>setFlags</code> method has been fixed to prevent a <a href="https://bugs.php.net/bug.php?id=69181" target="_blank">bug in SplFileObject</a>.</p>
 
@@ -78,7 +78,7 @@ The method takes two arguments:
 - an array containing the delimiters to check;
 - an integer which represents the number of rows to scan (default to `1`);
 
-~~~php
+```php
 <?php
 
 $reader = Reader::createFromPath('/path/to/your/csv/file.csv', 'r');
@@ -95,7 +95,7 @@ $delimiters_list = $reader->fetchDelimitersOccurrence([' ', '|'], 10);
 // This seems to be a consistent CSV with:
 // - the delimiter "|" appearing 20 times in the 10 first rows
 // - the delimiter " " never appearing
-~~~
+```
 
 <p class="message-notice">This method only test the delimiters you gave it.</p>
 
@@ -114,7 +114,7 @@ The method takes two arguments:
 - the number of rows to scan (default to `1`);
 - the possible delimiters to check (you don't need to specify the following delimiters as they are already checked by the method: `",", ";", "\t"`);
 
-~~~php
+```php
 <?php
 
 $reader = Reader::createFromPath('/path/to/your/csv/file.csv', 'r');
@@ -132,7 +132,7 @@ $delimiters_list = $reader->detectDelimiterList(10, [' ', '|']);
 // This is a inconsistent CSV with:
 // - the delimiter "|" appearing 20 times in the 10 first rows
 // - the delimiter ";" appearing 3 times in the 10 first rows
-~~~
+```
 
 The more rows and delimiters you add, the more time and memory consuming the operation will be. The method returns an `array` of the delimiters found.
 
@@ -152,12 +152,12 @@ The following properties only affect the CSV when you are writing or saving data
 
 The newline sequence is appended to each CSV newly inserted line. To improve interoperability with programs interacting with CSV and because the php `fputcsv` implementation has a hardcoded `"\n"`, we need to be able to replace this last `LF` code with one supplied by the developer.
 
-~~~php
+```php
 <?php
 
 $csv->setNewline("\r\n");
 $newline = $csv->getNewline(); //returns "\r\n"
-~~~
+```
 
 The default newline sequence is `\n`;
 
@@ -169,20 +169,20 @@ To improve interoperability with programs interacting with CSV, you can now mana
 
 Detect the current BOM character is done using the `getInputBOM` method. This method returns the currently used BOM character or `null` if none is found or recognized.
 
-~~~php
+```php
 <?php
 
 $bom = $csv->getInputBOM();
-~~~
+```
 
 You can of course set the outputting BOM you want your CSV to be associated with.
 
-~~~php
+```php
 <?php
 
 $csv->setOutputBOM(Reader::BOM_UTF8);
 $bom = $csv->getOutputBOM(); //returns "\xEF\xBB\xBF"
-~~~
+```
 
 The default output `BOM` character is set to `null`.
 
@@ -200,18 +200,18 @@ When this is not the case, you should transcode it using the <a href="/7.0/filte
 
 When this is not applicable you can fallback by providing the CSV original encoding charset to the CSV class using the following method:
 
-~~~php
+```php
 <?php
 
 $reader->setEncodingFrom('iso-8859-15');
 echo $reader->getEncodingFrom(); //returns iso-8859-15;
-~~~
+```
 
 By default `getEncodingFrom` returns `UTF-8` if `setEncodingFrom` was not used.
 
 <div class="message-warning">The encoding properties have no effect when reading or writing to a CSV document. You should instead use <a href="/7.0/filtering/">the Stream Filter API</a> or <a href="/7.0/inserting/#row-formatting">the Writing Formatter API</a>.</div>
 
-~~~php
+```php
 <?php
 
 $reader = Reader::createFromFileObject(new SplFileObject('/path/to/bengali.csv'));
@@ -221,4 +221,4 @@ echo json_encode($reader);
 //the CSV is transcoded from iso-8859-15 to UTF-8
 //before being converted to JSON format;
 echo $reader; //outputting the data is not affected by the conversion
-~~~
+```
