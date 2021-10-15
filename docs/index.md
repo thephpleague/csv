@@ -9,7 +9,6 @@ layout: homepage
 `Reader`, the read only connection object enables accessing CSV records easily
 
 ```php
-<?php
 use League\Csv\Reader;
 
 //load the CSV document from a file path
@@ -27,8 +26,6 @@ echo $csv->toString(); //returns the CSV document as a string
 `Writer`, the write only connection object enables adding one or more records in one call.
 
 ```php
-<?php
-
 use League\Csv\Writer;
 
 $header = ['first name', 'last name', 'email'];
@@ -55,7 +52,6 @@ echo $csv->toString(); //returns the CSV document as a string
 `Statement`, the constraint builder object ease CSV records selection
 
 ```php
-<?php
 use League\Csv\Reader;
 use League\Csv\Statement;
 
@@ -82,8 +78,6 @@ foreach ($records as $record) {
 Different converters objects ease transforming your CSV documents into other popular formats
 
 ```php
-<?php
-
 use League\Csv\Reader;
 use League\Csv\XMLConverter;
 
@@ -126,8 +120,6 @@ echo htmlentities($dom->saveXML());
 PHP stream filters can directly be used to ease manipulating CSV document
 
 ```php
-<?php
-
 use League\Csv\Reader;
 
 $csv = Reader::createFromPath('/path/to/your/csv/file.csv', 'r');
