@@ -114,8 +114,7 @@ AbstractCsv::isInputBOMIncluded(): bool;
 
 <p class="message-notice">By default and to avoid BC Break, the Input BOM, if present, is skipped.</p>
 
-If your document does not contains any BOM sequence you can speed up the CSV iterator by preserving its presence which means
- that no operation to detect and remove it if present will take place.
+If your document does not contains any BOM sequence you can speed up the CSV iterator by preserving its presence which means that no operation to detect and remove it if present will take place.
 
 ```php
 $raw_csv = Reader::BOM_UTF8."john,doe,john.doe@example.com\njane,doe,jane.doe@example.com\n";

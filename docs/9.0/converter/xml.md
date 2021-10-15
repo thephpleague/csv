@@ -119,62 +119,62 @@ This method takes two arguments:
 - the tabular data as defined for the `XMLConverter::convert` method;
 - a `DOMDocument` object to import the data into.
 
- Of note the resulting `DOMElement` is attached to the given `DOMDocument` object but not yet included in the document tree.
- To include it, you still need to call a DOM insertion method like `appendChild` or `insertBefore` with a node that *is* currently in the document tree.
+Of note the resulting `DOMElement` is attached to the given `DOMDocument` object but not yet included in the document tree.
+To include it, you still need to call a DOM insertion method like `appendChild` or `insertBefore` with a node that *is* currently in the document tree.
 
- ```php
- use League\Csv\XMLConverter;
- use League\Csv\Statement;
- use League\Csv\Reader;
+```php
+use League\Csv\XMLConverter;
+use League\Csv\Statement;
+use League\Csv\Reader;
 
- $csv = Reader::createFromPath('/path/to/prenoms.csv', 'r');
- $csv->setDelimiter(';');
- $csv->setHeaderOffset(0);
+$csv = Reader::createFromPath('/path/to/prenoms.csv', 'r');
+$csv->setDelimiter(';');
+$csv->setHeaderOffset(0);
 
- $stmt = (new Statement())`
-     ->where(function (array $record) {
-         return 'Anaïs' === $record['prenoms'];
-     })
-     ->offset(0)
-     ->limit(2)
- ;
+$stmt = (new Statement())`
+    ->where(function (array $record) {
+        return 'Anaïs' === $record['prenoms'];
+    })
+    ->offset(0)
+    ->limit(2)
+;
 
- $converter = (new XMLConverter())
-     ->rootElement('csv')
-     ->recordElement('record', 'offset')
-     ->fieldElement('field', 'name')
- ;
+$converter = (new XMLConverter())
+    ->rootElement('csv')
+    ->recordElement('record', 'offset')
+    ->fieldElement('field', 'name')
+;
 
- $records = $stmt->process($csv);
+$records = $stmt->process($csv);
 
- $dom = new DOMDocument('1.0');
- $dom->loadXML('<root><header><name>My CSV Document</name></header></root>');
+$dom = new DOMDocument('1.0');
+$dom->loadXML('<root><header><name>My CSV Document</name></header></root>');
 
- $data = $converter->import($records, $dom);
- $dom->appendChild($data);
- $dom->formatOutput = true;
- $dom->encoding = 'iso-8859-15';
+$data = $converter->import($records, $dom);
+$dom->appendChild($data);
+$dom->formatOutput = true;
+$dom->encoding = 'iso-8859-15';
 
- echo '<pre>', PHP_EOL;
- echo htmlentities($dom->saveXML());
- // <?xml version="1.0" encoding="iso-8859-15"?>
- // <root>
- //   <header>
- //     <name>My CSV Document</name>
- //   </header>
- //   <csv>
- //     <record offset="71">
- //       <field name="prenoms">Anaïs</field>
- //       <field name="nombre">137</field>
- //       <field name="sexe">F</field>
- //       <field name="annee">2004</field>
- //     </record>
- //     <record offset="1099">
- //       <field name="prenoms">Anaïs</field>
- //       <field name="nombre">124</field>
- //       <field name="sexe">F</field>
- //       <field name="annee">2005</field>
- //     </record>
- //   </csv>
- // </root>
- ```
+echo '<pre>', PHP_EOL;
+echo htmlentities($dom->saveXML());
+// <?xml version="1.0" encoding="iso-8859-15"?>
+// <root>
+//   <header>
+//     <name>My CSV Document</name>
+//   </header>
+//   <csv>
+//     <record offset="71">
+//       <field name="prenoms">Anaïs</field>
+//       <field name="nombre">137</field>
+//       <field name="sexe">F</field>
+//       <field name="annee">2004</field>
+//     </record>
+//     <record offset="1099">
+//       <field name="prenoms">Anaïs</field>
+//       <field name="nombre">124</field>
+//       <field name="sexe">F</field>
+//       <field name="annee">2005</field>
+//     </record>
+//   </csv>
+// </root>
+```
