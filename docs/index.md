@@ -8,8 +8,7 @@ layout: homepage
 
 `Reader`, the read only connection object enables accessing CSV records easily
 
-~~~php
-<?php
+```php
 use League\Csv\Reader;
 
 //load the CSV document from a file path
@@ -20,15 +19,13 @@ $header = $csv->getHeader(); //returns the CSV header record
 $records = $csv->getRecords(); //returns all the CSV records as an Iterator object
 
 echo $csv->toString(); //returns the CSV document as a string
-~~~
+```
 
 ## Adding new CSV records is made simple
 
 `Writer`, the write only connection object enables adding one or more records in one call.
 
-~~~php
-<?php
-
+```php
 use League\Csv\Writer;
 
 $header = ['first name', 'last name', 'email'];
@@ -48,14 +45,13 @@ $csv->insertOne($header);
 $csv->insertAll($records);
 
 echo $csv->toString(); //returns the CSV document as a string
-~~~
+```
 
 ## Advanced CSV records selection
 
 `Statement`, the constraint builder object ease CSV records selection
 
-~~~php
-<?php
+```php
 use League\Csv\Reader;
 use League\Csv\Statement;
 
@@ -75,15 +71,13 @@ $records = $stmt->process($csv);
 foreach ($records as $record) {
     //do something here
 }
-~~~
+```
 
 ## CSV documents converters
 
 Different converters objects ease transforming your CSV documents into other popular formats
 
-~~~php
-<?php
-
+```php
 use League\Csv\Reader;
 use League\Csv\XMLConverter;
 
@@ -119,15 +113,13 @@ echo htmlentities($dom->saveXML());
 //     <field name="annee">2005</field>
 //   </record>
 // </csv>
-~~~
+```
 
 ## Supports PHP Stream filter API
 
 PHP stream filters can directly be used to ease manipulating CSV document
 
-~~~php
-<?php
-
+```php
 use League\Csv\Reader;
 
 $csv = Reader::createFromPath('/path/to/your/csv/file.csv', 'r');
@@ -143,4 +135,4 @@ foreach ($csv as $record) {
     //all fields from the record are converted from UTF-16 into UTF-8 charset
     //and the BOM sequence is removed
 }
-~~~
+```
