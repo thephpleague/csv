@@ -100,8 +100,6 @@ The methods enable returning a specific interval of CSV rows. When called more t
 Here's an example on how to use the query features of the `Reader` class to restrict the `fetchAssoc` result:
 
 ```php
-<?php
-
 function filterByEmail($row)
 {
     return filter_var($row[2], FILTER_VALIDATE_EMAIL);
@@ -136,8 +134,6 @@ $data = $reader
 Starting with `version 7.0`, the query options can also modify the output from the conversion methods as shown below with the `toHTML` method.
 
 ```php
-<?php
-
 function filterByEmail($row)
 {
     return filter_var($row[2], FILTER_VALIDATE_EMAIL);

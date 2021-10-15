@@ -20,8 +20,6 @@ If your CSV is not UTF-8 encoded some unexpected results and some errors could b
 Use the `json_encode` function directly on the instantiated object.
 
 ```php
-<?php
-
 echo json_encode($reader);
 ```
 
@@ -35,8 +33,6 @@ method accepts 3 optionals arguments to help you customize the XML tree:
 - `$cell_name`, the XML node element for each CSV cell which defaults value is `cell`;
 
 ```php
-<?php
-
 $dom = $reader->toXML('data', 'line', 'item');
 ```
 
@@ -47,16 +43,12 @@ accepts an optional argument `$classname` to help you customize the table
 rendering, by default the classname given to the table is `table-csv-data`.
 
 ```php
-<?php
-
 echo $reader->toHTML('table table-bordered table-hover');
 ```
 
 ## Example using data transcode before conversion
 
 ```php
-<?php
-
 $reader = Reader::createFromFileObject(new SplFileObject('/path/to/bengali.csv'));
 //we are using the setEncodingFrom method to transcode the CSV into UTF-8
 $reader->setEncodingFrom('iso-8859-15');
