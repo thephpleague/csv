@@ -9,8 +9,8 @@ title: CSV documents configurations
 
 Accessing the CSV document is done using one of the following class:
 
-* `League\Csv\Reader` to connect on a [read only mode](/9.0/reader/)
-* `League\Csv\Writer` to connect on a [write only mode](/9.0/writer/)
+- `League\Csv\Reader` to connect on a [read only mode](/9.0/reader/)
+- `League\Csv\Writer` to connect on a [write only mode](/9.0/writer/)
 
 Both classes extend the `League\Csv\AbstractCsv` class and as such share the following features:
 
@@ -24,19 +24,19 @@ Both classes extend the `League\Csv\AbstractCsv` class and as such share the fol
 
 If your CSV document was created or is read on a Macintosh computer, add the following lines before using the library to help [PHP detect line ending in Mac OS X](http://php.net/manual/en/function.fgetcsv.php#refsect1-function.fgetcsv-returnvalues).
 
-~~~php
+```php
 if (!ini_get("auto_detect_line_endings")) {
     ini_set("auto_detect_line_endings", '1');
 }
 
 //the rest of the code continues here...
-~~~
+```
 
 ## Exceptions
 
 The default exception class thrown while using this library is `League\Csv\Exception` which extends PHP `Exception` class.
 
-~~~php
+```php
 use League\Csv\Exception;
 use League\Csv\Reader;
 
@@ -46,11 +46,11 @@ try {
 } catch (Exception $e) {
     echo $e->getMessage(), PHP_EOL;
 }
-~~~
+```
 
 When using a non-seekable `SplFileObject`, a `RuntimeException` is thrown instead of a `League\Csv\Exception` when using features that requires a seekable CSV document. In the following example a seekable CSV document is required to update the inserted newline.
 
-~~~php
+```php
 use League\Csv\Exception;
 use League\Csv\Writer;
 
@@ -63,4 +63,4 @@ try {
 }
 
 //in order to change the CSV document newline a seekable CSV document is required
-~~~
+```

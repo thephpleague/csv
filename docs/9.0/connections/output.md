@@ -11,16 +11,15 @@ The output methods **are affected by** [the output BOM sequence](/9.0/connection
 
 <p class="message-info">Even though you can use the following methods with the <code>League\Csv\Writer</code> object. It is recommended to do so with the <code>League\Csv\Reader</code> class to avoid losing the file cursor position and getting unexpected results when inserting new data.</p>
 
-
 ## Printing the document
 
 Returns the string representation of the CSV document
 
-~~~php
+```php
 public AbstractCsv::toString(void): string
 public AbstractCsv::getContent(void): string
 public AbstractCsv::__toString(void): string
-~~~
+```
 
 <p class="message-notice">The <code>toString</code> method is added in version <code>9.7.0</code> and replaces the <code>getContent</code> method which is <strong>deprecated</strong>.</p>
 <p class="message-notice">The <code>getContent</code> method is added in version <code>9.1.0</code> and replaces the <code>__toString</code> method which is <strong>deprecated</strong>.</p>
@@ -29,12 +28,12 @@ Use the `toString` method to return the CSV full content.
 
 ### Example
 
-~~~php
+```php
 use League\Csv\Reader;
 
 $reader = Reader::createFromPath('/path/to/my/file.csv', 'r');
 echo $reader->toString();
-~~~
+```
 
 ### Exceptions and Errors
 
@@ -42,18 +41,18 @@ If the CSV document is not seekable a `Exception` or a `RuntimeException` may be
 
 #### Using the `toString` method
 
-~~~php
+```php
 use League\Csv\Writer;
 
 $csv = Writer::createFromFileObject(new SplFileObject('php://output', 'w'));
 $csv->insertOne(['foo', 'bar']);
 echo $csv->toString();
 //throws an RuntimeException because the SplFileObject is not seekable
-~~~
+```
 
 #### Using the `__toString` or `getContent` methods
 
-~~~php
+```php
 use League\Csv\Writer;
 
 $csv = Writer::createFromFileObject(new SplFileObject('php://output', 'w'));
@@ -61,7 +60,7 @@ $csv->insertOne(['foo', 'bar']);
 echo $csv;
 echo $csv->getContent();
 //throws a Fatal Error because no exception can be thrown by the __toString method
-~~~
+```
 
 <p class="message-warning">The <code>__toString</code> method is deprecated in version <code>9.1.0</code> and will be remove in the next major version.</p>
 
@@ -69,9 +68,9 @@ echo $csv->getContent();
 
 To make your CSV document downloadable use the `output` method to force the use of the output buffer on the CSV content.
 
-~~~php
+```php
 public AbstractCsv::output(string $filename = null): int
-~~~
+```
 
 The method returns the number of characters read from the handle and passed through to the output.
 
@@ -80,7 +79,7 @@ can even remove more headers.
 
 ### Default usage
 
-~~~php
+```php
 use League\Csv\Reader;
 
 header('Content-Type: text/csv; charset=UTF-8');
@@ -90,17 +89,17 @@ header('Content-Disposition: attachment; filename="name-for-your-file.csv"');
 $reader = Reader::createFromPath('/path/to/my/file.csv', 'r');
 $reader->output();
 die;
-~~~
+```
 
 ### Using the $filename argument
 
-~~~php
+```php
 use League\Csv\Reader;
 
 $reader = Reader::createFromPath('file.csv');
 $reader->output("name-for-your-file.csv");
 die;
-~~~
+```
 
 <p class="message-notice">If you just need to make the CSV downloadable, end your script with a call to <code>exit</code> just after the <code>output</code> method. You <strong>should not</strong> return the method returned value.</p>
 
@@ -108,15 +107,15 @@ die;
 
 ## Outputting the document into chunks
 
-~~~php
+```php
 public AbstractCsv::chunk(int $length): Generator
-~~~
+```
 
 The `AbstractCsv::chunk` method takes a single `$length` parameter specifying the number of bytes to read from the CSV document and returns a `Generator` to ease outputting large CSV files.
 
 <p class="message-warning">if the <code>$length</code> parameter is not a positive integer a <code>OutOfRangeException</code> will be thrown.</p>
 
-~~~php
+```php
 use League\Csv\Reader;
 
 header('Transfer-Encoding: chunked');
@@ -130,13 +129,13 @@ foreach ($reader->chunk(1024) as $chunk) {
     echo dechex(strlen($chunk))."\r\n$chunk\r\n";
 }
 echo "0\r\n\r\n";
-~~~
+```
 
 ## Using a Response object (Symfony, Laravel, PSR-7 etc)
 
 To avoid breaking the flow of your application, you should create a Response object when applicable in your framework. The actual implementation will differ per framework, but you should generally not output headers directly.
 
-~~~php
+```php
 use League\Csv\Reader;
 
 $reader = Reader::createFromPath('/path/to/my/file.csv', 'r');
@@ -146,14 +145,14 @@ return new Response($reader->getContent(), 200, [
     'Content-Disposition' => 'attachment; filename="name-for-your-file.csv"',
     'Content-Description' => 'File Transfer',
 ]);
-~~~
+```
 
-In some cases you can also use a Streaming Response for larger files.  
-The following example uses Symfony's [StreamedResponse](http://symfony.com/doc/current/components/http_foundation/introduction.html#streaming-a-response) object. 
+In some cases you can also use a Streaming Response for larger files.
+The following example uses Symfony's [StreamedResponse](http://symfony.com/doc/current/components/http_foundation/introduction.html#streaming-a-response) object.
 
 <p class="message-notice"><i>Be sure to adapt the following code to your own framework/situation. The following code is given as an example without warranty of it working out of the box.</i></p>
 
-~~~php
+```php
 use League\Csv\Writer;
 use Symfony\Component\HttpFoundation\ResponseHeaderBag;
 use Symfony\Component\HttpFoundation\StreamedResponse;
@@ -193,9 +192,9 @@ $response->headers->set('Content-Disposition', $disposition);
 $response->headers->set('Content-Description', 'File Transfer');
 $response->setCallback($content_callback);
 $response->send();
-~~~
+```
 
-#### Notes
+### Notes
 
 The output methods **can only be affected by:**
 

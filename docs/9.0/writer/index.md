@@ -11,17 +11,17 @@ The `League\Csv\Writer` class extends the general connections [capabilities](/9.
 
 ## Inserting records
 
-~~~php
+```php
 public Writer::insertOne(array $record): int
 public Writer::insertAll(iterable $records): int
-~~~
+```
 
 `Writer::insertOne` inserts a single record into the CSV document while `Writer::insertAll` adds several records. Both methods returns the length of the written data.
 
 `Writer::insertOne` takes a single argument, an `array` which represents a single CSV record.
 `Writer::insertAll` takes a single argument a PHP iterable which contains a collection of CSV records.
 
-~~~php
+```php
 use League\Csv\Writer;
 
 $records = [
@@ -34,13 +34,13 @@ $writer = Writer::createFromPath('/path/to/saved/file.csv', 'w+');
 $writer->insertOne(['john', 'doe', 'john.doe@example.com']);
 $writer->insertAll($records); //using an array
 $writer->insertAll(new ArrayIterator($records)); //using a Traversable object
-~~~
+```
 
 In the above example, all CSV records are saved to `/path/to/saved/file.csv`
 
 If the record can not be inserted into the CSV document a `League\Csv\CannotInsertRecord` exception is thrown. This exception extends `League\Csv\Exception` and adds the ability to get the record on which the insertion failed.
 
-~~~php
+```php
 use League\Csv\CannotInsertRecord;
 use League\Csv\Writer;
 
@@ -56,11 +56,11 @@ try {
 } catch (CannotInsertRecord $e) {
     $e->getRecords(); //returns [1, 2, 3]
 }
-~~~
+```
 
 <p class="message-info">Since version <code>9.2.0</code> you can provide an empty string for the escape character to enable better <a href="https://tools.ietf.org/html/rfc4180">RFC4180</a> compliance.</p>
 
-~~~php
+```php
 use League\Csv\Writer;
 
 $record = ['"foo"', 'foo bar', 'baz ', 'foo\\"bar'];
@@ -72,7 +72,7 @@ $writer->insertOne($record);
 echo $writer->getContent();
 // """foo""","foo bar","baz ","foo\"bar"
 // """foo""","foo bar","baz ","foo\""bar"
-~~~
+```
 
 <p class="message-notice">The addition of this new feature means the deprecation of <a href="/9.0/interoperability/rfc4180-field/">RFC4180Field</a>.</p>
 
@@ -84,14 +84,14 @@ Because PHP's `fputcsv` implementation has a hardcoded `\n`, we need to be able 
 
 ### Description
 
-~~~php
+```php
 public Writer::setNewline(string $sequence): self
 public Writer::getNewline(void): string
-~~~
+```
 
 ### Example
 
-~~~php
+```php
 use League\Csv\Writer;
 
 $writer = Writer::createFromFileObject(new SplFileObject());
@@ -100,7 +100,7 @@ $writer->setNewline("\r\n");
 $newline = $writer->getNewline(); // equals "\r\n";
 $writer->insertOne(["one", "two"]);
 echo $writer->getContent(); // displays "one,two\r\n";
-~~~
+```
 
 <p class="message-info">The default newline sequence is <code>\n</code>;</p>
 <p class="message-warning">If you are using a non seekable CSV document, changing the newline character will trigger an exception.</p>
@@ -111,10 +111,10 @@ For advanced usages, you can now manually indicates when flushing mechanism occu
 
 ### Description
 
-~~~php
+```php
 public Writer::setFlushThreshold(?int $treshold): self
 public Writer::getFlushThreshold(void): ?int
-~~~
+```
 
 By default, `getFlushTreshold` returns `null`.
 
@@ -122,13 +122,12 @@ By default, `getFlushTreshold` returns `null`.
 
 <p class="message-info">If set to <code>null</code> the inner flush mechanism of PHP's <code>fputcsv</code> will be used.</p>
 
-
 ## Records filtering
 
-~~~php
+```php
 public Writer::addFormatter(callable $callable): Writer
 public Writer::addValidator(callable $callable, string $validatorName): Writer
-~~~
+```
 
 Sometimes you may want to format and/or validate your records prior to their insertion into your CSV document. the `Writer` class provides a formatter and a validator mechanism to ease these operations.
 
@@ -138,15 +137,15 @@ Sometimes you may want to format and/or validate your records prior to their ins
 
 A formatter is a `callable` which accepts an single CSV record as an `array` on input and returns an array representing the formatted CSV record according to its inner rules.
 
-~~~php
+```php
 function(array $record): array
-~~~
+```
 
 #### Adding a Formatter to a Writer object
 
 You can attach as many formatters as you want to the `Writer` class using the `Writer::addFormatter` method. Formatters are applied following the *First In First Out* rule.
 
-~~~php
+```php
 use League\Csv\Writer;
 
 $formatter = function (array $row): array {
@@ -158,7 +157,7 @@ $writer->insertOne(['john', 'doe', 'john.doe@example.com']);
 
 $writer->getContent();
 //will display something like JOHN,DOE,JOHN.DOE@EXAMPLE.COM
-~~~
+```
 
 ### Writer::addValidator
 
@@ -166,9 +165,9 @@ $writer->getContent();
 
 A validator is a `callable` which takes single CSV record as an `array` as its sole argument and returns a `boolean` to indicate if it satisfies the validator inner rules.
 
-~~~php
+```php
 function(array $record): bool
-~~~
+```
 
 The validator **must** return `true` to validate the submitted record.
 
@@ -185,13 +184,13 @@ As with the formatter capabilities, you can attach as many validators as you wan
 - A validator `callable`;
 - A validator name. If another validator was already registered with the given name, it will be overridden.
 
-On failure a `League\Csv\CannotInsertRecord` exception is thrown.  
+On failure a `League\Csv\CannotInsertRecord` exception is thrown.
 This exception will give access to:
 
 - the validator name;
 - the record which failed the validation;
 
-~~~php
+```php
 use League\Csv\Writer;
 use League\Csv\CannotInsertRecord;
 
@@ -205,5 +204,4 @@ try {
     echo $e->getName(); //display 'row_must_contain_10_cells'
     $e->getData();//will return the invalid data ['john', 'doe', 'john.doe@example.com']
 }
-~~~
-
+```
