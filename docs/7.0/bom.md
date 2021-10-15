@@ -87,7 +87,6 @@ $reader = Reader::createFromPath('/path/to/my/file.csv', 'r');
 $reader->setOutputBOM(Reader::BOM_UTF8);
 //BOM detected and adjusted for the output
 echo $reader->__toString();
-
 ```
 
 ### MS Excel on MacOS
