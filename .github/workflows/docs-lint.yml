@@ -1,0 +1,24 @@
+---
+name: Lint Docs
+
+on:
+    push: ~
+    pull_request: ~
+
+jobs:
+  docs-lint:
+    name: Markdownlint
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - uses: github/super-linter/slim@v4
+        env:
+          DEFAULT_BRANCH: master
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          LINTER_RULES_PATH: '.' # From https://github.com/github/super-linter/pull/859#issuecomment-709625090
+
+          VALIDATE_MARKDOWN: true
+          MARKDOWN_CONFIG_FILE: docs/.markdownlint.yml
+          FILTER_REGEX_INCLUDE: '/docs/.*'
