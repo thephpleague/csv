@@ -23,16 +23,12 @@ To be able to use the stream filtering mechanism you need to:
 To be sure that the Stream Filter API is available it is recommend to use the method `isActiveStreamFilter`.
 
 ```php
-<?php
-
 public AbstractCsv::isActiveStreamFilter(void): bool
 ```
 
 `isActiveStreamFilter` returns `true` if you can safely use the API:
 
 ```php
-<?php
-
 use League\Csv\Reader;
 use League\Csv\Writer;
 
@@ -50,8 +46,6 @@ $writer->isActiveStreamFilter(); //return false the API can not be use
 The stream filter mode property is set using PHP internal stream filter constant `STREAM_FILTER_*`.
 
 ```php
-<?php
-
 public AbstractCsv::setStreamFilterMode(int $mode): AbstractCsv
 public AbstractCsv::getStreamFilterMode(void): int
 ```
@@ -68,8 +62,6 @@ By default:
 - If you instantiate the class using a PHP filter meta wrapper (ie: `php://filter/`), the mode will be the one used by the meta wrapper;
 
 ```php
-<?php
-
 use League\Csv\Reader;
 
 $reader = Reader::createFromPath('/path/to/my/file.csv', 'r');
@@ -87,8 +79,6 @@ if ($reader->isActiveStreamFilter()) {
 To manage your registered stream filter collection you can use the following methods:
 
 ```php
-<?php
-
 public AbstractCsv::appendStreamFilter(string $filtername): AbstractCsv
 public AbstractCsv::prependStreamFilter(string $filtername): AbstractCsv
 public AbstractCsv::removeStreamFilter(string $filtername): AbstractCsv
@@ -114,8 +104,6 @@ The filters are automatically applied when the stream filter mode matches the me
 See below an example using `League\Csv\Reader` to illustrate:
 
 ```php
-<?php
-
 use League\Csv\Reader;
 
 stream_filter_register('convert.utf8decode', 'MyLib\Transcode');
@@ -137,8 +125,6 @@ foreach ($reader as $row) {
 <p class="message-notice">Starting with version <code>8.1.0</code> you no longer need to URL encode your filter prior to attach it to the CSV object.</p>
 
 ```php
-<?php
-
 use League\Csv\Reader;
 
 $reader = Reader::createFromPath('/path/to/my/chinese.csv', 'r');
@@ -153,8 +139,6 @@ var_dump($reader->fetchAll());
 <p class="message-warning"><strong>Warning:</strong> To preserve file cursor position during editing the stream filter mode and the stream filter collection are frozen after the first insert is made using any of the <code>insert*</code> method. Any attempt to modify the stream filter status will fail silently.</p>
 
 ```php
-<?php
-
 use League\Csv\Writer;
 
 $writer = Writer::createFromPath('/path/to/my/file.csv');

@@ -21,8 +21,6 @@ You can restrict [extract methods](/8.0/reading/) and [conversion methods](/8.0/
 This method specifies if the [BOM sequence](/bom/) must be removed or not from the CSV's first cell of the first row.
 
 ```php
-<?php
-
 public AbstractCsv::stripBOM(bool $status): AbstractCsv
 ```
 
@@ -41,16 +39,12 @@ The filtering options **are the first settings applied to the CSV before anythin
 The `addFilter` method adds a callable filter function each time it is called.
 
 ```php
-<?php
-
 public AbstractCsv::addFilter(callable $callable): AbstractCsv
 ```
 
 The callable filter signature is as follows:
 
 ```php
-<?php
-
 function(array $row [, int $rowOffset [, Iterator $iterator]]): AbstractCsv
 ```
 
@@ -72,16 +66,12 @@ The sorting options are applied **after the CSV filtering options**. The sorting
 `addSortBy` method adds a sorting function each time it is called.
 
 ```php
-<?php
-
 public AbstractCsv::addSortBy(callable $callable): AbstractCsv
 ```
 
 The callable sort function signature is as follows:
 
 ```php
-<?php
-
 function(array $row, array $row): int
 ```
 
@@ -94,8 +84,6 @@ The interval methods enable returning a specific interval of CSV rows. When call
 The interval API is made of the following method
 
 ```php
-<?php
-
 public AbstractCsv::setOffset(int $offset = 0): AbstractCsv
 public AbstractCsv::setLimit(int $limit = -1): AbstractCsv
 ```
@@ -114,8 +102,6 @@ Where
 Here's an example on how to use the query features of the `Reader` class to restrict the `fetchAssoc` result:
 
 ```php
-<?php
-
 use League\Csv\Reader;
 
 function filterByEmail($row)
@@ -153,8 +139,6 @@ $data = $reader
 The query options can also modify the output from the conversion methods as shown below with the `toHTML` method.
 
 ```php
-<?php
-
 use League\Csv\Reader;
 
 function filterByEmail($row)

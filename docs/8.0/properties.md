@@ -11,8 +11,6 @@ Once your object is [instantiated](/8.0/instantiation/) you can optionally set s
 <p class="message-notice">Since <code>version 8.1.1</code> The underlying CSV controls from the submitted CSV are inherited by the return <code>AbstractCsv</code> object.</p>
 
 ```php
-<?php
-
 $file = new SplTempFileObject();
 $file->setFlags(SplFileObject::READ_CSV);
 $file->setCsvControl('|');
@@ -31,8 +29,6 @@ echo $csv->getDelimiter(); //display '|'
 #### Description
 
 ```php
-<?php
-
 public AbstractCsv::setDelimiter(string $delimiter): AbstractCsv
 public AbstractCsv::getDelimiter(void): string
 ```
@@ -40,8 +36,6 @@ public AbstractCsv::getDelimiter(void): string
 #### Example
 
 ```php
-<?php
-
 use League\Csv\Reader;
 
 $csv = Reader::createFromPath('/path/to/file.csv', 'r');
@@ -58,8 +52,6 @@ The default delimiter character is `,`.
 #### Description
 
 ```php
-<?php
-
 public AbstractCsv::setEnclosure(string $delimiter): AbstractCsv
 public AbstractCsv::getEnclosure(void): string
 ```
@@ -67,8 +59,6 @@ public AbstractCsv::getEnclosure(void): string
 #### Example
 
 ```php
-<?php
-
 use League\Csv\Writer;
 
 $csv = Writer::createFromPath('/path/to/file.csv');
@@ -88,8 +78,6 @@ A possible workaround to this issue while waiting for a PHP bug fix is <a href="
 #### Description
 
 ```php
-<?php
-
 public AbstractCsv::setEscape(string $delimiter): AbstractCsv
 public AbstractCsv::getEscape(void): string
 ```
@@ -97,8 +85,6 @@ public AbstractCsv::getEscape(void): string
 #### Example
 
 ```php
-<?php
-
 use League\Csv\Reader;
 
 $csv = Reader::createFromPath('/path/to/file.csv', 'r');
@@ -115,8 +101,6 @@ The default escape character is `\`.
 This method allow you to find the occurrences of some delimiters in a given CSV object.
 
 ```php
-<?php
-
 public AbstractCsv::fetchDelimitersOccurrence(
     array $delimiters,
     int $nbRows = 1
@@ -129,8 +113,6 @@ The method takes two arguments:
 - an integer which represents the number of rows to scan (default to `1`);
 
 ```php
-<?php
-
 use League\Csv\Reader;
 
 $reader = Reader::createFromPath('/path/to/your/csv/file.csv', 'r');
@@ -163,8 +145,6 @@ To improve interoperability with programs interacting with CSV, the newline sequ
 #### Description
 
 ```php
-<?php
-
 public AbstractCsv::setNewline(string $sequence): AbstractCsv
 public AbstractCsv::getNewline(void): string
 ```
@@ -172,8 +152,6 @@ public AbstractCsv::getNewline(void): string
 #### Example
 
 ```php
-<?php
-
 use League\Csv\Writer;
 
 $csv = Writer::createFromPath('/path/to/file.csv');
@@ -194,16 +172,12 @@ To improve interoperability with programs interacting with CSV, you can manage t
 <p class="message-warning"><strong>BC Break:</strong> <code>getInputBOM</code> always return a string</p>
 
 ```php
-<?php
-
 public AbstractCsv::getInputBOM(void): string
 ```
 
 Detect the current BOM character is done using the `getInputBOM` method. This method returns the currently used BOM character or an empty string if none is found or recognized.
 
 ```php
-<?php
-
 use League\Csv\Writer;
 
 $csv = Writer::createFromPath('/path/to/file.csv');
@@ -213,8 +187,6 @@ $bom = $csv->getInputBOM();
 #### Set the outputting BOM sequence
 
 ```php
-<?php
-
 public AbstractCsv::setOutputBOM(string $sequence): AbstractCsv
 public AbstractCsv::getOutputBOM(void): string
 ```
@@ -225,8 +197,6 @@ public AbstractCsv::getOutputBOM(void): string
 <p class="message-warning"><strong>BC Break:</strong> <code>getOutputBOM</code> always return a string</p>
 
 ```php
-<?php
-
 use League\Csv\Reader;
 
 $csv = Reader::createFromPath('/path/to/file.csv', 'r');
@@ -254,8 +224,6 @@ When this is not the case, you should transcode it first using the <a href="/8.0
 <p class="message-notice">These methods are introduced in version <code>8.1.0</code></p>
 
 ```php
-<?php
-
 public AbstractCsv::setInputEncoding(string $sequence): AbstractCsv
 public AbstractCsv::getInputEncoding(void): string
 ```
@@ -263,8 +231,6 @@ public AbstractCsv::getInputEncoding(void): string
 <p class="message-warning">The following methods are deprecated since version <code>8.1.0</code> and will be remove in the next major release</p>
 
 ```php
-<?php
-
 public AbstractCsv::setEncodingFrom(string $sequence): AbstractCsv
 public AbstractCsv::getEncodingFrom(void): string
 ```
@@ -275,8 +241,6 @@ public AbstractCsv::getEncodingFrom(void): string
 #### Example
 
 ```php
-<?php
-
 use League\Csv\Reader;
 
 $csv = Reader::createFromPath('/path/to/file.csv', 'r');
@@ -291,8 +255,6 @@ By default `getInputEncoding` returns `UTF-8` if `setInputEncoding` was not used
 <div class="message-warning">The encoding properties have no effect when reading or writing to a CSV document. You should instead use <a href="/8.0/filtering/">the Stream Filter API</a> or <a href="/8.0/inserting/#row-formatting">the Writing Formatter API</a>.</div>
 
 ```php
-<?php
-
 use League\Csv\Reader;
 
 $reader = Reader::createFromFileObject(new SplFileObject('/path/to/bengali.csv'));

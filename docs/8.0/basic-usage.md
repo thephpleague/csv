@@ -15,16 +15,12 @@ Once your CSV object is [instantiated](/8.0/instantiation) and [configured](/8.0
 The CSV object implements PHP's `IteratorAggregate` interface
 
 ```php
-<?php
-
 public AbstractCsv::getIterator(void): Iterator
 ```
 
 You can iterate over your CSV object to extract each CSV row using the `foreach` construct.
 
 ```php
-<?php
-
 use League\Csv\Reader;
 
 $reader = Reader::createFromPath('/path/to/my/file.csv', 'r');
@@ -44,8 +40,6 @@ foreach ($reader as $index => $row) {
 Returns the string representation of the CSV document
 
 ```php
-<?php
-
 public AbstractCsv::__toString(void): string
 ```
 
@@ -54,8 +48,6 @@ Use the `echo` construct on the instantiated object or use the `__toString` meth
 #### Example
 
 ```php
-<?php
-
 use League\Csv\Reader;
 
 $reader = Reader::createFromPath('/path/to/my/file.csv', 'r');
@@ -69,8 +61,6 @@ echo $reader->__toString();
 If you only wish to make your CSV downloadable by forcing a file download just use the `output` method to force the use of the output buffer on the CSV content.
 
 ```php
-<?php
-
 public AbstractCsv::output(string $filename = null): int
 ```
 
@@ -81,8 +71,6 @@ can even remove more headers.
 #### Example 1 - default usage
 
 ```php
-<?php
-
 use League\Csv\Reader;
 
 header('Content-Type: text/csv; charset=UTF-8');
@@ -96,8 +84,6 @@ die;
 #### Example 2 - using the $filename argument
 
 ```php
-<?php
-
 use League\Csv\Reader;
 
 $reader = Reader::createFromPath('/path/to/my/file.csv', 'r');
@@ -111,8 +97,6 @@ To avoid breaking the flow of your application, you should create a Response obj
 In some cases you can also use a Streaming Response for larger files.
 
 ```php
-<?php
-
 use League\Csv\Reader;
 
 $reader = Reader::createFromPath('/path/to/my/file.csv', 'r');
