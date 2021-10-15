@@ -19,11 +19,9 @@ If your CSV is not UTF-8 encoded some unexpected results and some errors could b
 
 Use the `json_encode` function directly on the instantiated object.
 
-~~~php
-<?php
-
+```php
 echo json_encode($reader);
-~~~
+```
 
 ## Convert to XML
 
@@ -34,11 +32,9 @@ method accepts 3 optionals arguments to help you customize the XML tree:
 - `$row_name`, the XML node element representing a CSV row which defaults to `row`;
 - `$cell_name`, the XML node element for each CSV cell which defaults value is `cell`;
 
-~~~php
-<?php
-
+```php
 $dom = $reader->toXML('data', 'line', 'item');
-~~~
+```
 
 ## Convert to HTML table
 
@@ -46,17 +42,13 @@ Use the `toHTML` method to convert the CSV data into an HTML table. This method
 accepts an optional argument `$classname` to help you customize the table
 rendering, by default the classname given to the table is `table-csv-data`.
 
-~~~php
-<?php
-
+```php
 echo $reader->toHTML('table table-bordered table-hover');
-~~~
+```
 
 ## Example using data transcode before conversion
 
-~~~php
-<?php
-
+```php
 $reader = Reader::createFromFileObject(new SplFileObject('/path/to/bengali.csv'));
 //we are using the setEncodingFrom method to transcode the CSV into UTF-8
 $reader->setEncodingFrom('iso-8859-15');
@@ -64,4 +56,4 @@ echo json_encode($reader);
 //the CSV is transcoded from iso-8859-15 to UTF-8
 //before being converted to JSON format;
 echo $reader; //outputting the data is not affected by the conversion
-~~~
+```

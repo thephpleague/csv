@@ -30,9 +30,7 @@ To add new data to your CSV the `Writer` class uses the following methods
 `insertOne` inserts a single row. This method can take an `array`, a `string` or
 an `object` implementing the `__toString` method.
 
-~~~php
-<?php
-
+```php
 class ToStringEnabledClass
 {
     private $str;
@@ -51,16 +49,14 @@ class ToStringEnabledClass
 $writer->insertOne(['john', 'doe', 'john.doe@example.com']);
 $writer->insertOne("'john','doe','john.doe@example.com'");
 $writer->insertOne(new ToStringEnabledClass("john,doe,john.doe@example.com"))
-~~~
+```
 
 ### insertAll($rows)
 
 `insertAll` inserts multiple rows. This method can take an `array` or a
 `Traversable` object to add several rows to the CSV data.
 
-~~~php
-<?php
-
+```php
 $rows = [
     [1, 2, 3],
     ['foo', 'bar', 'baz'],
@@ -71,7 +67,7 @@ $rows = [
 $writer->insertAll($rows); //using an array
 
 $writer->insertAll(new ArrayIterator($rows)); //using a Traversable object
-~~~
+```
 
 ## Row formatting
 
@@ -81,7 +77,7 @@ A formatter is a `callable` which accepts an `array` on input and returns the sa
 
 You can attach as many formatters as you want to the `Writer` class to manipulate your data prior to its insertion. The formatters follow the *First In First Out* rule when inserted, deleted and/or applied.
 
- The formatter API comes with the following public API:
+The formatter API comes with the following public API:
 
 ### addFormatter(callable $callable)
 
@@ -99,9 +95,7 @@ Checks if the formatter is already registered
 
 removes all registered formatters.
 
-~~~php
-<?php
-
+```php
 use League\Csv\Writer;
 
 $writer->addFormatter(function ($row) {
@@ -111,7 +105,7 @@ $writer->insertOne(['john', 'doe', 'john.doe@example.com']);
 
 $writer->__toString();
 //will display something like JOHN,DOE,JOHN.DOE@EXAMPLE.COM
-~~~
+```
 
 If you are relying on the **removed** null handling feature the library comes bundle with the following classes to help you migrate to the new version.
 
@@ -163,9 +157,7 @@ returns the invalid data submitted to the validator
 
 ## Validation example
 
-~~~php
-<?php
-
+```php
 use League\Csv\Writer;
 use League\Csv\Exception\InvalidRowException;
 
@@ -178,7 +170,7 @@ try {
     echo $e->getName(); //display 'row_must_contain_10_cells'
     $e->getData();//will return the invalid data ['john', 'doe', 'john.doe@example.com']
 }
-~~~
+```
 
 If you are relying on the **removed features** null handling and the column consistency, the library comes bundle with the following classes to help you migrate to the new version.
 
@@ -197,16 +189,13 @@ Because the php `fputcsv` implementation has a hardcoded `\n`, we need to be abl
 
 At any given time you can get and modify the `$newline` property using the `getNewline` and `setNewline` methods described in <a href="/7.0/properties/">CSV properties documentation page</a>.
 
-~~~php
-<?php
-
+```php
 $writer = Writer::createFromFileObject(new SplFileObject());
 $newline = $writer->getNewline(); // equals "\n";
 $writer->setNewline("\r\n");
 $newline = $writer->getNewline(); // equals "\r\n";
 $writer->insertOne(["one", "two"]);
 echo $writer; // displays "one,two\r\n";
-~~~
+```
 
 <p class="message-info">Please refer to <a href="/7.0/bom/">the BOM character dedicated documentation page</a> for more information on how the library manage the BOM character.</p>
-

@@ -9,10 +9,10 @@ title: Query Filtering
 
 You can restrict [extract methods](/7.0/reading/) and [conversion methods](/7.0/converting/) output by setting query options. To set those options you will need to use the methods described below. But keep in mind that:
 
-* The query options methods are all chainable *except when they have to return a boolean*;
-* The query options methods can be call in any sort of order before any extract/conversion method;
-* After an extract/conversion method call, all query options are cleared;
-* The optional extract method callable function is called after all query options have been applied;
+- The query options methods are all chainable *except when they have to return a boolean*;
+- The query options methods can be call in any sort of order before any extract/conversion method;
+- After an extract/conversion method call, all query options are cleared;
+- The optional extract method callable function is called after all query options have been applied;
 
 <p class="message-info">The options methods are described in the same order as they are applied on the CSV iterator. The order is similar to one found in SQL statement construct.</p>
 
@@ -40,9 +40,9 @@ The filtering options **are the first settings applied to the CSV before anythin
 
 The `addFilter` method adds a callable filter function each time it is called. The function can take up to three parameters:
 
-* the current csv row data;
-* the current csv key;
-* the current csv iterator object;
+- the current csv row data;
+- the current csv key;
+- the current csv iterator object;
 
 ### removeFilter(callable $callable)
 
@@ -99,9 +99,7 @@ The methods enable returning a specific interval of CSV rows. When called more t
 
 Here's an example on how to use the query features of the `Reader` class to restrict the `fetchAssoc` result:
 
-~~~php
-<?php
-
+```php
 function filterByEmail($row)
 {
     return filter_var($row[2], FILTER_VALIDATE_EMAIL);
@@ -129,15 +127,13 @@ $data = $reader
 //   ['firstname' => 'JOHN', 'lastname' => 'DOE', 'email' => 'JOHN.DOE@EXAMPLE.COM'],
 // ]
 //
-~~~
+```
 
 ### Modifying conversion methods output
 
 Starting with `version 7.0`, the query options can also modify the output from the conversion methods as shown below with the `toHTML` method.
 
-~~~php
-<?php
-
+```php
 function filterByEmail($row)
 {
     return filter_var($row[2], FILTER_VALIDATE_EMAIL);
@@ -162,4 +158,4 @@ $data = $reader
 //  <tr><td>JOHN</td><td>DOE</td><td>JOHN.DOE@EXAMPLE.COM</td></tr>
 //</table>
 //
-~~~
+```
