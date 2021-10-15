@@ -14,7 +14,6 @@ A `League\Csv\ResultSet` object represents the associated result set of processi
 ### Accessing the result set column names
 
 ```php
-<?php
 public ResultSet::getHeader(): array
 ```
 

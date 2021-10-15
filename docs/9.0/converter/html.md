@@ -16,7 +16,6 @@ Prior to converting your records collection into a HTML table, you may wish to c
 ### HTMLConverter::table
 
 ```php
-<?php
 public HTMLConverter::table(string $class_name, string $id_value = ''): self
 ```
 
@@ -28,7 +27,6 @@ This method sets the optional table `class` and `id` attribute values
 ### HTMLConverter::tr
 
 ```php
-<?php
 public HTMLConverter::tr(string $record_offset_attribute_name): self
 ```
 
@@ -39,7 +37,6 @@ This method sets the optional attribute name for the record offset on the HTML `
 ### HTMLConverter::td
 
 ```php
-<?php
 public HTMLConverter::td(string $fieldname_attribute_name): self
 ```
 
@@ -52,7 +49,6 @@ This method sets the optional attribute name for the field name on the HTML `td`
 <p class="message-info">Since version <code>9.3.0</code> this method accepts optional header and footer records to display them in the exported HTML table.</p>
 
 ```php
-<?php
 public HTMLConverter::convert(iterable $records, array $header_record = [], array $footer_record = []): string
 ```
 

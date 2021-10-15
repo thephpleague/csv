@@ -260,7 +260,6 @@ for consistency, an empty record will be represented by an array filled with `nu
 <p class="message-notice">The record offset are always independent of the presence of empty records.</p>
 
 ```php
-<?php
 use League\Csv\Reader;
 
 $source = <<<EOF
