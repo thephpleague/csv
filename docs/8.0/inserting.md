@@ -28,11 +28,9 @@ To add new data to your CSV the `Writer` class uses the following methods
 
 `insertOne` inserts a single row.
 
-~~~php
-<?php
-
+```php
 public Writer::insertOne(mixed $row): Writer
-~~~
+```
 
 This method takes a single argument `$row` which can be
 
@@ -42,9 +40,7 @@ This method takes a single argument `$row` which can be
 
 #### Example
 
-~~~php
-<?php
-
+```php
 use League\Csv\Writer;
 
 class ToStringEnabledClass
@@ -66,7 +62,7 @@ $writer = Writer::createFromPath('/path/to/saved/file.csv', 'w+');
 $writer->insertOne(['john', 'doe', 'john.doe@example.com']);
 $writer->insertOne("'john','doe','john.doe@example.com'");
 $writer->insertOne(new ToStringEnabledClass("john,doe,john.doe@example.com"))
-~~~
+```
 
 In the above example, all the CSV records are saved to the `/path/to/saved/file.csv` file.
 
@@ -74,11 +70,9 @@ In the above example, all the CSV records are saved to the `/path/to/saved/file.
 
 `insertAll` inserts multiple rows.
 
-~~~php
-<?php
-
+```php
 public Writer::insertAll(mixed $rows): Writer
-~~~
+```
 
 This method takes a single argument `$row` which can be
 
@@ -89,9 +83,7 @@ to add several rows to the CSV data.
 
 #### Example
 
-~~~php
-<?php
-
+```php
 use League\Csv\Writer;
 
 $rows = [
@@ -104,7 +96,7 @@ $rows = [
 $writer = Writer::createFromFileObject(new SplTempFileObject());
 $writer->insertAll($rows); //using an array
 $writer->insertAll(new ArrayIterator($rows)); //using a Traversable object
-~~~
+```
 
 ## Row formatting
 
@@ -112,11 +104,9 @@ $writer->insertAll(new ArrayIterator($rows)); //using a Traversable object
 
 A formatter is a `callable` which accepts an `array` on input and returns the same array formatted according to its inner rules.
 
-~~~php
-<?php
-
+```php
 function(array $row): array
-~~~
+```
 
 You can attach as many formatters as you want to the `Writer` class to manipulate your data prior to its insertion. The formatters follow the *First In First Out* rule when inserted, deleted and/or applied.
 
@@ -124,23 +114,19 @@ You can attach as many formatters as you want to the `Writer` class to manipulat
 
 The formatter API comes with the following public API:
 
-~~~php
-<?php
-
+```php
 public Writer::addFormatter(callable $callable): Writer
 public Writer::removeFormatter(callable $callable): Writer
 public Writer::hasFormatter(callable $callable): bool
 public Writer::clearFormatters(void): Writer
-~~~
+```
 
 - `addFormatter`: Adds a formatter to the formatter collection;
 - `removeFormatter`: Removes an already registered formatter. If the formatter was registered multiple times, you will have to call `removeFormatter` as often as the formatter was registered. **The first registered copy will be the first to be removed.**
 - `hasFormatter`: Checks if the formatter is already registered
 - `clearFormatters`: removes all registered formatters.
 
-~~~php
-<?php
-
+```php
 use League\Csv\Writer;
 
 $formatter = function ($row) {
@@ -152,7 +138,7 @@ $writer->insertOne(['john', 'doe', 'john.doe@example.com']);
 
 $writer->__toString();
 //will display something like JOHN,DOE,JOHN.DOE@EXAMPLE.COM
-~~~
+```
 
 ## Row validation
 
@@ -160,11 +146,9 @@ $writer->__toString();
 
 A validator is a `callable` which takes a `array` as its sole argument and returns a boolean.
 
-~~~php
-<?php
-
+```php
 function(array $row): bool
-~~~
+```
 
 The validator **must** return `true` to validate the submitted row.
 
@@ -176,18 +160,16 @@ As with the new formatter capabilities, you can attach as many validators as you
 
 The validator API comes with the following public API:
 
-~~~php
-<?php
-
+```php
 public Writer::addValidator(callable $callable, string $validatorName): Writer
 public Writer::removeValidator(string $validatorName): Writer
 public Writer::hasValidator(string $validatorName): bool
 public Writer::clearValidators(void): Writer
-~~~
+```
 
 - `addValidator`: Adds a validator each time it is called. The method takes two parameters:
-    - A `callable` which takes an `array` as its unique parameter;
-    - The validator name which is **required**. If another validator was already registered with the given name, it will be overridden.
+  - A `callable` which takes an `array` as its unique parameter;
+  - The validator name which is **required**. If another validator was already registered with the given name, it will be overridden.
 - `removeValidator`: Removes an already registered validator by using the validator registrated name.
 - `hasValidator`: Checks if the validator is already registered
 - `clearValidators`: removes all registered validator.
@@ -197,21 +179,17 @@ public Writer::clearValidators(void): Writer
 If the validation failed a `League\Csv\Exception\InvalidRowException` is thrown by the `Writer` object.
 This exception extends PHP's `InvalidArgumentException` by adding two public getter methods
 
-~~~php
-<?php
-
+```php
 public InvalidRowException::getName(void): string
 public InvalidRowException::getData(void): array
-~~~
+```
 
 - `InvalidRowException::getName`: returns the name of the failed validator
 - `InvalidRowException::getData`: returns the invalid data submitted to the validator
 
 #### Validation example
 
-~~~php
-<?php
-
+```php
 use League\Csv\Writer;
 use League\Csv\Exception\InvalidRowException;
 
@@ -224,7 +202,7 @@ try {
     echo $e->getName(); //display 'row_must_contain_10_cells'
     $e->getData();//will return the invalid data ['john', 'doe', 'john.doe@example.com']
 }
-~~~
+```
 
 ## Bundled formatters and validators
 
@@ -232,9 +210,7 @@ try {
 
 The `League\Csv\Plugin\ForbiddenNullValuesValidator` class validates the absence of `null` values
 
-~~~php
-<?php
-
+```php
 use League\Csv\Writer;
 use League\Csv\Plugin\ForbiddenNullValuesValidator;
 
@@ -243,15 +219,13 @@ $writer = Writer::createFromPath('/path/to/your/csv/file.csv');
 $writer->addValidator($validator, 'null_as_exception');
 $writer->insertOne(["foo", null, "bar"]);
 // will throw an League\Csv\Exception\InvalidRowException
-~~~
+```
 
 ### Null value formatting
 
 The `League\Csv\Plugin\SkipNullValuesFormatter` class skips cell using founded `null` values
 
-~~~php
-<?php
-
+```php
 use League\Csv\Writer;
 use League\Csv\Plugin\SkipNullValuesFormatter;
 
@@ -261,15 +235,13 @@ $writer = Writer::createFromPath('/path/to/your/csv/file.csv');
 $writer->addFormatter($formatter);
 $writer->insertOne(["foo", null, "bar"]);
 //the actual inserted row will be ["foo", "bar"]
-~~~
+```
 
 ### Records consistency check
 
 The `League\Csv\Plugin\ColumnConsistencyValidator` class validates the inserted record column count consistency.
 
-~~~php
-<?php
-
+```php
 use League\Csv\Writer;
 use League\Csv\Plugin\ColumnConsistencyValidator;
 
@@ -282,7 +254,7 @@ $writer->addValidator($validator, 'column_consistency');
 
 $writer->insertOne(["foo", null, "bar"]);
 $nb_column_count = $validator->getColumnsCount(); //returns 3
-~~~
+```
 
 ## Stream filtering
 
@@ -294,9 +266,7 @@ Because the php `fputcsv` implementation has a hardcoded `\n`, we need to be abl
 
 At any given time you can get and modify the `$newline` property using the `getNewline` and `setNewline` methods described in <a href="/8.0/properties/">CSV properties documentation page</a>.
 
-~~~php
-<?php
-
+```php
 use League\Csv\Writer;
 
 $writer = Writer::createFromFileObject(new SplFileObject());
@@ -305,7 +275,6 @@ $writer->setNewline("\r\n");
 $newline = $writer->getNewline(); // equals "\r\n";
 $writer->insertOne(["one", "two"]);
 echo $writer; // displays "one,two\r\n";
-~~~
+```
 
 <p class="message-info">Please refer to <a href="/8.0/bom/">the BOM character dedicated documentation page</a> for more information on how the library manage the BOM character.</p>
-

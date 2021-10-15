@@ -10,22 +10,17 @@ redirect_from: /basic-usage/
 
 Once your CSV object is [instantiated](/8.0/instantiation) and [configured](/8.0/properties/), you can start interacting with the data using a number of methods available to you.
 
-
 ## Iterating over the CSV rows
 
 The CSV object implements PHP's `IteratorAggregate` interface
 
-~~~php
-<?php
-
+```php
 public AbstractCsv::getIterator(void): Iterator
-~~~
+```
 
 You can iterate over your CSV object to extract each CSV row using the `foreach` construct.
 
-~~~php
-<?php
-
+```php
 use League\Csv\Reader;
 
 $reader = Reader::createFromPath('/path/to/my/file.csv', 'r');
@@ -34,7 +29,7 @@ foreach ($reader as $index => $row) {
     //$row is an array where each item represent a CSV data cell
     //$index is the CSV row index
 }
-~~~
+```
 
 <p class="message-notice">You can do more complex iterations <a href="/8.0/reading/">using the query methods</a> available on the <code>League\Csv\Reader</code> class only.</p>
 
@@ -44,36 +39,30 @@ foreach ($reader as $index => $row) {
 
 Returns the string representation of the CSV document
 
-~~~php
-<?php
-
+```php
 public AbstractCsv::__toString(void): string
-~~~
+```
 
 Use the `echo` construct on the instantiated object or use the `__toString` method to show the CSV full content.
 
 #### Example
 
-~~~php
-<?php
-
+```php
 use League\Csv\Reader;
 
 $reader = Reader::createFromPath('/path/to/my/file.csv', 'r');
 echo $reader;
 // or
 echo $reader->__toString();
-~~~
+```
 
 ### output
 
 If you only wish to make your CSV downloadable by forcing a file download just use the `output` method to force the use of the output buffer on the CSV content.
 
-~~~php
-<?php
-
+```php
 public AbstractCsv::output(string $filename = null): int
-~~~
+```
 
 - The method returns the number of characters read from the handle and passed through to the output.
 - The output method can take an optional argument `$filename`. When present you
@@ -81,9 +70,7 @@ can even remove more headers.
 
 #### Example 1 - default usage
 
-~~~php
-<?php
-
+```php
 use League\Csv\Reader;
 
 header('Content-Type: text/csv; charset=UTF-8');
@@ -92,36 +79,32 @@ header('Content-Disposition: attachment; filename="name-for-your-file.csv"');
 $reader = Reader::createFromPath('/path/to/my/file.csv', 'r');
 $reader->output();
 die;
-~~~
+```
 
 #### Example 2 - using the $filename argument
 
-~~~php
-<?php
-
+```php
 use League\Csv\Reader;
 
 $reader = Reader::createFromPath('/path/to/my/file.csv', 'r');
 $reader->output("name-for-your-file.csv");
 die;
-~~~
+```
 
 #### Example 3 - using a Response object (Symfony, Laravel, PSR-7 etc)
 
-To avoid breaking the flow of your application, you should create a Response object when applicable in your framework. The actual implementation will differ per framework, but you should generally not output headers directly.  
+To avoid breaking the flow of your application, you should create a Response object when applicable in your framework. The actual implementation will differ per framework, but you should generally not output headers directly.
 In some cases you can also use a Streaming Response for larger files.
 
-~~~php
-<?php
-
+```php
 use League\Csv\Reader;
 
 $reader = Reader::createFromPath('/path/to/my/file.csv', 'r');
 return new Response((string) $reader, 200, [
-	'Content-Type' => 'text/csv; charset=UTF-8',
-	'Content-Disposition' => 'attachment; filename="name-for-your-file.csv"',
+    'Content-Type' => 'text/csv; charset=UTF-8',
+    'Content-Disposition' => 'attachment; filename="name-for-your-file.csv"',
 ]);
-~~~
+```
 
 #### Notes
 

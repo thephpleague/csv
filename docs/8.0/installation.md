@@ -14,9 +14,9 @@ You need **PHP >= 5.5.0** and the `mbstring` extension to use `Csv` but the late
 
 `Csv` is available on [Packagist](https://packagist.org/packages/league/csv) and can be installed using [Composer](https://getcomposer.org/):
 
-~~~
-$ composer require league/csv:^8.0
-~~~
+```bash
+composer require league/csv:^8.0
+```
 
 ## Going Solo
 
@@ -30,15 +30,13 @@ The library is compatible with any [PSR-4](http://www.php-fig.org/psr/psr-4/) co
 
 Also, `League\Csv` comes bundle with its own autoloader script `autoload.php` located in the root directory.
 
-~~~php
-<?php
-
+```php
 use League\Csv\Reader;
 use League\Csv\Writer;
 
 require '/path/to/league/csv/autoload.php';
 
 //your script starts here
-~~~
+```
 
 where `path/to/league/csv` represents the path where the library was extracted.
