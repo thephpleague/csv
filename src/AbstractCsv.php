@@ -520,7 +520,7 @@ abstract class AbstractCsv implements ByteSequence
     /**
      * append a stream filter.
      *
-     * @param null|mixed $params
+     * @param null|array $params
      *
      * @throws InvalidArgument    If the stream filter API can not be appended
      * @throws UnavailableFeature If the stream filter API can not be used

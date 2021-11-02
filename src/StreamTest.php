@@ -303,7 +303,7 @@ final class StreamWrapper
     }
 
     /**
-     * {@inheritdoc}
+     * @param int<0, max> $count
      *
      * @return string|false
      */

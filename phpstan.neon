@@ -13,12 +13,6 @@ parameters:
           path: src/Stream.php
         - message: '#Unsafe usage of new static\(\).#'
           path: src/AbstractCsv.php
-        - message: '#Parameter \#3 \$consumed \(int\) of method League\\Csv\\CharsetConverter::filter\(\) should be contravariant with parameter \$consumed \(mixed\) of method php_user_filter::filter\(\)#'
-          path: src/CharsetConverter.php
-        - message: '#Parameter \#3 \$consumed \(int\) of method League\\Csv\\EncloseField::filter\(\) should be contravariant with parameter \$consumed \(mixed\) of method php_user_filter::filter\(\)#'
-          path: src/EncloseField.php
-        - message: '#Parameter \#3 \$consumed \(int\) of method League\\Csv\\RFC4180Field::filter\(\) should be contravariant with parameter \$consumed \(mixed\) of method php_user_filter::filter\(\)#'
-          path: src/RFC4180Field.php
         - message: '#Parameter \#2 \$special_chars of class League\\Csv\\EscapeFormula constructor expects array<string>, array<int, stdClass> given.#'
           path: src/EscapeFormulaTest.php
         - message: '#Parameter \#2 \$delimiters of static method League\\Csv\\Info::getDelimiterStats\(\) expects array<string>, array<int, array\|string> given.#'

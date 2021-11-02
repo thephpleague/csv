@@ -165,7 +165,12 @@ class ResultSet implements TabularDataReader, JsonSerializable
         $iterator = new LimitIterator($this->records, $nth_record, 1);
         $iterator->rewind();
 
-        return (array) $iterator->current();
+        $result = $iterator->current();
+        if (!is_array($result)) {
+            return [];
+        }
+
+        return $result;
     }
 
     /**
@@ -263,6 +268,7 @@ class ResultSet implements TabularDataReader, JsonSerializable
         };
 
         $iterator = new MapIterator(new CallbackFilterIterator($this->records, $filter), $select);
+        /** @var array{0:int|string, 1:string|null} $pair */
         foreach ($iterator as $pair) {
             yield $pair[0] => $pair[1];
         }
