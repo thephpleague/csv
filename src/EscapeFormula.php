@@ -145,6 +145,8 @@ class EscapeFormula
     }
 
     /**
+     * @deprecated since 9.7.2 will be removed in the next major release
+     *
      * Tells whether the submitted value is stringable.
      *
      * @param mixed $value value to check if it is stringable
