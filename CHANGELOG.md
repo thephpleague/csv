@@ -2,6 +2,26 @@
 
 All Notable changes to `Csv` will be documented in this file
 
+## 9.7.3 - 2021-11-21
+
+### Added
+
+- None
+
+### Deprecated
+
+- None
+
+### Fixed
+
+- Update PHPStan requirement for development
+- Improve Documentation generation thanks to [pdelre](https://github.com/pdelre)
+- PHP8.1 compliance: using `ReturnTypeWillChange` to avoid emitting a unnecessary deprecation notice. thanks to [cedric-anne](https://github.com/cedric-anne)
+
+### Removed
+
+- None
+
 ## 9.7.2 - 2021-10-05
 
 ### Added
