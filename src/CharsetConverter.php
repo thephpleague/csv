@@ -40,17 +40,13 @@ class CharsetConverter extends php_user_filter
 
     /**
      * The records input encoding charset.
-     *
-     * @var string
      */
-    protected $input_encoding = 'UTF-8';
+    protected string $input_encoding = 'UTF-8';
 
     /**
      * The records output encoding charset.
-     *
-     * @var string
      */
-    protected $output_encoding = 'UTF-8';
+    protected string $output_encoding = 'UTF-8';
 
     /**
      * Static method to add the stream filter to a {@link AbstractCsv} object.

@@ -35,49 +35,39 @@ class Writer extends AbstractCsv
      *
      * @var array<callable>
      */
-    protected $formatters = [];
+    protected array $formatters = [];
 
     /**
      * callable collection to validate the record before insertion.
      *
      * @var array<callable>
      */
-    protected $validators = [];
+    protected array $validators = [];
 
     /**
      * newline character.
-     *
-     * @var string
      */
-    protected $newline = "\n";
+    protected string $newline = "\n";
 
     /**
      * Insert records count for flushing.
-     *
-     * @var int
      */
-    protected $flush_counter = 0;
+    protected int $flush_counter = 0;
 
     /**
      * Buffer flush threshold.
-     *
-     * @var int|null
      */
-    protected $flush_threshold;
+    protected ?int $flush_threshold = null;
 
     /**
      * Regular expression used to detect if RFC4180 formatting is necessary.
-     *
-     * @var string
      */
-    protected $rfc4180_regexp;
+    protected string $rfc4180_regexp;
 
     /**
      * double enclosure for RFC4180 compliance.
-     *
-     * @var string
      */
-    protected $rfc4180_enclosure;
+    protected string $rfc4180_enclosure;
 
     /**
      * {@inheritdoc}

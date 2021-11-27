@@ -37,17 +37,13 @@ class EscapeFormula
 
     /**
      * Effective Spreadsheet formula starting characters.
-     *
-     * @var array
      */
-    protected $special_chars = [];
+    protected array $special_chars = [];
 
     /**
      * Escape character to escape each CSV formula field.
-     *
-     * @var string
      */
-    protected $escape;
+    protected string $escape;
 
     /**
      * New instance.

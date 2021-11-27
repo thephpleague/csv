@@ -20,17 +20,13 @@ class CannotInsertRecord extends Exception
 {
     /**
      * The record submitted for insertion.
-     *
-     * @var array
      */
-    protected $record;
+    protected array $record;
 
     /**
      * Validator which did not validated the data.
-     *
-     * @var string
      */
-    protected $name = '';
+    protected string $name = '';
 
     /**
      * Create an Exception from a record insertion into a stream.

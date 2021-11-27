@@ -47,21 +47,20 @@ class RFC4180Field extends php_user_filter
      *
      * @var string[]
      */
-    protected $search;
+    protected array $search;
 
     /**
      * The replacement value that replace found $search values.
      *
      * @var string[]
      */
-    protected $replace;
+    protected array $replace;
 
     /**
      * Characters that triggers enclosure with PHP fputcsv.
      *
-     * @var string
      */
-    protected static $force_enclosure = "\n\r\t ";
+    protected static string $force_enclosure = "\n\r\t ";
 
     /**
      * Static method to add the stream filter to a {@link AbstractCsv} object.
@@ -102,11 +101,7 @@ class RFC4180Field extends php_user_filter
             return $value;
         };
 
-        $formatter = static function (array $record) use ($mapper): array {
-            return array_map($mapper, $record);
-        };
-
-        return $csv->addFormatter($formatter);
+        return $csv->addFormatter(fn (array $record): array => array_map($mapper, $record));
     }
 
     /**

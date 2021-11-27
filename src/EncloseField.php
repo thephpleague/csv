@@ -37,17 +37,13 @@ class EncloseField extends php_user_filter
 
     /**
      * Default sequence.
-     *
-     * @var string
      */
-    protected $sequence;
+    protected string $sequence;
 
     /**
      * Characters that triggers enclosure in PHP.
-     *
-     * @var string
      */
-    protected static $force_enclosure = "\n\r\t ";
+    protected static string $force_enclosure = "\n\r\t ";
 
     /**
      * Static method to return the stream filter filtername.

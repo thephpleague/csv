@@ -228,19 +228,6 @@ final class StreamTest extends TestCase
         $doc->setCsvControl(...['foo']);
     }
 
-    /**
-     * @covers \League\Csv\InvalidArgument::dueToInvalidEscapeCharacter
-     */
-    public function testCsvControlThrowsOnEmptyEscapeString(): void
-    {
-        if (70400 <= PHP_VERSION_ID) {
-            self::markTestSkipped('This test is only for PHP7.4- versions');
-        }
-        $this->expectException(InvalidArgument::class);
-        $doc = Stream::createFromString();
-        $doc->setCsvControl(...[';', '|', '']);
-    }
-
     public function testCsvControlAcceptsEmptyEscapeString(): void
     {
         if (70400 > PHP_VERSION_ID) {
