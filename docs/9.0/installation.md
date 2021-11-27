@@ -13,6 +13,7 @@ You need:
 - at least **PHP >= 7.0.10** for version **9.0.0**
 - at least **PHP >= 7.2.5** for version **9.6.0**
 - at least **PHP >= 7.3** for version **9.7.0**
+- at least **PHP >= 7.4** for version **9.8.0**
 
 If you are using **PHP >= 8.0**, please use at least version **9.6.2** for compatibility.
 

@@ -18,7 +18,8 @@ All Notable changes to `Csv` will be documented in this file
 
 ### Removed
 
-- None
+- PHP7.3 support
+- Remove internal `EmptyEscapeParser` Polyfill
 
 ## 9.7.3 - 2021-11-21
 
