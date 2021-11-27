@@ -6,7 +6,7 @@ All Notable changes to `Csv` will be documented in this file
 
 ### Added
 
-- None
+- Added PHP7.4 typed properties where applicable
 
 ### Deprecated
 
@@ -19,7 +19,8 @@ All Notable changes to `Csv` will be documented in this file
 ### Removed
 
 - PHP7.3 support
-- Remove internal `EmptyEscapeParser` Polyfill
+- Remove internal `EmptyEscapeParser` Polyfill used in `Reader` class
+- Remove PHP7.4 polyfill features in `Writer` class
 
 ## 9.7.3 - 2021-11-21
 
