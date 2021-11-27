@@ -27,8 +27,7 @@ use const PHP_VERSION_ID;
  */
 final class WriterTest extends TestCase
 {
-    /** @var Writer */
-    private $csv;
+    private Writer $csv;
 
     protected function setUp(): void
     {
@@ -239,7 +238,6 @@ final class WriterTest extends TestCase
      *
      * @covers ::getInputBOM
      * @covers ::insertOne
-     * @covers ::addRFC4180CompliantRecord
      * @covers ::addRecord
      *
      * @dataProvider compliantRFC4180Provider

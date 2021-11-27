@@ -14,10 +14,7 @@ declare(strict_types=1);
 namespace League\Csv;
 
 use function array_reduce;
-use function implode;
-use function preg_match;
 use function preg_quote;
-use function str_replace;
 use function strlen;
 use const PHP_VERSION_ID;
 use const SEEK_CUR;
@@ -124,14 +121,9 @@ class Writer extends AbstractCsv
      */
     public function insertOne(array $record): int
     {
-        $method = 'addRecord';
-        if (70400 > PHP_VERSION_ID && '' === $this->escape) {
-            $method = 'addRFC4180CompliantRecord';
-        }
-
         $record = array_reduce($this->formatters, [$this, 'formatRecord'], $record);
         $this->validateRecord($record);
-        $bytes = $this->$method($record);
+        $bytes = $this->addRecord($record);
         if (false === $bytes || 0 >= $bytes) {
             throw CannotInsertRecord::triggerOnInsertion($record);
         }
@@ -153,53 +145,6 @@ class Writer extends AbstractCsv
         }
 
         return $this->document->fputcsv($record, $this->delimiter, $this->enclosure, $this->escape, $this->newline);
-    }
-
-    /**
-     * Adds a single record to a CSV Document using RFC4180 algorithm.
-     *
-     * @see https://php.net/manual/en/function.fputcsv.php
-     * @see https://php.net/manual/en/function.fwrite.php
-     * @see https://tools.ietf.org/html/rfc4180
-     * @see http://edoceo.com/utilitas/csv-file-format
-     *
-     * String conversion is done without any check like fputcsv.
-     *
-     *     - Emits E_NOTICE on Array conversion (returns the 'Array' string)
-     *     - Throws catchable fatal error on objects that can not be converted
-     *     - Returns resource id without notice or error (returns 'Resource id #2')
-     *     - Converts boolean true to '1', boolean false to the empty string
-     *     - Converts null value to the empty string
-     *
-     * Fields must be delimited with enclosures if they contains :
-     *
-     *     - Embedded whitespaces
-     *     - Embedded delimiters
-     *     - Embedded line-breaks
-     *     - Embedded enclosures.
-     *
-     * Embedded enclosures must be doubled.
-     *
-     * The LF character is added at the end of each record to mimic fputcsv behavior
-     *
-     * @return int|false
-     */
-    protected function addRFC4180CompliantRecord(array $record)
-    {
-        foreach ($record as &$field) {
-            $field = (string) $field;
-            if (1 === preg_match($this->rfc4180_regexp, $field)) {
-                $field = $this->enclosure.str_replace($this->enclosure, $this->rfc4180_enclosure, $field).$this->enclosure;
-            }
-        }
-        unset($field);
-
-        $newline = $this->newline;
-        if (PHP_VERSION_ID < 80100) {
-            $newline = "\n";
-        }
-
-        return $this->document->fwrite(implode($this->delimiter, $record).$newline);
     }
 
     /**

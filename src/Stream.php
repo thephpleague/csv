@@ -54,7 +54,7 @@ final class Stream implements SeekableIterator
      *
      * @var array<string, array<resource>>
      */
-    private $filters = [];
+    private array $filters = [];
 
     /**
      * stream resource.
@@ -65,10 +65,8 @@ final class Stream implements SeekableIterator
 
     /**
      * Tell whether the stream should be closed on object destruction.
-     *
-     * @var bool
      */
-    private $should_close_stream = false;
+    private bool $should_close_stream = false;
 
     /**
      * Current iterator value.
@@ -79,45 +77,33 @@ final class Stream implements SeekableIterator
 
     /**
      * Current iterator key.
-     *
-     * @var int
      */
-    private $offset;
+    private int $offset;
 
     /**
      * Flags for the Document.
-     *
-     * @var int
      */
-    private $flags = 0;
+    private int $flags = 0;
 
     /**
      * the field delimiter (one character only).
-     *
-     * @var string
      */
-    private $delimiter = ',';
+    private string $delimiter = ',';
 
     /**
      * the field enclosure character (one character only).
-     *
-     * @var string
      */
-    private $enclosure = '"';
+    private string $enclosure = '"';
 
     /**
      * the field escape character (one character only).
-     *
-     * @var string
      */
-    private $escape = '\\';
+    private string $escape = '\\';
 
     /**
      * Tell whether the current stream is seekable;.
-     *
-     * @var bool
      */
-    private $is_seekable = false;
+    private bool $is_seekable = false;
 
     /**
      * New instance.

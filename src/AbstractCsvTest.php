@@ -33,11 +33,8 @@ use const STREAM_FILTER_WRITE;
  */
 final class AbstractCsvTest extends TestCase
 {
-    /** @var Reader  */
-    private $csv;
-
-    /** @var array  */
-    private $expected = [
+    private Reader $csv;
+    private array $expected = [
         ['john', 'doe', 'john.doe@example.com'],
         ['jane', 'doe', 'jane.doe@example.com'],
     ];

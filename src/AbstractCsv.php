@@ -76,10 +76,8 @@ abstract class AbstractCsv implements ByteSequence
 
     /**
      * Tells whether the Input BOM must be included or skipped.
-     *
-     * @var bool
      */
-    protected $is_input_bom_included = false;
+    protected bool $is_input_bom_included = false;
 
     /**
      * New instance.

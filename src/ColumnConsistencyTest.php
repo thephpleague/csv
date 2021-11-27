@@ -21,8 +21,7 @@ use SplTempFileObject;
  */
 final class ColumnConsistencyTest extends TestCase
 {
-    /** @var Writer  */
-    private $csv;
+    private Writer $csv;
 
     protected function setUp(): void
     {

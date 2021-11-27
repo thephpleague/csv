@@ -23,10 +23,8 @@ final class EncloseFieldTest extends TestCase
 {
     /**
      * @see https://en.wikipedia.org/wiki/Comma-separated_values#Example
-     *
-     * @var array
      */
-    private $records = [
+    private array $records = [
             ['Year', 'Make', 'Model', 'Description', 'Price'],
             [1997, 'Ford', 'E350', 'ac,abs,moon', '3000.00'],
             [1999, 'Chevy', 'Venture "Extended Edition"', null, '4900.00'],
