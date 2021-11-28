@@ -28,7 +28,7 @@ use function stream_context_get_options;
 use function stream_get_wrappers;
 use function stream_wrapper_register;
 use function stream_wrapper_unregister;
-use const PHP_VERSION_ID;
+use const PHP_MAJOR_VERSION;
 use const STREAM_FILTER_READ;
 
 /**
@@ -72,6 +72,10 @@ final class StreamTest extends TestCase
      */
     public function testCreateStreamWithWrongResourceType(): void
     {
+        if (8 > PHP_MAJOR_VERSION) {
+            self::markTestSkipped('This test is only for PHP7 versions');
+        }
+
         $this->expectException(TypeError::class);
         new Stream(curl_init());
     }
@@ -230,9 +234,6 @@ final class StreamTest extends TestCase
 
     public function testCsvControlAcceptsEmptyEscapeString(): void
     {
-        if (70400 > PHP_VERSION_ID) {
-            self::markTestSkipped('This test is only for PHP7.4+ versions');
-        }
         $doc = Stream::createFromString();
         $expected = [';', '|', ''];
         $doc->setCsvControl(...$expected);
