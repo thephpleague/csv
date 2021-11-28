@@ -77,12 +77,8 @@ class EncloseField extends php_user_filter
             throw new InvalidArgumentException('The sequence must contain at least one character to force enclosure');
         }
 
-        $formatter = function (array $record) use ($sequence): array {
-            return array_map(fn (?string $value): string => $sequence.$value, $record);
-        };
-
         return $csv
-            ->addFormatter($formatter)
+            ->addFormatter(fn (array $record): array => array_map(fn (?string $value): string => $sequence.$value, $record))
             ->addStreamFilter(self::FILTERNAME, ['sequence' => $sequence]);
     }
 

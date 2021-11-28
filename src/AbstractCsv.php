@@ -80,7 +80,7 @@ abstract class AbstractCsv implements ByteSequence
     protected bool $is_input_bom_included = false;
 
     /**
-     * New instance.
+     * @final This method should not be overwritten in child classes
      *
      * @param SplFileObject|Stream $document The CSV Object instance
      */

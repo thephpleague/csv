@@ -62,13 +62,9 @@ final class Info implements ByteSequence
      */
     public static function getDelimiterStats(Reader $csv, array $delimiters, int $limit = 1): array
     {
-        $delimiterFilter = static function (string $value): bool {
-            return 1 === strlen($value);
-        };
+        $delimiterFilter = static fn (string $value): bool => 1 === strlen($value);
 
-        $recordFilter = static function (array $record): bool {
-            return 1 < count($record);
-        };
+        $recordFilter = static fn (array $record): bool => 1 < count($record);
 
         $stmt = Statement::create()->offset(0)->limit($limit);
 
