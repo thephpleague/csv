@@ -78,9 +78,7 @@ class EncloseField extends php_user_filter
         }
 
         $formatter = function (array $record) use ($sequence): array {
-            return array_map(function (?string $value) use ($sequence): string {
-                return $sequence.$value;
-            }, $record);
+            return array_map(fn (?string $value): string => $sequence.$value, $record);
         };
 
         return $csv
@@ -115,10 +113,10 @@ class EncloseField extends php_user_filter
      */
     public function filter($in, $out, &$consumed, $closing): int
     {
-        while ($res = stream_bucket_make_writeable($in)) {
-            $res->data = str_replace($this->params['sequence'], '', $res->data);
-            $consumed += $res->datalen;
-            stream_bucket_append($out, $res);
+        while (null !== ($bucket = stream_bucket_make_writeable($in))) {
+            $bucket->data = str_replace($this->params['sequence'], '', $bucket->data);
+            $consumed += $bucket->datalen;
+            stream_bucket_append($out, $bucket);
         }
 
         return PSFS_PASS_ON;

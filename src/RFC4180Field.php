@@ -130,7 +130,7 @@ class RFC4180Field extends php_user_filter
      */
     public function filter($in, $out, &$consumed, $closing): int
     {
-        while ($bucket = stream_bucket_make_writeable($in)) {
+        while (null !== ($bucket = stream_bucket_make_writeable($in))) {
             $bucket->data = str_replace($this->search, $this->replace, $bucket->data);
             $consumed += $bucket->datalen;
             stream_bucket_append($out, $bucket);
