@@ -14,7 +14,8 @@ All Notable changes to `Csv` will be documented in this file
 
 ### Fixed
 
-- None
+- `AbstractCsv` constructor is marked final via docblock.  
+ The method should never be extended or changed in child classes to avoid unexpected behaviour
 
 ### Removed
 
