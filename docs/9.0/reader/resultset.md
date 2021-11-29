@@ -221,7 +221,7 @@ count(iterator_to_array($records->fetchColumnByOffset(2), false)); //returns 5
 //5 records were skipped because the column value is null
 ```
 
-<p class="message-warning">The following paragraph describe the usage of the <code>::fetchColumn</code> method which is 
+<p class="message-warning">The following paragraph describe the usage of the <code>::fetchColumn</code> method which is
 deprecated as of <code>9.8.0</code> and which wil be removed in the next major release.</p>
 
 `ResultSet::fetchColumn` returns a `Generator` of all values in a given column from the `ResultSet` object.
