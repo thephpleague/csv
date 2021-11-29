@@ -246,7 +246,7 @@ abstract class AbstractCsv implements ByteSequence
     public function supportsStreamFilterOnRead(): bool
     {
         return $this->document instanceof Stream
-            && ((static::STREAM_FILTER_MODE & STREAM_FILTER_READ) === STREAM_FILTER_READ);
+            && (static::STREAM_FILTER_MODE & STREAM_FILTER_READ) === STREAM_FILTER_READ;
     }
 
     /**
@@ -255,7 +255,7 @@ abstract class AbstractCsv implements ByteSequence
     public function supportsStreamFilterOnWrite(): bool
     {
         return $this->document instanceof Stream
-            && ((static::STREAM_FILTER_MODE & STREAM_FILTER_WRITE) === STREAM_FILTER_WRITE);
+            && (static::STREAM_FILTER_MODE & STREAM_FILTER_WRITE) === STREAM_FILTER_WRITE;
     }
 
     /**

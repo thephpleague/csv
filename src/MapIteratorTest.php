@@ -27,9 +27,7 @@ final class MapIteratorTest extends TestCase
     {
         $array = [1, 2, 3, 4, 5];
         $iterator = new ArrayIterator($array);
-        $mapper = function (int $number): int {
-            return ($number * $number * $number);
-        };
+        $mapper = fn (int $number): int => ($number * $number * $number);
 
         self::assertSame(
             array_map($mapper, $array),
@@ -44,9 +42,7 @@ final class MapIteratorTest extends TestCase
             'bar' => 'bar => baz',
         ];
         $iterator = new ArrayIterator(['foo' => 'bar', 'bar' => 'baz']);
-        $mapper = function (string $value, $offset): string {
-            return $offset.' => '.$value;
-        };
+        $mapper = fn (string $value, $offset): string =>  $offset.' => '.$value;
 
         self::assertSame(
             $expected,

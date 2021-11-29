@@ -8,10 +8,9 @@ title: CSV document Reader connection
 The `League\Csv\Reader` class extends the general connections [capabilities](/9.0/connections/) to ease selecting and manipulating CSV document records.
 
 <p class="message-notice">Starting with version <code>9.1.0</code>, <code>createFromPath</code> when used from the <code>Reader</code> object will have its default set to <code>r</code>.</p>
-
 <p class="message-notice">Prior to <code>9.1.0</code>, by default, the mode for a <code>Reader::createFromPath</code> is <code>r+</code> which looks for write permissions on the file and throws an <code>Exception</code> if the file cannot be opened with the permission set. For sake of clarity, it is strongly suggested to set <code>r</code> mode on the file to ensure it can be opened.</p>
-
 <p class="message-info">Starting with version <code>9.6.0</code>, the class implements the <code>League\Csv\TabularDataReader</code> interface.</p>
+<p class="message-info">Starting with version <code>9.8.0</code>, the class implements the <code>::fetchColumnByName</code> and <code>::fetchColumnByOffset</code> methods.</p>
 
 ## CSV example
 
@@ -347,6 +346,8 @@ count($reader); // returns 4
 ### Simple Usage
 
 ```php
+public Reader::fetchColumnByName(string $columnName): Iterator
+public Reader::fetchColumnByIndex(int $columnIndex = 0): Iterator
 public Reader::fetchColumn(string|int $columnIndex = 0): Generator
 public Reader::fetchOne(int $nth_record = 0): array
 public Reader::fetchPairs(string|int $offsetIndex = 0, string|int $valueIndex = 1): Generator
@@ -361,7 +362,7 @@ use League\Csv\Reader;
 
 $reader = Reader::createFromPath('/path/to/my/file.csv', 'r');
 
-$records = $reader->fetchColumn(2);
+$records = $reader->fetchColumnByOffset(2);
 //$records is a Generator representing all the fields of the CSV 3rd column
 ```
 

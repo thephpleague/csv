@@ -116,12 +116,8 @@ final class StatementTest extends TestCase
             $this->stmt
                 ->offset($offset)
                 ->limit($limit)
-                ->where(function (array $record): bool {
-                    return true;
-                })
-                ->where(function (array $record): bool {
-                    return [] !== $record;
-                })
+                ->where(fn (array $record): bool => true)
+                ->where(fn (array $record): bool => [] !== $record)
                 ->process($this->csv)
         );
     }
@@ -157,15 +153,9 @@ final class StatementTest extends TestCase
      */
     public function testFilter(): void
     {
-        $func1 = function (array $row): bool {
-            return !in_array('jane', $row, true);
-        };
+        $func2 = fn (array $row): bool => !in_array('john', $row, true);
 
-        $func2 = function (array $row): bool {
-            return !in_array('john', $row, true);
-        };
-
-        $stmt = Statement::create($func1);
+        $stmt = Statement::create(fn (array $row): bool => !in_array('jane', $row, true));
         $result1 = $stmt->process($this->csv);
 
         $result2 = $stmt->where($func2)->process($result1, ['foo', 'bar']);
@@ -186,13 +176,11 @@ final class StatementTest extends TestCase
      */
     public function testOrderBy(): void
     {
-        $func = function (array $rowA, array $rowB): int {
-            return strcmp($rowA[0], $rowB[0]);
-        };
-        self::assertSame(
-            array_reverse($this->expected),
-            iterator_to_array($this->stmt->orderBy($func)->process($this->csv), false)
-        );
+        $calculated = $this->stmt
+            ->orderBy(fn (array $rowA, array $rowB): int => strcmp($rowA[0], $rowB[0]))
+            ->process($this->csv);
+
+        self::assertSame(array_reverse($this->expected), iterator_to_array($calculated, false));
     }
 
     /**
@@ -201,13 +189,10 @@ final class StatementTest extends TestCase
      */
     public function testOrderByWithEquity(): void
     {
-        $func = function (array $rowA, array $rowB): int {
-            return strlen($rowA[0]) <=> strlen($rowB[0]);
-        };
+        $calculated = $this->stmt
+            ->orderBy(fn (array $rowA, array $rowB): int => strlen($rowA[0]) <=> strlen($rowB[0]))
+            ->process($this->csv);
 
-        self::assertSame(
-            $this->expected,
-            iterator_to_array($this->stmt->orderBy($func)->process($this->csv), false)
-        );
+        self::assertSame($this->expected, iterator_to_array($calculated, false));
     }
 }

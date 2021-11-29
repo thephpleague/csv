@@ -19,6 +19,9 @@ use IteratorAggregate;
 
 /**
  * Represents a Tabular data.
+ *
+ * @method Iterator fetchColumnByName(string $name)  returns a column from its name
+ * @method Iterator fetchColumnByOffset(int $offset) returns a column from its offset
  */
 interface TabularDataReader extends Countable, IteratorAggregate
 {
@@ -80,6 +83,13 @@ interface TabularDataReader extends Countable, IteratorAggregate
     public function fetchOne(int $nth_record = 0): array;
 
     /**
+     * DEPRECATION WARNING! This class will be removed in the next major point release.
+     *
+     * @deprecated since version 9.8.0
+     *
+     * @see ::fetchColumnByName
+     * @see ::fetchColumnByOffset
+     *
      * Returns a single column from the next record of the tabular data.
      *
      * By default if no value is supplied the first column is fetch
