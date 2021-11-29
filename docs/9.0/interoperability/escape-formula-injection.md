@@ -14,14 +14,15 @@ The `EscapeFormula` Formatter formats CSV records to reduce [CSV Formula Injecti
 The `EscapeFormula` class uses the formatter capabilities of the `Writer` object to escape formula injection.
 
 ```php
-public function __construct(string $escape = "\t", array $special_chars = [])
+public function __construct(string $escape = "'", array $special_chars = [])
 public function __invoke(array $record): array
 ```
 
 The `EscapeFormula::__construct` method takes two (2) arguments:
 
-- the `$escape` parameter which will be used to prepend the record field, which default to `\t`;
-- the `$special_chars` parameter which is an `array` with additional characters that need to be escaped. By default the following characters if found at the start of any record field content will be escaped `+`,`-`,`=`,`@`;
+- the `$escape` parameter which will be used to prepend the record field, which default to `'`;
+- the `$special_chars` parameter which is an `array` with additional characters that need to be escaped. By default the following characters if found at the start of any record field content will be escaped `+`,`-`,`=`,`@`, `\t`, `\r`;
+- for more information see [OWASP - CSV Injection](https://owasp.org/www-community/attacks/CSV_Injection)
 
 ```php
 use League\Csv\EscapeFormula;

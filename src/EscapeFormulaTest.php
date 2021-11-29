@@ -50,7 +50,7 @@ final class EscapeFormulaTest extends TestCase
     public function testGetEscape(): void
     {
         $formatter = new EscapeFormula();
-        self::assertSame("\t", $formatter->getEscape());
+        self::assertSame("'", $formatter->getEscape());
         $formatterBis = new EscapeFormula("\n");
         self::assertSame("\n", $formatterBis->getEscape());
     }
@@ -76,7 +76,7 @@ final class EscapeFormulaTest extends TestCase
     public function testEscapeRecord(): void
     {
         $record = ['2', '2017-07-25', 'Important Client', '=2+5', 240, null, (object) 'yes'];
-        $expected = ['2', '2017-07-25', 'Important Client', "\t=2+5", 240, null, (object) 'yes'];
+        $expected = ['2', '2017-07-25', 'Important Client', "'=2+5", 240, null, (object) 'yes'];
         $formatter = new EscapeFormula();
         self::assertEquals($expected, $formatter->escapeRecord($record));
     }
@@ -89,8 +89,8 @@ final class EscapeFormulaTest extends TestCase
      */
     public function testFormatterOnWriter(): void
     {
-        $record = ['2', '2017-07-25', 'Important Client', '=2+5', 240, null];
-        $expected = "2,2017-07-25,\"Important Client\",\"\t=2+5\",240,\n";
+        $record = ['2', '2017-07-25', 'Important Client', '=2+5', 240, "\ttab", "\rcr", null];
+        $expected = "2,2017-07-25,\"Important Client\",'=2+5,240,\"'\ttab\",\"'\rcr\",\n";
         $csv = Writer::createFromFileObject(new SplTempFileObject());
         $csv->addFormatter(new EscapeFormula());
         $csv->insertOne($record);
