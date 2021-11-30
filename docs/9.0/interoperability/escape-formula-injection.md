@@ -9,6 +9,9 @@ title: CSV Formula Injection
 
 The `EscapeFormula` Formatter formats CSV records to reduce [CSV Formula Injection](http://georgemauer.net/2017/10/07/csv-injection.html) in imported Spreadsheet programs.
 
+<p class="message-warning">since <code>version 9.7.4</code> The default values from the class constructor where updated to comply with the latest recommendations from OWASP regarding <a href="https://owasp.org/www-community/attacks/CSV_Injection" target="_blank">CSV injection</a>.  
+As this is a security fix, the BC break should be minimal.</p>
+
 ## Usage with Writer objects
 
 The `EscapeFormula` class uses the formatter capabilities of the `Writer` object to escape formula injection.
