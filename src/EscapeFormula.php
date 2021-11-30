@@ -33,7 +33,7 @@ class EscapeFormula
     /**
      * Spreadsheet formula starting character.
      */
-    const FORMULA_STARTING_CHARS = ['=', '-', '+', '@'];
+    const FORMULA_STARTING_CHARS = ['=', '-', '+', '@', "\t", "\r"];
 
     /**
      * Effective Spreadsheet formula starting characters.
@@ -56,7 +56,7 @@ class EscapeFormula
      * @param string[] $special_chars additional spreadsheet formula starting characters
      *
      */
-    public function __construct(string $escape = "\t", array $special_chars = [])
+    public function __construct(string $escape = "'", array $special_chars = [])
     {
         $this->escape = $escape;
         if ([] !== $special_chars) {
