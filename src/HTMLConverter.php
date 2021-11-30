@@ -25,20 +25,15 @@ class HTMLConverter
 {
     /**
      * table class attribute value.
-     *
-     * @var string
      */
-    protected $class_name = 'table-csv-data';
+    protected string $class_name = 'table-csv-data';
 
     /**
      * table id attribute value.
-     *
-     * @var string
      */
-    protected $id_value = '';
+    protected string $id_value = '';
 
-    /** @var XMLConverter */
-    protected $xml_converter;
+    protected XMLConverter $xml_converter;
 
     public static function create(): self
     {

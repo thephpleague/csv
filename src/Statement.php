@@ -29,28 +29,24 @@ class Statement
      *
      * @var array<callable>
      */
-    protected $where = [];
+    protected array $where = [];
 
     /**
      * Callables to sort the iterator.
      *
      * @var array<callable>
      */
-    protected $order_by = [];
+    protected array $order_by = [];
 
     /**
      * iterator Offset.
-     *
-     * @var int
      */
-    protected $offset = 0;
+    protected int $offset = 0;
 
     /**
      * iterator maximum length.
-     *
-     * @var int
      */
-    protected $limit = -1;
+    protected int $limit = -1;
 
     /**
      * Named Constructor to ease Statement instantiation.

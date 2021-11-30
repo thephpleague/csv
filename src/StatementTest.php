@@ -26,20 +26,9 @@ use function strlen;
  */
 final class StatementTest extends TestCase
 {
-    /**
-     * @var Reader
-     */
-    private $csv;
-
-    /**
-     * @var Statement
-     */
-    private $stmt;
-
-    /**
-     * @var array
-     */
-    private $expected = [
+    private Reader $csv;
+    private Statement $stmt;
+    private array $expected = [
         ['john', 'doe', 'john.doe@example.com'],
         ['jane', 'doe', 'jane.doe@example.com'],
     ];

@@ -40,17 +40,13 @@ class CharsetConverter extends php_user_filter
 
     /**
      * The records input encoding charset.
-     *
-     * @var string
      */
-    protected $input_encoding = 'UTF-8';
+    protected string $input_encoding = 'UTF-8';
 
     /**
      * The records output encoding charset.
-     *
-     * @var string
      */
-    protected $output_encoding = 'UTF-8';
+    protected string $output_encoding = 'UTF-8';
 
     /**
      * Static method to add the stream filter to a {@link AbstractCsv} object.
@@ -140,10 +136,10 @@ class CharsetConverter extends php_user_filter
      */
     public function filter($in, $out, &$consumed, $closing): int
     {
-        while ($res = stream_bucket_make_writeable($in)) {
-            $res->data = @mb_convert_encoding($res->data, $this->output_encoding, $this->input_encoding);
-            $consumed += $res->datalen;
-            stream_bucket_append($out, $res);
+        while (null !== ($bucket = stream_bucket_make_writeable($in))) {
+            $bucket->data = @mb_convert_encoding($bucket->data, $this->output_encoding, $this->input_encoding);
+            $consumed += $bucket->datalen;
+            stream_bucket_append($out, $bucket);
         }
 
         return PSFS_PASS_ON;

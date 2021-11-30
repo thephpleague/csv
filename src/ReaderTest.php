@@ -29,11 +29,8 @@ use function unlink;
  */
 final class ReaderTest extends TestCase
 {
-    /** @var Reader */
-    private $csv;
-
-    /** @var array */
-    private $expected = [
+    private Reader $csv;
+    private array $expected = [
         ['john', 'doe', 'john.doe@example.com', '0123456789'],
         ['jane', 'doe', 'jane.doe@example.com'],
     ];

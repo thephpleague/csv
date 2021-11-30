@@ -16,7 +16,6 @@ namespace League\Csv;
 use CallbackFilterIterator;
 use Iterator;
 use JsonSerializable;
-use League\Csv\Polyfill\EmptyEscapeParser;
 use SplFileObject;
 use function array_combine;
 use function array_filter;
@@ -31,7 +30,6 @@ use function mb_strlen;
 use function mb_substr;
 use function strlen;
 use function substr;
-use const PHP_VERSION_ID;
 use const STREAM_FILTER_READ;
 
 /**
@@ -43,29 +41,17 @@ class Reader extends AbstractCsv implements TabularDataReader, JsonSerializable
 
     /**
      * header offset.
-     *
-     * @var int|null
      */
-    protected $header_offset;
+    protected ?int $header_offset = null;
 
     /**
      * header record.
      *
      * @var array<string>
      */
-    protected $header = [];
-
-    /**
-     * records count.
-     *
-     * @var int
-     */
-    protected $nb_records = -1;
-
-    /**
-     * @var bool
-     */
-    protected $is_empty_records_included = false;
+    protected array $header = [];
+    protected int $nb_records = -1;
+    protected bool $is_empty_records_included = false;
 
     /**
      * {@inheritdoc}
@@ -158,12 +144,6 @@ class Reader extends AbstractCsv implements TabularDataReader, JsonSerializable
      */
     protected function getDocument(): Iterator
     {
-        if (70400 > PHP_VERSION_ID && '' === $this->escape) {
-            $this->document->setCsvControl($this->delimiter, $this->enclosure);
-
-            return EmptyEscapeParser::parse($this->document);
-        }
-
         $this->document->setFlags(SplFileObject::READ_CSV | SplFileObject::READ_AHEAD);
         $this->document->setCsvControl($this->delimiter, $this->enclosure, $this->escape);
         $this->document->rewind();

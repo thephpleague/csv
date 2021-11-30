@@ -31,20 +31,16 @@ class ResultSet implements TabularDataReader, JsonSerializable
     /**
      * The CSV records collection.
      *
-     * @var Iterator
      */
-    protected $records;
+    protected Iterator $records;
 
     /**
      * The CSV records collection header.
      *
      * @var array<string>
      */
-    protected $header = [];
+    protected array $header = [];
 
-    /**
-     * New instance.
-     */
     public function __construct(Iterator $records, array $header)
     {
         $this->validateHeader($header);
@@ -179,15 +175,11 @@ class ResultSet implements TabularDataReader, JsonSerializable
     public function fetchColumn($index = 0): Iterator
     {
         $offset = $this->getColumnIndex($index, 'offset', __METHOD__);
-        $filter = static function (array $record) use ($offset): bool {
-            return isset($record[$offset]);
-        };
+        $iterator = new MapIterator(
+            new CallbackFilterIterator($this->records, fn (array $record): bool => isset($record[$offset])),
+            fn (array $record): string => $record[$offset]
+        );
 
-        $select = static function (array $record) use ($offset): string {
-            return $record[$offset];
-        };
-
-        $iterator = new MapIterator(new CallbackFilterIterator($this->records, $filter), $select);
         foreach ($iterator as $tKey => $tValue) {
             yield $tKey => $tValue;
         }
@@ -259,15 +251,11 @@ class ResultSet implements TabularDataReader, JsonSerializable
         $offset = $this->getColumnIndex($offset_index, 'offset', __METHOD__);
         $value = $this->getColumnIndex($value_index, 'value', __METHOD__);
 
-        $filter = static function (array $record) use ($offset): bool {
-            return isset($record[$offset]);
-        };
+        $iterator = new MapIterator(
+            new CallbackFilterIterator($this->records, fn (array $record): bool => isset($record[$offset])),
+            fn (array $record): array => [$record[$offset], $record[$value] ?? null]
+        );
 
-        $select = static function (array $record) use ($offset, $value): array {
-            return [$record[$offset], $record[$value] ?? null];
-        };
-
-        $iterator = new MapIterator(new CallbackFilterIterator($this->records, $filter), $select);
         /** @var array{0:int|string, 1:string|null} $pair */
         foreach ($iterator as $pair) {
             yield $pair[0] => $pair[1];

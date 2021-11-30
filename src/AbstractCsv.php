@@ -36,48 +36,6 @@ abstract class AbstractCsv implements ByteSequence
     protected const STREAM_FILTER_MODE = STREAM_FILTER_READ;
 
     /**
-     * collection of stream filters.
-     *
-     * @var bool[]
-     */
-    protected $stream_filters = [];
-
-    /**
-     * The CSV document BOM sequence.
-     *
-     * @var string|null
-     */
-    protected $input_bom = null;
-
-    /**
-     * The Output file BOM character.
-     *
-     * @var string
-     */
-    protected $output_bom = '';
-
-    /**
-     * the field delimiter (one character only).
-     *
-     * @var string
-     */
-    protected $delimiter = ',';
-
-    /**
-     * the field enclosure character (one character only).
-     *
-     * @var string
-     */
-    protected $enclosure = '"';
-
-    /**
-     * the field escape character (one character only).
-     *
-     * @var string
-     */
-    protected $escape = '\\';
-
-    /**
      * The CSV document.
      *
      * @var SplFileObject|Stream
@@ -85,14 +43,44 @@ abstract class AbstractCsv implements ByteSequence
     protected $document;
 
     /**
-     * Tells whether the Input BOM must be included or skipped.
+     * collection of stream filters.
      *
-     * @var bool
+     * @var bool[]
      */
-    protected $is_input_bom_included = false;
+    protected array $stream_filters = [];
 
     /**
-     * New instance.
+     * The CSV document BOM sequence.
+     */
+    protected ?string $input_bom = null;
+
+    /**
+     * The Output file BOM character.
+     */
+    protected string $output_bom = '';
+
+    /**
+     * the field delimiter (one character only).
+     */
+    protected string $delimiter = ',';
+
+    /**
+     * the field enclosure character (one character only).
+     */
+    protected string $enclosure = '"';
+
+    /**
+     * the field escape character (one character only).
+     */
+    protected string $escape = '\\';
+
+    /**
+     * Tells whether the Input BOM must be included or skipped.
+     */
+    protected bool $is_input_bom_included = false;
+
+    /**
+     * @final This method should not be overwritten in child classes
      *
      * @param SplFileObject|Stream $document The CSV Object instance
      */
