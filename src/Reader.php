@@ -177,6 +177,22 @@ class Reader extends AbstractCsv implements TabularDataReader, JsonSerializable
     /**
      * {@inheritdoc}
      */
+    public function fetchColumnByName(string $name): Iterator
+    {
+        return ResultSet::createFromTabularDataReader($this)->fetchColumnByName($name);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function fetchColumnByOffset(int $offset = 0): Iterator
+    {
+        return ResultSet::createFromTabularDataReader($this)->fetchColumnByOffset($offset);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public function fetchColumn($index = 0): Iterator
     {
         return ResultSet::createFromTabularDataReader($this)->fetchColumn($index);
@@ -232,9 +248,7 @@ class Reader extends AbstractCsv implements TabularDataReader, JsonSerializable
     public function getRecords(array $header = []): Iterator
     {
         $header = $this->computeHeader($header);
-        $normalized = function ($record): bool {
-            return is_array($record) && ($this->is_empty_records_included || $record != [null]);
-        };
+        $normalized = fn ($record): bool => is_array($record) && ($this->is_empty_records_included || $record != [null]);
 
         $bom = '';
         if (!$this->is_input_bom_included) {
@@ -244,9 +258,7 @@ class Reader extends AbstractCsv implements TabularDataReader, JsonSerializable
         $document = $this->getDocument();
         $records = $this->stripBOM(new CallbackFilterIterator($document, $normalized), $bom);
         if (null !== $this->header_offset) {
-            $records = new CallbackFilterIterator($records, function (array $record, int $offset): bool {
-                return $offset !== $this->header_offset;
-            });
+            $records = new CallbackFilterIterator($records, fn (array $record, int $offset): bool => $offset !== $this->header_offset);
         }
 
         if ($this->is_empty_records_included) {
@@ -339,11 +351,10 @@ class Reader extends AbstractCsv implements TabularDataReader, JsonSerializable
             return $record;
         };
 
-        $filter = function (array $record): bool {
-            return $this->is_empty_records_included || $record != [null];
-        };
-
-        return new CallbackFilterIterator(new MapIterator($iterator, $mapper), $filter);
+        return new CallbackFilterIterator(
+            new MapIterator($iterator, $mapper),
+            fn (array $record): bool => $this->is_empty_records_included || $record != [null]
+        );
     }
 
     /**

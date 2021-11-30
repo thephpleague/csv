@@ -30,7 +30,6 @@ class ResultSet implements TabularDataReader, JsonSerializable
 {
     /**
      * The CSV records collection.
-     *
      */
     protected Iterator $records;
 
@@ -170,11 +169,40 @@ class ResultSet implements TabularDataReader, JsonSerializable
     }
 
     /**
+     * @throws Exception
+     */
+    public function fetchColumnByName(string $name): Iterator
+    {
+        return $this->yieldColumn(
+            $this->getColumnIndexByValue($name, 'name', __METHOD__)
+        );
+    }
+
+    /**
+     * @throws Exception
+     */
+    public function fetchColumnByOffset(int $offset): Iterator
+    {
+        return $this->yieldColumn(
+            $this->getColumnIndexByKey($offset, 'offset', __METHOD__)
+        );
+    }
+
+    /**
      * {@inheritdoc}
      */
     public function fetchColumn($index = 0): Iterator
     {
-        $offset = $this->getColumnIndex($index, 'offset', __METHOD__);
+        return $this->yieldColumn(
+            $this->getColumnIndex($index, 'offset', __METHOD__)
+        );
+    }
+
+    /**
+     * @param string|int $offset
+     */
+    private function yieldColumn($offset): Iterator
+    {
         $iterator = new MapIterator(
             new CallbackFilterIterator($this->records, fn (array $record): bool => isset($record[$offset])),
             fn (array $record): string => $record[$offset]
@@ -188,8 +216,7 @@ class ResultSet implements TabularDataReader, JsonSerializable
     /**
      * Filter a column name against the header if any.
      *
-     * @param string|int $field  the field name or the field index
-     * @param string     $method the calling method
+     * @param string|int $field the field name or the field index
      *
      * @throws Exception if the field is invalid or not found
      *
@@ -211,11 +238,11 @@ class ResultSet implements TabularDataReader, JsonSerializable
      */
     protected function getColumnIndexByValue(string $value, string $type, string $method): string
     {
-        if (false !== array_search($value, $this->header, true)) {
-            return $value;
+        if (false === array_search($value, $this->header, true)) {
+            throw InvalidArgument::dueToInvalidColumnIndex($value, $type, $method);
         }
 
-        throw InvalidArgument::dueToInvalidColumnIndex($value, $type, $method);
+        return $value;
     }
 
     /**

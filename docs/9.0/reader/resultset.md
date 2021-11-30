@@ -8,6 +8,7 @@ title: Accessing Records from a CSV document
 A `League\Csv\ResultSet` object represents the associated result set of processing a [CSV document](/9.0/reader/) with a [constraint builder](/9.0/reader/statement/). This object is returned from [Statement::process](/9.0/reader/statement/#apply-the-constraints-to-a-csv-document) execution.
 
 <p class="message-info">Starting with version <code>9.6.0</code>, the class implements the <code>League\Csv\TabularDataReader</code> interface.</p>
+<p class="message-info">Starting with version <code>9.8.0</code>, the class implements the <code>::fetchColumnByName</code> and <code>::fetchColumnByOffset</code> methods.</p>
 
 ## Informations
 
@@ -151,8 +152,77 @@ $data = $stmt->process($reader)->fetchOne(3);
 ## Selecting a single column
 
 ```php
-public ResultSet::fetchColumn(string|int $columnIndex = 0): Generator
+public ResultSet::fetchColumnByName(string $name): Iterator
+public ResultSet::fetchColumnByOffset(int $offset = 0): Iterator
+public ResultSet::fetchColumn(string|int $columnIndex = 0): Iterator
 ```
+
+Since with version <code>9.8.0</code>, the class implements the `::fetchColumnByName` and `::fetchColumnByOffset` methods.
+These methods replace the `::fetchColumn` which is deprecated and will be removed in the next major release.
+
+Both methods return a `Iterator` of all values in a given column from the `ResultSet` object. But they differ
+in their argument type:
+
+`::fetchColumnByName` expects a string representing one of the value of `ResultSet::getHeader`
+
+```php
+$reader = Reader::createFromPath('/path/to/my/file.csv', 'r');
+$reader->setHeaderOffset(0);
+$records = Statement::create()->process($reader);
+foreach ($records->fetchColumnByName('E-mail') as $value) {
+    //$value is a string representing the value
+    //of a given record for the selected column
+    //$value may be equal to 'john.doe@example.com'
+}
+```
+
+<p class="message-warning">If the <code>ResultSet</code> contains column names and the <code>$name</code> is not found an <code>Exception</code> exception is thrown.</p>
+
+```php
+use League\Csv\Reader;
+use League\Csv\Statement;
+
+$reader = Reader::createFromPath('/path/to/my/file.csv', 'r');
+$reader->setHeaderOffset(0);
+
+$records = Statement::create()->process($reader);
+foreach ($records->fetchColumnByName('foobar') as $record) {
+    //throw an Exception exception if
+    //no `foobar` column name is found
+    //in $records->getHeader() result
+}
+```
+
+`::fetchColumnByOffset` expects an integer representing the column index starting from `0`;
+
+```php
+use League\Csv\Reader;
+use League\Csv\Statement;
+
+$reader = Reader::createFromPath('/path/to/my/file.csv', 'r');
+$records = Statement::create()->process($reader);
+foreach ($records->fetchColumnByOffset(2) as $value) {
+    //$value is a string representing the value
+    //of a given record for the selected column
+    //$value may be equal to 'john.doe@example.com'
+}
+```
+
+<p class="message-notice">For both methods, if for a given record the column value is <code>null</code>, the record will be skipped.</p>
+
+```php
+use League\Csv\Reader;
+use League\Csv\Statement;
+
+$reader = Reader::createFromPath('/path/to/my/file.csv', 'r');
+$records = Statement::create()->process($reader);
+count($records); //returns 10;
+count(iterator_to_array($records->fetchColumnByOffset(2), false)); //returns 5
+//5 records were skipped because the column value is null
+```
+
+<p class="message-warning">The following paragraph describe the usage of the <code>::fetchColumn</code> method which is
+deprecated as of <code>9.8.0</code> and which wil be removed in the next major release.</p>
 
 `ResultSet::fetchColumn` returns a `Generator` of all values in a given column from the `ResultSet` object.
 
@@ -183,8 +253,6 @@ foreach ($records->fetchColumn('E-mail') as $value) {
     //$value may be equal to 'john.doe@example.com'
 }
 ```
-
-<p class="message-notice">If for a given record the column value is <code>null</code>, the record will be skipped.</p>
 
 ```php
 use League\Csv\Reader;

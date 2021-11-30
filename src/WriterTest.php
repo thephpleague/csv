@@ -199,22 +199,14 @@ final class WriterTest extends TestCase
 
     public function testAddValidationRules(): void
     {
-        $func = function (array $row): bool {
-            return false;
-        };
-
         $this->expectException(CannotInsertRecord::class);
-        $this->csv->addValidator($func, 'func1');
+        $this->csv->addValidator(fn (array $row): bool => false, 'func1');
         $this->csv->insertOne(['jane', 'doe']);
     }
 
     public function testFormatterRules(): void
     {
-        $func = function (array $row): array {
-            return array_map('strtoupper', $row);
-        };
-
-        $this->csv->addFormatter($func);
+        $this->csv->addFormatter(fn (array $row): array => array_map('strtoupper', $row));
         $this->csv->insertOne(['jane', 'doe']);
         self::assertSame("JANE,DOE\n", $this->csv->toString());
     }
