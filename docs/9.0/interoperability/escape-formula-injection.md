@@ -53,4 +53,7 @@ foreach ($iterable_data as $record) {
 }
 ```
 
-<p class="message-warning">Even though we provide the <code>EscapeFormula</code> formatter I must stress out that this is in no way a bulletproof method. This prevention mechanism only works if <strong>you know how the CSV export will be consumed</strong>. In any other cases, you are better of leaving the filtering to the consuming client and report any found security concern to their respective security channel.</p>
+<p class="message-warning">Even though the <code>EscapeFormula</code> formatter is provided it must stress out that
+this is in no way a bulletproof method. This prevention mechanism only works if <strong>you know how the CSV export
+will be consumed</strong>. In any other cases, you are better of leaving the filtering to the consuming client and
+report any found security concern to their respective security channel.</p>
