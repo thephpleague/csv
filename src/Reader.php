@@ -262,15 +262,10 @@ class Reader extends AbstractCsv implements TabularDataReader, JsonSerializable
         }
 
         if ($this->is_empty_records_included) {
-            $normalized_empty_records = static function (array $record): array {
-                if ([null] === $record) {
-                    return [];
-                }
-
-                return $record;
-            };
-
-            return $this->combineHeader(new MapIterator($records, $normalized_empty_records), $header);
+            return $this->combineHeader(new MapIterator(
+                $records,
+                fn (array $record): array => ([null] === $record) ? [] : $record
+            ), $header);
         }
 
         return $this->combineHeader($records, $header);

@@ -93,13 +93,9 @@ class RFC4180Field extends php_user_filter
             throw new InvalidArgumentException('The sequence contains a character that enforces enclosure or is a CSV control character or is the empty string.');
         }
 
-        $mapper = static function ($value) use ($whitespace_replace) {
-            if (is_string($value)) {
-                return str_replace(' ', $whitespace_replace, $value);
-            }
-
-            return $value;
-        };
+        $mapper = fn ($value) => is_string($value)
+            ? str_replace(' ', $whitespace_replace, $value)
+            : $value;
 
         return $csv->addFormatter(fn (array $record): array => array_map($mapper, $record));
     }
