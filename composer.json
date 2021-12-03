@@ -4,7 +4,7 @@
     "description" : "CSV data manipulation made easy in PHP",
     "keywords": ["csv", "import", "export", "read", "write", "filter", "convert", "transform"],
     "license": "MIT",
-    "homepage" : "http://csv.thephpleague.com",
+    "homepage" : "https://csv.thephpleague.com",
     "authors": [
         {
             "name" : "Ignace Nyamagana Butera",
