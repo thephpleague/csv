@@ -135,9 +135,6 @@ class RFC4180Field extends php_user_filter
         return PSFS_PASS_ON;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function onCreate(): bool
     {
         if (!$this->isValidParams($this->params)) {

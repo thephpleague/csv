@@ -38,14 +38,10 @@ class CharsetConverter extends php_user_filter
 {
     const FILTERNAME = 'convert.league.csv';
 
-    /**
-     * The records input encoding charset.
-     */
+    /** The records input encoding charset. */
     protected string $input_encoding = 'UTF-8';
 
-    /**
-     * The records output encoding charset.
-     */
+    /** The records output encoding charset. */
     protected string $output_encoding = 'UTF-8';
 
     /**
@@ -103,9 +99,6 @@ class CharsetConverter extends php_user_filter
         throw new OutOfRangeException('The submitted charset '.$encoding.' is not supported by the mbstring extension.');
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function onCreate(): bool
     {
         $prefix = self::FILTERNAME.'.';

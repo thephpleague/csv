@@ -24,33 +24,16 @@ use function array_reduce;
  */
 class Statement
 {
-    /**
-     * Callables to filter the iterator.
-     *
-     * @var array<callable>
-     */
+    /** @var array<callable> Callables to filter the iterator. */
     protected array $where = [];
-
-    /**
-     * Callables to sort the iterator.
-     *
-     * @var array<callable>
-     */
+    /** @var array<callable> Callables to sort the iterator. */
     protected array $order_by = [];
-
-    /**
-     * iterator Offset.
-     */
+    /** iterator Offset. */
     protected int $offset = 0;
-
-    /**
-     * iterator maximum length.
-     */
+    /** iterator maximum length. */
     protected int $limit = -1;
 
     /**
-     * Named Constructor to ease Statement instantiation.
-     *
      * @throws Exception
      */
     public static function create(callable $where = null, int $offset = 0, int $limit = -1): self

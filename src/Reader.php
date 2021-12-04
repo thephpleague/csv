@@ -39,51 +39,29 @@ class Reader extends AbstractCsv implements TabularDataReader, JsonSerializable
 {
     protected const STREAM_FILTER_MODE = STREAM_FILTER_READ;
 
-    /**
-     * header offset.
-     */
     protected ?int $header_offset = null;
-
-    /**
-     * header record.
-     *
-     * @var array<string>
-     */
-    protected array $header = [];
     protected int $nb_records = -1;
     protected bool $is_empty_records_included = false;
+    /** @var array<string> header record. */
+    protected array $header = [];
 
-    /**
-     * {@inheritdoc}
-     */
     public static function createFromPath(string $path, string $open_mode = 'r', $context = null)
     {
         return parent::createFromPath($path, $open_mode, $context);
     }
 
-    /**
-     * {@inheritdoc}
-     */
     protected function resetProperties(): void
     {
         $this->nb_records = -1;
         $this->header = [];
     }
 
-    /**
-     * Returns the header offset.
-     *
-     * If no CSV header offset is set this method MUST return null
-     *
-     */
+    /** Returns the header offset. */
     public function getHeaderOffset(): ?int
     {
         return $this->header_offset;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function getHeader(): array
     {
         if (null === $this->header_offset) {
@@ -125,9 +103,7 @@ class Reader extends AbstractCsv implements TabularDataReader, JsonSerializable
         return $header;
     }
 
-    /**
-     * Returns the row at a given offset.
-     */
+    /** Returns the row at a given offset. */
     protected function seekRow(int $offset): array
     {
         foreach ($this->getDocument() as $index => $record) {
@@ -174,49 +150,31 @@ class Reader extends AbstractCsv implements TabularDataReader, JsonSerializable
         return $record;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function fetchColumnByName(string $name): Iterator
     {
         return ResultSet::createFromTabularDataReader($this)->fetchColumnByName($name);
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function fetchColumnByOffset(int $offset = 0): Iterator
     {
         return ResultSet::createFromTabularDataReader($this)->fetchColumnByOffset($offset);
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function fetchColumn($index = 0): Iterator
     {
         return ResultSet::createFromTabularDataReader($this)->fetchColumn($index);
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function fetchOne(int $nth_record = 0): array
     {
         return ResultSet::createFromTabularDataReader($this)->fetchOne($nth_record);
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function fetchPairs($offset_index = 0, $value_index = 1): Iterator
     {
         return ResultSet::createFromTabularDataReader($this)->fetchPairs($offset_index, $value_index);
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function count(): int
     {
         if (-1 === $this->nb_records) {
@@ -226,25 +184,16 @@ class Reader extends AbstractCsv implements TabularDataReader, JsonSerializable
         return $this->nb_records;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function getIterator(): Iterator
     {
         return $this->getRecords();
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function jsonSerialize(): array
     {
         return iterator_to_array($this->getRecords(), false);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function getRecords(array $header = []): Iterator
     {
         $header = $this->computeHeader($header);

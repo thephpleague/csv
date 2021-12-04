@@ -35,14 +35,9 @@ class EncloseField extends php_user_filter
 {
     const FILTERNAME = 'convert.league.csv.enclosure';
 
-    /**
-     * Default sequence.
-     */
+    /** Default sequence. */
     protected string $sequence;
-
-    /**
-     * Characters that triggers enclosure in PHP.
-     */
+    /** Characters that triggers enclosure in PHP. */
     protected static string $force_enclosure = "\n\r\t ";
 
     /**
@@ -92,9 +87,6 @@ class EncloseField extends php_user_filter
         return strlen($sequence) != strcspn($sequence, self::$force_enclosure);
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function onCreate(): bool
     {
         return isset($this->params['sequence'])

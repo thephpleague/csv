@@ -18,14 +18,9 @@ namespace League\Csv;
  */
 class CannotInsertRecord extends Exception
 {
-    /**
-     * The record submitted for insertion.
-     */
+    /** The record submitted for insertion. */
     protected array $record;
-
-    /**
-     * Validator which did not validated the data.
-     */
+    /** Validator which did not validated the data. */
     protected string $name = '';
 
     /**

@@ -49,65 +49,23 @@ use const SEEK_SET;
  */
 final class Stream implements SeekableIterator
 {
-    /**
-     * Attached filters.
-     *
-     * @var array<string, array<resource>>
-     */
+    /** @var array<string, array<resource>> Attached filters. */
     private array $filters = [];
-
-    /**
-     * stream resource.
-     *
-     * @var resource
-     */
+    /** @var resource */
     private $stream;
-
-    /**
-     * Tell whether the stream should be closed on object destruction.
-     */
     private bool $should_close_stream = false;
-
-    /**
-     * Current iterator value.
-     *
-     * @var mixed can be a null false or a scalar type value
-     */
+    /** @var mixed can be a null false or a scalar type value. Current iterator value. */
     private $value;
-
-    /**
-     * Current iterator key.
-     */
+    /** Current iterator key. */
     private int $offset;
-
-    /**
-     * Flags for the Document.
-     */
+    /** Flags for the Document.*/
     private int $flags = 0;
-
-    /**
-     * the field delimiter (one character only).
-     */
     private string $delimiter = ',';
-
-    /**
-     * the field enclosure character (one character only).
-     */
     private string $enclosure = '"';
-
-    /**
-     * the field escape character (one character only).
-     */
     private string $escape = '\\';
-
-    /**
-     * Tell whether the current stream is seekable;.
-     */
     private bool $is_seekable = false;
 
     /**
-     * New instance.
-     *
      * @param mixed $stream stream type resource
      */
     public function __construct($stream)
@@ -124,9 +82,6 @@ final class Stream implements SeekableIterator
         $this->stream = $stream;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function __destruct()
     {
         array_walk_recursive($this->filters, fn ($filter): bool => @stream_filter_remove($filter));
@@ -138,17 +93,11 @@ final class Stream implements SeekableIterator
         unset($this->stream);
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function __clone()
     {
         throw UnavailableStream::dueToForbiddenCloning(self::class);
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function __debugInfo(): array
     {
         return stream_get_meta_data($this->stream) + [
@@ -201,7 +150,9 @@ final class Stream implements SeekableIterator
     }
 
     /**
-     * Return the URI of the underlying stream.
+     * returns the URI of the underlying stream.
+     *
+     * @see https://www.php.net/manual/en/splfileinfo.getpathname.php
      */
     public function getPathname(): string
     {
@@ -212,7 +163,6 @@ final class Stream implements SeekableIterator
      * append a filter.
      *
      * @see http://php.net/manual/en/function.stream-filter-append.php
-     *
      *
      * @throws InvalidArgument if the filter can not be appended
      */
@@ -233,7 +183,7 @@ final class Stream implements SeekableIterator
      */
     public function setCsvControl(string $delimiter = ',', string $enclosure = '"', string $escape = '\\'): void
     {
-        list($this->delimiter, $this->enclosure, $this->escape) = $this->filterControl($delimiter, $enclosure, $escape, __METHOD__);
+        [$this->delimiter, $this->enclosure, $this->escape] = $this->filterControl($delimiter, $enclosure, $escape, __METHOD__);
     }
 
     /**

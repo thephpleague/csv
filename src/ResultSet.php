@@ -28,16 +28,9 @@ use function iterator_to_array;
  */
 class ResultSet implements TabularDataReader, JsonSerializable
 {
-    /**
-     * The CSV records collection.
-     */
+    /** The CSV records collection. */
     protected Iterator $records;
-
-    /**
-     * The CSV records collection header.
-     *
-     * @var array<string>
-     */
+    /** @var array<string> The CSV records collection header. */
     protected array $header = [];
 
     public function __construct(Iterator $records, array $header)
@@ -62,9 +55,6 @@ class ResultSet implements TabularDataReader, JsonSerializable
         }
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function __destruct()
     {
         unset($this->records);
@@ -88,17 +78,11 @@ class ResultSet implements TabularDataReader, JsonSerializable
         return $this->header;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function getIterator(): Iterator
     {
         return $this->getRecords();
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function getRecords(array $header = []): Iterator
     {
         $this->validateHeader($header);
@@ -132,25 +116,16 @@ class ResultSet implements TabularDataReader, JsonSerializable
         return new MapIterator($this->records, $mapper);
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function count(): int
     {
         return iterator_count($this->records);
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function jsonSerialize(): array
     {
         return iterator_to_array($this->records, false);
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function fetchOne(int $nth_record = 0): array
     {
         if ($nth_record < 0) {
@@ -188,9 +163,6 @@ class ResultSet implements TabularDataReader, JsonSerializable
         );
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function fetchColumn($index = 0): Iterator
     {
         return $this->yieldColumn(
@@ -270,9 +242,6 @@ class ResultSet implements TabularDataReader, JsonSerializable
         return $value;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function fetchPairs($offset_index = 0, $value_index = 1): Iterator
     {
         $offset = $this->getColumnIndex($offset_index, 'offset', __METHOD__);

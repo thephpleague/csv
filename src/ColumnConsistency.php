@@ -20,9 +20,6 @@ use function count;
  */
 class ColumnConsistency
 {
-    /**
-     * The number of column per record.
-     */
     protected int $columns_count;
 
     /**

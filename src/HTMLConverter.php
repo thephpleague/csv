@@ -23,16 +23,10 @@ use function preg_match;
  */
 class HTMLConverter
 {
-    /**
-     * table class attribute value.
-     */
+    /** table class attribute value. */
     protected string $class_name = 'table-csv-data';
-
-    /**
-     * table id attribute value.
-     */
+    /** table id attribute value. */
     protected string $id_value = '';
-
     protected XMLConverter $xml_converter;
 
     public static function create(): self

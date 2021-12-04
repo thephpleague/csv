@@ -275,9 +275,6 @@ final class StreamWrapper
         }
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function stream_open(string $path, string $mode, int $options, string &$opened_path = null): bool
     {
         $options = stream_context_get_options($this->context);
@@ -320,17 +317,11 @@ final class StreamWrapper
         return ftell($this->stream);
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function stream_eof(): bool
     {
         return feof($this->stream);
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function stream_seek(int $offset, int $whence): bool
     {
         fseek($this->stream, $whence);
@@ -338,9 +329,6 @@ final class StreamWrapper
         return true;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function stream_stat(): array
     {
         return [

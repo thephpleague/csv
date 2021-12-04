@@ -24,16 +24,9 @@ use Traversable;
  */
 final class MapIterator extends IteratorIterator
 {
-    /**
-     * The callback to apply on all InnerIterator current value.
-     *
-     * @var callable
-     */
+    /** @var callable The callback to apply on all InnerIterator current value. */
     private $callable;
 
-    /**
-     * New instance.
-     */
     public function __construct(Traversable $iterator, callable $callable)
     {
         parent::__construct($iterator);
