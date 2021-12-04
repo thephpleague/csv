@@ -14,7 +14,6 @@ declare(strict_types=1);
 namespace League\Csv;
 
 use function array_reduce;
-use function preg_quote;
 use function strlen;
 use const PHP_VERSION_ID;
 use const SEEK_CUR;
@@ -27,53 +26,19 @@ class Writer extends AbstractCsv
 {
     protected const STREAM_FILTER_MODE = STREAM_FILTER_WRITE;
 
-    /**
-     * callable collection to format the record before insertion.
-     *
-     * @var array<callable>
-     */
+    /** @var array<callable> callable collection to format the record before insertion. */
     protected array $formatters = [];
-
-    /**
-     * callable collection to validate the record before insertion.
-     *
-     * @var array<callable>
-     */
+    /** @var array<callable> callable collection to validate the record before insertion. */
     protected array $validators = [];
-
-    /**
-     * newline character.
-     */
+    /** newline character. */
     protected string $newline = "\n";
-
-    /**
-     * Insert records count for flushing.
-     */
+    /** Insert records count for flushing. */
     protected int $flush_counter = 0;
-
-    /**
-     * Buffer flush threshold.
-     */
+    /** Buffer flush threshold. */
     protected ?int $flush_threshold = null;
 
-    /**
-     * Regular expression used to detect if RFC4180 formatting is necessary.
-     */
-    protected string $rfc4180_regexp;
-
-    /**
-     * double enclosure for RFC4180 compliance.
-     */
-    protected string $rfc4180_enclosure;
-
-    /**
-     * {@inheritdoc}
-     */
     protected function resetProperties(): void
     {
-        $characters = preg_quote($this->delimiter, '/').'|'.preg_quote($this->enclosure, '/');
-        $this->rfc4180_regexp = '/[\s|'.$characters.']/x';
-        $this->rfc4180_enclosure = $this->enclosure.$this->enclosure;
     }
 
     /**
@@ -121,7 +86,7 @@ class Writer extends AbstractCsv
      */
     public function insertOne(array $record): int
     {
-        $record = array_reduce($this->formatters, [$this, 'formatRecord'], $record);
+        $record = array_reduce($this->formatters, fn (array $record, callable $formatter): array => $formatter($record), $record);
         $this->validateRecord($record);
         $bytes = $this->addRecord($record);
         if (false === $bytes || 0 >= $bytes) {
@@ -148,6 +113,11 @@ class Writer extends AbstractCsv
     }
 
     /**
+     * DEPRECATION WARNING! This method will be removed in the next major point release.
+     *
+     * @deprecated since version 9.8.0
+     * @codeCoverageIgnore
+     *
      * Format a record.
      *
      * The returned array must contain

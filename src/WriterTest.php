@@ -19,7 +19,6 @@ use function array_map;
 use function fclose;
 use function fopen;
 use function tmpfile;
-use const PHP_VERSION_ID;
 
 /**
  * @group writer
@@ -113,13 +112,8 @@ final class WriterTest extends TestCase
      */
     public function testInsertThrowsExceptionOnError(array $record): void
     {
-        if (70400 > PHP_VERSION_ID) {
-            $this->expectException(CannotInsertRecord::class);
-            $this->expectExceptionMessage('Unable to write record to the CSV document');
-        } else {
-            self::expectNotice();
-            $this->expectExceptionMessageMatches('/write of \d+ bytes failed with errno=9 Bad file descriptor/i');
-        }
+        self::expectNotice();
+        $this->expectExceptionMessageMatches('/write of \d+ bytes failed with errno=9 Bad file descriptor/i');
 
         Writer::createFromPath(__DIR__.'/../test_files/foo.csv', 'r')->insertOne($record);
     }
