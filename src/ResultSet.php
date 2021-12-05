@@ -14,6 +14,7 @@ declare(strict_types=1);
 namespace League\Csv;
 
 use CallbackFilterIterator;
+use Generator;
 use Iterator;
 use JsonSerializable;
 use LimitIterator;
@@ -61,7 +62,7 @@ class ResultSet implements TabularDataReader, JsonSerializable
     }
 
     /**
-     * Returns a new instance from a League\Csv\Reader object.
+     * Returns a new instance from an object implementing the TabularDataReader interface.
      */
     public static function createFromTabularDataReader(TabularDataReader $reader): self
     {
@@ -71,7 +72,7 @@ class ResultSet implements TabularDataReader, JsonSerializable
     /**
      * Returns the header associated with the result set.
      *
-     * @return string[]
+     * @return array<string>
      */
     public function getHeader(): array
     {
@@ -173,15 +174,15 @@ class ResultSet implements TabularDataReader, JsonSerializable
     /**
      * @param string|int $offset
      */
-    private function yieldColumn($offset): Iterator
+    protected function yieldColumn($offset): Generator
     {
         $iterator = new MapIterator(
             new CallbackFilterIterator($this->records, fn (array $record): bool => isset($record[$offset])),
             fn (array $record): string => $record[$offset]
         );
 
-        foreach ($iterator as $tKey => $tValue) {
-            yield $tKey => $tValue;
+        foreach ($iterator as $key => $value) {
+            yield $key => $value;
         }
     }
 
@@ -190,7 +191,7 @@ class ResultSet implements TabularDataReader, JsonSerializable
      *
      * @param string|int $field the field name or the field index
      *
-     * @throws Exception if the field is invalid or not found
+     * @throws InvalidArgument if the field is invalid or not found
      *
      * @return string|int
      */
@@ -206,7 +207,7 @@ class ResultSet implements TabularDataReader, JsonSerializable
     /**
      * Returns the selected column name.
      *
-     * @throws Exception if the column is not found
+     * @throws InvalidArgument if the column is not found
      */
     protected function getColumnIndexByValue(string $value, string $type, string $method): string
     {
@@ -220,7 +221,7 @@ class ResultSet implements TabularDataReader, JsonSerializable
     /**
      * Returns the selected column name according to its offset.
      *
-     * @throws Exception if the field is invalid or not found
+     * @throws InvalidArgument if the field is invalid or not found
      *
      * @return int|string
      */

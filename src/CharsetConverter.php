@@ -15,6 +15,7 @@ namespace League\Csv;
 
 use OutOfRangeException;
 use php_user_filter;
+use Traversable;
 use function array_combine;
 use function array_map;
 use function in_array;
@@ -38,10 +39,7 @@ class CharsetConverter extends php_user_filter
 {
     const FILTERNAME = 'convert.league.csv';
 
-    /** The records input encoding charset. */
     protected string $input_encoding = 'UTF-8';
-
-    /** The records output encoding charset. */
     protected string $output_encoding = 'UTF-8';
 
     /**
@@ -59,9 +57,9 @@ class CharsetConverter extends php_user_filter
      */
     public static function register(): void
     {
-        $filtername = self::FILTERNAME.'.*';
-        if (!in_array($filtername, stream_get_filters(), true)) {
-            stream_filter_register($filtername, self::class);
+        $filter_name = self::FILTERNAME.'.*';
+        if (!in_array($filter_name, stream_get_filters(), true)) {
+            stream_filter_register($filter_name, self::class);
         }
     }
 
@@ -151,7 +149,7 @@ class CharsetConverter extends php_user_filter
             return array_map($this, $records);
         }
 
-        /* @var \Traversable $records */
+        /* @var Traversable $records */
         return new MapIterator($records, $this);
     }
 

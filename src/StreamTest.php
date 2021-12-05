@@ -170,6 +170,14 @@ final class StreamTest extends TestCase
         $stream->seek(-1);
     }
 
+    public function testFSeekThrowsExceptionOnNonSeakableResource(): void
+    {
+        $this->expectException(UnavailableFeature::class);
+        $stream = new Stream(fopen('php://output', 'w'));
+        $stream->fputcsv(['foo', 'bar']);
+        $stream->fseek(-1);
+    }
+
     /**
      * @covers ::seek
      */

@@ -30,11 +30,8 @@ class Writer extends AbstractCsv
     protected array $formatters = [];
     /** @var array<callable> callable collection to validate the record before insertion. */
     protected array $validators = [];
-    /** newline character. */
     protected string $newline = "\n";
-    /** Insert records count for flushing. */
     protected int $flush_counter = 0;
-    /** Buffer flush threshold. */
     protected ?int $flush_threshold = null;
 
     protected function resetProperties(): void
@@ -51,7 +48,6 @@ class Writer extends AbstractCsv
 
     /**
      * Get the flush threshold.
-     *
      */
     public function getFlushThreshold(): ?int
     {

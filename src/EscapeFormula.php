@@ -60,7 +60,7 @@ class EscapeFormula
      *
      * @throws InvalidArgumentException if the string is not a single character
      *
-     * @return string[]
+     * @return array<string>
      */
     protected function filterSpecialCharacters(string ...$characters): array
     {
@@ -76,7 +76,7 @@ class EscapeFormula
     /**
      * Returns the list of character the instance will escape.
      *
-     * @return string[]
+     * @return array<string>
      */
     public function getSpecialCharacters(): array
     {

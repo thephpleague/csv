@@ -82,7 +82,7 @@ class Reader extends AbstractCsv implements TabularDataReader, JsonSerializable
      *
      * @throws Exception If the header offset is set and no record is found or is the empty array
      *
-     * @return string[]
+     * @return array<string>
      */
     protected function setHeader(int $offset): array
     {
@@ -132,7 +132,7 @@ class Reader extends AbstractCsv implements TabularDataReader, JsonSerializable
      *
      * @param string[] $record
      *
-     * @return string[]
+     * @return array<string>
      */
     protected function removeBOM(array $record, int $bom_length, string $enclosure): array
     {
@@ -227,7 +227,7 @@ class Reader extends AbstractCsv implements TabularDataReader, JsonSerializable
      *
      * @throws Exception If the header contains non unique column name
      *
-     * @return string[]
+     * @return array<string>
      */
     protected function computeHeader(array $header)
     {
