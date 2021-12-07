@@ -7,8 +7,8 @@ All Notable changes to `Csv` will be documented in this file
 ### Added
 
 - Added PHP7.4 typed properties where applicable
-- `TabularDataReader::fetchColumnByName` to replace the namespace function `TabularDataReader::fetchColumn`
-- `TabularDataReader::fetchColumnByOffset` to replace the namespace function `TabularDataReader::fetchColumn`
+- `TabularDataReader::fetchColumnByName` to replace `TabularDataReader::fetchColumn`
+- `TabularDataReader::fetchColumnByOffset` to replace `TabularDataReader::fetchColumn`
 
 ### Deprecated
 
