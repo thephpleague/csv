@@ -5,13 +5,13 @@
 [![Build](https://github.com/thephpleague/csv/workflows/build/badge.svg)](https://github.com/thephpleague/csv/actions?query=workflow%3A%22build%22)
 [![Total Downloads](https://img.shields.io/packagist/dt/league/csv.svg?style=flat-square)](https://packagist.org/packages/league/csv)
 
-Csv is a simple library to ease CSV parsing, writing and filtering in
-PHP. The goal of the library is to be powerful while remaining lightweight,
+Csv is a library to ease parsing, writing and filtering CSV in PHP. 
+The library goal is to be powerful while remaining lightweight,
 by utilizing PHP native classes whenever possible.
 
 ## Highlights
 
-- Simple API
+- Easy to use API
 - Read and Write to CSV documents in a memory efficient and scalable way
 - Support PHP stream filtering capabilities
 - Transform CSV documents into popular format (JSON, XML or HTML)
@@ -25,7 +25,21 @@ Full documentation can be found at [csv.thephpleague.com](https://csv.thephpleag
 
 ## System Requirements
 
-You need **PHP >= 7.4** and the `mbstring` extension to use `Csv` but the latest stable version of PHP is recommended.
+You need the `mbstring` extension to use `Csv` and the latest stable version of PHP is recommended.
+
+Please find below the PHP support for `Csv` version 9.
+
+| Min. Library Version | Min. PHP Version | Max. Supported PHP Version |
+|----------------------|------------------|----------------------------|
+| 9.0.0                | PHP 7.0.10       | PHP 7.1.x                  |
+| 9.1.2                | PHP 7.0.10       | PHP 7.2.x                  |
+| 9.2.0                | PHP 7.0.10       | PHP 7.4.x                  |
+| 9.6.0                | PHP 7.2.5        | PHP 7.4.x                  |
+| 9.6.2                | PHP 7.2.5        | PHP 8.0.x                  |
+| 9.7.0                | PHP 7.3.0        | PHP 8.0.x                  |
+| 9.7.3                | PHP 7.3.0        | PHP 8.1.x                  |
+| 9.8.0                | PHP 7.4.0        | PHP 8.1.x                  |
+
 
 ## Install
 
@@ -37,7 +51,8 @@ composer require league/csv
 
 ## Configuration
 
-**Warning:** If your CSV document was created or is read on a Macintosh computer, add the following lines before using the library to help [PHP detect line ending](http://php.net/manual/en/function.fgetcsv.php#refsect1-function.fgetcsv-returnvalues).
+**Warning:** If your CSV document was created or is read on a Macintosh computer, add the following lines before 
+using the library to help [PHP detect line ending](http://php.net/manual/en/function.fgetcsv.php#refsect1-function.fgetcsv-returnvalues).
 
 ```php
 if (!ini_get("auto_detect_line_endings")) {
@@ -47,7 +62,7 @@ if (!ini_get("auto_detect_line_endings")) {
 
 ## Testing
 
-`League\Csv` has a :
+The library has a :
 
 - a [PHPUnit](https://phpunit.de) test suite
 - a coding style compliance test suite using [PHP CS Fixer](https://cs.symfony.com/).
