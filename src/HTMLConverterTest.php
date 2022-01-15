@@ -30,7 +30,7 @@ final class HTMLConverterTest extends TestCase
      */
     public function testToHTML(): void
     {
-        $csv = Reader::createFromPath(__DIR__.'/../test_files/prenoms.csv', 'r')
+        $csv = Reader::createFromPath(__DIR__ . '/../test_files/prenoms.csv', 'r')
             ->setDelimiter(';')
             ->setHeaderOffset(0)
         ;
@@ -64,7 +64,7 @@ final class HTMLConverterTest extends TestCase
      */
     public function testToHTMLWithTHeadTableSection(): void
     {
-        $csv = Reader::createFromPath(__DIR__.'/../test_files/prenoms.csv', 'r')
+        $csv = Reader::createFromPath(__DIR__ . '/../test_files/prenoms.csv', 'r')
             ->setDelimiter(';')
             ->setHeaderOffset(0)
         ;
@@ -100,7 +100,7 @@ final class HTMLConverterTest extends TestCase
      */
     public function testToHTMLWithTFootTableSection(): void
     {
-        $csv = Reader::createFromPath(__DIR__.'/../test_files/prenoms.csv', 'r')
+        $csv = Reader::createFromPath(__DIR__ . '/../test_files/prenoms.csv', 'r')
             ->setDelimiter(';')
             ->setHeaderOffset(0)
         ;
@@ -136,7 +136,7 @@ final class HTMLConverterTest extends TestCase
      */
     public function testToHTMLWithBothTableHeaderSection(): void
     {
-        $csv = Reader::createFromPath(__DIR__.'/../test_files/prenoms.csv', 'r')
+        $csv = Reader::createFromPath(__DIR__ . '/../test_files/prenoms.csv', 'r')
             ->setDelimiter(';')
             ->setHeaderOffset(0)
         ;

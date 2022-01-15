@@ -323,7 +323,7 @@ abstract class AbstractCsv implements ByteSequence
 
         echo $this->output_bom;
 
-        return strlen($this->output_bom) + (int) $this->document->fpassthru();
+        return strlen($this->output_bom) + (int)$this->document->fpassthru();
     }
 
     /**

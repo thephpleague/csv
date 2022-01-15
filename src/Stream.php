@@ -43,7 +43,7 @@ use const PHP_VERSION_ID;
 use const SEEK_SET;
 
 /**
- * An object oriented API to handle a PHP stream resource.
+ * An object-oriented API to handle a PHP stream resource.
  *
  * @internal used internally to iterate over a stream resource
  */
