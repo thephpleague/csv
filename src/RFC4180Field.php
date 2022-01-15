@@ -15,6 +15,7 @@ namespace League\Csv;
 
 use InvalidArgumentException;
 use php_user_filter;
+use TypeError;
 use function array_map;
 use function in_array;
 use function is_string;
@@ -137,7 +138,17 @@ class RFC4180Field extends php_user_filter
 
     public function onCreate(): bool
     {
-        if (!$this->isValidParams($this->params)) {
+        if (!is_array($this->params)) {
+            throw new TypeError('The filter parameters must be an array.');
+        }
+
+        static $mode_list = [STREAM_FILTER_READ => 1, STREAM_FILTER_WRITE => 1];
+
+        $state = isset($this->params['enclosure'], $this->params['escape'], $this->params['mode'], $mode_list[$this->params['mode']])
+            && 1 === strlen($this->params['enclosure'])
+            && 1 === strlen($this->params['escape']);
+
+        if (false === $state) {
             return false;
         }
 
@@ -165,8 +176,8 @@ class RFC4180Field extends php_user_filter
         static $mode_list = [STREAM_FILTER_READ => 1, STREAM_FILTER_WRITE => 1];
 
         return isset($params['enclosure'], $params['escape'], $params['mode'], $mode_list[$params['mode']])
-            && 1 == strlen($params['enclosure'])
-            && 1 == strlen($params['escape']);
+            && 1 === strlen($params['enclosure'])
+            && 1 === strlen($params['escape']);
     }
 
     /**
@@ -177,6 +188,6 @@ class RFC4180Field extends php_user_filter
     protected function isValidSequence(array $params)
     {
         return isset($params['whitespace_replace'])
-            && strlen($params['whitespace_replace']) == strcspn($params['whitespace_replace'], self::$force_enclosure);
+            && strlen($params['whitespace_replace']) === strcspn($params['whitespace_replace'], self::$force_enclosure);
     }
 }

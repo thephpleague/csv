@@ -3,6 +3,9 @@ includes:
     - vendor/phpstan/phpstan-phpunit/extension.neon
     - vendor/phpstan/phpstan-phpunit/rules.neon
 parameters:
+    level: max
+    paths:
+        - src
     checkGenericClassInNonGenericObjectType: false
     checkMissingIterableValueType: false
     ignoreErrors:

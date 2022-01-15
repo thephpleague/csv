@@ -56,8 +56,6 @@ class EscapeFormula
     /**
      * Filter submitted special characters.
      *
-     * @param string ...$characters
-     *
      * @throws InvalidArgumentException if the string is not a single character
      *
      * @return array<string>

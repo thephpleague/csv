@@ -89,7 +89,8 @@ class EncloseField extends php_user_filter
 
     public function onCreate(): bool
     {
-        return isset($this->params['sequence'])
+        return is_array($this->params)
+            && isset($this->params['sequence'])
             && self::isValidSequence($this->params['sequence']);
     }
 
@@ -101,8 +102,12 @@ class EncloseField extends php_user_filter
      */
     public function filter($in, $out, &$consumed, $closing): int
     {
+        /** @var array $params */
+        $params = $this->params;
+        /** @var string $sequence */
+        $sequence = $params['sequence'];
         while (null !== ($bucket = stream_bucket_make_writeable($in))) {
-            $bucket->data = str_replace($this->params['sequence'], '', $bucket->data);
+            $bucket->data = str_replace($sequence, '', $bucket->data);
             $consumed += $bucket->datalen;
             stream_bucket_append($out, $bucket);
         }
