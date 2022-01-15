@@ -51,5 +51,5 @@ jobs:
               if: ${{ matrix.php == '8.1' && matrix.stability == 'prefer-stable'}}
 
             - name: Run Coding style rules
-              run: composer phpcs
+              run: composer phpcs:fix
               if: ${{ matrix.php == '8.1' && matrix.stability == 'prefer-stable'}}
