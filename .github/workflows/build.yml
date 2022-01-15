@@ -48,6 +48,7 @@ jobs:
 
             - name: Run static analysis
               run: composer phpstan
+              if: ${{ matrix.php == '8.1' && matrix.stability == 'prefer-stable'}}
 
             - name: Run Coding style rules
               run: composer phpcs
