@@ -48,7 +48,7 @@ interface TabularDataReader extends Countable, IteratorAggregate
     /**
      * Returns the header associated with the tabular data.
      *
-     * The header must contains unique string or is an empty array
+     * The header must contain unique string or to be an empty array
      * if no header was specified.
      *
      * @return array<string>
@@ -92,7 +92,7 @@ interface TabularDataReader extends Countable, IteratorAggregate
      *
      * Returns a single column from the next record of the tabular data.
      *
-     * By default if no value is supplied the first column is fetch
+     * By default, if no value is supplied the first column is fetched
      *
      * @param string|int $index CSV column index
      *
@@ -104,7 +104,7 @@ interface TabularDataReader extends Countable, IteratorAggregate
      * Returns the next key-value pairs from the tabular data (first
      * column is the key, second column is the value).
      *
-     * By default if no column index is provided:
+     * By default, if no column index is provided:
      * - the first column is used to provide the keys
      * - the second column is used to provide the value
      *
