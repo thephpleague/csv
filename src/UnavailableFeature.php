@@ -32,7 +32,7 @@ class UnavailableFeature extends Exception
 
     public static function dueToUnsupportedStreamFilterApi(string $className): self
     {
-        return new self('The stream filter API can not be used with a ' . $className . ' instance.');
+        return new self('The stream filter API can not be used with a '.$className.' instance.');
     }
 
     public static function dueToMissingStreamSeekability(): self

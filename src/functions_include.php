@@ -10,5 +10,5 @@
  */
 
 if (!function_exists('League\Csv\bom_match')) {
-    require __DIR__ . '/functions.php';
+    require __DIR__.'/functions.php';
 }
