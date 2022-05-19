@@ -20,18 +20,14 @@ use function count;
  */
 class ColumnConsistency
 {
-    protected int $columns_count;
-
     /**
      * @throws InvalidArgument if the column count is lesser than -1
      */
-    public function __construct(int $columns_count = -1)
+    public function __construct(protected int $columns_count = -1)
     {
-        if ($columns_count < -1) {
-            throw InvalidArgument::dueToInvalidColumnCount($columns_count, __METHOD__);
+        if ($this->columns_count < -1) {
+            throw InvalidArgument::dueToInvalidColumnCount($this->columns_count, __METHOD__);
         }
-
-        $this->columns_count = $columns_count;
     }
 
     /**

@@ -572,6 +572,6 @@ EOF;
         $result = ob_get_clean();
         self::assertStringContainsString(Reader::BOM_UTF16_BE, $result);
         self::assertStringContainsString(Reader::BOM_UTF8, $result);
-        self::assertTrue(0 === strpos($result, Reader::BOM_UTF16_BE.Reader::BOM_UTF8));
+        self::assertTrue(str_starts_with($result, Reader::BOM_UTF16_BE.Reader::BOM_UTF8));
     }
 }

@@ -29,17 +29,13 @@ use function iterator_to_array;
  */
 class ResultSet implements TabularDataReader, JsonSerializable
 {
-    /** The CSV records collection. */
-    protected Iterator $records;
-    /** @var array<string> The CSV records collection header. */
-    protected array $header = [];
-
-    public function __construct(Iterator $records, array $header)
-    {
-        $this->validateHeader($header);
-
-        $this->records = $records;
-        $this->header = $header;
+    public function __construct(
+        /** @var Iterator<array<string|null>> The CSV records collection. */
+        protected Iterator $records,
+        /** @var array<string> The CSV records collection header. */
+        protected array $header = []
+    ) {
+        $this->validateHeader($this->header);
     }
 
     /**
@@ -84,10 +80,21 @@ class ResultSet implements TabularDataReader, JsonSerializable
         return $this->getRecords();
     }
 
+    /**
+     * @param array<string> $header
+     *
+     * @throws SyntaxError
+     *
+     * @return Iterator<array<array-key,string|null>>
+     */
     public function getRecords(array $header = []): Iterator
     {
         $this->validateHeader($header);
         $records = $this->combineHeader($header);
+        /**
+         * @var array-key          $offset
+         * @var array<string|null> $value
+         */
         foreach ($records as $offset => $value) {
             yield $offset => $value;
         }
@@ -164,6 +171,9 @@ class ResultSet implements TabularDataReader, JsonSerializable
         );
     }
 
+    /**
+     * @throws Exception
+     */
     public function fetchColumn($index = 0): Iterator
     {
         return $this->yieldColumn(

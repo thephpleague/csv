@@ -180,7 +180,6 @@ EOF;
 
         $res = Statement::create()->process($csv);
         self::assertEquals($csv->fetchOne(3), $res->fetchOne(3));
-        self::assertEquals($csv->fetchColumn('firstname'), $res->fetchColumn('firstname'));
         self::assertEquals($csv->fetchColumnByName('firstname'), $res->fetchColumnByName('firstname'));
         self::assertEquals($csv->fetchColumnByOffset(1), $res->fetchColumnByOffset(1));
         self::assertEquals($csv->fetchPairs('lastname', 0), $res->fetchPairs('lastname', 0));

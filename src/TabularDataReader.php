@@ -68,6 +68,8 @@ interface TabularDataReader extends Countable, IteratorAggregate
      * the returned object.
      *
      * @param array<string> $header an optional header to use instead of the CSV document header
+     *
+     * @return Iterator<array<string|null>>
      */
     public function getRecords(array $header = []): Iterator;
 

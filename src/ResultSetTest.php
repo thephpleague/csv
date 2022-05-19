@@ -113,6 +113,32 @@ final class ResultSetTest extends TestCase
         ];
     }
 
+    /**
+     * @covers ::fetchColumn
+     * @covers ::getColumnIndexByKey
+     * @covers \League\Csv\InvalidArgument::dueToInvalidColumnIndex
+     */
+    public function testFetchColumnTriggersOutOfRangeException(): void
+    {
+        $this->expectException(InvalidArgument::class);
+
+        $this->csv->setHeaderOffset(0);
+        $res = $this->stmt->process($this->csv)->fetchColumn(-1);
+        iterator_to_array($res, false);
+    }
+
+    /**
+     * @covers ::fetchColumn
+     * @covers ::getColumnIndex
+     * @covers ::getColumnIndexByValue
+     * @covers ::getColumnIndexByKey
+     */
+    public function testFetchColumn(): void
+    {
+        self::assertContains('john', $this->stmt->process($this->csv)->fetchColumn(0));
+        self::assertContains('jane', $this->stmt->process($this->csv)->fetchColumn());
+    }
+
     public function testFetchColumnByNameTriggersException(): void
     {
         $this->expectException(InvalidArgument::class);
@@ -133,20 +159,6 @@ final class ResultSetTest extends TestCase
             $this->stmt->process($this->csv)->fetchColumnByOffset(24),
             false
         );
-    }
-
-    /**
-     * @covers ::fetchColumn
-     * @covers ::getColumnIndexByKey
-     * @covers \League\Csv\InvalidArgument::dueToInvalidColumnIndex
-     */
-    public function testFetchColumnTriggersOutOfRangeException(): void
-    {
-        $this->expectException(InvalidArgument::class);
-
-        $this->csv->setHeaderOffset(0);
-        $res = $this->stmt->process($this->csv)->fetchColumn(-1);
-        iterator_to_array($res, false);
     }
 
     /**
@@ -207,21 +219,8 @@ final class ResultSetTest extends TestCase
             "parentA","childA","titleA"';
         $csv = Reader::createFromString($source);
         $csv->setHeaderOffset(0);
-        self::assertContains('parentA', $this->stmt->process($csv)->fetchColumn('parent name'));
-        self::assertContains('parentA', $this->stmt->process($csv)->fetchColumnByName('parent name'));
-        self::assertContains('parentA', $this->stmt->process($csv)->fetchColumn(0));
-    }
 
-    /**
-     * @covers ::fetchColumn
-     * @covers ::getColumnIndex
-     * @covers ::getColumnIndexByValue
-     * @covers ::getColumnIndexByKey
-     */
-    public function testFetchColumn(): void
-    {
-        self::assertContains('john', $this->stmt->process($this->csv)->fetchColumn(0));
-        self::assertContains('jane', $this->stmt->process($this->csv)->fetchColumn());
+        self::assertContains('parentA', $this->stmt->process($csv)->fetchColumnByName('parent name'));
     }
 
     /**
@@ -242,6 +241,7 @@ final class ResultSetTest extends TestCase
         }
         $csv = Reader::createFromFileObject($file);
         $res = $this->stmt->process($csv)->fetchColumnByOffset(2);
+
         self::assertCount(1, iterator_to_array($res));
     }
 

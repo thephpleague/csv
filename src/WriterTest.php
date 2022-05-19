@@ -66,7 +66,9 @@ final class WriterTest extends TestCase
     public function testSupportsStreamFilter(): void
     {
         $csv = Writer::createFromPath(__DIR__.'/../test_files/foo.csv');
-        self::assertTrue($csv->supportsStreamFilter());
+
+        self::assertTrue($csv->supportsStreamFilterOnWrite());
+
         $csv->setFlushThreshold(3);
         $csv->addStreamFilter('string.toupper');
         $csv->insertOne(['jane', 'doe', 'jane@example.com']);
@@ -78,6 +80,7 @@ final class WriterTest extends TestCase
         $csv->insertOne(['jane', 'doe', 'jane@example.com']);
         $csv->insertOne(['jane', 'doe', 'jane@example.com']);
         $csv->setFlushThreshold(null);
+
         self::assertStringContainsString('JANE,DOE,JANE@EXAMPLE.COM', $csv->toString());
     }
 

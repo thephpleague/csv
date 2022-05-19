@@ -35,16 +35,15 @@ class EscapeFormula
 
     /** Effective Spreadsheet formula starting characters. */
     protected array $special_chars = [];
-    /** Escape character to escape each CSV formula field. */
-    protected string $escape;
 
     /**
      * @param string        $escape        escape character to escape each CSV formula field
      * @param array<string> $special_chars additional spreadsheet formula starting characters
      */
-    public function __construct(string $escape = "'", array $special_chars = [])
-    {
-        $this->escape = $escape;
+    public function __construct(
+        protected string $escape = "'",
+        array $special_chars = []
+    ) {
         if ([] !== $special_chars) {
             $special_chars = $this->filterSpecialCharacters(...$special_chars);
         }
@@ -57,7 +56,6 @@ class EscapeFormula
      * Filter submitted special characters.
      *
      * @throws InvalidArgumentException if the string is not a single character
-     *
      * @return array<string>
      */
     protected function filterSpecialCharacters(string ...$characters): array

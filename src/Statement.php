@@ -156,6 +156,11 @@ class Statement
         };
 
         $it = new ArrayIterator();
+
+        /**
+         * @var int         $offset
+         * @var string|null $value
+         */
         foreach ($iterator as $offset => $value) {
             $it[$offset] = $value;
         }

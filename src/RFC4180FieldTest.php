@@ -166,7 +166,7 @@ final class RFC4180FieldTest extends TestCase
         $csv->setDelimiter('|');
         RFC4180Field::addTo($csv, "\0");
         $csv->insertAll($this->records);
-        $contents = $csv->getContent();
+        $contents = $csv->toString();
         self::assertStringContainsString('Grand Cherokee', $contents);
         self::assertStringNotContainsString('"Grand Cherokee"', $contents);
     }

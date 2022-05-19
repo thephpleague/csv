@@ -28,7 +28,6 @@ use function stream_bucket_append;
 use function stream_bucket_make_writeable;
 use function stream_filter_register;
 use function stream_get_filters;
-use function strpos;
 use function strtolower;
 use function substr;
 
@@ -94,13 +93,13 @@ class CharsetConverter extends php_user_filter
             return $encoding_list[$key];
         }
 
-        throw new OutOfRangeException('The submitted charset ' . $encoding . ' is not supported by the mbstring extension.');
+        throw new OutOfRangeException('The submitted charset '.$encoding.' is not supported by the mbstring extension.');
     }
 
     public function onCreate(): bool
     {
         $prefix = self::FILTERNAME.'.';
-        if (0 !== strpos($this->filtername, $prefix)) {
+        if (!str_starts_with($this->filtername, $prefix)) {
             return false;
         }
 
