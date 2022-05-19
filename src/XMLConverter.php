@@ -115,10 +115,8 @@ class XMLConverter
      *
      * Convert the CSV item into a DOMElement and adds the item offset
      * as attribute to the returned DOMElement
-     *
-     * @param int|string $node_name
      */
-    protected function fieldToElement(DOMDocument $doc, string $value, $node_name): DOMElement
+    protected function fieldToElement(DOMDocument $doc, string $value, int|string $node_name): DOMElement
     {
         $item = $doc->createElement($this->field_name);
         $item->appendChild($doc->createTextNode($value));

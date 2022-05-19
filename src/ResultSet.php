@@ -181,10 +181,8 @@ class ResultSet implements TabularDataReader, JsonSerializable
         );
     }
 
-    /**
-     * @param string|int $offset
-     */
-    protected function yieldColumn($offset): Generator
+    
+    protected function yieldColumn(string|int $offset): Generator
     {
         $iterator = new MapIterator(
             new CallbackFilterIterator($this->records, fn (array $record): bool => isset($record[$offset])),
@@ -199,13 +197,11 @@ class ResultSet implements TabularDataReader, JsonSerializable
     /**
      * Filter a column name against the header if any.
      *
-     * @param string|int $field the field name or the field index
-     *
      * @throws InvalidArgument if the field is invalid or not found
      *
      * @return string|int
      */
-    protected function getColumnIndex($field, string $type, string $method)
+    protected function getColumnIndex(string|int $field, string $type, string $method)
     {
         if (is_string($field)) {
             return $this->getColumnIndexByValue($field, $type, $method);

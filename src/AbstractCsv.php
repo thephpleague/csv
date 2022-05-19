@@ -46,8 +46,6 @@ abstract class AbstractCsv implements ByteSequence
 
     /**
      * @final This method should not be overwritten in child classes
-     *
-     * @param SplFileObject|Stream $document The CSV Object instance
      */
     protected function __construct(protected SplFileObject|Stream $document)
     {

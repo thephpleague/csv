@@ -112,7 +112,7 @@ class EscapeFormula
      *
      * @return mixed the escaped content
      */
-    protected function escapeField($cell)
+    protected function escapeField(mixed $cell)
     {
         if (!is_string($cell) && (!is_object($cell) || !method_exists($cell, '__toString'))) {
             return $cell;

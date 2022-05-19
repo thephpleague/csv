@@ -94,10 +94,8 @@ final class ResultSetTest extends TestCase
      * @covers \League\Csv\InvalidArgument::dueToInvalidColumnIndex
      *
      * @dataProvider invalidFieldNameProvider
-     *
-     * @param int|string $field
      */
-    public function testFetchColumnTriggersException($field): void
+    public function testFetchColumnTriggersException(int|string $field): void
     {
         $this->expectException(InvalidArgument::class);
         $this->csv->setHeaderOffset(0);
@@ -289,10 +287,8 @@ final class ResultSetTest extends TestCase
      * @covers ::fetchPairs
      * @covers ::getColumnIndex
      * @dataProvider fetchPairsDataProvider
-     * @param int|string $index
-     * @param int|string $item
      */
-    public function testFetchPairsIteratorMode($index, $item, array $expected): void
+    public function testFetchPairsIteratorMode(int|string $index, int|string $item, array $expected): void
     {
         $iterator = $this->stmt->process($this->csv)->fetchPairs($index, $item);
         foreach ($iterator as $key => $value) {
