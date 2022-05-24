@@ -54,11 +54,11 @@ final class Stream implements SeekableIterator
     /** @var resource */
     private $stream;
     private bool $should_close_stream = false;
-    /** @var mixed can be a null false or a scalar type value. Current iterator value. */
+    /** @var mixed can be a null, false or a scalar type value. Current iterator value. */
     private $value;
     /** Current iterator key. */
     private int $offset;
-    /** Flags for the Document.*/
+    /** Flags for the Document. */
     private int $flags = 0;
     private string $delimiter = ',';
     private string $enclosure = '"';
@@ -109,7 +109,7 @@ final class Stream implements SeekableIterator
     }
 
     /**
-     * Return a new instance from a file path.
+     * Returns a new instance from a file path.
      *
      * @param resource|null $context
      *
@@ -135,7 +135,7 @@ final class Stream implements SeekableIterator
     }
 
     /**
-     * Return a new instance from a string.
+     * Returns a new instance from a string.
      */
     public static function createFromString(string $content = ''): self
     {
@@ -150,7 +150,7 @@ final class Stream implements SeekableIterator
     }
 
     /**
-     * returns the URI of the underlying stream.
+     * Returns the URI of the underlying stream.
      *
      * @see https://www.php.net/manual/en/splfileinfo.getpathname.php
      */
@@ -160,7 +160,7 @@ final class Stream implements SeekableIterator
     }
 
     /**
-     * append a filter.
+     * Appends a filter.
      *
      * @see http://php.net/manual/en/function.stream-filter-append.php
      *
@@ -177,7 +177,7 @@ final class Stream implements SeekableIterator
     }
 
     /**
-     * Set CSV control.
+     * Sets CSV control.
      *
      * @see http://php.net/manual/en/SplFileObject.setcsvcontrol.php
      */
@@ -187,9 +187,9 @@ final class Stream implements SeekableIterator
     }
 
     /**
-     * Filter Csv control characters.
+     * Filters CSV control characters.
      *
-     * @throws InvalidArgument If the Csv control character is not one character only.
+     * @throws InvalidArgument If the CSV control character is not exactly one character.
      */
     private function filterControl(string $delimiter, string $enclosure, string $escape, string $caller): array
     {
@@ -209,7 +209,7 @@ final class Stream implements SeekableIterator
     }
 
     /**
-     * Set CSV control.
+     * Returns CSV control.
      *
      * @see http://php.net/manual/en/SplFileObject.getcsvcontrol.php
      *
@@ -221,7 +221,7 @@ final class Stream implements SeekableIterator
     }
 
     /**
-     * Set CSV stream flags.
+     * Sets CSV stream flags.
      *
      * @see http://php.net/manual/en/SplFileObject.setflags.php
      */
@@ -231,7 +231,7 @@ final class Stream implements SeekableIterator
     }
 
     /**
-     * Write a field array as a CSV line.
+     * Writes a field array as a CSV line.
      *
      * @see http://php.net/manual/en/SplFileObject.fputcsv.php
      *
@@ -248,7 +248,7 @@ final class Stream implements SeekableIterator
     }
 
     /**
-     * Get line number.
+     * Gets line number.
      *
      * @see http://php.net/manual/en/SplFileObject.key.php
      */
@@ -258,7 +258,7 @@ final class Stream implements SeekableIterator
     }
 
     /**
-     * Read next line.
+     * Reads next line.
      *
      * @see http://php.net/manual/en/SplFileObject.next.php
      */
@@ -269,7 +269,7 @@ final class Stream implements SeekableIterator
     }
 
     /**
-     * Rewind the file to the first line.
+     * Rewinds the file to the first line.
      *
      * @see http://php.net/manual/en/SplFileObject.rewind.php
      *
@@ -338,7 +338,7 @@ final class Stream implements SeekableIterator
     }
 
     /**
-     * Seek to specified line.
+     * Seeks to specified line.
      *
      * @see http://php.net/manual/en/SplFileObject.seek.php
      *
@@ -365,7 +365,7 @@ final class Stream implements SeekableIterator
     }
 
     /**
-     * Output all remaining data on a file pointer.
+     * Outputs all remaining data on a file pointer.
      *
      * @see http://php.net/manual/en/SplFileObject.fpatssthru.php
      *
@@ -377,7 +377,7 @@ final class Stream implements SeekableIterator
     }
 
     /**
-     * Read from file.
+     * Reads from file.
      *
      * @see http://php.net/manual/en/SplFileObject.fread.php
      *
@@ -403,7 +403,7 @@ final class Stream implements SeekableIterator
     }
 
     /**
-     * Seek to a position.
+     * Seeks to a position.
      *
      * @see http://php.net/manual/en/SplFileObject.fseek.php
      *
@@ -419,7 +419,7 @@ final class Stream implements SeekableIterator
     }
 
     /**
-     * Write to stream.
+     * Writes to stream.
      *
      * @see http://php.net/manual/en/SplFileObject.fwrite.php
      *

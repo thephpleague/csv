@@ -100,7 +100,7 @@ class EscapeFormula
     }
 
     /**
-     * Escape a CSV record.
+     * Escapes a CSV record.
      */
     public function escapeRecord(array $record): array
     {
@@ -108,7 +108,7 @@ class EscapeFormula
     }
 
     /**
-     * Escape a CSV cell if its content is stringable.
+     * Escapes a CSV cell if its content is stringable.
      *
      * @param int|float|string|object|resource|array $cell the content of the cell
      *

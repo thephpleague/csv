@@ -47,7 +47,7 @@ class Statement
     }
 
     /**
-     * Set the Iterator filter method.
+     * Sets the Iterator filter method.
      */
     public function where(callable $where): self
     {
@@ -58,7 +58,7 @@ class Statement
     }
 
     /**
-     * Set an Iterator sorting callable function.
+     * Sets an Iterator sorting callable function.
      */
     public function orderBy(callable $order_by): self
     {
@@ -69,9 +69,9 @@ class Statement
     }
 
     /**
-     * Set LimitIterator Offset.
+     * Sets LimitIterator Offset.
      *
-     * @throws Exception if the offset is lesser than 0
+     * @throws Exception if the offset is less than 0
      */
     public function offset(int $offset): self
     {
@@ -90,9 +90,9 @@ class Statement
     }
 
     /**
-     * Set LimitIterator Count.
+     * Sets LimitIterator Count.
      *
-     * @throws Exception if the limit is lesser than -1
+     * @throws Exception if the limit is less than -1
      */
     public function limit(int $limit): self
     {
@@ -111,7 +111,7 @@ class Statement
     }
 
     /**
-     * Execute the prepared Statement on the {@link Reader} object.
+     * Executes the prepared Statement on the {@link Reader} object.
      *
      * @param array<string> $header an optional header to use instead of the CSV document header
      */
@@ -137,7 +137,7 @@ class Statement
     }
 
     /**
-     * Sort the Iterator.
+     * Sorts the Iterator.
      */
     protected function buildOrderBy(Iterator $iterator): Iterator
     {

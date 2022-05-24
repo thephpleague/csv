@@ -38,7 +38,7 @@ $encoder = (new CharsetConverter())->inputEncoding('iso-8859-15');
 $records = $encoder->convert($csv);
 ```
 
-The resulting data is converted from `iso-8859-15` to the default `UTF-8` since  no output encoding charset was set using the `CharsertConverter::outputEncoding` method.
+The resulting data is converted from `iso-8859-15` to the default `UTF-8` since no output encoding charset was set using the `CharsertConverter::outputEncoding` method.
 
 ## CharsetConverter as a Writer formatter
 

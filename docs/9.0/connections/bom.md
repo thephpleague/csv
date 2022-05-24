@@ -35,8 +35,6 @@ Info::fetchBOMSequence(Info::BOM_UTF8.'hello world!'); //returns '\xEF\xBB\xBF'
 Info::fetchBOMSequence('hello world!'.Info::BOM_UTF16_BE); //returns null
 ```
 
-This
-
 ### bom_match
 
 <p class="message-warning">Since <code>version 9.7</code> this function is deprecated and you are encouraged to use <code>Info::fetchBOMSequence</code> instead.</p>
@@ -126,7 +124,7 @@ $csv->output();
 $document = ob_get_clean();
 ```
 
-the returned `$document` will contains **2** BOM marker instead of one.
+The returned `$document` will contains **2** BOM marker instead of one.
 
 <p class="message-warning">If you are using a <code>stream</code> that can not be seekable you should disabled BOM skipping otherwise an <code>Exception</code> will be triggered.</p>
 <p class="message-warning">The BOM sequence is never removed from the CSV document, it is only skipped from the result set.</p>
