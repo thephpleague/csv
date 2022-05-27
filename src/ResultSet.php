@@ -84,6 +84,13 @@ class ResultSet implements TabularDataReader, JsonSerializable
         return $this->getRecords();
     }
 
+    /**
+     * @param array<string> $header
+     *
+     * @throws SyntaxError
+     *
+     * @return Iterator<array-key,array<string|null>>
+     */
     public function getRecords(array $header = []): Iterator
     {
         $this->validateHeader($header);
@@ -95,6 +102,8 @@ class ResultSet implements TabularDataReader, JsonSerializable
 
     /**
      * Combines the header to each record if present.
+     *
+     * @return Iterator<array-key, array<string|null>>
      */
     protected function combineHeader(array $header): Iterator
     {

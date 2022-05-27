@@ -155,10 +155,8 @@ class Statement
             return $cmp ?? 0;
         };
 
-        $it = new ArrayIterator();
-        foreach ($iterator as $offset => $value) {
-            $it[$offset] = $value;
-        }
+        /** @var ArrayIterator<array-key, array<string|null>> $it */
+        $it = new ArrayIterator(iterator_to_array($iterator, true));
         $it->uasort($compare);
 
         return $it;

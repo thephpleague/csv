@@ -124,6 +124,8 @@ class Reader extends AbstractCsv implements TabularDataReader, JsonSerializable
 
     /**
      * Returns the document as an Iterator.
+     *
+     * @return Iterator<array-key, array<string|null>>
      */
     protected function getDocument(): Iterator
     {
@@ -191,6 +193,9 @@ class Reader extends AbstractCsv implements TabularDataReader, JsonSerializable
         return $this->nb_records;
     }
 
+    /**
+     * @return Iterator<array<string|null>>
+     */
     public function getIterator(): Iterator
     {
         return $this->getRecords();
@@ -201,6 +206,9 @@ class Reader extends AbstractCsv implements TabularDataReader, JsonSerializable
         return iterator_to_array($this->getRecords(), false);
     }
 
+    /**
+     * @return Iterator<array-key, array<string|null>>
+     */
     public function getRecords(array $header = []): Iterator
     {
         $header = $this->computeHeader($header);
