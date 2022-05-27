@@ -94,7 +94,7 @@ class ResultSet implements TabularDataReader, JsonSerializable
     }
 
     /**
-     * Combine the header to each record if present.
+     * Combines the header to each record if present.
      */
     protected function combineHeader(array $header): Iterator
     {
@@ -187,7 +187,7 @@ class ResultSet implements TabularDataReader, JsonSerializable
     }
 
     /**
-     * Filter a column name against the header if any.
+     * Filters a column name against the header if any.
      *
      * @param string|int $field the field name or the field index
      *

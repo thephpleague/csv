@@ -137,7 +137,7 @@ class CharsetConverter extends php_user_filter
     }
 
     /**
-     * Convert Csv records collection into UTF-8.
+     * Converts Csv records collection into UTF-8.
      */
     public function convert(iterable $records): iterable
     {

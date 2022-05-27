@@ -64,7 +64,7 @@ class XMLConverter
     }
 
     /**
-     * Convert a Record collection into a DOMDocument.
+     * Converts a Record collection into a DOMDocument.
      */
     public function convert(iterable $records): DOMDocument
     {
@@ -76,7 +76,7 @@ class XMLConverter
     }
 
     /**
-     * Create a new DOMElement related to the given DOMDocument.
+     * Creates a new DOMElement related to the given DOMDocument.
      *
      * **DOES NOT** attach to the DOMDocument
      */
@@ -92,7 +92,7 @@ class XMLConverter
     }
 
     /**
-     * Convert a CSV record into a DOMElement and
+     * Converts a CSV record into a DOMElement and
      * adds its offset as DOMElement attribute.
      */
     protected function recordToElement(DOMDocument $doc, array $record, int $offset): DOMElement
@@ -111,9 +111,9 @@ class XMLConverter
     }
 
     /**
-     * Convert Cell to Item.
+     * Converts Cell to Item.
      *
-     * Convert the CSV item into a DOMElement and adds the item offset
+     * Converts the CSV item into a DOMElement and adds the item offset
      * as attribute to the returned DOMElement
      *
      * @param int|string $node_name
@@ -142,7 +142,7 @@ class XMLConverter
     }
 
     /**
-     * Filter XML element name.
+     * Filters XML element name.
      *
      * @throws DOMException If the Element name is invalid
      */
@@ -164,7 +164,7 @@ class XMLConverter
     }
 
     /**
-     * Filter XML attribute name.
+     * Filters XML attribute name.
      *
      * @param string $value Element name
      *
