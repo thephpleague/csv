@@ -17,7 +17,7 @@ use IteratorIterator;
 use Traversable;
 
 /**
- * Map value from an iterator before yielding.
+ * Maps value from an iterator before yielding.
  *
  * @internal used internally to modify CSV content
  */

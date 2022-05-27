@@ -20,11 +20,11 @@ class CannotInsertRecord extends Exception
 {
     /** The record submitted for insertion. */
     protected array $record;
-    /** Validator which did not validated the data. */
+    /** Validator which did not validate the data. */
     protected string $name = '';
 
     /**
-     * Create an Exception from a record insertion into a stream.
+     * Creates an Exception from a record insertion into a stream.
      */
     public static function triggerOnInsertion(array $record): self
     {
@@ -35,7 +35,7 @@ class CannotInsertRecord extends Exception
     }
 
     /**
-     * Create an Exception from a Record Validation.
+     * Creates an Exception from a Record Validation.
      */
     public static function triggerOnValidation(string $name, array $record): self
     {
@@ -47,8 +47,7 @@ class CannotInsertRecord extends Exception
     }
 
     /**
-     * return the validator name.
-     *
+     * Returns the validator name.
      */
     public function getName(): string
     {
@@ -56,8 +55,7 @@ class CannotInsertRecord extends Exception
     }
 
     /**
-     * return the invalid data submitted.
-     *
+     * Returns the invalid data submitted.
      */
     public function getRecord(): array
     {

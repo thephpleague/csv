@@ -80,7 +80,7 @@ interface TabularDataReader extends Countable, IteratorAggregate
      *
      * @param int $nth_record the tabular data record offset
      *
-     * @throws UnableToProcessCsv if argument is lesser than 0
+     * @throws UnableToProcessCsv if argument is less than 0
      */
     public function fetchOne(int $nth_record = 0): array;
 

@@ -112,7 +112,7 @@ public XMLConverter::import(iterable $records, DOMDocument $doc): DOMElement
 ```
 
 Instead of converting your tabular data into a full XML document you can now import it into an already existing `DOMDocument` object.
-Do to so you need to specify which document the data should be imported into using the  `XMLConverter::import` method.
+To do so, you need to specify which document the data should be imported into using the `XMLConverter::import` method.
 
 This method takes two arguments:
 

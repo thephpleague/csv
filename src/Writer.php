@@ -47,7 +47,7 @@ class Writer extends AbstractCsv
     }
 
     /**
-     * Get the flush threshold.
+     * Returns the flush threshold.
      */
     public function getFlushThreshold(): ?int
     {
@@ -75,7 +75,7 @@ class Writer extends AbstractCsv
     /**
      * Adds a single record to a CSV document.
      *
-     * A record is an array that can contains scalar types values, NULL values
+     * A record is an array that can contain scalar type values, NULL values
      * or objects implementing the __toString method.
      *
      * @throws CannotInsertRecord If the record can not be inserted
@@ -127,7 +127,7 @@ class Writer extends AbstractCsv
     }
 
     /**
-     * Validate a record.
+     * Validates a record.
      *
      * @throws CannotInsertRecord If the validation failed
      */
@@ -141,7 +141,7 @@ class Writer extends AbstractCsv
     }
 
     /**
-     * Apply post insertion actions.
+     * Applies post insertion actions.
      */
     protected function consolidate(): int
     {
@@ -150,7 +150,7 @@ class Writer extends AbstractCsv
             $this->document->fseek(-1, SEEK_CUR);
             /** @var int $newlineBytes */
             $newlineBytes = $this->document->fwrite($this->newline, strlen($this->newline));
-            $bytes =  $newlineBytes - 1;
+            $bytes = $newlineBytes - 1;
         }
 
         if (null === $this->flush_threshold) {
@@ -197,11 +197,11 @@ class Writer extends AbstractCsv
     }
 
     /**
-     * Set the flush threshold.
+     * Sets the flush threshold.
      *
      * @param ?int $threshold
      *
-     * @throws InvalidArgument if the threshold is a integer lesser than 1
+     * @throws InvalidArgument if the threshold is a integer less than 1
      */
     public function setFlushThreshold(?int $threshold): self
     {

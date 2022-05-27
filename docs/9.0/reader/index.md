@@ -165,7 +165,7 @@ foreach ($records as $offset => $record) {
 }
 ```
 
-<p class="message-notice">The optional <code>$header</code> argument from  the <code>Reader::getRecords</code> takes precedence over the header offset property but its corresponding record will still be removed from the returned <code>Iterator</code>.</p>
+<p class="message-notice">The optional <code>$header</code> argument from the <code>Reader::getRecords</code> takes precedence over the header offset property but its corresponding record will still be removed from the returned <code>Iterator</code>.</p>
 
 ```php
 use League\Csv\Reader;

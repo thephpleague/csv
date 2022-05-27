@@ -69,7 +69,9 @@ abstract class AbstractCsv implements ByteSequence
     }
 
     /**
-     * Return a new instance from a SplFileObject.
+     * Returns a new instance from a SplFileObject.
+     *
+     * @return static
      */
     public static function createFromFileObject(SplFileObject $file): static
     {
@@ -77,7 +79,7 @@ abstract class AbstractCsv implements ByteSequence
     }
 
     /**
-     * Return a new instance from a PHP resource stream.
+     * Returns a new instance from a PHP resource stream.
      *
      * @param resource $stream
      */
@@ -87,7 +89,9 @@ abstract class AbstractCsv implements ByteSequence
     }
 
     /**
-     * Return a new instance from a string.
+     * Returns a new instance from a string.
+     *
+     * @return static
      */
     public static function createFromString(string $content = ''): static
     {
@@ -95,7 +99,7 @@ abstract class AbstractCsv implements ByteSequence
     }
 
     /**
-     * Return a new instance from a file path.
+     * Returns a new instance from a file path.
      *
      * @param resource|null $context the resource context
      */
@@ -207,7 +211,7 @@ abstract class AbstractCsv implements ByteSequence
     }
 
     /**
-     * Tell whether the specify stream filter is attach to the current stream.
+     * Tells whether the specified stream filter is attached to the current stream.
      */
     public function hasStreamFilter(string $filtername): bool
     {
@@ -225,7 +229,7 @@ abstract class AbstractCsv implements ByteSequence
     /**
      * Returns the CSV document as a Generator of string chunk.
      *
-     * @throws Exception if the number of bytes is lesser than 1
+     * @throws Exception if the number of bytes is less than 1
      */
     public function chunk(int $length): Generator
     {

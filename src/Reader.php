@@ -56,12 +56,17 @@ class Reader extends AbstractCsv implements TabularDataReader, JsonSerializable
         $this->header = [];
     }
 
-    /** Returns the header offset. */
+    /**
+     * Returns the header offset.
+     */
     public function getHeaderOffset(): ?int
     {
         return $this->header_offset;
     }
 
+    /**
+     * Returns the header record.
+     */
     public function getHeader(): array
     {
         if (null === $this->header_offset) {
@@ -78,7 +83,7 @@ class Reader extends AbstractCsv implements TabularDataReader, JsonSerializable
     }
 
     /**
-     * Determine the CSV record header.
+     * Determines the CSV record header.
      *
      * @throws Exception If the header offset is set and no record is found or is the empty array
      *
@@ -103,7 +108,9 @@ class Reader extends AbstractCsv implements TabularDataReader, JsonSerializable
         return $header;
     }
 
-    /** Returns the row at a given offset. */
+    /**
+     * Returns the row at a given offset.
+     */
     protected function seekRow(int $offset): array
     {
         foreach ($this->getDocument() as $index => $record) {
@@ -130,7 +137,7 @@ class Reader extends AbstractCsv implements TabularDataReader, JsonSerializable
     }
 
     /**
-     * Strip the BOM sequence from a record.
+     * Strips the BOM sequence from a record.
      *
      * @param string[] $record
      *
@@ -259,7 +266,7 @@ class Reader extends AbstractCsv implements TabularDataReader, JsonSerializable
     }
 
     /**
-     * Combine the CSV header to each record if present.
+     * Combines the CSV header to each record if present.
      *
      * @param string[] $header
      */
@@ -285,7 +292,7 @@ class Reader extends AbstractCsv implements TabularDataReader, JsonSerializable
     }
 
     /**
-     * Strip the BOM sequence from the returned records if necessary.
+     * Strips the BOM sequence from the returned records if necessary.
      */
     protected function stripBOM(Iterator $iterator, string $bom): Iterator
     {
@@ -340,7 +347,7 @@ class Reader extends AbstractCsv implements TabularDataReader, JsonSerializable
     }
 
     /**
-     * Enable skipping empty records.
+     * Enables skipping empty records.
      */
     public function skipEmptyRecords(): static
     {
@@ -353,7 +360,7 @@ class Reader extends AbstractCsv implements TabularDataReader, JsonSerializable
     }
 
     /**
-     * Disable skipping empty records.
+     * Disables skipping empty records.
      */
     public function includeEmptyRecords(): static
     {
