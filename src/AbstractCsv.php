@@ -71,7 +71,6 @@ abstract class AbstractCsv implements ByteSequence
     /**
      * Returns a new instance from a SplFileObject.
      *
-     * @return static
      */
     public static function createFromFileObject(SplFileObject $file): static
     {
@@ -91,7 +90,6 @@ abstract class AbstractCsv implements ByteSequence
     /**
      * Returns a new instance from a string.
      *
-     * @return static
      */
     public static function createFromString(string $content = ''): static
     {

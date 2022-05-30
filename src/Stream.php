@@ -34,7 +34,9 @@ use function get_resource_type;
 use function gettype;
 use function is_array;
 use function is_resource;
+use function restore_error_handler;
 use function rewind;
+use function set_error_handler;
 use function stream_filter_append;
 use function stream_filter_remove;
 use function stream_get_meta_data;
@@ -123,7 +125,10 @@ final class Stream implements SeekableIterator
             $args[] = $context;
         }
 
-        $resource = @fopen(...$args);
+        set_error_handler(fn (int $errno, string $errstr, string $errfile, int $errline) => true);
+        $resource = fopen(...$args);
+        restore_error_handler();
+
         if (!is_resource($resource)) {
             throw UnavailableStream::dueToPathNotFound($path);
         }

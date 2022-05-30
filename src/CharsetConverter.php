@@ -104,14 +104,14 @@ class CharsetConverter extends php_user_filter
         }
 
         $encodings = substr($this->filtername, strlen($prefix));
-        if (1 !== preg_match(',^(?<input>[-\w]+)\/(?<output>[-\w]+)$,', $encodings, $matches)) {
+        if (1 !== preg_match(',^(?<input>[-\w]+)/(?<output>[-\w]+)$,', $encodings, $matches)) {
             return false;
         }
 
         try {
             $this->input_encoding = self::filterEncoding($matches['input']);
             $this->output_encoding = self::filterEncoding($matches['output']);
-        } catch (OutOfRangeException $e) {
+        } catch (OutOfRangeException) {
             return false;
         }
 
