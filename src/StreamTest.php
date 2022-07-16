@@ -53,7 +53,7 @@ final class StreamTest extends TestCase
     {
         $this->expectException(UnavailableStream::class);
 
-        clone new Stream(fopen('php://temp', 'r+'));
+        clone Stream::createFromResource(STDOUT);
     }
 
     /**
@@ -62,7 +62,8 @@ final class StreamTest extends TestCase
     public function testCreateStreamWithInvalidParameter(): void
     {
         $this->expectException(TypeError::class);
-        new Stream(__DIR__.'/../test_files/foo.csv');
+
+        Stream::createFromResource(__DIR__.'/../test_files/foo.csv'); /* @phpstan-ignore-line */
     }
 
     /**
@@ -72,8 +73,10 @@ final class StreamTest extends TestCase
     {
         $this->expectException(TypeError::class);
 
+        /** @var resource $resource */
         $resource = stream_filter_append(STDOUT, 'string.rot13', STREAM_FILTER_WRITE);
-        new Stream($resource);
+
+        Stream::createFromResource($resource);
     }
 
     /**
@@ -128,7 +131,7 @@ final class StreamTest extends TestCase
     public function testfputcsv(string $delimiter, string $enclosure, string $escape): void
     {
         $this->expectException(InvalidArgument::class);
-        $stream = new Stream(fopen('php://temp', 'r+'));
+        $stream = Stream::createFromResource(STDOUT);
         $stream->fputcsv(['john', 'doe', 'john.doe@example.com'], $delimiter, $enclosure, $escape);
     }
 
@@ -146,7 +149,7 @@ final class StreamTest extends TestCase
      */
     public function testVarDump(): void
     {
-        $stream = new Stream(fopen('php://temp', 'r+'));
+        $stream = Stream::createFromResource(STDOUT);
         $debugInfo = $stream->__debugInfo();
 
         self::assertArrayHasKey('delimiter', $debugInfo);
@@ -162,14 +165,15 @@ final class StreamTest extends TestCase
     public function testSeekThrowsException(): void
     {
         $this->expectException(InvalidArgument::class);
-        $stream = new Stream(fopen('php://temp', 'r+'));
+        $stream = Stream::createFromResource(STDOUT);
         $stream->seek(-1);
     }
 
     public function testFSeekThrowsExceptionOnNonSeakableResource(): void
     {
         $this->expectException(UnavailableFeature::class);
-        $stream = new Stream(fopen('php://output', 'w'));
+
+        $stream = Stream::createFromResource(STDOUT);
         $stream->fputcsv(['foo', 'bar']);
         $stream->fseek(-1);
     }
@@ -204,7 +208,8 @@ final class StreamTest extends TestCase
     public function testRewindThrowsException(): void
     {
         $this->expectException(UnavailableFeature::class);
-        $stream = new Stream(fopen('php://stdin', 'r'));
+
+        $stream = Stream::createFromResource(STDIN);
         $stream->rewind();
     }
 
@@ -215,7 +220,7 @@ final class StreamTest extends TestCase
     public function testCreateStreamWithNonSeekableStream(): void
     {
         $this->expectException(UnavailableFeature::class);
-        $stream = new Stream(fopen('php://stdin', 'r'));
+        $stream = Stream::createFromResource(STDIN);
         $stream->seek(3);
     }
 
@@ -260,7 +265,7 @@ final class StreamTest extends TestCase
 
 final class StreamWrapper
 {
-    const PROTOCOL = 'leaguetest';
+    public const PROTOCOL = 'leaguetest';
 
     /**
      * @var resource
@@ -293,30 +298,18 @@ final class StreamWrapper
 
     /**
      * @param int<0, max> $count
-     *
-     * @return string|false
      */
-    public function stream_read(int $count)
+    public function stream_read(int $count): string|false
     {
         return fread($this->stream, $count);
     }
 
-    /**
-     * {@inheritdoc}
-     *
-     * @return int|false
-     */
-    public function stream_write(string $data)
+    public function stream_write(string $data): int|false
     {
         return fwrite($this->stream, $data);
     }
 
-    /**
-     * {@inheritdoc}
-     *
-     * @return int|false
-     */
-    public function stream_tell()
+    public function stream_tell(): int|false
     {
         return ftell($this->stream);
     }

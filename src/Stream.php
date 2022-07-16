@@ -49,13 +49,12 @@ use const SEEK_SET;
  */
 final class Stream implements SeekableIterator
 {
-    /** @var array<string, array<resource>> Attached filters. */
-    private array $filters = [];
     /** @var resource */
     private $stream;
+    private bool $is_seekable;
     private bool $should_close_stream = false;
     /** @var mixed can be a null, false or a scalar type value. Current iterator value. */
-    private $value;
+    private mixed $value;
     /** Current iterator key. */
     private int $offset;
     /** Flags for the Document. */
@@ -63,21 +62,14 @@ final class Stream implements SeekableIterator
     private string $delimiter = ',';
     private string $enclosure = '"';
     private string $escape = '\\';
-    private bool $is_seekable = false;
+    /** @var array<string, array<resource>> Attached filters. */
+    private array $filters = [];
 
     /**
-     * @param mixed $stream stream type resource
+     * @param resource $stream stream type resource
      */
-    public function __construct($stream)
+    private function __construct($stream)
     {
-        if (!is_resource($stream)) {
-            throw new TypeError('Argument passed must be a stream resource, '.gettype($stream).' given.');
-        }
-
-        if ('stream' !== ($type = get_resource_type($stream))) {
-            throw new TypeError('Argument passed must be a stream resource, '.$type.' resource given');
-        }
-
         $this->is_seekable = stream_get_meta_data($stream)['seekable'];
         $this->stream = $stream;
     }
@@ -150,6 +142,22 @@ final class Stream implements SeekableIterator
         $instance->should_close_stream = true;
 
         return $instance;
+    }
+
+    /**
+     * @param resource $stream
+     */
+    public static function createFromResource($stream): self
+    {
+        if (!is_resource($stream)) { /* @phpstan-ignore-line */
+            throw new TypeError('Argument passed must be a stream resource, '.gettype($stream).' given.');
+        }
+
+        if ('stream' !== ($type = get_resource_type($stream))) {
+            throw new TypeError('Argument passed must be a stream resource, '.$type.' resource given');
+        }
+
+        return new self($stream);
     }
 
     /**

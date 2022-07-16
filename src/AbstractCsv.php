@@ -87,7 +87,7 @@ abstract class AbstractCsv implements ByteSequence
      */
     public static function createFromStream($stream): static
     {
-        return new static(new Stream($stream));
+        return new static(Stream::createFromResource($stream));
     }
 
     /**
