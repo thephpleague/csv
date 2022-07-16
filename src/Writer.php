@@ -95,7 +95,7 @@ class Writer extends AbstractCsv
     /**
      * DEPRECATION WARNING! This method will be removed in the next major point release.
      *
-     * @deprecated Since version 9.9
+     * @deprecated Since version 9.9.0
      * @codeCoverageIgnore
      *
      * Adds a single record to a CSV Document using PHP algorithm.

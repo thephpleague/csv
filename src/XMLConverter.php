@@ -23,29 +23,15 @@ use DOMException;
  */
 class XMLConverter
 {
-    /**
-     * XML Root name.
-     */
+    /** XML Root name. */
     protected string $root_name = 'csv';
-
-    /**
-     * XML Node name.
-     */
+    /** XML Node name. */
     protected string $record_name = 'row';
-
-    /**
-     * XML Item name.
-     */
+    /** XML Item name. */
     protected string $field_name = 'cell';
-
-    /**
-     * XML column attribute name.
-     */
+    /** XML column attribute name. */
     protected string $column_attr = '';
-
-    /**
-     * XML offset attribute name.
-     */
+    /** XML offset attribute name. */
     protected string $offset_attr = '';
 
     public static function create(): self
