@@ -122,9 +122,8 @@ class CharsetConverter extends php_user_filter
      * @param resource $in
      * @param resource $out
      * @param int      $consumed
-     * @param bool     $closing
      */
-    public function filter($in, $out, &$consumed, $closing): int
+    public function filter($in, $out, &$consumed, bool $closing): int
     {
         set_error_handler(fn (int $errno, string $errstr, string $errfile, int $errline) => true);
         while (null !== ($bucket = stream_bucket_make_writeable($in))) {

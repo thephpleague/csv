@@ -123,9 +123,8 @@ class RFC4180Field extends php_user_filter
      * @param resource $in
      * @param resource $out
      * @param int      $consumed
-     * @param bool     $closing
      */
-    public function filter($in, $out, &$consumed, $closing): int
+    public function filter($in, $out, &$consumed, bool $closing): int
     {
         while (null !== ($bucket = stream_bucket_make_writeable($in))) {
             $bucket->data = str_replace($this->search, $this->replace, $bucket->data);
