@@ -63,6 +63,9 @@ abstract class AbstractCsv implements ByteSequence
         unset($this->document);
     }
 
+    /**
+     * @throws UnavailableStream
+     */
     public function __clone()
     {
         throw UnavailableStream::dueToForbiddenCloning(static::class);
@@ -100,6 +103,8 @@ abstract class AbstractCsv implements ByteSequence
      * Returns a new instance from a file path.
      *
      * @param resource|null $context the resource context
+     *
+     * @throws UnavailableStream
      */
     public static function createFromPath(string $path, string $open_mode = 'r+', $context = null): static
     {
@@ -148,6 +153,8 @@ abstract class AbstractCsv implements ByteSequence
 
     /**
      * Returns the BOM sequence of the given CSV.
+     *
+     * @throws Exception
      */
     public function getInputBOM(): string
     {
@@ -241,9 +248,7 @@ abstract class AbstractCsv implements ByteSequence
         $this->document->fseek(strlen($input_bom));
         /** @var  array<int, string> $chunks */
         $chunks = str_split($this->output_bom.$this->document->fread($length), $length);
-        foreach ($chunks as $chunk) {
-            yield $chunk;
-        }
+        yield from $chunks;
 
         while ($this->document->valid()) {
             yield $this->document->fread($length);
@@ -295,6 +300,8 @@ abstract class AbstractCsv implements ByteSequence
      * Outputs all data on the CSV file.
      *
      * Returns the number of characters read from the handle and passed through to the output.
+     *
+     * @throws Exception
      */
     public function output(string $filename = null): int
     {
@@ -323,7 +330,7 @@ abstract class AbstractCsv implements ByteSequence
      */
     protected function sendHeaders(string $filename): void
     {
-        if (strlen($filename) != strcspn($filename, '\\/')) {
+        if (strlen($filename) !== strcspn($filename, '\\/')) {
             throw InvalidArgument::dueToInvalidHeaderFilename($filename);
         }
 

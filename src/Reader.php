@@ -194,7 +194,7 @@ class Reader extends AbstractCsv implements TabularDataReader, JsonSerializable
     }
 
     /**
-     * @return Iterator<array<string|null>>
+     * @return Iterator<array-key, array<string|null>>
      */
     public function getIterator(): Iterator
     {

@@ -115,7 +115,7 @@ final class WriterTest extends TestCase
      */
     public function testInsertThrowsExceptionOnError(array $record): void
     {
-        self::expectNotice();
+        $this->expectNotice();
         $this->expectExceptionMessageMatches('/write of \d+ bytes failed with errno=9 Bad file descriptor/i');
 
         Writer::createFromPath(__DIR__.'/../test_files/foo.csv', 'r')->insertOne($record);

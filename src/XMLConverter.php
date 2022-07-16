@@ -130,6 +130,8 @@ class XMLConverter
 
     /**
      * XML root element setter.
+     *
+     * @throws DOMException
      */
     public function rootElement(string $node_name): self
     {
@@ -151,6 +153,8 @@ class XMLConverter
 
     /**
      * XML Record element setter.
+     *
+     * @throws DOMException
      */
     public function recordElement(string $node_name, string $record_offset_attribute_name = ''): self
     {
@@ -179,6 +183,8 @@ class XMLConverter
 
     /**
      * XML Field element setter.
+     *
+     * @throws DOMException
      */
     public function fieldElement(string $node_name, string $fieldname_attribute_name = ''): self
     {

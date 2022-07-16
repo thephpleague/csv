@@ -115,7 +115,7 @@ final class Stream implements SeekableIterator
      *
      * @param resource|null $context
      *
-     * @throws Exception if the stream resource can not be created
+     * @throws UnavailableStream if the stream resource can not be created
      */
     public static function createFromPath(string $path, string $open_mode = 'r', $context = null): self
     {
@@ -173,7 +173,9 @@ final class Stream implements SeekableIterator
      */
     public function appendFilter(string $filtername, int $read_write, array $params = null): void
     {
-        $res = @stream_filter_append($this->stream, $filtername, $read_write, $params ?? []);
+        set_error_handler(fn (int $errno, string $errstr, string $errfile, int $errline) => true);
+        $res = stream_filter_append($this->stream, $filtername, $read_write, $params ?? []);
+        restore_error_handler();
         if (!is_resource($res)) {
             throw InvalidArgument::dueToStreamFilterNotFound($filtername);
         }

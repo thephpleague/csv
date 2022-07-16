@@ -36,7 +36,7 @@ use function substr;
  */
 class CharsetConverter extends php_user_filter
 {
-    const FILTERNAME = 'convert.league.csv';
+    public const FILTERNAME = 'convert.league.csv';
 
     protected string $input_encoding = 'UTF-8';
     protected string $output_encoding = 'UTF-8';
@@ -126,11 +126,13 @@ class CharsetConverter extends php_user_filter
      */
     public function filter($in, $out, &$consumed, $closing): int
     {
+        set_error_handler(fn (int $errno, string $errstr, string $errfile, int $errline) => true);
         while (null !== ($bucket = stream_bucket_make_writeable($in))) {
-            $bucket->data = @mb_convert_encoding($bucket->data, $this->output_encoding, $this->input_encoding);
+            $bucket->data = mb_convert_encoding($bucket->data, $this->output_encoding, $this->input_encoding);
             $consumed += $bucket->datalen;
             stream_bucket_append($out, $bucket);
         }
+        restore_error_handler();
 
         return PSFS_PASS_ON;
     }

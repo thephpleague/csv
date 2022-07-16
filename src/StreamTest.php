@@ -14,7 +14,6 @@ namespace League\Csv;
 use PHPUnit\Framework\TestCase;
 use SplFileObject;
 use TypeError;
-use function curl_init;
 use function feof;
 use function fopen;
 use function fputcsv;
@@ -28,7 +27,6 @@ use function stream_context_get_options;
 use function stream_get_wrappers;
 use function stream_wrapper_register;
 use function stream_wrapper_unregister;
-use const PHP_MAJOR_VERSION;
 use const STREAM_FILTER_READ;
 
 /**
@@ -72,12 +70,10 @@ final class StreamTest extends TestCase
      */
     public function testCreateStreamWithWrongResourceType(): void
     {
-        if (8 > PHP_MAJOR_VERSION) {
-            self::markTestSkipped('This test is only for PHP7 versions');
-        }
-
         $this->expectException(TypeError::class);
-        new Stream(curl_init());
+
+        $resource = stream_filter_append(STDOUT, 'string.rot13', STREAM_FILTER_WRITE);
+        new Stream($resource);
     }
 
     /**

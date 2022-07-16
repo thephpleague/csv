@@ -56,8 +56,9 @@ class Writer extends AbstractCsv
 
     /**
      * Adds multiple records to the CSV document.
-     *
      * @see Writer::insertOne
+     *
+     * @throws CannotInsertRecord
      */
     public function insertAll(iterable $records): int
     {
@@ -99,7 +100,7 @@ class Writer extends AbstractCsv
      *
      * @return int|false
      */
-    protected function addRecord(array $record)
+    protected function addRecord(array $record): bool|int
     {
         if (PHP_VERSION_ID < 80100) {
             return $this->document->fputcsv($record, $this->delimiter, $this->enclosure, $this->escape);
@@ -198,8 +199,6 @@ class Writer extends AbstractCsv
 
     /**
      * Sets the flush threshold.
-     *
-     * @param ?int $threshold
      *
      * @throws InvalidArgument if the threshold is a integer less than 1
      */

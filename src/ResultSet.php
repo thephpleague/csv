@@ -29,10 +29,13 @@ use function iterator_to_array;
  */
 class ResultSet implements TabularDataReader, JsonSerializable
 {
+    /**
+     * @throws SyntaxError
+     */
     public function __construct(
-        /** @var Iterator<array<string|null>> The CSV records collection. */
+        /** @var Iterator<array-key, array<array-key, string|null>> */
         protected Iterator $records,
-        /** @var array<string> The CSV records collection header. */
+        /** @var array<string> */
         protected array $header = []
     ) {
         $this->validateHeader($this->header);
@@ -59,6 +62,8 @@ class ResultSet implements TabularDataReader, JsonSerializable
 
     /**
      * Returns a new instance from an object implementing the TabularDataReader interface.
+     *
+     * @throws SyntaxError
      */
     public static function createFromTabularDataReader(TabularDataReader $reader): self
     {
@@ -75,6 +80,9 @@ class ResultSet implements TabularDataReader, JsonSerializable
         return $this->header;
     }
 
+    /**
+     * @throws SyntaxError
+     */
     public function getIterator(): Iterator
     {
         return $this->getRecords();
@@ -85,23 +93,21 @@ class ResultSet implements TabularDataReader, JsonSerializable
      *
      * @throws SyntaxError
      *
-     * @return Iterator<array<array-key,string|null>>
+     * @return Iterator<array-key, array<array-key, string|null>>
      */
     public function getRecords(array $header = []): Iterator
     {
         $this->validateHeader($header);
-        $records = $this->combineHeader($header);
-        /**
-         * @var array-key          $offset
-         * @var array<string|null> $value
-         */
-        foreach ($records as $offset => $value) {
-            yield $offset => $value;
-        }
+
+        yield from $this->combineHeader($header);
     }
 
     /**
      * Combines the header to each record if present.
+     *
+     * @param array<string> $header
+     *
+     * @return Iterator<array-key, array<array-key, string|null>>
      */
     protected function combineHeader(array $header): Iterator
     {
@@ -115,7 +121,7 @@ class ResultSet implements TabularDataReader, JsonSerializable
                 $record = array_slice(array_pad($record, $field_count, null), 0, $field_count);
             }
 
-            /** @var array<string|null> $assocRecord */
+            /** @var array<string, string|null> $assocRecord */
             $assocRecord = array_combine($header, $record);
 
             return $assocRecord;
@@ -143,6 +149,7 @@ class ResultSet implements TabularDataReader, JsonSerializable
         $iterator = new LimitIterator($this->records, $nth_record, 1);
         $iterator->rewind();
 
+        /** @var array|null $result */
         $result = $iterator->current();
         if (!is_array($result)) {
             return [];
@@ -181,7 +188,7 @@ class ResultSet implements TabularDataReader, JsonSerializable
         );
     }
 
-    
+
     protected function yieldColumn(string|int $offset): Generator
     {
         $iterator = new MapIterator(
@@ -198,10 +205,8 @@ class ResultSet implements TabularDataReader, JsonSerializable
      * Filters a column name against the header if any.
      *
      * @throws InvalidArgument if the field is invalid or not found
-     *
-     * @return string|int
      */
-    protected function getColumnIndex(string|int $field, string $type, string $method)
+    protected function getColumnIndex(string|int $field, string $type, string $method): string|int
     {
         if (is_string($field)) {
             return $this->getColumnIndexByValue($field, $type, $method);
@@ -228,10 +233,8 @@ class ResultSet implements TabularDataReader, JsonSerializable
      * Returns the selected column name according to its offset.
      *
      * @throws InvalidArgument if the field is invalid or not found
-     *
-     * @return int|string
      */
-    protected function getColumnIndexByKey(int $index, string $type, string $method)
+    protected function getColumnIndexByKey(int $index, string $type, string $method): int|string
     {
         if ($index < 0) {
             throw InvalidArgument::dueToInvalidColumnIndex($index, $type, $method);

@@ -14,6 +14,7 @@ declare(strict_types=1);
 namespace League\Csv;
 
 use InvalidArgumentException;
+use Stringable;
 use function array_fill_keys;
 use function array_keys;
 use function array_map;
@@ -31,7 +32,7 @@ use function method_exists;
 class EscapeFormula
 {
     /** Spreadsheet formula starting character. */
-    const FORMULA_STARTING_CHARS = ['=', '-', '+', '@', "\t", "\r"];
+    public const FORMULA_STARTING_CHARS = ['=', '-', '+', '@', "\t", "\r"];
 
     /** Effective Spreadsheet formula starting characters. */
     protected array $special_chars = [];
@@ -102,19 +103,15 @@ class EscapeFormula
      */
     public function escapeRecord(array $record): array
     {
-        return array_map([$this, 'escapeField'], $record);
+        return array_map($this->escapeField(...), $record);
     }
 
     /**
      * Escapes a CSV cell if its content is stringable.
-     *
-     * @param int|float|string|object|resource|array $cell the content of the cell
-     *
-     * @return mixed the escaped content
      */
-    protected function escapeField(mixed $cell)
+    protected function escapeField(mixed $cell): mixed
     {
-        if (!is_string($cell) && (!is_object($cell) || !method_exists($cell, '__toString'))) {
+        if (!is_string($cell) && !$cell instanceof Stringable) {
             return $cell;
         }
 
