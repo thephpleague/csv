@@ -151,11 +151,8 @@ class ResultSet implements TabularDataReader, JsonSerializable
 
         /** @var array|null $result */
         $result = $iterator->current();
-        if (!is_array($result)) {
-            return [];
-        }
 
-        return $result;
+        return $result ?? [];
     }
 
     /**
