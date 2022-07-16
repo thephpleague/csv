@@ -69,11 +69,7 @@ class Reader extends AbstractCsv implements TabularDataReader, JsonSerializable
      */
     public function getHeader(): array
     {
-        if (null === $this->header_offset) {
-            return $this->header;
-        }
-
-        if ([] !== $this->header) {
+        if (null === $this->header_offset || [] !== $this->header) {
             return $this->header;
         }
 

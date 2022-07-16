@@ -24,11 +24,11 @@ use const COUNT_RECURSIVE;
 final class Info implements ByteSequence
 {
     private const BOM_SEQUENCE_LIST = [
-        self::BOM_UTF32_BE,
-        self::BOM_UTF32_LE,
-        self::BOM_UTF16_BE,
-        self::BOM_UTF16_LE,
-        self::BOM_UTF8,
+        ByteSequence::BOM_UTF32_BE,
+        ByteSequence::BOM_UTF32_LE,
+        ByteSequence::BOM_UTF16_BE,
+        ByteSequence::BOM_UTF16_LE,
+        ByteSequence::BOM_UTF8,
     ];
 
     /**

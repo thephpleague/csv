@@ -100,7 +100,6 @@ final class WriterTest extends TestCase
 
     /**
      * @covers ::insertOne
-     * @covers ::addRecord
      */
     public function testInsertNormalFile(): void
     {
@@ -227,7 +226,6 @@ final class WriterTest extends TestCase
      *
      * @covers ::getInputBOM
      * @covers ::insertOne
-     * @covers ::addRecord
      *
      * @dataProvider compliantRFC4180Provider
      */

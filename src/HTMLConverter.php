@@ -52,8 +52,8 @@ class HTMLConverter
     /**
      * Converts a tabular data collection into a HTML table string.
      *
-     * @param string[] $header_record An optional array of headers outputted using the`<thead>` section
-     * @param string[] $footer_record An optional array of footers to output to the table using `<tfoot>` and `<th>` elements
+     * @param string[] $header_record An optional array of headers outputted using the `<thead>` and `<th>` elements
+     * @param string[] $footer_record An optional array of footers outputted using the `<tfoot>` and `<th>` elements
      */
     public function convert(iterable $records, array $header_record = [], array $footer_record = []): string
     {

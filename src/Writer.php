@@ -14,9 +14,6 @@ declare(strict_types=1);
 namespace League\Csv;
 
 use function array_reduce;
-use function strlen;
-use const PHP_VERSION_ID;
-use const SEEK_CUR;
 use const STREAM_FILTER_WRITE;
 
 /**
@@ -59,6 +56,7 @@ class Writer extends AbstractCsv
      * @see Writer::insertOne
      *
      * @throws CannotInsertRecord
+     * @throws Exception
      */
     public function insertAll(iterable $records): int
     {
@@ -80,12 +78,13 @@ class Writer extends AbstractCsv
      * or objects implementing the __toString method.
      *
      * @throws CannotInsertRecord If the record can not be inserted
+     * @throws Exception          If the record can not be inserted
      */
     public function insertOne(array $record): int
     {
         $record = array_reduce($this->formatters, fn (array $record, callable $formatter): array => $formatter($record), $record);
         $this->validateRecord($record);
-        $bytes = $this->addRecord($record);
+        $bytes = $this->document->fputcsv($record, $this->delimiter, $this->enclosure, $this->escape, $this->newline);
         if (false === $bytes || 0 >= $bytes) {
             throw CannotInsertRecord::triggerOnInsertion($record);
         }
@@ -94,18 +93,17 @@ class Writer extends AbstractCsv
     }
 
     /**
+     * DEPRECATION WARNING! This method will be removed in the next major point release.
+     *
+     * @deprecated Since version 9.9
+     * @codeCoverageIgnore
+     *
      * Adds a single record to a CSV Document using PHP algorithm.
      *
      * @see https://php.net/manual/en/function.fputcsv.php
-     *
-     * @return int|false
      */
-    protected function addRecord(array $record): bool|int
+    protected function addRecord(array $record): int|false
     {
-        if (PHP_VERSION_ID < 80100) {
-            return $this->document->fputcsv($record, $this->delimiter, $this->enclosure, $this->escape);
-        }
-
         return $this->document->fputcsv($record, $this->delimiter, $this->enclosure, $this->escape, $this->newline);
     }
 
@@ -146,16 +144,8 @@ class Writer extends AbstractCsv
      */
     protected function consolidate(): int
     {
-        $bytes = 0;
-        if (80100 > PHP_VERSION_ID && "\n" !== $this->newline) {
-            $this->document->fseek(-1, SEEK_CUR);
-            /** @var int $newlineBytes */
-            $newlineBytes = $this->document->fwrite($this->newline, strlen($this->newline));
-            $bytes = $newlineBytes - 1;
-        }
-
         if (null === $this->flush_threshold) {
-            return $bytes;
+            return 0;
         }
 
         ++$this->flush_counter;
@@ -164,7 +154,7 @@ class Writer extends AbstractCsv
             $this->document->fflush();
         }
 
-        return $bytes;
+        return 0;
     }
 
     /**
