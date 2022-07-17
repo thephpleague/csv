@@ -119,8 +119,6 @@ class Reader extends AbstractCsv implements TabularDataReader, JsonSerializable
 
     /**
      * Returns the document as an Iterator.
-     *
-     * @return Iterator<array-key, array<string|null>>
      */
     protected function getDocument(): SplFileObject|Stream
     {
