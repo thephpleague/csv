@@ -88,7 +88,7 @@ class Reader extends AbstractCsv implements TabularDataReader, JsonSerializable
     protected function setHeader(int $offset): array
     {
         $header = $this->seekRow($offset);
-        if (in_array($header, [[], [null]], true)) {
+        if (in_array($header, [[], [null], [false]], true)) {
             throw SyntaxError::dueToHeaderNotFound($offset);
         }
 
@@ -109,21 +109,18 @@ class Reader extends AbstractCsv implements TabularDataReader, JsonSerializable
      */
     protected function seekRow(int $offset): array
     {
-        foreach ($this->getDocument() as $index => $record) {
-            if ($offset === $index) {
-                return $record;
-            }
+        $this->getDocument()->seek($offset);
+        if (false === ($record = $this->document->current())) {
+            return [];
         }
 
-        return [];
+        return (array) $record;
     }
 
     /**
      * Returns the document as an Iterator.
-     *
-     * @return Iterator<array-key, array<array-key, string|null>>
      */
-    protected function getDocument(): Iterator
+    protected function getDocument(): SplFileObject|Stream
     {
         $this->document->setFlags(SplFileObject::READ_CSV | SplFileObject::READ_AHEAD);
         $this->document->setCsvControl($this->delimiter, $this->enclosure, $this->escape);

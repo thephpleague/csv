@@ -76,7 +76,7 @@ interface TabularDataReader extends Countable, IteratorAggregate
     /**
      * Returns the nth record from the tabular data.
      *
-     * By default if no index is provided the first record of the tabular data is returned
+     * By default, if no index is provided the first record of the tabular data is returned
      *
      * @param int $nth_record the tabular data record offset
      *
