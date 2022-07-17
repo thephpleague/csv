@@ -73,7 +73,7 @@ class RFC4180Field extends php_user_filter
         $params = [
             'enclosure' => $csv->getEnclosure(),
             'escape' => $csv->getEscape(),
-            'mode' => $csv->getStreamFilterMode(),
+            'mode' => $csv->supportsStreamFilterOnWrite() ? STREAM_FILTER_WRITE : STREAM_FILTER_READ,
         ];
 
         if ($csv instanceof Writer && '' !== $whitespace_replace) {
