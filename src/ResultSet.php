@@ -117,7 +117,7 @@ class ResultSet implements TabularDataReader, JsonSerializable
 
         $field_count = count($header);
         $mapper = static function (array $record) use ($header, $field_count): array {
-            if (count($record) != $field_count) {
+            if (count($record) !== $field_count) {
                 $record = array_slice(array_pad($record, $field_count, null), 0, $field_count);
             }
 

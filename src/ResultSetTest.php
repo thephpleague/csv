@@ -86,7 +86,8 @@ final class ResultSetTest extends TestCase
     }
 
     /**
-     * @covers ::fetchColumn
+     * @covers ::fetchColumnByOffset
+     * @covers ::fetchColumnByName
      * @covers ::getColumnIndex
      * @covers ::getColumnIndexByValue
      * @covers ::getColumnIndexByKey
@@ -98,9 +99,15 @@ final class ResultSetTest extends TestCase
     public function testFetchColumnTriggersException(int|string $field): void
     {
         $this->expectException(InvalidArgument::class);
+
         $this->csv->setHeaderOffset(0);
-        $res = $this->stmt->process($this->csv)->fetchColumn($field);
-        iterator_to_array($res, false);
+        if (is_int($field)) {
+            iterator_to_array($this->stmt->process($this->csv)->fetchColumnByOffset($field), false);
+
+            return;
+        }
+
+        iterator_to_array($this->stmt->process($this->csv)->fetchColumnByName($field), false);
     }
 
     public function invalidFieldNameProvider(): array
@@ -121,7 +128,7 @@ final class ResultSetTest extends TestCase
         $this->expectException(InvalidArgument::class);
 
         $this->csv->setHeaderOffset(0);
-        $res = $this->stmt->process($this->csv)->fetchColumn(-1);
+        $res = $this->stmt->process($this->csv)->fetchColumnByOffset(-1);
         iterator_to_array($res, false);
     }
 
@@ -133,8 +140,8 @@ final class ResultSetTest extends TestCase
      */
     public function testFetchColumn(): void
     {
-        self::assertContains('john', $this->stmt->process($this->csv)->fetchColumn(0));
-        self::assertContains('jane', $this->stmt->process($this->csv)->fetchColumn());
+        self::assertContains('john', $this->stmt->process($this->csv)->fetchColumnByOffset(0));
+        self::assertContains('jane', $this->stmt->process($this->csv)->fetchColumnByOffset(0));
     }
 
     public function testFetchColumnByNameTriggersException(): void

@@ -146,7 +146,7 @@ class Reader extends AbstractCsv implements TabularDataReader, JsonSerializable
         }
 
         $record[0] = mb_substr($record[0], $bom_length);
-        if ($enclosure.$enclosure != substr($record[0].$record[0], strlen($record[0]) - 1, 2)) {
+        if ($enclosure.$enclosure !== substr($record[0].$record[0], strlen($record[0]) - 1, 2)) {
             return $record;
         }
 
@@ -212,7 +212,7 @@ class Reader extends AbstractCsv implements TabularDataReader, JsonSerializable
     public function getRecords(array $header = []): Iterator
     {
         $header = $this->computeHeader($header);
-        $normalized = fn ($record): bool => is_array($record) && ($this->is_empty_records_included || $record != [null]);
+        $normalized = fn ($record): bool => is_array($record) && ($this->is_empty_records_included || $record !== [null]);
 
         $bom = '';
         if (!$this->is_input_bom_included) {
@@ -274,7 +274,7 @@ class Reader extends AbstractCsv implements TabularDataReader, JsonSerializable
 
         $field_count = count($header);
         $mapper = static function (array $record) use ($header, $field_count): array {
-            if (count($record) != $field_count) {
+            if (count($record) !== $field_count) {
                 $record = array_slice(array_pad($record, $field_count, null), 0, $field_count);
             }
 
@@ -312,7 +312,7 @@ class Reader extends AbstractCsv implements TabularDataReader, JsonSerializable
 
         return new CallbackFilterIterator(
             new MapIterator($iterator, $mapper),
-            fn (array $record): bool => $this->is_empty_records_included || $record != [null]
+            fn (array $record): bool => $this->is_empty_records_included || $record !== [null]
         );
     }
 

@@ -62,7 +62,7 @@ class EscapeFormula
     protected function filterSpecialCharacters(string ...$characters): array
     {
         foreach ($characters as $str) {
-            if (1 != strlen($str)) {
+            if (1 !== strlen($str)) {
                 throw new InvalidArgumentException('The submitted string '.$str.' must be a single character');
             }
         }

@@ -19,6 +19,7 @@ use const STREAM_FILTER_ALL;
 use const STREAM_FILTER_READ;
 
 /**
+ * @deprecated since version 9.2.0
  * @group filter
  * @coversDefaultClass \League\Csv\RFC4180Field
  */

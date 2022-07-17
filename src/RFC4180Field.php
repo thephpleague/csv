@@ -76,7 +76,7 @@ class RFC4180Field extends php_user_filter
             'mode' => $csv->getStreamFilterMode(),
         ];
 
-        if ($csv instanceof Writer && '' != $whitespace_replace) {
+        if ($csv instanceof Writer && '' !== $whitespace_replace) {
             self::addFormatterTo($csv, $whitespace_replace);
             $params['whitespace_replace'] = $whitespace_replace;
         }
@@ -90,7 +90,7 @@ class RFC4180Field extends php_user_filter
      */
     public static function addFormatterTo(Writer $csv, string $whitespace_replace): Writer
     {
-        if ('' == $whitespace_replace || strlen($whitespace_replace) != strcspn($whitespace_replace, self::$force_enclosure)) {
+        if ('' == $whitespace_replace || strlen($whitespace_replace) !== strcspn($whitespace_replace, self::$force_enclosure)) {
             throw new InvalidArgumentException('The sequence contains a character that enforces enclosure or is a CSV control character or is the empty string.');
         }
 
@@ -153,7 +153,7 @@ class RFC4180Field extends php_user_filter
 
         $this->search = [$this->params['escape'].$this->params['enclosure']];
         $this->replace = [$this->params['enclosure'].$this->params['enclosure']];
-        if (STREAM_FILTER_WRITE != $this->params['mode']) {
+        if (STREAM_FILTER_WRITE !== $this->params['mode']) {
             return true;
         }
 

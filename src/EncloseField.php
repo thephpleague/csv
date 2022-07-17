@@ -84,7 +84,7 @@ class EncloseField extends php_user_filter
      */
     protected static function isValidSequence(string $sequence): bool
     {
-        return strlen($sequence) != strcspn($sequence, self::$force_enclosure);
+        return strlen($sequence) !== strcspn($sequence, self::$force_enclosure);
     }
 
     public function onCreate(): bool
