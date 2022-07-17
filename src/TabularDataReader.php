@@ -42,6 +42,8 @@ interface TabularDataReader extends Countable, IteratorAggregate
      * If the CSV document is inconsistent. Missing record fields are
      * filled with null values while extra record fields are strip from
      * the returned object.
+     *
+     * @return Iterator<array-key, array<string|null>>
      */
     public function getIterator(): Iterator;
 
@@ -69,7 +71,7 @@ interface TabularDataReader extends Countable, IteratorAggregate
      *
      * @param array<string> $header an optional header to use instead of the CSV document header
      *
-     * @return Iterator<array<string|null>>
+     * @return Iterator<array-key,array<string|null>>
      */
     public function getRecords(array $header = []): Iterator;
 
