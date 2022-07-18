@@ -33,6 +33,7 @@
     "require-dev": {
         "ext-dom": "*",
         "friendsofphp/php-cs-fixer": "^v3.9",
+        "phpbench/phpbench": "^1.2",
         "phpstan/phpstan": "^1.8",
         "phpstan/phpstan-deprecation-rules": "^1.0",
         "phpstan/phpstan-phpunit": "^1.1",
@@ -46,6 +47,7 @@
         "files": ["src/functions_include.php"]
     },
     "scripts": {
+        "benchmark": "phpbench run src --report=default",
         "phpcs": "php-cs-fixer fix -vvv --diff --dry-run --allow-risky=yes --ansi",
         "phpcs:fix": "php-cs-fixer fix -vvv --allow-risky=yes --ansi",
         "phpstan": "phpstan analyse -c phpstan.neon --ansi --memory-limit=192M",
@@ -57,6 +59,7 @@
         ]
     },
     "scripts-descriptions": {
+        "benchmark": "Runs benchmarks on writing and reader CSV documents",
         "phpcs": "Runs coding style test suite",
         "phpstan": "Runs complete codebase static analysis",
         "phpunit": "Runs unit and functional testing",
@@ -64,7 +67,7 @@
     },
     "suggest": {
         "ext-iconv" : "Needed to ease transcoding CSV using iconv stream filters",
-        "ext-dom" : "Required to use the XMLConverter and or the HTMLConverter classes"
+        "ext-dom" : "Required to use the XMLConverter and the HTMLConverter classes"
     },
     "extra": {
         "branch-alias": {
