@@ -13,16 +13,14 @@ declare(strict_types=1);
 
 namespace League\Csv;
 
+use PhpBench\Attributes as Bench;
 use SplFileObject;
 use function assert;
 
 final class ReaderBench
 {
-    /**
-     * @OutputTimeUnit("seconds")]
-     * @Assert("mode(variant.mem.peak) < 2097152")
-     * @Assert("mode(variant.time.avg) < 10000000")
-     */
+    #[Bench\OutputTimeUnit('seconds')]
+    #[Bench\Assert('mode(variant.mem.peak) < 2097152'), Bench\Assert('mode(variant.time.avg) < 10000000')]
     public function benchReading1MRowsCSVUsingSplFileObject(): void
     {
         $path = dirname(__DIR__).'/test_files/csv_with_one_million_rows.csv';
@@ -35,11 +33,8 @@ final class ReaderBench
         assert(1_000_000 === $numReadRows);
     }
 
-    /**
-     * @OutputTimeUnit("seconds")]
-     * @Assert("mode(variant.mem.peak) < 2097152")
-     * @Assert("mode(variant.time.avg) < 10000000")
-     */
+    #[Bench\OutputTimeUnit('seconds')]
+    #[Bench\Assert('mode(variant.mem.peak) < 2097152'), Bench\Assert('mode(variant.time.avg) < 10000000')]
     public function benchReading1MRowsCSVUsingStream(): void
     {
         $path = dirname(__DIR__).'/test_files/csv_with_one_million_rows.csv';

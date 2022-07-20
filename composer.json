@@ -33,7 +33,7 @@
     "require-dev": {
         "ext-dom": "*",
         "friendsofphp/php-cs-fixer": "^v3.9",
-        "phpbench/phpbench": "^1.2",
+        "phpbench/phpbench": "^1.2.6",
         "phpstan/phpstan": "^1.8",
         "phpstan/phpstan-deprecation-rules": "^1.0",
         "phpstan/phpstan-phpunit": "^1.1",

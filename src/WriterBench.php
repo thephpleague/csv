@@ -13,16 +13,14 @@ declare(strict_types=1);
 
 namespace League\Csv;
 
+use PhpBench\Attributes as Bench;
 use SplFileObject;
 use function assert;
 
 final class WriterBench
 {
-    /**
-     * @OutputTimeUnit("seconds")]
-     * @Assert("mode(variant.mem.peak) < 2097152")
-     * @Assert("mode(variant.time.avg) < 10000000")
-     */
+    #[Bench\OutputTimeUnit('seconds')]
+    #[Bench\Assert('mode(variant.mem.peak) < 2097152'), Bench\Assert('mode(variant.time.avg) < 10000000')]
     public function benchWriting1MRowsCSVUsingFileObject(): void
     {
         $numRows = 1_000_000;
@@ -36,11 +34,8 @@ final class WriterBench
         assert($numRows === $this->getNumWrittenRows($path));
     }
 
-    /**
-     * @OutputTimeUnit("seconds")]
-     * @Assert("mode(variant.mem.peak) < 2097152")
-     * @Assert("mode(variant.time.avg) < 10000000")
-     */
+    #[Bench\OutputTimeUnit('seconds')]
+    #[Bench\Assert('mode(variant.mem.peak) < 2097152'), Bench\Assert('mode(variant.time.avg) < 10000000')]
     public function benchWriting1MRowsCSVUsingStream(): void
     {
         $numRows = 1_000_000;
