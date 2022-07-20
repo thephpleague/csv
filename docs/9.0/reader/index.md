@@ -386,6 +386,84 @@ $records = $stmt->process($reader);
 //$records is a League\Csv\ResultSet object
 ```
 
+## Records formatting
+
+<p class="message-info">New since version <code>9.9.0</code></p>
+
+```php
+public Writer::addFormatter(callable $callable): Reader
+public Writer::addHeaderFormatter(callable $callable): Reader
+```
+
+Sometimes you may want to format your records prior to accessing them via `getRecords`. the `Reader` class provides
+a formatter mechanism to ease these operations.
+
+### Reader::addFormatter
+
+#### Record Formatter
+
+A formatter is a `callable` which accepts an single CSV record as an `array` on input and returns an array representing the formatted CSV record according to its inner rules.
+
+```php
+function(array $record): array
+```
+
+#### Adding a Formatter to a Reader object
+
+You can attach as many formatters as you want to the `Reader` class using the `Reader::addFormatter` method.
+Formatters are applied following the *First In First Out* rule.
+
+```php
+use League\Csv\Reader;
+
+$formatter = fn (array $row): array => array_map('strtoupper', $row);
+$text = <<<CSV
+column 1,column 2,column 3
+cell11,cell12,cell13
+CSV;
+$csv = Reader::createFromString($text);
+$csv->setHeaderOffset(0);
+$csv->addFormatter($formatter);
+
+var_dump(iterator_to_array($csv, true));
+//will display something like 
+// [
+//          1 => [
+//              'column 1' => 'CELL11',
+//              'column 2' => 'CELL12',
+//              'column 3' => 'CELL13',
+//          ],
+//      ]
+```
+
+#### Adding a Header Formatter to a Reader object
+
+You can attach a single header formatter to the `Reader` class using the `Reader::addHeaderFormatter` method.
+If present and if there's an actual header it will get formatter according to the formatter rules.
+
+```php
+use League\Csv\Reader;
+
+$formatter = fn (array $row): array => array_map('strtoupper', $row);
+$text = <<<CSV
+column 1,column 2,column 3
+cell11,cell12,cell13
+CSV;
+$csv = Reader::createFromString($text);
+$csv->setHeaderOffset(0);
+$csv->addHeaderFormatter($formatter);
+
+var_dump(iterator_to_array($csv, true));
+//will display something like 
+// [
+//          1 => [
+//              'COLUMN 1' => 'cell11',
+//              'COLUMN 2' => 'cell12',
+//              'COLUMN 3' => 'cell13',
+//          ],
+//      ]
+```
+
 ## Records conversion
 
 ### Json serialization

@@ -6,7 +6,9 @@ All Notable changes to `Csv` will be documented in this file
 
 ### Added
 
-- None
+- `Reader::addHeaderFormatter` to format the CSV header record if it is present.
+- `Reader::addFormatter` to format the CSV content records
+- `ValueConverter` to convert CSV values into scalar types and/or DateImmutable objects.
 
 ### Deprecated
 

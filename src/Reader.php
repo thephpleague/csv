@@ -39,6 +39,10 @@ class Reader extends AbstractCsv implements TabularDataReader, JsonSerializable
 {
     protected const STREAM_FILTER_MODE = STREAM_FILTER_READ;
 
+    /** @var array<callable> callable collection to format the record before reading. */
+    protected array $formatters = [];
+    /** @var ?callable */
+    protected $header_formatter;
     protected ?int $header_offset = null;
     protected int $nb_records = -1;
     protected bool $is_empty_records_included = false;
@@ -65,6 +69,8 @@ class Reader extends AbstractCsv implements TabularDataReader, JsonSerializable
     }
 
     /**
+     * @throws Exception
+     *
      * Returns the header record.
      */
     public function getHeader(): array
@@ -105,6 +111,8 @@ class Reader extends AbstractCsv implements TabularDataReader, JsonSerializable
     }
 
     /**
+     * @throws Exception
+     *
      * Returns the row at a given offset.
      */
     protected function seekRow(int $offset): array
@@ -118,6 +126,8 @@ class Reader extends AbstractCsv implements TabularDataReader, JsonSerializable
     }
 
     /**
+     * @throws Exception
+     *
      * Returns the document as an Iterator.
      */
     protected function getDocument(): SplFileObject|Stream
@@ -152,11 +162,17 @@ class Reader extends AbstractCsv implements TabularDataReader, JsonSerializable
         return $record;
     }
 
+    /**
+     * @throws Exception
+     */
     public function fetchColumnByName(string $name): Iterator
     {
         return ResultSet::createFromTabularDataReader($this)->fetchColumnByName($name);
     }
 
+    /**
+     * @throws Exception
+     */
     public function fetchColumnByOffset(int $offset = 0): Iterator
     {
         return ResultSet::createFromTabularDataReader($this)->fetchColumnByOffset($offset);
@@ -177,6 +193,9 @@ class Reader extends AbstractCsv implements TabularDataReader, JsonSerializable
         return ResultSet::createFromTabularDataReader($this)->fetchPairs($offset_index, $value_index);
     }
 
+    /**
+     * @throws Exception
+     */
     public function count(): int
     {
         if (-1 === $this->nb_records) {
@@ -187,6 +206,8 @@ class Reader extends AbstractCsv implements TabularDataReader, JsonSerializable
     }
 
     /**
+     * @throws Exception
+     *
      * @return Iterator<array-key, array<string|null>>
      */
     public function getIterator(): Iterator
@@ -194,6 +215,9 @@ class Reader extends AbstractCsv implements TabularDataReader, JsonSerializable
         return $this->getRecords();
     }
 
+    /**
+     * @throws Exception
+     */
     public function jsonSerialize(): array
     {
         return iterator_to_array($this->getRecords(), false);
@@ -209,6 +233,10 @@ class Reader extends AbstractCsv implements TabularDataReader, JsonSerializable
     public function getRecords(array $header = []): Iterator
     {
         $header = $this->computeHeader($header);
+        if (null !== $this->header_formatter && [] !== $header) {
+            $header = ($this->header_formatter)($header);
+        }
+
         $normalized = fn ($record): bool => is_array($record) && ($this->is_empty_records_included || $record !== [null]);
 
         $bom = '';
@@ -216,20 +244,49 @@ class Reader extends AbstractCsv implements TabularDataReader, JsonSerializable
             $bom = $this->getInputBOM();
         }
 
-        $document = $this->getDocument();
-        $records = $this->stripBOM(new CallbackFilterIterator($document, $normalized), $bom);
+        $records = $this->stripBOM(new CallbackFilterIterator($this->getDocument(), $normalized), $bom);
         if (null !== $this->header_offset) {
             $records = new CallbackFilterIterator($records, fn (array $record, int $offset): bool => $offset !== $this->header_offset);
         }
 
         if ($this->is_empty_records_included) {
-            return $this->combineHeader(new MapIterator(
+            $records = new MapIterator(
                 $records,
                 fn (array $record): array => ([null] === $record) ? [] : $record
-            ), $header);
+            );
+        }
+
+        if ([] !== $this->formatters) {
+            $formatters = fn (array $record): array => array_reduce(
+                $this->formatters,
+                fn (array $record, callable $formatter): array => $formatter($record),
+                $record
+            );
+
+            return new MapIterator($this->combineHeader($records, $header), $formatters);
         }
 
         return $this->combineHeader($records, $header);
+    }
+
+    /**
+     * Adds a record formatter.
+     */
+    public function setHeaderFormatter(?callable $formatter): self
+    {
+        $this->header_formatter = $formatter;
+
+        return $this;
+    }
+
+    /**
+     * Adds a record formatter.
+     */
+    public function addFormatter(callable $formatter): self
+    {
+        $this->formatters[] = $formatter;
+
+        return $this;
     }
 
     /**
