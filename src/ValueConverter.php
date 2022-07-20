@@ -18,6 +18,7 @@ use DateTimeImmutable;
 final class ValueConverter
 {
     private const REGEXP_INTEGER = '/^[-+]?\d+$/';
+    //@see https://stackoverflow.com/questions/12643009/regular-expression-for-floating-point-numbers
     private const REGEXP_FLOAT = '/^[-+]?\d+[.,]\d*([e][+-]?\d+)?$/';
     private const REGEXP_BOOLEAN = '/^(true|false|yes|no|on|off)$/i';
 
