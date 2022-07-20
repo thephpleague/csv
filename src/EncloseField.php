@@ -33,7 +33,7 @@ use function strlen;
  */
 class EncloseField extends php_user_filter
 {
-    const FILTERNAME = 'convert.league.csv.enclosure';
+    public const FILTERNAME = 'convert.league.csv.enclosure';
 
     /** Default sequence. */
     protected string $sequence;
@@ -80,11 +80,11 @@ class EncloseField extends php_user_filter
     /**
      * Filter type and sequence parameters.
      *
-     * The sequence to force enclosure MUST contains one of the following character ("\n\r\t ")
+     * The sequence to force enclosure MUST contain one of the following character ("\n\r\t ")
      */
     protected static function isValidSequence(string $sequence): bool
     {
-        return strlen($sequence) != strcspn($sequence, self::$force_enclosure);
+        return strlen($sequence) !== strcspn($sequence, self::$force_enclosure);
     }
 
     public function onCreate(): bool
@@ -98,9 +98,8 @@ class EncloseField extends php_user_filter
      * @param resource $in
      * @param resource $out
      * @param int      $consumed
-     * @param bool     $closing
      */
-    public function filter($in, $out, &$consumed, $closing): int
+    public function filter($in, $out, &$consumed, bool $closing): int
     {
         /** @var array $params */
         $params = $this->params;

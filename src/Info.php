@@ -19,17 +19,16 @@ use function array_reduce;
 use function array_unique;
 use function count;
 use function strlen;
-use function strpos;
 use const COUNT_RECURSIVE;
 
 final class Info implements ByteSequence
 {
     private const BOM_SEQUENCE_LIST = [
-        self::BOM_UTF32_BE,
-        self::BOM_UTF32_LE,
-        self::BOM_UTF16_BE,
-        self::BOM_UTF16_LE,
-        self::BOM_UTF8,
+        ByteSequence::BOM_UTF32_BE,
+        ByteSequence::BOM_UTF32_LE,
+        ByteSequence::BOM_UTF16_BE,
+        ByteSequence::BOM_UTF16_LE,
+        ByteSequence::BOM_UTF8,
     ];
 
     /**
@@ -40,7 +39,7 @@ final class Info implements ByteSequence
     public static function fetchBOMSequence(string $str): ?string
     {
         foreach (self::BOM_SEQUENCE_LIST as $sequence) {
-            if (0 === strpos($str, $sequence)) {
+            if (str_starts_with($str, $sequence)) {
                 return $sequence;
             }
         }
@@ -65,7 +64,6 @@ final class Info implements ByteSequence
 
         $delimiterStats = function (array $stats, string $delimiter) use ($csv, $stmt): array {
             $csv->setDelimiter($delimiter);
-
             $foundRecords = [];
             foreach ($stmt->process($csv)->getRecords() as $record) {
                 if (1 < count($record)) {
@@ -84,7 +82,7 @@ final class Info implements ByteSequence
         $csv->setHeaderOffset(null);
 
         $stats = array_reduce(
-            array_unique(array_filter($delimiters, static fn (string $value): bool => 1 === strlen($value))),
+            array_unique(array_filter($delimiters, fn (string $value): bool => 1 === strlen($value))),
             $delimiterStats,
             array_fill_keys($delimiters, 0)
         );

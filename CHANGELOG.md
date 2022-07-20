@@ -6,18 +6,31 @@ All Notable changes to `Csv` will be documented in this file
 
 ### Added
 
-- None
+- `Reader::addHeaderFormatter` to format the CSV header record if it is present.
+- `Reader::addFormatter` to format the CSV content records
+- `ValueConverter` to convert CSV values into scalar types and/or DateImmutable objects.
 
 ### Deprecated
 
 - None
+
 ### Fixed
 
-- None
-- 
+- `Stream::createFromResource`
+- `Stream::__construct` is made private. The class is already marked as internal so BC break does not apply on it.
+
+- Using PHP8 feature to rewrite internal codebase
+- Replaced simple comparisons with strict comparison operator where types are obvious in internal codebase by [@astepin](https://github.com/astepin)
+- Marked class constants explicitly as public by [@astepin](https://github.com/astepin)
+- Minimal support version PHP8.1.2
+- Fix Docblock and method signature using PHP8 feature (Union Type)
+- Fix Internal codebase around `seek` usage and `[#75917](https://bugs.php.net/bug.php?id=75917) requires PHP8.1.2
+- Remove internal usage of deprecated methods
+
 ### Removed
 
-- None
+- Drop support for PHP7 and PHP8.0
+- Polyfill to enable using fputcsv `$eol` argument
 
 ## [9.8.0] - 2022-01-04
 
@@ -395,6 +408,24 @@ protected methods `HTMLConverter::addHTMLAttributes` and `HTMLConverter::appendH
 ### Removed
 
 - Nothing
+
+## 8.2.3 - 2018-02-06
+
+### Added
+
+- None
+
+### Deprecated
+
+- None
+
+### Fixed
+
+- `Reader::fetchAssoc` no longer throws exception because of a bug in PHP7.2+ [issue #279](https://github.com/thephpleague/csv/issues/279)
+
+### Removed
+
+- None
 
 ## [9.1.2] - 2018-02-05
 

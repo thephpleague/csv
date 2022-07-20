@@ -24,8 +24,6 @@ use function tmpfile;
 use function unlink;
 use function xdebug_get_headers;
 use const PHP_EOL;
-use const STREAM_FILTER_READ;
-use const STREAM_FILTER_WRITE;
 
 /**
  * @group csv
@@ -190,8 +188,6 @@ EOF;
     }
 
     /**
-     * @covers ::__toString
-     * @covers ::getContent
      * @covers ::toString
      */
     public function testStringRepresentation(): void
@@ -199,8 +195,6 @@ EOF;
         $raw_csv = "john,doe,john.doe@example.com\njane,doe,jane.doe@example.com\n";
         $csv = Reader::createFromString($raw_csv);
 
-        self::assertSame($raw_csv, $csv->__toString());
-        self::assertSame($raw_csv, $csv->getContent());
         self::assertSame($raw_csv, $csv->toString());
     }
 
@@ -248,13 +242,9 @@ EOF;
      */
     public function testStreamFilterMode(
         AbstractCsv $csv,
-        int $filterMode,
-        bool $supportFilter,
         bool $useFilterRead,
         bool $useFilterWrite
     ): void {
-        self::assertSame($filterMode, $csv->getStreamFilterMode());
-        self::assertSame($supportFilter, $csv->supportsStreamFilter());
         self::assertSame($useFilterRead, $csv->supportsStreamFilterOnRead());
         self::assertSame($useFilterWrite, $csv->supportsStreamFilterOnWrite());
     }
@@ -263,32 +253,24 @@ EOF;
     {
         yield 'Reader with stream capability' => [
             'csv' => Reader::createFromString(),
-            'filterMode' => STREAM_FILTER_READ,
-            'supportsFilter' => true,
             'useFilterRead' => true,
             'useFilterWrite' => false,
         ];
 
         yield 'Reader without stream capability' => [
             'csv' => Reader::createFromFileObject(new SplTempFileObject()),
-            'filterMode' => STREAM_FILTER_READ,
-            'supportsFilter' => false,
             'useFilterRead' => false,
             'useFilterWrite' => false,
         ];
 
         yield 'Writer with stream capability' => [
             'csv' => Writer::createFromString(),
-            'filterMode' => STREAM_FILTER_WRITE,
-            'supportsFilter' => true,
             'useFilterRead' => false,
             'useFilterWrite' => true,
         ];
 
         yield 'Writer without stream capability' => [
             'csv' => Writer::createFromFileObject(new SplTempFileObject()),
-            'filterMode' => STREAM_FILTER_WRITE,
-            'supportsFilter' => false,
             'useFilterRead' => false,
             'useFilterWrite' => false,
         ];
@@ -396,14 +378,14 @@ EOF;
     }
 
     /**
-     * @covers ::supportsStreamFilter
+     * @covers ::supportsStreamFilterOnWrite
      * @covers ::addStreamFilter
      * @covers \League\Csv\UnavailableFeature
      */
     public function testFailedAddStreamFilter(): void
     {
         $csv = Writer::createFromFileObject(new SplTempFileObject());
-        self::assertFalse($csv->supportsStreamFilter());
+        self::assertFalse($csv->supportsStreamFilterOnWrite());
 
         $this->expectException(UnavailableFeature::class);
 
@@ -469,7 +451,7 @@ EOF;
         $csv->addStreamFilter('string.toupper');
         $csv->insertOne([1, 'two', 3, "new\r\nline"]);
 
-        self::assertStringContainsString("1,TWO,3,\"NEW\r\nLINE\"", $csv->getContent());
+        self::assertStringContainsString("1,TWO,3,\"NEW\r\nLINE\"", $csv->toString());
     }
 
     /**
@@ -572,6 +554,6 @@ EOF;
         $result = ob_get_clean();
         self::assertStringContainsString(Reader::BOM_UTF16_BE, $result);
         self::assertStringContainsString(Reader::BOM_UTF8, $result);
-        self::assertTrue(0 === strpos($result, Reader::BOM_UTF16_BE.Reader::BOM_UTF8));
+        self::assertTrue(str_starts_with($result, Reader::BOM_UTF16_BE.Reader::BOM_UTF8));
     }
 }

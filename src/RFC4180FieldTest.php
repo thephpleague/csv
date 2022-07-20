@@ -19,6 +19,7 @@ use const STREAM_FILTER_ALL;
 use const STREAM_FILTER_READ;
 
 /**
+ * @deprecated since version 9.2.0
  * @group filter
  * @coversDefaultClass \League\Csv\RFC4180Field
  */
@@ -166,7 +167,7 @@ final class RFC4180FieldTest extends TestCase
         $csv->setDelimiter('|');
         RFC4180Field::addTo($csv, "\0");
         $csv->insertAll($this->records);
-        $contents = $csv->getContent();
+        $contents = $csv->toString();
         self::assertStringContainsString('Grand Cherokee', $contents);
         self::assertStringNotContainsString('"Grand Cherokee"', $contents);
     }

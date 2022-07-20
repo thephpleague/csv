@@ -98,11 +98,8 @@ foo;bar;hello_world
 EOF;
         $expected = [';' => 4, ',' => 0];
         $reader = Reader::createFromString($text);
-        $resultA = Info::getDelimiterStats($reader, [';', ','], 1);
-        $resultB = delimiter_detect($reader, [';', ','], 1);
 
-        self::assertSame($expected, $resultA);
-        self::assertSame($resultA, $resultB);
+        self::assertSame($expected, Info::getDelimiterStats($reader, [';', ','], 1));
     }
 
     /**
@@ -112,7 +109,7 @@ EOF;
      */
     public function testByteSequenceMatch(string $str, string $expected, ?string $method_expected): void
     {
-        self::assertSame($expected, bom_match($str));
+        self::assertSame($expected, Info::fetchBOMSequence($str) ?? '');
         self::assertSame($method_expected, Info::fetchBOMSequence($str));
     }
 

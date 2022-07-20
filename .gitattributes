@@ -12,3 +12,4 @@
 /phpunit.xml        export-ignore
 /README.md          export-ignore
 /**/*Test.php       export-ignore
+/**/*Bench.php      export-ignore

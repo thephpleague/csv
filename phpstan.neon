@@ -1,6 +1,7 @@
 includes:
     - vendor/phpstan/phpstan-strict-rules/rules.neon
     - vendor/phpstan/phpstan-phpunit/extension.neon
+    - vendor/phpstan/phpstan-deprecation-rules/rules.neon
     - vendor/phpstan/phpstan-phpunit/rules.neon
 parameters:
     level: max
@@ -9,12 +10,6 @@ parameters:
     checkGenericClassInNonGenericObjectType: false
     checkMissingIterableValueType: false
     ignoreErrors:
-        - message: '#Access to an undefined property object::\$data.#'
-          path: src/RFC4180Field.php
-        - message: '#Access to an undefined property object::\$data.#'
-          path: src/EncloseField.php
-        - message: '#Access to an undefined property object::\$data.#'
-          path: src/CharsetConverter.php
         - message: '#Call to function is_resource\(\) with resource will always evaluate to true.#'
           path: src/Stream.php
         - message: '#Parameter \#2 \$special_chars of class League\\Csv\\EscapeFormula constructor expects array<string>, array<int, stdClass> given.#'

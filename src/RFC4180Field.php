@@ -73,10 +73,10 @@ class RFC4180Field extends php_user_filter
         $params = [
             'enclosure' => $csv->getEnclosure(),
             'escape' => $csv->getEscape(),
-            'mode' => $csv->getStreamFilterMode(),
+            'mode' => $csv->supportsStreamFilterOnWrite() ? STREAM_FILTER_WRITE : STREAM_FILTER_READ,
         ];
 
-        if ($csv instanceof Writer && '' != $whitespace_replace) {
+        if ($csv instanceof Writer && '' !== $whitespace_replace) {
             self::addFormatterTo($csv, $whitespace_replace);
             $params['whitespace_replace'] = $whitespace_replace;
         }
@@ -90,7 +90,7 @@ class RFC4180Field extends php_user_filter
      */
     public static function addFormatterTo(Writer $csv, string $whitespace_replace): Writer
     {
-        if ('' == $whitespace_replace || strlen($whitespace_replace) != strcspn($whitespace_replace, self::$force_enclosure)) {
+        if ('' == $whitespace_replace || strlen($whitespace_replace) !== strcspn($whitespace_replace, self::$force_enclosure)) {
             throw new InvalidArgumentException('The sequence contains a character that enforces enclosure or is a CSV control character or is the empty string.');
         }
 
@@ -123,9 +123,8 @@ class RFC4180Field extends php_user_filter
      * @param resource $in
      * @param resource $out
      * @param int      $consumed
-     * @param bool     $closing
      */
-    public function filter($in, $out, &$consumed, $closing): int
+    public function filter($in, $out, &$consumed, bool $closing): int
     {
         while (null !== ($bucket = stream_bucket_make_writeable($in))) {
             $bucket->data = str_replace($this->search, $this->replace, $bucket->data);
@@ -154,7 +153,7 @@ class RFC4180Field extends php_user_filter
 
         $this->search = [$this->params['escape'].$this->params['enclosure']];
         $this->replace = [$this->params['enclosure'].$this->params['enclosure']];
-        if (STREAM_FILTER_WRITE != $this->params['mode']) {
+        if (STREAM_FILTER_WRITE !== $this->params['mode']) {
             return true;
         }
 
@@ -182,10 +181,8 @@ class RFC4180Field extends php_user_filter
 
     /**
      * Is Valid White space replaced sequence.
-     *
-     * @return bool
      */
-    protected function isValidSequence(array $params)
+    protected function isValidSequence(array $params): bool
     {
         return isset($params['whitespace_replace'])
             && strlen($params['whitespace_replace']) === strcspn($params['whitespace_replace'], self::$force_enclosure);

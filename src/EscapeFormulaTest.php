@@ -94,6 +94,6 @@ final class EscapeFormulaTest extends TestCase
         $csv = Writer::createFromFileObject(new SplTempFileObject());
         $csv->addFormatter(new EscapeFormula());
         $csv->insertOne($record);
-        self::assertStringContainsString($expected, $csv->getContent());
+        self::assertStringContainsString($expected, $csv->toString());
     }
 }

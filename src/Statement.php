@@ -20,7 +20,7 @@ use LimitIterator;
 use function array_reduce;
 
 /**
- * Criteria to filter a {@link Reader} object.
+ * Criteria to filter a {@link TabularDataReader} object.
  */
 class Statement
 {
@@ -114,6 +114,8 @@ class Statement
      * Executes the prepared Statement on the {@link Reader} object.
      *
      * @param array<string> $header an optional header to use instead of the CSV document header
+     *
+     * @throws SyntaxError
      */
     public function process(TabularDataReader $tabular_data, array $header = []): TabularDataReader
     {
@@ -124,8 +126,9 @@ class Statement
         $iterator = $tabular_data->getRecords($header);
         $iterator = array_reduce($this->where, [$this, 'filter'], $iterator);
         $iterator = $this->buildOrderBy($iterator);
-
-        return new ResultSet(new LimitIterator($iterator, $this->offset, $this->limit), $header);
+        /** @var Iterator<array-key, array<array-key, string|null>> $iterator */
+        $iterator = new LimitIterator($iterator, $this->offset, $this->limit);
+        return new ResultSet($iterator, $header);
     }
 
     /**

@@ -37,6 +37,6 @@ class UnavailableFeature extends Exception
 
     public static function dueToMissingStreamSeekability(): self
     {
-        return new self('stream does not support seeking');
+        return new self('stream does not support seeking.');
     }
 }

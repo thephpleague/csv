@@ -53,8 +53,8 @@ final class ColumnConsistencyTest extends TestCase
             self::assertSame(3, $validator->getColumnCount());
             $this->csv->insertOne($expected);
         } catch (CannotInsertRecord $exception) {
-            self::assertSame($exception->getName(), 'consistency');
-            self::assertEquals($exception->getRecord(), ['jane', 'jane.doe@example.com']);
+            self::assertSame('consistency', $exception->getName());
+            self::assertEquals(['jane', 'jane.doe@example.com'], $exception->getRecord());
         }
     }
 

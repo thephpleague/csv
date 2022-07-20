@@ -16,6 +16,7 @@ version:
             Bundled Helpers: '/9.0/writer/helpers/'
         Selecting Records:
             Reader Connection: '/9.0/reader/'
+            Bundled Helpers: '/9.0/reader/helpers/'
             Constraint Builder: '/9.0/reader/statement/'
             Result Set: '/9.0/reader/resultset/'
         Interoperability:

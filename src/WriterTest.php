@@ -66,7 +66,9 @@ final class WriterTest extends TestCase
     public function testSupportsStreamFilter(): void
     {
         $csv = Writer::createFromPath(__DIR__.'/../test_files/foo.csv');
-        self::assertTrue($csv->supportsStreamFilter());
+
+        self::assertTrue($csv->supportsStreamFilterOnWrite());
+
         $csv->setFlushThreshold(3);
         $csv->addStreamFilter('string.toupper');
         $csv->insertOne(['jane', 'doe', 'jane@example.com']);
@@ -78,6 +80,7 @@ final class WriterTest extends TestCase
         $csv->insertOne(['jane', 'doe', 'jane@example.com']);
         $csv->insertOne(['jane', 'doe', 'jane@example.com']);
         $csv->setFlushThreshold(null);
+
         self::assertStringContainsString('JANE,DOE,JANE@EXAMPLE.COM', $csv->toString());
     }
 
@@ -97,7 +100,6 @@ final class WriterTest extends TestCase
 
     /**
      * @covers ::insertOne
-     * @covers ::addRecord
      */
     public function testInsertNormalFile(): void
     {
@@ -112,7 +114,7 @@ final class WriterTest extends TestCase
      */
     public function testInsertThrowsExceptionOnError(array $record): void
     {
-        self::expectNotice();
+        $this->expectNotice();
         $this->expectExceptionMessageMatches('/write of \d+ bytes failed with errno=9 Bad file descriptor/i');
 
         Writer::createFromPath(__DIR__.'/../test_files/foo.csv', 'r')->insertOne($record);
@@ -224,7 +226,6 @@ final class WriterTest extends TestCase
      *
      * @covers ::getInputBOM
      * @covers ::insertOne
-     * @covers ::addRecord
      *
      * @dataProvider compliantRFC4180Provider
      */

@@ -29,17 +29,16 @@ use function iterator_to_array;
  */
 class ResultSet implements TabularDataReader, JsonSerializable
 {
-    /** The CSV records collection. */
-    protected Iterator $records;
-    /** @var array<string> The CSV records collection header. */
-    protected array $header = [];
-
-    public function __construct(Iterator $records, array $header)
-    {
-        $this->validateHeader($header);
-
-        $this->records = $records;
-        $this->header = $header;
+    /**
+     * @throws SyntaxError
+     */
+    public function __construct(
+        /** @var Iterator<array-key, array<array-key, string|null>> */
+        protected Iterator $records,
+        /** @var array<string> */
+        protected array $header = []
+    ) {
+        $this->validateHeader($this->header);
     }
 
     /**
@@ -63,6 +62,8 @@ class ResultSet implements TabularDataReader, JsonSerializable
 
     /**
      * Returns a new instance from an object implementing the TabularDataReader interface.
+     *
+     * @throws SyntaxError
      */
     public static function createFromTabularDataReader(TabularDataReader $reader): self
     {
@@ -79,6 +80,9 @@ class ResultSet implements TabularDataReader, JsonSerializable
         return $this->header;
     }
 
+    /**
+     * @throws SyntaxError
+     */
     public function getIterator(): Iterator
     {
         return $this->getRecords();
@@ -89,21 +93,21 @@ class ResultSet implements TabularDataReader, JsonSerializable
      *
      * @throws SyntaxError
      *
-     * @return Iterator<array-key,array<string|null>>
+     * @return Iterator<array-key, array<array-key, string|null>>
      */
     public function getRecords(array $header = []): Iterator
     {
         $this->validateHeader($header);
-        $records = $this->combineHeader($header);
-        foreach ($records as $offset => $value) {
-            yield $offset => $value;
-        }
+
+        yield from $this->combineHeader($header);
     }
 
     /**
      * Combines the header to each record if present.
      *
-     * @return Iterator<array-key, array<string|null>>
+     * @param array<string> $header
+     *
+     * @return Iterator<array-key, array<array-key, string|null>>
      */
     protected function combineHeader(array $header): Iterator
     {
@@ -113,11 +117,11 @@ class ResultSet implements TabularDataReader, JsonSerializable
 
         $field_count = count($header);
         $mapper = static function (array $record) use ($header, $field_count): array {
-            if (count($record) != $field_count) {
+            if (count($record) !== $field_count) {
                 $record = array_slice(array_pad($record, $field_count, null), 0, $field_count);
             }
 
-            /** @var array<string|null> $assocRecord */
+            /** @var array<string, string|null> $assocRecord */
             $assocRecord = array_combine($header, $record);
 
             return $assocRecord;
@@ -145,12 +149,10 @@ class ResultSet implements TabularDataReader, JsonSerializable
         $iterator = new LimitIterator($this->records, $nth_record, 1);
         $iterator->rewind();
 
+        /** @var array|null $result */
         $result = $iterator->current();
-        if (!is_array($result)) {
-            return [];
-        }
 
-        return $result;
+        return $result ?? [];
     }
 
     /**
@@ -173,6 +175,9 @@ class ResultSet implements TabularDataReader, JsonSerializable
         );
     }
 
+    /**
+     * @throws Exception
+     */
     public function fetchColumn($index = 0): Iterator
     {
         return $this->yieldColumn(
@@ -180,10 +185,8 @@ class ResultSet implements TabularDataReader, JsonSerializable
         );
     }
 
-    /**
-     * @param string|int $offset
-     */
-    protected function yieldColumn($offset): Generator
+
+    protected function yieldColumn(string|int $offset): Generator
     {
         $iterator = new MapIterator(
             new CallbackFilterIterator($this->records, fn (array $record): bool => isset($record[$offset])),
@@ -198,13 +201,9 @@ class ResultSet implements TabularDataReader, JsonSerializable
     /**
      * Filters a column name against the header if any.
      *
-     * @param string|int $field the field name or the field index
-     *
      * @throws InvalidArgument if the field is invalid or not found
-     *
-     * @return string|int
      */
-    protected function getColumnIndex($field, string $type, string $method)
+    protected function getColumnIndex(string|int $field, string $type, string $method): string|int
     {
         if (is_string($field)) {
             return $this->getColumnIndexByValue($field, $type, $method);
@@ -231,10 +230,8 @@ class ResultSet implements TabularDataReader, JsonSerializable
      * Returns the selected column name according to its offset.
      *
      * @throws InvalidArgument if the field is invalid or not found
-     *
-     * @return int|string
      */
-    protected function getColumnIndexByKey(int $index, string $type, string $method)
+    protected function getColumnIndexByKey(int $index, string $type, string $method): int|string
     {
         if ($index < 0) {
             throw InvalidArgument::dueToInvalidColumnIndex($index, $type, $method);

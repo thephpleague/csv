@@ -180,7 +180,6 @@ EOF;
 
         $res = Statement::create()->process($csv);
         self::assertEquals($csv->fetchOne(3), $res->fetchOne(3));
-        self::assertEquals($csv->fetchColumn('firstname'), $res->fetchColumn('firstname'));
         self::assertEquals($csv->fetchColumnByName('firstname'), $res->fetchColumnByName('firstname'));
         self::assertEquals($csv->fetchColumnByOffset(1), $res->fetchColumnByOffset(1));
         self::assertEquals($csv->fetchPairs('lastname', 0), $res->fetchPairs('lastname', 0));
@@ -649,5 +648,41 @@ CSV;
 
         $this->expectException(Exception::class);
         $csv->getHeader();
+    }
+
+    public function testAddFormatterRules(): void
+    {
+        $text = <<<CSV
+column 1,column 2,column 3
+cell11,cell12,cell13
+CSV;
+        $csv = Reader::createFromString($text);
+        $csv->setHeaderOffset(0);
+        $csv->addFormatter(fn (array $row): array => array_map('strtoupper', $row));
+        self::assertSame([
+            1 => [
+                'column 1' => 'CELL11',
+                'column 2' => 'CELL12',
+                'column 3' => 'CELL13',
+            ],
+        ], iterator_to_array($csv, true));
+    }
+
+    public function testSetHeaderFormatterRules(): void
+    {
+        $text = <<<CSV
+column 1,column 2,column 3
+cell11,cell12,cell13
+CSV;
+        $csv = Reader::createFromString($text);
+        $csv->setHeaderOffset(0);
+        $csv->setHeaderFormatter(fn (array $row): array => array_map('strtoupper', $row));
+        self::assertSame([
+            1 => [
+                'COLUMN 1' => 'cell11',
+                'COLUMN 2' => 'cell12',
+                'COLUMN 3' => 'cell13',
+            ],
+        ], iterator_to_array($csv, true));
     }
 }
