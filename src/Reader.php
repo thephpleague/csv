@@ -39,10 +39,6 @@ class Reader extends AbstractCsv implements TabularDataReader, JsonSerializable
 {
     protected const STREAM_FILTER_MODE = STREAM_FILTER_READ;
 
-    /** @var array<callable> callable collection to format the record before reading. */
-    protected array $formatters = [];
-    /** @var ?callable */
-    protected $header_formatter;
     protected ?int $header_offset = null;
     protected int $nb_records = -1;
     protected bool $is_empty_records_included = false;
@@ -233,9 +229,6 @@ class Reader extends AbstractCsv implements TabularDataReader, JsonSerializable
     public function getRecords(array $header = []): Iterator
     {
         $header = $this->computeHeader($header);
-        if (null !== $this->header_formatter && [] !== $header) {
-            $header = ($this->header_formatter)($header);
-        }
 
         $normalized = fn ($record): bool => is_array($record) && ($this->is_empty_records_included || $record !== [null]);
 
@@ -256,37 +249,7 @@ class Reader extends AbstractCsv implements TabularDataReader, JsonSerializable
             );
         }
 
-        if ([] !== $this->formatters) {
-            $formatters = fn (array $record): array => array_reduce(
-                $this->formatters,
-                fn (array $record, callable $formatter): array => $formatter($record),
-                $record
-            );
-
-            return new MapIterator($this->combineHeader($records, $header), $formatters);
-        }
-
         return $this->combineHeader($records, $header);
-    }
-
-    /**
-     * Adds a record formatter.
-     */
-    public function setHeaderFormatter(?callable $formatter): self
-    {
-        $this->header_formatter = $formatter;
-
-        return $this;
-    }
-
-    /**
-     * Adds a record formatter.
-     */
-    public function addFormatter(callable $formatter): self
-    {
-        $this->formatters[] = $formatter;
-
-        return $this;
     }
 
     /**
