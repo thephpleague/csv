@@ -29,6 +29,9 @@ version:
             Charset Converter: '/9.0/converter/charset/'
             XML Converter: '/9.0/converter/xml/'
             HTML Converter: '/9.0/converter/html/'
+        Extensions:
+            Overview: '/9.0/extensions/'
+            Doctrine: '/9.0/extensions/doctrine'
     '8.0':
         Getting Started:
             Overview: '/8.0/'
