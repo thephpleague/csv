@@ -1,0 +1,9 @@
+{
+    "sub-splits": [
+        {
+            "name": "csv-doctrine",
+            "directory": "src/Doctrine",
+            "target": "git@github.com:thephpleague/csv-doctrine.git"
+        }
+    ]
+}

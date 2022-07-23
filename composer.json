@@ -32,6 +32,7 @@
     },
     "require-dev": {
         "ext-dom": "*",
+        "doctrine/collections": "^1.6.8",
         "friendsofphp/php-cs-fixer": "^v3.9",
         "phpbench/phpbench": "^1.2.6",
         "phpstan/phpstan": "^1.8",
