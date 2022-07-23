@@ -6,4 +6,4 @@
 composer require league/csv-doctrine
 ```
 
-View the [documentation](https://csv.thephpleague.com/docs/extension/doctrine).
+View the [documentation](https://csv.thephpleague.com/9.0/extensions/doctrine/).
