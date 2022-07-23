@@ -23,7 +23,7 @@ jobs:
             - uses: frankdejonge/use-github-token@1.0.1
               with:
                   authentication: 'nyamsprod:${{ secrets.PERSONAL_ACCESS_TOKEN }}'
-                  user_name: 'Ignace Nyamagana Butera'
+                  user_name: 'ignace nyamagana butera'
                   user_email: 'nyamsprod@gmail.com'
             - name: Cache splitsh-lite
               id: splitsh-cache
