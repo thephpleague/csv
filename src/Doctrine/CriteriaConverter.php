@@ -24,7 +24,7 @@ final class CriteriaConverter
      * Returns the Statement object created from the current Criteria object.
      *
      */
-    public static function convert(Criteria $criteria, Statement $stmt = null): Statement
+    public static function convert(Criteria $criteria, Statement $stmt = new Statement()): Statement
     {
         $stmt = self::addWhere($criteria, $stmt);
         $stmt = self::addOrderBy($criteria, $stmt);
@@ -39,9 +39,8 @@ final class CriteriaConverter
      * an new Statement instance with the added Criteria::getWhereExpression filter.
      *
      */
-    public static function addWhere(Criteria $criteria, Statement $stmt = null): Statement
+    public static function addWhere(Criteria $criteria, Statement $stmt = new Statement()): Statement
     {
-        $stmt = $stmt ?? new Statement();
         $expr = $criteria->getWhereExpression();
         if (null === $expr) {
             return $stmt;
@@ -58,9 +57,8 @@ final class CriteriaConverter
      *
      * This method MUST retain the state of the Statement instance, and return
      * an new Statement instance with the added Criteria::getOrderings filter.
-     *
      */
-    public static function addOrderBy(Criteria $criteria, Statement $stmt = null): Statement
+    public static function addOrderBy(Criteria $criteria, Statement $stmt = new Statement()): Statement
     {
         $next = null;
         foreach (array_reverse($criteria->getOrderings()) as $field => $ordering) {
@@ -71,7 +69,6 @@ final class CriteriaConverter
             );
         }
 
-        $stmt = $stmt ?? new Statement();
         if (null === $next) {
             return $stmt;
         }
@@ -85,14 +82,11 @@ final class CriteriaConverter
      * This method MUST retain the state of the Statement instance, and return
      * an new Statement instance with the added Criteria::getFirstResult
      * and Criteria::getMaxResults filters paramters.
-     *
      */
-    public static function addInterval(Criteria $criteria, Statement $stmt = null): Statement
+    public static function addInterval(Criteria $criteria, Statement $stmt = new Statement()): Statement
     {
-        $offset = $criteria->getFirstResult() ?? 0;
-        $length = $criteria->getMaxResults() ?? -1;
-        $stmt = $stmt ?? new Statement();
-
-        return $stmt->offset($offset)->limit($length);
+        return $stmt
+            ->offset($criteria->getFirstResult() ?? 0)
+            ->limit($criteria->getMaxResults() ?? -1);
     }
 }
