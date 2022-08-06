@@ -56,7 +56,9 @@ abstract class AbstractCsv implements ByteSequence
     /**
      * Reset dynamic object properties to improve performance.
      */
-    abstract protected function resetProperties(): void;
+    protected function resetProperties(): void
+    {
+    }
 
     public function __destruct()
     {

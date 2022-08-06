@@ -168,6 +168,7 @@ class RFC4180Field extends php_user_filter
     }
 
     /**
+     * @codeCoverageIgnore
      * Validate params property.
      */
     protected function isValidParams(array $params): bool

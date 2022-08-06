@@ -114,7 +114,9 @@ class Reader extends AbstractCsv implements TabularDataReader, JsonSerializable
     protected function seekRow(int $offset): array
     {
         $this->getDocument()->seek($offset);
-        if (false === ($record = $this->document->current())) {
+        $record = $this->document->current();
+
+        if (false === $record) {
             return [];
         }
 

@@ -22,7 +22,6 @@ use function fclose;
 use function feof;
 use function fflush;
 use function fgetcsv;
-use function fgets;
 use function fopen;
 use function fpassthru;
 use function fputcsv;
@@ -144,16 +143,14 @@ final class Stream implements SeekableIterator
         return $instance;
     }
 
-    /**
-     * @param resource $stream
-     */
-    public static function createFromResource($stream): self
+    public static function createFromResource(mixed $stream): self
     {
-        if (!is_resource($stream)) { /* @phpstan-ignore-line */
+        if (!is_resource($stream)) {
             throw new TypeError('Argument passed must be a stream resource, '.gettype($stream).' given.');
         }
 
-        if ('stream' !== ($type = get_resource_type($stream))) {
+        $type = get_resource_type($stream);
+        if ('stream' !== $type) {
             throw new TypeError('Argument passed must be a stream resource, '.$type.' resource given');
         }
 
@@ -390,16 +387,6 @@ final class Stream implements SeekableIterator
     }
 
     /**
-     * Gets a line from file.
-     *
-     * @see https://www.php.net/manual/en/splfileobject.fgets.php
-     */
-    public function fgets(): string|false
-    {
-        return fgets($this->stream);
-    }
-
-    /**
      * Seeks to a position.
      *
      * @see https://www.php.net/manual/en/splfileobject.fseek.php
@@ -413,21 +400,6 @@ final class Stream implements SeekableIterator
         }
 
         return fseek($this->stream, $offset, $whence);
-    }
-
-    /**
-     * Writes to stream.
-     *
-     * @see https://www.php.net/manual/en/splfileobject.fwrite.php
-     */
-    public function fwrite(string $str, int $length = null): int|false
-    {
-        $args = [$this->stream, $str];
-        if (null !== $length) {
-            $args[] = $length;
-        }
-
-        return fwrite(...$args);
     }
 
     /**

@@ -29,6 +29,8 @@ All Notable changes to `Csv` will be documented in this file
 
 ### Removed
 
+- `Stream::fwrite` The class is already marked as internal so BC break does not apply on it.
+- `Stream::fgets` The class is already marked as internal so BC break does not apply on it.
 - Drop support for PHP7 and PHP8.0
 - Polyfill to enable using fputcsv `$eol` argument
 

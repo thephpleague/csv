@@ -18,6 +18,7 @@ namespace League\Csv;
  *
  * @deprecated since version 9.7.0
  * @see Info::fetchBOMSequence()
+ * @codeCoverageIgnore
  *
  * Returns the BOM sequence found at the start of the string.
  *
@@ -34,6 +35,7 @@ function bom_match(string $str): string
  * @return array<string,int>
  * @deprecated since version 9.7.0
  * @see Info::getDelimiterStats()
+ * @codeCoverageIgnore
  *
  * Detect Delimiters usage in a {@link Reader} object.
  *

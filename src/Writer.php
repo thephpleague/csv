@@ -31,10 +31,6 @@ class Writer extends AbstractCsv implements TabularDataWriter
     protected int $flush_counter = 0;
     protected ?int $flush_threshold = null;
 
-    protected function resetProperties(): void
-    {
-    }
-
     /**
      * Returns the current newline sequence characters.
      */
@@ -84,8 +80,10 @@ class Writer extends AbstractCsv implements TabularDataWriter
     {
         $record = array_reduce($this->formatters, fn (array $record, callable $formatter): array => $formatter($record), $record);
         $this->validateRecord($record);
+        set_error_handler(fn (int $errno, string $errstr, string $errfile, int $errline) => true);
         $bytes = $this->document->fputcsv($record, $this->delimiter, $this->enclosure, $this->escape, $this->newline);
-        if (false === $bytes || 0 >= $bytes) {
+        restore_error_handler();
+        if (false === $bytes) {
             throw CannotInsertRecord::triggerOnInsertion($record);
         }
 

@@ -63,7 +63,7 @@ final class StreamTest extends TestCase
     {
         $this->expectException(TypeError::class);
 
-        Stream::createFromResource(__DIR__.'/../test_files/foo.csv'); /* @phpstan-ignore-line */
+        Stream::createFromResource(__DIR__.'/../test_files/foo.csv');
     }
 
     /**
