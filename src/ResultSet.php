@@ -212,14 +212,10 @@ class ResultSet implements TabularDataReader, JsonSerializable
 
     protected function yieldColumn(string|int $offset): Generator
     {
-        $iterator = new MapIterator(
+        yield from new MapIterator(
             new CallbackFilterIterator($this->records, fn (array $record): bool => isset($record[$offset])),
             fn (array $record): string => $record[$offset]
         );
-
-        foreach ($iterator as $key => $value) {
-            yield $key => $value;
-        }
     }
 
     /**

@@ -155,7 +155,6 @@ EOF;
     }
 
     /**
-     * @covers ::fetchColumn
      * @covers ::fetchColumnByName
      * @covers ::fetchColumnByOffset
      * @covers ::fetchNth

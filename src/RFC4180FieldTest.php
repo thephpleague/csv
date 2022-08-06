@@ -78,7 +78,7 @@ final class RFC4180FieldTest extends TestCase
     {
         $csv = Reader::createFromString($expected);
         RFC4180Field::addTo($csv);
-        self::assertSame($record, $csv->fetchOne(0));
+        self::assertSame($record, $csv->fetchFirst());
     }
 
     public function readerBugsProvider(): array

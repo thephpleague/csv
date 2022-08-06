@@ -119,7 +119,7 @@ final class ResultSetTest extends TestCase
     }
 
     /**
-     * @covers ::fetchColumn
+     * @covers ::fetchColumnByOffset
      * @covers ::getColumnIndexByKey
      * @covers \League\Csv\InvalidArgument::dueToInvalidColumnIndex
      */
@@ -133,7 +133,7 @@ final class ResultSetTest extends TestCase
     }
 
     /**
-     * @covers ::fetchColumn
+     * @covers ::fetchColumnByOffset
      * @covers ::getColumnIndex
      * @covers ::getColumnIndexByValue
      * @covers ::getColumnIndexByKey
@@ -212,7 +212,6 @@ final class ResultSetTest extends TestCase
 
     /**
      * @covers ::fetchColumnByName
-     * @covers ::fetchColumn
      * @covers ::getColumnIndex
      * @covers ::getColumnIndexByValue
      * @covers ::getColumnIndexByKey
@@ -229,7 +228,7 @@ final class ResultSetTest extends TestCase
     }
 
     /**
-     * @covers ::fetchColumn
+     * @covers ::fetchColumnByOffset
      * @covers ::getColumnIndex
      * @covers ::getColumnIndexByKey
      */
@@ -251,7 +250,7 @@ final class ResultSetTest extends TestCase
     }
 
     /**
-     * @covers ::fetchColumn
+     * @covers ::fetchColumnByOffset
      * @covers ::getColumnIndex
      * @covers ::getColumnIndexByKey
      */
@@ -272,7 +271,8 @@ final class ResultSetTest extends TestCase
     }
 
     /**
-     * @covers ::fetchOne
+     * @covers ::fetchFirst
+     * @covers ::fetchNth
      */
     public function testfetchOne(): void
     {
@@ -282,7 +282,7 @@ final class ResultSetTest extends TestCase
     }
 
     /**
-     * @covers ::fetchOne
+     * @covers ::fetchNth
      */
     public function testFetchOneTriggersException(): void
     {
