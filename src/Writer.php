@@ -19,7 +19,7 @@ use const STREAM_FILTER_WRITE;
 /**
  * A class to insert records into a CSV Document.
  */
-class Writer extends AbstractCsv
+class Writer extends AbstractCsv implements TabularDataWriter
 {
     protected const STREAM_FILTER_MODE = STREAM_FILTER_WRITE;
 
