@@ -174,14 +174,26 @@ class Reader extends AbstractCsv implements TabularDataReader, JsonSerializable
         return ResultSet::createFromTabularDataReader($this)->fetchColumnByOffset($offset);
     }
 
+    /** @codeCoverageIgnore */
     public function fetchColumn($index = 0): Iterator
     {
         return ResultSet::createFromTabularDataReader($this)->fetchColumn($index);
     }
 
+    public function fetchFirst(): array
+    {
+        return ResultSet::createFromTabularDataReader($this)->fetchFirst();
+    }
+
+    public function fetchNth(int $nth_record): array
+    {
+        return ResultSet::createFromTabularDataReader($this)->fetchNth($nth_record);
+    }
+
+    /** @codeCoverageIgnore */
     public function fetchOne(int $nth_record = 0): array
     {
-        return ResultSet::createFromTabularDataReader($this)->fetchOne($nth_record);
+        return ResultSet::createFromTabularDataReader($this)->fetchNth($nth_record);
     }
 
     public function fetchPairs($offset_index = 0, $value_index = 1): Iterator

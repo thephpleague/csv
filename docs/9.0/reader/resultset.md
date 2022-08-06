@@ -122,13 +122,21 @@ foreach ($records as $record) {
 
 ## Selecting a specific record
 
-If you are only interested in one particular record from the `ResultSet` you can use the `ResultSet::fetchOne` method to return a single record.
+Since with version <code>9.9.0</code>, the class implements the `::fetchFirst` and `::fetchNth` methods.
+These methods replace the `::fetchOne` which is deprecated and will be removed in the next major release.
+
+These methods all return a single record from the `ResultSet`.
 
 ```php
 public ResultSet::fetchOne(int $nth_record = 0): array
+public ResultSet::fetchFirst(): array
+public ResultSet::fetchNth(int $nth_record): array
 ```
 
-The `$nth_record` argument represents the nth record contained in the result set starting at `0`. If no argument is given the method will return the first record from the result set. If no record is found an empty `array` is returned.
+The `$nth_record` argument represents the nth record contained in the result set starting at `0`.  
+In the case of `fetchOne`, if no argument is given the method will return the first record from the result set.
+
+In all cases, if no record is found an empty `array` is returned.
 
 ```php
 use League\Csv\Reader;
@@ -141,13 +149,23 @@ $stmt = Statement::create()
     ->offset(10)
     ->limit(12)
 ;
-$data = $stmt->process($reader)->fetchOne(3);
+$result = $stmt->process($reader);
+
+$result->fetchOne(3);
+$result->fetchNth(3);
 // access the 4th record from the recordset (indexing starts at 0)
 // will return something like this :
 //
 //   ['john', 'doe', 'john.doe@example.com']
 //
+
+$result->fetchOne();
+$result->fetchFirst();
+$result->fetchNth(0);
+//returns the first matching record from the recordset or an empty record if none is found.
 ```
+
+<p class="message-notice"><code>fetchNth</code> with throw a <code>ArgumentCountError</code>, if no argument is given to it.</p>
 
 ## Selecting a single column
 

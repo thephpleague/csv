@@ -140,7 +140,20 @@ class ResultSet implements TabularDataReader, JsonSerializable
         return iterator_to_array($this->records, false);
     }
 
+    /**
+     * @deprecated since version 9.9.0
+     *
+     * @see ::fetchFirst
+     * @see ::fetchNth
+     *
+     * @codeCoverageIgnore
+     */
     public function fetchOne(int $nth_record = 0): array
+    {
+        return $this->fetchNth($nth_record);
+    }
+
+    public function fetchNth(int $nth_record): array
     {
         if ($nth_record < 0) {
             throw InvalidArgument::dueToInvalidRecordOffset($nth_record, __METHOD__);
@@ -153,6 +166,11 @@ class ResultSet implements TabularDataReader, JsonSerializable
         $result = $iterator->current();
 
         return $result ?? [];
+    }
+
+    public function fetchFirst(): array
+    {
+        return $this->fetchNth(0);
     }
 
     /**
@@ -176,6 +194,12 @@ class ResultSet implements TabularDataReader, JsonSerializable
     }
 
     /**
+     * @deprecated since version 9.8.0
+     *
+     * @see ::fetchColumnByName
+     * @see ::fetchColumnByOffset
+     *
+     * @codeCoverageIgnore
      * @throws Exception
      */
     public function fetchColumn($index = 0): Iterator

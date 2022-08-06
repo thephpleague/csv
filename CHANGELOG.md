@@ -6,11 +6,13 @@ All Notable changes to `Csv` will be documented in this file
 
 ### Added
 
-- None
+- `League\Csv\TabularDataWriter` interface to represent how to write to a tabular data document.
+- `TabularDataReader::fetchFirst` to replace `TabularDataReader::fetchOne`
+- `TabularDataReader::fetchNth` to replace `TabularDataReader::fetchOne`
 
 ### Deprecated
 
-- None
+- `TabularDataReader::fetchOne`
 
 ### Fixed
 
