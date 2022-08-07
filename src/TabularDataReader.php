@@ -22,8 +22,8 @@ use IteratorAggregate;
  *
  * @method Iterator fetchColumnByName(string $name)  returns a column from its name
  * @method Iterator fetchColumnByOffset(int $offset) returns a column from its offset
- * @method array    fetchFirst(): returns the first record from the tabular data.
- * @method array fetchNth(int $nth_record) returns the nth record from the tabular data.
+ * @method array    fetchFirst()                     returns the first record from the tabular data.
+ * @method array    fetchNth(int $nth_record)        returns the nth record from the tabular data.
  */
 interface TabularDataReader extends Countable, IteratorAggregate
 {

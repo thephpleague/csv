@@ -21,9 +21,10 @@ interface TabularDataWriter
     /**
      * Adds multiple records to the CSV document.
      *
-     * @throws CannotInsertRecord
-     * @throws Exception
      * @see TabularDataWriter::insertOne
+     *
+     * @throws CannotInsertRecord If the record can not be inserted
+     * @throws Exception          If the record can not be inserted
      */
     public function insertAll(iterable $records): int;
 
