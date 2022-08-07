@@ -12,6 +12,11 @@ jobs:
             matrix:
                 php: ['8.1']
                 stability: [prefer-lowest, prefer-stable]
+                include:
+                    -   php: '8.2'
+                        flags: "--ignore-platform-req=php"
+                        phpunit-flags: '--no-coverage'
+                        stability: prefer-stable
         steps:
             - name: Checkout code
               uses: actions/checkout@v2
@@ -35,16 +40,16 @@ jobs:
             - uses: actions/cache@v2
               with:
                   path: ${{ steps.composer-cache.outputs.dir }}
-                  key: ${{ runner.os }}-composer-${{ matrix.stability }}-${{ hashFiles('**/composer.lock') }}
+                  key: ${{ runner.os }}-composer-${{ matrix.stability }}-${{ matrix.flags }}-${{ hashFiles('**/composer.lock') }}
                   restore-keys: |
-                      ${{ runner.os }}-composer-${{ matrix.stability }}-
+                      ${{ runner.os }}-composer-${{ matrix.stability }}-${{ matrix.flags }}-
                       ${{ runner.os }}-composer-
 
             - name: Install dependencies
               run: composer update --${{ matrix.stability }} --prefer-dist --no-interaction --no-progress ${{ matrix.flags }}
 
             - name: Run Unit tests with coverage
-              run: composer phpunit
+              run: composer phpunit -- ${{ matrix.phpunit-flags }}
 
             - name: Run static analysis
               run: composer phpstan
