@@ -122,15 +122,15 @@ foreach ($records as $record) {
 
 ## Selecting a specific record
 
-Since with version <code>9.9.0</code>, the class implements the `::fetchFirst` and `::fetchNth` methods.
+Since with version <code>9.9.0</code>, the class implements the `::first` and `::nth` methods.
 These methods replace the `::fetchOne` which is deprecated and will be removed in the next major release.
 
 These methods all return a single record from the `ResultSet`.
 
 ```php
 public ResultSet::fetchOne(int $nth_record = 0): array
-public ResultSet::fetchFirst(): array
-public ResultSet::fetchNth(int $nth_record): array
+public ResultSet::first(): array
+public ResultSet::nth(int $nth_record): array
 ```
 
 The `$nth_record` argument represents the nth record contained in the result set starting at `0`.  
@@ -152,7 +152,7 @@ $stmt = Statement::create()
 $result = $stmt->process($reader);
 
 $result->fetchOne(3);
-$result->fetchNth(3);
+$result->nth(3);
 // access the 4th record from the recordset (indexing starts at 0)
 // will return something like this :
 //
@@ -160,12 +160,12 @@ $result->fetchNth(3);
 //
 
 $result->fetchOne();
-$result->fetchFirst();
-$result->fetchNth(0);
+$result->first();
+$result->nth(0);
 //returns the first matching record from the recordset or an empty record if none is found.
 ```
 
-<p class="message-notice"><code>fetchNth</code> with throw a <code>ArgumentCountError</code>, if no argument is given to it.</p>
+<p class="message-notice"><code>nth</code> with throw a <code>ArgumentCountError</code>, if no argument is given to it.</p>
 
 ## Selecting a single column
 

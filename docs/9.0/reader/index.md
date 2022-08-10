@@ -11,7 +11,7 @@ The `League\Csv\Reader` class extends the general connections [capabilities](/9.
 <p class="message-notice">Prior to <code>9.1.0</code>, by default, the mode for a <code>Reader::createFromPath</code> is <code>r+</code> which looks for write permissions on the file and throws an <code>Exception</code> if the file cannot be opened with the permission set. For sake of clarity, it is strongly suggested to set <code>r</code> mode on the file to ensure it can be opened.</p>
 <p class="message-info">Starting with version <code>9.6.0</code>, the class implements the <code>League\Csv\TabularDataReader</code> interface.</p>
 <p class="message-info">Starting with version <code>9.8.0</code>, the class implements the <code>::fetchColumnByName</code> and <code>::fetchColumnByOffset</code> methods.</p>
-<p class="message-info">Starting with version <code>9.9.0</code>, the class implements the <code>::fetchFirst</code> and <code>::fetchNth</code> methods.</p>
+<p class="message-info">Starting with version <code>9.9.0</code>, the class implements the <code>::first</code> and <code>::nth</code> methods.</p>
 
 ## CSV example
 
@@ -350,8 +350,8 @@ count($reader); // returns 4
 public Reader::fetchColumnByName(string $columnName): Iterator
 public Reader::fetchColumnByIndex(int $columnIndex = 0): Iterator
 public Reader::fetchColumn(string|int $columnIndex = 0): Generator
-public Reader::fetchFirst(): array
-public Reader::fetchNth(int $nth_record): array
+public Reader::first(): array
+public Reader::nth(int $nth_record): array
 public Reader::fetchOne(int $nth_record = 0): array
 public Reader::fetchPairs(string|int $offsetIndex = 0, string|int $valueIndex = 1): Generator
 ```

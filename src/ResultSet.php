@@ -143,17 +143,17 @@ class ResultSet implements TabularDataReader, JsonSerializable
     /**
      * @deprecated since version 9.9.0
      *
-     * @see ::fetchFirst
-     * @see ::fetchNth
+     * @see ::first
+     * @see ::nth
      *
      * @codeCoverageIgnore
      */
     public function fetchOne(int $nth_record = 0): array
     {
-        return $this->fetchNth($nth_record);
+        return $this->nth($nth_record);
     }
 
-    public function fetchNth(int $nth_record): array
+    public function nth(int $nth_record): array
     {
         if ($nth_record < 0) {
             throw InvalidArgument::dueToInvalidRecordOffset($nth_record, __METHOD__);
@@ -168,9 +168,9 @@ class ResultSet implements TabularDataReader, JsonSerializable
         return $result ?? [];
     }
 
-    public function fetchFirst(): array
+    public function first(): array
     {
-        return $this->fetchNth(0);
+        return $this->nth(0);
     }
 
     /**

@@ -157,7 +157,7 @@ EOF;
     /**
      * @covers ::fetchColumnByName
      * @covers ::fetchColumnByOffset
-     * @covers ::fetchNth
+     * @covers ::nth
      * @covers ::fetchPairs
      */
     public function testCall(): void
@@ -178,7 +178,7 @@ EOF;
         $csv->setHeaderOffset(0);
 
         $res = Statement::create()->process($csv);
-        self::assertEquals($csv->fetchNth(3), $res->fetchNth(3));
+        self::assertEquals($csv->nth(3), $res->nth(3));
         self::assertEquals($csv->fetchColumnByName('firstname'), $res->fetchColumnByName('firstname'));
         self::assertEquals($csv->fetchColumnByOffset(1), $res->fetchColumnByOffset(1));
         self::assertEquals($csv->fetchPairs('lastname', 0), $res->fetchPairs('lastname', 0));
@@ -595,7 +595,7 @@ CSV;
             'column 1' => 'cell11',
             'column 2' => 'cell12',
             'column 3' => 'cell13',
-        ], $csv->fetchFirst());
+        ], $csv->first());
 
         $csv->includeEmptyRecords();
 
@@ -604,7 +604,7 @@ CSV;
             'column 1' => null,
             'column 2' => null,
             'column 3' => null,
-        ], $csv->fetchFirst());
+        ], $csv->first());
     }
 
     public function testRemovingEmptyRecordsWithoutBOMString(): void
@@ -622,7 +622,7 @@ CSV;
             'column 1' => 'cell11',
             'column 2' => 'cell12',
             'column 3' => 'cell13',
-        ], $csv->fetchFirst());
+        ], $csv->first());
 
         $csv->includeEmptyRecords();
 
@@ -631,7 +631,7 @@ CSV;
             'column 1' => null,
             'column 2' => null,
             'column 3' => null,
-        ], $csv->fetchFirst());
+        ], $csv->first());
     }
 
     public function testGetHeaderThrowsIfTheFirstRecordOnlyContainsBOMString(): void

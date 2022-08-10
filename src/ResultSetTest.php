@@ -271,23 +271,23 @@ final class ResultSetTest extends TestCase
     }
 
     /**
-     * @covers ::fetchFirst
-     * @covers ::fetchNth
+     * @covers ::first
+     * @covers ::nth
      */
     public function testfetchOne(): void
     {
-        self::assertSame($this->expected[0], $this->stmt->process($this->csv)->fetchFirst());
-        self::assertSame($this->expected[1], $this->stmt->process($this->csv)->fetchNth(1));
-        self::assertSame([], $this->stmt->process($this->csv)->fetchNth(35));
+        self::assertSame($this->expected[0], $this->stmt->process($this->csv)->first());
+        self::assertSame($this->expected[1], $this->stmt->process($this->csv)->nth(1));
+        self::assertSame([], $this->stmt->process($this->csv)->nth(35));
     }
 
     /**
-     * @covers ::fetchNth
+     * @covers ::nth
      */
     public function testFetchOneTriggersException(): void
     {
         $this->expectException(InvalidArgument::class);
-        $this->stmt->process($this->csv)->fetchNth(-5);
+        $this->stmt->process($this->csv)->nth(-5);
     }
 
     /**
