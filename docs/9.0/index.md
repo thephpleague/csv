@@ -17,7 +17,7 @@ layout: default
 
 ### Parsing a CSV document
 
-Access 25 records from a CSV file saved on the filesystem.
+Access 25 records from a CSV document saved on the filesystem.
 
 ```php
 use League\Csv\Reader;
@@ -40,7 +40,7 @@ foreach ($records as $record) {
 
 ### Exporting a database table as a CSV document
 
-Fetch data using a `PDOStatement` object, then create a CSV file which is output to the browser.
+Fetch data using a `PDOStatement` object, then create a CSV document which is output to the browser.
 
 ```php
 use League\Csv\Writer;
@@ -76,7 +76,7 @@ die;
 
 ### Importing CSV records into a database table
 
-Import records from a CSV file into a database using a `PDOStatement` object
+Import records from a CSV document into a database using a `PDOStatement` object
 
 ```php
 use League\Csv\Reader;
@@ -103,7 +103,7 @@ foreach ($csv as $record) {
 
 ### Encoding a CSV document into a given charset
 
-It is not possible to detect the character encoding a CSV file (e.g. `UTF-8`, `UTF-16`, etc). However, it *is* possible to detect the input BOM and convert to UTF-8 where necessary.
+It is not possible to detect the character encoding a CSV document (e.g. `UTF-8`, `UTF-16`, etc). However, it *is* possible to detect the input BOM and convert to UTF-8 where necessary.
 
 ```php
 use League\Csv\Reader;
