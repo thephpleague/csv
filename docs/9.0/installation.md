@@ -32,7 +32,7 @@ composer require league/csv:^9.0
 
 You can also use `League\Csv` without using Composer by downloading the library on Github.
 
-1. Visit [the releases page](https://github.com/thephpleague/csv/releases);
+1. Visit [the releases page](https://github.com/thephpleague/csv/releases) for the project.
 2. Find the release of `League\Csv` for your version of PHP
 3. Click the **Source Code** link for preferred compression format.
 
