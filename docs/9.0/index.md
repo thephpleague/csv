@@ -17,7 +17,7 @@ layout: default
 
 ### Parsing a CSV document
 
-Access 25 records from a CSV document saved on the filesystem.
+Access and filter records from a CSV document saved on the local filesystem.
 
 ```php
 use League\Csv\Reader;
