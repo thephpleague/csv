@@ -15,9 +15,9 @@ layout: default
 
 ## Usage
 
-### Parsing a document
+### Parsing a CSV document
 
-Accessing some records from a given CSV documents.
+Access 25 records from a CSV document saved on the filesystem.
 
 ```php
 use League\Csv\Reader;
@@ -40,24 +40,25 @@ foreach ($records as $record) {
 
 ### Exporting a database table as a CSV document
 
-Create and download a CSV from a `PDOStatement` object
+Fetch data using a `PDOStatement` object, then create a CSV document which is output to the browser.
 
 ```php
 use League\Csv\Writer;
 
-//we fetch the info from a DB using a PDO object
+// We fetch the info from a DB using a PDO object
 $sth = $dbh->prepare(
     "SELECT firstname, lastname, email FROM users LIMIT 200"
 );
-//because we don't want to duplicate the data for each row
+
+// Because we don't want to duplicate the data for each row
 // PDO::FETCH_NUM could also have been used
 $sth->setFetchMode(PDO::FETCH_ASSOC);
 $sth->execute();
 
-//we create the CSV into memory
+// We create the CSV into memory
 $csv = Writer::createFromFileObject(new SplTempFileObject());
 
-//we insert the CSV header
+// We insert the CSV header
 $csv->insertOne(['firstname', 'lastname', 'email']);
 
 // The PDOStatement Object implements the Traversable Interface
@@ -75,25 +76,24 @@ die;
 
 ### Importing CSV records into a database table
 
-Importing CSV records into a database using a `PDOStatement` object
+Import records from a CSV document into a database using a `PDOStatement` object
 
 ```php
 use League\Csv\Reader;
 
-//We are going to insert some data into the users table
+// We are going to insert some data into the users table
 $sth = $dbh->prepare(
     "INSERT INTO users (firstname, lastname, email) VALUES (:firstname, :lastname, :email)"
 );
 
+// By setting the header offset we index all records
+// with the header record and remove it from the iteration
 $csv = Reader::createFromPath('/path/to/your/csv/file.csv')
     ->setHeaderOffset(0)
 ;
 
-//by setting the header offset we index all records
-//with the header record and remove it from the iteration
-
 foreach ($csv as $record) {
-    //Do not forget to validate your data before inserting it in your database
+    // Do not forget to validate your data before inserting it in your database
     $sth->bindValue(':firstname', $record['First Name'], PDO::PARAM_STR);
     $sth->bindValue(':lastname', $record['Last Name'], PDO::PARAM_STR);
     $sth->bindValue(':email', $record['E-mail'], PDO::PARAM_STR);
@@ -103,7 +103,7 @@ foreach ($csv as $record) {
 
 ### Encoding a CSV document into a given charset
 
-When importing csv files, you don't know whether the file is encoded with `UTF-8`, `UTF-16` or anything else.
+It is not possible to detect the character encoding a CSV document (e.g. `UTF-8`, `UTF-16`, etc). However, it *is* possible to detect the input BOM and convert to UTF-8 where necessary.
 
 ```php
 use League\Csv\Reader;
@@ -125,7 +125,7 @@ foreach ($csv as $record) {
 
 ### Converting a CSV document into a XML document
 
-Using the provided `XMLConverter` object you can easily convert a CSV document into a `DOMDocument` object.
+The `XMLConverter` object provided by this package can easily convert a CSV documents into a `DOMDocument` object.
 
 ```php
 use League\Csv\XMLConverter;
@@ -147,6 +147,7 @@ $dom->encoding = 'iso-8859-15';
 
 echo '<pre>', PHP_EOL;
 echo htmlentities($dom->saveXML());
+
 // <?xml version="1.0" encoding="iso-8859-15"?>
 // <csv>
 //   <record offset="0">
