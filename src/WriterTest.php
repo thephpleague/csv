@@ -177,7 +177,6 @@ final class WriterTest extends TestCase
      * @covers ::setNewline
      * @covers ::getNewline
      * @covers ::insertOne
-     * @covers ::consolidate
      * @covers \League\Csv\Stream
      */
     public function testCustomNewline(): void
@@ -201,7 +200,7 @@ final class WriterTest extends TestCase
 
     public function testFormatterRules(): void
     {
-        $this->csv->addFormatter(fn (array $row): array => array_map('strtoupper', $row));
+        $this->csv->addFormatter(fn (array $row): array => array_map(strtoupper(...), $row));
         $this->csv->insertOne(['jane', 'doe']);
         self::assertSame("JANE,DOE\n", $this->csv->toString());
     }

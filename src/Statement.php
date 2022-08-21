@@ -123,8 +123,7 @@ class Statement
             $header = $tabular_data->getHeader();
         }
 
-        $iterator = $tabular_data->getRecords($header);
-        $iterator = array_reduce($this->where, [$this, 'filter'], $iterator);
+        $iterator = array_reduce($this->where, $this->filter(...), $tabular_data->getRecords($header));
         $iterator = $this->buildOrderBy($iterator);
         /** @var Iterator<array-key, array<array-key, string|null>> $iterator */
         $iterator = new LimitIterator($iterator, $this->offset, $this->limit);

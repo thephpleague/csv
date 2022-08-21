@@ -85,7 +85,7 @@ class CharsetConverter extends php_user_filter
         static $encoding_list;
         if (null === $encoding_list) {
             $list = mb_list_encodings();
-            $encoding_list = array_combine(array_map('strtolower', $list), $list);
+            $encoding_list = array_combine(array_map(strtolower(...), $list), $list);
         }
 
         $key = strtolower($encoding);

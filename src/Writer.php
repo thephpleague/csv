@@ -87,7 +87,17 @@ class Writer extends AbstractCsv implements TabularDataWriter
             throw CannotInsertRecord::triggerOnInsertion($record);
         }
 
-        return $bytes + $this->consolidate();
+        if (null === $this->flush_threshold) {
+            return $bytes;
+        }
+
+        ++$this->flush_counter;
+        if (0 === $this->flush_counter % $this->flush_threshold) {
+            $this->flush_counter = 0;
+            $this->document->fflush();
+        }
+
+        return $bytes;
     }
 
     /**
@@ -138,6 +148,11 @@ class Writer extends AbstractCsv implements TabularDataWriter
     }
 
     /**
+     * DEPRECATION WARNING! This method will be removed in the next major point release.
+     *
+     * @deprecated Since version 9.9.0
+     * @codeCoverageIgnore
+     *
      * Applies post insertion actions.
      */
     protected function consolidate(): int

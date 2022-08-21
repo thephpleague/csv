@@ -18,6 +18,7 @@ use Generator;
 use Iterator;
 use JsonSerializable;
 use LimitIterator;
+use function array_filter;
 use function array_flip;
 use function array_search;
 use function is_string;
@@ -46,7 +47,7 @@ class ResultSet implements TabularDataReader, JsonSerializable
      */
     protected function validateHeader(array $header): void
     {
-        if ($header !== ($filtered_header = array_filter($header, 'is_string'))) {
+        if ($header !== ($filtered_header = array_filter($header, is_string(...)))) {
             throw SyntaxError::dueToInvalidHeaderColumnNames();
         }
 
