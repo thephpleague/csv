@@ -154,6 +154,11 @@ class ResultSet implements TabularDataReader, JsonSerializable
         return $this->nth($nth_record);
     }
 
+    public function first(): array
+    {
+        return $this->nth(0);
+    }
+
     public function nth(int $nth_record): array
     {
         if ($nth_record < 0) {
@@ -167,11 +172,6 @@ class ResultSet implements TabularDataReader, JsonSerializable
         $result = $iterator->current();
 
         return $result ?? [];
-    }
-
-    public function first(): array
-    {
-        return $this->nth(0);
     }
 
     /**

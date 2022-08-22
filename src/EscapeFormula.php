@@ -38,7 +38,7 @@ class EscapeFormula
     protected array $special_chars = [];
 
     /**
-     * @param string        $escape        escape character to escape each CSV formula field
+     * @param string $escape escape character to escape each CSV formula field
      * @param array<string> $special_chars additional spreadsheet formula starting characters
      */
     public function __construct(
@@ -57,6 +57,7 @@ class EscapeFormula
      * Filter submitted special characters.
      *
      * @throws InvalidArgumentException if the string is not a single character
+     *
      * @return array<string>
      */
     protected function filterSpecialCharacters(string ...$characters): array

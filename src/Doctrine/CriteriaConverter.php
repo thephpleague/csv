@@ -36,8 +36,7 @@ final class CriteriaConverter
      * Returns a Statement instance with the Criteria::getWhereExpression filter.
      *
      * This method MUST retain the state of the Statement instance, and return
-     * an new Statement instance with the added Criteria::getWhereExpression filter.
-     *
+     * a new Statement instance with the added Criteria::getWhereExpression filter.
      */
     public static function addWhere(Criteria $criteria, Statement $stmt = new Statement()): Statement
     {
@@ -46,17 +45,17 @@ final class CriteriaConverter
             return $stmt;
         }
 
-        /** @var callable $callable */
-        $callable = (new ClosureExpressionVisitor())->dispatch($expr);
+        /** @var callable $where */
+        $where = (new ClosureExpressionVisitor())->dispatch($expr);
 
-        return $stmt->where($callable);
+        return $stmt->where($where);
     }
 
     /**
      * Returns a Statement instance with the Criteria::getOrderings filter.
      *
      * This method MUST retain the state of the Statement instance, and return
-     * an new Statement instance with the added Criteria::getOrderings filter.
+     * a new Statement instance with the added Criteria::getOrderings filter.
      */
     public static function addOrderBy(Criteria $criteria, Statement $stmt = new Statement()): Statement
     {
@@ -80,8 +79,8 @@ final class CriteriaConverter
      * Returns a Statement instance with the Criteria interval parameters.
      *
      * This method MUST retain the state of the Statement instance, and return
-     * an new Statement instance with the added Criteria::getFirstResult
-     * and Criteria::getMaxResults filters paramters.
+     * a new Statement instance with the added Criteria::getFirstResult
+     * and Criteria::getMaxResults filters parameters.
      */
     public static function addInterval(Criteria $criteria, Statement $stmt = new Statement()): Statement
     {

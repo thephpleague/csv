@@ -97,7 +97,7 @@ class EncloseField extends php_user_filter
     /**
      * @param resource $in
      * @param resource $out
-     * @param int      $consumed
+     * @param int $consumed
      */
     public function filter($in, $out, &$consumed, bool $closing): int
     {

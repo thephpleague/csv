@@ -123,10 +123,12 @@ class Statement
             $header = $tabular_data->getHeader();
         }
 
-        $iterator = array_reduce($this->where, $this->filter(...), $tabular_data->getRecords($header));
-        $iterator = $this->buildOrderBy($iterator);
+        $iterator = $this->buildOrderBy(
+            array_reduce($this->where, $this->filter(...), $tabular_data->getRecords($header))
+        );
         /** @var Iterator<array-key, array<array-key, string|null>> $iterator */
         $iterator = new LimitIterator($iterator, $this->offset, $this->limit);
+
         return new ResultSet($iterator, $header);
     }
 
