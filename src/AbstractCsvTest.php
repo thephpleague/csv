@@ -229,10 +229,7 @@ EOF;
         $raw_csv = Reader::BOM_UTF8."john,doe,john.doe@example.com\njane,doe,jane.doe@example.com\n";
         $csv = Reader::createFromString($raw_csv)->setOutputBOM(Reader::BOM_UTF32_BE);
         $expected = Reader::BOM_UTF32_BE."john,doe,john.doe@example.com\njane,doe,jane.doe@example.com\n";
-        $res = '';
-        foreach ($csv->chunk(32) as $chunk) {
-            $res .= $chunk;
-        }
+        $res = implode('', $csv->chunk(32));
 
         self::assertSame($expected, $res);
     }

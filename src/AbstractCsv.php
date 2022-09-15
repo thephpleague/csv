@@ -290,10 +290,7 @@ abstract class AbstractCsv implements ByteSequence
      */
     public function toString(): string
     {
-        $raw = '';
-        foreach ($this->chunk(8192) as $chunk) {
-            $raw .= $chunk;
-        }
+        $raw = implode('', $this->chunk(8192));
 
         return $raw;
     }
