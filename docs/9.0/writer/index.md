@@ -54,7 +54,7 @@ try {
     $writer = Writer::createFromPath('/path/to/saved/file.csv', 'r');
     $writer->insertAll($records);
 } catch (CannotInsertRecord $e) {
-    $e->getRecords(); //returns [1, 2, 3]
+    $e->getRecord(); //returns [1, 2, 3]
 }
 ```
 
