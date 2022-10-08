@@ -144,7 +144,6 @@ class ResultSet implements TabularDataReader, JsonSerializable
     /**
      * @deprecated since version 9.9.0
      *
-     * @see ::first
      * @see ::nth
      *
      * @codeCoverageIgnore

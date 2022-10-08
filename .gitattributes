@@ -9,6 +9,7 @@
 /build                        export-ignore
 /test_files                   export-ignore
 /config.subsplit-publish.json export-ignore
+/phpbench.json                export-ignore
 /phpstan.neon                 export-ignore
 /phpunit.xml                  export-ignore
 /README.md                    export-ignore

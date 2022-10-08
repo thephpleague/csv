@@ -54,7 +54,7 @@ final class Info implements ByteSequence
      * a submitted delimiter and each value the number CSV fields found
      * when processing at most $limit CSV records with the given delimiter
      *
-     * @param string[] $delimiters
+     * @param array<string> $delimiters
      *
      * @return array<string, int>
      */

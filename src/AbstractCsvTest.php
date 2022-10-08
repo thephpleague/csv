@@ -393,7 +393,6 @@ EOF;
     }
 
     /**
-     * @covers ::supportsStreamFilter
      * @covers ::addStreamFilter
      * @covers \League\Csv\Stream::appendFilter
      */
@@ -409,7 +408,6 @@ EOF;
 
     /**
      * @covers ::hasStreamFilter
-     * @covers ::supportsStreamFilter
      * @covers \League\Csv\Stream
      */
     public function testStreamFilterDetection(): void

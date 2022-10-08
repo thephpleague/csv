@@ -75,7 +75,6 @@ abstract class AbstractCsv implements ByteSequence
 
     /**
      * Returns a new instance from a SplFileObject.
-     *
      */
     public static function createFromFileObject(SplFileObject $file): static
     {
@@ -94,7 +93,6 @@ abstract class AbstractCsv implements ByteSequence
 
     /**
      * Returns a new instance from a string.
-     *
      */
     public static function createFromString(string $content = ''): static
     {
@@ -155,8 +153,6 @@ abstract class AbstractCsv implements ByteSequence
 
     /**
      * Returns the BOM sequence of the given CSV.
-     *
-     * @throws Exception
      */
     public function getInputBOM(): string
     {
@@ -244,13 +240,11 @@ abstract class AbstractCsv implements ByteSequence
             throw InvalidArgument::dueToInvalidChunkSize($length, __METHOD__);
         }
 
-        $input_bom = $this->getInputBOM();
         $this->document->rewind();
         $this->document->setFlags(0);
-        $this->document->fseek(strlen($input_bom));
-        /** @var  array<int, string> $chunks */
-        $chunks = str_split($this->output_bom.$this->document->fread($length), $length);
-        yield from $chunks;
+        $this->document->fseek(strlen($this->getInputBOM()));
+
+        yield from str_split($this->output_bom.$this->document->fread($length), $length);
 
         while ($this->document->valid()) {
             yield $this->document->fread($length);

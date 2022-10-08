@@ -140,7 +140,7 @@ class Reader extends AbstractCsv implements TabularDataReader, JsonSerializable
     /**
      * Strips the BOM sequence from a record.
      *
-     * @param string[] $record
+     * @param array<string> $record
      *
      * @return array<string>
      */
@@ -281,21 +281,17 @@ class Reader extends AbstractCsv implements TabularDataReader, JsonSerializable
             $header = $this->getHeader();
         }
 
-        if ($header !== ($filtered_header = array_filter($header, is_string(...)))) {
-            throw SyntaxError::dueToInvalidHeaderColumnNames();
-        }
-
-        if ($header !== array_unique($filtered_header)) {
-            throw SyntaxError::dueToDuplicateHeaderColumnNames($header);
-        }
-
-        return $header;
+        return match (true) {
+            $header !== ($filtered_header = array_filter($header, is_string(...))) => throw SyntaxError::dueToInvalidHeaderColumnNames(),
+            $header !== array_unique($filtered_header) => throw SyntaxError::dueToDuplicateHeaderColumnNames($header),
+            default => $header,
+        };
     }
 
     /**
      * Combines the CSV header to each record if present.
      *
-     * @param string[] $header
+     * @param array<string> $header
      */
     protected function combineHeader(Iterator $iterator, array $header): Iterator
     {
@@ -304,7 +300,7 @@ class Reader extends AbstractCsv implements TabularDataReader, JsonSerializable
         }
 
         $field_count = count($header);
-        $mapper = static function (array $record) use ($header, $field_count): array {
+        $mapper = function (array $record) use ($header, $field_count): array {
             if (count($record) !== $field_count) {
                 $record = array_slice(array_pad($record, $field_count, null), 0, $field_count);
             }

@@ -20,9 +20,7 @@ use function array_keys;
 use function array_map;
 use function array_merge;
 use function array_unique;
-use function is_object;
 use function is_string;
-use function method_exists;
 
 /**
  * A Formatter to tackle CSV Formula Injection.
@@ -132,9 +130,8 @@ class EscapeFormula
      *
      * @param mixed $value value to check if it is stringable
      */
-    protected function isStringable($value): bool
+    protected function isStringable(mixed $value): bool
     {
-        return is_string($value)
-            || (is_object($value) && method_exists($value, '__toString'));
+        return is_string($value) || $value instanceof Stringable;
     }
 }

@@ -84,7 +84,7 @@ final class Stream implements SeekableIterator
         unset($this->stream);
     }
 
-    public function __clone()
+    public function __clone(): void
     {
         throw UnavailableStream::dueToForbiddenCloning(self::class);
     }
@@ -345,19 +345,19 @@ final class Stream implements SeekableIterator
      *
      * @throws Exception if the position is negative
      */
-    public function seek(int $line): void
+    public function seek(int $offset): void
     {
-        if ($line < 0) {
-            throw InvalidArgument::dueToInvalidSeekingPosition($line, __METHOD__);
+        if ($offset < 0) {
+            throw InvalidArgument::dueToInvalidSeekingPosition($offset, __METHOD__);
         }
 
         $this->rewind();
-        while ($this->key() !== $line && $this->valid()) {
+        while ($this->key() !== $offset && $this->valid()) {
             $this->current();
             $this->next();
         }
 
-        if (0 !== $line) {
+        if (0 !== $offset) {
             $this->offset--;
         }
 

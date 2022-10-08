@@ -23,8 +23,9 @@ class ColumnConsistency
     /**
      * @throws InvalidArgument if the column count is less than -1
      */
-    public function __construct(protected int $columns_count = -1)
-    {
+    public function __construct(
+        protected int $columns_count = -1
+    ) {
         if ($this->columns_count < -1) {
             throw InvalidArgument::dueToInvalidColumnCount($this->columns_count, __METHOD__);
         }
