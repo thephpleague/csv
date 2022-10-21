@@ -32,6 +32,14 @@ class Writer extends AbstractCsv implements TabularDataWriter
     protected ?int $flush_threshold = null;
 
     /**
+     * {@inheritdoc}
+     */
+    public static function createFromPath(string $path, string $open_mode = 'w+b', $context = null)
+    {
+        return parent::createFromPath($path, $open_mode, $context);
+    }
+
+    /**
      * Returns the current newline sequence characters.
      */
     public function getNewline(): string
