@@ -34,12 +34,12 @@
         "ext-dom": "*",
         "doctrine/collections": "^1.8",
         "friendsofphp/php-cs-fixer": "^v3.11",
-        "phpbench/phpbench": "^1.2.6",
-        "phpstan/phpstan": "^1.8.8",
+        "phpbench/phpbench": "^1.2.7",
+        "phpstan/phpstan": "^1.8.11",
         "phpstan/phpstan-deprecation-rules": "^1.0",
-        "phpstan/phpstan-phpunit": "^1.1.1",
+        "phpstan/phpstan-phpunit": "^1.2.2",
         "phpstan/phpstan-strict-rules": "^1.4.4",
-        "phpunit/phpunit": "^9.5.25"
+        "phpunit/phpunit": "^9.5.26"
     },
     "autoload": {
         "psr-4": {

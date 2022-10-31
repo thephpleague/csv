@@ -18,8 +18,6 @@ use Stringable;
 use function array_fill_keys;
 use function array_keys;
 use function array_map;
-use function array_merge;
-use function array_unique;
 use function is_string;
 
 /**
@@ -43,12 +41,10 @@ class EscapeFormula
         protected string $escape = "'",
         array $special_chars = []
     ) {
-        if ([] !== $special_chars) {
-            $special_chars = $this->filterSpecialCharacters(...$special_chars);
-        }
-
-        $chars = array_unique(array_merge(self::FORMULA_STARTING_CHARS, $special_chars));
-        $this->special_chars = array_fill_keys($chars, 1);
+        $this->special_chars = array_fill_keys([
+            ...self::FORMULA_STARTING_CHARS,
+            ...$this->filterSpecialCharacters(...$special_chars),
+        ], 1);
     }
 
     /**
