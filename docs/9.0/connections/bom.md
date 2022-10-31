@@ -126,5 +126,5 @@ $document = ob_get_clean();
 
 The returned `$document` will contains **2** BOM marker instead of one.
 
-<p class="message-warning">If you are using a <code>stream</code> that can not be seekable you should disabled BOM skipping otherwise an <code>Exception</code> will be triggered.</p>
+<p class="message-warning">If you are using a <code>stream</code> that can not be seekable you should disable BOM skipping otherwise an <code>Exception</code> will be triggered.</p>
 <p class="message-warning">The BOM sequence is never removed from the CSV document, it is only skipped from the result set.</p>
