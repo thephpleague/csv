@@ -51,7 +51,7 @@
         "benchmark": "phpbench run src --report=default",
         "phpcs": "php-cs-fixer fix -vvv --diff --dry-run --allow-risky=yes --ansi",
         "phpcs:fix": "php-cs-fixer fix -vvv --allow-risky=yes --ansi",
-        "phpstan": "phpstan analyse -c phpstan.neon --ansi --memory-limit=192M",
+        "phpstan": "phpstan analyse -c phpstan.neon --xdebug --ansi --memory-limit=192M",
         "phpunit": "XDEBUG_MODE=coverage phpunit --coverage-text",
         "test": [
             "@phpunit",
