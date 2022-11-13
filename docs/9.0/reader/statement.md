@@ -9,13 +9,13 @@ The `League\Csv\Statement` class is a constraint builder to help ease selecting 
 
 When building a constraint, the methods do not need to be called in any particular order, and may be called multiple times. Because the `Statement` object is immutable, each time its constraint methods are called they will return a new `Statement` object without modifying the current `Statement` object.
 
-<p class="message-info">Because the <code>Statement</code> object is independent of the <code>Reader</code> object it can be re-use on multiple <code>Reader</code> objects.</p>
+<p class="message-info">Because the <code>Statement</code> object is independent of the <code>Reader</code> object it can be re-used on multiple <code>Reader</code> objects.</p>
 
 <p class="message-info">Starting with version <code>9.6.0</code>, the class exposes the <code>Statement::create</code> named constructor to ease object creation.</p>
 
 ## Filtering constraint
 
-The filters attached using the `Statement::where` method **are the first settings applied to the CSV before anything else**. This option follow the *First In First Out* rule.
+The filters attached using the `Statement::where` method **are the first settings applied to the CSV before anything else**. This option follows the *First In First Out* rule.
 
 ```php
 public Statement::where(callable $callable): self
@@ -29,16 +29,15 @@ function(array $record [, int $offset [, Iterator $iterator]]): self
 
 It takes up to three parameters:
 
-- `$record`: the CSV current record as an array
-- `$offset`: the CSV current record offset
+- `$record`: the current CSV record as an array
+- `$offset`: the current CSV record offset
 - `$iterator`: the current CSV iterator
 
 ## Sorting constraint
 
 The sorting options are applied **after the Statement::where options**. The sorting follows the *First In First Out* rule.
 
-<p class="message-warning"><strong>Warning:</strong> To sort the data <code>iterator_to_array</code> is used, which could lead to a performance penalty if you have a heavy CSV file to sort
-</p>
+<p class="message-warning"><strong>Warning:</strong> To sort the data <code>iterator_to_array</code> is used, which could lead to a performance penalty if you have a heavy CSV file to sort</p>
 
 `Statement::orderBy` method adds a sorting function each time it is called.
 
@@ -56,20 +55,20 @@ The sort function takes exactly two parameters, which will be filled by pairs of
 
 ## Interval constraint
 
-The interval methods enable returning a specific interval of CSV records. When called more than once, only the last filtering settings is taken into account. The interval is calculated **after applying Statement::orderBy options**.
+The interval methods enable returning a specific interval of CSV records. When called more than once, only the last filtering setting is taken into account. The interval is calculated **after applying Statement::orderBy options**.
 
-The interval API is made of the following method
+The interval API is made of the following methods:
 
 ```php
 public Statement::offset(int $offset): self
 public Statement::limit(int $limit): self
 ```
 
-`Statement::offset` specifies an optional offset for the return data. By default if no offset was provided the offset equals `0`.
+`Statement::offset` specifies an optional offset for the returned data. By default, if no offset is provided the offset equals `0`.
 
-`Statement::limit` specifies an optional maximum records count for the return data. By default if no limit is provided the limit equals `-1`, which translate to all records.
+`Statement::limit` specifies an optional maximum records count for the returned data. By default, if no limit is provided the limit equals `-1`, which translates to all records.
 
-<p class="message-notice">When called multiple times, each call override the last settings for these options.</p>
+<p class="message-notice">When called multiple times, each call overrides the last setting for these options.</p>
 
 ## Processing a CSV document
 
@@ -104,7 +103,7 @@ $stmt = (new Statement())
 $records = $stmt->process($reader);
 ```
 
-Just like the `Reader:getRecords`, the `Statement::process` method takes an optional `$header` argument to allow mapping CSV fields name to user defined header record.
+Just like the `Reader:getRecords`, the `Statement::process` method takes an optional `$header` argument to allow mapping CSV field names to a user defined header record.
 
 ```php
 use League\Csv\Reader;
@@ -137,5 +136,5 @@ $resultSet = $stmt->process($reader, ['firstname', 'lastname', 'email']);
 
 $stmt2 = Statement::create(null, 3, 2);
 $records = $stmt2->process($resultSet);
-// the $records and the $resultSet parameters are distinct League\Csv\ResultSet instances.
+//the $records and $resultSet variables are distinct League\Csv\ResultSet instances.
 ```

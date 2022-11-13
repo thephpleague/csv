@@ -11,7 +11,7 @@ layout: default
 [![Build](https://github.com/thephpleague/csv/workflows/build/badge.svg)](https://github.com/thephpleague/csv/actions?query=workflow%3A%22build%22)
 [![Total Downloads](//img.shields.io/packagist/dt/league/csv.svg?style=flat-square)](//packagist.org/packages/league/csv)
 
-**League\Csv** is a simple library to ease CSV documents [loading](/9.0/connections/) as well as [writing](/9.0/writer/), [selecting](/9.0/reader/) and [converting](/9.0/converter/) CSV records.
+**League\Csv** is a simple library to ease CSV document [loading](/9.0/connections/) as well as [writing](/9.0/writer/), [selecting](/9.0/reader/) and [converting](/9.0/converter/) CSV records.
 
 ## Usage
 
@@ -125,7 +125,7 @@ foreach ($csv as $record) {
 
 ### Converting a CSV document into a XML document
 
-The `XMLConverter` object provided by this package can easily convert a CSV documents into a `DOMDocument` object.
+The `XMLConverter` object provided by this package can easily convert a CSV document into a `DOMDocument` object.
 
 ```php
 use League\Csv\XMLConverter;

@@ -9,7 +9,7 @@ The `XMLConverter` converts a CSV records collection into a PHP `DOMDocument`.
 
 ## Settings
 
-Prior to converting your records collection into XML, you may wish to configure the element and its associated attribute names. To do so `XMLConverter` provides methods to setup theses settings.
+Prior to converting your records collection into XML, you may wish to configure the element and its associated attribute names. To do so, `XMLConverter` provides methods to set up these settings.
 
 <p class="message-warning">Because we are building a <code>DOMDocument</code> object, the <code>XMLConverter</code> object throws <code>DOMException</code> instead of <code>League\Csv\Exception</code>.</p>
 
@@ -32,7 +32,7 @@ public XMLConverter::recordElement(string $node_name, string $record_offset_attr
 This method sets the XML record name and optionally the attribute name for the record offset value if you want this information preserved.
 
 <p class="message-info">The default record element name is <code>row</code>.</p>
-<p class="message-info">The default attribute name is the empty string.</p>
+<p class="message-info">The default attribute name is an empty string.</p>
 
 ### XMLConverter::fieldElement
 
@@ -43,7 +43,7 @@ public XMLConverter::fieldElement(string $node_name, string $fieldname_attribute
 This method sets the XML field name and optionally the attribute name for the field name value.
 
 <p class="message-info">The default field element name is <code>cell</code>.</p>
-<p class="message-info">The default attribute name is the empty string.</p>
+<p class="message-info">The default attribute name is an empty string.</p>
 
 ## Conversion
 
@@ -105,7 +105,7 @@ echo htmlentities($dom->saveXML());
 
 ## Import
 
-<p class="message-info">New feature introduced in <code>version 9.3.0</code></p>
+<p class="message-info">New feature introduced in version <code>9.3.0</code></p>
 
 ```php
 public XMLConverter::import(iterable $records, DOMDocument $doc): DOMElement
@@ -117,9 +117,9 @@ To do so, you need to specify which document the data should be imported into us
 This method takes two arguments:
 
 - the tabular data as defined for the `XMLConverter::convert` method;
-- a `DOMDocument` object to import the data into.
+- a `DOMDocument` object to import the data into;
 
-Of note the resulting `DOMElement` is attached to the given `DOMDocument` object but not yet included in the document tree.
+Note that the resulting `DOMElement` is attached to the given `DOMDocument` object but not yet included in the document tree.
 To include it, you still need to call a DOM insertion method like `appendChild` or `insertBefore` with a node that *is* currently in the document tree.
 
 ```php
@@ -131,7 +131,7 @@ $csv = Reader::createFromPath('/path/to/prenoms.csv', 'r');
 $csv->setDelimiter(';');
 $csv->setHeaderOffset(0);
 
-$stmt = (new Statement())`
+$stmt = (new Statement())
     ->where(function (array $record) {
         return 'Anaïs' === $record['prenoms'];
     })

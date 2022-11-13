@@ -7,7 +7,7 @@ title: CSV document Reader connection
 
 The `League\Csv\Reader` class extends the general connections [capabilities](/9.0/connections/) to ease selecting and manipulating CSV document records.
 
-<p class="message-notice">Starting with version <code>9.1.0</code>, <code>createFromPath</code> when used from the <code>Reader</code> object will have its default set to <code>r</code>.</p>
+<p class="message-notice">Starting with version <code>9.1.0</code>, <code>createFromPath</code> will have its default set to <code>r</code>.</p>
 <p class="message-notice">Prior to <code>9.1.0</code>, by default, the mode for a <code>Reader::createFromPath</code> is <code>r+</code> which looks for write permissions on the file and throws an <code>Exception</code> if the file cannot be opened with the permission set. For sake of clarity, it is strongly suggested to set <code>r</code> mode on the file to ensure it can be opened.</p>
 <p class="message-info">Starting with version <code>9.6.0</code>, the class implements the <code>League\Csv\TabularDataReader</code> interface.</p>
 <p class="message-info">Starting with version <code>9.8.0</code>, the class implements the <code>::fetchColumnByName</code> and <code>::fetchColumnByOffset</code> methods.</p>
@@ -15,7 +15,7 @@ The `League\Csv\Reader` class extends the general connections [capabilities](/9.
 
 ## CSV example
 
-Many examples in this reference require an CSV file. We will use the following file `file.csv` containing the following data:
+Many examples in this reference require a CSV file. We will use the following file `file.csv` containing the following data:
 
 ```csv
 "First Name","Last Name",E-mail
@@ -55,7 +55,7 @@ If no header offset is set:
 
 <p class="message-info">By default no header offset is set.</p>
 
-<p class="message-warning">Because the header is lazy loaded, if you provide a positive offset for an invalid record a <code>Exception</code> exception will be triggered when trying to access the invalid record.</p>
+<p class="message-warning">Because the header is lazy loaded, if you provide a positive offset for an invalid record a <code>SyntaxError</code> exception will be triggered when trying to access the invalid record.</p>
 
 ```php
 use League\Csv\Reader;
@@ -63,20 +63,20 @@ use League\Csv\Reader;
 $csv = Reader::createFromPath('/path/to/file.csv', 'r');
 $csv->setHeaderOffset(1000); //valid offset but the CSV does not contain 1000 records
 $header_offset = $csv->getHeaderOffset(); //returns 1000
-$header = $csv->getHeader(); //triggers a Exception exception
+$header = $csv->getHeader(); //throws a SyntaxError exception
 ```
 
-Because the csv document is treated as a tabular data the header can not contain duplicate entries.
+Because the csv document is treated as tabular data the header can not contain duplicate entries.
 If the header contains duplicates an exception will be thrown on usage.
 
 ```php
 use League\Csv\Reader;
 
 $csv = Reader::createFromPath('/path/to/file.csv', 'r');
-$csv->fetchOne(0); // returns ['field1', 'field2', 'field1', 'field4']
+$csv->fetchOne(0); //returns ['field1', 'field2', 'field1', 'field4']
 $csv->setHeaderOffset(0); //valid offset but the record contain duplicates
 $header_offset = $csv->getHeaderOffset(); //returns 0
-$header = $csv->getHeader(); //triggers a Exception exception
+$header = $csv->getHeader(); //throws a SyntaxError exception
 ```
 
 <p class="message-info">Starting with <code>9.7.0</code> the <code>SyntaxError</code> exception thrown will return the list of duplicate column names.</p>
@@ -86,13 +86,13 @@ use League\Csv\Reader;
 use League\Csv\SyntaxError;
 
 $csv = Reader::createFromPath('/path/to/file.csv', 'r');
-$csv->fetchOne(0); // returns ['field1', 'field2', 'field1', 'field4']
+$csv->fetchOne(0); //returns ['field1', 'field2', 'field1', 'field4']
 $csv->setHeaderOffset(0); //valid offset but the record contain duplicates
 $header_offset = $csv->getHeaderOffset(); //returns 0
 try {
-    $header = $csv->getHeader(); //triggers a Exception exception
+    $header = $csv->getHeader(); //throws a SyntaxError exception
 } catch (SyntaxError $exception) {
-   $duplicates = $exception->duplicateColumnNames(); // returns ['field1']
+    $duplicates = $exception->duplicateColumnNames(); //returns ['field1']
 }
 ```
 
@@ -104,7 +104,7 @@ public Reader::getRecords(array $header = []): Iterator
 
 ### Reader::getRecords basic usage
 
-The `Reader` class let's you access all its records using the `Reader::getRecords` method.
+The `Reader` class lets you access all its records using the `Reader::getRecords` method.
 The method returns an `Iterator` containing all CSV document records. It will extract the records using the [CSV controls characters](/9.0/connections/controls/);
 
 ```php
@@ -120,13 +120,12 @@ foreach ($records as $offset => $record) {
     //  'doe',
     //  'john.doe@example.com'
     // );
-    //
 }
 ```
 
 ### Reader::getRecords with Reader::setHeaderOffset
 
-If you specify the CSV header offset using `setHeaderOffset`, the found record will be combined to each CSV record to return an associated array whose keys are composed of the header values.
+If you specify the CSV header offset using `setHeaderOffset`, the found record will be combined to each CSV record to return an associative array whose keys are composed of the header values.
 
 ```php
 use League\Csv\Reader;
@@ -142,7 +141,6 @@ foreach ($records as $offset => $record) {
     //  'Last Name' => 'doe',
     //  'E-mail' => 'jane.doe@example.com'
     // );
-    //
 }
 ```
 
@@ -159,7 +157,7 @@ foreach ($records as $offset => $record) {
     //$offset : represents the record offset
     //var_export($record) returns something like
     // array(
-    //  'firstame' => 'jane',
+    //  'firstname' => 'jane',
     //  'lastname' => 'doe',
     //  'email' => 'jane.doe@example.com'
     // );
@@ -178,15 +176,15 @@ foreach ($records as $offset => $record) {
     //$offset : represents the record offset
     //var_export($record) returns something like
     // array(
-    //  'firstame' => 'jane',
+    //  'firstname' => 'jane',
     //  'lastname' => 'doe',
     //  'email' => 'jane.doe@example.com'
     // );
 }
-//the first record will still be skip!!
+//the first record will still be skipped!!
 ```
 
-<p class="message-warning">In both cases, if the header record contains non unique string values, a <code>Exception</code> exception is triggered.</p>
+<p class="message-warning">In both cases, if the header record contains non-unique string values, a <code>Exception</code> exception is triggered.</p>
 
 ### Using the IteratorAggregate interface
 
@@ -206,7 +204,6 @@ foreach ($reader as $offset => $record) {
     //  'Last Name' => 'doe',
     //  'E-mail' => john.doe@example.com'
     // );
-    //
 }
 ```
 
@@ -214,9 +211,9 @@ foreach ($reader as $offset => $record) {
 
 The returned records are normalized using the following rules:
 
-- [Stream filters](/9.0/connections/filters/) are applied if present
-- Empty records are skipped if present;
-- The document BOM sequence is skipped if present;
+- [Stream filters](/9.0/connections/filters/) are applied if present.
+- Empty records are skipped if present.
+- The document BOM sequence is skipped if present.
 - If a header record was provided, the number of fields is normalized to the number of fields contained in that record:
   - Extra fields are truncated.
   - Missing fields are added with a `null` value.
@@ -235,7 +232,6 @@ foreach ($records as $offset => $record) {
     //  'Last Name' => 'jane',
     //  'E-mail' => null
     // );
-    //
 }
 ```
 
@@ -243,7 +239,7 @@ foreach ($records as $offset => $record) {
 
 <p class="message-info">New since version <code>9.4.0</code></p>
 
-By default the CSV document normalization removes empty records. But you can control the presence of such records using the following methods:
+By default, the CSV document normalization removes empty records, but you can control the presence of such records using the following methods:
 
 ```php
 Reader::skipEmptyRecords(): self;
@@ -253,11 +249,10 @@ Reader::isEmptyRecordsIncluded(): bool;
 
 - Calling `Reader::includeEmptyRecords` will ensure empty records are left in the `Iterator` returned by `Reader::getRecords`,
 conversely `Reader::skipEmptyRecords` will ensure empty records are skipped.
-- At any given time you can ask you Reader instance if empty records will be stripped or included using the `Reader::isEmptyRecordsIncluded` method.
-- If no header offset is specified, the empty record will be represented by a empty `array`, conversely,
-for consistency, an empty record will be represented by an array filled with `null` values as expected from header presence normalization.
+- At any given time you can ask your Reader instance if empty records will be stripped or included using the `Reader::isEmptyRecordsIncluded` method.
+- If no header offset is specified, the empty record will be represented by an empty `array`. Conversely, for consistency, an empty record will be represented by an array filled with `null` values as expected from header presence normalization.
 
-<p class="message-notice">The record offset are always independent of the presence of empty records.</p>
+<p class="message-notice">The record offset is always independent of the presence of empty records.</p>
 
 ```php
 use League\Csv\Reader;
@@ -270,7 +265,7 @@ $source = <<<EOF
 EOF;
 
 $reader = Reader::createFromString($source);
-$reader->isEmptyRecordsIncluded(); // return true;
+$reader->isEmptyRecordsIncluded(); //returns false
 iterator_to_array($reader, true);
 // [
 //     0 => ['parent name', 'child name', 'title'],
@@ -278,7 +273,7 @@ iterator_to_array($reader, true);
 // ];
 
 $reader->includeEmptyRecords();
-$reader->isEmptyRecordsIncluded(); // return false;
+$reader->isEmptyRecordsIncluded(); //returns true
 iterator_to_array($reader, true);
 // [
 //     0 => ['parent name', 'child name', 'title'],
@@ -296,7 +291,7 @@ iterator_to_array($reader, true);
 // ];
 
 $reader->skipEmptyRecords();
-$reader->isEmptyRecordsIncluded(); // return false;
+$reader->isEmptyRecordsIncluded(); //returns false
 $res = iterator_to_array($reader, true);
 // [
 //     3 => ['parent name' => 'parentA', 'child name' => 'childA', 'title' => 'titleA'],
@@ -305,7 +300,7 @@ $res = iterator_to_array($reader, true);
 
 ## Records count
 
-You can retrieve the number of records contains in a CSV document using PHP's `count` function because the `Reader` class implements the `Countable` interface.
+You can retrieve the number of records contained in a CSV document using PHP's `count` function because the `Reader` class implements the `Countable` interface.
 
 ```php
 use League\Csv\Reader;
@@ -326,18 +321,18 @@ count($reader); //returns 3
 
 <p class="message-info">New since version <code>9.4.0</code></p>
 
-If empty record are to be preserved, the number of records will be affected.
+If empty records are to be preserved, the number of records will be affected.
 
 ```php
 use League\Csv\Reader;
 
 $reader = Reader::createFromPath('/path/to/my/file-with-two-empty-records.csv', 'r');
 $reader->isEmptyRecordsIncluded(); //returns false
-count($reader); // returns 2
+count($reader); //returns 2
 
 $reader->includeEmptyRecords();
 $reader->isEmptyRecordsIncluded(); //returns true
-count($reader); // returns 4
+count($reader); //returns 4
 ```
 
 <p class="message-notice">The <code>Countable</code> interface is implemented using PHP's <code>iterator_count</code> on the <code>Reader::getRecords</code> method.</p>
@@ -398,8 +393,7 @@ public Writer::addFormatter(callable $callable): Reader
 public Writer::addHeaderFormatter(callable $callable): Reader
 ```
 
-Sometimes you may want to format your records prior to accessing them via `getRecords`. the `Reader` class provides
-a formatter mechanism to ease these operations.
+Sometimes you may want to format your records prior to accessing them via `getRecords`. The `Reader` class provides a formatter mechanism to ease these operations.
 
 ## Records conversion
 

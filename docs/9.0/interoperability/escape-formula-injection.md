@@ -5,11 +5,11 @@ title: CSV Formula Injection
 
 # Prevents CSV Formula Injection
 
-<p class="message-notice">Available since <code>version 9.1.0</code></p>
+<p class="message-notice">Available since version <code>9.1.0</code></p>
 
 The `EscapeFormula` Formatter formats CSV records to reduce [CSV Formula Injection](http://georgemauer.net/2017/10/07/csv-injection.html) in imported Spreadsheet programs.
 
-<p class="message-warning">since <code>version 9.7.4</code> The default values from the class constructor where updated to comply with the latest recommendations from OWASP regarding <a href="https://owasp.org/www-community/attacks/CSV_Injection" target="_blank">CSV injection</a>.
+<p class="message-warning">Since version <code>9.7.4</code> the default values from the class constructor were updated to comply with the latest recommendations from OWASP regarding <a href="https://owasp.org/www-community/attacks/CSV_Injection" target="_blank">CSV injection</a>.
 As this is a security fix, the BC break should be minimal.</p>
 
 ## Usage with Writer objects
@@ -23,8 +23,8 @@ public function __invoke(array $record): array
 
 The `EscapeFormula::__construct` method takes two (2) arguments:
 
-- the `$escape` parameter which will be used to prepend the record field, which default to `'`;
-- the `$special_chars` parameter which is an `array` with additional characters that need to be escaped. By default the following characters if found at the start of any record field content will be escaped `+`,`-`,`=`,`@`, `\t`, `\r`;
+- the `$escape` parameter which will be used to prepend the record field, which defaults to `'`;
+- the `$special_chars` parameter which is an `array` with additional characters that need to be escaped. By default, the following characters at the start of any record field content will be escaped `+`,`-`,`=`,`@`, `\t`, `\r`;
 - for more information see [OWASP - CSV Injection](https://owasp.org/www-community/attacks/CSV_Injection)
 
 ```php
@@ -53,7 +53,7 @@ foreach ($iterable_data as $record) {
 }
 ```
 
-<p class="message-warning">Even though the <code>EscapeFormula</code> formatter is provided it must stress out that
+<p class="message-warning">Even though the <code>EscapeFormula</code> formatter is provided it must be stressed that
 this is in no way a bulletproof method. This prevention mechanism only works if <strong>you know how the CSV export
-will be consumed</strong>. In any other cases, you are better of leaving the filtering to the consuming client and
-report any found security concern to their respective security channel.</p>
+will be consumed</strong>. In any other cases, you are better off leaving the filtering to the consuming client and
+report any found security concerns to their respective security channel.</p>

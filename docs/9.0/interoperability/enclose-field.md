@@ -5,7 +5,7 @@ title: Force Enclosure
 
 # Force field enclosure
 
-<p class="message-info">Available since <code>version 9.1.0</code></p>
+<p class="message-info">Available since version <code>9.1.0</code></p>
 
 The `EncloseField` is a PHP stream filter which forces the `Writer` class to enclose all its record fields.
 
@@ -19,8 +19,8 @@ public static EncloseField::addTo(Writer $csv, string $sequence): Writer
 
 The `EncloseField::addTo` method will:
 
-- register the stream filter if it is not already the case
-- add a formatter to the `Writer` object to force `fputcsv` to enclose all record field
+- register the stream filter if it is not already the case.
+- add a formatter to the `Writer` object to force `fputcsv` to enclose all record fields.
 - add a stream filter to the `Writer` object to remove the added sequence from the final CSV.
 
 ```php
@@ -30,7 +30,7 @@ use League\Csv\Writer;
 $writer = Writer::createFromPath('php://temp');
 EncloseField::addTo($writer, "\t\x1f"); //adding the stream filter to force enclosure
 $writer->insertAll($iterable_data);
-$writer->output('mycsvfile.csv'); //outputting a CSV Document with all its field enclosed
+$writer->output('mycsvfile.csv'); //outputting a CSV Document with all its fields enclosed
 ```
 
 <p class="message-warning">The <code>$sequence</code> argument should be a sequence containing at least one character that forces <code>fputcsv</code> to enclose the field value. If not, an <code>InvalidArgumentException</code> exception will be thrown.</p>

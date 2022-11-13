@@ -52,7 +52,7 @@ class InvalidArgument extends Exception
 
     public static function dueToInvalidEscapeCharacter(string $escape, string $method): self
     {
-        return new self($method.'() expects escape to be a single character or the empty string; `'.$escape.'` given.');
+        return new self($method.'() expects escape to be a single character or an empty string; `'.$escape.'` given.');
     }
 
     public static function dueToInvalidColumnCount(int $columns_count, string $method): self

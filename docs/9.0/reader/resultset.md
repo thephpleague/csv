@@ -10,7 +10,7 @@ A `League\Csv\ResultSet` object represents the associated result set of processi
 <p class="message-info">Starting with version <code>9.6.0</code>, the class implements the <code>League\Csv\TabularDataReader</code> interface.</p>
 <p class="message-info">Starting with version <code>9.8.0</code>, the class implements the <code>::fetchColumnByName</code> and <code>::fetchColumnByOffset</code> methods.</p>
 
-## Informations
+## Information
 
 ### Accessing the result set column names
 
@@ -28,7 +28,7 @@ use League\Csv\Statement;
 
 $reader = Reader::createFromPath('/path/to/my/file.csv', 'r');
 $records = Statement::create()->process($reader);
-$records->getHeader(); // is empty because no header information was given
+$records->getHeader(); //is empty because no header information was given
 ```
 
 #### Example: header information given by the Reader object
@@ -40,7 +40,7 @@ $reader = Reader::createFromPath('/path/to/my/file.csv', 'r');
 $reader->setHeaderOffset(0);
 
 $records = Statement::create()->process($reader);
-$records->getHeader(); // returns ['First Name', 'Last Name', 'E-mail'];
+$records->getHeader(); //returns ['First Name', 'Last Name', 'E-mail'];
 ```
 
 #### Example: header information given by the Statement object
@@ -53,12 +53,12 @@ $reader = Reader::createFromPath('/path/to/my/file.csv', 'r');
 $reader->setHeaderOffset(0);
 
 $records = Statement::create()->process($reader, ['Prénom', 'Nom', 'E-mail']);
-$records->getHeader(); // returns ['Prénom', 'Nom', 'E-mail'];
+$records->getHeader(); //returns ['Prénom', 'Nom', 'E-mail'];
 ```
 
 ### Accessing the number of records in the result set
 
-The `ResultSet` class implements implements the `Countable` interface.
+The `ResultSet` class implements the `Countable` interface.
 
 ```php
 use League\Csv\Reader;
@@ -77,9 +77,9 @@ count($records); //return the total number of records found
 public ResultSet::getRecords(array $header = []): Iterator
 ```
 
-<p class="message-info">Starting with version <code>9.6.0</code>, the class implements the <code>ResultSet::getRecords</code> methods matches the same arguments and the same signature as the <code>Reader::getRecords</code> method.</p>
+<p class="message-info">Starting with version <code>9.6.0</code>, the implemented <code>ResultSet::getRecords</code> method matches the same arguments and the same signature as the <code>Reader::getRecords</code> method.</p>
 
-To iterate over each found records you can call the `ResultSet::getRecords` method which returns a `Generator` of all records found or directly use the `foreach` construct as the class implements the `IteratorAggregate` interface;
+To iterate over each found record you can call the `ResultSet::getRecords` method which returns a `Generator` of all records found or directly use the `foreach` construct as the class implements the `IteratorAggregate` interface:
 
 ```php
 use League\Csv\Reader;
@@ -99,7 +99,7 @@ foreach ($records as $record) {
 
 ### Usage with the header
 
-If the `ResultSet::getHeader` is not an empty `array` the found records keys will contains the method returned values.
+If the `ResultSet::getHeader` is not an empty `array` the found records keys will contain the returned values.
 
 ```php
 use League\Csv\Reader;
@@ -110,20 +110,19 @@ $reader->setHeaderOffset(0);
 $records = Statement::create()->process($reader);
 $records->getHeader(); //returns ['First Name', 'Last Name', 'E-mail']
 foreach ($records as $record) {
-    // $records contains the following data
+    // $record contains the following data
     // array(
     //     'First Name' => 'john',
     //     'Last Name' => 'doe',
     //     'E-mail' => 'john.doe@example.com',
     // );
-    //
 }
 ```
 
 ## Selecting a specific record
 
-Since with version <code>9.9.0</code>, the class implements the `::first` and `::nth` methods.
-These methods replace the `::fetchOne` which is deprecated and will be removed in the next major release.
+Since version <code>9.9.0</code>, the class implements the `::first` and `::nth` methods.
+These methods replace the `::fetchOne` method which is deprecated and will be removed in the next major release.
 
 These methods all return a single record from the `ResultSet`.
 
@@ -136,7 +135,7 @@ public ResultSet::nth(int $nth_record): array
 The `$nth_record` argument represents the nth record contained in the result set starting at `0`.  
 In the case of `fetchOne`, if no argument is given the method will return the first record from the result set.
 
-In all cases, if no record is found an empty `array` is returned.
+In all cases, if no record is found, an empty `array` is returned.
 
 ```php
 use League\Csv\Reader;
@@ -165,7 +164,7 @@ $result->nth(0);
 //returns the first matching record from the recordset or an empty record if none is found.
 ```
 
-<p class="message-notice"><code>nth</code> with throw a <code>ArgumentCountError</code>, if no argument is given to it.</p>
+<p class="message-notice"><code>nth</code> will throw an <code>ArgumentCountError</code> if no argument is given to it.</p>
 
 ## Selecting a single column
 
@@ -175,13 +174,12 @@ public ResultSet::fetchColumnByOffset(int $offset = 0): Iterator
 public ResultSet::fetchColumn(string|int $columnIndex = 0): Iterator
 ```
 
-Since with version <code>9.8.0</code>, the class implements the `::fetchColumnByName` and `::fetchColumnByOffset` methods.
-These methods replace the `::fetchColumn` which is deprecated and will be removed in the next major release.
+Since version <code>9.8.0</code>, the class implements the `::fetchColumnByName` and `::fetchColumnByOffset` methods.
+These methods replace the `::fetchColumn` method which is deprecated and will be removed in the next major release.
 
-Both methods return a `Iterator` of all values in a given column from the `ResultSet` object. But they differ
-in their argument type:
+Both methods return an `Iterator` of all values in a given column from the `ResultSet` object, but they differ in their argument type:
 
-`::fetchColumnByName` expects a string representing one of the value of `ResultSet::getHeader`
+`::fetchColumnByName` expects a string representing one of the values of `ResultSet::getHeader`
 
 ```php
 $reader = Reader::createFromPath('/path/to/my/file.csv', 'r');
@@ -194,7 +192,7 @@ foreach ($records->fetchColumnByName('E-mail') as $value) {
 }
 ```
 
-<p class="message-warning">If the <code>ResultSet</code> contains column names and the <code>$name</code> is not found an <code>Exception</code> exception is thrown.</p>
+<p class="message-warning">If the <code>ResultSet</code> contains column names and the <code>$name</code> is not found, an <code>Exception</code> exception is thrown.</p>
 
 ```php
 use League\Csv\Reader;
@@ -239,12 +237,12 @@ count(iterator_to_array($records->fetchColumnByOffset(2), false)); //returns 5
 //5 records were skipped because the column value is null
 ```
 
-<p class="message-warning">The following paragraph describe the usage of the <code>::fetchColumn</code> method which is
-deprecated as of <code>9.8.0</code> and which wil be removed in the next major release.</p>
+<p class="message-warning">The following paragraph describes the usage of the <code>::fetchColumn</code> method which is
+deprecated as of <code>9.8.0</code> and wil be removed in the next major release.</p>
 
 `ResultSet::fetchColumn` returns a `Generator` of all values in a given column from the `ResultSet` object.
 
-the `$columnIndex` parameter can be:
+The `$columnIndex` parameter can be:
 
 - an integer representing the column index starting from `0`;
 - a string representing one of the value of `ResultSet::getHeader`;
@@ -283,7 +281,7 @@ count(iterator_to_array($records->fetchColumn(2), false)); //returns 5
 //5 records were skipped because the column value is null
 ```
 
-<p class="message-warning">If the <code>ResultSet</code> contains column names and the <code>$columnIndex</code> is not found an <code>Exception</code> exception is thrown.</p>
+<p class="message-warning">If the <code>ResultSet</code> contains column names and the <code>$columnIndex</code> is not found, an <code>Exception</code> exception is thrown.</p>
 
 ```php
 use League\Csv\Reader;
@@ -317,44 +315,42 @@ These arguments behave exactly like the `$columnIndex` from `ResultSet::fetchCol
 
 ```php
 use League\Csv\Reader;
+use League\Csv\Statement;
 
-$str = <<EOF
+$str = <<<EOF
 john,doe
 jane,doe
 foo,bar
 sacha
 EOF;
 
-use League\Csv\Reader;
-use League\Csv\Statement;
-
 $reader = Reader::createFromString($str);
 $records = Statement::create()->process($reader);
 
 foreach ($records->fetchPairs() as $firstname => $lastname) {
     // - first iteration
-    // echo $firstname; -> 'john'
-    // echo $lastname;  -> 'doe'
+    // $firstname -> 'john'
+    // $lastname  -> 'doe'
     // - second iteration
-    // echo $firstname; -> 'jane'
-    // echo $lastname;  -> 'doe'
+    // $firstname -> 'jane'
+    // $lastname  -> 'doe'
     // - third iteration
-    // echo $firstname; -> 'foo'
-    // echo $lastname; -> 'bar'
+    // $firstname -> 'foo'
+    // $lastname  -> 'bar'
     // - fourth iteration
-    // echo $firstname; -> 'sacha'
-    // echo $lastname; -> 'null'
+    // $firstname -> 'sacha'
+    // $lastname  -> null
 }
 ```
 
 ### Notes
 
-- If no `$offsetIndex` is provided it default to `0`;
-- If no `$valueIndex` is provided it default to `1`;
+- If no `$offsetIndex` is provided it defaults to `0`;
+- If no `$valueIndex` is provided it defaults to `1`;
 - If no cell is found corresponding to `$offsetIndex` the row is skipped;
 - If no cell is found corresponding to `$valueIndex` the `null` value is used;
 
-<p class="message-warning">If the <code>ResultSet</code> contains column names and the submitted arguments are not found an <code>Exception</code> exception is thrown.</p>
+<p class="message-warning">If the <code>ResultSet</code> contains column names and the submitted arguments are not found, an <code>Exception</code> exception is thrown.</p>
 
 ## Conversions
 

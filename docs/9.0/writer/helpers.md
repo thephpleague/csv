@@ -9,15 +9,14 @@ title: Bundled Writer helpers
 
 The `League\Csv\ColumnConsistency` class validates the inserted record column count consistency.
 
-This class constructor accepts a single argument `$column_count` which sets the column count value and validate each record length against the given value. If the value differs an `CannotInsertRecord` will be thrown.
+This class constructor accepts a single argument `$column_count` which sets the column count value and validates each record length against the given value. If the value differs, a `CannotInsertRecord` exception will be thrown.
 
-if `$column_count` equals `-1`, the object will lazy set the column count value according to the next inserted record and therefore will also validate it. On the next insert, if the given value differs a `CannotInsertRecord` exception is triggered.
+If `$column_count` equals `-1`, the object will lazy set the column count value according to the next inserted record and therefore will also validate it. On the next insert, if the given value differs, a `CannotInsertRecord` exception is triggered.
 At any given time you can retrieve the column count value using the `ColumnConsistency::getColumnCount` method.
 
 ```php
 use League\Csv\Writer;
 use League\Csv\ColumnConsistency;
-
 
 $validator = new ColumnConsistency();
 $writer = Writer::createFromPath('/path/to/your/csv/file.csv');
@@ -48,7 +47,7 @@ $writer->insertOne(["foo", "bébé", "jouet"]);
 //all 'utf-8' characters are now automatically encoded into 'iso-8859-15' charset
 ```
 
-If your `Writer` object supports PHP stream filters then it's recommended to use the `CharsetConverter` object via the library [stream filtering mechanism](/9.0/connections/filters/) instead as shown below.
+If your `Writer` object supports PHP stream filters then it's recommended to use the `CharsetConverter` object via the library [stream filtering mechanism](/9.0/connections/filters/) instead, as shown below:
 
 ```php
 use League\Csv\CharsetConverter;

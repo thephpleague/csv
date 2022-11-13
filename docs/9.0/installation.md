@@ -32,13 +32,13 @@ composer require league/csv:^9.0
 
 You can also use `League\Csv` without using Composer by downloading the library on Github.
 
-1. Visit [the releases page](https://github.com/thephpleague/csv/releases) for the project.
-2. Find the release of `League\Csv` for your version of PHP
+1. Visit [the releases page](https://github.com/thephpleague/csv/releases) of the project.
+2. Find the release of `League\Csv` for your version of PHP.
 3. Click the **Source Code** link for preferred compression format.
 
 The library is compatible with any [PSR-4](http://www.php-fig.org/psr/psr-4/) compatible autoloader.
 
-Also, `League\Csv` comes bundle with its own autoloader script `autoload.php` located in the root directory.
+Also, `League\Csv` comes bundled with its own autoloader script `autoload.php` located in the root directory.
 
 ```php
 use League\Csv\Reader;

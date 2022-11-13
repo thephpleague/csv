@@ -8,7 +8,7 @@ redirect_from: /properties/
 
 Once your object is [instantiated](/8.0/instantiation/) you can optionally set several CSV properties. The following methods works on both the `Reader` and the `Writer` class.
 
-<p class="message-notice">Since <code>version 8.1.1</code> The underlying CSV controls from the submitted CSV are inherited by the return <code>AbstractCsv</code> object.</p>
+<p class="message-notice">Since version <code>8.1.1</code> The underlying CSV controls from the submitted CSV are inherited by the return <code>AbstractCsv</code> object.</p>
 
 ```php
 $file = new SplTempFileObject();
@@ -110,7 +110,7 @@ public AbstractCsv::fetchDelimitersOccurrence(
 The method takes two arguments:
 
 - an array containing the delimiters to check;
-- an integer which represents the number of rows to scan (default to `1`);
+- an integer which represents the number of rows to scan (defaults to `1`);
 
 ```php
 use League\Csv\Reader;

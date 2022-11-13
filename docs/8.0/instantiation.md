@@ -98,7 +98,7 @@ $writer = Writer::createFromString('john,doe,john.doe@example.com');
 
 ### AbstractCsv::createFromStream
 
-<p class="message-notice">New since <code>version 8.2.0</code></p>
+<p class="message-notice">New since version <code>8.2.0</code></p>
 
 This named constructor will create a new object from a stream resource.
 
@@ -118,7 +118,7 @@ $writer = Writer::createFromStream(fopen('php://temp', 'r+'));
 
 ## Switching from one class to the other
 
-At any given time you can switch or create a new `League\Csv\Writer` or a new `League\Csv\Reader` from the current object. to do so you can use the following methods.
+At any given time you can switch or create a new `League\Csv\Writer` or a new `League\Csv\Reader` from the current object. To do so, you can use the following methods.
 
 - the `newReader` to create a new `League\Csv\Reader` object;
 - the `newWriter` to create a new `League\Csv\Writer` object;

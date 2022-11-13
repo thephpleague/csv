@@ -16,7 +16,7 @@ public Writer::insertOne(array $record): int
 public Writer::insertAll(iterable $records): int
 ```
 
-`Writer::insertOne` inserts a single record into the CSV document while `Writer::insertAll` adds several records. Both methods returns the length of the written data.
+`Writer::insertOne` inserts a single record into the CSV document while `Writer::insertAll` adds several records. Both methods return the length of the written data.
 
 `Writer::insertOne` takes a single argument, an `array` which represents a single CSV record.
 `Writer::insertAll` takes a single argument a PHP iterable which contains a collection of CSV records.
@@ -95,19 +95,19 @@ public Writer::getNewline(void): string
 use League\Csv\Writer;
 
 $writer = Writer::createFromFileObject(new SplFileObject());
-$newline = $writer->getNewline(); // equals "\n";
+$newline = $writer->getNewline(); //equals "\n";
 $writer->setNewline("\r\n");
-$newline = $writer->getNewline(); // equals "\r\n";
+$newline = $writer->getNewline(); //equals "\r\n";
 $writer->insertOne(["one", "two"]);
-echo $writer->getContent(); // displays "one,two\r\n";
+echo $writer->getContent(); //displays "one,two\r\n";
 ```
 
 <p class="message-info">The default newline sequence is <code>\n</code>;</p>
-<p class="message-warning">If you are using a non seekable CSV document, changing the newline character will trigger an exception.</p>
+<p class="message-warning">If you are using a non-seekable CSV document, changing the newline character will trigger an exception.</p>
 
 ## Flushing the buffer
 
-For advanced usages, you can now manually indicates when flushing mechanism occurs while adding new content to your CSV document.
+For advanced usages, you can now manually indicate when the flushing mechanism occurs while adding new content to your CSV document.
 
 ### Description
 
@@ -118,7 +118,7 @@ public Writer::getFlushThreshold(void): ?int
 
 By default, `getFlushTreshold` returns `null`.
 
-<p class="message-info"><code>Writer::insertAll</code> always flush its buffer when all records are inserted regardless of the threshold value.</p>
+<p class="message-info"><code>Writer::insertAll</code> always flushes its buffer when all records are inserted, regardless of the threshold value.</p>
 
 <p class="message-info">If set to <code>null</code> the inner flush mechanism of PHP's <code>fputcsv</code> will be used.</p>
 
@@ -129,13 +129,13 @@ public Writer::addFormatter(callable $callable): Writer
 public Writer::addValidator(callable $callable, string $validatorName): Writer
 ```
 
-Sometimes you may want to format and/or validate your records prior to their insertion into your CSV document. the `Writer` class provides a formatter and a validator mechanism to ease these operations.
+Sometimes you may want to format and/or validate your records prior to their insertion into your CSV document. The `Writer` class provides a formatter and a validator mechanism to ease these operations.
 
 ### Writer::addFormatter
 
 #### Record Formatter
 
-A formatter is a `callable` which accepts an single CSV record as an `array` on input and returns an array representing the formatted CSV record according to its inner rules.
+A formatter is a `callable` which accepts a single CSV record as an `array` on input and returns an array representing the formatted CSV record according to its inner rules.
 
 ```php
 function(array $record): array
@@ -155,15 +155,15 @@ $writer = Writer::createFromFileObject(new SplTempFileObject());
 $writer->addFormatter($formatter);
 $writer->insertOne(['john', 'doe', 'john.doe@example.com']);
 
-$writer->getContent();
-//will display something like JOHN,DOE,JOHN.DOE@EXAMPLE.COM
+echo $writer->getContent();
+//will display JOHN,DOE,JOHN.DOE@EXAMPLE.COM
 ```
 
 ### Writer::addValidator
 
 #### Record Validator
 
-A validator is a `callable` which takes single CSV record as an `array` as its sole argument and returns a `boolean` to indicate if it satisfies the validator inner rules.
+A validator is a `callable` which takes a single CSV record as an `array` as its sole argument and returns a `boolean` to indicate if it satisfies the validator's inner rules.
 
 ```php
 function(array $record): bool
@@ -171,7 +171,7 @@ function(array $record): bool
 
 The validator **must** return `true` to validate the submitted record.
 
-Any other expression, including truthy ones like `yes`, `1`,... will make the `insertOne` method throw an `League\Csv\CannotInsertRecord`.
+Any other expression, including truthy ones like `yes`, `1`,... will make the `insertOne` method throw an `League\Csv\CannotInsertRecord` exception.
 
 #### Adding a Validator to a Writer object
 
@@ -201,7 +201,7 @@ $writer->addValidator(function (array $row): bool {
 try {
     $writer->insertOne(['john', 'doe', 'john.doe@example.com']);
 } catch (CannotInsertRecord $e) {
-    echo $e->getName(); //display 'row_must_contain_10_cells'
-    $e->getData();//will return the invalid data ['john', 'doe', 'john.doe@example.com']
+    echo $e->getName(); //displays 'row_must_contain_10_cells'
+    $e->getData();//returns the invalid data ['john', 'doe', 'john.doe@example.com']
 }
 ```

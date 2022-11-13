@@ -5,13 +5,13 @@ title: Converting a CSV into an HTML table
 
 # HTML conversion
 
-The `HTMLConverter` converts a CSV records collection into a HTML Table using PHP's `DOMDocument` class.
+The `HTMLConverter` converts a CSV records collection into an HTML Table using PHP's `DOMDocument` class.
 
 ## Settings
 
-Prior to converting your records collection into a HTML table, you may wish to configure optional information to improve your table rendering.
+Prior to converting your records collection into an HTML table, you may wish to configure optional information to improve your table rendering.
 
-<p class="message-warning">Because we are using internally the <a href="/9.0/converter/xml/">XMLConverter</a>, if an error occurs while validating the submitted values a <code>DOMException</code> exception will be thrown.</p>
+<p class="message-warning">Because we are using the <a href="/9.0/converter/xml/">XMLConverter</a> internally, if an error occurs while validating the submitted values, a <code>DOMException</code> exception will be thrown.</p>
 
 ### HTMLConverter::table
 
@@ -19,10 +19,10 @@ Prior to converting your records collection into a HTML table, you may wish to c
 public HTMLConverter::table(string $class_name, string $id_value = ''): self
 ```
 
-This method sets the optional table `class` and `id` attribute values
+This method sets the optional table `class` and `id` attribute values.
 
 <p class="message-info">The default <code>class</code> attribute value is <code>table-csv-data</code>.</p>
-<p class="message-info">The default <code>id</code> attribute value is the empty string.</p>
+<p class="message-info">The default <code>id</code> attribute value is an empty string.</p>
 
 ### HTMLConverter::tr
 
@@ -32,7 +32,7 @@ public HTMLConverter::tr(string $record_offset_attribute_name): self
 
 This method sets the optional attribute name for the record offset on the HTML `tr` tag.
 
-<p class="message-info">If none is use or an empty string is given, the record offset information won't be exported to the HTML table.</p>
+<p class="message-info">If none is used or an empty string is given, the record offset information won't be exported to the HTML table.</p>
 
 ### HTMLConverter::td
 
@@ -42,7 +42,7 @@ public HTMLConverter::td(string $fieldname_attribute_name): self
 
 This method sets the optional attribute name for the field name on the HTML `td` tag.
 
-<p class="message-info">If none is use or an empty string is given, the field name information won't be exported to the HTML table.</p>
+<p class="message-info">If none is used or an empty string is given, the field name information won't be exported to the HTML table.</p>
 
 ## Conversion
 
@@ -55,10 +55,10 @@ public HTMLConverter::convert(iterable $records, array $header_record = [], arra
 The `HTMLConverter::convert` accepts an `iterable` which represents the records collection and returns a string.
 It optionally accepts:
 
-- an array of string representing the tabular header;
-- an array of string representing the tabular footer;
+- an array of strings representing the tabular header;
+- an array of strings representing the tabular footer;
 
-If any of these array is present and non-empty the tabular data will be contained in a `tbody` tag as per HTML specification.
+If any of these arrays are present and non-empty, the tabular data will be contained in a `tbody` tag as per HTML specification.
 
 ```php
 use League\Csv\HTMLConverter;

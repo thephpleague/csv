@@ -68,7 +68,7 @@ $flags = $csv->getFlags(); //returns an integer
 The method takes two arguments:
 
 - an array containing the delimiters to check;
-- an integer which represents the number of rows to scan (default to `1`);
+- an integer which represents the number of rows to scan (defaults to `1`);
 
 ```php
 $reader = Reader::createFromPath('/path/to/your/csv/file.csv', 'r');
@@ -101,7 +101,7 @@ If you are no sure about the delimiter you can ask the library to detect it for 
 
 The method takes two arguments:
 
-- the number of rows to scan (default to `1`);
+- the number of rows to scan (defaults to `1`);
 - the possible delimiters to check (you don't need to specify the following delimiters as they are already checked by the method: `",", ";", "\t"`);
 
 ```php

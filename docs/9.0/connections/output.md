@@ -13,7 +13,7 @@ The output methods **are affected by** [the output BOM sequence](/9.0/connection
 
 ## Printing the document
 
-Returns the string representation of the CSV document
+Returns the string representation of the CSV document.
 
 ```php
 public AbstractCsv::toString(void): string
@@ -24,7 +24,7 @@ public AbstractCsv::__toString(void): string
 <p class="message-notice">The <code>toString</code> method is added in version <code>9.7.0</code> and replaces the <code>getContent</code> method which is <strong>deprecated</strong>.</p>
 <p class="message-notice">The <code>getContent</code> method is added in version <code>9.1.0</code> and replaces the <code>__toString</code> method which is <strong>deprecated</strong>.</p>
 
-Use the `toString` method to return the CSV full content.
+Use the `toString` method to return the full CSV content.
 
 ### Example
 
@@ -47,7 +47,7 @@ use League\Csv\Writer;
 $csv = Writer::createFromFileObject(new SplFileObject('php://output', 'w'));
 $csv->insertOne(['foo', 'bar']);
 echo $csv->toString();
-//throws an RuntimeException because the SplFileObject is not seekable
+//throws a RuntimeException because the SplFileObject is not seekable
 ```
 
 #### Using the `__toString` or `getContent` methods
@@ -62,7 +62,7 @@ echo $csv->getContent();
 //throws a Fatal Error because no exception can be thrown by the __toString method
 ```
 
-<p class="message-warning">The <code>__toString</code> method is deprecated in version <code>9.1.0</code> and will be remove in the next major version.</p>
+<p class="message-warning">The <code>__toString</code> method is deprecated in version <code>9.1.0</code> and will be removed in the next major version.</p>
 
 ## Downloading the document
 
@@ -74,8 +74,7 @@ public AbstractCsv::output(string $filename = null): int
 
 The method returns the number of characters read from the handle and passed through to the output.
 
-The output method can take an optional argument `$filename`. When present you
-can even remove more headers.
+The output method can take an optional argument `$filename`. When present you can even remove more headers.
 
 ### Default usage
 
@@ -97,11 +96,11 @@ die;
 use League\Csv\Reader;
 
 $reader = Reader::createFromPath('file.csv');
-$reader->output("name-for-your-file.csv");
+$reader->output('name-for-your-file.csv');
 die;
 ```
 
-<p class="message-notice">If you just need to make the CSV downloadable, end your script with a call to <code>exit</code> just after the <code>output</code> method. You <strong>should not</strong> return the method returned value.</p>
+<p class="message-notice">If you just need to make the CSV downloadable, end your script with a call to <code>die</code> just after the <code>output</code> method. You <strong>should not</strong> return the method returned value.</p>
 
 <p class="message-warning">starting with version <code>9.1.0</code>, the <code>output</code> method will throw an <code>Exception</code> if the provided <code>$filename</code> does not comply with <a href="https://tools.ietf.org/html/rfc6266#section-4">RFC6266</a></p>
 
@@ -113,7 +112,7 @@ public AbstractCsv::chunk(int $length): Generator
 
 The `AbstractCsv::chunk` method takes a single `$length` parameter specifying the number of bytes to read from the CSV document and returns a `Generator` to ease outputting large CSV files.
 
-<p class="message-warning">if the <code>$length</code> parameter is not a positive integer a <code>OutOfRangeException</code> will be thrown.</p>
+<p class="message-warning">If the <code>$length</code> parameter is not a positive integer an <code>OutOfRangeException</code> will be thrown.</p>
 
 ```php
 use League\Csv\Reader;
@@ -148,7 +147,7 @@ return new Response($reader->getContent(), 200, [
 ```
 
 In some cases you can also use a Streaming Response for larger files.
-The following example uses Symfony's [StreamedResponse](http://symfony.com/doc/current/components/http_foundation/introduction.html#streaming-a-response) object.
+The following example uses Symfony's [StreamedResponse](https://symfony.com/doc/current/components/http_foundation.html#streaming-a-response) object.
 
 <p class="message-notice"><i>Be sure to adapt the following code to your own framework/situation. The following code is given as an example without warranty of it working out of the box.</i></p>
 
@@ -157,7 +156,7 @@ use League\Csv\Writer;
 use Symfony\Component\HttpFoundation\ResponseHeaderBag;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
-//We generate the CSV using the Writer object
+//we generate the CSV using the Writer object
 //$dbh is a PDO object
 $stmt = $dbh->prepare("SELECT * FROM users");
 $stmt->setFetchMode(PDO::FETCH_ASSOC);
@@ -165,7 +164,7 @@ $stmt->execute();
 $csv = Writer::createFromPath('php://temp', 'r+');
 $csv->insertAll($stmt);
 
-//we create a callable to output the CSV in chunk
+//we create a callable to output the CSV in chunks
 //with Symfony StreamResponse you can flush the body content if necessary
 //see Symfony documentation for more information
 $flush_threshold = 1000; //the flush value should depend on your CSV size.
@@ -178,7 +177,7 @@ $content_callback = function () use ($csv, $flush_threshold) {
     }
 };
 
-//We send the CSV using Symfony StreamedResponse
+//we send the CSV using Symfony StreamedResponse
 $response = new StreamedResponse();
 $response->headers->set('Content-Encoding', 'none');
 $response->headers->set('Content-Type', 'text/csv; charset=UTF-8');
@@ -196,9 +195,9 @@ $response->send();
 
 ### Notes
 
-The output methods **can only be affected by:**
+The output methods **can only be affected by**:
 
-- the [library stream filtering mechanism](/8.0/filtering/)
-- the [BOM property](/8.0/bom/)
+- the [library stream filtering mechanism](/9.0/connections/filtering/)
+- the [BOM property](/9.0/connections/bom/)
 
-No other method or property have effect on them.
+No other method or property has an effect on them.

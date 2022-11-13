@@ -7,7 +7,7 @@ title: CSV documents configurations
 
 ## Connection type
 
-Accessing the CSV document is done using one of the following class:
+Accessing the CSV document is done using one of the following classes:
 
 - `League\Csv\Reader` to connect on a [read only mode](/9.0/reader/)
 - `League\Csv\Writer` to connect on a [write only mode](/9.0/writer/)
@@ -25,8 +25,8 @@ Both classes extend the `League\Csv\AbstractCsv` class and as such share the fol
 If your CSV document was created or is read on a Macintosh computer, add the following lines before using the library to help [PHP detect line ending in Mac OS X](http://php.net/manual/en/function.fgetcsv.php#refsect1-function.fgetcsv-returnvalues).
 
 ```php
-if (!ini_get("auto_detect_line_endings")) {
-    ini_set("auto_detect_line_endings", '1');
+if (!ini_get('auto_detect_line_endings')) {
+    ini_set('auto_detect_line_endings', '1');
 }
 
 //the rest of the code continues here...
@@ -48,7 +48,7 @@ try {
 }
 ```
 
-When using a non-seekable `SplFileObject`, a `RuntimeException` is thrown instead of a `League\Csv\Exception` when using features that requires a seekable CSV document. In the following example a seekable CSV document is required to update the inserted newline.
+When using a non-seekable `SplFileObject`, a `RuntimeException` is thrown instead of a `League\Csv\Exception` when using features that require a seekable CSV document. In the following example a seekable CSV document is required to update the inserted newline.
 
 ```php
 use League\Csv\Exception;

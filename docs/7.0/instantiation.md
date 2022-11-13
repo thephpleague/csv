@@ -85,11 +85,11 @@ $reader = Reader::createFromString('john,doe,john.doe@example.com', "\n");
 $writer = Writer::createFromString('john,doe,john.doe@example.com', "\r\n");
 ```
 
-<p class="message-warning">Starting with <code>version 7.0</code> directly using the default constructor is no longer possible.</p>
+<p class="message-warning">Starting with version <code>7.0</code> directly using the default constructor is no longer possible.</p>
 
 ## Switching from one class to the other
 
-At any given time you can switch or create a new `League\Csv\Writer` or a new `League\Csv\Reader` from the current object. to do so you can use the following methods.
+At any given time you can switch or create a new `League\Csv\Writer` or a new `League\Csv\Reader` from the current object. To do so, you can use the following methods.
 
 - the `newReader` to create a new `League\Csv\Reader` object;
 - the `newWriter` to create a new `League\Csv\Writer` object;

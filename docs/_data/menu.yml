@@ -7,7 +7,7 @@ version:
         Connections Settings:
             Overview: '/9.0/connections/'
             Document Loading: '/9.0/connections/instantiation/'
-            Characters Controls: '/9.0/connections/controls/'
+            Character Controls: '/9.0/connections/controls/'
             BOM Sequences: '/9.0/connections/bom/'
             Stream Filters: '/9.0/connections/filters/'
             Document output: '/9.0/connections/output/'

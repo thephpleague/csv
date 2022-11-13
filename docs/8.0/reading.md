@@ -132,7 +132,7 @@ $nbRows = $reader->each(function ($row) {
 
 ## Reader::fetchAssoc
 
-<p class="message-warning"><strong>BC Break:</strong> Starting with <code>version 8.0.0</code> This method returns an <code>Iterator</code>.</p>
+<p class="message-warning"><strong>BC Break:</strong> Starting with version <code>8.0.0</code> This method returns an <code>Iterator</code>.</p>
 
 `fetchAssoc` returns an `Iterator` of all rows. The rows themselves are associative arrays where the keys are a one dimension array. This array must only contain unique `string` and/or `scalar` values.
 
@@ -226,7 +226,7 @@ foreach ($reader->fetchAssoc($keys, $func) as $row) {
 
 ## Reader::fetchColumn
 
-<p class="message-warning"><strong>BC Break:</strong> Starting with <code>version 8.0.0</code> This method returns a <code>Iterator</code>.</p>
+<p class="message-warning"><strong>BC Break:</strong> Starting with version <code>8.0.0</code> This method returns a <code>Iterator</code>.</p>
 
 `fetchColumn` returns a `Iterator` of all values in a given column from the CSV data.
 
@@ -280,7 +280,7 @@ foreach ($reader->fetchColumn(2, 'strtoupper') as $value) {
 
 ## Reader::fetchPairs
 
-<p class="message-notice">new feature introduced in <code>version 8.0</code></p>
+<p class="message-notice">new feature introduced in version <code>8.0</code></p>
 
 The `fetchPairs` method returns a `Generator` of key-value pairs.
 
@@ -300,7 +300,7 @@ public Reader::fetchPairs(
 ```php
 use League\Csv\Reader;
 
-$str = <<EOF
+$str = <<<EOF
 john,doe
 jane,doe
 foo,bar
@@ -322,8 +322,8 @@ foreach ($reader->fetchPairs() as $firstname => $lastname) {
 
 ### Notes
 
-- If no `$offsetIndex` is provided it default to `0`;
-- If no `$valueIndex` is provided it default to `1`;
+- If no `$offsetIndex` is provided it defaults to `0`;
+- If no `$valueIndex` is provided it defaults to `1`;
 - If no cell is found corresponding to `$offsetIndex` the row is skipped;
 - If no cell is found corresponding to `$valueIndex` the `null` value is used;
 
@@ -346,7 +346,7 @@ function(array $pairs [, int $rowOffset [, Iterator $iterator]]): array
 ```php
 use League\Csv\Reader;
 
-$str = <<EOF
+$str = <<<EOF
 john,doe
 jane,doe
 foo,bar
@@ -374,7 +374,7 @@ foreach ($reader->fetchPairs(1, 0, $func) as $lastname => $firstname) {
 
 ## Reader::fetchPairsWithoutDuplicates
 
-<p class="message-notice">new feature introduced in <code>version 8.0</code></p>
+<p class="message-notice">new feature introduced in version <code>8.0</code></p>
 
 The `fetchPairsWithoutDuplicates` method returns data in an `array` of key-value pairs, as an associative array with a single entry per row.
 
@@ -392,7 +392,7 @@ public Reader::fetchPairsWithoutDuplicates(
 - When using `fetchPairsWithoutDuplicates` entries in the associative array will be overwritten if there are duplicates values in the column index.
 
 ```php
-$str = <<EOF
+$str = <<<EOF
 john,doe
 jane,doe
 foo,bar

@@ -44,7 +44,7 @@ $result = $collection->matching($criteria);
 - **league/csv >= 9.6**
 - **doctrine/collection >= 1.6.0**
 
-but the latest stable version of each dependency is recommended.
+But the latest stable version of each dependency is recommended.
 
 ## Installation
 
@@ -79,7 +79,7 @@ $csv->setHeaderOffset(0);
 $csv->setDelimiter(';');
 
 $stmt = Statement::create()
-    ->where(fn (array $row): bool => isset($row['email']) && str_contains($row['email'], '@github.com'));
+    ->where(fn (array $row): bool => isset($row['email']) && str_ends_with($row['email'], '@github.com'));
 
 $collection = new RecordCollection($stmt->process($csv));
 ```

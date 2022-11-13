@@ -26,12 +26,12 @@ use League\Csv\Reader;
 use League\Csv\Writer;
 
 $reader = Reader::createFromPath('/path/to/my/file.csv', 'r');
-$reader->supportsStreamFilterOnRead(); //return true
-$reader->supportsStreamFilterOnWrite(); //return false
+$reader->supportsStreamFilterOnRead(); //returns true
+$reader->supportsStreamFilterOnWrite(); //returns false
 
 $writer = Writer::createFromFileObject(new SplTempFileObject());
-$writer->supportsStreamFilterOnRead(); // returns false, the API can not be used
-$writer->supportsStreamFilterOnWrite(); // returns false, the API can not be used
+$writer->supportsStreamFilterOnRead(); //returns false, the API can not be used
+$writer->supportsStreamFilterOnWrite(); //returns false, the API can not be used
 ```
 
 <p class="message-notice">The following methods still work but are deprecated since version <code>9.7.0</code></p>
@@ -47,22 +47,22 @@ The filter mode value is one of the following PHP's constant:
 - `STREAM_FILTER_READ` to add stream filter on read
 - `STREAM_FILTER_WRITE` to add stream filter on write
 
-Regardless of stream filter API support by a specific CSV object, `getStreamFilterMode` will always return a value.
+Regardless of the stream filter API being supported by a specific CSV object, `getStreamFilterMode` will always return a value.
 
 ```php
 use League\Csv\Reader;
 use League\Csv\Writer;
 
 $reader = Reader::createFromPath('/path/to/my/file.csv', 'r');
-$reader->supportsStreamFilter(); //return true
-$reader->getStreamFilterMode(); //return STREAM_FILTER_READ
+$reader->supportsStreamFilter(); //returns true
+$reader->getStreamFilterMode(); //returns STREAM_FILTER_READ
 
 $writer = Writer::createFromFileObject(new SplTempFileObject());
-$writer->supportsStreamFilter(); // returns false, the API can not be used
-$writer->getStreamFilterMode(); // returns STREAM_FILTER_WRITE
+$writer->supportsStreamFilter(); //returns false, the API can not be used
+$writer->getStreamFilterMode(); //returns STREAM_FILTER_WRITE
 ```
 
-<p class="message-warning">A <code>League\Csv\Exception</code> exception will be thrown if you use the API on a object where <code>supportsStreamFilter</code> returns <code>false</code>.</p>
+<p class="message-warning">A <code>League\Csv\Exception</code> exception will be thrown if you use the API on an object where <code>supportsStreamFilter</code> returns <code>false</code>.</p>
 
 ### Cheat sheet
 
@@ -86,7 +86,7 @@ The `AbstractCsv::addStreamFilter` method adds a stream filter to the connection
 
 - The `$filtername` parameter is a string that represents the filter as registered using php `stream_filter_register` function or one of [PHP internal stream filter](http://php.net/manual/en/filters.php).
 
-- The `$params` : This filter will be added with the specified paramaters to the end of the list.
+- The `$params` : This filter will be added with the specified parameters to the end of the list.
 
 <p class="message-warning">Each time your call <code>addStreamFilter</code> with the same argument the corresponding filter is registered again.</p>
 
@@ -143,7 +143,7 @@ $reader = null;
 
 ## Bundled stream filters
 
-The library comes bundle with two (2) stream filters:
+The library comes bundled with two (2) stream filters:
 
 - [RFC4180Field](/9.0/interoperability/rfc4180-field/) stream filter to read or write RFC4180 compliant CSV field;
 - [CharsetConverter](/9.0/converter/charset/) stream filter to convert your CSV document content using the `mbstring` extension;

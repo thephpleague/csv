@@ -14,7 +14,7 @@ public CharsetConverter::inputEncoding(string $input_encoding): self
 public CharsetConverter::outputEncoding(string $output_encoding): self
 ```
 
-The `inputEncoding` and `outputEncoding` methods sets the object encoding properties. By default, the input encoding and the output encoding are set to `UTF-8`.
+The `inputEncoding` and `outputEncoding` methods set the object encoding properties. By default, the input encoding and the output encoding are set to `UTF-8`.
 
 When building a `CharsetConverter` object, the methods do not need to be called in any particular order, and may be called multiple times. Because the `CharsetConverter` is immutable, each time its setter methods are called they return a new object without modifying the current one.
 
@@ -46,7 +46,7 @@ The resulting data is converted from `iso-8859-15` to the default `UTF-8` since 
 public CharsetConverter::__invoke(array $record): array
 ```
 
-Using the `CharsetConverter::__invoke` method, you can register a `CharsetConverter` object as a record formatter using [Writer::addFormatter](/9.0/writer/#record-formatter) method.
+Using the `CharsetConverter::__invoke` method, you can register a `CharsetConverter` object as a record formatter using the [Writer::addFormatter](/9.0/writer/#record-formatter) method.
 
 ```php
 use League\Csv\CharsetConverter;
@@ -74,12 +74,12 @@ public static CharsetConverter::getFiltername(string $input_encoding, string $ou
 
 ### Usage with CSV objects
 
-If your CSV object supports PHP stream filters then you can use the `CharsetConverter` class as a PHP stream filter and use the library [stream filtering mechanism](/9.0/connections/filters/) instead.
+If your CSV object supports PHP stream filters then you can use the `CharsetConverter` class as a PHP stream filter using the library [stream filtering mechanism](/9.0/connections/filters/) instead.
 
 The `CharsetConverter::addTo` static method:
 
-- registers the `CharsetConverter` class under the following generic filtername `convert.league.csv.*` if it is not registered yet.
-- configures the stream filter using the supplied parameters.
+- registers the `CharsetConverter` class under the generic filtername `convert.league.csv.*` if it is not registered yet;
+- configures the stream filter using the supplied parameters;
 - adds the configured stream filter to the submitted CSV object;
 
 ```php

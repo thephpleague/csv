@@ -8,7 +8,7 @@ redirect_from: /upgrading/9.0/
 
 `League\Csv 9.0` is a new major version that comes with backward compatibility breaks.
 
-This guide will help you migrate from a 8.x version to 9.0. It will only explain backward compatibility breaks, it will not present the new features ([read the documentation for that](/9.0/)).
+This guide will help you migrate from a 8.x version to 9.0. It will only explain backward compatibility breaks, it will not present the new features, ([read the documentation for that](/9.0/)).
 
 ## Installation
 
@@ -22,7 +22,7 @@ This will edit (or create) your `composer.json` file.
 
 ## PHP version requirement
 
-`League\Csv 9.0` requires a PHP version greater or equal than 7.0.0 (was previously 5.5.0).
+`League\Csv 9.0` requires a PHP version greater or equal to 7.0.0 (was previously 5.5.0).
 
 <p class="message-warning">The library is not tested on <code>HHVM</code></p>
 
@@ -30,7 +30,7 @@ This will edit (or create) your `composer.json` file.
 
 ### Stricter argument type
 
-The `Writer::insertOne` and `Writer::insertAll` methods no longer accept string as possible CSV records
+The `Writer::insertOne` and `Writer::insertAll` methods no longer accept a string as possible CSV records.
 
 Before:
 
@@ -193,7 +193,7 @@ $records = $stmt->process($reader, ['firstname', 'lastname', 'email']);
 
 #### Reader::fetchAll, Reader::fetch, Reader::each
 
-Theses methods are removed because the `Reader` and the `ResultSet` implements the `IteratorAggregate` interface
+These methods are removed because the `Reader` and the `ResultSet` implements the `IteratorAggregate` interface.
 
 Before:
 
@@ -321,7 +321,7 @@ $stats = delimiter_detect($reader, [',', ';', "\t"], 10);
 
 ### Optional callable arguments are removed
 
-The following methods no longer accept an optional callable as argument because they return a iterable object.
+The following methods no longer accept an optional callable as argument because they return an iterable object.
 
 - `Reader::fetchColumn`
 - `Reader::fetchPairs`
@@ -345,7 +345,7 @@ use League\Csv\Reader;
 $reader = Reader::createFromPath('/path/to/file.csv', 'r');
 foreach ($records->fetchColumn(0) as $value) {
     $value = strtoupper($value);
-};
+}
 ```
 
 ## Stream Filtering
@@ -433,7 +433,7 @@ $csv = null;
 
 ## Conversion methods
 
-All convertion methods are no longer attached to the `Reader` or the `Writer` classes you need a [Converter](/9.0/reader/converter/) object to convert your CSV. The following methods are removed
+All conversion methods are no longer attached to the `Reader` or the `Writer` classes, you need a [Converter](/9.0/reader/converter/) object to convert your CSV. The following methods are removed:
 
 - `Writer::jsonSerialize`
 - `AbstractCsv::toHTML`
@@ -467,7 +467,7 @@ $dom = (new XMLConverter())->convert($csv); //$dom is a DOMDocument
 - `AbstractCsv::newReader`
 - `AbstractCsv::newWriter`
 
-You can no longer switch between connection. You are require to explicitly load a new `Reader` and/or `Writer` object.
+You can no longer switch between connection. You are required to explicitly load a new `Reader` and/or `Writer` object.
 
 ### Columns consistency Validator
 

@@ -5,7 +5,7 @@ title: CSV document interoperability
 
 # RFC4180 Field compliance
 
-<p class="message-warning">This class is deprecated as of version <code>9.2.0</code>. Please use directly the <code>setEscape</code> method with the empty escape character argument instead with the <code>Reader</code> or the <code>Writer</code> object.</p>
+<p class="message-warning">This class is deprecated as of version <code>9.2.0</code>. Please use the <code>setEscape</code> method directly with the empty escape character argument instead with the <code>Reader</code> or the <code>Writer</code> object.</p>
 
 The `RFC4180Field` class enables to work around the following bugs in PHP's native CSV functions:
 
@@ -45,12 +45,12 @@ $writer->output('mycsvfile.csv'); //outputting a RFC4180 compliant CSV Document
 
 When the `$whitespace_replace` sequence is different from the empty space and does not contain:
 
-- one of the current CSV control character;
-- does not contain a character that can trigger field enclosure;
+- one of the current CSV control characters;
+- a character that can trigger field enclosure;
 
 its value will be used to:
 
-- To prevent `fputcsv` default behavior of always using enclosure when a whitespace is found in a record field
+- prevent `fputcsv` default behavior of always using enclosure when a whitespace is found in a record field
 
 ```php
 use League\Csv\RFC4180Field;
@@ -69,18 +69,18 @@ use League\Csv\RFC4180Field;
 use League\Csv\Writer;
 
 $writer = Writer::createFromPath('php://temp', 'r+');
-RFC4180Field::addTo($writer, 'fo'); // incorrect sequence this will alter your CSV
+RFC4180Field::addTo($writer, 'fo'); //incorrect sequence this will alter your CSV
 $writer->insertOne(['foo bar', 'bar']);
-echo $writer->getContent(); //display ' o bar,baz' instead of foo bar,baz
+echo $writer->getContent(); //display ' o bar,baz' instead of 'foo bar,baz'
 ```
 
 ### On records insertion
 
-<p class="message-info">To fully comply with <code>RFC4180</code> you will also need to use <code>League\Csv\Writer::setNewline</code> method.</p>
+<p class="message-info">To fully comply with <code>RFC4180</code> you will also need to use <code>League\Csv\Writer::setNewline</code>.</p>
 
 ### On records extraction
 
-Conversely, to read a RFC4180 compliant CSV document, when using the `League\Csv\Reader` object, just need to add the `League\Csv\RFC4180Field` stream filter as shown below:
+Conversely, to read a RFC4180 compliant CSV document, when using the `League\Csv\Reader` object, you just need to add the `League\Csv\RFC4180Field` stream filter as shown below:
 
 ```php
 use League\Csv\Reader;
@@ -104,7 +104,7 @@ public static RFC4180Field::getFiltername(): string
 
 To use this stream filter outside `League\Csv` objects you need to:
 
-- register the stream filter using `RFC4180Field::register` method.
+- register the stream filter using `RFC4180Field::register`.
 - use `RFC4180Field::getFiltername` with one of PHP's attaching stream filter functions with the correct arguments as shown below:
 
 ```php
@@ -120,6 +120,6 @@ $filter = stream_filter_append($resource, RFC4180Field::getFiltername(), STREAM_
 ]);
 
 while (false !== ($record = fgetcsv($resource))) {
-    //$records correctly parsed
+    //$record is correctly parsed
 }
 ```

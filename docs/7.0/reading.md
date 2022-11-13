@@ -117,7 +117,7 @@ $data = $reader->fetchColumn(2);
 ```
 
 <div class="message-warning">
-<strong>BC break starting with <code>version 7.0</code> :</strong>
+<strong>BC break starting with version <code>7.0</code> :</strong>
 <ul>
 <li>This method no longer adds <code>null</code> on an non existing column index.</li>
 <li>The cell skipping is done on the callable result.</li>

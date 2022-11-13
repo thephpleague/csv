@@ -357,11 +357,11 @@ protected methods `HTMLConverter::addHTMLAttributes` and `HTMLConverter::appendH
 ### Fixed
 
 - `AbstractCSV::__construct` correctly initializes properties
-- `AbstractCSV::createFromString` named constructor default argument is now the empty string
-- `AbstractCSV::setEscape` now accepts the empty string like `fputcsv` and `fgetcsv`
+- `AbstractCSV::createFromString` named constructor default argument is now an empty string
+- `AbstractCSV::setEscape` now accepts an empty string like `fputcsv` and `fgetcsv`
 - `Writer::insertOne` fixes throwing exception when record can not be inserted
 - `XMLConverter` convert to string the record value to avoid PHP warning on `null` value
-- Internal `Stream::createFromString` named constructor default argument is now the empty string
+- Internal `Stream::createFromString` named constructor default argument is now an empty string
 - Internal `Stream::fwrite` improved
 - Internal `Stream::__destruct` no longer emit warning on invalid stream filter removal.
 - Internal `Stream::seek` returns `0` if the seeked position `0` is valid see [#321](https://github.com/thephpleague/csv/pull/332) thanks [@HaozhouChen](https://github.com/HaozhouChen)
@@ -472,11 +472,11 @@ protected methods `HTMLConverter::addHTMLAttributes` and `HTMLConverter::appendH
 
 ### Added
 
-- Support for non seekable stream. When seekable feature are required an exceptions will be thrown.
+- Support for non-seekable stream. When seekable feature are required an exceptions will be thrown.
 - `League\Csv\EncloseField` to force enclosure insertion on every field. [#269](https://github.com/thephpleague/csv/pull/269)
 - `League\Csv\EscapeFormula` a League CSV formatter to prevent CSV Formula Injection in Spreadsheet programs.
 - `League\Csv\RFC4180Field::addTo` accept an option `$replace_whitespace` argument to improve RFC4180 compliance.
-- `League\Csv\Abstract::getContent` to replace `League\Csv\Abstract::__toString`. The `__toString` method may trigger a Fatal Error with non seekable stream, instead you are recommended to used the new `getContent` method which will trigger an exception instead.
+- `League\Csv\Abstract::getContent` to replace `League\Csv\Abstract::__toString`. The `__toString` method may trigger a Fatal Error with non-seekable stream, instead you are recommended to used the new `getContent` method which will trigger an exception instead.
 
 ### Deprecated
 
@@ -1062,7 +1062,7 @@ to manage BOM character with CSV.
 
 ### Fixed
 
-- `$open_mode` default to `r+` in `League\Csv\AbstractCsv` constructors
+- `$open_mode` defaults to `r+` in `League\Csv\AbstractCsv` constructors
 
 ### Removed
 
@@ -1099,8 +1099,8 @@ to manage BOM character with CSV.
 
 ### Fixed
 
-- `League\Csv\Reader::setOffset` now default to 0;
-- `League\Csv\Reader::setLimit` now default to -1;
+- `League\Csv\Reader::setOffset` now defaults to 0;
+- `League\Csv\Reader::setLimit` now defaults to -1;
 - `detectDelimiter` bug fixes
 
 ### Removed
@@ -1165,8 +1165,8 @@ to manage BOM character with CSV.
 
 - `toHTML` method bug in `Bakame\Csv\AbstractCsv`
 - `output` method accepts an optional `$filename` argument
-- `Bakame\Csv\Reader::fetchCol` default to `$columnIndex = 0`
-- `Bakame\Csv\Reader::fetchOne` default to `$offset = 0`
+- `Bakame\Csv\Reader::fetchCol` defaults to `$columnIndex = 0`
+- `Bakame\Csv\Reader::fetchOne` defaults to `$offset = 0`
 
 ## 4.1.2 - 2014-02-14
 

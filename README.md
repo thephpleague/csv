@@ -55,16 +55,16 @@ composer require league/csv
 using the library to help [PHP detect line ending](http://php.net/manual/en/function.fgetcsv.php#refsect1-function.fgetcsv-returnvalues).
 
 ```php
-if (!ini_get("auto_detect_line_endings")) {
-    ini_set("auto_detect_line_endings", '1');
+if (!ini_get('auto_detect_line_endings')) {
+    ini_set('auto_detect_line_endings', '1');
 }
 ```
 
 ## Testing
 
-The library has a :
+The library has:
 
-- a [PHPUnit](https://phpunit.de) test suite
+- a [PHPUnit](https://phpunit.de) test suite.
 - a coding style compliance test suite using [PHP CS Fixer](https://cs.symfony.com/).
 - a code analysis compliance test suite using [PHPStan](https://github.com/phpstan/phpstan).
 
