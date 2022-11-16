@@ -32,10 +32,10 @@
     },
     "require-dev": {
         "ext-dom": "*",
-        "doctrine/collections": "^1.8",
+        "doctrine/collections": "^2.0.1",
         "friendsofphp/php-cs-fixer": "^v3.11",
         "phpbench/phpbench": "^1.2.7",
-        "phpstan/phpstan": "^1.8.11",
+        "phpstan/phpstan": "^1.9.2",
         "phpstan/phpstan-deprecation-rules": "^1.0",
         "phpstan/phpstan-phpunit": "^1.2.2",
         "phpstan/phpstan-strict-rules": "^1.4.4",

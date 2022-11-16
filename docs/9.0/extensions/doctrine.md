@@ -41,8 +41,7 @@ $result = $collection->matching($criteria);
 
 ## System Requirements
 
-- **league/csv >= 9.6**
-- **doctrine/collection >= 1.6.0**
+- **doctrine/collection >= 2.0**
 
 But the latest stable version of each dependency is recommended.
 

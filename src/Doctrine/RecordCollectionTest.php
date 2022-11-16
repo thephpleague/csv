@@ -51,15 +51,17 @@ final class RecordCollectionTest extends TestCase
     {
         /** @var resource $fp */
         $fp = tmpfile();
+        fputcsv($fp, ['field 1', 'field 2', 'field 3']);
         fputcsv($fp, ['foo', 'bar', 'baz']);
         fputcsv($fp, ['foofoo', 'barbar', 'bazbaz']);
         $csv = Reader::createFromStream($fp);
+        $csv->setHeaderOffset(0);
         $collection = new RecordCollection($csv);
 
         self::assertSame([
-            ['foo', 'bar', 'baz'],
-            ['foofoo', 'barbar', 'bazbaz'],
-        ], $collection->matching(new Criteria(null, [0 => Criteria::ASC]))->toArray());
+            1 => ['field 1' => 'foo', 'field 2' => 'bar', 'field 3' => 'baz'],
+            2 => ['field 1' => 'foofoo', 'field 2' => 'barbar', 'field 3' => 'bazbaz'],
+        ], $collection->matching(new Criteria(null, ['field 1' => Criteria::ASC]))->toArray());
 
         $csv = null;
         fclose($fp);

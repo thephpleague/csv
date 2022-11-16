@@ -27,7 +27,7 @@
     "require": {
         "php": "^8.1.2",
         "league/csv": "^9.7.3",
-        "doctrine/collections": "^1.6"
+        "doctrine/collections": "^2.0"
     },
     "replace": {
         "bakame/csv-doctrine-collection-bridge": "*"
