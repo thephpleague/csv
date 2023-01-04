@@ -10,16 +10,11 @@ jobs:
         runs-on: ubuntu-20.04
         strategy:
             matrix:
-                php: ['8.1']
+                php: ['8.1', '8.2']
                 stability: [prefer-lowest, prefer-stable]
-                include:
-                    -   php: '8.2'
-                        flags: "--ignore-platform-req=php"
-                        phpunit-flags: '--no-coverage'
-                        stability: prefer-stable
         steps:
             - name: Checkout code
-              uses: actions/checkout@v2
+              uses: actions/checkout@v3
 
             - name: Setup PHP
               uses: shivammathur/setup-php@v2
@@ -36,8 +31,8 @@ jobs:
             - name: Get Composer Cache Directory
               id: composer-cache
               run: |
-                  echo "::set-output name=dir::$(composer config cache-files-dir)"
-            - uses: actions/cache@v2
+                  echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
+            - uses: actions/cache@v3
               with:
                   path: ${{ steps.composer-cache.outputs.dir }}
                   key: ${{ runner.os }}-composer-${{ matrix.stability }}-${{ matrix.flags }}-${{ hashFiles('**/composer.lock') }}
@@ -53,7 +48,7 @@ jobs:
 
             - name: Run static analysis
               run: composer phpstan
-              if: ${{ matrix.php == '8.1' && matrix.stability == 'prefer-stable'}}
+              if: ${{ matrix.php == '8.2' && matrix.stability == 'prefer-stable'}}
 
             - name: Run Coding style rules
               run: composer phpcs:fix
