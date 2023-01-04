@@ -79,10 +79,7 @@ class HTMLConverter
 
         $doc->appendChild($table);
 
-        /** @var string $content */
-        $content = $doc->saveHTML();
-
-        return $content;
+        return (string) $doc->saveHTML();
     }
 
     /**

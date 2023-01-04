@@ -160,7 +160,7 @@ class Statement
         };
 
         /** @var ArrayIterator<array-key, array<string|null>> $it */
-        $it = new ArrayIterator(iterator_to_array($iterator, true));
+        $it = new ArrayIterator(iterator_to_array($iterator));
         $it->uasort($compare);
 
         return $it;

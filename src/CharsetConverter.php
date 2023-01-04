@@ -15,7 +15,6 @@ namespace League\Csv;
 
 use OutOfRangeException;
 use php_user_filter;
-use Traversable;
 use function array_combine;
 use function array_map;
 use function in_array;
@@ -141,16 +140,11 @@ class CharsetConverter extends php_user_filter
      */
     public function convert(iterable $records): iterable
     {
-        if ($this->output_encoding === $this->input_encoding) {
-            return $records;
-        }
-
-        if (is_array($records)) {
-            return array_map($this, $records);
-        }
-
-        /* @var Traversable $records */
-        return new MapIterator($records, $this);
+        return match (true) {
+            $this->output_encoding === $this->input_encoding => $records,
+            is_array($records) => array_map($this, $records),
+            default => new MapIterator($records, $this),
+        };
     }
 
     /**
