@@ -98,7 +98,12 @@ class Reader extends AbstractCsv implements TabularDataReader, JsonSerializable
             return $header;
         }
 
-        $header = $this->removeBOM($header, mb_strlen($this->getInputBOM()), $this->enclosure);
+        $header = $this->removeBOM(
+            $header,
+            !$this->is_input_bom_included ? mb_strlen($this->getInputBOM()) : 0,
+            $this->enclosure
+        );
+
         if ([''] === $header) {
             throw SyntaxError::dueToHeaderNotFound($offset);
         }

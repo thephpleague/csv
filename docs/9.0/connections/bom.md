@@ -62,12 +62,12 @@ bom_match('hello world!'.ByteSequence::BOM_UTF16_BE); //returns ''
 public AbstractCsv::getInputBOM(void): string
 ```
 
-The CSV document current BOM character is detected using the `getInputBOM` method. This method returns the currently used BOM character or an empty string if none is found or recognized. The detection is done using the `bom_match` function.
+The CSV document current BOM character is detected using the `getInputBOM` method. This method returns the currently used BOM character or an empty string if none is found or recognized. The detection is done using the `Info::fetchBOMSequence` static method.
 
 ```php
-use League\Csv\Writer;
+use League\Csv\Reader;
 
-$csv = Writer::createFromPath('/path/to/file.csv');
+$csv = Reader::createFromPath('/path/to/file.csv');
 $bom = $csv->getInputBOM();
 ```
 
@@ -128,3 +128,7 @@ The returned `$document` will contain **2** BOM markers instead of one.
 
 <p class="message-warning">If you are using a <code>stream</code> that can not be seekable you should disable BOM skipping, otherwise an <code>Exception</code> will be triggered.</p>
 <p class="message-warning">The BOM sequence is never removed from the CSV document, it is only skipped from the result set.</p>
+
+### Skipping the BOM Sequence
+
+<p class="message-info">Since version <code>9.9.0</code> you can skip the BOM sequence using the <a href="/9.0/interoperability/encoding/">CharsetConverter</a> filter</p>

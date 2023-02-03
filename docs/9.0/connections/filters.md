@@ -5,7 +5,7 @@ title: Controlling PHP Stream Filters
 
 # Stream Filters
 
-To ease performing operations on the CSV document as it is being read from or written to, you can add PHP stream filters to the `Reader` and `Writer` objects.
+To ease performing operations on the CSV document as it is being read from or written to, the `Reader` and `Writer` objects allow attaching PHP stream filters to them.
 
 ## Detecting stream filter support
 
@@ -143,7 +143,8 @@ $reader = null;
 
 ## Bundled stream filters
 
-The library comes bundled with two (2) stream filters:
+The library comes bundled with the following stream filters:
 
 - [RFC4180Field](/9.0/interoperability/rfc4180-field/) stream filter to read or write RFC4180 compliant CSV field;
 - [CharsetConverter](/9.0/converter/charset/) stream filter to convert your CSV document content using the `mbstring` extension;
+- [SkipBOMSequence](/9.0/connections/bom/) stream filter to skip your CSV document BOM sequence if present;

@@ -55,3 +55,33 @@ $writer->output('mycsvfile.csv');
 ```
 
 <p class="message-info">The conversion is done with the <code>mbstring</code> extension using the <a href="/9.0/converter/charset/">League\Csv\CharsetConverter</a>.</p>
+
+## Skipping The BOM sequence with the Reader class
+
+<p class="message-info">Since version <code>9.9.0</code>.</p>
+
+In order to ensure the correct removal of the sequence and avoid bugs while parsing the CSV, the filter can skip the
+BOM sequence completely when using the `Reader` class and convert the CSV content from the BOM sequence encoding charset
+to UTF-8. To work as intended call the `Reader::includeInputBOM` method to ensure the default BOM removal behaviour is disabled
+and add the stream filter to you reader instance using the static method `CharsetConverter::skipBOM` method;
+
+```php
+<?php
+
+use League\Csv\Reader;
+use League\Csv\CharsetConverter;
+
+$input = Reader::BOM_UTF16_BE."john,doe,john.doe@example.com\njane,doe,jane.doe@example.com\n";
+$document = Reader::createFromString($input);
+$document->includeInputBOM(); // de-activate the default skipping mechanism
+CharsetConverter::allowBOMSkipping($document);
+var_dump(iterator_to_array($document));
+// returns the document content without the skipped BOM sequence 
+// [
+//     ['john', 'doe', 'john.doe@example.com'],
+//     ['jane', 'doe', 'jane.doe@example.com'],
+// ]
+```
+
+<p class="message-warning">Once the filter is applied, the <code>Reader</code> instance looses all information regarding its
+own BOM sequence. <strong>The sequence is still be present but the instance is no longer able to detect it</strong>.</p>

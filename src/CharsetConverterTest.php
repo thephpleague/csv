@@ -9,6 +9,8 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace League\Csv;
 
 use ArrayIterator;
@@ -194,6 +196,85 @@ final class CharsetConverterTest extends TestCase
                 'record' => [1 => 1, '2' => '2', 3 => 3],
                 'expected' => [1 => 1, '2' => '2', 3 => 3],
             ],
+        ];
+    }
+
+    public function testItDoesNotChangeTheCSVContentIfNoBOMSequenceIsFound(): void
+    {
+        $data = <<<CSV
+"start
+end"
+CSV;
+        $reader = Reader::createFromString($data);
+        CharsetConverter::allowBOMSkipping($reader);
+        $reader->includeInputBOM();
+
+        self::assertSame(
+            [['start
+end']],
+            iterator_to_array($reader)
+        );
+    }
+
+    /**
+     * @dataProvider providesBOMSequences
+     */
+    public function testItSkipBOMSequenceBeforeConsumingTheCSVStream(string $sequence): void
+    {
+        $data = <<<CSV
+"start
+end"
+CSV;
+        $reader = Reader::createFromString($sequence.$data);
+        $reader->includeInputBOM();
+        CharsetConverter::allowBOMSkipping($reader);
+
+        self::assertSame(
+            [['start
+end']],
+            iterator_to_array($reader)
+        );
+    }
+
+    /**
+     * @dataProvider providesBOMSequences
+     */
+    public function testItOnlySkipOnceTheBOMSequenceBeforeConsumingTheCSVStreamOnMultipleLine(string $sequence): void
+    {
+        $data = <<<CSV
+"{$sequence}start
+end"
+CSV;
+        $reader = Reader::createFromString($sequence.$data);
+        $reader->includeInputBOM();
+        CharsetConverter::allowBOMSkipping($reader);
+
+        self::assertSame(
+            [[$sequence.'start
+end']],
+            iterator_to_array($reader)
+        );
+    }
+
+    /**
+     * @dataProvider providesBOMSequences
+     */
+    public function testItOnlySkipOnceTheBOMSequenceBeforeConsumingTheCSVStreamOnSingleLine(string $sequence): void
+    {
+        $reader = Reader::createFromString($sequence.$sequence.'start,'.$sequence.'end');
+        CharsetConverter::allowBOMSkipping($reader);
+        $reader->includeInputBOM();
+
+        self::assertSame(
+            [[$sequence.'start', $sequence.'end']],
+            iterator_to_array($reader)
+        );
+    }
+
+    public function providesBOMSequences(): iterable
+    {
+        yield 'BOM UTF-8' => [
+            'sequence' => ByteSequence::BOM_UTF8,
         ];
     }
 }

@@ -15,6 +15,7 @@ namespace League\Csv;
 
 use Generator;
 use SplFileObject;
+use Stringable;
 use function filter_var;
 use function get_class;
 use function mb_strlen;
@@ -94,9 +95,9 @@ abstract class AbstractCsv implements ByteSequence
     /**
      * Returns a new instance from a string.
      */
-    public static function createFromString(string $content = ''): static
+    public static function createFromString(Stringable|string $content = ''): static
     {
-        return new static(Stream::createFromString($content));
+        return new static(Stream::createFromString((string) $content));
     }
 
     /**

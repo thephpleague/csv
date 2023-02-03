@@ -15,6 +15,7 @@ namespace League\Csv;
 
 use SeekableIterator;
 use SplFileObject;
+use Stringable;
 use TypeError;
 use function array_keys;
 use function array_walk_recursive;
@@ -131,11 +132,11 @@ final class Stream implements SeekableIterator
     /**
      * Returns a new instance from a string.
      */
-    public static function createFromString(string $content = ''): self
+    public static function createFromString(Stringable|string $content = ''): self
     {
         /** @var resource $resource */
         $resource = fopen('php://temp', 'r+');
-        fwrite($resource, $content);
+        fwrite($resource, (string) $content);
 
         $instance = new self($resource);
         $instance->should_close_stream = true;

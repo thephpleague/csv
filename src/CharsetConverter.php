@@ -36,18 +36,42 @@ use function substr;
 class CharsetConverter extends php_user_filter
 {
     public const FILTERNAME = 'convert.league.csv';
+    public const BOM_SEQUENCE = 'bom_sequence';
+    public const SKIP_BOM_SEQUENCE = 'skip_bom_sequence';
 
     protected string $input_encoding = 'UTF-8';
     protected string $output_encoding = 'UTF-8';
+    protected bool $skipBomSequence =  false;
+
+    /**
+     * Static method to add the stream filter to a {@link Reader} object to handle BOM skipping.
+     */
+    public static function allowBOMSkipping(Reader $document): Reader
+    {
+        self::register();
+
+        $document->addStreamFilter(
+            self::getFiltername(match ($document->getInputBOM()) {
+                ByteSequence::BOM_UTF16_LE => 'UTF-16LE',
+                ByteSequence::BOM_UTF16_BE => 'UTF-16BE',
+                ByteSequence::BOM_UTF32_LE => 'UTF-32LE',
+                ByteSequence::BOM_UTF32_BE => 'UTF-32BE',
+                default => 'UTF-8',
+            }, 'UTF-8'),
+            [self::BOM_SEQUENCE => self::SKIP_BOM_SEQUENCE]
+        );
+
+        return $document;
+    }
 
     /**
      * Static method to add the stream filter to a {@link AbstractCsv} object.
      */
-    public static function addTo(AbstractCsv $csv, string $input_encoding, string $output_encoding): AbstractCsv
+    public static function addTo(AbstractCsv $csv, string $input_encoding, string $output_encoding, array $params = null): AbstractCsv
     {
         self::register();
 
-        return $csv->addStreamFilter(self::getFiltername($input_encoding, $output_encoding));
+        return $csv->addStreamFilter(self::getFiltername($input_encoding, $output_encoding), $params);
     }
 
     /**
@@ -110,6 +134,9 @@ class CharsetConverter extends php_user_filter
         try {
             $this->input_encoding = self::filterEncoding($matches['input']);
             $this->output_encoding = self::filterEncoding($matches['output']);
+            $this->skipBomSequence = is_array($this->params)
+                && isset($this->params[self::BOM_SEQUENCE])
+                && self::SKIP_BOM_SEQUENCE === $this->params[self::BOM_SEQUENCE];
         } catch (OutOfRangeException) {
             return false;
         }
@@ -117,16 +144,17 @@ class CharsetConverter extends php_user_filter
         return true;
     }
 
-    /**
-     * @param resource $in
-     * @param resource $out
-     * @param int      $consumed
-     */
     public function filter($in, $out, &$consumed, bool $closing): int
     {
         set_error_handler(fn (int $errno, string $errstr, string $errfile, int $errline) => true);
+        $alreadyRun = false;
         while (null !== ($bucket = stream_bucket_make_writeable($in))) {
-            $bucket->data = mb_convert_encoding($bucket->data, $this->output_encoding, $this->input_encoding);
+            $content = $bucket->data;
+            if (!$alreadyRun && $this->skipBomSequence && null !== ($bom = Info::fetchBOMSequence($content))) {
+                $content = substr($content, strlen($bom));
+            }
+            $alreadyRun = true;
+            $bucket->data = mb_convert_encoding($content, $this->output_encoding, $this->input_encoding);
             $consumed += $bucket->datalen;
             stream_bucket_append($out, $bucket);
         }

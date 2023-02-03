@@ -6,9 +6,10 @@ All Notable changes to `Csv` will be documented in this file
 
 ### Added
 
-- `League\Csv\TabularDataWriter` interface to represent how to write to a tabular data document.
+- `TabularDataWriter` interface to represent how to write to a tabular data document.
 - `TabularDataReader::first` to replace `TabularDataReader::fetchOne`
 - `TabularDataReader::nth` to replace `TabularDataReader::fetchOne`
+- `CharsetConverter::skipBOM` to improve BOM skipping see [bug #483](https://github.com/thephpleague/csv/issues/483)
 
 ### Deprecated
 
