@@ -76,7 +76,7 @@ CSV;
         self::assertFalse($filter->onCreate());
     }
 
-    public function wrongParamProvider(): iterable
+    public static function wrongParamProvider(): iterable
     {
         return [
             'empty array' => [[

@@ -50,7 +50,7 @@ final class RFC4180FieldTest extends TestCase
         self::assertSame($expected, $csv->getContent());
     }
 
-    public function bugsProvider(): array
+    public static function bugsProvider(): array
     {
         return [
             'bug #43225' => [
@@ -83,7 +83,7 @@ final class RFC4180FieldTest extends TestCase
         self::assertSame($record, $csv->first());
     }
 
-    public function readerBugsProvider(): array
+    public static function readerBugsProvider(): array
     {
         return [
             'bug #55413' => [
@@ -115,7 +115,7 @@ final class RFC4180FieldTest extends TestCase
         self::assertFalse($filter->onCreate());
     }
 
-    public function wrongParamProvider(): array
+    public static function wrongParamProvider(): array
     {
         return [
             'empty array' => [[

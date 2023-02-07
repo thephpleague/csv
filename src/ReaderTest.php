@@ -270,7 +270,7 @@ EOF;
         $fp = null;
     }
 
-    public function validBOMSequences(): array
+    public static function validBOMSequences(): array
     {
         return [
             'withBOM' => [
@@ -361,7 +361,7 @@ EOF;
         unlink($path);
     }
 
-    public function appliedFlagsProvider(): array
+    public static function appliedFlagsProvider(): array
     {
         return [
             'NONE' => [0, 2],
@@ -516,7 +516,7 @@ EOF;
         }
     }
 
-    public function sourceProvider(): array
+    public static function sourceProvider(): array
     {
         $source = <<<EOF
 "parent name","child name","title"

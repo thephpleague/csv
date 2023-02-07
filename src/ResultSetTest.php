@@ -112,7 +112,7 @@ final class ResultSetTest extends TestCase
         iterator_to_array($this->stmt->process($this->csv)->fetchColumnByName($field), false);
     }
 
-    public function invalidFieldNameProvider(): array
+    public static function invalidFieldNameProvider(): array
     {
         return [
             'invalid integer offset' => [24],
@@ -307,7 +307,7 @@ final class ResultSetTest extends TestCase
         }
     }
 
-    public function fetchPairsDataProvider(): array
+    public static function fetchPairsDataProvider(): array
     {
         return [
             'default values' => [

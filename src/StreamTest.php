@@ -137,7 +137,7 @@ final class StreamTest extends TestCase
         $stream->fputcsv(['john', 'doe', 'john.doe@example.com'], $delimiter, $enclosure, $escape);
     }
 
-    public function fputcsvProvider(): array
+    public static function fputcsvProvider(): array
     {
         return [
             'wrong delimiter' => ['toto', '"', '\\'],

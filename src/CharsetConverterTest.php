@@ -177,7 +177,7 @@ final class CharsetConverterTest extends TestCase
         self::assertSame($expected, $res[0]);
     }
 
-    public function converterProvider(): array
+    public static function converterProvider(): array
     {
         return [
             'only numeric values' => [
@@ -219,7 +219,7 @@ end']],
     /**
      * @dataProvider providesBOMSequences
      */
-    public function testItSkipBOMSequenceBeforeConsumingTheCSVStream(string $sequence): void
+    public static function testItSkipBOMSequenceBeforeConsumingTheCSVStream(string $sequence): void
     {
         $data = <<<CSV
 "start
@@ -271,7 +271,7 @@ end']],
         );
     }
 
-    public function providesBOMSequences(): iterable
+    public static function providesBOMSequences(): iterable
     {
         yield 'BOM UTF-8' => [
             'sequence' => ByteSequence::BOM_UTF8,

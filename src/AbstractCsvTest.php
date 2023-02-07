@@ -95,7 +95,7 @@ final class AbstractCsvTest extends TestCase
         self::assertSame($expected, Reader::createFromString($str)->setDelimiter($delimiter)->getInputBOM());
     }
 
-    public function bomProvider(): array
+    public static function bomProvider(): array
     {
         $invalidBOM = <<<EOF
 ;\x00\x00\xFE\xFFworld
@@ -251,7 +251,7 @@ EOF;
         self::assertSame($useFilterWrite, $csv->supportsStreamFilterOnWrite());
     }
 
-    public function provideCsvFilterTestingData(): iterable
+    public static function provideCsvFilterTestingData(): iterable
     {
         yield 'Reader with stream capability' => [
             'csv' => Reader::createFromString(),
@@ -482,7 +482,7 @@ EOF;
         self::assertSame($expected, Writer::createFromFileObject(new SplFileObject($path))->getPathname());
     }
 
-    public function getPathnameProvider(): array
+    public static function getPathnameProvider(): array
     {
         return [
             'absolute path' => [

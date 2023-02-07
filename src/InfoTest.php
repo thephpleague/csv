@@ -115,7 +115,7 @@ EOF;
         self::assertSame($method_expected, Info::fetchBOMSequence($str));
     }
 
-    public function ByteSequenceMatchProvider(): array
+    public static function ByteSequenceMatchProvider(): array
     {
         return [
             'empty string' => [

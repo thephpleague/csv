@@ -121,7 +121,7 @@ final class WriterTest extends TestCase
         Writer::createFromPath(__DIR__.'/../test_files/foo.csv', 'r')->insertOne($record);
     }
 
-    public function inputDataProvider(): array
+    public static function inputDataProvider(): array
     {
         return [
             'normal record' => [['foo', 'bar']],
@@ -140,7 +140,7 @@ final class WriterTest extends TestCase
         self::assertStringContainsString($expected, $this->csv->toString());
     }
 
-    public function dataToSave(): array
+    public static function dataToSave(): array
     {
         $multipleArray = [
             ['john', 'doe', 'john.doe@example.com'],
@@ -240,7 +240,7 @@ final class WriterTest extends TestCase
         }
     }
 
-    public function compliantRFC4180Provider(): array
+    public static function compliantRFC4180Provider(): array
     {
         return [
             'bug #43225' => [

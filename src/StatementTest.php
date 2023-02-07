@@ -124,7 +124,7 @@ final class StatementTest extends TestCase
         );
     }
 
-    public function intervalTest(): array
+    public static function intervalTest(): array
     {
         return [
             'tooHigh' => [1, 10],
