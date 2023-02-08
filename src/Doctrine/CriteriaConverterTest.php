@@ -17,14 +17,13 @@ use Doctrine\Common\Collections\Criteria;
 use Doctrine\Common\Collections\Expr\Comparison;
 use League\Csv\Reader;
 use League\Csv\ResultSet;
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 
+#[Group('reader')]
 final class CriteriaConverterTest extends TestCase
 {
-    /**
-     * @var Reader
-     */
-    protected $csv;
+    private Reader $csv;
 
     protected function setUp(): void
     {

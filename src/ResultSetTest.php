@@ -14,6 +14,8 @@ declare(strict_types=1);
 namespace League\Csv;
 
 use Generator;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use SplTempFileObject;
 use function current;
@@ -22,10 +24,7 @@ use function iterator_to_array;
 use function json_encode;
 use function next;
 
-/**
- * @group reader
- * @coversDefaultClass \League\Csv\ResultSet
- */
+#[Group('reader')]
 final class ResultSetTest extends TestCase
 {
     private Reader $csv;
@@ -51,12 +50,6 @@ final class ResultSetTest extends TestCase
         unset($this->csv, $this->stmt);
     }
 
-    /**
-     * @covers \League\Csv\Statement::process
-     * @covers \League\Csv\Statement::buildOrderBy
-     * @covers ::count
-     * @covers ::getIterator
-     */
     public function testCountable(): void
     {
         $records = $this->stmt->limit(1)->process($this->csv);
@@ -64,10 +57,6 @@ final class ResultSetTest extends TestCase
         self::assertInstanceOf(Generator::class, $records->getIterator());
     }
 
-    /**
-     * @covers ::combineHeader
-     * @covers ::getRecords
-     */
     public function testFilter(): void
     {
         $func2 = fn (array $row): bool => !in_array('john', $row, true);
@@ -87,17 +76,7 @@ final class ResultSetTest extends TestCase
         self::assertEquals($result3, $result2);
     }
 
-    /**
-     * @covers ::fetchColumnByOffset
-     * @covers ::fetchColumnByName
-     * @covers ::getColumnIndex
-     * @covers ::getColumnIndexByValue
-     * @covers ::getColumnIndexByKey
-     * @covers ::__destruct
-     * @covers \League\Csv\InvalidArgument::dueToInvalidColumnIndex
-     *
-     * @dataProvider invalidFieldNameProvider
-     */
+    #[DataProvider('invalidFieldNameProvider')]
     public function testFetchColumnTriggersException(int|string $field): void
     {
         $this->expectException(InvalidArgument::class);
@@ -120,11 +99,6 @@ final class ResultSetTest extends TestCase
         ];
     }
 
-    /**
-     * @covers ::fetchColumnByOffset
-     * @covers ::getColumnIndexByKey
-     * @covers \League\Csv\InvalidArgument::dueToInvalidColumnIndex
-     */
     public function testFetchColumnTriggersOutOfRangeException(): void
     {
         $this->expectException(InvalidArgument::class);
@@ -134,12 +108,6 @@ final class ResultSetTest extends TestCase
         iterator_to_array($res, false);
     }
 
-    /**
-     * @covers ::fetchColumnByOffset
-     * @covers ::getColumnIndex
-     * @covers ::getColumnIndexByValue
-     * @covers ::getColumnIndexByKey
-     */
     public function testFetchColumn(): void
     {
         self::assertContains('john', $this->stmt->process($this->csv)->fetchColumnByOffset(0));
@@ -168,12 +136,6 @@ final class ResultSetTest extends TestCase
         );
     }
 
-    /**
-     * @covers ::fetchColumnByOffset
-     * @covers ::getColumnIndexByKey
-     * @covers ::yieldColumn
-     * @covers \League\Csv\InvalidArgument::dueToInvalidColumnIndex
-     */
     public function testFetchColumnByOffsetTriggersOutOfRangeException(): void
     {
         $this->expectException(InvalidArgument::class);
@@ -186,10 +148,6 @@ final class ResultSetTest extends TestCase
         );
     }
 
-    /**
-     * @covers ::getRecords
-     * @covers ::getIterator
-     */
     public function testFetchAssocWithRowIndex(): void
     {
         $arr = [
@@ -212,13 +170,6 @@ final class ResultSetTest extends TestCase
         );
     }
 
-    /**
-     * @covers ::fetchColumnByName
-     * @covers ::getColumnIndex
-     * @covers ::getColumnIndexByValue
-     * @covers ::getColumnIndexByKey
-     * @covers ::yieldColumn
-     */
     public function testFetchColumnWithColumnName(): void
     {
         $source = Reader::BOM_UTF8.'"parent name","child name","title"
@@ -229,11 +180,6 @@ final class ResultSetTest extends TestCase
         self::assertContains('parentA', $this->stmt->process($csv)->fetchColumnByName('parent name'));
     }
 
-    /**
-     * @covers ::fetchColumnByOffset
-     * @covers ::getColumnIndex
-     * @covers ::getColumnIndexByKey
-     */
     public function testFetchColumnInconsistentColumnCSV(): void
     {
         $raw = [
@@ -251,11 +197,6 @@ final class ResultSetTest extends TestCase
         self::assertCount(1, iterator_to_array($res));
     }
 
-    /**
-     * @covers ::fetchColumnByOffset
-     * @covers ::getColumnIndex
-     * @covers ::getColumnIndexByKey
-     */
     public function testFetchColumnEmptyCol(): void
     {
         $raw = [
@@ -272,10 +213,6 @@ final class ResultSetTest extends TestCase
         self::assertCount(0, iterator_to_array($res));
     }
 
-    /**
-     * @covers ::first
-     * @covers ::nth
-     */
     public function testfetchOne(): void
     {
         self::assertSame($this->expected[0], $this->stmt->process($this->csv)->first());
@@ -283,20 +220,13 @@ final class ResultSetTest extends TestCase
         self::assertSame([], $this->stmt->process($this->csv)->nth(35));
     }
 
-    /**
-     * @covers ::nth
-     */
     public function testFetchOneTriggersException(): void
     {
         $this->expectException(InvalidArgument::class);
         $this->stmt->process($this->csv)->nth(-5);
     }
 
-    /**
-     * @covers ::fetchPairs
-     * @covers ::getColumnIndex
-     * @dataProvider fetchPairsDataProvider
-     */
+    #[DataProvider('fetchPairsDataProvider')]
     public function testFetchPairsIteratorMode(int|string $index, int|string $item, array $expected): void
     {
         $iterator = $this->stmt->process($this->csv)->fetchPairs($index, $item);
@@ -329,19 +259,11 @@ final class ResultSetTest extends TestCase
         ];
     }
 
-    /**
-     * @covers ::fetchPairs
-     * @covers ::getColumnIndex
-     */
     public function testFetchPairsWithInvalidOffset(): void
     {
         self::assertCount(0, iterator_to_array($this->stmt->process($this->csv)->fetchPairs(10, 1), true));
     }
 
-    /**
-     * @covers ::fetchPairs
-     * @covers ::getColumnIndex
-     */
     public function testFetchPairsWithInvalidValue(): void
     {
         $res = $this->stmt->process($this->csv)->fetchPairs(0, 15);
@@ -350,9 +272,6 @@ final class ResultSetTest extends TestCase
         }
     }
 
-    /**
-     * @covers ::getHeader
-     */
     public function testGetHeader(): void
     {
         $expected = ['firstname', 'lastname', 'email'];
@@ -363,20 +282,12 @@ final class ResultSetTest extends TestCase
         self::assertSame($expected, $this->stmt->process($this->csv, $expected)->getHeader());
     }
 
-    /**
-     * @covers ::getRecords
-     * @covers ::getIterator
-     */
     public function testGetRecords(): void
     {
         $result = $this->stmt->process($this->csv);
         self::assertEquals($result->getIterator(), $result->getRecords());
     }
 
-    /**
-     * @covers ::jsonSerialize
-     * @covers \League\Csv\Statement::create
-     */
     public function testJsonSerialize(): void
     {
         $expected = [
@@ -398,9 +309,6 @@ final class ResultSetTest extends TestCase
         );
     }
 
-    /**
-     * @covers ::validateHeader
-     */
     public function testHeaderThrowsExceptionOnError(): void
     {
         $this->expectException(SyntaxError::class);
@@ -414,9 +322,6 @@ final class ResultSetTest extends TestCase
         Statement::create()->process($resultSet, ['foo', 'foo']);
     }
 
-    /**
-     * @covers ::validateHeader
-     */
     public function testHeaderThrowsExceptionOnInvalidColumnNames(): void
     {
         $this->expectException(SyntaxError::class);

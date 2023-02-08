@@ -14,13 +14,12 @@ declare(strict_types=1);
 namespace League\Csv;
 
 use ArrayIterator;
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use function array_map;
 use function iterator_to_array;
 
-/**
- * @coversDefaultClass \League\Csv\MapIterator
- */
+#[Group('csv')]
 final class MapIteratorTest extends TestCase
 {
     public function testMapIteratorCanActLikeArrayMapWithOneArray(): void

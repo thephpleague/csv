@@ -16,14 +16,13 @@ namespace League\Csv\Doctrine;
 use Doctrine\Common\Collections\Criteria;
 use League\Csv\Reader;
 use League\Csv\Statement;
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 
+#[Group('reader')]
 final class RecordCollectionTest extends TestCase
 {
-    /**
-     * @var Reader
-     */
-    protected $csv;
+    private Reader $csv;
 
     protected function setUp(): void
     {

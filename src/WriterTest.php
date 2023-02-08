@@ -14,6 +14,8 @@ declare(strict_types=1);
 namespace League\Csv;
 
 use ArrayIterator;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use SplFileObject;
 use SplTempFileObject;
@@ -22,10 +24,7 @@ use function fclose;
 use function fopen;
 use function tmpfile;
 
-/**
- * @group writer
- * @coversDefaultClass \League\Csv\Writer
- */
+#[Group('writer')]
 final class WriterTest extends TestCase
 {
     private Writer $csv;
@@ -43,10 +42,6 @@ final class WriterTest extends TestCase
         unset($this->csv);
     }
 
-    /**
-     * @covers ::getFlushThreshold
-     * @covers ::setFlushThreshold
-     */
     public function testFlushThreshold(): void
     {
         $this->csv->setFlushThreshold(12);
@@ -54,10 +49,6 @@ final class WriterTest extends TestCase
         self::assertSame($this->csv, $this->csv->setFlushThreshold(12));
     }
 
-    /**
-     * @covers ::setFlushThreshold
-     * @covers \League\Csv\InvalidArgument::dueToInvalidThreshold
-     */
     public function testFlushThresholdThrowsException(): void
     {
         $this->csv->setFlushThreshold(1);
@@ -86,9 +77,6 @@ final class WriterTest extends TestCase
         self::assertStringContainsString('JANE,DOE,JANE@EXAMPLE.COM', $csv->toString());
     }
 
-    /**
-     * @covers ::insertOne
-     */
     public function testInsert(): void
     {
         $expected = [
@@ -100,9 +88,6 @@ final class WriterTest extends TestCase
         self::assertStringContainsString('john,doe,john.doe@example.com', $this->csv->toString());
     }
 
-    /**
-     * @covers ::insertOne
-     */
     public function testInsertNormalFile(): void
     {
         $csv = Writer::createFromPath(__DIR__.'/../test_files/foo.csv', 'a+');
@@ -110,10 +95,7 @@ final class WriterTest extends TestCase
         self::assertStringContainsString('jane,doe,jane.doe@example.com', $csv->toString());
     }
 
-    /**
-     * @covers ::insertOne
-     * @dataProvider inputDataProvider
-     */
+    #[DataProvider('inputDataProvider')]
     public function testInsertThrowsExceptionOnError(array $record): void
     {
         $this->expectException(CannotInsertRecord::class);
@@ -129,11 +111,7 @@ final class WriterTest extends TestCase
         ];
     }
 
-    /**
-     * @covers ::insertAll
-     *
-     * @dataProvider dataToSave
-     */
+    #[DataProvider('dataToSave')]
     public function testSave(iterable $argument, string $expected): void
     {
         $this->csv->insertAll($argument);
@@ -175,12 +153,6 @@ final class WriterTest extends TestCase
         $fp = null;
     }
 
-    /**
-     * @covers ::setNewline
-     * @covers ::getNewline
-     * @covers ::insertOne
-     * @covers \League\Csv\Stream
-     */
     public function testCustomNewline(): void
     {
         /** @var resource $resource */
@@ -207,10 +179,6 @@ final class WriterTest extends TestCase
         self::assertSame("JANE,DOE\n", $this->csv->toString());
     }
 
-    /**
-     * @covers \League\Csv\Stream::fseek
-     * @covers \League\Csv\UnavailableStream::dueToPathNotFound
-     */
     public function testWriterTriggerExceptionWithNonSeekableStream(): void
     {
         $this->expectException(UnavailableStream::class);
@@ -223,12 +191,8 @@ final class WriterTest extends TestCase
      * @see https://bugs.php.net/bug.php?id=43225
      * @see https://bugs.php.net/bug.php?id=74713
      * @see https://bugs.php.net/bug.php?id=55413
-     *
-     * @covers ::getInputBOM
-     * @covers ::insertOne
-     *
-     * @dataProvider compliantRFC4180Provider
      */
+    #[DataProvider('compliantRFC4180Provider')]
     public function testRFC4180WriterMode(string $expected, array $record): void
     {
         foreach (["\r\n", "\n", "\r"] as $eol) {

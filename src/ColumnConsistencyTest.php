@@ -13,14 +13,12 @@ declare(strict_types=1);
 
 namespace League\Csv;
 
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use SplFileObject;
 use SplTempFileObject;
 
-/**
- * @group writer
- * @coversDefaultClass \League\Csv\ColumnConsistency
- */
+#[Group('writer')]
 final class ColumnConsistencyTest extends TestCase
 {
     private Writer $csv;
@@ -38,12 +36,6 @@ final class ColumnConsistencyTest extends TestCase
         unset($this->csv);
     }
 
-    /**
-     * @covers ::__construct
-     * @covers ::getColumnCount
-     * @covers ::__invoke
-     * @covers \League\Csv\CannotInsertRecord
-     */
     public function testAutoDetect(): void
     {
         try {
@@ -60,11 +52,6 @@ final class ColumnConsistencyTest extends TestCase
         }
     }
 
-    /**
-     * @covers ::__construct
-     * @covers ::__invoke
-     * @covers \League\Csv\CannotInsertRecord
-     */
     public function testColumnsCount(): void
     {
         $this->expectException(CannotInsertRecord::class);
@@ -74,10 +61,6 @@ final class ColumnConsistencyTest extends TestCase
         $this->csv->insertOne(['jane', 'jane.doe@example.com']);
     }
 
-    /**
-     * @covers ::__construct
-     * @covers \League\Csv\InvalidArgument
-     */
     public function testColumnsCountTriggersException(): void
     {
         $this->expectException(InvalidArgument::class);

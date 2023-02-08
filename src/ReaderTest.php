@@ -13,6 +13,8 @@ declare(strict_types=1);
 
 namespace League\Csv;
 
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use SplFileObject;
 use SplTempFileObject;
@@ -25,10 +27,7 @@ use function iterator_to_array;
 use function json_encode;
 use function unlink;
 
-/**
- * @group reader
- * @coversDefaultClass \League\Csv\Reader
- */
+#[Group('reader')]
 final class ReaderTest extends TestCase
 {
     private Reader $csv;
@@ -52,11 +51,6 @@ final class ReaderTest extends TestCase
         unset($this->csv);
     }
 
-    /**
-     * @covers ::count
-     * @covers ::computeHeader
-     * @covers ::getRecords
-     */
     public function testCountable(): void
     {
         $source = '"parent name","child name","title"
@@ -67,9 +61,6 @@ final class ReaderTest extends TestCase
         self::assertCount(1, $csv);
     }
 
-    /**
-     * @covers ::getDocument
-     */
     public function testReaderWithEmptyEscapeChar1(): void
     {
         $source = <<<EOF
@@ -87,9 +78,6 @@ EOF;
         self::assertCount(4, $csv);
     }
 
-    /**
-     * @covers ::getDocument
-     */
     public function testReaderWithEmptyEscapeChar2(): void
     {
         $source = '"parent name","child name","title"
@@ -101,13 +89,6 @@ EOF;
         self::assertCount(1, $csv);
     }
 
-    /**
-     * @covers ::resetProperties
-     * @covers ::computeHeader
-     * @covers ::getIterator
-     * @covers ::getRecords
-     * @covers ::combineHeader
-     */
     public function testGetIterator(): void
     {
         $this->csv->setHeaderOffset(0);
@@ -126,10 +107,6 @@ EOF;
         }
     }
 
-    /**
-     * @covers ::computeHeader
-     * @covers ::combineHeader
-     */
     public function testCombineHeader(): void
     {
         $this->csv->setHeaderOffset(1);
@@ -138,13 +115,6 @@ EOF;
         }
     }
 
-    /**
-     * @covers ::setHeaderOffset
-     * @covers ::getHeaderOffset
-     * @covers ::getHeader
-     * @covers ::setHeader
-     * @covers ::seekRow
-     */
     public function testGetHeader(): void
     {
         $this->csv->setHeaderOffset(1);
@@ -156,12 +126,6 @@ EOF;
         self::assertSame([], $this->csv->getHeader());
     }
 
-    /**
-     * @covers ::fetchColumnByName
-     * @covers ::fetchColumnByOffset
-     * @covers ::nth
-     * @covers ::fetchPairs
-     */
     public function testCall(): void
     {
         $raw = [
@@ -186,14 +150,6 @@ EOF;
         self::assertEquals($csv->fetchPairs('lastname', 0), $res->fetchPairs('lastname', 0));
     }
 
-    /**
-     * @covers ::getHeader
-     * @covers ::computeHeader
-     * @covers ::getRecords
-     * @covers ::setHeader
-     * @covers \League\Csv\SyntaxError::dueToDuplicateHeaderColumnNames
-     * @covers \League\Csv\SyntaxError::duplicateColumnNames
-     */
     public function testHeaderThrowsExceptionOnError(): void
     {
         $csv = Reader::createFromString(
@@ -210,13 +166,6 @@ EOF;
         }
     }
 
-    /**
-     * @covers ::getHeader
-     * @covers ::seekRow
-     * @covers ::setHeaderOffset
-     * @covers \League\Csv\SyntaxError::dueToHeaderNotFound
-     * @covers \League\Csv\SyntaxError::duplicateColumnNames
-     */
     public function testHeaderThrowsExceptionOnEmptyLine(): void
     {
         $str = <<<EOF
@@ -234,12 +183,6 @@ EOF;
         }
     }
 
-    /**
-     * @covers ::getHeader
-     * @covers ::computeHeader
-     * @covers ::setHeaderOffset
-     * @covers \League\Csv\SyntaxError::dueToInvalidHeaderColumnNames
-     */
     public function testHeaderThrowsIfItContainsNonStringNames(): void
     {
         $this->expectException(SyntaxError::class);
@@ -247,14 +190,7 @@ EOF;
         iterator_to_array($this->csv->getRecords(['field1', 2, 'field3']));
     }
 
-    /**
-     * @covers ::stripBOM
-     * @covers ::removeBOM
-     * @covers ::combineHeader
-     * @covers \League\Csv\Stream
-     *
-     * @dataProvider validBOMSequences
-     */
+    #[DataProvider('validBOMSequences')]
     public function testStripBOM(array $record, string $expected_bom, string $expected): void
     {
         /** @var resource $fp */
@@ -291,12 +227,6 @@ EOF;
         ];
     }
 
-    /**
-     * @covers ::stripBOM
-     * @covers ::removeBOM
-     * @covers ::combineHeader
-     * @covers \League\Csv\Stream
-     */
     public function testStripBOMWithEnclosure(): void
     {
         $source = Reader::BOM_UTF8.'"parent name","child name","title"
@@ -309,12 +239,6 @@ EOF;
         }
     }
 
-    /**
-     * @covers ::stripBOM
-     * @covers ::removeBOM
-     * @covers ::combineHeader
-     * @covers \League\Csv\Stream
-     */
     public function testStripNoBOM(): void
     {
         $source = '"parent name","child name","title"
@@ -344,10 +268,7 @@ EOF;
         $fp = null;
     }
 
-    /**
-     * @covers ::getIterator
-     * @dataProvider appliedFlagsProvider
-     */
+    #[DataProvider('appliedFlagsProvider')]
     public function testAppliedFlags(int $flag, int $fetch_count): void
     {
         $path = __DIR__.'/../test_files/tmp.txt';
@@ -375,36 +296,18 @@ EOF;
         ];
     }
 
-    /**
-     * @covers ::setHeader
-     * @covers ::seekRow
-     *
-     * @covers \League\Csv\InvalidArgument::dueToInvalidHeaderOffset
-     */
     public function testGetHeaderThrowsExceptionWithNegativeOffset(): void
     {
         $this->expectException(InvalidArgument::class);
         $this->csv->setHeaderOffset(-3)->getRecords();
     }
 
-    /**
-     * @covers ::setHeader
-     * @covers ::seekRow
-     *
-     * @covers \League\Csv\SyntaxError::dueToHeaderNotFound
-     */
     public function testGetHeaderThrowsExceptionWithSplFileObject(): void
     {
         $this->expectException(SyntaxError::class);
         $this->csv->setHeaderOffset(23)->getRecords();
     }
 
-    /**
-     * @covers ::setHeader
-     * @covers ::seekRow
-     *
-     * @covers \League\Csv\SyntaxError::dueToHeaderNotFound
-     */
     public function testGetHeaderThrowsExceptionWithStreamObject(): void
     {
         $this->expectException(SyntaxError::class);
@@ -419,11 +322,6 @@ EOF;
         $csv->setHeaderOffset(23)->getRecords();
     }
 
-    /**
-     * @covers ::setHeaderOffset
-     *
-     * @covers \League\Csv\InvalidArgument::dueToInvalidHeaderOffset
-     */
     public function testSetHeaderThrowsExceptionOnWrongInputRange(): void
     {
         $this->expectException(InvalidArgument::class);
@@ -431,9 +329,6 @@ EOF;
         $this->csv->setHeaderOffset(-1);
     }
 
-    /**
-     * @covers ::computeHeader
-     */
     public function testMapRecordsFields(): void
     {
         $keys = ['firstname', 'lastname', 'email'];
@@ -443,9 +338,6 @@ EOF;
         }
     }
 
-    /**
-     * @covers ::jsonSerialize
-     */
     public function testJsonSerialize(): void
     {
         $expected = [
@@ -465,22 +357,13 @@ EOF;
         );
     }
 
-    /**
-     * @covers ::createFromPath
-     */
     public function testCreateFromPath(): void
     {
         $csv = Reader::createFromPath(__DIR__.'/../test_files/foo_readonly.csv');
         self::assertCount(1, $csv);
     }
 
-    /**
-     * @dataProvider sourceProvider
-     * @covers ::includeEmptyRecords
-     * @covers ::skipEmptyRecords
-     * @covers ::isEmptyRecordsIncluded
-     * @covers ::getRecords
-     */
+    #[DataProvider('sourceProvider')]
     public function testSkippingEmptyRecords(
         Reader $reader,
         array $expected_with_skipping,

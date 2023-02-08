@@ -13,19 +13,12 @@ declare(strict_types=1);
 
 namespace League\Csv;
 
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 
-/**
- * @group converter
- * @coversDefaultClass \League\Csv\CannotInsertRecord
- */
+#[Group('csv')]
 final class CannotInsertRecordTest extends TestCase
 {
-    /**
-     * @covers ::triggerOnInsertion
-     * @covers ::getName
-     * @covers ::getRecord
-     */
     public function testTriggerOnInsertion(): void
     {
         $record = ['jane', 'doe', 'jane.doe@example.com'];
@@ -36,11 +29,6 @@ final class CannotInsertRecordTest extends TestCase
         self::assertSame('Unable to write record to the CSV document', $exception->getMessage());
     }
 
-    /**
-     * @covers ::triggerOnValidation
-     * @covers ::getName
-     * @covers ::getRecord
-     */
     public function testTriggerOnValidation(): void
     {
         $record = ['jane', 'doe', 'jane.doe@example.com'];

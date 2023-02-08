@@ -16,6 +16,8 @@ namespace League\Csv;
 use ArrayIterator;
 use Iterator;
 use OutOfRangeException;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use function explode;
 use function implode;
@@ -24,26 +26,16 @@ use function stream_filter_register;
 use function stream_get_filters;
 use function strtoupper;
 
-/**
- * @group converter
- * @coversDefaultClass \League\Csv\CharsetConverter
- */
+#[Group('converter')]
+#[Group('filter')]
 final class CharsetConverterTest extends TestCase
 {
-    /**
-     * @covers ::inputEncoding
-     * @covers ::filterEncoding
-     */
     public function testCharsetConverterTriggersException(): void
     {
         $this->expectException(OutOfRangeException::class);
         (new CharsetConverter())->inputEncoding('');
     }
 
-    /**
-     * @covers ::inputEncoding
-     * @covers ::outputEncoding
-     */
     public function testCharsetConverterRemainsTheSame(): void
     {
         $converter = new CharsetConverter();
@@ -52,13 +44,6 @@ final class CharsetConverterTest extends TestCase
         self::assertNotEquals($converter->outputEncoding('iso-8859-15'), $converter);
     }
 
-    /**
-     * @covers ::convert
-     * @covers ::filterEncoding
-     * @covers ::encodeField
-     * @covers ::inputEncoding
-     * @covers ::__invoke
-     */
     public function testCharsetConverterDoesNothing(): void
     {
         $converter = new CharsetConverter();
@@ -70,10 +55,6 @@ final class CharsetConverterTest extends TestCase
         self::assertNotEquals($record, ($converter->outputEncoding('utf-16'))($record));
     }
 
-    /**
-     * @covers ::convert
-     * @covers ::inputEncoding
-     */
     public function testCharsetConverterConvertsAnArray(): void
     {
         $expected = ['Batman', 'Superman', 'Anaïs'];
@@ -90,11 +71,6 @@ final class CharsetConverterTest extends TestCase
         self::assertSame($expected, $result[0]);
     }
 
-
-    /**
-     * @covers ::convert
-     * @covers ::inputEncoding
-     */
     public function testCharsetConverterConvertsAnIterator(): void
     {
         $expected = new ArrayIterator(['Batman', 'Superman', 'Anaïs']);
@@ -105,13 +81,6 @@ final class CharsetConverterTest extends TestCase
         self::assertInstanceOf(Iterator::class, $converter->convert($expected));
     }
 
-    /**
-     * @covers ::register
-     * @covers ::getFiltername
-     * @covers ::addTo
-     * @covers ::onCreate
-     * @covers ::filter
-     */
     public function testCharsetConverterAsStreamFilter(): void
     {
         $expected = 'Batman,Superman,Anaïs';
@@ -124,10 +93,6 @@ final class CharsetConverterTest extends TestCase
         self::assertSame(strtoupper($expected), $csv->toString());
     }
 
-    /**
-     * @covers ::onCreate
-     * @covers ::filter
-     */
     public function testCharsetConverterAsStreamFilterFailed(): void
     {
         $this->expectException(InvalidArgument::class);
@@ -140,9 +105,6 @@ final class CharsetConverterTest extends TestCase
         ;
     }
 
-    /**
-     * @covers ::onCreate
-     */
     public function testOnCreateFailsWithWrongFiltername(): void
     {
         $converter = new CharsetConverter();
@@ -150,9 +112,6 @@ final class CharsetConverterTest extends TestCase
         self::assertFalse($converter->onCreate());
     }
 
-    /**
-     * @covers ::onCreate
-     */
     public function testOnCreateFailedWithWrongParams(): void
     {
         $converter = new CharsetConverter();
@@ -160,12 +119,7 @@ final class CharsetConverterTest extends TestCase
         self::assertFalse($converter->onCreate());
     }
 
-    /**
-     * @covers ::convert
-     * @covers ::encodeField
-     *
-     * @dataProvider converterProvider
-     */
+    #[DataProvider('converterProvider')]
     public function testConvertOnlyStringField(array $record, array $expected): void
     {
         $converter = (new CharsetConverter())
@@ -216,9 +170,7 @@ end']],
         );
     }
 
-    /**
-     * @dataProvider providesBOMSequences
-     */
+    #[DataProvider('providesBOMSequences')]
     public static function testItSkipBOMSequenceBeforeConsumingTheCSVStream(string $sequence): void
     {
         $data = <<<CSV
@@ -236,9 +188,7 @@ end']],
         );
     }
 
-    /**
-     * @dataProvider providesBOMSequences
-     */
+    #[DataProvider('providesBOMSequences')]
     public function testItOnlySkipOnceTheBOMSequenceBeforeConsumingTheCSVStreamOnMultipleLine(string $sequence): void
     {
         $data = <<<CSV
@@ -256,9 +206,7 @@ end']],
         );
     }
 
-    /**
-     * @dataProvider providesBOMSequences
-     */
+    #[DataProvider('providesBOMSequences')]
     public function testItOnlySkipOnceTheBOMSequenceBeforeConsumingTheCSVStreamOnSingleLine(string $sequence): void
     {
         $reader = Reader::createFromString($sequence.$sequence.'start,'.$sequence.'end');

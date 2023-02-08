@@ -14,41 +14,26 @@ declare(strict_types=1);
 namespace League\Csv;
 
 use InvalidArgumentException;
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use SplTempFileObject;
 use TypeError;
 
-/**
- * @group filter
- * @coversDefaultClass \League\Csv\EscapeFormula
- */
+#[Group('filter')]
 final class EscapeFormulaTest extends TestCase
 {
-    /**
-     * @covers ::__construct
-     * @covers ::filterSpecialCharacters
-     */
     public function testConstructorThrowsTypError(): void
     {
         $this->expectException(TypeError::class);
         new EscapeFormula("\t", [(object) 'i']);
     }
 
-    /**
-     * @covers ::__construct
-     * @covers ::getSpecialCharacters
-     * @covers ::filterSpecialCharacters
-     */
     public function testConstructorThrowsInvalidArgumentException(): void
     {
         $this->expectException(InvalidArgumentException::class);
         new EscapeFormula("\t", ['i', 'foo']);
     }
 
-    /**
-     * @covers ::__construct
-     * @covers ::getEscape
-     */
     public function testGetEscape(): void
     {
         $formatter = new EscapeFormula();
@@ -57,11 +42,6 @@ final class EscapeFormulaTest extends TestCase
         self::assertSame("\n", $formatterBis->getEscape());
     }
 
-    /**
-     * @covers ::__construct
-     * @covers ::getSpecialCharacters
-     * @covers ::filterSpecialCharacters
-     */
     public function testGetSpecialChars(): void
     {
         $formatter = new EscapeFormula();
@@ -70,11 +50,6 @@ final class EscapeFormulaTest extends TestCase
         self::assertContains('i', $formatterBis->getSpecialCharacters());
     }
 
-    /**
-     * @covers ::escapeRecord
-     * @covers ::escapeField
-     * @covers ::isStringable
-     */
     public function testEscapeRecord(): void
     {
         $record = ['2', '2017-07-25', 'Important Client', '=2+5', 240, null, (object) 'yes'];
@@ -83,12 +58,6 @@ final class EscapeFormulaTest extends TestCase
         self::assertEquals($expected, $formatter->escapeRecord($record));
     }
 
-    /**
-     * @covers ::__invoke
-     * @covers ::escapeRecord
-     * @covers ::escapeField
-     * @covers ::isStringable
-     */
     public function testFormatterOnWriter(): void
     {
         $record = ['2', '2017-07-25', 'Important Client', '=2+5', 240, "\ttab", "\rcr", null];

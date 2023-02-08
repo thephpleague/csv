@@ -14,13 +14,12 @@ declare(strict_types=1);
 namespace League\Csv;
 
 use InvalidArgumentException;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use function stream_get_filters;
 
-/**
- * @group filter
- * @coversDefaultClass \League\Csv\EncloseField
- */
+#[Group('filter')]
 final class EncloseFieldTest extends TestCase
 {
     /**
@@ -35,14 +34,6 @@ final class EncloseFieldTest extends TestCase
         air, moon roof, loaded', '4799.00'],
     ];
 
-    /**
-     * @covers ::addTo
-     * @covers ::register
-     * @covers ::getFiltername
-     * @covers ::isValidSequence
-     * @covers ::onCreate
-     * @covers ::filter
-     */
     public function testEncloseAll(): void
     {
         $csv = Writer::createFromString('');
@@ -63,12 +54,9 @@ CSV;
     }
 
     /**
-     * @covers ::onCreate
-     * @covers ::isValidSequence
-     * @dataProvider wrongParamProvider
-     *
      * @param array<string> $params
      */
+    #[DataProvider('wrongParamProvider')]
     public function testOnCreateFailedWithWrongParams(array $params): void
     {
         $filter = new EncloseField();
@@ -90,9 +78,6 @@ CSV;
         ];
     }
 
-    /**
-     * @covers ::addTo
-     */
     public function testEncloseFieldImmutability(): void
     {
         $this->expectException(InvalidArgumentException::class);

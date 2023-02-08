@@ -13,6 +13,8 @@ declare(strict_types=1);
 
 namespace League\Csv;
 
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use SplFileObject;
 use TypeError;
@@ -31,10 +33,7 @@ use function stream_wrapper_register;
 use function stream_wrapper_unregister;
 use const STREAM_FILTER_READ;
 
-/**
- * @group csv
- * @coversDefaultClass \League\Csv\Stream
- */
+#[Group('csv')]
 final class StreamTest extends TestCase
 {
     protected function setUp(): void
@@ -47,10 +46,6 @@ final class StreamTest extends TestCase
         stream_wrapper_unregister(StreamWrapper::PROTOCOL);
     }
 
-    /**
-     * @covers ::__clone
-     * @covers \League\Csv\UnavailableStream::dueToForbiddenCloning
-     */
     public function testCloningIsForbidden(): void
     {
         $this->expectException(UnavailableStream::class);
@@ -58,9 +53,6 @@ final class StreamTest extends TestCase
         clone Stream::createFromResource(STDOUT);
     }
 
-    /**
-     * @covers ::__construct
-     */
     public function testCreateStreamWithInvalidParameter(): void
     {
         $this->expectException(TypeError::class);
@@ -68,9 +60,6 @@ final class StreamTest extends TestCase
         Stream::createFromResource(__DIR__.'/../test_files/foo.csv');
     }
 
-    /**
-     * @covers ::__construct
-     */
     public function testCreateStreamWithWrongResourceType(): void
     {
         $this->expectException(TypeError::class);
@@ -81,10 +70,6 @@ final class StreamTest extends TestCase
         Stream::createFromResource($resource);
     }
 
-    /**
-     * @covers ::createFromPath
-     * @covers \League\Csv\UnavailableStream
-     */
     public function testCreateStreamFromPath(): void
     {
         $path = 'no/such/file.csv';
@@ -93,11 +78,6 @@ final class StreamTest extends TestCase
         Stream::createFromPath($path);
     }
 
-    /**
-     * @covers ::createFromPath
-     * @covers ::current
-     * @covers ::getCurrentRecord
-     */
     public function testCreateStreamFromPathWithContext(): void
     {
         /** @var resource $fp */
@@ -121,15 +101,7 @@ final class StreamTest extends TestCase
         self::assertIsArray($stream->current());
     }
 
-    /**
-     * @covers ::fputcsv
-     * @covers ::filterControl
-     * @covers \League\Csv\InvalidArgument::dueToInvalidEscapeCharacter
-     * @covers \League\Csv\InvalidArgument::dueToInvalidEnclosureCharacter
-     * @covers \League\Csv\InvalidArgument::dueToInvalidDelimiterCharacter
-     *
-     * @dataProvider fputcsvProvider
-     */
+    #[DataProvider('fputcsvProvider')]
     public function testfputcsv(string $delimiter, string $enclosure, string $escape): void
     {
         $this->expectException(InvalidArgument::class);
@@ -146,9 +118,6 @@ final class StreamTest extends TestCase
         ];
     }
 
-    /**
-     * @covers ::__debugInfo
-     */
     public function testVarDump(): void
     {
         $stream = Stream::createFromResource(STDOUT);
@@ -160,10 +129,6 @@ final class StreamTest extends TestCase
         self::assertArrayHasKey('stream_filters', $debugInfo);
     }
 
-    /**
-     * @covers ::seek
-     * @covers \League\Csv\InvalidArgument::dueToInvalidSeekingPosition
-     */
     public function testSeekThrowsException(): void
     {
         $this->expectException(InvalidArgument::class);
@@ -180,9 +145,6 @@ final class StreamTest extends TestCase
         $stream->fseek(-1);
     }
 
-    /**
-     * @covers ::seek
-     */
     public function testSeek(): void
     {
         $doc = Stream::createFromPath(__DIR__.'/../test_files/prenoms.csv');
@@ -192,10 +154,6 @@ final class StreamTest extends TestCase
         self::assertSame(['Aaron', '55', 'M', '2004'], $doc->current());
     }
 
-    /**
-     * @covers ::seek
-     * @covers ::key
-     */
     public function testSeekToPositionZero(): void
     {
         $doc = Stream::createFromString();
@@ -203,10 +161,6 @@ final class StreamTest extends TestCase
         self::assertSame(0, $doc->key());
     }
 
-    /**
-     * @covers ::rewind
-     * @covers \League\Csv\UnavailableFeature::dueToMissingStreamSeekability
-     */
     public function testRewindThrowsException(): void
     {
         $this->expectException(UnavailableFeature::class);
@@ -215,10 +169,6 @@ final class StreamTest extends TestCase
         $stream->rewind();
     }
 
-    /**
-     * @covers ::seek
-     * @covers \League\Csv\UnavailableFeature::dueToMissingStreamSeekability
-     */
     public function testCreateStreamWithNonSeekableStream(): void
     {
         $this->expectException(UnavailableFeature::class);
@@ -226,12 +176,6 @@ final class StreamTest extends TestCase
         $stream->seek(3);
     }
 
-    /**
-     * @covers ::setCsvControl
-     * @covers ::getCsvControl
-     * @covers ::filterControl
-     * @covers \League\Csv\InvalidArgument::dueToInvalidDelimiterCharacter
-     */
     public function testCsvControl(): void
     {
         $doc = Stream::createFromString('foo,bar');
@@ -251,10 +195,6 @@ final class StreamTest extends TestCase
         self::assertSame($expected, $doc->getCsvControl());
     }
 
-    /**
-     * @covers \League\Csv\InvalidArgument::dueToStreamFilterNotFound
-     * @covers ::appendFilter
-     */
     public function testAppendStreamFilterThrowsException(): void
     {
         $filtername = 'foo.bar';

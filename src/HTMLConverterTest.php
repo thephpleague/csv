@@ -14,22 +14,12 @@ declare(strict_types=1);
 namespace League\Csv;
 
 use DOMException;
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 
-/**
- * @group converter
- * @coversDefaultClass \League\Csv\HTMLConverter
- */
+#[Group('converter')]
 final class HTMLConverterTest extends TestCase
 {
-    /**
-     * @covers ::create
-     * @covers ::__construct
-     * @covers ::table
-     * @covers ::tr
-     * @covers ::td
-     * @covers ::convert
-     */
     public function testToHTML(): void
     {
         $csv = Reader::createFromPath(__DIR__.'/../test_files/prenoms.csv', 'r')
@@ -59,11 +49,6 @@ final class HTMLConverterTest extends TestCase
         self::assertStringNotContainsString('<tfoot>', $html);
     }
 
-    /**
-     * @covers ::convert
-     * @covers ::appendHeaderSection
-     * @covers ::addHTMLAttributes
-     */
     public function testToHTMLWithTHeadTableSection(): void
     {
         $csv = Reader::createFromPath(__DIR__.'/../test_files/prenoms.csv', 'r')
@@ -95,11 +80,6 @@ final class HTMLConverterTest extends TestCase
         self::assertStringNotContainsString('<thead><tr data-record-offset="0"></tr></thead>', $html);
     }
 
-    /**
-     * @covers ::convert
-     * @covers ::appendHeaderSection
-     * @covers ::addHTMLAttributes
-     */
     public function testToHTMLWithTFootTableSection(): void
     {
         $csv = Reader::createFromPath(__DIR__.'/../test_files/prenoms.csv', 'r')
@@ -131,11 +111,6 @@ final class HTMLConverterTest extends TestCase
         self::assertStringNotContainsString('<tfoot><tr data-record-offset="0"></tr></tfoot>', $html);
     }
 
-    /**
-     * @covers ::convert
-     * @covers ::appendHeaderSection
-     * @covers ::addHTMLAttributes
-     */
     public function testToHTMLWithBothTableHeaderSection(): void
     {
         $csv = Reader::createFromPath(__DIR__.'/../test_files/prenoms.csv', 'r')
@@ -167,10 +142,6 @@ final class HTMLConverterTest extends TestCase
         self::assertStringNotContainsString('<tfoot><tr data-record-offset="0"></tr></tfoot>', $html);
     }
 
-    /**
-     * @covers ::__construct
-     * @covers ::table
-     */
     public function testTableTriggersException(): void
     {
         $this->expectException(DOMException::class);

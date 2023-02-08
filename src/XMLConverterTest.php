@@ -16,26 +16,12 @@ namespace League\Csv;
 use DOMDocument;
 use DOMElement;
 use DOMException;
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 
-/**
- * @group converter
- * @coversDefaultClass \League\Csv\XMLConverter
- */
+#[Group('converter')]
 final class XMLConverterTest extends TestCase
 {
-    /**
-     * @covers ::create
-     * @covers ::__construct
-     * @covers ::rootElement
-     * @covers ::recordElement
-     * @covers ::fieldElement
-     * @covers ::convert
-     * @covers ::recordToElement
-     * @covers ::fieldToElement
-     * @covers ::filterAttributeName
-     * @covers ::filterElementName
-     */
     public function testToXML(): void
     {
         $csv = Reader::createFromPath(__DIR__.'/../test_files/prenoms.csv', 'r')
@@ -77,12 +63,6 @@ final class XMLConverterTest extends TestCase
         self::assertTrue($field_node->hasAttribute('name'));
     }
 
-    /**
-     * @covers ::create
-     * @covers ::rootElement
-     * @covers ::filterAttributeName
-     * @covers ::filterElementName
-     */
     public function testXmlElementTriggersException(): void
     {
         $this->expectException(DOMException::class);
@@ -91,17 +71,6 @@ final class XMLConverterTest extends TestCase
             ->rootElement('   ');
     }
 
-    /**
-     * @covers ::create
-     * @covers ::rootElement
-     * @covers ::recordElement
-     * @covers ::fieldElement
-     * @covers ::import
-     * @covers ::recordToElement
-     * @covers ::fieldToElement
-     * @covers ::filterAttributeName
-     * @covers ::filterElementName
-     */
     public function testImport(): void
     {
         $csv = Reader::createFromPath(__DIR__.'/../test_files/prenoms.csv', 'r')

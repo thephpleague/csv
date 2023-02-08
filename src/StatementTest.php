@@ -14,6 +14,8 @@ declare(strict_types=1);
 namespace League\Csv;
 
 use OutOfBoundsException;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use SplTempFileObject;
 use function array_reverse;
@@ -22,10 +24,7 @@ use function iterator_to_array;
 use function strcmp;
 use function strlen;
 
-/**
- * @group reader
- * @coversDefaultClass \League\Csv\Statement
- */
+#[Group('reader')]
 final class StatementTest extends TestCase
 {
     private Reader $csv;
@@ -51,20 +50,11 @@ final class StatementTest extends TestCase
         unset($this->csv, $this->stmt);
     }
 
-    /**
-     * @covers ::filter
-     * @covers ::process
-     * @covers ::limit
-     */
     public function testSetLimit(): void
     {
         self::assertCount(1, $this->stmt->limit(1)->process($this->csv));
     }
 
-    /**
-     * @covers ::limit
-     * @covers \League\Csv\InvalidArgument::dueToInvalidLimit
-     */
     public function testSetLimitThrowException(): void
     {
         $this->expectException(InvalidArgument::class);
@@ -72,9 +62,6 @@ final class StatementTest extends TestCase
         $this->stmt->limit(-2);
     }
 
-    /**
-     * @covers ::offset
-     */
     public function testSetOffset(): void
     {
         self::assertContains(
@@ -83,10 +70,6 @@ final class StatementTest extends TestCase
         );
     }
 
-    /**
-     * @covers ::offset
-     * @covers \League\Csv\InvalidArgument::dueToInvalidRecordOffset
-     */
     public function testSetOffsetThrowsException(): void
     {
         $this->expectException(InvalidArgument::class);
@@ -94,23 +77,12 @@ final class StatementTest extends TestCase
         $this->stmt->offset(-1);
     }
 
-    /**
-     * @covers ::limit
-     * @covers ::offset
-     */
     public function testStatementSameInstance(): void
     {
         self::assertSame($this->stmt, $this->stmt->limit(-1)->offset(0));
     }
 
-    /**
-     * @covers ::limit
-     * @covers ::offset
-     * @covers ::process
-     * @covers ::filter
-     *
-     * @dataProvider intervalTest
-     */
+    #[DataProvider('intervalTest')]
     public function testInterval(int $offset, int $limit): void
     {
         self::assertContains(
@@ -132,11 +104,6 @@ final class StatementTest extends TestCase
         ];
     }
 
-    /**
-     * @covers ::limit
-     * @covers ::offset
-     * @covers ::process
-     */
     public function testIntervalThrowException(): void
     {
         $this->expectException(OutOfBoundsException::class);
@@ -147,12 +114,6 @@ final class StatementTest extends TestCase
             ->process($this->csv));
     }
 
-    /**
-     * @covers ::filter
-     * @covers ::where
-     * @covers ::create
-     * @covers ::process
-     */
     public function testFilter(): void
     {
         $func2 = fn (array $row): bool => !in_array('john', $row, true);
@@ -172,10 +133,6 @@ final class StatementTest extends TestCase
         self::assertEquals($result3, $result2);
     }
 
-    /**
-     * @covers ::orderBy
-     * @covers ::buildOrderBy
-     */
     public function testOrderBy(): void
     {
         $calculated = $this->stmt
@@ -185,10 +142,6 @@ final class StatementTest extends TestCase
         self::assertSame(array_reverse($this->expected), iterator_to_array($calculated, false));
     }
 
-    /**
-     * @covers ::orderBy
-     * @covers ::buildOrderBy
-     */
     public function testOrderByWithEquity(): void
     {
         $calculated = $this->stmt

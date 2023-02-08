@@ -13,15 +13,14 @@ declare(strict_types=1);
 
 namespace League\Csv;
 
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use SplTempFileObject;
 use TypeError;
 use function chr;
 
-/**
- * @group reader
- * @coversDefaultClass \League\Csv\Info
- */
+#[Group('csv')]
 final class InfoTest extends TestCase
 {
     public function testDetectDelimiterListWithInvalidRowLimit(): void
@@ -104,11 +103,7 @@ EOF;
         self::assertSame($expected, Info::getDelimiterStats($reader, [';', ','], 1));
     }
 
-    /**
-     * @dataProvider ByteSequenceMatchProvider
-     *
-     * @param ?string $method_expected
-     */
+    #[DataProvider('ByteSequenceMatchProvider')]
     public function testByteSequenceMatch(string $str, string $expected, ?string $method_expected): void
     {
         self::assertSame($expected, Info::fetchBOMSequence($str) ?? '');
