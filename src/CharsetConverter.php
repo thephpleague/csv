@@ -46,7 +46,7 @@ class CharsetConverter extends php_user_filter
     /**
      * Static method to add the stream filter to a {@link Reader} object to handle BOM skipping.
      */
-    public static function allowBOMSkipping(Reader $document): Reader
+    public static function allowBOMSkipping(Reader $document, string $output_encoding = 'UTF-8'): Reader
     {
         self::register();
 
@@ -57,7 +57,7 @@ class CharsetConverter extends php_user_filter
                 ByteSequence::BOM_UTF32_LE => 'UTF-32LE',
                 ByteSequence::BOM_UTF32_BE => 'UTF-32BE',
                 default => 'UTF-8',
-            }, 'UTF-8'),
+            }, $output_encoding),
             [self::BOM_SEQUENCE => self::SKIP_BOM_SEQUENCE]
         );
 
