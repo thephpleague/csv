@@ -38,6 +38,7 @@ final class CriteriaConverterTest extends TestCase
         $criteria = new Criteria($expr, ['annee' => 'ASC'], 0, 5);
 
         $records = CriteriaConverter::convert($criteria)->process($this->csv);
+
         self::assertInstanceOf(ResultSet::class, $records);
         self::assertTrue(count($records) <= 5);
     }
@@ -54,9 +55,8 @@ final class CriteriaConverterTest extends TestCase
     public function testAdapterWithoutOrdering(): void
     {
         $criteria = new Criteria(new Comparison('prenoms', '=', 'Adam'));
-        $records = CriteriaConverter::convert($criteria)->process($this->csv);
 
-        self::assertInstanceOf(ResultSet::class, $records);
+        self::assertInstanceOf(ResultSet::class, CriteriaConverter::convert($criteria)->process($this->csv));
     }
 
     public function testAdapterWithoutInterval(): void
@@ -64,15 +64,11 @@ final class CriteriaConverterTest extends TestCase
         $expr = new Comparison('prenoms', '=', 'Adam');
         $criteria = new Criteria($expr, ['annee' => 'ASC']);
 
-        $records = CriteriaConverter::convert($criteria)->process($this->csv);
-
-        self::assertInstanceOf(ResultSet::class, $records);
+        self::assertInstanceOf(ResultSet::class, CriteriaConverter::convert($criteria)->process($this->csv));
     }
 
     public function testAdapterWithEmptyCriteria(): void
     {
-        $records = CriteriaConverter::convert(new Criteria())->process($this->csv);
-
-        self::assertInstanceOf(ResultSet::class, $records);
+        self::assertInstanceOf(ResultSet::class, CriteriaConverter::convert(new Criteria())->process($this->csv));
     }
 }

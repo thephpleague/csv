@@ -23,6 +23,8 @@ final class CriteriaConverter
     /**
      * Returns the Statement object created from the current Criteria object.
      *
+     * This method MUST retain the state of the Statement instance, and return
+     * a new Statement instance with the updated criteria.
      */
     public static function convert(Criteria $criteria, Statement $stmt = new Statement()): Statement
     {
