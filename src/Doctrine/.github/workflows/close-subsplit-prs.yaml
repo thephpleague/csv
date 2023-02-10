@@ -11,7 +11,7 @@ jobs:
                   close_pr: 'yes'
                   target_branch_match: '^(?!master).+$'
                   message: |
-Hi :wave:,
+                    Hi :wave:,
 
-Thank you for contributing to CSV. Unfortunately, you've sent a PR to a read-only sub-split repository.
-All pull requests should be directed towards: https://github.com/thephpleague/csv
+                    Thank you for contributing to CSV. Unfortunately, you've sent a PR to a read-only sub-split repository.
+                    All pull requests should be directed towards: https://github.com/thephpleague/csv
