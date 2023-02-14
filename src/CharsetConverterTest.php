@@ -160,7 +160,7 @@ final class CharsetConverterTest extends TestCase
 end"
 CSV;
         $reader = Reader::createFromString($data);
-        CharsetConverter::allowBOMSkipping($reader);
+        CharsetConverter::addBOMSkippingTo($reader);
         $reader->includeInputBOM();
 
         self::assertSame(
@@ -179,7 +179,7 @@ end"
 CSV;
         $reader = Reader::createFromString($sequence.$data);
         $reader->includeInputBOM();
-        CharsetConverter::allowBOMSkipping($reader);
+        CharsetConverter::addBOMSkippingTo($reader);
 
         self::assertSame(
             [['start
@@ -197,7 +197,7 @@ end"
 CSV;
         $reader = Reader::createFromString($sequence.$data);
         $reader->includeInputBOM();
-        CharsetConverter::allowBOMSkipping($reader);
+        CharsetConverter::addBOMSkippingTo($reader);
 
         self::assertSame(
             [[$sequence.'start
@@ -210,7 +210,7 @@ end']],
     public function testItOnlySkipOnceTheBOMSequenceBeforeConsumingTheCSVStreamOnSingleLine(string $sequence): void
     {
         $reader = Reader::createFromString($sequence.$sequence.'start,'.$sequence.'end');
-        CharsetConverter::allowBOMSkipping($reader);
+        CharsetConverter::addBOMSkippingTo($reader);
         $reader->includeInputBOM();
 
         self::assertSame(

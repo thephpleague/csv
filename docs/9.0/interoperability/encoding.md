@@ -74,8 +74,8 @@ use League\Csv\CharsetConverter;
 $input = Reader::BOM_UTF16_BE."john,doe,john.doe@example.com\njane,doe,jane.doe@example.com\n";
 $document = Reader::createFromString($input);
 $document->includeInputBOM(); // de-activate the default skipping mechanism
-CharsetConverter::allowBOMSkipping($document);
-var_dump(iterator_to_array($document));
+CharsetConverter::addBOMSkippingTo($document);
+var_dump([...$document]);
 // returns the document content without the skipped BOM sequence 
 // [
 //     ['john', 'doe', 'john.doe@example.com'],
