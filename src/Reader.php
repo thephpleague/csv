@@ -25,7 +25,6 @@ use function array_unique;
 use function count;
 use function is_array;
 use function iterator_count;
-use function iterator_to_array;
 use function mb_strlen;
 use function mb_substr;
 use function strlen;
@@ -235,7 +234,7 @@ class Reader extends AbstractCsv implements TabularDataReader, JsonSerializable
      */
     public function jsonSerialize(): array
     {
-        return iterator_to_array($this->getRecords(), false);
+        return array_values([...$this->getRecords()]);
     }
 
     /**

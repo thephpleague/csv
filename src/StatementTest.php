@@ -20,7 +20,6 @@ use PHPUnit\Framework\TestCase;
 use SplTempFileObject;
 use function array_reverse;
 use function in_array;
-use function iterator_to_array;
 use function strcmp;
 use function strlen;
 
@@ -108,10 +107,7 @@ final class StatementTest extends TestCase
     {
         $this->expectException(OutOfBoundsException::class);
 
-        iterator_to_array($this->stmt
-            ->offset(1)
-            ->limit(0)
-            ->process($this->csv));
+        [...$this->stmt->offset(1)->limit(0)->process($this->csv)];
     }
 
     public function testFilter(): void
@@ -124,10 +120,7 @@ final class StatementTest extends TestCase
         $result2 = $stmt->where($func2)->process($result1, ['foo', 'bar']);
         $result3 = $stmt->where($func2)->process($result2, ['foo', 'bar']);
 
-        self::assertNotContains(
-            ['jane', 'doe', 'jane.doe@example.com'],
-            iterator_to_array($result1, false)
-        );
+        self::assertNotContains(['jane', 'doe', 'jane.doe@example.com'], [...$result1]);
 
         self::assertCount(0, $result2);
         self::assertEquals($result3, $result2);
@@ -139,7 +132,7 @@ final class StatementTest extends TestCase
             ->orderBy(fn (array $rowA, array $rowB): int => strcmp($rowA[0], $rowB[0]))
             ->process($this->csv);
 
-        self::assertSame(array_reverse($this->expected), iterator_to_array($calculated, false));
+        self::assertSame(array_reverse($this->expected), array_values([...$calculated]));
     }
 
     public function testOrderByWithEquity(): void
@@ -148,6 +141,6 @@ final class StatementTest extends TestCase
             ->orderBy(fn (array $rowA, array $rowB): int => strlen($rowA[0]) <=> strlen($rowB[0]))
             ->process($this->csv);
 
-        self::assertSame($this->expected, iterator_to_array($calculated, false));
+        self::assertSame($this->expected, array_values([...$calculated]));
     }
 }

@@ -23,7 +23,6 @@ use function array_flip;
 use function array_search;
 use function is_string;
 use function iterator_count;
-use function iterator_to_array;
 
 /**
  * Represents the result set of a {@link Reader} processed by a {@link Statement}.
@@ -138,7 +137,7 @@ class ResultSet implements TabularDataReader, JsonSerializable
 
     public function jsonSerialize(): array
     {
-        return iterator_to_array($this->records, false);
+        return array_values([...$this->records]);
     }
 
     /**

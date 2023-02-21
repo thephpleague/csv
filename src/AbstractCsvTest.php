@@ -21,7 +21,6 @@ use SplFileObject;
 use SplTempFileObject;
 use function chr;
 use function function_exists;
-use function iterator_to_array;
 use function ob_get_clean;
 use function ob_start;
 use function strtolower;
@@ -149,7 +148,6 @@ EOF;
     {
         $raw_csv = "john,doe,john.doe@example.com\njane,doe,jane.doe@example.com\n";
         $csv = Reader::createFromString($raw_csv);
-        iterator_to_array($csv->getRecords());
 
         self::assertSame($raw_csv, $csv->toString());
     }
@@ -173,8 +171,7 @@ EOF;
     {
         $this->expectException(InvalidArgument::class);
 
-        $chunk = $this->csv->chunk(0);
-        iterator_to_array($chunk);
+        [...$this->csv->chunk(0)];
     }
 
     public function testChunk(): void

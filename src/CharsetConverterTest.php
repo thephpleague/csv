@@ -166,7 +166,7 @@ CSV;
         self::assertSame(
             [['start
 end']],
-            iterator_to_array($reader)
+            [...$reader]
         );
     }
 
@@ -184,7 +184,7 @@ CSV;
         self::assertSame(
             [['start
 end']],
-            iterator_to_array($reader)
+            [...$reader]
         );
     }
 
@@ -202,7 +202,7 @@ CSV;
         self::assertSame(
             [[$sequence.'start
 end']],
-            iterator_to_array($reader)
+            [...$reader]
         );
     }
 
@@ -213,10 +213,7 @@ end']],
         CharsetConverter::addBOMSkippingTo($reader);
         $reader->includeInputBOM();
 
-        self::assertSame(
-            [[$sequence.'start', $sequence.'end']],
-            iterator_to_array($reader)
-        );
+        self::assertSame([[$sequence.'start', $sequence.'end']], [...$reader]);
     }
 
     public static function providesBOMSequences(): iterable

@@ -187,7 +187,7 @@ EOF;
     {
         $this->expectException(SyntaxError::class);
 
-        iterator_to_array($this->csv->getRecords(['field1', 2, 'field3']));
+        [...$this->csv->getRecords(['field1', 2, 'field3'])];
     }
 
     #[DataProvider('validBOMSequences')]

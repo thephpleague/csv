@@ -20,7 +20,6 @@ use PHPUnit\Framework\TestCase;
 use SplTempFileObject;
 use function current;
 use function in_array;
-use function iterator_to_array;
 use function json_encode;
 use function next;
 
@@ -67,10 +66,7 @@ final class ResultSetTest extends TestCase
         $result2 = $stmt->where($func2)->process($result1, ['foo', 'bar']);
         $result3 = $stmt->where($func2)->process($result2, ['foo', 'bar']);
 
-        self::assertNotContains(
-            ['jane', 'doe', 'jane.doe@example.com'],
-            iterator_to_array($result1, false)
-        );
+        self::assertNotContains(['jane', 'doe', 'jane.doe@example.com'], [...$result1]);
 
         self::assertCount(0, $result2);
         self::assertEquals($result3, $result2);
@@ -82,13 +78,14 @@ final class ResultSetTest extends TestCase
         $this->expectException(InvalidArgument::class);
 
         $this->csv->setHeaderOffset(0);
+        $resultSet = $this->stmt->process($this->csv);
         if (is_int($field)) {
-            iterator_to_array($this->stmt->process($this->csv)->fetchColumnByOffset($field), false);
+            [...$resultSet->fetchColumnByOffset($field)];
 
             return;
         }
 
-        iterator_to_array($this->stmt->process($this->csv)->fetchColumnByName($field), false);
+        [...$resultSet->fetchColumnByName($field)];
     }
 
     public static function invalidFieldNameProvider(): array
@@ -104,8 +101,7 @@ final class ResultSetTest extends TestCase
         $this->expectException(InvalidArgument::class);
 
         $this->csv->setHeaderOffset(0);
-        $res = $this->stmt->process($this->csv)->fetchColumnByOffset(-1);
-        iterator_to_array($res, false);
+        [...$this->stmt->process($this->csv)->fetchColumnByOffset(-1)];
     }
 
     public function testFetchColumn(): void
@@ -119,10 +115,7 @@ final class ResultSetTest extends TestCase
         $this->expectException(InvalidArgument::class);
         $this->csv->setHeaderOffset(0);
 
-        iterator_to_array(
-            $this->stmt->process($this->csv)->fetchColumnByName('foobar'),
-            false
-        );
+        [...$this->stmt->process($this->csv)->fetchColumnByName('foobar')];
     }
 
     public function testFetchColumnByOffsetTriggersException(): void
@@ -130,10 +123,7 @@ final class ResultSetTest extends TestCase
         $this->expectException(InvalidArgument::class);
         $this->csv->setHeaderOffset(0);
 
-        iterator_to_array(
-            $this->stmt->process($this->csv)->fetchColumnByOffset(24),
-            false
-        );
+        [...$this->stmt->process($this->csv)->fetchColumnByOffset(24)];
     }
 
     public function testFetchColumnByOffsetTriggersOutOfRangeException(): void
@@ -142,10 +132,7 @@ final class ResultSetTest extends TestCase
 
         $this->csv->setHeaderOffset(0);
 
-        iterator_to_array(
-            $this->stmt->process($this->csv)->fetchColumnByOffset(-1),
-            false
-        );
+        [...$this->stmt->process($this->csv)->fetchColumnByOffset(-1)];
     }
 
     public function testFetchAssocWithRowIndex(): void
@@ -166,7 +153,7 @@ final class ResultSetTest extends TestCase
         $csv->setHeaderOffset(2);
         self::assertContains(
             ['D' => '6', 'E' => '7', 'F' => '8'],
-            iterator_to_array($this->stmt->process($csv), false)
+            [...$this->stmt->process($csv)]
         );
     }
 
@@ -194,7 +181,7 @@ final class ResultSetTest extends TestCase
         $csv = Reader::createFromFileObject($file);
         $res = $this->stmt->process($csv)->fetchColumnByOffset(2);
 
-        self::assertCount(1, iterator_to_array($res));
+        self::assertCount(1, [...$res]);
     }
 
     public function testFetchColumnEmptyCol(): void
@@ -210,7 +197,7 @@ final class ResultSetTest extends TestCase
         }
         $csv = Reader::createFromFileObject($file);
         $res = $this->stmt->process($csv)->fetchColumnByOffset(2);
-        self::assertCount(0, iterator_to_array($res));
+        self::assertCount(0, [...$res]);
     }
 
     public function testfetchOne(): void
@@ -261,7 +248,7 @@ final class ResultSetTest extends TestCase
 
     public function testFetchPairsWithInvalidOffset(): void
     {
-        self::assertCount(0, iterator_to_array($this->stmt->process($this->csv)->fetchPairs(10, 1), true));
+        self::assertCount(0, [...$this->stmt->process($this->csv)->fetchPairs(10, 1)]);
     }
 
     public function testFetchPairsWithInvalidValue(): void

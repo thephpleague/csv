@@ -30,7 +30,7 @@ final class MapIteratorTest extends TestCase
 
         self::assertSame(
             array_map($mapper, $array),
-            iterator_to_array(new MapIterator($iterator, $mapper), true)
+            [...new MapIterator($iterator, $mapper)]
         );
     }
 
