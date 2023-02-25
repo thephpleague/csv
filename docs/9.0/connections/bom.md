@@ -87,7 +87,7 @@ public AbstractCsv::getOutputBOM(void): string
 use League\Csv\Reader;
 
 $csv = Reader::createFromPath('/path/to/file.csv', 'r');
-$csv->setOutputBOM(Reader::BOM_UTF8);
+$csv->setOutputBOM(ByteSequence::BOM_UTF8);
 $bom = $csv->getOutputBOM(); //returns "\xEF\xBB\xBF"
 ```
 
