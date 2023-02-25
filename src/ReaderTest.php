@@ -23,7 +23,6 @@ use function count;
 use function fclose;
 use function fopen;
 use function fputcsv;
-use function iterator_to_array;
 use function json_encode;
 use function unlink;
 
@@ -159,11 +158,10 @@ EOF;
         );
         $csv->setHeaderOffset(0);
         self::assertSame(['field1', 'field1', 'field3'], $csv->getHeader());
-        try {
-            iterator_to_array($csv);
-        } catch (SyntaxError $exception) {
-            self::assertSame(['field1'], $exception->duplicateColumnNames());
-        }
+
+        $this->expectExceptionObject(SyntaxError::dueToDuplicateHeaderColumnNames(['field1']));
+
+        [...$csv];
     }
 
     public function testHeaderThrowsExceptionOnEmptyLine(): void

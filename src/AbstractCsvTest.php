@@ -313,8 +313,9 @@ EOF;
 
         /** @var resource $tmpfile */
         $tmpfile = tmpfile();
-        $csv = Writer::createFromStream($tmpfile);
-        $csv->addStreamFilter('foobar.toupper');
+
+        Writer::createFromStream($tmpfile)
+            ->addStreamFilter('foobar.toupper');
     }
 
     public function testStreamFilterDetection(): void

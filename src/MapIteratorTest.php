@@ -17,7 +17,6 @@ use ArrayIterator;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use function array_map;
-use function iterator_to_array;
 
 #[Group('csv')]
 final class MapIteratorTest extends TestCase
@@ -43,9 +42,6 @@ final class MapIteratorTest extends TestCase
         $iterator = new ArrayIterator(['foo' => 'bar', 'bar' => 'baz']);
         $mapper = fn (string $value, $offset): string =>  $offset.' => '.$value;
 
-        self::assertSame(
-            $expected,
-            iterator_to_array(new MapIterator($iterator, $mapper), true)
-        );
+        self::assertSame($expected, [...new MapIterator($iterator, $mapper)]);
     }
 }
