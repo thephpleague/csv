@@ -46,7 +46,7 @@ Please find below the PHP support for `Csv` version 9.
 Install `Csv` using Composer.
 
 ```bash
-composer require league/csv
+composer require league/csv:^9.0
 ```
 
 ## Configuration

@@ -44,5 +44,5 @@ highlights:
       - 'Support PHP Stream filtering capabilities'
       - 'Transform CSV documents into popular formats (JSON, XML or HTML)'
       - 'Framework-agnostic'
-composer: '$ composer require league/csv'
+composer: 'composer require league/csv:^9.0'
 support: 'Once a new major version is released, the previous stable release remains supported for six more months with patches and security fixes.'
