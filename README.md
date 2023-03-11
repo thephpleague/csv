@@ -39,7 +39,7 @@ Please find below the PHP support for `Csv` version 9.
 | 9.7.0                | PHP 7.3.0        | PHP 8.0.x                  |
 | 9.7.3                | PHP 7.3.0        | PHP 8.1.x                  |
 | 9.8.0                | PHP 7.4.0        | PHP 8.1.x                  |
-
+| 9.9.0                | PHP 8.1.2        | PHP 8.x                    |
 
 ## Install
 
