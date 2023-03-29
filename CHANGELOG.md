@@ -6,7 +6,8 @@ All Notable changes to `Csv` will be documented in this file
 
 ### Added
 
-- None
+- `JSONConverter` to allow converting huge CSV documents in JSON payload.
+- `Stream::fwrite` to allow writing to a file in a normalized way. Internal use.
 
 ### Deprecated
 
@@ -14,7 +15,7 @@ All Notable changes to `Csv` will be documented in this file
 
 ### Fixed
 
-- None
+- Documentation Fixed removing unreleased documented feature by [@nclavaud](https://github.com/nclavaud)
 
 ### Removed
 

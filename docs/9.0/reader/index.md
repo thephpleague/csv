@@ -384,17 +384,6 @@ $records = $stmt->process($reader);
 //$records is a League\Csv\ResultSet object
 ```
 
-## Records formatting
-
-<p class="message-info">New since version <code>9.9.0</code></p>
-
-```php
-public Writer::addFormatter(callable $callable): Reader
-public Writer::addHeaderFormatter(callable $callable): Reader
-```
-
-Sometimes you may want to format your records prior to accessing them via `getRecords`. The `Reader` class provides a formatter mechanism to ease these operations.
-
 ## Records conversion
 
 ### Json serialization

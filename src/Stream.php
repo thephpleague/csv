@@ -404,6 +404,21 @@ final class Stream implements SeekableIterator
     }
 
     /**
+     * Write to stream.
+     *
+     * @see http://php.net/manual/en/SplFileObject.fwrite.php
+     */
+    public function fwrite(string $str, int $length = null): int|false
+    {
+        $args = [$this->stream, $str];
+        if (null !== $length) {
+            $args[] = $length;
+        }
+
+        return fwrite(...$args);
+    }
+
+    /**
      * Flushes the output to a file.
      *
      * @see https://www.php.net/manual/en/splfileobject.fflush.php
