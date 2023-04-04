@@ -14,17 +14,20 @@ declare(strict_types=1);
 namespace League\Csv;
 
 use OutOfBoundsException;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use RuntimeException;
 use SplTempFileObject;
+use const JSON_PARTIAL_OUTPUT_ON_ERROR;
 use const JSON_PRETTY_PRINT;
+use const JSON_THROW_ON_ERROR;
 
 #[Group('converter')]
-final class JsonConverterTest extends TestCase
+final class JsonEncoderTest extends TestCase
 {
     private Reader $reader;
-    private JsonConverter $converter;
+    private JsonEncoder $encoder;
 
     protected function setUp(): void
     {
@@ -37,48 +40,69 @@ one,2,"three
 two one"
 CSV;
         $this->reader = Reader::createFromString($data);
-        $this->converter = JsonConverter::create();
+        $this->encoder = JsonEncoder::create();
     }
 
-    public function testItCanSetTheJsonEncodeFlags(): void
+    #[DataProvider('providesFlags')]
+    public function testItCanSetTheJsonEncodeFlags(int $expectedFlags, int $flags): void
     {
-        self::assertSame(0, $this->converter->flags);
-        self::assertSame(JSON_PRETTY_PRINT, $this->converter->flags(JSON_PRETTY_PRINT)->flags);
+        self::assertSame($expectedFlags, $this->encoder->flags($flags)->flags);
+    }
+
+    /**
+     * @return iterable<string, array<string, int>>
+     */
+    public static function providesFlags(): iterable
+    {
+        yield 'no flags' => [
+            'expectedFlags' => JSON_THROW_ON_ERROR & ~JSON_PARTIAL_OUTPUT_ON_ERROR,
+            'flags' => 0,
+        ];
+
+        yield 'flags contains partial output error' => [
+            'expectedFlags' => JSON_PRETTY_PRINT | JSON_THROW_ON_ERROR | JSON_PARTIAL_OUTPUT_ON_ERROR,
+            'flags' => JSON_PRETTY_PRINT | JSON_PARTIAL_OUTPUT_ON_ERROR,
+        ];
+
+        yield 'flags contains json exception' => [
+            'expectedFlags' => JSON_PRETTY_PRINT | JSON_THROW_ON_ERROR,
+            'flags' => JSON_PRETTY_PRINT | JSON_THROW_ON_ERROR & ~JSON_PARTIAL_OUTPUT_ON_ERROR,
+        ];
     }
 
     public function testItCanSetTheJsonEncodeDepth(): void
     {
-        self::assertSame(512, $this->converter->depth);
-        self::assertSame(2, $this->converter->depth(2)->depth);
+        self::assertSame(512, $this->encoder->depth);
+        self::assertSame(2, $this->encoder->depth(2)->depth);
     }
 
     public function testItFailsToSetTheJsonEncodeDepth(): void
     {
         $this->expectException(OutOfBoundsException::class);
 
-        $this->converter->depth(0);
+        $this->encoder->depth(0);
     }
 
     public function testItCanPreserveTheTabularDataOffsetSettings(): void
     {
-        $newConverter = $this->converter->preserveOffset();
+        $newConverter = $this->encoder->includeOffset();
 
-        self::assertFalse($this->converter->preserveOffset);
-        self::assertTrue($newConverter->preserveOffset);
+        self::assertFalse($this->encoder->includeOffset);
+        self::assertTrue($newConverter->includeOffset);
 
-        self::assertSame($this->converter, $this->converter->stripOffset());
-        self::assertSame($newConverter, $newConverter->preserveOffset());
+        self::assertSame($this->encoder, $this->encoder->excludeOffset());
+        self::assertSame($newConverter, $newConverter->includeOffset());
 
-        self::assertEquals($this->converter, $newConverter->stripOffset());
-        self::assertNotSame($this->converter, $newConverter->stripOffset());
+        self::assertEquals($this->encoder, $newConverter->excludeOffset());
+        self::assertNotSame($this->encoder, $newConverter->excludeOffset());
     }
 
     public function testItCanConvertTheTabularDataReaderIntoACsv(): void
     {
         $this->reader->setHeaderOffset(1);
-        $content = implode('', [...$this->converter->convert($this->reader)]);
+        $content = implode('', [...$this->encoder->encode($this->reader)]);
 
-        self::assertSame($content, json_encode($this->reader));
+        self::assertSame($content, json_encode($this->reader, JSON_THROW_ON_ERROR & ~JSON_PARTIAL_OUTPUT_ON_ERROR));
     }
 
     public function testItCanSaveTheTabularDataReaderIntoAJsonFileViaAStream(): void
@@ -87,12 +111,12 @@ CSV;
         $stream = tmpfile();
 
         $this->reader->setHeaderOffset(1);
-        $this->converter->convertToStream($this->reader, $stream);
+        $this->encoder->encodeToStream($this->reader, $stream);
 
         rewind($stream);
         $contents = stream_get_contents($stream);
 
-        self::assertSame($contents, json_encode($this->reader));
+        self::assertSame($contents, json_encode($this->reader, JSON_THROW_ON_ERROR & ~JSON_PARTIAL_OUTPUT_ON_ERROR));
     }
 
     public function testItCanSaveTheTabularDataReaderIntoAJsonFileViaAFileObject(): void
@@ -100,12 +124,12 @@ CSV;
         $stream = new SplTempFileObject();
 
         $this->reader->setHeaderOffset(1);
-        $this->converter->convertToFile($this->reader, $stream);
+        $this->encoder->encodeToFile($this->reader, $stream);
 
         $stream->rewind();
         $contents = $stream->fread(8000);
 
-        self::assertSame($contents, json_encode($this->reader));
+        self::assertSame($contents, json_encode($this->reader, JSON_THROW_ON_ERROR & ~JSON_PARTIAL_OUTPUT_ON_ERROR));
     }
 
     public function testItCanSaveTheTabularDataReaderIntoAJsonFileViaAPath(): void
@@ -113,12 +137,12 @@ CSV;
         $path = __DIR__.'/../test_files/csv.json';
 
         $this->reader->setHeaderOffset(1);
-        $this->converter->convertToPath($this->reader, $path);
+        $this->encoder->encodeToPath($this->reader, $path);
 
         /** @var string $contents */
         $contents = file_get_contents($path);
 
-        self::assertSame($contents, json_encode($this->reader));
+        self::assertSame($contents, json_encode($this->reader, JSON_THROW_ON_ERROR & ~JSON_PARTIAL_OUTPUT_ON_ERROR));
         self::assertStringStartsWith('[{', $contents);
     }
 
@@ -127,7 +151,7 @@ CSV;
         $path = __DIR__.'/../test_files/csv.json';
 
         $this->reader->setHeaderOffset(1);
-        $this->converter->preserveOffset()->convertToPath($this->reader, $path);
+        $this->encoder->includeOffset()->encodeToPath($this->reader, $path);
 
         /** @var string $contents */
         $contents = file_get_contents($path);
@@ -140,7 +164,7 @@ CSV;
         $path = __DIR__.'/../test_files/csv.json';
 
         $this->reader->setHeaderOffset(1);
-        $this->converter->preserveOffset()->flags(JSON_PRETTY_PRINT)->convertToPath($this->reader, $path);
+        $this->encoder->includeOffset()->flags(JSON_PRETTY_PRINT)->encodeToPath($this->reader, $path);
 
         /** @var string $contents */
         $contents = file_get_contents($path);
@@ -159,6 +183,6 @@ EOF;
         $path = __DIR__.'/../test_files/csv.json';
 
         $this->reader->setHeaderOffset(1);
-        $this->converter->convertToPath($this->reader, $path, 'r');
+        $this->encoder->encodeToPath($this->reader, $path, 'r');
     }
 }
