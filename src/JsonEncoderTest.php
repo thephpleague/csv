@@ -83,7 +83,20 @@ CSV;
         $this->encoder->depth(0);
     }
 
-    public function testItCanPreserveTheTabularDataOffsetSettings(): void
+    public function testItCanSetTheJsonEncodeFlushThreshold(): void
+    {
+        self::assertNull($this->encoder->flushThreshold);
+        self::assertSame(2, $this->encoder->flushThreshold(2)->flushThreshold);
+    }
+
+    public function testItFailsToSetTheJsonEncodeFlushThreshold(): void
+    {
+        $this->expectException(OutOfBoundsException::class);
+
+        $this->encoder->flushThreshold(0);
+    }
+
+    public function testItCanIncludeTheTabularDataOffsetSettings(): void
     {
         $newConverter = $this->encoder->includeOffset();
 

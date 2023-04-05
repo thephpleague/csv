@@ -35,7 +35,8 @@ final class JsonEncoder
         public readonly int $flags,
         /** @var positive-int */
         public readonly int $depth,
-        public readonly bool $includeOffset
+        public readonly bool $includeOffset,
+        public readonly ?int $flushThreshold
     ) {
         $isPrettyPrint = ($this->flags & JSON_PRETTY_PRINT) === JSON_PRETTY_PRINT;
         $forceObject = ($this->flags & JSON_FORCE_OBJECT) === JSON_FORCE_OBJECT;
@@ -62,7 +63,7 @@ final class JsonEncoder
 
     public static function create(): self
     {
-        return new self(JSON_THROW_ON_ERROR & ~JSON_PARTIAL_OUTPUT_ON_ERROR, 512, false);
+        return new self(JSON_THROW_ON_ERROR & ~JSON_PARTIAL_OUTPUT_ON_ERROR, 512, false, null);
     }
 
     /**
@@ -75,7 +76,7 @@ final class JsonEncoder
     {
         return match (true) {
             true === $this->includeOffset => $this,
-            default => new self($this->flags, $this->depth, true),
+            default => new self($this->flags, $this->depth, true, $this->flushThreshold),
         };
     }
 
@@ -89,7 +90,7 @@ final class JsonEncoder
     {
         return match (true) {
             false === $this->includeOffset => $this,
-            default => new self($this->flags, $this->depth, false),
+            default => new self($this->flags, $this->depth, false, $this->flushThreshold),
         };
     }
 
@@ -103,8 +104,8 @@ final class JsonEncoder
     {
         return match (true) {
             $flags === $this->flags => $this,
-            ($flags & JSON_PARTIAL_OUTPUT_ON_ERROR) === JSON_PARTIAL_OUTPUT_ON_ERROR => new self($flags | JSON_THROW_ON_ERROR, $this->depth, $this->includeOffset),
-            default => new self($flags | JSON_THROW_ON_ERROR & ~JSON_PARTIAL_OUTPUT_ON_ERROR, $this->depth, $this->includeOffset),
+            ($flags & JSON_PARTIAL_OUTPUT_ON_ERROR) === JSON_PARTIAL_OUTPUT_ON_ERROR => new self($flags | JSON_THROW_ON_ERROR, $this->depth, $this->includeOffset, $this->flushThreshold),
+            default => new self($flags | JSON_THROW_ON_ERROR & ~JSON_PARTIAL_OUTPUT_ON_ERROR, $this->depth, $this->includeOffset, $this->flushThreshold),
         };
     }
 
@@ -119,7 +120,22 @@ final class JsonEncoder
         return match (true) {
             $depth === $this->depth => $this,
             $depth < 1 => throw new OutOfBoundsException('The depth must be a positive integer equal or greater than 1.'),
-            default => new self($this->flags, $depth, $this->includeOffset),
+            default => new self($this->flags, $depth, $this->includeOffset, $this->flushThreshold),
+        };
+    }
+
+    /**
+     * Returns an instance with the specified flush threshold.
+     *
+     * This method MUST retain the state of the current instance, and return
+     * an instance that contains the specified changes.
+     */
+    public function flushThreshold(?int $flushThreshold): self
+    {
+        return match (true) {
+            $flushThreshold === $this->flushThreshold => $this,
+            $flushThreshold < 1 => throw new OutOfBoundsException('The flush threshold must be null or a positive integer equal or greater than 1.'),
+            default => new self($this->flags, $this->depth, $this->includeOffset, $flushThreshold),
         };
     }
 
@@ -168,11 +184,18 @@ final class JsonEncoder
     private function encodeTo(iterable $records, Stream|SplFileObject $stream): int
     {
         $bytes = 0;
+        $counter = 0;
         try {
             set_error_handler(fn (int $errno, string $errstr, string $errfile, int $errline) => true);
             foreach ($this->encode($records) as $json) {
                 if (false === ($res = $stream->fwrite($json))) {
                     throw new RuntimeException('Unable to write to the destination stream `'.$stream->getPathname().'`.');
+                }
+
+                ++$counter;
+                if (null !== $this->flushThreshold && (0 === $counter % $this->flushThreshold)) {
+                    $counter = 0;
+                    $stream->fflush();
                 }
 
                 $bytes += $res;
