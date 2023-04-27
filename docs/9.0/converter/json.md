@@ -15,7 +15,7 @@ memory because the CSV needs to be handle in full in memory.
 To resolve this issue, the package introduces a lightweight JSON encoder for collection.
 This converter is built to handle huge files in a memory efficient way via a minimalist public API.
 
-<p class="message-warning">The emcoder works with the <code>iterable</code> structure only. If
+<p class="message-warning">The encoder works with the <code>iterable</code> structure only. If
 your collection also supports the <code>JsonSerializable</code> interface, its method will be
 ignored.</p>
 
