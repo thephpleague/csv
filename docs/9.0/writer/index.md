@@ -69,7 +69,7 @@ $writer = Writer::createFromString();
 $writer->insertOne($record);
 $writer->setEscape('');
 $writer->insertOne($record);
-echo $writer->getContent();
+echo $writer->toString();
 // """foo""","foo bar","baz ","foo\"bar"
 // """foo""","foo bar","baz ","foo\""bar"
 ```
@@ -99,7 +99,7 @@ $newline = $writer->getNewline(); //equals "\n";
 $writer->setNewline("\r\n");
 $newline = $writer->getNewline(); //equals "\r\n";
 $writer->insertOne(["one", "two"]);
-echo $writer->getContent(); //displays "one,two\r\n";
+echo $writer->toString(); //displays "one,two\r\n";
 ```
 
 <p class="message-info">The default newline sequence is <code>\n</code>;</p>
@@ -155,7 +155,7 @@ $writer = Writer::createFromFileObject(new SplTempFileObject());
 $writer->addFormatter($formatter);
 $writer->insertOne(['john', 'doe', 'john.doe@example.com']);
 
-echo $writer->getContent();
+echo $writer->toString();
 //will display JOHN,DOE,JOHN.DOE@EXAMPLE.COM
 ```
 
