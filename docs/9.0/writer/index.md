@@ -128,6 +128,7 @@ By default, `getFlushTreshold` returns `null`.
 ```php
 public Writer::forceEnclosure(): self
 public Writer::relaxEnclosure(): self
+public Writer::encloseAll(): bool
 ```
 
 By default, the `Writer` adds enclosures only around records that requires them. For all other records no enclosure character is present,
@@ -145,7 +146,9 @@ $collection = [
 ];
 
 $writer = Writer::createFromString();
+$writer->encloseAll(); //return false;
 $writer->forceEnclosure();
+$writer->encloseAll(); //return true;
 $writer->insertAll($collection);
 echo $writer->toString(), PHP_EOL;
 
