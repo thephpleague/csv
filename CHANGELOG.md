@@ -6,8 +6,8 @@ All Notable changes to `Csv` will be documented in this file
 
 ### Added
 
-- `JsonEncoder` to allow converting huge CSV documents in JSON payload.
 - `Stream::fwrite` to allow writing to a file in a normalized way. Internal use.
+- `Writer::forceEnclosure` and `Writer::relaxEnclosure` to control the presence of enclosure in the generated CSV
 
 ### Deprecated
 

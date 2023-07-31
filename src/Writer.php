@@ -30,7 +30,7 @@ class Writer extends AbstractCsv implements TabularDataWriter
     protected string $newline = "\n";
     protected int $flush_counter = 0;
     protected ?int $flush_threshold = null;
-
+    protected bool $force_enclosure = false;
     /**
      * Returns the current newline sequence characters.
      */
@@ -78,10 +78,25 @@ class Writer extends AbstractCsv implements TabularDataWriter
      */
     public function insertOne(array $record): int
     {
+        $addRecord = fn (array $record): int|false => match (true) {
+            $this->force_enclosure => $this->document->fwrite(implode(
+                $this->delimiter,
+                array_map(
+                    fn ($content) => $this->enclosure.str_replace(
+                        [$this->enclosure, $this->escape.$this->enclosure.$this->enclosure],
+                        [$this->enclosure.$this->enclosure, $this->escape.$this->enclosure],
+                        (string) $content
+                    ).$this->enclosure,
+                    $record
+                )
+            ).$this->newline),
+            default => $this->document->fputcsv($record, $this->delimiter, $this->enclosure, $this->escape, $this->newline),
+        };
+
         $record = array_reduce($this->formatters, fn (array $record, callable $formatter): array => $formatter($record), $record);
         $this->validateRecord($record);
         set_error_handler(fn (int $errno, string $errstr, string $errfile, int $errline) => true);
-        $bytes = $this->document->fputcsv($record, $this->delimiter, $this->enclosure, $this->escape, $this->newline);
+        $bytes = $addRecord($record);
         restore_error_handler();
         if (false === $bytes) {
             throw CannotInsertRecord::triggerOnInsertion($record);
@@ -220,5 +235,24 @@ class Writer extends AbstractCsv implements TabularDataWriter
         $this->document->fflush();
 
         return $this;
+    }
+
+    public function relaxEnclosure(): self
+    {
+        $this->force_enclosure = false;
+
+        return $this;
+    }
+
+    public function forceEnclosure(): self
+    {
+        $this->force_enclosure = true;
+
+        return $this;
+    }
+
+    public function encloseAll(): bool
+    {
+        return $this->force_enclosure;
     }
 }

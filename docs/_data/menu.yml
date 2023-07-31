@@ -29,7 +29,6 @@ version:
             Charset Converter: '/9.0/converter/charset/'
             XML Converter: '/9.0/converter/xml/'
             HTML Converter: '/9.0/converter/html/'
-            JSON Converter: '/9.0/converter/json/'
         Extensions:
             Overview: '/9.0/extensions/'
             Doctrine: '/9.0/extensions/doctrine'

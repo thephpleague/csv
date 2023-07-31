@@ -119,14 +119,50 @@ public Writer::getFlushThreshold(void): ?int
 By default, `getFlushTreshold` returns `null`.
 
 <p class="message-info"><code>Writer::insertAll</code> always flushes its buffer when all records are inserted, regardless of the threshold value.</p>
-
 <p class="message-info">If set to <code>null</code> the inner flush mechanism of PHP's <code>fputcsv</code> will be used.</p>
+
+## Force Enclosure
+
+<p class="message-info">Since version <code>9.10.0</code> you can provide control the presence of enclosure around all records.</p>
+
+```php
+public Writer::forceEnclosure(): self
+public Writer::relaxEnclosure(): self
+```
+
+By default, the `Writer` adds enclosures only around records that requires them. For all other records no enclosure character is present,
+With this feature, you can force the enclosure to be present on every record entry or CSV cell. The inclusion will respect
+the presence of enclosures inside the cell content as well as the presence of PHP's escape character.
+
+```php
+<?php
+use League\Csv\Writer;
+
+$collection = [
+    [1, 2],
+    ['value 2-0', 'value 2-1'],
+    ['to"to', 'foo\"bar'],
+];
+
+$writer = Writer::createFromString();
+$writer->forceEnclosure();
+$writer->insertAll($collection);
+echo $writer->toString(), PHP_EOL;
+
+// the CSV file will contain enclosed cell.
+// Double quote are not added in presence of the 
+// escape character as per PHP's CSV writing documentation
+
+// "1","2"
+// "value 2-0","value 2-1"
+// "to""to","foo\"bar"
+```
 
 ## Records filtering
 
 ```php
-public Writer::addFormatter(callable $callable): Writer
-public Writer::addValidator(callable $callable, string $validatorName): Writer
+public Writer::addFormatter(callable $callable): self
+public Writer::addValidator(callable $callable, string $validatorName): self
 ```
 
 Sometimes you may want to format and/or validate your records prior to their insertion into your CSV document. The `Writer` class provides a formatter and a validator mechanism to ease these operations.

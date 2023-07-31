@@ -165,6 +165,31 @@ final class WriterTest extends TestCase
         $csv = null;
     }
 
+    public function testForceEnclosure(): void
+    {
+        $collection = [
+            [1, 2],
+            ['value 2-0', 'value 2-1'],
+            ['to"to', 'foo\"bar'],
+        ];
+
+        $writer = Writer::createFromString();
+        self::assertFalse($writer->encloseAll());
+
+        $writer->forceEnclosure();
+        self::assertTrue($writer->encloseAll());
+
+        $writer->insertAll($collection);
+        $csv = $writer->toString();
+
+        self::assertStringContainsString('"1","2"'."\n", $csv);
+        self::assertStringContainsString('"value 2-0","value 2-1"'."\n", $csv);
+        self::assertStringContainsString('"to""to","foo\"bar"'."\n", $csv);
+
+        $writer->relaxEnclosure();
+        self::assertFalse($writer->encloseAll());
+    }
+
     public function testAddValidationRules(): void
     {
         $this->expectException(CannotInsertRecord::class);
