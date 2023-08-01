@@ -13,7 +13,13 @@ declare(strict_types=1);
 
 namespace League\Csv;
 
+use function array_map;
 use function array_reduce;
+use function implode;
+use function restore_error_handler;
+use function set_error_handler;
+use function str_replace;
+
 use const STREAM_FILTER_WRITE;
 
 /**
@@ -30,7 +36,20 @@ class Writer extends AbstractCsv implements TabularDataWriter
     protected string $newline = "\n";
     protected int $flush_counter = 0;
     protected ?int $flush_threshold = null;
-    protected bool $force_enclosure = false;
+    protected bool $enclose_all = false;
+    /** @var array{0:array<string>,1:array<string>} */
+    protected array $enclosure_replace;
+
+    protected function resetProperties(): void
+    {
+        parent::resetProperties();
+
+        $this->enclosure_replace = [
+            [$this->enclosure, $this->escape.$this->enclosure.$this->enclosure],
+            [$this->enclosure.$this->enclosure, $this->escape.$this->enclosure],
+        ];
+    }
+
     /**
      * Returns the current newline sequence characters.
      */
@@ -45,6 +64,14 @@ class Writer extends AbstractCsv implements TabularDataWriter
     public function getFlushThreshold(): ?int
     {
         return $this->flush_threshold;
+    }
+
+    /**
+     * Tells whether new entries will all be enclosed on writing.
+     */
+    public function encloseAll(): bool
+    {
+        return $this->enclose_all;
     }
 
     /**
@@ -78,16 +105,12 @@ class Writer extends AbstractCsv implements TabularDataWriter
      */
     public function insertOne(array $record): int
     {
-        $addRecord = fn (array $record): int|false => match (true) {
-            $this->force_enclosure => $this->document->fwrite(implode(
+        $insert = fn (array $record): int|false => match (true) {
+            $this->enclose_all => $this->document->fwrite(implode(
                 $this->delimiter,
                 array_map(
-                    fn ($content) => $this->enclosure.str_replace(
-                        [$this->enclosure, $this->escape.$this->enclosure.$this->enclosure],
-                        [$this->enclosure.$this->enclosure, $this->escape.$this->enclosure],
-                        (string) $content
-                    ).$this->enclosure,
-                    $record
+                    fn ($content) => $this->enclosure.$content.$this->enclosure,
+                    str_replace($this->enclosure_replace[0], $this->enclosure_replace[1], $record)
                 )
             ).$this->newline),
             default => $this->document->fputcsv($record, $this->delimiter, $this->enclosure, $this->escape, $this->newline),
@@ -96,7 +119,7 @@ class Writer extends AbstractCsv implements TabularDataWriter
         $record = array_reduce($this->formatters, fn (array $record, callable $formatter): array => $formatter($record), $record);
         $this->validateRecord($record);
         set_error_handler(fn (int $errno, string $errstr, string $errfile, int $errline) => true);
-        $bytes = $addRecord($record);
+        $bytes = $insert($record);
         restore_error_handler();
         if (false === $bytes) {
             throw CannotInsertRecord::triggerOnInsertion($record);
@@ -116,39 +139,6 @@ class Writer extends AbstractCsv implements TabularDataWriter
     }
 
     /**
-     * DEPRECATION WARNING! This method will be removed in the next major point release.
-     *
-     * @deprecated Since version 9.9.0
-     * @codeCoverageIgnore
-     *
-     * Adds a single record to a CSV Document using PHP algorithm.
-     *
-     * @see https://php.net/manual/en/function.fputcsv.php
-     */
-    protected function addRecord(array $record): int|false
-    {
-        return $this->document->fputcsv($record, $this->delimiter, $this->enclosure, $this->escape, $this->newline);
-    }
-
-    /**
-     * DEPRECATION WARNING! This method will be removed in the next major point release.
-     *
-     * @deprecated since version 9.8.0
-     * @codeCoverageIgnore
-     *
-     * Format a record.
-     *
-     * The returned array must contain
-     *   - scalar types values,
-     *   - NULL values,
-     *   - or objects implementing the __toString() method.
-     */
-    protected function formatRecord(array $record, callable $formatter): array
-    {
-        return $formatter($record);
-    }
-
-    /**
      * Validates a record.
      *
      * @throws CannotInsertRecord If the validation failed
@@ -160,29 +150,6 @@ class Writer extends AbstractCsv implements TabularDataWriter
                 throw CannotInsertRecord::triggerOnValidation($name, $record);
             }
         }
-    }
-
-    /**
-     * DEPRECATION WARNING! This method will be removed in the next major point release.
-     *
-     * @deprecated Since version 9.9.0
-     * @codeCoverageIgnore
-     *
-     * Applies post insertion actions.
-     */
-    protected function consolidate(): int
-    {
-        if (null === $this->flush_threshold) {
-            return 0;
-        }
-
-        ++$this->flush_counter;
-        if (0 === $this->flush_counter % $this->flush_threshold) {
-            $this->flush_counter = 0;
-            $this->document->fflush();
-        }
-
-        return 0;
     }
 
     /**
@@ -239,20 +206,71 @@ class Writer extends AbstractCsv implements TabularDataWriter
 
     public function relaxEnclosure(): self
     {
-        $this->force_enclosure = false;
+        $this->enclose_all = false;
 
         return $this;
     }
 
     public function forceEnclosure(): self
     {
-        $this->force_enclosure = true;
+        $this->enclose_all = true;
 
         return $this;
     }
 
-    public function encloseAll(): bool
+    /**
+     * DEPRECATION WARNING! This method will be removed in the next major point release.
+     *
+     * @deprecated since version 9.8.0
+     * @codeCoverageIgnore
+     *
+     * Format a record.
+     *
+     * The returned array must contain
+     *   - scalar types values,
+     *   - NULL values,
+     *   - or objects implementing the __toString() method.
+     */
+    protected function formatRecord(array $record, callable $formatter): array
     {
-        return $this->force_enclosure;
+        return $formatter($record);
+    }
+
+    /**
+     * DEPRECATION WARNING! This method will be removed in the next major point release.
+     *
+     * @deprecated Since version 9.9.0
+     * @codeCoverageIgnore
+     *
+     * Adds a single record to a CSV Document using PHP algorithm.
+     *
+     * @see https://php.net/manual/en/function.fputcsv.php
+     */
+    protected function addRecord(array $record): int|false
+    {
+        return $this->document->fputcsv($record, $this->delimiter, $this->enclosure, $this->escape, $this->newline);
+    }
+
+    /**
+     * DEPRECATION WARNING! This method will be removed in the next major point release.
+     *
+     * @deprecated Since version 9.9.0
+     * @codeCoverageIgnore
+     *
+     * Applies post insertion actions.
+     */
+    protected function consolidate(): int
+    {
+        if (null === $this->flush_threshold) {
+            return 0;
+        }
+
+        ++$this->flush_counter;
+        if (0 === $this->flush_counter % $this->flush_threshold) {
+            $this->flush_counter = 0;
+            $this->document->fflush();
+        }
+
+        return 0;
     }
 }

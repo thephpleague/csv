@@ -51,6 +51,8 @@ class Reader extends AbstractCsv implements TabularDataReader, JsonSerializable
 
     protected function resetProperties(): void
     {
+        parent::resetProperties();
+
         $this->nb_records = -1;
         $this->header = [];
     }
@@ -180,24 +182,18 @@ class Reader extends AbstractCsv implements TabularDataReader, JsonSerializable
         return ResultSet::createFromTabularDataReader($this)->fetchColumnByOffset($offset);
     }
 
-    /** @codeCoverageIgnore */
-    public function fetchColumn($index = 0): Iterator
-    {
-        return ResultSet::createFromTabularDataReader($this)->fetchColumn($index);
-    }
-
+    /**
+     * @throws Exception
+     */
     public function first(): array
     {
         return ResultSet::createFromTabularDataReader($this)->first();
     }
 
+    /**
+     * @throws Exception
+     */
     public function nth(int $nth_record): array
-    {
-        return ResultSet::createFromTabularDataReader($this)->nth($nth_record);
-    }
-
-    /** @codeCoverageIgnore */
-    public function fetchOne(int $nth_record = 0): array
     {
         return ResultSet::createFromTabularDataReader($this)->nth($nth_record);
     }
@@ -405,5 +401,17 @@ class Reader extends AbstractCsv implements TabularDataReader, JsonSerializable
     public function isEmptyRecordsIncluded(): bool
     {
         return $this->is_empty_records_included;
+    }
+
+    /** @codeCoverageIgnore */
+    public function fetchColumn($index = 0): Iterator
+    {
+        return ResultSet::createFromTabularDataReader($this)->fetchColumn($index);
+    }
+
+    /** @codeCoverageIgnore */
+    public function fetchOne(int $nth_record = 0): array
+    {
+        return $this->nth($nth_record);
     }
 }

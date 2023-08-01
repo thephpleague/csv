@@ -78,6 +78,21 @@ interface TabularDataReader extends Countable, IteratorAggregate
     public function getRecords(array $header = []): Iterator;
 
     /**
+     * Returns the next key-value pairs from the tabular data (first
+     * column is the key, second column is the value).
+     *
+     * By default, if no column index is provided:
+     * - the first column is used to provide the keys
+     * - the second column is used to provide the value
+     *
+     * @param string|int $offset_index The column index to serve as offset
+     * @param string|int $value_index  The column index to serve as value
+     *
+     * @throws UnableToProcessCsv if the column index is invalid or not found
+     */
+    public function fetchPairs($offset_index = 0, $value_index = 1): Iterator;
+
+    /**
      * DEPRECATION WARNING! This class will be removed in the next major point release.
      *
      * @deprecated since version 9.9.0
@@ -109,19 +124,4 @@ interface TabularDataReader extends Countable, IteratorAggregate
      * @throws UnableToProcessCsv if the column index is invalid or not found
      */
     public function fetchColumn($index = 0): Iterator;
-
-    /**
-     * Returns the next key-value pairs from the tabular data (first
-     * column is the key, second column is the value).
-     *
-     * By default, if no column index is provided:
-     * - the first column is used to provide the keys
-     * - the second column is used to provide the value
-     *
-     * @param string|int $offset_index The column index to serve as offset
-     * @param string|int $value_index  The column index to serve as value
-     *
-     * @throws UnableToProcessCsv if the column index is invalid or not found
-     */
-    public function fetchPairs($offset_index = 0, $value_index = 1): Iterator;
 }

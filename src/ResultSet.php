@@ -30,14 +30,13 @@ use function iterator_count;
 class ResultSet implements TabularDataReader, JsonSerializable
 {
     /**
+     * @param Iterator<array-key, array<array-key, string|null>> $records
+     * @param array<string> $header
+     *
      * @throws SyntaxError
      */
-    public function __construct(
-        /** @var Iterator<array-key, array<array-key, string|null>> */
-        protected Iterator $records,
-        /** @var array<string> */
-        protected array $header = []
-    ) {
+    public function __construct(protected Iterator $records, protected array $header = [])
+    {
         $this->validateHeader($this->header);
     }
 
@@ -140,18 +139,6 @@ class ResultSet implements TabularDataReader, JsonSerializable
         return array_values([...$this->records]);
     }
 
-    /**
-     * @deprecated since version 9.9.0
-     *
-     * @see ::nth
-     *
-     * @codeCoverageIgnore
-     */
-    public function fetchOne(int $nth_record = 0): array
-    {
-        return $this->nth($nth_record);
-    }
-
     public function first(): array
     {
         return $this->nth(0);
@@ -191,23 +178,6 @@ class ResultSet implements TabularDataReader, JsonSerializable
             $this->getColumnIndexByKey($offset, 'offset', __METHOD__)
         );
     }
-
-    /**
-     * @deprecated since version 9.8.0
-     *
-     * @see ::fetchColumnByName
-     * @see ::fetchColumnByOffset
-     *
-     * @codeCoverageIgnore
-     * @throws Exception
-     */
-    public function fetchColumn($index = 0): Iterator
-    {
-        return $this->yieldColumn(
-            $this->getColumnIndex($index, 'offset', __METHOD__)
-        );
-    }
-
 
     protected function yieldColumn(string|int $offset): Generator
     {
@@ -282,5 +252,33 @@ class ResultSet implements TabularDataReader, JsonSerializable
         foreach ($iterator as $pair) {
             yield $pair[0] => $pair[1];
         }
+    }
+
+    /**
+     * @deprecated since version 9.9.0
+     *
+     * @see ::nth
+     *
+     * @codeCoverageIgnore
+     */
+    public function fetchOne(int $nth_record = 0): array
+    {
+        return $this->nth($nth_record);
+    }
+
+    /**
+     * @deprecated since version 9.8.0
+     *
+     * @see ::fetchColumnByName
+     * @see ::fetchColumnByOffset
+     *
+     * @codeCoverageIgnore
+     * @throws Exception
+     */
+    public function fetchColumn($index = 0): Iterator
+    {
+        return $this->yieldColumn(
+            $this->getColumnIndex($index, 'offset', __METHOD__)
+        );
     }
 }
