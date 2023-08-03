@@ -49,7 +49,7 @@ return $config
         'phpdoc_summary' => true,
         'psr_autoloading' => true,
         'return_type_declaration' => ['space_before' => 'none'],
-        'single_blank_line_before_namespace' => true,
+        'blank_lines_before_namespace' => true,
         'single_quote' => true,
         'space_after_semicolon' => true,
         'ternary_operator_spaces' => true,

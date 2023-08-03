@@ -28,6 +28,11 @@ use function strlen;
 /**
  * A stream filter to improve enclosure character usage.
  *
+ * DEPRECATION WARNING! This class will be removed in the next major point release
+ *
+ * @deprecated since version 9.10.0
+ * @see Writer::forceEnclosure()
+ *
  * @see https://tools.ietf.org/html/rfc4180#section-2
  * @see https://bugs.php.net/bug.php?id=38301
  */

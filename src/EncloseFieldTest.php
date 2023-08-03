@@ -19,6 +19,11 @@ use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use function stream_get_filters;
 
+/**
+ * DEPRECATION WARNING! This class will be removed in the next major point release.
+ *
+ * @deprecated since version 9.10.0
+ */
 #[Group('filter')]
 final class EncloseFieldTest extends TestCase
 {

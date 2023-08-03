@@ -11,7 +11,7 @@ All Notable changes to `Csv` will be documented in this file
 
 ### Deprecated
 
-- None
+- `EncloseField` stream filter in favor of the new `Writer::forceEnclosure` method.
 
 ### Fixed
 
