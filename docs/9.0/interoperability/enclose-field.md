@@ -5,6 +5,8 @@ title: Force Enclosure
 
 # Force field enclosure
 
+<p class="message-warning">This class is deprecated as of version <code>9.10.0</code>. Please use the <code>Writer::forceEnclosure</code> method instead.</p>
+
 <p class="message-info">Available since version <code>9.1.0</code></p>
 The `EncloseField` is a PHP stream filter which forces the `Writer` class to enclose all its record fields.
 
