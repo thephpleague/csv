@@ -9,9 +9,7 @@ title: Force Enclosure
 
 <p class="message-info">Available since version <code>9.1.0</code></p>
 The `EncloseField` is a PHP stream filter which forces the `Writer` class to enclose all its record fields.
-Q§ 
-M.;L'
-\
+
 <p class="message-warning">Changing the CSV objects control characters <strong>after registering the stream filter</strong> may result in unexpected returned records.</p>
 
 <p class="message-warning">Deprecated since version <code>9.10.0</code>. You should instead use the
