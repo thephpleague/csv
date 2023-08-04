@@ -76,15 +76,18 @@ echo $writer->toString();
 
 <p class="message-notice">The addition of this new feature means the deprecation of <a href="/9.0/interoperability/rfc4180-field/">RFC4180Field</a>.</p>
 
-<p class="message-notice">You still need to set the newline sequence as shown below</p>
+<p class="message-notice">You still need to set the end of line sequence as shown below</p>
 
-## Handling newline
+## Handling end of line
 
-Because PHP's `fputcsv` implementation has a hardcoded `\n`, we need to be able to replace the last `LF` code with one supplied by the developer for more interoperability between CSV packages on different platforms. The newline sequence will be appended to each newly inserted CSV record.
+Because PHP's `fputcsv` implementation uses a hardcoded `\n`, we need to be able to replace the last `LF` code
+with one supplied by the developer for more interoperability between CSV packages on different platforms.
+The end of line sequence will be appended to each newly inserted CSV record.
 
 ### Description
 
-<p class="message-notice"><code>setEndOfline</code> and <code>getEndOfLine</code> are available since version <code>9.10.0</code>.</p>
+<p class="message-notice"><code>setEndOfline</code> and <code>getEndOfLine</code> are available since version
+<code>9.10.0</code>.</p>
 
 ```php
 public Writer::setEndOfline(string $sequence): self
@@ -97,16 +100,16 @@ public Writer::getEndOfLine(void): string
 use League\Csv\Writer;
 
 $writer = Writer::createFromFileObject(new SplFileObject());
-$newline = $writer->getEndOfLine(); //equals "\n";
+$writer->getEndOfLine();        //returns "\n";
 $writer->setEndOfLine("\r\n");
-$newline = $writer->getEndOfLine(); //equals "\r\n";
+$writer->getEndOfLine();        //returns "\r\n";
 $writer->insertOne(["one", "two"]);
-echo $writer->toString(); //displays "one,two\r\n";
+echo $writer->toString();       //displays "one,two\r\n";
 ```
 
 <p class="message-notice"><code>setNewline</code> and <code>getNewLine</code> are deprecated since version <code>9.10.0</code>.</p>
-<p class="message-info">The default newline sequence is <code>\n</code>;</p>
-<p class="message-warning">If you are using a non-seekable CSV document, changing the newline character will trigger an exception.</p>
+<p class="message-info">The default end of line sequence is <code>\n</code>;</p>
+<p class="message-warning">If you are using a non-seekable CSV document, changing the end of line character will trigger an exception.</p>
 
 ## Flushing the buffer
 

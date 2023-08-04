@@ -20,7 +20,4 @@ parameters:
           path: src/ReaderTest.php
         - message: '#Parameter \#2 \$header of method League\\Csv\\Statement::process\(\) expects array<string>, array<int, int\|string> given.#'
           path: src/ResultSetTest.php
-        - '#Parameter \#2 \$haystack of static method PHPUnit\\Framework\\Assert::assertStringContainsString\(\)#'
-        - '#Parameter \#2 \$haystack of static method PHPUnit\\Framework\\Assert::assertStringNotContainsString\(\)#'
-        - '#Parameter \#1 \$needle of static method PHPUnit\\Framework\\Assert::assertStringContainsString\(\)#'
     reportUnmatchedIgnoredErrors: true
