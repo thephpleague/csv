@@ -31,7 +31,7 @@ if (!ini_get('auto_detect_line_endings')) {
 }
 ```
 
-**The ini setting is deprecated since PHP version 8.1 and will be removed in PHP 9.0**
+<p class="message-warning"><code>auto_detect_line_endings</code> is deprecated since <code>PHP 8.1</code>; and will be removed in <code>PHP 9.0</code></p>
 
 ## Exceptions
 
