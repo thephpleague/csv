@@ -51,7 +51,7 @@ composer require league/csv:^9.0
 
 ## Configuration
 
-**Warning:** If your CSV document was created or is read on a Macintosh computer, add the following lines before 
+**Warning:** If your CSV document was created or is read on a **Legacy Macintosh computer**, add the following lines before 
 using the library to help [PHP detect line ending](http://php.net/manual/en/function.fgetcsv.php#refsect1-function.fgetcsv-returnvalues).
 
 ```php
@@ -59,6 +59,8 @@ if (!ini_get('auto_detect_line_endings')) {
     ini_set('auto_detect_line_endings', '1');
 }
 ```
+
+**The ini setting is deprecated since PHP version 8.1 and will be removed in PHP 9.0**
 
 ## Testing
 
