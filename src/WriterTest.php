@@ -158,8 +158,8 @@ final class WriterTest extends TestCase
         /** @var resource $resource */
         $resource = tmpfile();
         $csv = Writer::createFromStream($resource);
-        self::assertSame("\n", $csv->getNewline());
-        $csv->setNewline("\r\n");
+        self::assertSame("\n", $csv->getEndOfLine());
+        $csv->setEndOfLine("\r\n");
         $csv->insertOne(['jane', 'doe']);
         self::assertSame("jane,doe\r\n", $csv->toString());
         $csv = null;
@@ -208,7 +208,7 @@ final class WriterTest extends TestCase
     {
         $this->expectException(UnavailableStream::class);
         $writer = Writer::createFromPath('php://null', 'w');
-        $writer->setNewline("\r\n");
+        $writer->setEndOfLine("\r\n");
         $writer->insertOne(['foo', 'bar']);
     }
 
@@ -222,7 +222,7 @@ final class WriterTest extends TestCase
     {
         foreach (["\r\n", "\n", "\r"] as $eol) {
             $csv = Writer::createFromString();
-            $csv->setNewline($eol);
+            $csv->setEndOfLine($eol);
             $csv->setEscape('');
             $csv->insertOne($record);
             self::assertSame($expected.$eol, $csv->toString());

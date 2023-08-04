@@ -51,9 +51,9 @@ class Writer extends AbstractCsv implements TabularDataWriter
     }
 
     /**
-     * Returns the current newline sequence characters.
+     * Returns the current end of line sequence characters.
      */
-    public function getNewline(): string
+    public function getEndOfLine(): string
     {
         return $this->newline;
     }
@@ -173,11 +173,11 @@ class Writer extends AbstractCsv implements TabularDataWriter
     }
 
     /**
-     * Sets the newline sequence.
+     * Sets the end of line sequence.
      */
-    public function setNewline(string $newline): self
+    public function setEndOfLine(string $endOfLine): self
     {
-        $this->newline = $newline;
+        $this->newline = $endOfLine;
 
         return $this;
     }
@@ -272,5 +272,33 @@ class Writer extends AbstractCsv implements TabularDataWriter
         }
 
         return 0;
+    }
+
+    /**
+     * DEPRECATION WARNING! This method will be removed in the next major point release.
+     *
+     * @see Writer::getEndOfLine()
+     * @deprecated Since version 9.10.0
+     * @codeCoverageIgnore
+     *
+     * Returns the current newline sequence characters.
+     */
+    public function getNewline(): string
+    {
+        return $this->getEndOfLine();
+    }
+
+    /**
+     * DEPRECATION WARNING! This method will be removed in the next major point release.
+     *
+     * @see Writer::setEndOfLine()
+     * @deprecated Since version 9.10.0
+     * @codeCoverageIgnore
+     *
+     * Sets the newline sequence.
+     */
+    public function setNewline(string $newline): self
+    {
+        return $this->setEndOfLine($newline);
     }
 }

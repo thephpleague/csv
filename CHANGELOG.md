@@ -8,10 +8,12 @@ All Notable changes to `Csv` will be documented in this file
 
 - `Stream::fwrite` to allow writing to a file in a normalized way. Internal use.
 - `Writer::forceEnclosure` and `Writer::relaxEnclosure` to control the presence of enclosure in the generated CSV
+- `Writer::getEndOfLine` and `Writer::setEndOfLine` 
 
 ### Deprecated
 
 - `EncloseField` stream filter in favor of the new `Writer::forceEnclosure` method.
+- `Writer::getNewline` and `Writer::setNewline` in favor of `Writer::getEndOfLine` and `Writer::setEndOfLine`
 
 ### Fixed
 

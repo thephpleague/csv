@@ -84,9 +84,11 @@ Because PHP's `fputcsv` implementation has a hardcoded `\n`, we need to be able 
 
 ### Description
 
+<p class="message-notice"><code>setEndOfline</code> and <code>getEndOfLine</code> are available since version <code>9.10.0</code>.</p>
+
 ```php
-public Writer::setNewline(string $sequence): self
-public Writer::getNewline(void): string
+public Writer::setEndOfline(string $sequence): self
+public Writer::getEndOfLine(void): string
 ```
 
 ### Example
@@ -95,13 +97,14 @@ public Writer::getNewline(void): string
 use League\Csv\Writer;
 
 $writer = Writer::createFromFileObject(new SplFileObject());
-$newline = $writer->getNewline(); //equals "\n";
-$writer->setNewline("\r\n");
-$newline = $writer->getNewline(); //equals "\r\n";
+$newline = $writer->getEndOfLine(); //equals "\n";
+$writer->setEndOfLine("\r\n");
+$newline = $writer->getEndOfLine(); //equals "\r\n";
 $writer->insertOne(["one", "two"]);
 echo $writer->toString(); //displays "one,two\r\n";
 ```
 
+<p class="message-notice"><code>setNewline</code> and <code>getNewLine</code> are deprecated since version <code>9.10.0</code>.</p>
 <p class="message-info">The default newline sequence is <code>\n</code>;</p>
 <p class="message-warning">If you are using a non-seekable CSV document, changing the newline character will trigger an exception.</p>
 
