@@ -2,6 +2,24 @@
 
 All Notable changes to `Csv` will be documented in this file
 
+## [Next] - TBD
+
+### Added
+
+- None
+
+### Deprecated
+
+- None
+
+### Fixed
+
+- None
+
+### Removed
+
+- None
+
 ## [9.10.0] - 2023-08-04
 
 ### Added
@@ -1320,7 +1338,8 @@ to manage BOM character with CSV.
 
 Initial Release of `Bakame\Csv`
 
-[Next]: https://github.com/thephpleague/csv/compare/9.9.0...master
+[Next]: https://github.com/thephpleague/csv/compare/9.10.0...master
+[9.10.0]: https://github.com/thephpleague/csv/compare/9.9.0...9.10.0
 [9.9.0]: https://github.com/thephpleague/csv/compare/9.8.0...9.9.0
 [9.8.0]: https://github.com/thephpleague/csv/compare/9.7.4...9.8.0
 [9.7.4]: https://github.com/thephpleague/csv/compare/9.7.3...9.7.4
