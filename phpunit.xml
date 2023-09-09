@@ -1,14 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/10.0/phpunit.xsd" bootstrap="vendor/autoload.php" backupGlobals="false" colors="true" processIsolation="false" stopOnFailure="false" cacheDirectory=".phpunit.cache" backupStaticProperties="false">
+<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/10.3/phpunit.xsd" bootstrap="vendor/autoload.php" backupGlobals="false" colors="true" processIsolation="false" stopOnFailure="false" cacheDirectory=".phpunit.cache" backupStaticProperties="false">
   <coverage>
-    <include>
-      <directory suffix=".php">src</directory>
-    </include>
-    <exclude>
-      <directory suffix="Test.php">src</directory>
-      <directory suffix="Bench.php">src</directory>
-      <directory suffix="_include.php">src</directory>
-    </exclude>
     <report>
       <clover outputFile="build/clover.xml"/>
       <html outputDirectory="build/coverage"/>
@@ -23,4 +15,14 @@
   <logging>
     <junit outputFile="build/junit.xml"/>
   </logging>
+  <source>
+    <include>
+      <directory suffix=".php">src</directory>
+    </include>
+    <exclude>
+      <directory suffix="Test.php">src</directory>
+      <directory suffix="Bench.php">src</directory>
+      <directory suffix="_include.php">src</directory>
+    </exclude>
+  </source>
 </phpunit>
