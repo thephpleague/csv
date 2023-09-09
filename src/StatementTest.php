@@ -18,6 +18,7 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use SplTempFileObject;
+
 use function array_reverse;
 use function in_array;
 use function strcmp;
@@ -65,7 +66,7 @@ final class StatementTest extends TestCase
     {
         self::assertContains(
             ['jane', 'doe', 'jane.doe@example.com'],
-            $this->stmt->offset(1)->process($this->csv)
+            [...$this->stmt->offset(1)->process($this->csv)]
         );
     }
 
@@ -86,12 +87,12 @@ final class StatementTest extends TestCase
     {
         self::assertContains(
             ['jane', 'doe', 'jane.doe@example.com'],
-            $this->stmt
+            [...$this->stmt
                 ->offset($offset)
                 ->limit($limit)
                 ->where(fn (array $record): bool => true)
                 ->where(fn (array $record): bool => [] !== $record)
-                ->process($this->csv)
+                ->process($this->csv)]
         );
     }
 

@@ -18,6 +18,7 @@ use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use SplTempFileObject;
 use TypeError;
+
 use function chr;
 
 #[Group('csv')]

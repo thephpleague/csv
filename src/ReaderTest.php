@@ -18,6 +18,7 @@ use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use SplFileObject;
 use SplTempFileObject;
+
 use function array_keys;
 use function count;
 use function fclose;

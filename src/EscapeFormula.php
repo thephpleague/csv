@@ -15,6 +15,7 @@ namespace League\Csv;
 
 use InvalidArgumentException;
 use Stringable;
+
 use function array_fill_keys;
 use function array_keys;
 use function array_map;

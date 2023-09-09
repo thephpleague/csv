@@ -17,6 +17,7 @@ use SeekableIterator;
 use SplFileObject;
 use Stringable;
 use TypeError;
+
 use function array_keys;
 use function array_walk_recursive;
 use function fclose;
@@ -40,6 +41,7 @@ use function stream_filter_append;
 use function stream_filter_remove;
 use function stream_get_meta_data;
 use function strlen;
+
 use const SEEK_SET;
 
 /**
@@ -146,16 +148,11 @@ final class Stream implements SeekableIterator
 
     public static function createFromResource(mixed $stream): self
     {
-        if (!is_resource($stream)) {
-            throw new TypeError('Argument passed must be a stream resource, '.gettype($stream).' given.');
-        }
-
-        $type = get_resource_type($stream);
-        if ('stream' !== $type) {
-            throw new TypeError('Argument passed must be a stream resource, '.$type.' resource given');
-        }
-
-        return new self($stream);
+        return match (true) {
+            !is_resource($stream) => throw new TypeError('Argument passed must be a stream resource, '.gettype($stream).' given.'),
+            'stream' !== ($type = get_resource_type($stream)) => throw new TypeError('Argument passed must be a stream resource, '.$type.' resource given'),
+            default => new self($stream),
+        };
     }
 
     /**
@@ -303,11 +300,10 @@ final class Stream implements SeekableIterator
      */
     public function valid(): bool
     {
-        if (0 !== ($this->flags & SplFileObject::READ_AHEAD)) {
-            return $this->current() !== false;
-        }
-
-        return !feof($this->stream);
+        return match (true) {
+            0 !== ($this->flags & SplFileObject::READ_AHEAD) => false !== $this->current(),
+            default => !feof($this->stream),
+        };
     }
 
     /**
@@ -396,11 +392,10 @@ final class Stream implements SeekableIterator
      */
     public function fseek(int $offset, int $whence = SEEK_SET): int
     {
-        if (!$this->is_seekable) {
-            throw UnavailableFeature::dueToMissingStreamSeekability();
-        }
-
-        return fseek($this->stream, $offset, $whence);
+        return match (true) {
+            !$this->is_seekable => throw UnavailableFeature::dueToMissingStreamSeekability(),
+            default => fseek($this->stream, $offset, $whence),
+        };
     }
 
     /**

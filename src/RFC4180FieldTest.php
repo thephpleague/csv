@@ -18,7 +18,9 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use TypeError;
+
 use function stream_get_filters;
+
 use const STREAM_FILTER_ALL;
 use const STREAM_FILTER_READ;
 

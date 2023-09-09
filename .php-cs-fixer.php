@@ -17,7 +17,7 @@ $config = new PhpCsFixer\Config();
 
 return $config
     ->setRules([
-        '@PSR2' => true,
+        '@PSR12' => true,
         'array_syntax' => ['syntax' => 'short'],
         'concat_space' => ['spacing' => 'none'],
         'header_comment' => [
@@ -41,7 +41,7 @@ return $config
         'no_unused_imports' => true,
         'ordered_imports' => ['imports_order' => ['class', 'function', 'const'], 'sort_algorithm' => 'alpha'],
         'phpdoc_add_missing_param_annotation' => ['only_untyped' => true],
-        'phpdoc_align' => false,
+        'phpdoc_align' => ['align' => 'left'],
         'phpdoc_no_empty_return' => true,
         'phpdoc_order' => true,
         'phpdoc_scalar' => true,
@@ -56,7 +56,7 @@ return $config
         'trailing_comma_in_multiline' => true,
         'trim_array_spaces' => true,
         'whitespace_after_comma_in_array' => true,
+        'yoda_style' => true,
     ])
     ->setFinder($finder)
 ;
-

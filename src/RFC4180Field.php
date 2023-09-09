@@ -16,6 +16,7 @@ namespace League\Csv;
 use InvalidArgumentException;
 use php_user_filter;
 use TypeError;
+
 use function array_map;
 use function in_array;
 use function is_string;
@@ -26,6 +27,7 @@ use function stream_bucket_make_writeable;
 use function stream_filter_register;
 use function stream_get_filters;
 use function strlen;
+
 use const STREAM_FILTER_READ;
 use const STREAM_FILTER_WRITE;
 
@@ -121,7 +123,7 @@ class RFC4180Field extends php_user_filter
     /**
      * @param resource $in
      * @param resource $out
-     * @param int      $consumed
+     * @param int $consumed
      */
     public function filter($in, $out, &$consumed, bool $closing): int
     {

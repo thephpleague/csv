@@ -18,6 +18,7 @@ use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use SplFileObject;
 use TypeError;
+
 use function feof;
 use function fopen;
 use function fputcsv;
@@ -31,6 +32,7 @@ use function stream_context_get_options;
 use function stream_get_wrappers;
 use function stream_wrapper_register;
 use function stream_wrapper_unregister;
+
 use const STREAM_FILTER_READ;
 
 #[Group('csv')]

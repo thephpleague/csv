@@ -15,6 +15,7 @@ namespace League\Csv;
 
 use InvalidArgumentException;
 use php_user_filter;
+
 use function array_map;
 use function in_array;
 use function str_replace;

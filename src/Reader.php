@@ -17,6 +17,7 @@ use CallbackFilterIterator;
 use Iterator;
 use JsonSerializable;
 use SplFileObject;
+
 use function array_combine;
 use function array_filter;
 use function array_pad;
@@ -29,6 +30,7 @@ use function mb_strlen;
 use function mb_substr;
 use function strlen;
 use function substr;
+
 use const STREAM_FILTER_READ;
 
 /**
@@ -72,13 +74,11 @@ class Reader extends AbstractCsv implements TabularDataReader, JsonSerializable
      */
     public function getHeader(): array
     {
-        if (null === $this->header_offset || [] !== $this->header) {
-            return $this->header;
-        }
-
-        $this->header = $this->setHeader($this->header_offset);
-
-        return $this->header;
+        return match (true) {
+            null === $this->header_offset,
+            [] !== $this->header => $this->header,
+            default => ($this->header = $this->setHeader($this->header_offset)),
+        };
     }
 
     /**
@@ -122,11 +122,10 @@ class Reader extends AbstractCsv implements TabularDataReader, JsonSerializable
         $this->getDocument()->seek($offset);
         $record = $this->document->current();
 
-        if (false === $record) {
-            return [];
-        }
-
-        return (array) $record;
+        return match (true) {
+            false === $record => [],
+            default => (array) $record,
+        };
     }
 
     /**

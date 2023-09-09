@@ -15,6 +15,7 @@ namespace League\Csv;
 
 use OutOfRangeException;
 use php_user_filter;
+
 use function array_combine;
 use function array_map;
 use function in_array;

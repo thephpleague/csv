@@ -18,6 +18,7 @@ use Generator;
 use Iterator;
 use JsonSerializable;
 use LimitIterator;
+
 use function array_filter;
 use function array_flip;
 use function array_search;
@@ -194,11 +195,10 @@ class ResultSet implements TabularDataReader, JsonSerializable
      */
     protected function getColumnIndex(string|int $field, string $type, string $method): string|int
     {
-        if (is_string($field)) {
-            return $this->getColumnIndexByValue($field, $type, $method);
-        }
-
-        return $this->getColumnIndexByKey($field, $type, $method);
+        return match (true) {
+            is_string($field) => $this->getColumnIndexByValue($field, $type, $method),
+            default => $this->getColumnIndexByKey($field, $type, $method),
+        };
     }
 
     /**
@@ -208,11 +208,10 @@ class ResultSet implements TabularDataReader, JsonSerializable
      */
     protected function getColumnIndexByValue(string $value, string $type, string $method): string
     {
-        if (false === array_search($value, $this->header, true)) {
-            throw InvalidArgument::dueToInvalidColumnIndex($value, $type, $method);
-        }
-
-        return $value;
+        return match (true) {
+            false === array_search($value, $this->header, true) => throw InvalidArgument::dueToInvalidColumnIndex($value, $type, $method),
+            default => $value,
+        };
     }
 
     /**
@@ -222,20 +221,12 @@ class ResultSet implements TabularDataReader, JsonSerializable
      */
     protected function getColumnIndexByKey(int $index, string $type, string $method): int|string
     {
-        if ($index < 0) {
-            throw InvalidArgument::dueToInvalidColumnIndex($index, $type, $method);
-        }
-
-        if ([] === $this->header) {
-            return $index;
-        }
-
-        $value = array_search($index, array_flip($this->header), true);
-        if (false === $value) {
-            throw InvalidArgument::dueToInvalidColumnIndex($index, $type, $method);
-        }
-
-        return $value;
+        return match (true) {
+            $index < 0 => throw InvalidArgument::dueToInvalidColumnIndex($index, $type, $method),
+            [] === $this->header => $index,
+            false !== ($value = array_search($index, array_flip($this->header), true)) => $value,
+            default => throw InvalidArgument::dueToInvalidColumnIndex($index, $type, $method),
+        };
     }
 
     public function fetchPairs($offset_index = 0, $value_index = 1): Iterator

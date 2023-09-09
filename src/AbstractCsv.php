@@ -16,6 +16,7 @@ namespace League\Csv;
 use Generator;
 use SplFileObject;
 use Stringable;
+
 use function filter_var;
 use function get_class;
 use function mb_strlen;
@@ -25,6 +26,7 @@ use function str_replace;
 use function str_split;
 use function strcspn;
 use function strlen;
+
 use const FILTER_FLAG_STRIP_HIGH;
 use const FILTER_FLAG_STRIP_LOW;
 use const FILTER_UNSAFE_RAW;
@@ -447,7 +449,7 @@ abstract class AbstractCsv implements ByteSequence
     /**
      * Append a stream filter.
      *
-     * @throws InvalidArgument    If the stream filter API can not be appended
+     * @throws InvalidArgument If the stream filter API can not be appended
      * @throws UnavailableFeature If the stream filter API can not be used
      */
     public function addStreamFilter(string $filtername, null|array $params = null): static

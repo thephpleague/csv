@@ -16,6 +16,7 @@ namespace League\Csv;
 use DOMDocument;
 use DOMElement;
 use DOMException;
+
 use function preg_match;
 
 /**
@@ -37,8 +38,9 @@ class HTMLConverter
     /**
      * DEPRECATION WARNING! This method will be removed in the next major point release.
      *
-     * @deprecated since version 9.7.0
+     * @throws DOMException
      * @see HTMLConverterTest::create()
+     * @deprecated since version 9.7.0
      */
     public function __construct()
     {
@@ -84,6 +86,8 @@ class HTMLConverter
 
     /**
      * Creates a DOMElement representing an HTML table heading section.
+     *
+     * @throws DOMException
      */
     protected function appendHeaderSection(string $node_name, array $record, DOMElement $table): void
     {

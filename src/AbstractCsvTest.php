@@ -19,6 +19,7 @@ use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 use PHPUnit\Framework\TestCase;
 use SplFileObject;
 use SplTempFileObject;
+
 use function chr;
 use function function_exists;
 use function ob_get_clean;
@@ -27,6 +28,7 @@ use function strtolower;
 use function tmpfile;
 use function unlink;
 use function xdebug_get_headers;
+
 use const PHP_EOL;
 
 #[Group('csv')]

@@ -101,7 +101,7 @@ class Writer extends AbstractCsv implements TabularDataWriter
      * or objects implementing the __toString method.
      *
      * @throws CannotInsertRecord If the record can not be inserted
-     * @throws Exception          If the record can not be inserted
+     * @throws Exception If the record can not be inserted
      */
     public function insertOne(array $record): int
     {

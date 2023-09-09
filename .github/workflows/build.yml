@@ -10,7 +10,7 @@ jobs:
         runs-on: ubuntu-20.04
         strategy:
             matrix:
-                php: ['8.1', '8.2']
+                php: ['8.1', '8.2', '8.3']
                 stability: [prefer-lowest, prefer-stable]
         steps:
             - name: Checkout code
@@ -52,4 +52,4 @@ jobs:
 
             - name: Run Coding style rules
               run: composer phpcs:fix
-              if: ${{ matrix.php == '8.1' && matrix.stability == 'prefer-stable'}}
+              if: ${{ matrix.php == '8.2' && matrix.stability == 'prefer-stable'}}

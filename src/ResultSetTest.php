@@ -18,6 +18,7 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use SplTempFileObject;
+
 use function current;
 use function in_array;
 use function json_encode;
@@ -106,8 +107,8 @@ final class ResultSetTest extends TestCase
 
     public function testFetchColumn(): void
     {
-        self::assertContains('john', $this->stmt->process($this->csv)->fetchColumnByOffset(0));
-        self::assertContains('jane', $this->stmt->process($this->csv)->fetchColumnByOffset(0));
+        self::assertContains('john', [...$this->stmt->process($this->csv)->fetchColumnByOffset(0)]);
+        self::assertContains('jane', [...$this->stmt->process($this->csv)->fetchColumnByOffset(0)]);
     }
 
     public function testFetchColumnByNameTriggersException(): void
@@ -164,7 +165,7 @@ final class ResultSetTest extends TestCase
         $csv = Reader::createFromString($source);
         $csv->setHeaderOffset(0);
 
-        self::assertContains('parentA', $this->stmt->process($csv)->fetchColumnByName('parent name'));
+        self::assertContains('parentA', [...$this->stmt->process($csv)->fetchColumnByName('parent name')]);
     }
 
     public function testFetchColumnInconsistentColumnCSV(): void

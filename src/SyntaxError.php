@@ -14,6 +14,7 @@ declare(strict_types=1);
 namespace League\Csv;
 
 use Throwable;
+
 use function array_count_values;
 use function array_filter;
 use function array_keys;

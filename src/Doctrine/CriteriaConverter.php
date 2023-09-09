@@ -16,6 +16,7 @@ namespace League\Csv\Doctrine;
 use Doctrine\Common\Collections\Criteria;
 use Doctrine\Common\Collections\Expr\ClosureExpressionVisitor;
 use League\Csv\Statement;
+
 use function array_reverse;
 
 final class CriteriaConverter

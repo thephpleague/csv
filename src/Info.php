@@ -19,6 +19,7 @@ use function array_reduce;
 use function array_unique;
 use function count;
 use function strlen;
+
 use const COUNT_RECURSIVE;
 
 final class Info implements ByteSequence
