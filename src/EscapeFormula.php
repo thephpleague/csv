@@ -102,21 +102,44 @@ class EscapeFormula
         return array_map($this->escapeField(...), $record);
     }
 
+    public function unescapeRecord(array $record): array
+    {
+        return array_map($this->unescapeField(...), $record);
+    }
+
     /**
      * Escapes a CSV cell if its content is stringable.
      */
     protected function escapeField(mixed $cell): mixed
     {
-        if (!is_string($cell) && !$cell instanceof Stringable) {
-            return $cell;
-        }
+        $strOrNull = match (true) {
+            is_string($cell) => $cell,
+            $cell instanceof Stringable => (string) $cell,
+            default => null,
+        };
 
-        $str_cell = (string) $cell;
-        if (isset($str_cell[0], $this->special_chars[$str_cell[0]])) {
-            return $this->escape.$str_cell;
-        }
+        return match (true) {
+            null == $strOrNull,
+            !isset($strOrNull[0], $this->special_chars[$strOrNull[0]]) => $cell,
+            default => $this->escape.$strOrNull,
+        };
+    }
 
-        return $cell;
+    protected function unescapeField(mixed $cell): mixed
+    {
+        $strOrNull = match (true) {
+            is_string($cell) => $cell,
+            $cell instanceof Stringable => (string) $cell,
+            default => null,
+        };
+
+        return match (true) {
+            null === $strOrNull,
+            !isset($strOrNull[0], $strOrNull[1]),
+            $strOrNull[0] !== $this->escape,
+            !isset($this->special_chars[$strOrNull[1]]) => $cell,
+            default => substr($strOrNull, 1),
+        };
     }
 
     /**

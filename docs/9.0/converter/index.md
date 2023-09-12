@@ -12,7 +12,6 @@ The package provides classes which convert any collection of CSV records into:
 - another collection encoded using the [CharsetConverter](/9.0/converter/charset/) class;
 - a `DOMDocument` object using the [XMLConverter](/9.0/converter/xml/) class;
 - an HTML table using the [HTMLConverter](/9.0/converter/html/) class;
-- a JSON payload using the [JsomConverter](/9.0/converter/json/) class;
 
 <p class="message-warning"><strong>Warning:</strong> A <code>League\Csv\Writer</code> object can not be converted.</p>
 

@@ -67,4 +67,22 @@ final class EscapeFormulaTest extends TestCase
         $csv->insertOne($record);
         self::assertStringContainsString($expected, $csv->toString());
     }
+
+    public function testUnescapeRecord(): void
+    {
+        $expected = ['2', '2017-07-25', 'Important Client', '=2+5', 240, null, (object) 'yes'];
+        $record = ['2', '2017-07-25', 'Important Client', "'=2+5", 240, null, (object) 'yes'];
+        $formatter = new EscapeFormula();
+        self::assertEquals($expected, $formatter->unescapeRecord($record));
+    }
+
+    public function testUnformatReader(): void
+    {
+        $formatter = new EscapeFormula();
+        $input = "2,2017-07-25,\"Important Client\",\"'=2+5\",\"240\",\"'\ttab\",\"'\rcr\",\n";
+        $reader = Reader::createFromString($input)->setEnclosure('"');
+        $result = array_map($formatter->unescapeRecord(...), iterator_to_array($reader));
+        $formatted_records = [['2', '2017-07-25', 'Important Client', '=2+5', '240', "\ttab", "\rcr", '']];
+        self::assertEquals($formatted_records, $result);
+    }
 }
