@@ -459,7 +459,7 @@ $records = $reader->filter(fn (array $record): => 5 === count($record));
 #### Reader::slice
 
 Extracts a slice of $length elements starting at position $offset from the Collection.
-If $length is `-1` it returns all elements from `$offset` to the end of the 
+If $length is `-1` it returns all elements from `$offset` to the end of the
 Collection. Keys have to be preserved by this method. Calling this
 method will only return the selected slice and NOT change the
 elements contained in the collection slice is called on.
