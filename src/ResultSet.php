@@ -14,6 +14,7 @@ declare(strict_types=1);
 namespace League\Csv;
 
 use CallbackFilterIterator;
+use Closure;
 use Generator;
 use Iterator;
 use JsonSerializable;
@@ -86,6 +87,66 @@ class ResultSet implements TabularDataReader, JsonSerializable
     public function getIterator(): Iterator
     {
         return $this->getRecords();
+    }
+
+    /**
+     * @param Closure(array<string|null>, array-key=): mixed $closure
+     */
+    public function each(Closure $closure): bool
+    {
+        foreach ($this as $offset => $record) {
+            if (false === $closure($record, $offset)) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * @param Closure(array<string|null>, array-key=): bool $closure
+     */
+    public function exists(Closure $closure): bool
+    {
+        foreach ($this as $offset => $record) {
+            if (true === $closure($record, $offset)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * @param Closure(TInitial|null, array<string|null>, array-key=): TInitial $closure
+     * @param TInitial|null $initial
+     *
+     * @template TInitial
+     *
+     * @return TInitial|null
+     */
+    public function reduce(Closure $closure, mixed $initial = null): mixed
+    {
+        foreach ($this as $offset => $record) {
+            $initial = $closure($initial, $record, $offset);
+        }
+
+        return $initial;
+    }
+
+    public function filter(Closure $closure): TabularDataReader
+    {
+        return Statement::create()->where($closure)->process($this);
+    }
+
+    public function slice(int $offset, int $length = null): TabularDataReader
+    {
+        return Statement::create()->offset($offset)->limit($length ?? -1)->process($this);
+    }
+
+    public function sorted(Closure $orderBy): TabularDataReader
+    {
+        return Statement::create()->orderBy($orderBy)->process($this);
     }
 
     /**

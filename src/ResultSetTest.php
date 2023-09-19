@@ -73,6 +73,18 @@ final class ResultSetTest extends TestCase
         self::assertEquals($result3, $result2);
     }
 
+    public function testFilterWithClassFilterMethod(): void
+    {
+        $func2 = fn (array $row): bool => !in_array('john', $row, true);
+        $result1 = $this->csv->filter(fn (array $row): bool => !in_array('jane', $row, true));
+        $result2 = $result1->filter($func2);
+        $result3 = $result2->filter($func2);
+
+        self::assertNotContains(['jane', 'doe', 'jane.doe@example.com'], [...$result1]);
+        self::assertCount(0, $result2);
+        self::assertEquals($result3, $result2);
+    }
+
     #[DataProvider('invalidFieldNameProvider')]
     public function testFetchColumnTriggersException(int|string $field): void
     {
@@ -321,5 +333,81 @@ final class ResultSetTest extends TestCase
         $csv->setDelimiter(',');
         $resultSet = Statement::create()->process($csv);
         Statement::create()->process($resultSet, ['foo', 3]);
+    }
+
+    public function testSliceThrowException(): void
+    {
+        $this->expectException(InvalidArgument::class);
+
+        Statement::create()->process($this->csv)->slice(0, -2);
+    }
+
+    public function testSlice(): void
+    {
+        self::assertContains(
+            ['jane', 'doe', 'jane.doe@example.com'],
+            [...Statement::create()->process($this->csv)->slice(1)]
+        );
+    }
+
+    public function testOrderBy(): void
+    {
+        $calculated = Statement::create()->process($this->csv)->sorted(fn (array $rowA, array $rowB): int => strcmp($rowA[0], $rowB[0]));
+
+        self::assertSame(array_reverse($this->expected), array_values([...$calculated]));
+    }
+
+    public function testOrderByWithEquity(): void
+    {
+        $calculated = Statement::create()->process($this->csv)->sorted(fn (array $rowA, array $rowB): int => strlen($rowA[0]) <=> strlen($rowB[0]));
+
+        self::assertSame($this->expected, array_values([...$calculated]));
+    }
+
+    public function testReduce(): void
+    {
+        self::assertSame(
+            6,
+            Statement::create()
+                ->process($this->csv)
+                ->reduce(fn (?int $carry, array $record): int => ($carry ?? 0) + count($record))
+        );
+    }
+
+    public function testEach(): void
+    {
+        $toto = [];
+
+        Statement::create()->process($this->csv)->each(function (array $record, string|int $offset) use (&$toto) {
+            $toto[$offset] = $record;
+
+            return true;
+        });
+
+        self::assertCount(2, $toto);
+        self::assertSame($toto, [...$this->csv]);
+    }
+
+    public function testEachStopped(): void
+    {
+        $toto = [];
+
+        Statement::create()->process($this->csv)->each(function (array $record) use (&$toto) {
+            if (in_array('jane', $record, true)) {
+                $toto[] = $record;
+
+                return false;
+            }
+
+            return true;
+        });
+
+        self::assertCount(1, $toto);
+    }
+
+    public function testExistsRecord(): void
+    {
+        self::assertFalse(Statement::create()->process($this->csv)->exists(fn (array $record) => array_key_exists('foobar', $record)));
+        self::assertTrue(Statement::create()->process($this->csv)->exists(fn (array $record) => count($record) < 5));
     }
 }

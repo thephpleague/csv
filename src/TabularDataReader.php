@@ -13,6 +13,7 @@ declare(strict_types=1);
 
 namespace League\Csv;
 
+use Closure;
 use Countable;
 use Iterator;
 use IteratorAggregate;
@@ -24,6 +25,12 @@ use IteratorAggregate;
  * @method Iterator fetchColumnByOffset(int $offset) returns a column from its offset
  * @method array first() returns the first record from the tabular data.
  * @method array nth(int $nth_record) returns the nth record from the tabular data.
+ * @method bool each(Closure $closure) iterates over each record and passes it to a closure. Iteration is interrupted if the closure returns false
+ * @method bool exists(Closure $closure) tells whether at least one record satisfies the predicate.
+ * @method mixed reduce(Closure $closure, mixed $initial = null) reduces the collection to a single value, passing the result of each iteration into the subsequent iteration
+ * @method TabularDataReader filter(Closure $closure) returns all the elements of this collection for which your callback function returns `true`
+ * @method TabularDataReader slice(int $offset, int $length = null) extracts a slice of $length elements starting at position $offset from the Collection.
+ * @method TabularDataReader sorted(Closure $orderBy) sorts the Collection according to the closure provided see Statement::orderBy method
  */
 interface TabularDataReader extends Countable, IteratorAggregate
 {
