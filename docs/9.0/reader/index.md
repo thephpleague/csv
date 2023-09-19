@@ -388,7 +388,7 @@ $records = $stmt->process($reader);
 
 <p class="message-notice">New methods added in version <code>9.11</code>.</p>
 
-To ease working with the loaded CSV document the following methods derived from collection are added. 
+To ease working with the loaded CSV document the following methods derived from collection are added.
 Some are just wrapper methods around the `Statement` class while others use the iterable nature
 of the CSV document.
 
@@ -458,10 +458,14 @@ $records = $reader->filter(fn (array $record): => 5 === count($record));
 
 #### Reader::slice
 
-Extracts a slice of $length elements starting at position $offset from the Collection. If $length is `-1` it returns all elements from `$offset` to the end of the Collection. 
-Keys have to be preserved by this method. Calling this method will only return the selected slice and NOT change the elements contained in the collection slice is called on.
+Extracts a slice of $length elements starting at position $offset from the Collection.
+If $length is `-1` it returns all elements from `$offset` to the end of the 
+Collection. Keys have to be preserved by this method. Calling this
+method will only return the selected slice and NOT change the
+elements contained in the collection slice is called on.
 
-<p class="message-info"> Wraps the functionality of <code>Statement::offset</code> and <code>Statement::limit</code>.</p>
+<p class="message-info"> Wraps the functionality of <code>Statement::offset</code>
+and <code>Statement::limit</code>.</p>
 
 ```php
 use League\Csv\Reader;
