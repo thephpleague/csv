@@ -532,4 +532,75 @@ CSV;
         $this->expectException(Exception::class);
         $csv->getHeader();
     }
+
+    public function testSliceThrowException(): void
+    {
+        $this->expectException(InvalidArgument::class);
+
+        $this->csv->slice(0, -2); /* @phpstan-ignore-line */
+    }
+
+    public function testSlice(): void
+    {
+        self::assertContains(
+            ['jane', 'doe', 'jane.doe@example.com'],
+            [...$this->csv->slice(1)]
+        );
+    }
+
+    public function testOrderBy(): void
+    {
+        $calculated = $this->csv->sorted(fn (array $rowA, array $rowB): int => strcmp($rowA[0], $rowB[0])); /* @phpstan-ignore-line */
+
+        self::assertSame(array_reverse($this->expected), array_values([...$calculated]));
+    }
+
+    public function testOrderByWithEquity(): void
+    {
+        $calculated = $this->csv->sorted(fn (array $rowA, array $rowB): int => strlen($rowA[0]) <=> strlen($rowB[0])); /* @phpstan-ignore-line */
+
+        self::assertSame($this->expected, array_values([...$calculated]));
+    }
+
+    public function testReduce(): void
+    {
+        self::assertSame(7, $this->csv->reduce(fn (?int $carry, array $record): int => ($carry ?? 0) + count($record)));
+    }
+
+    public function testEach(): void
+    {
+        $toto = [];
+
+        $this->csv->each(function (array $record, string|int $offset) use (&$toto) { /* @phpstan-ignore-line */
+            $toto[$offset] = $record;
+
+            return true;
+        });
+
+        self::assertCount(2, $toto);
+        self::assertSame($toto, [...$this->csv]);
+    }
+
+    public function testEachStopped(): void
+    {
+        $toto = [];
+
+        $this->csv->each(function (array $record) use (&$toto) {
+            if (4 === count($record)) {
+                $toto[] = $record;
+
+                return false;
+            }
+
+            return true;
+        });
+
+        self::assertCount(1, $toto);
+    }
+
+    public function testExistsRecord(): void
+    {
+        self::assertFalse($this->csv->exists(fn (array $record) => array_key_exists('foobar', $record)));
+        self::assertTrue($this->csv->exists(fn (array $record) => count($record) < 5));
+    }
 }

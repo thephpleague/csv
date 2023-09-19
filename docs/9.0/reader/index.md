@@ -384,6 +384,114 @@ $records = $stmt->process($reader);
 //$records is a League\Csv\ResultSet object
 ```
 
+### Collection methods
+
+<p class="message-notice">New methods added in version <code>9.11</code>.</p>
+
+To ease working with the loaded CSV document the following methods derived from collection are added.
+Some are just wrapper methods around the `Statement` class while others use the iterable nature
+of the CSV document.
+
+#### Reader::each
+
+Iterates over the records in the CSV document and passes each item to a closure:
+
+```php
+use League\Csv\Reader;
+use League\Csv\Writer;
+
+$writer = Writer::createFromString('');
+$reader = Reader::createFromPath('/path/to/my/file.csv', 'r');
+$reader->each(function (array $record, int $offset) use ($writer) {
+     if ($offset < 10) {
+        return $writer->insertOne($record);
+     }
+     
+     return false;
+});
+
+//$writer will contain at most 10 lines coming from the $reader document.
+// the iteration stopped when the closure return false.
+```
+
+#### Reader::exists
+
+Tests for the existence of an element that satisfies the given predicate.
+
+```php
+use League\Csv\Reader;
+
+$reader = Reader::createFromPath('/path/to/my/file.csv', 'r');
+$exists = $reader->exists(fn (array $records) => in_array('twenty-five', $records, true));
+
+//$exists returns true if at cell one cell contains the word `twenty-five` otherwise returns false,
+```
+
+#### Reader::reduce
+
+Applies iteratively the given function to each element in the collection, so as to reduce the collection to
+a single value.
+
+```php
+use League\Csv\Reader;
+
+$reader = Reader::createFromPath('/path/to/my/file.csv', 'r');
+$nbTotalCells = $reader->recude(fn (?int $carry, array $records) => ($carry ?? 0) + count($records));
+
+//$records contains the total number of celle contains in the CSV documents.
+```
+
+#### Reader::filter
+
+Returns all the elements of this collection for which your callback function returns `true`. The order and keys of the elements are preserved.
+
+<p class="message-info"> Wraps the functionality of <code>Statement::where</code>.</p>
+
+```php
+use League\Csv\Reader;
+
+$reader = Reader::createFromPath('/path/to/my/file.csv', 'r');
+$records = $reader->filter(fn (array $record): => 5 === count($record));
+
+//$recors is a ResultSet object with only records with 5 elements
+```
+
+#### Reader::slice
+
+Extracts a slice of $length elements starting at position $offset from the Collection.
+If $length is `-1` it returns all elements from `$offset` to the end of the
+Collection. Keys have to be preserved by this method. Calling this
+method will only return the selected slice and NOT change the
+elements contained in the collection slice is called on.
+
+<p class="message-info"> Wraps the functionality of <code>Statement::offset</code>
+and <code>Statement::limit</code>.</p>
+
+```php
+use League\Csv\Reader;
+
+$reader = Reader::createFromPath('/path/to/my/file.csv', 'r');
+$records = $reader->slice(10, 25);
+
+//$records contains up to 25 rows starting at the offest 10 (the eleventh rows)
+```
+
+#### Reader::sorted
+
+Sorts the CSV document while keeping the original keys.
+
+```php
+use League\Csv\Reader;
+
+$reader = Reader::createFromPath('/path/to/my/file.csv', 'r');
+$records = $reader->sorted(fn (array $recordA, array $recordB) => $recordA['firstname'] <=> $recordB['firstname']);
+
+//$records is a ResultSet containing the sorted CSV document. 
+//The original $reader is not changed
+```
+
+<p class="message-info"> Wraps the functionality of <code>Statement::orderBy</code>.</p>
+
 ## Records conversion
 
 ### Json serialization

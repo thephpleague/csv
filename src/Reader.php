@@ -14,6 +14,7 @@ declare(strict_types=1);
 namespace League\Csv;
 
 use CallbackFilterIterator;
+use Closure;
 use Iterator;
 use JsonSerializable;
 use SplFileObject;
@@ -230,6 +231,85 @@ class Reader extends AbstractCsv implements TabularDataReader, JsonSerializable
     public function jsonSerialize(): array
     {
         return array_values([...$this->getRecords()]);
+    }
+
+    /**
+     * @param Closure(array<string|null>, array-key=): (void|bool|null) $closure
+     */
+    public function each(Closure $closure): bool
+    {
+        foreach ($this as $offset => $record) {
+            if (false === $closure($record, $offset)) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * @param Closure(array<string|null>, array-key=): bool $closure
+     */
+    public function exists(Closure $closure): bool
+    {
+        foreach ($this as $offset => $record) {
+            if (true === $closure($record, $offset)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * @param Closure(TInitial|null, array<string|null>, array-key=): TInitial $closure
+     * @param TInitial|null $initial
+     *
+     * @template TInitial
+     *
+     * @return TInitial|null
+     */
+    public function reduce(Closure $closure, mixed $initial = null): mixed
+    {
+        foreach ($this as $offset => $record) {
+            $initial = $closure($initial, $record, $offset);
+        }
+
+        return $initial;
+    }
+
+    /**
+     * @param Closure(array<string|int>, array-key): bool $closure
+     *
+     * @throws Exception
+     * @throws SyntaxError
+     */
+    public function filter(Closure $closure): TabularDataReader
+    {
+        return Statement::create()->where($closure)->process($this);
+    }
+
+    /**
+     * @param int<0, max> $offset
+     * @param int<-1, max> $length
+     *
+     * @throws Exception
+     * @throws SyntaxError
+     */
+    public function slice(int $offset, int $length = -1): TabularDataReader
+    {
+        return Statement::create()->offset($offset)->limit($length)->process($this);
+    }
+
+    /**
+     * @param Closure(array<string|null>, array<string|null>): int $orderBy
+     *
+     * @throws Exception
+     * @throws SyntaxError
+     */
+    public function sorted(Closure $orderBy): TabularDataReader
+    {
+        return Statement::create()->orderBy($orderBy)->process($this);
     }
 
     /**
