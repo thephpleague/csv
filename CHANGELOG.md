@@ -7,6 +7,12 @@ All Notable changes to `Csv` will be documented in this file
 ### Added
 
 - `EscapeFormula::unescapeRecord` does the opposite of `EscapeFormula::escapeRecord`
+- `TabularReader::each`
+- `TabularReader::exists`
+- `TabularReader::reduce`
+- `TabularReader::filter`
+- `TabularReader::slice`
+- `TabularReader::sorted`
 
 ### Deprecated
 

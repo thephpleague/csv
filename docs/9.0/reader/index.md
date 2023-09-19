@@ -384,7 +384,7 @@ $records = $stmt->process($reader);
 //$records is a League\Csv\ResultSet object
 ```
 
-### Collection methods
+## Collection methods
 
 <p class="message-notice">New methods added in version <code>9.11</code>.</p>
 
@@ -392,7 +392,7 @@ To ease working with the loaded CSV document the following methods derived from 
 Some are just wrapper methods around the `Statement` class while others use the iterable nature
 of the CSV document.
 
-#### Reader::each
+### Reader::each
 
 Iterates over the records in the CSV document and passes each item to a closure:
 
@@ -414,7 +414,7 @@ $reader->each(function (array $record, int $offset) use ($writer) {
 // the iteration stopped when the closure return false.
 ```
 
-#### Reader::exists
+### Reader::exists
 
 Tests for the existence of an element that satisfies the given predicate.
 
@@ -427,7 +427,7 @@ $exists = $reader->exists(fn (array $records) => in_array('twenty-five', $record
 //$exists returns true if at cell one cell contains the word `twenty-five` otherwise returns false,
 ```
 
-#### Reader::reduce
+### Reader::reduce
 
 Applies iteratively the given function to each element in the collection, so as to reduce the collection to
 a single value.
@@ -441,7 +441,7 @@ $nbTotalCells = $reader->recude(fn (?int $carry, array $records) => ($carry ?? 0
 //$records contains the total number of celle contains in the CSV documents.
 ```
 
-#### Reader::filter
+### Reader::filter
 
 Returns all the elements of this collection for which your callback function returns `true`. The order and keys of the elements are preserved.
 
@@ -456,7 +456,7 @@ $records = $reader->filter(fn (array $record): => 5 === count($record));
 //$recors is a ResultSet object with only records with 5 elements
 ```
 
-#### Reader::slice
+### Reader::slice
 
 Extracts a slice of $length elements starting at position $offset from the Collection.
 If $length is `-1` it returns all elements from `$offset` to the end of the
@@ -476,7 +476,7 @@ $records = $reader->slice(10, 25);
 //$records contains up to 25 rows starting at the offest 10 (the eleventh rows)
 ```
 
-#### Reader::sorted
+### Reader::sorted
 
 Sorts the CSV document while keeping the original keys.
 
