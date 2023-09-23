@@ -7,16 +7,17 @@ All Notable changes to `Csv` will be documented in this file
 ### Added
 
 - `EscapeFormula::unescapeRecord` does the opposite of `EscapeFormula::escapeRecord`
-- `TabularReader::each`
-- `TabularReader::exists`
-- `TabularReader::reduce`
-- `TabularReader::filter`
-- `TabularReader::slice`
-- `TabularReader::sorted`
+- `TabularReader::each` (implemented on the `Reader` and the `ResultSet` object)
+- `TabularReader::exists` (implemented on the `Reader` and the `ResultSet` object)
+- `TabularReader::reduce`  (implemented on the `Reader` and the `ResultSet` object)****
+- `TabularReader::filter` (implemented on the `Reader` and the `ResultSet` object)
+- `TabularReader::slice` (implemented on the `Reader` and the `ResultSet` object)
+- `TabularReader::sorted` (implemented on the `Reader` and the `ResultSet` object)
+- `Reader::addFormatter` (implemented on the `Reader` and the `ResultSet` object)
 
 ### Deprecated
 
-- None
+- `EscapeFormula::__invoke` use `EscapeFormula::__escapeRecord` instead
 
 ### Fixed
 

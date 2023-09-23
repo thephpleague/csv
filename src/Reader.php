@@ -46,10 +46,22 @@ class Reader extends AbstractCsv implements TabularDataReader, JsonSerializable
     protected bool $is_empty_records_included = false;
     /** @var array<string> header record. */
     protected array $header = [];
+    /** @var array<callable> callable collection to format the record before reading. */
+    protected array $formatters = [];
 
     public static function createFromPath(string $path, string $open_mode = 'r', $context = null): static
     {
         return parent::createFromPath($path, $open_mode, $context);
+    }
+
+    /**
+     * Adds a record formatter.
+     */
+    public function addFormatter(callable $formatter): self
+    {
+        $this->formatters[] = $formatter;
+
+        return $this;
     }
 
     protected function resetProperties(): void
@@ -374,12 +386,18 @@ class Reader extends AbstractCsv implements TabularDataReader, JsonSerializable
      */
     protected function combineHeader(Iterator $iterator, array $header): Iterator
     {
+        $formatter = fn (array $record): array => array_reduce(
+            $this->formatters,
+            fn (array $record, callable $formatter): array => $formatter($record),
+            $record
+        );
+
         if ([] === $header) {
-            return $iterator;
+            return new MapIterator($iterator, $formatter(...));
         }
 
         $field_count = count($header);
-        $mapper = function (array $record) use ($header, $field_count): array {
+        $mapper = function (array $record) use ($header, $field_count, $formatter): array {
             if (count($record) !== $field_count) {
                 $record = array_slice(array_pad($record, $field_count, null), 0, $field_count);
             }
@@ -387,7 +405,7 @@ class Reader extends AbstractCsv implements TabularDataReader, JsonSerializable
             /** @var array<string|null> $assocRecord */
             $assocRecord = array_combine($header, $record);
 
-            return $assocRecord;
+            return $formatter($assocRecord);
         };
 
         return new MapIterator($iterator, $mapper);

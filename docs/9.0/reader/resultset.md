@@ -352,7 +352,7 @@ foreach ($records->fetchPairs() as $firstname => $lastname) {
 
 <p class="message-warning">If the <code>ResultSet</code> contains column names and the submitted arguments are not found, an <code>Exception</code> exception is thrown.</p>
 
-### Collection methods
+## Collection methods
 
 <p class="message-notice">New methods added in version <code>9.11</code>.</p>
 
@@ -360,7 +360,7 @@ To ease working with the `ResultSet` the following methods derived from collecti
 Some are just wrapper methods around the `Statement` class while others use the iterable nature
 of the instance.
 
-#### ResultSet::each
+### ResultSet::each
 
 Iterates over the records in the CSV document and passes each item to a closure:
 
@@ -385,7 +385,7 @@ $resultSet->each(function (array $record, int $offset) use ($writer) {
 // the iteration stopped when the closure return false.
 ```
 
-#### ResultSet::exists
+### ResultSet::exists
 
 Tests for the existence of an element that satisfies the given predicate.
 
@@ -401,7 +401,7 @@ $exists = $resultSet->exists(fn (array $records) => in_array('twenty-five', $rec
 //$exists returns true if at cell one cell contains the word `twenty-five` otherwise returns false,
 ```
 
-#### Reader::reduce
+### Reader::reduce
 
 Applies iteratively the given function to each element in the collection, so as to reduce the collection to
 a single value.
@@ -418,7 +418,7 @@ $nbTotalCells = $resultSet->recude(fn (?int $carry, array $records) => ($carry ?
 //$records contains the total number of celle contains in the $resultSet
 ```
 
-#### Reader::filter
+### Reader::filter
 
 Returns all the elements of this collection for which your callback function returns `true`. The order and keys of the elements are preserved.
 
@@ -436,7 +436,7 @@ $records = $resultSet->filter(fn (array $record): => 5 === count($record));
 //$recors is a ResultSet object with only records with 5 elements
 ```
 
-#### Reader::slice
+### Reader::slice
 
 Extracts a slice of $length elements starting at position $offset from the Collection. If $length is `-1` it returns all elements from `$offset` to the end of the Collection.
 Keys have to be preserved by this method. Calling this method will only return the selected slice and NOT change the elements contained in the collection slice is called on.
@@ -455,7 +455,7 @@ $records = $resultSet->slice(10, 25);
 //$records contains up to 25 rows starting at the offset 10 (the eleventh rows)
 ```
 
-#### Reader::sorted
+### Reader::sorted
 
 Sorts the CSV document while keeping the original keys.
 

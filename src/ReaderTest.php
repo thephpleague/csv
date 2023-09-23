@@ -603,4 +603,47 @@ CSV;
         self::assertFalse($this->csv->exists(fn (array $record) => array_key_exists('foobar', $record)));
         self::assertTrue($this->csv->exists(fn (array $record) => count($record) < 5));
     }
+
+    public function testReaderFormatterUsesOffset(): void
+    {
+        $csv = <<<CSV
+FirstName,LastName,Year
+John,Doe,2001
+Jane,Doe,2005
+CSV;
+
+        $reader = Reader::createFromString($csv);
+        $reader->setHeaderOffset(0);
+        self::assertSame([
+            [
+                'FirstName' => 'John',
+                'LastName' => 'Doe',
+                'Year' => '2001',
+            ],
+            [
+                'FirstName' => 'Jane',
+                'LastName' => 'Doe',
+                'Year' => '2005',
+            ],
+        ], [...$reader]);
+
+        $reader->addFormatter(function (array $record): array {
+            $record['Year'] = (int) $record['Year'];
+
+            return $record;
+        });
+
+        self::assertSame([
+            [
+                'FirstName' => 'John',
+                'LastName' => 'Doe',
+                'Year' =>  2001,
+            ],
+            [
+                'FirstName' => 'Jane',
+                'LastName' => 'Doe',
+                'Year' => 2005,
+            ],
+        ], [...$reader]);
+    }
 }

@@ -235,6 +235,53 @@ foreach ($records as $offset => $record) {
 }
 ```
 
+### Reader::addFormatter
+
+<p class="message-notice">New methods added in version <code>9.11</code>.</p>
+
+#### Record Formatter
+
+A formatter is a `callable` which accepts a single CSV record as an `array` on input and returns an array
+representing the formatted CSV record according to its inner rules.
+
+```php
+function(array $record): array
+```
+
+#### Adding a Formatter to a Reader object
+
+You can attach as many formatters as you want to the `Reader` class using the `Reader::addFormatter` method.
+Formatters are applied following the *First In First Out* rule.
+
+Fornatting happens **AFTER** combining headers and CSV value **BUT BEFORE** you can access the actual value.
+
+```php
+use League\Csv\Reader;
+
+$csv = <<<CSV
+firstname,lastname,e-mail
+john,doe,john.doe@example.com
+CSV;
+
+$formatter = fn (array $row): array => array_map(strtoupper(...), $row);
+$reader = Reader::createFromString($csv)
+    ->setHeaderOffset(0)
+    ->addFormatter($formatter);
+[...$reader]; 
+// [
+//     [
+//         'firstname' => 'JOHN',
+//         'lastname' => DOE',
+//         'e-mail' => 'JOHN.DOE@EXAMPLE.COM',
+//     ],
+//];
+
+echo $reader->toString(); //returns the original $csv value without the formatting.
+```
+
+<p class="message-info">If a header is selected it won't be affected by the formatting</p>
+<p class="message-info">The CSV document is not affected by the formatting and keeps its original value</p>
+
 ### Controlling the presence of empty records
 
 <p class="message-info">New since version <code>9.4.0</code></p>

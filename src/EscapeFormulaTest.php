@@ -76,6 +76,21 @@ final class EscapeFormulaTest extends TestCase
         self::assertEquals($expected, $formatter->unescapeRecord($record));
     }
 
+    public function testFormatterOnReader(): void
+    {
+        $escaoeFormula = new EscapeFormula();
+        $record = ['2', '2017-07-25', 'Important Client', '=2+5', '240', "\ttab", "\rcr", ''];
+        $csv = Writer::createFromString();
+        $csv->addFormatter($escaoeFormula->escapeRecord(...));
+        $csv->insertOne($record);
+
+        $reader = Reader::createFromString($csv->toString());
+        self::assertNotEquals($record, $reader->first());
+
+        $reader->addFormatter($escaoeFormula->unescapeRecord(...));
+        self::assertSame($record, $reader->first());
+    }
+
     public function testUnformatReader(): void
     {
         $formatter = new EscapeFormula();

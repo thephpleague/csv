@@ -85,16 +85,6 @@ class EscapeFormula
     }
 
     /**
-     * League CSV formatter hook.
-     *
-     * @see escapeRecord
-     */
-    public function __invoke(array $record): array
-    {
-        return $this->escapeRecord($record);
-    }
-
-    /**
      * Escapes a CSV record.
      */
     public function escapeRecord(array $record): array
@@ -153,5 +143,18 @@ class EscapeFormula
     protected function isStringable(mixed $value): bool
     {
         return is_string($value) || $value instanceof Stringable;
+    }
+
+    /**
+     * @deprecated since 9.11.0 will be removed in the next major release
+     * @codeCoverageIgnore
+     *
+     * League CSV formatter hook.
+     *
+     * @see escapeRecord
+     */
+    public function __invoke(array $record): array
+    {
+        return $this->escapeRecord($record);
     }
 }
