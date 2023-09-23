@@ -22,6 +22,8 @@ public function escapeRecord(array $record): array
 public function unescapeRecord(array $record): array
 ```
 
+<p><code>EscapeFormula::unescapeRecord</code> is available since version <code>9.11.0</code></p>
+
 The `EscapeFormula::__construct` method takes two (2) arguments:
 
 - the `$escape` parameter which will be used to prepend the record field, which defaults to `'`;
@@ -32,8 +34,9 @@ The `EscapeFormula::__construct` method takes two (2) arguments:
 use League\Csv\EscapeFormula;
 use League\Csv\Writer;
 
+$formatter = new EscapeFormula();
 $writer = Writer::createFromPath('php://temp', 'r+');
-$writer->addFormatter(new EscapeFormula());
+$writer->addFormatter($formatter->escapeRecord(...));
 $writer->insertOne(['2', '2017-07-25', 'Important Client', '=2+5', 240, null]);
 $writer->toString();
 //outputting a CSV Document with all CSV Formula Injection escaped
@@ -46,10 +49,12 @@ Conversely, if you obtain a CSV document containing escaped formula field you ca
 use League\Csv\EscapeFormula;
 use League\Csv\Reader;
 
+$formatter = new EscapeFormula();
 $reader = Reader::createFromPath('/path/to/my/file.csv');
-foreach ($reader as $data) {
-    $record = $formatter->unescapeRecord($data);
-}
+$reader->addFormatter($formatter->unescapeRecord(...))
+$reader->first(); 
+// returns ['2', '2017-07-25', 'Important Client', '=2+5', '240', '']
+// the escaping characters are removed.
 ```
 
 ## Usage with PHP stream resources
@@ -81,5 +86,5 @@ while (($data = fgetcsv($resource)) !== false) {
 
 <p class="message-warning">Even though the <code>EscapeFormula</code> formatter is provided it must be stressed that
 this is in no way a bulletproof method. This prevention mechanism only works if <strong>you know how the CSV export
-will be consumed</strong>. In any other cases, you are better off leaving the filtering to the consuming client and
-report any found security concerns to their respective security channel.</p>
+will be consumed or have been generated</strong>. In any other cases, you are better off leaving the filtering
+to the consuming client and report any found security concerns to their respective security channel.</p>

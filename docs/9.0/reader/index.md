@@ -12,6 +12,7 @@ The `League\Csv\Reader` class extends the general connections [capabilities](/9.
 <p class="message-info">Starting with version <code>9.6.0</code>, the class implements the <code>League\Csv\TabularDataReader</code> interface.</p>
 <p class="message-info">Starting with version <code>9.8.0</code>, the class implements the <code>::fetchColumnByName</code> and <code>::fetchColumnByOffset</code> methods.</p>
 <p class="message-info">Starting with version <code>9.9.0</code>, the class implements the <code>::first</code> and <code>::nth</code> methods.</p>
+<p class="message-info">Starting with version <code>9.11.0</code>, the class implements the collections methods.</p>
 
 ## CSV example
 
@@ -209,6 +210,8 @@ foreach ($reader as $offset => $record) {
 
 ## Records normalization
 
+### General Rules
+
 The returned records are normalized using the following rules:
 
 - [Stream filters](/9.0/connections/filters/) are applied if present.
@@ -217,6 +220,7 @@ The returned records are normalized using the following rules:
 - If a header record was provided, the number of fields is normalized to the number of fields contained in that record:
   - Extra fields are truncated.
   - Missing fields are added with a `null` value.
+- Field values are formatter if formatters are provided **Since version 9.11**
 
 ```php
 use League\Csv\Reader;
@@ -235,11 +239,9 @@ foreach ($records as $offset => $record) {
 }
 ```
 
-### Reader::addFormatter
+### Record Formatter
 
-<p class="message-notice">New methods added in version <code>9.11</code>.</p>
-
-#### Record Formatter
+<p class="message-info">New since version <code>9.11.0</code></p>
 
 A formatter is a `callable` which accepts a single CSV record as an `array` on input and returns an array
 representing the formatted CSV record according to its inner rules.
@@ -248,12 +250,11 @@ representing the formatted CSV record according to its inner rules.
 function(array $record): array
 ```
 
-#### Adding a Formatter to a Reader object
-
 You can attach as many formatters as you want to the `Reader` class using the `Reader::addFormatter` method.
 Formatters are applied following the *First In First Out* rule.
 
-Fornatting happens **AFTER** combining headers and CSV value **BUT BEFORE** you can access the actual value.
+Formatting happens **AFTER** combining the header and the fields value if a header is available and
+CSV value **BUT BEFORE<** you can access the actual value.
 
 ```php
 use League\Csv\Reader;
@@ -279,8 +280,8 @@ $reader = Reader::createFromString($csv)
 echo $reader->toString(); //returns the original $csv value without the formatting.
 ```
 
-<p class="message-info">If a header is selected it won't be affected by the formatting</p>
-<p class="message-info">The CSV document is not affected by the formatting and keeps its original value</p>
+<p class="message-warning">If a header is selected it won't be affected by the formatting</p>
+<p class="message-warning">Formatting does not affect the CSV document content.</p>
 
 ### Controlling the presence of empty records
 
@@ -433,7 +434,7 @@ $records = $stmt->process($reader);
 
 ## Collection methods
 
-<p class="message-notice">New methods added in version <code>9.11</code>.</p>
+<p class="message-info">New since version <code>9.11.0</code></p>
 
 To ease working with the loaded CSV document the following methods derived from collection are added.
 Some are just wrapper methods around the `Statement` class while others use the iterable nature
