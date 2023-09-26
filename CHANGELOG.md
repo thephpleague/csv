@@ -2,6 +2,24 @@
 
 All Notable changes to `Csv` will be documented in this file
 
+## [Next] - TBD
+
+### Added
+
+- None
+
+### Deprecated
+
+- None
+
+### Fixed
+
+- None
+
+### Removed
+
+- None
+
 ## [9.11.0](https://github.com/thephpleague/csv/compare/9.10.0...9.11.0) - 2023-09-23
 
 ### Added
@@ -17,7 +35,7 @@ All Notable changes to `Csv` will be documented in this file
 
 ### Deprecated
 
-- `EscapeFormula::__invoke` use `EscapeFormula::__escapeRecord` instead
+- `EscapeFormula::__invoke` use `EscapeFormula::escapeRecord` instead
 
 ### Fixed
 
