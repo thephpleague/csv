@@ -58,6 +58,10 @@ class ResultSet implements TabularDataReader, JsonSerializable
         if ($header !== array_unique($filtered_header)) {
             throw SyntaxError::dueToDuplicateHeaderColumnNames($header);
         }
+
+        if ([] !== array_filter(array_keys($header), fn (string|int $value) => !is_int($value) || $value < 0)) {
+            throw new SyntaxError('The header mapper indexes should only contain positive integer or 0.');
+        }
     }
 
     public function __destruct()

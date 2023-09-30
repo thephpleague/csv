@@ -451,12 +451,10 @@ jane,doe,jane.doe@example.com
 CSV;
         $reader = Reader::createFromString($csv)
             ->setHeaderOffset(0);
+        $this->expectException(SyntaxError::class);
 
-        $resultSet = Statement::create()->process($reader);
-
-        self::assertSame(
-            ['nom de famille' => null, 'prenom' => null, 'e-mail' => null],
-            [...$resultSet->getRecords(['lastname' => 'nom de famille', 'firstname' => 'prenom', 'e-mail' => 'e-mail'])][0]
-        );
+        [...Statement::create()
+            ->process($reader)
+            ->getRecords(['lastname' => 'nom de famille', 'firstname' => 'prenom', 'e-mail' => 'e-mail'])];
     }
 }

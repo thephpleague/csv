@@ -659,4 +659,18 @@ CSV;
             ->getRecords([3 => 'Year', 0 => 'Firstname', 1 => 'Count'])][0];
         self::assertSame(['Year' => '2004', 'Firstname' => 'Abel', 'Count' => '14'], $firstRow);
     }
+
+    public function testHeaderMapperFailsWithInvalidMapper(): void
+    {
+        $csv = <<<CSV
+Abel,14,M,2004
+Abiga,6,F,2004
+Aboubacar,8,M,2004
+Aboubakar,6,M,2004
+CSV;
+        $this->expectException(SyntaxError::class);
+
+        Reader::createFromString($csv)
+            ->getRecords(['Annee' => 'Year', 'Prenom' => 'Firstname', 'Nombre' => 'Count']);
+    }
 }
