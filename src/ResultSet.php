@@ -158,34 +158,34 @@ class ResultSet implements TabularDataReader, JsonSerializable
     }
 
     /**
-     * @param array<string> $headerMapper
+     * @param array<string> $header
      *
      * @throws SyntaxError
      *
      * @return Iterator<array-key, array<array-key, string|null>>
      */
-    public function getRecords(array $headerMapper = []): Iterator
+    public function getRecords(array $header = []): Iterator
     {
-        $this->validateHeader($headerMapper);
+        $this->validateHeader($header);
 
-        yield from $this->combineHeader($headerMapper);
+        yield from $this->combineHeader($header);
     }
 
     /**
      * Combines the header to each record if present.
      *
-     * @param array<string> $headerMapper
+     * @param array<string> $header
      *
      * @return Iterator<array-key, array<array-key, string|null>>
      */
-    protected function combineHeader(array $headerMapper): Iterator
+    protected function combineHeader(array $header): Iterator
     {
         return match (true) {
-            $headerMapper === $this->header, [] === $headerMapper => $this->records,
-            default => new MapIterator($this->records, function (array $record) use ($headerMapper): array {
+            $header === $this->header, [] === $header => $this->records,
+            default => new MapIterator($this->records, function (array $record) use ($header): array {
                 $assocRecord = [];
                 $row = array_values($record);
-                foreach ($headerMapper as $offset => $headerName) {
+                foreach ($header as $offset => $headerName) {
                     $assocRecord[$headerName] = $row[$offset] ?? null;
                 }
 

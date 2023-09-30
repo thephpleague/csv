@@ -114,23 +114,23 @@ class Statement
     /**
      * Executes the prepared Statement on the {@link Reader} object.
      *
-     * @param array<string> $headerMapper an optional header to use instead of the CSV document header
+     * @param array<string> $header an optional header to use instead of the CSV document header
      *
      * @throws SyntaxError
      */
-    public function process(TabularDataReader $tabular_data, array $headerMapper = []): TabularDataReader
+    public function process(TabularDataReader $tabular_data, array $header = []): TabularDataReader
     {
-        if ([] === $headerMapper) {
-            $headerMapper = $tabular_data->getHeader();
+        if ([] === $header) {
+            $header = $tabular_data->getHeader();
         }
 
         $iterator = $this->buildOrderBy(
-            array_reduce($this->where, $this->filter(...), $tabular_data->getRecords($headerMapper))
+            array_reduce($this->where, $this->filter(...), $tabular_data->getRecords($header))
         );
         /** @var Iterator<array-key, array<array-key, string|null>> $iterator */
         $iterator = new LimitIterator($iterator, $this->offset, $this->limit);
 
-        return new ResultSet($iterator, $headerMapper);
+        return new ResultSet($iterator, $header);
     }
 
     /**

@@ -16,8 +16,8 @@ parameters:
           path: src/EscapeFormulaTest.php
         - message: '#Parameter \#2 \$delimiters of static method League\\Csv\\Info::getDelimiterStats\(\) expects array<string>, array<int, array\|string> given.#'
           path: src/InfoTest.php
-        - message: '#Parameter \#1 \$headerMapper of method League\\Csv\\Reader::getRecords\(\) expects array<string>, array<int, int\|string> given.#'
+        - message: '#Parameter \#1 \$header of method League\\Csv\\Reader::getRecords\(\) expects array<string>, array<int, int\|string> given.#'
           path: src/ReaderTest.php
-        - message: '#Parameter \#2 \$headerMapper of method League\\Csv\\Statement::process\(\) expects array<string>, array<int, int\|string> given.#'
+        - message: '#Parameter \#2 \$header of method League\\Csv\\Statement::process\(\) expects array<string>, array<int, int\|string> given.#'
           path: src/ResultSetTest.php
     reportUnmatchedIgnoredErrors: true

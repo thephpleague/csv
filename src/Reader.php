@@ -321,15 +321,15 @@ class Reader extends AbstractCsv implements TabularDataReader, JsonSerializable
     }
 
     /**
-     * @param array<string> $headerMapper
+     * @param array<string> $header
      *
      * @throws Exception
      *
      * @return Iterator<array<string|null>>
      */
-    public function getRecords(array $headerMapper = []): Iterator
+    public function getRecords(array $header = []): Iterator
     {
-        $headerMapper = $this->computeHeader($headerMapper);
+        $header = $this->computeHeader($header);
         $normalized = fn ($record): bool => is_array($record) && ($this->is_empty_records_included || $record !== [null]);
         $bom = '';
         if (!$this->is_input_bom_included) {
@@ -345,7 +345,7 @@ class Reader extends AbstractCsv implements TabularDataReader, JsonSerializable
             $records = new MapIterator($records, fn (array $record): array => ([null] === $record) ? [] : $record);
         }
 
-        return $this->combineHeader($records, $headerMapper);
+        return $this->combineHeader($records, $header);
     }
 
     /**
@@ -374,9 +374,9 @@ class Reader extends AbstractCsv implements TabularDataReader, JsonSerializable
     /**
      * Combines the CSV header to each record if present.
      *
-     * @param array<string> $headerMapper
+     * @param array<string> $header
      */
-    protected function combineHeader(Iterator $iterator, array $headerMapper): Iterator
+    protected function combineHeader(Iterator $iterator, array $header): Iterator
     {
         $formatter = fn (array $record): array => array_reduce(
             $this->formatters,
@@ -385,10 +385,10 @@ class Reader extends AbstractCsv implements TabularDataReader, JsonSerializable
         );
 
         return match ([]) {
-            $headerMapper => new MapIterator($iterator, $formatter(...)),
-            default => new MapIterator($iterator, function (array $record) use ($headerMapper, $formatter): array {
+            $header => new MapIterator($iterator, $formatter(...)),
+            default => new MapIterator($iterator, function (array $record) use ($header, $formatter): array {
                 $assocRecord = [];
-                foreach ($headerMapper as $offset => $headerName) {
+                foreach ($header as $offset => $headerName) {
                     $assocRecord[$headerName] = $record[$offset] ?? null;
                 }
 
