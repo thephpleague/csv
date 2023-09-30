@@ -19,12 +19,8 @@ use Iterator;
 use JsonSerializable;
 use SplFileObject;
 
-use function array_combine;
 use function array_filter;
-use function array_pad;
-use function array_slice;
 use function array_unique;
-use function count;
 use function is_array;
 use function iterator_count;
 use function mb_strlen;
@@ -325,18 +321,16 @@ class Reader extends AbstractCsv implements TabularDataReader, JsonSerializable
     }
 
     /**
-     * @param array<string> $header
+     * @param array<string> $headerMapper
      *
      * @throws Exception
      *
      * @return Iterator<array<string|null>>
      */
-    public function getRecords(array $header = []): Iterator
+    public function getRecords(array $headerMapper = []): Iterator
     {
-        $header = $this->computeHeader($header);
-
+        $headerMapper = $this->computeHeader($headerMapper);
         $normalized = fn ($record): bool => is_array($record) && ($this->is_empty_records_included || $record !== [null]);
-
         $bom = '';
         if (!$this->is_input_bom_included) {
             $bom = $this->getInputBOM();
@@ -348,13 +342,10 @@ class Reader extends AbstractCsv implements TabularDataReader, JsonSerializable
         }
 
         if ($this->is_empty_records_included) {
-            $records = new MapIterator(
-                $records,
-                fn (array $record): array => ([null] === $record) ? [] : $record
-            );
+            $records = new MapIterator($records, fn (array $record): array => ([null] === $record) ? [] : $record);
         }
 
-        return $this->combineHeader($records, $header);
+        return $this->combineHeader($records, $headerMapper);
     }
 
     /**
@@ -382,9 +373,9 @@ class Reader extends AbstractCsv implements TabularDataReader, JsonSerializable
     /**
      * Combines the CSV header to each record if present.
      *
-     * @param array<string> $header
+     * @param array<string> $headerMapper
      */
-    protected function combineHeader(Iterator $iterator, array $header): Iterator
+    protected function combineHeader(Iterator $iterator, array $headerMapper): Iterator
     {
         $formatter = fn (array $record): array => array_reduce(
             $this->formatters,
@@ -392,23 +383,17 @@ class Reader extends AbstractCsv implements TabularDataReader, JsonSerializable
             $record
         );
 
-        if ([] === $header) {
-            return new MapIterator($iterator, $formatter(...));
-        }
+        return match ([]) {
+            $headerMapper => new MapIterator($iterator, $formatter(...)),
+            default => new MapIterator($iterator, function (array $record) use ($headerMapper, $formatter): array {
+                $assocRecord = [];
+                foreach ($headerMapper as $offset => $headerName) {
+                    $assocRecord[$headerName] = $record[$offset] ?? null;
+                }
 
-        $field_count = count($header);
-        $mapper = function (array $record) use ($header, $field_count, $formatter): array {
-            if (count($record) !== $field_count) {
-                $record = array_slice(array_pad($record, $field_count, null), 0, $field_count);
-            }
-
-            /** @var array<string|null> $assocRecord */
-            $assocRecord = array_combine($header, $record);
-
-            return $formatter($assocRecord);
+                return $formatter($assocRecord);
+            }),
         };
-
-        return new MapIterator($iterator, $mapper);
     }
 
     /**

@@ -646,4 +646,17 @@ CSV;
             ],
         ], [...$reader]);
     }
+
+    public function testHeaderMapper(): void
+    {
+        $csv = <<<CSV
+Abel,14,M,2004
+Abiga,6,F,2004
+Aboubacar,8,M,2004
+Aboubakar,6,M,2004
+CSV;
+        $firstRow = [...Reader::createFromString($csv)
+            ->getRecords([3 => 'Year', 0 => 'Firstname', 1 => 'Count'])][0];
+        self::assertSame(['Year' => '2004', 'Firstname' => 'Abel', 'Count' => '14'], $firstRow);
+    }
 }

@@ -144,4 +144,16 @@ final class StatementTest extends TestCase
 
         self::assertSame($this->expected, array_values([...$calculated]));
     }
+
+    public function testHeaderMapperOnStatement(): void
+    {
+        $results = Statement::create()
+            ->process($this->csv, [2 => 'e-mail', 1 => 'lastname', 33 => 'does not exists']);
+        self::assertSame(['e-mail', 'lastname', 'does not exists'], $results->getHeader());
+        self::assertSame([
+            'e-mail' => 'john.doe@example.com',
+            'lastname' => 'doe',
+            'does not exists' => null,
+        ], $results->first());
+    }
 }

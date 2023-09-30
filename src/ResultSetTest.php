@@ -410,4 +410,17 @@ final class ResultSetTest extends TestCase
         self::assertFalse(Statement::create()->process($this->csv)->exists(fn (array $record) => array_key_exists('foobar', $record)));
         self::assertTrue(Statement::create()->process($this->csv)->exists(fn (array $record) => count($record) < 5));
     }
+
+    public function testHeaderMapperOnResultSet(): void
+    {
+        $results = Statement::create()
+            ->process($this->csv)
+            ->getRecords([2 => 'e-mail', 1 => 'lastname', 33 => 'does not exists']);
+
+        self::assertSame([
+            'e-mail' => 'john.doe@example.com',
+            'lastname' => 'doe',
+            'does not exists' => null,
+        ], [...$results][0]);
+    }
 }

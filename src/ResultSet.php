@@ -31,15 +31,19 @@ use function iterator_count;
  */
 class ResultSet implements TabularDataReader, JsonSerializable
 {
+    /** @var array<string> */
+    protected array $header;
+
     /**
      * @param Iterator<array-key, array<array-key, string|null>> $records
      * @param array<string> $header
      *
      * @throws SyntaxError
      */
-    public function __construct(protected Iterator $records, protected array $header = [])
+    public function __construct(protected Iterator $records, array $header = [])
     {
-        $this->validateHeader($this->header);
+        $this->validateHeader($header);
+        $this->header = array_values($header);
     }
 
     /**
@@ -150,45 +154,40 @@ class ResultSet implements TabularDataReader, JsonSerializable
     }
 
     /**
-     * @param array<string> $header
+     * @param array<string> $headerMapper
      *
      * @throws SyntaxError
      *
      * @return Iterator<array-key, array<array-key, string|null>>
      */
-    public function getRecords(array $header = []): Iterator
+    public function getRecords(array $headerMapper = []): Iterator
     {
-        $this->validateHeader($header);
+        $this->validateHeader($headerMapper);
 
-        yield from $this->combineHeader($header);
+        yield from $this->combineHeader($headerMapper);
     }
 
     /**
      * Combines the header to each record if present.
      *
-     * @param array<string> $header
+     * @param array<string> $headerMapper
      *
      * @return Iterator<array-key, array<array-key, string|null>>
      */
-    protected function combineHeader(array $header): Iterator
+    protected function combineHeader(array $headerMapper): Iterator
     {
-        if ($header === $this->header || [] === $header) {
-            return $this->records;
-        }
+        return match (true) {
+            $headerMapper === $this->header,
+            [] === $headerMapper => $this->records,
+            default => new MapIterator($this->records, function (array $record) use ($headerMapper): array {
+                $assocRecord = [];
+                foreach ($headerMapper as $offset => $headerName) {
+                    $assocRecord[$headerName] = $record[$offset] ?? null;
+                }
 
-        $field_count = count($header);
-        $mapper = static function (array $record) use ($header, $field_count): array {
-            if (count($record) !== $field_count) {
-                $record = array_slice(array_pad($record, $field_count, null), 0, $field_count);
-            }
-
-            /** @var array<string, string|null> $assocRecord */
-            $assocRecord = array_combine($header, $record);
-
-            return $assocRecord;
+                return $assocRecord;
+            }),
         };
-
-        return new MapIterator($this->records, $mapper);
     }
 
     public function count(): int
