@@ -423,4 +423,40 @@ final class ResultSetTest extends TestCase
             'does not exists' => null,
         ], [...$results][0]);
     }
+
+    public function testHeaderMapperOnResultSetAlwaysUsesTheColumnOffset(): void
+    {
+        $csv = <<<CSV
+firstname,lastname,e-mail
+john,doe,john.doe@example.com
+jane,doe,jane.doe@example.com
+CSV;
+        $reader = Reader::createFromString($csv)
+            ->setHeaderOffset(0);
+
+        $resultSet = Statement::create()->process($reader);
+
+        self::assertSame(
+            ['nom de famille' => 'doe', 'prenom' => 'john', 'e-mail' => 'john.doe@example.com'],
+            [...$resultSet->getRecords([1 => 'nom de famille', 0 => 'prenom', 2 => 'e-mail'])][0]
+        );
+    }
+
+    public function testHeaderMapperOnResultSetAlwaysIgnoreTheColumnName(): void
+    {
+        $csv = <<<CSV
+firstname,lastname,e-mail
+john,doe,john.doe@example.com
+jane,doe,jane.doe@example.com
+CSV;
+        $reader = Reader::createFromString($csv)
+            ->setHeaderOffset(0);
+
+        $resultSet = Statement::create()->process($reader);
+
+        self::assertSame(
+            ['nom de famille' => null, 'prenom' => null, 'e-mail' => null],
+            [...$resultSet->getRecords(['lastname' => 'nom de famille', 'firstname' => 'prenom', 'e-mail' => 'e-mail'])][0]
+        );
+    }
 }

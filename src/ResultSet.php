@@ -177,12 +177,12 @@ class ResultSet implements TabularDataReader, JsonSerializable
     protected function combineHeader(array $headerMapper): Iterator
     {
         return match (true) {
-            $headerMapper === $this->header,
-            [] === $headerMapper => $this->records,
+            $headerMapper === $this->header, [] === $headerMapper => $this->records,
             default => new MapIterator($this->records, function (array $record) use ($headerMapper): array {
                 $assocRecord = [];
+                $row = array_values($record);
                 foreach ($headerMapper as $offset => $headerName) {
-                    $assocRecord[$headerName] = $record[$offset] ?? null;
+                    $assocRecord[$headerName] = $row[$offset] ?? null;
                 }
 
                 return $assocRecord;
