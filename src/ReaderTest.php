@@ -186,7 +186,7 @@ EOF;
     {
         $this->expectException(SyntaxError::class);
 
-        [...$this->csv->getRecords(['field1', 2, 'field3'])];
+        [...$this->csv->getRecords(['field1', 2, 'field3'])]; /* @phpstan-ignore-line */
     }
 
     #[DataProvider('validBOMSequences')]

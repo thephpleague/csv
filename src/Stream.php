@@ -80,8 +80,10 @@ final class Stream implements SeekableIterator
     {
         array_walk_recursive($this->filters, fn ($filter): bool => @stream_filter_remove($filter));
 
-        if ($this->should_close_stream && is_resource($this->stream)) {
+        if ($this->should_close_stream) {
+            set_error_handler(fn (int $errno, string $errstr, string $errfile, int $errline) => true);
             fclose($this->stream);
+            restore_error_handler();
         }
 
         unset($this->stream);

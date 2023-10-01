@@ -43,7 +43,7 @@ final class InfoTest extends TestCase
         $file->fwrite("How are you today ?\nI'm doing fine thanks!");
         $csv = Reader::createFromFileObject($file);
 
-        Info::getDelimiterStats($csv, [',', []]);
+        Info::getDelimiterStats($csv, [',', []]); /* @phpstan-ignore-line */
     }
 
     public function testDetectDelimiterListWithNoCSV(): void

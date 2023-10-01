@@ -332,7 +332,7 @@ final class ResultSetTest extends TestCase
         );
         $csv->setDelimiter(',');
         $resultSet = Statement::create()->process($csv);
-        Statement::create()->process($resultSet, ['foo', 3]);
+        Statement::create()->process($resultSet, ['foo', 3]); /* @phpstan-ignore-line */
     }
 
     public function testSliceThrowException(): void

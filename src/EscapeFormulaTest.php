@@ -25,7 +25,7 @@ final class EscapeFormulaTest extends TestCase
     public function testConstructorThrowsTypError(): void
     {
         $this->expectException(TypeError::class);
-        new EscapeFormula("\t", [(object) 'i']);
+        new EscapeFormula("\t", [(object) 'i']); /* @phpstan-ignore-line */
     }
 
     public function testConstructorThrowsInvalidArgumentException(): void
