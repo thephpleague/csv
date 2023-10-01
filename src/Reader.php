@@ -329,7 +329,6 @@ class Reader extends AbstractCsv implements TabularDataReader, JsonSerializable
      */
     public function getRecords(array $header = []): Iterator
     {
-        $header = $this->computeHeader($header);
         $normalized = fn ($record): bool => is_array($record) && ($this->is_empty_records_included || $record !== [null]);
         $bom = '';
         if (!$this->is_input_bom_included) {
@@ -345,7 +344,24 @@ class Reader extends AbstractCsv implements TabularDataReader, JsonSerializable
             $records = new MapIterator($records, fn (array $record): array => ([null] === $record) ? [] : $record);
         }
 
-        return $this->combineHeader($records, $header);
+        $header = $this->computeHeader($header);
+        $formatter = fn (array $record): array => array_reduce(
+            $this->formatters,
+            fn (array $record, callable $formatter): array => $formatter($record),
+            $record
+        );
+
+        return match ([]) {
+            $header => new MapIterator($records, $formatter(...)),
+            default => new MapIterator($records, function (array $record) use ($header, $formatter): array {
+                $assocRecord = [];
+                foreach ($header as $offset => $headerName) {
+                    $assocRecord[$headerName] = $record[$offset] ?? null;
+                }
+
+                return $formatter($assocRecord);
+            }),
+        };
     }
 
     /**
@@ -368,32 +384,6 @@ class Reader extends AbstractCsv implements TabularDataReader, JsonSerializable
             $header !== array_unique($filtered_header) => throw SyntaxError::dueToDuplicateHeaderColumnNames($header),
             [] !== array_filter(array_keys($header), fn (string|int $value) => !is_int($value) || $value < 0) => throw new SyntaxError('The header mapper indexes should only contain positive integer or 0.'),
             default => $header,
-        };
-    }
-
-    /**
-     * Combines the CSV header to each record if present.
-     *
-     * @param array<string> $header
-     */
-    protected function combineHeader(Iterator $iterator, array $header): Iterator
-    {
-        $formatter = fn (array $record): array => array_reduce(
-            $this->formatters,
-            fn (array $record, callable $formatter): array => $formatter($record),
-            $record
-        );
-
-        return match ([]) {
-            $header => new MapIterator($iterator, $formatter(...)),
-            default => new MapIterator($iterator, function (array $record) use ($header, $formatter): array {
-                $assocRecord = [];
-                foreach ($header as $offset => $headerName) {
-                    $assocRecord[$headerName] = $record[$offset] ?? null;
-                }
-
-                return $formatter($assocRecord);
-            }),
         };
     }
 
@@ -496,5 +486,28 @@ class Reader extends AbstractCsv implements TabularDataReader, JsonSerializable
     public function fetchOne(int $nth_record = 0): array
     {
         return $this->nth($nth_record);
+    }
+
+    /** @codeCoverageIgnore */
+    protected function combineHeader(Iterator $iterator, array $header): Iterator
+    {
+        $header = $this->computeHeader($header);
+        $formatter = fn (array $record): array => array_reduce(
+            $this->formatters,
+            fn (array $record, callable $formatter): array => $formatter($record),
+            $record
+        );
+
+        return match ([]) {
+            $header => new MapIterator($iterator, $formatter(...)),
+            default => new MapIterator($iterator, function (array $record) use ($header, $formatter): array {
+                $assocRecord = [];
+                foreach ($header as $offset => $headerName) {
+                    $assocRecord[$headerName] = $record[$offset] ?? null;
+                }
+
+                return $formatter($assocRecord);
+            }),
+        };
     }
 }
