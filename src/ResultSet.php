@@ -42,26 +42,22 @@ class ResultSet implements TabularDataReader, JsonSerializable
      */
     public function __construct(protected Iterator $records, array $header = [])
     {
-        $this->validateHeader($header);
-        $this->header = array_values($header);
+        $this->header = array_values(
+            $this->validateHeader($header)
+        );
     }
 
     /**
      * @throws SyntaxError if the header syntax is invalid
      */
-    protected function validateHeader(array $header): void
+    protected function validateHeader(array $header): array
     {
-        if ($header !== ($filtered_header = array_filter($header, is_string(...)))) {
-            throw SyntaxError::dueToInvalidHeaderColumnNames();
-        }
-
-        if ($header !== array_unique($filtered_header)) {
-            throw SyntaxError::dueToDuplicateHeaderColumnNames($header);
-        }
-
-        if ([] !== array_filter(array_keys($header), fn (string|int $value) => !is_int($value) || $value < 0)) {
-            throw new SyntaxError('The header mapper indexes should only contain positive integer or 0.');
-        }
+        return match (true) {
+            $header !== ($filtered_header = array_filter($header, is_string(...))) => throw SyntaxError::dueToInvalidHeaderColumnNames(),
+            $header !== array_unique($filtered_header) => throw SyntaxError::dueToDuplicateHeaderColumnNames($header),
+            [] !== array_filter(array_keys($header), fn (string|int $value) => !is_int($value) || $value < 0) => throw new SyntaxError('The header mapper indexes should only contain positive integer or 0.'),
+            default => $header,
+        };
     }
 
     public function __destruct()
@@ -166,22 +162,13 @@ class ResultSet implements TabularDataReader, JsonSerializable
      */
     public function getRecords(array $header = []): Iterator
     {
-        $this->validateHeader($header);
+        $header = $this->validateHeader($header);
+        if ([] === $header) {
+            $header = $this->header;
+        }
 
-        yield from $this->combineHeader($header);
-    }
-
-    /**
-     * Combines the header to each record if present.
-     *
-     * @param array<string> $header
-     *
-     * @return Iterator<array-key, array<array-key, string|null>>
-     */
-    protected function combineHeader(array $header): Iterator
-    {
-        return match (true) {
-            $header === $this->header, [] === $header => $this->records,
+        yield from match (true) {
+            [] === $header => $this->records,
             default => new MapIterator($this->records, function (array $record) use ($header): array {
                 $assocRecord = [];
                 $row = array_values($record);
@@ -335,5 +322,22 @@ class ResultSet implements TabularDataReader, JsonSerializable
         return $this->yieldColumn(
             $this->getColumnIndex($index, 'offset', __METHOD__)
         );
+    }
+
+    /** @codeCoverageIgnore */
+    protected function combineHeader(array $header): Iterator
+    {
+        return match (true) {
+            $header === $this->header, [] === $header => $this->records,
+            default => new MapIterator($this->records, function (array $record) use ($header): array {
+                $assocRecord = [];
+                $row = array_values($record);
+                foreach ($header as $offset => $headerName) {
+                    $assocRecord[$headerName] = $row[$offset] ?? null;
+                }
+
+                return $assocRecord;
+            }),
+        };
     }
 }
