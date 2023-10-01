@@ -97,6 +97,42 @@ foreach ($records as $record) {
 }
 ```
 
+<p class="message-notice">since <code>9.12.0</code> the optional <code>$header</code> is a full mapper</p>
+
+The argument now links the records column offset to a specific column name. In other words this means
+that the array key which MUST be a positive integer or `0` will correspond to the CSV column offset
+and its value will represent its header value.
+
+This means that you can re-arrange the column order as well as removing or adding column to the returned iterator.
+Added column will only contain the `null` value.
+
+Here's an example of the new behaviour.
+
+```php
+use League\Csv\Reader;
+
+$csv = <<<CSV
+Abel,14,M,2004
+Abiga,6,F,2004
+Aboubacar,8,M,2004
+Aboubakar,6,M,2004
+CSV;
+
+$reader = Reader::createFromString($csv);
+$resultSet = Statement::create()->process($reader);
+$records = $resultSet->getRecords([3 => 'Year', 0 => 'Firstname', 4 => 'Yolo']);
+var_dump([...$records][0]);
+//returns something like this
+// array:4 [
+//     "Year" => "2004",
+//     "Firstname" => "Abel",
+//     "Yolo" => null,
+//  ]
+```
+
+As you can see the `Count` column is missing, the `Year` and `Firstname` columns are re-arranged but
+present and the extra `Yolo` column is added with the value `null`
+
 ### Usage with the header
 
 If the `ResultSet::getHeader` is not an empty `array` the found records keys will contain the returned values.

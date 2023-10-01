@@ -20,6 +20,8 @@ use LimitIterator;
 
 use function array_reduce;
 
+use const E_USER_DEPRECATED;
+
 /**
  * Criteria to filter a {@link TabularDataReader} object.
  */
@@ -120,6 +122,10 @@ class Statement
      */
     public function process(TabularDataReader $tabular_data, array $header = []): TabularDataReader
     {
+        if ([] !== $header) {
+            @trigger_error('Since league\csv 9.12.0: the $header argument is deprecated and will be removed in the next major release; Please use getRecords on the returned TabularDataReader', E_USER_DEPRECATED);
+        }
+
         if ([] === $header) {
             $header = $tabular_data->getHeader();
         }

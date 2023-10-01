@@ -105,6 +105,10 @@ $records = $stmt->process($reader);
 
 Just like the `Reader:getRecords`, the `Statement::process` method takes an optional `$header` argument to allow mapping CSV field names to a user defined header record.
 
+<p class="message-warning">Using the <code>$header</code> argument is deprecated since version <code>9.12.0</code>,
+use instead the <code>TabularDataReader::getRecords</code> method instead on the returned value.
+A <code>E_USER_DEPRECATED</code> notice will be triggered if the argument is used.</p>
+
 ```php
 use League\Csv\Reader;
 use League\Csv\Statement;

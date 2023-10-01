@@ -10,11 +10,12 @@ All Notable changes to `Csv` will be documented in this file
 
 ### Deprecated
 
-- None
+- Using the `$header` argument on `Statement::process` is deprecated and will be removed in
+the next version. Use `TabularDataReader::getRecords` on the returned value instead.
 
 ### Fixed
 
-- None
+- The optional `$header` argument for `TabularDataReader;;getRecords` becomes a full mapper between the records column offset and the column names [#498](https://github.com/thephpleague/csv/issues/498)
 
 ### Removed
 
