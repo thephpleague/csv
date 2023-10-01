@@ -31,29 +31,33 @@ use function iterator_count;
  */
 class ResultSet implements TabularDataReader, JsonSerializable
 {
+    /** @var array<string> */
+    protected array $header;
+
     /**
      * @param Iterator<array-key, array<array-key, string|null>> $records
      * @param array<string> $header
      *
      * @throws SyntaxError
      */
-    public function __construct(protected Iterator $records, protected array $header = [])
+    public function __construct(protected Iterator $records, array $header = [])
     {
-        $this->validateHeader($this->header);
+        $this->header = array_values(
+            $this->validateHeader($header)
+        );
     }
 
     /**
      * @throws SyntaxError if the header syntax is invalid
      */
-    protected function validateHeader(array $header): void
+    protected function validateHeader(array $header): array
     {
-        if ($header !== ($filtered_header = array_filter($header, is_string(...)))) {
-            throw SyntaxError::dueToInvalidHeaderColumnNames();
-        }
-
-        if ($header !== array_unique($filtered_header)) {
-            throw SyntaxError::dueToDuplicateHeaderColumnNames($header);
-        }
+        return match (true) {
+            $header !== ($filtered_header = array_filter($header, is_string(...))) => throw SyntaxError::dueToInvalidHeaderColumnNames(),
+            $header !== array_unique($filtered_header) => throw SyntaxError::dueToDuplicateHeaderColumnNames($header),
+            [] !== array_filter(array_keys($header), fn (string|int $value) => !is_int($value) || $value < 0) => throw new SyntaxError('The header mapper indexes should only contain positive integer or 0.'),
+            default => $header,
+        };
     }
 
     public function __destruct()
@@ -158,37 +162,23 @@ class ResultSet implements TabularDataReader, JsonSerializable
      */
     public function getRecords(array $header = []): Iterator
     {
-        $this->validateHeader($header);
-
-        yield from $this->combineHeader($header);
-    }
-
-    /**
-     * Combines the header to each record if present.
-     *
-     * @param array<string> $header
-     *
-     * @return Iterator<array-key, array<array-key, string|null>>
-     */
-    protected function combineHeader(array $header): Iterator
-    {
-        if ($header === $this->header || [] === $header) {
-            return $this->records;
+        $header = $this->validateHeader($header);
+        if ([] === $header) {
+            $header = $this->header;
         }
 
-        $field_count = count($header);
-        $mapper = static function (array $record) use ($header, $field_count): array {
-            if (count($record) !== $field_count) {
-                $record = array_slice(array_pad($record, $field_count, null), 0, $field_count);
-            }
+        yield from match (true) {
+            [] === $header => $this->records,
+            default => new MapIterator($this->records, function (array $record) use ($header): array {
+                $assocRecord = [];
+                $row = array_values($record);
+                foreach ($header as $offset => $headerName) {
+                    $assocRecord[$headerName] = $row[$offset] ?? null;
+                }
 
-            /** @var array<string, string|null> $assocRecord */
-            $assocRecord = array_combine($header, $record);
-
-            return $assocRecord;
+                return $assocRecord;
+            }),
         };
-
-        return new MapIterator($this->records, $mapper);
     }
 
     public function count(): int
@@ -332,5 +322,22 @@ class ResultSet implements TabularDataReader, JsonSerializable
         return $this->yieldColumn(
             $this->getColumnIndex($index, 'offset', __METHOD__)
         );
+    }
+
+    /** @codeCoverageIgnore */
+    protected function combineHeader(array $header): Iterator
+    {
+        return match (true) {
+            $header === $this->header, [] === $header => $this->records,
+            default => new MapIterator($this->records, function (array $record) use ($header): array {
+                $assocRecord = [];
+                $row = array_values($record);
+                foreach ($header as $offset => $headerName) {
+                    $assocRecord[$headerName] = $row[$offset] ?? null;
+                }
+
+                return $assocRecord;
+            }),
+        };
     }
 }

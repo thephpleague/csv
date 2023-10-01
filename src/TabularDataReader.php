@@ -78,7 +78,7 @@ interface TabularDataReader extends Countable, IteratorAggregate
      * filled with null values while extra record fields are strip from
      * the returned object.
      *
-     * @param array<string> $header an optional header to use instead of the CSV document header
+     * @param array<string> $header an optional header mapper to use instead of the CSV document header
      *
      * @return Iterator<array-key,array<string|null>>
      */
