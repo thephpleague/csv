@@ -31,6 +31,7 @@ use IteratorAggregate;
  * @method TabularDataReader filter(Closure $closure) returns all the elements of this collection for which your callback function returns `true`
  * @method TabularDataReader slice(int $offset, int $length = null) extracts a slice of $length elements starting at position $offset from the Collection.
  * @method TabularDataReader sorted(Closure $orderBy) sorts the Collection according to the closure provided see Statement::orderBy method
+ * @method TabularDataReader select(string|int ...$columnOffsetOrName) extract a selection of the tabular data records columns.
  */
 interface TabularDataReader extends Countable, IteratorAggregate
 {

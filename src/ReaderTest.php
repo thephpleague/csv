@@ -673,4 +673,79 @@ CSV;
         Reader::createFromString($csv)
             ->getRecords(['Annee' => 'Year', 'Prenom' => 'Firstname', 'Nombre' => 'Count']);
     }
+
+    public function testTabularReaderSelect(): void
+    {
+        $csv = <<<CSV
+date,temperature,place
+2011-01-01,1,Galway
+2011-01-02,-1,Galway
+2011-01-03,0,Galway
+2011-01-01,6,Berkeley
+2011-01-02,8,Berkeley
+2011-01-03,5,Berkeley
+CSV;
+        $reader = Reader::createFromString($csv);
+        self::assertSame([1 => 'temperature', 2 => 'place'], $reader->select(1, 2)->first());
+
+        $reader->setHeaderOffset(0);
+
+        self::assertSame(['temperature' => '1', 'place' => 'Galway'], $reader->select(1, 2)->first());
+        self::assertSame(['temperature' => '1', 'place' => 'Galway'], $reader->select('temperature', 'place')->first());
+        self::assertSame(['temperature' => '1', 'place' => 'Galway'], $reader->select(1, 'place')->first());
+        self::assertSame(['temperature' => '1', 'place' => 'Galway'], $reader->select('temperature', 2)->first());
+    }
+
+    public function testTabularReaderSelectFailsWithInvalidColumn(): void
+    {
+        $csv = <<<CSV
+date,temperature,place
+2011-01-01,1,Galway
+2011-01-02,-1,Galway
+2011-01-03,0,Galway
+2011-01-01,6,Berkeley
+2011-01-02,8,Berkeley
+2011-01-03,5,Berkeley
+CSV;
+        $this->expectException(InvalidArgument::class);
+
+        Reader::createFromString($csv)
+            ->select('temperature', 'place');
+    }
+
+    public function testTabularReaderSelectFailsWithInvalidColumnName(): void
+    {
+        $csv = <<<CSV
+date,temperature,place
+2011-01-01,1,Galway
+2011-01-02,-1,Galway
+2011-01-03,0,Galway
+2011-01-01,6,Berkeley
+2011-01-02,8,Berkeley
+2011-01-03,5,Berkeley
+CSV;
+        $this->expectException(InvalidArgument::class);
+
+        Reader::createFromString($csv)
+            ->setHeaderOffset(0)
+            ->select('temperature', 'foobar');
+    }
+
+    public function testTabularReaderSelectFailsWithInvalidColumnOffset(): void
+    {
+        $csv = <<<CSV
+date,temperature,place
+2011-01-01,1,Galway
+2011-01-02,-1,Galway
+2011-01-03,0,Galway
+2011-01-01,6,Berkeley
+2011-01-02,8,Berkeley
+2011-01-03,5,Berkeley
+CSV;
+        $this->expectException(InvalidArgument::class);
+
+        Reader::createFromString($csv)
+            ->setHeaderOffset(0)
+            ->select(0, 18);
+    }
 }

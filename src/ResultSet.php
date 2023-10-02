@@ -42,9 +42,11 @@ class ResultSet implements TabularDataReader, JsonSerializable
      */
     public function __construct(protected Iterator $records, array $header = [])
     {
-        $this->header = array_values(
-            $this->validateHeader($header)
-        );
+        if ($header !== array_filter($header, is_string(...))) {
+            throw SyntaxError::dueToInvalidHeaderColumnNames();
+        }
+
+        $this->header = array_values($this->validateHeader($header));
     }
 
     /**
@@ -53,8 +55,7 @@ class ResultSet implements TabularDataReader, JsonSerializable
     protected function validateHeader(array $header): array
     {
         return match (true) {
-            $header !== ($filtered_header = array_filter($header, is_string(...))) => throw SyntaxError::dueToInvalidHeaderColumnNames(),
-            $header !== array_unique($filtered_header) => throw SyntaxError::dueToDuplicateHeaderColumnNames($header),
+            $header !== array_unique($header) => throw SyntaxError::dueToDuplicateHeaderColumnNames($header),
             [] !== array_filter(array_keys($header), fn (string|int $value) => !is_int($value) || $value < 0) => throw new SyntaxError('The header mapper indexes should only contain positive integer or 0.'),
             default => $header,
         };
@@ -162,13 +163,59 @@ class ResultSet implements TabularDataReader, JsonSerializable
      */
     public function getRecords(array $header = []): Iterator
     {
+        if ($header !== array_filter($header, is_string(...))) {
+            throw SyntaxError::dueToInvalidHeaderColumnNames();
+        }
+
+        yield from $this->combineHeader($header);
+    }
+
+    public function select(string|int ...$columns): TabularDataReader
+    {
+        $header = [];
+        $documentHeader = $this->getHeader();
+        $hasNoHeader = [] === $documentHeader;
+        foreach ($columns as $field) {
+            if (is_string($field)) {
+                if ($hasNoHeader) {
+                    throw new InvalidArgument(__METHOD__.' can only use named column if the tabular data has a non-empty header.');
+                }
+
+                $index = array_search($field, $this->header, true);
+                if (false === $index) {
+                    throw InvalidArgument::dueToInvalidColumnIndex($field, 'offset', __METHOD__);
+                }
+
+                $header[$index] = $field;
+                continue;
+            }
+
+            if (!$hasNoHeader && !array_key_exists($field, $documentHeader)) {
+                throw InvalidArgument::dueToInvalidColumnIndex($field, 'offset', __METHOD__);
+            }
+
+            $header[$field] = $documentHeader[$field] ?? $field;
+        }
+
+        return new self($this->combineHeader($header), $documentHeader);
+    }
+
+    /**
+     * Combines the header to each record if present.
+     *
+     * @param array<array-key, string|int> $header
+     *
+     * @return Iterator<array-key, array<array-key, string|null>>
+     */
+    protected function combineHeader(array $header): Iterator
+    {
         $header = $this->validateHeader($header);
         if ([] === $header) {
             $header = $this->header;
         }
 
-        yield from match (true) {
-            [] === $header => $this->records,
+        return match (true) {
+            $header === $this->header, [] === $header => $this->records,
             default => new MapIterator($this->records, function (array $record) use ($header): array {
                 $assocRecord = [];
                 $row = array_values($record);
@@ -322,22 +369,5 @@ class ResultSet implements TabularDataReader, JsonSerializable
         return $this->yieldColumn(
             $this->getColumnIndex($index, 'offset', __METHOD__)
         );
-    }
-
-    /** @codeCoverageIgnore */
-    protected function combineHeader(array $header): Iterator
-    {
-        return match (true) {
-            $header === $this->header, [] === $header => $this->records,
-            default => new MapIterator($this->records, function (array $record) use ($header): array {
-                $assocRecord = [];
-                $row = array_values($record);
-                foreach ($header as $offset => $headerName) {
-                    $assocRecord[$headerName] = $row[$offset] ?? null;
-                }
-
-                return $assocRecord;
-            }),
-        };
     }
 }
