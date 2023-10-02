@@ -6,7 +6,8 @@ All Notable changes to `Csv` will be documented in this file
 
 ### Added
 
-- None
+- `TabulatDataReader::select` (implemented on the `Reader` and the `ResultSet` object)
+- `FragmentParser` to implement [RFC7111](https://www.rfc-editor.org/rfc/rfc7111)
 
 ### Deprecated
 
@@ -28,7 +29,7 @@ the next version. Use `TabularDataReader::getRecords` on the returned value inst
 - `EscapeFormula::unescapeRecord` does the opposite of `EscapeFormula::escapeRecord`
 - `TabularReader::each` (implemented on the `Reader` and the `ResultSet` object)
 - `TabularReader::exists` (implemented on the `Reader` and the `ResultSet` object)
-- `TabularReader::reduce`  (implemented on the `Reader` and the `ResultSet` object)****
+- `TabularReader::reduce`  (implemented on the `Reader` and the `ResultSet` object)
 - `TabularReader::filter` (implemented on the `Reader` and the `ResultSet` object)
 - `TabularReader::slice` (implemented on the `Reader` and the `ResultSet` object)
 - `TabularReader::sorted` (implemented on the `Reader` and the `ResultSet` object)
