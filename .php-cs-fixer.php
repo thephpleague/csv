@@ -31,7 +31,7 @@ return $config
             'import_constants' => true,
             'import_functions' => true,
         ],
-        'new_with_braces' => true,
+        'new_with_parentheses' => true,
         'no_blank_lines_after_phpdoc' => true,
         'no_empty_phpdoc' => true,
         'no_empty_comment' => true,
