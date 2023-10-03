@@ -154,22 +154,6 @@ class ResultSet implements TabularDataReader, JsonSerializable
         return Statement::create()->orderBy($orderBy)->process($this);
     }
 
-    /**
-     * @param array<string> $header
-     *
-     * @throws SyntaxError
-     *
-     * @return Iterator<array-key, array<array-key, string|null>>
-     */
-    public function getRecords(array $header = []): Iterator
-    {
-        if ($header !== array_filter($header, is_string(...))) {
-            throw SyntaxError::dueToInvalidHeaderColumnNames();
-        }
-
-        yield from $this->combineHeader($header);
-    }
-
     public function select(string|int ...$columns): TabularDataReader
     {
         $header = [];
@@ -198,6 +182,41 @@ class ResultSet implements TabularDataReader, JsonSerializable
         }
 
         return new self($this->combineHeader($header), $documentHeader);
+    }
+
+    public function matching(string $expression): iterable
+    {
+        return (new FragmentFinder())->all($expression, $this);
+    }
+
+    public function firstMatching(string $expression): ?TabularDataReader
+    {
+        return (new FragmentFinder())->first($expression, $this);
+    }
+
+    /**
+     * @throws SyntaxError
+     * @throws FragmentNotFound
+     */
+    public function firstOrFailMatching(string $expression): TabularDataReader
+    {
+        return (new FragmentFinder())->firstOrFail($expression, $this);
+    }
+
+    /**
+     * @param array<string> $header
+     *
+     * @throws SyntaxError
+     *
+     * @return Iterator<array-key, array<array-key, string|null>>
+     */
+    public function getRecords(array $header = []): Iterator
+    {
+        if ($header !== array_filter($header, is_string(...))) {
+            throw SyntaxError::dueToInvalidHeaderColumnNames();
+        }
+
+        yield from $this->combineHeader($header);
     }
 
     /**

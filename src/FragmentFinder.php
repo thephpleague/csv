@@ -13,6 +13,8 @@ declare(strict_types=1);
 
 namespace League\Csv;
 
+use Iterator;
+
 use function array_reduce;
 use function count;
 use function explode;
@@ -28,37 +30,10 @@ final class FragmentFinder
     private const REGEXP_ROWS_COLUMNS_SELECTION = '/^(?<start>\d+)(-(?<end>\d+|\*))?$/';
     private const REGEXP_CELLS_SELECTION = '/^(?<csr>\d+),(?<csc>\d+)(-(?<end>((?<cer>\d+),(?<cec>\d+))|\*))?$/';
 
-    public readonly int $fallbackOffset;
-
     /**
-     * @throws InvalidArgument
+     * @return Iterator<TabularDataReader>
      */
-    public function __construct(int $fallbackOffset = 0)
-    {
-        if (0 > $fallbackOffset) {
-            throw new InvalidArgument('The fallback offset must be greater or equals to 0.');
-        }
-
-        $this->fallbackOffset = $fallbackOffset;
-    }
-
-    /**
-     * @throws InvalidArgument
-     */
-    public function fallbackOffset(int $fallbackOffset = 0): self
-    {
-        return match (true) {
-            $fallbackOffset === $this->fallbackOffset => $this,
-            default => new self($fallbackOffset),
-        };
-    }
-
-    /**
-     * @throws SyntaxError if the expression can not be parsed
-     *
-     * @return iterable<TabularDataReader>
-     */
-    public function all(string $expression, TabularDataReader $tabularDataReader): iterable
+    public function all(string $expression, TabularDataReader $tabularDataReader): Iterator
     {
         foreach ($this->parseExpression($expression, $tabularDataReader) as $selection) {
             if (-1 < $selection['start']) {
@@ -69,29 +44,6 @@ final class FragmentFinder
         }
     }
 
-    /**
-     * @throws SyntaxError if the expression can not be parsed
-     * @throws FragmentNotFound if no fragment are found
-     *
-     * @return iterable<TabularDataReader>
-     */
-    public function allOrFail(string $expression, TabularDataReader $tabularDataReader): iterable
-    {
-        $selections = $this->parseExpression($expression, $tabularDataReader);
-        foreach ($selections as $selection) {
-            yield match (true) {
-                0 > $selection['start'] => throw new FragmentNotFound('The expression `'.$selection['selection'].'` contains invalid selection.'),
-                default => $tabularDataReader
-                    ->slice($selection['start'], $selection['length'])
-                    ->select(...$selection['columns']),
-            };
-        }
-    }
-
-    /**
-     * @throws SyntaxError if the expression can not be parsed
-     * @throws FragmentNotFound if no fragment are found
-     */
     public function first(string $expression, TabularDataReader $tabularDataReader): ?TabularDataReader
     {
         foreach ($this->all($expression, $tabularDataReader) as $fragment) {
@@ -102,40 +54,47 @@ final class FragmentFinder
     }
 
     /**
-     * @throws FragmentNotFound When the expression can not be use
      * @throws SyntaxError if the expression can not be parsed
      */
     public function firstOrFail(string $expression, TabularDataReader $tabularDataReader): TabularDataReader
     {
-        foreach ($this->allOrFail($expression, $tabularDataReader) as $fragment) {
-            return $fragment;
+        foreach ($this->parseExpression($expression, $tabularDataReader) as $selection) {
+            return match ($selection['start']) {
+                -1 => throw new SyntaxError('The '.$selection['type'].' selection `'.$selection['selection'].'` is invalid.'),
+                default => $tabularDataReader
+                    ->slice($selection['start'], $selection['length'])
+                    ->select(...$selection['columns']),
+            };
         }
-
-        //@codeCoverageIgnoreStart
-        throw new FragmentNotFound('No fragment was found for the expression `'.$expression.'`.');
-        //@codeCoverageIgnoreEnd
     }
 
     /**
-     * @throws SyntaxError if the expression can not be parsed
-     *
-     * @return non-empty-array<array{selection:string, start:int<-1, max>, length:int<-1, max>, columns:array<int>}>
+     * @return non-empty-array<array{type:string, selection:string, start:int<-1, max>, length:int<-1, max>, columns:array<int>}>
      */
     private function parseExpression(string $expression, TabularDataReader $tabularDataReader): array
     {
         if (1 !== preg_match(self::REGEXP_URI_FRAGMENT, $expression, $matches)) {
-            throw new SyntaxError('The query expression `'.$expression.'` is invalid.');
+            return [[
+                'type' => 'unknown',
+                'selection' => $expression,
+                'start' => -1,
+                'length' => -1,
+                'columns' => [],
+            ]];
         }
 
         $type = strtolower($matches['type']);
+        if ('col' === $type) {
+            $type = 'column';
+        }
 
-        /** @var non-empty-array<array{selection:string, start:int<-1, max>, length:int<-1, max>, columns:array<int>}> $res */
+        /** @var non-empty-array<array{type:string, selection:string, start:int<-1, max>, length:int<-1, max>, columns:array<int>}> $res */
         $res = array_reduce(
             explode(';', $matches['selections']),
             fn (array $selections, string $selection): array => [...$selections, match ($type) {
-                'row' => $this->parseRowSelection($selection),
-                'col' => $this->parseColumnSelection($selection, $tabularDataReader),
-                default => $this->parseCellSelection($selection, $tabularDataReader),
+                'row' => $this->parseRowSelection($type, $selection),
+                'column' => $this->parseColumnSelection($type, $selection, $tabularDataReader),
+                default => $this->parseCellSelection($type, $selection, $tabularDataReader),
             }],
             []
         );
@@ -144,29 +103,30 @@ final class FragmentFinder
     }
 
     /**
-     * @throws SyntaxError
-     *
-     * @return non-empty-array{selection:string, start:int, length:int, columns:array<int>}
+     * @return array{type:string, selection:string, start:int, length:int, columns:array<int>}
      */
-    private function parseRowSelection(string $selection): array
+    private function parseRowSelection(string $type, string $selection): array
     {
         [$start, $end] = $this->parseRowColumnSelection($selection);
 
         return match (true) {
             -1 === $start,
             null === $end => [
+                'type' => $type,
                 'selection' => $selection,
                 'start' => $start,
                 'length' => 1,
                 'columns' => [],
             ],
             '*' === $end => [
+                'type' => $type,
                 'selection' => $selection,
                 'start' => $start,
                 'length' => -1,
                 'columns' => [],
             ],
             default => [
+                'type' => $type,
                 'selection' => $selection,
                 'start' => $start,
                 'length' => $end - $start + 1,
@@ -176,16 +136,14 @@ final class FragmentFinder
     }
 
     /**
-     * @throws SyntaxError
-     *
-     * @return non-empty-array{selection:string, start:int, length:int, columns:array<int>}
+     * @return array{type:string, selection:string, start:int, length:int, columns:array<int>}
      */
-    private function parseColumnSelection(string $selection, TabularDataReader $tabularDataReader): array
+    private function parseColumnSelection(string $type, string $selection, TabularDataReader $tabularDataReader): array
     {
         [$start, $end] = $this->parseRowColumnSelection($selection);
         $header = $tabularDataReader->getHeader();
         if ([] === $header) {
-            $header = $tabularDataReader->nth($this->fallbackOffset);
+            $header = $tabularDataReader->first();
         }
 
         $nbColumns = count($header);
@@ -193,12 +151,14 @@ final class FragmentFinder
         return match (true) {
             -1 === $start,
             $start >= $nbColumns => [
+                'type' => $type,
                 'selection' => $selection,
                 'start' => -1,
                 'length' => -1,
                 'columns' => [],
             ],
             null === $end => [
+                'type' => $type,
                 'selection' => $selection,
                 'start' => 0,
                 'length' => -1,
@@ -206,12 +166,14 @@ final class FragmentFinder
             ],
             '*' === $end,
             $end > ($nbColumns - 1) => [
+                'type' => $type,
                 'selection' => $selection,
                 'start' => 0,
                 'length' => -1,
                 'columns' => range($start, $nbColumns),
             ],
             default => [
+                'type' => $type,
                 'selection' => $selection,
                 'start' => 0,
                 'length' => -1,
@@ -221,21 +183,19 @@ final class FragmentFinder
     }
 
     /**
-     * @throws SyntaxError
-     *
      * @return array{int<-1, max>, int|null|'*'}
      */
     private function parseRowColumnSelection(string $selection): array
     {
         if (1 !== preg_match(self::REGEXP_ROWS_COLUMNS_SELECTION, $selection, $found)) {
-            throw new SyntaxError('The selection `'.$selection.'` is invalid.');
+            return [-1, 0];
         }
 
         $start = $found['start'];
         $end = $found['end'] ?? null;
         $start = filter_var($start, FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]);
         if (false === $start) {
-            throw new SyntaxError('The selection `'.$selection.'` is invalid.');
+            return [-1, 0];
         }
         --$start;
 
@@ -245,7 +205,7 @@ final class FragmentFinder
 
         $end = filter_var($end, FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]);
         if (false === $end) {
-            throw new SyntaxError('The selection `'.$selection.'` is invalid.');
+            return [-1, 0];
         }
         --$end;
 
@@ -257,37 +217,54 @@ final class FragmentFinder
     }
 
     /**
-     * @throws SyntaxError
-     *
-     * @return non-empty-array{selection:string, start:int, length:int, columns:array<int>}
+     * @return array{type:string, selection:string, start:int, length:int, columns:array<int>}
      */
-    private function parseCellSelection(string $selection, TabularDataReader $tabularDataReader): array
+    private function parseCellSelection(string $type, string $selection, TabularDataReader $tabularDataReader): array
     {
         if (1 !== preg_match(self::REGEXP_CELLS_SELECTION, $selection, $found)) {
-            throw new SyntaxError('The selection `'.$selection.'` is invalid.');
+            return [
+                'type' => $type,
+                'selection' => $selection,
+                'start' => -1,
+                'length' => 1,
+                'columns' => [],
+            ];
         }
 
         $cellStartRow = filter_var($found['csr'], FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]);
         if (false === $cellStartRow) {
-            throw new SyntaxError('The selection `'.$selection.'` is invalid.');
+            return [
+                'type' => $type,
+                'selection' => $selection,
+                'start' => -1,
+                'length' => 1,
+                'columns' => [],
+            ];
         }
 
         $cellStartCol = filter_var($found['csc'], FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]);
         if (false === $cellStartCol) {
-            throw new SyntaxError('The selection `'.$selection.'` is invalid.');
+            return [
+                'type' => $type,
+                'selection' => $selection,
+                'start' => -1,
+                'length' => 1,
+                'columns' => [],
+            ];
         }
         --$cellStartRow;
         --$cellStartCol;
 
         $header = $tabularDataReader->getHeader();
         if ([] === $header) {
-            $header = $tabularDataReader->nth($this->fallbackOffset);
+            $header = $tabularDataReader->first();
         }
 
         $nbColumns = count($header);
 
         if ($cellStartCol > $nbColumns - 1) {
             return [
+                'type' => $type,
                 'selection' => $selection,
                 'start' => -1,
                 'length' => 1,
@@ -298,6 +275,7 @@ final class FragmentFinder
         $cellEnd = $found['end'] ?? null;
         if (null === $cellEnd) {
             return [
+                'type' => $type,
                 'selection' => $selection,
                 'start' => $cellStartRow,
                 'length' => 1,
@@ -307,6 +285,7 @@ final class FragmentFinder
 
         if ('*' === $cellEnd) {
             return [
+                'type' => $type,
                 'selection' => $selection,
                 'start' => $cellStartRow,
                 'length' => -1,
@@ -316,12 +295,24 @@ final class FragmentFinder
 
         $cellEndRow = filter_var($found['cer'], FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]);
         if (false === $cellEndRow) {
-            throw new SyntaxError('The selection `'.$selection.'` is invalid.');
+            return [
+                'type' => $type,
+                'selection' => $selection,
+                'start' => -1,
+                'length' => 1,
+                'columns' => [],
+            ];
         }
 
         $cellEndCol = filter_var($found['cec'], FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]);
         if (false === $cellEndCol) {
-            throw new SyntaxError('The selection `'.$selection.'` is invalid.');
+            return [
+                'type' => $type,
+                'selection' => $selection,
+                'start' => -1,
+                'length' => 1,
+                'columns' => [],
+            ];
         }
 
         --$cellEndRow;
@@ -329,6 +320,7 @@ final class FragmentFinder
 
         if ($cellEndRow < $cellStartRow || $cellEndCol < $cellStartCol) {
             return [
+                'type' => $type,
                 'selection' => $selection,
                 'start' => -1,
                 'length' => 1,
@@ -337,6 +329,7 @@ final class FragmentFinder
         }
 
         return [
+            'type' => $type,
             'selection' => $selection,
             'start' => $cellStartRow,
             'length' => $cellEndRow - $cellStartRow + 1,

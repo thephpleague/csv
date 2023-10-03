@@ -13,58 +13,21 @@ declare(strict_types=1);
 
 namespace League\Csv;
 
-use Generator;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
-use RuntimeException;
 
-final class FragmentFinderTest extends TestCase
+#[Group('tabulardata')]
+abstract class FragmentFinderTestCase extends TestCase
 {
-    private Reader $reader;
-    private FragmentFinder $finder;
-
-    protected function setUp(): void
-    {
-        parent::setUp();
-
-        $csv = <<<CSV
-date,temperature,place
-2011-01-01,1,Galway
-2011-01-02,-1,Galway
-2011-01-03,0,Galway
-2011-01-01,6,Berkeley
-2011-01-02,8,Berkeley
-2011-01-03,5,Berkeley
-CSV;
-
-        $this->reader = Reader::createFromString($csv);
-        $this->finder = new FragmentFinder();
-    }
-
-    #[Test]
-    public function it_will_fail_instantiate_with_invalid_fallback_record(): void
-    {
-        $this->expectException(InvalidArgument::class);
-
-        new FragmentFinder(-1);
-    }
-
-    #[Test]
-    public function it_can_update_its_fallback_setting(): void
-    {
-        $finder = new FragmentFinder(1);
-
-        self::assertSame(1, $finder->fallbackOffset);
-        self::assertSame($finder, $finder->fallbackOffset(1));
-        self::assertNotSame($finder, $finder->fallbackOffset(2));
-    }
+    abstract protected function getFragmentIdentifierTabularData(): TabularDataReader;
 
     #[Test]
     #[DataProvider('provideValidExpressions')]
     public function it_can_select_a_specific_fragment(string $expression, ?array $expected): void
     {
-        $result = $this->finder->first($expression, $this->reader);
+        $result = $this->getFragmentIdentifierTabularData()->firstMatching($expression);
         if (null === $expected) {
             self::assertNull($result);
 
@@ -79,14 +42,14 @@ CSV;
     public function it_can_select_a_specific_fragment_or_fail(string $expression, ?array $expected): void
     {
         if (null === $expected) {
-            $this->expectException(RuntimeException::class);
+            $this->expectException(SyntaxError::class);
 
-            $this->finder->firstOrFail($expression, $this->reader);
+            $this->getFragmentIdentifierTabularData()->firstOrFailMatching($expression);
 
             return;
         }
 
-        self::assertSame($expected, [...$this->finder->firstOrFail($expression, $this->reader)]);
+        self::assertSame($expected, [...$this->getFragmentIdentifierTabularData()->firstOrFailMatching($expression)]);
     }
 
     public static function provideValidExpressions(): iterable
@@ -208,11 +171,18 @@ CSV;
 
     #[Test]
     #[DataProvider('provideInvalidExpressions')]
+    public function it_will_return_null_on_invalid_expression(string $expression): void
+    {
+        self::assertNull($this->getFragmentIdentifierTabularData()->firstMatching($expression));
+    }
+
+    #[Test]
+    #[DataProvider('provideInvalidExpressions')]
     public function it_will_fail_to_parse_the_expression(string $expression): void
     {
         $this->expectException(SyntaxError::class);
 
-        $this->finder->first($expression, $this->reader);
+        $this->getFragmentIdentifierTabularData()->firstOrFailMatching($expression);
     }
 
     public static function provideInvalidExpressions(): iterable
@@ -239,24 +209,18 @@ CSV;
     #[Test]
     public function it_returns_multiple_selections(): void
     {
-        /** @var Generator $result */
-        $result = $this->finder->all('row=1-2;5-4;2-4', $this->reader);
-
-        self::assertCount(2, iterator_to_array($result));
+        self::assertCount(2, iterator_to_array($this->getFragmentIdentifierTabularData()->matching('row=1-2;5-4;2-4')));
     }
 
     #[Test]
     public function it_returns_no_selection(): void
     {
-        /** @var Generator $result */
-        $result = $this->finder->all('row=5-4', $this->reader);
-
-        self::assertCount(0, iterator_to_array($result));
+        self::assertCount(0, iterator_to_array($this->getFragmentIdentifierTabularData()->matching('row=5-4')));
     }
 
     #[Test]
     public function it_fails_if_no_selection_is_found(): void
     {
-        self::assertCount(1, iterator_to_array($this->finder->firstOrFail('row=7-8', $this->reader)));
+        self::assertCount(1, iterator_to_array($this->getFragmentIdentifierTabularData()->firstOrFailMatching('row=7-8')));
     }
 }

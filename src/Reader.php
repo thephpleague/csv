@@ -343,20 +343,23 @@ class Reader extends AbstractCsv implements TabularDataReader, JsonSerializable
         return Statement::create()->orderBy($orderBy)->process($this);
     }
 
-    /**
-     * @param array<string> $header
-     *
-     * @throws Exception
-     *
-     * @return Iterator<array<string|null>>
-     */
-    public function getRecords(array $header = []): Iterator
+    public function matching(string $expression): Iterator
     {
-        if ($header !== (array_filter($header, is_string(...)))) {
-            throw SyntaxError::dueToInvalidHeaderColumnNames();
-        }
+        return (new FragmentFinder())->all($expression, $this);
+    }
 
-        return $this->combineHeader($this->prepareRecords(), $this->computeHeader($header));
+    public function firstMatching(string $expression): ?TabularDataReader
+    {
+        return (new FragmentFinder())->first($expression, $this);
+    }
+
+    /**
+     * @throws SyntaxError
+     * @throws FragmentNotFound
+     */
+    public function firstOrFailMatching(string $expression): TabularDataReader
+    {
+        return (new FragmentFinder())->firstOrFail($expression, $this);
     }
 
     public function select(string|int ...$columns): TabularDataReader
@@ -390,6 +393,22 @@ class Reader extends AbstractCsv implements TabularDataReader, JsonSerializable
             $this->combineHeader($this->prepareRecords(), $this->computeHeader($header)),
             $documentHeader
         );
+    }
+
+    /**
+     * @param array<string> $header
+     *
+     * @throws Exception
+     *
+     * @return Iterator<array<string|null>>
+     */
+    public function getRecords(array $header = []): Iterator
+    {
+        if ($header !== (array_filter($header, is_string(...)))) {
+            throw SyntaxError::dueToInvalidHeaderColumnNames();
+        }
+
+        return $this->combineHeader($this->prepareRecords(), $this->computeHeader($header));
     }
 
     /**
