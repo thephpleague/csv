@@ -123,6 +123,29 @@ class Reader extends AbstractCsv implements TabularDataReader, JsonSerializable
 
     /**
      * @throws Exception
+     */
+    private function prepareRecords(): Iterator
+    {
+        $normalized = fn ($record): bool => is_array($record) && ($this->is_empty_records_included || $record !== [null]);
+        $bom = '';
+        if (!$this->is_input_bom_included) {
+            $bom = $this->getInputBOM();
+        }
+
+        $records = $this->stripBOM(new CallbackFilterIterator($this->getDocument(), $normalized), $bom);
+        if (null !== $this->header_offset) {
+            $records = new CallbackFilterIterator($records, fn (array $record, int $offset): bool => $offset !== $this->header_offset);
+        }
+
+        if ($this->is_empty_records_included) {
+            $records = new MapIterator($records, fn (array $record): array => ([null] === $record) ? [] : $record);
+        }
+
+        return $records;
+    }
+
+    /**
+     * @throws Exception
      *
      * Returns the row at a given offset.
      */
@@ -320,6 +343,58 @@ class Reader extends AbstractCsv implements TabularDataReader, JsonSerializable
         return Statement::create()->orderBy($orderBy)->process($this);
     }
 
+    public function matching(string $expression): Iterator
+    {
+        return (new FragmentFinder())->all($expression, $this);
+    }
+
+    public function firstMatching(string $expression): ?TabularDataReader
+    {
+        return (new FragmentFinder())->first($expression, $this);
+    }
+
+    /**
+     * @throws SyntaxError
+     * @throws FragmentNotFound
+     */
+    public function firstOrFailMatching(string $expression): TabularDataReader
+    {
+        return (new FragmentFinder())->firstOrFail($expression, $this);
+    }
+
+    public function select(string|int ...$columns): TabularDataReader
+    {
+        $header = [];
+        $documentHeader = $this->getHeader();
+        $hasNoHeader = [] === $documentHeader;
+        foreach ($columns as $field) {
+            if (is_string($field)) {
+                if ($hasNoHeader) {
+                    throw new InvalidArgument(__METHOD__.' can only use named column if the tabular data has a non-empty header.');
+                }
+
+                $index = array_search($field, $this->header, true);
+                if (false === $index) {
+                    throw InvalidArgument::dueToInvalidColumnIndex($field, 'offset', __METHOD__);
+                }
+
+                $header[$index] = $field;
+                continue;
+            }
+
+            if (!$hasNoHeader && !array_key_exists($field, $documentHeader)) {
+                throw InvalidArgument::dueToInvalidColumnIndex($field, 'offset', __METHOD__);
+            }
+
+            $header[$field] = $documentHeader[$field] ?? $field;
+        }
+
+        return new ResultSet(
+            $this->combineHeader($this->prepareRecords(), $this->computeHeader($header)),
+            $documentHeader
+        );
+    }
+
     /**
      * @param array<string> $header
      *
@@ -329,49 +404,21 @@ class Reader extends AbstractCsv implements TabularDataReader, JsonSerializable
      */
     public function getRecords(array $header = []): Iterator
     {
-        $normalized = fn ($record): bool => is_array($record) && ($this->is_empty_records_included || $record !== [null]);
-        $bom = '';
-        if (!$this->is_input_bom_included) {
-            $bom = $this->getInputBOM();
+        if ($header !== (array_filter($header, is_string(...)))) {
+            throw SyntaxError::dueToInvalidHeaderColumnNames();
         }
 
-        $records = $this->stripBOM(new CallbackFilterIterator($this->getDocument(), $normalized), $bom);
-        if (null !== $this->header_offset) {
-            $records = new CallbackFilterIterator($records, fn (array $record, int $offset): bool => $offset !== $this->header_offset);
-        }
-
-        if ($this->is_empty_records_included) {
-            $records = new MapIterator($records, fn (array $record): array => ([null] === $record) ? [] : $record);
-        }
-
-        $header = $this->computeHeader($header);
-        $formatter = fn (array $record): array => array_reduce(
-            $this->formatters,
-            fn (array $record, callable $formatter): array => $formatter($record),
-            $record
-        );
-
-        return match ([]) {
-            $header => new MapIterator($records, $formatter(...)),
-            default => new MapIterator($records, function (array $record) use ($header, $formatter): array {
-                $assocRecord = [];
-                foreach ($header as $offset => $headerName) {
-                    $assocRecord[$headerName] = $record[$offset] ?? null;
-                }
-
-                return $formatter($assocRecord);
-            }),
-        };
+        return $this->combineHeader($this->prepareRecords(), $this->computeHeader($header));
     }
 
     /**
      * Returns the header to be used for iteration.
      *
-     * @param array<string> $header
+     * @param array<array-key, string|int> $header
      *
      * @throws Exception If the header contains non unique column name
      *
-     * @return array<string>
+     * @return array<int|string>
      */
     protected function computeHeader(array $header): array
     {
@@ -380,8 +427,7 @@ class Reader extends AbstractCsv implements TabularDataReader, JsonSerializable
         }
 
         return match (true) {
-            $header !== ($filtered_header = array_filter($header, is_string(...))) => throw SyntaxError::dueToInvalidHeaderColumnNames(),
-            $header !== array_unique($filtered_header) => throw SyntaxError::dueToDuplicateHeaderColumnNames($header),
+            $header !== array_unique($header) => throw SyntaxError::dueToDuplicateHeaderColumnNames($header),
             [] !== array_filter(array_keys($header), fn (string|int $value) => !is_int($value) || $value < 0) => throw new SyntaxError('The header mapper indexes should only contain positive integer or 0.'),
             default => $header,
         };
@@ -491,7 +537,6 @@ class Reader extends AbstractCsv implements TabularDataReader, JsonSerializable
     /** @codeCoverageIgnore */
     protected function combineHeader(Iterator $iterator, array $header): Iterator
     {
-        $header = $this->computeHeader($header);
         $formatter = fn (array $record): array => array_reduce(
             $this->formatters,
             fn (array $record, callable $formatter): array => $formatter($record),

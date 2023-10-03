@@ -15,8 +15,9 @@ version:
             Writer Connection: '/9.0/writer/'
             Bundled Helpers: '/9.0/writer/helpers/'
         Selecting Records:
+            Contract: '/9.0/reader/tabular-data-reader/'
+            Constraint Builders: '/9.0/reader/statement/'
             Reader Connection: '/9.0/reader/'
-            Constraint Builder: '/9.0/reader/statement/'
             Result Set: '/9.0/reader/resultset/'
         Interoperability:
             Overview : '/9.0/interoperability/'
