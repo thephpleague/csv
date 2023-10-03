@@ -3,142 +3,165 @@ layout: default
 title: CSV document constraint Builder
 ---
 
-# Constraint Builder
+# Constraint Builders
 
-The `League\Csv\Statement` class is a constraint builder to help ease selecting records from a CSV document created using the `League\Csv\Reader` class.
+The package provides two (2) convenient ways to query the `Reader` and the `ResultSet` instances. They
+can be used to perform manipulation independently of the instance giving you more controls over
+which records you want to access from your input document.
 
-When building a constraint, the methods do not need to be called in any particular order, and may be called multiple times. Because the `Statement` object is immutable, each time its constraint methods are called they will return a new `Statement` object without modifying the current `Statement` object.
+## Statement
 
-<p class="message-info">Because the <code>Statement</code> object is independent of the <code>Reader</code> object it can be re-used on multiple <code>Reader</code> objects.</p>
+The first mechanism is the `League\Csv\Statement` class which is a constraint builder that more or less
+mimic the behaviour of query builders in the database world. It can filter, order and limit the records
+to be shown. It does so by adding and combining constraints. Once the constraint is built, it will
+process your input and always return a [ResultSet](/9.0/reader/resultset) instance. Of note, the resulting constraint
+can be applied on multiple documents as the instance is immutable and completely independent of
+the input.
 
-<p class="message-info">Starting with version <code>9.6.0</code>, the class exposes the <code>Statement::create</code> named constructor to ease object creation.</p>
+### Retrieving all the rows
 
-## Filtering constraint
+<p class="message-info">Starting with version <code>9.6.0</code>, the class exposes the
+<code>Statement::create</code> named constructor to ease object creation.</p>
 
-The filters attached using the `Statement::where` method **are the first settings applied to the CSV before anything else**. This option follows the *First In First Out* rule.
-
-```php
-public Statement::where(callable $callable): self
-```
-
-The callable filter signature is as follows:
-
-```php
-function(array $record [, int $offset [, Iterator $iterator]]): self
-```
-
-It takes up to three parameters:
-
-- `$record`: the current CSV record as an array
-- `$offset`: the current CSV record offset
-- `$iterator`: the current CSV iterator
-
-## Sorting constraint
-
-The sorting options are applied **after the Statement::where options**. The sorting follows the *First In First Out* rule.
-
-<p class="message-warning"><strong>Warning:</strong> To sort the data <code>iterator_to_array</code> is used, which could lead to a performance penalty if you have a heavy CSV file to sort</p>
-
-`Statement::orderBy` method adds a sorting function each time it is called.
+To start using the `Statement` class you should use the `create` method. It returns a valid instance
+ready to already process your document or on which you can add more constraints. Because the
+`Statement` object is immutable, each time its constraint methods are called they will
+return a new `Statement` object without modifying the current `Statement` object.
+Once your constraint is ready to be used, use its `process` method on a `TabularDataReader` class.
 
 ```php
-public Statement::orderBy(callable $callable): self
+use League\Csv\Reader;
+use League\Csv\Statement;
+
+$reader = Reader::createFromPath('/path/to/file.csv');
+$records = Statement::create()->process($reader);
+// $records is a League\Csv\ResultSet instance
 ```
 
-The callable sort function signature is as follows:
+The `process` method returns a new `TabularDataReader` on which each constraint have been applied.
+If no constraint has been added the return object will contain the same data as its input.
+
+<p class="message-warning"><strong>Warning:</strong> since version <code>9.12.0</code> the optional
+<code>$header</code> argument used by the <code>process</code> method is deprecated.</p>
+
+### Where clauses
+
+To filter the records from your input you may use the `where` method. The method can be
+called multiple time and each time it will add another constraint filter. This option
+follows the *First In First Out* rule. The filter excepts a callable similar to the
+one used by `array_filter`. For example the following filter will remove all the
+records whose `3rd` field does not contain a valid `email`:
 
 ```php
-function(array $recordA, array $recordB): int
+use League\Csv\Reader;
+use League\Csv\Statement;
+
+$reader = Reader::createFromPath('/path/to/file.csv');
+$records = Statement::create()
+    ->where(fn (array $record): bool => false !== filter_var($record[2] ?? '', FILTER_VALIDATE_EMAIL))
+    ->process($reader);
+// $records is a League\Csv\ResultSet instance
 ```
 
-The sort function takes exactly two parameters, which will be filled by pairs of records.
+### Ordering
 
-## Interval constraint
-
-The interval methods enable returning a specific interval of CSV records. When called more than once, only the last filtering setting is taken into account. The interval is calculated **after applying Statement::orderBy options**.
-
-The interval API is made of the following methods:
+The `orderBy` method allows you to sort the results of the applied constraints. Just like
+with filtering the method can be called multiple and the *First In First Out* rule is
+also applied. The callable accepted is similar to the one used by the `usort` function.
+As an example let's order the records according to the lastname found on the records.
 
 ```php
-public Statement::offset(int $offset): self
-public Statement::limit(int $limit): self
+use League\Csv\Reader;
+use League\Csv\Statement;
+
+$reader = Reader::createFromPath('/path/to/file.csv');
+$records = Statement::create()
+    ->orderBy(fn (array $rA, $rB): int => strcmp($rB[1] ?? '', $rA[1] ?? '')))
+    ->process($reader);
+// $records is a League\Csv\ResultSet instance
 ```
 
-`Statement::offset` specifies an optional offset for the returned data. By default, if no offset is provided the offset equals `0`.
+<p class="message-warning"><strong>Warning:</strong> To sort the data <code>iterator_to_array</code> is used,
+which could lead to a performance penalty if you have a heavy CSV file to sort</p>
 
-`Statement::limit` specifies an optional maximum records count for the returned data. By default, if no limit is provided the limit equals `-1`, which translates to all records.
+### Limit and Offset
+
+You can use the `limit` and `offset` methods to limit the number of records returned. When called more than once,
+only the last filtering setting will be taken into account. The `offset` specifies an optional offset for
+the returned data. By default, if no offset is provided the offset equals `0`. On the other hand, the
+`limit` method specifies an optional maximum records count for the returned data. By default, if
+no limit is provided the limit equals `-1`, which translates to all records. We can for instance
+limit the number of records to at most `5` starting from the `10`th found record.
+
+```php
+use League\Csv\Reader;
+use League\Csv\Statement;
+
+$reader = Reader::createFromPath('/path/to/file.csv');
+$records = Statement::create()
+    ->limit(5)
+    ->offset(9)
+    ->process($reader);
+// $records is a League\Csv\ResultSet instance
+```
 
 <p class="message-notice">When called multiple times, each call overrides the last setting for these options.</p>
 
-## Processing a CSV document
+## FragmentFinder
 
-```php
-public Statement::process(Reader $reader, array $header = []): ResultSet
-```
+<p class="message-info">This mechanism is introduced with version <code>9.12.0</code>.</p>
 
-This method processes a [Reader](/9.0/reader/) object and returns the found records as a [ResultSet](/9.0/reader/resultset) object.
+The second mechanism is based on [RFC7111](https://www.rfc-editor.org/rfc/rfc7111) and allow selecting
+part of your document according to its rows, columns or cells coordinates. The RFC, and thus, our class
+assume that your data is column size consistant and, in absence of a specified header, it will use the
+first record as reference to determine the input number of columns.
 
-```php
-use League\Csv\Reader;
-use League\Csv\Statement;
+The RFC defines three (3) types of selections and the `FragmentFinder` class supports them all.
 
-function filterByEmail(array $record): bool
-{
-    return (bool) filter_var($record[2], FILTER_VALIDATE_EMAIL);
-}
+You can select part of your data according to:
 
-function sortByLastName(array $recordA, array $recordB): int
-{
-    return strcmp($recordB[1], $recordA[1]);
-}
+- its row index using an expression that starts with the `row` keyword;
+- its column index using an expression that starts with the `col` keyword;
+- its cell coordinates using an expression that starts with the `cell` keyword;
 
-$reader = Reader::createFromPath('/path/to/file.csv', 'r');
-$stmt = (new Statement())
-    ->offset(3)
-    ->limit(2)
-    ->where('filterByEmail')
-    ->orderBy('sortByLastName')
-;
+Here are some selection example:
 
-$records = $stmt->process($reader);
-```
+- `col=5` : will select the column `4`;
+- `col=5-7` : will select the columns `4` to `6` included;
+- `row=5-*` : will select all the remaining rows of the document starting from the `4th` row.
+- `cell=5,2-8,9` : will select the cells located between row `4` and column `1` and row `7` and column `8`;
 
-Just like the `Reader:getRecords`, the `Statement::process` method takes an optional `$header` argument to allow mapping CSV field names to a user defined header record.
+Of note, the RFC allows for multiple disjonctive selections, separated by a `;`. To strictly
+cover The RFC the class exposes the `all` method which returns an iterator containing the
+results of all found fragments as distinct `TabulatDataReader` instances.
 
-<p class="message-warning">Using the <code>$header</code> argument is deprecated since version <code>9.12.0</code>,
-use instead the <code>TabularDataReader::getRecords</code> method instead on the returned value.
-A <code>E_USER_DEPRECATED</code> notice will be triggered if the argument is used.</p>
+<p class="message-warning">If some selections are invalid no error is returned; the invalid
+selection is skipped from the returned value.</p>
 
-```php
-use League\Csv\Reader;
-use League\Csv\Statement;
+To restrict the returned values you may use the `first` and `firstOrFail` methods. Both methods
+return on success a `TabularDataReader` instance. While the `first` method always return the
+first selection found or `null`; `firstOrFail` **MUST** return a `TabularDataReader` instance
+or throw. It will also throw if the expression syntax is invalid while all the other methods
+just ignore the error.
 
-$reader = Reader::createFromPath('/path/to/file.csv', 'r');
-$stmt = Statement::create()
-    ->offset(3)
-    ->limit(2)
-    ->where(fn(array $record) => (bool) filter_var($record[2], FILTER_VALIDATE_EMAIL))
-    ->orderBy(fn(array $recordA, array $recordB) => strcmp($recordB[1], $recordA[1]))
-;
-
-$records = $stmt->process($reader, ['firstname', 'lastname', 'email']);
-```
-
-<p class="message-notice">Starting with version <code>9.6.0</code>, the <code>Statement::process</code> method can also be used on the <code>ResultSet</code> class because it implements the <code>TabularDataReader</code> interface.</p>
+For example, with the following partially invalid expression:
 
 ```php
 use League\Csv\Reader;
-use League\Csv\Statement;
+use League\Csv\FragmentFinder;
 
-$reader = Reader::createFromPath('/path/to/file.csv', 'r');
-$stmt = Statement::create()
-    ->where(fn(array $record) => (bool) filter_var($record[2], FILTER_VALIDATE_EMAIL))
-    ->orderBy(fn(array $recordA, array $recordB) => strcmp($recordB[1], $recordA[1]))
-;
+$reader = Reader::createFromPath('/path/to/file.csv');
+$finder = new FragmentFinder();
 
-$resultSet = $stmt->process($reader, ['firstname', 'lastname', 'email']);
-
-$stmt2 = Statement::create(null, 3, 2);
-$records = $stmt2->process($resultSet);
-//the $records and $resultSet variables are distinct League\Csv\ResultSet instances.
+$finder->all('row=7-5;8-9', $reader);         // return an Iterator<TabulatDataReader>
+$finder->first('row=7-5;8-9', $reader);       // return an TabulatDataReader
+$finder->firstOrFail('row=7-5;8-9', $reader); // will throw
 ```
+
+- `FragmentFinder::all` returns an Iterator containing a single `TabularDataReader` because the first selection
+is invalid;
+- `FragmentFinder::first` returns the single valid `TabularDataReader`
+- `FragmentFinder::firstOrFail` throws a `SyntaxError`.
+
+Both classes, `FragmentFinder` and `Statement` returns an instance that implements the `TabularDataReader` interface
+which can be use to return the found data in a consistent way.
