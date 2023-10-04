@@ -15,10 +15,10 @@ version:
             Writer Connection: '/9.0/writer/'
             Bundled Helpers: '/9.0/writer/helpers/'
         Selecting Records:
-            Contract: '/9.0/reader/tabular-data-reader/'
-            Constraint Builders: '/9.0/reader/statement/'
-            Reader Connection: '/9.0/reader/'
+            Tabular Data: '/9.0/reader/tabular-data-reader/'
+            CSV Reader: '/9.0/reader/'
             Result Set: '/9.0/reader/resultset/'
+            Constraint Builders: '/9.0/reader/statement/'
         Interoperability:
             Overview : '/9.0/interoperability/'
             Document Encoding : '/9.0/interoperability/encoding/'
