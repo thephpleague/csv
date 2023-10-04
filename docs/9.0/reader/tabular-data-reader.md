@@ -49,7 +49,7 @@ While the `TabularDataReader` is not a fully fledged collection instance it stil
 that fall into the category of records collection manipulations. Because chaining is at the core of most of
 its methods you can be sure that each manipulation returns a new instance preserving your original data.
 
-## Countable, IteratorAggregate
+### Countable, IteratorAggregate
 
 Any `TabularDataReader` instance implements the `Countable` and the `IteratorAggregate` interface.
 It means that at any given time you can access the number of elements that are included in the instance
@@ -110,7 +110,7 @@ var_dump([...$records][0]);
 <p class="message-notice">full mapper usage was completed in version <code>9.12</code> for <code>Reader</code> and <code>ResultSet</code></code>.</p>
 <p class="message-notice">Added in version <code>9.6.0</code> for <code>ResultSet</code>.</p>
 
-## first and nth
+### first and nth
 
 You may access any record using its offset starting at `0` in the collection using the `nth` method.
 if no record is found, an empty `array` is returned.
