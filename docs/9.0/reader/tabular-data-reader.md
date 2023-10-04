@@ -3,15 +3,22 @@ layout: default
 title: Tabular Data Reader
 ---
 
-# TabularDataReader
+# Tabular Data Reader Common API
 
-Introduced in version `9.6` the `League\Csv\TabularDataReader` interfaces provides a common
+Introduced in version `9.6` the `League\Csv\TabularDataReader` interface provides a common
 API to works with tabular data like structure. Once implemented, it can be used to work
-with HTML Table, simple RDBMS tables, CSV document and so forth. The only requirement are
-to have:
+with HTML tables, simple RDBMS tables, CSV document and so forth. A tabular data
+is made of:
 
-- a collection or records (preferably consistent in their size);
+- a collection of similar records (preferably consistent in their size);
 - an optional header with unique values;
+
+A `record` **MUST*** be a simple PHP `array` (the `array` **MUST NOT** be nested) which can be
+
+- a list;
+- or an associative array;
+
+A `header` is a `record` which **MUST** contain unique `string` values.
 
 A good example of what you can achieve can be seen with the following snippet
 
@@ -40,7 +47,7 @@ leaving your source data unchanged.
 
 While the `TabularDataReader` is not a fully fledged collection instance it still exposes a lots of methods
 that fall into the category of records collection manipulations. Because chaining is at the core of most of
-its method you can be sure that each manipulation returns a new instance preserving your original data.
+its methods you can be sure that each manipulation returns a new instance preserving your original data.
 
 ## Countable, IteratorAggregate
 
@@ -58,7 +65,7 @@ foreach ($reader as $offset => $record) {
 }
 ```
 
-## Selection methods
+## Selecting records
 
 ### getHeader
 
@@ -135,6 +142,26 @@ $result->nth(0);
 As an alias to `nth`, the `first` method returns the first record from the instance without the need of an argument.
 
 <p class="message-notice">Added in version <code>9.9.0</code> for <code>Reader</code> and <code>ResultSet</code>.</p>
+
+### exists
+
+Tests for the existence of a record that satisfies a given predicate.
+
+```php
+use League\Csv\Reader;
+use League\Csv\Statement;
+
+$reader = Reader::createFromPath('/path/to/my/file.csv', 'r');
+$resultSet = Statement::create()->process($reader);
+
+$exists = $resultSet->exists(fn (array $records) => in_array('twenty-five', $records, true));
+
+//$exists returns true if at least one cell contains the word `twenty-five` otherwise returns false,
+```
+
+<p class="message-notice">Added in version <code>9.11.0</code> for <code>Reader</code> and <code>ResultSet</code>.</p>
+
+## Selecting columns
 
 ### fetchColumnByName
 
@@ -220,24 +247,6 @@ foreach ($records->fetchPairs() as $firstname => $lastname) {
 - If no cell is found corresponding to `$valueIndex` the `null` value is used;
 
 <p class="message-warning">If the <code>TabularDataReader</code> contains column names and the submitted arguments are not found, an <code>Exception</code> exception is thrown.</p>
-
-### exists
-
-Tests for the existence of an element that satisfies a given predicate.
-
-```php
-use League\Csv\Reader;
-use League\Csv\Statement;
-
-$reader = Reader::createFromPath('/path/to/my/file.csv', 'r');
-$resultSet = Statement::create()->process($reader);
-
-$exists = $resultSet->exists(fn (array $records) => in_array('twenty-five', $records, true));
-
-//$exists returns true if at least one cell contains the word `twenty-five` otherwise returns false,
-```
-
-<p class="message-notice">Added in version <code>9.11.0</code> for <code>Reader</code> and <code>ResultSet</code>.</p>
 
 ## Functional methods
 
