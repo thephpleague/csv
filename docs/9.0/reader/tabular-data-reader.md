@@ -162,7 +162,7 @@ header offset.
 $reader = Reader::createFromPath('/path/to/my/file.csv');
 $reader->setHeaderOffset(0);
 $records = Statement::create()->process($reader);
-foreach ($records->fetchColumnByName(3) as $value) {
+foreach ($records->fetchColumnByOffset(3) as $value) {
     //$value is a string representing the value
     //of a given record for the selected column
     //$value may be equal to 'john.doe@example.com'
