@@ -14,6 +14,7 @@ declare(strict_types=1);
 namespace League\Csv;
 
 use Generator;
+use RuntimeException;
 use SplFileObject;
 use Stringable;
 
@@ -217,7 +218,9 @@ abstract class AbstractCsv implements ByteSequence
 
         $this->document->rewind();
         $this->document->setFlags(0);
-        $this->document->fseek(strlen($this->getInputBOM()));
+        if (-1 === $this->document->fseek(strlen($this->getInputBOM()))) {
+            throw new RuntimeException('Unable to seek the document.');
+        }
 
         yield from str_split($this->output_bom.$this->document->fread($length), $length);
 
@@ -256,7 +259,9 @@ abstract class AbstractCsv implements ByteSequence
 
         $this->document->rewind();
         if (!$this->is_input_bom_included) {
-            $this->document->fseek(strlen($this->getInputBOM()));
+            if (-1 === $this->document->fseek(strlen($this->getInputBOM()))) {
+                throw new RuntimeException('Unable to seek the document.');
+            }
         }
 
         echo $this->output_bom;

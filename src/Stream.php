@@ -13,6 +13,7 @@ declare(strict_types=1);
 
 namespace League\Csv;
 
+use RuntimeException;
 use SeekableIterator;
 use SplFileObject;
 use Stringable;
@@ -280,6 +281,7 @@ final class Stream implements SeekableIterator
      * @see https://www.php.net/manual/en/splfileobject.rewind.php
      *
      * @throws Exception if the stream resource is not seekable
+     * @throws RuntimeException if rewinding the stream fails.
      */
     public function rewind(): void
     {
@@ -287,7 +289,10 @@ final class Stream implements SeekableIterator
             throw UnavailableFeature::dueToMissingStreamSeekability();
         }
 
-        rewind($this->stream);
+        if (false === rewind($this->stream)) {
+            throw new RuntimeException('Unable to rewind the document.');
+        }
+
         $this->offset = 0;
         $this->value = false;
         if (0 !== ($this->flags & SplFileObject::READ_AHEAD)) {
