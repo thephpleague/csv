@@ -131,18 +131,19 @@ Here are some selection example:
 - `row=5-*` : will select all the remaining rows of the document starting from the `4th` row.
 - `cell=5,2-8,9` : will select the cells located between row `4` and column `1` and row `7` and column `8`;
 
-Of note, the RFC allows for multiple disjonctive selections, separated by a `;`. To strictly
-cover The RFC the class exposes the `all` method which returns an iterator containing the
-results of all found fragments as distinct `TabulatDataReader` instances.
+Of note, the RFC allows for multiple selections, separated by a `;`. which are translated
+as `OR` expressions. To strictly cover The RFC the class exposes the `findAll` method
+which returns an iterator containing the results of all found fragments as distinct `TabulatDataReader`
+instances.
 
 <p class="message-warning">If some selections are invalid no error is returned; the invalid
 selection is skipped from the returned value.</p>
 
-To restrict the returned values you may use the `first` and `firstOrFail` methods. Both methods
-return on success a `TabularDataReader` instance. While the `first` method always return the
-first selection found or `null`; `firstOrFail` **MUST** return a `TabularDataReader` instance
-or throw. It will also throw if the expression syntax is invalid while all the other methods
-just ignore the error.
+To restrict the returned values you may use the `findFirst` and `findFirstOrFail` methods.
+Both methods return on success a `TabularDataReader` instance. While the `first` method
+always return the first selection found or `null`; `firstOrFail` **MUST** return a
+`TabularDataReader` instance or throw. It will also throw if the expression syntax is
+invalid while all the other methods just ignore the error.
 
 For example, with the following partially invalid expression:
 
@@ -151,17 +152,17 @@ use League\Csv\Reader;
 use League\Csv\FragmentFinder;
 
 $reader = Reader::createFromPath('/path/to/file.csv');
-$finder = new FragmentFinder();
+$finder = FragmentFinder::create();
 
-$finder->all('row=7-5;8-9', $reader);         // return an Iterator<TabulatDataReader>
-$finder->first('row=7-5;8-9', $reader);       // return an TabulatDataReader
-$finder->firstOrFail('row=7-5;8-9', $reader); // will throw
+$finder->findAll('row=7-5;8-9', $reader);         // return an Iterator<TabulatDataReader>
+$finder->findFirst('row=7-5;8-9', $reader);       // return an TabulatDataReader
+$finder->findFirstOrFail('row=7-5;8-9', $reader); // will throw
 ```
 
-- `FragmentFinder::all` returns an Iterator containing a single `TabularDataReader` because the first selection
+- `FragmentFinder::findAll` returns an Iterator containing a single `TabularDataReader` because the first selection
 is invalid;
-- `FragmentFinder::first` returns the single valid `TabularDataReader`
-- `FragmentFinder::firstOrFail` throws a `SyntaxError`.
+- `FragmentFinder::findFirst` returns the single valid `TabularDataReader`
+- `FragmentFinder::findFirstOrFail` throws a `SyntaxError`.
 
 Both classes, `FragmentFinder` and `Statement` returns an instance that implements the `TabularDataReader` interface
-which can be use to return the found data in a consistent way.
+which returns the found data in a consistent way.

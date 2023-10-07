@@ -42,7 +42,7 @@ abstract class FragmentFinderTestCase extends TestCase
     public function it_can_select_a_specific_fragment_or_fail(string $expression, ?array $expected): void
     {
         if (null === $expected) {
-            $this->expectException(SyntaxError::class);
+            $this->expectException(FragmentNotFound::class);
 
             $this->getFragmentIdentifierTabularData()->firstOrFailMatching($expression);
 
@@ -180,7 +180,7 @@ abstract class FragmentFinderTestCase extends TestCase
     #[DataProvider('provideInvalidExpressions')]
     public function it_will_fail_to_parse_the_expression(string $expression): void
     {
-        $this->expectException(SyntaxError::class);
+        $this->expectException(FragmentNotFound::class);
 
         $this->getFragmentIdentifierTabularData()->firstOrFailMatching($expression);
     }
@@ -209,18 +209,26 @@ abstract class FragmentFinderTestCase extends TestCase
     #[Test]
     public function it_returns_multiple_selections(): void
     {
-        self::assertCount(2, iterator_to_array($this->getFragmentIdentifierTabularData()->matching('row=1-2;5-4;2-4')));
+        self::assertCount(1, iterator_to_array($this->getFragmentIdentifierTabularData()->matching('row=1-2;5-4;2-4')));
     }
 
     #[Test]
     public function it_returns_no_selection(): void
     {
-        self::assertCount(0, iterator_to_array($this->getFragmentIdentifierTabularData()->matching('row=5-4')));
+        self::assertCount(1, iterator_to_array($this->getFragmentIdentifierTabularData()->matching('row=5-4')));
     }
 
     #[Test]
     public function it_fails_if_no_selection_is_found(): void
     {
         self::assertCount(1, iterator_to_array($this->getFragmentIdentifierTabularData()->firstOrFailMatching('row=7-8')));
+    }
+
+    #[Test]
+    public function it_fails_if_no_row_is_found(): void
+    {
+        $this->expectException(FragmentNotFound::class);
+
+        $this->getFragmentIdentifierTabularData()->firstOrFailMatching('row=42');
     }
 }

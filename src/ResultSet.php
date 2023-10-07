@@ -13,6 +13,7 @@ declare(strict_types=1);
 
 namespace League\Csv;
 
+use ArrayIterator;
 use CallbackFilterIterator;
 use Closure;
 use Generator;
@@ -34,19 +35,26 @@ class ResultSet implements TabularDataReader, JsonSerializable
     /** @var array<string> */
     protected array $header;
 
+    /* @var Iterator<array-key, array<array-key, string|null>> */
+    protected Iterator $records;
+
     /**
-     * @param Iterator<array-key, array<array-key, string|null>> $records
+     * @param Iterator|array<array-key, array<array-key, string|null>> $records
      * @param array<string> $header
      *
      * @throws SyntaxError
      */
-    public function __construct(protected Iterator $records, array $header = [])
+    public function __construct(Iterator|array $records, array $header = [])
     {
         if ($header !== array_filter($header, is_string(...))) {
             throw SyntaxError::dueToInvalidHeaderColumnNames();
         }
 
         $this->header = array_values($this->validateHeader($header));
+        $this->records = match (true) {
+            $records instanceof Iterator => $records,
+            default => new ArrayIterator($records),
+        };
     }
 
     /**
@@ -74,6 +82,16 @@ class ResultSet implements TabularDataReader, JsonSerializable
     public static function createFromTabularDataReader(TabularDataReader $reader): self
     {
         return new self($reader->getRecords(), $reader->getHeader());
+    }
+
+    /**
+     * Returns a new instance from a collection without header..
+     *
+     * @throws SyntaxError
+     */
+    public static function createFromRecords(Iterator|array $records = []): self
+    {
+        return new self($records);
     }
 
     /**
@@ -186,12 +204,12 @@ class ResultSet implements TabularDataReader, JsonSerializable
 
     public function matching(string $expression): iterable
     {
-        return (new FragmentFinder())->all($expression, $this);
+        return FragmentFinder::create()->findAll($expression, $this);
     }
 
     public function firstMatching(string $expression): ?TabularDataReader
     {
-        return (new FragmentFinder())->first($expression, $this);
+        return FragmentFinder::create()->findFirst($expression, $this);
     }
 
     /**
@@ -200,7 +218,7 @@ class ResultSet implements TabularDataReader, JsonSerializable
      */
     public function firstOrFailMatching(string $expression): TabularDataReader
     {
-        return (new FragmentFinder())->firstOrFail($expression, $this);
+        return FragmentFinder::create()->findFirstOrFail($expression, $this);
     }
 
     /**
@@ -216,7 +234,7 @@ class ResultSet implements TabularDataReader, JsonSerializable
             throw SyntaxError::dueToInvalidHeaderColumnNames();
         }
 
-        yield from $this->combineHeader($header);
+        return $this->combineHeader($header);
     }
 
     /**

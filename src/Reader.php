@@ -345,12 +345,12 @@ class Reader extends AbstractCsv implements TabularDataReader, JsonSerializable
 
     public function matching(string $expression): Iterator
     {
-        return (new FragmentFinder())->all($expression, $this);
+        return FragmentFinder::create()->findAll($expression, $this);
     }
 
     public function firstMatching(string $expression): ?TabularDataReader
     {
-        return (new FragmentFinder())->first($expression, $this);
+        return FragmentFinder::create()->findFirst($expression, $this);
     }
 
     /**
@@ -359,7 +359,7 @@ class Reader extends AbstractCsv implements TabularDataReader, JsonSerializable
      */
     public function firstOrFailMatching(string $expression): TabularDataReader
     {
-        return (new FragmentFinder())->firstOrFail($expression, $this);
+        return FragmentFinder::create()->findFirstOrFail($expression, $this);
     }
 
     public function select(string|int ...$columns): TabularDataReader

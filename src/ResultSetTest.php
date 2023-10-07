@@ -13,7 +13,6 @@ declare(strict_types=1);
 
 namespace League\Csv;
 
-use Generator;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
@@ -54,7 +53,6 @@ final class ResultSetTest extends TestCase
     {
         $records = $this->stmt->limit(1)->process($this->csv);
         self::assertCount(1, $records);
-        self::assertInstanceOf(Generator::class, $records->getIterator());
     }
 
     public function testFilter(): void
