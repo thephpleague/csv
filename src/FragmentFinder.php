@@ -13,8 +13,6 @@ declare(strict_types=1);
 
 namespace League\Csv;
 
-use Iterator;
-
 use function array_filter;
 use function array_map;
 use function array_reduce;
@@ -46,11 +44,11 @@ class FragmentFinder
     /**
      * @throws SyntaxError
      *
-     * @return Iterator<TabularDataReader>
+     * @return iterable<int, TabularDataReader>
      */
-    public function findAll(string $expression, TabularDataReader $tabularDataReader): Iterator
+    public function findAll(string $expression, TabularDataReader $tabularDataReader): iterable
     {
-        yield from $this->find($this->parseExpression($expression, $tabularDataReader), $tabularDataReader);
+        return $this->find($this->parseExpression($expression, $tabularDataReader), $tabularDataReader);
     }
 
     /**
@@ -74,13 +72,13 @@ class FragmentFinder
     {
         $parsedExpression = $this->parseExpression($expression, $tabularDataReader);
         if ([] !== array_filter($parsedExpression['selections'], fn (array $selection) => -1 === $selection['start'])) {
-            throw new FragmentNotFound('The expression '.$expression.' contains an invalid or an unsupported selection for the current tabular data.');
+            throw new FragmentNotFound('The expression `'.$expression.'` contains an invalid or an unsupported selection for the tabular data.');
         }
 
-        $fragment = $this->find($this->parseExpression($expression, $tabularDataReader), $tabularDataReader)[0];
+        $fragment = $this->find($parsedExpression, $tabularDataReader)[0];
 
         return match ([]) {
-            $fragment->first() => throw new FragmentNotFound('The expression '.$expression.' contains an invalid or an unsupported selection for the current tabular data.'),
+            $fragment->first() => throw new FragmentNotFound('No fragment found in the tabular data with the expression `'.$expression.'`.'),
             default => $fragment,
         };
     }

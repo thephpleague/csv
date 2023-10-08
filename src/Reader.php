@@ -343,7 +343,7 @@ class Reader extends AbstractCsv implements TabularDataReader, JsonSerializable
         return Statement::create()->orderBy($orderBy)->process($this);
     }
 
-    public function matching(string $expression): Iterator
+    public function matching(string $expression): iterable
     {
         return FragmentFinder::create()->findAll($expression, $this);
     }

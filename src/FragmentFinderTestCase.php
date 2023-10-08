@@ -207,15 +207,15 @@ abstract class FragmentFinderTestCase extends TestCase
     }
 
     #[Test]
-    public function it_returns_multiple_selections(): void
+    public function it_returns_multiple_selections_in_one_tabular_data_instance(): void
     {
-        self::assertCount(1, iterator_to_array($this->getFragmentIdentifierTabularData()->matching('row=1-2;5-4;2-4')));
+        self::assertCount(1, $this->getFragmentIdentifierTabularData()->matching('row=1-2;5-4;2-4'));
     }
 
     #[Test]
     public function it_returns_no_selection(): void
     {
-        self::assertCount(1, iterator_to_array($this->getFragmentIdentifierTabularData()->matching('row=5-4')));
+        self::assertCount(1, $this->getFragmentIdentifierTabularData()->matching('row=5-4'));
     }
 
     #[Test]

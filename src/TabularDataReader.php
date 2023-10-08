@@ -34,7 +34,7 @@ use IteratorAggregate;
  * @method TabularDataReader select(string|int ...$columnOffsetOrName) extract a selection of the tabular data records columns.
  * @method TabularDataReader firstOrFailMatching(string $expression) extract the first found fragment identifier of the tabular data or fail
  * @method TabularDataReader|null firstMatching(string $expression) extract the first found fragment identifier of the tabular data or return null if none is found
- * @method Iterator<TabularDataReader> matching(string $expression) extract all found fragment identifiers for the tabular data
+ * @method iterable<int, TabularDataReader> matching(string $expression) extract all found fragment identifiers for the tabular data
  */
 interface TabularDataReader extends Countable, IteratorAggregate
 {
