@@ -27,7 +27,7 @@ abstract class FragmentFinderTestCase extends TestCase
     #[DataProvider('provideValidExpressions')]
     public function it_can_select_a_specific_fragment(string $expression, ?array $expected): void
     {
-        $result = $this->getFragmentIdentifierTabularData()->firstMatching($expression);
+        $result = $this->getFragmentIdentifierTabularData()->matchingFirst($expression);
         if (null === $expected) {
             self::assertNull($result);
 
@@ -44,12 +44,12 @@ abstract class FragmentFinderTestCase extends TestCase
         if (null === $expected) {
             $this->expectException(FragmentNotFound::class);
 
-            $this->getFragmentIdentifierTabularData()->firstOrFailMatching($expression);
+            $this->getFragmentIdentifierTabularData()->matchingFirstOrFail($expression);
 
             return;
         }
 
-        self::assertSame($expected, [...$this->getFragmentIdentifierTabularData()->firstOrFailMatching($expression)]);
+        self::assertSame($expected, [...$this->getFragmentIdentifierTabularData()->matchingFirstOrFail($expression)]);
     }
 
     public static function provideValidExpressions(): iterable
@@ -173,7 +173,7 @@ abstract class FragmentFinderTestCase extends TestCase
     #[DataProvider('provideInvalidExpressions')]
     public function it_will_return_null_on_invalid_expression(string $expression): void
     {
-        self::assertNull($this->getFragmentIdentifierTabularData()->firstMatching($expression));
+        self::assertNull($this->getFragmentIdentifierTabularData()->matchingFirst($expression));
     }
 
     #[Test]
@@ -182,7 +182,7 @@ abstract class FragmentFinderTestCase extends TestCase
     {
         $this->expectException(FragmentNotFound::class);
 
-        $this->getFragmentIdentifierTabularData()->firstOrFailMatching($expression);
+        $this->getFragmentIdentifierTabularData()->matchingFirstOrFail($expression);
     }
 
     public static function provideInvalidExpressions(): iterable
@@ -221,7 +221,7 @@ abstract class FragmentFinderTestCase extends TestCase
     #[Test]
     public function it_fails_if_no_selection_is_found(): void
     {
-        self::assertCount(1, iterator_to_array($this->getFragmentIdentifierTabularData()->firstOrFailMatching('row=7-8')));
+        self::assertCount(1, iterator_to_array($this->getFragmentIdentifierTabularData()->matchingFirstOrFail('row=7-8')));
     }
 
     #[Test]
@@ -229,6 +229,6 @@ abstract class FragmentFinderTestCase extends TestCase
     {
         $this->expectException(FragmentNotFound::class);
 
-        $this->getFragmentIdentifierTabularData()->firstOrFailMatching('row=42');
+        $this->getFragmentIdentifierTabularData()->matchingFirstOrFail('row=42');
     }
 }

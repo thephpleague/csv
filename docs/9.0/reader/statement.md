@@ -133,7 +133,7 @@ Here are some selection example:
 
 Of note, the RFC allows for multiple selections, separated by a `;`. which are translated
 as `OR` expressions. To strictly cover The RFC the class exposes the `findAll` method
-which returns an iterator containing the results of all found fragments as distinct `TabulatDataReader`
+which returns an iterable containing the results of all found fragments as distinct `TabulatDataReader`
 instances.
 
 <p class="message-warning">If some selections are invalid no error is returned; the invalid

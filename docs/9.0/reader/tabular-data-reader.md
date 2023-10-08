@@ -377,22 +377,22 @@ $reader = Reader::createFromPath('/path/to/my/file.csv')
 
 <p class="message-notice">Added in version <code>9.12.0</code> for <code>Reader</code> and <code>ResultSet</code>.</p>
 
-### matching, firstMatching, firstOrFailMatching
+### matching, matchingFirst, matchingFirstOrFail
 
 The `matching` method allows selecting records, columns or cells from the tabular data reader that match the
 [RFC7111](https://www.rfc-editor.org/rfc/rfc7111) expression and returns a new collection containing these
 elements without preserving the keys. The method wraps the functionality of `FragmentFinder::findAll`.
-Conversely, `firstMatching` wraps the functionality of `FragmentFinder::findFirst` and last but not least,
-`FragmentFinder::findFirstOrFail` behaviour is wrap inside the `firstOrFailMatching` method.
+Conversely, `matchingFirst` wraps the functionality of `FragmentFinder::findFirst` and last but not least,
+`FragmentFinder::findFirstOrFail` behaviour is wrap inside the `matchingFirstOrFail` method.
 
 ```php
 use League\Csv\Reader;
 
 $reader = Reader::createFromString($csv);
 
-$reader->matching('row=3-1;4-6'); //returns an Iterator contains all the TabularDataReader instance that are valid.
-$reader->firstMatching('row=3-1;4-6'); // will return 1 selected fragment as a TabularRaeaderData instance
-$reader->firstOrFailMatching('row=3-1;4-6'); // will throw
+$reader->matching('row=3-1;4-6'); //returns an iterable containing all the TabularDataReader instance that are valid.
+$reader->matchingFirst('row=3-1;4-6'); // will return 1 selected fragment as a TabularRaeaderData instance
+$reader->matchingFirstOrFail('row=3-1;4-6'); // will throw
 ```
 
 <p class="message-info"> Wraps the functionality of <code>FragmentFinder</code> class.</p>

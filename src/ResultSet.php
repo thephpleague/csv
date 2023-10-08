@@ -207,7 +207,7 @@ class ResultSet implements TabularDataReader, JsonSerializable
         return FragmentFinder::create()->findAll($expression, $this);
     }
 
-    public function firstMatching(string $expression): ?TabularDataReader
+    public function matchingFirst(string $expression): ?TabularDataReader
     {
         return FragmentFinder::create()->findFirst($expression, $this);
     }
@@ -216,7 +216,7 @@ class ResultSet implements TabularDataReader, JsonSerializable
      * @throws SyntaxError
      * @throws FragmentNotFound
      */
-    public function firstOrFailMatching(string $expression): TabularDataReader
+    public function matchingFirstOrFail(string $expression): TabularDataReader
     {
         return FragmentFinder::create()->findFirstOrFail($expression, $this);
     }
