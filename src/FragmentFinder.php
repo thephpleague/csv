@@ -16,6 +16,7 @@ namespace League\Csv;
 use Iterator;
 
 use function array_filter;
+use function array_map;
 use function array_reduce;
 use function count;
 use function explode;
@@ -28,14 +29,13 @@ use const FILTER_VALIDATE_INT;
 /**
  * @phpstan-type selection array{selection:string, start:int<-1, max>, end:?int, length:int, columns:array<int>}
  */
-final class FragmentFinder
+class FragmentFinder
 {
     private const REGEXP_URI_FRAGMENT = ',^(?<type>row|cell|col)=(?<selections>.*)$,i';
     private const REGEXP_ROWS_COLUMNS_SELECTION = '/^(?<start>\d+)(-(?<end>\d+|\*))?$/';
     private const REGEXP_CELLS_SELECTION = '/^(?<csr>\d+),(?<csc>\d+)(-(?<end>((?<cer>\d+),(?<cec>\d+))|\*))?$/';
     private const TYPE_ROW = 'row';
     private const TYPE_COLUMN = 'col';
-    private const TYPE_CELL = 'cell';
     private const TYPE_UNKNOWN = 'unknown';
 
     public static function create(): self
@@ -50,9 +50,7 @@ final class FragmentFinder
      */
     public function findAll(string $expression, TabularDataReader $tabularDataReader): Iterator
     {
-        $parsedExpression = $this->parseExpression($expression, $tabularDataReader);
-
-        return $this->searchAll($parsedExpression, $tabularDataReader);
+        yield from $this->find($this->parseExpression($expression, $tabularDataReader), $tabularDataReader);
     }
 
     /**
@@ -60,16 +58,12 @@ final class FragmentFinder
      */
     public function findFirst(string $expression, TabularDataReader $tabularDataReader): ?TabularDataReader
     {
-        $parsedExpression = $this->parseExpression($expression, $tabularDataReader);
+        $fragment = $this->find($this->parseExpression($expression, $tabularDataReader), $tabularDataReader)[0];
 
-        foreach ($this->searchAll($parsedExpression, $tabularDataReader) as $fragment) {
-            return match ([]) {
-                $fragment->first() => null,
-                default => $fragment,
-            };
-        }
-
-        return null;
+        return match ([]) {
+            $fragment->first() => null,
+            default => $fragment,
+        };
     }
 
     /**
@@ -79,19 +73,16 @@ final class FragmentFinder
     public function findFirstOrFail(string $expression, TabularDataReader $tabularDataReader): TabularDataReader
     {
         $parsedExpression = $this->parseExpression($expression, $tabularDataReader);
-        ['type' => $type, 'selections' => $selections] = $parsedExpression;
-        if ([] !== array_filter($selections, fn (array $selection) => -1 === $selection['start'])) {
+        if ([] !== array_filter($parsedExpression['selections'], fn (array $selection) => -1 === $selection['start'])) {
             throw new FragmentNotFound('The expression '.$expression.' contains an invalid or an unsupported selection for the current tabular data.');
         }
 
-        foreach ($this->searchAll($parsedExpression, $tabularDataReader) as $fragment) {
-            return match ([]) {
-                $fragment->first() => throw new FragmentNotFound('No record, column or cell could be found with the expression '.$expression.'.'),
-                default => $fragment,
-            };
-        }
+        $fragment = $this->find($this->parseExpression($expression, $tabularDataReader), $tabularDataReader)[0];
 
-        throw new FragmentNotFound('No record, column or cell could be found with the expression '.$expression.'.');
+        return match ([]) {
+            $fragment->first() => throw new FragmentNotFound('The expression '.$expression.' contains an invalid or an unsupported selection for the current tabular data.'),
+            default => $fragment,
+        };
     }
 
     /**
@@ -99,45 +90,43 @@ final class FragmentFinder
      *
      * @throws SyntaxError
      *
-     * @return Iterator<TabularDataReader>
+     * @return array<int, TabularDataReader>
      */
-    private function searchAll(array $parsedExpression, TabularDataReader $tabularDataReader): Iterator
+    private function find(array $parsedExpression, TabularDataReader $tabularDataReader): array
     {
         ['type' => $type, 'selections' => $selections] = $parsedExpression;
+
+        $selections = array_filter($selections, fn (array $selection) => -1 !== $selection['start']);
+        if ([] === $selections) {
+            return [ResultSet::createFromRecords()];
+        }
 
         if (self::TYPE_ROW === $type) {
             $rowFilter = fn (array $record, int $offset): bool => [] !== array_filter(
                 $selections,
                 fn (array $selection) =>
-                        -1 !== $selection['start'] &&
                         $offset >= $selection['start'] &&
                         (null === $selection['end'] || $offset <= $selection['end'])
             );
 
-            yield from [$tabularDataReader->filter($rowFilter)];
-
-        } elseif (self::TYPE_COLUMN === $type) {
-            $columns = array_reduce($selections, fn (array $columns, array $selection) => match (-1) {
-                $selection['start'] => $columns,
-                default => [...$columns, ...$selection['columns']],
-            }, []);
-
-            yield from match ([]) {
-                $columns => [ResultSet::createFromRecords()],
-                default => [$tabularDataReader->select(...$columns)],
-            };
-
-        } elseif (self::TYPE_CELL === $type) {
-            foreach ($selections as $selection) {
-                if (-1 < $selection['start']) {
-                    yield $tabularDataReader
-                        ->slice($selection['start'], $selection['length'])
-                        ->select(...$selection['columns']);
-                }
-            }
-        } elseif (self::TYPE_UNKNOWN === $type) {
-            return yield from [ResultSet::createFromRecords()];
+            return [$tabularDataReader->filter($rowFilter)];
         }
+
+        if (self::TYPE_COLUMN === $type) {
+            $columns = array_reduce($selections, fn (array $columns, array $selection) => [...$columns, ...$selection['columns']], []);
+
+            return [match ([]) {
+                $columns => ResultSet::createFromRecords(),
+                default => $tabularDataReader->select(...$columns),
+            }];
+        }
+
+        return array_map(
+            fn (array $selection) => $tabularDataReader
+                ->slice($selection['start'], $selection['length'])
+                ->select(...$selection['columns']),
+            $selections
+        );
     }
 
     /**
@@ -309,7 +298,8 @@ final class FragmentFinder
         }
 
         $cellStartRow = filter_var($found['csr'], FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]);
-        if (false === $cellStartRow) {
+        $cellStartCol = filter_var($found['csc'], FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]);
+        if (false === $cellStartRow || false === $cellStartCol) {
             return [
                 'selection' => $selection,
                 'start' => -1,
@@ -319,16 +309,6 @@ final class FragmentFinder
             ];
         }
 
-        $cellStartCol = filter_var($found['csc'], FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]);
-        if (false === $cellStartCol) {
-            return [
-                'selection' => $selection,
-                'start' => -1,
-                'end' => null,
-                'length' => 1,
-                'columns' => [],
-            ];
-        }
         --$cellStartRow;
         --$cellStartCol;
 
@@ -371,18 +351,9 @@ final class FragmentFinder
         }
 
         $cellEndRow = filter_var($found['cer'], FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]);
-        if (false === $cellEndRow) {
-            return [
-                'selection' => $selection,
-                'start' => -1,
-                'end' => null,
-                'length' => 1,
-                'columns' => [],
-            ];
-        }
-
         $cellEndCol = filter_var($found['cec'], FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]);
-        if (false === $cellEndCol) {
+
+        if (false === $cellEndRow || false === $cellEndCol) {
             return [
                 'selection' => $selection,
                 'start' => -1,
