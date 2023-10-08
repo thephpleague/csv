@@ -379,11 +379,11 @@ $reader = Reader::createFromPath('/path/to/my/file.csv')
 
 ### matching, firstMatching, firstOrFailMatching
 
-The `matching` method allows selecting all records or cells from the tabular data reader that match the
-RFC7111 expression and returns a new collection containing these elements without preserving the keys.
-The method wraps the functionality of `FragmentFinder::all`. Conversely, `firstMatchingz`
-wraps the functionality of `FragmentFinder::first` and last but not least,
-`FragmentFinder::firstOrFail` behaviour is wrap inside the `firstOrFailMatching` method.
+The `matching` method allows selecting records, columns or cells from the tabular data reader that match the
+[RFC7111](https://www.rfc-editor.org/rfc/rfc7111) expression and returns a new collection containing these
+elements without preserving the keys. The method wraps the functionality of `FragmentFinder::findAll`.
+Conversely, `firstMatching` wraps the functionality of `FragmentFinder::findFirst` and last but not least,
+`FragmentFinder::findFirstOrFail` behaviour is wrap inside the `firstOrFailMatching` method.
 
 ```php
 use League\Csv\Reader;
