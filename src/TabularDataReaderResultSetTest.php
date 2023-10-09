@@ -13,13 +13,11 @@ declare(strict_types=1);
 
 namespace League\Csv;
 
-use ArrayIterator;
-
-final class FragmentFinderResultSetTest extends FragmentFinderTestCase
+final class TabularDataReaderResultSetTest extends TabularDataReaderTestCase
 {
-    protected function getFragmentIdentifierTabularData(): TabularDataReader
+    protected function tabularData(): TabularDataReader
     {
-        return new ResultSet(new ArrayIterator([
+        return new ResultSet([
             ['date', 'temperature', 'place'],
             ['2011-01-01', '1', 'Galway'],
             ['2011-01-02', '-1', 'Galway'],
@@ -27,6 +25,18 @@ final class FragmentFinderResultSetTest extends FragmentFinderTestCase
             ['2011-01-01', '6', 'Berkeley'],
             ['2011-01-02', '8', 'Berkeley'],
             ['2011-01-03', '5', 'Berkeley'],
-        ]));
+        ]);
+    }
+
+    protected function tabularDataWithHeader(): TabularDataReader
+    {
+        return new ResultSet([
+            ['2011-01-01', '1', 'Galway'],
+            ['2011-01-02', '-1', 'Galway'],
+            ['2011-01-03', '0', 'Galway'],
+            ['2011-01-01', '6', 'Berkeley'],
+            ['2011-01-02', '8', 'Berkeley'],
+            ['2011-01-03', '5', 'Berkeley'],
+        ], ['date', 'temperature', 'place']);
     }
 }

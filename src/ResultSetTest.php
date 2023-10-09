@@ -49,12 +49,6 @@ final class ResultSetTest extends TestCase
         unset($this->csv, $this->stmt);
     }
 
-    public function testCountable(): void
-    {
-        $records = $this->stmt->limit(1)->process($this->csv);
-        self::assertCount(1, $records);
-    }
-
     public function testFilter(): void
     {
         $func2 = fn (array $row): bool => !in_array('john', $row, true);
@@ -62,11 +56,10 @@ final class ResultSetTest extends TestCase
         $stmt = Statement::create(fn (array $row): bool => !in_array('jane', $row, true));
 
         $result1 = $stmt->process($this->csv);
-        $result2 = $stmt->where($func2)->process($result1, ['foo', 'bar']);
-        $result3 = $stmt->where($func2)->process($result2, ['foo', 'bar']);
+        $result2 = $stmt->where($func2)->process($result1);
+        $result3 = $stmt->where($func2)->process($result2);
 
         self::assertNotContains(['jane', 'doe', 'jane.doe@example.com'], [...$result1]);
-
         self::assertCount(0, $result2);
         self::assertEquals($result3, $result2);
     }
@@ -333,21 +326,6 @@ final class ResultSetTest extends TestCase
         Statement::create()->process($resultSet, ['foo', 3]); /* @phpstan-ignore-line */
     }
 
-    public function testSliceThrowException(): void
-    {
-        $this->expectException(InvalidArgument::class);
-
-        Statement::create()->process($this->csv)->slice(0, -2);
-    }
-
-    public function testSlice(): void
-    {
-        self::assertContains(
-            ['jane', 'doe', 'jane.doe@example.com'],
-            [...Statement::create()->process($this->csv)->slice(1)]
-        );
-    }
-
     public function testOrderBy(): void
     {
         $calculated = Statement::create()->process($this->csv)->sorted(fn (array $rowA, array $rowB): int => strcmp($rowA[0], $rowB[0]));
@@ -360,53 +338,6 @@ final class ResultSetTest extends TestCase
         $calculated = Statement::create()->process($this->csv)->sorted(fn (array $rowA, array $rowB): int => strlen($rowA[0]) <=> strlen($rowB[0]));
 
         self::assertSame($this->expected, array_values([...$calculated]));
-    }
-
-    public function testReduce(): void
-    {
-        self::assertSame(
-            6,
-            Statement::create()
-                ->process($this->csv)
-                ->reduce(fn (?int $carry, array $record): int => ($carry ?? 0) + count($record))
-        );
-    }
-
-    public function testEach(): void
-    {
-        $toto = [];
-
-        Statement::create()->process($this->csv)->each(function (array $record, string|int $offset) use (&$toto) {
-            $toto[$offset] = $record;
-
-            return true;
-        });
-
-        self::assertCount(2, $toto);
-        self::assertSame($toto, [...$this->csv]);
-    }
-
-    public function testEachStopped(): void
-    {
-        $toto = [];
-
-        Statement::create()->process($this->csv)->each(function (array $record) use (&$toto) {
-            if (in_array('jane', $record, true)) {
-                $toto[] = $record;
-
-                return false;
-            }
-
-            return true;
-        });
-
-        self::assertCount(1, $toto);
-    }
-
-    public function testExistsRecord(): void
-    {
-        self::assertFalse(Statement::create()->process($this->csv)->exists(fn (array $record) => array_key_exists('foobar', $record)));
-        self::assertTrue(Statement::create()->process($this->csv)->exists(fn (array $record) => count($record) < 5));
     }
 
     public function testHeaderMapperOnResultSet(): void
@@ -455,99 +386,4 @@ CSV;
             ->process($reader)
             ->getRecords(['lastname' => 'nom de famille', 'firstname' => 'prenom', 'e-mail' => 'e-mail'])];
     }
-
-
-    public function testTabularReaderSelect(): void
-    {
-        $csv = <<<CSV
-date,temperature,place
-2011-01-01,1,Galway
-2011-01-02,-1,Galway
-2011-01-03,0,Galway
-2011-01-01,6,Berkeley
-2011-01-02,8,Berkeley
-2011-01-03,5,Berkeley
-CSV;
-        $reader = ResultSet::createFromTabularDataReader(Reader::createFromString($csv));
-        self::assertSame([1 => 'temperature', 2 => 'place'], $reader->select(1, 2)->first());
-
-        $reader = ResultSet::createFromTabularDataReader(Reader::createFromString($csv)->setHeaderOffset(0));
-
-        self::assertSame(['temperature' => '1', 'place' => 'Galway'], $reader->select(1, 2)->first());
-        self::assertSame(['temperature' => '1', 'place' => 'Galway'], $reader->select('temperature', 'place')->first());
-        self::assertSame(['temperature' => '1', 'place' => 'Galway'], $reader->select(1, 'place')->first());
-        self::assertSame(['temperature' => '1', 'place' => 'Galway'], $reader->select('temperature', 2)->first());
-    }
-
-    public function testTabularReaderSelectFailsWithInvalidColumn(): void
-    {
-        $csv = <<<CSV
-date,temperature,place
-2011-01-01,1,Galway
-2011-01-02,-1,Galway
-2011-01-03,0,Galway
-2011-01-01,6,Berkeley
-2011-01-02,8,Berkeley
-2011-01-03,5,Berkeley
-CSV;
-        $this->expectException(InvalidArgument::class);
-
-        ResultSet::createFromTabularDataReader(Reader::createFromString($csv))
-            ->select('temperature', 'place');
-    }
-
-    public function testTabularReaderSelectFailsWithInvalidColumnName(): void
-    {
-        $csv = <<<CSV
-date,temperature,place
-2011-01-01,1,Galway
-2011-01-02,-1,Galway
-2011-01-03,0,Galway
-2011-01-01,6,Berkeley
-2011-01-02,8,Berkeley
-2011-01-03,5,Berkeley
-CSV;
-        $this->expectException(InvalidArgument::class);
-
-        ResultSet::createFromTabularDataReader(
-            Reader::createFromString($csv)->setHeaderOffset(0)
-        )->select('temperature', 'foobar');
-    }
-
-    public function testTabularReaderSelectFailsWithInvalidColumnOffset(): void
-    {
-        $csv = <<<CSV
-date,temperature,place
-2011-01-01,1,Galway
-2011-01-02,-1,Galway
-2011-01-03,0,Galway
-2011-01-01,6,Berkeley
-2011-01-02,8,Berkeley
-2011-01-03,5,Berkeley
-CSV;
-        $this->expectException(InvalidArgument::class);
-
-        ResultSet::createFromTabularDataReader(
-            Reader::createFromString($csv)->setHeaderOffset(0)
-        )->select(0, 18);
-    }
-
-    public function testTabularReaderGetRecordsFailsWithInvalidColumnName(): void
-    {
-        $csv = <<<CSV
-date,temperature,place
-2011-01-01,1,Galway
-2011-01-02,-1,Galway
-2011-01-03,0,Galway
-2011-01-01,6,Berkeley
-2011-01-02,8,Berkeley
-2011-01-03,5,Berkeley
-CSV;
-        $this->expectException(SyntaxError::class);
-
-        [...ResultSet::createFromTabularDataReader(
-            Reader::createFromString($csv)->setHeaderOffset(0)
-        )->getRecords([72])]; /* @phpstan-ignore-line */
-    }
-
 }

@@ -19,15 +19,73 @@ use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
 #[Group('tabulardata')]
-abstract class FragmentFinderTestCase extends TestCase
+abstract class TabularDataReaderTestCase extends TestCase
 {
-    abstract protected function getFragmentIdentifierTabularData(): TabularDataReader;
+    abstract protected function tabularData(): TabularDataReader;
+    abstract protected function tabularDataWithHeader(): TabularDataReader;
+
+    /***************************
+     * TabularDataReader::exists
+     ****************************/
+
+    public function testExistsRecord(): void
+    {
+        self::assertFalse(Statement::create()->process($this->tabularData())->exists(fn (array $record) => array_key_exists('foobar', $record)));
+        self::assertTrue(Statement::create()->process($this->tabularData())->exists(fn (array $record) => count($record) < 5));
+    }
+
+    /***************************
+     * TabularDataReader::select
+     ****************************/
+
+    #[Test]
+    public function testTabularSelectWithoutHeader(): void
+    {
+        self::assertSame([1 => 'temperature', 2 => 'place'], $this->tabularData()->select(1, 2)->first());
+    }
+
+    #[Test]
+    public function testTabularSelectWithHeader(): void
+    {
+        self::assertSame(['temperature' => '1', 'place' => 'Galway'], $this->tabularDataWithHeader()->select(1, 2)->first());
+        self::assertSame(['temperature' => '1', 'place' => 'Galway'], $this->tabularDataWithHeader()->select('temperature', 'place')->first());
+        self::assertSame(['temperature' => '1', 'place' => 'Galway'], $this->tabularDataWithHeader()->select(1, 'place')->first());
+        self::assertSame(['temperature' => '1', 'place' => 'Galway'], $this->tabularDataWithHeader()->select('temperature', 2)->first());
+    }
+
+    public function testTabularReaderSelectFailsWithInvalidColumn(): void
+    {
+        $this->expectException(InvalidArgument::class);
+
+        $this->tabularData()
+            ->select('temperature', 'place');
+    }
+
+    public function testTabularReaderSelectFailsWithInvalidColumnName(): void
+    {
+        $this->expectException(InvalidArgument::class);
+
+        $this->tabularDataWithHeader()
+            ->select('temperature', 'foobar');
+    }
+
+    public function testTabularReaderSelectFailsWithInvalidColumnOffset(): void
+    {
+        $this->expectException(InvalidArgument::class);
+
+        $this->tabularDataWithHeader()
+            ->select(0, 18);
+    }
+
+    /***************************
+     * TabularDataReader::matching, matchingFirst, matchingFirstOrFail
+     **************************/
 
     #[Test]
     #[DataProvider('provideValidExpressions')]
     public function it_can_select_a_specific_fragment(string $expression, ?array $expected): void
     {
-        $result = $this->getFragmentIdentifierTabularData()->matchingFirst($expression);
+        $result = $this->tabularData()->matchingFirst($expression);
         if (null === $expected) {
             self::assertNull($result);
 
@@ -44,12 +102,12 @@ abstract class FragmentFinderTestCase extends TestCase
         if (null === $expected) {
             $this->expectException(FragmentNotFound::class);
 
-            $this->getFragmentIdentifierTabularData()->matchingFirstOrFail($expression);
+            $this->tabularData()->matchingFirstOrFail($expression);
 
             return;
         }
 
-        self::assertSame($expected, [...$this->getFragmentIdentifierTabularData()->matchingFirstOrFail($expression)]);
+        self::assertSame($expected, [...$this->tabularData()->matchingFirstOrFail($expression)]);
     }
 
     public static function provideValidExpressions(): iterable
@@ -173,7 +231,7 @@ abstract class FragmentFinderTestCase extends TestCase
     #[DataProvider('provideInvalidExpressions')]
     public function it_will_return_null_on_invalid_expression(string $expression): void
     {
-        self::assertNull($this->getFragmentIdentifierTabularData()->matchingFirst($expression));
+        self::assertNull($this->tabularData()->matchingFirst($expression));
     }
 
     #[Test]
@@ -182,7 +240,7 @@ abstract class FragmentFinderTestCase extends TestCase
     {
         $this->expectException(FragmentNotFound::class);
 
-        $this->getFragmentIdentifierTabularData()->matchingFirstOrFail($expression);
+        $this->tabularData()->matchingFirstOrFail($expression);
     }
 
     public static function provideInvalidExpressions(): iterable
@@ -209,19 +267,19 @@ abstract class FragmentFinderTestCase extends TestCase
     #[Test]
     public function it_returns_multiple_selections_in_one_tabular_data_instance(): void
     {
-        self::assertCount(1, $this->getFragmentIdentifierTabularData()->matching('row=1-2;5-4;2-4'));
+        self::assertCount(1, $this->tabularData()->matching('row=1-2;5-4;2-4'));
     }
 
     #[Test]
     public function it_returns_no_selection(): void
     {
-        self::assertCount(1, $this->getFragmentIdentifierTabularData()->matching('row=5-4'));
+        self::assertCount(1, $this->tabularData()->matching('row=5-4'));
     }
 
     #[Test]
     public function it_fails_if_no_selection_is_found(): void
     {
-        self::assertCount(1, iterator_to_array($this->getFragmentIdentifierTabularData()->matchingFirstOrFail('row=7-8')));
+        self::assertCount(1, iterator_to_array($this->tabularData()->matchingFirstOrFail('row=7-8')));
     }
 
     #[Test]
@@ -229,6 +287,76 @@ abstract class FragmentFinderTestCase extends TestCase
     {
         $this->expectException(FragmentNotFound::class);
 
-        $this->getFragmentIdentifierTabularData()->matchingFirstOrFail('row=42');
+        $this->tabularData()->matchingFirstOrFail('row=42');
+    }
+
+    /***************************
+     * TabularDataReader::reduce
+     ****************************/
+
+    public function testReduce(): void
+    {
+        self::assertSame(21, $this->tabularData()->reduce(fn (?int $carry, array $record): int => ($carry ?? 0) + count($record)));
+    }
+
+    /***************************
+     * TabularDataReader::each
+     ****************************/
+
+    public function testEach(): void
+    {
+        $recordsCopy = [];
+        $tabularData = $this->tabularData();
+        $tabularData->each(function (array $record, string|int $offset) use (&$recordsCopy) {
+            $recordsCopy[$offset] = $record;
+
+            return true;
+        });
+
+        self::assertSame($recordsCopy, [...$tabularData]);
+    }
+
+    public function testEachStopped(): void
+    {
+        $recordsCopy = [];
+        $tabularData = $this->tabularDataWithHeader();
+        $tabularData->each(function (array $record) use (&$recordsCopy) {
+            if (4 > count($recordsCopy)) {
+                $recordsCopy[] = $record;
+
+                return true;
+            }
+
+            return false;
+        });
+
+        self::assertCount(4, $recordsCopy);
+    }
+
+    /***************************
+     * TabularDataReader::slice
+     ****************************/
+
+
+    public function testSliceThrowException(): void
+    {
+        $this->expectException(InvalidArgument::class);
+
+        $this->tabularDataWithHeader()->slice(0, -2);
+    }
+
+    public function testSlice(): void
+    {
+        self::assertContains(
+            ['2011-01-01', '1', 'Galway'],
+            [...$this->tabularData()->slice(1)]
+        );
+    }
+
+    public function testCountable(): void
+    {
+        self::assertCount(1, $this->tabularData()->slice(1, 1));
+        self::assertCount(7, $this->tabularData());
+        self::assertCount(6, $this->tabularDataWithHeader());
     }
 }

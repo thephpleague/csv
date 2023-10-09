@@ -13,9 +13,9 @@ declare(strict_types=1);
 
 namespace League\Csv;
 
-final class FragmentFinderReaderTest extends FragmentFinderTestCase
+final class TabularDataReaderReaderTest extends TabularDataReaderTestCase
 {
-    protected function getFragmentIdentifierTabularData(): TabularDataReader
+    protected function tabularData(): TabularDataReader
     {
         $csv = <<<CSV
 date,temperature,place
@@ -28,5 +28,20 @@ date,temperature,place
 CSV;
 
         return Reader::createFromString($csv);
+    }
+
+    protected function tabularDataWithHeader(): TabularDataReader
+    {
+        $csv = <<<CSV
+date,temperature,place
+2011-01-01,1,Galway
+2011-01-02,-1,Galway
+2011-01-03,0,Galway
+2011-01-01,6,Berkeley
+2011-01-02,8,Berkeley
+2011-01-03,5,Berkeley
+CSV;
+
+        return Reader::createFromString($csv)->setHeaderOffset(0);
     }
 }
