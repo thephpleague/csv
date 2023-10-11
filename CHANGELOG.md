@@ -6,6 +6,7 @@ All Notable changes to `Csv` will be documented in this file
 
 ### Added
 
+- `TabulatDataReader::value`
 - `TabulatDataReader::select`
 - `TabulatDataReader::matching`
 - `TabulatDataReader::firstMatching` 

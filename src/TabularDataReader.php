@@ -25,6 +25,7 @@ use IteratorAggregate;
  * @method Iterator fetchColumnByOffset(int $offset) returns a column from its offset
  * @method array first() returns the first record from the tabular data.
  * @method array nth(int $nth_record) returns the nth record from the tabular data.
+ * @method mixed value(int|string $column = 0) returns a given value from the first element of the tabular data.
  * @method bool each(Closure $closure) iterates over each record and passes it to a closure. Iteration is interrupted if the closure returns false
  * @method bool exists(Closure $closure) tells whether at least one record satisfies the predicate.
  * @method mixed reduce(Closure $closure, mixed $initial = null) reduces the collection to a single value, passing the result of each iteration into the subsequent iteration

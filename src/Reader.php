@@ -213,6 +213,14 @@ class Reader extends AbstractCsv implements TabularDataReader, JsonSerializable
         return ResultSet::createFromTabularDataReader($this)->fetchColumnByOffset($offset);
     }
 
+    public function value(int|string $column = 0): mixed
+    {
+        return match (true) {
+            is_string($column) => $this->first()[$column] ?? null,
+            default => array_values($this->first())[$column] ?? null,
+        };
+    }
+
     /**
      * @throws Exception
      */
@@ -389,10 +397,10 @@ class Reader extends AbstractCsv implements TabularDataReader, JsonSerializable
             $header[$field] = $documentHeader[$field] ?? $field;
         }
 
-        return new ResultSet(
-            $this->combineHeader($this->prepareRecords(), $this->computeHeader($header)),
-            $documentHeader
-        );
+        /** @var array<int, string> $finalHeader */
+        $finalHeader =  $hasNoHeader ? [] : $header;
+
+        return new ResultSet($this->combineHeader($this->prepareRecords(), $this->computeHeader($header)), $finalHeader);
     }
 
     /**

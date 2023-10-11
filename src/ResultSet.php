@@ -199,7 +199,10 @@ class ResultSet implements TabularDataReader, JsonSerializable
             $header[$field] = $documentHeader[$field] ?? $field;
         }
 
-        return new self($this->combineHeader($header), $documentHeader);
+        /** @var array<int, string> $finalHeader */
+        $finalHeader = $hasNoHeader ? [] : $header;
+
+        return new self($this->combineHeader($header), $finalHeader);
     }
 
     public function matching(string $expression): iterable
@@ -252,7 +255,7 @@ class ResultSet implements TabularDataReader, JsonSerializable
         }
 
         return match (true) {
-            $header === $this->header, [] === $header => $this->records,
+            [] === $header => $this->records,
             default => new MapIterator($this->records, function (array $record) use ($header): array {
                 $assocRecord = [];
                 $row = array_values($record);
@@ -280,13 +283,21 @@ class ResultSet implements TabularDataReader, JsonSerializable
         return $this->nth(0);
     }
 
+    public function value(int|string $column = 0): mixed
+    {
+        return match (true) {
+            is_string($column) => $this->first()[$column] ?? null,
+            default => array_values($this->first())[$column] ?? null,
+        };
+    }
+
     public function nth(int $nth_record): array
     {
         if ($nth_record < 0) {
             throw InvalidArgument::dueToInvalidRecordOffset($nth_record, __METHOD__);
         }
 
-        $iterator = new LimitIterator($this->records, $nth_record, 1);
+        $iterator = new LimitIterator($this->getIterator(), $nth_record, 1);
         $iterator->rewind();
 
         /** @var array|null $result */

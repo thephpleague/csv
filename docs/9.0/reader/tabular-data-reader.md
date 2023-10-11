@@ -110,7 +110,7 @@ var_dump([...$records][0]);
 <p class="message-notice">full mapper usage was completed in version <code>9.12</code> for <code>Reader</code> and <code>ResultSet</code></code>.</p>
 <p class="message-notice">Added in version <code>9.6.0</code> for <code>ResultSet</code>.</p>
 
-### first and nth
+### value, first and nth
 
 You may access any record using its offset starting at `0` in the collection using the `nth` method.
 if no record is found, an empty `array` is returned.
@@ -142,6 +142,31 @@ $result->nth(0);
 As an alias to `nth`, the `first` method returns the first record from the instance without the need of an argument.
 
 <p class="message-notice">Added in version <code>9.9.0</code> for <code>Reader</code> and <code>ResultSet</code>.</p>
+
+If you are only interested in retrieving a specific value from a single row, you can use
+the `value` method. By default, it will return the first record item, but you are free
+to specify a specific column using the column name if the header is set and/or the
+column offset, If no column is found `null` is returned.
+
+```php
+use League\Csv\Reader;
+use League\Csv\Statement;
+
+$reader = Reader::createFromPath('/path/to/my/file.csv', 'r');
+$reader->setHeaderOffset(0);
+
+$stmt = Statement::create()
+    ->offset(10)
+    ->limit(12)
+;
+$result = $stmt->process($reader);
+$result->value(2);       //returns 'john.doe@example.com'
+$result->value('email'); //returns 'john.doe@example.com'
+$result->value('toto'); //returns null
+$result->value(42); //returns null
+```
+
+<p class="message-notice">Added in version <code>9.12.0</code> for <code>Reader</code> and <code>ResultSet</code>.</p>
 
 ### exists
 

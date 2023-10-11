@@ -15,7 +15,6 @@ namespace League\Csv;
 
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
-use PHPUnit\Framework\TestCase;
 use SplFileObject;
 use SplTempFileObject;
 
@@ -28,7 +27,7 @@ use function json_encode;
 use function unlink;
 
 #[Group('reader')]
-final class ReaderTest extends TestCase
+final class ReaderTest extends TabularDataReaderTestCase
 {
     private Reader $csv;
     private array $expected = [
@@ -49,6 +48,36 @@ final class ReaderTest extends TestCase
     protected function tearDown(): void
     {
         unset($this->csv);
+    }
+
+    protected function tabularData(): TabularDataReader
+    {
+        $csv = <<<CSV
+date,temperature,place
+2011-01-01,1,Galway
+2011-01-02,-1,Galway
+2011-01-03,0,Galway
+2011-01-01,6,Berkeley
+2011-01-02,8,Berkeley
+2011-01-03,5,Berkeley
+CSV;
+
+        return Reader::createFromString($csv);
+    }
+
+    protected function tabularDataWithHeader(): TabularDataReader
+    {
+        $csv = <<<CSV
+date,temperature,place
+2011-01-01,1,Galway
+2011-01-02,-1,Galway
+2011-01-03,0,Galway
+2011-01-01,6,Berkeley
+2011-01-02,8,Berkeley
+2011-01-03,5,Berkeley
+CSV;
+
+        return Reader::createFromString($csv)->setHeaderOffset(0);
     }
 
     public function testReaderWithEmptyEscapeChar1(): void

@@ -359,4 +359,14 @@ abstract class TabularDataReaderTestCase extends TestCase
         self::assertCount(7, $this->tabularData());
         self::assertCount(6, $this->tabularDataWithHeader());
     }
+
+    public function testValue(): void
+    {
+        self::assertNull($this->tabularData()->value(42));
+        self::assertNull($this->tabularData()->value('place'));
+        self::assertSame('place', $this->tabularData()->value(2));
+        self::assertSame('2011-01-01', $this->tabularDataWithHeader()->value());
+        self::assertSame('Galway', $this->tabularDataWithHeader()->value(2));
+        self::assertSame('Galway', $this->tabularDataWithHeader()->value('place'));
+    }
 }
