@@ -257,7 +257,7 @@ class Reader extends AbstractCsv implements TabularDataReader, JsonSerializable
     /**
      * @throws Exception
      *
-     * @return Iterator<array-key, array<string|null>>
+     * @return Iterator<array-key, array<mixed>>
      */
     public function getIterator(): Iterator
     {
@@ -273,7 +273,7 @@ class Reader extends AbstractCsv implements TabularDataReader, JsonSerializable
     }
 
     /**
-     * @param Closure(array<string|null>, array-key=): (void|bool|null) $closure
+     * @param Closure(array<mixed>, array-key=): (void|bool|null) $closure
      */
     public function each(Closure $closure): bool
     {
@@ -287,7 +287,7 @@ class Reader extends AbstractCsv implements TabularDataReader, JsonSerializable
     }
 
     /**
-     * @param Closure(array<string|null>, array-key=): bool $closure
+     * @param Closure(array<mixed>, array-key=): bool $closure
      */
     public function exists(Closure $closure): bool
     {
@@ -301,7 +301,7 @@ class Reader extends AbstractCsv implements TabularDataReader, JsonSerializable
     }
 
     /**
-     * @param Closure(TInitial|null, array<string|null>, array-key=): TInitial $closure
+     * @param Closure(TInitial|null, array<mixed>, array-key=): TInitial $closure
      * @param TInitial|null $initial
      *
      * @template TInitial
@@ -318,7 +318,7 @@ class Reader extends AbstractCsv implements TabularDataReader, JsonSerializable
     }
 
     /**
-     * @param Closure(array<string|int>, array-key): bool $closure
+     * @param Closure(array<mixed>, array-key): bool $closure
      *
      * @throws Exception
      * @throws SyntaxError
@@ -408,7 +408,7 @@ class Reader extends AbstractCsv implements TabularDataReader, JsonSerializable
      *
      * @throws Exception
      *
-     * @return Iterator<array<string|null>>
+     * @return Iterator<array<mixed>>
      */
     public function getRecords(array $header = []): Iterator
     {

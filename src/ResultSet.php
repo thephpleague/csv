@@ -35,11 +35,11 @@ class ResultSet implements TabularDataReader, JsonSerializable
     /** @var array<string> */
     protected array $header;
 
-    /* @var Iterator<array-key, array<array-key, string|null>> */
+    /* @var Iterator<array-key, array<array-key, mixed>> */
     protected Iterator $records;
 
     /**
-     * @param Iterator|array<array-key, array<array-key, string|null>> $records
+     * @param Iterator|array<array-key, array<array-key, mixed>> $records
      * @param array<string> $header
      *
      * @throws SyntaxError
@@ -113,7 +113,7 @@ class ResultSet implements TabularDataReader, JsonSerializable
     }
 
     /**
-     * @param Closure(array<string|null>, array-key=): mixed $closure
+     * @param Closure(array<mixed>, array-key=): mixed $closure
      */
     public function each(Closure $closure): bool
     {
@@ -127,7 +127,7 @@ class ResultSet implements TabularDataReader, JsonSerializable
     }
 
     /**
-     * @param Closure(array<string|null>, array-key=): bool $closure
+     * @param Closure(array<mixed>, array-key=): bool $closure
      */
     public function exists(Closure $closure): bool
     {
@@ -141,7 +141,7 @@ class ResultSet implements TabularDataReader, JsonSerializable
     }
 
     /**
-     * @param Closure(TInitial|null, array<string|null>, array-key=): TInitial $closure
+     * @param Closure(TInitial|null, array<mixed>, array-key=): TInitial $closure
      * @param TInitial|null $initial
      *
      * @template TInitial
@@ -229,7 +229,7 @@ class ResultSet implements TabularDataReader, JsonSerializable
      *
      * @throws SyntaxError
      *
-     * @return Iterator<array-key, array<array-key, string|null>>
+     * @return Iterator<array-key, array<array-key, mixed>>
      */
     public function getRecords(array $header = []): Iterator
     {
@@ -245,7 +245,7 @@ class ResultSet implements TabularDataReader, JsonSerializable
      *
      * @param array<array-key, string|int> $header
      *
-     * @return Iterator<array-key, array<array-key, string|null>>
+     * @return Iterator<array-key, array<array-key, mixed>>
      */
     protected function combineHeader(array $header): Iterator
     {
