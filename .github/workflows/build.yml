@@ -45,6 +45,11 @@ jobs:
 
             - name: Run Unit tests with coverage
               run: composer phpunit -- ${{ matrix.phpunit-flags }}
+              if: ${{ matrix.php == '8.2' || matrix.php == '8.1'}}
+
+            - name:  Run Unit tests without coverage
+              run: composer phpunit:min
+              if: ${{ matrix.php == '8.3'}}
 
             - name: Run static analysis
               run: composer phpstan
