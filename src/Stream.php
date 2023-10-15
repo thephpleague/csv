@@ -18,6 +18,7 @@ use SeekableIterator;
 use SplFileObject;
 use Stringable;
 use TypeError;
+use ValueError;
 
 use function array_keys;
 use function array_walk_recursive;
@@ -67,6 +68,7 @@ final class Stream implements SeekableIterator
     private string $escape = '\\';
     /** @var array<string, array<resource>> Attached filters. */
     private array $filters = [];
+    private int $maxLength = 0;
 
     /**
      * @param resource $stream stream type resource
@@ -295,7 +297,7 @@ final class Stream implements SeekableIterator
 
         $this->offset = 0;
         $this->value = false;
-        if (0 !== ($this->flags & SplFileObject::READ_AHEAD)) {
+        if (SplFileObject::READ_AHEAD === ($this->flags & SplFileObject::READ_AHEAD)) {
             $this->current();
         }
     }
@@ -308,7 +310,7 @@ final class Stream implements SeekableIterator
     public function valid(): bool
     {
         return match (true) {
-            0 !== ($this->flags & SplFileObject::READ_AHEAD) => false !== $this->current(),
+            SplFileObject::READ_AHEAD === ($this->flags & SplFileObject::READ_AHEAD) => false !== $this->current(),
             default => !feof($this->stream),
         };
     }
@@ -324,9 +326,55 @@ final class Stream implements SeekableIterator
             return $this->value;
         }
 
-        $this->value = $this->getCurrentRecord();
+        $this->value = match (true) {
+            SplFileObject::READ_CSV === ($this->flags & SplFileObject::READ_CSV) => $this->getCurrentRecord(),
+            default => $this->getCurrentLine(),
+        };
 
         return $this->value;
+    }
+
+    public function fgets(): string|false
+    {
+        $arg = [$this->stream];
+        if (0 < $this->maxLength) {
+            $arg[] = $this->maxLength;
+        }
+        return fgets(...$arg);
+    }
+
+    /**
+     * Sets the maximum length of a line to be read.
+     *
+     * @see https://www.php.net/manual/en/splfileobject.setmaxlinelen.php
+     */
+    public function setMaxLineLen(int $maxLength): void
+    {
+        if (0 > $maxLength) {
+            throw new ValueError(' Argument #1 ($maxLength) must be greater than or equal to 0');
+        }
+
+        $this->maxLength = $maxLength;
+    }
+
+    /**
+     * Gets the maximum line length as set by setMaxLineLen.
+     *
+     * @see https://www.php.net/manual/en/splfileobject.getmaxlinelen.php
+     */
+    public function getMaxLineLen(): int
+    {
+        return $this->maxLength;
+    }
+
+    /**
+     * Tells whether the end of file has been reached.
+     *
+     * @see https://www.php.net/manual/en/splfileobject.eof.php
+     */
+    public function eof(): bool
+    {
+        return feof($this->stream);
     }
 
     /**
@@ -334,13 +382,39 @@ final class Stream implements SeekableIterator
      */
     private function getCurrentRecord(): array|false
     {
-        $flag = 0 !== ($this->flags & SplFileObject::SKIP_EMPTY);
+        $isEmptyLine = SplFileObject::SKIP_EMPTY === ($this->flags & SplFileObject::SKIP_EMPTY);
         do {
             $ret = fgetcsv($this->stream, 0, $this->delimiter, $this->enclosure, $this->escape);
-        } while ($flag && is_array($ret) && null === $ret[0]);
+        } while ($isEmptyLine && is_array($ret) && null === $ret[0]);
 
         return $ret;
     }
+
+    /**
+     * Retrieves the current line.
+     */
+    private function getCurrentLine(): string|false
+    {
+        $isEmptyLine = SplFileObject::SKIP_EMPTY === ($this->flags & SplFileObject::SKIP_EMPTY);
+        $dropNewLine = SplFileObject::DROP_NEW_LINE === ($this->flags & SplFileObject::DROP_NEW_LINE);
+        $shouldBeIgnored = fn (string|false $line): bool => ($isEmptyLine || $dropNewLine)
+            && (false !== $line && '' === rtrim($line, "\r\n"));
+        $arguments = [$this->stream];
+        if (0 < $this->maxLength) {
+            $arguments[] = $this->maxLength;
+        }
+
+        do {
+            $line = fgets(...$arguments);
+        } while ($shouldBeIgnored($line));
+
+        if ($dropNewLine && false !== $line) {
+            return rtrim($line, "\r\n");
+        }
+
+        return $line;
+    }
+
 
     /**
      * Seeks to specified line.

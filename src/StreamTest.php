@@ -205,6 +205,23 @@ final class StreamTest extends TestCase
         $stream = Stream::createFromPath('php://temp', 'r+');
         $stream->appendFilter($filtername, STREAM_FILTER_READ);
     }
+
+    public function testIterateOverLines(): void
+    {
+        $text = <<<TEXT
+Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+Duis nec sapien felis, ac sodales nisl.
+Nulla vitae magna vitae purus aliquet consequat.
+TEXT;
+        $newText = '';
+        $file = Stream::createFromString($text);
+        $file->setMaxLineLen(20);
+        foreach ($file as $line) {
+            $newText .= $line."\n";
+        }
+        self::assertStringContainsString('Lorem ipsum dolor s', $newText);
+        self::assertSame(20, $file->getMaxLineLen());
+    }
 }
 
 final class StreamWrapper
