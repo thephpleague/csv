@@ -16,4 +16,5 @@
 /README.md                    export-ignore
 /src/Doctrine                 export-ignore
 /**/*Test.php                 export-ignore
+/**/*TestCase.php             export-ignore
 /**/*Bench.php                export-ignore
