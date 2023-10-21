@@ -15,7 +15,6 @@ namespace League\Csv;
 
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
-use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 use PHPUnit\Framework\TestCase;
 use SplFileObject;
 use SplTempFileObject;
@@ -30,6 +29,7 @@ use function unlink;
 use function xdebug_get_headers;
 
 use const PHP_EOL;
+use const PHP_VERSION_ID;
 
 #[Group('csv')]
 final class AbstractCsvTest extends TestCase
@@ -108,7 +108,6 @@ EOF;
         clone $this->csv;
     }
 
-    #[RunInSeparateProcess]
     public function testOutputSize(): void
     {
         ob_start();
@@ -124,7 +123,6 @@ EOF;
         $this->csv->output('invalid/file.csv');
     }
 
-    #[RunInSeparateProcess]
     public function testOutputHeaders(): void
     {
         if (!function_exists('xdebug_get_headers')) {
@@ -415,24 +413,41 @@ EOF;
         self::assertFalse($reader->isInputBOMIncluded());
     }
 
-    #[RunInSeparateProcess]
-    public function testOutputDoesNotStripBOM(): void
+    public function testOutputStripBOM(): void
     {
+        if (PHP_VERSION_ID >= 80300) {
+            self::markTestSkipped('Issue with PHPUnit in PHP8.3');
+        }
+
         $raw_csv = ByteSequence::BOM_UTF8."john,doe,john.doe@example.com\njane,doe,jane.doe@example.com\n";
         $csv = Reader::createFromString($raw_csv);
         $csv->setOutputBOM(ByteSequence::BOM_UTF16_BE);
-        ob_start();
-        $csv->output();
-        /** @var string $result */
-        $result = ob_get_clean();
-        self::assertStringNotContainsString(ByteSequence::BOM_UTF8, $result);
-        self::assertStringContainsString(ByteSequence::BOM_UTF16_BE, $result);
 
-        $csv->includeInputBOM();
         ob_start();
         $csv->output();
         /** @var string $result */
         $result = ob_get_clean();
+
+        self::assertStringNotContainsString(ByteSequence::BOM_UTF8, $result);
+        self::assertTrue(str_starts_with($result, ByteSequence::BOM_UTF16_BE));
+    }
+
+    public function testOutputDoesNotStripBOM(): void
+    {
+        if (PHP_VERSION_ID >= 80300) {
+            self::markTestSkipped('Issue with PHPUnit in PHP8.3');
+        }
+
+        $raw_csv = ByteSequence::BOM_UTF8."john,doe,john.doe@example.com\njane,doe,jane.doe@example.com\n";
+        $csv = Reader::createFromString($raw_csv);
+        $csv->setOutputBOM(ByteSequence::BOM_UTF16_BE);
+        $csv->includeInputBOM();
+
+        ob_start();
+        $csv->output();
+        /** @var string $result */
+        $result = ob_get_clean();
+
         self::assertStringContainsString(ByteSequence::BOM_UTF16_BE, $result);
         self::assertStringContainsString(ByteSequence::BOM_UTF8, $result);
         self::assertTrue(str_starts_with($result, ByteSequence::BOM_UTF16_BE.ByteSequence::BOM_UTF8));

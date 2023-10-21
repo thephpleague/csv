@@ -10,6 +10,7 @@
 /test_files                   export-ignore
 /CHANGELOG.md                 export-ignore
 /config.subsplit-publish.json export-ignore
+/Makefile                     export-ignore
 /phpbench.json                export-ignore
 /phpstan.neon                 export-ignore
 /phpunit.xml                  export-ignore
