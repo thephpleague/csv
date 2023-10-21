@@ -9,8 +9,8 @@ All Notable changes to `Csv` will be documented in this file
 - `TabulatDataReader::value`
 - `TabulatDataReader::select`
 - `TabulatDataReader::matching`
-- `TabulatDataReader::firstMatching` 
-- `TabulatDataReader::firstOrFailMatching`
+- `TabulatDataReader::matchingFirst` 
+- `TabulatDataReader::matchingFirstOrFail`
 - `FragmentFinder` to implement [RFC7111](https://www.rfc-editor.org/rfc/rfc7111)
 - `ResultSet::fromRecords`
 - `Stream::setMaxLineLen`
