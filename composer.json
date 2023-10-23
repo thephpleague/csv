@@ -27,6 +27,7 @@
     ],
     "require": {
         "php": "^8.1.2",
+        "ext-filter": "*",
         "ext-json": "*",
         "ext-mbstring": "*"
     },

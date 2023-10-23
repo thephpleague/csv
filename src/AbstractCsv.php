@@ -51,7 +51,7 @@ abstract class AbstractCsv implements ByteSequence
     /**
      * @final This method should not be overwritten in child classes
      */
-    protected function __construct(protected SplFileObject|Stream $document)
+    protected function __construct(protected readonly SplFileObject|Stream $document)
     {
         [$this->delimiter, $this->enclosure, $this->escape] = $this->document->getCsvControl();
         $this->resetProperties();
@@ -62,11 +62,6 @@ abstract class AbstractCsv implements ByteSequence
      */
     protected function resetProperties(): void
     {
-    }
-
-    public function __destruct()
-    {
-        unset($this->document);
     }
 
     /**
@@ -258,15 +253,25 @@ abstract class AbstractCsv implements ByteSequence
         }
 
         $this->document->rewind();
-        if (!$this->is_input_bom_included) {
-            if (-1 === $this->document->fseek(strlen($this->getInputBOM()))) {
-                throw new RuntimeException('Unable to seek the document.');
-            }
+        $this->document->setFlags(0);
+        if (!$this->is_input_bom_included && -1 === $this->document->fseek(strlen($this->getInputBOM()))) {
+            throw new RuntimeException('Unable to seek the document.');
         }
 
-        echo $this->output_bom;
+        $stream = Stream::createFromString($this->output_bom);
+        $stream->rewind();
 
-        return strlen($this->output_bom) + (int) $this->document->fpassthru();
+        $res1 = $stream->fpassthru();
+        if (false === $res1) {
+            throw new RuntimeException('Unable to output the document.');
+        }
+
+        $res2 = $this->document->fpassthru();
+        if (false === $res2) {
+            throw new RuntimeException('Unable to output the document.');
+        }
+
+        return $res1 + $res2;
     }
 
     /**
