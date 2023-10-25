@@ -109,6 +109,15 @@ var_dump([...$records][0]);
 
 <p class="message-notice">full mapper usage was completed in version <code>9.12</code> for <code>Reader</code> and <code>ResultSet</code></code>.</p>
 <p class="message-notice">Added in version <code>9.6.0</code> for <code>ResultSet</code>.</p>
+<p class="message-warning">If the header record contains non-unique string values, a <code>Exception</code> exception is triggered.</p>
+<p class="message-notice">since <code>9.12.0</code> the optional <code>$header</code> is a full mapper</p>
+
+The argument now links the records column offset to a specific column name. In other words this means
+that the array key which MUST be a positive integer or `0` will correspond to the CSV column offset
+and its value will represent its header value.
+
+This means that you can re-arrange the column order as well as removing or adding column to the
+returned iterator. Added column will only contain the `null` value.
 
 ### value, first and nth
 
