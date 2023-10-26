@@ -57,7 +57,7 @@ interface TabularDataReader extends Countable, IteratorAggregate
      * filled with null values while extra record fields are strip from
      * the returned object.
      *
-     * @return Iterator<array-key, array<mixed>>
+     * @return Iterator<array-key, array<array-key, mixed>>
      */
     public function getIterator(): Iterator;
 
@@ -85,7 +85,7 @@ interface TabularDataReader extends Countable, IteratorAggregate
      *
      * @param array<string> $header an optional header mapper to use instead of the CSV document header
      *
-     * @return Iterator<array-key,array<mixed>>
+     * @return Iterator<array-key, array<array-key, mixed>>
      */
     public function getRecords(array $header = []): Iterator;
 
@@ -134,6 +134,8 @@ interface TabularDataReader extends Countable, IteratorAggregate
      * @param string|int $index CSV column index
      *
      * @throws UnableToProcessCsv if the column index is invalid or not found
+     *
+     * @return Iterator<int, mixed>
      */
     public function fetchColumn($index = 0): Iterator;
 }

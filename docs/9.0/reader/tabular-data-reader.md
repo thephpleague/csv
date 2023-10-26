@@ -29,11 +29,9 @@ $records = Reader::createFromPath('/path/to/file.csv')
     ->filter(fn (array $record): bool => false !== filter_var($record[2] ?? '', FILTER_VALIDATE_EMAIL))
     ->select(1, 4, 5)
     ->slice(3, 5)
-    ->getRecords();
-    
-foreach ($record as $record) {
-    //do something meaningful with the found records
-}
+    ->each(function (array $record) {
+        //do something meaningful with the found records
+    });
 ```
 
 Once you created a `TabularDataReader` implementing instance, here we are using the `Reader` you will
@@ -107,7 +105,7 @@ var_dump([...$records][0]);
 //  ]
 ```
 
-<p class="message-notice">full mapper usage was completed in version <code>9.12</code> for <code>Reader</code> and <code>ResultSet</code></code>.</p>
+<p class="message-notice">full mapper usage was completed in version <code>9.12</code> for <code>Reader</code> and <code>ResultSet</code>.</p>
 <p class="message-notice">Added in version <code>9.6.0</code> for <code>ResultSet</code>.</p>
 <p class="message-warning">If the header record contains non-unique string values, a <code>Exception</code> exception is triggered.</p>
 <p class="message-notice">since <code>9.12.0</code> the optional <code>$header</code> is a full mapper</p>

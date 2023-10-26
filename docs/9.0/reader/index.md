@@ -39,8 +39,8 @@ The returned records are normalized using the following rules:
 - Empty records are skipped if present.
 - The document BOM sequence is skipped if present.
 - If a header record was provided, the number of fields is normalized to the number of fields contained in that record:
-    - Extra fields are truncated.
-    - Missing fields are added with a `null` value.
+  - Extra fields are truncated.
+  - Missing fields are added with a `null` value.
 - Field values are formatter if formatters are provided **Since version 9.11**
 
 ```php
