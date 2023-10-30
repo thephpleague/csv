@@ -113,6 +113,14 @@ class ResultSet implements TabularDataReader, JsonSerializable
     }
 
     /**
+     * @param class-string $class
+     */
+    public function map(string $class): Iterator
+    {
+        return (new Mapper($class))->map($this);
+    }
+
+    /**
      * @param Closure(array<mixed>, array-key=): mixed $closure
      */
     public function each(Closure $closure): bool

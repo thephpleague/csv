@@ -117,6 +117,134 @@ and its value will represent its header value.
 This means that you can re-arrange the column order as well as removing or adding column to the
 returned iterator. Added column will only contain the `null` value.
 
+### map
+
+<p class="message-notice">New in version <code>9.12.0</code></p>
+
+If you prefer working with objects instead of typed arrays it is possible to convert each record using
+the `map` method. This method will cast each array record into your specified object. To do so,
+the method excepts:
+
+- as its sole argument the name of the class;
+- the given class to have information about type casting using the `League\Csv\Attribute\Column` attribute;
+
+As an example if we assume we have the following CSV document
+
+```csv
+date,temperature,place
+2011-01-01,1,Galway
+2011-01-02,-1,Galway
+2011-01-03,0,Galway
+2011-01-01,6,Berkeley
+2011-01-02,8,Berkeley
+2011-01-03,5,Berkeley
+```
+
+We can define a PHP DTO using the following class and the `League\Csv\Mapper\Attribute\Column` attribute.
+
+```php
+use League\Csv\Attribute\Column;
+use League\Csv\TypeCasting\CastToEnum;
+use League\Csv\TypeCasting\CastToDate;
+
+final readonly class Weather
+{
+    public function __construct(
+        #[Column(offset:'temperature')]
+        public int $temperature,
+        #[Column(offset:2, cast: CastToEnum::class)]
+        public Place $place,
+        #[Column(
+            offset: 'date',
+            cast: CastToDate::class,
+            castArguments: ['format' => '!Y-m-d', 'timezone' => 'Africa/Kinshasa']
+        )]
+        public DateTimeImmutable $createdAt;
+    ) {
+    }
+}
+```
+
+Finally, to get your object back you will have to call the `map` method as show below:
+
+```php
+$csv = Reader::createFromString($document);
+$csv->setHeaderOffset(0);
+foreach ($csv->map(Weather::class) as $weather) {
+    // each $weather entry will be an instance of the Weather class;
+}
+```
+
+The `Column` attribute is responsible to link the record cell via its numeric or name offset and will
+tell the mapper how to type cast the cell value to the DTO property. By default, if no casting
+rule is provided, the column will attempt to cast the cell value to the scalar type of
+the property. If type casting fails or is not possible, an exception will be thrown.
+
+The library comes bundles with 3 type casting classes which relies on the property type information:
+
+- `CastToScalar`: converts the cell value to a scalar type or `null` depending on the property type information.
+- `CastToDate`: converts the cell value into a PHP `DateTimeInterface` implementing object. You can optionally specify the date format and its timezone if needed.
+- `CastToEnum`: converts the cell vale into a PHP `Enum` backed or not.
+
+You can also provide your own class to typecast the cell value according to your own rules. To do so, first,
+specify your casting with the attribute:
+
+```php
+#[\League\Csv\Attribute\Column(
+    offset: rating,
+    cast: IntegerRangeCasting,
+    castArguments: ['min' => 0, 'max' => 5, 'default' => 2]
+)]
+private int $positiveInt;
+```
+
+The `IntegerRangeCasting` will convert cell value and return data between `0` and `5` and default to `2` if
+the value is wrong or invalid. To allow your object to cast the cell value to your liking it needs to
+implement the `TypeCasting` interface. To do so, you must define a `toVariable` method that will return
+the correct value once converted.
+
+```php
+use League\Csv\TypeCasting\TypeCasting;
+
+/**
+ * @implements TypeCasting<int|null>
+ */
+readonly class IntegerRangeCasting implements TypeCasting
+{
+    public function __construct(
+        private int $min,
+        private int $max,
+        private int $default,
+    ) {
+        if ($max < $min) {
+            throw new LogicException('The maximun value can not be smaller than the minimun value.');
+        }
+    }
+
+    public function toVariable(?string $value, string $type): ?int
+    {
+        // if the property is declared as nullable we exist early
+        if (in_array($value, ['', null], true) && str_starts_with($type, '?')) {
+            return null;
+        }
+        
+        //the type casting class must only work with property declared as integer
+        if ('int' !== ltrim($type, '?')) {
+            throw new RuntimeException('The class '. self::class . ' can only work with integer typed property.');
+        }
+        
+        return filter_var(
+            $value,
+            FILTER_VALIDATE_INT,
+            ['options' => ['min' => $this->min, 'max' => $this->max, 'default' => $this->default]]
+        );
+    }
+}
+```
+
+As you have probably noticed, the class constructor arguments are given to the `Column` attribute via the
+`castArguments` which can provide more fine-grained behaviour.
+
 ### value, first and nth
 
 You may access any record using its offset starting at `0` in the collection using the `nth` method.
@@ -291,7 +419,7 @@ closure.
 use League\Csv\Reader;
 use League\Csv\Writer;
 
-$writer = Writer::createFromString('');
+$writer = Writer::createFromString();
 $reader = Reader::createFromPath('/path/to/my/file.csv', 'r');
 $reader->each(function (array $record, int $offset) use ($writer) {
      if ($offset < 10) {

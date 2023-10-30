@@ -404,6 +404,14 @@ class Reader extends AbstractCsv implements TabularDataReader, JsonSerializable
     }
 
     /**
+     * @param class-string $class
+     */
+    public function map(string $class): Iterator
+    {
+        return (new Mapper($class))->map($this);
+    }
+
+    /**
      * @param array<string> $header
      *
      * @throws Exception
