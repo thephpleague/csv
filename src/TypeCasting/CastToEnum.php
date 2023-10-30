@@ -15,7 +15,6 @@ namespace League\Csv\TypeCasting;
 
 use BackedEnum;
 use ReflectionEnum;
-use RuntimeException;
 use Throwable;
 use UnitEnum;
 
@@ -25,14 +24,14 @@ use UnitEnum;
 class CastToEnum implements TypeCasting
 {
     /**
-     * @throws RuntimeException
+     * @throws TypeCastingFailed
      */
     public function toVariable(?string $value, string $type): BackedEnum|UnitEnum|null
     {
         if (in_array($value, ['', null], true)) {
             return match (true) {
                 str_starts_with($type, '?') => null,
-                default => throw new RuntimeException('Unable to convert the `null` value.'),
+                default => throw new TypeCastingFailed('Unable to convert the `null` value.'),
             };
         }
 
@@ -48,7 +47,7 @@ class CastToEnum implements TypeCasting
 
             return $enumName::from($backedValue);
         } catch (Throwable $exception) {
-            throw new RuntimeException('Unable to cast to `'.$enumName.'` the value `'.$value.'`.', 0, $exception);
+            throw new TypeCastingFailed('Unable to cast to `'.$enumName.'` the value `'.$value.'`.', 0, $exception);
         }
     }
 }

@@ -49,7 +49,7 @@ final class CastToDate implements TypeCasting
         if (in_array($value, ['', null], true)) {
             return match (true) {
                 str_starts_with($type, '?') => null,
-                default => throw new RuntimeException('Unable to convert the `null` value.'),
+                default => throw new TypeCastingFailed('Unable to convert the `null` value.'),
             };
         }
 
@@ -58,15 +58,15 @@ final class CastToDate implements TypeCasting
                 DateTimeImmutable::class,
                 DateTimeInterface::class => null !== $this->format ? DateTimeImmutable::createFromFormat($this->format, $value, $this->timezone) : new DateTimeImmutable($value, $this->timezone),
                 DateTime::class => null !== $this->format ? DateTime::createFromFormat($this->format, $value, $this->timezone) : new DateTime($value, $this->timezone),
-                default => throw new RuntimeException('Unable to cast the given data to a PHP DateTime related object.'),
+                default => throw new TypeCastingFailed('Unable to cast the given data to a PHP DateTime related object.'),
             };
 
             if (false === $date) {
-                throw new RuntimeException('Unable to cast the given data to a PHP DateTime related object.');
+                throw new TypeCastingFailed('Unable to cast the given data to a PHP DateTime related object.');
             }
         } catch (Throwable $exception) {
-            if (! $exception instanceof RuntimeException) {
-                $exception = new RuntimeException('Unable to cast the given data to a PHP DateTime related object.', 0, $exception);
+            if (! $exception instanceof TypeCastingFailed) {
+                $exception = new TypeCastingFailed('Unable to cast the given data to a PHP DateTime related object.', 0, $exception);
             }
 
             throw $exception;

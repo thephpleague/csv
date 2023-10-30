@@ -18,7 +18,6 @@ use DateTimeImmutable;
 use DateTimeInterface;
 use DateTimeZone;
 use PHPUnit\Framework\TestCase;
-use RuntimeException;
 
 final class CastToDateTest extends TestCase
 {
@@ -43,7 +42,7 @@ final class CastToDateTest extends TestCase
 
     public function testItCShouldThrowIfNoConversionIsPossible(): void
     {
-        $this->expectException(RuntimeException::class);
+        $this->expectException(TypeCastingFailed::class);
 
         (new CastToDate())->toVariable('foobar', DateTimeInterface::class);
     }

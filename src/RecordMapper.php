@@ -74,7 +74,7 @@ final class RecordMapper
     /**
      * @param array<string> $header
      *
-     * @throws RuntimeException
+     * @throws ColumnMappingFailed
      *
      * @return array{0:int<0, max>|null, 1:TypeCasting}
      */
@@ -86,7 +86,7 @@ final class RecordMapper
         }
 
         if (1 < count($attributes)) {
-            throw new RuntimeException('Using multiple '.Column::class.' attributes on '.$target->getDeclaringClass()->getName().'::'.$target->getName().' is not supported.');
+            throw new ColumnMappingFailed('Using multiple '.Column::class.' attributes on '.$target->getDeclaringClass()->getName().'::'.$target->getName().' is not supported.');
         }
 
         /** @var Column $column */
@@ -95,19 +95,19 @@ final class RecordMapper
         $cast = $this->getCast($column);
         if (is_int($offset)) {
             return match (true) {
-                0 > $offset => throw new RuntimeException(__CLASS__.' can only use 0 or positive column indices.'),
+                0 > $offset => throw new ColumnMappingFailed(__CLASS__.' can only use 0 or positive indices to position the column.'),
                 default => [$offset, $cast],
             };
         }
 
         if ([] === $header) {
-            throw new RuntimeException(__CLASS__.' can only use named column if the tabular data has a non-empty header.');
+            throw new ColumnMappingFailed(__CLASS__.' can only use named column if the tabular data has a non-empty header.');
         }
 
         /** @var int<0, max>|false $index */
         $index = array_search($offset, $header, true);
         if (false === $index) {
-            throw new RuntimeException(__CLASS__.' cound not find the offset `'.$offset.'` in the header; Pleaser verify your header data.');
+            throw new ColumnMappingFailed(__CLASS__.' cound not find the offset `'.$offset.'` in the header; Pleaser verify your header data.');
         }
 
         return [$index, $cast];

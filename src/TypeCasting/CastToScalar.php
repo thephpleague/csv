@@ -13,8 +13,6 @@ declare(strict_types=1);
 
 namespace League\Csv\TypeCasting;
 
-use RuntimeException;
-
 use const FILTER_VALIDATE_BOOL;
 use const FILTER_VALIDATE_FLOAT;
 use const FILTER_VALIDATE_INT;
@@ -25,7 +23,7 @@ use const FILTER_VALIDATE_INT;
 final class CastToScalar implements TypeCasting
 {
     /**
-     * @throws RuntimeException
+     * @throws TypeCastingFailed
      */
     public function toVariable(?string $value, string $type): int|float|bool|string|null
     {
@@ -39,7 +37,7 @@ final class CastToScalar implements TypeCasting
             'bool' => filter_var($value, FILTER_VALIDATE_BOOL),
             'string' => $this->castToString($value),
             'null' => $this->castToNull($value),
-            default => throw new RuntimeException('Unable to convert the given data to a PHP scalar variable.'),
+            default => throw new TypeCastingFailed('Unable to convert the given data to a PHP scalar variable.'),
         };
     }
 
@@ -48,14 +46,14 @@ final class CastToScalar implements TypeCasting
     {
         return match ($value) {
             null => $value,
-            default => throw new RuntimeException('The value `'.$value.'` can not be cast to an integer.'),
+            default => throw new TypeCastingFailed('The value `'.$value.'` can not be cast to an integer.'),
         };
     }
 
     private function castToString(?string $value): string
     {
         return match (null) {
-            $value => throw new RuntimeException('The `null` value can not be cast to a string.'),
+            $value => throw new TypeCastingFailed('The `null` value can not be cast to a string.'),
             default => $value,
         };
     }
@@ -65,7 +63,7 @@ final class CastToScalar implements TypeCasting
         $returnedValue = filter_var($value, FILTER_VALIDATE_INT);
 
         return match (false) {
-            $returnedValue => throw new RuntimeException('The value `'.$value.'` can not be cast to an integer.'),
+            $returnedValue => throw new TypeCastingFailed('The value `'.$value.'` can not be cast to an integer.'),
             default => $returnedValue,
         };
     }
@@ -75,7 +73,7 @@ final class CastToScalar implements TypeCasting
         $returnedValue = filter_var($value, FILTER_VALIDATE_FLOAT);
 
         return match (false) {
-            $returnedValue => throw new RuntimeException('The value `'.$value.'` can not be cast to a float.'),
+            $returnedValue => throw new TypeCastingFailed('The value `'.$value.'` can not be cast to a float.'),
             default => $returnedValue,
         };
     }

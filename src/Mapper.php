@@ -15,8 +15,8 @@ namespace League\Csv;
 
 use ArrayIterator;
 use Iterator;
+use League\Csv\TypeCasting\TypeCastingFailed;
 use ReflectionException;
-use RuntimeException;
 
 class Mapper
 {
@@ -28,7 +28,7 @@ class Mapper
     }
 
     /**
-     * @throws RuntimeException
+     * @throws TypeCastingFailed
      * @throws ReflectionException
      */
     public function map(TabularDataReader $tabularDataReader): Iterator
@@ -37,7 +37,7 @@ class Mapper
     }
 
     /**
-     * @throws RuntimeException
+     * @throws TypeCastingFailed
      * @throws ReflectionException
      */
     public function __invoke(iterable $records, array $header): Iterator

@@ -15,7 +15,6 @@ namespace League\Csv\TypeCasting;
 
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
-use RuntimeException;
 
 final class CastToScalarTest extends TestCase
 {
@@ -84,7 +83,7 @@ final class CastToScalarTest extends TestCase
 
     public function testItThrowsIfTheConversionFails(): void
     {
-        $this->expectException(RuntimeException::class);
+        $this->expectException(TypeCastingFailed::class);
 
         (new CastToScalar())->toVariable(null, 'int');
     }

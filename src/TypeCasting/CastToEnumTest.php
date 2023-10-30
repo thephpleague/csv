@@ -14,7 +14,6 @@ declare(strict_types=1);
 namespace League\Csv\TypeCasting;
 
 use PHPUnit\Framework\TestCase;
-use RuntimeException;
 
 final class CastToEnumTest extends TestCase
 {
@@ -56,14 +55,14 @@ final class CastToEnumTest extends TestCase
 
     public function testThrowsOnNullIfTheVariableIsNotNullable(): void
     {
-        $this->expectException(RuntimeException::class);
+        $this->expectException(TypeCastingFailed::class);
 
         (new CastToEnum())->toVariable(null, Currency::class);
     }
 
     public function testThrowsIfTheValueIsNotRecognizedByTheEnum(): void
     {
-        $this->expectException(RuntimeException::class);
+        $this->expectException(TypeCastingFailed::class);
 
         (new CastToEnum())->toVariable('green', Colour::class);
     }

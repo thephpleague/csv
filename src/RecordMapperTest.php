@@ -20,7 +20,6 @@ use League\Csv\Attribute\Column;
 use League\Csv\TypeCasting\CastToDate;
 use League\Csv\TypeCasting\CastToEnum;
 use PHPUnit\Framework\TestCase;
-use RuntimeException;
 use stdClass;
 use TypeError;
 
@@ -62,7 +61,7 @@ final class RecordMapperTest extends TestCase
 
     public function testItWillThrowIfTheHeaderIsMissingAndTheColumnOffsetIsAString(): void
     {
-        $this->expectException(RuntimeException::class);
+        $this->expectException(ColumnMappingFailed::class);
         $mapper = new RecordMapper(WeatherSetterGetter::class);
         $mapper([
             'date' => '2023-10-30',
@@ -73,7 +72,7 @@ final class RecordMapperTest extends TestCase
 
     public function testItWillThrowIfTheHeaderContainsInvalidOffsetName(): void
     {
-        $this->expectException(RuntimeException::class);
+        $this->expectException(ColumnMappingFailed::class);
         $mapper = new RecordMapper(WeatherSetterGetter::class, ['date', 'toto', 'foobar']);
         $mapper([
             'date' => '2023-10-30',
@@ -84,7 +83,7 @@ final class RecordMapperTest extends TestCase
 
     public function testItWillThrowIfTheColumnAttributesIsUsedMultipleTimeForTheSameAccessor(): void
     {
-        $this->expectException(RuntimeException::class);
+        $this->expectException(ColumnMappingFailed::class);
 
         new RecordMapper(InvalidWeatherAttributeUsage::class);
     }
