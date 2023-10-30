@@ -86,10 +86,10 @@ final class Serializer
             throw new CellMappingFailed('Using more than one '.Cell::class.' attribute on a class property or method is not supported.');
         }
 
-        /** @var Cell $column */
-        $column = $attributes[0]->newInstance();
-        $offset = $column->offset;
-        $cast = $this->getTypeCasting($column);
+        /** @var Cell $cell */
+        $cell = $attributes[0]->newInstance();
+        $offset = $cell->offset;
+        $cast = $this->getTypeCasting($cell);
         if (is_int($offset)) {
             return match (true) {
                 0 > $offset,
@@ -99,27 +99,27 @@ final class Serializer
         }
 
         if ([] === $header) {
-            throw new CellMappingFailed(__CLASS__.' can only use named column if the tabular data has a non-empty header.');
+            throw new CellMappingFailed('Cell name as string are only supported if the tabular data has a non-empty header.');
         }
 
         /** @var int<0, max>|false $index */
         $index = array_search($offset, $header, true);
         if (false === $index) {
-            throw new CellMappingFailed(__CLASS__.' cound not find the offset `'.$offset.'` in the header; Pleaser verify your header data.');
+            throw new CellMappingFailed('The offset `'.$offset.'` could not be found in the header; Pleaser verify your header data.');
         }
 
         return [$index, $cast];
     }
 
-    private function getTypeCasting(Cell $column): TypeCasting
+    private function getTypeCasting(Cell $cell): TypeCasting
     {
-        $caster = $column->cast;
+        $caster = $cell->cast;
         if (null === $caster) {
             return new CastToScalar();
         }
 
         /** @var TypeCasting $cast */
-        $cast = new $caster(...$column->castArguments);
+        $cast = new $caster(...$cell->castArguments);
 
         return $cast;
     }

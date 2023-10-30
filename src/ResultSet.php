@@ -19,7 +19,6 @@ use Closure;
 use Generator;
 use Iterator;
 use JsonSerializable;
-use League\Csv\Mapper\Aggregate;
 use League\Csv\Mapper\Serializer;
 use LimitIterator;
 

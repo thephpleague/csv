@@ -17,7 +17,6 @@ use CallbackFilterIterator;
 use Closure;
 use Iterator;
 use JsonSerializable;
-use League\Csv\Mapper\Aggregate;
 use League\Csv\Mapper\Serializer;
 use SplFileObject;
 
