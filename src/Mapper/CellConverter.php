@@ -19,7 +19,7 @@ use ReflectionProperty;
 /**
  * @internal
  */
-final class ValueConverter
+final class CellConverter
 {
     public function __construct(
         private readonly ReflectionMethod|ReflectionProperty $accessor,

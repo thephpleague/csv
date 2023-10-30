@@ -18,6 +18,7 @@ use Closure;
 use Iterator;
 use JsonSerializable;
 use League\Csv\Mapper\Aggregate;
+use League\Csv\Mapper\Serializer;
 use SplFileObject;
 
 use function array_filter;
@@ -409,7 +410,7 @@ class Reader extends AbstractCsv implements TabularDataReader, JsonSerializable
      */
     public function map(string $className): Iterator
     {
-        return Aggregate::map($className, $this);
+        return new MapIterator($this, (new Serializer($className, $this->getHeader()))->deserialize(...));
     }
 
     /**

@@ -23,7 +23,7 @@ use TypeError;
 
 final class Serializer
 {
-    /** @var array<ValueConverter>  */
+    /** @var array<CellConverter>  */
     public readonly array $converters;
 
     /**
@@ -41,7 +41,7 @@ final class Serializer
 
             return match ($offset) {
                 null => $carry,
-                default => [...$carry, new ValueConverter($accessor, $offset, $caster)],
+                default => [...$carry, new CellConverter($accessor, $offset, $caster)],
             };
         };
 
