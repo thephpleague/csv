@@ -11,19 +11,16 @@
 
 declare(strict_types=1);
 
-namespace League\Csv;
+namespace League\Csv\Mapper;
 
 use DateTime;
 use DateTimeImmutable;
 use DateTimeInterface;
-use League\Csv\Attribute\Column;
-use League\Csv\TypeCasting\CastToDate;
-use League\Csv\TypeCasting\CastToEnum;
 use PHPUnit\Framework\TestCase;
 use stdClass;
 use TypeError;
 
-final class RecordMapperTest extends TestCase
+final class SerializerTest extends TestCase
 {
     public function testItConvertsARecordsToAnObjectUsingProperties(): void
     {
@@ -33,8 +30,8 @@ final class RecordMapperTest extends TestCase
             'place' => 'Berkeley',
         ];
 
-        $mapper = new RecordMapper(WeatherProperty::class, ['date', 'temperature', 'place']);
-        $weather = $mapper($record);
+        $serializer = new Serializer(WeatherProperty::class, ['date', 'temperature', 'place']);
+        $weather = $serializer->deserialize($record);
 
         self::assertInstanceOf(WeatherProperty::class, $weather);
         self::assertInstanceOf(DateTimeImmutable::class, $weather->observedOn);
@@ -50,8 +47,8 @@ final class RecordMapperTest extends TestCase
             'place' => 'Berkeley',
         ];
 
-        $mapper = new RecordMapper(WeatherSetterGetter::class, ['date', 'temperature', 'place']);
-        $weather = $mapper($record);
+        $serializer = new Serializer(WeatherSetterGetter::class, ['date', 'temperature', 'place']);
+        $weather = $serializer->deserialize($record);
 
         self::assertInstanceOf(WeatherSetterGetter::class, $weather);
         self::assertSame('2023-10-30', $weather->getObservedOn()->format('Y-m-d'));
@@ -61,9 +58,9 @@ final class RecordMapperTest extends TestCase
 
     public function testItWillThrowIfTheHeaderIsMissingAndTheColumnOffsetIsAString(): void
     {
-        $this->expectException(ColumnMappingFailed::class);
-        $mapper = new RecordMapper(WeatherSetterGetter::class);
-        $mapper([
+        $this->expectException(CellMappingFailed::class);
+        $serializer = new Serializer(WeatherSetterGetter::class);
+        $serializer->deserialize([
             'date' => '2023-10-30',
             'temperature' => '-1.5',
             'place' => 'Berkeley',
@@ -72,9 +69,9 @@ final class RecordMapperTest extends TestCase
 
     public function testItWillThrowIfTheHeaderContainsInvalidOffsetName(): void
     {
-        $this->expectException(ColumnMappingFailed::class);
-        $mapper = new RecordMapper(WeatherSetterGetter::class, ['date', 'toto', 'foobar']);
-        $mapper([
+        $this->expectException(CellMappingFailed::class);
+        $serializer = new Serializer(WeatherSetterGetter::class, ['date', 'toto', 'foobar']);
+        $serializer->deserialize([
             'date' => '2023-10-30',
             'temperature' => '-1.5',
             'place' => 'Berkeley',
@@ -83,27 +80,27 @@ final class RecordMapperTest extends TestCase
 
     public function testItWillThrowIfTheColumnAttributesIsUsedMultipleTimeForTheSameAccessor(): void
     {
-        $this->expectException(ColumnMappingFailed::class);
+        $this->expectException(CellMappingFailed::class);
 
-        new RecordMapper(InvalidWeatherAttributeUsage::class);
+        new Serializer(InvalidWeatherAttributeUsage::class);
     }
 
     public function testItWillThrowIfTheColumnAttributesCasterIsInvalid(): void
     {
         $this->expectException(TypeError::class);
 
-        new RecordMapper(InvalidWeatherAttributeCasterNotSupported::class);
+        new Serializer(InvalidWeatherAttributeCasterNotSupported::class);
     }
 }
 
 final class WeatherProperty
 {
     public function __construct(
-        #[Column(offset:'temperature')]
+        #[Cell(offset:'temperature')]
         public readonly float $temperature,
-        #[Column(offset:2, cast: CastToEnum::class)]
+        #[Cell(offset:2, cast: CastToEnum::class)]
         public readonly Place $place,
-        #[Column(
+        #[Cell(
             offset: 'date',
             cast: CastToDate::class,
             castArguments: ['format' => '!Y-m-d', 'timezone' => 'Africa/Kinshasa'],
@@ -118,9 +115,9 @@ final class WeatherSetterGetter
     private float $temperature;
 
     public function __construct(
-        #[Column(offset:2, cast: CastToEnum::class)]
+        #[Cell(offset:2, cast: CastToEnum::class)]
         public readonly Place $place,
-        #[Column(
+        #[Cell(
             offset: 'date',
             cast: CastToDate::class,
             castArguments: ['format' => '!Y-m-d', 'timezone' => 'Africa/Kinshasa'],
@@ -129,7 +126,7 @@ final class WeatherSetterGetter
     ) {
     }
 
-    #[Column(offset:'temperature')]
+    #[Cell(offset:'temperature')]
     public function setTemperature(float $temperature): void
     {
         $this->temperature = $temperature;
@@ -156,11 +153,11 @@ final class InvalidWeatherAttributeUsage
 {
     public function __construct(
         /* @phpstan-ignore-next-line */
-        #[Column(offset:'temperature'), Column(offset:'date')]
+        #[Cell(offset:'temperature'), Cell(offset:'date')]
         public readonly float $temperature,
-        #[Column(offset:2, cast: CastToEnum::class)]
+        #[Cell(offset:2, cast: CastToEnum::class)]
         public readonly Place $place,
-        #[Column(
+        #[Cell(
             offset: 'date',
             cast: CastToDate::class,
             castArguments: ['format' => '!Y-m-d', 'timezone' => 'Africa/Kinshasa'],
@@ -173,11 +170,11 @@ final class InvalidWeatherAttributeUsage
 final class InvalidWeatherAttributeCasterNotSupported
 {
     public function __construct(
-        #[Column(offset:'temperature', cast: stdClass::class)]
+        #[Cell(offset:'temperature', cast: stdClass::class)]
         public readonly float $temperature,
-        #[Column(offset:2, cast: CastToEnum::class)]
+        #[Cell(offset:2, cast: CastToEnum::class)]
         public readonly Place $place,
-        #[Column(
+        #[Cell(
             offset: 'date',
             cast: CastToDate::class,
             castArguments: ['format' => '!Y-m-d', 'timezone' => 'Africa/Kinshasa'],

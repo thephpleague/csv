@@ -11,7 +11,7 @@
 
 declare(strict_types=1);
 
-namespace League\Csv\TypeCasting;
+namespace League\Csv\Mapper;
 
 use const FILTER_VALIDATE_BOOL;
 use const FILTER_VALIDATE_FLOAT;

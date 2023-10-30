@@ -143,18 +143,20 @@ date,temperature,place
 We can define a PHP DTO using the following class and the `League\Csv\Mapper\Attribute\Column` attribute.
 
 ```php
-use League\Csv\Attribute\Column;
-use League\Csv\TypeCasting\CastToEnum;
-use League\Csv\TypeCasting\CastToDate;
+<?php
+
+use League\Csv\Mapper\Cell;
+use League\Csv\Mapper\CastToEnum;
+use League\Csv\Mapper\CastToDate;
 
 final readonly class Weather
 {
     public function __construct(
-        #[Column(offset:'temperature')]
+        #[Cell(offset:'temperature')]
         public int $temperature,
-        #[Column(offset:2, cast: CastToEnum::class)]
+        #[Cell(offset:2, cast: CastToEnum::class)]
         public Place $place,
-        #[Column(
+        #[Cell(
             offset: 'date',
             cast: CastToDate::class,
             castArguments: ['format' => '!Y-m-d', 'timezone' => 'Africa/Kinshasa']
@@ -175,7 +177,7 @@ foreach ($csv->map(Weather::class) as $weather) {
 }
 ```
 
-The `Column` attribute is responsible to link the record cell via its numeric or name offset and will
+The `Cell` attribute is responsible to link the record cell via its numeric or name offset and will
 tell the mapper how to type cast the cell value to the DTO property. By default, if no casting
 rule is provided, the column will attempt to cast the cell value to the scalar type of
 the property. If type casting fails or is not possible, an exception will be thrown.
@@ -190,7 +192,7 @@ You can also provide your own class to typecast the cell value according to your
 specify your casting with the attribute:
 
 ```php
-#[\League\Csv\Attribute\Column(
+#[\League\Csv\Mapper\Cell(
     offset: rating,
     cast: IntegerRangeCasting,
     castArguments: ['min' => 0, 'max' => 5, 'default' => 2]
@@ -204,7 +206,7 @@ implement the `TypeCasting` interface. To do so, you must define a `toVariable` 
 the correct value once converted.
 
 ```php
-use League\Csv\TypeCasting\TypeCasting;
+use League\Csv\Mapper\TypeCasting;
 
 /**
  * @implements TypeCasting<int|null>
@@ -242,7 +244,7 @@ readonly class IntegerRangeCasting implements TypeCasting
 }
 ```
 
-As you have probably noticed, the class constructor arguments are given to the `Column` attribute via the
+As you have probably noticed, the class constructor arguments are given to the `Cell` attribute via the
 `castArguments` which can provide more fine-grained behaviour.
 
 ### value, first and nth

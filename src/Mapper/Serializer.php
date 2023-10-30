@@ -11,11 +11,8 @@
 
 declare(strict_types=1);
 
-namespace League\Csv;
+namespace League\Csv\Mapper;
 
-use League\Csv\Attribute\Column;
-use League\Csv\TypeCasting\CastToScalar;
-use League\Csv\TypeCasting\TypeCasting;
 use ReflectionAttribute;
 use ReflectionClass;
 use ReflectionException;
@@ -24,13 +21,10 @@ use ReflectionProperty;
 use RuntimeException;
 use TypeError;
 
-/**
- * @template TValue
- */
-final class RecordMapper
+final class Serializer
 {
-    /** @var array<CellMapper>  */
-    public readonly array $mappers;
+    /** @var array<ValueConverter>  */
+    public readonly array $converters;
 
     /**
      * @param class-string $className
@@ -42,30 +36,33 @@ final class RecordMapper
      */
     public function __construct(public readonly string $className, array $header = [])
     {
-        $addMapper = function (array $mapper, ReflectionProperty|ReflectionMethod $accessor) use ($header) {
-            [$offset, $caster] = $this->getColumn($accessor, $header);
+        $addConverter = function (array $carry, ReflectionProperty|ReflectionMethod $accessor) use ($header) {
+            [$offset, $caster] = $this->getArguments($accessor, $header);
 
             return match ($offset) {
-                null => $mapper,
-                default => [...$mapper, new CellMapper($offset, $accessor, $caster)],
+                null => $carry,
+                default => [...$carry, new ValueConverter($accessor, $offset, $caster)],
             };
         };
 
         $class = new ReflectionClass($this->className);
 
-        $this->mappers = array_reduce(
+        $this->converters = array_reduce(
             [...$class->getProperties(), ...$class->getMethods(ReflectionMethod::IS_PUBLIC)],
-            $addMapper,
+            $addConverter,
             []
         );
     }
 
-    public function __invoke(array $record): mixed
+    /**
+     * @throws ReflectionException
+     */
+    public function deserialize(array $record): object
     {
         $record = array_values($record);
         $object = (new ReflectionClass($this->className))->newInstanceWithoutConstructor();
-        foreach ($this->mappers as $mapper) {
-            ($mapper)($object, $record[$mapper->offset]);
+        foreach ($this->converters as $converter) {
+            $converter->setValue($object, $record[$converter->offset]);
         }
 
         return $object;
@@ -74,46 +71,47 @@ final class RecordMapper
     /**
      * @param array<string> $header
      *
-     * @throws ColumnMappingFailed
+     * @throws CellMappingFailed
      *
      * @return array{0:int<0, max>|null, 1:TypeCasting}
      */
-    private function getColumn(ReflectionProperty|ReflectionMethod $target, array $header): array
+    private function getArguments(ReflectionProperty|ReflectionMethod $target, array $header): array
     {
-        $attributes = $target->getAttributes(Column::class, ReflectionAttribute::IS_INSTANCEOF);
+        $attributes = $target->getAttributes(Cell::class, ReflectionAttribute::IS_INSTANCEOF);
         if ([] === $attributes) {
             return [null, new CastToScalar()];
         }
 
         if (1 < count($attributes)) {
-            throw new ColumnMappingFailed('Using multiple '.Column::class.' attributes on '.$target->getDeclaringClass()->getName().'::'.$target->getName().' is not supported.');
+            throw new CellMappingFailed('Using more than one '.Cell::class.' attribute on a class property or method is not supported.');
         }
 
-        /** @var Column $column */
+        /** @var Cell $column */
         $column = $attributes[0]->newInstance();
         $offset = $column->offset;
-        $cast = $this->getCast($column);
+        $cast = $this->getTypeCasting($column);
         if (is_int($offset)) {
             return match (true) {
-                0 > $offset => throw new ColumnMappingFailed(__CLASS__.' can only use 0 or positive indices to position the column.'),
+                0 > $offset,
+                [] !== $header && $offset > count($header) - 1 => throw new CellMappingFailed('cell integer position can only be positive or equals to 0; received `'.$offset.'`'),
                 default => [$offset, $cast],
             };
         }
 
         if ([] === $header) {
-            throw new ColumnMappingFailed(__CLASS__.' can only use named column if the tabular data has a non-empty header.');
+            throw new CellMappingFailed(__CLASS__.' can only use named column if the tabular data has a non-empty header.');
         }
 
         /** @var int<0, max>|false $index */
         $index = array_search($offset, $header, true);
         if (false === $index) {
-            throw new ColumnMappingFailed(__CLASS__.' cound not find the offset `'.$offset.'` in the header; Pleaser verify your header data.');
+            throw new CellMappingFailed(__CLASS__.' cound not find the offset `'.$offset.'` in the header; Pleaser verify your header data.');
         }
 
         return [$index, $cast];
     }
 
-    private function getCast(Column $column): TypeCasting
+    private function getTypeCasting(Cell $column): TypeCasting
     {
         $caster = $column->cast;
         if (null === $caster) {

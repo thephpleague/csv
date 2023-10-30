@@ -11,10 +11,10 @@
 
 declare(strict_types=1);
 
-namespace League\Csv;
+namespace League\Csv\Mapper;
 
 use RuntimeException;
 
-final class ColumnMappingFailed extends RuntimeException
+final class TypeCastingFailed extends RuntimeException
 {
 }

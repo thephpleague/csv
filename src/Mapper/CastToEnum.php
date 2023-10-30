@@ -11,7 +11,7 @@
 
 declare(strict_types=1);
 
-namespace League\Csv\TypeCasting;
+namespace League\Csv\Mapper;
 
 use BackedEnum;
 use ReflectionEnum;

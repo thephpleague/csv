@@ -11,12 +11,12 @@
 
 declare(strict_types=1);
 
-namespace League\Csv\Attribute;
+namespace League\Csv\Mapper;
 
 use Attribute;
 
 #[Attribute(Attribute::TARGET_METHOD | Attribute::TARGET_PROPERTY)]
-final class Column
+final class Cell
 {
     /**
      * @param ?class-string $cast

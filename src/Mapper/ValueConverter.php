@@ -11,25 +11,24 @@
 
 declare(strict_types=1);
 
-namespace League\Csv;
+namespace League\Csv\Mapper;
 
-use League\Csv\TypeCasting\TypeCasting;
 use ReflectionMethod;
 use ReflectionProperty;
 
 /**
  * @internal
  */
-final class CellMapper
+final class ValueConverter
 {
     public function __construct(
-        public readonly int $offset,
         private readonly ReflectionMethod|ReflectionProperty $accessor,
+        public readonly int $offset,
         private readonly TypeCasting $cast,
     ) {
     }
 
-    public function __invoke(object $object, ?string $value): void
+    public function setValue(object $object, ?string $value): void
     {
         $type = (string) match (true) {
             $this->accessor instanceof ReflectionMethod => $this->accessor->getParameters()[0]->getType(),

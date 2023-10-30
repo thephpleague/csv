@@ -19,6 +19,7 @@ use Closure;
 use Generator;
 use Iterator;
 use JsonSerializable;
+use League\Csv\Mapper\Aggregate;
 use LimitIterator;
 
 use function array_filter;
@@ -113,11 +114,11 @@ class ResultSet implements TabularDataReader, JsonSerializable
     }
 
     /**
-     * @param class-string $class
+     * @param class-string $className
      */
-    public function map(string $class): Iterator
+    public function map(string $className): Iterator
     {
-        return (new Mapper($class))->map($this);
+        return Aggregate::map($className, $this);
     }
 
     /**
