@@ -19,7 +19,7 @@ use Closure;
 use Generator;
 use Iterator;
 use JsonSerializable;
-use League\Csv\Mapper\Serializer;
+use League\Csv\Serializer\Serializer;
 use LimitIterator;
 
 use function array_filter;

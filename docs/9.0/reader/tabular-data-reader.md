@@ -140,14 +140,14 @@ date,temperature,place
 2011-01-03,5,Berkeley
 ```
 
-We can define a PHP DTO using the following class and the `League\Csv\Mapper\Attribute\Column` attribute.
+We can define a PHP DTO using the following class and the `League\Csv\Serializer\Attribute\Column` attribute.
 
 ```php
 <?php
 
-use League\Csv\Mapper\Column;
-use League\Csv\Mapper\CastToEnum;
-use League\Csv\Mapper\CastToDate;
+use League\Csv\Serializer\Column;
+use League\Csv\Serializer\CastToEnum;
+use League\Csv\Serializer\CastToDate;
 
 final readonly class Weather
 {
@@ -192,7 +192,7 @@ You can also provide your own class to typecast the cell value according to your
 specify your casting with the attribute:
 
 ```php
-#[\League\Csv\Mapper\Column(
+#[\League\Csv\Serializer\Column(
     offset: rating,
     cast: IntegerRangeCasting,
     castArguments: ['min' => 0, 'max' => 5, 'default' => 2]
@@ -206,7 +206,7 @@ implement the `TypeCasting` interface. To do so, you must define a `toVariable` 
 the correct value once converted.
 
 ```php
-use League\Csv\Mapper\TypeCasting;
+use League\Csv\Serializer\TypeCasting;
 
 /**
  * @implements TypeCasting<int|null>

@@ -17,7 +17,7 @@ use CallbackFilterIterator;
 use Closure;
 use Iterator;
 use JsonSerializable;
-use League\Csv\Mapper\Serializer;
+use League\Csv\Serializer\Serializer;
 use SplFileObject;
 
 use function array_filter;

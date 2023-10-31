@@ -16,6 +16,7 @@ All Notable changes to `Csv` will be documented in this file
 - `ResultSet::fromRecords`
 - `Stream::setMaxLineLen`
 - `Stream::getMaxLineLen`
+- `League\Csv\Serializer\Serializer`
 
 ### Deprecated
 

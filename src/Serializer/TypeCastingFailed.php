@@ -11,17 +11,10 @@
 
 declare(strict_types=1);
 
-namespace League\Csv\Mapper;
+namespace League\Csv\Serializer;
 
-/**
- * @template TValue
- */
-interface TypeCasting
+use RuntimeException;
+
+final class TypeCastingFailed extends RuntimeException
 {
-    /**
-     * @throws TypeCastingFailed
-     *
-     * @return TValue
-     */
-    public function toVariable(?string $value, string $type): mixed;
 }

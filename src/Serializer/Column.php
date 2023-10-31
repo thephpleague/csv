@@ -11,7 +11,7 @@
 
 declare(strict_types=1);
 
-namespace League\Csv\Mapper;
+namespace League\Csv\Serializer;
 
 use Attribute;
 
