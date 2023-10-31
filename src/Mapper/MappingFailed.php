@@ -15,6 +15,6 @@ namespace League\Csv\Mapper;
 
 use RuntimeException;
 
-final class CellMappingFailed extends RuntimeException
+final class MappingFailed extends RuntimeException
 {
 }

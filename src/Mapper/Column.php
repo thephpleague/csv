@@ -16,7 +16,7 @@ namespace League\Csv\Mapper;
 use Attribute;
 
 #[Attribute(Attribute::TARGET_METHOD | Attribute::TARGET_PROPERTY)]
-final class Cell
+final class Column
 {
     /**
      * @param ?class-string $cast

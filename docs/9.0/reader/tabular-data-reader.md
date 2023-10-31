@@ -145,18 +145,18 @@ We can define a PHP DTO using the following class and the `League\Csv\Mapper\Att
 ```php
 <?php
 
-use League\Csv\Mapper\Cell;
+use League\Csv\Mapper\Column;
 use League\Csv\Mapper\CastToEnum;
 use League\Csv\Mapper\CastToDate;
 
 final readonly class Weather
 {
     public function __construct(
-        #[Cell(offset:'temperature')]
+        #[Column(offset:'temperature')]
         public int $temperature,
-        #[Cell(offset:2, cast: CastToEnum::class)]
+        #[Column(offset:2, cast: CastToEnum::class)]
         public Place $place,
-        #[Cell(
+        #[Column(
             offset: 'date',
             cast: CastToDate::class,
             castArguments: ['format' => '!Y-m-d', 'timezone' => 'Africa/Kinshasa']
@@ -177,7 +177,7 @@ foreach ($csv->map(Weather::class) as $weather) {
 }
 ```
 
-The `Cell` attribute is responsible to link the record cell via its numeric or name offset and will
+The `Column` attribute is responsible to link the record cell via its numeric or name offset and will
 tell the mapper how to type cast the cell value to the DTO property. By default, if no casting
 rule is provided, the column will attempt to cast the cell value to the scalar type of
 the property. If type casting fails or is not possible, an exception will be thrown.
@@ -192,7 +192,7 @@ You can also provide your own class to typecast the cell value according to your
 specify your casting with the attribute:
 
 ```php
-#[\League\Csv\Mapper\Cell(
+#[\League\Csv\Mapper\Column(
     offset: rating,
     cast: IntegerRangeCasting,
     castArguments: ['min' => 0, 'max' => 5, 'default' => 2]
@@ -244,7 +244,7 @@ readonly class IntegerRangeCasting implements TypeCasting
 }
 ```
 
-As you have probably noticed, the class constructor arguments are given to the `Cell` attribute via the
+As you have probably noticed, the class constructor arguments are given to the `Column` attribute via the
 `castArguments` which can provide more fine-grained behaviour.
 
 ### value, first and nth
@@ -318,7 +318,7 @@ $resultSet = Statement::create()->process($reader);
 
 $exists = $resultSet->exists(fn (array $records) => in_array('twenty-five', $records, true));
 
-//$exists returns true if at least one cell contains the word `twenty-five` otherwise returns false,
+//$exists returns true if at least one Column contains the word `twenty-five` otherwise returns false,
 ```
 
 <p class="message-notice">Added in version <code>9.11.0</code> for <code>Reader</code> and <code>ResultSet</code>.</p>
@@ -405,8 +405,8 @@ foreach ($records->fetchPairs() as $firstname => $lastname) {
 
 - If no `$offsetIndex` is provided it defaults to `0`;
 - If no `$valueIndex` is provided it defaults to `1`;
-- If no cell is found corresponding to `$offsetIndex` the row is skipped;
-- If no cell is found corresponding to `$valueIndex` the `null` value is used;
+- If no Column is found corresponding to `$offsetIndex` the row is skipped;
+- If no Column is found corresponding to `$valueIndex` the `null` value is used;
 
 <p class="message-warning">If the <code>TabularDataReader</code> contains column names and the submitted arguments are not found, an <code>Exception</code> exception is thrown.</p>
 
@@ -451,9 +451,9 @@ use League\Csv\ResultSet;
 $reader = Reader::createFromPath('/path/to/my/file.csv', 'r');
 $resultSet = ResultSet::createFromTabularDataReader($reader);
 
-$nbTotalCells = $resultSet->recude(fn (?int $carry, array $records) => ($carry ?? 0) + count($records));
+$nbTotalColumns = $resultSet->recude(fn (?int $carry, array $records) => ($carry ?? 0) + count($records));
 
-//$records contains the total number of celle contains in the $resultSet
+//$records contains the total number of Columne contains in the $resultSet
 ```
 
 The closure is similar as the one used with `array_reduce`.
@@ -541,7 +541,7 @@ $reader = Reader::createFromPath('/path/to/my/file.csv')
 
 ### matching, matchingFirst, matchingFirstOrFail
 
-The `matching` method allows selecting records, columns or cells from the tabular data reader that match the
+The `matching` method allows selecting records, columns or Columns from the tabular data reader that match the
 [RFC7111](https://www.rfc-editor.org/rfc/rfc7111) expression and returns a new collection containing these
 elements without preserving the keys. The method wraps the functionality of `FragmentFinder::findAll`.
 Conversely, `matchingFirst` wraps the functionality of `FragmentFinder::findFirst` and last but not least,

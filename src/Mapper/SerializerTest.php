@@ -30,8 +30,7 @@ final class SerializerTest extends TestCase
             'place' => 'Berkeley',
         ];
 
-        $serializer = new Serializer(WeatherProperty::class, ['date', 'temperature', 'place']);
-        $weather = $serializer->deserialize($record);
+        $weather = Serializer::map(WeatherProperty::class, $record);
 
         self::assertInstanceOf(WeatherProperty::class, $weather);
         self::assertInstanceOf(DateTimeImmutable::class, $weather->observedOn);
@@ -47,8 +46,7 @@ final class SerializerTest extends TestCase
             'place' => 'Berkeley',
         ];
 
-        $serializer = new Serializer(WeatherSetterGetter::class, ['date', 'temperature', 'place']);
-        $weather = $serializer->deserialize($record);
+        $weather = Serializer::map(WeatherSetterGetter::class, $record);
 
         self::assertInstanceOf(WeatherSetterGetter::class, $weather);
         self::assertSame('2023-10-30', $weather->getObservedOn()->format('Y-m-d'));
@@ -58,7 +56,7 @@ final class SerializerTest extends TestCase
 
     public function testItWillThrowIfTheHeaderIsMissingAndTheColumnOffsetIsAString(): void
     {
-        $this->expectException(CellMappingFailed::class);
+        $this->expectException(MappingFailed::class);
         $serializer = new Serializer(WeatherSetterGetter::class);
         $serializer->deserialize([
             'date' => '2023-10-30',
@@ -69,7 +67,7 @@ final class SerializerTest extends TestCase
 
     public function testItWillThrowIfTheHeaderContainsInvalidOffsetName(): void
     {
-        $this->expectException(CellMappingFailed::class);
+        $this->expectException(MappingFailed::class);
         $serializer = new Serializer(WeatherSetterGetter::class, ['date', 'toto', 'foobar']);
         $serializer->deserialize([
             'date' => '2023-10-30',
@@ -80,7 +78,7 @@ final class SerializerTest extends TestCase
 
     public function testItWillThrowIfTheColumnAttributesIsUsedMultipleTimeForTheSameAccessor(): void
     {
-        $this->expectException(CellMappingFailed::class);
+        $this->expectException(MappingFailed::class);
 
         new Serializer(InvalidWeatherAttributeUsage::class);
     }
@@ -96,11 +94,11 @@ final class SerializerTest extends TestCase
 final class WeatherProperty
 {
     public function __construct(
-        #[Cell(offset:'temperature')]
+        #[Column(offset:'temperature')]
         public readonly float $temperature,
-        #[Cell(offset:2, cast: CastToEnum::class)]
+        #[Column(offset:2, cast: CastToEnum::class)]
         public readonly Place $place,
-        #[Cell(
+        #[Column(
             offset: 'date',
             cast: CastToDate::class,
             castArguments: ['format' => '!Y-m-d', 'timezone' => 'Africa/Kinshasa'],
@@ -115,9 +113,9 @@ final class WeatherSetterGetter
     private float $temperature;
 
     public function __construct(
-        #[Cell(offset:2, cast: CastToEnum::class)]
+        #[Column(offset:2, cast: CastToEnum::class)]
         public readonly Place $place,
-        #[Cell(
+        #[Column(
             offset: 'date',
             cast: CastToDate::class,
             castArguments: ['format' => '!Y-m-d', 'timezone' => 'Africa/Kinshasa'],
@@ -126,7 +124,7 @@ final class WeatherSetterGetter
     ) {
     }
 
-    #[Cell(offset:'temperature')]
+    #[Column(offset:'temperature')]
     public function setTemperature(float $temperature): void
     {
         $this->temperature = $temperature;
@@ -153,11 +151,11 @@ final class InvalidWeatherAttributeUsage
 {
     public function __construct(
         /* @phpstan-ignore-next-line */
-        #[Cell(offset:'temperature'), Cell(offset:'date')]
+        #[Column(offset:'temperature'), Column(offset:'date')]
         public readonly float $temperature,
-        #[Cell(offset:2, cast: CastToEnum::class)]
+        #[Column(offset:2, cast: CastToEnum::class)]
         public readonly Place $place,
-        #[Cell(
+        #[Column(
             offset: 'date',
             cast: CastToDate::class,
             castArguments: ['format' => '!Y-m-d', 'timezone' => 'Africa/Kinshasa'],
@@ -170,11 +168,11 @@ final class InvalidWeatherAttributeUsage
 final class InvalidWeatherAttributeCasterNotSupported
 {
     public function __construct(
-        #[Cell(offset:'temperature', cast: stdClass::class)]
+        #[Column(offset:'temperature', cast: stdClass::class)]
         public readonly float $temperature,
-        #[Cell(offset:2, cast: CastToEnum::class)]
+        #[Column(offset:2, cast: CastToEnum::class)]
         public readonly Place $place,
-        #[Cell(
+        #[Column(
             offset: 'date',
             cast: CastToDate::class,
             castArguments: ['format' => '!Y-m-d', 'timezone' => 'Africa/Kinshasa'],

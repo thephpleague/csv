@@ -23,7 +23,7 @@ use TypeError;
 
 final class Serializer
 {
-    /** @var array<CellConverter>  */
+    /** @var array<PropertySetter>  */
     public readonly array $converters;
 
     /**
@@ -41,7 +41,7 @@ final class Serializer
 
             return match ($offset) {
                 null => $carry,
-                default => [...$carry, new CellConverter($accessor, $offset, $caster)],
+                default => [...$carry, new PropertySetter($accessor, $offset, $caster)],
             };
         };
 
@@ -69,49 +69,59 @@ final class Serializer
     }
 
     /**
+     * @param class-string $className
+     *
+     * @throws ReflectionException
+     */
+    public static function map(string $className, array $record): object
+    {
+        return (new self($className, array_keys($record)))->deserialize($record);
+    }
+
+    /**
      * @param array<string> $header
      *
-     * @throws CellMappingFailed
+     * @throws MappingFailed
      *
      * @return array{0:int<0, max>|null, 1:TypeCasting}
      */
     private function getArguments(ReflectionProperty|ReflectionMethod $target, array $header): array
     {
-        $attributes = $target->getAttributes(Cell::class, ReflectionAttribute::IS_INSTANCEOF);
+        $attributes = $target->getAttributes(Column::class, ReflectionAttribute::IS_INSTANCEOF);
         if ([] === $attributes) {
             return [null, new CastToScalar()];
         }
 
         if (1 < count($attributes)) {
-            throw new CellMappingFailed('Using more than one '.Cell::class.' attribute on a class property or method is not supported.');
+            throw new MappingFailed('Using more than one '.Column::class.' attribute on a class property or method is not supported.');
         }
 
-        /** @var Cell $cell */
+        /** @var Column $cell */
         $cell = $attributes[0]->newInstance();
         $offset = $cell->offset;
         $cast = $this->getTypeCasting($cell);
         if (is_int($offset)) {
             return match (true) {
-                0 > $offset,
-                [] !== $header && $offset > count($header) - 1 => throw new CellMappingFailed('cell integer position can only be positive or equals to 0; received `'.$offset.'`'),
+                0 > $offset => throw new MappingFailed('cell integer position can only be positive or equals to 0; received `'.$offset.'`'),
+                [] !== $header && $offset > count($header) - 1 => throw new MappingFailed('cell integer position can not exceed header cell count.'),
                 default => [$offset, $cast],
             };
         }
 
         if ([] === $header) {
-            throw new CellMappingFailed('Cell name as string are only supported if the tabular data has a non-empty header.');
+            throw new MappingFailed('Cell name as string are only supported if the tabular data has a non-empty header.');
         }
 
         /** @var int<0, max>|false $index */
         $index = array_search($offset, $header, true);
         if (false === $index) {
-            throw new CellMappingFailed('The offset `'.$offset.'` could not be found in the header; Pleaser verify your header data.');
+            throw new MappingFailed('The offset `'.$offset.'` could not be found in the header; Pleaser verify your header data.');
         }
 
         return [$index, $cast];
     }
 
-    private function getTypeCasting(Cell $cell): TypeCasting
+    private function getTypeCasting(Column $cell): TypeCasting
     {
         $caster = $cell->cast;
         if (null === $caster) {
