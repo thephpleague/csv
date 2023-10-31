@@ -17,6 +17,7 @@ use DateTime;
 use DateTimeImmutable;
 use DateTimeInterface;
 use League\Csv\Serializer\Attribute\Cell;
+use League\Csv\Serializer\Attribute\Record;
 use League\Csv\Serializer\CastToDate;
 use League\Csv\Serializer\CastToEnum;
 use League\Csv\Serializer\MappingFailed;
@@ -26,6 +27,22 @@ use TypeError;
 
 final class SerializerTest extends TestCase
 {
+    public function testItConvertsARecordsToAnObjectUsingRecordAttribute(): void
+    {
+        $record = [
+            'date' => '2023-10-30',
+            'temperature' => '-1.5',
+            'place' => 'Berkeley',
+        ];
+
+        $weather = Serializer::map(WeatherWithRecordAttribute::class, $record);
+
+        self::assertInstanceOf(WeatherWithRecordAttribute::class, $weather);
+        self::assertInstanceOf(DateTimeImmutable::class, $weather->observedOn);
+        self::assertSame(Place::Berkeley, $weather->place);
+        self::assertSame(-1.5, $weather->temperature);
+    }
+
     public function testItConvertsARecordsToAnObjectUsingProperties(): void
     {
         $record = [
@@ -92,6 +109,21 @@ final class SerializerTest extends TestCase
         $this->expectException(TypeError::class);
 
         new Serializer(InvalidWeatherAttributeCasterNotSupported::class);
+    }
+}
+
+#[Record]
+final class WeatherWithRecordAttribute
+{
+    public function __construct(
+        public readonly float $temperature,
+        public readonly Place $place,
+        #[Cell(
+            offset: 'date',
+            castArguments: ['format' => '!Y-m-d', 'timezone' => 'Africa/Kinshasa'],
+        )]
+        public readonly DateTimeInterface $observedOn
+    ) {
     }
 }
 
