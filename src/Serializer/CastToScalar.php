@@ -35,11 +35,34 @@ final class CastToScalar implements TypeCasting
             'int' => $this->castToInt($value),
             'float' => $this->castToFloat($value),
             'bool' => filter_var($value, FILTER_VALIDATE_BOOL),
+            'true' => $this->castToTrue($value),
+            'false' => $this->castToFalse($value),
             'string' => $this->castToString($value),
             'null' => $this->castToNull($value),
             default => throw new TypeCastingFailed('Unable to convert the given data to a PHP scalar variable.'),
         };
     }
+
+    private function castToTrue(?string $value): bool
+    {
+        $returnedValue = filter_var($value, FILTER_VALIDATE_BOOL);
+
+        return match (true) {
+            $returnedValue => true,
+            default => throw new TypeCastingFailed('The value `'.$value.'` can not be cast to the boolean true.'),
+        };
+    }
+
+    private function castToFalse(?string $value): bool
+    {
+        $returnedValue = filter_var($value, FILTER_VALIDATE_BOOL);
+
+        return match (false) {
+            $returnedValue => false,
+            default => throw new TypeCastingFailed('The value `'.$value.'` can not be cast to the boolean false.'),
+        };
+    }
+
 
     /** @return null */
     private function castToNull(?string $value)

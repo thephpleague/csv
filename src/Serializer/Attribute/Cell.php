@@ -11,12 +11,12 @@
 
 declare(strict_types=1);
 
-namespace League\Csv\Serializer;
+namespace League\Csv\Serializer\Attribute;
 
-use Attribute;
+use Attribute as PhpAttribute;
 
-#[Attribute(Attribute::TARGET_METHOD | Attribute::TARGET_PROPERTY)]
-final class Column
+#[PhpAttribute(PhpAttribute::TARGET_METHOD | PhpAttribute::TARGET_PROPERTY)]
+final class Cell
 {
     /**
      * @param ?class-string $cast

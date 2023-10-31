@@ -11,11 +11,15 @@
 
 declare(strict_types=1);
 
-namespace League\Csv\Serializer;
+namespace League\Csv;
 
 use DateTime;
 use DateTimeImmutable;
 use DateTimeInterface;
+use League\Csv\Serializer\Attribute\Cell;
+use League\Csv\Serializer\CastToDate;
+use League\Csv\Serializer\CastToEnum;
+use League\Csv\Serializer\MappingFailed;
 use PHPUnit\Framework\TestCase;
 use stdClass;
 use TypeError;
@@ -94,11 +98,11 @@ final class SerializerTest extends TestCase
 final class WeatherProperty
 {
     public function __construct(
-        #[Column(offset:'temperature')]
+        #[Cell(offset:'temperature')]
         public readonly float $temperature,
-        #[Column(offset:2, cast: CastToEnum::class)]
+        #[Cell(offset:2, cast: CastToEnum::class)]
         public readonly Place $place,
-        #[Column(
+        #[Cell(
             offset: 'date',
             cast: CastToDate::class,
             castArguments: ['format' => '!Y-m-d', 'timezone' => 'Africa/Kinshasa'],
@@ -113,9 +117,9 @@ final class WeatherSetterGetter
     private float $temperature;
 
     public function __construct(
-        #[Column(offset:2, cast: CastToEnum::class)]
+        #[Cell(offset:2, cast: CastToEnum::class)]
         public readonly Place $place,
-        #[Column(
+        #[Cell(
             offset: 'date',
             cast: CastToDate::class,
             castArguments: ['format' => '!Y-m-d', 'timezone' => 'Africa/Kinshasa'],
@@ -124,7 +128,7 @@ final class WeatherSetterGetter
     ) {
     }
 
-    #[Column(offset:'temperature')]
+    #[Cell(offset:'temperature')]
     public function setTemperature(float $temperature): void
     {
         $this->temperature = $temperature;
@@ -151,11 +155,11 @@ final class InvalidWeatherAttributeUsage
 {
     public function __construct(
         /* @phpstan-ignore-next-line */
-        #[Column(offset:'temperature'), Column(offset:'date')]
+        #[Cell(offset:'temperature'), Cell(offset:'date')]
         public readonly float $temperature,
-        #[Column(offset:2, cast: CastToEnum::class)]
+        #[Cell(offset:2, cast: CastToEnum::class)]
         public readonly Place $place,
-        #[Column(
+        #[Cell(
             offset: 'date',
             cast: CastToDate::class,
             castArguments: ['format' => '!Y-m-d', 'timezone' => 'Africa/Kinshasa'],
@@ -168,11 +172,11 @@ final class InvalidWeatherAttributeUsage
 final class InvalidWeatherAttributeCasterNotSupported
 {
     public function __construct(
-        #[Column(offset:'temperature', cast: stdClass::class)]
+        #[Cell(offset:'temperature', cast: stdClass::class)]
         public readonly float $temperature,
-        #[Column(offset:2, cast: CastToEnum::class)]
+        #[Cell(offset:2, cast: CastToEnum::class)]
         public readonly Place $place,
-        #[Column(
+        #[Cell(
             offset: 'date',
             cast: CastToDate::class,
             castArguments: ['format' => '!Y-m-d', 'timezone' => 'Africa/Kinshasa'],
