@@ -217,7 +217,7 @@ The above rule can be translated in plain english like this:
 > timezone and the `CarbonImmutable::class`.
 
 The `Cell` attribute differs from the `Record` attribute as it can be used:
-
+    
 - on class properties and methods.
 - **without** the presence of the `Record` attribute.
 - with tabular data **without header** .
@@ -228,7 +228,7 @@ The `Cell` attribute can take up to three (3) arguments which are all optional:
 the property name or the name of the first argument of the `setter` method will be used. In such case,  
 the tabular data must be using a non-empty header.
 - The `cast` argument which accept the name of a class implementing the `TypeCasting` interface and responsible  
-for type casting the cell value. 
+for type casting the cell value.
 - The `castArguments` which enable controlling typecasting by providing extra arguments to the `TypeCasting` class constructor
 
 In any cases, if type casting fails, an exception will be thrown.
