@@ -33,7 +33,7 @@ final class CastToDate implements TypeCasting
      */
     public function __construct(
         private readonly ?string $format = null,
-        DateTimeZone|string|null $timezone = null
+        DateTimeZone|string|null $timezone = null,
     ) {
         $this->timezone = match (true) {
             is_string($timezone) => new DateTimeZone($timezone),
@@ -53,20 +53,26 @@ final class CastToDate implements TypeCasting
             };
         }
 
-        try {
-            $date = match (ltrim($type, '?')) {
-                DateTimeImmutable::class,
-                DateTimeInterface::class => null !== $this->format ? DateTimeImmutable::createFromFormat($this->format, $value, $this->timezone) : new DateTimeImmutable($value, $this->timezone),
-                DateTime::class => null !== $this->format ? DateTime::createFromFormat($this->format, $value, $this->timezone) : new DateTime($value, $this->timezone),
-                default => throw new TypeCastingFailed('Unable to cast the given data to a PHP DateTime related object.'),
-            };
+        $dateClass = ltrim($type, '?');
+        if (DateTimeInterface::class === $dateClass) {
+            $dateClass = DateTimeImmutable::class;
+        }
 
+        $implementedClasses = class_implements($dateClass);
+        if (false === $implementedClasses || !in_array(DateTimeInterface::class, $implementedClasses, true)) {
+            throw new TypeCastingFailed('The property type `'.$dateClass.'` does not implement the `'.DateTimeInterface::class.'`.');
+        }
+
+        try {
+            $date = null !== $this->format ?
+                $dateClass::createFromFormat($this->format, $value, $this->timezone) :
+                new $dateClass($value, $this->timezone);
             if (false === $date) {
-                throw new TypeCastingFailed('Unable to cast the given data to a PHP DateTime related object.');
+                throw new TypeCastingFailed('Unable to cast the given data `'.$value.'` to a PHP DateTime related object.');
             }
         } catch (Throwable $exception) {
-            if (! $exception instanceof TypeCastingFailed) {
-                $exception = new TypeCastingFailed('Unable to cast the given data to a PHP DateTime related object.', 0, $exception);
+            if (!$exception instanceof TypeCastingFailed) {
+                $exception = new TypeCastingFailed('Unable to cast the given data `'.$value.'` to a PHP DateTime related object.', 0, $exception);
             }
 
             throw $exception;

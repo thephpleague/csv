@@ -13,6 +13,7 @@ declare(strict_types=1);
 
 namespace League\Csv;
 
+use DateTimeInterface;
 use Exception;
 use League\Csv\Serializer\Attribute\Cell;
 use League\Csv\Serializer\Attribute\Record;
@@ -130,12 +131,16 @@ final class Serializer
     private function resolveCaster(ReflectionNamedType $type, array $arguments = []): ?TypeCasting
     {
         $formattedType = ltrim($type->getName(), '?');
-
         if (in_array($formattedType, ['int', 'float', 'string', 'bool', 'true', 'false', 'null'], true)) {
             return new CastToScalar();
         }
 
-        if (in_array($formattedType, ['DateTime', 'DateTimeImmutable', 'DateTimeInterface'], true)) {
+        if (DateTimeInterface::class === $formattedType) {
+            return new CastToDate(...$arguments); /* @phpstan-ignore-line */
+        }
+
+        $foundInterfaces = class_implements($formattedType);
+        if (false !== $foundInterfaces && in_array(DateTimeInterface::class, $foundInterfaces, true)) {
             return new CastToDate(...$arguments); /* @phpstan-ignore-line */
         }
 
@@ -194,6 +199,14 @@ final class Serializer
         /** @var Cell $column */
         $column = $attributes[0]->newInstance();
         $offset = $column->offset;
+
+        if (null === $offset) {
+            $offset = match (true) {
+                $accessor instanceof ReflectionMethod => $accessor->getParameters()[0]->getName(),
+                default => $accessor->getName(),
+            };
+        }
+
         $cast = $this->getTypeCasting($column, $accessor);
         if (is_int($offset)) {
             return match (true) {
@@ -218,10 +231,10 @@ final class Serializer
 
     private function getTypeCasting(Cell $cell, ReflectionProperty|ReflectionMethod $accessor): TypeCasting
     {
-        $caster = $cell->cast;
-        if (null !== $caster) {
+        $typeCaster = $cell->cast;
+        if (null !== $typeCaster) {
             /** @var TypeCasting $cast */
-            $cast = new $caster(...$cell->castArguments);
+            $cast = new $typeCaster(...$cell->castArguments);
 
             return $cast;
         }

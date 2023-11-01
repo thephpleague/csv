@@ -22,7 +22,7 @@ final class Cell
      * @param ?class-string $cast
      */
     public function __construct(
-        public readonly string|int $offset,
+        public readonly string|int|null $offset = null,
         public readonly ?string $cast = null,
         public readonly array $castArguments = []
     ) {

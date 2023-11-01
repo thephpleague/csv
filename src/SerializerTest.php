@@ -22,6 +22,7 @@ use League\Csv\Serializer\CastToDate;
 use League\Csv\Serializer\CastToEnum;
 use League\Csv\Serializer\MappingFailed;
 use PHPUnit\Framework\TestCase;
+use SplFileObject;
 use stdClass;
 use TypeError;
 
@@ -89,6 +90,7 @@ final class SerializerTest extends TestCase
     public function testItWillThrowIfTheHeaderContainsInvalidOffsetName(): void
     {
         $this->expectException(MappingFailed::class);
+
         $serializer = new Serializer(WeatherSetterGetter::class, ['date', 'toto', 'foobar']);
         $serializer->deserialize([
             'date' => '2023-10-30',
@@ -109,6 +111,31 @@ final class SerializerTest extends TestCase
         $this->expectException(TypeError::class);
 
         new Serializer(InvalidWeatherAttributeCasterNotSupported::class);
+    }
+
+    public function testItWillThrowBecauseTheObjectDoesNotHaveTypedProperties(): void
+    {
+        $this->expectException(MappingFailed::class);
+
+        new Serializer(InvaliDWeatherWithRecordAttribute::class, ['temperature', 'foobar', 'observedOn']);
+    }
+}
+
+enum Place: string
+{
+    case Galway = 'Galway';
+    case Berkeley = 'Berkeley';
+}
+
+#[Record]
+final class InvaliDWeatherWithRecordAttribute
+{
+    /* @phpstan-ignore-next-line */
+    public function __construct(
+        public $temperature,
+        public $place,
+        public SplFileObject $observedOn
+    ) {
     }
 }
 
@@ -175,12 +202,6 @@ final class WeatherSetterGetter
     {
         return $this->observedOn;
     }
-}
-
-enum Place: string
-{
-    case Galway = 'Galway';
-    case Berkeley = 'Berkeley';
 }
 
 final class InvalidWeatherAttributeUsage

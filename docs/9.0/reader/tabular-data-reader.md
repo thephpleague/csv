@@ -117,7 +117,7 @@ and its value will represent its header value.
 This means that you can re-arrange the column order as well as removing or adding column to the
 returned iterator. Added column will only contain the `null` value.
 
-### map
+### Mapping recrods to objects
 
 <p class="message-notice">New in version <code>9.12.0</code></p>
 
@@ -125,8 +125,8 @@ If you prefer working with objects instead of typed arrays it is possible to con
 the `map` method. This method will cast each array record into your specified object. To do so,
 the method excepts:
 
-- as its sole argument the name of the class;
-- the given class to have information about type casting using the `League\Csv\Attribute\Column` attribute;
+- as its sole argument the name of the class the array willl be deserialized in;
+- information on how to convert the cell value into the object properties using dedicated attributes;
 
 As an example if we assume we have the following CSV document
 
@@ -140,34 +140,36 @@ date,temperature,place
 2011-01-03,5,Berkeley
 ```
 
-We can define a PHP DTO using the following class and the `League\Csv\Serializer\Attribute\Column` attribute.
+We can define a PHP DTO using the following class and the attributes.
 
 ```php
 <?php
 
-use League\Csv\Serializer\Column;
-use League\Csv\Serializer\CastToEnum;
-use League\Csv\Serializer\CastToDate;
+use League\Csv\Serializer\Attribute\Cell;
+use League\Csv\Serializer\Attribute\Record;
 
+#[Record]
 final readonly class Weather
 {
     public function __construct(
-        #[Column(offset:'temperature')]
-        public int $temperature,
-        #[Column(offset:2, cast: CastToEnum::class)]
+        public float $temperature,
         public Place $place,
-        #[Column(
-            offset: 'date',
-            cast: CastToDate::class,
-            castArguments: ['format' => '!Y-m-d', 'timezone' => 'Africa/Kinshasa']
-        )]
-        public DateTimeImmutable $createdAt;
+        #[Cell(castArguments: ['format' => '!Y-m-d'])]
+        public DateTimeImmutable $date;
     ) {
     }
 }
+
+//where Place is an Enum
+
+enum Place
+{
+    case Berkeley;
+    case Galway;
+}
 ```
 
-Finally, to get your object back you will have to call the `map` method as show below:
+To get instances of your object, you now can call the `map` method as show below:
 
 ```php
 $csv = Reader::createFromString($document);
@@ -177,12 +179,61 @@ foreach ($csv->map(Weather::class) as $weather) {
 }
 ```
 
-The `Column` attribute is responsible to link the record cell via its numeric or name offset and will
-tell the mapper how to type cast the cell value to the DTO property. By default, if no casting
-rule is provided, the column will attempt to cast the cell value to the scalar type of
-the property. If type casting fails or is not possible, an exception will be thrown.
+The `Record` attribute is responsible for converting record cell values into the appropriate instance
+properties. This means that in order to use the `Record` attribute you are required to have
+a `TabularDataReader` with an non-empty header.
 
-The library comes bundles with 3 type casting classes which relies on the property type information:
+The deserialization engine is able to cast the tabular data value into
+the appropriate type if its value is a `string` or `null` and the object properties ares typed with
+
+- `null`
+- a scalar value
+- any `Enum` object (backed or not)
+- `DateTime`, `DateTimeImmuntable`, `DateTimeInterface`
+
+When converting to a date object you can fine tune the conversion by optionally specifying the date
+format and timezone. You can do so using the `Cell` attribute. This attribute will override the automatic
+resolution and enable fine-tuning type casting on the property level.
+
+```php
+use League\Csv\Serializer;
+use Carbon\CarbonImmutable;
+
+#[Cell(
+    offset:'date',
+    cast:Serializer\CastToDate::class,
+    castArguments: [
+        'format' => '!Y-m-d',
+        'timezone' => 'Africa/Nairobi'
+    ])
+]
+public CarbonImmutable $observedOn;
+```
+
+The above rule can be translated in plain english like this:
+
+> convert the value of the record cell named `date` into a `CarbonImmutable` object to
+> inject into the `observedOn` property of the class using the date format `!Y-m-d` and the `Africa/Nairobi`
+> timezone and the `CarbonImmutable::class`.
+
+The `Cell` attribute differs from the `Record` attribute as it can be used:
+
+- on class properties and methods. 
+- **without** the presence of the `Record` attribute.
+- with tabular data **without header** .
+
+The `Cell` attribute can take up to three (3) arguments which are all optional:
+
+- The `offset` argument which tell the engine which cell to use via its numeric or name offset. If not present  
+the property name or the name of the first argument of the `setter` method will be used. In such case,  
+the tabular data must be using a non-empty header.
+- The `cast` argument which accept the name of a class implementing the `TypeCasting` interface and responsible  
+for type casting the cell value. 
+- The `castArguments` which enable controlling typecasting by providing extra arguments to the `TypeCasting` class constructor
+
+In any cases, if type casting fails, an exception will be thrown.
+
+The library comes bundles with three (3) type casting classes which relies on the property type information:
 
 - `CastToScalar`: converts the cell value to a scalar type or `null` depending on the property type information.
 - `CastToDate`: converts the cell value into a PHP `DateTimeInterface` implementing object. You can optionally specify the date format and its timezone if needed.
@@ -192,7 +243,8 @@ You can also provide your own class to typecast the cell value according to your
 specify your casting with the attribute:
 
 ```php
-#[\League\Csv\Serializer\Column(
+use League\Csv\Serializer\Attrbiute\Cell;
+#[Cell(
     offset: rating,
     cast: IntegerRangeCasting,
     castArguments: ['min' => 0, 'max' => 5, 'default' => 2]
@@ -207,6 +259,7 @@ the correct value once converted.
 
 ```php
 use League\Csv\Serializer\TypeCasting;
+use League\Csv\Serializer\TypeCastingFailed;
 
 /**
  * @implements TypeCasting<int|null>
@@ -219,7 +272,7 @@ readonly class IntegerRangeCasting implements TypeCasting
         private int $default,
     ) {
         if ($max < $min) {
-            throw new LogicException('The maximun value can not be smaller than the minimun value.');
+            throw new LogicException('The maximun value can not be lesser than the minimun value.');
         }
     }
 
@@ -232,7 +285,7 @@ readonly class IntegerRangeCasting implements TypeCasting
         
         //the type casting class must only work with property declared as integer
         if ('int' !== ltrim($type, '?')) {
-            throw new RuntimeException('The class '. self::class . ' can only work with integer typed property.');
+            throw new TypeCastingFailed('The class '. self::class . ' can only work with integer typed property.');
         }
         
         return filter_var(
@@ -246,6 +299,21 @@ readonly class IntegerRangeCasting implements TypeCasting
 
 As you have probably noticed, the class constructor arguments are given to the `Column` attribute via the
 `castArguments` which can provide more fine-grained behaviour.
+
+Last but not least if you only which to convert a single record, you can do so using the `Serializer::mao` static
+method.
+
+```php
+use League\Csv\Serializer;
+
+$record = [
+    'date' => '2023-10-30',
+    'temperature' => '-1.5',
+    'place' => 'Berkeley',
+];
+
+$weather = Serializer::map(Weather::class, $record);
+```
 
 ### value, first and nth
 
@@ -318,7 +386,7 @@ $resultSet = Statement::create()->process($reader);
 
 $exists = $resultSet->exists(fn (array $records) => in_array('twenty-five', $records, true));
 
-//$exists returns true if at least one Column contains the word `twenty-five` otherwise returns false,
+//$exists returns true if at least one cell contains the word `twenty-five` otherwise returns false,
 ```
 
 <p class="message-notice">Added in version <code>9.11.0</code> for <code>Reader</code> and <code>ResultSet</code>.</p>
@@ -405,8 +473,8 @@ foreach ($records->fetchPairs() as $firstname => $lastname) {
 
 - If no `$offsetIndex` is provided it defaults to `0`;
 - If no `$valueIndex` is provided it defaults to `1`;
-- If no Column is found corresponding to `$offsetIndex` the row is skipped;
-- If no Column is found corresponding to `$valueIndex` the `null` value is used;
+- If no cell is found corresponding to `$offsetIndex` the row is skipped;
+- If no cell is found corresponding to `$valueIndex` the `null` value is used;
 
 <p class="message-warning">If the <code>TabularDataReader</code> contains column names and the submitted arguments are not found, an <code>Exception</code> exception is thrown.</p>
 
@@ -451,9 +519,9 @@ use League\Csv\ResultSet;
 $reader = Reader::createFromPath('/path/to/my/file.csv', 'r');
 $resultSet = ResultSet::createFromTabularDataReader($reader);
 
-$nbTotalColumns = $resultSet->recude(fn (?int $carry, array $records) => ($carry ?? 0) + count($records));
+$nbTotalCells = $resultSet->recude(fn (?int $carry, array $records) => ($carry ?? 0) + count($records));
 
-//$records contains the total number of Columne contains in the $resultSet
+//$records contains the total number of cells contains in the $resultSet
 ```
 
 The closure is similar as the one used with `array_reduce`.
@@ -541,7 +609,7 @@ $reader = Reader::createFromPath('/path/to/my/file.csv')
 
 ### matching, matchingFirst, matchingFirstOrFail
 
-The `matching` method allows selecting records, columns or Columns from the tabular data reader that match the
+The `matching` method allows selecting records, columns or cells from the tabular data reader that match the
 [RFC7111](https://www.rfc-editor.org/rfc/rfc7111) expression and returns a new collection containing these
 elements without preserving the keys. The method wraps the functionality of `FragmentFinder::findAll`.
 Conversely, `matchingFirst` wraps the functionality of `FragmentFinder::findFirst` and last but not least,

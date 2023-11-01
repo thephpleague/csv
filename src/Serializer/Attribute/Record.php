@@ -18,9 +18,4 @@ use Attribute as PhpAttribute;
 #[PhpAttribute(PhpAttribute::TARGET_CLASS)]
 final class Record
 {
-    public function __construct(
-        /** @var array<string, string> */
-        public readonly array $alias = [],
-    ) {
-    }
 }
