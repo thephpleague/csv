@@ -145,8 +145,8 @@ We can define a PHP DTO using the following class and the attributes.
 ```php
 <?php
 
-use League\Csv\Serializer\Attribute\Cell;
-use League\Csv\Serializer\Attribute\Record;
+use League\Csv\Serializer\Cell;
+use League\Csv\Serializer\Record;
 
 #[Record]
 final readonly class Weather
@@ -196,7 +196,7 @@ format and timezone. You can do so using the `Cell` attribute. This attribute wi
 resolution and enable fine-tuning type casting on the property level.
 
 ```php
-use League\Csv\Serializer;
+use League\Csv\Serializer\Cell;
 use Carbon\CarbonImmutable;
 
 #[Cell(
@@ -243,7 +243,7 @@ You can also provide your own class to typecast the cell value according to your
 specify your casting with the attribute:
 
 ```php
-use League\Csv\Serializer\Attrbiute\Cell;
+use League\Csv\Serializer\Cell;
 #[Cell(
     offset: rating,
     cast: IntegerRangeCasting,

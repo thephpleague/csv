@@ -119,6 +119,13 @@ final class SerializerTest extends TestCase
 
         new Serializer(InvaliDWeatherWithRecordAttribute::class, ['temperature', 'foobar', 'observedOn']);
     }
+
+    public function testItWillThrowIfTheClassContainsUnitiliaziedProperties(): void
+    {
+        $this->expectException(MappingFailed::class);
+
+        new Serializer(InvalidObjectWithUninitializedProperty::class);
+    }
 }
 
 enum Place: string
@@ -236,5 +243,23 @@ final class InvalidWeatherAttributeCasterNotSupported
         )]
         public readonly DateTimeInterface $observedOn
     ) {
+    }
+}
+
+#[Record]
+final class InvalidObjectWithUninitializedProperty
+{
+    public function __construct(
+        public readonly string $prenoms,
+        private readonly int $nombre,
+        public readonly string $sexe,
+        #[Cell(castArguments: ['format' => '!Y'])]
+        public readonly DateTimeInterface $annee
+    ) {
+    }
+
+    public function nomber(): int
+    {
+        return $this->nombre;
     }
 }

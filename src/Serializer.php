@@ -43,6 +43,7 @@ final class Serializer
      * @param class-string $className
      * @param array<string> $header
      *
+     * @throws Exception
      * @throws TypeError
      * @throws RuntimeException
      * @throws ReflectionException
@@ -55,7 +56,7 @@ final class Serializer
         //if converters is empty it means the class
         //has no typed properties and no setters method with the Cell attributes
         $this->converters = match ([]) {
-            $converters => throw new MappingFailed('No properties were found elligible to be used for type casting.'),
+            $converters => throw new MappingFailed('No properties were found eligible to be used for type casting.'),
             default => $converters,
         };
     }
@@ -69,6 +70,12 @@ final class Serializer
         $object = $this->class->newInstanceWithoutConstructor();
         foreach ($this->converters as $converter) {
             $converter->setValue($object, $record[$converter->offset]);
+        }
+
+        foreach ($this->class->getProperties() as $property) {
+            if (!$property->isInitialized($object)) {
+                throw new MappingFailed('The property '.$this->class->getName().'::'.$property->getName().' is not initialized.');
+            }
         }
 
         return $object;
@@ -87,6 +94,8 @@ final class Serializer
     /**
      * @param array<string> $header
      *
+     * @throws MappingFailed|Exception
+     *
      * @return array<string, PropertySetter>
      */
     private function buildConvertersFromClass(array $header): array
@@ -101,7 +110,8 @@ final class Serializer
         }
 
         $converters = [];
-        foreach ($this->class->getProperties() as $property) {
+        $check = [];
+        foreach ($this->class->getProperties(ReflectionProperty::IS_PUBLIC) as $property) {
             $propertyName = $property->getName();
 
             /** @var int|false $offset */
@@ -112,18 +122,27 @@ final class Serializer
 
             $type = $property->getType();
             if (!$type instanceof ReflectionNamedType) {
-                continue;
+                throw new MappingFailed('The property `'.$propertyName.'` must be typed.');
             }
 
             $caster = $this->resolveCaster($type);
             if (null === $caster) {
+                $check['property:'.$propertyName] = $propertyName;
+
                 continue;
             }
 
             $converters['property:'.$propertyName] = new PropertySetter($property, $offset, $caster);
         }
 
-        return [...$converters, ...$this->buildConvertersFromAccessors($header)];
+        $converters = [...$converters, ...$this->buildConvertersFromAccessors($header)];
+        foreach ($check as $key => $propertyName) {
+            if (!isset($converters[$key])) {
+                throw new MappingFailed('No valid type casting was found for property `'.$propertyName.'`.');
+            }
+        }
+
+        return $converters;
     }
 
     /**
@@ -159,6 +178,8 @@ final class Serializer
     /**
      * @param array<string> $header
      *
+     * @throws Exception
+     *
      * @return array<string, PropertySetter>
      */
     private function buildConvertersFromAccessors(array $header): array
@@ -184,7 +205,7 @@ final class Serializer
     /**
      * @param array<string> $header
      *
-     * @throws MappingFailed
+     * @throws MappingFailed|Exception
      *
      * @return array{0:int<0, max>|null, 1:TypeCasting}
      */
@@ -232,6 +253,9 @@ final class Serializer
         return [$index, $cast];
     }
 
+    /**
+     * @throws Exception
+     */
     private function getTypeCasting(Cell $cell, ReflectionProperty|ReflectionMethod $accessor): TypeCasting
     {
         $typeCaster = $cell->cast;
