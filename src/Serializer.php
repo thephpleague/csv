@@ -15,13 +15,13 @@ namespace League\Csv;
 
 use DateTimeInterface;
 use Exception;
-use League\Csv\Serializer\Attribute\Cell;
-use League\Csv\Serializer\Attribute\Record;
 use League\Csv\Serializer\CastToDate;
 use League\Csv\Serializer\CastToEnum;
 use League\Csv\Serializer\CastToScalar;
+use League\Csv\Serializer\Cell;
 use League\Csv\Serializer\MappingFailed;
 use League\Csv\Serializer\PropertySetter;
+use League\Csv\Serializer\Record;
 use League\Csv\Serializer\TypeCasting;
 use ReflectionAttribute;
 use ReflectionClass;
@@ -50,7 +50,14 @@ final class Serializer
     public function __construct(string $className, array $header = [])
     {
         $this->class = new ReflectionClass($className);
-        $this->converters = $this->buildConvertersFromClass($header);
+        $converters = $this->buildConvertersFromClass($header);
+
+        //if converters is empty it means the class
+        //has no typed properties and no setters method with the Cell attributes
+        $this->converters = match ([]) {
+            $converters => throw new MappingFailed('No properties were found elligible to be used for type casting.'),
+            default => $converters,
+        };
     }
 
     /**
@@ -114,10 +121,6 @@ final class Serializer
             }
 
             $converters['property:'.$propertyName] = new PropertySetter($property, $offset, $caster);
-        }
-
-        if ([] === $converters) {
-            throw new MappingFailed('No properties were found elligible to be used for type casting.');
         }
 
         return [...$converters, ...$this->buildConvertersFromAccessors($header)];

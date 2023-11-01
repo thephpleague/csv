@@ -40,6 +40,15 @@ final class CastToDateTest extends TestCase
         self::assertEquals(new DateTimeZone('Africa/Kinshasa'), $date->getTimezone());
     }
 
+    public function testItCanConvertAnObjectImplementingTheDateTimeInterface(): void
+    {
+        $cast = new CastToDate();
+        $date = $cast->toVariable('2023-10-30', MyDate::class);
+
+        self::assertInstanceOf(MyDate::class, $date);
+        self::assertSame('30-10-2023', $date->format('d-m-Y'));
+    }
+
     public function testItCShouldThrowIfNoConversionIsPossible(): void
     {
         $this->expectException(TypeCastingFailed::class);
@@ -53,4 +62,8 @@ final class CastToDateTest extends TestCase
 
         self::assertNull($cast->toVariable(null, '?'.DateTime::class));
     }
+}
+
+class MyDate extends DateTimeImmutable
+{
 }

@@ -11,11 +11,11 @@
 
 declare(strict_types=1);
 
-namespace League\Csv\Serializer\Attribute;
+namespace League\Csv\Serializer;
 
-use Attribute as PhpAttribute;
+use Attribute;
 
-#[PhpAttribute(PhpAttribute::TARGET_METHOD | PhpAttribute::TARGET_PROPERTY)]
+#[Attribute(Attribute::TARGET_METHOD | Attribute::TARGET_PROPERTY)]
 final class Cell
 {
     /**

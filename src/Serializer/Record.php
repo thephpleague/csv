@@ -11,11 +11,11 @@
 
 declare(strict_types=1);
 
-namespace League\Csv\Serializer\Attribute;
+namespace League\Csv\Serializer;
 
-use Attribute as PhpAttribute;
+use Attribute;
 
-#[PhpAttribute(PhpAttribute::TARGET_CLASS)]
+#[Attribute(Attribute::TARGET_CLASS)]
 final class Record
 {
 }
