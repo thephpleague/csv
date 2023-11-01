@@ -218,7 +218,7 @@ The above rule can be translated in plain english like this:
 
 The `Cell` attribute differs from the `Record` attribute as it can be used:
 
-- on class properties and methods. 
+- on class properties and methods.
 - **without** the presence of the `Record` attribute.
 - with tabular data **without header** .
 
