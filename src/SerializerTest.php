@@ -163,6 +163,7 @@ final class WeatherWithRecordAttribute
     }
 }
 
+#[Record]
 final class WeatherProperty
 {
     public function __construct(
@@ -180,6 +181,7 @@ final class WeatherProperty
     }
 }
 
+#[Record]
 final class WeatherSetterGetter
 {
     private float $temperature;
@@ -213,6 +215,7 @@ final class WeatherSetterGetter
     }
 }
 
+#[Record]
 final class InvalidWeatherAttributeUsage
 {
     public function __construct(
@@ -231,6 +234,7 @@ final class InvalidWeatherAttributeUsage
     }
 }
 
+#[Record]
 final class InvalidWeatherAttributeCasterNotSupported
 {
     public function __construct(

@@ -219,8 +219,7 @@ The above rule can be translated in plain english like this:
 The `Cell` attribute differs from the `Record` attribute as it can be used:
 
 - on class properties and methods.
-- **without** the presence of the `Record` attribute.
-- with tabular data **without header** .
+- with tabular data **without header** (in absence of header you are required to specify the offset number).
 
 The `Cell` attribute can take up to three (3) arguments which are all optional:
 

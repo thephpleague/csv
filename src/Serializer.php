@@ -102,7 +102,7 @@ final class Serializer
     {
         $attributes = $this->class->getAttributes(Record::class, ReflectionAttribute::IS_INSTANCEOF);
         if ([] === $attributes) {
-            return $this->buildConvertersFromAccessors($header);
+            throw new MappingFailed('The '.Record::class.' attribute is missing on the class.');
         }
 
         if (1 < count($attributes)) {
