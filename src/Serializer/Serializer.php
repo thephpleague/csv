@@ -20,6 +20,7 @@ use ReflectionMethod;
 use ReflectionNamedType;
 use ReflectionProperty;
 use RuntimeException;
+use Throwable;
 use TypeError;
 
 final class Serializer
@@ -40,12 +41,7 @@ final class Serializer
      */
     public function __construct(string $className, array $header = [])
     {
-        try {
-            $this->class = new ReflectionClass($className);
-        } catch (ReflectionException $exception) {
-            throw new MappingFailed('The class `'.$className.'` does not exist; it can not be used via Reflection.',0, $exception);
-        }
-
+        $this->class = new ReflectionClass($className);
         $this->properties = $this->class->getProperties();
         $this->propertySetters = $this->findPropertySetters($header);
 
