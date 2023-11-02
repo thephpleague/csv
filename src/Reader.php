@@ -17,6 +17,10 @@ use CallbackFilterIterator;
 use Closure;
 use Iterator;
 use JsonSerializable;
+use League\Csv\Serializer\MappingFailed;
+use League\Csv\Serializer\Serializer;
+use League\Csv\Serializer\TypeCastingFailed;
+use ReflectionException;
 use SplFileObject;
 
 use function array_filter;
@@ -405,10 +409,16 @@ class Reader extends AbstractCsv implements TabularDataReader, JsonSerializable
 
     /**
      * @param class-string $className
+     *
+     * @throws TypeCastingFailed
+     * @throws ReflectionException
+     * @throws MappingFailed
      */
     public function map(string $className): Iterator
     {
-        return new MapIterator($this, (new Serializer($className, $this->getHeader()))->deserialize(...));
+        $serializer = new Serializer($className, $this->getHeader());
+
+        return new MapIterator($this, $serializer->deserialize(...));
     }
 
     /**

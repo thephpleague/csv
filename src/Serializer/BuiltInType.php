@@ -16,16 +16,16 @@ use ReflectionNamedType;
 use const FILTER_VALIDATE_FLOAT;
 use const FILTER_VALIDATE_INT;
 
-enum BasicType: string
+enum BuiltInType: string
 {
+    case Boolean = 'bool';
     case Int =  'int';
     case Float = 'float';
-    case Boolean = 'bool';
     case String = 'string';
-    case Null = 'null';
-    case Mixed = 'mixed';
     case True = 'true';
     case False = 'false';
+    case Null = 'null';
+    case Mixed = 'mixed';
 
     public static function supports(ReflectionNamedType|string $type): bool
     {
@@ -72,7 +72,6 @@ enum BasicType: string
             default => throw new TypeCastingFailed('The value `'.$value.'` can not be cast to the boolean false.'),
         };
     }
-
 
     /** @return null */
     private function castToNull(?string $value)

@@ -16,12 +16,12 @@ namespace League\Csv\Serializer;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
-final class CastToScalarTest extends TestCase
+final class CastToBuiltInTypeTest extends TestCase
 {
     #[DataProvider('providesValidScalarValues')]
     public function testItCanConvertWithValidValue(?string $value, string $type, int|float|string|bool|null $expected): void
     {
-        self::assertSame($expected, (new CastToScalar())->toVariable($value, $type));
+        self::assertSame($expected, (new CastToBuiltInType())->toVariable($value, $type));
     }
 
     public static function providesValidScalarValues(): iterable
@@ -85,6 +85,6 @@ final class CastToScalarTest extends TestCase
     {
         $this->expectException(TypeCastingFailed::class);
 
-        (new CastToScalar())->toVariable(null, 'int');
+        (new CastToBuiltInType())->toVariable(null, 'int');
     }
 }

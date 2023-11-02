@@ -11,16 +11,11 @@
 
 declare(strict_types=1);
 
-namespace League\Csv;
+namespace League\Csv\Serializer;
 
 use DateTime;
 use DateTimeImmutable;
 use DateTimeInterface;
-use League\Csv\Serializer\CastToDate;
-use League\Csv\Serializer\CastToEnum;
-use League\Csv\Serializer\Cell;
-use League\Csv\Serializer\MappingFailed;
-use League\Csv\Serializer\Record;
 use PHPUnit\Framework\TestCase;
 use SplFileObject;
 use stdClass;

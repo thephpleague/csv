@@ -15,6 +15,7 @@ namespace League\Csv\Serializer;
 
 use BackedEnum;
 use ReflectionEnum;
+use ReflectionException;
 use Throwable;
 use UnitEnum;
 
@@ -23,6 +24,17 @@ use UnitEnum;
  */
 class CastToEnum implements TypeCasting
 {
+    public static function supports(string $type): bool
+    {
+        try {
+            new ReflectionEnum(ltrim($type, '?'));
+
+            return true;
+        } catch (ReflectionException) {
+            return false;
+        }
+    }
+
     /**
      * @throws TypeCastingFailed
      */

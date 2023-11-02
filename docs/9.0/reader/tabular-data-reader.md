@@ -126,7 +126,7 @@ the `map` method. This method will cast each array record into your specified ob
 the method excepts:
 
 - as its sole argument the name of the class the array will be deserialized in;
-- information on how to convert the cell value into the object properties using dedicated attributes;
+- information on how to convert cell value into object properties using dedicated attributes;
 
 As an example if we assume we have the following CSV document:
 
@@ -160,8 +160,6 @@ final readonly class Weather
     }
 }
 
-//where Place is an Enum
-
 enum Place
 {
     case Berkeley;
@@ -181,15 +179,16 @@ foreach ($csv->map(Weather::class) as $weather) {
 
 The `Record` attribute is responsible for converting record cell values into the appropriate instance
 properties. This means that in order to use the `Record` attribute you are required to have
-a `TabularDataReader` with an non-empty header.
+a `TabularDataReader` with a non-empty header.
 
 The deserialization engine is able to cast the tabular data value into
-the appropriate type if its value is a `string` or `null` and the object properties ares typed with
+the appropriate type if its value is a `string` or `null` and the object public properties ares typed with
 
 - `null`
-- a scalar value
+- `mixed`
+- a scalar type (support for `true` and `false` type is also present)
 - any `Enum` object (backed or not)
-- `DateTime`, `DateTimeImmuntable`, `DateTimeInterface`
+- `DateTime`, `DateTimeImmuntable` and any class that extends those two classes.
 
 When converting to a date object you can fine tune the conversion by optionally specifying the date
 format and timezone. You can do so using the `Cell` attribute. This attribute will override the automatic
@@ -218,7 +217,7 @@ The above rule can be translated in plain english like this:
 
 The `Cell` attribute differs from the `Record` attribute as it can be used:
 
-- on class properties and methods.
+- on class properties and methods (public, protected or private).
 - with tabular data **without header** (in absence of header you are required to specify the offset number).
 
 The `Cell` attribute can take up to three (3) arguments which are all optional:
@@ -234,9 +233,9 @@ In any cases, if type casting fails, an exception will be thrown.
 
 The library comes bundles with three (3) type casting classes which relies on the property type information:
 
-- `CastToScalar`: converts the cell value to a scalar type or `null` depending on the property type information.
+- `CastToBuiltInType`: converts the cell value to a scalar type or `null`, `true` depending on the property type information.
 - `CastToDate`: converts the cell value into a PHP `DateTimeInterface` implementing object. You can optionally specify the date format and its timezone if needed.
-- `CastToEnum`: converts the cell vale into a PHP `Enum` backed or not.
+- `CastToEnum`: converts the cell value into a PHP `Enum`.
 
 You can also provide your own class to typecast the cell value according to your own rules. To do so, first,
 specify your casting with the attribute:
@@ -244,11 +243,11 @@ specify your casting with the attribute:
 ```php
 use League\Csv\Serializer\Cell;
 #[Cell(
-    offset: rating,
-    cast: IntegerRangeCasting,
+    offset: 'rating',
+    cast: IntegerRangeCasting::class,
     castArguments: ['min' => 0, 'max' => 5, 'default' => 2]
 )]
-private int $positiveInt;
+private int $ratingScore;
 ```
 
 The `IntegerRangeCasting` will convert cell value and return data between `0` and `5` and default to `2` if
@@ -271,7 +270,7 @@ readonly class IntegerRangeCasting implements TypeCasting
         private int $default,
     ) {
         if ($max < $min) {
-            throw new LogicException('The maximun value can not be lesser than the minimun value.');
+            throw new LogicException('The maximum value can not be lesser than the minimum value.');
         }
     }
 
@@ -299,11 +298,11 @@ readonly class IntegerRangeCasting implements TypeCasting
 As you have probably noticed, the class constructor arguments are given to the `Column` attribute via the
 `castArguments` which can provide more fine-grained behaviour.
 
-Last but not least if you only which to convert a single record, you can do so using the `Serializer::mao` static
+Last but not least if you only which to convert a single record, you can do so using the `Serializer::map` static
 method.
 
 ```php
-use League\Csv\Serializer;
+use League\Csv\Serializer\Serializer;
 
 $record = [
     'date' => '2023-10-30',

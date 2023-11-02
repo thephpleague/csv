@@ -13,20 +13,14 @@ declare(strict_types=1);
 
 namespace League\Csv\Serializer;
 
-use ReflectionNamedType;
-
 /**
  * @implements TypeCasting<int|float|bool|string|null>
  */
-final class CastToScalar implements TypeCasting
+final class CastToBuiltInType implements TypeCasting
 {
-    public static function supports(ReflectionNamedType|string $type): bool
+    public static function supports(string $type): bool
     {
-        if ($type instanceof ReflectionNamedType) {
-            $type = $type->getName();
-        }
-
-        return null !== BasicType::tryFrom(ltrim($type, '?'));
+        return null !== BuiltInType::tryFrom(ltrim($type, '?'));
     }
 
     /**
@@ -36,7 +30,7 @@ final class CastToScalar implements TypeCasting
     {
         return match(true) {
             in_array($value, ['', null], true) && str_starts_with($type, '?') => null,
-            default => BasicType::from(ltrim($type, '?'))->cast($value),
+            default => BuiltInType::from(ltrim($type, '?'))->cast($value),
         };
     }
 }
