@@ -17,6 +17,8 @@ use CallbackFilterIterator;
 use Closure;
 use Iterator;
 use JsonSerializable;
+use League\Csv\Serializer\MappingFailed;
+use League\Csv\Serializer\TypeCastingFailed;
 use SplFileObject;
 
 use function array_filter;
@@ -401,6 +403,18 @@ class Reader extends AbstractCsv implements TabularDataReader, JsonSerializable
         $finalHeader =  $hasNoHeader ? [] : $header;
 
         return new ResultSet($this->combineHeader($this->prepareRecords(), $this->computeHeader($header)), $finalHeader);
+    }
+
+    /**
+     * @param class-string $className
+     *
+     * @throws TypeCastingFailed
+     * @throws MappingFailed
+     * @throws Exception
+     */
+    public function map(string $className): Iterator
+    {
+        return (new Serializer($className, $this->getHeader()))->deserializeAll($this);
     }
 
     /**

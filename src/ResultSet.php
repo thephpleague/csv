@@ -19,6 +19,8 @@ use Closure;
 use Generator;
 use Iterator;
 use JsonSerializable;
+use League\Csv\Serializer\MappingFailed;
+use League\Csv\Serializer\TypeCastingFailed;
 use LimitIterator;
 
 use function array_filter;
@@ -110,6 +112,17 @@ class ResultSet implements TabularDataReader, JsonSerializable
     public function getIterator(): Iterator
     {
         return $this->getRecords();
+    }
+
+    /**
+     * @param class-string $className
+     *
+     * @throws TypeCastingFailed
+     * @throws MappingFailed
+     */
+    public function map(string $className): Iterator
+    {
+        return (new Serializer($className, $this->getHeader()))->deserializeAll($this);
     }
 
     /**

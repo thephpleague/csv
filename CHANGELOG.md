@@ -8,13 +8,15 @@ All Notable changes to `Csv` will be documented in this file
 
 - `TabulatDataReader::value`
 - `TabulatDataReader::select`
+- `TabulatDataReader::map`
 - `TabulatDataReader::matching`
 - `TabulatDataReader::matchingFirst` 
 - `TabulatDataReader::matchingFirstOrFail`
-- `FragmentFinder` to implement [RFC7111](https://www.rfc-editor.org/rfc/rfc7111)
+- `League\Csv\FragmentFinder` to implement [RFC7111](https://www.rfc-editor.org/rfc/rfc7111)
 - `ResultSet::fromRecords`
 - `Stream::setMaxLineLen`
 - `Stream::getMaxLineLen`
+- `League\Csv\Serializer` to allow casting records to objects [#508](https://github.com/thephpleague/csv/issues/508)
 
 ### Deprecated
 
@@ -26,7 +28,7 @@ It's usage will trigger a `E_USER_DEPRECATED` call.
 
 - The optional `$header` argument for `TabularDataReader;;getRecords` becomes a full mapper between the records column offset and the column names [#498](https://github.com/thephpleague/csv/issues/498)
 - `ResultSet` constructor now allows the records to be an `array`.
-- to the internal `Stream` object it will throw a `RuntimeException` if the rewind action fails
+- The internal `Stream` object it will throw a `RuntimeException` if the rewind action fails
 - if calls to `fseek` fails (returns `-1` ) a new `RuntimeException` will be thrown too.
 - `Stream` can iterate and return the full line respecting `SplFielObject` flags. Previously it only returned the CSV records.
 
