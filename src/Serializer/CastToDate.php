@@ -18,6 +18,7 @@ use DateTimeImmutable;
 use DateTimeInterface;
 use DateTimeZone;
 use Exception;
+use ReflectionNamedType;
 use RuntimeException;
 use Throwable;
 
@@ -27,6 +28,25 @@ use Throwable;
 final class CastToDate implements TypeCasting
 {
     private readonly ?DateTimeZone $timezone;
+
+    public static function supports(ReflectionNamedType|string $type): bool
+    {
+        if ($type instanceof ReflectionNamedType) {
+            $type = $type->getName();
+        }
+
+        $formattedType = ltrim($type, '?');
+        if (DateTimeInterface::class === $formattedType) {
+            return true;
+        }
+
+        $foundInterfaces = class_implements($formattedType);
+        if (false !== $foundInterfaces && in_array(DateTimeInterface::class, $foundInterfaces, true)) {
+            return true;
+        }
+
+        return false;
+    }
 
     /**
      * @throws Exception
@@ -42,10 +62,15 @@ final class CastToDate implements TypeCasting
     }
 
     /**
-     * @throws RuntimeException
+     * @throws TypeCastingFailed
      */
     public function toVariable(?string $value, string $type): DateTimeImmutable|DateTime|null
     {
+        $dateClass = ltrim($type, '?');
+        if (!self::supports($type)) {
+            throw new TypeCastingFailed('The property type `'.$dateClass.'` does not implement the `'.DateTimeInterface::class.'`.');
+        }
+
         if (in_array($value, ['', null], true)) {
             return match (true) {
                 str_starts_with($type, '?') => null,
@@ -53,14 +78,8 @@ final class CastToDate implements TypeCasting
             };
         }
 
-        $dateClass = ltrim($type, '?');
         if (DateTimeInterface::class === $dateClass) {
             $dateClass = DateTimeImmutable::class;
-        }
-
-        $implementedClasses = class_implements($dateClass);
-        if (false === $implementedClasses || !in_array(DateTimeInterface::class, $implementedClasses, true)) {
-            throw new TypeCastingFailed('The property type `'.$dateClass.'` does not implement the `'.DateTimeInterface::class.'`.');
         }
 
         try {

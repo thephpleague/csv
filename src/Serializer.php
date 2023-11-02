@@ -152,11 +152,11 @@ final class Serializer
      */
     private function resolveCaster(ReflectionNamedType $type, array $arguments = []): ?TypeCasting
     {
-        $formattedType = ltrim($type->getName(), '?');
-        if (in_array($formattedType, ['int', 'float', 'string', 'bool', 'true', 'false', 'null'], true)) {
+        if (CastToScalar::supports($type)) {
             return new CastToScalar();
         }
 
+        $formattedType = ltrim($type->getName(), '?');
         if (DateTimeInterface::class === $formattedType) {
             return new CastToDate(...$arguments); /* @phpstan-ignore-line */
         }
