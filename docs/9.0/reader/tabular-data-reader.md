@@ -117,7 +117,7 @@ and its value will represent its header value.
 This means that you can re-arrange the column order as well as removing or adding column to the
 returned iterator. Added column will only contain the `null` value.
 
-### Mapping recrods to objects
+### Mapping records to objects
 
 <p class="message-notice">New in version <code>9.12.0</code></p>
 
@@ -125,10 +125,10 @@ If you prefer working with objects instead of typed arrays it is possible to con
 the `map` method. This method will cast each array record into your specified object. To do so,
 the method excepts:
 
-- as its sole argument the name of the class the array willl be deserialized in;
+- as its sole argument the name of the class the array will be deserialized in;
 - information on how to convert the cell value into the object properties using dedicated attributes;
 
-As an example if we assume we have the following CSV document
+As an example if we assume we have the following CSV document:
 
 ```csv
 date,temperature,place
