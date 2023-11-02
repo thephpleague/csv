@@ -302,7 +302,7 @@ Last but not least if you only which to convert a single record, you can do so u
 method.
 
 ```php
-use League\Csv\Serializer\Serializer;
+use League\Csv\Serializer;
 
 $record = [
     'date' => '2023-10-30',

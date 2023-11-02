@@ -18,9 +18,7 @@ use Closure;
 use Iterator;
 use JsonSerializable;
 use League\Csv\Serializer\MappingFailed;
-use League\Csv\Serializer\Serializer;
 use League\Csv\Serializer\TypeCastingFailed;
-use ReflectionException;
 use SplFileObject;
 
 use function array_filter;
@@ -411,14 +409,12 @@ class Reader extends AbstractCsv implements TabularDataReader, JsonSerializable
      * @param class-string $className
      *
      * @throws TypeCastingFailed
-     * @throws ReflectionException
      * @throws MappingFailed
+     * @throws Exception
      */
     public function map(string $className): Iterator
     {
-        $serializer = new Serializer($className, $this->getHeader());
-
-        return new MapIterator($this, $serializer->deserialize(...));
+        return (new Serializer($className, $this->getHeader()))->deserializeAll($this);
     }
 
     /**

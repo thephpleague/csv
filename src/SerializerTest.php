@@ -11,11 +11,16 @@
 
 declare(strict_types=1);
 
-namespace League\Csv\Serializer;
+namespace League\Csv;
 
 use DateTime;
 use DateTimeImmutable;
 use DateTimeInterface;
+use League\Csv\Serializer\CastToDate;
+use League\Csv\Serializer\CastToEnum;
+use League\Csv\Serializer\Cell;
+use League\Csv\Serializer\MappingFailed;
+use League\Csv\Serializer\Record;
 use PHPUnit\Framework\TestCase;
 use SplFileObject;
 use stdClass;
@@ -23,6 +28,29 @@ use TypeError;
 
 final class SerializerTest extends TestCase
 {
+    public function testItConvertsAnIterableListOfRecords(): void
+    {
+        $records = [
+            [
+                'date' => '2023-10-30',
+                'temperature' => '-1.5',
+                'place' => 'Berkeley',
+            ],
+            [
+                'date' => '2023-10-31',
+                'temperature' => '-3',
+                'place' => 'Berkeley',
+            ],
+        ];
+
+        $serializer = new Serializer(WeatherWithRecordAttribute::class, ['date', 'temperature', 'place']);
+        $results = [...$serializer->deserializeAll($records)];
+        self::assertCount(2, $results);
+        foreach ($results as $result) {
+            self::assertInstanceOf(WeatherWithRecordAttribute::class, $result);
+        }
+    }
+
     public function testItConvertsARecordsToAnObjectUsingRecordAttribute(): void
     {
         $record = [

@@ -11,8 +11,19 @@
 
 declare(strict_types=1);
 
-namespace League\Csv\Serializer;
+namespace League\Csv;
 
+use ArrayIterator;
+use Iterator;
+use League\Csv\Serializer\CastToBuiltInType;
+use League\Csv\Serializer\CastToDate;
+use League\Csv\Serializer\CastToEnum;
+use League\Csv\Serializer\Cell;
+use League\Csv\Serializer\MappingFailed;
+use League\Csv\Serializer\PropertySetter;
+use League\Csv\Serializer\Record;
+use League\Csv\Serializer\TypeCasting;
+use League\Csv\Serializer\TypeCastingFailed;
 use ReflectionAttribute;
 use ReflectionClass;
 use ReflectionException;
@@ -32,23 +43,36 @@ final class Serializer
 
     /**
      * @param class-string $className
-     * @param array<string> $header
+     * @param array<string> $propertyNames
      *
      * @throws MappingFailed
      * @throws RuntimeException
      * @throws TypeError
      */
-    public function __construct(string $className, array $header = [])
+    public function __construct(string $className, array $propertyNames = [])
     {
         $this->class = new ReflectionClass($className);
         $this->properties = $this->class->getProperties();
-        $this->propertySetters = $this->findPropertySetters($header);
+        $this->propertySetters = $this->findPropertySetters($propertyNames);
 
         //if converters is empty it means the Serializer
         //was unable to detect properties to map
         if ([] === $this->propertySetters) {
             throw new MappingFailed('No properties or method setters were found eligible on the class `'.$className.'` to be used for type casting.');
         }
+    }
+
+    /**
+     * @throws MappingFailed
+     * @throws ReflectionException
+     * @throws TypeCastingFailed
+     */
+    public function deserializeAll(iterable $records): Iterator
+    {
+        return new MapIterator(
+            is_array($records) ? new ArrayIterator($records) : $records,
+            $this->deserialize(...)
+        );
     }
 
     /**
@@ -95,13 +119,13 @@ final class Serializer
     }
 
     /**
-     * @param array<string> $header
+     * @param array<string> $propertyNames
      *
      * @throws MappingFailed
      *
      * @return array<string, PropertySetter>
      */
-    private function findPropertySetters(array $header): array
+    private function findPropertySetters(array $propertyNames): array
     {
         $attributes = $this->class->getAttributes(Record::class, ReflectionAttribute::IS_INSTANCEOF);
         if ([] === $attributes) {
@@ -118,7 +142,7 @@ final class Serializer
             $propertyName = $property->getName();
 
             /** @var int|false $offset */
-            $offset = array_search($propertyName, $header, true);
+            $offset = array_search($propertyName, $propertyNames, true);
             if (false === $offset) {
                 //the property is not in the record header
                 //we can not throw as it may be set via a
@@ -144,7 +168,7 @@ final class Serializer
             $propertySetters['property:'.$propertyName] = new PropertySetter($property, $offset, $cast);
         }
 
-        $propertySetters = [...$propertySetters, ...$this->findPropertySettersByCellAttributes($header)];
+        $propertySetters = [...$propertySetters, ...$this->findPropertySettersByCellAttributes($propertyNames)];
         foreach ($check as $key => $propertyName) {
             //if we still can not find how to cast the property we must throw
             if (!isset($propertySetters[$key])) {
@@ -156,14 +180,14 @@ final class Serializer
     }
 
     /**
-     * @param array<string> $header
+     * @param array<string> $propertyNames
      *
      * @return array<string, PropertySetter>
      */
-    private function findPropertySettersByCellAttributes(array $header): array
+    private function findPropertySettersByCellAttributes(array $propertyNames): array
     {
-        $addPropertySetter = function (array $carry, ReflectionProperty|ReflectionMethod $accessor) use ($header) {
-            $propertySetter = $this->findPropertySetter($accessor, $header);
+        $addPropertySetter = function (array $carry, ReflectionProperty|ReflectionMethod $accessor) use ($propertyNames) {
+            $propertySetter = $this->findPropertySetter($accessor, $propertyNames);
             if (null === $propertySetter) {
                 return $carry;
             }
@@ -182,11 +206,11 @@ final class Serializer
     }
 
     /**
-     * @param array<string> $header
+     * @param array<string> $propertyNames
      *
      * @throws MappingFailed
      */
-    private function findPropertySetter(ReflectionProperty|ReflectionMethod $accessor, array $header): ?PropertySetter
+    private function findPropertySetter(ReflectionProperty|ReflectionMethod $accessor, array $propertyNames): ?PropertySetter
     {
         $attributes = $accessor->getAttributes(Cell::class, ReflectionAttribute::IS_INSTANCEOF);
         if ([] === $attributes) {
@@ -208,17 +232,17 @@ final class Serializer
         if (is_int($offset)) {
             return match (true) {
                 0 > $offset => throw new MappingFailed('column integer position can only be positive or equals to 0; received `'.$offset.'`'),
-                [] !== $header && $offset > count($header) - 1 => throw new MappingFailed('column integer position can not exceed header cell count.'),
+                [] !== $propertyNames && $offset > count($propertyNames) - 1 => throw new MappingFailed('column integer position can not exceed header cell count.'),
                 default => new PropertySetter($accessor, $offset, $cast),
             };
         }
 
-        if ([] === $header) {
+        if ([] === $propertyNames) {
             throw new MappingFailed('Column name as string are only supported if the tabular data has a non-empty header.');
         }
 
         /** @var int<0, max>|false $index */
-        $index = array_search($offset, $header, true);
+        $index = array_search($offset, $propertyNames, true);
         if (false === $index) {
             throw new MappingFailed('The offset `'.$offset.'` could not be found in the header; Pleaser verify your header data.');
         }

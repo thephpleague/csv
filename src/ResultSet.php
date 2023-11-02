@@ -20,11 +20,8 @@ use Generator;
 use Iterator;
 use JsonSerializable;
 use League\Csv\Serializer\MappingFailed;
-use League\Csv\Serializer\Serializer;
 use League\Csv\Serializer\TypeCastingFailed;
 use LimitIterator;
-
-use ReflectionException;
 
 use function array_filter;
 use function array_flip;
@@ -121,14 +118,11 @@ class ResultSet implements TabularDataReader, JsonSerializable
      * @param class-string $className
      *
      * @throws TypeCastingFailed
-     * @throws ReflectionException
      * @throws MappingFailed
      */
     public function map(string $className): Iterator
     {
-        $serializer = new Serializer($className, $this->getHeader());
-
-        return new MapIterator($this, $serializer->deserialize(...));
+        return (new Serializer($className, $this->getHeader()))->deserializeAll($this);
     }
 
     /**
