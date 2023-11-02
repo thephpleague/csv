@@ -20,7 +20,6 @@ use ReflectionMethod;
 use ReflectionNamedType;
 use ReflectionProperty;
 use RuntimeException;
-use Throwable;
 use TypeError;
 
 final class Serializer
