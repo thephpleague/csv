@@ -69,9 +69,21 @@ final class Serializer
      */
     public function deserializeAll(iterable $records): Iterator
     {
+        $check = true;
+        $deserialize = function (array $record) use (&$check): object {
+            $object = $this->createInstance($record);
+            if ($check) {
+                $this->assertObjectIsInValidState($object);
+
+                $check = false;
+            }
+
+            return $object;
+        };
+
         return new MapIterator(
             is_array($records) ? new ArrayIterator($records) : $records,
-            $this->deserialize(...)
+            $deserialize
         );
     }
 
@@ -82,6 +94,15 @@ final class Serializer
      */
     public function deserialize(array $record): object
     {
+        $object = $this->createInstance($record);
+
+        $this->assertObjectIsInValidState($object);
+
+        return $object;
+    }
+
+    private function createInstance(array $record): object
+    {
         $object = $this->class->newInstanceWithoutConstructor();
 
         $record = array_values($record);
@@ -89,10 +110,9 @@ final class Serializer
             $propertySetter->setValue($object, $record[$propertySetter->offset]);
         }
 
-        $this->assertObjectIsInValidState($object);
-
         return $object;
     }
+
 
     /**
      * @throws MappingFailed
