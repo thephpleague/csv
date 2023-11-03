@@ -15,6 +15,7 @@ namespace League\Csv;
 
 use ArrayIterator;
 use Iterator;
+use League\Csv\Serializer\CastToArray;
 use League\Csv\Serializer\CastToBuiltInType;
 use League\Csv\Serializer\CastToDate;
 use League\Csv\Serializer\CastToEnum;
@@ -276,9 +277,10 @@ final class Serializer
     private function resolveTypeCasting(string $type, array $arguments = []): ?TypeCasting
     {
         return match (true) {
-            CastToBuiltInType::supports($type) => new CastToBuiltInType(),
             CastToDate::supports($type) => new CastToDate(...$arguments), /* @phpstan-ignore-line */
+            CastToArray::supports($type) => new CastToArray(...$arguments), /* @phpstan-ignore-line */
             CastToEnum::supports($type) => new CastToEnum(),
+            CastToBuiltInType::supports($type) => new CastToBuiltInType(),
             default => null,
         };
     }

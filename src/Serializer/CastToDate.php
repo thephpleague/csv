@@ -30,16 +30,14 @@ final class CastToDate implements TypeCasting
     public static function supports(string $type): bool
     {
         $formattedType = ltrim($type, '?');
-        if (DateTimeInterface::class === $formattedType) {
-            return true;
-        }
 
-        $foundInterfaces = class_implements($formattedType);
-        if (false !== $foundInterfaces && in_array(DateTimeInterface::class, $foundInterfaces, true)) {
-            return true;
-        }
-
-        return false;
+        return match (true) {
+            DateTimeInterface::class === $formattedType => true,
+            !class_exists($formattedType),
+            false === ($foundInterfaces = class_implements($formattedType)),
+            !in_array(DateTimeInterface::class, $foundInterfaces, true) => false,
+            default => true,
+        };
     }
 
     /**

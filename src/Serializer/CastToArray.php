@@ -39,7 +39,7 @@ final class CastToArray implements TypeCasting
      * @throws MappingFailed
      */
     public function __construct(
-        private readonly string $type,
+        private readonly string $type = self::TYPE_LIST,
         private readonly string $delimiter = ',',
         private readonly string $enclosure = '"',
         private readonly int $jsonDepth = 512,
