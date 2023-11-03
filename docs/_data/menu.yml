@@ -19,6 +19,7 @@ version:
             CSV Reader: '/9.0/reader/'
             Result Set: '/9.0/reader/resultset/'
             Constraint Builders: '/9.0/reader/statement/'
+            Record Mapping: '/9.0/reader/record-mapping/'
         Interoperability:
             Overview : '/9.0/interoperability/'
             Document Encoding : '/9.0/interoperability/encoding/'

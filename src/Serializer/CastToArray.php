@@ -33,25 +33,24 @@ final class CastToArray implements TypeCasting
 
     /**
      * @param 'json'|'csv'|'list' $type
-     * @param non-empty-string $separator
+     * @param non-empty-string $delimiter
      * @param int<1, max> $jsonDepth
      *
      * @throws MappingFailed
      */
     public function __construct(
         private readonly string $type,
-        private readonly string $separator = ',',
+        private readonly string $delimiter = ',',
         private readonly string $enclosure = '"',
-        private readonly string $escape = '\\',
         private readonly int $jsonDepth = 512,
         private readonly int $jsonFlags = 0,
     ) {
         match (true) {
             !in_array($type, [self::TYPE_JSON, self::TYPE_LIST, self::TYPE_CSV], true) => throw new MappingFailed('Unable to resolve the array.'),
             1 > $this->jsonDepth => throw new MappingFailed('the json depth can not be less than 1.'), /* @phpstan-ignore-line */
-            1 !== strlen($this->separator) => throw new MappingFailed('expects delimiter to be a single character; `'.$this->separator.'` given.'),
+            1 > strlen($this->delimiter) && self::TYPE_LIST === $this->type => throw new MappingFailed('expects delimiter to be a non-empty string for list conversion; emtpy string given.'),  /* @phpstan-ignore-line */
+            1 !== strlen($this->delimiter) && self::TYPE_CSV === $this->type => throw new MappingFailed('expects delimiter to be a single character for CSV conversion; `'.$this->delimiter.'` given.'),
             1 !== strlen($this->enclosure) => throw new MappingFailed('expects enclosire to be a single character; `'.$this->enclosure.'` given.'),
-            '' !== $this->escape && 1 !== strlen($this->escape) => throw new MappingFailed('expects escape to be a single character or the empty string; `'.$this->escape.'` given.'),
             default => null,
         };
     }
@@ -72,8 +71,8 @@ final class CastToArray implements TypeCasting
         try {
             $result = match ($this->type) {
                 self::TYPE_JSON => json_decode($value, true, $this->jsonDepth, $this->jsonFlags | JSON_THROW_ON_ERROR),
-                self::TYPE_LIST => explode($this->separator, $value),
-                default => str_getcsv($value, $this->separator, $this->enclosure, $this->escape),
+                self::TYPE_LIST => explode($this->delimiter, $value),
+                default => str_getcsv($value, $this->delimiter, $this->enclosure, ''),
             };
 
             if (!is_array($result)) {
