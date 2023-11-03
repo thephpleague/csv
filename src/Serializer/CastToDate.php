@@ -26,10 +26,12 @@ use Throwable;
 final class CastToDate implements TypeCasting
 {
     private readonly ?DateTimeZone $timezone;
+    private readonly string $class;
+    private readonly bool $isNullable;
 
-    public static function supports(string $type): bool
+    public static function supports(string $propertyType): bool
     {
-        $formattedType = ltrim($type, '?');
+        $formattedType = ltrim($propertyType, '?');
 
         return match (true) {
             BuiltInType::Mixed->value === $formattedType,
@@ -45,9 +47,21 @@ final class CastToDate implements TypeCasting
      * @throws Exception
      */
     public function __construct(
+        string $propertyType,
         private readonly ?string $format = null,
         DateTimeZone|string|null $timezone = null,
     ) {
+        if (!self::supports($propertyType)) {
+            throw new TypeCastingFailed('The property type `'.$propertyType.'` does not implement the `'.DateTimeInterface::class.'`.');
+        }
+
+        $class = ltrim($propertyType, '?');
+        if (BuiltInType::Mixed->value === $class || DateTimeInterface::class === $class) {
+            $class = DateTimeImmutable::class;
+        }
+
+        $this->class = $class;
+        $this->isNullable = str_starts_with($propertyType, '?');
         $this->timezone = match (true) {
             is_string($timezone) => new DateTimeZone($timezone),
             default => $timezone,
@@ -57,29 +71,20 @@ final class CastToDate implements TypeCasting
     /**
      * @throws TypeCastingFailed
      */
-    public function toVariable(?string $value, string $type): DateTimeImmutable|DateTime|null
+    public function toVariable(?string $value): DateTimeImmutable|DateTime|null
     {
-        if (!self::supports($type)) {
-            throw new TypeCastingFailed('The property type `'.$type.'` does not implement the `'.DateTimeInterface::class.'`.');
-        }
-
-        $dateClass = ltrim($type, '?');
-        if (in_array($value, ['', null], true)) {
+        if (null === $value || '' === $value) {
             return match (true) {
-                str_starts_with($type, '?'),
-                $dateClass === BuiltInType::Mixed->value => null,
+                $this->isNullable,
+                $this->class === BuiltInType::Mixed->value => null,
                 default => throw new TypeCastingFailed('Unable to convert the `null` value.'),
             };
         }
 
-        if (BuiltInType::Mixed->value === $dateClass || DateTimeInterface::class === $dateClass) {
-            $dateClass = DateTimeImmutable::class;
-        }
-
         try {
             $date = null !== $this->format ?
-                $dateClass::createFromFormat($this->format, $value, $this->timezone) :
-                new $dateClass($value, $this->timezone);
+                ($this->class)::createFromFormat($this->format, $value, $this->timezone) :
+                new ($this->class)($value, $this->timezone);
             if (false === $date) {
                 throw new TypeCastingFailed('Unable to cast the given data `'.$value.'` to a PHP DateTime related object.');
             }

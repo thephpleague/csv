@@ -19,6 +19,7 @@ use Iterator;
 use JsonSerializable;
 use League\Csv\Serializer\MappingFailed;
 use League\Csv\Serializer\TypeCastingFailed;
+use ReflectionException;
 use SplFileObject;
 
 use function array_filter;
@@ -406,18 +407,6 @@ class Reader extends AbstractCsv implements TabularDataReader, JsonSerializable
     }
 
     /**
-     * @param class-string $className
-     *
-     * @throws TypeCastingFailed
-     * @throws MappingFailed
-     * @throws Exception
-     */
-    public function map(string $className): Iterator
-    {
-        return (new Serializer($className, $this->getHeader()))->deserializeAll($this);
-    }
-
-    /**
      * @param array<string> $header
      *
      * @throws Exception
@@ -431,6 +420,28 @@ class Reader extends AbstractCsv implements TabularDataReader, JsonSerializable
         }
 
         return $this->combineHeader($this->prepareRecords(), $this->computeHeader($header));
+    }
+
+    /**
+     * @param class-string $className
+     *
+     * @throws TypeCastingFailed
+     * @throws MappingFailed
+     * @throws Exception
+     * @throws ReflectionException
+     */
+    public function map(string $className, array $header = []): Iterator
+    {
+        if ($header !== (array_filter($header, is_string(...)))) {
+            throw SyntaxError::dueToInvalidHeaderColumnNames();
+        }
+
+        /** @var array<string> $header */
+        $header = $this->computeHeader($header);
+
+        return (new Serializer($className, $header))->deserializeAll(
+            $this->combineHeader($this->prepareRecords(), $header)
+        );
     }
 
     /**

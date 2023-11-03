@@ -26,9 +26,12 @@ final class CastToArray implements TypeCasting
     public const TYPE_LIST = 'list';
     public const TYPE_CSV = 'csv';
 
-    public static function supports(string $type): bool
+    private readonly string $class;
+    private readonly bool $isNullable;
+
+    public static function supports(string $propertyType): bool
     {
-        return in_array(ltrim($type, '?'), ['array', 'iterable', BuiltInType::Mixed->value], true);
+        return in_array(ltrim($propertyType, '?'), ['array', 'iterable', BuiltInType::Mixed->value], true);
     }
 
     /**
@@ -39,12 +42,19 @@ final class CastToArray implements TypeCasting
      * @throws MappingFailed
      */
     public function __construct(
+        string $propertyType,
         private readonly string $type = self::TYPE_LIST,
         private readonly string $delimiter = ',',
         private readonly string $enclosure = '"',
         private readonly int $jsonDepth = 512,
         private readonly int $jsonFlags = 0,
     ) {
+        if (!self::supports($propertyType)) {
+            throw new TypeCastingFailed('The property type is not an array or an iterable structure.');
+        }
+        $this->class = ltrim($propertyType, '?');
+        $this->isNullable = str_starts_with($propertyType, '?');
+
         match (true) {
             !in_array($type, [self::TYPE_JSON, self::TYPE_LIST, self::TYPE_CSV], true) => throw new MappingFailed('Unable to resolve the array.'),
             1 > $this->jsonDepth => throw new MappingFailed('the json depth can not be less than 1.'), /* @phpstan-ignore-line */
@@ -55,19 +65,14 @@ final class CastToArray implements TypeCasting
         };
     }
 
-    public function toVariable(?string $value, string $type): ?array
+    public function toVariable(?string $value): ?array
     {
-        if (!self::supports($type)) {
-            throw new TypeCastingFailed('The property type is not an array or an iterable structure.');
-        }
-
-        $formattedType = ltrim($type, '?');
         if (null === $value) {
-            if (!str_starts_with($type, '?') && 'mixed' !== $formattedType) {
-                throw new TypeCastingFailed('Unable to convert the `null` value.');
-            }
-
-            return null;
+            return match (true) {
+                $this->isNullable,
+                BuiltInType::Mixed->value === $this->class => null,
+                default => throw new TypeCastingFailed('Unable to convert the `null` value.'),
+            };
         }
 
         if ('' === $value) {

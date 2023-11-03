@@ -19,8 +19,8 @@ final class CastToEnumTest extends TestCase
 {
     public function testItCanConvertAStringBackedEnum(): void
     {
-        $cast = new CastToEnum();
-        $orange = $cast->toVariable('orange', Colour::class);
+        $cast = new CastToEnum(Colour::class);
+        $orange = $cast->toVariable('orange');
 
         self::assertInstanceOf(Colour::class, $orange);
         self::assertSame('Orange', $orange->name);
@@ -29,8 +29,8 @@ final class CastToEnumTest extends TestCase
 
     public function testItCanConvertAIntegerBackedEnum(): void
     {
-        $cast = new CastToEnum();
-        $monday = $cast->toVariable('1', DayOfTheWeek::class);
+        $cast = new CastToEnum(DayOfTheWeek::class);
+        $monday = $cast->toVariable('1');
 
         self::assertInstanceOf(DayOfTheWeek::class, $monday);
         self::assertSame('Monday', $monday->name);
@@ -39,8 +39,8 @@ final class CastToEnumTest extends TestCase
 
     public function testItCanConvertAUnitEnum(): void
     {
-        $cast = new CastToEnum();
-        $naira = $cast->toVariable('Naira', Currency::class);
+        $cast = new CastToEnum(Currency::class);
+        $naira = $cast->toVariable('Naira');
 
         self::assertInstanceOf(Currency::class, $naira);
         self::assertSame('Naira', $naira->name);
@@ -48,23 +48,23 @@ final class CastToEnumTest extends TestCase
 
     public function testItReturnsNullWhenTheVariableIsNullable(): void
     {
-        $cast = new CastToEnum();
+        $cast = new CastToEnum('?'.Currency::class);
 
-        self::assertNull($cast->toVariable(null, '?'.Currency::class));
+        self::assertNull($cast->toVariable(null));
     }
 
     public function testThrowsOnNullIfTheVariableIsNotNullable(): void
     {
         $this->expectException(TypeCastingFailed::class);
 
-        (new CastToEnum())->toVariable(null, Currency::class);
+        (new CastToEnum(Currency::class))->toVariable(null);
     }
 
     public function testThrowsIfTheValueIsNotRecognizedByTheEnum(): void
     {
         $this->expectException(TypeCastingFailed::class);
 
-        (new CastToEnum())->toVariable('green', Colour::class);
+        (new CastToEnum(Colour::class))->toVariable('green');
     }
 }
 

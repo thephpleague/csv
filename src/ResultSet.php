@@ -115,17 +115,6 @@ class ResultSet implements TabularDataReader, JsonSerializable
     }
 
     /**
-     * @param class-string $className
-     *
-     * @throws TypeCastingFailed
-     * @throws MappingFailed
-     */
-    public function map(string $className): Iterator
-    {
-        return (new Serializer($className, $this->getHeader()))->deserializeAll($this);
-    }
-
-    /**
      * @param Closure(array<mixed>, array-key=): mixed $closure
      */
     public function each(Closure $closure): bool
@@ -250,7 +239,32 @@ class ResultSet implements TabularDataReader, JsonSerializable
             throw SyntaxError::dueToInvalidHeaderColumnNames();
         }
 
+        $header = $this->validateHeader($header);
+        if ([] === $header) {
+            $header = $this->header;
+        }
+
         return $this->combineHeader($header);
+    }
+
+    /**
+     * @param class-string $className
+     *
+     * @throws TypeCastingFailed
+     * @throws MappingFailed
+     */
+    public function map(string $className, array $header): Iterator
+    {
+        if ($header !== array_filter($header, is_string(...))) {
+            throw SyntaxError::dueToInvalidHeaderColumnNames();
+        }
+
+        $header = $this->validateHeader($header);
+        if ([] === $header) {
+            $header = $this->header;
+        }
+
+        return (new Serializer($className, $header))->deserializeAll($this->combineHeader($header));
     }
 
     /**
@@ -262,10 +276,7 @@ class ResultSet implements TabularDataReader, JsonSerializable
      */
     protected function combineHeader(array $header): Iterator
     {
-        $header = $this->validateHeader($header);
-        if ([] === $header) {
-            $header = $this->header;
-        }
+
 
         return match (true) {
             [] === $header => $this->records,

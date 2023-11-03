@@ -14,7 +14,6 @@ declare(strict_types=1);
 namespace League\Csv\Serializer;
 
 use BackedEnum;
-use DateTimeInterface;
 use ReflectionEnum;
 use ReflectionException;
 use Throwable;
@@ -25,6 +24,9 @@ use UnitEnum;
  */
 class CastToEnum implements TypeCasting
 {
+    private readonly string $class;
+    private readonly bool $isNullable;
+
     public static function supports(string $type): bool
     {
         try {
@@ -36,35 +38,40 @@ class CastToEnum implements TypeCasting
         }
     }
 
-    /**
-     * @throws TypeCastingFailed
-     */
-    public function toVariable(?string $value, string $type): BackedEnum|UnitEnum|null
+    public function __construct(string $type)
     {
         if (!self::supports($type)) {
             throw new TypeCastingFailed('The property type `'.$type.'` is not a PHP Enumeration.');
         }
 
+        $this->class = ltrim($type, '?');
+        $this->isNullable = str_starts_with($type, '?');
+    }
+
+    /**
+     * @throws TypeCastingFailed
+     */
+    public function toVariable(?string $value): BackedEnum|UnitEnum|null
+    {
+
         if (null === $value) {
             return match (true) {
-                str_starts_with($type, '?'), => null,
+                $this->isNullable, => null,
                 default => throw new TypeCastingFailed('Unable to convert the `null` value.'),
             };
         }
 
-        $enumName = ltrim($type, '?');
-
         try {
-            $enum = new ReflectionEnum($enumName);
+            $enum = new ReflectionEnum($this->class);
             if (!$enum->isBacked()) {
                 return $enum->getCase($value)->getValue();
             }
 
             $backedValue = 'int' === $enum->getBackingType()?->getName() ? filter_var($value, FILTER_VALIDATE_INT) : $value;
 
-            return $enumName::from($backedValue);
+            return $this->class::from($backedValue);
         } catch (Throwable $exception) {
-            throw new TypeCastingFailed('Unable to cast to `'.$enumName.'` the value `'.$value.'`.', 0, $exception);
+            throw new TypeCastingFailed('Unable to cast to `'.$this->class.'` the value `'.$value.'`.', 0, $exception);
         }
     }
 }

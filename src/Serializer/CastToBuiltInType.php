@@ -18,19 +18,32 @@ namespace League\Csv\Serializer;
  */
 final class CastToBuiltInType implements TypeCasting
 {
-    public static function supports(string $type): bool
+    private readonly string $class;
+    private readonly bool $isNullable;
+
+    public static function supports(string $propertyType): bool
     {
-        return null !== BuiltInType::tryFrom(ltrim($type, '?'));
+        return null !== BuiltInType::tryFrom(ltrim($propertyType, '?'));
+    }
+
+    public function __construct(string $propertyType)
+    {
+        if (!self::supports($propertyType)) {
+            throw new TypeCastingFailed('The property type is not a built int basic type.');
+        }
+
+        $this->class = ltrim($propertyType, '?');
+        $this->isNullable = str_starts_with($propertyType, '?');
     }
 
     /**
      * @throws TypeCastingFailed
      */
-    public function toVariable(?string $value, string $type): int|float|bool|string|null
+    public function toVariable(?string $value): int|float|bool|string|null
     {
         return match(true) {
-            in_array($value, ['', null], true) && str_starts_with($type, '?') => null,
-            default => BuiltInType::from(ltrim($type, '?'))->cast($value),
+            in_array($value, ['', null], true) && $this->isNullable => null,
+            default => BuiltInType::from($this->class)->cast($value),
         };
     }
 }

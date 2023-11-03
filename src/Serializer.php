@@ -22,7 +22,6 @@ use League\Csv\Serializer\CastToEnum;
 use League\Csv\Serializer\Cell;
 use League\Csv\Serializer\MappingFailed;
 use League\Csv\Serializer\PropertySetter;
-use League\Csv\Serializer\Record;
 use League\Csv\Serializer\TypeCasting;
 use League\Csv\Serializer\TypeCastingFailed;
 use ReflectionAttribute;
@@ -148,17 +147,8 @@ final class Serializer
      */
     private function findPropertySetters(array $propertyNames): array
     {
-        $attributes = $this->class->getAttributes(Record::class, ReflectionAttribute::IS_INSTANCEOF);
-        if ([] === $attributes) {
-            throw new MappingFailed('The '.Record::class.' attribute is missing on the class.');
-        }
-
-        if (1 < count($attributes)) {
-            throw new MappingFailed('Using more than one '.Record::class.' attribute on a class is not supported.');
-        }
-
-        $propertySetters = [];
         $check = [];
+        $propertySetters = [];
         foreach ($this->class->getProperties(ReflectionProperty::IS_PUBLIC) as $property) {
             $propertyName = $property->getName();
 
@@ -277,10 +267,10 @@ final class Serializer
     private function resolveTypeCasting(string $type, array $arguments = []): ?TypeCasting
     {
         return match (true) {
-            CastToDate::supports($type) => new CastToDate(...$arguments), /* @phpstan-ignore-line */
-            CastToArray::supports($type) => new CastToArray(...$arguments), /* @phpstan-ignore-line */
-            CastToEnum::supports($type) => new CastToEnum(),
-            CastToBuiltInType::supports($type) => new CastToBuiltInType(),
+            CastToDate::supports($type) => new CastToDate($type, ...$arguments), /* @phpstan-ignore-line */
+            CastToArray::supports($type) => new CastToArray($type, ...$arguments), /* @phpstan-ignore-line */
+            CastToEnum::supports($type) => new CastToEnum($type),
+            CastToBuiltInType::supports($type) => new CastToBuiltInType($type),
             default => null,
         };
     }
@@ -291,18 +281,18 @@ final class Serializer
      */
     private function getTypeCasting(Cell $cell, ReflectionProperty|ReflectionMethod $accessor): TypeCasting
     {
-        $typeCaster = $cell->cast;
-        if (null !== $typeCaster) {
-            /** @var TypeCasting $cast */
-            $cast = new $typeCaster(...$cell->castArguments);
-
-            return $cast;
-        }
-
         $type = match (true) {
             $accessor instanceof ReflectionMethod => $accessor->getParameters()[0]->getType(),
             $accessor instanceof ReflectionProperty => $accessor->getType(),
         };
+
+        $typeCaster = $cell->cast;
+        if (null !== $typeCaster) {
+            /** @var TypeCasting $cast */
+            $cast = new $typeCaster((string) $type, ...$cell->castArguments);
+
+            return $cast;
+        }
 
         if (!$type instanceof ReflectionNamedType) {
             throw new MappingFailed(match (true) {

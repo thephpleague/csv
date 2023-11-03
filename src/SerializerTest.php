@@ -20,7 +20,6 @@ use League\Csv\Serializer\CastToDate;
 use League\Csv\Serializer\CastToEnum;
 use League\Csv\Serializer\Cell;
 use League\Csv\Serializer\MappingFailed;
-use League\Csv\Serializer\Record;
 use PHPUnit\Framework\TestCase;
 use SplFileObject;
 use stdClass;
@@ -99,9 +98,17 @@ final class SerializerTest extends TestCase
         self::assertSame(-1.5, $weather->getTemperature());
     }
 
+    public function testMapingFailBecauseTheRecordAttributeIsMissing(): void
+    {
+        $this->expectException(MappingFailed::class);
+
+        Serializer::map(stdClass::class, ['foo' => 'bar']);
+    }
+
     public function testItWillThrowIfTheHeaderIsMissingAndTheColumnOffsetIsAString(): void
     {
         $this->expectException(MappingFailed::class);
+
         $serializer = new Serializer(WeatherSetterGetter::class);
         $serializer->deserialize([
             'date' => '2023-10-30',
@@ -143,6 +150,13 @@ final class SerializerTest extends TestCase
         new Serializer(InvaliDWeatherWithRecordAttribute::class, ['temperature', 'foobar', 'observedOn']);
     }
 
+    public function testItWillFailForLackOfTypeCasting(): void
+    {
+        $this->expectException(MappingFailed::class);
+
+        new Serializer(InvaliDWeatherWithRecordAttributeAndUnknownCasting::class, ['temperature', 'place', 'observedOn']);
+    }
+
     public function testItWillThrowIfTheClassContainsUnitiliaziedProperties(): void
     {
         $this->expectException(MappingFailed::class);
@@ -159,7 +173,6 @@ enum Place: string
     case Berkeley = 'Berkeley';
 }
 
-#[Record]
 final class InvaliDWeatherWithRecordAttribute
 {
     /* @phpstan-ignore-next-line */
@@ -171,7 +184,16 @@ final class InvaliDWeatherWithRecordAttribute
     }
 }
 
-#[Record]
+final class InvaliDWeatherWithRecordAttributeAndUnknownCasting
+{
+    public function __construct(
+        public int $temperature,
+        public string $place,
+        public SplFileObject $observedOn
+    ) {
+    }
+}
+
 final class WeatherWithRecordAttribute
 {
     public function __construct(
@@ -186,7 +208,6 @@ final class WeatherWithRecordAttribute
     }
 }
 
-#[Record]
 final class WeatherProperty
 {
     public function __construct(
@@ -204,7 +225,6 @@ final class WeatherProperty
     }
 }
 
-#[Record]
 final class WeatherSetterGetter
 {
     private float $temperature;
@@ -238,7 +258,6 @@ final class WeatherSetterGetter
     }
 }
 
-#[Record]
 final class InvalidWeatherAttributeUsage
 {
     public function __construct(
@@ -257,7 +276,6 @@ final class InvalidWeatherAttributeUsage
     }
 }
 
-#[Record]
 final class InvalidWeatherAttributeCasterNotSupported
 {
     public function __construct(
@@ -275,7 +293,6 @@ final class InvalidWeatherAttributeCasterNotSupported
     }
 }
 
-#[Record]
 final class InvalidObjectWithUninitializedProperty
 {
     public function __construct(

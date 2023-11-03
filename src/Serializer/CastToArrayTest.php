@@ -24,7 +24,7 @@ final class CastToArrayTest extends TestCase
     #[DataProvider('providesValidStringForArray')]
     public function testItCanConvertToArraygWithoutArguments(string $type, string $input, array $expected): void
     {
-        self::assertSame($expected, (new CastToArray($type))->toVariable($input, '?iterable'));
+        self::assertSame($expected, (new CastToArray('?iterable', $type))->toVariable($input));
     }
 
     public static function providesValidStringForArray(): iterable
@@ -61,6 +61,6 @@ final class CastToArrayTest extends TestCase
     {
         $this->expectException(TypeCastingFailed::class);
 
-        (new CastToArray('json'))->toVariable('{"json":toto}', '?iterable');
+        (new CastToArray('?iterable', 'json'))->toVariable('{"json":toto}');
     }
 }

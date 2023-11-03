@@ -23,5 +23,5 @@ interface TypeCasting
      *
      * @return TValue
      */
-    public function toVariable(?string $value, string $type): mixed;
+    public function toVariable(?string $value): mixed;
 }

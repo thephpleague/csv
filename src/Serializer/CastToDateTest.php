@@ -23,8 +23,8 @@ final class CastToDateTest extends TestCase
 {
     public function testItCanConvertADateWithoutArguments(): void
     {
-        $cast = new CastToDate();
-        $date = $cast->toVariable('2023-10-30', DateTime::class);
+        $cast = new CastToDate(DateTime::class);
+        $date = $cast->toVariable('2023-10-30');
 
         self::assertInstanceOf(DateTime::class, $date);
         self::assertSame('30-10-2023', $date->format('d-m-Y'));
@@ -32,8 +32,8 @@ final class CastToDateTest extends TestCase
 
     public function testItCanConvertADateWithASpecificFormat(): void
     {
-        $cast = new CastToDate('!Y-m-d', 'Africa/Kinshasa');
-        $date = $cast->toVariable('2023-10-30', DateTimeInterface::class);
+        $cast = new CastToDate(DateTimeInterface::class, '!Y-m-d', 'Africa/Kinshasa');
+        $date = $cast->toVariable('2023-10-30');
 
         self::assertInstanceOf(DateTimeImmutable::class, $date);
         self::assertSame('30-10-2023 00:00:00', $date->format('d-m-Y H:i:s'));
@@ -42,8 +42,8 @@ final class CastToDateTest extends TestCase
 
     public function testItCanConvertAnObjectImplementingTheDateTimeInterface(): void
     {
-        $cast = new CastToDate();
-        $date = $cast->toVariable('2023-10-30', MyDate::class);
+        $cast = new CastToDate(MyDate::class);
+        $date = $cast->toVariable('2023-10-30');
 
         self::assertInstanceOf(MyDate::class, $date);
         self::assertSame('30-10-2023', $date->format('d-m-Y'));
@@ -53,14 +53,14 @@ final class CastToDateTest extends TestCase
     {
         $this->expectException(TypeCastingFailed::class);
 
-        (new CastToDate())->toVariable('foobar', DateTimeInterface::class);
+        (new CastToDate(DateTimeInterface::class))->toVariable('foobar');
     }
 
     public function testItReturnsNullWhenTheVariableIsNullable(): void
     {
-        $cast = new CastToDate();
+        $cast = new CastToDate('?'.DateTime::class);
 
-        self::assertNull($cast->toVariable(null, '?'.DateTime::class));
+        self::assertNull($cast->toVariable(null));
     }
 }
 

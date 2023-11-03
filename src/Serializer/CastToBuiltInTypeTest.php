@@ -21,7 +21,7 @@ final class CastToBuiltInTypeTest extends TestCase
     #[DataProvider('providesValidScalarValues')]
     public function testItCanConvertWithValidValue(?string $value, string $type, int|float|string|bool|null $expected): void
     {
-        self::assertSame($expected, (new CastToBuiltInType())->toVariable($value, $type));
+        self::assertSame($expected, (new CastToBuiltInType($type))->toVariable($value));
     }
 
     public static function providesValidScalarValues(): iterable
@@ -85,6 +85,6 @@ final class CastToBuiltInTypeTest extends TestCase
     {
         $this->expectException(TypeCastingFailed::class);
 
-        (new CastToBuiltInType())->toVariable(null, 'int');
+        (new CastToBuiltInType('int'))->toVariable(null);
     }
 }

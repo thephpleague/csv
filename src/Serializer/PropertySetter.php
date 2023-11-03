@@ -35,7 +35,7 @@ final class PropertySetter
             $this->accessor instanceof ReflectionProperty => $this->accessor->getType(),
         };
 
-        $value = $this->cast->toVariable($value, $type);
+        $value = $this->cast->toVariable($value);
 
         match (true) {
             $this->accessor instanceof ReflectionMethod => $this->accessor->invoke($object, $value),

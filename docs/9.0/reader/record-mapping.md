@@ -12,11 +12,11 @@ title: Deserializing a Tabular Data
 If you prefer working with objects instead of typed arrays it is possible to map each record to
 a specified class. To do so a new `Serializer` class is introduced to expose a deserialization mechanism
 
-The class exposes three (3) methods to ease `array` to `object` conversion:
+The class exposes three (3) methods to ease `array` to `object` conversion in the context of Tabular data:
 
-- `Serializer::deserialize` which expect a single recrods as argument and returns on success an instance of the class.
+- `Serializer::deserialize` which expect a single record as argument and returns on success an instance of the class.
 - `Serializer::deserializeAll` which expect a collection of records and returns a collection of class instances.
-- and the public static method `Serializer::map` which is a quick way to declare and converting a single record into an object.
+- and the public static method `Serializer::map` which is a quick way to declare and convert a single record into an object.
 
 ```php
 use League\Csv\Serializer;
@@ -27,9 +27,6 @@ $record = [
     'place' => 'Berkeley',
 ];
 
-$weather = Serializer::map(Weather::class, $record);
-
-// this is the same as writing the following
 $serializer = new Serializer(Weather::class, array_keys($record));
 $weather = $serializer->deserialize($record);
 
@@ -37,12 +34,15 @@ $collection = [$record];
 foreach ($serializer->deserializeAll($collection) as $weather) {
     // each $weather entry will be an instance of the Weather class;
 }
+
+//this is equivalent to the first example
+$weather = Serializer::map(Weather::class, $record);
 ```
 
 If you are working with a class which implements the `TabularDataReader` interface you can use this functionality
 directly by calling the `TabularDataReader::map` method.
 
-We can rewrite the last example as the following:
+Here's an example using the `Reader` class:
 
 ```php
 use League\Csv\Reader;
@@ -54,23 +54,22 @@ foreach ($csv->map($csv) as $weather) {
 }
 ```
 
-In the following sections we will explain the conversion and how you can control which field
-can be converter and how the conversion can be configured.
+In the following sections we will explain the conversion and how it can be configured.
 
 ## Pre-requisite
 
-The deserialization mechanism used works mainly with DTO or objects which can be built
-without too many logics.
+The deserialization mechanism works mainly with DTO or objects which can be built
+without complex logic.
 
-<p class="message-notice">The mechanism relies heavily on PHP's <code>Reflection</code>
-features and does not use the class constructor to perform the conversion.
-This means that if the targeted object contains too much logic in its constructor,
-the mechanism may either fail or produced unwanted results.</p>
+<p class="message-notice">The mechanism relies on PHP's <code>Reflection</code>
+features. It does not use the class constructor to perform the conversion.
+This means that if the targeted object contains additional logic in its constructor,
+the mechanism may either fail or produced unexpected results.</p>
 
 To work as intended the mechanism expects the following:
 
-- the name of the class the array will be deserialized in;
-- information on how to convert cell value into object properties using dedicated attributes;
+- A target class where the array will be deserialized in;
+- informations on how to convert cell value into object properties using dedicated attributes;
 
 As an example if we assume we have the following CSV document:
 
@@ -90,9 +89,7 @@ We can define a PHP DTO using the following class and the attributes.
 <?php
 
 use League\Csv\Serializer\Cell;
-use League\Csv\Serializer\Record;
 
-#[Record]
 final readonly class Weather
 {
     public function __construct(
@@ -127,12 +124,10 @@ foreach ($serializer->deserializeAll($csv) as $weather) {
 
 ## Defining the mapping rules
 
-The `Record` attribute is responsible for converting array values into the appropriate instance
-properties. This means that in order to use the `Record` attribute you are required to have
-an associative `array`.
-
-The deserialization engine is able to cast the value into
-the appropriate type if it is a `string` or `null` and the object public properties ares typed with
+By default, the deserialization engine will convert public properties using their name. In other words,
+if there is a class property, which name is the same as a column name, the column value will be assigned
+to this property. The appropriate type is used if the record cell value is a `string` or `null` and
+the object public properties ares typed with
 
 - `null`
 - `mixed`
@@ -166,10 +161,9 @@ The above rule can be translated in plain english like this:
 > using the date format `!Y-m-d` and the `Africa/Nairobi` timezone. Once created,
 > inject the date instance into the `observedOn` property of the class.
 
-The `Cell` attribute differs from the `Record` attribute as it can be used:
+The `Cell` attribute can be used:
 
 - on class properties and methods (public, protected or private).
-- with `array` as list (you are required, in this case, to specify the `offset` argument).
 
 The `Cell` attribute can take up to three (3) arguments which are all optional:
 
@@ -258,7 +252,8 @@ private int $ratingScore;
 The `IntegerRangeCasting` will convert cell value and return data between `0` and `5` and default to `2` if
 the value is wrong or invalid. To allow your object to cast the cell value to your liking it needs to
 implement the `TypeCasting` interface. To do so, you must define a `toVariable` method that will return
-the correct value once converted.
+the correct value once converted. The first argument of the `__construct` method is always
+the property type.
 
 ```php
 use League\Csv\Serializer\TypeCasting;
@@ -270,27 +265,30 @@ use League\Csv\Serializer\TypeCastingFailed;
 readonly class IntegerRangeCasting implements TypeCasting
 {
     public function __construct(
+        string $propertyType,
         private int $min,
         private int $max,
         private int $default,
     ) {
+        $this->isNullable = str_starts_with($type, '?');
+    
+        //the type casting class must only work with property declared as integer
+        if ('int' !== ltrim($propertyType, '?')) {
+            throw new TypeCastingFailed('The class '. self::class . ' can only work with integer typed property.');
+        }
+    
         if ($max < $min) {
             throw new LogicException('The maximum value can not be lesser than the minimum value.');
         }
     }
 
-    public function toVariable(?string $value, string $type): ?int
+    public function toVariable(?string $value): ?int
     {
         // if the property is declared as nullable we exist early
-        if (in_array($value, ['', null], true) && str_starts_with($type, '?')) {
+        if (in_array($value, ['', null], true) && $this->isNullable) {
             return null;
         }
-        
-        //the type casting class must only work with property declared as integer
-        if ('int' !== ltrim($type, '?')) {
-            throw new TypeCastingFailed('The class '. self::class . ' can only work with integer typed property.');
-        }
-        
+
         return filter_var(
             $value,
             FILTER_VALIDATE_INT,
