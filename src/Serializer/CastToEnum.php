@@ -14,6 +14,7 @@ declare(strict_types=1);
 namespace League\Csv\Serializer;
 
 use BackedEnum;
+use DateTimeInterface;
 use ReflectionEnum;
 use ReflectionException;
 use Throwable;
@@ -40,9 +41,13 @@ class CastToEnum implements TypeCasting
      */
     public function toVariable(?string $value, string $type): BackedEnum|UnitEnum|null
     {
-        if (in_array($value, ['', null], true)) {
+        if (!self::supports($type)) {
+            throw new TypeCastingFailed('The property type `'.$type.'` is not a PHP Enumeration.');
+        }
+
+        if (null === $value) {
             return match (true) {
-                str_starts_with($type, '?') => null,
+                str_starts_with($type, '?'), => null,
                 default => throw new TypeCastingFailed('Unable to convert the `null` value.'),
             };
         }

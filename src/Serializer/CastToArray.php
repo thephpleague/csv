@@ -28,7 +28,7 @@ final class CastToArray implements TypeCasting
 
     public static function supports(string $type): bool
     {
-        return in_array(ltrim($type, '?'), ['array', 'iterable'], true);
+        return in_array(ltrim($type, '?'), ['array', 'iterable', BuiltInType::Mixed->value], true);
     }
 
     /**
@@ -57,15 +57,21 @@ final class CastToArray implements TypeCasting
 
     public function toVariable(?string $value, string $type): ?array
     {
-        if (in_array($value, ['', null], true)) {
-            return match (true) {
-                str_starts_with($type, '?') => null,
-                default => throw new TypeCastingFailed('Unable to convert the `null` value.'),
-            };
+        if (!self::supports($type)) {
+            throw new TypeCastingFailed('The property type is not an array or an iterable structure.');
         }
 
-        if (!in_array(ltrim($type, '?'), ['array', 'iterable'], true)) {
-            throw new TypeCastingFailed('The property type is not an array or an iterable structure.');
+        $formattedType = ltrim($type, '?');
+        if (null === $value) {
+            if (!str_starts_with($type, '?') && 'mixed' !== $formattedType) {
+                throw new TypeCastingFailed('Unable to convert the `null` value.');
+            }
+
+            return null;
+        }
+
+        if ('' === $value) {
+            return [];
         }
 
         try {

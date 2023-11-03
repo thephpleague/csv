@@ -32,6 +32,7 @@ final class CastToDate implements TypeCasting
         $formattedType = ltrim($type, '?');
 
         return match (true) {
+            BuiltInType::Mixed->value === $formattedType,
             DateTimeInterface::class === $formattedType => true,
             !class_exists($formattedType),
             false === ($foundInterfaces = class_implements($formattedType)),
@@ -58,19 +59,20 @@ final class CastToDate implements TypeCasting
      */
     public function toVariable(?string $value, string $type): DateTimeImmutable|DateTime|null
     {
+        if (!self::supports($type)) {
+            throw new TypeCastingFailed('The property type `'.$type.'` does not implement the `'.DateTimeInterface::class.'`.');
+        }
+
+        $dateClass = ltrim($type, '?');
         if (in_array($value, ['', null], true)) {
             return match (true) {
-                str_starts_with($type, '?') => null,
+                str_starts_with($type, '?'),
+                $dateClass === BuiltInType::Mixed->value => null,
                 default => throw new TypeCastingFailed('Unable to convert the `null` value.'),
             };
         }
 
-        $dateClass = ltrim($type, '?');
-        if (!self::supports($type)) {
-            throw new TypeCastingFailed('The property type `'.$dateClass.'` does not implement the `'.DateTimeInterface::class.'`.');
-        }
-
-        if (DateTimeInterface::class === $dateClass) {
+        if (BuiltInType::Mixed->value === $dateClass || DateTimeInterface::class === $dateClass) {
             $dateClass = DateTimeImmutable::class;
         }
 
