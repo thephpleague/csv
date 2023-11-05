@@ -1,6 +1,6 @@
 ---
 layout: default
-title: Deserializing a Tabular Data
+title: Deserializing a Tabular Data record into an object
 ---
 
 # Mapping records to objects
@@ -49,7 +49,7 @@ use League\Csv\Reader;
 
 $csv = Reader::createFromString($document);
 $csv->setHeaderOffset(0);
-foreach ($csv->map($csv) as $weather) {
+foreach ($csv->getObjects(Weather::class) as $weather) {
     // each $weather entry will be an instance of the Weather class;
 }
 ```

@@ -29,7 +29,7 @@ use IteratorAggregate;
  * @method bool each(Closure $closure) iterates over each record and passes it to a closure. Iteration is interrupted if the closure returns false
  * @method bool exists(Closure $closure) tells whether at least one record satisfies the predicate.
  * @method mixed reduce(Closure $closure, mixed $initial = null) reduces the collection to a single value, passing the result of each iteration into the subsequent iteration
- * @method Iterator map(string $className, array $heaader = []) Returns the tabular data records as an iterator object containing instance of the defined class name.
+ * @method Iterator getObjects(string $className, array $header = []) Returns the tabular data records as an iterator object containing instance of the defined class name.
  * @method TabularDataReader filter(Closure $closure) returns all the elements of this collection for which your callback function returns `true`
  * @method TabularDataReader slice(int $offset, int $length = null) extracts a slice of $length elements starting at position $offset from the Collection.
  * @method TabularDataReader sorted(Closure $orderBy) sorts the Collection according to the closure provided see Statement::orderBy method

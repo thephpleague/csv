@@ -8,7 +8,7 @@ All Notable changes to `Csv` will be documented in this file
 
 - `TabulatDataReader::value`
 - `TabulatDataReader::select`
-- `TabulatDataReader::map`
+- `TabulatDataReader::getObjects`
 - `TabulatDataReader::matching`
 - `TabulatDataReader::matchingFirst` 
 - `TabulatDataReader::matchingFirstOrFail`

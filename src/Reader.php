@@ -430,7 +430,7 @@ class Reader extends AbstractCsv implements TabularDataReader, JsonSerializable
      * @throws Exception
      * @throws ReflectionException
      */
-    public function map(string $className, array $header = []): Iterator
+    public function getObjects(string $className, array $header = []): Iterator
     {
         if ($header !== (array_filter($header, is_string(...)))) {
             throw SyntaxError::dueToInvalidHeaderColumnNames();
@@ -438,10 +438,9 @@ class Reader extends AbstractCsv implements TabularDataReader, JsonSerializable
 
         /** @var array<string> $header */
         $header = $this->computeHeader($header);
+        $serializer = new Serializer($className, $header);
 
-        return (new Serializer($className, $header))->deserializeAll(
-            $this->combineHeader($this->prepareRecords(), $header)
-        );
+        return $serializer->deserializeAll($this->combineHeader($this->prepareRecords(), $header));
     }
 
     /**

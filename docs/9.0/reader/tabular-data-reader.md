@@ -117,6 +117,29 @@ returned iterator. Added column will only contain the `null` value.
 
 <p class="message-warning">If the header record contains non-unique string values, a <code>Exception</code> exception is triggered.</p>
 
+### getObjects
+
+<p class="message-notice">Added in version <code>9.12.0</code> for <code>Reader</code> and <code>ResultSet</code>.</p>
+
+If you prefer working with objects instead of typed arrays it is possible to convert each record using
+the `getObjects` method. This method will convert each array record into your specified object.
+
+To get instances of your object, you are required to call the `getObjects` method as show below:
+
+```php
+$csv = Reader::createFromString($document);
+$csv->setHeaderOffset(0);
+foreach ($csv->getObjects(Weather::class) as $weather) {
+    // each $weather entry will be an instance of the Weather class;
+}
+```
+
+The `getObjects` method can take an optional `$header` argument which is the same mapper argument as the one use
+with the `getRecords` method.
+
+<p class="message-info">You can get more info on how to configure your class to enable this feature by
+visiting the <a href="/9.0/reader/record-mapping">record mapping documentation</a> page</p>
+
 ### value, first and nth
 
 <p class="message-notice"><code>first and nth</code> were added in version <code>9.9.0</code> for <code>Reader</code> and <code>ResultSet</code>.</p>
@@ -325,32 +348,12 @@ use League\Csv\ResultSet;
 $reader = Reader::createFromPath('/path/to/my/file.csv', 'r');
 $resultSet = ResultSet::createFromTabularDataReader($reader);
 
-$nbTotalCells = $resultSet->recude(fn (?int $carry, array $records) => ($carry ?? 0) + count($records));
+$nbTotalCells = $resultSet->reduce(fn (?int $carry, array $records) => ($carry ?? 0) + count($records));
 
 //$records contains the total number of cells contains in the $resultSet
 ```
 
 The closure is similar as the one used with `array_reduce`.
-
-### map
-
-<p class="message-notice">Added in version <code>9.12.0</code> for <code>Reader</code> and <code>ResultSet</code>.</p>
-
-If you prefer working with objects instead of typed arrays it is possible to convert each record using
-the `map` method. This method will cast each array record into your specified object.
-
-To get instances of your object, you are required to call the `map` method as show below:
-
-```php
-$csv = Reader::createFromString($document);
-$csv->setHeaderOffset(0);
-foreach ($csv->map(Weather::class) as $weather) {
-    // each $weather entry will be an instance of the Weather class;
-}
-```
-
-<p class="message-info">You can get more info on how to configure your class to enable this feature by
-visiting the <a href="/9.0/reader/record-mapping">record mapping documentation</a> page</p>
 
 ## Collection methods
 
