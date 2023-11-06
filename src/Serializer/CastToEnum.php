@@ -29,6 +29,11 @@ class CastToEnum implements TypeCasting
 
     public static function supports(string $type): bool
     {
+        $enum = ltrim($type, '?');
+        if (BuiltInType::Mixed->value === $enum) {
+            return true;
+        }
+
         try {
             new ReflectionEnum(ltrim($type, '?'));
 
@@ -38,14 +43,23 @@ class CastToEnum implements TypeCasting
         }
     }
 
-    public function __construct(string $type)
+    public function __construct(string $propertyType, ?string $enum = null)
     {
-        if (!self::supports($type)) {
-            throw new TypeCastingFailed('The property type `'.$type.'` is not a PHP Enumeration.');
+        if (!self::supports($propertyType)) {
+            throw new TypeCastingFailed('The property type `'.$propertyType.'` is not a PHP Enumeration.');
         }
 
-        $this->class = ltrim($type, '?');
-        $this->isNullable = str_starts_with($type, '?');
+        $enumClass = ltrim($propertyType, '?');
+        if (BuiltInType::Mixed->value === $enumClass) {
+            if (null === $enum || !self::supports($enum)) {
+                throw new TypeCastingFailed('The property type `'.$enum.'` is not a PHP Enumeration.');
+            }
+
+            $enumClass = $enum;
+        }
+
+        $this->class = $enumClass;
+        $this->isNullable = str_starts_with($propertyType, '?');
     }
 
     /**
@@ -53,7 +67,6 @@ class CastToEnum implements TypeCasting
      */
     public function toVariable(?string $value): BackedEnum|UnitEnum|null
     {
-
         if (null === $value) {
             return match (true) {
                 $this->isNullable, => null,

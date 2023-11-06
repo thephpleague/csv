@@ -9,14 +9,12 @@ title: Deserializing a Tabular Data record into an object
 
 ## Converting an array to an object
 
-If you prefer working with objects instead of typed arrays it is possible to map each record to
-a specified class. To do so a new `Serializer` class is introduced to expose a deserialization mechanism
+To work with objects instead of arrays the `Serializer` class is introduced to expose a deserialization mechanism.
 
-The class exposes three (3) methods to ease `array` to `object` conversion in the context of Tabular data:
+The class exposes two (2) methods to ease `array` to `object` conversion in the context of tabular data:
 
-- `Serializer::deserialize` which expect a single record as argument and returns on success an instance of the class.
-- `Serializer::deserializeAll` which expect a collection of records and returns a collection of class instances.
-- and the public static method `Serializer::map` which is a quick way to declare and convert a single record into an object.
+- `Serializer::deserialize` which converts a single record into an instance of the specified class.
+- `Serializer::deserializeAll` which converts a collection of records and returns a collection of the specified class instances.
 
 ```php
 use League\Csv\Serializer;
@@ -27,20 +25,17 @@ $record = [
     'place' => 'Berkeley',
 ];
 
-$serializer = new Serializer(Weather::class, array_keys($record));
+$serializer = new Serializer(Weather::class, ['date', 'temperature', 'place']);
 $weather = $serializer->deserialize($record);
 
 $collection = [$record];
 foreach ($serializer->deserializeAll($collection) as $weather) {
     // each $weather entry will be an instance of the Weather class;
 }
-
-//this is equivalent to the first example
-$weather = Serializer::map(Weather::class, $record);
 ```
 
 If you are working with a class which implements the `TabularDataReader` interface you can use this functionality
-directly by calling the `TabularDataReader::map` method.
+directly by calling the `TabularDataReader::getObjects` method.
 
 Here's an example using the `Reader` class:
 
@@ -69,7 +64,7 @@ the mechanism may either fail or produced unexpected results.</p>
 To work as intended the mechanism expects the following:
 
 - A target class where the array will be deserialized in;
-- informations on how to convert cell value into object properties using dedicated attributes;
+- information on how to convert cell value into object properties using dedicated attributes;
 
 As an example if we assume we have the following CSV document:
 
@@ -161,10 +156,7 @@ The above rule can be translated in plain english like this:
 > using the date format `!Y-m-d` and the `Africa/Nairobi` timezone. Once created,
 > inject the date instance into the `observedOn` property of the class.
 
-The `Cell` attribute can be used:
-
-- on class properties and methods (public, protected or private).
-
+The `Cell` attribute can be used on class properties as well as on the class methods regardless of their visibility.
 The `Cell` attribute can take up to three (3) arguments which are all optional:
 
 - The `offset` argument which tell the engine which cell to use via its numeric or name offset. If not present  
@@ -179,24 +171,29 @@ In any cases, if type casting fails, an exception will be thrown.
 ## Type casting the record value
 
 The library comes bundles with four (4) type casting classes which relies on the property type information. All the
-built-in methods support the `nullable` type. They will return `null` if the cell value is the empty string or `null`
-only if the type is considered to be `nullable` otherwise they will throw an exception.
+built-in methods support the `nullable` and the `mixed` types.
+
+- They will return `null` if the cell value is `null` and the type is `nullable`
+- If the value can not be cast they will throw an exception.
+
 All classes are defined under the `League\Csv\Serializer` namespace.
 
 ### CastToBuiltInType
 
 Converts the array value to a scalar type or `null` depending on the property type information. This class has no
-specific configuration but will work with all the scalar type, the `true`, `null` and `false` value type as well as
-with the `mixed` type. Type casting is done using the `filter_var` functionality of the `ext-filter` extension.
+specific configuration but will work with all the scalar type, `true`, `false` and `null` value type as well as
+with the `mixed` type. Type casting is done internally using the `filter_var` function.
 
 ### CastToEnum
 
-Convert the array value to a PHP `Enum` it supported both "real" and backed enumeration. No configuration is needed
-if the value is not recognized an exception will be thrown.
+Convert the array value to a PHP `Enum` it supported both "real" and backed enumeration.
 
 ### CastToDate
 
-Converts the cell value into a PHP `DateTimeInterface` implementing object. You can optionally specify the date format and its timezone if needed.
+Converts the cell value into a PHP `DateTimeInterface` implementing object. You can optionally specify:
+
+- the date format
+- the date timezone if needed.
 
 ### CastToArray
 
@@ -265,7 +262,7 @@ use League\Csv\Serializer\TypeCastingFailed;
 readonly class IntegerRangeCasting implements TypeCasting
 {
     public function __construct(
-        string $propertyType,
+        string $propertyType, //always required and given by the Serializer implementation
         private int $min,
         private int $max,
         private int $default,

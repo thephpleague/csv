@@ -169,7 +169,7 @@ final class Serializer
             $cast = $this->resolveTypeCasting($type->getName());
             if (null === $cast) {
                 //the property can not be automatically cast
-                //we can not throw yet as the caster may be set
+                //we can not throw yet as casting may be set
                 //using the Cell attribute
                 $check['property:'.$propertyName] = $propertyName;
 
@@ -264,13 +264,13 @@ final class Serializer
     /**
      * @param array<string, mixed> $arguments
      */
-    private function resolveTypeCasting(string $type, array $arguments = []): ?TypeCasting
+    private function resolveTypeCasting(string $propertyType, array $arguments = []): ?TypeCasting
     {
         return match (true) {
-            CastToDate::supports($type) => new CastToDate($type, ...$arguments), /* @phpstan-ignore-line */
-            CastToArray::supports($type) => new CastToArray($type, ...$arguments), /* @phpstan-ignore-line */
-            CastToEnum::supports($type) => new CastToEnum($type),
-            CastToBuiltInType::supports($type) => new CastToBuiltInType($type),
+            CastToBuiltInType::supports($propertyType) => new CastToBuiltInType($propertyType),
+            CastToDate::supports($propertyType) => new CastToDate($propertyType, ...$arguments), /* @phpstan-ignore-line */
+            CastToArray::supports($propertyType) => new CastToArray($propertyType, ...$arguments), /* @phpstan-ignore-line */
+            CastToEnum::supports($propertyType) => new CastToEnum($propertyType),
             default => null,
         };
     }
