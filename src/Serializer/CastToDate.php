@@ -17,7 +17,6 @@ use DateTime;
 use DateTimeImmutable;
 use DateTimeInterface;
 use DateTimeZone;
-use Exception;
 use Throwable;
 
 /**
@@ -28,6 +27,7 @@ final class CastToDate implements TypeCasting
     private readonly ?DateTimeZone $timezone;
     private readonly string $class;
     private readonly bool $isNullable;
+    private readonly DateTimeImmutable|DateTime|null $default;
 
     public static function supports(string $propertyType): bool
     {
@@ -44,15 +44,16 @@ final class CastToDate implements TypeCasting
     }
 
     /**
-     * @throws Exception
+     * @throws MappingFailed
      */
     public function __construct(
         string $propertyType,
+        ?string $default = null,
         private readonly ?string $format = null,
         DateTimeZone|string|null $timezone = null,
     ) {
         if (!self::supports($propertyType)) {
-            throw new TypeCastingFailed('The property type `'.$propertyType.'` does not implement the `'.DateTimeInterface::class.'`.');
+            throw new MappingFailed('The property type `'.$propertyType.'` does not implement the `'.DateTimeInterface::class.'`.');
         }
 
         $class = ltrim($propertyType, '?');
@@ -62,10 +63,12 @@ final class CastToDate implements TypeCasting
 
         $this->class = $class;
         $this->isNullable = str_starts_with($propertyType, '?');
-        $this->timezone = match (true) {
-            is_string($timezone) => new DateTimeZone($timezone),
-            default => $timezone,
-        };
+        try {
+            $this->timezone = is_string($timezone) ? new DateTimeZone($timezone) : $timezone;
+            $this->default = (null !== $default) ? $this->cast($default) : $default;
+        } catch (Throwable $exception) {
+            throw new MappingFailed('The configuration option for `'.self::class.'` are invalid.', 0, $exception);
+        }
     }
 
     /**
@@ -73,14 +76,18 @@ final class CastToDate implements TypeCasting
      */
     public function toVariable(?string $value): DateTimeImmutable|DateTime|null
     {
-        if (null === $value || '' === $value) {
-            return match (true) {
-                $this->isNullable,
-                $this->class === BuiltInType::Mixed->value => null,
-                default => throw new TypeCastingFailed('Unable to convert the `null` value.'),
-            };
-        }
+        return match (true) {
+            null !== $value && '' !== $value => $this->cast($value),
+            $this->isNullable => $this->default,
+            default => throw new TypeCastingFailed('Unable to convert the `null` value.'),
+        };
+    }
 
+    /**
+     * @throws TypeCastingFailed
+     */
+    private function cast(string $value): DateTimeImmutable|DateTime
+    {
         try {
             $date = null !== $this->format ?
                 ($this->class)::createFromFormat($this->format, $value, $this->timezone) :
@@ -89,11 +96,11 @@ final class CastToDate implements TypeCasting
                 throw new TypeCastingFailed('Unable to cast the given data `'.$value.'` to a PHP DateTime related object.');
             }
         } catch (Throwable $exception) {
-            if (!$exception instanceof TypeCastingFailed) {
-                $exception = new TypeCastingFailed('Unable to cast the given data `'.$value.'` to a PHP DateTime related object.', 0, $exception);
+            if ($exception instanceof TypeCastingFailed) {
+                throw $exception;
             }
 
-            throw $exception;
+            throw new TypeCastingFailed('Unable to cast the given data `'.$value.'` to a PHP DateTime related object.', 0, $exception);
         }
 
         return $date;

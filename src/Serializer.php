@@ -16,9 +16,12 @@ namespace League\Csv;
 use ArrayIterator;
 use Iterator;
 use League\Csv\Serializer\CastToArray;
-use League\Csv\Serializer\CastToBuiltInType;
+use League\Csv\Serializer\CastToBool;
 use League\Csv\Serializer\CastToDate;
 use League\Csv\Serializer\CastToEnum;
+use League\Csv\Serializer\CastToFloat;
+use League\Csv\Serializer\CastToInt;
+use League\Csv\Serializer\CastToString;
 use League\Csv\Serializer\Cell;
 use League\Csv\Serializer\MappingFailed;
 use League\Csv\Serializer\PropertySetter;
@@ -64,7 +67,6 @@ final class Serializer
 
     /**
      * @throws MappingFailed
-     * @throws ReflectionException
      * @throws TypeCastingFailed
      */
     public function deserializeAll(iterable $records): Iterator
@@ -115,13 +117,13 @@ final class Serializer
 
 
     /**
-     * @throws MappingFailed
+     * @throws TypeCastingFailed
      */
     private function assertObjectIsInValidState(object $object): void
     {
         foreach ($this->properties as $property) {
             if (!$property->isInitialized($object)) {
-                throw new MappingFailed('The property '.$this->class->getName().'::'.$property->getName().' is not initialized.');
+                throw new TypeCastingFailed('The property '.$this->class->getName().'::'.$property->getName().' is not initialized.');
             }
         }
     }
@@ -166,14 +168,17 @@ final class Serializer
                 throw new MappingFailed('The property `'.$propertyName.'` must be typed.');
             }
 
+            $attribute = $property->getAttributes(Cell::class, ReflectionAttribute::IS_INSTANCEOF);
+            if ([] !== $attribute) {
+                //the property can not be cast yet
+                //as casting will be set using the Cell attribute
+                $check['property:'.$propertyName] = $propertyName;
+                continue;
+            }
+
             $cast = $this->resolveTypeCasting($type->getName());
             if (null === $cast) {
-                //the property can not be automatically cast
-                //we can not throw yet as casting may be set
-                //using the Cell attribute
-                $check['property:'.$propertyName] = $propertyName;
-
-                continue;
+                throw new MappingFailed('No valid type casting was found for property `'.$propertyName.'`.');
             }
 
             $propertySetters['property:'.$propertyName] = new PropertySetter($property, $offset, $cast);
@@ -229,7 +234,7 @@ final class Serializer
         }
 
         if (1 < count($attributes)) {
-            throw new MappingFailed('Using more than one '.Cell::class.' attribute on a class property or method is not supported.');
+            throw new MappingFailed('Using more than one `'.Cell::class.'` attribute on a class property or method is not supported.');
         }
 
         /** @var Cell $cell */
@@ -267,10 +272,13 @@ final class Serializer
     private function resolveTypeCasting(string $propertyType, array $arguments = []): ?TypeCasting
     {
         return match (true) {
-            CastToBuiltInType::supports($propertyType) => new CastToBuiltInType($propertyType),
+            CastToString::supports($propertyType) => new CastToString($propertyType, ...$arguments), /* @phpstan-ignore-line */
+            CastToInt::supports($propertyType) => new CastToInt($propertyType, ...$arguments), /* @phpstan-ignore-line */
+            CastToFloat::supports($propertyType) => new CastToFloat($propertyType, ...$arguments), /* @phpstan-ignore-line */
+            CastToBool::supports($propertyType) => new CastToBool($propertyType, ...$arguments), /* @phpstan-ignore-line */
             CastToDate::supports($propertyType) => new CastToDate($propertyType, ...$arguments), /* @phpstan-ignore-line */
             CastToArray::supports($propertyType) => new CastToArray($propertyType, ...$arguments), /* @phpstan-ignore-line */
-            CastToEnum::supports($propertyType) => new CastToEnum($propertyType),
+            CastToEnum::supports($propertyType) => new CastToEnum($propertyType, ...$arguments), /* @phpstan-ignore-line */
             default => null,
         };
     }
@@ -288,8 +296,10 @@ final class Serializer
 
         $typeCaster = $cell->cast;
         if (null !== $typeCaster) {
-            /** @var TypeCasting $cast */
             $cast = new $typeCaster((string) $type, ...$cell->castArguments);
+            if (!$cast instanceof TypeCasting) {
+                throw new MappingFailed('The class `'.$cast::class.'` does not implements the `'.TypeCasting::class.'` interface.');
+            }
 
             return $cast;
         }

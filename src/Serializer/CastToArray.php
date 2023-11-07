@@ -43,14 +43,15 @@ final class CastToArray implements TypeCasting
      */
     public function __construct(
         string $propertyType,
+        private readonly ?array $default = null,
         private readonly string $type = self::TYPE_LIST,
         private readonly string $delimiter = ',',
         private readonly string $enclosure = '"',
         private readonly int $jsonDepth = 512,
-        private readonly int $jsonFlags = 0,
+        private readonly int $jsonFlags = 0
     ) {
         if (!self::supports($propertyType)) {
-            throw new TypeCastingFailed('The property type is not an array or an iterable structure.');
+            throw new MappingFailed('The property type is not an array or an iterable structure.');
         }
         $this->class = ltrim($propertyType, '?');
         $this->isNullable = str_starts_with($propertyType, '?');
@@ -70,7 +71,7 @@ final class CastToArray implements TypeCasting
         if (null === $value) {
             return match (true) {
                 $this->isNullable,
-                BuiltInType::Mixed->value === $this->class => null,
+                BuiltInType::Mixed->value === $this->class => $this->default,
                 default => throw new TypeCastingFailed('Unable to convert the `null` value.'),
             };
         }

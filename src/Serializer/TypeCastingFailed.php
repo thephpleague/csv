@@ -15,6 +15,6 @@ namespace League\Csv\Serializer;
 
 use RuntimeException;
 
-final class TypeCastingFailed extends RuntimeException
+final class TypeCastingFailed extends RuntimeException implements SerializationFailed
 {
 }

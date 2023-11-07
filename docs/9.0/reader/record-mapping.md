@@ -124,16 +124,29 @@ if there is a class property, which name is the same as a column name, the colum
 to this property. The appropriate type is used if the record cell value is a `string` or `null` and
 the object public properties ares typed with
 
-- `null`
-- `mixed`
-- a scalar type (support for `true` and `false` type is also present)
+- a scalar type (`string`, `int`, `float`, `bool`)
 - any `Enum` object (backed or not)
-- `DateTime`, `DateTimeImmuntable` and any class that extends those two classes.
+- `DateTime`, `DateTimeImmuntable` or any class that extends those two classes.
 - an `array`
 
-When converting to a date object you can fine tune the conversion by optionally specifying the date
-format and timezone. You can do so using the `Cell` attribute. This attribute will override the automatic
-resolution and enable fine-tuning type casting on the property level.
+the `nullable` aspect of the property is also handled.
+
+To fine tune the conversion you are require to use the `Cell` attribute. This attribute will
+override the automatic resolution and enable fine-tuning type casting on the property level.
+
+The `Cell` attribute can be used on class properties and methods regardless of their visibility.
+The attribute can take up to three (3) arguments which are all optional:
+
+- The `offset` argument tells the engine which cell to use via its numeric or name offset. If not present  
+the property name or the name of the first argument of the `setter` method will be used. In such case,  
+you are required to specify the property names information.
+- The `cast` argument which accept the name of a class implementing the `TypeCasting` interface and responsible  
+for type casting the cell value.
+- The `castArguments` which enable controlling typecasting by providing extra arguments to the `TypeCasting` class constructor
+
+In any cases, if type casting fails, an exception will be thrown.
+
+Here's an example of how the attribute could be used:
 
 ```php
 use League\Csv\Serializer;
@@ -152,48 +165,54 @@ public CarbonImmutable $observedOn;
 
 The above rule can be translated in plain english like this:
 
-> convert the value of the associative array named `date` into a `CarbonImmutable` object
+> convert the value of the associative array whose key is `date` into a `CarbonImmutable` object
 > using the date format `!Y-m-d` and the `Africa/Nairobi` timezone. Once created,
 > inject the date instance into the `observedOn` property of the class.
 
-The `Cell` attribute can be used on class properties as well as on the class methods regardless of their visibility.
-The `Cell` attribute can take up to three (3) arguments which are all optional:
-
-- The `offset` argument which tell the engine which cell to use via its numeric or name offset. If not present  
-the property name or the name of the first argument of the `setter` method will be used. In such case,  
-you are required to specify the property names information.
-- The `cast` argument which accept the name of a class implementing the `TypeCasting` interface and responsible  
-for type casting the cell value.
-- The `castArguments` which enable controlling typecasting by providing extra arguments to the `TypeCasting` class constructor
-
-In any cases, if type casting fails, an exception will be thrown.
-
 ## Type casting the record value
 
-The library comes bundles with four (4) type casting classes which relies on the property type information. All the
+The library comes bundles with seven (7) type casting classes which relies on the property type information. All the
 built-in methods support the `nullable` and the `mixed` types.
 
-- They will return `null` if the cell value is `null` and the type is `nullable`
+- They will return `null` or a specified default value, if the cell value is `null` and the type is `nullable`
 - If the value can not be cast they will throw an exception.
 
 All classes are defined under the `League\Csv\Serializer` namespace.
 
-### CastToBuiltInType
+### CastToString
 
-Converts the array value to a scalar type or `null` depending on the property type information. This class has no
-specific configuration but will work with all the scalar type, `true`, `false` and `null` value type as well as
-with the `mixed` type. Type casting is done internally using the `filter_var` function.
+Converts the array value to a string or `null` depending on the property type information. The class takes on
+optional argument `default` which is the default value to return if the value is `null`.
+
+### CastToBool
+
+Converts the array value to `true`, `false` or `null` depending on the property type information. The class takes on
+optional argument `default` which is the default boolean value to return if the value is `null`.
+
+### CastToInt and CastToFloat
+
+Converts the array value to an `int` or a `float` depending on the property type information. The class takes three (3)
+optional argument:
+
+- `default` which is the default value to return if the value is `null`; respectively an `int`, a `float` or `null`.
+- `min` the minimum accepted value
+- `max` the maximum accepted value
 
 ### CastToEnum
 
-Convert the array value to a PHP `Enum` it supported both "real" and backed enumeration.
+Convert the array value to a PHP `Enum` it supported both "real" and backed enumeration.  The class takes on
+optional argument `default` which is the default Enum value to return if the value is `null`.
+If the `Enum` is backed the cell value will be considered as one of the Enum value; otherwise it will be used
+as one the `Enum` name. Likewise, the `default` value will also be considered the same way. If the default value
+is not `null` and the value given is incorrect, the mechanism will throw an exception.
 
 ### CastToDate
 
 Converts the cell value into a PHP `DateTimeInterface` implementing object. You can optionally specify:
 
-- the date format
-- the date timezone if needed.
+- the date format via the `format` argument
+- the date timezone if needed  via the `timezone` argument
+- the `default` which is the default value to return if the value is `null`; should be a `null` or a parsable date time `string`
 
 ### CastToArray
 
@@ -237,41 +256,44 @@ You can also provide your own class to typecast the array value according to you
 specify your casting with the attribute:
 
 ```php
+use App\Domain\Money
 use League\Csv\Serializer;
+
 #[Serializer\Cell(
-    offset: 'rating',
-    cast: IntegerRangeCasting::class,
-    castArguments: ['min' => 0, 'max' => 5, 'default' => 2]
+    offset: 'amout',
+    cast: CastToMoney::class,
+    castArguments: ['min' => -10000_00, 'max' => 10000_00, 'default' => 100_00]
 )]
-private int $ratingScore;
+private Money $ratingScore;
 ```
 
-The `IntegerRangeCasting` will convert cell value and return data between `0` and `5` and default to `2` if
+The `CastToAmount` will convert cell value and return data between `-100_00` and `100_00` and default to `20_00` if
 the value is wrong or invalid. To allow your object to cast the cell value to your liking it needs to
 implement the `TypeCasting` interface. To do so, you must define a `toVariable` method that will return
 the correct value once converted. The first argument of the `__construct` method is always
 the property type.
 
 ```php
+use App\Domain\Money;
 use League\Csv\Serializer\TypeCasting;
 use League\Csv\Serializer\TypeCastingFailed;
 
 /**
- * @implements TypeCasting<int|null>
+ * @implements TypeCasting<Money|null>
  */
-readonly class IntegerRangeCasting implements TypeCasting
+class CastToMoney implements TypeCasting
 {
     public function __construct(
         string $propertyType, //always required and given by the Serializer implementation
-        private int $min,
-        private int $max,
-        private int $default,
+        private readonly int $min,
+        private readonly int $max,
+        private readonly int $default,
     ) {
         $this->isNullable = str_starts_with($type, '?');
     
         //the type casting class must only work with property declared as integer
-        if ('int' !== ltrim($propertyType, '?')) {
-            throw new TypeCastingFailed('The class '. self::class . ' can only work with integer typed property.');
+        if (Money::class !== ltrim($propertyType, '?')) {
+            throw new TypeCastingFailed('The class '. self::class . ' can only work with `' . Money::class . '` typed property.');
         }
     
         if ($max < $min) {
@@ -279,18 +301,18 @@ readonly class IntegerRangeCasting implements TypeCasting
         }
     }
 
-    public function toVariable(?string $value): ?int
+    public function toVariable(?string $value): ?Money
     {
         // if the property is declared as nullable we exist early
         if (in_array($value, ['', null], true) && $this->isNullable) {
             return null;
         }
 
-        return filter_var(
+        return Money::fromNaira(filter_var(
             $value,
             FILTER_VALIDATE_INT,
             ['options' => ['min' => $this->min, 'max' => $this->max, 'default' => $this->default]]
-        );
+        ));
     }
 }
 ```

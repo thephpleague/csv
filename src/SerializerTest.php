@@ -20,10 +20,10 @@ use League\Csv\Serializer\CastToDate;
 use League\Csv\Serializer\CastToEnum;
 use League\Csv\Serializer\Cell;
 use League\Csv\Serializer\MappingFailed;
+use League\Csv\Serializer\TypeCastingFailed;
 use PHPUnit\Framework\TestCase;
 use SplFileObject;
 use stdClass;
-use TypeError;
 
 final class SerializerTest extends TestCase
 {
@@ -101,6 +101,7 @@ final class SerializerTest extends TestCase
     public function testMapingFailBecauseTheRecordAttributeIsMissing(): void
     {
         $this->expectException(MappingFailed::class);
+        $this->expectExceptionMessage('No properties or method setters were found eligible on the class `stdClass` to be used for type casting.');
 
         Serializer::map(stdClass::class, ['foo' => 'bar']);
     }
@@ -108,6 +109,7 @@ final class SerializerTest extends TestCase
     public function testItWillThrowIfTheHeaderIsMissingAndTheColumnOffsetIsAString(): void
     {
         $this->expectException(MappingFailed::class);
+        $this->expectExceptionMessage('Column name as string are only supported if the tabular data has a non-empty header.');
 
         $serializer = new Serializer(WeatherSetterGetter::class);
         $serializer->deserialize([
@@ -120,6 +122,7 @@ final class SerializerTest extends TestCase
     public function testItWillThrowIfTheHeaderContainsInvalidOffsetName(): void
     {
         $this->expectException(MappingFailed::class);
+        $this->expectExceptionMessage('The offset `temperature` could not be found in the header; Pleaser verify your header data.');
 
         $serializer = new Serializer(WeatherSetterGetter::class, ['date', 'toto', 'foobar']);
         $serializer->deserialize([
@@ -132,13 +135,15 @@ final class SerializerTest extends TestCase
     public function testItWillThrowIfTheColumnAttributesIsUsedMultipleTimeForTheSameAccessor(): void
     {
         $this->expectException(MappingFailed::class);
+        $this->expectExceptionMessage('Using more than one `League\Csv\Serializer\Cell` attribute on a class property or method is not supported.');
 
         new Serializer(InvalidWeatherAttributeUsage::class);
     }
 
     public function testItWillThrowIfTheColumnAttributesCasterIsInvalid(): void
     {
-        $this->expectException(TypeError::class);
+        $this->expectException(MappingFailed::class);
+        $this->expectExceptionMessage('The class `stdClass` does not implements the `League\Csv\Serializer\TypeCasting` interface.');
 
         new Serializer(InvalidWeatherAttributeCasterNotSupported::class);
     }
@@ -146,6 +151,7 @@ final class SerializerTest extends TestCase
     public function testItWillThrowBecauseTheObjectDoesNotHaveTypedProperties(): void
     {
         $this->expectException(MappingFailed::class);
+        $this->expectExceptionMessage('The property `temperature` must be typed.');
 
         new Serializer(InvaliDWeatherWithRecordAttribute::class, ['temperature', 'foobar', 'observedOn']);
     }
@@ -153,13 +159,14 @@ final class SerializerTest extends TestCase
     public function testItWillFailForLackOfTypeCasting(): void
     {
         $this->expectException(MappingFailed::class);
+        $this->expectExceptionMessage('No valid type casting was found for property `observedOn`.');
 
         new Serializer(InvaliDWeatherWithRecordAttributeAndUnknownCasting::class, ['temperature', 'place', 'observedOn']);
     }
 
     public function testItWillThrowIfTheClassContainsUnitiliaziedProperties(): void
     {
-        $this->expectException(MappingFailed::class);
+        $this->expectException(TypeCastingFailed::class);
         $this->expectExceptionMessage('The property '.InvalidObjectWithUninitializedProperty::class.'::nombre is not initialized.');
 
         $serializer = new Serializer(InvalidObjectWithUninitializedProperty::class, ['prenoms', 'nombre', 'sexe', 'annee']);

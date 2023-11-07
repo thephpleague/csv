@@ -13,8 +13,8 @@ declare(strict_types=1);
 
 namespace League\Csv\Serializer;
 
-use RuntimeException;
+use LogicException;
 
-final class MappingFailed extends RuntimeException
+final class MappingFailed extends LogicException implements SerializationFailed
 {
 }

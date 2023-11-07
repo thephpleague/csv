@@ -9,13 +9,12 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace League\Csv\Serializer;
 
-enum BuiltInType: string
+use Throwable;
+
+interface SerializationFailed extends Throwable
 {
-    case Bool = 'bool';
-    case Int =  'int';
-    case Float = 'float';
-    case String = 'string';
-    case Mixed = 'mixed';
 }

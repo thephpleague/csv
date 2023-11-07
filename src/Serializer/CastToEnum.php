@@ -19,6 +19,8 @@ use ReflectionException;
 use Throwable;
 use UnitEnum;
 
+use const FILTER_VALIDATE_INT;
+
 /**
  * @implements TypeCasting<BackedEnum|UnitEnum|null>
  */
@@ -26,6 +28,7 @@ class CastToEnum implements TypeCasting
 {
     private readonly string $class;
     private readonly bool $isNullable;
+    private readonly BackedEnum|UnitEnum|null $default;
 
     public static function supports(string $type): bool
     {
@@ -43,16 +46,22 @@ class CastToEnum implements TypeCasting
         }
     }
 
-    public function __construct(string $propertyType, ?string $enum = null)
-    {
+    /**
+     * @throws MappingFailed
+     */
+    public function __construct(
+        string $propertyType,
+        ?string $default = null,
+        ?string $enum = null
+    ) {
         if (!self::supports($propertyType)) {
-            throw new TypeCastingFailed('The property type `'.$propertyType.'` is not a PHP Enumeration.');
+            throw new MappingFailed('The property type `'.$propertyType.'` is not a PHP Enumeration.');
         }
 
         $enumClass = ltrim($propertyType, '?');
         if (BuiltInType::Mixed->value === $enumClass) {
             if (null === $enum || !self::supports($enum)) {
-                throw new TypeCastingFailed('The property type `'.$enum.'` is not a PHP Enumeration.');
+                throw new MappingFailed('The property type `'.$enum.'` is not a PHP Enumeration.');
             }
 
             $enumClass = $enum;
@@ -60,6 +69,11 @@ class CastToEnum implements TypeCasting
 
         $this->class = $enumClass;
         $this->isNullable = str_starts_with($propertyType, '?');
+        try {
+            $this->default = (null !== $default) ? $this->cast($default) : $default;
+        } catch (TypeCastingFailed $exception) {
+            throw new MappingFailed('The configuration option for `'.self::class.'` are invalid.', 0, $exception);
+        }
     }
 
     /**
@@ -67,13 +81,18 @@ class CastToEnum implements TypeCasting
      */
     public function toVariable(?string $value): BackedEnum|UnitEnum|null
     {
-        if (null === $value) {
-            return match (true) {
-                $this->isNullable, => null,
-                default => throw new TypeCastingFailed('Unable to convert the `null` value.'),
-            };
-        }
+        return match (true) {
+            null !== $value => $this->cast($value),
+            $this->isNullable => $this->default,
+            default => throw new TypeCastingFailed('Unable to convert the `null` value.'),
+        };
+    }
 
+    /**
+     * @throws TypeCastingFailed
+     */
+    private function cast(string $value): BackedEnum|UnitEnum
+    {
         try {
             $enum = new ReflectionEnum($this->class);
             if (!$enum->isBacked()) {

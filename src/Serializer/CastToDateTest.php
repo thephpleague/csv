@@ -32,7 +32,7 @@ final class CastToDateTest extends TestCase
 
     public function testItCanConvertADateWithASpecificFormat(): void
     {
-        $cast = new CastToDate(DateTimeInterface::class, '!Y-m-d', 'Africa/Kinshasa');
+        $cast = new CastToDate(DateTimeInterface::class, null, '!Y-m-d', 'Africa/Kinshasa');
         $date = $cast->toVariable('2023-10-30');
 
         self::assertInstanceOf(DateTimeImmutable::class, $date);
