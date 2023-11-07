@@ -53,6 +53,13 @@ final class CastToEnumTest extends TestCase
         self::assertNull($cast->toVariable(null));
     }
 
+    public function testItReturnsTheDefaultValueWhenTheVariableIsNullable(): void
+    {
+        $cast = new CastToEnum('?'.Currency::class, 'Naira');
+
+        self::assertSame(Currency::Naira, $cast->toVariable(null));
+    }
+
     public function testThrowsOnNullIfTheVariableIsNotNullable(): void
     {
         $this->expectException(TypeCastingFailed::class);

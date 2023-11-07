@@ -62,6 +62,16 @@ final class CastToDateTest extends TestCase
 
         self::assertNull($cast->toVariable(null));
     }
+
+    public function testItCanConvertADateWithADefaultValue(): void
+    {
+        $cast = new CastToDate('?'.DateTimeInterface::class, '2023-01-01', '!Y-m-d', 'Africa/Kinshasa');
+        $date = $cast->toVariable(null);
+
+        self::assertInstanceOf(DateTimeImmutable::class, $date);
+        self::assertSame('01-01-2023 00:00:00', $date->format('d-m-Y H:i:s'));
+        self::assertEquals(new DateTimeZone('Africa/Kinshasa'), $date->getTimezone());
+    }
 }
 
 class MyDate extends DateTimeImmutable

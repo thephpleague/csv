@@ -63,4 +63,12 @@ final class CastToArrayTest extends TestCase
 
         (new CastToArray('?iterable', null, 'json'))->toVariable('{"json":toto}');
     }
+
+    public function testItCastNullableJsonUsingTheDefaultValue(): void
+    {
+        self::assertSame(
+            ['toto'],
+            (new CastToArray('?iterable', ['toto'], 'json'))->toVariable(null)
+        );
+    }
 }
