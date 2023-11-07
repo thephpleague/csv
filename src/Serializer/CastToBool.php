@@ -29,7 +29,7 @@ final class CastToBool implements TypeCasting
         private readonly ?bool $default = null
     ) {
         if (!self::supports($propertyType)) {
-            throw new TypeCastingFailed('The property type is not a built in basic type.');
+            throw new MappingFailed('The property type is not a built in bool type or mixed.');
         }
 
         $this->isNullable = str_starts_with($propertyType, '?');
