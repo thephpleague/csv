@@ -26,7 +26,7 @@ final class CastToFloat implements TypeCasting
 
     public static function supports(string $propertyType): bool
     {
-        return BasicType::tryfromPropertyType($propertyType)
+        return BasicType::tryFromPropertyType($propertyType)
             ?->isOneOf(BasicType::Mixed, BasicType::Float)
             ?? false;
     }

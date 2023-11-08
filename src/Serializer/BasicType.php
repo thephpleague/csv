@@ -32,7 +32,7 @@ enum BasicType: string
         return in_array($this, $types, true);
     }
 
-    public static function tryfromPropertyType(string $propertyType): ?self
+    public static function tryFromPropertyType(string $propertyType): ?self
     {
         return self::tryFrom(ltrim($propertyType, '?'));
     }
