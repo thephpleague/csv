@@ -25,6 +25,7 @@ use League\Csv\Serializer\CastToString;
 use League\Csv\Serializer\Cell;
 use League\Csv\Serializer\MappingFailed;
 use League\Csv\Serializer\PropertySetter;
+use League\Csv\Serializer\SerializationFailed;
 use League\Csv\Serializer\TypeCasting;
 use League\Csv\Serializer\TypeCastingFailed;
 use ReflectionAttribute;
@@ -33,7 +34,9 @@ use ReflectionException;
 use ReflectionMethod;
 use ReflectionNamedType;
 use ReflectionProperty;
+use ReflectionType;
 use RuntimeException;
+use Throwable;
 use TypeError;
 
 final class Serializer
@@ -165,7 +168,7 @@ final class Serializer
 
             $type = $property->getType();
             if (!$type instanceof ReflectionNamedType) {
-                throw new MappingFailed('The property `'.$propertyName.'` must be typed.');
+                throw new MappingFailed('The property `'.$propertyName.'` must be typed with a single nullable type.');
             }
 
             $attribute = $property->getAttributes(Cell::class, ReflectionAttribute::IS_INSTANCEOF);
@@ -176,7 +179,7 @@ final class Serializer
                 continue;
             }
 
-            $cast = $this->resolveTypeCasting($type->getName());
+            $cast = $this->resolveTypeCasting($type);
             if (null === $cast) {
                 throw new MappingFailed('No valid type casting was found for property `'.$propertyName.'`.');
             }
@@ -268,19 +271,34 @@ final class Serializer
 
     /**
      * @param array<string, mixed> $arguments
+     *
+     * @throws SerializationFailed If the arguments do not match the expected TypeCasting class constructor signature
      */
-    private function resolveTypeCasting(string $propertyType, array $arguments = []): ?TypeCasting
+    private function resolveTypeCasting(ReflectionType $reflectionType, array $arguments = []): ?TypeCasting
     {
-        return match (true) {
-            CastToString::supports($propertyType) => new CastToString($propertyType, ...$arguments), /* @phpstan-ignore-line */
-            CastToInt::supports($propertyType) => new CastToInt($propertyType, ...$arguments), /* @phpstan-ignore-line */
-            CastToFloat::supports($propertyType) => new CastToFloat($propertyType, ...$arguments), /* @phpstan-ignore-line */
-            CastToBool::supports($propertyType) => new CastToBool($propertyType, ...$arguments), /* @phpstan-ignore-line */
-            CastToDate::supports($propertyType) => new CastToDate($propertyType, ...$arguments), /* @phpstan-ignore-line */
-            CastToArray::supports($propertyType) => new CastToArray($propertyType, ...$arguments), /* @phpstan-ignore-line */
-            CastToEnum::supports($propertyType) => new CastToEnum($propertyType, ...$arguments), /* @phpstan-ignore-line */
-            default => null,
-        };
+        $type = '';
+        if ($reflectionType instanceof ReflectionNamedType) {
+            $type = $reflectionType->getName();
+        }
+
+        try {
+            return match (true) {
+                CastToString::supports($type) => new CastToString($type, ...$arguments), /* @phpstan-ignore-line */
+                CastToInt::supports($type) => new CastToInt($type, ...$arguments), /* @phpstan-ignore-line */
+                CastToFloat::supports($type) => new CastToFloat($type, ...$arguments), /* @phpstan-ignore-line */
+                CastToBool::supports($type) => new CastToBool($type, ...$arguments), /* @phpstan-ignore-line */
+                CastToDate::supports($type) => new CastToDate($type, ...$arguments), /* @phpstan-ignore-line */
+                CastToArray::supports($type) => new CastToArray($type, ...$arguments), /* @phpstan-ignore-line */
+                CastToEnum::supports($type) => new CastToEnum($type, ...$arguments), /* @phpstan-ignore-line */
+                default => null,
+            };
+        } catch (Throwable $exception) {
+            if ($exception instanceof SerializationFailed) {
+                throw $exception;
+            }
+
+            throw new MappingFailed('Unable to instantiate a casting mechanism. Please verify your casting arguments', 0, $exception);
+        }
     }
 
     /**
@@ -311,7 +329,7 @@ final class Serializer
             });
         }
 
-        return $this->resolveTypeCasting($type->getName(), $cell->castArguments) ?? throw new MappingFailed(match (true) {
+        return $this->resolveTypeCasting($type, $cell->castArguments) ?? throw new MappingFailed(match (true) {
             $accessor instanceof ReflectionMethod => 'No valid type casting was found for the setter method argument `'.$accessor->getParameters()[0]->getName().'` must be typed.',
             $accessor instanceof ReflectionProperty => 'No valid type casting was found for the property `'.$accessor->getName().'` must be typed.',
         });

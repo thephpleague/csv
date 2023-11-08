@@ -253,7 +253,7 @@ class ResultSet implements TabularDataReader, JsonSerializable
      * @throws TypeCastingFailed
      * @throws MappingFailed
      */
-    public function getObjects(string $className, array $header): Iterator
+    public function getObjects(string $className, array $header = []): Iterator
     {
         if ($header !== array_filter($header, is_string(...))) {
             throw SyntaxError::dueToInvalidHeaderColumnNames();

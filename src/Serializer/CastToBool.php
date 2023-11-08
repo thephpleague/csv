@@ -19,9 +19,9 @@ final class CastToBool implements TypeCasting
 
     public static function supports(string $propertyType): bool
     {
-        $type = BuiltInType::tryFrom(ltrim($propertyType, '?'));
-
-        return null !== $type && (BuiltInType::Mixed === $type || BuiltInType::Bool === $type);
+        return BasicType::tryfromPropertyType($propertyType)
+            ?->isOneOf(BasicType::Mixed, BasicType::Bool)
+            ?? false;
     }
 
     public function __construct(

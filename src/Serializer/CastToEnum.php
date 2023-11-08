@@ -33,12 +33,12 @@ class CastToEnum implements TypeCasting
     public static function supports(string $type): bool
     {
         $enum = ltrim($type, '?');
-        if (BuiltInType::Mixed->value === $enum) {
+        if (BasicType::Mixed === BasicType::tryFrom($enum)) {
             return true;
         }
 
         try {
-            new ReflectionEnum(ltrim($type, '?'));
+            new ReflectionEnum($enum);
 
             return true;
         } catch (ReflectionException) {
@@ -59,8 +59,12 @@ class CastToEnum implements TypeCasting
         }
 
         $enumClass = ltrim($propertyType, '?');
-        if (BuiltInType::Mixed->value === $enumClass) {
-            if (null === $enum || !self::supports($enum)) {
+        if (BasicType::tryFrom($enumClass)?->equals(BasicType::Mixed) ?? false) {
+            if (null === $enum) {
+                throw new MappingFailed('To work with `'.BasicType::Mixed->value.'`, an Enumeration class must be provded.');
+            }
+
+            if (!self::supports($enum)) {
                 throw new MappingFailed('The property type `'.$enum.'` is not a PHP Enumeration.');
             }
 

@@ -22,9 +22,9 @@ final class CastToString implements TypeCasting
 
     public static function supports(string $propertyType): bool
     {
-        $type = BuiltInType::tryFrom(ltrim($propertyType, '?'));
-
-        return null !== $type && (BuiltInType::Mixed === $type || BuiltInType::String === $type);
+        return BasicType::tryfromPropertyType($propertyType)
+            ?->isOneOf(BasicType::Mixed, BasicType::String)
+            ?? false;
     }
 
     public function __construct(

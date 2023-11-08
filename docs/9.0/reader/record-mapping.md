@@ -9,12 +9,13 @@ title: Deserializing a Tabular Data record into an object
 
 ## Converting an array to an object
 
-To work with objects instead of arrays the `Serializer` class is introduced to expose a deserialization mechanism.
+To work with objects instead of arrays the `Serializer` class is introduced to expose a
+text based deserialization mechanism for tabular data.
 
-The class exposes two (2) methods to ease `array` to `object` conversion in the context of tabular data:
+The class exposes two (2) methods to ease `array` to `object` conversion:
 
-- `Serializer::deserialize` which converts a single record into an instance of the specified class.
-- `Serializer::deserializeAll` which converts a collection of records and returns a collection of the specified class instances.
+- `Serializer::deserialize` converts a single record into an instance of the specified class.
+- `Serializer::deserializeAll` converts a collection of records and returns a collection of the specified class instances.
 
 ```php
 use League\Csv\Serializer;
@@ -57,7 +58,7 @@ The deserialization mechanism works mainly with DTO or objects which can be buil
 without complex logic.
 
 <p class="message-notice">The mechanism relies on PHP's <code>Reflection</code>
-features. It does not use the class constructor to perform the conversion.
+feature. It does not use the class constructor to perform the conversion.
 This means that if the targeted object contains additional logic in its constructor,
 the mechanism may either fail or produced unexpected results.</p>
 

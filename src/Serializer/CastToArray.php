@@ -31,7 +31,9 @@ final class CastToArray implements TypeCasting
 
     public static function supports(string $propertyType): bool
     {
-        return in_array(ltrim($propertyType, '?'), ['array', 'iterable', BuiltInType::Mixed->value], true);
+        return BasicType::tryfromPropertyType($propertyType)
+            ?->isOneOf(BasicType::Mixed, BasicType::Array, BasicType::Iterable)
+            ?? false;
     }
 
     /**
@@ -71,7 +73,7 @@ final class CastToArray implements TypeCasting
         if (null === $value) {
             return match (true) {
                 $this->isNullable,
-                BuiltInType::Mixed->value === $this->class => $this->default,
+                BasicType::tryFrom($this->class)?->equals(BasicType::Mixed) => $this->default,
                 default => throw new TypeCastingFailed('Unable to convert the `null` value.'),
             };
         }

@@ -31,13 +31,13 @@ final class CastToDate implements TypeCasting
 
     public static function supports(string $propertyType): bool
     {
-        $formattedType = ltrim($propertyType, '?');
+        $type = ltrim($propertyType, '?');
 
         return match (true) {
-            BuiltInType::Mixed->value === $formattedType,
-            DateTimeInterface::class === $formattedType => true,
-            !class_exists($formattedType),
-            false === ($foundInterfaces = class_implements($formattedType)),
+            BasicType::tryFrom($type)?->equals(BasicType::Mixed),
+            DateTimeInterface::class === $type => true,
+            !class_exists($type),
+            false === ($foundInterfaces = class_implements($type)),
             !in_array(DateTimeInterface::class, $foundInterfaces, true) => false,
             default => true,
         };
@@ -57,7 +57,7 @@ final class CastToDate implements TypeCasting
         }
 
         $class = ltrim($propertyType, '?');
-        if (BuiltInType::Mixed->value === $class || DateTimeInterface::class === $class) {
+        if (BasicType::Mixed->value === $class || DateTimeInterface::class === $class) {
             $class = DateTimeImmutable::class;
         }
 
