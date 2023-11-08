@@ -25,12 +25,10 @@ use League\Csv\Serializer\CastToString;
 use League\Csv\Serializer\Cell;
 use League\Csv\Serializer\MappingFailed;
 use League\Csv\Serializer\PropertySetter;
-use League\Csv\Serializer\SerializationFailed;
 use League\Csv\Serializer\TypeCasting;
 use League\Csv\Serializer\TypeCastingFailed;
 use ReflectionAttribute;
 use ReflectionClass;
-use ReflectionException;
 use ReflectionMethod;
 use ReflectionNamedType;
 use ReflectionProperty;
@@ -74,16 +72,10 @@ final class Serializer
      */
     public function deserializeAll(iterable $records): Iterator
     {
-        $check = true;
-        $deserialize = function (array $record) use (&$check): object {
-            $object = $this->createInstance($record);
-            if ($check) {
-                $this->assertObjectIsInValidState($object);
-
-                $check = false;
-            }
-
-            return $object;
+        $threshold = 50;
+        $deserialize = fn (array $record, int $offset): object => match (0) {
+            $offset % $threshold => $this->deserialize($record),
+            default => $this->createInstance($record),
         };
 
         return new MapIterator(
@@ -94,7 +86,6 @@ final class Serializer
 
     /**
      * @throws MappingFailed
-     * @throws ReflectionException
      * @throws TypeCastingFailed
      */
     public function deserialize(array $record): object
@@ -135,7 +126,6 @@ final class Serializer
      * @param class-string $className
      *
      * @throws MappingFailed
-     * @throws ReflectionException
      * @throws TypeCastingFailed
      */
     public static function map(string $className, array $record): object
@@ -272,7 +262,7 @@ final class Serializer
     /**
      * @param array<string, mixed> $arguments
      *
-     * @throws SerializationFailed If the arguments do not match the expected TypeCasting class constructor signature
+     * @throws MappingFailed If the arguments do not match the expected TypeCasting class constructor signature
      */
     private function resolveTypeCasting(ReflectionType $reflectionType, array $arguments = []): ?TypeCasting
     {
@@ -293,7 +283,7 @@ final class Serializer
                 default => null,
             };
         } catch (Throwable $exception) {
-            if ($exception instanceof SerializationFailed) {
+            if ($exception instanceof MappingFailed) {
                 throw $exception;
             }
 
@@ -302,7 +292,6 @@ final class Serializer
     }
 
     /**
-     * @throws TypeError
      * @throws MappingFailed
      */
     private function getTypeCasting(Cell $cell, ReflectionProperty|ReflectionMethod $accessor): TypeCasting

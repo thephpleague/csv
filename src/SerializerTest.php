@@ -151,7 +151,7 @@ final class SerializerTest extends TestCase
     public function testItWillThrowBecauseTheObjectDoesNotHaveTypedProperties(): void
     {
         $this->expectException(MappingFailed::class);
-        $this->expectExceptionMessage('The property `temperature` must be typed.');
+        $this->expectExceptionMessage('The property `temperature` must be typed with a single nullable type.');
 
         new Serializer(InvaliDWeatherWithRecordAttribute::class, ['temperature', 'foobar', 'observedOn']);
     }
