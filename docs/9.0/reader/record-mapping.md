@@ -191,16 +191,12 @@ optional argument `default` which is the default boolean value to return if the 
 
 ### CastToInt and CastToFloat
 
-Converts the array value to an `int` or a `float` depending on the property type information. The class takes three (3)
-optional argument:
-
-- `default` which is the default value to return if the value is `null`; respectively an `int`, a `float` or `null`.
-- `min` the minimum accepted value
-- `max` the maximum accepted value
+Converts the array value to an `int` or a `float` depending on the property type information. The class takes on
+optional argument `default` which is the default `int` or `float` value to return if the value is `null`.
 
 ### CastToEnum
 
-Convert the array value to a PHP `Enum` it supported both "real" and backed enumeration.  The class takes on
+Convert the array value to a PHP `Enum` it supports both "real" and backed enumeration. The class takes on
 optional argument `default` which is the default Enum value to return if the value is `null`.
 If the `Enum` is backed the cell value will be considered as one of the Enum value; otherwise it will be used
 as one the `Enum` name. Likewise, the `default` value will also be considered the same way. If the default value
@@ -212,16 +208,16 @@ Converts the cell value into a PHP `DateTimeInterface` implementing object. You 
 
 - the date format via the `format` argument
 - the date timezone if needed  via the `timezone` argument
-- the `default` which is the default value to return if the value is `null`; should be a `null` or a parsable date time `string`
+- the `default` which is the default value to return if the value is `null`; should be `null` or a parsable date time `string`
 
 ### CastToArray
 
 Converts the value into a PHP `array`. You are required to specify the array shape for the conversion to happen. The class
 provides three (3) shapes:
 
-- `list` converts the string using PHP `explode` function;
-- `json` converts the string using PHP `json_decode` function;
-- `csv` converts the string using PHP `str_fgetcsv` function;
+- `list` converts the string using PHP `explode` function by default the separator called `delimiter` is `,`;
+- `csv` converts the string using PHP `str_fgetcsv` function with its default options, the escape character is not available as its usage is not recommended to improve interoperability;
+- `json` converts the string using PHP `json_decode` function with its default options;
 
 The following are example for each type:
 
@@ -230,12 +226,6 @@ $array['list'] = "1,2,3,4";         //the string contains only a delimiter (type
 $arrat['csv'] = '"1","2","3","4"';  //the string contains delimiter and enclosure (type csv)
 $arrat['json'] = '{"foo":"bar"}';   //the string is a json string (type json)
 ```
-
-you can optionally configure for
-
-- the `list` shape, the `delimiter` and the array value `type` (only scalar type are supported), by default they are respectively `,` and `string`;
-- the `csv` shape, the `delimiter`, the `enclosure` and the array value `type` (only scalar type are supported), by default they are respectively `,`, `"` and `string`;
-- the `json` shape, the `jsonDepth` and the `jsonFlags` options just like when using the `json_decode` arguments, with the same default;
 
 Here's an example for casting a string via the `json` type.
 
@@ -249,11 +239,31 @@ use League\Csv\Serializer;
         'jsonFlags' => JSON_BIGINT_AS_STRING
     ])
 ]
-public array $data;
+private array $data;
 ```
 
 In the above example, the array has a JSON value associated with the key `data` and the `Serializer` will convert the
 JSON string into an `array` and use the `JSON_BIGINT_AS_STRING` option of the `json_decode` function.
+
+If you use the array shape `list` or `csv` you can also typecast the `array` content using the
+optional `type` argument as shown below.
+
+```php
+use League\Csv\Serializer\Cell;
+
+#[Cell(
+    cast:Serializer\CastToArray::class,
+    castArguments: [
+        'type' => 'csv',
+        'delimiter' => ';',
+        'type' => 'float',
+    ])
+]
+public function setData(array $data): void;
+```
+
+If the conversion succeeds, then the property wthat was needing the data
+will be set with an `array` of float values.
 
 ### Creating your own TypeCasting class
 
@@ -266,17 +276,16 @@ use League\Csv\Serializer;
 
 #[Serializer\Cell(
     offset: 'amount',
-    cast: CastToMoney::class,
-    castArguments: ['min' => -10000_00, 'max' => 10000_00, 'default' => 100_00]
+    cast: App\Domain\CastToMoney::class,
+    castArguments: ['default' => 100_00]
 )]
 private Money $ratingScore;
 ```
 
-The `CastToAmount` will convert cell value and return data between `-100_00` and `100_00` and default to `20_00` if
-the value is wrong or invalid. To allow your object to cast the cell value to your liking it needs to
-implement the `TypeCasting` interface. To do so, you must define a `toVariable` method that will return
-the correct value once converted. The first argument of the `__construct` method is always
-the property type.
+The `CastToMoney` will convert the cell value into a `Money` object and if the value is `null`, `20_00` will be used.
+To allow your object to cast the cell value to your liking it needs to implement the `TypeCasting` interface.
+To do so, you must define a `toVariable` method that will return the correct value once converted.
+**Of note**, The first argument of the `__construct` method is always the property type.
 
 ```php
 use App\Domain\Money;
@@ -290,19 +299,15 @@ class CastToMoney implements TypeCasting
 {
     public function __construct(
         string $propertyType, //always required and given by the Serializer implementation
-        private readonly int $min,
-        private readonly int $max,
         private readonly int $default,
     ) {
         $this->isNullable = str_starts_with($type, '?');
     
-        //the type casting class must only work with property declared as integer
+        //the type casting class must only work with the declared type
+        //Here the TypeCasting object only cares about converting
+        //data into a Money instance.
         if (Money::class !== ltrim($propertyType, '?')) {
             throw new TypeCastingFailed('The class '. self::class . ' can only work with `' . Money::class . '` typed property.');
-        }
-    
-        if ($max < $min) {
-            throw new LogicException('The maximum value can not be lesser than the minimum value.');
         }
     }
 
@@ -310,14 +315,10 @@ class CastToMoney implements TypeCasting
     {
         // if the property is declared as nullable we exist early
         if (in_array($value, ['', null], true) && $this->isNullable) {
-            return null;
+            return Money::fromNaira($this->default);
         }
 
-        return Money::fromNaira(filter_var(
-            $value,
-            FILTER_VALIDATE_INT,
-            ['options' => ['min' => $this->min, 'max' => $this->max, 'default' => $this->default]]
-        ));
+        return Money::fromNaira(filter_var($value, FILTER_VALIDATE_INT));
     }
 }
 ```
