@@ -13,6 +13,8 @@ declare(strict_types=1);
 
 namespace League\Csv\Serializer;
 
+use function str_starts_with;
+
 /**
  * @implements TypeCasting<string|null>
  */
@@ -20,19 +22,13 @@ final class CastToString implements TypeCasting
 {
     private readonly bool $isNullable;
 
-    public static function supports(string $propertyType): bool
-    {
-        return BasicType::tryFromPropertyType($propertyType)
-            ?->isOneOf(BasicType::Mixed, BasicType::String)
-            ?? false;
-    }
-
     public function __construct(
         string $propertyType,
         private readonly ?string $default = null
     ) {
-        if (!self::supports($propertyType)) {
-            throw new MappingFailed('The property type is not a built in basic type.');
+        $baseType = BasicType::tryFromPropertyType($propertyType);
+        if (null === $baseType || !$baseType->isOneOf(BasicType::Mixed, BasicType::String)) {
+            throw new MappingFailed('The property type `'.$propertyType.'` is not supported; a `string` type is required.');
         }
 
         $this->isNullable = str_starts_with($propertyType, '?');

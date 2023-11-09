@@ -15,6 +15,15 @@ namespace League\Csv\Serializer;
 
 use JsonException;
 
+use function explode;
+use function is_array;
+use function json_decode;
+use function ltrim;
+use function str_getcsv;
+use function str_starts_with;
+use function strlen;
+
+use const FILTER_REQUIRE_ARRAY;
 use const JSON_THROW_ON_ERROR;
 
 /**
@@ -22,22 +31,16 @@ use const JSON_THROW_ON_ERROR;
  */
 final class CastToArray implements TypeCasting
 {
-    public const TYPE_JSON = 'json';
-    public const TYPE_LIST = 'list';
-    public const TYPE_CSV = 'csv';
+    public const SHAPE_JSON = 'json';
+    public const SHAPE_LIST = 'list';
+    public const SHAPE_CSV = 'csv';
 
     private readonly string $class;
     private readonly bool $isNullable;
-
-    public static function supports(string $propertyType): bool
-    {
-        return BasicType::tryFromPropertyType($propertyType)
-            ?->isOneOf(BasicType::Mixed, BasicType::Array, BasicType::Iterable)
-            ?? false;
-    }
+    private readonly int $filterFlag;
+    private readonly ArrayShape $shape;
 
     /**
-     * @param 'json'|'csv'|'list' $type
      * @param non-empty-string $delimiter
      * @param int<1, max> $jsonDepth
      *
@@ -46,25 +49,32 @@ final class CastToArray implements TypeCasting
     public function __construct(
         string $propertyType,
         private readonly ?array $default = null,
-        private readonly string $type = self::TYPE_LIST,
+        ArrayShape|string $shape = 'list',
         private readonly string $delimiter = ',',
         private readonly string $enclosure = '"',
         private readonly int $jsonDepth = 512,
-        private readonly int $jsonFlags = 0
+        private readonly int $jsonFlags = 0,
+        BasicType|string $type = BasicType::String,
     ) {
-        if (!self::supports($propertyType)) {
-            throw new MappingFailed('The property type is not an array or an iterable structure.');
+        $baseType = BasicType::tryFromPropertyType($propertyType);
+        if (null === $baseType || !$baseType->isOneOf(BasicType::Mixed, BasicType::Array, BasicType::Iterable)) {
+            throw new MappingFailed('The property type `'.$propertyType.'` is not supported; an `array` or an `iterable` structure is required.');
         }
+
         $this->class = ltrim($propertyType, '?');
         $this->isNullable = str_starts_with($propertyType, '?');
 
-        match (true) {
-            !in_array($type, [self::TYPE_JSON, self::TYPE_LIST, self::TYPE_CSV], true) => throw new MappingFailed('Unable to resolve the array.'),
-            1 > $this->jsonDepth => throw new MappingFailed('the json depth can not be less than 1.'), /* @phpstan-ignore-line */
-            1 > strlen($this->delimiter) && self::TYPE_LIST === $this->type => throw new MappingFailed('expects delimiter to be a non-empty string for list conversion; emtpy string given.'),  /* @phpstan-ignore-line */
-            1 !== strlen($this->delimiter) && self::TYPE_CSV === $this->type => throw new MappingFailed('expects delimiter to be a single character for CSV conversion; `'.$this->delimiter.'` given.'),
-            1 !== strlen($this->enclosure) => throw new MappingFailed('expects enclosire to be a single character; `'.$this->enclosure.'` given.'),
-            default => null,
+        if (!$shape instanceof ArrayShape) {
+            $shape = ArrayShape::tryFrom($shape) ?? throw new MappingFailed('Unable to resolve the array shape; Verify your cast arguments.');
+        }
+
+        $this->shape = $shape;
+        $this->filterFlag = match (true) {
+            1 > $this->jsonDepth && $this->shape->equals(ArrayShape::Json) => throw new MappingFailed('the json depth can not be less than 1.'),
+            1 > strlen($this->delimiter) && $this->shape->equals(ArrayShape::List) => throw new MappingFailed('expects delimiter to be a non-empty string for list conversion; emtpy string given.'),
+            1 !== strlen($this->delimiter) && $this->shape->equals(ArrayShape::Csv) => throw new MappingFailed('expects delimiter to be a single character for CSV conversion; `'.$this->delimiter.'` given.'),
+            1 !== strlen($this->enclosure) && $this->shape->equals(ArrayShape::Csv) => throw new MappingFailed('expects enclosure to be a single character; `'.$this->enclosure.'` given.'),
+            default => $this->resolveFilterFlag($type),
         };
     }
 
@@ -74,7 +84,7 @@ final class CastToArray implements TypeCasting
             return match (true) {
                 $this->isNullable,
                 BasicType::tryFrom($this->class)?->equals(BasicType::Mixed) => $this->default,
-                default => throw new TypeCastingFailed('Unable to convert the `null` value.'),
+                default => throw new TypeCastingFailed('The `null` value can not be cast to an `array`; the property type is not nullable.'),
             };
         }
 
@@ -83,10 +93,10 @@ final class CastToArray implements TypeCasting
         }
 
         try {
-            $result = match ($this->type) {
-                self::TYPE_JSON => json_decode($value, true, $this->jsonDepth, $this->jsonFlags | JSON_THROW_ON_ERROR),
-                self::TYPE_LIST => explode($this->delimiter, $value),
-                default => str_getcsv($value, $this->delimiter, $this->enclosure, ''),
+            $result = match ($this->shape) {
+                ArrayShape::Json => json_decode($value, true, $this->jsonDepth, $this->jsonFlags | JSON_THROW_ON_ERROR),
+                ArrayShape::List => filter_var(explode($this->delimiter, $value), $this->filterFlag, FILTER_REQUIRE_ARRAY),
+                ArrayShape::Csv => filter_var(str_getcsv($value, $this->delimiter, $this->enclosure, ''), $this->filterFlag, FILTER_REQUIRE_ARRAY),
             };
 
             if (!is_array($result)) {
@@ -98,5 +108,25 @@ final class CastToArray implements TypeCasting
         } catch (JsonException $exception) {
             throw new TypeCastingFailed('Unable to cast the given data `'.$value.'` to a PHP array.', 0, $exception);
         }
+    }
+
+    /**
+     * @throws MappingFailed if the type is not supported
+     */
+    private function resolveFilterFlag(BasicType|string $type): int
+    {
+        if ($this->shape->equals(ArrayShape::Json)) {
+            return BasicType::String->filterFlag();
+        }
+
+        if (!$type instanceof BasicType) {
+            $type = BasicType::tryFrom($type);
+        }
+
+        return match (true) {
+            !$type instanceof BasicType,
+            !$type->isScalar() => throw new MappingFailed('Only scalar type are supported for `array` value casting.'),
+            default => $type->filterFlag(),
+        };
     }
 }

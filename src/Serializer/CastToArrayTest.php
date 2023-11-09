@@ -19,42 +19,79 @@ use PHPUnit\Framework\TestCase;
 final class CastToArrayTest extends TestCase
 {
     /**
-     * @param 'csv'|'json'|'list' $type
+     * @param 'csv'|'json'|'list' $shape
+     * @param array<array-key, int|string> $expected
      */
     #[DataProvider('providesValidStringForArray')]
-    public function testItCanConvertToArraygWithoutArguments(string $type, string $input, array $expected): void
+    public function testItCanConvertToArraygWithoutArguments(string $shape, string $type, string $input, array $expected): void
     {
-        self::assertSame($expected, (new CastToArray('?iterable', null, $type))->toVariable($input));
+        self::assertSame($expected, (new CastToArray(propertyType: '?iterable', shape:$shape, type:$type))->toVariable($input));
     }
 
     public static function providesValidStringForArray(): iterable
     {
-        yield 'using the list type' => [
-            'type' => CastToArray::TYPE_LIST,
+        yield 'using the list shape' => [
+            'shape' => CastToArray::SHAPE_LIST,
+            'type' => 'string',
             'input' => '1,2,3,4',
             'expected' => ['1', '2', '3', '4'],
         ];
 
-        yield 'using the json type' => [
-            'type' => CastToArray::TYPE_JSON,
+        yield 'using the list shape with the float type' => [
+            'shape' => CastToArray::SHAPE_LIST,
+            'type' => 'float',
+            'input' => '1,2,3,4',
+            'expected' => [1.0, 2.0, 3.0, 4.0],
+        ];
+
+        yield 'using the list shape with the int type' => [
+            'shape' => CastToArray::SHAPE_LIST,
+            'type' => 'int',
+            'input' => '1,2,3,4',
+            'expected' => [1, 2, 3, 4],
+        ];
+
+        yield 'using the list shape with the bool type' => [
+            'shape' => CastToArray::SHAPE_LIST,
+            'type' => 'bool',
+            'input' => '1,on,true,yes',
+            'expected' => [true, true, true, true],
+        ];
+
+        yield 'using the json shape' => [
+            'shape' => CastToArray::SHAPE_JSON,
+            'type' => 'string',
             'input' => '[1,2,3,4]',
             'expected' => [1, 2, 3, 4],
         ];
 
-        yield 'using the csv type' => [
-            'type' => CastToArray::TYPE_CSV,
+        yield 'using the json shape is not affected by the type argument' => [
+            'shape' => CastToArray::SHAPE_JSON,
+            'type' => 'iterable',
+            'input' => '[1,2,3,4]',
+            'expected' => [1, 2, 3, 4],
+        ];
+
+        yield 'using the csv shape' => [
+            'shape' => CastToArray::SHAPE_CSV,
+            'type' => 'string',
             'input' => '"1",2,3,"4"',
             'expected' => ['1', '2', '3', '4'],
+        ];
+
+        yield 'using the csv shape with type int' => [
+            'shape' => CastToArray::SHAPE_CSV,
+            'type' => 'int',
+            'input' => '"1",2,3,"4"',
+            'expected' => [1, 2, 3, 4],
         ];
     }
 
     public function testItFailsToCastAnUnsupportedType(): void
     {
-        self::assertFalse(CastToArray::supports('?int'));
-        self::assertTrue(CastToArray::supports('array'));
-        self::assertTrue(CastToArray::supports('?array'));
-        self::assertTrue(CastToArray::supports('?iterable'));
-        self::assertTrue(CastToArray::supports('iterable'));
+        $this->expectException(MappingFailed::class);
+
+        new CastToArray('?int');
     }
 
     public function testItFailsToCastInvalidJson(): void
@@ -66,9 +103,11 @@ final class CastToArrayTest extends TestCase
 
     public function testItCastNullableJsonUsingTheDefaultValue(): void
     {
+        $defaultValue = ['toto'];
+
         self::assertSame(
-            ['toto'],
-            (new CastToArray('?iterable', ['toto'], 'json'))->toVariable(null)
+            $defaultValue,
+            (new CastToArray('?iterable', $defaultValue, 'json'))->toVariable(null)
         );
     }
 }

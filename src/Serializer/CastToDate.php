@@ -19,6 +19,10 @@ use DateTimeInterface;
 use DateTimeZone;
 use Throwable;
 
+use function is_string;
+use function ltrim;
+use function str_starts_with;
+
 /**
  * @implements TypeCasting<DateTimeImmutable|DateTime|null>
  */
@@ -29,20 +33,6 @@ final class CastToDate implements TypeCasting
     private readonly bool $isNullable;
     private readonly DateTimeImmutable|DateTime|null $default;
 
-    public static function supports(string $propertyType): bool
-    {
-        $type = ltrim($propertyType, '?');
-
-        return match (true) {
-            BasicType::tryFrom($type)?->equals(BasicType::Mixed),
-            DateTimeInterface::class === $type => true,
-            !class_exists($type),
-            false === ($foundInterfaces = class_implements($type)),
-            !in_array(DateTimeInterface::class, $foundInterfaces, true) => false,
-            default => true,
-        };
-    }
-
     /**
      * @throws MappingFailed
      */
@@ -52,12 +42,13 @@ final class CastToDate implements TypeCasting
         private readonly ?string $format = null,
         DateTimeZone|string|null $timezone = null,
     ) {
-        if (!self::supports($propertyType)) {
-            throw new MappingFailed('The property type `'.$propertyType.'` does not implement the `'.DateTimeInterface::class.'`.');
+        $baseType = BasicType::tryFromPropertyType($propertyType);
+        if (null === $baseType || !$baseType->isOneOf(BasicType::Mixed, BasicType::Date)) {
+            throw new MappingFailed('The property type `'.$propertyType.'` is not supported; an class implementing the `'.DateTimeInterface::class.'` interface is required.');
         }
 
         $class = ltrim($propertyType, '?');
-        if (BasicType::Mixed->value === $class || DateTimeInterface::class === $class) {
+        if (BasicType::Mixed->equals($baseType) || DateTimeInterface::class === $class) {
             $class = DateTimeImmutable::class;
         }
 

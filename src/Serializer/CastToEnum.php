@@ -15,11 +15,11 @@ namespace League\Csv\Serializer;
 
 use BackedEnum;
 use ReflectionEnum;
-use ReflectionException;
 use Throwable;
 use UnitEnum;
 
-use const FILTER_VALIDATE_INT;
+use function ltrim;
+use function str_starts_with;
 
 /**
  * @implements TypeCasting<BackedEnum|UnitEnum|null>
@@ -30,48 +30,19 @@ class CastToEnum implements TypeCasting
     private readonly bool $isNullable;
     private readonly BackedEnum|UnitEnum|null $default;
 
-    public static function supports(string $type): bool
-    {
-        $enum = ltrim($type, '?');
-        if (BasicType::Mixed === BasicType::tryFrom($enum)) {
-            return true;
-        }
-
-        try {
-            new ReflectionEnum($enum);
-
-            return true;
-        } catch (ReflectionException) {
-            return false;
-        }
-    }
-
     /**
      * @throws MappingFailed
      */
     public function __construct(
         string $propertyType,
         ?string $default = null,
-        ?string $enum = null
     ) {
-        if (!self::supports($propertyType)) {
-            throw new MappingFailed('The property type `'.$propertyType.'` is not a PHP Enumeration.');
+        $baseType = BasicType::tryFromPropertyType($propertyType);
+        if (null === $baseType || !$baseType->isOneOf(BasicType::Mixed, BasicType::Enum)) {
+            throw new MappingFailed('The property type `'.$propertyType.'` is not supported; an `Enum` is required.');
         }
 
-        $enumClass = ltrim($propertyType, '?');
-        if (BasicType::tryFrom($enumClass)?->equals(BasicType::Mixed) ?? false) {
-            if (null === $enum) {
-                throw new MappingFailed('To work with `'.BasicType::Mixed->value.'`, an Enumeration class must be provded.');
-            }
-
-            if (!self::supports($enum)) {
-                throw new MappingFailed('The property type `'.$enum.'` is not a PHP Enumeration.');
-            }
-
-            $enumClass = $enum;
-        }
-
-        $this->class = $enumClass;
+        $this->class = ltrim($propertyType, '?');
         $this->isNullable = str_starts_with($propertyType, '?');
         try {
             $this->default = (null !== $default) ? $this->cast($default) : $default;
@@ -103,7 +74,7 @@ class CastToEnum implements TypeCasting
                 return $enum->getCase($value)->getValue();
             }
 
-            $backedValue = 'int' === $enum->getBackingType()?->getName() ? filter_var($value, FILTER_VALIDATE_INT) : $value;
+            $backedValue = 'int' === $enum->getBackingType()?->getName() ? filter_var($value, BasicType::Int->filterFlag()) : $value;
 
             return $this->class::from($backedValue);
         } catch (Throwable $exception) {

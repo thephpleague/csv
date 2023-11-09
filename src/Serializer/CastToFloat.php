@@ -13,7 +13,8 @@ declare(strict_types=1);
 
 namespace League\Csv\Serializer;
 
-use const FILTER_VALIDATE_FLOAT;
+use function filter_var;
+use function str_starts_with;
 
 /**
  * @implements TypeCasting<float|null>
@@ -21,34 +22,16 @@ use const FILTER_VALIDATE_FLOAT;
 final class CastToFloat implements TypeCasting
 {
     private readonly bool $isNullable;
-    /** @var array{min_range?:float, max_range?:float, default?:float} */
-    private readonly array $options;
-
-    public static function supports(string $propertyType): bool
-    {
-        return BasicType::tryFromPropertyType($propertyType)
-            ?->isOneOf(BasicType::Mixed, BasicType::Float)
-            ?? false;
-    }
 
     public function __construct(
         string $propertyType,
         private readonly ?float $default = null,
-        ?float $min = null,
-        ?float $max = null,
     ) {
-        if (!self::supports($propertyType)) {
-            throw new MappingFailed('The property type is not a built in basic type.');
+        $baseType = BasicType::tryFromPropertyType($propertyType);
+        if (null === $baseType || !$baseType->isOneOf(BasicType::Mixed, BasicType::Float)) {
+            throw new MappingFailed('The property type `'.$propertyType.'` is not supported; a `float` type is required.');
         }
 
-        if (null !== $max && null !== $min && $max < $min) {
-            throw new MappingFailed('The maximum float value can not be lesser than the minimum float value.');
-        }
-
-        $this->options = array_filter(
-            ['min_range' => $min, 'max_range' => $max, 'default' => $this->default],
-            fn (?float $value) => null !== $value,
-        );
         $this->isNullable = str_starts_with($propertyType, '?');
     }
 
@@ -57,18 +40,18 @@ final class CastToFloat implements TypeCasting
      */
     public function toVariable(?string $value): ?float
     {
-        if (null !== $value) {
-            if (false === ($floatValue = filter_var($value, FILTER_VALIDATE_FLOAT, ['options' => $this->options]))) {
-                throw new TypeCastingFailed('The `'.$value.'` value can not be cast to a float using the `'.self::class.'` options.');
-            }
-
-            return $floatValue;
+        if (null === $value) {
+            return match ($this->isNullable) {
+                true => $this->default,
+                false => throw new TypeCastingFailed('The `null` value can not be cast to a float; the property type is not nullable.'),
+            };
         }
 
-        if (!$this->isNullable) {
-            throw new TypeCastingFailed('The `null` value can not be cast to a float using the `'.self::class.'` options.');
-        }
+        $float = filter_var($value, BasicType::Float->filterFlag());
 
-        return $this->default;
+        return match ($float) {
+            false => throw new TypeCastingFailed('The `'.$value.'` value can not be cast to a float.'),
+            default => $float,
+        };
     }
 }

@@ -30,11 +30,6 @@ final class PropertySetter
 
     public function setValue(object $object, ?string $value): void
     {
-        $type = (string) match (true) {
-            $this->accessor instanceof ReflectionMethod => $this->accessor->getParameters()[0]->getType(),
-            $this->accessor instanceof ReflectionProperty => $this->accessor->getType(),
-        };
-
         $value = $this->cast->toVariable($value);
 
         match (true) {

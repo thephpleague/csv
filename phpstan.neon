@@ -11,3 +11,4 @@ parameters:
     checkMissingIterableValueType: false
     ignoreErrors:
     reportUnmatchedIgnoredErrors: true
+    treatPhpDocTypesAsCertain: false

@@ -15,6 +15,7 @@ namespace League\Csv;
 
 use ArrayIterator;
 use Iterator;
+use League\Csv\Serializer\BasicType;
 use League\Csv\Serializer\CastToArray;
 use League\Csv\Serializer\CastToBool;
 use League\Csv\Serializer\CastToDate;
@@ -36,6 +37,12 @@ use ReflectionType;
 use RuntimeException;
 use Throwable;
 use TypeError;
+
+use function array_reduce;
+use function array_search;
+use function array_values;
+use function is_array;
+use function is_int;
 
 final class Serializer
 {
@@ -260,7 +267,7 @@ final class Serializer
     }
 
     /**
-     * @param array<string, mixed> $arguments
+     * @param array<string, array<string|int|float|bool>|string|int|float|bool> $arguments
      *
      * @throws MappingFailed If the arguments do not match the expected TypeCasting class constructor signature
      */
@@ -272,14 +279,16 @@ final class Serializer
         }
 
         try {
-            return match (true) {
-                CastToString::supports($type) => new CastToString($type, ...$arguments), /* @phpstan-ignore-line */
-                CastToInt::supports($type) => new CastToInt($type, ...$arguments), /* @phpstan-ignore-line */
-                CastToFloat::supports($type) => new CastToFloat($type, ...$arguments), /* @phpstan-ignore-line */
-                CastToBool::supports($type) => new CastToBool($type, ...$arguments), /* @phpstan-ignore-line */
-                CastToDate::supports($type) => new CastToDate($type, ...$arguments), /* @phpstan-ignore-line */
-                CastToArray::supports($type) => new CastToArray($type, ...$arguments), /* @phpstan-ignore-line */
-                CastToEnum::supports($type) => new CastToEnum($type, ...$arguments), /* @phpstan-ignore-line */
+            return match (BasicType::tryFromPropertyType($type)) {
+                BasicType::Mixed,
+                BasicType::String => new CastToString($type, ...$arguments), /* @phpstan-ignore-line */
+                BasicType::Iterable,
+                BasicType::Array => new CastToArray($type, ...$arguments),  /* @phpstan-ignore-line */
+                BasicType::Float => new CastToFloat($type, ...$arguments),  /* @phpstan-ignore-line */
+                BasicType::Int => new CastToInt($type, ...$arguments), /* @phpstan-ignore-line */
+                BasicType::Bool => new CastToBool($type, ...$arguments), /* @phpstan-ignore-line */
+                BasicType::Date => new CastToDate($type, ...$arguments), /* @phpstan-ignore-line */
+                BasicType::Enum => new CastToEnum($type, ...$arguments), /* @phpstan-ignore-line */
                 default => null,
             };
         } catch (Throwable $exception) {

@@ -14,8 +14,8 @@ text based deserialization mechanism for tabular data.
 
 The class exposes two (2) methods to ease `array` to `object` conversion:
 
-- `Serializer::deserialize` converts a single record into an instance of the specified class.
-- `Serializer::deserializeAll` converts a collection of records and returns a collection of the specified class instances.
+- `Serializer::deserialize` to convert a single record into a new instance of the specified class.
+- `Serializer::deserializeAll` to do the same with a collection of records..
 
 ```php
 use League\Csv\Serializer;
@@ -54,8 +54,8 @@ In the following sections we will explain the conversion and how it can be confi
 
 ## Pre-requisite
 
-The deserialization mechanism works mainly with DTO or objects which can be built
-without complex logic.
+The deserialization mechanism works mainly with DTO or objects
+without complex logic in their constructors.
 
 <p class="message-notice">The mechanism relies on PHP's <code>Reflection</code>
 feature. It does not use the class constructor to perform the conversion.
@@ -91,8 +91,7 @@ final readonly class Weather
     public function __construct(
         public float $temperature,
         public Place $place,
-        #[Cell(castArguments: ['format' => '!Y-m-d'])]
-        public DateTimeImmutable $date;
+        public DateTimeImmutable $date,
     ) {
     }
 }
@@ -122,7 +121,7 @@ foreach ($serializer->deserializeAll($csv) as $weather) {
 
 By default, the deserialization engine will convert public properties using their name. In other words,
 if there is a class property, which name is the same as a column name, the column value will be assigned
-to this property. The appropriate type is used if the record cell value is a `string` or `null` and
+to this property. The appropriate type used for the record cell value is a `string` or `null` and
 the object public properties ares typed with
 
 - a scalar type (`string`, `int`, `float`, `bool`)
@@ -217,23 +216,28 @@ Converts the cell value into a PHP `DateTimeInterface` implementing object. You 
 
 ### CastToArray
 
-Converts the value into a PHP `array`. You are required to specify what type of conversion you desired (`list`, `json` or `csv`).
+Converts the value into a PHP `array`. You are required to specify the array shape for the conversion to happen. The class
+provides three (3) shapes:
+
+- `list` converts the string using PHP `explode` function;
+- `json` converts the string using PHP `json_decode` function;
+- `csv` converts the string using PHP `str_fgetcsv` function;
 
 The following are example for each type:
 
 ```php
-$array['field1'] = "1,2,3,4";         //the string contains only a separator (type list)
-$arrat['field2'] = '"1","2","3","4"'; //the string contains delimiter and enclosure (type csv)
-$arrat['field3'] = '{"foo":"bar"}';   //the string is a json string (type json)
+$array['list'] = "1,2,3,4";         //the string contains only a delimiter (type list)
+$arrat['csv'] = '"1","2","3","4"';  //the string contains delimiter and enclosure (type csv)
+$arrat['json'] = '{"foo":"bar"}';   //the string is a json string (type json)
 ```
 
-in case of
+you can optionally configure for
 
-- the `list` type you can configure the `delimiter`, by default it is the `,`;
-- the `csv` type you can configure the `delimiter` and the `enclosure`, by default they are respectively `,` and `"`;
-- the `json` type you can configure the `jsonDepth` and the `jsonFlags` options just like when using the `json_decode` arguments, the default are the same;
+- the `list` shape, the `delimiter` and the array value `type` (only scalar type are supported), by default they are respectively `,` and `string`;
+- the `csv` shape, the `delimiter`, the `enclosure` and the array value `type` (only scalar type are supported), by default they are respectively `,`, `"` and `string`;
+- the `json` shape, the `jsonDepth` and the `jsonFlags` options just like when using the `json_decode` arguments, with the same default;
 
-Here's a example for casting a string via the `json` type.
+Here's an example for casting a string via the `json` type.
 
 ```php
 use League\Csv\Serializer;
@@ -261,7 +265,7 @@ use App\Domain\Money
 use League\Csv\Serializer;
 
 #[Serializer\Cell(
-    offset: 'amout',
+    offset: 'amount',
     cast: CastToMoney::class,
     castArguments: ['min' => -10000_00, 'max' => 10000_00, 'default' => 100_00]
 )]

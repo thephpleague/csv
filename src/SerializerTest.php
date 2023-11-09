@@ -20,7 +20,6 @@ use League\Csv\Serializer\CastToDate;
 use League\Csv\Serializer\CastToEnum;
 use League\Csv\Serializer\Cell;
 use League\Csv\Serializer\MappingFailed;
-use League\Csv\Serializer\TypeCastingFailed;
 use PHPUnit\Framework\TestCase;
 use SplFileObject;
 use stdClass;
@@ -166,8 +165,8 @@ final class SerializerTest extends TestCase
 
     public function testItWillThrowIfTheClassContainsUnitiliaziedProperties(): void
     {
-        $this->expectException(TypeCastingFailed::class);
-        $this->expectExceptionMessage('The property '.InvalidObjectWithUninitializedProperty::class.'::nombre is not initialized.');
+        $this->expectException(MappingFailed::class);
+        $this->expectExceptionMessage('No valid type casting was found for the property `annee` must be typed.');
 
         $serializer = new Serializer(InvalidObjectWithUninitializedProperty::class, ['prenoms', 'nombre', 'sexe', 'annee']);
         $serializer->deserialize(['prenoms' => 'John', 'nombre' => 42, 'sexe' => 'M', 'annee' => '2018']);
@@ -307,11 +306,11 @@ final class InvalidObjectWithUninitializedProperty
         private readonly int $nombre,
         public readonly string $sexe,
         #[Cell(castArguments: ['format' => '!Y'])]
-        public readonly DateTimeInterface $annee
+        public SplFileObject $annee
     ) {
     }
 
-    public function nomber(): int
+    public function nombre(): int
     {
         return $this->nombre;
     }

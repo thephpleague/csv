@@ -13,42 +13,25 @@ declare(strict_types=1);
 
 namespace League\Csv\Serializer;
 
-use const FILTER_VALIDATE_INT;
+use function filter_var;
+use function str_starts_with;
 
 /**
- * @implements TypeCasting<int|float|bool|string|null>
+ * @implements TypeCasting<int|null>
  */
 final class CastToInt implements TypeCasting
 {
     private readonly bool $isNullable;
-    /** @var array{min_range?:int, max_range?:int, default?:int} */
-    private readonly array $options;
-
-    public static function supports(string $propertyType): bool
-    {
-        return BasicType::tryFromPropertyType($propertyType)
-            ?->isOneOf(BasicType::Mixed, BasicType::Int)
-            ?? false;
-    }
 
     public function __construct(
         string $propertyType,
         private readonly ?int $default = null,
-        ?int $min = null,
-        ?int $max = null,
     ) {
-        if (!self::supports($propertyType)) {
-            throw new MappingFailed('The property type is not a built in basic type.');
+        $baseType = BasicType::tryFromPropertyType($propertyType);
+        if (null === $baseType || !$baseType->isOneOf(BasicType::Mixed, BasicType::Int, BasicType::Float)) {
+            throw new MappingFailed('The property type `'.$propertyType.'` is not supported; a `int` type is required.');
         }
 
-        if (null !== $max && null !== $min && $max < $min) {
-            throw new MappingFailed('The maximum integer value can not be lesser than the minimum integer value.');
-        }
-
-        $this->options = array_filter(
-            ['min_range' => $min, 'max_range' => $max, 'default' => $this->default],
-            fn (?int $value) => null !== $value,
-        );
         $this->isNullable = str_starts_with($propertyType, '?');
     }
 
@@ -57,18 +40,18 @@ final class CastToInt implements TypeCasting
      */
     public function toVariable(?string $value): ?int
     {
-        if (null !== $value) {
-            if (false === ($floatValue = filter_var($value, FILTER_VALIDATE_INT, ['options' => $this->options]))) {
-                throw new TypeCastingFailed('The `'.$value.'` value can not be cast to an integer using the `'.self::class.'` options.');
-            }
-
-            return $floatValue;
+        if (null === $value) {
+            return match ($this->isNullable) {
+                true => $this->default,
+                false => throw new TypeCastingFailed('The `null` value can not be cast to an integer; the property type is not nullable.'),
+            };
         }
 
-        if (!$this->isNullable) {
-            throw new TypeCastingFailed('The `null` value can not be cast to an integer using the `'.self::class.'` options.');
-        }
+        $int = filter_var($value, BasicType::Int->filterFlag());
 
-        return $this->default;
+        return match ($int) {
+            false => throw new TypeCastingFailed('The `'.$value.'` value can not be cast to an integer.'),
+            default => $int,
+        };
     }
 }

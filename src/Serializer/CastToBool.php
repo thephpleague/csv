@@ -13,23 +13,20 @@ declare(strict_types=1);
 
 namespace League\Csv\Serializer;
 
+use function filter_var;
+use function str_starts_with;
+
 final class CastToBool implements TypeCasting
 {
     private readonly bool $isNullable;
-
-    public static function supports(string $propertyType): bool
-    {
-        return BasicType::tryFromPropertyType($propertyType)
-            ?->isOneOf(BasicType::Mixed, BasicType::Bool)
-            ?? false;
-    }
 
     public function __construct(
         string $propertyType,
         private readonly ?bool $default = null
     ) {
-        if (!self::supports($propertyType)) {
-            throw new MappingFailed('The property type is not a built in bool type or mixed.');
+        $baseType = BasicType::tryFromPropertyType($propertyType);
+        if (null === $baseType || !$baseType->isOneOf(BasicType::Mixed, BasicType::Bool)) {
+            throw new MappingFailed('The property type `'.$propertyType.'` is not supported; a `bool` type is required.');
         }
 
         $this->isNullable = str_starts_with($propertyType, '?');
@@ -41,7 +38,7 @@ final class CastToBool implements TypeCasting
     public function toVariable(?string $value): ?bool
     {
         return match(true) {
-            null !== $value => filter_var($value, FILTER_VALIDATE_BOOL),
+            null !== $value => filter_var($value, BasicType::Bool->filterFlag()),
             $this->isNullable => $this->default,
             default => throw new TypeCastingFailed('The `null` value can not be cast to a boolean value.'),
         };
