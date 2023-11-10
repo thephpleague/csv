@@ -31,10 +31,6 @@ use const JSON_THROW_ON_ERROR;
  */
 final class CastToArray implements TypeCasting
 {
-    public const SHAPE_JSON = 'json';
-    public const SHAPE_LIST = 'list';
-    public const SHAPE_CSV = 'csv';
-
     private readonly string $class;
     private readonly bool $isNullable;
     private readonly int $filterFlag;

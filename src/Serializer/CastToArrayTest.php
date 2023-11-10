@@ -31,56 +31,56 @@ final class CastToArrayTest extends TestCase
     public static function providesValidStringForArray(): iterable
     {
         yield 'using the list shape' => [
-            'shape' => CastToArray::SHAPE_LIST,
+            'shape' => 'list',
             'type' => 'string',
             'input' => '1,2,3,4',
             'expected' => ['1', '2', '3', '4'],
         ];
 
         yield 'using the list shape with the float type' => [
-            'shape' => CastToArray::SHAPE_LIST,
+            'shape' => 'list',
             'type' => 'float',
             'input' => '1,2,3,4',
             'expected' => [1.0, 2.0, 3.0, 4.0],
         ];
 
         yield 'using the list shape with the int type' => [
-            'shape' => CastToArray::SHAPE_LIST,
+            'shape' => 'list',
             'type' => 'int',
             'input' => '1,2,3,4',
             'expected' => [1, 2, 3, 4],
         ];
 
         yield 'using the list shape with the bool type' => [
-            'shape' => CastToArray::SHAPE_LIST,
+            'shape' => 'list',
             'type' => 'bool',
             'input' => '1,on,true,yes',
             'expected' => [true, true, true, true],
         ];
 
         yield 'using the json shape' => [
-            'shape' => CastToArray::SHAPE_JSON,
+            'shape' => 'json',
             'type' => 'string',
             'input' => '[1,2,3,4]',
             'expected' => [1, 2, 3, 4],
         ];
 
         yield 'using the json shape is not affected by the type argument' => [
-            'shape' => CastToArray::SHAPE_JSON,
+            'shape' => 'json',
             'type' => 'iterable',
             'input' => '[1,2,3,4]',
             'expected' => [1, 2, 3, 4],
         ];
 
         yield 'using the csv shape' => [
-            'shape' => CastToArray::SHAPE_CSV,
+            'shape' => 'csv',
             'type' => 'string',
             'input' => '"1",2,3,"4"',
             'expected' => ['1', '2', '3', '4'],
         ];
 
         yield 'using the csv shape with type int' => [
-            'shape' => CastToArray::SHAPE_CSV,
+            'shape' => 'csv',
             'type' => 'int',
             'input' => '"1",2,3,"4"',
             'expected' => [1, 2, 3, 4],

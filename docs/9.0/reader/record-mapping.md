@@ -177,6 +177,8 @@ built-in methods support the `nullable` and the `mixed` types.
 - They will return `null` or a specified default value, if the cell value is `null` and the type is `nullable`
 - If the value can not be cast they will throw an exception.
 
+For scalar conversion, type casting is done via PHP's `ext-filter` extension.
+
 All classes are defined under the `League\Csv\Serializer` namespace.
 
 ### CastToString
@@ -262,8 +264,8 @@ use League\Csv\Serializer\Cell;
 public function setData(array $data): void;
 ```
 
-If the conversion succeeds, then the property wthat was needing the data
-will be set with an `array` of float values.
+If the conversion succeeds, then the property will be set with an `array` of `float` values.
+The `type` option only supports scalar type (`string`, `int`, `float` and `bool`)
 
 ### Creating your own TypeCasting class
 
@@ -295,7 +297,7 @@ use League\Csv\Serializer\TypeCastingFailed;
 /**
  * @implements TypeCasting<Money|null>
  */
-class CastToMoney implements TypeCasting
+final class CastToMoney implements TypeCasting
 {
     public function __construct(
         string $propertyType, //always required and given by the Serializer implementation
