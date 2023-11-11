@@ -47,7 +47,7 @@ class CastToEnum implements TypeCasting
         try {
             $this->default = (null !== $default) ? $this->cast($default) : $default;
         } catch (TypeCastingFailed $exception) {
-            throw new MappingFailed('The configuration option for `'.self::class.'` are invalid.', 0, $exception);
+            throw new MappingFailed(message:'The configuration option for `'.self::class.'` are invalid.', previous: $exception);
         }
     }
 
@@ -78,7 +78,7 @@ class CastToEnum implements TypeCasting
 
             return $this->class::from($backedValue);
         } catch (Throwable $exception) {
-            throw new TypeCastingFailed('Unable to cast to `'.$this->class.'` the value `'.$value.'`.', 0, $exception);
+            throw new TypeCastingFailed(message: 'Unable to cast to `'.$this->class.'` the value `'.$value.'`.', previous: $exception);
         }
     }
 }

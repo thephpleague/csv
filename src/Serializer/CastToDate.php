@@ -58,7 +58,7 @@ final class CastToDate implements TypeCasting
             $this->timezone = is_string($timezone) ? new DateTimeZone($timezone) : $timezone;
             $this->default = (null !== $default) ? $this->cast($default) : $default;
         } catch (Throwable $exception) {
-            throw new MappingFailed('The configuration option for `'.self::class.'` are invalid.', 0, $exception);
+            throw new MappingFailed(message: 'The configuration option for `'.self::class.'` are invalid.', previous: $exception);
         }
     }
 
@@ -91,7 +91,7 @@ final class CastToDate implements TypeCasting
                 throw $exception;
             }
 
-            throw new TypeCastingFailed('Unable to cast the given data `'.$value.'` to a PHP DateTime related object.', 0, $exception);
+            throw new TypeCastingFailed(message: 'Unable to cast the given data `'.$value.'` to a PHP DateTime related object.', previous: $exception);
         }
 
         return $date;

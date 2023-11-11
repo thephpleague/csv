@@ -12,11 +12,12 @@ title: Deserializing a Tabular Data record into an object
 To work with objects instead of arrays the `Serializer` class is introduced to expose a
 text based deserialization mechanism for tabular data.
 
-The class exposes three (3) methods to ease `array` to `object` conversion:
+The class exposes four (4) methods to ease `array` to `object` conversion:
 
 - `Serializer::deserializeAll` which converts a collection of records into a collection of instances of a specified class.
 - `Serializer::deserialize` which converts a single record into a new instance of the specified class.
 - `Serializer::assign` which is a syntactic sugar static method to use in place of `Serializer::deserialize`.
+- `Serializer::assignAll` which is a syntactic sugar static method to use in place of `Serializer::deserializeAll`.
 
 ```php
 use League\Csv\Serializer;
@@ -30,7 +31,7 @@ $record = [
 $serializer = new Serializer(Weather::class, ['date', 'temperature', 'place']);
 $weather = $serializer->deserialize($record);
 
-// you can use the syntactic sugar method as an alternative
+// you can use the syntactic sugar method `assign` as an alternative
 // if you only need to do it once
 $weather = Serializer::assign(Weather::class, $record);
 
@@ -38,6 +39,12 @@ $weather = Serializer::assign(Weather::class, $record);
 //a complete collection of records as shown below
 $collection = [$record];
 foreach ($serializer->deserializeAll($collection) as $weather) {
+    // each $weather entry will be an instance of the Weather class;
+}
+
+// you can use the syntactic sugar method `assignAll` as an alternative
+// if you only need to do it once
+foreach (Serializer::assignAll(Weather::class, $records, ['date', 'temperature', 'place']) as $weather) {
     // each $weather entry will be an instance of the Weather class;
 }
 ```

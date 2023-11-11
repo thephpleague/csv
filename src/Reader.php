@@ -449,10 +449,11 @@ class Reader extends AbstractCsv implements TabularDataReader, JsonSerializable
     {
         /** @var array<string> $header */
         $header = $this->prepareHeader($header);
-        $serializer = new Serializer($className, $header);
 
-        return $serializer->deserializeAll(
-            $this->combineHeader($this->prepareRecords(), $header)
+        return Serializer::assignAll(
+            $className,
+            $this->combineHeader($this->prepareRecords(), $header),
+            $header
         );
     }
 

@@ -44,10 +44,10 @@ use function is_int;
 final class Serializer
 {
     private readonly ReflectionClass $class;
-    /** @var array<PropertySetter>  */
-    private readonly array $propertySetters;
     /** @var array<ReflectionProperty> */
     private readonly array $properties;
+    /** @var non-empty-array<PropertySetter>  */
+    private readonly array $propertySetters;
 
     /**
      * @param class-string $className
@@ -61,12 +61,6 @@ final class Serializer
         $this->class = new ReflectionClass($className);
         $this->properties = $this->class->getProperties();
         $this->propertySetters = $this->findPropertySetters($propertyNames);
-
-        //if converters is empty it means the Serializer
-        //was unable to detect properties to assign
-        if ([] === $this->propertySetters) {
-            throw new MappingFailed('No properties or method setters were found eligible on the class `'.$className.'` to be used for type casting.');
-        }
     }
 
     /**
@@ -80,6 +74,19 @@ final class Serializer
     public static function assign(string $className, array $record): object
     {
         return (new self($className, array_keys($record)))->deserialize($record);
+    }
+
+    /**
+     * @param class-string $className
+     * @param array<string> $propertyNames
+     *
+     * @throws MappingFailed
+     * @throws ReflectionException
+     * @throws TypeCastingFailed
+     */
+    public static function assignAll(string $className, iterable $records, array $propertyNames = []): Iterator
+    {
+        return (new self($className, $propertyNames))->deserializeAll($records);
     }
 
     public function deserializeAll(iterable $records): Iterator
@@ -142,7 +149,7 @@ final class Serializer
      *
      * @throws MappingFailed
      *
-     * @return array<string, PropertySetter>
+     * @return non-empty-array<string, PropertySetter>
      */
     private function findPropertySetters(array $propertyNames): array
     {
@@ -191,6 +198,12 @@ final class Serializer
             if (!isset($propertySetters[$key])) {
                 throw new MappingFailed('No valid type casting was found for property `'.$propertyName.'`.');
             }
+        }
+
+        //if converters is empty it means the Serializer
+        //was unable to detect properties to assign
+        if ([] === $propertySetters) {
+            throw new MappingFailed('No properties or method setters were found eligible on the class `'.$this->class->getName().'` to be used for type casting.');
         }
 
         return $propertySetters;
@@ -297,7 +310,7 @@ final class Serializer
                 throw $exception;
             }
 
-            throw new MappingFailed('Unable to instantiate a casting mechanism. Please verify your casting arguments', 0, $exception);
+            throw new MappingFailed(message:'Unable to instantiate a casting mechanism. Please verify your casting arguments', previous: $exception);
         }
     }
 
@@ -316,7 +329,6 @@ final class Serializer
         };
 
         $typeCaster = $cell->cast;
-
         if (null !== $typeCaster) {
             $cast = new $typeCaster((string) $type, ...$cell->castArguments);
             if (!$cast instanceof TypeCasting) {

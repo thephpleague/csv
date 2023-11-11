@@ -254,7 +254,11 @@ class ResultSet implements TabularDataReader, JsonSerializable
     {
         $header = $this->prepareHeader($header);
 
-        return (new Serializer($className, $header))->deserializeAll($this->combineHeader($header));
+        return Serializer::assignAll(
+            $className,
+            $this->combineHeader($header),
+            $header
+        );
     }
 
     /**

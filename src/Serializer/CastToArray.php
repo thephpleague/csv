@@ -102,7 +102,7 @@ final class CastToArray implements TypeCasting
             return $result;
 
         } catch (JsonException $exception) {
-            throw new TypeCastingFailed('Unable to cast the given data `'.$value.'` to a PHP array.', 0, $exception);
+            throw new TypeCastingFailed(message: 'Unable to cast the given data `'.$value.'` to a PHP array.', previous: $exception);
         }
     }
 
