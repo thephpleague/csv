@@ -50,10 +50,10 @@ final class CastToArray implements TypeCasting
         private readonly string $enclosure = '"',
         private readonly int $jsonDepth = 512,
         private readonly int $jsonFlags = 0,
-        BasicType|string $type = BasicType::String,
+        Type|string $type = Type::String,
     ) {
-        $baseType = BasicType::tryFromPropertyType($propertyType);
-        if (null === $baseType || !$baseType->isOneOf(BasicType::Mixed, BasicType::Array, BasicType::Iterable)) {
+        $baseType = Type::tryFromPropertyType($propertyType);
+        if (null === $baseType || !$baseType->isOneOf(Type::Mixed, Type::Array, Type::Iterable)) {
             throw new MappingFailed('The property type `'.$propertyType.'` is not supported; an `array` or an `iterable` structure is required.');
         }
 
@@ -79,7 +79,7 @@ final class CastToArray implements TypeCasting
         if (null === $value) {
             return match (true) {
                 $this->isNullable,
-                BasicType::tryFrom($this->class)?->equals(BasicType::Mixed) => $this->default,
+                Type::tryFrom($this->class)?->equals(Type::Mixed) => $this->default,
                 default => throw new TypeCastingFailed('The `null` value can not be cast to an `array`; the property type is not nullable.'),
             };
         }
@@ -109,18 +109,18 @@ final class CastToArray implements TypeCasting
     /**
      * @throws MappingFailed if the type is not supported
      */
-    private function resolveFilterFlag(BasicType|string $type): int
+    private function resolveFilterFlag(Type|string $type): int
     {
         if ($this->shape->equals(ArrayShape::Json)) {
-            return BasicType::String->filterFlag();
+            return Type::String->filterFlag();
         }
 
-        if (!$type instanceof BasicType) {
-            $type = BasicType::tryFrom($type);
+        if (!$type instanceof Type) {
+            $type = Type::tryFrom($type);
         }
 
         return match (true) {
-            !$type instanceof BasicType,
+            !$type instanceof Type,
             !$type->isScalar() => throw new MappingFailed('Only scalar type are supported for `array` value casting.'),
             default => $type->filterFlag(),
         };

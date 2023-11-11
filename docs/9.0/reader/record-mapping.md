@@ -12,10 +12,11 @@ title: Deserializing a Tabular Data record into an object
 To work with objects instead of arrays the `Serializer` class is introduced to expose a
 text based deserialization mechanism for tabular data.
 
-The class exposes two (2) methods to ease `array` to `object` conversion:
+The class exposes three (3) methods to ease `array` to `object` conversion:
 
-- `Serializer::deserialize` to convert a single record into a new instance of the specified class.
-- `Serializer::deserializeAll` to do the same with a collection of records..
+- `Serializer::deserializeAll` which converts a collection of records into a collection of instances of a specified class.
+- `Serializer::deserialize` which converts a single record into a new instance of the specified class.
+- `Serializer::assign` which is a syntactic sugar static method to use in place of `Serializer::deserialize`.
 
 ```php
 use League\Csv\Serializer;
@@ -29,6 +30,12 @@ $record = [
 $serializer = new Serializer(Weather::class, ['date', 'temperature', 'place']);
 $weather = $serializer->deserialize($record);
 
+// you can use the syntactic sugar method as an alternative
+// if you only need to do it once
+$weather = Serializer::assign(Weather::class, $record);
+
+//once the serializer instantiated you can also deserialize
+//a complete collection of records as shown below
 $collection = [$record];
 foreach ($serializer->deserializeAll($collection) as $weather) {
     // each $weather entry will be an instance of the Weather class;
@@ -38,7 +45,7 @@ foreach ($serializer->deserializeAll($collection) as $weather) {
 If you are working with a class which implements the `TabularDataReader` interface you can use this functionality
 directly by calling the `TabularDataReader::getObjects` method.
 
-Here's an example using the `Reader` class:
+Here's an example using the `Reader` class which implements the `TabularDataReader` interface:
 
 ```php
 use League\Csv\Reader;
@@ -65,7 +72,7 @@ the mechanism may either fail or produced unexpected results.</p>
 To work as intended the mechanism expects the following:
 
 - A target class where the array will be deserialized in;
-- information on how to convert cell value into object properties using dedicated attributes;
+- information on how to convert cell values into object properties;
 
 As an example if we assume we have the following CSV document:
 
@@ -79,7 +86,7 @@ date,temperature,place
 2011-01-03,5,Berkeley
 ```
 
-We can define a PHP DTO using the following class and the attributes.
+We can define a PHP DTO using the following properties.
 
 ```php
 <?php
@@ -103,7 +110,7 @@ enum Place
 }
 ```
 
-To get instances of your object, you now can call the `Serializer::deserialize` method as show below:
+To get instances of your object, you now can call one of the `Serializer` method as show below:
 
 ```php
 use League\Csv\Reader;
@@ -112,39 +119,48 @@ use League\Csv\Serializer
 $csv = Reader::createFromString($document);
 $csv->setHeaderOffset(0);
 $serializer = new Serializer(Weather::class, $csv->header());
+
+foreach ($csv as $record) {
+   $weather = $serializer->deserialize($record);
+}
+
+//or
+
 foreach ($serializer->deserializeAll($csv) as $weather) {
     // each $weather entry will be an instance of the Weather class;
 }
 ```
 
+<p class="notice">The code above is similar to using <code>TabularDataReader::getObjects</code> method.</p>
+
 ## Defining the mapping rules
 
-By default, the deserialization engine will convert public properties using their name. In other words,
-if there is a class property, which name is the same as a column name, the column value will be assigned
-to this property. The appropriate type used for the record cell value is a `string` or `null` and
-the object public properties ares typed with
+By default, the deserialization engine will automatically convert public properties using their name.
+In other words, if there is a public class property, which name is the same as a record key,
+the record value will be assigned to that property. The record value **MUST BE** a
+`string` or `null` and the object public properties **MUST BE** typed with one of
+the following type:
 
 - a scalar type (`string`, `int`, `float`, `bool`)
 - any `Enum` object (backed or not)
-- `DateTime`, `DateTimeImmuntable` or any class that extends those two classes.
+- `DateTimeInterface` implementing class.
 - an `array`
 
-the `nullable` aspect of the property is also handled.
+the `nullable` aspect of the property is also automatically handled.
 
-To fine tune the conversion you are require to use the `Cell` attribute. This attribute will
-override the automatic resolution and enable fine-tuning type casting on the property level.
+To improve the conversion you can use the `Cell` attribute. This attribute will override
+the automatic resolution and enable fine-tuning type casting on the property level.
 
 The `Cell` attribute can be used on class properties and methods regardless of their visibility.
 The attribute can take up to three (3) arguments which are all optional:
 
-- The `offset` argument tells the engine which cell to use via its numeric or name offset. If not present  
-the property name or the name of the first argument of the `setter` method will be used. In such case,  
-you are required to specify the property names information.
-- The `cast` argument which accept the name of a class implementing the `TypeCasting` interface and responsible  
-for type casting the cell value.
-- The `castArguments` which enable controlling typecasting by providing extra arguments to the `TypeCasting` class constructor
+- The `offset` argument tells the engine which record key to use via its numeric or name offset. If not present the property name or the name of the first argument of the `setter` method will be used. In such case, you are required to specify the property names information.
+- The `cast` argument which accept the name of a class implementing the `TypeCasting` interface and responsible for type casting the record value.
+- The `castArguments` argument enables controlling typecasting by providing extra arguments to the `TypeCasting` class constructor. The argument expects an associative array and relies on named arguments to inject its value to the `TypeCasting` implementing class constructor.
 
-In any cases, if type casting fails, an exception will be thrown.
+<p class="message-warning">The <code>propertyType</code> key can not be used with the <code>castArguments</code> as it is reserved argument used by the <code>TypeCasting</code> class.</p>
+
+In any case, if type casting fails, an exception will be thrown.
 
 Here's an example of how the attribute could be used:
 
@@ -160,19 +176,19 @@ use Carbon\CarbonImmutable;
         'timezone' => 'Africa/Nairobi'
     ])
 ]
-public CarbonImmutable $observedOn;
+private CarbonImmutable $observedOn;
 ```
 
 The above rule can be translated in plain english like this:
 
 > convert the value of the associative array whose key is `date` into a `CarbonImmutable` object
 > using the date format `!Y-m-d` and the `Africa/Nairobi` timezone. Once created,
-> inject the date instance into the `observedOn` property of the class.
+> inject the date instance into the class private property `observedOn`.
 
-## Type casting the record value
+## Type casting
 
-The library comes bundles with seven (7) type casting classes which relies on the property type information. All the
-built-in methods support the `nullable` and the `mixed` types.
+The library comes bundled with seven (7) type casting classes which relies on the property type information.
+All the built-in methods support the `nullable` and the `mixed` types.
 
 - They will return `null` or a specified default value, if the cell value is `null` and the type is `nullable`
 - If the value can not be cast they will throw an exception.
@@ -183,26 +199,46 @@ All classes are defined under the `League\Csv\Serializer` namespace.
 
 ### CastToString
 
-Converts the array value to a string or `null` depending on the property type information. The class takes on
+Converts the array value to a string or `null` depending on the property type information. The class takes one
 optional argument `default` which is the default value to return if the value is `null`.
+
+<p class="notice">By default, this class is also responsible for automatically typecasting `mixed` properties.</p>
 
 ### CastToBool
 
-Converts the array value to `true`, `false` or `null` depending on the property type information. The class takes on
+Converts the array value to `true`, `false` or `null` depending on the property type information. The class takes one
 optional argument `default` which is the default boolean value to return if the value is `null`.
 
 ### CastToInt and CastToFloat
 
-Converts the array value to an `int` or a `float` depending on the property type information. The class takes on
+Converts the array value to an `int` or a `float` depending on the property type information. The class takes one
 optional argument `default` which is the default `int` or `float` value to return if the value is `null`.
 
 ### CastToEnum
 
-Convert the array value to a PHP `Enum` it supports both "real" and backed enumeration. The class takes on
+Convert the array value to a PHP `Enum`, it supports both "real" and backed enumeration. The class takes one
 optional argument `default` which is the default Enum value to return if the value is `null`.
 If the `Enum` is backed the cell value will be considered as one of the Enum value; otherwise it will be used
 as one the `Enum` name. Likewise, the `default` value will also be considered the same way. If the default value
 is not `null` and the value given is incorrect, the mechanism will throw an exception.
+
+```php
+use League\Csv\Serializer;
+
+#[Serializer\Cell(
+    offset:1,
+    cast:Serializer\CastToEnum::class,
+    castArguments: ['default' => 'Galway']
+)]
+public function setPlace(Place $place): void
+{
+    //apply the method logic whatever that is!
+}
+```
+
+> convert the value of the array whose offset is `1` into a `Place` Enum
+> if the value is  null resolve the string `Kidal` to `Place::Galway`. Once created,
+> call the method `setPlace` with the created `Place` enum.
 
 ### CastToDate
 
@@ -221,7 +257,7 @@ provides three (3) shapes:
 - `csv` converts the string using PHP `str_fgetcsv` function with its default options, the escape character is not available as its usage is not recommended to improve interoperability;
 - `json` converts the string using PHP `json_decode` function with its default options;
 
-The following are example for each type:
+The following are example for each shape expected string value:
 
 ```php
 $array['list'] = "1,2,3,4";         //the string contains only a delimiter (type list)
@@ -229,7 +265,7 @@ $arrat['csv'] = '"1","2","3","4"';  //the string contains delimiter and enclosur
 $arrat['json'] = '{"foo":"bar"}';   //the string is a json string (type json)
 ```
 
-Here's an example for casting a string via the `json` type.
+Here's an example for casting a string via the `json` shape.
 
 ```php
 use League\Csv\Serializer;
@@ -237,7 +273,7 @@ use League\Csv\Serializer;
 #[Serializer\Cell(
     cast:Serializer\CastToArray::class,
     castArguments: [
-        'type' => 'json',
+        'shape' => 'json',
         'jsonFlags' => JSON_BIGINT_AS_STRING
     ])
 ]
@@ -256,7 +292,7 @@ use League\Csv\Serializer\Cell;
 #[Cell(
     cast:Serializer\CastToArray::class,
     castArguments: [
-        'type' => 'csv',
+        'shape' => 'csv',
         'delimiter' => ';',
         'type' => 'float',
     ])
@@ -281,7 +317,7 @@ use League\Csv\Serializer;
     cast: App\Domain\CastToMoney::class,
     castArguments: ['default' => 100_00]
 )]
-private Money $ratingScore;
+private Money $naira;
 ```
 
 The `CastToMoney` will convert the cell value into a `Money` object and if the value is `null`, `20_00` will be used.
@@ -291,6 +327,7 @@ To do so, you must define a `toVariable` method that will return the correct val
 
 ```php
 use App\Domain\Money;
+use League\Csv\Serializer\MappingFailed;
 use League\Csv\Serializer\TypeCasting;
 use League\Csv\Serializer\TypeCastingFailed;
 
@@ -299,9 +336,11 @@ use League\Csv\Serializer\TypeCastingFailed;
  */
 final class CastToMoney implements TypeCasting
 {
+    private readonly ?Money $default;
+
     public function __construct(
         string $propertyType, //always required and given by the Serializer implementation
-        private readonly int $default,
+        int $default = null,
     ) {
         $this->isNullable = str_starts_with($type, '?');
     
@@ -309,21 +348,30 @@ final class CastToMoney implements TypeCasting
         //Here the TypeCasting object only cares about converting
         //data into a Money instance.
         if (Money::class !== ltrim($propertyType, '?')) {
-            throw new TypeCastingFailed('The class '. self::class . ' can only work with `' . Money::class . '` typed property.');
+            throw new MappingFailed('The class '. self::class . ' can only work with `' . Money::class . '` typed property.');
+        }
+
+        if (null !== $default) {
+            try {
+                $this->default = $this->toVariable($default);
+            } catch (TypeCastingFailed $exception) {
+                throw new MappingFailed('Unable to cast the default value `'.$value.'` to a `'.Money::class.'`.', 0, $exception);
+            }
         }
     }
 
     public function toVariable(?string $value): ?Money
     {
-        // if the property is declared as nullable we exist early
-        if (in_array($value, ['', null], true) && $this->isNullable) {
-            return Money::fromNaira($this->default);
+        try {
+            // if the property is declared as nullable we exist early
+            if (null === $value && $this->isNullable) {
+                return $this->default;
+            }
+    
+            return Money::fromNaira(filter_var($value, FILTER_VALIDATE_INT));
+        } catch (Throwable $exception) {
+            throw new TypeCastingFailed('Unable to cast the given data `'.$value.'` to a `'.Money::class.'`.', 0, $exception);
         }
-
-        return Money::fromNaira(filter_var($value, FILTER_VALIDATE_INT));
     }
 }
 ```
-
-As you have probably noticed, the class constructor arguments are given to the `Cell` attribute via the
-`castArguments` which can provide more fine-grained behaviour.

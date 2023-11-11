@@ -31,6 +31,7 @@ It's usage will trigger a `E_USER_DEPRECATED` call.
 - The internal `Stream` object it will throw a `RuntimeException` if the rewind action fails
 - if calls to `fseek` fails (returns `-1` ) a new `RuntimeException` will be thrown too.
 - `Stream` can iterate and return the full line respecting `SplFielObject` flags. Previously it only returned the CSV records.
+- `MapIterator::fromIterable` to instantiate a `MapIterator` object from any iterable structure.
 
 ### Removed
 

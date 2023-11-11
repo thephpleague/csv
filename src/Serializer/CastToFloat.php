@@ -27,8 +27,8 @@ final class CastToFloat implements TypeCasting
         string $propertyType,
         private readonly ?float $default = null,
     ) {
-        $baseType = BasicType::tryFromPropertyType($propertyType);
-        if (null === $baseType || !$baseType->isOneOf(BasicType::Mixed, BasicType::Float)) {
+        $baseType = Type::tryFromPropertyType($propertyType);
+        if (null === $baseType || !$baseType->isOneOf(Type::Mixed, Type::Float)) {
             throw new MappingFailed('The property type `'.$propertyType.'` is not supported; a `float` type is required.');
         }
 
@@ -47,7 +47,7 @@ final class CastToFloat implements TypeCasting
             };
         }
 
-        $float = filter_var($value, BasicType::Float->filterFlag());
+        $float = filter_var($value, Type::Float->filterFlag());
 
         return match ($float) {
             false => throw new TypeCastingFailed('The `'.$value.'` value can not be cast to a float.'),

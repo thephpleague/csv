@@ -25,10 +25,10 @@ use const FILTER_VALIDATE_BOOL;
 use const FILTER_VALIDATE_FLOAT;
 use const FILTER_VALIDATE_INT;
 
-enum BasicType: string
+enum Type: string
 {
     case Bool = 'bool';
-    case Int =  'int';
+    case Int = 'int';
     case Float = 'float';
     case String = 'string';
     case Mixed = 'mixed';

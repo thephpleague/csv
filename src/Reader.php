@@ -80,7 +80,7 @@ class Reader extends AbstractCsv implements TabularDataReader, JsonSerializable
     }
 
     /**
-     * @throws Exception
+     * @throws SyntaxError
      *
      * Returns the header record.
      */
@@ -96,7 +96,7 @@ class Reader extends AbstractCsv implements TabularDataReader, JsonSerializable
     /**
      * Determines the CSV record header.
      *
-     * @throws Exception If the header offset is set and no record is found or is the empty array
+     * @throws SyntaxError If the header offset is set and no record is found or is the empty array
      *
      * @return array<string>
      */
@@ -415,32 +415,45 @@ class Reader extends AbstractCsv implements TabularDataReader, JsonSerializable
      */
     public function getRecords(array $header = []): Iterator
     {
-        if ($header !== (array_filter($header, is_string(...)))) {
-            throw SyntaxError::dueToInvalidHeaderColumnNames();
-        }
+        $header = $this->prepareHeader($header);
 
-        return $this->combineHeader($this->prepareRecords(), $this->computeHeader($header));
+        return $this->combineHeader($this->prepareRecords(), $header);
     }
 
     /**
-     * @param class-string $className
+     * @param array<string> $header
      *
-     * @throws TypeCastingFailed
-     * @throws MappingFailed
-     * @throws Exception
-     * @throws ReflectionException
+     * @throws SyntaxError
+     *
+     * @return array<int|string>
      */
-    public function getObjects(string $className, array $header = []): Iterator
+    protected function prepareHeader($header = []): array
     {
         if ($header !== (array_filter($header, is_string(...)))) {
             throw SyntaxError::dueToInvalidHeaderColumnNames();
         }
 
+        return $this->computeHeader($header);
+    }
+
+    /**
+     * @param class-string $className
+     * @param array<string> $header
+     *
+     * @throws Exception
+     * @throws MappingFailed
+     * @throws ReflectionException
+     * @throws TypeCastingFailed
+     */
+    public function getObjects(string $className, array $header = []): Iterator
+    {
         /** @var array<string> $header */
-        $header = $this->computeHeader($header);
+        $header = $this->prepareHeader($header);
         $serializer = new Serializer($className, $header);
 
-        return $serializer->deserializeAll($this->combineHeader($this->prepareRecords(), $header));
+        return $serializer->deserializeAll(
+            $this->combineHeader($this->prepareRecords(), $header)
+        );
     }
 
     /**
@@ -448,7 +461,7 @@ class Reader extends AbstractCsv implements TabularDataReader, JsonSerializable
      *
      * @param array<array-key, string|int> $header
      *
-     * @throws Exception If the header contains non unique column name
+     * @throws SyntaxError If the header contains non unique column name
      *
      * @return array<int|string>
      */

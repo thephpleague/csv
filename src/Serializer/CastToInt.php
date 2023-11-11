@@ -27,8 +27,8 @@ final class CastToInt implements TypeCasting
         string $propertyType,
         private readonly ?int $default = null,
     ) {
-        $baseType = BasicType::tryFromPropertyType($propertyType);
-        if (null === $baseType || !$baseType->isOneOf(BasicType::Mixed, BasicType::Int, BasicType::Float)) {
+        $baseType = Type::tryFromPropertyType($propertyType);
+        if (null === $baseType || !$baseType->isOneOf(Type::Mixed, Type::Int, Type::Float)) {
             throw new MappingFailed('The property type `'.$propertyType.'` is not supported; a `int` type is required.');
         }
 
@@ -47,7 +47,7 @@ final class CastToInt implements TypeCasting
             };
         }
 
-        $int = filter_var($value, BasicType::Int->filterFlag());
+        $int = filter_var($value, Type::Int->filterFlag());
 
         return match ($int) {
             false => throw new TypeCastingFailed('The `'.$value.'` value can not be cast to an integer.'),

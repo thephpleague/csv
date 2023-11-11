@@ -37,8 +37,8 @@ class CastToEnum implements TypeCasting
         string $propertyType,
         ?string $default = null,
     ) {
-        $baseType = BasicType::tryFromPropertyType($propertyType);
-        if (null === $baseType || !$baseType->isOneOf(BasicType::Mixed, BasicType::Enum)) {
+        $baseType = Type::tryFromPropertyType($propertyType);
+        if (null === $baseType || !$baseType->isOneOf(Type::Mixed, Type::Enum)) {
             throw new MappingFailed('The property type `'.$propertyType.'` is not supported; an `Enum` is required.');
         }
 
@@ -74,7 +74,7 @@ class CastToEnum implements TypeCasting
                 return $enum->getCase($value)->getValue();
             }
 
-            $backedValue = 'int' === $enum->getBackingType()?->getName() ? filter_var($value, BasicType::Int->filterFlag()) : $value;
+            $backedValue = 'int' === $enum->getBackingType()?->getName() ? filter_var($value, Type::Int->filterFlag()) : $value;
 
             return $this->class::from($backedValue);
         } catch (Throwable $exception) {

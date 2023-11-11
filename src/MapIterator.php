@@ -13,6 +13,7 @@ declare(strict_types=1);
 
 namespace League\Csv;
 
+use ArrayIterator;
 use IteratorIterator;
 use Traversable;
 
@@ -30,6 +31,14 @@ final class MapIterator extends IteratorIterator
     {
         parent::__construct($iterator);
         $this->callable = $callable;
+    }
+
+    public static function fromIterable(iterable $iterator, callable $callable): self
+    {
+        return match (true) {
+            is_array($iterator) => new self(new ArrayIterator($iterator), $callable),
+            default => new self($iterator, $callable),
+        };
     }
 
     public function current(): mixed

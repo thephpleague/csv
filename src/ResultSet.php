@@ -22,6 +22,7 @@ use JsonSerializable;
 use League\Csv\Serializer\MappingFailed;
 use League\Csv\Serializer\TypeCastingFailed;
 use LimitIterator;
+use ReflectionException;
 
 use function array_filter;
 use function array_flip;
@@ -235,25 +236,34 @@ class ResultSet implements TabularDataReader, JsonSerializable
      */
     public function getRecords(array $header = []): Iterator
     {
-        if ($header !== array_filter($header, is_string(...))) {
-            throw SyntaxError::dueToInvalidHeaderColumnNames();
-        }
-
-        $header = $this->validateHeader($header);
-        if ([] === $header) {
-            $header = $this->header;
-        }
+        $header = $this->prepareHeader($header);
 
         return $this->combineHeader($header);
     }
 
     /**
      * @param class-string $className
+     * @param array<string> $header
      *
-     * @throws TypeCastingFailed
+     * @throws Exception
      * @throws MappingFailed
+     * @throws ReflectionException
+     * @throws TypeCastingFailed
      */
     public function getObjects(string $className, array $header = []): Iterator
+    {
+        $header = $this->prepareHeader($header);
+
+        return (new Serializer($className, $header))->deserializeAll($this->combineHeader($header));
+    }
+
+    /**
+     * @param array<string> $header
+     *
+     * @throws SyntaxError
+     * @return array<string>
+     */
+    protected function prepareHeader(array $header): array
     {
         if ($header !== array_filter($header, is_string(...))) {
             throw SyntaxError::dueToInvalidHeaderColumnNames();
@@ -263,8 +273,7 @@ class ResultSet implements TabularDataReader, JsonSerializable
         if ([] === $header) {
             $header = $this->header;
         }
-
-        return (new Serializer($className, $header))->deserializeAll($this->combineHeader($header));
+        return $header;
     }
 
     /**

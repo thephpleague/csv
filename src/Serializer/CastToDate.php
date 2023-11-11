@@ -42,13 +42,13 @@ final class CastToDate implements TypeCasting
         private readonly ?string $format = null,
         DateTimeZone|string|null $timezone = null,
     ) {
-        $baseType = BasicType::tryFromPropertyType($propertyType);
-        if (null === $baseType || !$baseType->isOneOf(BasicType::Mixed, BasicType::Date)) {
+        $baseType = Type::tryFromPropertyType($propertyType);
+        if (null === $baseType || !$baseType->isOneOf(Type::Mixed, Type::Date)) {
             throw new MappingFailed('The property type `'.$propertyType.'` is not supported; an class implementing the `'.DateTimeInterface::class.'` interface is required.');
         }
 
         $class = ltrim($propertyType, '?');
-        if (BasicType::Mixed->equals($baseType) || DateTimeInterface::class === $class) {
+        if (Type::Mixed->equals($baseType) || DateTimeInterface::class === $class) {
             $class = DateTimeImmutable::class;
         }
 

@@ -28,7 +28,7 @@ final class PropertySetter
     ) {
     }
 
-    public function setValue(object $object, ?string $value): void
+    public function __invoke(object $object, ?string $value): void
     {
         $value = $this->cast->toVariable($value);
 

@@ -13,9 +13,7 @@ declare(strict_types=1);
 
 namespace League\Csv;
 
-use ArrayIterator;
 use Iterator;
-use League\Csv\Serializer\BasicType;
 use League\Csv\Serializer\CastToArray;
 use League\Csv\Serializer\CastToBool;
 use League\Csv\Serializer\CastToDate;
@@ -26,22 +24,21 @@ use League\Csv\Serializer\CastToString;
 use League\Csv\Serializer\Cell;
 use League\Csv\Serializer\MappingFailed;
 use League\Csv\Serializer\PropertySetter;
+use League\Csv\Serializer\Type;
 use League\Csv\Serializer\TypeCasting;
 use League\Csv\Serializer\TypeCastingFailed;
 use ReflectionAttribute;
 use ReflectionClass;
+use ReflectionException;
 use ReflectionMethod;
 use ReflectionNamedType;
 use ReflectionProperty;
 use ReflectionType;
-use RuntimeException;
 use Throwable;
-use TypeError;
 
 use function array_reduce;
 use function array_search;
 use function array_values;
-use function is_array;
 use function is_int;
 
 final class Serializer
@@ -57,8 +54,7 @@ final class Serializer
      * @param array<string> $propertyNames
      *
      * @throws MappingFailed
-     * @throws RuntimeException
-     * @throws TypeError
+     * @throws ReflectionException
      */
     public function __construct(string $className, array $propertyNames = [])
     {
@@ -67,55 +63,67 @@ final class Serializer
         $this->propertySetters = $this->findPropertySetters($propertyNames);
 
         //if converters is empty it means the Serializer
-        //was unable to detect properties to map
+        //was unable to detect properties to assign
         if ([] === $this->propertySetters) {
             throw new MappingFailed('No properties or method setters were found eligible on the class `'.$className.'` to be used for type casting.');
         }
     }
 
     /**
+     * @param class-string $className
+     * @param array<?string> $record
+     *
      * @throws MappingFailed
+     * @throws ReflectionException
      * @throws TypeCastingFailed
      */
+    public static function assign(string $className, array $record): object
+    {
+        return (new self($className, array_keys($record)))->deserialize($record);
+    }
+
     public function deserializeAll(iterable $records): Iterator
     {
-        $threshold = 50;
-        $deserialize = fn (array $record, int $offset): object => match (0) {
-            $offset % $threshold => $this->deserialize($record),
-            default => $this->createInstance($record),
+        $check = true;
+        $assign = function (array $record) use (&$check) {
+            $object = $this->class->newInstanceWithoutConstructor();
+            $this->hydrate($object, $record);
+
+            if ($check) {
+                $check = false;
+                $this->assertObjectIsInValidState($object);
+            }
+
+            return $object;
         };
 
-        return new MapIterator(
-            is_array($records) ? new ArrayIterator($records) : $records,
-            $deserialize
-        );
+        return MapIterator::fromIterable($records, $assign);
     }
 
     /**
-     * @throws MappingFailed
+     * @throws ReflectionException
      * @throws TypeCastingFailed
      */
     public function deserialize(array $record): object
     {
-        $object = $this->createInstance($record);
+        $object = $this->class->newInstanceWithoutConstructor();
 
+        $this->hydrate($object, $record);
         $this->assertObjectIsInValidState($object);
 
         return $object;
     }
 
-    private function createInstance(array $record): object
+    /**
+     * @param array<?string> $record
+     */
+    private function hydrate(object $object, array $record): void
     {
-        $object = $this->class->newInstanceWithoutConstructor();
-
         $record = array_values($record);
         foreach ($this->propertySetters as $propertySetter) {
-            $propertySetter->setValue($object, $record[$propertySetter->offset]);
+            $propertySetter($object, $record[$propertySetter->offset]);
         }
-
-        return $object;
     }
-
 
     /**
      * @throws TypeCastingFailed
@@ -130,17 +138,6 @@ final class Serializer
     }
 
     /**
-     * @param class-string $className
-     *
-     * @throws MappingFailed
-     * @throws TypeCastingFailed
-     */
-    public static function map(string $className, array $record): object
-    {
-        return (new self($className, array_keys($record)))->deserialize($record);
-    }
-
-    /**
      * @param array<string> $propertyNames
      *
      * @throws MappingFailed
@@ -152,6 +149,10 @@ final class Serializer
         $check = [];
         $propertySetters = [];
         foreach ($this->class->getProperties(ReflectionProperty::IS_PUBLIC) as $property) {
+            if ($property->isStatic()) {
+                continue;
+            }
+
             $propertyName = $property->getName();
 
             /** @var int|false $offset */
@@ -279,17 +280,17 @@ final class Serializer
         }
 
         try {
-            return match (BasicType::tryFromPropertyType($type)) {
-                BasicType::Mixed,
-                BasicType::String => new CastToString($type, ...$arguments), /* @phpstan-ignore-line */
-                BasicType::Iterable,
-                BasicType::Array => new CastToArray($type, ...$arguments),  /* @phpstan-ignore-line */
-                BasicType::Float => new CastToFloat($type, ...$arguments),  /* @phpstan-ignore-line */
-                BasicType::Int => new CastToInt($type, ...$arguments), /* @phpstan-ignore-line */
-                BasicType::Bool => new CastToBool($type, ...$arguments), /* @phpstan-ignore-line */
-                BasicType::Date => new CastToDate($type, ...$arguments), /* @phpstan-ignore-line */
-                BasicType::Enum => new CastToEnum($type, ...$arguments), /* @phpstan-ignore-line */
-                default => null,
+            return match (Type::tryFromPropertyType($type)) {
+                Type::Mixed,
+                Type::String => new CastToString($type, ...$arguments), /* @phpstan-ignore-line */
+                Type::Iterable,
+                Type::Array => new CastToArray($type, ...$arguments),  /* @phpstan-ignore-line */
+                Type::Float => new CastToFloat($type, ...$arguments),  /* @phpstan-ignore-line */
+                Type::Int => new CastToInt($type, ...$arguments), /* @phpstan-ignore-line */
+                Type::Bool => new CastToBool($type, ...$arguments), /* @phpstan-ignore-line */
+                Type::Date => new CastToDate($type, ...$arguments), /* @phpstan-ignore-line */
+                Type::Enum => new CastToEnum($type, ...$arguments), /* @phpstan-ignore-line */
+                null => null,
             };
         } catch (Throwable $exception) {
             if ($exception instanceof MappingFailed) {
@@ -305,12 +306,17 @@ final class Serializer
      */
     private function getTypeCasting(Cell $cell, ReflectionProperty|ReflectionMethod $accessor): TypeCasting
     {
+        if (array_key_exists('propertyType', $cell->castArguments)) {
+            throw new MappingFailed('The key `propertyType` can not be used with `castArguments`.');
+        }
+
         $type = match (true) {
             $accessor instanceof ReflectionMethod => $accessor->getParameters()[0]->getType(),
             $accessor instanceof ReflectionProperty => $accessor->getType(),
         };
 
         $typeCaster = $cell->cast;
+
         if (null !== $typeCaster) {
             $cast = new $typeCaster((string) $type, ...$cell->castArguments);
             if (!$cast instanceof TypeCasting) {

@@ -24,8 +24,8 @@ final class CastToBool implements TypeCasting
         string $propertyType,
         private readonly ?bool $default = null
     ) {
-        $baseType = BasicType::tryFromPropertyType($propertyType);
-        if (null === $baseType || !$baseType->isOneOf(BasicType::Mixed, BasicType::Bool)) {
+        $baseType = Type::tryFromPropertyType($propertyType);
+        if (null === $baseType || !$baseType->isOneOf(Type::Mixed, Type::Bool)) {
             throw new MappingFailed('The property type `'.$propertyType.'` is not supported; a `bool` type is required.');
         }
 
@@ -38,7 +38,7 @@ final class CastToBool implements TypeCasting
     public function toVariable(?string $value): ?bool
     {
         return match(true) {
-            null !== $value => filter_var($value, BasicType::Bool->filterFlag()),
+            null !== $value => filter_var($value, Type::Bool->filterFlag()),
             $this->isNullable => $this->default,
             default => throw new TypeCastingFailed('The `null` value can not be cast to a boolean value.'),
         };

@@ -26,8 +26,8 @@ final class CastToString implements TypeCasting
         string $propertyType,
         private readonly ?string $default = null
     ) {
-        $baseType = BasicType::tryFromPropertyType($propertyType);
-        if (null === $baseType || !$baseType->isOneOf(BasicType::Mixed, BasicType::String)) {
+        $baseType = Type::tryFromPropertyType($propertyType);
+        if (null === $baseType || !$baseType->isOneOf(Type::Mixed, Type::String)) {
             throw new MappingFailed('The property type `'.$propertyType.'` is not supported; a `string` type is required.');
         }
 

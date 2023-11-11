@@ -57,7 +57,7 @@ final class SerializerTest extends TestCase
             'place' => 'Berkeley',
         ];
 
-        $weather = Serializer::map(WeatherWithRecordAttribute::class, $record);
+        $weather = Serializer::assign(WeatherWithRecordAttribute::class, $record);
 
         self::assertInstanceOf(WeatherWithRecordAttribute::class, $weather);
         self::assertInstanceOf(DateTimeImmutable::class, $weather->observedOn);
@@ -73,7 +73,7 @@ final class SerializerTest extends TestCase
             'place' => 'Berkeley',
         ];
 
-        $weather = Serializer::map(WeatherProperty::class, $record);
+        $weather = Serializer::assign(WeatherProperty::class, $record);
 
         self::assertInstanceOf(WeatherProperty::class, $weather);
         self::assertInstanceOf(DateTimeImmutable::class, $weather->observedOn);
@@ -89,7 +89,7 @@ final class SerializerTest extends TestCase
             'place' => 'Berkeley',
         ];
 
-        $weather = Serializer::map(WeatherSetterGetter::class, $record);
+        $weather = Serializer::assign(WeatherSetterGetter::class, $record);
 
         self::assertInstanceOf(WeatherSetterGetter::class, $weather);
         self::assertSame('2023-10-30', $weather->getObservedOn()->format('Y-m-d'));
@@ -102,7 +102,7 @@ final class SerializerTest extends TestCase
         $this->expectException(MappingFailed::class);
         $this->expectExceptionMessage('No properties or method setters were found eligible on the class `stdClass` to be used for type casting.');
 
-        Serializer::map(stdClass::class, ['foo' => 'bar']);
+        Serializer::assign(stdClass::class, ['foo' => 'bar']);
     }
 
     public function testItWillThrowIfTheHeaderIsMissingAndTheColumnOffsetIsAString(): void
