@@ -3,21 +3,19 @@ layout: default
 title: Deserializing a Tabular Data record into an object
 ---
 
-# Mapping records to objects
+# Record to object conversion
 
 <p class="message-notice">New in version <code>9.12.0</code></p>
 
-## Converting an array to an object
+## Assign an array to an object
 
 To work with objects instead of arrays the `Serializer` class is introduced to expose a
 text based deserialization mechanism for tabular data.
 
 The class exposes four (4) methods to ease `array` to `object` conversion:
 
-- `Serializer::deserializeAll` which converts a collection of records into a collection of instances of a specified class.
-- `Serializer::deserialize` which converts a single record into a new instance of the specified class.
-- `Serializer::assign` which is a syntactic sugar static method to use in place of `Serializer::deserialize`.
-- `Serializer::assignAll` which is a syntactic sugar static method to use in place of `Serializer::deserializeAll`.
+- `Serializer::deserializeAll` and `Serializer::assignAll` which convert a collection of records into a collection of instances of a specified class.
+- `Serializer::deserialize` and `Serializer::assign` which convert a single record into a new instance of the specified class.
 
 ```php
 use League\Csv\Serializer;
@@ -28,23 +26,21 @@ $record = [
     'place' => 'Berkeley',
 ];
 
-$serializer = new Serializer(Weather::class, ['date', 'temperature', 'place']);
-$weather = $serializer->deserialize($record);
-
-// you can use the syntactic sugar method `assign` as an alternative
-// if you only need to do it once
-$weather = Serializer::assign(Weather::class, $record);
-
-//once the serializer instantiated you can also deserialize
 //a complete collection of records as shown below
 $collection = [$record];
+//we first instantiate the serializer
+$serializer = new Serializer(Weather::class, ['date', 'temperature', 'place']);
+
+$weather = $serializer->deserialize($record); //we convert 1 record into 1 instance
 foreach ($serializer->deserializeAll($collection) as $weather) {
     // each $weather entry will be an instance of the Weather class;
 }
 
-// you can use the syntactic sugar method `assignAll` as an alternative
-// if you only need to do it once
-foreach (Serializer::assignAll(Weather::class, $records, ['date', 'temperature', 'place']) as $weather) {
+// you can use the alternate syntactic sugar methods 
+// if you only need the deserializing mechanism once
+$weather = Serializer::assign(Weather::class, $record);
+
+foreach (Serializer::assignAll(Weather::class, $collection, ['date', 'temperature', 'place']) as $weather) {
     // each $weather entry will be an instance of the Weather class;
 }
 ```
@@ -136,6 +132,12 @@ foreach ($csv as $record) {
 foreach ($serializer->deserializeAll($csv) as $weather) {
     // each $weather entry will be an instance of the Weather class;
 }
+
+//or 
+
+foreach (Serializer::assignAll(Weather::class, $csv, $csv->getHeader()) as $weather) {
+    // each $weather entry will be an instance of the Weather class;
+}
 ```
 
 <p class="notice">The code above is similar to using <code>TabularDataReader::getObjects</code> method.</p>
@@ -155,17 +157,17 @@ the following type:
 
 the `nullable` aspect of the property is also automatically handled.
 
-To improve the conversion you can use the `Cell` attribute. This attribute will override
+To complete the conversion you can use the `Cell` attribute. This attribute will override
 the automatic resolution and enable fine-tuning type casting on the property level.
 
 The `Cell` attribute can be used on class properties and methods regardless of their visibility.
 The attribute can take up to three (3) arguments which are all optional:
 
 - The `offset` argument tells the engine which record key to use via its numeric or name offset. If not present the property name or the name of the first argument of the `setter` method will be used. In such case, you are required to specify the property names information.
-- The `cast` argument which accept the name of a class implementing the `TypeCasting` interface and responsible for type casting the record value.
+- The `cast` argument which accept the name of a class implementing the `TypeCasting` interface and responsible for type casting the record value. If not present, the mechanism will try to resolve the typecasting based on the propery or method argument type.
 - The `castArguments` argument enables controlling typecasting by providing extra arguments to the `TypeCasting` class constructor. The argument expects an associative array and relies on named arguments to inject its value to the `TypeCasting` implementing class constructor.
 
-<p class="message-warning">The <code>propertyType</code> key can not be used with the <code>castArguments</code> as it is reserved argument used by the <code>TypeCasting</code> class.</p>
+<p class="message-warning">The <code>propertyType</code> key can not be used with the <code>castArguments</code> as it is a reserved argument used by the <code>TypeCasting</code> class.</p>
 
 In any case, if type casting fails, an exception will be thrown.
 
@@ -209,7 +211,7 @@ All classes are defined under the `League\Csv\Serializer` namespace.
 Converts the array value to a string or `null` depending on the property type information. The class takes one
 optional argument `default` which is the default value to return if the value is `null`.
 
-<p class="notice">By default, this class is also responsible for automatically typecasting `mixed` properties.</p>
+<p class="notice">By default, this class is also responsible for automatically typecasting <code>mixed</code> typed properties.</p>
 
 ### CastToBool
 
@@ -223,10 +225,14 @@ optional argument `default` which is the default `int` or `float` value to retur
 
 ### CastToEnum
 
-Convert the array value to a PHP `Enum`, it supports both "real" and backed enumeration. The class takes one
-optional argument `default` which is the default Enum value to return if the value is `null`.
+Convert the array value to a PHP `Enum`, it supports both "real" and backed enumeration. The class takes two (2)
+optionals arguments:
+
+- `default` which is the default Enum value to return if the value is `null`.
+- `enum` which is the Enum class to use for resolution if the property or method argument is typed as `mixed`.
+
 If the `Enum` is backed the cell value will be considered as one of the Enum value; otherwise it will be used
-as one the `Enum` name. Likewise, the `default` value will also be considered the same way. If the default value
+as one the `Enum` name. The same logic applies for the `default` value. If the default value
 is not `null` and the value given is incorrect, the mechanism will throw an exception.
 
 ```php
@@ -235,17 +241,17 @@ use League\Csv\Serializer;
 #[Serializer\Cell(
     offset:1,
     cast:Serializer\CastToEnum::class,
-    castArguments: ['default' => 'Galway']
+    castArguments: ['default' => 'Galway', 'enum' => Place::class]
 )]
-public function setPlace(Place $place): void
+public function setPlace(mixed $place): void
 {
     //apply the method logic whatever that is!
 }
 ```
 
 > convert the value of the array whose offset is `1` into a `Place` Enum
-> if the value is  null resolve the string `Kidal` to `Place::Galway`. Once created,
-> call the method `setPlace` with the created `Place` enum.
+> if the value is  null resolve the string `Galway` to `Place::Galway`. Once created,
+> call the method `setPlace` with the created `Place` enum filling the `$place` argument.
 
 ### CastToDate
 
@@ -254,6 +260,8 @@ Converts the cell value into a PHP `DateTimeInterface` implementing object. You 
 - the date format via the `format` argument
 - the date timezone if needed  via the `timezone` argument
 - the `default` which is the default value to return if the value is `null`; should be `null` or a parsable date time `string`
+
+If the property is typed with `mixed` or the `DateTimeInterface` a `DateTimeImmutable` instance will be used.
 
 ### CastToArray
 
@@ -324,7 +332,7 @@ use League\Csv\Serializer;
     cast: App\Domain\CastToMoney::class,
     castArguments: ['default' => 100_00]
 )]
-private Money $naira;
+private ?Money $naira;
 ```
 
 The `CastToMoney` will convert the cell value into a `Money` object and if the value is `null`, `20_00` will be used.

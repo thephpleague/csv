@@ -31,19 +31,31 @@ class CastToEnum implements TypeCasting
     private readonly BackedEnum|UnitEnum|null $default;
 
     /**
+     * @param ?class-string $enum
+     *
      * @throws MappingFailed
      */
     public function __construct(
         string $propertyType,
         ?string $default = null,
+        ?string $enum = null,
     ) {
         $baseType = Type::tryFromPropertyType($propertyType);
         if (null === $baseType || !$baseType->isOneOf(Type::Mixed, Type::Enum)) {
             throw new MappingFailed('The property type `'.$propertyType.'` is not supported; an `Enum` is required.');
         }
 
-        $this->class = ltrim($propertyType, '?');
         $this->isNullable = str_starts_with($propertyType, '?');
+        $class = ltrim($propertyType, '?');
+        if ($baseType->equals(Type::Mixed)) {
+            if (null === $enum || !enum_exists($enum)) {
+                throw new MappingFailed('You need to specify the enum class with a `mixed` typed property.');
+            }
+            $class = $enum;
+        }
+
+        $this->class = $class;
+
         try {
             $this->default = (null !== $default) ? $this->cast($default) : $default;
         } catch (TypeCastingFailed $exception) {
