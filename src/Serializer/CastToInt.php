@@ -27,12 +27,12 @@ final class CastToInt implements TypeCasting
         string $propertyType,
         private readonly ?int $default = null,
     ) {
-        $baseType = Type::tryFromPropertyType($propertyType);
-        if (null === $baseType || !$baseType->isOneOf(Type::Mixed, Type::Int, Type::Float)) {
+        $type = Type::tryFromPropertyType($propertyType);
+        if (null === $type || !$type->isOneOf(Type::Mixed, Type::Int, Type::Float)) {
             throw new MappingFailed('The property type `'.$propertyType.'` is not supported; a `int` type is required.');
         }
 
-        $this->isNullable = $baseType->equals(Type::Mixed) || str_starts_with($propertyType, '?');
+        $this->isNullable = Type::Mixed->equals($type) || str_starts_with($propertyType, '?');
     }
 
     /**

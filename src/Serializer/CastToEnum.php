@@ -40,14 +40,14 @@ class CastToEnum implements TypeCasting
         ?string $default = null,
         ?string $enum = null,
     ) {
-        $baseType = Type::tryFromPropertyType($propertyType);
-        if (null === $baseType || !$baseType->isOneOf(Type::Mixed, Type::Enum)) {
+        $type = Type::tryFromPropertyType($propertyType);
+        if (null === $type || !$type->isOneOf(Type::Mixed, Type::Enum)) {
             throw new MappingFailed('The property type `'.$propertyType.'` is not supported; an `Enum` is required.');
         }
 
         $class = ltrim($propertyType, '?');
         $isNullable = str_starts_with($propertyType, '?');
-        if ($baseType->equals(Type::Mixed)) {
+        if ($type->equals(Type::Mixed)) {
             if (null === $enum || !enum_exists($enum)) {
                 throw new MappingFailed('You need to specify the enum class with a `mixed` typed property.');
             }

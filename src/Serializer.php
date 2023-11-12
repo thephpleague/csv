@@ -34,6 +34,7 @@ use ReflectionMethod;
 use ReflectionNamedType;
 use ReflectionProperty;
 use ReflectionType;
+use ReflectionUnionType;
 use Throwable;
 
 use function array_reduce;
@@ -156,10 +157,11 @@ final class Serializer
         $propertySetters = [];
         foreach ($this->class->getProperties(ReflectionProperty::IS_PUBLIC) as $property) {
             if ($property->isStatic()) {
+                //the property can not be cast yet
+                //as casting may be set using the Cell attribute
                 continue;
             }
 
-            $propertyName = $property->getName();
             $attribute = $property->getAttributes(Cell::class, ReflectionAttribute::IS_INSTANCEOF);
             if ([] !== $attribute) {
                 //the property can not be cast yet
@@ -167,6 +169,7 @@ final class Serializer
                 continue;
             }
 
+            $propertyName = $property->getName();
             /** @var int|false $offset */
             $offset = array_search($propertyName, $propertyNames, true);
             if (false === $offset) {
@@ -183,13 +186,13 @@ final class Serializer
 
             $cast = $this->resolveTypeCasting($type);
             if (null === $cast) {
-                throw new MappingFailed('No valid type casting was found for property `'.$propertyName.'`.');
+                throw new MappingFailed('No valid type casting for `'.$type.'` was found for property `'.$propertyName.'`.');
             }
 
             $propertySetters[] = new PropertySetter($property, $offset, $cast);
         }
 
-        $propertySetters = [...$propertySetters, ...$this->findPropertySettersByCellAttributes($propertyNames)];
+        $propertySetters = [...$propertySetters, ...$this->findPropertySettersByCellAttribute($propertyNames)];
 
         //if converters is empty it means the Serializer
         //was unable to detect properties to assign
@@ -205,7 +208,7 @@ final class Serializer
      *
      * @return array<PropertySetter>
      */
-    private function findPropertySettersByCellAttributes(array $propertyNames): array
+    private function findPropertySettersByCellAttribute(array $propertyNames): array
     {
         $addPropertySetter = function (array $carry, ReflectionProperty|ReflectionMethod $accessor) use ($propertyNames) {
             $propertySetter = $this->findPropertySetter($accessor, $propertyNames);
@@ -252,7 +255,7 @@ final class Serializer
         if (is_int($offset)) {
             return match (true) {
                 0 > $offset => throw new MappingFailed('column integer position can only be positive or equals to 0; received `'.$offset.'`'),
-                [] !== $propertyNames && $offset > count($propertyNames) - 1 => throw new MappingFailed('column integer position can not exceed header cell count.'),
+                [] !== $propertyNames && $offset > count($propertyNames) - 1 => throw new MappingFailed('column integer position can not exceed property names count.'),
                 default => new PropertySetter($accessor, $offset, $cast),
             };
         }
@@ -277,22 +280,17 @@ final class Serializer
      */
     private function resolveTypeCasting(ReflectionType $reflectionType, array $arguments = []): ?TypeCasting
     {
-        $type = '';
-        if ($reflectionType instanceof ReflectionNamedType) {
-            $type = $reflectionType->getName();
-        }
+        $type = (string) $this->getAccessorType($reflectionType);
 
         try {
             return match (Type::tryFromPropertyType($type)) {
-                Type::Mixed,
-                Type::String => new CastToString($type, ...$arguments), /* @phpstan-ignore-line */
-                Type::Iterable,
-                Type::Array => new CastToArray($type, ...$arguments),  /* @phpstan-ignore-line */
-                Type::Float => new CastToFloat($type, ...$arguments),  /* @phpstan-ignore-line */
-                Type::Int => new CastToInt($type, ...$arguments), /* @phpstan-ignore-line */
-                Type::Bool => new CastToBool($type, ...$arguments), /* @phpstan-ignore-line */
-                Type::Date => new CastToDate($type, ...$arguments), /* @phpstan-ignore-line */
-                Type::Enum => new CastToEnum($type, ...$arguments), /* @phpstan-ignore-line */
+                Type::Mixed, Type::Null, Type::String => new CastToString($type, ...$arguments), /* @phpstan-ignore-line */
+                Type::Iterable, Type::Array => new CastToArray($type, ...$arguments),            /* @phpstan-ignore-line */
+                Type::False, Type::True, Type::Bool => new CastToBool($type, ...$arguments),     /* @phpstan-ignore-line */
+                Type::Float => new CastToFloat($type, ...$arguments),                            /* @phpstan-ignore-line */
+                Type::Int => new CastToInt($type, ...$arguments),                                /* @phpstan-ignore-line */
+                Type::Date => new CastToDate($type, ...$arguments),                              /* @phpstan-ignore-line */
+                Type::Enum => new CastToEnum($type, ...$arguments),                              /* @phpstan-ignore-line */
                 null => null,
             };
         } catch (Throwable $exception) {
@@ -324,7 +322,7 @@ final class Serializer
                 throw new MappingFailed('The class `'.$typeCaster.'` does not implements the `'.TypeCasting::class.'` interface.');
             }
 
-            $arguments = [...$cell->castArguments, ...['propertyType' => (string) $type]];
+            $arguments = [...$cell->castArguments, ...['propertyType' => (string) $this->getAccessorType($type)]];
             /** @var TypeCasting $cast */
             $cast = new $typeCaster(...$arguments);
 
@@ -342,5 +340,26 @@ final class Serializer
             $accessor instanceof ReflectionMethod => 'No valid type casting was found for the setter method argument `'.$accessor->getParameters()[0]->getName().'` must be typed.',
             $accessor instanceof ReflectionProperty => 'No valid type casting was found for the property `'.$accessor->getName().'` must be typed.',
         });
+    }
+
+    private function getAccessorType(?ReflectionType $type): ?string
+    {
+        return match (true) {
+            null === $type => null,
+            $type instanceof ReflectionNamedType => $type->getName(),
+            $type instanceof ReflectionUnionType => implode('|', array_reduce(
+                $type->getTypes(),
+                function (array $carry, ReflectionType $type): array {
+                    $result = $this->getAccessorType($type);
+
+                    return match ('') {
+                        $result => $carry,
+                        default => [...$carry, $result],
+                    };
+                },
+                []
+            )),
+            default => '',
+        };
     }
 }

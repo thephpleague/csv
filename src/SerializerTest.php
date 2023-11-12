@@ -41,8 +41,7 @@ final class SerializerTest extends TestCase
             ],
         ];
 
-        $serializer = new Serializer(WeatherWithRecordAttribute::class, ['date', 'temperature', 'place']);
-        $results = [...$serializer->deserializeAll($records)];
+        $results = [...Serializer::assignAll(WeatherWithRecordAttribute::class, $records, ['date', 'temperature', 'place'])];
         self::assertCount(2, $results);
         foreach ($results as $result) {
             self::assertInstanceOf(WeatherWithRecordAttribute::class, $result);
@@ -97,7 +96,7 @@ final class SerializerTest extends TestCase
         self::assertSame(-1.5, $weather->getTemperature());
     }
 
-    public function testMapingFailBecauseTheRecordAttributeIsMissing(): void
+    public function testMappingFailBecauseTheRecordAttributeIsMissing(): void
     {
         $this->expectException(MappingFailed::class);
         $this->expectExceptionMessage('No properties or method setters were found eligible on the class `stdClass` to be used for type casting.');
@@ -158,18 +157,20 @@ final class SerializerTest extends TestCase
     public function testItWillFailForLackOfTypeCasting(): void
     {
         $this->expectException(MappingFailed::class);
-        $this->expectExceptionMessage('No valid type casting was found for property `observedOn`.');
+        $this->expectExceptionMessage('No valid type casting for `SplFileObject` was found for property `observedOn`');
 
         new Serializer(InvaliDWeatherWithRecordAttributeAndUnknownCasting::class, ['temperature', 'place', 'observedOn']);
     }
 
-    public function testItWillThrowIfTheClassContainsUnitiliaziedProperties(): void
+    public function testItWillThrowIfTheClassContainsUninitializedProperties(): void
     {
         $this->expectException(MappingFailed::class);
         $this->expectExceptionMessage('No valid type casting was found for the property `annee` must be typed.');
 
-        $serializer = new Serializer(InvalidObjectWithUninitializedProperty::class, ['prenoms', 'nombre', 'sexe', 'annee']);
-        $serializer->deserialize(['prenoms' => 'John', 'nombre' => 42, 'sexe' => 'M', 'annee' => '2018']);
+        Serializer::assign(
+            InvalidObjectWithUninitializedProperty::class,
+            ['prenoms' => 'John', 'nombre' => '42', 'sexe' => 'M', 'annee' => '2018']
+        );
     }
 }
 
@@ -267,8 +268,7 @@ final class WeatherSetterGetter
 final class InvalidWeatherAttributeUsage
 {
     public function __construct(
-        /* @phpstan-ignore-next-line */
-        #[Cell(offset:'temperature'), Cell(offset:'date')]
+        #[Cell(offset:'temperature'), Cell(offset:'date')] /* @phpstan-ignore-line */
         public readonly float $temperature,
         #[Cell(offset:2, cast: CastToEnum::class)]
         public readonly Place $place,

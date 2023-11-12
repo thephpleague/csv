@@ -28,6 +28,9 @@ use const FILTER_VALIDATE_INT;
 enum Type: string
 {
     case Bool = 'bool';
+    case True = 'true';
+    case False = 'false';
+    case Null = 'null';
     case Int = 'int';
     case Float = 'float';
     case String = 'string';
@@ -50,11 +53,11 @@ enum Type: string
 
     public static function tryFromPropertyType(string $propertyType): ?self
     {
-        $type = ltrim($propertyType, '?');
-        $basicType = self::tryFrom($type);
+        $type =  ltrim($propertyType, '?');
+        $enumType = self::tryFrom($type);
 
         return match (true) {
-            $basicType instanceof self => $basicType,
+            $enumType instanceof self => $enumType,
             enum_exists($type) => self::Enum,
             interface_exists($type) && DateTimeInterface::class === $type,
             class_exists($type) && in_array(DateTimeInterface::class, class_implements($type), true) => self::Date,
@@ -65,7 +68,9 @@ enum Type: string
     public function filterFlag(): int
     {
         return match ($this) {
-            self::Bool => FILTER_VALIDATE_BOOL,
+            self::Bool,
+            self::True,
+            self::False => FILTER_VALIDATE_BOOL,
             self::Int => FILTER_VALIDATE_INT,
             self::Float => FILTER_VALIDATE_FLOAT,
             default => FILTER_UNSAFE_RAW,
@@ -76,6 +81,8 @@ enum Type: string
     {
         return match ($this) {
             self::Bool,
+            self::True,
+            self::False,
             self::Int,
             self::Float,
             self::String => true,

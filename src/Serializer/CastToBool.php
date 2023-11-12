@@ -19,17 +19,19 @@ use function str_starts_with;
 final class CastToBool implements TypeCasting
 {
     private readonly bool $isNullable;
+    private readonly Type $type;
 
     public function __construct(
         string $propertyType,
         private readonly ?bool $default = null
     ) {
-        $baseType = Type::tryFromPropertyType($propertyType);
-        if (null === $baseType || !$baseType->isOneOf(Type::Mixed, Type::Bool)) {
+        $type = Type::tryFromPropertyType($propertyType);
+        if (null === $type || !$type->isOneOf(Type::Mixed, Type::Bool, Type::True, Type::False)) {
             throw new MappingFailed('The property type `'.$propertyType.'` is not supported; a `bool` type is required.');
         }
 
-        $this->isNullable = $baseType->equals(Type::Mixed) || str_starts_with($propertyType, '?');
+        $this->type = $type;
+        $this->isNullable = Type::Mixed->equals($type) || str_starts_with($propertyType, '?');
     }
 
     /**
@@ -37,10 +39,16 @@ final class CastToBool implements TypeCasting
      */
     public function toVariable(?string $value): ?bool
     {
-        return match(true) {
+        $returnValue = match(true) {
             null !== $value => filter_var($value, Type::Bool->filterFlag()),
             $this->isNullable => $this->default,
             default => throw new TypeCastingFailed('The `null` value can not be cast to a boolean value.'),
+        };
+
+        return match (true) {
+            Type::True->equals($this->type) && true !== $returnValue && !$this->isNullable,
+            Type::False->equals($this->type) && false !== $returnValue && !$this->isNullable => throw new TypeCastingFailed('The value `'.$value.'` could not be cast to `'.$this->type->value.'`.'),
+            default => $returnValue,
         };
     }
 }

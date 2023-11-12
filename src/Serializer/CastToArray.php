@@ -45,7 +45,7 @@ final class CastToArray implements TypeCasting
     public function __construct(
         string $propertyType,
         private readonly ?array $default = null,
-        ArrayShape|string $shape = 'list',
+        ArrayShape|string $shape = ArrayShape::List,
         private readonly string $delimiter = ',',
         private readonly string $enclosure = '"',
         private readonly int $jsonDepth = 512,

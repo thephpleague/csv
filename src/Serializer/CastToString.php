@@ -21,17 +21,19 @@ use function str_starts_with;
 final class CastToString implements TypeCasting
 {
     private readonly bool $isNullable;
+    private readonly Type $type;
 
     public function __construct(
         string $propertyType,
         private readonly ?string $default = null
     ) {
-        $baseType = Type::tryFromPropertyType($propertyType);
-        if (null === $baseType || !$baseType->isOneOf(Type::Mixed, Type::String)) {
-            throw new MappingFailed('The property type `'.$propertyType.'` is not supported; a `string` type is required.');
+        $type = Type::tryFromPropertyType($propertyType);
+        if (null === $type || !$type->isOneOf(Type::Mixed, Type::String, Type::Null)) {
+            throw new MappingFailed('The property type `'.$propertyType.'` is not supported; a `string` or `null` type is required.');
         }
 
-        $this->isNullable = $baseType->equals(Type::Mixed) || str_starts_with($propertyType, '?');
+        $this->type = $type;
+        $this->isNullable = $type->isOneOf(Type::Mixed, Type::Null) || str_starts_with($propertyType, '?');
     }
 
     /**
@@ -39,10 +41,15 @@ final class CastToString implements TypeCasting
      */
     public function toVariable(?string $value): ?string
     {
-        return match(true) {
+        $returnedValue = match(true) {
             null !== $value => $value,
             $this->isNullable => $this->default,
             default => throw new TypeCastingFailed('The `null` value can not be cast to a string.'),
+        };
+
+        return match (true) {
+            Type::Null->equals($this->type) && null !== $returnedValue => throw new TypeCastingFailed('The value `'.$value.'` could not be cast to `'.$this->type->value.'`.'),
+            default => $returnedValue,
         };
     }
 }
