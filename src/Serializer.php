@@ -149,11 +149,10 @@ final class Serializer
      *
      * @throws MappingFailed
      *
-     * @return non-empty-array<string, PropertySetter>
+     * @return non-empty-array<PropertySetter>
      */
     private function findPropertySetters(array $propertyNames): array
     {
-        $check = [];
         $propertySetters = [];
         foreach ($this->class->getProperties(ReflectionProperty::IS_PUBLIC) as $property) {
             if ($property->isStatic()) {
@@ -161,6 +160,12 @@ final class Serializer
             }
 
             $propertyName = $property->getName();
+            $attribute = $property->getAttributes(Cell::class, ReflectionAttribute::IS_INSTANCEOF);
+            if ([] !== $attribute) {
+                //the property can not be cast yet
+                //as casting will be set using the Cell attribute
+                continue;
+            }
 
             /** @var int|false $offset */
             $offset = array_search($propertyName, $propertyNames, true);
@@ -172,16 +177,8 @@ final class Serializer
             }
 
             $type = $property->getType();
-            if (!$type instanceof ReflectionNamedType) {
-                throw new MappingFailed('The property `'.$propertyName.'` must be typed with a single nullable type.');
-            }
-
-            $attribute = $property->getAttributes(Cell::class, ReflectionAttribute::IS_INSTANCEOF);
-            if ([] !== $attribute) {
-                //the property can not be cast yet
-                //as casting will be set using the Cell attribute
-                $check['property:'.$propertyName] = $propertyName;
-                continue;
+            if (null === $type) {
+                throw new MappingFailed('The property `'.$propertyName.'` must be typed.');
             }
 
             $cast = $this->resolveTypeCasting($type);
@@ -189,16 +186,10 @@ final class Serializer
                 throw new MappingFailed('No valid type casting was found for property `'.$propertyName.'`.');
             }
 
-            $propertySetters['property:'.$propertyName] = new PropertySetter($property, $offset, $cast);
+            $propertySetters[] = new PropertySetter($property, $offset, $cast);
         }
 
         $propertySetters = [...$propertySetters, ...$this->findPropertySettersByCellAttributes($propertyNames)];
-        foreach ($check as $key => $propertyName) {
-            //if we still can not find how to cast the property we must throw
-            if (!isset($propertySetters[$key])) {
-                throw new MappingFailed('No valid type casting was found for property `'.$propertyName.'`.');
-            }
-        }
 
         //if converters is empty it means the Serializer
         //was unable to detect properties to assign
@@ -212,7 +203,7 @@ final class Serializer
     /**
      * @param array<string> $propertyNames
      *
-     * @return array<string, PropertySetter>
+     * @return array<PropertySetter>
      */
     private function findPropertySettersByCellAttributes(array $propertyNames): array
     {
@@ -222,8 +213,7 @@ final class Serializer
                 return $carry;
             }
 
-            $type = $accessor instanceof ReflectionProperty ? 'property' : 'method';
-            $carry[$type.':'.$accessor->getName()] = $propertySetter;
+            $carry[] = $propertySetter;
 
             return $carry;
         };
