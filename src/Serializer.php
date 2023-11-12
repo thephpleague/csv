@@ -331,7 +331,7 @@ final class Serializer
             return $cast;
         }
 
-        if (!$type instanceof ReflectionNamedType) {
+        if (null === $type) {
             throw new MappingFailed(match (true) {
                 $accessor instanceof ReflectionMethod => 'The setter method argument `'.$accessor->getParameters()[0]->getName().'` must be typed.',
                 $accessor instanceof ReflectionProperty => 'The property `'.$accessor->getName().'` must be typed.',
