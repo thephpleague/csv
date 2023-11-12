@@ -330,10 +330,13 @@ final class Serializer
 
         $typeCaster = $cell->cast;
         if (null !== $typeCaster) {
-            $cast = new $typeCaster((string) $type, ...$cell->castArguments);
-            if (!$cast instanceof TypeCasting) {
-                throw new MappingFailed('The class `'.$cast::class.'` does not implements the `'.TypeCasting::class.'` interface.');
+            if (!in_array(TypeCasting::class, class_implements($typeCaster), true)) {
+                throw new MappingFailed('The class `'.$typeCaster.'` does not implements the `'.TypeCasting::class.'` interface.');
             }
+
+            $arguments = [...$cell->castArguments, ...['propertyType' => (string) $type]];
+            /** @var TypeCasting $cast */
+            $cast = new $typeCaster(...$arguments);
 
             return $cast;
         }

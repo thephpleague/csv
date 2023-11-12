@@ -58,7 +58,7 @@ final class CastToArray implements TypeCasting
         }
 
         $this->class = ltrim($propertyType, '?');
-        $this->isNullable = str_starts_with($propertyType, '?');
+        $this->isNullable = $baseType->equals(Type::Mixed) || str_starts_with($propertyType, '?');
 
         if (!$shape instanceof ArrayShape) {
             $shape = ArrayShape::tryFrom($shape) ?? throw new MappingFailed('Unable to resolve the array shape; Verify your cast arguments.');

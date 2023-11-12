@@ -53,7 +53,7 @@ final class CastToDate implements TypeCasting
         }
 
         $this->class = $class;
-        $this->isNullable = str_starts_with($propertyType, '?');
+        $this->isNullable = $baseType->equals(Type::Mixed) || str_starts_with($propertyType, '?');
         try {
             $this->timezone = is_string($timezone) ? new DateTimeZone($timezone) : $timezone;
             $this->default = (null !== $default) ? $this->cast($default) : $default;

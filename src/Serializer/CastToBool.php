@@ -29,7 +29,7 @@ final class CastToBool implements TypeCasting
             throw new MappingFailed('The property type `'.$propertyType.'` is not supported; a `bool` type is required.');
         }
 
-        $this->isNullable = str_starts_with($propertyType, '?');
+        $this->isNullable = $baseType->equals(Type::Mixed) || str_starts_with($propertyType, '?');
     }
 
     /**

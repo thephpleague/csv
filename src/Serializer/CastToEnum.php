@@ -45,16 +45,18 @@ class CastToEnum implements TypeCasting
             throw new MappingFailed('The property type `'.$propertyType.'` is not supported; an `Enum` is required.');
         }
 
-        $this->isNullable = str_starts_with($propertyType, '?');
         $class = ltrim($propertyType, '?');
+        $isNullable = str_starts_with($propertyType, '?');
         if ($baseType->equals(Type::Mixed)) {
             if (null === $enum || !enum_exists($enum)) {
                 throw new MappingFailed('You need to specify the enum class with a `mixed` typed property.');
             }
             $class = $enum;
+            $isNullable = true;
         }
 
         $this->class = $class;
+        $this->isNullable = $isNullable;
 
         try {
             $this->default = (null !== $default) ? $this->cast($default) : $default;

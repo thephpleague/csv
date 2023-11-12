@@ -338,7 +338,10 @@ private ?Money $naira;
 The `CastToMoney` will convert the cell value into a `Money` object and if the value is `null`, `20_00` will be used.
 To allow your object to cast the cell value to your liking it needs to implement the `TypeCasting` interface.
 To do so, you must define a `toVariable` method that will return the correct value once converted.
-**Of note**, The first argument of the `__construct` method is always the property type.
+
+<p class="message-warning"><strong>Of note</strong> The class constructor method must take the property type value as
+one of its argument with the name <code>$propertyTyoe</code>. This means you <strong>can not</strong> use the
+<code>propertyType</code> as a possible key of the associative array given to <code>castArguments</code></p>
 
 ```php
 use App\Domain\Money;
