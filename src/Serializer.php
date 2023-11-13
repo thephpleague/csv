@@ -157,50 +157,45 @@ final class Serializer
         $propertySetters = [];
         foreach ($this->class->getProperties(ReflectionProperty::IS_PUBLIC) as $property) {
             if ($property->isStatic()) {
-                //the property can not be cast yet
-                //as casting may be set using the Cell attribute
                 continue;
             }
 
             $attribute = $property->getAttributes(Cell::class, ReflectionAttribute::IS_INSTANCEOF);
             if ([] !== $attribute) {
-                //the property can not be cast yet
-                //as casting will be set using the Cell attribute
                 continue;
             }
 
-            $propertyName = $property->getName();
             /** @var int|false $offset */
-            $offset = array_search($propertyName, $propertyNames, true);
+            $offset = array_search($property->getName(), $propertyNames, true);
             if (false === $offset) {
-                //the property is not in the record header
-                //we can not throw as it may be set via a
-                //setter method using the Cell attribute
                 continue;
             }
 
-            $type = $property->getType();
-            if (null === $type) {
-                throw new MappingFailed('The property `'.$propertyName.'` must be typed.');
-            }
-
-            $cast = $this->resolveTypeCasting($type);
-            if (null === $cast) {
-                throw new MappingFailed('No valid type casting for `'.$type.'` was found for property `'.$propertyName.'`.');
-            }
-
-            $propertySetters[] = new PropertySetter($property, $offset, $cast);
+            $propertySetters[] = $this->autoDiscoverPropertySetter($property, $offset);
         }
 
         $propertySetters = [...$propertySetters, ...$this->findPropertySettersByCellAttribute($propertyNames)];
-
-        //if converters is empty it means the Serializer
-        //was unable to detect properties to assign
         if ([] === $propertySetters) {
             throw new MappingFailed('No properties or method setters were found eligible on the class `'.$this->class->getName().'` to be used for type casting.');
         }
 
         return $propertySetters;
+    }
+
+    private function autoDiscoverPropertySetter(ReflectionProperty $property, int $offset): PropertySetter
+    {
+        $propertyName = $property->getName();
+        $type = $property->getType();
+        if (null === $type) {
+            throw new MappingFailed('The property `'.$propertyName.'` must be typed.');
+        }
+
+        $cast = $this->resolveTypeCasting($type);
+        if (null === $cast) {
+            throw new MappingFailed('No valid type casting for `'.$type.' $'.$propertyName.'`.');
+        }
+
+        return new PropertySetter($property, $offset, $cast);
     }
 
     /**

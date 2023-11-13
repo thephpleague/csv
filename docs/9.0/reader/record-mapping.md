@@ -340,7 +340,7 @@ To allow your object to cast the cell value to your liking it needs to implement
 To do so, you must define a `toVariable` method that will return the correct value once converted.
 
 <p class="message-warning"><strong>Of note</strong> The class constructor method must take the property type value as
-one of its argument with the name <code>$propertyTyoe</code>. This means you <strong>can not</strong> use the
+one of its argument with the name <code>$propertyType</code>. This means you <strong>can not</strong> use the
 <code>propertyType</code> as a possible key of the associative array given to <code>castArguments</code></p>
 
 ```php

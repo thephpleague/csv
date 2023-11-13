@@ -157,7 +157,7 @@ final class SerializerTest extends TestCase
     public function testItWillFailForLackOfTypeCasting(): void
     {
         $this->expectException(MappingFailed::class);
-        $this->expectExceptionMessage('No valid type casting for `SplFileObject` was found for property `observedOn`');
+        $this->expectExceptionMessage('No valid type casting for `SplFileObject $observedOn`.');
 
         new Serializer(InvaliDWeatherWithRecordAttributeAndUnknownCasting::class, ['temperature', 'place', 'observedOn']);
     }
