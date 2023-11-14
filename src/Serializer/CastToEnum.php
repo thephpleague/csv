@@ -15,17 +15,18 @@ namespace League\Csv\Serializer;
 
 use BackedEnum;
 use ReflectionEnum;
+use ReflectionNamedType;
+use ReflectionParameter;
+use ReflectionProperty;
 use Throwable;
 use UnitEnum;
-
-use function ltrim;
-use function str_starts_with;
 
 /**
  * @implements TypeCasting<BackedEnum|UnitEnum|null>
  */
 class CastToEnum implements TypeCasting
 {
+    /** @var class-string */
     private readonly string $class;
     private readonly bool $isNullable;
     private readonly BackedEnum|UnitEnum|null $default;
@@ -36,27 +37,21 @@ class CastToEnum implements TypeCasting
      * @throws MappingFailed
      */
     public function __construct(
-        string $propertyType,
+        ReflectionProperty|ReflectionParameter $reflectionProperty,
         ?string $default = null,
         ?string $enum = null,
     ) {
-        $type = Type::tryFromPropertyType($propertyType);
-        if (null === $type || !$type->isOneOf(Type::Mixed, Type::Enum)) {
-            throw new MappingFailed('The property type `'.$propertyType.'` is not supported; an `Enum` is required.');
-        }
-
-        $class = ltrim($propertyType, '?');
-        $isNullable = str_starts_with($propertyType, '?');
-        if ($type->equals(Type::Mixed)) {
+        [$type, $reflection, $this->isNullable] = $this->init($reflectionProperty);
+        /** @var class-string $class */
+        $class = $reflection->getName();
+        if (Type::Mixed->equals($type)) {
             if (null === $enum || !enum_exists($enum)) {
-                throw new MappingFailed('You need to specify the enum class with a `mixed` typed property.');
+                throw new MappingFailed('`'.$reflectionProperty->getName().'` type is `mixed`; you must specify the Enum class via the `$enum` argument.');
             }
             $class = $enum;
-            $isNullable = true;
         }
 
         $this->class = $class;
-        $this->isNullable = $isNullable;
 
         try {
             $this->default = (null !== $default) ? $this->cast($default) : $default;
@@ -94,5 +89,29 @@ class CastToEnum implements TypeCasting
         } catch (Throwable $exception) {
             throw new TypeCastingFailed(message: 'Unable to cast to `'.$this->class.'` the value `'.$value.'`.', previous: $exception);
         }
+    }
+
+    /**
+     * @return array{0:Type, 1:ReflectionNamedType, 2:bool}
+     */
+    private function init(ReflectionProperty|ReflectionParameter $reflectionProperty): array
+    {
+        $type = null;
+        $isNullable = false;
+        foreach (Type::list($reflectionProperty) as $found) {
+            if (!$isNullable && $found[1]->allowsNull()) {
+                $isNullable = true;
+            }
+
+            if (null === $type && $found[0]->isOneOf(Type::Mixed, Type::Enum)) {
+                $type = $found;
+            }
+        }
+
+        if (null === $type) {
+            throw new MappingFailed('`'.$reflectionProperty->getName().'` type is not supported; an Enum or `mixed` is required.');
+        }
+
+        return [...$type, $isNullable];
     }
 }

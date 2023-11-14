@@ -13,12 +13,17 @@ namespace League\Csv\Serializer;
 
 use DateTimeInterface;
 
+use ReflectionNamedType;
+use ReflectionParameter;
+use ReflectionProperty;
+use ReflectionType;
+use ReflectionUnionType;
+
 use function class_exists;
 use function class_implements;
 use function enum_exists;
 use function in_array;
 use function interface_exists;
-use function ltrim;
 
 use const FILTER_UNSAFE_RAW;
 use const FILTER_VALIDATE_BOOL;
@@ -51,20 +56,6 @@ enum Type: string
         return in_array($this, $types, true);
     }
 
-    public static function tryFromPropertyType(string $propertyType): ?self
-    {
-        $type =  ltrim($propertyType, '?');
-        $enumType = self::tryFrom($type);
-
-        return match (true) {
-            $enumType instanceof self => $enumType,
-            enum_exists($type) => self::Enum,
-            interface_exists($type) && DateTimeInterface::class === $type,
-            class_exists($type) && in_array(DateTimeInterface::class, class_implements($type), true) => self::Date,
-            default => null,
-        };
-    }
-
     public function filterFlag(): int
     {
         return match ($this) {
@@ -87,6 +78,90 @@ enum Type: string
             self::Float,
             self::String => true,
             default => false,
+        };
+    }
+
+    /**
+     * @return list<array{0:Type, 1: ReflectionNamedType}>
+     */
+    public static function list(ReflectionParameter|ReflectionProperty $reflectionProperty): array
+    {
+        $reflectionType = $reflectionProperty->getType() ?? throw new MappingFailed(match (true) {
+            $reflectionProperty instanceof ReflectionParameter => 'The setter method argument `'.$reflectionProperty->getName().'` must be typed.',
+            $reflectionProperty instanceof ReflectionProperty => 'The property `'.$reflectionProperty->getName().'` must be typed.',
+        });
+
+        return self::typeList($reflectionType);
+    }
+
+    /**
+     * @return list<array{0:Type, 1: ReflectionNamedType}>
+     */
+    private static function typeList(ReflectionType $reflectionType): array
+    {
+        $foundTypes = static function (array $res, ReflectionType $reflectionType) {
+            if (!$reflectionType instanceof ReflectionNamedType) {
+                return $res;
+            }
+
+            $type = self::tryFromName($reflectionType->getName());
+            if (null !== $type) {
+                $res[] = [$type, $reflectionType];
+            }
+
+            return $res;
+        };
+
+        if ($reflectionType instanceof ReflectionNamedType) {
+            $type = self::tryFromName($reflectionType->getName());
+            if (null !== $type) {
+                return [[$type, $reflectionType]];
+            }
+
+            return [];
+        }
+
+        if ($reflectionType instanceof ReflectionUnionType) {
+            return array_reduce($reflectionType->getTypes(), $foundTypes, []);
+        }
+
+        return [];
+    }
+
+    public static function tryFromReflectionType(ReflectionType $type): ?self
+    {
+        if ($type instanceof ReflectionNamedType) {
+            return self::tryFromName($type->getName());
+        }
+
+        if (!$type instanceof ReflectionUnionType) {
+            return null;
+        }
+
+        foreach ($type->getTypes() as $innerType) {
+            if (!$innerType instanceof ReflectionNamedType) {
+                continue;
+            }
+
+            $result = self::tryFromName($innerType->getName());
+            if ($result instanceof self) {
+                return $result;
+            }
+        }
+
+        return null;
+    }
+
+    private static function tryFromName(string $propertyType): ?self
+    {
+        $type = self::tryFrom($propertyType);
+
+        return match (true) {
+            $type instanceof self => $type,
+            enum_exists($propertyType) => self::Enum,
+            interface_exists($propertyType) && DateTimeInterface::class === $propertyType,
+            class_exists($propertyType) && in_array(DateTimeInterface::class, class_implements($propertyType), true) => self::Date,
+            default => null,
         };
     }
 }

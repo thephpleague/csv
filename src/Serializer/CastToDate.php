@@ -17,11 +17,12 @@ use DateTime;
 use DateTimeImmutable;
 use DateTimeInterface;
 use DateTimeZone;
+use ReflectionNamedType;
+use ReflectionParameter;
+use ReflectionProperty;
 use Throwable;
 
 use function is_string;
-use function ltrim;
-use function str_starts_with;
 
 /**
  * @implements TypeCasting<DateTimeImmutable|DateTime|null>
@@ -37,23 +38,18 @@ final class CastToDate implements TypeCasting
      * @throws MappingFailed
      */
     public function __construct(
-        string $propertyType,
+        ReflectionProperty|ReflectionParameter $reflectionProperty,
         ?string $default = null,
         private readonly ?string $format = null,
         DateTimeZone|string|null $timezone = null,
     ) {
-        $type = Type::tryFromPropertyType($propertyType);
-        if (null === $type || !$type->isOneOf(Type::Mixed, Type::Date)) {
-            throw new MappingFailed('The property type `'.$propertyType.'` is not supported; an class implementing the `'.DateTimeInterface::class.'` interface is required.');
-        }
-
-        $class = ltrim($propertyType, '?');
+        [$type, $reflection, $this->isNullable] = $this->init($reflectionProperty);
+        $class = $reflection->getName();
         if (Type::Mixed->equals($type) || DateTimeInterface::class === $class) {
             $class = DateTimeImmutable::class;
         }
 
         $this->class = $class;
-        $this->isNullable = Type::Mixed->equals($type) || str_starts_with($propertyType, '?');
         try {
             $this->timezone = is_string($timezone) ? new DateTimeZone($timezone) : $timezone;
             $this->default = (null !== $default) ? $this->cast($default) : $default;
@@ -95,5 +91,31 @@ final class CastToDate implements TypeCasting
         }
 
         return $date;
+    }
+
+    /**
+     * @throws MappingFailed
+     *
+     * @return array{0:Type, 1:ReflectionNamedType, 2:bool}
+     */
+    private function init(ReflectionProperty|ReflectionParameter $reflectionProperty): array
+    {
+        $type = null;
+        $isNullable = false;
+        foreach (Type::list($reflectionProperty) as $found) {
+            if (!$isNullable && $found[1]->allowsNull()) {
+                $isNullable = true;
+            }
+
+            if (null === $type && $found[0]->isOneOf(Type::Mixed, Type::Date)) {
+                $type = $found;
+            }
+        }
+
+        if (null === $type) {
+            throw new MappingFailed('`'.$reflectionProperty->getName().'` type is not supported; a class implementing the `'.DateTimeInterface::class.'` interface or `mixed` is required.');
+        }
+
+        return [...$type, $isNullable];
     }
 }

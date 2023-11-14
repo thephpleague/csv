@@ -167,7 +167,7 @@ The attribute can take up to three (3) arguments which are all optional:
 - The `cast` argument which accept the name of a class implementing the `TypeCasting` interface and responsible for type casting the record value. If not present, the mechanism will try to resolve the typecasting based on the propery or method argument type.
 - The `castArguments` argument enables controlling typecasting by providing extra arguments to the `TypeCasting` class constructor. The argument expects an associative array and relies on named arguments to inject its value to the `TypeCasting` implementing class constructor.
 
-<p class="message-warning">The <code>propertyType</code> key can not be used with the <code>castArguments</code> as it is a reserved argument used by the <code>TypeCasting</code> class.</p>
+<p class="message-warning">The <code>reflectionProperty</code> key can not be used with the <code>castArguments</code> as it is a reserved argument used by the <code>TypeCasting</code> class.</p>
 
 In any case, if type casting fails, an exception will be thrown.
 
@@ -329,7 +329,7 @@ use League\Csv\Serializer;
 
 #[Serializer\Cell(
     offset: 'amount',
-    cast: App\Domain\CastToMoney::class,
+    cast: App\Domain\CastToNaira::class,
     castArguments: ['default' => 100_00]
 )]
 private ?Money $naira;
@@ -340,8 +340,8 @@ To allow your object to cast the cell value to your liking it needs to implement
 To do so, you must define a `toVariable` method that will return the correct value once converted.
 
 <p class="message-warning"><strong>Of note</strong> The class constructor method must take the property type value as
-one of its argument with the name <code>$propertyType</code>. This means you <strong>can not</strong> use the
-<code>propertyType</code> as a possible key of the associative array given to <code>castArguments</code></p>
+one of its argument with the name <code>$reflectionProperty</code>. This means you <strong>can not</strong> use the
+<code>reflectionProperty</code> as a possible key of the associative array given to <code>castArguments</code></p>
 
 ```php
 use App\Domain\Money;
@@ -352,44 +352,49 @@ use League\Csv\Serializer\TypeCastingFailed;
 /**
  * @implements TypeCasting<Money|null>
  */
-final class CastToMoney implements TypeCasting
+final class CastToNaira implements TypeCasting
 {
-    private readonly ?Money $default;
+    private readonly bool $isNullable;
+    private readonly Money $default;
 
     public function __construct(
-        string $propertyType, //always required and given by the Serializer implementation
-        int $default = null,
+        ReflectionProperty|ReflectionParameter $reflectionProperty, //always given by the Serializer
+        ?int $default = null
     ) {
-        $this->isNullable = str_starts_with($type, '?');
-    
-        //the type casting class must only work with the declared type
-        //Here the TypeCasting object only cares about converting
-        //data into a Money instance.
-        if (Money::class !== ltrim($propertyType, '?')) {
-            throw new MappingFailed('The class '. self::class . ' can only work with `' . Money::class . '` typed property.');
-        }
-
         if (null !== $default) {
-            try {
-                $this->default = $this->toVariable($default);
-            } catch (TypeCastingFailed $exception) {
-                throw new MappingFailed('Unable to cast the default value `'.$value.'` to a `'.Money::class.'`.', 0, $exception);
-            }
+            $default = Money::fromNaira($default);
         }
+        $this->default = $default;
+
+        // To be more strict during conversion you SHOULD handle the $reflectionProperty argument.
+        // The argument gives you access to all the information about the property.
+        // it allows validating that the argument does support your casting
+        // it allows adding support to union, intersection or unnamed type 
+        // it tells whether the property/argument is nullable or not
+
+        $reflectionType = $reflectionProperty->getType();
+        if (!$reflectionType instanceof ReflectionNamedType || !in_array($reflectionType->getName(), [Money::class, 'mixed'], true)) {
+            throw new MappingFailed(match (true) {
+                $reflectionProperty instanceof ReflectionParameter => 'The setter method argument `'.$reflectionProperty->getName().'` is not typed with the '.Money::class.' class or with `mixed`.',
+                $reflectionProperty instanceof ReflectionProperty => 'The property `'.$reflectionProperty->getName().'` is not typed with the '.Money::class.' class or with `mixed`.',
+            });
+        }
+        $this->isNullable = $reflectionType->allowsNull();
     }
 
     public function toVariable(?string $value): ?Money
     {
         try {
-            // if the property is declared as nullable we exist early
-            if (null === $value && $this->isNullable) {
-                return $this->default;
-            }
-    
-            return Money::fromNaira(filter_var($value, FILTER_VALIDATE_INT));
+          return match (true) {
+              $this->isNullable && null === $value => $this->default,
+              default => Money::fromNaira(filter_var($value, FILTER_VALIDATE_INT)),
+          }; 
         } catch (Throwable $exception) {
             throw new TypeCastingFailed('Unable to cast the given data `'.$value.'` to a `'.Money::class.'`.', 0, $exception);
         }
     }
 }
 ```
+
+<p class="message-info">While the built-in <code>TypeCasting</code> classes do not support Intersection Type, your own
+implementing class can support them via inspection of the <code>$reflectionProperty</code> argument.</p>

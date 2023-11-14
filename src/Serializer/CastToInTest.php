@@ -13,8 +13,12 @@ declare(strict_types=1);
 
 namespace League\Csv\Serializer;
 
+use Countable;
+use DateTimeInterface;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use ReflectionProperty;
+use Traversable;
 
 final class CastToInTest extends TestCase
 {
@@ -22,64 +26,78 @@ final class CastToInTest extends TestCase
     {
         $this->expectException(MappingFailed::class);
 
-        new CastToInt('string');
+        new CastToInt(new ReflectionProperty(IntClass::class, 'string'));
     }
 
     #[DataProvider('providesValidStringForInt')]
-    public function testItCanConvertToArraygWithoutArguments(string $prototype, ?string $input, ?int $default, ?int $expected): void
+    public function testItCanConvertToArraygWithoutArguments(ReflectionProperty $reflectionProperty, ?string $input, ?int $default, ?int $expected): void
     {
-        self::assertSame($expected, (new CastToInt(propertyType: $prototype, default:$default))->toVariable($input));
+        self::assertSame($expected, (new CastToInt(reflectionProperty: $reflectionProperty, default:$default))->toVariable($input));
     }
 
     public static function providesValidStringForInt(): iterable
     {
         yield 'positive integer' => [
-            'prototype' => '?int',
+            'reflectionProperty' => new ReflectionProperty(IntClass::class, 'nullableInt'),
             'input' => '1',
             'default' => null,
             'expected' => 1,
         ];
 
         yield 'zero' => [
-            'prototype' => '?int',
+            'reflectionProperty' => new ReflectionProperty(IntClass::class, 'nullableInt'),
             'input' => '0',
             'default' => null,
             'expected' => 0,
         ];
 
         yield 'negative integer' => [
-            'prototype' => '?int',
+            'reflectionProperty' => new ReflectionProperty(IntClass::class, 'nullableInt'),
             'input' => '-10',
             'default' => null,
             'expected' => -10,
         ];
 
         yield 'null value' => [
-            'prototype' => '?int',
+            'reflectionProperty' => new ReflectionProperty(IntClass::class, 'nullableInt'),
             'input' => null,
             'default' => null,
             'expected' => null,
         ];
 
         yield 'null value with default value' => [
-            'prototype' => '?int',
+            'reflectionProperty' => new ReflectionProperty(IntClass::class, 'nullableInt'),
             'input' => null,
             'default' => 10,
             'expected' => 10,
         ];
 
         yield 'conversion of the null value with a nullable float' => [
-            'prototype' => '?float',
+            'reflectionProperty' => new ReflectionProperty(IntClass::class, 'nullableFloat'),
             'input' => null,
             'default' => 10,
             'expected' => 10,
         ];
 
         yield 'conversion with float' => [
-            'prototype' => '?float',
+            'reflectionProperty' => new ReflectionProperty(IntClass::class, 'nullableFloat'),
             'input' => '1',
             'default' => null,
             'expected' => 1,
+        ];
+
+        yield 'with union type' => [
+            'reflectionProperty' => new ReflectionProperty(IntClass::class, 'unionType'),
+            'input' => '23',
+            'default' => 42,
+            'expected' => 23,
+        ];
+
+        yield 'with nullable union type' => [
+            'reflectionProperty' => new ReflectionProperty(IntClass::class, 'unionType'),
+            'input' => null,
+            'default' => 42,
+            'expected' => 42,
         ];
     }
 
@@ -87,6 +105,39 @@ final class CastToInTest extends TestCase
     {
         $this->expectException(TypeCastingFailed::class);
 
-        (new CastToInt(propertyType: '?int'))->toVariable('00foobar');
+        (new CastToInt(reflectionProperty: new ReflectionProperty(IntClass::class, 'nullableInt')))->toVariable('00foobar');
     }
+
+    #[DataProvider('invalidPropertyName')]
+    public function testItWillThrowIfNotTypeAreSupported(string $propertyName): void
+    {
+        $this->expectException(MappingFailed::class);
+
+        $reflectionProperty = new ReflectionProperty(IntClass::class, $propertyName);
+
+        new CastToInt($reflectionProperty);
+    }
+
+    public static function invalidPropertyName(): iterable
+    {
+        return [
+            'named type not supported' => ['propertyName' => 'nullableBool'],
+            'union type not supported' => ['propertyName' => 'invalidUnionType'],
+            'intersection type not supported' => ['propertyName' => 'intersectionType'],
+        ];
+    }
+}
+
+class IntClass
+{
+    public float $float;
+    public ?float $nullableFloat;
+    public mixed $mixed;
+    public int $int;
+    public ?int $nullableInt;
+    public ?bool $nullableBool;
+    public string $string;
+    public DateTimeInterface|int|null $unionType;
+    public DateTimeInterface|string $invalidUnionType;
+    public Countable&Traversable $intersectionType;
 }

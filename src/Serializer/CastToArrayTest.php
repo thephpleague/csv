@@ -13,8 +13,12 @@ declare(strict_types=1);
 
 namespace League\Csv\Serializer;
 
+use Countable;
+use DateTimeInterface;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use ReflectionProperty;
+use Traversable;
 
 final class CastToArrayTest extends TestCase
 {
@@ -25,7 +29,7 @@ final class CastToArrayTest extends TestCase
     #[DataProvider('providesValidStringForArray')]
     public function testItCanConvertToArraygWithoutArguments(string $shape, string $type, string $input, array $expected): void
     {
-        self::assertSame($expected, (new CastToArray(propertyType: '?iterable', shape:$shape, type:$type))->toVariable($input));
+        self::assertSame($expected, (new CastToArray(reflectionProperty: new ReflectionProperty(ArrayClass::class, 'nullableIterable'), shape:$shape, type:$type))->toVariable($input));
     }
 
     public static function providesValidStringForArray(): iterable
@@ -91,14 +95,14 @@ final class CastToArrayTest extends TestCase
     {
         $this->expectException(MappingFailed::class);
 
-        new CastToArray('?int');
+        new CastToArray(new ReflectionProperty(ArrayClass::class, 'nullableInt'));
     }
 
     public function testItFailsToCastInvalidJson(): void
     {
         $this->expectException(TypeCastingFailed::class);
 
-        (new CastToArray('?iterable', null, 'json'))->toVariable('{"json":toto}');
+        (new CastToArray(new ReflectionProperty(ArrayClass::class, 'nullableIterable'), null, 'json'))->toVariable('{"json":toto}');
     }
 
     public function testItCastNullableJsonUsingTheDefaultValue(): void
@@ -107,7 +111,36 @@ final class CastToArrayTest extends TestCase
 
         self::assertSame(
             $defaultValue,
-            (new CastToArray('?iterable', $defaultValue, 'json'))->toVariable(null)
+            (new CastToArray(new ReflectionProperty(ArrayClass::class, 'nullableIterable'), $defaultValue, 'json'))->toVariable(null)
         );
     }
+
+    #[DataProvider('invalidPropertyName')]
+    public function testItWillThrowIfNotTypeAreSupported(string $propertyName): void
+    {
+        $this->expectException(MappingFailed::class);
+
+        $reflectionProperty = new ReflectionProperty(ArrayClass::class, $propertyName);
+
+        new CastToArray($reflectionProperty);
+    }
+
+    public static function invalidPropertyName(): iterable
+    {
+        return [
+            'named type not supported' => ['propertyName' => 'nullableInt'],
+            'union type not supported' => ['propertyName' => 'invalidUnionType'],
+            'intersection type not supported' => ['propertyName' => 'intersectionType'],
+        ];
+    }
+}
+
+class ArrayClass
+{
+    public ?iterable $nullableIterable;
+    public ?int $nullableInt;
+    public array $array;
+    public DateTimeInterface|array|null $unionType;
+    public DateTimeInterface|string $invalidUnionType;
+    public Countable&Traversable $intersectionType;
 }

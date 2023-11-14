@@ -13,6 +13,7 @@ declare(strict_types=1);
 
 namespace League\Csv;
 
+use Countable;
 use DateTime;
 use DateTimeImmutable;
 use DateTimeInterface;
@@ -23,6 +24,7 @@ use League\Csv\Serializer\MappingFailed;
 use PHPUnit\Framework\TestCase;
 use SplFileObject;
 use stdClass;
+use Traversable;
 
 final class SerializerTest extends TestCase
 {
@@ -157,7 +159,7 @@ final class SerializerTest extends TestCase
     public function testItWillFailForLackOfTypeCasting(): void
     {
         $this->expectException(MappingFailed::class);
-        $this->expectExceptionMessage('No valid type casting for `SplFileObject $observedOn`.');
+        $this->expectExceptionMessage('No built-in `League\Csv\Serializer\TypeCasting` class can handle `$observedOn` type.');
 
         new Serializer(InvaliDWeatherWithRecordAttributeAndUnknownCasting::class, ['temperature', 'place', 'observedOn']);
     }
@@ -165,12 +167,24 @@ final class SerializerTest extends TestCase
     public function testItWillThrowIfTheClassContainsUninitializedProperties(): void
     {
         $this->expectException(MappingFailed::class);
-        $this->expectExceptionMessage('No valid type casting was found for the property `annee` must be typed.');
+        $this->expectExceptionMessage('No valid type casting was found for the property `annee`; it must be typed.');
 
         Serializer::assign(
             InvalidObjectWithUninitializedProperty::class,
             ['prenoms' => 'John', 'nombre' => '42', 'sexe' => 'M', 'annee' => '2018']
         );
+    }
+
+    public function testItCanNotAutodiscoverWithIntersectionType(): void
+    {
+        $this->expectException(MappingFailed::class);
+        $this->expectExceptionMessage('No built-in `League\Csv\Serializer\TypeCasting` class can handle `$traversable` type.');
+
+        $foobar = new class () {
+            public Countable&Traversable $traversable;
+        };
+
+        Serializer::assign($foobar::class, ['traversable' => '1']);
     }
 }
 

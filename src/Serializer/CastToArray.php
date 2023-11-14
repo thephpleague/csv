@@ -15,12 +15,13 @@ namespace League\Csv\Serializer;
 
 use JsonException;
 
+use ReflectionParameter;
+use ReflectionProperty;
+
 use function explode;
 use function is_array;
 use function json_decode;
-use function ltrim;
 use function str_getcsv;
-use function str_starts_with;
 use function strlen;
 
 use const FILTER_REQUIRE_ARRAY;
@@ -31,7 +32,7 @@ use const JSON_THROW_ON_ERROR;
  */
 final class CastToArray implements TypeCasting
 {
-    private readonly string $class;
+    private readonly Type $type;
     private readonly bool $isNullable;
     private readonly int $filterFlag;
     private readonly ArrayShape $shape;
@@ -43,7 +44,7 @@ final class CastToArray implements TypeCasting
      * @throws MappingFailed
      */
     public function __construct(
-        string $propertyType,
+        ReflectionProperty|ReflectionParameter $reflectionProperty,
         private readonly ?array $default = null,
         ArrayShape|string $shape = ArrayShape::List,
         private readonly string $delimiter = ',',
@@ -52,14 +53,7 @@ final class CastToArray implements TypeCasting
         private readonly int $jsonFlags = 0,
         Type|string $type = Type::String,
     ) {
-        $baseType = Type::tryFromPropertyType($propertyType);
-        if (null === $baseType || !$baseType->isOneOf(Type::Mixed, Type::Array, Type::Iterable)) {
-            throw new MappingFailed('The property type `'.$propertyType.'` is not supported; an `array` or an `iterable` structure is required.');
-        }
-
-        $this->class = ltrim($propertyType, '?');
-        $this->isNullable = $baseType->equals(Type::Mixed) || str_starts_with($propertyType, '?');
-
+        [$this->type, $this->isNullable] = $this->init($reflectionProperty);
         if (!$shape instanceof ArrayShape) {
             $shape = ArrayShape::tryFrom($shape) ?? throw new MappingFailed('Unable to resolve the array shape; Verify your cast arguments.');
         }
@@ -79,7 +73,7 @@ final class CastToArray implements TypeCasting
         if (null === $value) {
             return match (true) {
                 $this->isNullable,
-                Type::tryFrom($this->class)?->equals(Type::Mixed) => $this->default,
+                Type::Mixed->equals($this->type) => $this->default,
                 default => throw new TypeCastingFailed('The `null` value can not be cast to an `array`; the property type is not nullable.'),
             };
         }
@@ -124,5 +118,29 @@ final class CastToArray implements TypeCasting
             !$type->isScalar() => throw new MappingFailed('Only scalar type are supported for `array` value casting.'),
             default => $type->filterFlag(),
         };
+    }
+
+    /**
+     * @return array{0:Type, 1:bool}
+     */
+    private function init(ReflectionProperty|ReflectionParameter $reflectionProperty): array
+    {
+        $type = null;
+        $isNullable = false;
+        foreach (Type::list($reflectionProperty) as $found) {
+            if (!$isNullable && $found[1]->allowsNull()) {
+                $isNullable = true;
+            }
+
+            if (null === $type && $found[0]->isOneOf(Type::Mixed, Type::Array, Type::Iterable)) {
+                $type = $found;
+            }
+        }
+
+        if (null === $type) {
+            throw new MappingFailed('`'.$reflectionProperty->getName().'` type is not supported; `mixed` or `bool` type is required.');
+        }
+
+        return [$type[0], $isNullable];
     }
 }

@@ -13,8 +13,10 @@ declare(strict_types=1);
 
 namespace League\Csv\Serializer;
 
+use ReflectionParameter;
+use ReflectionProperty;
+
 use function filter_var;
-use function str_starts_with;
 
 /**
  * @implements TypeCasting<int|null>
@@ -24,15 +26,10 @@ final class CastToInt implements TypeCasting
     private readonly bool $isNullable;
 
     public function __construct(
-        string $propertyType,
+        ReflectionProperty|ReflectionParameter $reflectionProperty,
         private readonly ?int $default = null,
     ) {
-        $type = Type::tryFromPropertyType($propertyType);
-        if (null === $type || !$type->isOneOf(Type::Mixed, Type::Int, Type::Float)) {
-            throw new MappingFailed('The property type `'.$propertyType.'` is not supported; a `int` type is required.');
-        }
-
-        $this->isNullable = Type::Mixed->equals($type) || str_starts_with($propertyType, '?');
+        $this->isNullable = $this->init($reflectionProperty);
     }
 
     /**
@@ -53,5 +50,26 @@ final class CastToInt implements TypeCasting
             false => throw new TypeCastingFailed('The `'.$value.'` value can not be cast to an integer.'),
             default => $int,
         };
+    }
+
+    private function init(ReflectionProperty|ReflectionParameter $reflectionProperty): bool
+    {
+        $type = null;
+        $isNullable = false;
+        foreach (Type::list($reflectionProperty) as $found) {
+            if (!$isNullable && $found[1]->allowsNull()) {
+                $isNullable = true;
+            }
+
+            if (null === $type && $found[0]->isOneOf(Type::Mixed, Type::Int, Type::Float)) {
+                $type = $found;
+            }
+        }
+
+        if (null === $type) {
+            throw new MappingFailed('`'.$reflectionProperty->getName().'` type is not supported; `int`, `float` or `null` type is required.');
+        }
+
+        return $isNullable;
     }
 }

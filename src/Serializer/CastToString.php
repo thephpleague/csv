@@ -13,7 +13,8 @@ declare(strict_types=1);
 
 namespace League\Csv\Serializer;
 
-use function str_starts_with;
+use ReflectionParameter;
+use ReflectionProperty;
 
 /**
  * @implements TypeCasting<string|null>
@@ -24,16 +25,10 @@ final class CastToString implements TypeCasting
     private readonly Type $type;
 
     public function __construct(
-        string $propertyType,
+        ReflectionProperty|ReflectionParameter $reflectionProperty,
         private readonly ?string $default = null
     ) {
-        $type = Type::tryFromPropertyType($propertyType);
-        if (null === $type || !$type->isOneOf(Type::Mixed, Type::String, Type::Null)) {
-            throw new MappingFailed('The property type `'.$propertyType.'` is not supported; a `string` or `null` type is required.');
-        }
-
-        $this->type = $type;
-        $this->isNullable = $type->isOneOf(Type::Mixed, Type::Null) || str_starts_with($propertyType, '?');
+        [$this->type, $this->isNullable] = $this->init($reflectionProperty);
     }
 
     /**
@@ -51,5 +46,29 @@ final class CastToString implements TypeCasting
             Type::Null->equals($this->type) && null !== $returnedValue => throw new TypeCastingFailed('The value `'.$value.'` could not be cast to `'.$this->type->value.'`.'),
             default => $returnedValue,
         };
+    }
+
+    /**
+     * @return array{0:Type, 1:bool}
+     */
+    private function init(ReflectionProperty|ReflectionParameter $reflectionProperty): array
+    {
+        $type = null;
+        $isNullable = false;
+        foreach (Type::list($reflectionProperty) as $found) {
+            if (!$isNullable && $found[1]->allowsNull()) {
+                $isNullable = true;
+            }
+
+            if (null === $type && $found[0]->isOneOf(Type::String, Type::Mixed, Type::Null)) {
+                $type = $found;
+            }
+        }
+
+        if (null === $type) {
+            throw new MappingFailed('`'.$reflectionProperty->getName().'` type is not supported; `mixed`, `string` or `null` type is required.');
+        }
+
+        return [$type[0], $isNullable];
     }
 }
