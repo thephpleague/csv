@@ -45,10 +45,12 @@ use function is_int;
 
 final class Serializer
 {
+    private static bool $emptyStringAsNull = true;
+
     private readonly ReflectionClass $class;
     /** @var array<ReflectionProperty> */
     private readonly array $properties;
-    /** @var non-empty-array<PropertySetter>  */
+    /** @var non-empty-array<PropertySetter> */
     private readonly array $propertySetters;
 
     /**
@@ -63,6 +65,16 @@ final class Serializer
         $this->class = new ReflectionClass($className);
         $this->properties = $this->class->getProperties();
         $this->propertySetters = $this->findPropertySetters($propertyNames);
+    }
+
+    public static function allowEmptyStringAsNull(): void
+    {
+        self::$emptyStringAsNull = true;
+    }
+
+    public static function disallowEmptyStringAsNull(): void
+    {
+        self::$emptyStringAsNull = false;
     }
 
     /**
@@ -130,7 +142,12 @@ final class Serializer
     {
         $record = array_values($record);
         foreach ($this->propertySetters as $propertySetter) {
-            $propertySetter($object, $record[$propertySetter->offset]);
+            $value = $record[$propertySetter->offset];
+            if (self::$emptyStringAsNull && '' === $value) {
+                $value = null;
+            }
+
+            $propertySetter($object, $value);
         }
     }
 
@@ -175,7 +192,7 @@ final class Serializer
             $propertySetters[] = $this->autoDiscoverPropertySetter($property, $offset);
         }
 
-        $propertySetters = [...$propertySetters, ...$this->findPropertySettersByCellAttribute($propertyNames)];
+        $propertySetters = [...$propertySetters, ...$this->findPropertySettersByAttribute($propertyNames)];
         if ([] === $propertySetters) {
             throw new MappingFailed('No properties or method setters were found eligible on the class `'.$this->class->getName().'` to be used for type casting.');
         }
@@ -198,7 +215,7 @@ final class Serializer
      *
      * @return array<PropertySetter>
      */
-    private function findPropertySettersByCellAttribute(array $propertyNames): array
+    private function findPropertySettersByAttribute(array $propertyNames): array
     {
         $addPropertySetter = function (array $carry, ReflectionProperty|ReflectionMethod $accessor) use ($propertyNames) {
             $propertySetter = $this->findPropertySetter($accessor, $propertyNames);
@@ -272,18 +289,23 @@ final class Serializer
     {
         $reflectionType = $reflectionProperty->getType();
         if (null === $reflectionType) {
-            throw new MappingFailed('The property `'.$reflectionProperty->getName().'` must be typed.');
+            throw new MappingFailed(match (true) {
+                $reflectionProperty instanceof ReflectionParameter => 'The setter method argument `'.$reflectionProperty->getName().'` must be typed.',
+                $reflectionProperty instanceof ReflectionProperty => 'The property `'.$reflectionProperty->getName().'` must be typed.',
+            });
         }
 
         try {
+            $arguments['reflectionProperty'] = $reflectionProperty;
+
             return match (Type::tryFromReflectionType($reflectionType)) {
-                Type::Mixed, Type::Null, Type::String => new CastToString($reflectionProperty, ...$arguments), /* @phpstan-ignore-line */
-                Type::Iterable, Type::Array => new CastToArray($reflectionProperty, ...$arguments),            /* @phpstan-ignore-line */
-                Type::False, Type::True, Type::Bool => new CastToBool($reflectionProperty, ...$arguments),     /* @phpstan-ignore-line */
-                Type::Float => new CastToFloat($reflectionProperty, ...$arguments),                            /* @phpstan-ignore-line */
-                Type::Int => new CastToInt($reflectionProperty, ...$arguments),                                /* @phpstan-ignore-line */
-                Type::Date => new CastToDate($reflectionProperty, ...$arguments),                              /* @phpstan-ignore-line */
-                Type::Enum => new CastToEnum($reflectionProperty, ...$arguments),                              /* @phpstan-ignore-line */
+                Type::Mixed, Type::Null, Type::String => new CastToString(...$arguments), /* @phpstan-ignore-line */
+                Type::Iterable, Type::Array => new CastToArray(...$arguments),            /* @phpstan-ignore-line */
+                Type::False, Type::True, Type::Bool => new CastToBool(...$arguments),     /* @phpstan-ignore-line */
+                Type::Float => new CastToFloat(...$arguments),                            /* @phpstan-ignore-line */
+                Type::Int => new CastToInt(...$arguments),                                /* @phpstan-ignore-line */
+                Type::Date => new CastToDate(...$arguments),                              /* @phpstan-ignore-line */
+                Type::Enum => new CastToEnum(...$arguments),                              /* @phpstan-ignore-line */
                 null => null,
             };
         } catch (Throwable $exception) {
@@ -320,13 +342,6 @@ final class Serializer
             $cast = new $typeCaster(...$arguments);
 
             return $cast;
-        }
-
-        if (null === $reflectionProperty->getType()) {
-            throw new MappingFailed(match (true) {
-                $reflectionProperty instanceof ReflectionParameter => 'The setter method argument `'.$reflectionProperty->getName().'` must be typed.',
-                $reflectionProperty instanceof ReflectionProperty => 'The property `'.$reflectionProperty->getName().'` must be typed.',
-            });
         }
 
         return $this->resolveTypeCasting($reflectionProperty, $cell->castArguments) ?? throw new MappingFailed(match (true) {

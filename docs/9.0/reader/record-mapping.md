@@ -99,7 +99,7 @@ use League\Csv\Serializer\Cell;
 final readonly class Weather
 {
     public function __construct(
-        public float $temperature,
+        public ?float $temperature,
         public Place $place,
         public DateTimeImmutable $date,
     ) {
@@ -193,6 +193,37 @@ The above rule can be translated in plain english like this:
 > convert the value of the associative array whose key is `date` into a `CarbonImmutable` object
 > using the date format `!Y-m-d` and the `Africa/Nairobi` timezone. Once created,
 > inject the date instance into the class private property `observedOn`.
+
+### Handling the empty string
+
+Out of the box the Serializer makes no difference between an emoty string and the `null` value.
+You can however change this behaviour using two (2) static methods:
+
+- `Serializer::allowEmptyStringAsNull`
+- `Serializer::disallowEmptyStringAsNull`
+
+When called these methods will change the class behaviour when it comes to empty string.
+`Serializer::allowEmptyStringAsNull` will convert all empty string into the `null` value before
+typecasting whereas `Serializer::disallowEmptyStringAsNull` will maintain the distinction.
+Using these methods will affect the `Serializer` usage throughout your codebase.
+
+```php
+use League\Csv\Serializer;
+
+$record = [
+    'date' => '2023-10-30',
+    'temperature' => '',
+    'place' => 'Berkeley',
+];
+
+$weather = Serializer::assign(Weather::class, $record);
+$weather->temperature; // returns null
+
+Serializer::disallowEmptyStringAsNull();
+Serializer::assign(Weather::class, $record);
+//a TypeCastingFailed exception is thrown 
+//can not convert the empty string into a temperature property
+```
 
 ## Type casting
 
