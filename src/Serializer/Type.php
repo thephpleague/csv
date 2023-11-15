@@ -13,6 +13,7 @@ namespace League\Csv\Serializer;
 
 use DateTimeInterface;
 
+use ReflectionClass;
 use ReflectionNamedType;
 use ReflectionParameter;
 use ReflectionProperty;
@@ -20,7 +21,6 @@ use ReflectionType;
 use ReflectionUnionType;
 
 use function class_exists;
-use function class_implements;
 use function enum_exists;
 use function in_array;
 use function interface_exists;
@@ -168,7 +168,7 @@ enum Type: string
             $type instanceof self => $type,
             enum_exists($propertyType) => self::Enum,
             interface_exists($propertyType) && DateTimeInterface::class === $propertyType,
-            class_exists($propertyType) && in_array(DateTimeInterface::class, class_implements($propertyType), true) => self::Date,
+            class_exists($propertyType) && (new ReflectionClass($propertyType))->implementsInterface(DateTimeInterface::class) => self::Date,
             default => null,
         };
     }

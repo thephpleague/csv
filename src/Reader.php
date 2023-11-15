@@ -19,7 +19,6 @@ use Iterator;
 use JsonSerializable;
 use League\Csv\Serializer\MappingFailed;
 use League\Csv\Serializer\TypeCastingFailed;
-use ReflectionException;
 use SplFileObject;
 
 use function array_filter;
@@ -442,7 +441,6 @@ class Reader extends AbstractCsv implements TabularDataReader, JsonSerializable
      *
      * @throws Exception
      * @throws MappingFailed
-     * @throws ReflectionException
      * @throws TypeCastingFailed
      */
     public function getObjects(string $className, array $header = []): Iterator
@@ -450,7 +448,7 @@ class Reader extends AbstractCsv implements TabularDataReader, JsonSerializable
         /** @var array<string> $header */
         $header = $this->prepareHeader($header);
 
-        return Serializer::assignAll(
+        return Denormalizer::assignAll(
             $className,
             $this->combineHeader($this->prepareRecords(), $header),
             $header

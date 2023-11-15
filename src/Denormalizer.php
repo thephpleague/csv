@@ -38,14 +38,12 @@ use ReflectionProperty;
 use Throwable;
 
 use function array_key_exists;
-use function array_reduce;
 use function array_search;
 use function array_values;
 use function count;
-use function in_array;
 use function is_int;
 
-final class Serializer
+final class Denormalizer
 {
     private static bool $emptyStringAsNull = true;
 
@@ -60,13 +58,12 @@ final class Serializer
      * @param array<string> $propertyNames
      *
      * @throws MappingFailed
-     * @throws ReflectionException
      */
     public function __construct(string $className, array $propertyNames = [])
     {
-        $this->class = new ReflectionClass($className);
+        $this->class = $this->setClass($className);
         $this->properties = $this->class->getProperties();
-        $this->propertySetters = $this->findPropertySetters($propertyNames);
+        $this->propertySetters = $this->setPropertySetters($propertyNames);
     }
 
     public static function allowEmptyStringAsNull(): void
@@ -79,6 +76,9 @@ final class Serializer
         self::$emptyStringAsNull = false;
     }
 
+    /**
+     * @throws MappingFailed
+     */
     public static function registerType(string $type, Closure $closure): void
     {
         ClosureCasting::register($type, $closure);
@@ -99,7 +99,7 @@ final class Serializer
      */
     public static function assign(string $className, array $record): object
     {
-        return (new self($className, array_keys($record)))->deserialize($record);
+        return (new self($className, array_keys($record)))->denormalize($record);
     }
 
     /**
@@ -107,15 +107,14 @@ final class Serializer
      * @param array<string> $propertyNames
      *
      * @throws MappingFailed
-     * @throws ReflectionException
      * @throws TypeCastingFailed
      */
     public static function assignAll(string $className, iterable $records, array $propertyNames = []): Iterator
     {
-        return (new self($className, $propertyNames))->deserializeAll($records);
+        return (new self($className, $propertyNames))->denormalizeAll($records);
     }
 
-    public function deserializeAll(iterable $records): Iterator
+    public function denormalizeAll(iterable $records): Iterator
     {
         $check = true;
         $assign = function (array $record) use (&$check) {
@@ -137,7 +136,7 @@ final class Serializer
      * @throws ReflectionException
      * @throws TypeCastingFailed
      */
-    public function deserialize(array $record): object
+    public function denormalize(array $record): object
     {
         $object = $this->class->newInstanceWithoutConstructor();
 
@@ -150,6 +149,7 @@ final class Serializer
     /**
      * @param array<?string> $record
      *
+     * @throws ReflectionException
      * @throws TypeCastingFailed
      */
     private function hydrate(object $object, array $record): void
@@ -178,65 +178,45 @@ final class Serializer
     }
 
     /**
+     * @param class-string $className
+     *
+     * @throws MappingFailed
+     */
+    private function setClass(string $className): ReflectionClass
+    {
+        if (!class_exists($className)) {
+            throw new MappingFailed('The class `'.$className.'` does not exist or was not found.');
+        }
+
+        $class = new ReflectionClass($className);
+        if ($class->isInternal() && $class->isFinal()) {
+            throw new MappingFailed('The class `'.$className.'` can not be deserialize using `'.self::class.'`.');
+        }
+
+        return $class;
+    }
+
+    /**
      * @param array<string> $propertyNames
      *
      * @throws MappingFailed
      *
      * @return non-empty-array<PropertySetter>
      */
-    private function findPropertySetters(array $propertyNames): array
+    private function setPropertySetters(array $propertyNames): array
     {
         $propertySetters = [];
-        foreach ($this->class->getProperties(ReflectionProperty::IS_PUBLIC) as $property) {
-            if ($property->isStatic()) {
-                continue;
-            }
-
-            $attribute = $property->getAttributes(Cell::class, ReflectionAttribute::IS_INSTANCEOF);
-            if ([] !== $attribute) {
-                continue;
-            }
-
-            /** @var int|false $offset */
-            $offset = array_search($property->getName(), $propertyNames, true);
-            if (false === $offset) {
-                continue;
-            }
-
-            $propertySetters[] = new PropertySetter($property, $offset, $this->resolveTypeCasting($property));
-        }
-
-        $propertySetters = [...$propertySetters, ...$this->findPropertySettersByAttribute($propertyNames)];
-        if ([] === $propertySetters) {
-            throw new MappingFailed('No properties or method setters were found eligible on the class `'.$this->class->getName().'` to be used for type casting.');
-        }
-
-        return $propertySetters;
-    }
-
-    /**
-     * @param array<string> $propertyNames
-     *
-     * @return array<PropertySetter>
-     */
-    private function findPropertySettersByAttribute(array $propertyNames): array
-    {
-        $addPropertySetter = function (array $carry, ReflectionProperty|ReflectionMethod $accessor) use ($propertyNames) {
+        foreach ([...$this->properties, ...$this->class->getMethods(ReflectionMethod::IS_PUBLIC)] as $accessor) {
             $propertySetter = $this->findPropertySetter($accessor, $propertyNames);
-            if (null === $propertySetter) {
-                return $carry;
+            if (null !== $propertySetter) {
+                $propertySetters[] = $propertySetter;
             }
+        }
 
-            $carry[] = $propertySetter;
-
-            return $carry;
+        return match ([]) {
+            $propertySetters => throw new MappingFailed('No property or method from `'.$this->class->getName().'` can be used for deserialization.'),
+            default => $propertySetters,
         };
-
-        return array_reduce(
-            [...$this->properties, ...$this->class->getMethods(ReflectionMethod::IS_PUBLIC)],
-            $addPropertySetter,
-            []
-        );
     }
 
     /**
@@ -248,7 +228,21 @@ final class Serializer
     {
         $attributes = $accessor->getAttributes(Cell::class, ReflectionAttribute::IS_INSTANCEOF);
         if ([] === $attributes) {
-            return null;
+            if (!$accessor instanceof ReflectionProperty) {
+                return null;
+            }
+
+            if ($accessor->isStatic()) {
+                return null;
+            }
+
+            /** @var int|false $offset */
+            $offset = array_search($accessor->getName(), $propertyNames, true);
+
+            return match (false) {
+                $offset => null,
+                default => new PropertySetter($accessor, $offset, $this->resolveTypeCasting($accessor)),
+            };
         }
 
         if (1 < count($attributes)) {
@@ -277,11 +271,11 @@ final class Serializer
 
         /** @var int<0, max>|false $index */
         $index = array_search($offset, $propertyNames, true);
-        if (false === $index) {
-            throw new MappingFailed('The offset `'.$offset.'` could not be found in the header; Pleaser verify your header data.');
-        }
 
-        return new PropertySetter($accessor, $index, $cast);
+        return match (false) {
+            $index => throw new MappingFailed('The offset `'.$offset.'` could not be found in the header; Pleaser verify your header data.'),
+            default => new PropertySetter($accessor, $index, $cast),
+        };
     }
 
     /**
@@ -303,8 +297,8 @@ final class Serializer
             return $this->resolveTypeCasting($reflectionProperty, $cell->castArguments);
         }
 
-        if (!in_array(TypeCasting::class, class_implements($typeCaster), true)) {
-            throw new MappingFailed('The class `'.$typeCaster.'` does not implements the `'.TypeCasting::class.'` interface.');
+        if (!class_exists($typeCaster) || !(new ReflectionClass($typeCaster))->implementsInterface(TypeCasting::class)) {
+            throw new MappingFailed('`'.$typeCaster.'` must be an resolvable class implementing the `'.TypeCasting::class.'` interface.');
         }
 
         try {
@@ -312,12 +306,10 @@ final class Serializer
             $cast = new $typeCaster(...$cell->castArguments, ...['reflectionProperty' => $reflectionProperty]);
 
             return $cast;
+        } catch (MappingFailed $exception) {
+            throw $exception;
         } catch (Throwable $exception) {
-            if ($exception instanceof MappingFailed) {
-                throw $exception;
-            }
-
-            throw new MappingFailed(message:'Unable to instantiate a casting mechanism. Please verify your casting arguments', previous: $exception);
+            throw new MappingFailed('Unable to load the casting mechanism. Please verify your casting arguments', 0, $exception);
         }
     }
 
@@ -345,10 +337,10 @@ final class Serializer
                     Type::Enum => new CastToEnum(...$arguments),
                     default => throw $exception,
                 };
-        } catch (MappingFailed $exception) {
-            throw $exception;
+        } catch (MappingFailed $mappingFailed) {
+            throw $mappingFailed;
         } catch (Throwable $exception) {
-            throw new MappingFailed(message:'Unable to load the casting mechanism. Please verify your casting arguments', previous: $exception);
+            throw new MappingFailed('Unable to load the casting mechanism. Please verify your casting arguments', 0, $exception);
         }
     }
 }

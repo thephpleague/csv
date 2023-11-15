@@ -1,6 +1,6 @@
 ---
 layout: default
-title: Deserializing a Tabular Data record into an object
+title: Denormalize a Tabular Data record into an object
 ---
 
 # Record to object conversion
@@ -9,16 +9,16 @@ title: Deserializing a Tabular Data record into an object
 
 ## Assign an array to an object
 
-To work with objects instead of arrays the `Serializer` class is introduced to expose a
-text based deserialization mechanism for tabular data.
+To work with objects instead of arrays the `Denormalizer` class is introduced to expose a
+text based denormalization mechanism for tabular data.
 
 The class exposes four (4) methods to ease `array` to `object` conversion:
 
-- `Serializer::deserializeAll` and `Serializer::assignAll` which convert a collection of records into a collection of instances of a specified class.
-- `Serializer::deserialize` and `Serializer::assign` which convert a single record into a new instance of the specified class.
+- `Denormalizer::denormalizeAll` and `Denormalizer::assignAll` which convert a collection of records into a collection of instances of a specified class.
+- `Denormalizer::denormalize` and `Denormalizer::assign` which convert a single record into a new instance of the specified class.
 
 ```php
-use League\Csv\Serializer;
+use League\Csv\Denormalizer;
 
 $record = [
     'date' => '2023-10-30',
@@ -28,19 +28,19 @@ $record = [
 
 //a complete collection of records as shown below
 $collection = [$record];
-//we first instantiate the serializer
-$serializer = new Serializer(Weather::class, ['date', 'temperature', 'place']);
+//we first instantiate the denormalizer
+$denormalizer = new Denormalizer(Weather::class, ['date', 'temperature', 'place']);
 
-$weather = $serializer->deserialize($record); //we convert 1 record into 1 instance
-foreach ($serializer->deserializeAll($collection) as $weather) {
+$weather = $denormalizer->denormalize($record); //we convert 1 record into 1 instance
+foreach ($denormalizer->denormalizeAll($collection) as $weather) {
     // each $weather entry will be an instance of the Weather class;
 }
 
 // you can use the alternate syntactic sugar methods 
-// if you only need the deserializing mechanism once
-$weather = Serializer::assign(Weather::class, $record);
+// if you only need the denormalizing mechanism once
+$weather = Denormalizer::assign(Weather::class, $record);
 
-foreach (Serializer::assignAll(Weather::class, $collection, ['date', 'temperature', 'place']) as $weather) {
+foreach (Denormalizer::assignAll(Weather::class, $collection, ['date', 'temperature', 'place']) as $weather) {
     // each $weather entry will be an instance of the Weather class;
 }
 ```
@@ -64,7 +64,7 @@ In the following sections we will explain the conversion and how it can be confi
 
 ## Prerequisite
 
-The deserialization mechanism works mainly with DTO or objects
+The denormalization mechanism works mainly with DTO or objects
 without complex logic in their constructors.
 
 <p class="message-notice">The mechanism relies on PHP's <code>Reflection</code>
@@ -74,7 +74,7 @@ the mechanism may either fail or produced unexpected results.</p>
 
 To work as intended the mechanism expects the following:
 
-- A target class where the array will be deserialized in;
+- A target class where the array will be denormalized in;
 - information on how to convert cell values into object properties;
 
 As an example if we assume we have the following CSV document:
@@ -113,29 +113,29 @@ enum Place
 }
 ```
 
-To get instances of your object, you now can call one of the `Serializer` method as show below:
+To get instances of your object, you now can call one of the `Denormalizer` method as show below:
 
 ```php
 use League\Csv\Reader;
-use League\Csv\Serializer
+use League\Csv\Denormalizer
 
 $csv = Reader::createFromString($document);
 $csv->setHeaderOffset(0);
-$serializer = new Serializer(Weather::class, $csv->header());
+$denormalizer = new Denormalizer(Weather::class, $csv->header());
 
 foreach ($csv as $record) {
-   $weather = $serializer->deserialize($record);
+   $weather = $denormalizer->denormalize($record);
 }
 
 //or
 
-foreach ($serializer->deserializeAll($csv) as $weather) {
+foreach ($denormalizer->denormalizeAll($csv) as $weather) {
     // each $weather entry will be an instance of the Weather class;
 }
 
 //or 
 
-foreach (Serializer::assignAll(Weather::class, $csv, $csv->getHeader()) as $weather) {
+foreach (Denormalizer::assignAll(Weather::class, $csv, $csv->getHeader()) as $weather) {
     // each $weather entry will be an instance of the Weather class;
 }
 ```
@@ -144,7 +144,7 @@ foreach (Serializer::assignAll(Weather::class, $csv, $csv->getHeader()) as $weat
 
 ## Defining the mapping rules
 
-By default, the deserialization engine will automatically convert public properties using their name.
+By default, the denormalization engine will automatically convert public properties using their name.
 In other words, if there is a public class property, which name is the same as a record key,
 the record value will be assigned to that property. The record value **MUST BE** a
 `string` or `null` and the object public properties **MUST BE** typed with one of
@@ -197,19 +197,19 @@ The above rule can be translated in plain english like this:
 
 ### Handling the empty string
 
-Out of the box the `Serializer` makes no distinction between an empty string and the `null` value.
+Out of the box the `Denormalizer` makes no distinction between an empty string and the `null` value.
 You can however change this behaviour using two (2) static methods:
 
-- `Serializer::allowEmptyStringAsNull`
-- `Serializer::disallowEmptyStringAsNull`
+- `Denormalizer::allowEmptyStringAsNull`
+- `Denormalizer::disallowEmptyStringAsNull`
 
 When called these methods will change the class behaviour when it comes to handling empty string.
-`Serializer::allowEmptyStringAsNull` will trigger conversion of all empty string into the `null` value
-before typecasting whereas `Serializer::disallowEmptyStringAsNull` will maintain the distinction.
-Using these methods will affect the `Serializer` usage throughout your codebase.
+`Denormalizer::allowEmptyStringAsNull` will trigger conversion of all empty string into the `null` value
+before typecasting whereas `Denormalizer::disallowEmptyStringAsNull` will maintain the distinction.
+Using these methods will affect the `Denormalizer` usage throughout your codebase.
 
 ```php
-use League\Csv\Serializer;
+use League\Csv\Denormalizer;
 
 $record = [
     'date' => '2023-10-30',
@@ -217,11 +217,11 @@ $record = [
     'place' => 'Berkeley',
 ];
 
-$weather = Serializer::assign(Weather::class, $record);
+$weather = Denormalizer::assign(Weather::class, $record);
 $weather->temperature; // returns null
 
-Serializer::disallowEmptyStringAsNull();
-Serializer::assign(Weather::class, $record);
+Denormalizer::disallowEmptyStringAsNull();
+Denormalizer::assign(Weather::class, $record);
 //a TypeCastingFailed exception is thrown because we
 //can not convert the empty string into a temperature property
 //which expects `null` or a non-empty string.
@@ -330,7 +330,7 @@ use League\Csv\Serializer;
 private array $data;
 ```
 
-In the above example, the array has a JSON value associated with the key `data` and the `Serializer` will convert the
+In the above example, the array has a JSON value associated with the key `data` and the `Denormalizer` will convert the
 JSON string into an `array` and use the `JSON_BIGINT_AS_STRING` option of the `json_decode` function.
 
 If you use the array shape `list` or `csv` you can also typecast the `array` content using the
@@ -355,35 +355,61 @@ The `type` option only supports scalar type (`string`, `int`, `float` and `bool`
 
 ## Extending Type Casting capabilities
 
-We provide two mechanisms to extends typecasting. You can register a closure via the `Serializer` class
+We provide two mechanisms to extend typecasting. You can register a closure via the `Denormalizer` class
 or create a fully fledge `TypeCasting` class. Of course, the choice will depend on your use case.
 
 ### Registering a closure
 
-You can register a closure using the `Serializer` class to convert a specific type. The type can be
+You can register a closure using the `Denormalizer` class to convert a specific type. The type can be
 any built-in type or a specific class.
 
 ```php
 use App\Domain\Money;
-use League\Csv\Serializer;
+use League\Csv\Denormalizer;
 
-Serializer::registerType(Money::class, fn (?string $value, bool $isNullable, ?int $default = null): Money => match (true) {
-    $isNullable && null === $value =>  Money::fromNaira($default ?? 20_00),
-    default => Money::fromNaira(filter_var($value, FILTER_VALIDATE_INT)),
-});
+$typeCasting = function (
+    ?string $value,
+    bool $isNullable,
+    ?int $default = 20_00
+ ): ?Money {
+    if (null === $value && $isNullable) {
+        if (null !== $default) {
+            return Money::fromNaira($default);
+        }
+
+        return null;
+    }
+
+    return Money::fromNaira(filter_var($value, FILTER_VALIDATE_INT));
+}
+
+Denormalizer::registerType(Money::class, $typeCasting);
 ```
 
-The Serializer will automatically call the closure for any `App\Domain\Money` conversion.
+The `Denormalizer` will automatically call the closure for any `App\Domain\Money` conversion. You can
+also use the `Cell` attribute to further control the conversion
+
+To do so, first, specify your casting with the attribute:
 
 ```php
+use App\Domain\Money
 use League\Csv\Serializer;
 
-Serializer::registerType('int', fn (?string $value): int => 42);
+#[Serializer\Cell(offset: 'amount', castArguments: ['default' => 20_00])]
+private ?Money $naira;
 ```
+
+<p class="message-notice">No need to specify the <code>cast</code> argument as the closure is registered.</p>
 
 In the following example, the closure takes precedence over the `CastToInt` class to convert
 to the `int` type. If you still wish to use the `CastToInt` class you are require to
-explicitly declare it using the `Cell` attribute `cast` argument.
+explicitly declare it via the `Cell` attribute `cast` argument.
+
+```php
+use League\Csv\Denormalizer;
+
+Denormalizer::registerType('int', fn (?string $value): int => 42);
+```
 
 The closure signature is the following:
 
@@ -399,7 +425,7 @@ where:
 
 To complete the feature you can use:
 
-- `Serializer::unregisterType` to remove the registered closure for a specific `type`;
+- `Denormalizer::unregisterType` to remove the registered closure for a specific `type`;
 
 The two (2) methods are static.
 
@@ -408,8 +434,8 @@ The two (2) methods are static.
 ### Implementing a TypeCasting class
 
 If you need to support `Intersection` type, or you want to be able to fine tune the typecasting
-you can provide your own class to typecast the value according to your own rules. To do so, first,
-specify your casting with the attribute:
+you can provide your own class to typecast the value according to your own rules. Since the class
+is not registered by default you must configure its usage via the `Cell` attribute `cast` argument.
 
 ```php
 use App\Domain\Money
@@ -473,10 +499,11 @@ final class CastToNaira implements TypeCasting
     public function toVariable(?string $value): ?Money
     {
         try {
-          return match (true) {
-              $this->isNullable && null === $value => $this->default,
-              default => Money::fromNaira(filter_var($value, FILTER_VALIDATE_INT)),
-          }; 
+            if (null === $value && $this->isNullable) {
+                return $this->default;
+            }
+
+            return Money::fromNaira(filter_var($value, FILTER_VALIDATE_INT));
         } catch (Throwable $exception) {
             throw new TypeCastingFailed('Unable to cast the given data `'.$value.'` to a `'.Money::class.'`.', 0, $exception);
         }

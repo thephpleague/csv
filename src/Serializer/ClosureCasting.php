@@ -21,6 +21,9 @@ use ReflectionType;
 use ReflectionUnionType;
 use Throwable;
 
+use function array_key_exists;
+use function class_exists;
+
 final class ClosureCasting implements TypeCasting
 {
     /** @var array<string, Closure> */
@@ -60,11 +63,11 @@ final class ClosureCasting implements TypeCasting
 
     public static function register(string $type, Closure $closure): void
     {
-        if (!class_exists($type) && !(Type::tryFrom($type)?->isBuiltIn() ?? false)) {
-            throw new MappingFailed('The `'.$type.'` could not be register.');
-        }
-
-        self::$casters[$type] = $closure;
+        self::$casters[$type] = match (true) {
+            class_exists($type),
+            Type::tryFrom($type)?->isBuiltIn() ?? false => $closure,
+            default => throw new MappingFailed('The `'.$type.'` could not be register.'),
+        };
     }
 
     public static function unregister(string $type): void

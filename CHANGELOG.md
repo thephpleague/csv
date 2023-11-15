@@ -16,7 +16,7 @@ All Notable changes to `Csv` will be documented in this file
 - `ResultSet::fromRecords`
 - `Stream::setMaxLineLen`
 - `Stream::getMaxLineLen`
-- `League\Csv\Serializer` to allow casting records to objects [#508](https://github.com/thephpleague/csv/issues/508)
+- `League\Csv\Denormalizer` to allow casting records to objects [#508](https://github.com/thephpleague/csv/issues/508)
 
 ### Deprecated
 

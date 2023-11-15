@@ -26,7 +26,7 @@ use SplFileObject;
 use stdClass;
 use Traversable;
 
-final class SerializerTest extends TestCase
+final class DenormalizerTest extends TestCase
 {
     public function testItConvertsAnIterableListOfRecords(): void
     {
@@ -43,7 +43,7 @@ final class SerializerTest extends TestCase
             ],
         ];
 
-        $results = [...Serializer::assignAll(WeatherWithRecordAttribute::class, $records, ['date', 'temperature', 'place'])];
+        $results = [...Denormalizer::assignAll(WeatherWithRecordAttribute::class, $records, ['date', 'temperature', 'place'])];
         self::assertCount(2, $results);
         foreach ($results as $result) {
             self::assertInstanceOf(WeatherWithRecordAttribute::class, $result);
@@ -58,7 +58,7 @@ final class SerializerTest extends TestCase
             'place' => 'Berkeley',
         ];
 
-        $weather = Serializer::assign(WeatherWithRecordAttribute::class, $record);
+        $weather = Denormalizer::assign(WeatherWithRecordAttribute::class, $record);
 
         self::assertInstanceOf(WeatherWithRecordAttribute::class, $weather);
         self::assertInstanceOf(DateTimeImmutable::class, $weather->observedOn);
@@ -74,7 +74,7 @@ final class SerializerTest extends TestCase
             'place' => 'Berkeley',
         ];
 
-        $weather = Serializer::assign(WeatherProperty::class, $record);
+        $weather = Denormalizer::assign(WeatherProperty::class, $record);
 
         self::assertInstanceOf(WeatherProperty::class, $weather);
         self::assertInstanceOf(DateTimeImmutable::class, $weather->observedOn);
@@ -90,7 +90,7 @@ final class SerializerTest extends TestCase
             'place' => 'Berkeley',
         ];
 
-        $weather = Serializer::assign(WeatherSetterGetter::class, $record);
+        $weather = Denormalizer::assign(WeatherSetterGetter::class, $record);
 
         self::assertInstanceOf(WeatherSetterGetter::class, $weather);
         self::assertSame('2023-10-30', $weather->getObservedOn()->format('Y-m-d'));
@@ -101,9 +101,9 @@ final class SerializerTest extends TestCase
     public function testMappingFailBecauseTheRecordAttributeIsMissing(): void
     {
         $this->expectException(MappingFailed::class);
-        $this->expectExceptionMessage('No properties or method setters were found eligible on the class `stdClass` to be used for type casting.');
+        $this->expectExceptionMessage('No property or method from `stdClass` can be used for deserialization.');
 
-        Serializer::assign(stdClass::class, ['foo' => 'bar']);
+        Denormalizer::assign(stdClass::class, ['foo' => 'bar']);
     }
 
     public function testItWillThrowIfTheHeaderIsMissingAndTheColumnOffsetIsAString(): void
@@ -111,8 +111,8 @@ final class SerializerTest extends TestCase
         $this->expectException(MappingFailed::class);
         $this->expectExceptionMessage('Column name as string are only supported if the tabular data has a non-empty header.');
 
-        $serializer = new Serializer(WeatherSetterGetter::class);
-        $serializer->deserialize([
+        $serializer = new Denormalizer(WeatherSetterGetter::class);
+        $serializer->denormalize([
             'date' => '2023-10-30',
             'temperature' => '-1.5',
             'place' => 'Berkeley',
@@ -124,8 +124,8 @@ final class SerializerTest extends TestCase
         $this->expectException(MappingFailed::class);
         $this->expectExceptionMessage('The offset `temperature` could not be found in the header; Pleaser verify your header data.');
 
-        $serializer = new Serializer(WeatherSetterGetter::class, ['date', 'toto', 'foobar']);
-        $serializer->deserialize([
+        $serializer = new Denormalizer(WeatherSetterGetter::class, ['date', 'toto', 'foobar']);
+        $serializer->denormalize([
             'date' => '2023-10-30',
             'temperature' => '-1.5',
             'place' => 'Berkeley',
@@ -137,15 +137,15 @@ final class SerializerTest extends TestCase
         $this->expectException(MappingFailed::class);
         $this->expectExceptionMessage('Using more than one `League\Csv\Serializer\Cell` attribute on a class property or method is not supported.');
 
-        new Serializer(InvalidWeatherAttributeUsage::class);
+        new Denormalizer(InvalidWeatherAttributeUsage::class);
     }
 
     public function testItWillThrowIfTheColumnAttributesCasterIsInvalid(): void
     {
         $this->expectException(MappingFailed::class);
-        $this->expectExceptionMessage('The class `stdClass` does not implements the `League\Csv\Serializer\TypeCasting` interface.');
+        $this->expectExceptionMessage('`stdClass` must be an resolvable class implementing the `League\Csv\Serializer\TypeCasting` interface.');
 
-        new Serializer(InvalidWeatherAttributeCasterNotSupported::class);
+        new Denormalizer(InvalidWeatherAttributeCasterNotSupported::class);
     }
 
     public function testItWillThrowBecauseTheObjectDoesNotHaveTypedProperties(): void
@@ -153,7 +153,7 @@ final class SerializerTest extends TestCase
         $this->expectException(MappingFailed::class);
         $this->expectExceptionMessage('The property `temperature` must be typed with a supported type.');
 
-        new Serializer(InvaliDWeatherWithRecordAttribute::class, ['temperature', 'foobar', 'observedOn']);
+        new Denormalizer(InvaliDWeatherWithRecordAttribute::class, ['temperature', 'foobar', 'observedOn']);
     }
 
     public function testItWillFailForLackOfTypeCasting(): void
@@ -161,7 +161,7 @@ final class SerializerTest extends TestCase
         $this->expectException(MappingFailed::class);
         $this->expectExceptionMessage('The property `observedOn` must be typed with a supported type.');
 
-        new Serializer(InvaliDWeatherWithRecordAttributeAndUnknownCasting::class, ['temperature', 'place', 'observedOn']);
+        new Denormalizer(InvaliDWeatherWithRecordAttributeAndUnknownCasting::class, ['temperature', 'place', 'observedOn']);
     }
 
     public function testItWillThrowIfTheClassContainsUninitializedProperties(): void
@@ -169,7 +169,7 @@ final class SerializerTest extends TestCase
         $this->expectException(MappingFailed::class);
         $this->expectExceptionMessage('The property `annee` must be typed with a supported type.');
 
-        Serializer::assign(
+        Denormalizer::assign(
             InvalidObjectWithUninitializedProperty::class,
             ['prenoms' => 'John', 'nombre' => '42', 'sexe' => 'M', 'annee' => '2018']
         );
@@ -184,7 +184,7 @@ final class SerializerTest extends TestCase
             public Countable&Traversable $traversable;
         };
 
-        Serializer::assign($foobar::class, ['traversable' => '1']);
+        Denormalizer::assign($foobar::class, ['traversable' => '1']);
     }
 
     public function testItCanUseTheClosureRegisteringMechanism(): void
@@ -194,13 +194,13 @@ final class SerializerTest extends TestCase
             public string $foo;
         };
 
-        Serializer::registerType('string', fn (?string $value) => 'yolo!');
+        Denormalizer::registerType('string', fn (?string $value) => 'yolo!');
 
-        self::assertSame('yolo!', Serializer::assign($foobar::class, $record)->foo); /* @phpstan-ignore-line */
+        self::assertSame('yolo!', Denormalizer::assign($foobar::class, $record)->foo); /* @phpstan-ignore-line */
 
-        Serializer::unregisterType('string');
+        Denormalizer::unregisterType('string');
 
-        self::assertSame('toto', Serializer::assign($foobar::class, $record)->foo);
+        self::assertSame('toto', Denormalizer::assign($foobar::class, $record)->foo);
     }
 
     public function testItFailsToRegisterUnknownType(): void
@@ -209,7 +209,7 @@ final class SerializerTest extends TestCase
         $this->expectException(MappingFailed::class);
         $this->expectExceptionMessage('The `'.$type.'` could not be register.');
 
-        Serializer::registerType($type, fn (?string $value) => 'yolo!');
+        Denormalizer::registerType($type, fn (?string $value) => 'yolo!');
     }
 
     public function testEmptyStringHandling(): void
@@ -219,13 +219,13 @@ final class SerializerTest extends TestCase
             public ?string $foo;
         };
 
-        Serializer::disallowEmptyStringAsNull();
+        Denormalizer::disallowEmptyStringAsNull();
 
-        self::assertSame('', Serializer::assign($foobar::class, $record)->foo); /* @phpstan-ignore-line */
+        self::assertSame('', Denormalizer::assign($foobar::class, $record)->foo); /* @phpstan-ignore-line */
 
-        Serializer::allowEmptyStringAsNull();
+        Denormalizer::allowEmptyStringAsNull();
 
-        self::assertNull(Serializer::assign($foobar::class, $record)->foo);
+        self::assertNull(Denormalizer::assign($foobar::class, $record)->foo);
     }
 }
 

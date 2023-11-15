@@ -22,7 +22,6 @@ use JsonSerializable;
 use League\Csv\Serializer\MappingFailed;
 use League\Csv\Serializer\TypeCastingFailed;
 use LimitIterator;
-use ReflectionException;
 
 use function array_filter;
 use function array_flip;
@@ -247,14 +246,13 @@ class ResultSet implements TabularDataReader, JsonSerializable
      *
      * @throws Exception
      * @throws MappingFailed
-     * @throws ReflectionException
      * @throws TypeCastingFailed
      */
     public function getObjects(string $className, array $header = []): Iterator
     {
         $header = $this->prepareHeader($header);
 
-        return Serializer::assignAll(
+        return Denormalizer::assignAll(
             $className,
             $this->combineHeader($header),
             $header

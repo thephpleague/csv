@@ -13,6 +13,7 @@ declare(strict_types=1);
 
 namespace League\Csv\Serializer;
 
+use ReflectionException;
 use ReflectionMethod;
 use ReflectionProperty;
 
@@ -28,6 +29,9 @@ final class PropertySetter
     ) {
     }
 
+    /**
+     * @throws ReflectionException
+     */
     public function __invoke(object $object, ?string $value): void
     {
         $value = $this->cast->toVariable($value);
