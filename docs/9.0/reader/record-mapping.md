@@ -62,7 +62,7 @@ foreach ($csv->getObjects(Weather::class) as $weather) {
 
 In the following sections we will explain the conversion and how it can be configured.
 
-## Pre-requisite
+## Prerequisite
 
 The deserialization mechanism works mainly with DTO or objects
 without complex logic in their constructors.
@@ -158,16 +158,17 @@ the following type:
 the `nullable` aspect of the property is also automatically handled.
 
 To complete the conversion you can use the `Cell` attribute. This attribute will override
-the automatic resolution and enable fine-tuning type casting on the property level.
+the automatic resolution and enable fine-tuning type casting. It can be used on class
+properties and methods regardless of their visibility.
 
-The `Cell` attribute can be used on class properties and methods regardless of their visibility.
 The attribute can take up to three (3) arguments which are all optional:
 
 - The `offset` argument tells the engine which record key to use via its numeric or name offset. If not present the property name or the name of the first argument of the `setter` method will be used. In such case, you are required to specify the property names information.
 - The `cast` argument which accept the name of a class implementing the `TypeCasting` interface and responsible for type casting the record value. If not present, the mechanism will try to resolve the typecasting based on the propery or method argument type.
 - The `castArguments` argument enables controlling typecasting by providing extra arguments to the `TypeCasting` class constructor. The argument expects an associative array and relies on named arguments to inject its value to the `TypeCasting` implementing class constructor.
 
-<p class="message-warning">The <code>reflectionProperty</code> key can not be used with the <code>castArguments</code> as it is a reserved argument used by the <code>TypeCasting</code> class.</p>
+<p class="message-warning">The <code>reflectionProperty</code> key can not be used with the
+<code>castArguments</code> as it is a reserved argument used by the <code>TypeCasting</code> class.</p>
 
 In any case, if type casting fails, an exception will be thrown.
 
@@ -190,21 +191,21 @@ private CarbonImmutable $observedOn;
 
 The above rule can be translated in plain english like this:
 
-> convert the value of the associative array whose key is `date` into a `CarbonImmutable` object
+> Convert the value of the associative array whose key is `date` into a `CarbonImmutable` object
 > using the date format `!Y-m-d` and the `Africa/Nairobi` timezone. Once created,
-> inject the date instance into the class private property `observedOn`.
+> inject the instance into the class private property `observedOn`.
 
 ### Handling the empty string
 
-Out of the box the Serializer makes no difference between an emoty string and the `null` value.
+Out of the box the `Serializer` makes no distinction between an empty string and the `null` value.
 You can however change this behaviour using two (2) static methods:
 
 - `Serializer::allowEmptyStringAsNull`
 - `Serializer::disallowEmptyStringAsNull`
 
-When called these methods will change the class behaviour when it comes to empty string.
-`Serializer::allowEmptyStringAsNull` will convert all empty string into the `null` value before
-typecasting whereas `Serializer::disallowEmptyStringAsNull` will maintain the distinction.
+When called these methods will change the class behaviour when it comes to handling empty string.
+`Serializer::allowEmptyStringAsNull` will trigger conversion of all empty string into the `null` value
+before typecasting whereas `Serializer::disallowEmptyStringAsNull` will maintain the distinction.
 Using these methods will affect the `Serializer` usage throughout your codebase.
 
 ```php
@@ -221,8 +222,9 @@ $weather->temperature; // returns null
 
 Serializer::disallowEmptyStringAsNull();
 Serializer::assign(Weather::class, $record);
-//a TypeCastingFailed exception is thrown 
+//a TypeCastingFailed exception is thrown because we
 //can not convert the empty string into a temperature property
+//which expects `null` or a non-empty string.
 ```
 
 ## Type casting
@@ -248,6 +250,8 @@ optional argument `default` which is the default value to return if the value is
 
 Converts the array value to `true`, `false` or `null` depending on the property type information. The class takes one
 optional argument `default` which is the default boolean value to return if the value is `null`.
+Since typecasting relies on `ext-filter` rules, the following strings `1`, `true`, `on` and `yes` will all be cast
+in a case-insensitive way to `true` otherwise `false` will be used.
 
 ### CastToInt and CastToFloat
 
@@ -349,9 +353,62 @@ public function setData(array $data): void;
 If the conversion succeeds, then the property will be set with an `array` of `float` values.
 The `type` option only supports scalar type (`string`, `int`, `float` and `bool`)
 
-### Creating your own TypeCasting class
+## Extending Type Casting capabilities
 
-You can also provide your own class to typecast the array value according to your own rules. To do so, first,
+We provide two mechanisms to extends typecasting. You can register a closure via the `Serializer` class
+or create a fully fledge `TypeCasting` class. Of course, the choice will depend on your use case.
+
+### Registering a closure
+
+You can register a closure using the `Serializer` class to convert a specific type. The type can be
+any built-in type or a specific class.
+
+```php
+use App\Domain\Money;
+use League\Csv\Serializer;
+
+Serializer::registerType(Money::class, fn (?string $value, bool $isNullable, ?int $default = null): Money => match (true) {
+    $isNullable && null === $value =>  Money::fromNaira($default ?? 20_00),
+    default => Money::fromNaira(filter_var($value, FILTER_VALIDATE_INT)),
+});
+```
+
+The Serializer will automatically call the closure for any `App\Domain\Money` conversion.
+
+```php
+use League\Csv\Serializer;
+
+Serializer::registerType('int', fn (?string $value): int => 42);
+```
+
+In the following example, the closure takes precedence over the `CastToInt` class to convert
+to the `int` type. If you still wish to use the `CastToInt` class you are require to
+explicitly declare it using the `Cell` attribute `cast` argument.
+
+The closure signature is the following:
+
+```php
+closure(?string $value, bool $isNullable, ...$arguments): mixed;
+```
+
+where:
+
+- the `$value` is the record value
+- the `$isNullable` tells whether the argument or property can be nullable
+- the `$arguments` are the extra configuration options you can pass to the `Cell` attribute via `castArguments`
+
+To complete the feature you can use:
+
+- `Serializer::unregisterType` to remove the registered closure for a specific `type`;
+
+The two (2) methods are static.
+
+<p class="message-notice">the mechanism does not support <code>IntersectionType</code></p>
+
+### Implementing a TypeCasting class
+
+If you need to support `Intersection` type, or you want to be able to fine tune the typecasting
+you can provide your own class to typecast the value according to your own rules. To do so, first,
 specify your casting with the attribute:
 
 ```php
@@ -361,7 +418,7 @@ use League\Csv\Serializer;
 #[Serializer\Cell(
     offset: 'amount',
     cast: App\Domain\CastToNaira::class,
-    castArguments: ['default' => 100_00]
+    castArguments: ['default' => 20_00]
 )]
 private ?Money $naira;
 ```
@@ -390,15 +447,15 @@ final class CastToNaira implements TypeCasting
 
     public function __construct(
         ReflectionProperty|ReflectionParameter $reflectionProperty, //always given by the Serializer
-        ?int $default = null
+        ?int $default = null //can be filled via the Cell castArguments array destructuring
     ) {
         if (null !== $default) {
             $default = Money::fromNaira($default);
         }
         $this->default = $default;
 
-        // To be more strict during conversion you SHOULD handle the $reflectionProperty argument.
-        // The argument gives you access to all the information about the property.
+        // It is recommended to handle the $reflectionProperty argument.
+        // The argument gives you access to property/argument information.
         // it allows validating that the argument does support your casting
         // it allows adding support to union, intersection or unnamed type 
         // it tells whether the property/argument is nullable or not

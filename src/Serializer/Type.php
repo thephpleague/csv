@@ -56,6 +56,14 @@ enum Type: string
         return in_array($this, $types, true);
     }
 
+    public function isBuiltIn(): bool
+    {
+        return match ($this) {
+            self::Date, self::Enum => false,
+            default => true,
+        };
+    }
+
     public function filterFlag(): int
     {
         return match ($this) {

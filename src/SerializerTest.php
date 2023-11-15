@@ -151,7 +151,7 @@ final class SerializerTest extends TestCase
     public function testItWillThrowBecauseTheObjectDoesNotHaveTypedProperties(): void
     {
         $this->expectException(MappingFailed::class);
-        $this->expectExceptionMessage('The property `temperature` must be typed.');
+        $this->expectExceptionMessage('The property `temperature` must be typed with a supported type.');
 
         new Serializer(InvaliDWeatherWithRecordAttribute::class, ['temperature', 'foobar', 'observedOn']);
     }
@@ -159,7 +159,7 @@ final class SerializerTest extends TestCase
     public function testItWillFailForLackOfTypeCasting(): void
     {
         $this->expectException(MappingFailed::class);
-        $this->expectExceptionMessage('No built-in `League\Csv\Serializer\TypeCasting` class can handle `$observedOn` type.');
+        $this->expectExceptionMessage('The property `observedOn` must be typed with a supported type.');
 
         new Serializer(InvaliDWeatherWithRecordAttributeAndUnknownCasting::class, ['temperature', 'place', 'observedOn']);
     }
@@ -167,7 +167,7 @@ final class SerializerTest extends TestCase
     public function testItWillThrowIfTheClassContainsUninitializedProperties(): void
     {
         $this->expectException(MappingFailed::class);
-        $this->expectExceptionMessage('No valid type casting was found for the property `annee`; it must be typed.');
+        $this->expectExceptionMessage('The property `annee` must be typed with a supported type.');
 
         Serializer::assign(
             InvalidObjectWithUninitializedProperty::class,
@@ -178,13 +178,54 @@ final class SerializerTest extends TestCase
     public function testItCanNotAutodiscoverWithIntersectionType(): void
     {
         $this->expectException(MappingFailed::class);
-        $this->expectExceptionMessage('No built-in `League\Csv\Serializer\TypeCasting` class can handle `$traversable` type.');
+        $this->expectExceptionMessage('The property `traversable` must be typed with a supported type.');
 
         $foobar = new class () {
             public Countable&Traversable $traversable;
         };
 
         Serializer::assign($foobar::class, ['traversable' => '1']);
+    }
+
+    public function testItCanUseTheClosureRegisteringMechanism(): void
+    {
+        $record = ['foo' => 'toto'];
+        $foobar = new class () {
+            public string $foo;
+        };
+
+        Serializer::registerType('string', fn (?string $value) => 'yolo!');
+
+        self::assertSame('yolo!', Serializer::assign($foobar::class, $record)->foo); /* @phpstan-ignore-line */
+
+        Serializer::unregisterType('string');
+
+        self::assertSame('toto', Serializer::assign($foobar::class, $record)->foo);
+    }
+
+    public function testItFailsToRegisterUnknownType(): void
+    {
+        $type = 'UnkownType';
+        $this->expectException(MappingFailed::class);
+        $this->expectExceptionMessage('The `'.$type.'` could not be register.');
+
+        Serializer::registerType($type, fn (?string $value) => 'yolo!');
+    }
+
+    public function testEmptyStringHandling(): void
+    {
+        $record = ['foo' => ''];
+        $foobar = new class () {
+            public ?string $foo;
+        };
+
+        Serializer::disallowEmptyStringAsNull();
+
+        self::assertSame('', Serializer::assign($foobar::class, $record)->foo); /* @phpstan-ignore-line */
+
+        Serializer::allowEmptyStringAsNull();
+
+        self::assertNull(Serializer::assign($foobar::class, $record)->foo);
     }
 }
 
