@@ -228,11 +228,7 @@ final class Denormalizer
     {
         $attributes = $accessor->getAttributes(Cell::class, ReflectionAttribute::IS_INSTANCEOF);
         if ([] === $attributes) {
-            if (!$accessor instanceof ReflectionProperty) {
-                return null;
-            }
-
-            if ($accessor->isStatic()) {
+            if (!$accessor instanceof ReflectionProperty || $accessor->isStatic() || !$accessor->isPublic()) {
                 return null;
             }
 
