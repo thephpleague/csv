@@ -17,11 +17,13 @@ use DateTime;
 use DateTimeImmutable;
 use DateTimeInterface;
 use DateTimeZone;
+use ReflectionClass;
 use ReflectionNamedType;
 use ReflectionParameter;
 use ReflectionProperty;
 use Throwable;
 
+use function class_exists;
 use function is_string;
 
 /**
@@ -30,11 +32,13 @@ use function is_string;
 final class CastToDate implements TypeCasting
 {
     private readonly ?DateTimeZone $timezone;
+    /** @var class-string */
     private readonly string $class;
     private readonly bool $isNullable;
     private readonly DateTimeImmutable|DateTime|null $default;
 
     /**
+     * @param ?class-string $dateClass
      * @throws MappingFailed
      */
     public function __construct(
@@ -42,14 +46,18 @@ final class CastToDate implements TypeCasting
         ?string $default = null,
         private readonly ?string $format = null,
         DateTimeZone|string|null $timezone = null,
+        ?string $dateClass = null
     ) {
         [$type, $reflection, $this->isNullable] = $this->init($reflectionProperty);
+        /** @var class-string $class */
         $class = $reflection->getName();
-        if (Type::Mixed->equals($type) || DateTimeInterface::class === $class) {
-            $class = DateTimeImmutable::class;
-        }
+        $this->class = match (true) {
+            DateTimeInterface::class !== $class && !Type::Mixed->equals($type) => $class,
+            null === $dateClass => DateTimeImmutable::class,
+            class_exists($dateClass) && (new ReflectionClass($dateClass))->implementsInterface(DateTimeInterface::class) => $dateClass,
+            default => throw new MappingFailed('`'.$reflectionProperty->getName().'` type is `mixed`; the specify `DateTimeInterface` class via the `$dateClass` argument is invalid or could not be found.'),
+        };
 
-        $this->class = $class;
         try {
             $this->timezone = is_string($timezone) ? new DateTimeZone($timezone) : $timezone;
             $this->default = (null !== $default) ? $this->cast($default) : $default;

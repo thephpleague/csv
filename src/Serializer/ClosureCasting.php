@@ -26,7 +26,6 @@ use function class_exists;
 
 final class ClosureCasting implements TypeCasting
 {
-    /** @var array<string, Closure> */
     private static array $casters = [];
 
     private readonly string $type;
@@ -70,9 +69,15 @@ final class ClosureCasting implements TypeCasting
         };
     }
 
-    public static function unregister(string $type): void
+    public static function unregister(string $type): bool
     {
+        if (!array_key_exists($type, self::$casters)) {
+            return false;
+        }
+
         unset(self::$casters[$type]);
+
+        return true;
     }
 
     public static function supports(ReflectionParameter|ReflectionProperty $reflectionProperty): bool

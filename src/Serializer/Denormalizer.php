@@ -71,9 +71,9 @@ final class Denormalizer
         ClosureCasting::register($type, $closure);
     }
 
-    public static function unregisterType(string $type): void
+    public static function unregisterType(string $type): bool
     {
-        ClosureCasting::unregister($type);
+        return ClosureCasting::unregister($type);
     }
 
     /**
