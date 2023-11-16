@@ -24,12 +24,17 @@ use Throwable;
 use function array_key_exists;
 use function class_exists;
 
+/**
+ * @template TValue
+ */
 final class ClosureCasting implements TypeCasting
 {
+    /** @var array<string, Closure(?string, bool, mixed...): TValue> */
     private static array $casters = [];
 
     private readonly string $type;
     private readonly bool $isNullable;
+    /** @var Closure(?string, bool, mixed...): TValue */
     private readonly Closure $closure;
     private readonly array $arguments;
 
@@ -41,6 +46,9 @@ final class ClosureCasting implements TypeCasting
         $this->arguments = $arguments;
     }
 
+    /**
+     * @return TValue
+     */
     public function toVariable(?string $value): mixed
     {
         try {
@@ -60,6 +68,9 @@ final class ClosureCasting implements TypeCasting
         }
     }
 
+    /**
+     * @param Closure(?string, bool, mixed...): TValue $closure
+     */
     public static function register(string $type, Closure $closure): void
     {
         self::$casters[$type] = match (true) {

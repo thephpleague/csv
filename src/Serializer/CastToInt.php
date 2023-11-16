@@ -19,7 +19,7 @@ use ReflectionProperty;
 use function filter_var;
 
 /**
- * @implements TypeCasting<int|null>
+ * @implements TypeCasting<?int>
  */
 final class CastToInt implements TypeCasting
 {

@@ -17,7 +17,7 @@ use ReflectionParameter;
 use ReflectionProperty;
 
 /**
- * @implements TypeCasting<string|null>
+ * @implements TypeCasting<?string>
  */
 final class CastToString implements TypeCasting
 {

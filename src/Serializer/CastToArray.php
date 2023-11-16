@@ -28,7 +28,7 @@ use const FILTER_REQUIRE_ARRAY;
 use const JSON_THROW_ON_ERROR;
 
 /**
- * @implements TypeCasting<array|null>
+ * @implements TypeCasting<?array>
  */
 final class CastToArray implements TypeCasting
 {

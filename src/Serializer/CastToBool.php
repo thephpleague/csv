@@ -18,6 +18,9 @@ use ReflectionProperty;
 
 use function filter_var;
 
+/**
+ * @implements TypeCasting<?bool>
+ */
 final class CastToBool implements TypeCasting
 {
     private readonly bool $isNullable;

@@ -19,7 +19,7 @@ use ReflectionProperty;
 use function filter_var;
 
 /**
- * @implements TypeCasting<float|null>
+ * @implements TypeCasting<?float>
  */
 final class CastToFloat implements TypeCasting
 {
