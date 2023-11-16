@@ -19,6 +19,7 @@ use Closure;
 use Generator;
 use Iterator;
 use JsonSerializable;
+use League\Csv\Serializer\Denormalizer;
 use League\Csv\Serializer\MappingFailed;
 use League\Csv\Serializer\TypeCastingFailed;
 use LimitIterator;

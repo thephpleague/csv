@@ -11,24 +11,11 @@
 
 declare(strict_types=1);
 
-namespace League\Csv;
+namespace League\Csv\Serializer;
 
 use Closure;
 use Iterator;
-use League\Csv\Serializer\CastToArray;
-use League\Csv\Serializer\CastToBool;
-use League\Csv\Serializer\CastToDate;
-use League\Csv\Serializer\CastToEnum;
-use League\Csv\Serializer\CastToFloat;
-use League\Csv\Serializer\CastToInt;
-use League\Csv\Serializer\CastToString;
-use League\Csv\Serializer\Cell;
-use League\Csv\Serializer\ClosureCasting;
-use League\Csv\Serializer\MappingFailed;
-use League\Csv\Serializer\PropertySetter;
-use League\Csv\Serializer\Type;
-use League\Csv\Serializer\TypeCasting;
-use League\Csv\Serializer\TypeCastingFailed;
+use League\Csv\MapIterator;
 use ReflectionAttribute;
 use ReflectionClass;
 use ReflectionException;
@@ -50,7 +37,7 @@ final class Denormalizer
     private readonly ReflectionClass $class;
     /** @var array<ReflectionProperty> */
     private readonly array $properties;
-    /** @var non-empty-array<PropertySetter> */
+    /** @var array<PropertySetter> */
     private readonly array $propertySetters;
 
     /**
@@ -201,7 +188,7 @@ final class Denormalizer
      *
      * @throws MappingFailed
      *
-     * @return non-empty-array<PropertySetter>
+     * @return array<PropertySetter>
      */
     private function setPropertySetters(array $propertyNames): array
     {

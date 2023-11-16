@@ -7,6 +7,23 @@ title: Denormalize a Tabular Data record into an object
 
 <p class="message-notice">New in version <code>9.12.0</code></p>
 
+If you are working with a class which implements the `TabularDataReader` interface you can use this functionality
+directly by calling the `TabularDataReader::getObjects` method.
+
+Here's an example using the `Reader` class which implements the `TabularDataReader` interface:
+
+```php
+use League\Csv\Reader;
+
+$csv = Reader::createFromString($document);
+$csv->setHeaderOffset(0);
+foreach ($csv->getObjects(Weather::class) as $weather) {
+    // each $weather entry will be an instance of the Weather class;
+}
+```
+
+In the following sections we will explain the mechanism use and how you can control it.
+
 ## Assign an array to an object
 
 To work with objects instead of arrays the `Denormalizer` class is introduced to expose a
@@ -18,7 +35,7 @@ The class exposes four (4) methods to ease `array` to `object` conversion:
 - `Denormalizer::denormalize` and `Denormalizer::assign` which convert a single record into a new instance of the specified class.
 
 ```php
-use League\Csv\Denormalizer;
+use League\Csv\Serializer\Denormalizer;
 
 $record = [
     'date' => '2023-10-30',
@@ -45,22 +62,7 @@ foreach (Denormalizer::assignAll(Weather::class, $collection, ['date', 'temperat
 }
 ```
 
-If you are working with a class which implements the `TabularDataReader` interface you can use this functionality
-directly by calling the `TabularDataReader::getObjects` method.
-
-Here's an example using the `Reader` class which implements the `TabularDataReader` interface:
-
-```php
-use League\Csv\Reader;
-
-$csv = Reader::createFromString($document);
-$csv->setHeaderOffset(0);
-foreach ($csv->getObjects(Weather::class) as $weather) {
-    // each $weather entry will be an instance of the Weather class;
-}
-```
-
-In the following sections we will explain the conversion and how it can be configured.
+All classes are defined under the `League\Csv\Serializer` namespace.
 
 ## Prerequisite
 
@@ -117,7 +119,7 @@ To get instances of your object, you now can call one of the `Denormalizer` meth
 
 ```php
 use League\Csv\Reader;
-use League\Csv\Denormalizer
+use League\Csv\Serializer\Denormalizer
 
 $csv = Reader::createFromString($document);
 $csv->setHeaderOffset(0);
@@ -157,22 +159,9 @@ the following type:
 
 the `nullable` aspect of the property is also automatically handled.
 
-To complete the conversion you can use the `Cell` attribute. This attribute will override
-the automatic resolution and enable fine-tuning type casting. It can be used on class
-properties and methods regardless of their visibility.
+To complete the conversion you can use the `Cell` attribute.
 
-The attribute can take up to three (3) arguments which are all optional:
-
-- The `offset` argument tells the engine which record key to use via its numeric or name offset. If not present the property name or the name of the first argument of the `setter` method will be used. In such case, you are required to specify the property names information.
-- The `cast` argument which accept the name of a class implementing the `TypeCasting` interface and responsible for type casting the record value. If not present, the mechanism will try to resolve the typecasting based on the propery or method argument type.
-- The `castArguments` argument enables controlling typecasting by providing extra arguments to the `TypeCasting` class constructor. The argument expects an associative array and relies on named arguments to inject its value to the `TypeCasting` implementing class constructor.
-
-<p class="message-warning">The <code>reflectionProperty</code> key can not be used with the
-<code>castArguments</code> as it is a reserved argument used by the <code>TypeCasting</code> class.</p>
-
-In any case, if type casting fails, an exception will be thrown.
-
-Here's an example of how the attribute could be used:
+Here's an example of how the attribute can be used:
 
 ```php
 use League\Csv\Serializer;
@@ -195,6 +184,20 @@ The above rule can be translated in plain english like this:
 > using the date format `!Y-m-d` and the `Africa/Nairobi` timezone. Once created,
 > inject the instance into the class private property `observedOn`.
 
+This attribute will override the automatic resolution and enable fine-tuning type casting.
+It can be used on class properties and methods regardless of their visibility.
+
+The attribute can take up to three (3) arguments which are all optional:
+
+- The `offset` argument tells the engine which record key to use via its numeric or name offset. If not present the property name or the name of the first argument of the `setter` method will be used. In such case, you are required to specify the property names information.
+- The `cast` argument which accept the name of a class implementing the `TypeCasting` interface and responsible for type casting the record value. If not present, the mechanism will try to resolve the typecasting based on the propery or method argument type.
+- The `castArguments` argument enables controlling typecasting by providing extra arguments to the `TypeCasting` class constructor. The argument expects an associative array and relies on named arguments to inject its value to the `TypeCasting` implementing class constructor.
+
+<p class="message-warning">The <code>reflectionProperty</code> key can not be used with the
+<code>castArguments</code> as it is a reserved argument used by the <code>TypeCasting</code> class.</p>
+
+In any case, if type casting fails, an exception will be thrown.
+
 ### Handling the empty string
 
 Out of the box the `Denormalizer` makes no distinction between an empty string and the `null` value.
@@ -209,7 +212,7 @@ before typecasting whereas `Denormalizer::disallowEmptyStringAsNull` will mainta
 Using these methods will affect the `Denormalizer` usage throughout your codebase.
 
 ```php
-use League\Csv\Denormalizer;
+use League\Csv\Serializer\Denormalizer;
 
 $record = [
     'date' => '2023-10-30',
@@ -236,8 +239,6 @@ All the built-in methods support the `nullable` and the `mixed` types.
 - If the value can not be cast they will throw an exception.
 
 For scalar conversion, type casting is done via PHP's `ext-filter` extension.
-
-All classes are defined under the `League\Csv\Serializer` namespace.
 
 ### CastToString
 
@@ -365,7 +366,7 @@ any built-in type or a specific class.
 
 ```php
 use App\Domain\Money;
-use League\Csv\Denormalizer;
+use League\Csv\Serializer\Denormalizer;
 
 $typeCasting = function (
     ?string $value,
@@ -406,7 +407,7 @@ to the `int` type. If you still wish to use the `CastToInt` class you are requir
 explicitly declare it via the `Cell` attribute `cast` argument.
 
 ```php
-use League\Csv\Denormalizer;
+use League\Csv\Serializer\Denormalizer;
 
 Denormalizer::registerType('int', fn (?string $value): int => 42);
 ```
