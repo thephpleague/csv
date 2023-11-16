@@ -56,8 +56,6 @@ We can define a PHP DTO using the following properties.
 ```php
 <?php
 
-use League\Csv\Serializer\Cell;
-
 final readonly class Weather
 {
     public function __construct(
@@ -80,7 +78,6 @@ an `Iterator` containing only instances of your specified class.
 
 ```php
 use League\Csv\Reader;
-use League\Csv\Serializer\Denormalizer
 
 $csv = Reader::createFromString($document);
 $csv->setHeaderOffset(0);
@@ -139,6 +136,9 @@ The attribute can take up to three (3) arguments which are all optional:
 - The `cast` argument which accept the name of a class implementing the `TypeCasting` interface and responsible for type casting the record value. If not present, the mechanism will try to resolve the typecasting based on the propery or method argument type.
 - The `castArguments` argument enables controlling typecasting by providing extra arguments to the `TypeCasting` class constructor. The argument expects an associative array and relies on named arguments to inject its value to the `TypeCasting` implementing class constructor.
 
+<p class="message-notice">You can use the mechanism on a CSV without a header row but it requires
+adding a <code>Cell</code> attribute on each property or method needed for the conversion.</p>
+
 <p class="message-warning">The <code>reflectionProperty</code> key can not be used with the
 <code>castArguments</code> as it is a reserved argument used by the <code>TypeCasting</code> class.</p>
 
@@ -158,8 +158,8 @@ before typecasting whereas `Denormalizer::disallowEmptyStringAsNull` will preser
 Using these methods will affect the results of the process throughout your codebase.
 
 ```php
-use League\Csv\Serializer\Denormalizer;
 use League\Csv\Reader;
+use League\Csv\Serializer\Denormalizer;
 
 $csv = Reader::createFromString($document);
 $csv->setHeaderOffset(0);
@@ -223,9 +223,9 @@ as one the `Enum` name. The same logic applies for the `default` value. If the d
 is not `null` and the value given is incorrect, the mechanism will throw an exception.
 
 ```php
-use League\Csv\Serializer;
+use League\Csv\Serializer\Cell;
 
-#[Serializer\Cell(
+#[Cell(
     offset:1,
     cast:Serializer\CastToEnum::class,
     castArguments: ['default' => 'Galway', 'enum' => Place::class]
@@ -293,9 +293,9 @@ If you use the array shape `list` or `csv` you can also typecast the `array` con
 optional `type` argument as shown below.
 
 ```php
-use League\Csv\Serializer\Cell;
+use League\Csv\Serializer;
 
-#[Cell(
+#[Serializer\Cell(
     cast:Serializer\CastToArray::class,
     castArguments: [
         'shape' => 'csv',
@@ -321,7 +321,7 @@ any built-in type or a specific class.
 
 ```php
 use App\Domain\Money\Naira;
-use League\Csv\Serializer\Denormalizer;
+use League\Csv\Serializer;
 
 $castToNaira = function (?string $value, bool $isNullable, int $default = null): ?Naira {
     if (null === $value && $isNullable) {
@@ -335,7 +335,7 @@ $castToNaira = function (?string $value, bool $isNullable, int $default = null):
     return Naira::fromKobos(filter_var($value, FILTER_VALIDATE_INT));
 };
 
-Denormalizer::registerType(Naira::class, $castToNaira);
+Serializer\Denormalizer::registerType(Naira::class, $castToNaira);
 ```
 
 The `Denormalizer` will automatically call the closure for any `App\Domain\Money\Naira` conversion. You can
@@ -356,9 +356,9 @@ private ?Naira $amount;
 In the following example, we redefine how to typecast to integer.
 
 ```php
-use League\Csv\Serializer\Denormalizer;
+use League\Csv\Serializer;
 
-Denormalizer::registerType('int', fn (?string $value): int => 42);
+Serializer\Denormalizer::registerType('int', fn (?string $value): int => 42);
 ```
 
 The closure will take precedence over the `CastToInt` class to convert
@@ -381,9 +381,9 @@ where:
 To complete the feature you can use `Denormalizer::unregisterType` to remove a registered closure for a specific `type`.
 
 ```php
-use League\Csv\Serializer\Denormalizer;
+use League\Csv\Serializer;
 
-Denormalizer::unregisterType(Naira::class);
+Serializer\Denormalizer::unregisterType(Naira::class);
 ```
 
 The two (2) methods are static.
@@ -460,7 +460,7 @@ final class CastToNaira implements TypeCasting
         $this->isNullable = $reflectionType->allowsNull();
     }
 
-    public function toVariable(?string $value): ?Money
+    public function toVariable(?string $value): ?Naira
     {
         try {
             if (null === $value && $this->isNullable) {
