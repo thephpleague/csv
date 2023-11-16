@@ -12,11 +12,11 @@ All Notable changes to `Csv` will be documented in this file
 - `TabulatDataReader::matching`
 - `TabulatDataReader::matchingFirst` 
 - `TabulatDataReader::matchingFirstOrFail`
-- `League\Csv\FragmentFinder` to implement [RFC7111](https://www.rfc-editor.org/rfc/rfc7111)
 - `ResultSet::fromRecords`
 - `Stream::setMaxLineLen`
 - `Stream::getMaxLineLen`
-- `League\Csv\Denormalizer` to allow casting records to objects [#508](https://github.com/thephpleague/csv/issues/508)
+- `League\Csv\Serializer\Denormalizer` to allow casting records to objects [#508](https://github.com/thephpleague/csv/issues/508)
+- `League\Csv\FragmentFinder` to implement [RFC7111](https://www.rfc-editor.org/rfc/rfc7111)
 
 ### Deprecated
 

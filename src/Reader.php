@@ -375,35 +375,7 @@ class Reader extends AbstractCsv implements TabularDataReader, JsonSerializable
 
     public function select(string|int ...$columns): TabularDataReader
     {
-        $header = [];
-        $documentHeader = $this->getHeader();
-        $hasNoHeader = [] === $documentHeader;
-        foreach ($columns as $field) {
-            if (is_string($field)) {
-                if ($hasNoHeader) {
-                    throw new InvalidArgument(__METHOD__.' can only use named column if the tabular data has a non-empty header.');
-                }
-
-                $index = array_search($field, $this->header, true);
-                if (false === $index) {
-                    throw InvalidArgument::dueToInvalidColumnIndex($field, 'offset', __METHOD__);
-                }
-
-                $header[$index] = $field;
-                continue;
-            }
-
-            if (!$hasNoHeader && !array_key_exists($field, $documentHeader)) {
-                throw InvalidArgument::dueToInvalidColumnIndex($field, 'offset', __METHOD__);
-            }
-
-            $header[$field] = $documentHeader[$field] ?? $field;
-        }
-
-        /** @var array<int, string> $finalHeader */
-        $finalHeader =  $hasNoHeader ? [] : $header;
-
-        return new ResultSet($this->combineHeader($this->prepareRecords(), $this->computeHeader($header)), $finalHeader);
+        return ResultSet::createFromTabularDataReader($this)->select(...$columns);
     }
 
     /**
