@@ -417,7 +417,9 @@ one of its argument with the name <code>$reflectionProperty</code>. This means y
 <code>reflectionProperty</code> as a possible key of the associative array given to <code>castArguments</code></p>
 
 ```php
-<php
+<?php
+
+declare(strict_types=1);
 
 namespace App\Domain\Money;
 
