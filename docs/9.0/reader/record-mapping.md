@@ -419,8 +419,6 @@ one of its argument with the name <code>$reflectionProperty</code>. This means y
 ```php
 <php
 
-declare(strict_types=1);
-
 namespace App\Domain\Money;
 
 use League\Csv\Serializer\MappingFailed;
@@ -433,7 +431,7 @@ use League\Csv\Serializer\TypeCastingFailed;
 final class CastToNaira implements TypeCasting
 {
     private readonly bool $isNullable;
-    private readonly Naira $default;
+    private readonly ?Naira $default;
 
     public function __construct(
         ReflectionProperty|ReflectionParameter $reflectionProperty, //always given by the Denormalizer
