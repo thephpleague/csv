@@ -56,7 +56,7 @@ class CastToEnum implements TypeCasting
         try {
             $this->default = (null !== $default) ? $this->cast($default) : $default;
         } catch (TypeCastingFailed $exception) {
-            throw new MappingFailed(message:'The configuration option for `'.self::class.'` are invalid.', previous: $exception);
+            throw new MappingFailed(message:'The `default` option is invalid.', previous: $exception);
         }
     }
 

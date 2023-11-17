@@ -55,14 +55,14 @@ final class CastToDate implements TypeCasting
             DateTimeInterface::class !== $class && !Type::Mixed->equals($type) => $class,
             null === $dateClass => DateTimeImmutable::class,
             class_exists($dateClass) && (new ReflectionClass($dateClass))->implementsInterface(DateTimeInterface::class) => $dateClass,
-            default => throw new MappingFailed('`'.$reflectionProperty->getName().'` type is `mixed`; the specify `DateTimeInterface` class via the `$dateClass` argument is invalid or could not be found.'),
+            default => throw new MappingFailed('`'.$reflectionProperty->getName().'` type is `mixed` and the specified class via the `$dateClass` argument is invalid or could not be found.'),
         };
 
         try {
             $this->timezone = is_string($timezone) ? new DateTimeZone($timezone) : $timezone;
             $this->default = (null !== $default) ? $this->cast($default) : $default;
         } catch (Throwable $exception) {
-            throw new MappingFailed(message: 'The configuration option for `'.self::class.'` are invalid.', previous: $exception);
+            throw new MappingFailed('The `timezone` and/or `format` options used for `'.self::class.'` are invalud.', 0, $exception);
         }
     }
 
