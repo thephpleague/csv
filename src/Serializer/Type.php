@@ -12,7 +12,6 @@
 namespace League\Csv\Serializer;
 
 use DateTimeInterface;
-
 use ReflectionClass;
 use ReflectionNamedType;
 use ReflectionParameter;
@@ -43,7 +42,7 @@ enum Type: string
     case Array = 'array';
     case Iterable = 'iterable';
     case Enum = 'enum';
-    case Date = 'date';
+    case Date = DateTimeInterface::class;
 
     public function equals(mixed $value): bool
     {
@@ -99,14 +98,6 @@ enum Type: string
             $reflectionProperty instanceof ReflectionProperty => 'The property `'.$reflectionProperty->getName().'` must be typed.',
         });
 
-        return self::typeList($reflectionType);
-    }
-
-    /**
-     * @return list<array{0:Type, 1: ReflectionNamedType}>
-     */
-    private static function typeList(ReflectionType $reflectionType): array
-    {
         $foundTypes = static function (array $res, ReflectionType $reflectionType) {
             if (!$reflectionType instanceof ReflectionNamedType) {
                 return $res;
@@ -120,20 +111,11 @@ enum Type: string
             return $res;
         };
 
-        if ($reflectionType instanceof ReflectionNamedType) {
-            $type = self::tryFromName($reflectionType->getName());
-            if (null !== $type) {
-                return [[$type, $reflectionType]];
-            }
-
-            return [];
-        }
-
-        if ($reflectionType instanceof ReflectionUnionType) {
-            return array_reduce($reflectionType->getTypes(), $foundTypes, []);
-        }
-
-        return [];
+        return match (true) {
+            $reflectionType instanceof ReflectionNamedType => $foundTypes([], $reflectionType),
+            $reflectionType instanceof ReflectionUnionType => array_reduce($reflectionType->getTypes(), $foundTypes, []),
+            default => [],
+        };
     }
 
     public static function tryFromReflectionType(ReflectionType $type): ?self
