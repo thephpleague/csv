@@ -193,7 +193,7 @@ final class Denormalizer
     private function setPropertySetters(array $propertyNames): array
     {
         $propertySetters = [];
-        foreach ([...$this->properties, ...$this->class->getMethods(ReflectionMethod::IS_PUBLIC)] as $accessor) {
+        foreach ([...$this->properties, ...$this->class->getMethods()] as $accessor) {
             $propertySetter = $this->findPropertySetter($accessor, $propertyNames);
             if (null !== $propertySetter) {
                 $propertySetters[] = $propertySetter;
