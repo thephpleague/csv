@@ -18,11 +18,11 @@ use ReflectionParameter;
 use ReflectionProperty;
 use ReflectionType;
 use ReflectionUnionType;
+use UnitEnum;
 
 use function class_exists;
 use function enum_exists;
 use function in_array;
-use function interface_exists;
 
 use const FILTER_UNSAFE_RAW;
 use const FILTER_VALIDATE_BOOL;
@@ -41,7 +41,7 @@ enum Type: string
     case Mixed = 'mixed';
     case Array = 'array';
     case Iterable = 'iterable';
-    case Enum = 'enum';
+    case Enum = UnitEnum::class;
     case Date = DateTimeInterface::class;
 
     public function equals(mixed $value): bool
@@ -149,7 +149,6 @@ enum Type: string
         return match (true) {
             $type instanceof self => $type,
             enum_exists($propertyType) => self::Enum,
-            interface_exists($propertyType) && DateTimeInterface::class === $propertyType,
             class_exists($propertyType) && (new ReflectionClass($propertyType))->implementsInterface(DateTimeInterface::class) => self::Date,
             default => null,
         };
