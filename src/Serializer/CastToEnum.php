@@ -68,7 +68,7 @@ class CastToEnum implements TypeCasting
         return match (true) {
             null !== $value => $this->cast($value),
             $this->isNullable => $this->default,
-            default => throw new TypeCastingFailed('Unable to convert the `null` value.'),
+            default => throw TypeCastingFailed::dueToNotNullableType($this->class),
         };
     }
 
@@ -87,7 +87,7 @@ class CastToEnum implements TypeCasting
 
             return $this->class::from($backedValue);
         } catch (Throwable $exception) {
-            throw new TypeCastingFailed(message: 'Unable to cast to `'.$this->class.'` the value `'.$value.'`.', previous: $exception);
+            throw throw TypeCastingFailed::dueToInvalidValue($value, $this->class, $exception);
         }
     }
 
@@ -109,7 +109,7 @@ class CastToEnum implements TypeCasting
         }
 
         if (null === $type) {
-            throw new MappingFailed('`'.$reflectionProperty->getName().'` type is not supported; an Enum or `mixed` is required.');
+            throw throw MappingFailed::dueToTypeCastingUnsupportedType($reflectionProperty, $this, 'enum', 'mixed');
         }
 
         return [...$type, $isNullable];

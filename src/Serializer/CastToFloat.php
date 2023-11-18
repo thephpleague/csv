@@ -40,14 +40,14 @@ final class CastToFloat implements TypeCasting
         if (null === $value) {
             return match ($this->isNullable) {
                 true => $this->default,
-                false => throw new TypeCastingFailed('The `null` value can not be cast to a float; the property type is not nullable.'),
+                false => throw TypeCastingFailed::dueToNotNullableType('float'),
             };
         }
 
         $float = filter_var($value, Type::Float->filterFlag());
 
         return match ($float) {
-            false => throw new TypeCastingFailed('The `'.$value.'` value can not be cast to a float.'),
+            false => throw TypeCastingFailed::dueToInvalidValue($value, Type::Float->value),
             default => $float,
         };
     }
@@ -67,7 +67,7 @@ final class CastToFloat implements TypeCasting
         }
 
         if (null === $type) {
-            throw new MappingFailed('`'.$reflectionProperty->getName().'` type is not supported; `float` or `null` type is required.');
+            throw throw MappingFailed::dueToTypeCastingUnsupportedType($reflectionProperty, $this, 'float', 'null', 'mixed');
         }
 
         return $isNullable;

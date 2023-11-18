@@ -34,11 +34,11 @@ final class PropertySetter
      */
     public function __invoke(object $object, ?string $value): void
     {
-        $value = $this->cast->toVariable($value);
+        $typeCastedValue = $this->cast->toVariable($value);
 
         match (true) {
-            $this->accessor instanceof ReflectionMethod => $this->accessor->invoke($object, $value),
-            $this->accessor instanceof ReflectionProperty => $this->accessor->setValue($object, $value),
+            $this->accessor instanceof ReflectionMethod => $this->accessor->invoke($object, $typeCastedValue),
+            $this->accessor instanceof ReflectionProperty => $this->accessor->setValue($object, $typeCastedValue),
         };
     }
 }

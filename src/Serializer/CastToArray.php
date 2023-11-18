@@ -74,7 +74,7 @@ final class CastToArray implements TypeCasting
             return match (true) {
                 $this->isNullable,
                 Type::Mixed->equals($this->type) => $this->default,
-                default => throw new TypeCastingFailed('The `null` value can not be cast to an `array`; the property type is not nullable.'),
+                default => throw TypeCastingFailed::dueToNotNullableType($this->type->value),
             };
         }
 
@@ -90,13 +90,13 @@ final class CastToArray implements TypeCasting
             };
 
             if (!is_array($result)) {
-                throw new TypeCastingFailed('Unable to cast the given data `'.$value.'` to a PHP array.');
+                throw TypeCastingFailed::dueToInvalidValue($value, $this->type->value);
             }
 
             return $result;
 
         } catch (JsonException $exception) {
-            throw new TypeCastingFailed(message: 'Unable to cast the given data `'.$value.'` to a PHP array.', previous: $exception);
+            throw TypeCastingFailed::dueToInvalidValue($value, $this->type->value, $exception);
         }
     }
 
@@ -138,7 +138,7 @@ final class CastToArray implements TypeCasting
         }
 
         if (null === $type) {
-            throw new MappingFailed('`'.$reflectionProperty->getName().'` type is not supported; `mixed` or `bool` type is required.');
+            throw MappingFailed::dueToTypeCastingUnsupportedType($reflectionProperty, $this, 'array', 'iterable', 'mixed');
         }
 
         return [$type[0], $isNullable];

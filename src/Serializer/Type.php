@@ -93,10 +93,7 @@ enum Type: string
      */
     public static function list(ReflectionParameter|ReflectionProperty $reflectionProperty): array
     {
-        $reflectionType = $reflectionProperty->getType() ?? throw new MappingFailed(match (true) {
-            $reflectionProperty instanceof ReflectionParameter => 'The setter method argument `'.$reflectionProperty->getName().'` must be typed.',
-            $reflectionProperty instanceof ReflectionProperty => 'The property `'.$reflectionProperty->getName().'` must be typed.',
-        });
+        $reflectionType = $reflectionProperty->getType() ?? throw MappingFailed::dueToUnsupportedType($reflectionProperty);
 
         $foundTypes = static function (array $res, ReflectionType $reflectionType) {
             if (!$reflectionType instanceof ReflectionNamedType) {

@@ -80,6 +80,7 @@ final class Denormalizer
      * @param class-string $className
      * @param array<?string> $record
      *
+     * @throws DenormalizationFailed
      * @throws MappingFailed
      * @throws ReflectionException
      * @throws TypeCastingFailed
@@ -120,6 +121,7 @@ final class Denormalizer
     }
 
     /**
+     * @throws DenormalizationFailed
      * @throws ReflectionException
      * @throws TypeCastingFailed
      */
@@ -153,13 +155,13 @@ final class Denormalizer
     }
 
     /**
-     * @throws TypeCastingFailed
+     * @throws DenormalizationFailed
      */
     private function assertObjectIsInValidState(object $object): void
     {
         foreach ($this->properties as $property) {
             if (!$property->isInitialized($object)) {
-                throw new TypeCastingFailed('The property '.$this->class->getName().'::'.$property->getName().' is not initialized.');
+                throw DenormalizationFailed::dueToUninitializedProperty($property);
             }
         }
     }
@@ -267,7 +269,7 @@ final class Denormalizer
     private function getTypeCasting(Cell $cell, ReflectionProperty|ReflectionMethod $accessor): TypeCasting
     {
         if (array_key_exists('reflectionProperty', $cell->castArguments)) {
-            throw new MappingFailed('The key `reflectionProperty` can not be used with `castArguments`.');
+            throw MappingFailed::dueToForbiddenCastArgument();
         }
 
         $reflectionProperty = match (true) {
@@ -281,7 +283,7 @@ final class Denormalizer
         }
 
         if (!class_exists($typeCaster) || !(new ReflectionClass($typeCaster))->implementsInterface(TypeCasting::class)) {
-            throw new MappingFailed('`'.$typeCaster.'` must be an resolvable class implementing the `'.TypeCasting::class.'` interface.');
+            throw MappingFailed::dueToInvalidTypeCastingClass($typeCaster);
         }
 
         try {
@@ -292,18 +294,13 @@ final class Denormalizer
         } catch (MappingFailed $exception) {
             throw $exception;
         } catch (Throwable $exception) {
-            throw new MappingFailed('Unable to load the casting mechanism. Please verify your casting arguments', 0, $exception);
+            throw MappingFailed::dueToInvalidCastingArguments($exception);
         }
     }
 
     private function resolveTypeCasting(ReflectionProperty|ReflectionParameter $reflectionProperty, array $arguments = []): TypeCasting
     {
-        $exception = new MappingFailed(match (true) {
-            $reflectionProperty instanceof ReflectionParameter => 'The method `'.$reflectionProperty->getDeclaringClass()?->getName().'::'.$reflectionProperty->getDeclaringFunction()->getName().'` argument `'.$reflectionProperty->getName().'` must be typed with a supported type.',
-            $reflectionProperty instanceof ReflectionProperty => 'The property `'.$reflectionProperty->getDeclaringClass()->getName().'::'.$reflectionProperty->getName().'` must be typed with a supported type.',
-        });
-
-        $reflectionType = $reflectionProperty->getType() ?? throw $exception;
+        $reflectionType = $reflectionProperty->getType() ?? throw MappingFailed::dueToUnsupportedType($reflectionProperty);
 
         try {
             $arguments['reflectionProperty'] = $reflectionProperty;
@@ -318,12 +315,12 @@ final class Denormalizer
                     Type::Int => new CastToInt(...$arguments),
                     Type::Date => new CastToDate(...$arguments),
                     Type::Enum => new CastToEnum(...$arguments),
-                    default => throw $exception,
+                    default => throw MappingFailed::dueToUnsupportedType($reflectionProperty),
                 };
         } catch (MappingFailed $mappingFailed) {
             throw $mappingFailed;
         } catch (Throwable $exception) {
-            throw new MappingFailed('Unable to load the casting mechanism. Please verify your casting arguments', 0, $exception);
+            throw MappingFailed::dueToInvalidCastingArguments($exception);
         }
     }
 }

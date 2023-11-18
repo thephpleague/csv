@@ -147,7 +147,7 @@ final class DenormalizerTest extends TestCase
     public function testItWillThrowBecauseTheObjectDoesNotHaveTypedProperties(): void
     {
         $this->expectException(MappingFailed::class);
-        $this->expectExceptionMessage('The property `'.InvaliDWeatherWithRecordAttribute::class.'::temperature` must be typed with a supported type.');
+        $this->expectExceptionMessage('The property type for `'.InvaliDWeatherWithRecordAttribute::class.'::temperature` is missing or is not supported.');
 
         new Denormalizer(InvaliDWeatherWithRecordAttribute::class, ['temperature', 'foobar', 'observedOn']);
     }
@@ -155,7 +155,7 @@ final class DenormalizerTest extends TestCase
     public function testItWillFailForLackOfTypeCasting(): void
     {
         $this->expectException(MappingFailed::class);
-        $this->expectExceptionMessage('The property `'.InvaliDWeatherWithRecordAttributeAndUnknownCasting::class.'::observedOn` must be typed with a supported type.');
+        $this->expectExceptionMessage('The property type for `'.InvaliDWeatherWithRecordAttributeAndUnknownCasting::class.'::observedOn` is missing or is not supported.');
 
         new Denormalizer(InvaliDWeatherWithRecordAttributeAndUnknownCasting::class, ['temperature', 'place', 'observedOn']);
     }
@@ -163,7 +163,7 @@ final class DenormalizerTest extends TestCase
     public function testItWillThrowIfTheClassContainsUninitializedProperties(): void
     {
         $this->expectException(MappingFailed::class);
-        $this->expectExceptionMessage('The property `'.InvalidObjectWithUninitializedProperty::class.'::annee` must be typed with a supported type.');
+        $this->expectExceptionMessage('The property type for `'.InvalidObjectWithUninitializedProperty::class.'::annee` is missing or is not supported.');
 
         Denormalizer::assign(
             InvalidObjectWithUninitializedProperty::class,
@@ -178,9 +178,26 @@ final class DenormalizerTest extends TestCase
         };
 
         $this->expectException(MappingFailed::class);
-        $this->expectExceptionMessage('The property `'.$foobar::class.'::traversable` must be typed with a supported type.');
+        $this->expectExceptionMessage('The property type for `'.$foobar::class.'::traversable` is missing or is not supported.');
 
         Denormalizer::assign($foobar::class, ['traversable' => '1']);
+    }
+
+    public function testItWillThrowIfThePropertyIsMisMatchWithTheTypeCastingClass(): void
+    {
+        $foobar = new class () {
+            private string $firstName; /** @phpstan-ignore-line  */
+            #[Cell(cast: CastToDate::class)]
+            public function setFirstName(string $firstName): void
+            {
+                $this->firstName = $firstName;
+            }
+        };
+
+        $this->expectException(MappingFailed::class);
+        $this->expectExceptionMessage('The type for the method `'.$foobar::class.'::setFirstName` first argument `firstName` is invalid; `DateTimeInterface` or `mixed` type must be used with the `League\Csv\Serializer\CastToDate`.');
+
+        Denormalizer::assign($foobar::class, ['firstName' => 'john']);
     }
 
     public function testItCanUseTheClosureRegisteringMechanism(): void
@@ -236,7 +253,7 @@ final class DenormalizerTest extends TestCase
         };
 
         $this->expectException(MappingFailed::class);
-        $this->expectExceptionMessage('The property `'.$class::class.'::foobar` must be typed with a supported type.');
+        $this->expectExceptionMessage('The property type for `'.$class::class.'::foobar` is missing or is not supported.');
 
         Denormalizer::assign($class::class, ['foobar' => 'barbaz']);
     }

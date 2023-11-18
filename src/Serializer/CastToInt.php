@@ -40,14 +40,14 @@ final class CastToInt implements TypeCasting
         if (null === $value) {
             return match ($this->isNullable) {
                 true => $this->default,
-                false => throw new TypeCastingFailed('The `null` value can not be cast to an integer; the property type is not nullable.'),
+                false => throw TypeCastingFailed::dueToNotNullableType('integer'),
             };
         }
 
         $int = filter_var($value, Type::Int->filterFlag());
 
         return match ($int) {
-            false => throw new TypeCastingFailed('The `'.$value.'` value can not be cast to an integer.'),
+            false => throw TypeCastingFailed::dueToInvalidValue($value, Type::Int->value),
             default => $int,
         };
     }
@@ -67,7 +67,7 @@ final class CastToInt implements TypeCasting
         }
 
         if (null === $type) {
-            throw new MappingFailed('`'.$reflectionProperty->getName().'` type is not supported; `int`, `float` or `null` type is required.');
+            throw throw MappingFailed::dueToTypeCastingUnsupportedType($reflectionProperty, $this, 'int', 'float', 'null', 'mixed');
         }
 
         return $isNullable;

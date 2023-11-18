@@ -38,15 +38,19 @@ final class CastToBool implements TypeCasting
      */
     public function toVariable(?string $value): ?bool
     {
-        $returnValue = match(true) {
+        $returnValue = match (true) {
             null !== $value => filter_var($value, Type::Bool->filterFlag()),
             $this->isNullable => $this->default,
-            default => throw new TypeCastingFailed('The `null` value can not be cast to a boolean value.'),
+            default => throw TypeCastingFailed::dueToNotNullableType('boolean'),
         };
 
         return match (true) {
             Type::True->equals($this->type) && true !== $returnValue && !$this->isNullable,
-            Type::False->equals($this->type) && false !== $returnValue && !$this->isNullable => throw new TypeCastingFailed('The value `'.$value.'` could not be cast to `'.$this->type->value.'`.'),
+            Type::False->equals($this->type) && false !== $returnValue && !$this->isNullable => throw TypeCastingFailed::dueToInvalidValue(match (true) {
+                null === $value => 'null',
+                '' === $value => 'empty string',
+                default => $value,
+            }, $this->type->value),
             default => $returnValue,
         };
     }
@@ -69,7 +73,7 @@ final class CastToBool implements TypeCasting
         }
 
         if (null === $type) {
-            throw new MappingFailed('`'.$reflectionProperty->getName().'` type is not supported; `mixed` or `bool` type is required.');
+            throw MappingFailed::dueToTypeCastingUnsupportedType($reflectionProperty, $this, 'bool', 'mixed');
         }
 
         return [$type[0], $isNullable];

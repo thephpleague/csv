@@ -39,11 +39,15 @@ final class CastToString implements TypeCasting
         $returnedValue = match(true) {
             null !== $value => $value,
             $this->isNullable => $this->default,
-            default => throw new TypeCastingFailed('The `null` value can not be cast to a string.'),
+            default => throw TypeCastingFailed::dueToNotNullableType($this->type->value),
         };
 
         return match (true) {
-            Type::Null->equals($this->type) && null !== $returnedValue => throw new TypeCastingFailed('The value `'.$value.'` could not be cast to `'.$this->type->value.'`.'),
+            Type::Null->equals($this->type) && null !== $returnedValue => throw TypeCastingFailed::dueToInvalidValue(match (true) {
+                null === $value => 'null',
+                '' === $value => 'empty string',
+                default => $value,
+            }, $this->type->value),
             default => $returnedValue,
         };
     }
@@ -66,7 +70,7 @@ final class CastToString implements TypeCasting
         }
 
         if (null === $type) {
-            throw new MappingFailed('`'.$reflectionProperty->getName().'` type is not supported; `mixed`, `string` or `null` type is required.');
+            throw throw MappingFailed::dueToTypeCastingUnsupportedType($reflectionProperty, $this, 'string', 'mixed', 'null');
         }
 
         return [$type[0], $isNullable];

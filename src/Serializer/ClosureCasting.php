@@ -58,13 +58,14 @@ final class ClosureCasting implements TypeCasting
                 throw $exception;
             }
 
-            $message = match (true) {
-                '' === $value => 'Unable to cast the empty string to `'.$this->type.'`.',
-                null === $value => 'Unable to cast the `null` value to `'.$this->type.'`.',
-                default => 'Unable to cast the given string `'.$value.'` to `'.$this->type.'`',
-            };
+            if (null === $value) {
+                throw TypeCastingFailed::dueToNotNullableType($this->type, $exception);
+            }
 
-            throw new TypeCastingFailed(message: $message, previous: $exception);
+            throw TypeCastingFailed::dueToInvalidValue(match (true) {
+                '' === $value => 'empty string',
+                default => $value,
+            }, $this->type, $exception);
         }
     }
 
@@ -75,6 +76,7 @@ final class ClosureCasting implements TypeCasting
     {
         self::$casters[$type] = match (true) {
             class_exists($type),
+            interface_exists($type),
             Type::tryFrom($type)?->isBuiltIn() ?? false => $closure,
             default => throw new MappingFailed('The `'.$type.'` could not be register.'),
         };

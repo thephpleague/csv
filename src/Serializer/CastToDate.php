@@ -74,7 +74,7 @@ final class CastToDate implements TypeCasting
         return match (true) {
             null !== $value && '' !== $value => $this->cast($value),
             $this->isNullable => $this->default,
-            default => throw new TypeCastingFailed('Unable to convert the `null` value.'),
+            default => throw TypeCastingFailed::dueToNotNullableType($this->class),
         };
     }
 
@@ -88,14 +88,14 @@ final class CastToDate implements TypeCasting
                 ($this->class)::createFromFormat($this->format, $value, $this->timezone) :
                 new ($this->class)($value, $this->timezone);
             if (false === $date) {
-                throw new TypeCastingFailed('Unable to cast the given data `'.$value.'` to a PHP DateTime related object.');
+                throw TypeCastingFailed::dueToInvalidValue($value, $this->class);
             }
         } catch (Throwable $exception) {
             if ($exception instanceof TypeCastingFailed) {
                 throw $exception;
             }
 
-            throw new TypeCastingFailed(message: 'Unable to cast the given data `'.$value.'` to a PHP DateTime related object.', previous: $exception);
+            throw TypeCastingFailed::dueToInvalidValue($value, $this->class, $exception);
         }
 
         return $date;
@@ -121,7 +121,7 @@ final class CastToDate implements TypeCasting
         }
 
         if (null === $type) {
-            throw new MappingFailed('`'.$reflectionProperty->getName().'` type is not supported; a class implementing the `'.DateTimeInterface::class.'` interface or `mixed` is required.');
+            throw throw MappingFailed::dueToTypeCastingUnsupportedType($reflectionProperty, $this, DateTimeInterface::class, 'mixed');
         }
 
         return [...$type, $isNullable];
