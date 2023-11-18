@@ -105,7 +105,7 @@ final class DenormalizerTest extends TestCase
     public function testItWillThrowIfTheHeaderIsMissingAndTheColumnOffsetIsAString(): void
     {
         $this->expectException(MappingFailed::class);
-        $this->expectExceptionMessage('Column name as string are only supported if the tabular data has a non-empty header.');
+        $this->expectExceptionMessage('offset as string are only supported if the property names list is not empty.');
 
         $serializer = new Denormalizer(WeatherSetterGetter::class);
         $serializer->denormalize([
@@ -118,7 +118,7 @@ final class DenormalizerTest extends TestCase
     public function testItWillThrowIfTheHeaderContainsInvalidOffsetName(): void
     {
         $this->expectException(MappingFailed::class);
-        $this->expectExceptionMessage('The offset `temperature` could not be found in the header; Pleaser verify your header data.');
+        $this->expectExceptionMessage('The offset `temperature` could not be found in the property names list; Please verify your property names list.');
 
         $serializer = new Denormalizer(WeatherSetterGetter::class, ['date', 'toto', 'foobar']);
         $serializer->denormalize([
@@ -147,7 +147,7 @@ final class DenormalizerTest extends TestCase
     public function testItWillThrowBecauseTheObjectDoesNotHaveTypedProperties(): void
     {
         $this->expectException(MappingFailed::class);
-        $this->expectExceptionMessage('The property `temperature` must be typed with a supported type.');
+        $this->expectExceptionMessage('The property `'.InvaliDWeatherWithRecordAttribute::class.'::temperature` must be typed with a supported type.');
 
         new Denormalizer(InvaliDWeatherWithRecordAttribute::class, ['temperature', 'foobar', 'observedOn']);
     }
@@ -155,7 +155,7 @@ final class DenormalizerTest extends TestCase
     public function testItWillFailForLackOfTypeCasting(): void
     {
         $this->expectException(MappingFailed::class);
-        $this->expectExceptionMessage('The property `observedOn` must be typed with a supported type.');
+        $this->expectExceptionMessage('The property `'.InvaliDWeatherWithRecordAttributeAndUnknownCasting::class.'::observedOn` must be typed with a supported type.');
 
         new Denormalizer(InvaliDWeatherWithRecordAttributeAndUnknownCasting::class, ['temperature', 'place', 'observedOn']);
     }
@@ -163,7 +163,7 @@ final class DenormalizerTest extends TestCase
     public function testItWillThrowIfTheClassContainsUninitializedProperties(): void
     {
         $this->expectException(MappingFailed::class);
-        $this->expectExceptionMessage('The property `annee` must be typed with a supported type.');
+        $this->expectExceptionMessage('The property `'.InvalidObjectWithUninitializedProperty::class.'::annee` must be typed with a supported type.');
 
         Denormalizer::assign(
             InvalidObjectWithUninitializedProperty::class,
@@ -173,12 +173,12 @@ final class DenormalizerTest extends TestCase
 
     public function testItCanNotAutodiscoverWithIntersectionType(): void
     {
-        $this->expectException(MappingFailed::class);
-        $this->expectExceptionMessage('The property `traversable` must be typed with a supported type.');
-
         $foobar = new class () {
             public Countable&Traversable $traversable;
         };
+
+        $this->expectException(MappingFailed::class);
+        $this->expectExceptionMessage('The property `'.$foobar::class.'::traversable` must be typed with a supported type.');
 
         Denormalizer::assign($foobar::class, ['traversable' => '1']);
     }
@@ -222,6 +222,23 @@ final class DenormalizerTest extends TestCase
         Denormalizer::allowEmptyStringAsNull();
 
         self::assertNull(Denormalizer::assign($foobar::class, $record)->foo);
+    }
+
+    public function testAutoResolveArgumentFailsWithUntypedParameters(): void
+    {
+        $class = new class () {
+            public $foobar;  /** @phpstan-ignore-line  */
+            #[Cell]  /** @phpstan-ignore-line  */
+            public function setFoobar($foobar): void
+            {
+                $this->foobar = $foobar;
+            }
+        };
+
+        $this->expectException(MappingFailed::class);
+        $this->expectExceptionMessage('The property `'.$class::class.'::foobar` must be typed with a supported type.');
+
+        Denormalizer::assign($class::class, ['foobar' => 'barbaz']);
     }
 }
 

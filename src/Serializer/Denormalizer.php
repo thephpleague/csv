@@ -242,21 +242,21 @@ final class Denormalizer
         $cast = $this->getTypeCasting($cell, $accessor);
         if (is_int($offset)) {
             return match (true) {
-                0 > $offset => throw new MappingFailed('column integer position can only be positive or equals to 0; received `'.$offset.'`'),
+                0 > $offset => throw new MappingFailed('offset integer position can only be positive or equals to 0; received `'.$offset.'`'),
                 [] !== $propertyNames && $offset > count($propertyNames) - 1 => throw new MappingFailed('column integer position can not exceed property names count.'),
                 default => new PropertySetter($accessor, $offset, $cast),
             };
         }
 
         if ([] === $propertyNames) {
-            throw new MappingFailed('Column name as string are only supported if the tabular data has a non-empty header.');
+            throw new MappingFailed('offset as string are only supported if the property names list is not empty.');
         }
 
         /** @var int<0, max>|false $index */
         $index = array_search($offset, $propertyNames, true);
 
         return match (false) {
-            $index => throw new MappingFailed('The offset `'.$offset.'` could not be found in the header; Pleaser verify your header data.'),
+            $index => throw new MappingFailed('The offset `'.$offset.'` could not be found in the property names list; Please verify your property names list.'),
             default => new PropertySetter($accessor, $index, $cast),
         };
     }
@@ -299,8 +299,8 @@ final class Denormalizer
     private function resolveTypeCasting(ReflectionProperty|ReflectionParameter $reflectionProperty, array $arguments = []): TypeCasting
     {
         $exception = new MappingFailed(match (true) {
-            $reflectionProperty instanceof ReflectionParameter => 'The setter method argument `'.$reflectionProperty->getName().'` must be typed with a supported type.',
-            $reflectionProperty instanceof ReflectionProperty => 'The property `'.$reflectionProperty->getName().'` must be typed with a supported type.',
+            $reflectionProperty instanceof ReflectionParameter => 'The method `'.$reflectionProperty->getDeclaringClass()?->getName().'::'.$reflectionProperty->getDeclaringFunction()->getName().'` argument `'.$reflectionProperty->getName().'` must be typed with a supported type.',
+            $reflectionProperty instanceof ReflectionProperty => 'The property `'.$reflectionProperty->getDeclaringClass()->getName().'::'.$reflectionProperty->getName().'` must be typed with a supported type.',
         });
 
         $reflectionType = $reflectionProperty->getType() ?? throw $exception;
