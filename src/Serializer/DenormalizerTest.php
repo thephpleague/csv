@@ -17,6 +17,7 @@ use Countable;
 use DateTime;
 use DateTimeImmutable;
 use DateTimeInterface;
+use DateTimeZone;
 use PHPUnit\Framework\TestCase;
 use SplFileObject;
 use stdClass;
@@ -256,6 +257,48 @@ final class DenormalizerTest extends TestCase
         $this->expectExceptionMessage('The property type for `'.$class::class.'::foobar` is missing or is not supported.');
 
         Denormalizer::assign($class::class, ['foobar' => 'barbaz']);
+    }
+
+    public function testItWillAutoDiscoverThePublicMethod(): void
+    {
+        $class = new class () {
+            private DateTimeInterface $foo;
+
+            public function setDate(string $toto): void
+            {
+                $this->foo = new DateTimeImmutable($toto, new DateTimeZone('Africa/Abidjan'));
+            }
+
+            public function getDate(): DateTimeInterface
+            {
+                return $this->foo;
+            }
+        };
+
+        $object = Denormalizer::assign($class::class, ['date' => 'tomorrow']);
+        self::assertInstanceOf($class::class, $object);
+        self::assertEquals(new DateTimeZone('Africa/Abidjan'), $object->getDate()->getTimezone());
+    }
+    public function testItFailToAutoDiscoverThePublicMethod(): void
+    {
+        $class = new class () {
+            private DateTimeInterface $foo;
+
+            public function setDate(string $toto, string $timezone): void
+            {
+                $this->foo = new DateTimeImmutable($toto, new DateTimeZone($timezone));
+            }
+
+            public function getDate(): DateTimeInterface
+            {
+                return $this->foo;
+            }
+        };
+
+        $this->expectException(MappingFailed::class);
+        $this->expectExceptionMessage('No property or method from `'.$class::class.'` can be used for deserialization.');
+
+        $object = Denormalizer::assign($class::class, ['date' => 'tomorrow']);
     }
 }
 

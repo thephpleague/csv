@@ -56,13 +56,18 @@ We can define a PHP DTO using the following properties.
 ```php
 <?php
 
-final readonly class Weather
+final class Weather
 {
     public function __construct(
-        public ?float $temperature,
-        public Place $place,
-        public DateTimeImmutable $date,
+        public readonly ?float $temperature,
+        public readonly Place $place,
+        private DateTimeImmutable $date,
     ) {
+    }
+
+    public function setDate(string $date): void
+    {
+        $this->date = new DateTimeImmutable($date, new DateTimeZone('Africa/Abidjan'));
     }
 }
 
@@ -89,10 +94,12 @@ foreach ($csv->getObjects(Weather::class) {
 ## Defining the mapping rules
 
 By default, the denormalization engine will automatically convert public properties using their name.
-In other words, if there is a public class property, which name is the same as a record key,
-the record value will be assigned to that property. While the record value **MUST BE** a
-`string` or `null`, the autodiscovery feature only works with public properties typed with one of
-the following type:
+In other words, if there is:
+
+- a public class property, which name is the same as a record key, the record value will be assigned to that property.
+- a public class method, whose name starts with `set` and ends with the record key with the first character upper-cased, the record value will be assigned to the method first argument.
+
+While the record value **MUST BE** a `string` or `null`, the autodiscovery feature only works with public properties typed with one of the following type:
 
 - a scalar type (`string`, `int`, `float`, `bool`)
 - `null`

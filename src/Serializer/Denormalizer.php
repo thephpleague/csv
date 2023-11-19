@@ -195,8 +195,9 @@ final class Denormalizer
     private function setPropertySetters(array $propertyNames): array
     {
         $propertySetters = [];
+        $methodNames = array_map(fn (string|int $propertyName) => is_int($propertyName) ? null : 'set'.ucfirst($propertyName), $propertyNames);
         foreach ([...$this->properties, ...$this->class->getMethods()] as $accessor) {
-            $propertySetter = $this->findPropertySetter($accessor, $propertyNames);
+            $propertySetter = $this->findPropertySetter($accessor, $propertyNames, $methodNames);
             if (null !== $propertySetter) {
                 $propertySetters[] = $propertySetter;
             }
@@ -210,23 +211,51 @@ final class Denormalizer
 
     /**
      * @param array<string> $propertyNames
+     * @param array<string|null> $methodNames
      *
      * @throws MappingFailed
      */
-    private function findPropertySetter(ReflectionProperty|ReflectionMethod $accessor, array $propertyNames): ?PropertySetter
-    {
+    private function findPropertySetter(
+        ReflectionProperty|ReflectionMethod $accessor,
+        array $propertyNames,
+        array $methodNames
+    ): ?PropertySetter {
         $attributes = $accessor->getAttributes(Cell::class, ReflectionAttribute::IS_INSTANCEOF);
         if ([] === $attributes) {
-            if (!$accessor instanceof ReflectionProperty || $accessor->isStatic() || !$accessor->isPublic()) {
+            if ($accessor->isStatic() || !$accessor->isPublic()) {
                 return null;
             }
 
+            if ($accessor instanceof ReflectionMethod) {
+                if ($accessor->isConstructor()) {
+                    return null;
+                }
+
+                if ([] === $accessor->getParameters()) {
+                    return null;
+                }
+
+                if (1 !== $accessor->getNumberOfRequiredParameters()) {
+                    return null;
+                }
+            }
+
             /** @var int|false $offset */
-            $offset = array_search($accessor->getName(), $propertyNames, true);
+            $offset = match (true) {
+                $accessor instanceof ReflectionMethod => array_search($accessor->getName(), $methodNames, true),
+                default => array_search($accessor->getName(), $propertyNames, true),
+            };
 
             return match (false) {
                 $offset => null,
-                default => new PropertySetter($accessor, $offset, $this->resolveTypeCasting($accessor)),
+                default => new PropertySetter(
+                    $accessor,
+                    $offset,
+                    $this->resolveTypeCasting(match (true) {
+                        $accessor instanceof ReflectionMethod => $accessor->getParameters()[0],
+                        $accessor instanceof ReflectionProperty => $accessor,
+                    })
+                ),
             };
         }
 
@@ -237,7 +266,7 @@ final class Denormalizer
         /** @var Cell $cell */
         $cell = $attributes[0]->newInstance();
         $offset = $cell->offset ?? match (true) {
-            $accessor instanceof ReflectionMethod => $accessor->getParameters()[0]->getName(),
+            $accessor instanceof ReflectionMethod => $this->getMethodFirstArgument($accessor)->getName(),
             default => $accessor->getName(),
         };
 
@@ -260,6 +289,20 @@ final class Denormalizer
         return match (false) {
             $index => throw new MappingFailed('The offset `'.$offset.'` could not be found in the property names list; Please verify your property names list.'),
             default => new PropertySetter($accessor, $index, $cast),
+        };
+    }
+
+    /**
+     * @throws MappingFailed
+     */
+    private function getMethodFirstArgument(ReflectionMethod $reflectionMethod): ReflectionParameter
+    {
+        $arguments = $reflectionMethod->getParameters();
+
+        return match (true) {
+            [] === $arguments => throw new MappingFailed('The method '.$reflectionMethod->getName().' does not have parameters defined.'),
+            2 <= $reflectionMethod->getNumberOfRequiredParameters() => throw new MappingFailed('The method '.$reflectionMethod->getName().' has too many required parameters.'),
+            default => $arguments[0]
         };
     }
 
