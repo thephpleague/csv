@@ -77,7 +77,7 @@ final class ClosureCasting implements TypeCasting
         self::$casters[$type] = match (true) {
             class_exists($type),
             interface_exists($type),
-            Type::tryFrom($type)?->isBuiltIn() ?? false => $closure,
+            Type::tryFrom($type) instanceof Type => $closure,
             default => throw new MappingFailed('The `'.$type.'` could not be register.'),
         };
     }

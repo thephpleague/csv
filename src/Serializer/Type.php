@@ -18,6 +18,7 @@ use ReflectionParameter;
 use ReflectionProperty;
 use ReflectionType;
 use ReflectionUnionType;
+use Throwable;
 use UnitEnum;
 
 use function class_exists;
@@ -55,14 +56,6 @@ enum Type: string
         return in_array($this, $types, true);
     }
 
-    public function isBuiltIn(): bool
-    {
-        return match ($this) {
-            self::Date, self::Enum => false,
-            default => true,
-        };
-    }
-
     public function filterFlag(): int
     {
         return match ($this) {
@@ -86,6 +79,30 @@ enum Type: string
             self::String => true,
             default => false,
         };
+    }
+
+    public static function resolve(ReflectionProperty|ReflectionParameter $reflectionProperty, array $arguments = []): TypeCasting
+    {
+        $reflectionType = $reflectionProperty->getType() ?? throw MappingFailed::dueToUnsupportedType($reflectionProperty);
+
+        $arguments['reflectionProperty'] = $reflectionProperty;
+
+        try {
+            return match (Type::tryFromReflectionType($reflectionType)) {
+                Type::Mixed, Type::Null, Type::String => new CastToString(...$arguments),
+                Type::Iterable, Type::Array => new CastToArray(...$arguments),
+                Type::False, Type::True, Type::Bool => new CastToBool(...$arguments),
+                Type::Float => new CastToFloat(...$arguments),
+                Type::Int => new CastToInt(...$arguments),
+                Type::Date => new CastToDate(...$arguments),
+                Type::Enum => new CastToEnum(...$arguments),
+                null => throw MappingFailed::dueToUnsupportedType($reflectionProperty),
+            };
+        } catch (MappingFailed $exception) {
+            throw $exception;
+        } catch (Throwable $exception) {
+            throw MappingFailed::dueToInvalidCastingArguments($exception);
+        }
     }
 
     /**
@@ -115,6 +132,15 @@ enum Type: string
         };
     }
 
+    public static function tryFromName(string $propertyType): ?self
+    {
+        return match (true) {
+            enum_exists($propertyType) => self::Enum,
+            class_exists($propertyType) && (new ReflectionClass($propertyType))->implementsInterface(DateTimeInterface::class) => self::Date,
+            default => self::tryFrom($propertyType),
+        };
+    }
+
     public static function tryFromReflectionType(ReflectionType $type): ?self
     {
         if ($type instanceof ReflectionNamedType) {
@@ -137,17 +163,5 @@ enum Type: string
         }
 
         return null;
-    }
-
-    private static function tryFromName(string $propertyType): ?self
-    {
-        $type = self::tryFrom($propertyType);
-
-        return match (true) {
-            $type instanceof self => $type,
-            enum_exists($propertyType) => self::Enum,
-            class_exists($propertyType) && (new ReflectionClass($propertyType))->implementsInterface(DateTimeInterface::class) => self::Date,
-            default => null,
-        };
     }
 }

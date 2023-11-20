@@ -26,13 +26,13 @@ use UnitEnum;
  */
 class CastToEnum implements TypeCasting
 {
-    /** @var class-string */
+    /** @var class-string<UnitEnum|BackedEnum> */
     private readonly string $class;
     private readonly bool $isNullable;
     private readonly BackedEnum|UnitEnum|null $default;
 
     /**
-     * @param ?class-string $enum
+     * @param ?class-string<UnitEnum|BackedEnum> $enum
      *
      * @throws MappingFailed
      */
@@ -42,7 +42,7 @@ class CastToEnum implements TypeCasting
         ?string $enum = null,
     ) {
         [$type, $reflection, $this->isNullable] = $this->init($reflectionProperty);
-        /** @var class-string $class */
+        /** @var class-string<UnitEnum|BackedEnum> $class */
         $class = $reflection->getName();
         if (Type::Mixed->equals($type)) {
             if (null === $enum || !enum_exists($enum)) {
@@ -85,7 +85,7 @@ class CastToEnum implements TypeCasting
 
             $backedValue = 'int' === $enum->getBackingType()?->getName() ? filter_var($value, Type::Int->filterFlag()) : $value;
 
-            return $this->class::from($backedValue);
+            return $this->class::from($backedValue); /* @phpstan-ignore-line */
         } catch (Throwable $exception) {
             throw throw TypeCastingFailed::dueToInvalidValue($value, $this->class, $exception);
         }

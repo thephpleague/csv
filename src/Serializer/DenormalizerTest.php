@@ -98,7 +98,7 @@ final class DenormalizerTest extends TestCase
     public function testMappingFailBecauseTheRecordAttributeIsMissing(): void
     {
         $this->expectException(MappingFailed::class);
-        $this->expectExceptionMessage('No property or method from `stdClass` can be used for deserialization.');
+        $this->expectExceptionMessage('No property or method from `stdClass` could be used for deserialization.');
 
         Denormalizer::assign(stdClass::class, ['foo' => 'bar']);
     }
@@ -119,7 +119,7 @@ final class DenormalizerTest extends TestCase
     public function testItWillThrowIfTheHeaderContainsInvalidOffsetName(): void
     {
         $this->expectException(MappingFailed::class);
-        $this->expectExceptionMessage('The offset `temperature` could not be found in the property names list; Please verify your property names list.');
+        $this->expectExceptionMessage('The `temperature` property could not be found in the property names list; Please verify your property names list.');
 
         $serializer = new Denormalizer(WeatherSetterGetter::class, ['date', 'toto', 'foobar']);
         $serializer->denormalize([
@@ -296,7 +296,7 @@ final class DenormalizerTest extends TestCase
         };
 
         $this->expectException(MappingFailed::class);
-        $this->expectExceptionMessage('No property or method from `'.$class::class.'` can be used for deserialization.');
+        $this->expectExceptionMessage('No property or method from `'.$class::class.'` could be used for deserialization.');
 
         $object = Denormalizer::assign($class::class, ['date' => 'tomorrow']);
     }

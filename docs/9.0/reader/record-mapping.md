@@ -17,8 +17,8 @@ use League\Csv\Reader;
 
 $csv = Reader::createFromString($document);
 $csv->setHeaderOffset(0);
-foreach ($csv->getObjects(Weather::class) as $weather) {
-    // each $weather entry will be an instance of the Weather class;
+foreach ($csv->getObjects(ClimaticRecord::class) as $weather) {
+    // each $weather entry will be an instance of the ClimaticRecord class;
 }
 ```
 
@@ -43,12 +43,12 @@ As an example if we assume we have the following CSV document:
 
 ```csv
 date,temperature,place
-2011-01-01,,Galway
-2011-01-02,-1,Galway
-2011-01-03,0,Galway
-2011-01-01,6,Berkeley
-2011-01-02,8,Berkeley
-2011-01-03,5,Berkeley
+2011-01-01,,Abidjan
+2011-01-02,24,Abidjan
+2011-01-03,17,Abidjan
+2011-01-01,18,Yamoussoukro
+2011-01-02,23,Yamoussoukro
+2011-01-03,21,Yamoussoukro
 ```
 
 We can define a PHP DTO using the following properties.
@@ -56,12 +56,13 @@ We can define a PHP DTO using the following properties.
 ```php
 <?php
 
-final class Weather
+final class ClimaticRecord
 {
+    private ?DateTimeImmutable $date = null,
+
     public function __construct(
-        public readonly ?float $temperature,
         public readonly Place $place,
-        private DateTimeImmutable $date,
+        public readonly ?float $temperature,
     ) {
     }
 
@@ -69,12 +70,17 @@ final class Weather
     {
         $this->date = new DateTimeImmutable($date, new DateTimeZone('Africa/Abidjan'));
     }
+    
+    public function getDate(): DateTimeImmutable
+    {
+        return $this->date;
+    }
 }
 
 enum Place
 {
-    case Berkeley;
-    case Galway;
+    case Yamoussoukro;
+    case Abidjan;
 }
 ```
 
@@ -86,8 +92,8 @@ use League\Csv\Reader;
 
 $csv = Reader::createFromString($document);
 $csv->setHeaderOffset(0);
-foreach ($csv->getObjects(Weather::class) {
-    // each $weather entry will be an instance of the Weather class;
+foreach ($csv->getObjects(ClimaticRecord::class) as $instance) {
+    // each $instance entry will be an instance of the ClimaticRecord class;
 }
 ```
 
@@ -170,7 +176,7 @@ use League\Csv\Serializer\Denormalizer;
 
 $csv = Reader::createFromString($document);
 $csv->setHeaderOffset(0);
-foreach ($csv->getObjects(Weather::class) {
+foreach ($csv->getObjects(ClimaticRecord::class) {
     // the first record contains an empty string for temperature
     // it is converted into the null value and handle by the
     // default conversion type casting;
@@ -178,7 +184,7 @@ foreach ($csv->getObjects(Weather::class) {
 
 Denormalizer::disallowEmptyStringAsNull();
 
-foreach ($csv->getObjects(Weather::class) {   
+foreach ($csv->getObjects(ClimaticRecord::class) {   
     // a TypeCastingFailed exception is thrown because we
     // can not convert the empty string into a valid
     // temperature property value
@@ -235,7 +241,7 @@ use League\Csv\Serializer\Cell;
 #[Cell(
     offset:1,
     cast:Serializer\CastToEnum::class,
-    castArguments: ['default' => 'Galway', 'enum' => Place::class]
+    castArguments: ['default' => 'Abidjan', 'enum' => Place::class]
 )]
 public function setPlace(mixed $place): void
 {
@@ -244,7 +250,7 @@ public function setPlace(mixed $place): void
 ```
 
 > convert the value of the array whose offset is `1` into a `Place` Enum
-> if the value is  null resolve the string `Galway` to `Place::Galway`. Once created,
+> if the value is  null resolve the string `Abidjan` to `Place::Abidjan`. Once created,
 > call the method `setPlace` with the created `Place` enum filling the `$place` argument.
 
 <p class="notice">Using this class  with a <code>mixed</code> type without providing the <code>enum</code> parameter will trigger an exception.</p>
@@ -485,14 +491,17 @@ final class CastToNaira implements TypeCasting
 <p class="message-info">While the built-in <code>TypeCasting</code> classes do not support Intersection Type, your own
 implementing class can support them via inspection of the <code>$reflectionProperty</code> argument.</p>
 
-## Using the feature outside the TabularDataReader
+## Using the feature without a TabularDataReader
 
 The feature can be used outside the package usage via the `Denormalizer` class.
 
 The class exposes four (4) methods to ease `array` to `object` conversion:
 
-- `Denormalizer::denormalizeAll` and `Denormalizer::assignAll` which convert a collection of records into a collection of instances of a specified class.
-- `Denormalizer::denormalize` and `Denormalizer::assign` which convert a single record into a new instance of the specified class.
+- `Denormalizer::denormalizeAll` and `Denormalizer::assignAll` to convert a collection of records into a collection of instances of a specified class.
+- `Denormalizer::denormalize` and `Denormalizer::assign` to convert a single record into a new instance of the specified class.
+
+Since we are not leveraging the `TabularDataReader` we must explicitly tell the class how to link array keys and class properties.
+Once instantiated you can reuse the instance to independently convert a single record or a collection of `array`.
 
 ```php
 use League\Csv\Serializer\Denormalizer;
@@ -500,25 +509,34 @@ use League\Csv\Serializer\Denormalizer;
 $record = [
     'date' => '2023-10-30',
     'temperature' => '-1.5',
-    'place' => 'Berkeley',
+    'place' => 'Yamoussoukro',
 ];
 
 //a complete collection of records as shown below
 $collection = [$record];
 //we first instantiate the denormalizer
-$denormalizer = new Denormalizer(Weather::class, ['date', 'temperature', 'place']);
+//and we provide the information to map record key to the class properties
+$denormalizer = new Denormalizer(ClimaticRecord::class, ['date', 'temperature', 'place']);
 $weather = $denormalizer->denormalize($record); //we convert 1 record into 1 instance
 
 foreach ($denormalizer->denormalizeAll($collection) as $weather) {
-    // each $weather entry will be an instance of the Weather class;
+    // each $weather entry will be an instance of the ClimaticRecord class;
 }
+```
 
+To complete the feature 2 static methods are provided if you only need to denormalization once,
+`Denormalizer::assign` will automatically use the `array` keys as property names. Whereas,
+you still need to give the property list to `Denormalizer::assignAll` to allow the class
+to work with any given iterable structure of `array`.
+
+```php
+<?php
 // you can use the alternate syntactic sugar methods 
 // if you only need to use the mechanism once
-$weather = Denormalizer::assign(Weather::class, $record);
+$weather = Denormalizer::assign(ClimaticRecord::class, $record);
 
-foreach (Denormalizer::assignAll(Weather::class, $collection, ['date', 'temperature', 'place']) as $weather) {
-    // each $weather entry will be an instance of the Weather class;
+foreach (Denormalizer::assignAll(ClimaticRecord::class, $collection, ['date', 'temperature', 'place']) as $weather) {
+    // each $weather entry will be an instance of the ClimaticRecord class;
 }
 ```
 

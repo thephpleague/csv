@@ -121,16 +121,14 @@ returned iterator. Added column will only contain the `null` value.
 
 <p class="message-notice">Added in version <code>9.12.0</code> for <code>Reader</code> and <code>ResultSet</code>.</p>
 
-If you prefer working with objects instead of typed arrays it is possible to convert each record using
-the `getObjects` method. This method will convert each array record into your specified object.
-
-To get instances of your object, you are required to call the `getObjects` method as show below:
+If you prefer working with objects instead of arrays it is possible to deserialize your CSV document using
+the `getObjects` method. This method will convert each CSV record into your specified class instances.
 
 ```php
 $csv = Reader::createFromString($document);
 $csv->setHeaderOffset(0);
-foreach ($csv->getObjects(Weather::class) as $weather) {
-    // each $weather entry will be an instance of the Weather class;
+foreach ($csv->getObjects(ClimaticRecord::class) as $instance) {
+    // each $instance entry will be an instance of the Weather class;
 }
 ```
 

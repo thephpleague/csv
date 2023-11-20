@@ -174,12 +174,12 @@ final class Denormalizer
     private function setClass(string $className): ReflectionClass
     {
         if (!class_exists($className)) {
-            throw new MappingFailed('The class `'.$className.'` does not exist or was not found.');
+            throw new MappingFailed('The class `'.$className.'` can not be denormalized; The class does not exist or could not be found.');
         }
 
         $class = new ReflectionClass($className);
         if ($class->isInternal() && $class->isFinal()) {
-            throw new MappingFailed('The class `'.$className.'` can not be deserialize using `'.self::class.'`.');
+            throw new MappingFailed('The class `'.$className.'` can not be denormalized; PHP internal class marked as final can not be instantiated without using the constructor.');
         }
 
         return $class;
@@ -197,98 +197,111 @@ final class Denormalizer
         $propertySetters = [];
         $methodNames = array_map(fn (string|int $propertyName) => is_int($propertyName) ? null : 'set'.ucfirst($propertyName), $propertyNames);
         foreach ([...$this->properties, ...$this->class->getMethods()] as $accessor) {
-            $propertySetter = $this->findPropertySetter($accessor, $propertyNames, $methodNames);
+            $attributes = $accessor->getAttributes(Cell::class, ReflectionAttribute::IS_INSTANCEOF);
+            $propertySetter = match (count($attributes)) {
+                0 => $this->autoDiscoverPropertySetter($accessor, $propertyNames, $methodNames),
+                1 => $this->findPropertySetter($attributes[0]->newInstance(), $accessor, $propertyNames),
+                default => throw new MappingFailed('Using more than one `'.Cell::class.'` attribute on a class property or method is not supported.'),
+            };
             if (null !== $propertySetter) {
                 $propertySetters[] = $propertySetter;
             }
         }
 
         return match ([]) {
-            $propertySetters => throw new MappingFailed('No property or method from `'.$this->class->getName().'` can be used for deserialization.'),
+            $propertySetters => throw new MappingFailed('No property or method from `'.$this->class->getName().'` could be used for deserialization.'),
             default => $propertySetters,
         };
     }
 
     /**
      * @param array<string> $propertyNames
-     * @param array<string|null> $methodNames
+     * @param array<?string> $methodNames
      *
      * @throws MappingFailed
      */
-    private function findPropertySetter(
-        ReflectionProperty|ReflectionMethod $accessor,
-        array $propertyNames,
-        array $methodNames
-    ): ?PropertySetter {
-        $attributes = $accessor->getAttributes(Cell::class, ReflectionAttribute::IS_INSTANCEOF);
-        if ([] === $attributes) {
-            if ($accessor->isStatic() || !$accessor->isPublic()) {
+    private function autoDiscoverPropertySetter(ReflectionMethod|ReflectionProperty $accessor, array $propertyNames, array $methodNames): ?PropertySetter
+    {
+        if ($accessor->isStatic() || !$accessor->isPublic()) {
+            return null;
+        }
+
+        if ($accessor instanceof ReflectionMethod) {
+            if ($accessor->isConstructor()) {
                 return null;
             }
 
-            if ($accessor instanceof ReflectionMethod) {
-                if ($accessor->isConstructor()) {
-                    return null;
-                }
-
-                if ([] === $accessor->getParameters()) {
-                    return null;
-                }
-
-                if (1 !== $accessor->getNumberOfRequiredParameters()) {
-                    return null;
-                }
+            if ([] === $accessor->getParameters()) {
+                return null;
             }
 
-            /** @var int|false $offset */
-            $offset = match (true) {
-                $accessor instanceof ReflectionMethod => array_search($accessor->getName(), $methodNames, true),
-                default => array_search($accessor->getName(), $propertyNames, true),
-            };
-
-            return match (false) {
-                $offset => null,
-                default => new PropertySetter(
-                    $accessor,
-                    $offset,
-                    $this->resolveTypeCasting(match (true) {
-                        $accessor instanceof ReflectionMethod => $accessor->getParameters()[0],
-                        $accessor instanceof ReflectionProperty => $accessor,
-                    })
-                ),
-            };
+            if (1 < $accessor->getNumberOfRequiredParameters()) {
+                return null;
+            }
         }
 
-        if (1 < count($attributes)) {
-            throw new MappingFailed('Using more than one `'.Cell::class.'` attribute on a class property or method is not supported.');
-        }
-
-        /** @var Cell $cell */
-        $cell = $attributes[0]->newInstance();
-        $offset = $cell->offset ?? match (true) {
-            $accessor instanceof ReflectionMethod => $this->getMethodFirstArgument($accessor)->getName(),
-            default => $accessor->getName(),
+        /** @var int|false $offset */
+        [$offset, $reflectionProperty] = match (true) {
+            $accessor instanceof ReflectionMethod => [array_search($accessor->getName(), $methodNames, true), $accessor->getParameters()[0]],
+            $accessor instanceof ReflectionProperty => [array_search($accessor->getName(), $propertyNames, true), $accessor],
         };
 
-        $cast = $this->getTypeCasting($cell, $accessor);
-        if (is_int($offset)) {
-            return match (true) {
-                0 > $offset => throw new MappingFailed('offset integer position can only be positive or equals to 0; received `'.$offset.'`'),
-                [] !== $propertyNames && $offset > count($propertyNames) - 1 => throw new MappingFailed('column integer position can not exceed property names count.'),
-                default => new PropertySetter($accessor, $offset, $cast),
-            };
-        }
-
-        if ([] === $propertyNames) {
-            throw new MappingFailed('offset as string are only supported if the property names list is not empty.');
-        }
-
-        /** @var int<0, max>|false $index */
-        $index = array_search($offset, $propertyNames, true);
-
         return match (false) {
-            $index => throw new MappingFailed('The offset `'.$offset.'` could not be found in the property names list; Please verify your property names list.'),
-            default => new PropertySetter($accessor, $index, $cast),
+            $offset => null,
+            default => new PropertySetter(
+                $accessor,
+                $offset,
+                $this->resolveTypeCasting($reflectionProperty, ['reflectionProperty' => $reflectionProperty])
+            ),
+        };
+    }
+
+    /**
+     * @param array<string> $propertyNames
+     *
+     * @throws MappingFailed
+     */
+    private function findPropertySetter(Cell $cell, ReflectionMethod|ReflectionProperty $accessor, array $propertyNames): PropertySetter
+    {
+        if (array_key_exists('reflectionProperty', $cell->castArguments)) {
+            throw MappingFailed::dueToForbiddenCastArgument();
+        }
+
+        /** @var ?class-string<TypeCasting> $typeCaster */
+        $typeCaster = $cell->cast;
+        if (null !== $typeCaster && (!class_exists($typeCaster) || !(new ReflectionClass($typeCaster))->implementsInterface(TypeCasting::class))) {
+            throw MappingFailed::dueToInvalidTypeCastingClass($typeCaster);
+        }
+
+        $offset = $cell->offset ?? match (true) {
+            $accessor instanceof ReflectionMethod => $this->getMethodFirstArgument($accessor)->getName(),
+            $accessor instanceof ReflectionProperty => $accessor->getName(),
+        };
+
+        if (!is_int($offset)) {
+            if ([] === $propertyNames) {
+                throw new MappingFailed('offset as string are only supported if the property names list is not empty.');
+            }
+
+            /** @var int<0, max>|false $index */
+            $index = array_search($offset, $propertyNames, true);
+            if (false === $index) {
+                throw new MappingFailed('The `'.$offset.'` property could not be found in the property names list; Please verify your property names list.');
+            }
+
+            $offset = $index;
+        }
+
+        $arguments = [...$cell->castArguments, ...['reflectionProperty' => $reflectionProperty = match (true) {
+            $accessor instanceof ReflectionMethod => $accessor->getParameters()[0],
+            $accessor instanceof ReflectionProperty => $accessor,
+        }]];
+
+        return match (true) {
+            0 > $offset => throw new MappingFailed('offset integer position can only be positive or equals to 0; received `'.$offset.'`'),
+            [] !== $propertyNames && $offset > count($propertyNames) - 1 => throw new MappingFailed('offset integer position can not exceed property names count.'),
+            null === $typeCaster => new PropertySetter($accessor, $offset, $this->resolveTypeCasting($reflectionProperty, $arguments)),
+            default => new PropertySetter($accessor, $offset, $this->getTypeCasting($typeCaster, $arguments)),
         };
     }
 
@@ -300,70 +313,38 @@ final class Denormalizer
         $arguments = $reflectionMethod->getParameters();
 
         return match (true) {
-            [] === $arguments => throw new MappingFailed('The method '.$reflectionMethod->getName().' does not have parameters defined.'),
-            2 <= $reflectionMethod->getNumberOfRequiredParameters() => throw new MappingFailed('The method '.$reflectionMethod->getName().' has too many required parameters.'),
+            [] === $arguments => throw new MappingFailed('The method `'.$reflectionMethod->getDeclaringClass()->getName().'::'.$reflectionMethod->getName().'` does not use parameters.'),
+            1 < $reflectionMethod->getNumberOfRequiredParameters() => throw new MappingFailed('The method `'.$reflectionMethod->getDeclaringClass()->getName().'::'.$reflectionMethod->getName().'` has too many required parameters.'),
             default => $arguments[0]
         };
     }
 
     /**
+     * @param class-string<TypeCasting> $typeCaster
+     *
      * @throws MappingFailed
      */
-    private function getTypeCasting(Cell $cell, ReflectionProperty|ReflectionMethod $accessor): TypeCasting
+    private function getTypeCasting(string $typeCaster, array $arguments): TypeCasting
     {
-        if (array_key_exists('reflectionProperty', $cell->castArguments)) {
-            throw MappingFailed::dueToForbiddenCastArgument();
-        }
-
-        $reflectionProperty = match (true) {
-            $accessor instanceof ReflectionMethod => $accessor->getParameters()[0],
-            $accessor instanceof ReflectionProperty => $accessor,
-        };
-
-        $typeCaster = $cell->cast;
-        if (null === $typeCaster) {
-            return $this->resolveTypeCasting($reflectionProperty, $cell->castArguments);
-        }
-
-        if (!class_exists($typeCaster) || !(new ReflectionClass($typeCaster))->implementsInterface(TypeCasting::class)) {
-            throw MappingFailed::dueToInvalidTypeCastingClass($typeCaster);
-        }
-
         try {
-            /** @var TypeCasting $cast */
-            $cast = new $typeCaster(...$cell->castArguments, ...['reflectionProperty' => $reflectionProperty]);
-
-            return $cast;
-        } catch (MappingFailed $exception) {
-            throw $exception;
-        } catch (Throwable $exception) {
-            throw MappingFailed::dueToInvalidCastingArguments($exception);
+            return new $typeCaster(...$arguments);
+        } catch (Throwable $exception) { /* @phpstan-ignore-line */
+            throw $exception instanceof MappingFailed ? $exception : MappingFailed::dueToInvalidCastingArguments($exception);
         }
     }
 
-    private function resolveTypeCasting(ReflectionProperty|ReflectionParameter $reflectionProperty, array $arguments = []): TypeCasting
+    /**
+     * @throws MappingFailed
+     */
+    private function resolveTypeCasting(ReflectionProperty|ReflectionParameter $reflectionProperty, array $arguments): TypeCasting
     {
-        $reflectionType = $reflectionProperty->getType() ?? throw MappingFailed::dueToUnsupportedType($reflectionProperty);
-
         try {
-            $arguments['reflectionProperty'] = $reflectionProperty;
-
-            return ClosureCasting::supports($reflectionProperty) ?
-                new ClosureCasting(...$arguments) :
-                match (Type::tryFromReflectionType($reflectionType)) {
-                    Type::Mixed, Type::Null, Type::String => new CastToString(...$arguments),
-                    Type::Iterable, Type::Array => new CastToArray(...$arguments),
-                    Type::False, Type::True, Type::Bool => new CastToBool(...$arguments),
-                    Type::Float => new CastToFloat(...$arguments),
-                    Type::Int => new CastToInt(...$arguments),
-                    Type::Date => new CastToDate(...$arguments),
-                    Type::Enum => new CastToEnum(...$arguments),
-                    default => throw MappingFailed::dueToUnsupportedType($reflectionProperty),
-                };
-        } catch (MappingFailed $mappingFailed) {
-            throw $mappingFailed;
+            return match (true) {
+                ClosureCasting::supports($reflectionProperty) => new ClosureCasting(...$arguments),
+                default => Type::resolve($reflectionProperty, $arguments),
+            };
         } catch (Throwable $exception) {
-            throw MappingFailed::dueToInvalidCastingArguments($exception);
+            throw $exception instanceof MappingFailed ? $exception : MappingFailed::dueToInvalidCastingArguments($exception);
         }
     }
 }
