@@ -196,7 +196,7 @@ $result->value(42); //returns null
 ```
 
 <p class="message-warning">The <code>fetchOne</code> method was deprecated in version <code>9.9.0</code>.
-it is recommanded to use the <code>nth</code> method instead.</p>
+it is recommended to use the <code>nth</code> method instead.</p>
 
 ### exists
 
@@ -255,7 +255,7 @@ foreach ($records->fetchColumnByOffset(3) as $value) {
 
 ### fetchPairs
 
-The `fetchPairs` method returns a Iterator of key-value pairs from two tabular data columns. The method
+The `fetchPairs` method returns an Iterator of key-value pairs from two tabular data columns. The method
 expect 2 arguments, both can be:
 
 - an integer which represents the column name index;
@@ -309,7 +309,7 @@ foreach ($records->fetchPairs() as $firstname => $lastname) {
 
 <p class="message-notice">Added in version <code>9.11.0</code> for <code>Reader</code> and <code>ResultSet</code>.</p>
 
-The `each` method iterates over the records in the tabular data collection and passes each reacord to a
+The `each` method iterates over the records in the tabular data collection and passes each record to a
 closure.
 
 ```php
@@ -370,7 +370,7 @@ use League\Csv\Reader;
 $reader = Reader::createFromPath('/path/to/my/file.csv', 'r');
 $records = $reader->filter(fn (array $record): => 5 === count($record));
 
-//$recors is a ResultSet object with only records with 5 elements
+//$records is a ResultSet object with only records with 5 elements
 ```
 
 <p class="message-info"> Wraps the functionality of <code>Statement::where</code>.</p>
@@ -417,9 +417,9 @@ $records = $resultSet->slice(10, 25);
 ### select
 
 You may not always want to select all columns from the tabular data. Using the `select` method,
-you can specify which columns to use. The column can be specified by their
-name if the instance `getHeader` returns a non-empty array or you can use
-the column offset or mix them both.
+you can specify which columns to use. The column can be specified by their name, if the instance
+`getHeader` returns a non-empty array, or you can default to using the column offset. You
+can even mix them both.
 
 ```php
 use League\Csv\Reader;
@@ -446,7 +446,7 @@ use League\Csv\Reader;
 $reader = Reader::createFromString($csv);
 
 $reader->matching('row=3-1;4-6'); //returns an iterable containing all the TabularDataReader instance that are valid.
-$reader->matchingFirst('row=3-1;4-6'); // will return 1 selected fragment as a TabularRaeaderData instance
+$reader->matchingFirst('row=3-1;4-6'); // will return 1 selected fragment as a TabularReaderData instance
 $reader->matchingFirstOrFail('row=3-1;4-6'); // will throw
 ```
 

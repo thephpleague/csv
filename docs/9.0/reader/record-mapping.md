@@ -105,7 +105,8 @@ In other words, if there is:
 - a public class property, which name is the same as a record key, the record value will be assigned to that property.
 - a public class method, whose name starts with `set` and ends with the record key with the first character upper-cased, the record value will be assigned to the method first argument.
 
-While the record value **MUST BE** a `string` or `null`, the autodiscovery feature only works with public properties typed with one of the following type:
+While the record value **MUST BE** a `string` or `null`, the autodiscovery feature works out of the box with
+public properties or arguments typed with one of the following type:
 
 - a scalar type (`string`, `int`, `float`, `bool`)
 - `null`
@@ -115,9 +116,9 @@ While the record value **MUST BE** a `string` or `null`, the autodiscovery featu
 
 the `nullable` aspect of the property is also automatically handled.
 
-To complete the conversion you can use the `Cell` attribute.
+When autodiscovery is not enough, you can complete the conversion information using the `League\Csv\Serializer\Cell` attribute.
 
-Here's an example of how the attribute can be used:
+Here's an example of how the attribute is used:
 
 ```php
 use League\Csv\Serializer;
@@ -146,11 +147,13 @@ It can be used on class properties and methods regardless of their visibility.
 The attribute can take up to three (3) arguments which are all optional:
 
 - The `offset` argument tells the engine which record key to use via its numeric or name offset. If not present the property name or the name of the first argument of the `setter` method will be used. In such case, you are required to specify the property names information.
-- The `cast` argument which accept the name of a class implementing the `TypeCasting` interface and responsible for type casting the record value. If not present, the mechanism will try to resolve the typecasting based on the propery or method argument type.
+- The `cast` argument which accept the name of a class implementing the `TypeCasting` interface and responsible for type casting the record value. If not present, the mechanism will try to resolve the typecasting based on the property or method argument type.
 - The `castArguments` argument enables controlling typecasting by providing extra arguments to the `TypeCasting` class constructor. The argument expects an associative array and relies on named arguments to inject its value to the `TypeCasting` implementing class constructor.
 
 <p class="message-notice">You can use the mechanism on a CSV without a header row but it requires
-adding a <code>Cell</code> attribute on each property or method needed for the conversion.</p>
+adding a <code>Cell</code> attribute on each property or method needed for the conversion. Or you
+can use the optional second argument of <code>TabularDataReader::getObjects</code> to specify the
+header value, just like with <code>TabularDataReader::getRecords</code></p>
 
 <p class="message-warning">The <code>reflectionProperty</code> key can not be used with the
 <code>castArguments</code> as it is a reserved argument used by the <code>TypeCasting</code> class.</p>
@@ -195,7 +198,7 @@ foreach ($csv->getObjects(ClimaticRecord::class) {
 ## Type casting
 
 The library comes bundled with seven (7) type casting classes which relies on the property type information.
-All the built-in methods support the `nullable` and the `mixed` types.
+They all support `nullable` and `mixed` types.
 
 - They will return `null` or a specified default value, if the cell value is `null` and the type is `nullable`
 - If the value can not be cast they will throw an exception.
@@ -213,6 +216,7 @@ optional argument `default` which is the default value to return if the value is
 
 Converts the array value to `true`, `false` or `null` depending on the property type information. The class takes one
 optional argument `default` which is the default boolean value to return if the value is `null`.
+
 Since typecasting relies on `ext-filter` rules, the following strings `1`, `true`, `on` and `yes` will all be cast
 in a case-insensitive way to `true` otherwise `false` will be used.
 
@@ -225,13 +229,13 @@ optional argument `default` which is the default `int` or `float` value to retur
 
 ### CastToEnum
 
-Convert the array value to a PHP `Enum`, it supports both "real" and backed enumeration. The class takes two (2)
+Convert the array value to a PHP `Enum`, it supports both unit and backed enumeration. The class takes two (2)
 optionals arguments:
 
 - `default` which is the default Enum value to return if the value is `null`.
-- `enum` which is the Enum class to use for resolution if the property or method argument is typed as `mixed`.
+- `enum` which is the `Enum` to use for resolution if the property or method argument is typed as `mixed`.
 
-If the `Enum` is backed the cell value will be considered as one of the Enum value; otherwise it will be used
+If the `Enum` is backed the cell value will be considered as one of the `Enum` value; otherwise it will be used
 as one the `Enum` name. The same logic applies for the `default` value. If the default value
 is not `null` and the value given is incorrect, the mechanism will throw an exception.
 
@@ -246,6 +250,7 @@ use League\Csv\Serializer\Cell;
 public function setPlace(mixed $place): void
 {
     //apply the method logic whatever that is!
+    //knowing that $place is a Place::class instance
 }
 ```
 
@@ -280,8 +285,8 @@ The following are example for each shape expected string value:
 
 ```php
 $array['list'] = "1,2,3,4";         //the string contains only a delimiter (shape list)
-$arrat['csv'] = '"1","2","3","4"';  //the string contains delimiter and enclosure (shape csv)
-$arrat['json'] = '{"foo":"bar"}';   //the string is a json string (shape json)
+$array['csv'] = '"1","2","3","4"';  //the string contains delimiter and enclosure (shape csv)
+$array['json'] = '{"foo":"bar"}';   //the string is a json string (shape json)
 ```
 
 Here's an example for casting a string via the `json` shape.
@@ -324,8 +329,8 @@ The `type` option only supports scalar type (`string`, `int`, `float` and `bool`
 
 ## Extending Type Casting capabilities
 
-Two mechanisms to extend typecasting are provided. You can register a closure via the `Denormalizer` class
-or create a fully fledge `TypeCasting` class. Of course, the choice will depend on your use case.
+Two (2) mechanisms to extend typecasting are provided. You can register a closure via the `Denormalizer` class
+or create a `League\Csv\Serializer\TypeCasting` implementing class. Of course, the choice will depend on your use case.
 
 ### Registering a closure
 
@@ -366,7 +371,7 @@ private ?Naira $amount;
 
 <p class="message-notice">No need to specify the <code>cast</code> argument as the closure is registered.</p>
 
-In the following example, we redefine how to typecast to integer.
+Using the closure mechanism you can redefine how to typecast to integer.
 
 ```php
 use League\Csv\Serializer;
@@ -374,7 +379,7 @@ use League\Csv\Serializer;
 Serializer\Denormalizer::registerType('int', fn (?string $value): int => 42);
 ```
 
-The closure will take precedence over the `CastToInt` class to convert
+The closure takes precedence over the built-in `CastToInt` class to convert
 to the `int` type during autodiscovery. You can still use the `CastToInt`
 class, but you are now require to explicitly declare it via the `Cell`
 attribute using the `cast` argument.
@@ -388,7 +393,7 @@ closure(?string $value, bool $isNullable, ...$arguments): mixed;
 where:
 
 - the `$value` is the record value
-- the `$isNullable` tells whether the argument or property can be nullable
+- the `$isNullable` tells whether the argument or property is nullable
 - the `$arguments` are the extra configuration options you can pass to the `Cell` attribute via `castArguments`
 
 To complete the feature you can use `Denormalizer::unregisterType` to remove a registered closure for a specific `type`.
@@ -401,13 +406,16 @@ Serializer\Denormalizer::unregisterType(Naira::class);
 
 The two (2) methods are static.
 
-<p class="message-notice">the mechanism does not support <code>IntersectionType</code></p>
+<p class="message-notice">the closure mechanism does not support <code>IntersectionType</code></p>
 
 ### Implementing a TypeCasting class
 
-If you need to support `Intersection` type, or you want to be able to fine tune the typecasting
-you can provide your own class to typecast the value according to your own rules. Since the class
-is not registered by default you must configure its usage via the `Cell` attribute `cast` argument.
+If you need to support `Intersection` type or properties/argument without type, or you want to be
+able to fine tune the typecasting you can provide your own class to typecast the value according
+to your own rules. Since the class is not registered by default:
+
+- you must configure its usage via the `Cell` attribute `cast` argument
+- it won't be available during autodiscovery.
 
 ```php
 use App\Domain\Money\Naira;
@@ -421,7 +429,7 @@ use League\Csv\Serializer;
 private ?Money $naira;
 ```
 
-The `CastToMoney` will convert the cell value into a `Money` object and if the value is `null`, `20_00` will be used.
+The `CastToNaira` will convert the cell value into a `Narai` object and if the value is `null`, `20_00` will be used.
 To allow your object to cast the cell value to your liking it needs to implement the `TypeCasting` interface.
 To do so, you must define a `toVariable` method that will return the correct value once converted.
 
@@ -464,10 +472,12 @@ final class CastToNaira implements TypeCasting
         // it tells whether the property/argument is nullable or not
 
         $reflectionType = $reflectionProperty->getType();
-        if (!$reflectionType instanceof ReflectionNamedType || !in_array($reflectionType->getName(), [Money::class, 'mixed'], true)) {
+        if (!$reflectionType instanceof ReflectionNamedType || !in_array($reflectionType->getName(), [Naira::class, 'mixed'], true)) {
+            $message = '`'.$reflectionProperty->getName()'.` is not typed with the '.Naira::class.' class or with `mixed`.';
+
             throw new MappingFailed(match (true) {
-                $reflectionProperty instanceof ReflectionParameter => 'The setter method argument `'.$reflectionProperty->getName().'` is not typed with the '.Money::class.' class or with `mixed`.',
-                $reflectionProperty instanceof ReflectionProperty => 'The property `'.$reflectionProperty->getName().'` is not typed with the '.Money::class.' class or with `mixed`.',
+                $reflectionProperty instanceof ReflectionParameter => 'The setter method argument '.$message,
+                $reflectionProperty instanceof ReflectionProperty => 'The property '.$message,
             });
         }
         $this->isNullable = $reflectionType->allowsNull();
@@ -493,15 +503,16 @@ implementing class can support them via inspection of the <code>$reflectionPrope
 
 ## Using the feature without a TabularDataReader
 
-The feature can be used outside the package usage via the `Denormalizer` class.
+The feature can be used outside the package default usage via the `Denormalizer` class.
 
 The class exposes four (4) methods to ease `array` to `object` conversion:
 
 - `Denormalizer::denormalizeAll` and `Denormalizer::assignAll` to convert a collection of records into a collection of instances of a specified class.
 - `Denormalizer::denormalize` and `Denormalizer::assign` to convert a single record into a new instance of the specified class.
 
-Since we are not leveraging the `TabularDataReader` we must explicitly tell the class how to link array keys and class properties.
-Once instantiated you can reuse the instance to independently convert a single record or a collection of `array`.
+Since we are not leveraging the `TabularDataReader` feature we must explicitly tell the class how to link
+array keys to class properties and/or methods. Once instantiated you can reuse the instance to independently
+convert a single or a collection of similar `array`.
 
 ```php
 use League\Csv\Serializer\Denormalizer;
@@ -524,8 +535,8 @@ foreach ($denormalizer->denormalizeAll($collection) as $weather) {
 }
 ```
 
-To complete the feature 2 static methods are provided if you only need to denormalization once,
-`Denormalizer::assign` will automatically use the `array` keys as property names. Whereas,
+To complete the feature two (2) static methods are provided if you only need denormalization once.
+`Denormalizer::assign` will automatically use the `array` keys as property names whereas,
 you still need to give the property list to `Denormalizer::assignAll` to allow the class
 to work with any given iterable structure of `array`.
 
@@ -540,4 +551,4 @@ foreach (Denormalizer::assignAll(ClimaticRecord::class, $collection, ['date', 't
 }
 ```
 
-Every rule and setting explain before applies to the `Denormalizer` usage.
+Every rule and setting explain will apply to `Denormalizer` usage.

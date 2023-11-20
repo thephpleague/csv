@@ -20,7 +20,7 @@ use PHPUnit\Framework\TestCase;
 use ReflectionProperty;
 use Traversable;
 
-final class CastToInTest extends TestCase
+final class CastToIntTest extends TestCase
 {
     public function testItFailsToInstantiateWithAnUnSupportedType(): void
     {

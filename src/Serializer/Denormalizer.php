@@ -209,7 +209,7 @@ final class Denormalizer
         }
 
         return match ([]) {
-            $propertySetters => throw new MappingFailed('No property or method from `'.$this->class->getName().'` could be used for deserialization.'),
+            $propertySetters => throw new MappingFailed('No property or method from `'.$this->class->getName().'` could be used for denormalization.'),
             default => $propertySetters,
         };
     }

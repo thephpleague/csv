@@ -173,7 +173,7 @@ final class DenormalizerTest extends TestCase
     public function testMappingFailBecauseTheRecordAttributeIsMissing(): void
     {
         $this->expectException(MappingFailed::class);
-        $this->expectExceptionMessage('No property or method from `stdClass` could be used for deserialization.');
+        $this->expectExceptionMessage('No property or method from `stdClass` could be used for denormalization.');
 
         Denormalizer::assign(stdClass::class, ['foo' => 'bar']);
     }
@@ -508,7 +508,7 @@ final class DenormalizerTest extends TestCase
         };
 
         $this->expectException(MappingFailed::class);
-        $this->expectExceptionMessage('No property or method from `'.$class::class.'` could be used for deserialization.');
+        $this->expectExceptionMessage('No property or method from `'.$class::class.'` could be used for denormalization.');
 
         Denormalizer::assign($class::class, ['date' => 'tomorrow']);
     }
