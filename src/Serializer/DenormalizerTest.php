@@ -20,6 +20,7 @@ use DateTimeInterface;
 use DateTimeZone;
 use PHPUnit\Framework\TestCase;
 use SplFileObject;
+use SplTempFileObject;
 use stdClass;
 use Traversable;
 
@@ -31,19 +32,32 @@ final class DenormalizerTest extends TestCase
             [
                 'date' => '2023-10-30',
                 'temperature' => '-1.5',
-                'place' => 'Berkeley',
+                'place' => 'Abidjan',
             ],
             [
                 'date' => '2023-10-31',
                 'temperature' => '-3',
-                'place' => 'Berkeley',
+                'place' => 'Abidjan',
             ],
         ];
 
-        $results = [...Denormalizer::assignAll(WeatherWithRecordAttribute::class, $records, ['date', 'temperature', 'place'])];
+        $class = new class (5, Place::Yamoussokro, new DateTimeImmutable()) {
+            public function __construct(
+                public readonly float $temperature,
+                public readonly Place $place,
+                #[Cell(
+                    offset: 'date',
+                    castArguments: ['format' => '!Y-m-d', 'timezone' => 'Africa/Kinshasa'],
+                )]
+                public readonly DateTimeInterface $observedOn
+            ) {
+            }
+        };
+
+        $results = [...Denormalizer::assignAll($class::class, $records, ['date', 'temperature', 'place'])];
         self::assertCount(2, $results);
         foreach ($results as $result) {
-            self::assertInstanceOf(WeatherWithRecordAttribute::class, $result);
+            self::assertInstanceOf($class::class, $result);
         }
     }
 
@@ -52,14 +66,27 @@ final class DenormalizerTest extends TestCase
         $record = [
             'date' => '2023-10-30',
             'temperature' => '-1.5',
-            'place' => 'Berkeley',
+            'place' => 'Abidjan',
         ];
 
-        $weather = Denormalizer::assign(WeatherWithRecordAttribute::class, $record);
+        $class = new class (5, Place::Yamoussokro, new DateTimeImmutable()) {
+            public function __construct(
+                public readonly float $temperature,
+                public readonly Place $place,
+                #[Cell(
+                    offset: 'date',
+                    castArguments: ['format' => '!Y-m-d', 'timezone' => 'Africa/Kinshasa'],
+                )]
+                public readonly DateTimeInterface $observedOn
+            ) {
+            }
+        };
 
-        self::assertInstanceOf(WeatherWithRecordAttribute::class, $weather);
+        $weather = Denormalizer::assign($class::class, $record);
+
+        self::assertInstanceOf($class::class, $weather);
         self::assertInstanceOf(DateTimeImmutable::class, $weather->observedOn);
-        self::assertSame(Place::Berkeley, $weather->place);
+        self::assertSame(Place::Abidjan, $weather->place);
         self::assertSame(-1.5, $weather->temperature);
     }
 
@@ -68,30 +95,78 @@ final class DenormalizerTest extends TestCase
         $record = [
             'date' => '2023-10-30',
             'temperature' => '-1.5',
-            'place' => 'Berkeley',
+            'place' => 'Abidjan',
         ];
 
-        $weather = Denormalizer::assign(WeatherProperty::class, $record);
+        $foobar = new class (3, Place::Yamoussokro, new DateTimeImmutable()) {
+            public function __construct(
+                #[Cell(offset:'temperature')]
+                public readonly float $temperature,
+                #[Cell(offset:2, cast: CastToEnum::class)]
+                public readonly Place $place,
+                #[Cell(
+                    offset: 'date',
+                    cast: CastToDate::class,
+                    castArguments: ['format' => '!Y-m-d', 'timezone' => 'Africa/Kinshasa'],
+                )]
+                public readonly DateTimeInterface $observedOn
+            ) {
+            }
+        };
 
-        self::assertInstanceOf(WeatherProperty::class, $weather);
+        $weather = Denormalizer::assign($foobar::class, $record);
+
+        self::assertInstanceOf($foobar::class, $weather);
         self::assertInstanceOf(DateTimeImmutable::class, $weather->observedOn);
-        self::assertSame(Place::Berkeley, $weather->place);
+        self::assertSame(Place::Abidjan, $weather->place);
         self::assertSame(-1.5, $weather->temperature);
     }
 
     public function testItConvertsARecordsToAnObjectUsingMethods(): void
     {
+        $class = new class (Place::Abidjan, new DateTime()) {
+            private float $temperature;
+
+            public function __construct(
+                #[Cell(offset:2, cast: CastToEnum::class)]
+                public readonly Place $place,
+                #[Cell(
+                    offset: 'date',
+                    cast: CastToDate::class,
+                    castArguments: ['format' => '!Y-m-d', 'timezone' => 'Africa/Kinshasa'],
+                )]
+                private readonly DateTime $observedOn
+            ) {
+            }
+
+            #[Cell(offset:'temperature')]
+            public function setTemperature(float $temperature): void
+            {
+                $this->temperature = $temperature;
+            }
+
+            public function getTemperature(): float
+            {
+                return $this->temperature;
+            }
+
+            public function getObservedOn(): DateTime
+            {
+                return $this->observedOn;
+            }
+        };
+
         $record = [
             'date' => '2023-10-30',
             'temperature' => '-1.5',
-            'place' => 'Berkeley',
+            'place' => 'Abidjan',
         ];
 
-        $weather = Denormalizer::assign(WeatherSetterGetter::class, $record);
+        $weather = Denormalizer::assign($class::class, $record);
 
-        self::assertInstanceOf(WeatherSetterGetter::class, $weather);
+        self::assertInstanceOf($class::class, $weather);
         self::assertSame('2023-10-30', $weather->getObservedOn()->format('Y-m-d'));
-        self::assertSame(Place::Berkeley, $weather->place);
+        self::assertSame(Place::Abidjan, $weather->place);
         self::assertSame(-1.5, $weather->getTemperature());
     }
 
@@ -105,69 +180,200 @@ final class DenormalizerTest extends TestCase
 
     public function testItWillThrowIfTheHeaderIsMissingAndTheColumnOffsetIsAString(): void
     {
+        $class = new class (Place::Abidjan, new DateTime()) {
+            private float $temperature;
+
+            public function __construct(
+                #[Cell(offset:2, cast: CastToEnum::class)]
+                public readonly Place $place,
+                #[Cell(
+                    offset: 'date',
+                    cast: CastToDate::class,
+                    castArguments: ['format' => '!Y-m-d', 'timezone' => 'Africa/Kinshasa'],
+                )]
+                private readonly DateTime $observedOn
+            ) {
+            }
+
+            #[Cell(offset:'temperature')]
+            public function setTemperature(float $temperature): void
+            {
+                $this->temperature = $temperature;
+            }
+
+            public function getTemperature(): float
+            {
+                return $this->temperature;
+            }
+
+            public function getObservedOn(): DateTime
+            {
+                return $this->observedOn;
+            }
+        };
+
         $this->expectException(MappingFailed::class);
         $this->expectExceptionMessage('offset as string are only supported if the property names list is not empty.');
 
-        $serializer = new Denormalizer(WeatherSetterGetter::class);
+        $serializer = new Denormalizer($class::class);
         $serializer->denormalize([
             'date' => '2023-10-30',
             'temperature' => '-1.5',
-            'place' => 'Berkeley',
+            'place' => 'Abidjan',
         ]);
     }
 
     public function testItWillThrowIfTheHeaderContainsInvalidOffsetName(): void
     {
+        $class = new class (Place::Abidjan, new DateTime()) {
+            private float $temperature;
+
+            public function __construct(
+                #[Cell(offset:2, cast: CastToEnum::class)]
+                public readonly Place $place,
+                #[Cell(
+                    offset: 'date',
+                    cast: CastToDate::class,
+                    castArguments: ['format' => '!Y-m-d', 'timezone' => 'Africa/Kinshasa'],
+                )]
+                private readonly DateTime $observedOn
+            ) {
+            }
+
+            #[Cell(offset:'temperature')]
+            public function setTemperature(float $temperature): void
+            {
+                $this->temperature = $temperature;
+            }
+
+            public function getTemperature(): float
+            {
+                return $this->temperature;
+            }
+
+            public function getObservedOn(): DateTime
+            {
+                return $this->observedOn;
+            }
+        };
+
         $this->expectException(MappingFailed::class);
         $this->expectExceptionMessage('The `temperature` property could not be found in the property names list; Please verify your property names list.');
 
-        $serializer = new Denormalizer(WeatherSetterGetter::class, ['date', 'toto', 'foobar']);
+        $serializer = new Denormalizer($class::class, ['date', 'toto', 'foobar']);
         $serializer->denormalize([
             'date' => '2023-10-30',
             'temperature' => '-1.5',
-            'place' => 'Berkeley',
+            'place' => 'Abidjan',
         ]);
     }
 
     public function testItWillThrowIfTheColumnAttributesIsUsedMultipleTimeForTheSameAccessor(): void
     {
+        $class = new class (5, Place::Abidjan, new DateTimeImmutable()) {
+            public function __construct(
+                #[Cell(offset:'temperature'), Cell(offset:'date')] /* @phpstan-ignore-line */
+                public readonly float $temperature,
+                #[Cell(offset:2, cast: CastToEnum::class)]
+                public readonly Place $place,
+                #[Cell(
+                    offset: 'date',
+                    cast: CastToDate::class,
+                    castArguments: ['format' => '!Y-m-d', 'timezone' => 'Africa/Kinshasa'],
+                )]
+                public readonly DateTimeInterface $observedOn
+            ) {
+            }
+        };
+
         $this->expectException(MappingFailed::class);
         $this->expectExceptionMessage('Using more than one `League\Csv\Serializer\Cell` attribute on a class property or method is not supported.');
 
-        new Denormalizer(InvalidWeatherAttributeUsage::class);
+        new Denormalizer($class::class);
     }
 
     public function testItWillThrowIfTheColumnAttributesCasterIsInvalid(): void
     {
+        $foobar = new class (5, Place::Yamoussokro, new DateTimeImmutable()) {
+            public function __construct(
+                #[Cell(offset:'temperature', cast: stdClass::class)]
+                public readonly float $temperature,
+                #[Cell(offset:2, cast: CastToEnum::class)]
+                public readonly Place $place,
+                #[Cell(
+                    offset: 'date',
+                    cast: CastToDate::class,
+                    castArguments: ['format' => '!Y-m-d', 'timezone' => 'Africa/Kinshasa'],
+                )]
+                public readonly DateTimeInterface $observedOn
+            ) {
+            }
+        };
+
         $this->expectException(MappingFailed::class);
         $this->expectExceptionMessage('`stdClass` must be an resolvable class implementing the `League\Csv\Serializer\TypeCasting` interface.');
 
-        new Denormalizer(InvalidWeatherAttributeCasterNotSupported::class);
+        new Denormalizer($foobar::class);
     }
 
     public function testItWillThrowBecauseTheObjectDoesNotHaveTypedProperties(): void
     {
-        $this->expectException(MappingFailed::class);
-        $this->expectExceptionMessage('The property type for `'.InvaliDWeatherWithRecordAttribute::class.'::temperature` is missing or is not supported.');
+        $foobar = new class (3, Place::Abidjan, new SplTempFileObject()) {
+            /* @phpstan-ignore-next-line */
+            public function __construct(
+                public $temperature,
+                public $place,
+                public SplFileObject $observedOn
+            ) {
+            }
+        };
 
-        new Denormalizer(InvaliDWeatherWithRecordAttribute::class, ['temperature', 'foobar', 'observedOn']);
+        $this->expectException(MappingFailed::class);
+        $this->expectExceptionMessage('The property type for `'.$foobar::class.'::temperature` is missing or is not supported.');
+
+        new Denormalizer($foobar::class, ['temperature', 'foobar', 'observedOn']);
     }
 
     public function testItWillFailForLackOfTypeCasting(): void
     {
-        $this->expectException(MappingFailed::class);
-        $this->expectExceptionMessage('The property type for `'.InvaliDWeatherWithRecordAttributeAndUnknownCasting::class.'::observedOn` is missing or is not supported.');
+        $foobar = new class (5, 'Yamoussokro', new SplTempFileObject()) {
+            public function __construct(
+                public int $temperature,
+                public string $place,
+                public SplFileObject $observedOn
+            ) {
+            }
+        };
 
-        new Denormalizer(InvaliDWeatherWithRecordAttributeAndUnknownCasting::class, ['temperature', 'place', 'observedOn']);
+        $this->expectException(MappingFailed::class);
+        $this->expectExceptionMessage('The property type for `'.$foobar::class.'::observedOn` is missing or is not supported.');
+
+        new Denormalizer($foobar::class, ['temperature', 'place', 'observedOn']);
     }
 
     public function testItWillThrowIfTheClassContainsUninitializedProperties(): void
     {
+        $foobar = new class ('prenoms', 18, 'M', new SplTempFileObject()) {
+            public function __construct(
+                public readonly string $prenoms,
+                private readonly int $nombre,
+                public readonly string $sexe,
+                #[Cell(castArguments: ['format' => '!Y'])]
+                public SplFileObject $annee
+            ) {
+            }
+
+            public function getNombre(): int
+            {
+                return $this->nombre;
+            }
+        };
+
         $this->expectException(MappingFailed::class);
-        $this->expectExceptionMessage('The property type for `'.InvalidObjectWithUninitializedProperty::class.'::annee` is missing or is not supported.');
+        $this->expectExceptionMessage('The property type for `'.$foobar::class.'::annee` is missing or is not supported.');
 
         Denormalizer::assign(
-            InvalidObjectWithUninitializedProperty::class,
+            $foobar::class,
             ['prenoms' => 'John', 'nombre' => '42', 'sexe' => 'M', 'annee' => '2018']
         );
     }
@@ -187,11 +393,16 @@ final class DenormalizerTest extends TestCase
     public function testItWillThrowIfThePropertyIsMisMatchWithTheTypeCastingClass(): void
     {
         $foobar = new class () {
-            private string $firstName; /** @phpstan-ignore-line  */
+            private string $firstName;
             #[Cell(cast: CastToDate::class)]
             public function setFirstName(string $firstName): void
             {
                 $this->firstName = $firstName;
+            }
+
+            public function getFirstName(): string
+            {
+                return $this->firstName;
             }
         };
 
@@ -279,6 +490,7 @@ final class DenormalizerTest extends TestCase
         self::assertInstanceOf($class::class, $object);
         self::assertEquals(new DateTimeZone('Africa/Abidjan'), $object->getDate()->getTimezone());
     }
+
     public function testItFailToAutoDiscoverThePublicMethod(): void
     {
         $class = new class () {
@@ -298,148 +510,12 @@ final class DenormalizerTest extends TestCase
         $this->expectException(MappingFailed::class);
         $this->expectExceptionMessage('No property or method from `'.$class::class.'` could be used for deserialization.');
 
-        $object = Denormalizer::assign($class::class, ['date' => 'tomorrow']);
+        Denormalizer::assign($class::class, ['date' => 'tomorrow']);
     }
 }
 
 enum Place: string
 {
-    case Galway = 'Galway';
-    case Berkeley = 'Berkeley';
-}
-
-final class InvaliDWeatherWithRecordAttribute
-{
-    /* @phpstan-ignore-next-line */
-    public function __construct(
-        public $temperature,
-        public $place,
-        public SplFileObject $observedOn
-    ) {
-    }
-}
-
-final class InvaliDWeatherWithRecordAttributeAndUnknownCasting
-{
-    public function __construct(
-        public int $temperature,
-        public string $place,
-        public SplFileObject $observedOn
-    ) {
-    }
-}
-
-final class WeatherWithRecordAttribute
-{
-    public function __construct(
-        public readonly float $temperature,
-        public readonly Place $place,
-        #[Cell(
-            offset: 'date',
-            castArguments: ['format' => '!Y-m-d', 'timezone' => 'Africa/Kinshasa'],
-        )]
-        public readonly DateTimeInterface $observedOn
-    ) {
-    }
-}
-
-final class WeatherProperty
-{
-    public function __construct(
-        #[Cell(offset:'temperature')]
-        public readonly float $temperature,
-        #[Cell(offset:2, cast: CastToEnum::class)]
-        public readonly Place $place,
-        #[Cell(
-            offset: 'date',
-            cast: CastToDate::class,
-            castArguments: ['format' => '!Y-m-d', 'timezone' => 'Africa/Kinshasa'],
-        )]
-        public readonly DateTimeInterface $observedOn
-    ) {
-    }
-}
-
-final class WeatherSetterGetter
-{
-    private float $temperature;
-
-    public function __construct(
-        #[Cell(offset:2, cast: CastToEnum::class)]
-        public readonly Place $place,
-        #[Cell(
-            offset: 'date',
-            cast: CastToDate::class,
-            castArguments: ['format' => '!Y-m-d', 'timezone' => 'Africa/Kinshasa'],
-        )]
-        private readonly DateTime $observedOn
-    ) {
-    }
-
-    #[Cell(offset:'temperature')]
-    public function setTemperature(float $temperature): void
-    {
-        $this->temperature = $temperature;
-    }
-
-    public function getTemperature(): float
-    {
-        return $this->temperature;
-    }
-
-    public function getObservedOn(): DateTime
-    {
-        return $this->observedOn;
-    }
-}
-
-final class InvalidWeatherAttributeUsage
-{
-    public function __construct(
-        #[Cell(offset:'temperature'), Cell(offset:'date')] /* @phpstan-ignore-line */
-        public readonly float $temperature,
-        #[Cell(offset:2, cast: CastToEnum::class)]
-        public readonly Place $place,
-        #[Cell(
-            offset: 'date',
-            cast: CastToDate::class,
-            castArguments: ['format' => '!Y-m-d', 'timezone' => 'Africa/Kinshasa'],
-        )]
-        public readonly DateTimeInterface $observedOn
-    ) {
-    }
-}
-
-final class InvalidWeatherAttributeCasterNotSupported
-{
-    public function __construct(
-        #[Cell(offset:'temperature', cast: stdClass::class)]
-        public readonly float $temperature,
-        #[Cell(offset:2, cast: CastToEnum::class)]
-        public readonly Place $place,
-        #[Cell(
-            offset: 'date',
-            cast: CastToDate::class,
-            castArguments: ['format' => '!Y-m-d', 'timezone' => 'Africa/Kinshasa'],
-        )]
-        public readonly DateTimeInterface $observedOn
-    ) {
-    }
-}
-
-final class InvalidObjectWithUninitializedProperty
-{
-    public function __construct(
-        public readonly string $prenoms,
-        private readonly int $nombre,
-        public readonly string $sexe,
-        #[Cell(castArguments: ['format' => '!Y'])]
-        public SplFileObject $annee
-    ) {
-    }
-
-    public function nombre(): int
-    {
-        return $this->nombre;
-    }
+    case Yamoussokro = 'Yamoussokro';
+    case Abidjan = 'Abidjan';
 }
