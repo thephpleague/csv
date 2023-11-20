@@ -134,7 +134,7 @@ use Carbon\CarbonImmutable;
 private CarbonImmutable $observedOn;
 ```
 
-The above rule can be translated in plain english like this:
+The above rule can be translated in plain English like this:
 
 > Convert the value of the associative array whose key is `date` into a `CarbonImmutable` object
 > using the date format `!Y-m-d` and the `Africa/Nairobi` timezone. Once created,
