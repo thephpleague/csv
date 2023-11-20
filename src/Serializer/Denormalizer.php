@@ -343,8 +343,10 @@ final class Denormalizer
                 ClosureCasting::supports($reflectionProperty) => new ClosureCasting(...$arguments),
                 default => Type::resolve($reflectionProperty, $arguments),
             };
+        } catch (MappingFailed $exception) {
+            throw $exception;
         } catch (Throwable $exception) {
-            throw $exception instanceof MappingFailed ? $exception : MappingFailed::dueToInvalidCastingArguments($exception);
+            throw MappingFailed::dueToInvalidCastingArguments($exception);
         }
     }
 }
