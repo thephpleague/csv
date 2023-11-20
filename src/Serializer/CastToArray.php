@@ -58,6 +58,10 @@ final class CastToArray implements TypeCasting
             $shape = ArrayShape::tryFrom($shape) ?? throw new MappingFailed('Unable to resolve the array shape; Verify your cast arguments.');
         }
 
+        if (!$type instanceof Type) {
+            $type = Type::tryFrom($type);
+        }
+
         $this->shape = $shape;
         $this->filterFlag = match (true) {
             1 > $this->jsonDepth && $this->shape->equals(ArrayShape::Json) => throw new MappingFailed('the json depth can not be less than 1.'),
@@ -103,19 +107,12 @@ final class CastToArray implements TypeCasting
     /**
      * @throws MappingFailed if the type is not supported
      */
-    private function resolveFilterFlag(Type|string $type): int
+    private function resolveFilterFlag(?Type $type): int
     {
-        if ($this->shape->equals(ArrayShape::Json)) {
-            return Type::String->filterFlag();
-        }
-
-        if (!$type instanceof Type) {
-            $type = Type::tryFrom($type);
-        }
-
         return match (true) {
+            $this->shape->equals(ArrayShape::Json) => Type::String->filterFlag(),
             !$type instanceof Type,
-            !$type->isScalar() => throw new MappingFailed('Only scalar type are supported for `array` value casting.'),
+            $type->isOneOf(Type::Mixed, Type::Null, Type::Enum, Type::Date, Type::Array, Type::Iterable) => throw new MappingFailed('Only scalar type are supported for `array` value casting.'),
             default => $type->filterFlag(),
         };
     }

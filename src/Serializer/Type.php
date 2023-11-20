@@ -68,19 +68,6 @@ enum Type: string
         };
     }
 
-    public function isScalar(): bool
-    {
-        return match ($this) {
-            self::Bool,
-            self::True,
-            self::False,
-            self::Int,
-            self::Float,
-            self::String => true,
-            default => false,
-        };
-    }
-
     public static function resolve(ReflectionProperty|ReflectionParameter $reflectionProperty, array $arguments = []): TypeCasting
     {
         $reflectionType = $reflectionProperty->getType() ?? throw MappingFailed::dueToUnsupportedType($reflectionProperty);
@@ -88,14 +75,14 @@ enum Type: string
         $arguments['reflectionProperty'] = $reflectionProperty;
 
         try {
-            return match (Type::tryFromReflectionType($reflectionType)) {
-                Type::Mixed, Type::Null, Type::String => new CastToString(...$arguments),
-                Type::Iterable, Type::Array => new CastToArray(...$arguments),
-                Type::False, Type::True, Type::Bool => new CastToBool(...$arguments),
-                Type::Float => new CastToFloat(...$arguments),
-                Type::Int => new CastToInt(...$arguments),
-                Type::Date => new CastToDate(...$arguments),
-                Type::Enum => new CastToEnum(...$arguments),
+            return match (self::tryFromReflectionType($reflectionType)) {
+                self::Mixed, self::Null, self::String => new CastToString(...$arguments),
+                self::Iterable, self::Array => new CastToArray(...$arguments),
+                self::False, self::True, self::Bool => new CastToBool(...$arguments),
+                self::Float => new CastToFloat(...$arguments),
+                self::Int => new CastToInt(...$arguments),
+                self::Date => new CastToDate(...$arguments),
+                self::Enum => new CastToEnum(...$arguments),
                 null => throw MappingFailed::dueToUnsupportedType($reflectionProperty),
             };
         } catch (MappingFailed $exception) {
