@@ -38,10 +38,16 @@ final class ClosureCasting implements TypeCasting
     private readonly Closure $closure;
     private readonly array $arguments;
 
-    public function __construct(ReflectionProperty|ReflectionParameter $reflectionProperty, mixed ...$arguments)
+    public function __construct(ReflectionProperty|ReflectionParameter $reflectionProperty, string $type = null, mixed ...$arguments)
     {
-        [$type, $this->isNullable] = self::resolve($reflectionProperty);
-        $this->type = $type->getName();
+        [$propertyType, $this->isNullable] = self::resolve($reflectionProperty);
+        $this->type = Type::Mixed->value !== $propertyType ? $propertyType : ($type ?? $propertyType);
+        if (!array_key_exists($this->type, self::$casters)) {
+            throw new MappingFailed(match (true) {
+                $reflectionProperty instanceof ReflectionParameter => 'The method `'.$reflectionProperty->getDeclaringClass()?->getName().'::'.$reflectionProperty->getDeclaringFunction()->getName().'` argument `'.$reflectionProperty->getName().'` must be typed with a supported type.',
+                $reflectionProperty instanceof ReflectionProperty => 'The property `'.$reflectionProperty->getDeclaringClass()->getName().'::'.$reflectionProperty->getName().'` must be typed with a supported type.',
+            });
+        }
         $this->closure = self::$casters[$this->type];
         $this->arguments = $arguments;
     }
@@ -107,7 +113,7 @@ final class ClosureCasting implements TypeCasting
     /**
      * @throws MappingFailed
      *
-     * @return array{0:ReflectionNamedType, 1:bool}
+     * @return array{0:string, 1:bool}
      */
     private static function resolve(ReflectionParameter|ReflectionProperty $reflectionProperty): array
     {
@@ -123,7 +129,7 @@ final class ClosureCasting implements TypeCasting
             }
         }
 
-        return $type instanceof ReflectionNamedType ? [$type, $isNullable] : throw new MappingFailed(match (true) {
+        return $type instanceof ReflectionNamedType ? [$type->getName(), $isNullable] : throw new MappingFailed(match (true) {
             $reflectionProperty instanceof ReflectionParameter => 'The method `'.$reflectionProperty->getDeclaringClass()?->getName().'::'.$reflectionProperty->getDeclaringFunction()->getName().'` argument `'.$reflectionProperty->getName().'` must be typed with a supported type.',
             $reflectionProperty instanceof ReflectionProperty => 'The property `'.$reflectionProperty->getDeclaringClass()->getName().'::'.$reflectionProperty->getName().'` must be typed with a supported type.',
         });

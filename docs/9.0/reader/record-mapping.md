@@ -142,7 +142,7 @@ The above rule can be translated in plain English like this:
 > inject the instance into the class private property `observedOn`.
 
 This attribute will override the automatic resolution and enable fine-tuning type casting.
-It can be used on class properties and methods regardless of their visibility.
+It can be used on class properties and methods regardless of their visibility and their type.
 
 The attribute can take up to three (3) arguments which are all optional:
 

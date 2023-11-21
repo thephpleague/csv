@@ -14,7 +14,6 @@ declare(strict_types=1);
 namespace League\Csv\Serializer;
 
 use JsonException;
-
 use ReflectionParameter;
 use ReflectionProperty;
 
@@ -122,6 +121,10 @@ final class CastToArray implements TypeCasting
      */
     private function init(ReflectionProperty|ReflectionParameter $reflectionProperty): array
     {
+        if (null === $reflectionProperty->getType()) {
+            return [Type::Mixed, true];
+        }
+
         $type = null;
         $isNullable = false;
         foreach (Type::list($reflectionProperty) as $found) {

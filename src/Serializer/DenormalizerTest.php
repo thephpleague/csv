@@ -316,22 +316,28 @@ final class DenormalizerTest extends TestCase
         new Denormalizer($foobar::class);
     }
 
-    public function testItWillThrowBecauseTheObjectDoesNotHaveTypedProperties(): void
+    public function testItWillResolveTheObjectWhichDoesNotHaveTypedPropertiesUsingCellAttribute(): void
     {
-        $foobar = new class (3, Place::Abidjan, new SplTempFileObject()) {
+        $foobar = new class (3, Place::Abidjan, new DateTimeImmutable()) {
             /* @phpstan-ignore-next-line */
             public function __construct(
+                #[Cell(cast:CastToFloat::class)]
                 public $temperature,
+                #[Cell(cast:CastToEnum::class, castArguments: ['enum' => Place::class])]
                 public $place,
-                public SplFileObject $observedOn
+                #[Cell(cast: CastToDate::class)]
+                public $observedOn
             ) {
             }
         };
 
-        $this->expectException(MappingFailed::class);
-        $this->expectExceptionMessage('The property type for `'.$foobar::class.'::temperature` is missing or is not supported.');
+        $instance = Denormalizer::assign($foobar::class, ['temperature' => '1', 'place' => 'Abidjan', 'observedOn' => '2023-10-23']);
 
-        new Denormalizer($foobar::class, ['temperature', 'foobar', 'observedOn']);
+        self::assertInstanceOf($foobar::class, $instance);
+        self::assertSame(1.0, $instance->temperature);
+        self::assertSame(Place::Abidjan, $instance->place);
+        self::assertEquals(new DateTimeImmutable('2023-10-23'), $instance->observedOn);
+
     }
 
     public function testItWillFailForLackOfTypeCasting(): void
@@ -453,21 +459,30 @@ final class DenormalizerTest extends TestCase
         self::assertNull(Denormalizer::assign($foobar::class, $record)->foo);
     }
 
-    public function testAutoResolveArgumentFailsWithUntypedParameters(): void
+    public function testResolvesMethodWithUntypedParameterToStringByDefaultUsingCell(): void
     {
         $class = new class () {
-            public $foobar;  /** @phpstan-ignore-line  */
-            #[Cell]  /** @phpstan-ignore-line  */
+            private ?string $foobar;
+            #[Cell] /** @phpstan-ignore-line  */
             public function setFoobar($foobar): void
             {
                 $this->foobar = $foobar;
             }
+
+            public function getFoobar(): ?string
+            {
+                return $this->foobar;
+            }
         };
 
-        $this->expectException(MappingFailed::class);
-        $this->expectExceptionMessage('The property type for `'.$class::class.'::foobar` is missing or is not supported.');
+        $instance = Denormalizer::assign($class::class, ['foobar' => 'barbaz']);
+        $instance1 = Denormalizer::assign($class::class, ['foobar' => null]);
 
-        Denormalizer::assign($class::class, ['foobar' => 'barbaz']);
+        self::assertInstanceOf($class::class, $instance);
+        self::assertSame('barbaz', $instance->getFoobar());
+
+        self::assertInstanceOf($class::class, $instance1);
+        self::assertNull($instance1->getFoobar());
     }
 
     public function testItWillAutoDiscoverThePublicMethod(): void
@@ -491,7 +506,7 @@ final class DenormalizerTest extends TestCase
         self::assertEquals(new DateTimeZone('Africa/Abidjan'), $object->getDate()->getTimezone());
     }
 
-    public function testItFailToAutoDiscoverThePublicMethod(): void
+    public function testItFailToAutoDiscoverThePublicMethodWithMoreThanOneRequiredArgument(): void
     {
         $class = new class () {
             private DateTimeInterface $foo;

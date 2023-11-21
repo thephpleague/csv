@@ -70,12 +70,10 @@ enum Type: string
 
     public static function resolve(ReflectionProperty|ReflectionParameter $reflectionProperty, array $arguments = []): TypeCasting
     {
-        $reflectionType = $reflectionProperty->getType() ?? throw MappingFailed::dueToUnsupportedType($reflectionProperty);
-
         $arguments['reflectionProperty'] = $reflectionProperty;
 
         try {
-            return match (self::tryFromReflectionType($reflectionType)) {
+            return match (self::tryFromAccessor($reflectionProperty)) {
                 self::Mixed, self::Null, self::String => new CastToString(...$arguments),
                 self::Iterable, self::Array => new CastToArray(...$arguments),
                 self::False, self::True, self::Bool => new CastToBool(...$arguments),
@@ -128,8 +126,13 @@ enum Type: string
         };
     }
 
-    public static function tryFromReflectionType(ReflectionType $type): ?self
+    public static function tryFromAccessor(ReflectionProperty|ReflectionParameter $reflectionProperty): ?self
     {
+        $type = $reflectionProperty->getType();
+        if (null === $type) {
+            return Type::Mixed;
+        }
+
         if ($type instanceof ReflectionNamedType) {
             return self::tryFromName($type->getName());
         }

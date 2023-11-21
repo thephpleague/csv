@@ -54,6 +54,10 @@ final class CastToFloat implements TypeCasting
 
     private function init(ReflectionProperty|ReflectionParameter $reflectionProperty): bool
     {
+        if (null === $reflectionProperty->getType()) {
+            return true;
+        }
+
         $type = null;
         $isNullable = false;
         foreach (Type::list($reflectionProperty) as $found) {

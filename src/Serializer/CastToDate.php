@@ -18,7 +18,6 @@ use DateTimeImmutable;
 use DateTimeInterface;
 use DateTimeZone;
 use ReflectionClass;
-use ReflectionNamedType;
 use ReflectionParameter;
 use ReflectionProperty;
 use Throwable;
@@ -48,11 +47,9 @@ final class CastToDate implements TypeCasting
         DateTimeZone|string|null $timezone = null,
         ?string $dateClass = null
     ) {
-        [$type, $reflection, $this->isNullable] = $this->init($reflectionProperty);
-        /** @var class-string $class */
-        $class = $reflection->getName();
+        [$type, $className, $this->isNullable] = $this->init($reflectionProperty);
         $this->class = match (true) {
-            DateTimeInterface::class !== $class && !Type::Mixed->equals($type) => $class,
+            DateTimeInterface::class !== $className && !Type::Mixed->equals($type) => $className,
             null === $dateClass => DateTimeImmutable::class,
             class_exists($dateClass) && (new ReflectionClass($dateClass))->implementsInterface(DateTimeInterface::class) => $dateClass,
             default => throw new MappingFailed('`'.$reflectionProperty->getName().'` type is `mixed` and the specified class via the `$dateClass` argument is invalid or could not be found.'),
@@ -104,10 +101,14 @@ final class CastToDate implements TypeCasting
     /**
      * @throws MappingFailed
      *
-     * @return array{0:Type, 1:ReflectionNamedType, 2:bool}
+     * @return array{0:Type, 1:class-string<DateTimeInterface>, 2:bool}
      */
     private function init(ReflectionProperty|ReflectionParameter $reflectionProperty): array
     {
+        if (null === $reflectionProperty->getType()) {
+            return [Type::Mixed, DateTimeInterface::class, true];
+        }
+
         $type = null;
         $isNullable = false;
         foreach (Type::list($reflectionProperty) as $found) {
@@ -124,6 +125,9 @@ final class CastToDate implements TypeCasting
             throw throw MappingFailed::dueToTypeCastingUnsupportedType($reflectionProperty, $this, DateTimeInterface::class, 'mixed');
         }
 
-        return [...$type, $isNullable];
+        /** @var class-string<DateTimeInterface> $className */
+        $className = $type[1]->getName();
+
+        return [$type[0], $className, $isNullable];
     }
 }
