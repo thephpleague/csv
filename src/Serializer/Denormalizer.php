@@ -247,8 +247,9 @@ final class Denormalizer
             $accessor instanceof ReflectionProperty => [array_search($accessor->getName(), $propertyNames, true), $accessor],
         };
 
-        return match (false) {
-            $offset, null !== $reflectionProperty->getType() => null,
+        return match (true) {
+            false === $offset,
+            null === $reflectionProperty->getType() => null,
             default => new PropertySetter(
                 $accessor,
                 $offset,
