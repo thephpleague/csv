@@ -31,21 +31,21 @@ class CastToEnum implements TypeCasting
     private readonly BackedEnum|UnitEnum|null $default;
 
     /**
-     * @param ?class-string<UnitEnum|BackedEnum> $enum
+     * @param ?class-string<UnitEnum|BackedEnum> $className
      *
      * @throws MappingFailed
      */
     public function __construct(
         ReflectionProperty|ReflectionParameter $reflectionProperty,
         ?string $default = null,
-        ?string $enum = null,
+        ?string $className = null,
     ) {
         [$type, $class, $this->isNullable] = $this->init($reflectionProperty);
         if (Type::Mixed->equals($type)) {
-            if (null === $enum || !enum_exists($enum)) {
+            if (null === $className || !enum_exists($className)) {
                 throw new MappingFailed('`'.$reflectionProperty->getName().'` type is `mixed`; you must specify the Enum class via the `$enum` argument.');
             }
-            $class = $enum;
+            $class = $className;
         }
 
         $this->class = $class;

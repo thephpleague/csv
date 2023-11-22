@@ -233,7 +233,7 @@ Convert the array value to a PHP `Enum`, it supports both unit and backed enumer
 optionals arguments:
 
 - `default` which is the default Enum value to return if the value is `null`.
-- `enum` which is the `Enum` to use for resolution if the property or method argument is typed as `mixed`.
+- `className` which is the `Enum` to use for resolution if the property or method argument is typed as `mixed`.
 
 If the `Enum` is backed the cell value will be considered as one of the `Enum` value; otherwise it will be used
 as one the `Enum` name. The same logic applies for the `default` value. If the default value
@@ -245,7 +245,7 @@ use League\Csv\Serializer\Cell;
 #[Cell(
     offset:1,
     cast:Serializer\CastToEnum::class,
-    castArguments: ['default' => 'Abidjan', 'enum' => Place::class]
+    castArguments: ['default' => 'Abidjan', 'className' => Place::class]
 )]
 public function setPlace(mixed $place): void
 {
@@ -267,21 +267,25 @@ Converts the cell value into a PHP `DateTimeInterface` implementing object. You 
 - the date format via the `format` argument
 - the date timezone if needed  via the `timezone` argument
 - the `default` which is the default value to return if the value is `null`; should be `null` or a parsable date time `string`
-- the `dateClass` the class to use if the property is typed `mixed`.
+- the `className` the class to use if the property is typed `mixed` or any interface that extends `DateTimeInterface`.
 
-If the property is typed with `mixed` or the `DateTimeInterface`, a `DateTimeImmutable` instance will be used if the `dateClass`
-argument is not given. If given and invalid, an exception will be thrown.
+If the property is typed with:
+
+- `mixed` or the `DateTimeInterface`, a `DateTimeImmutable` instance will be used if the `className` argument is not given.
+- an interface that extends `DateTimInterface`, the `className` argument **MUST** be given.
+
+Whenever the `className` argument is required but is invalid or missing an exception will be thrown.
 
 ### CastToArray
 
 Converts the value into a PHP `array`. You are required to specify the array shape for the conversion to happen. The class
 provides three (3) shapes:
 
-- `list` converts the string using PHP `explode` function by default the separator called `delimiter` is `,`;
-- `csv` converts the string using PHP `str_fgetcsv` function with its default options, the escape character is not available as its usage is not recommended to improve interoperability;
+- `list` converts the string using PHP `explode` function by default the `separator` option is `,`;
+- `csv` converts the string using PHP `str_getcsv` function with its default `delimiter` and `enclosure` options, the escape character is not available as its usage is not recommended to improve interoperability;
 - `json` converts the string using PHP `json_decode` function with its default options;
 
-The following are example for each shape expected string value:
+The following are examples for each shape expected string value:
 
 ```php
 $array['list'] = "1,2,3,4";         //the string contains only a delimiter (shape list)
@@ -298,7 +302,7 @@ use League\Csv\Serializer;
     cast:Serializer\CastToArray::class,
     castArguments: [
         'shape' => 'json',
-        'jsonFlags' => JSON_BIGINT_AS_STRING
+        'flags' => JSON_BIGINT_AS_STRING
     ])
 ]
 private array $data;

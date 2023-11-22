@@ -119,8 +119,12 @@ enum Type: string
 
     public static function tryFromName(string $propertyType): ?self
     {
+        $interfaceExists = interface_exists($propertyType);
+
         return match (true) {
-            enum_exists($propertyType) => self::Enum,
+            enum_exists($propertyType),
+            $interfaceExists && (new ReflectionClass($propertyType))->implementsInterface(UnitEnum::class) => self::Enum,
+            $interfaceExists && (new ReflectionClass($propertyType))->implementsInterface(DateTimeInterface::class),
             class_exists($propertyType) && (new ReflectionClass($propertyType))->implementsInterface(DateTimeInterface::class) => self::Date,
             default => self::tryFrom($propertyType),
         };

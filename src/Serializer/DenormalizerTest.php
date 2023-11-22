@@ -323,7 +323,7 @@ final class DenormalizerTest extends TestCase
             public function __construct(
                 #[Cell(cast:CastToFloat::class)]
                 public $temperature,
-                #[Cell(cast:CastToEnum::class, castArguments: ['enum' => Place::class])]
+                #[Cell(cast:CastToEnum::class, castArguments: ['className' => Place::class])]
                 public $place,
                 #[Cell(cast: CastToDate::class)]
                 public $observedOn

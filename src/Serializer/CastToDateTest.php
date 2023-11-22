@@ -52,14 +52,33 @@ final class CastToDateTest extends TestCase
         self::assertSame('30-10-2023', $date->format('d-m-Y'));
     }
 
+    public function testItCanConvertAnObjectImplementingAnInterfaceThatExtendsDateTimeInterface(): void
+    {
+        $cast = new CastToDate(
+            reflectionProperty:  new ReflectionProperty(DateClass::class, 'myDateInterface'),
+            className: MyDate::class,
+        );
+        $date = $cast->toVariable('2023-10-30');
+
+        self::assertInstanceOf(MyDate::class, $date);
+        self::assertSame('30-10-2023', $date->format('d-m-Y'));
+    }
+
+    public function testItFailsConversionIfImplementationForTheCustomeInterfaceThatExtendsDateTimeInterfaceIsGiven(): void
+    {
+        $this->expectException(MappingFailed::class);
+        $this->expectExceptionMessage('`myDateInterface` type is `mixed` but the specified class via the `$className` argument is invalid or could not be found.');
+
+        $cast = new CastToDate(new ReflectionProperty(DateClass::class, 'myDateInterface'));
+        $cast->toVariable('2023-10-30');
+    }
+
     public function testItCShouldThrowIfNoConversionIsPossible(): void
     {
         $this->expectException(TypeCastingFailed::class);
 
         (new CastToDate(new ReflectionProperty(DateClass::class, 'dateTimeInterface')))->toVariable('DateClass');
     }
-
-
 
     public function testItCShouldThrowIfTheOptionsAreInvalid(): void
     {
@@ -72,7 +91,6 @@ final class CastToDateTest extends TestCase
             'Europe\Blan'
         );
     }
-
 
     public function testItReturnsNullWhenTheVariableIsNullable(): void
     {
@@ -118,7 +136,11 @@ final class CastToDateTest extends TestCase
     }
 }
 
-class MyDate extends DateTimeImmutable
+interface MyDateInterface extends DateTimeInterface
+{
+}
+
+class MyDate extends DateTimeImmutable implements MyDateInterface
 {
 }
 
@@ -132,6 +154,7 @@ class DateClass
     public ?DateTime $nullableDateTime;
     public ?DateTimeInterface $nullableDateTimeInterface;
     public ?MyDate $nullableMyDate;
+    public ?MyDateInterface $myDateInterface;
     public mixed $mixed;
     public ?bool $nullableBool;
     public DateTimeInterface|string|null $unionType;

@@ -37,7 +37,8 @@ final class CastToDate implements TypeCasting
     private readonly DateTimeImmutable|DateTime|null $default;
 
     /**
-     * @param ?class-string $dateClass
+     * @param ?class-string $className
+     *
      * @throws MappingFailed
      */
     public function __construct(
@@ -45,14 +46,14 @@ final class CastToDate implements TypeCasting
         ?string $default = null,
         private readonly ?string $format = null,
         DateTimeZone|string|null $timezone = null,
-        ?string $dateClass = null
+        ?string $className = null
     ) {
-        [$type, $className, $this->isNullable] = $this->init($reflectionProperty);
+        [$type, $class, $this->isNullable] = $this->init($reflectionProperty);
         $this->class = match (true) {
-            DateTimeInterface::class !== $className && !Type::Mixed->equals($type) => $className,
-            null === $dateClass => DateTimeImmutable::class,
-            class_exists($dateClass) && (new ReflectionClass($dateClass))->implementsInterface(DateTimeInterface::class) => $dateClass,
-            default => throw new MappingFailed('`'.$reflectionProperty->getName().'` type is `mixed` and the specified class via the `$dateClass` argument is invalid or could not be found.'),
+            !interface_exists($class) && !Type::Mixed->equals($type) => $class,
+            DateTimeInterface::class === $class && null === $className => DateTimeImmutable::class,
+            interface_exists($class) && null !== $className && class_exists($className) && (new ReflectionClass($className))->implementsInterface($class) => $className,
+            default => throw new MappingFailed('`'.$reflectionProperty->getName().'` type is `'.($className ?? 'mixed').'` but the specified class via the `$className` argument is invalid or could not be found.'),
         };
 
         try {

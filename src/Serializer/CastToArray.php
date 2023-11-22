@@ -38,7 +38,8 @@ final class CastToArray implements TypeCasting
 
     /**
      * @param non-empty-string $delimiter
-     * @param int<1, max> $jsonDepth
+     * @param non-empty-string $separator
+     * @param int<1, max> $depth
      *
      * @throws MappingFailed
      */
@@ -46,10 +47,11 @@ final class CastToArray implements TypeCasting
         ReflectionProperty|ReflectionParameter $reflectionProperty,
         private readonly ?array $default = null,
         ArrayShape|string $shape = ArrayShape::List,
+        private readonly string $separator = ',',
         private readonly string $delimiter = ',',
         private readonly string $enclosure = '"',
-        private readonly int $jsonDepth = 512,
-        private readonly int $jsonFlags = 0,
+        private readonly int $depth = 512,
+        private readonly int $flags = 0,
         Type|string $type = Type::String,
     ) {
         [$this->type, $this->isNullable] = $this->init($reflectionProperty);
@@ -63,8 +65,8 @@ final class CastToArray implements TypeCasting
 
         $this->shape = $shape;
         $this->filterFlag = match (true) {
-            1 > $this->jsonDepth && $this->shape->equals(ArrayShape::Json) => throw new MappingFailed('the json depth can not be less than 1.'),
-            1 > strlen($this->delimiter) && $this->shape->equals(ArrayShape::List) => throw new MappingFailed('expects delimiter to be a non-empty string for list conversion; emtpy string given.'),
+            1 > $this->depth && $this->shape->equals(ArrayShape::Json) => throw new MappingFailed('the json depth can not be less than 1.'),
+            1 > strlen($this->separator) && $this->shape->equals(ArrayShape::List) => throw new MappingFailed('expects separator to be a non-empty string for list conversion; empty string given.'),
             1 !== strlen($this->delimiter) && $this->shape->equals(ArrayShape::Csv) => throw new MappingFailed('expects delimiter to be a single character for CSV conversion; `'.$this->delimiter.'` given.'),
             1 !== strlen($this->enclosure) && $this->shape->equals(ArrayShape::Csv) => throw new MappingFailed('expects enclosure to be a single character; `'.$this->enclosure.'` given.'),
             default => $this->resolveFilterFlag($type),
@@ -87,8 +89,8 @@ final class CastToArray implements TypeCasting
 
         try {
             $result = match ($this->shape) {
-                ArrayShape::Json => json_decode($value, true, $this->jsonDepth, $this->jsonFlags | JSON_THROW_ON_ERROR),
-                ArrayShape::List => filter_var(explode($this->delimiter, $value), $this->filterFlag, FILTER_REQUIRE_ARRAY),
+                ArrayShape::Json => json_decode($value, true, $this->depth, $this->flags | JSON_THROW_ON_ERROR),
+                ArrayShape::List => filter_var(explode($this->separator, $value), $this->filterFlag, FILTER_REQUIRE_ARRAY),
                 ArrayShape::Csv => filter_var(str_getcsv($value, $this->delimiter, $this->enclosure, ''), $this->filterFlag, FILTER_REQUIRE_ARRAY),
             };
 
@@ -110,9 +112,8 @@ final class CastToArray implements TypeCasting
     {
         return match (true) {
             $this->shape->equals(ArrayShape::Json) => Type::String->filterFlag(),
-            !$type instanceof Type,
-            $type->isOneOf(Type::Mixed, Type::Null, Type::Enum, Type::Date, Type::Array, Type::Iterable) => throw new MappingFailed('Only scalar type are supported for `array` value casting.'),
-            default => $type->filterFlag(),
+            $type instanceof Type && $type->isOneOf(Type::Bool, Type::True, Type::False, Type::String, Type::Float, Type::Int) => $type->filterFlag(),
+            default => throw new MappingFailed('Only scalar type are supported for `array` value casting.'),
         };
     }
 
