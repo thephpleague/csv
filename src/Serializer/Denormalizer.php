@@ -197,11 +197,11 @@ final class Denormalizer
         $propertySetters = [];
         $methodNames = array_map(fn (string|int $propertyName) => is_int($propertyName) ? null : 'set'.ucfirst($propertyName), $propertyNames);
         foreach ([...$this->properties, ...$this->class->getMethods()] as $accessor) {
-            $attributes = $accessor->getAttributes(Cell::class, ReflectionAttribute::IS_INSTANCEOF);
+            $attributes = $accessor->getAttributes(MapCell::class, ReflectionAttribute::IS_INSTANCEOF);
             $propertySetter = match (count($attributes)) {
                 0 => $this->autoDiscoverPropertySetter($accessor, $propertyNames, $methodNames),
                 1 => $this->findPropertySetter($attributes[0]->newInstance(), $accessor, $propertyNames),
-                default => throw new MappingFailed('Using more than one `'.Cell::class.'` attribute on a class property or method is not supported.'),
+                default => throw new MappingFailed('Using more than one `'.MapCell::class.'` attribute on a class property or method is not supported.'),
             };
             if (null !== $propertySetter) {
                 $propertySetters[] = $propertySetter;
@@ -263,7 +263,7 @@ final class Denormalizer
      *
      * @throws MappingFailed
      */
-    private function findPropertySetter(Cell $cell, ReflectionMethod|ReflectionProperty $accessor, array $propertyNames): PropertySetter
+    private function findPropertySetter(MapCell $cell, ReflectionMethod|ReflectionProperty $accessor, array $propertyNames): PropertySetter
     {
         if (array_key_exists('reflectionProperty', $cell->options)) {
             throw MappingFailed::dueToForbiddenOptionName();

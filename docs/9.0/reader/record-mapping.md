@@ -7,8 +7,9 @@ title: Denormalize a Tabular Data record into an object
 
 <p class="message-notice">New in version <code>9.12.0</code></p>
 
-If you are working with a class which implements the `TabularDataReader` interface you can use this functionality
-directly by calling the `TabularDataReader::getObjects` method.
+If you are working with a class which implements the `TabularDataReader` interface you can now deserialize
+your data using the `TabularDataReader::getObjects` method. The method will convert your document records
+into objects using the PHP's powerfull Reflection API.
 
 Here's an example using the `Reader` class which implements the `TabularDataReader` interface:
 
@@ -24,9 +25,13 @@ foreach ($csv->getObjects(ClimaticRecord::class) as $weather) {
 
 In the following sections we will explain the mechanism use and how you can control it.
 
+<p class="message-info">Of note, specifying the header offset is not mandatory for the mechanism to work.</p>
+
 ## Prerequisite
 
-The denormalization mechanism works mainly with DTO or objects
+The deserialization process is done in two steps. The first step is encoding your CSV into
+a collection of records. This part is already handle by the package. Once decoding is done,
+the denormalization mechanism can happen. The process works mainly with DTO or objects
 without complex logic in their constructors.
 
 <p class="message-notice">The mechanism relies on PHP's <code>Reflection</code>
@@ -84,14 +89,13 @@ enum Place
 }
 ```
 
-To get instances of your object, you now can call `TabularData::getObjects` which returns
+To get instances of your object, you now can call `TabularDataReader::getObjects` which returns
 an `Iterator` containing only instances of your specified class.
 
 ```php
 use League\Csv\Reader;
 
 $csv = Reader::createFromString($document);
-$csv->setHeaderOffset(0);
 foreach ($csv->getObjects(ClimaticRecord::class) as $instance) {
     // each $instance entry will be an instance of the ClimaticRecord class;
 }
@@ -99,8 +103,8 @@ foreach ($csv->getObjects(ClimaticRecord::class) as $instance) {
 
 ## Defining the mapping rules
 
-By default, the denormalization engine will automatically convert public properties using their name.
-In other words, if there is:
+By default, the denormalization engine will automatically fill public properties and call public methods
+using their name. In other words, if there is:
 
 - a public class property, which name is the same as a record key, the record value will be assigned to that property.
 - a public class method, whose name starts with `set` and ends with the record key with the first character upper-cased, the record value will be assigned to the method first argument.
@@ -116,15 +120,16 @@ public properties or arguments typed with one of the following type:
 
 the `nullable` aspect of the property is also automatically handled.
 
-When autodiscovery is not enough, you can complete the conversion information using the `League\Csv\Serializer\Cell` attribute.
+If the autodiscovery feature is not enough, you can complete the conversion information using the
+`League\Csv\Serializer\MapCell` attribute.
 
-Here's an example of how the attribute is used:
+Here's an example of how the attribute works:
 
 ```php
 use League\Csv\Serializer;
 use Carbon\CarbonImmutable;
 
-#[Serializer\Cell(
+#[Serializer\MapCell(
     column: 'date',
     cast: Serializer\CastToDate::class,
     options: [
@@ -151,7 +156,7 @@ The attribute can take up to three (3) arguments which are all optional:
 - The `options` argument enables controlling typecasting by providing extra arguments to the `TypeCasting` class constructor. The argument expects an associative array and relies on named arguments to inject its value to the `TypeCasting` implementing class constructor.
 
 <p class="message-notice">You can use the mechanism on a CSV without a header row but it requires
-adding a <code>Cell</code> attribute on each property or method needed for the conversion. Or you
+adding a <code>MapCell</code> attribute on each property or method needed for the conversion. Or you
 can use the optional second argument of <code>TabularDataReader::getObjects</code> to specify the
 header value, just like with <code>TabularDataReader::getRecords</code></p>
 
@@ -240,9 +245,9 @@ as one the `Enum` name. The same logic applies for the `default` value. If the d
 is not `null` and the value given is incorrect, the mechanism will throw an exception.
 
 ```php
-use League\Csv\Serializer\Cell;
+use League\Csv\Serializer\MapCell;
 
-#[Cell(
+#[MapCell(
     column: 1,
     cast: Serializer\CastToEnum::class,
     options: ['default' => 'Abidjan', 'className' => Place::class]
@@ -298,7 +303,7 @@ Here's an example for casting a string via the `json` shape.
 ```php
 use League\Csv\Serializer;
 
-#[Serializer\Cell(
+#[Serializer\MapCell(
     cast: Serializer\CastToArray::class,
     options: [
         'shape' => 'json',
@@ -317,7 +322,7 @@ optional `type` argument as shown below.
 ```php
 use League\Csv\Serializer;
 
-#[Serializer\Cell(
+#[Serializer\MapCell(
     cast: Serializer\CastToArray::class,
     options: [
         'shape' => 'csv',
@@ -361,7 +366,7 @@ Serializer\Denormalizer::registerType(Naira::class, $castToNaira);
 ```
 
 The `Denormalizer` will automatically call the closure for any `App\Domain\Money\Naira` conversion. You can
-also use the `Cell` attribute to further control the conversion
+also use the `MapCell` attribute to further control the conversion
 
 To do so specify your casting with the attribute:
 
@@ -369,7 +374,7 @@ To do so specify your casting with the attribute:
 use App\Domain\Money
 use League\Csv\Serializer;
 
-#[Serializer\Cell(column: 'amount', options: ['default' => 1000_00])]
+#[Serializer\MapCell(column: 'amount', options: ['default' => 1000_00])]
 private ?Naira $amount;
 ```
 
@@ -385,7 +390,7 @@ Serializer\Denormalizer::registerType('int', fn (?string $value): int => 42);
 
 The closure takes precedence over the built-in `CastToInt` class to convert
 to the `int` type during autodiscovery. You can still use the `CastToInt`
-class, but you are now require to explicitly declare it via the `Cell`
+class, but you are now require to explicitly declare it via the `MapCell`
 attribute using the `cast` argument.
 
 The closure signature is the following:
@@ -398,7 +403,7 @@ where:
 
 - the `$value` is the record value
 - the `$isNullable` tells whether the argument or property is nullable
-- the `$options` are the extra configuration options you can pass to the `Cell` attribute via `options`
+- the `$options` are the extra configuration options you can pass to the `MapCell` attribute via `options`
 
 To complete the feature you can use `Denormalizer::unregisterType` to remove a registered closure for a specific `type`.
 
@@ -418,14 +423,14 @@ If you need to support `Intersection` type or properties/argument without type, 
 able to fine tune the typecasting you can provide your own class to typecast the value according
 to your own rules. Since the class is not registered by default:
 
-- you must configure its usage via the `Cell` attribute `cast` argument
+- you must configure its usage via the `MapCell` attribute `cast` argument
 - it won't be available during autodiscovery.
 
 ```php
 use App\Domain\Money\Naira;
 use League\Csv\Serializer;
 
-#[Serializer\Cell(
+#[Serializer\MapCell(
     column: 'amount',
     cast: App\Domain\Money\CastToNaira::class,
     options: ['default' => 20_00]
@@ -462,7 +467,7 @@ final class CastToNaira implements TypeCasting
 
     public function __construct(
         ReflectionProperty|ReflectionParameter $reflectionProperty, //always given by the Denormalizer
-        ?int $default = null //can be filled via the Cell options array destructuring
+        ?int $default = null //can be filled via the MapCell options array destructuring
     ) {
         if (null !== $default) {
             $default = Naira::fromKobos($default);

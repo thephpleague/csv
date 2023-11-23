@@ -56,6 +56,6 @@ final class MappingFailed extends LogicException implements SerializationFailed
 
     public static function dueToForbiddenOptionName(): self
     {
-        return new self('The key `reflectionProperty` can not be used on the `'.Cell::class.'` options property.');
+        return new self('The key `reflectionProperty` can not be used on the `'.MapCell::class.'` options property.');
     }
 }

@@ -15,7 +15,7 @@ namespace League\Csv;
 
 use DateTimeImmutable;
 use DateTimeInterface;
-use League\Csv\Serializer\Cell;
+use League\Csv\Serializer\MapCell;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\Attributes\Test;
@@ -383,7 +383,7 @@ abstract class TabularDataReaderTestCase extends TestCase
             public function __construct(
                 public readonly float $temperature,
                 public readonly Place $place,
-                #[Cell(
+                #[MapCell(
                     column: 'date',
                     options: ['format' => '!Y-m-d', 'timezone' => 'Africa/Kinshasa'],
                 )]
@@ -401,11 +401,11 @@ abstract class TabularDataReaderTestCase extends TestCase
     {
         $class = new class (5, Place::Galway, new DateTimeImmutable()) {
             public function __construct(
-                #[Cell(column: 1)]
+                #[MapCell(column: 1)]
                 public readonly float $temperature,
-                #[Cell(column: 2)]
+                #[MapCell(column: 2)]
                 public readonly Place $place,
-                #[Cell(column: 0)]
+                #[MapCell(column: 0)]
                 public readonly DateTimeInterface $observedOn
             ) {
             }

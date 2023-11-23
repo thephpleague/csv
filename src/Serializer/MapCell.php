@@ -16,7 +16,7 @@ namespace League\Csv\Serializer;
 use Attribute;
 
 #[Attribute(Attribute::TARGET_METHOD | Attribute::TARGET_PROPERTY)]
-final class Cell
+final class MapCell
 {
     /**
      * @param ?class-string $cast

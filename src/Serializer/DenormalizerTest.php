@@ -45,7 +45,7 @@ final class DenormalizerTest extends TestCase
             public function __construct(
                 public readonly float $temperature,
                 public readonly Place $place,
-                #[Cell(
+                #[MapCell(
                     column: 'date',
                     options: ['format' => '!Y-m-d', 'timezone' => 'Africa/Kinshasa'],
                 )]
@@ -73,7 +73,7 @@ final class DenormalizerTest extends TestCase
             public function __construct(
                 public readonly float $temperature,
                 public readonly Place $place,
-                #[Cell(
+                #[MapCell(
                     column: 'date',
                     options: ['format' => '!Y-m-d', 'timezone' => 'Africa/Kinshasa'],
                 )]
@@ -100,11 +100,11 @@ final class DenormalizerTest extends TestCase
 
         $foobar = new class (3, Place::Yamoussokro, new DateTimeImmutable()) {
             public function __construct(
-                #[Cell(column:'temperature')]
+                #[MapCell(column:'temperature')]
                 public readonly float $temperature,
-                #[Cell(column:2, cast: CastToEnum::class)]
+                #[MapCell(column:2, cast: CastToEnum::class)]
                 public readonly Place $place,
-                #[Cell(
+                #[MapCell(
                     column: 'date',
                     cast: CastToDate::class,
                     options: ['format' => '!Y-m-d', 'timezone' => 'Africa/Kinshasa'],
@@ -128,9 +128,9 @@ final class DenormalizerTest extends TestCase
             private float $temperature;
 
             public function __construct(
-                #[Cell(column:2, cast: CastToEnum::class)]
+                #[MapCell(column:2, cast: CastToEnum::class)]
                 public readonly Place $place,
-                #[Cell(
+                #[MapCell(
                     column: 'date',
                     cast: CastToDate::class,
                     options: ['format' => '!Y-m-d', 'timezone' => 'Africa/Kinshasa'],
@@ -139,7 +139,7 @@ final class DenormalizerTest extends TestCase
             ) {
             }
 
-            #[Cell(column:'temperature')]
+            #[MapCell(column:'temperature')]
             public function setTemperature(float $temperature): void
             {
                 $this->temperature = $temperature;
@@ -184,9 +184,9 @@ final class DenormalizerTest extends TestCase
             private float $temperature;
 
             public function __construct(
-                #[Cell(column:2, cast: CastToEnum::class)]
+                #[MapCell(column:2, cast: CastToEnum::class)]
                 public readonly Place $place,
-                #[Cell(
+                #[MapCell(
                     column: 'date',
                     cast: CastToDate::class,
                     options: ['format' => '!Y-m-d', 'timezone' => 'Africa/Kinshasa'],
@@ -195,7 +195,7 @@ final class DenormalizerTest extends TestCase
             ) {
             }
 
-            #[Cell(column:'temperature')]
+            #[MapCell(column:'temperature')]
             public function setTemperature(float $temperature): void
             {
                 $this->temperature = $temperature;
@@ -229,9 +229,9 @@ final class DenormalizerTest extends TestCase
             private float $temperature;
 
             public function __construct(
-                #[Cell(column:2, cast: CastToEnum::class)]
+                #[MapCell(column:2, cast: CastToEnum::class)]
                 public readonly Place $place,
-                #[Cell(
+                #[MapCell(
                     column: 'date',
                     cast: CastToDate::class,
                     options: ['format' => '!Y-m-d', 'timezone' => 'Africa/Kinshasa'],
@@ -240,7 +240,7 @@ final class DenormalizerTest extends TestCase
             ) {
             }
 
-            #[Cell(column:'temperature')]
+            #[MapCell(column:'temperature')]
             public function setTemperature(float $temperature): void
             {
                 $this->temperature = $temperature;
@@ -272,11 +272,11 @@ final class DenormalizerTest extends TestCase
     {
         $class = new class (5, Place::Abidjan, new DateTimeImmutable()) {
             public function __construct(
-                #[Cell(column:'temperature'), Cell(column:'date')] /* @phpstan-ignore-line */
+                #[MapCell(column:'temperature'), MapCell(column:'date')] /* @phpstan-ignore-line */
                 public readonly float $temperature,
-                #[Cell(column:2, cast: CastToEnum::class)]
+                #[MapCell(column:2, cast: CastToEnum::class)]
                 public readonly Place $place,
-                #[Cell(
+                #[MapCell(
                     column: 'date',
                     cast: CastToDate::class,
                     options: ['format' => '!Y-m-d', 'timezone' => 'Africa/Kinshasa'],
@@ -296,11 +296,11 @@ final class DenormalizerTest extends TestCase
     {
         $foobar = new class (5, Place::Yamoussokro, new DateTimeImmutable()) {
             public function __construct(
-                #[Cell(column:'temperature', cast: stdClass::class)]
+                #[MapCell(column:'temperature', cast: stdClass::class)]
                 public readonly float $temperature,
-                #[Cell(column:2, cast: CastToEnum::class)]
+                #[MapCell(column:2, cast: CastToEnum::class)]
                 public readonly Place $place,
-                #[Cell(
+                #[MapCell(
                     column: 'date',
                     cast: CastToDate::class,
                     options: ['format' => '!Y-m-d', 'timezone' => 'Africa/Kinshasa'],
@@ -321,11 +321,11 @@ final class DenormalizerTest extends TestCase
         $foobar = new class (3, Place::Abidjan, new DateTimeImmutable()) {
             /* @phpstan-ignore-next-line */
             public function __construct(
-                #[Cell(cast:CastToFloat::class)]
+                #[MapCell(cast:CastToFloat::class)]
                 public $temperature,
-                #[Cell(cast:CastToEnum::class, options: ['className' => Place::class])]
+                #[MapCell(cast:CastToEnum::class, options: ['className' => Place::class])]
                 public $place,
-                #[Cell(cast: CastToDate::class)]
+                #[MapCell(cast: CastToDate::class)]
                 public $observedOn
             ) {
             }
@@ -364,7 +364,7 @@ final class DenormalizerTest extends TestCase
                 public readonly string $prenoms,
                 private readonly int $nombre,
                 public readonly string $sexe,
-                #[Cell(options: ['format' => '!Y'])]
+                #[MapCell(options: ['format' => '!Y'])]
                 public SplFileObject $annee
             ) {
             }
@@ -400,7 +400,7 @@ final class DenormalizerTest extends TestCase
     {
         $foobar = new class () {
             private string $firstName;
-            #[Cell(cast: CastToDate::class)]
+            #[MapCell(cast: CastToDate::class)]
             public function setFirstName(string $firstName): void
             {
                 $this->firstName = $firstName;
@@ -463,7 +463,7 @@ final class DenormalizerTest extends TestCase
     {
         $class = new class () {
             private ?string $foobar;
-            #[Cell] /** @phpstan-ignore-line  */
+            #[MapCell] /** @phpstan-ignore-line  */
             public function setFoobar($foobar): void
             {
                 $this->foobar = $foobar;
