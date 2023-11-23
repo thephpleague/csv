@@ -241,7 +241,7 @@ final class Denormalizer
         }
 
         /** @var int|false $offset */
-        /** @var ReflectionParameter|ReflectionParameter $reflectionProperty */
+        /** @var ReflectionParameter|ReflectionProperty $reflectionProperty */
         [$offset, $reflectionProperty] = match (true) {
             $accessor instanceof ReflectionMethod => [array_search($accessor->getName(), $methodNames, true), $accessor->getParameters()[0]],
             $accessor instanceof ReflectionProperty => [array_search($accessor->getName(), $propertyNames, true), $accessor],
@@ -275,7 +275,7 @@ final class Denormalizer
             throw MappingFailed::dueToInvalidTypeCastingClass($typeCaster);
         }
 
-        $offset = $cell->offset ?? match (true) {
+        $offset = $cell->column ?? match (true) {
             $accessor instanceof ReflectionMethod => $this->getMethodFirstArgument($accessor)->getName(),
             $accessor instanceof ReflectionProperty => $accessor->getName(),
         };

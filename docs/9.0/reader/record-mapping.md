@@ -125,7 +125,7 @@ use League\Csv\Serializer;
 use Carbon\CarbonImmutable;
 
 #[Serializer\Cell(
-    offset:'date',
+    column:'date',
     cast:Serializer\CastToDate::class,
     castArguments: [
         'format' => '!Y-m-d',
@@ -146,7 +146,7 @@ It can be used on class properties and methods regardless of their visibility an
 
 The attribute can take up to three (3) arguments which are all optional:
 
-- The `offset` argument tells the engine which record key to use via its numeric or name offset. If not present the property name or the name of the first argument of the `setter` method will be used. In such case, you are required to specify the property names information.
+- The `column` argument tells the engine which record key to use via its numeric or name. If not present the property name or the name of the first argument of the `setter` method will be used. In such case, you are required to specify the property names information.
 - The `cast` argument which accept the name of a class implementing the `TypeCasting` interface and responsible for type casting the record value. If not present, the mechanism will try to resolve the typecasting based on the property or method argument type.
 - The `castArguments` argument enables controlling typecasting by providing extra arguments to the `TypeCasting` class constructor. The argument expects an associative array and relies on named arguments to inject its value to the `TypeCasting` implementing class constructor.
 
@@ -243,7 +243,7 @@ is not `null` and the value given is incorrect, the mechanism will throw an exce
 use League\Csv\Serializer\Cell;
 
 #[Cell(
-    offset:1,
+    column:1,
     cast:Serializer\CastToEnum::class,
     castArguments: ['default' => 'Abidjan', 'className' => Place::class]
 )]
@@ -254,7 +254,7 @@ public function setPlace(mixed $place): void
 }
 ```
 
-> convert the value of the array whose offset is `1` into a `Place` Enum
+> convert the value of the array whose key is `1` into a `Place` Enum
 > if the value is  null resolve the string `Abidjan` to `Place::Abidjan`. Once created,
 > call the method `setPlace` with the created `Place` enum filling the `$place` argument.
 
@@ -369,7 +369,7 @@ To do so specify your casting with the attribute:
 use App\Domain\Money
 use League\Csv\Serializer;
 
-#[Serializer\Cell(offset: 'amount', castArguments: ['default' => 1000_00])]
+#[Serializer\Cell(column: 'amount', castArguments: ['default' => 1000_00])]
 private ?Naira $amount;
 ```
 
@@ -426,7 +426,7 @@ use App\Domain\Money\Naira;
 use League\Csv\Serializer;
 
 #[Serializer\Cell(
-    offset: 'amount',
+    column: 'amount',
     cast: App\Domain\Money\CastToNaira::class,
     castArguments: ['default' => 20_00]
 )]
