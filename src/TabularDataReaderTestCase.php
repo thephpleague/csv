@@ -13,6 +13,9 @@ declare(strict_types=1);
 
 namespace League\Csv;
 
+use DateTimeImmutable;
+use DateTimeInterface;
+use League\Csv\Serializer\Cell;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\Attributes\Test;
@@ -369,4 +372,53 @@ abstract class TabularDataReaderTestCase extends TestCase
         self::assertSame('Galway', $this->tabularDataWithHeader()->value(2));
         self::assertSame('Galway', $this->tabularDataWithHeader()->value('place'));
     }
+
+    /***************************
+     * TabularDataReader::getObjects
+     ****************************/
+
+    public function testGetObjectWithHeader(): void
+    {
+        $class = new class (5, Place::Galway, new DateTimeImmutable()) {
+            public function __construct(
+                public readonly float $temperature,
+                public readonly Place $place,
+                #[Cell(
+                    column: 'date',
+                    options: ['format' => '!Y-m-d', 'timezone' => 'Africa/Kinshasa'],
+                )]
+                public readonly DateTimeInterface $observedOn
+            ) {
+            }
+        };
+
+        foreach ($this->tabularDataWithHeader()->getObjects($class::class) as $object) {
+            self::assertInstanceOf($class::class, $object);
+        }
+    }
+
+    public function testGetObjectWithoutHeader(): void
+    {
+        $class = new class (5, Place::Galway, new DateTimeImmutable()) {
+            public function __construct(
+                #[Cell(column: 1)]
+                public readonly float $temperature,
+                #[Cell(column: 2)]
+                public readonly Place $place,
+                #[Cell(column: 0)]
+                public readonly DateTimeInterface $observedOn
+            ) {
+            }
+        };
+
+        foreach ($this->tabularDataWithHeader()->getObjects($class::class) as $object) {
+            self::assertInstanceOf($class::class, $object);
+        }
+    }
+}
+
+enum Place: string
+{
+    case Galway = 'Galway';
+    case Berkeley = 'Berkeley';
 }

@@ -252,7 +252,7 @@ EOF;
         $csv = Reader::createFromString($source);
         $csv->setHeaderOffset(0);
         $expected = ['parent name' => 'parentA', 'child name' => 'childA', 'title' => 'titleA'];
-        foreach ($csv->getRecords() as $offset => $record) {
+        foreach ($csv->getRecords() as $record) {
             self::assertSame($expected, $record);
         }
     }
@@ -350,8 +350,7 @@ EOF;
     public function testMapRecordsFields(): void
     {
         $keys = ['firstname', 'lastname', 'email'];
-        $res = $this->csv->getRecords($keys);
-        foreach ($res as $record) {
+        foreach ($this->csv->getRecords($keys) as $record) {
             self::assertSame($keys, array_keys($record));
         }
     }
