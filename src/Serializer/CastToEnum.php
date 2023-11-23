@@ -28,7 +28,7 @@ class CastToEnum implements TypeCasting
     /** @var class-string<UnitEnum|BackedEnum> */
     private readonly string $class;
     private readonly bool $isNullable;
-    private readonly BackedEnum|UnitEnum|null $default;
+    private readonly ?UnitEnum $default;
 
     /**
      * @param ?class-string<UnitEnum|BackedEnum> $className
@@ -41,10 +41,11 @@ class CastToEnum implements TypeCasting
         ?string $className = null,
     ) {
         [$type, $class, $this->isNullable] = $this->init($reflectionProperty);
-        if (Type::Mixed->equals($type)) {
+        if (Type::Mixed->equals($type) || in_array($class, [BackedEnum::class , UnitEnum::class], true)) {
             if (null === $className || !enum_exists($className)) {
-                throw new MappingFailed('`'.$reflectionProperty->getName().'` type is `mixed`; you must specify the Enum class via the `$enum` argument.');
+                throw new MappingFailed('`'.$reflectionProperty->getName().'` type is `'.($class ?? 'mixed').'` but the specified class via the `$className` argument is invalid or could not be found.');
             }
+
             $class = $className;
         }
 

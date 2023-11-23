@@ -67,7 +67,7 @@ final class CastToDateTest extends TestCase
     public function testItFailsConversionIfImplementationForTheCustomeInterfaceThatExtendsDateTimeInterfaceIsGiven(): void
     {
         $this->expectException(MappingFailed::class);
-        $this->expectExceptionMessage('`myDateInterface` type is `mixed` but the specified class via the `$className` argument is invalid or could not be found.');
+        $this->expectExceptionMessage('`myDateInterface` type is `'.MyDateInterface::class.'` but the specified class via the `$className` argument is invalid or could not be found.');
 
         $cast = new CastToDate(new ReflectionProperty(DateClass::class, 'myDateInterface'));
         $cast->toVariable('2023-10-30');

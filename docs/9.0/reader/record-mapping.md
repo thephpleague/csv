@@ -125,8 +125,8 @@ use League\Csv\Serializer;
 use Carbon\CarbonImmutable;
 
 #[Serializer\Cell(
-    column:'date',
-    cast:Serializer\CastToDate::class,
+    column: 'date',
+    cast: Serializer\CastToDate::class,
     options: [
         'format' => '!Y-m-d',
         'timezone' => 'Africa/Nairobi'
@@ -243,8 +243,8 @@ is not `null` and the value given is incorrect, the mechanism will throw an exce
 use League\Csv\Serializer\Cell;
 
 #[Cell(
-    column:1,
-    cast:Serializer\CastToEnum::class,
+    column: 1,
+    cast: Serializer\CastToEnum::class,
     options: ['default' => 'Abidjan', 'className' => Place::class]
 )]
 public function setPlace(mixed $place): void
@@ -299,7 +299,7 @@ Here's an example for casting a string via the `json` shape.
 use League\Csv\Serializer;
 
 #[Serializer\Cell(
-    cast:Serializer\CastToArray::class,
+    cast: Serializer\CastToArray::class,
     options: [
         'shape' => 'json',
         'flags' => JSON_BIGINT_AS_STRING
@@ -318,7 +318,7 @@ optional `type` argument as shown below.
 use League\Csv\Serializer;
 
 #[Serializer\Cell(
-    cast:Serializer\CastToArray::class,
+    cast: Serializer\CastToArray::class,
     options: [
         'shape' => 'csv',
         'delimiter' => ';',
