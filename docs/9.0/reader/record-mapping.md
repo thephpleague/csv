@@ -127,7 +127,7 @@ use Carbon\CarbonImmutable;
 #[Serializer\Cell(
     column:'date',
     cast:Serializer\CastToDate::class,
-    castArguments: [
+    options: [
         'format' => '!Y-m-d',
         'timezone' => 'Africa/Nairobi'
     ])
@@ -148,7 +148,7 @@ The attribute can take up to three (3) arguments which are all optional:
 
 - The `column` argument tells the engine which record key to use via its numeric or name. If not present the property name or the name of the first argument of the `setter` method will be used. In such case, you are required to specify the property names information.
 - The `cast` argument which accept the name of a class implementing the `TypeCasting` interface and responsible for type casting the record value. If not present, the mechanism will try to resolve the typecasting based on the property or method argument type.
-- The `castArguments` argument enables controlling typecasting by providing extra arguments to the `TypeCasting` class constructor. The argument expects an associative array and relies on named arguments to inject its value to the `TypeCasting` implementing class constructor.
+- The `options` argument enables controlling typecasting by providing extra arguments to the `TypeCasting` class constructor. The argument expects an associative array and relies on named arguments to inject its value to the `TypeCasting` implementing class constructor.
 
 <p class="message-notice">You can use the mechanism on a CSV without a header row but it requires
 adding a <code>Cell</code> attribute on each property or method needed for the conversion. Or you
@@ -156,7 +156,7 @@ can use the optional second argument of <code>TabularDataReader::getObjects</cod
 header value, just like with <code>TabularDataReader::getRecords</code></p>
 
 <p class="message-warning">The <code>reflectionProperty</code> key can not be used with the
-<code>castArguments</code> as it is a reserved argument used by the <code>TypeCasting</code> class.</p>
+<code>options</code> as it is a reserved argument used by the <code>TypeCasting</code> class.</p>
 
 In any case, if type casting fails, an exception will be thrown.
 
@@ -245,7 +245,7 @@ use League\Csv\Serializer\Cell;
 #[Cell(
     column:1,
     cast:Serializer\CastToEnum::class,
-    castArguments: ['default' => 'Abidjan', 'className' => Place::class]
+    options: ['default' => 'Abidjan', 'className' => Place::class]
 )]
 public function setPlace(mixed $place): void
 {
@@ -300,7 +300,7 @@ use League\Csv\Serializer;
 
 #[Serializer\Cell(
     cast:Serializer\CastToArray::class,
-    castArguments: [
+    options: [
         'shape' => 'json',
         'flags' => JSON_BIGINT_AS_STRING
     ])
@@ -319,7 +319,7 @@ use League\Csv\Serializer;
 
 #[Serializer\Cell(
     cast:Serializer\CastToArray::class,
-    castArguments: [
+    options: [
         'shape' => 'csv',
         'delimiter' => ';',
         'type' => 'float',
@@ -369,7 +369,7 @@ To do so specify your casting with the attribute:
 use App\Domain\Money
 use League\Csv\Serializer;
 
-#[Serializer\Cell(column: 'amount', castArguments: ['default' => 1000_00])]
+#[Serializer\Cell(column: 'amount', options: ['default' => 1000_00])]
 private ?Naira $amount;
 ```
 
@@ -391,14 +391,14 @@ attribute using the `cast` argument.
 The closure signature is the following:
 
 ```php
-closure(?string $value, bool $isNullable, ...$arguments): mixed;
+closure(?string $value, bool $isNullable, ...$options): mixed;
 ```
 
 where:
 
 - the `$value` is the record value
 - the `$isNullable` tells whether the argument or property is nullable
-- the `$arguments` are the extra configuration options you can pass to the `Cell` attribute via `castArguments`
+- the `$options` are the extra configuration options you can pass to the `Cell` attribute via `options`
 
 To complete the feature you can use `Denormalizer::unregisterType` to remove a registered closure for a specific `type`.
 
@@ -428,7 +428,7 @@ use League\Csv\Serializer;
 #[Serializer\Cell(
     column: 'amount',
     cast: App\Domain\Money\CastToNaira::class,
-    castArguments: ['default' => 20_00]
+    options: ['default' => 20_00]
 )]
 private ?Money $naira;
 ```
@@ -439,7 +439,7 @@ To do so, you must define a `toVariable` method that will return the correct val
 
 <p class="message-warning"><strong>Of note</strong> The class constructor method must take the property type value as
 one of its argument with the name <code>$reflectionProperty</code>. This means you <strong>can not</strong> use the
-<code>reflectionProperty</code> as a possible key of the associative array given to <code>castArguments</code></p>
+<code>reflectionProperty</code> as a possible key of the associative array given to <code>options</code></p>
 
 ```php
 <?php
@@ -462,7 +462,7 @@ final class CastToNaira implements TypeCasting
 
     public function __construct(
         ReflectionProperty|ReflectionParameter $reflectionProperty, //always given by the Denormalizer
-        ?int $default = null //can be filled via the Cell castArguments array destructuring
+        ?int $default = null //can be filled via the Cell options array destructuring
     ) {
         if (null !== $default) {
             $default = Naira::fromKobos($default);

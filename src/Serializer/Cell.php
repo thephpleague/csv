@@ -24,7 +24,7 @@ final class Cell
     public function __construct(
         public readonly string|int|null $column = null,
         public readonly ?string $cast = null,
-        public readonly array $castArguments = []
+        public readonly array $options = []
     ) {
     }
 }

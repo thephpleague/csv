@@ -47,7 +47,7 @@ final class DenormalizerTest extends TestCase
                 public readonly Place $place,
                 #[Cell(
                     column: 'date',
-                    castArguments: ['format' => '!Y-m-d', 'timezone' => 'Africa/Kinshasa'],
+                    options: ['format' => '!Y-m-d', 'timezone' => 'Africa/Kinshasa'],
                 )]
                 public readonly DateTimeInterface $observedOn
             ) {
@@ -75,7 +75,7 @@ final class DenormalizerTest extends TestCase
                 public readonly Place $place,
                 #[Cell(
                     column: 'date',
-                    castArguments: ['format' => '!Y-m-d', 'timezone' => 'Africa/Kinshasa'],
+                    options: ['format' => '!Y-m-d', 'timezone' => 'Africa/Kinshasa'],
                 )]
                 public readonly DateTimeInterface $observedOn
             ) {
@@ -107,7 +107,7 @@ final class DenormalizerTest extends TestCase
                 #[Cell(
                     column: 'date',
                     cast: CastToDate::class,
-                    castArguments: ['format' => '!Y-m-d', 'timezone' => 'Africa/Kinshasa'],
+                    options: ['format' => '!Y-m-d', 'timezone' => 'Africa/Kinshasa'],
                 )]
                 public readonly DateTimeInterface $observedOn
             ) {
@@ -133,7 +133,7 @@ final class DenormalizerTest extends TestCase
                 #[Cell(
                     column: 'date',
                     cast: CastToDate::class,
-                    castArguments: ['format' => '!Y-m-d', 'timezone' => 'Africa/Kinshasa'],
+                    options: ['format' => '!Y-m-d', 'timezone' => 'Africa/Kinshasa'],
                 )]
                 private readonly DateTime $observedOn
             ) {
@@ -189,7 +189,7 @@ final class DenormalizerTest extends TestCase
                 #[Cell(
                     column: 'date',
                     cast: CastToDate::class,
-                    castArguments: ['format' => '!Y-m-d', 'timezone' => 'Africa/Kinshasa'],
+                    options: ['format' => '!Y-m-d', 'timezone' => 'Africa/Kinshasa'],
                 )]
                 private readonly DateTime $observedOn
             ) {
@@ -234,7 +234,7 @@ final class DenormalizerTest extends TestCase
                 #[Cell(
                     column: 'date',
                     cast: CastToDate::class,
-                    castArguments: ['format' => '!Y-m-d', 'timezone' => 'Africa/Kinshasa'],
+                    options: ['format' => '!Y-m-d', 'timezone' => 'Africa/Kinshasa'],
                 )]
                 private readonly DateTime $observedOn
             ) {
@@ -279,7 +279,7 @@ final class DenormalizerTest extends TestCase
                 #[Cell(
                     column: 'date',
                     cast: CastToDate::class,
-                    castArguments: ['format' => '!Y-m-d', 'timezone' => 'Africa/Kinshasa'],
+                    options: ['format' => '!Y-m-d', 'timezone' => 'Africa/Kinshasa'],
                 )]
                 public readonly DateTimeInterface $observedOn
             ) {
@@ -303,7 +303,7 @@ final class DenormalizerTest extends TestCase
                 #[Cell(
                     column: 'date',
                     cast: CastToDate::class,
-                    castArguments: ['format' => '!Y-m-d', 'timezone' => 'Africa/Kinshasa'],
+                    options: ['format' => '!Y-m-d', 'timezone' => 'Africa/Kinshasa'],
                 )]
                 public readonly DateTimeInterface $observedOn
             ) {
@@ -323,7 +323,7 @@ final class DenormalizerTest extends TestCase
             public function __construct(
                 #[Cell(cast:CastToFloat::class)]
                 public $temperature,
-                #[Cell(cast:CastToEnum::class, castArguments: ['className' => Place::class])]
+                #[Cell(cast:CastToEnum::class, options: ['className' => Place::class])]
                 public $place,
                 #[Cell(cast: CastToDate::class)]
                 public $observedOn
@@ -364,7 +364,7 @@ final class DenormalizerTest extends TestCase
                 public readonly string $prenoms,
                 private readonly int $nombre,
                 public readonly string $sexe,
-                #[Cell(castArguments: ['format' => '!Y'])]
+                #[Cell(options: ['format' => '!Y'])]
                 public SplFileObject $annee
             ) {
             }

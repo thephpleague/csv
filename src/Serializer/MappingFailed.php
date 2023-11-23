@@ -54,8 +54,8 @@ final class MappingFailed extends LogicException implements SerializationFailed
         return new self('`'.$typeCaster.'` must be an resolvable class implementing the `'.TypeCasting::class.'` interface.');
     }
 
-    public static function dueToForbiddenCastArgument(): self
+    public static function dueToForbiddenOptionName(): self
     {
-        return new self('The key `reflectionProperty` can not be used with `castArguments`.');
+        return new self('The key `reflectionProperty` can not be used on the `'.Cell::class.'` options property.');
     }
 }

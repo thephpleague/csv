@@ -265,8 +265,8 @@ final class Denormalizer
      */
     private function findPropertySetter(Cell $cell, ReflectionMethod|ReflectionProperty $accessor, array $propertyNames): PropertySetter
     {
-        if (array_key_exists('reflectionProperty', $cell->castArguments)) {
-            throw MappingFailed::dueToForbiddenCastArgument();
+        if (array_key_exists('reflectionProperty', $cell->options)) {
+            throw MappingFailed::dueToForbiddenOptionName();
         }
 
         /** @var ?class-string<TypeCasting> $typeCaster */
@@ -294,7 +294,7 @@ final class Denormalizer
             $offset = $index;
         }
 
-        $arguments = [...$cell->castArguments, ...['reflectionProperty' => $reflectionProperty = match (true) {
+        $arguments = [...$cell->options, ...['reflectionProperty' => $reflectionProperty = match (true) {
             $accessor instanceof ReflectionMethod => $accessor->getParameters()[0],
             $accessor instanceof ReflectionProperty => $accessor,
         }]];
