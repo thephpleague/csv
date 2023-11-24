@@ -35,7 +35,8 @@ final class CastToDateTest extends TestCase
 
     public function testItCanConvertADateWithASpecificFormat(): void
     {
-        $cast = new CastToDate(new ReflectionProperty(DateClass::class, 'dateTimeInterface'), null, '!Y-m-d', 'Africa/Kinshasa');
+        $cast = new CastToDate(new ReflectionProperty(DateClass::class, 'dateTimeInterface'));
+        $cast->setOptions(format:'!Y-m-d', timezone: 'Africa/Kinshasa');
         $date = $cast->toVariable('2023-10-30');
 
         self::assertInstanceOf(DateTimeImmutable::class, $date);
@@ -54,10 +55,9 @@ final class CastToDateTest extends TestCase
 
     public function testItCanConvertAnObjectImplementingAnInterfaceThatExtendsDateTimeInterface(): void
     {
-        $cast = new CastToDate(
-            reflectionProperty:  new ReflectionProperty(DateClass::class, 'myDateInterface'),
-            className: MyDate::class,
-        );
+        $cast = new CastToDate(new ReflectionProperty(DateClass::class, 'myDateInterface'));
+        $cast->setOptions(className: MyDate::class);
+
         $date = $cast->toVariable('2023-10-30');
 
         self::assertInstanceOf(MyDate::class, $date);
@@ -70,6 +70,7 @@ final class CastToDateTest extends TestCase
         $this->expectExceptionMessage('`myDateInterface` type is `'.MyDateInterface::class.'` but the specified class via the `$className` argument is invalid or could not be found.');
 
         $cast = new CastToDate(new ReflectionProperty(DateClass::class, 'myDateInterface'));
+        $cast->setOptions();
         $cast->toVariable('2023-10-30');
     }
 
@@ -84,12 +85,8 @@ final class CastToDateTest extends TestCase
     {
         $this->expectException(MappingFailed::class);
 
-        new CastToDate(
-            new ReflectionProperty(DateClass::class, 'dateTimeInterface'),
-            '2023-11-11',
-            'Y-m-d',
-            'Europe\Blan'
-        );
+        $cast = new CastToDate(new ReflectionProperty(DateClass::class, 'dateTimeInterface'));
+        $cast->setOptions('2023-11-11', 'Y-m-d', 'Europe\Blan');
     }
 
     public function testItReturnsNullWhenTheVariableIsNullable(): void
@@ -101,7 +98,8 @@ final class CastToDateTest extends TestCase
 
     public function testItCanConvertADateWithADefaultValue(): void
     {
-        $cast = new CastToDate(new ReflectionProperty(DateClass::class, 'nullableDateTimeInterface'), '2023-01-01', '!Y-m-d', 'Africa/Kinshasa');
+        $cast = new CastToDate(new ReflectionProperty(DateClass::class, 'nullableDateTimeInterface'));
+        $cast->setOptions('2023-01-01', '!Y-m-d', 'Africa/Kinshasa');
         $date = $cast->toVariable(null);
 
         self::assertInstanceOf(DateTimeImmutable::class, $date);
@@ -111,7 +109,8 @@ final class CastToDateTest extends TestCase
 
     public function testItReturnsTheValueWithUnionType(): void
     {
-        $cast = new CastToDate(new ReflectionProperty(DateClass::class, 'unionType'), '2023-01-01');
+        $cast = new CastToDate(new ReflectionProperty(DateClass::class, 'unionType'));
+        $cast->setOptions('2023-01-01');
 
         self::assertEquals(new DateTimeImmutable('2023-01-01'), $cast->toVariable(null));
     }

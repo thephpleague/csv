@@ -25,31 +25,36 @@ use UnitEnum;
  */
 class CastToEnum implements TypeCasting
 {
-    /** @var class-string<UnitEnum|BackedEnum> */
-    private readonly string $class;
     private readonly bool $isNullable;
-    private readonly ?UnitEnum $default;
+    private readonly Type $type;
+    private ?UnitEnum $default = null;
+    private readonly string $propertyName;
+    /** @var class-string<UnitEnum|BackedEnum> */
+    private string $class;
 
     /**
-     * @param ?class-string<UnitEnum|BackedEnum> $className
+     * @throws MappingFailed
+     */
+    public function __construct(ReflectionProperty|ReflectionParameter $reflectionProperty)
+    {
+        [$this->type, $this->class, $this->isNullable] = $this->init($reflectionProperty);
+        $this->propertyName = $reflectionProperty->getName();
+    }
+
+    /**
+     * @param ?class-string<UnitEnum|BackedEnum> $className *
      *
      * @throws MappingFailed
      */
-    public function __construct(
-        ReflectionProperty|ReflectionParameter $reflectionProperty,
-        ?string $default = null,
-        ?string $className = null,
-    ) {
-        [$type, $class, $this->isNullable] = $this->init($reflectionProperty);
-        if (Type::Mixed->equals($type) || in_array($class, [BackedEnum::class , UnitEnum::class], true)) {
+    public function setOptions(?string $default = null, ?string $className = null): void
+    {
+        if (Type::Mixed->equals($this->type) || in_array($this->class, [BackedEnum::class , UnitEnum::class], true)) {
             if (null === $className || !enum_exists($className)) {
-                throw new MappingFailed('`'.$reflectionProperty->getName().'` type is `'.($class ?? 'mixed').'` but the specified class via the `$className` argument is invalid or could not be found.');
+                throw new MappingFailed('`'.$this->propertyName.'` type is `'.($this->class ?? 'mixed').'` but the specified class via the `$className` argument is invalid or could not be found.');
             }
 
-            $class = $className;
+            $this->class = $className;
         }
-
-        $this->class = $class;
 
         try {
             $this->default = (null !== $default) ? $this->cast($default) : $default;

@@ -36,7 +36,10 @@ final class CastToStringTest extends TestCase
         ?string $input,
         ?string $expected
     ): void {
-        self::assertSame($expected, (new CastToString($reflectionProperty, $default))->toVariable($input));
+        $cast = new CastToString($reflectionProperty);
+        $cast->setOptions($default);
+
+        self::assertSame($expected, $cast->toVariable($input));
     }
 
     public static function providesValidInputValue(): iterable
@@ -89,9 +92,7 @@ final class CastToStringTest extends TestCase
     {
         $this->expectException(MappingFailed::class);
 
-        $reflectionProperty = new ReflectionProperty(StringClass::class, $propertyName);
-
-        new CastToString($reflectionProperty);
+        new CastToString(new ReflectionProperty(StringClass::class, $propertyName));
     }
 
     public static function invalidPropertyName(): iterable

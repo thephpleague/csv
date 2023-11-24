@@ -29,27 +29,43 @@ use function class_exists;
  */
 final class ClosureCasting implements TypeCasting
 {
-    /** @var array<string, Closure(?string, bool, mixed...): TValue> */
+    /** @var array<string, Closure(?string, bool, mixed...): mixed> */
     private static array $casters = [];
 
-    private readonly string $type;
+    private string $type;
     private readonly bool $isNullable;
-    /** @var Closure(?string, bool, mixed...): TValue */
-    private readonly Closure $closure;
-    private readonly array $arguments;
+    /** @var Closure(?string, bool, mixed...): mixed */
+    private Closure $closure;
+    private array $options;
+    private string $message;
 
-    public function __construct(ReflectionProperty|ReflectionParameter $reflectionProperty, string $type = null, mixed ...$arguments)
+    public function __construct(ReflectionProperty|ReflectionParameter $reflectionProperty)
     {
-        [$propertyType, $this->isNullable] = self::resolve($reflectionProperty);
-        $this->type = Type::Mixed->value !== $propertyType ? $propertyType : ($type ?? $propertyType);
-        if (!array_key_exists($this->type, self::$casters)) {
-            throw new MappingFailed(match (true) {
-                $reflectionProperty instanceof ReflectionParameter => 'The method `'.$reflectionProperty->getDeclaringClass()?->getName().'::'.$reflectionProperty->getDeclaringFunction()->getName().'` argument `'.$reflectionProperty->getName().'` must be typed with a supported type.',
-                $reflectionProperty instanceof ReflectionProperty => 'The property `'.$reflectionProperty->getDeclaringClass()->getName().'::'.$reflectionProperty->getName().'` must be typed with a supported type.',
-            });
+        [$this->type, $this->isNullable] = self::resolve($reflectionProperty);
+
+        $this->message = match (true) {
+            $reflectionProperty instanceof ReflectionParameter => 'The method `'.$reflectionProperty->getDeclaringClass()?->getName().'::'.$reflectionProperty->getDeclaringFunction()->getName().'` argument `'.$reflectionProperty->getName().'` must be typed with a supported type.',
+            $reflectionProperty instanceof ReflectionProperty => 'The property `'.$reflectionProperty->getDeclaringClass()->getName().'::'.$reflectionProperty->getName().'` must be typed with a supported type.',
+        };
+
+        $this->closure = fn (?string $value, bool $isNullable, mixed ...$arguments): ?string => $value;
+    }
+
+    /**
+     * @throws MappingFailed
+     */
+    public function setOptions(string $type = null, mixed ...$options): void
+    {
+        if (Type::Mixed->value === $this->type && null !== $type) {
+            $this->type = $type;
         }
+
+        if (!array_key_exists($this->type, self::$casters)) {
+            throw new MappingFailed($this->message);
+        }
+
         $this->closure = self::$casters[$this->type];
-        $this->arguments = $arguments;
+        $this->options = $options;
     }
 
     /**
@@ -58,7 +74,7 @@ final class ClosureCasting implements TypeCasting
     public function toVariable(?string $value): mixed
     {
         try {
-            return ($this->closure)($value, $this->isNullable, ...$this->arguments);
+            return ($this->closure)($value, $this->isNullable, ...$this->options);
         } catch (Throwable $exception) {
             if ($exception instanceof TypeCastingFailed) {
                 throw $exception;

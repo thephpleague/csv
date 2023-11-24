@@ -36,7 +36,10 @@ final class CastToBoolTest extends TestCase
         ?string $input,
         ?bool $expected
     ): void {
-        self::assertSame($expected, (new CastToBool($propertyType, $default))->toVariable($input));
+        $cast = new CastToBool($propertyType);
+        $cast->setOptions($default);
+
+        self::assertSame($expected, $cast->toVariable($input));
     }
 
     public static function providesValidInputValue(): iterable

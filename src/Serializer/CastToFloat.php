@@ -24,12 +24,16 @@ use function filter_var;
 final class CastToFloat implements TypeCasting
 {
     private readonly bool $isNullable;
+    private ?float $default = null;
 
-    public function __construct(
-        ReflectionProperty|ReflectionParameter $reflectionProperty,
-        private readonly ?float $default = null,
-    ) {
+    public function __construct(ReflectionProperty|ReflectionParameter $reflectionProperty)
+    {
         $this->isNullable = $this->init($reflectionProperty);
+    }
+
+    public function setOptions(int|float|null $default = null): void
+    {
+        $this->default = $default;
     }
 
     /**

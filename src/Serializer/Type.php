@@ -70,19 +70,21 @@ enum Type: string
 
     public static function resolve(ReflectionProperty|ReflectionParameter $reflectionProperty, array $arguments = []): TypeCasting
     {
-        $arguments['reflectionProperty'] = $reflectionProperty;
-
         try {
-            return match (self::tryFromAccessor($reflectionProperty)) {
-                self::Mixed, self::Null, self::String => new CastToString(...$arguments),
-                self::Iterable, self::Array => new CastToArray(...$arguments),
-                self::False, self::True, self::Bool => new CastToBool(...$arguments),
-                self::Float => new CastToFloat(...$arguments),
-                self::Int => new CastToInt(...$arguments),
-                self::Date => new CastToDate(...$arguments),
-                self::Enum => new CastToEnum(...$arguments),
+            $cast = match (self::tryFromAccessor($reflectionProperty)) {
+                self::Mixed, self::Null, self::String => new CastToString($reflectionProperty),
+                self::Iterable, self::Array => new CastToArray($reflectionProperty),
+                self::False, self::True, self::Bool => new CastToBool($reflectionProperty),
+                self::Float => new CastToFloat($reflectionProperty),
+                self::Int => new CastToInt($reflectionProperty),
+                self::Date => new CastToDate($reflectionProperty),
+                self::Enum => new CastToEnum($reflectionProperty),
                 null => throw MappingFailed::dueToUnsupportedType($reflectionProperty),
             };
+
+            $cast->setOptions(...$arguments);
+
+            return $cast;
         } catch (MappingFailed $exception) {
             throw $exception;
         } catch (Throwable $exception) {

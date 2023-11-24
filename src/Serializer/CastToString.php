@@ -23,12 +23,16 @@ final class CastToString implements TypeCasting
 {
     private readonly bool $isNullable;
     private readonly Type $type;
+    private ?string $default = null;
 
-    public function __construct(
-        ReflectionProperty|ReflectionParameter $reflectionProperty,
-        private readonly ?string $default = null
-    ) {
+    public function __construct(ReflectionProperty|ReflectionParameter $reflectionProperty)
+    {
         [$this->type, $this->isNullable] = $this->init($reflectionProperty);
+    }
+
+    public function setOptions(?string $default = null): void
+    {
+        $this->default = $default;
     }
 
     /**

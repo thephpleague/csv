@@ -24,7 +24,6 @@ use ReflectionParameter;
 use ReflectionProperty;
 use Throwable;
 
-use function array_key_exists;
 use function array_search;
 use function array_values;
 use function count;
@@ -253,7 +252,7 @@ final class Denormalizer
             default => new PropertySetter(
                 $accessor,
                 $offset,
-                $this->resolveTypeCasting($reflectionProperty, ['reflectionProperty' => $reflectionProperty])
+                $this->resolveTypeCasting($reflectionProperty)
             ),
         };
     }
@@ -265,10 +264,6 @@ final class Denormalizer
      */
     private function findPropertySetter(MapCell $cell, ReflectionMethod|ReflectionProperty $accessor, array $propertyNames): PropertySetter
     {
-        if (array_key_exists('reflectionProperty', $cell->options)) {
-            throw MappingFailed::dueToForbiddenOptionName();
-        }
-
         /** @var ?class-string<TypeCasting> $typeCaster */
         $typeCaster = $cell->cast;
         if (null !== $typeCaster && (!class_exists($typeCaster) || !(new ReflectionClass($typeCaster))->implementsInterface(TypeCasting::class))) {
@@ -294,16 +289,16 @@ final class Denormalizer
             $offset = $index;
         }
 
-        $arguments = [...$cell->options, ...['reflectionProperty' => $reflectionProperty = match (true) {
+        $reflectionProperty = match (true) {
             $accessor instanceof ReflectionMethod => $accessor->getParameters()[0],
             $accessor instanceof ReflectionProperty => $accessor,
-        }]];
+        };
 
         return match (true) {
             0 > $offset => throw new MappingFailed('offset integer position can only be positive or equals to 0; received `'.$offset.'`'),
             [] !== $propertyNames && $offset > count($propertyNames) - 1 => throw new MappingFailed('offset integer position can not exceed property names count.'),
-            null === $typeCaster => new PropertySetter($accessor, $offset, $this->resolveTypeCasting($reflectionProperty, $arguments)),
-            default => new PropertySetter($accessor, $offset, $this->getTypeCasting($typeCaster, $arguments)),
+            null === $typeCaster => new PropertySetter($accessor, $offset, $this->resolveTypeCasting($reflectionProperty, $cell->options)),
+            default => new PropertySetter($accessor, $offset, $this->getTypeCasting($reflectionProperty, $typeCaster, $cell->options)),
         };
     }
 
@@ -326,11 +321,17 @@ final class Denormalizer
      *
      * @throws MappingFailed
      */
-    private function getTypeCasting(string $typeCaster, array $arguments): TypeCasting
-    {
+    private function getTypeCasting(
+        ReflectionProperty|ReflectionParameter $reflectionProperty,
+        string $typeCaster,
+        array $options
+    ): TypeCasting {
         try {
-            return new $typeCaster(...$arguments);
-        } catch (Throwable $exception) { /* @phpstan-ignore-line */
+            $cast = new $typeCaster($reflectionProperty);
+            $cast->setOptions(...$options);
+
+            return $cast;
+        } catch (Throwable $exception) {
             throw $exception instanceof MappingFailed ? $exception : MappingFailed::dueToInvalidCastingArguments($exception);
         }
     }
@@ -338,12 +339,19 @@ final class Denormalizer
     /**
      * @throws MappingFailed
      */
-    private function resolveTypeCasting(ReflectionProperty|ReflectionParameter $reflectionProperty, array $arguments): TypeCasting
+    private function resolveTypeCasting(ReflectionProperty|ReflectionParameter $reflectionProperty, array $options = []): TypeCasting
     {
+        $castResolver = function (ReflectionProperty|ReflectionParameter $reflectionProperty, $options): TypeCasting {
+            $cast = new ClosureCasting($reflectionProperty);
+            $cast->setOptions(...$options);
+
+            return $cast;
+        };
+
         try {
             return match (true) {
-                ClosureCasting::supports($reflectionProperty) => new ClosureCasting(...$arguments),
-                default => Type::resolve($reflectionProperty, $arguments),
+                ClosureCasting::supports($reflectionProperty) => $castResolver($reflectionProperty, $options),
+                default => Type::resolve($reflectionProperty, $options),
             };
         } catch (MappingFailed $exception) {
             throw $exception;

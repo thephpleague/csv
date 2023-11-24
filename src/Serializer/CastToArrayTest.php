@@ -29,7 +29,10 @@ final class CastToArrayTest extends TestCase
     #[DataProvider('providesValidStringForArray')]
     public function testItCanConvertToArraygWithoutArguments(string $shape, string $type, string $input, array $expected): void
     {
-        self::assertSame($expected, (new CastToArray(reflectionProperty: new ReflectionProperty(ArrayClass::class, 'nullableIterable'), shape:$shape, type:$type))->toVariable($input));
+        $cast = new CastToArray(new ReflectionProperty(ArrayClass::class, 'nullableIterable'));
+        $cast->setOptions(shape:$shape, type:$type);
+
+        self::assertSame($expected, $cast->toVariable($input));
     }
 
     public static function providesValidStringForArray(): iterable
@@ -101,18 +104,19 @@ final class CastToArrayTest extends TestCase
     public function testItFailsToCastInvalidJson(): void
     {
         $this->expectException(TypeCastingFailed::class);
-
-        (new CastToArray(new ReflectionProperty(ArrayClass::class, 'nullableIterable'), null, 'json'))->toVariable('{"json":toto}');
+        $cast = new CastToArray(new ReflectionProperty(ArrayClass::class, 'nullableIterable'));
+        $cast->setOptions(shape: 'json');
+        $cast->toVariable('{"json":toto}');
     }
 
     public function testItCastNullableJsonUsingTheDefaultValue(): void
     {
         $defaultValue = ['toto'];
 
-        self::assertSame(
-            $defaultValue,
-            (new CastToArray(new ReflectionProperty(ArrayClass::class, 'nullableIterable'), $defaultValue, 'json'))->toVariable(null)
-        );
+        $cast = new CastToArray(new ReflectionProperty(ArrayClass::class, 'nullableIterable'));
+        $cast->setOptions(default: $defaultValue, shape: 'json');
+
+        self::assertSame($defaultValue, $cast->toVariable(null));
     }
 
     #[DataProvider('invalidPropertyName')]

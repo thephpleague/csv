@@ -32,7 +32,10 @@ final class CastToIntTest extends TestCase
     #[DataProvider('providesValidStringForInt')]
     public function testItCanConvertToArraygWithoutArguments(ReflectionProperty $reflectionProperty, ?string $input, ?int $default, ?int $expected): void
     {
-        self::assertSame($expected, (new CastToInt(reflectionProperty: $reflectionProperty, default:$default))->toVariable($input));
+        $cast = new CastToInt($reflectionProperty);
+        $cast->setOptions($default);
+
+        self::assertSame($expected, $cast->toVariable($input));
     }
 
     public static function providesValidStringForInt(): iterable
@@ -105,7 +108,7 @@ final class CastToIntTest extends TestCase
     {
         $this->expectException(TypeCastingFailed::class);
 
-        (new CastToInt(reflectionProperty: new ReflectionProperty(IntClass::class, 'nullableInt')))->toVariable('00foobar');
+        (new CastToInt(new ReflectionProperty(IntClass::class, 'nullableInt')))->toVariable('00foobar');
     }
 
     #[DataProvider('invalidPropertyName')]
@@ -113,9 +116,7 @@ final class CastToIntTest extends TestCase
     {
         $this->expectException(MappingFailed::class);
 
-        $reflectionProperty = new ReflectionProperty(IntClass::class, $propertyName);
-
-        new CastToInt($reflectionProperty);
+        new CastToInt(new ReflectionProperty(IntClass::class, $propertyName));
     }
 
     public static function invalidPropertyName(): iterable

@@ -31,10 +31,26 @@ use const JSON_THROW_ON_ERROR;
  */
 final class CastToArray implements TypeCasting
 {
+    private ArrayShape $shape;
     private readonly Type $type;
     private readonly bool $isNullable;
-    private readonly int $filterFlag;
-    private readonly ArrayShape $shape;
+    private int $filterFlag;
+    /** @var non-empty-string */
+    private string $separator = ',';
+    private string $delimiter = '';
+    private string $enclosure = '"';
+    /** @var int<1, max> $depth */
+    private int $depth = 512;
+    private int $flags = 0;
+    private ?array $default = null;
+
+    /**
+     * @throws MappingFailed
+     */
+    public function __construct(ReflectionProperty|ReflectionParameter $reflectionProperty)
+    {
+        [$this->type, $this->isNullable] = $this->init($reflectionProperty);
+    }
 
     /**
      * @param non-empty-string $delimiter
@@ -43,27 +59,31 @@ final class CastToArray implements TypeCasting
      *
      * @throws MappingFailed
      */
-    public function __construct(
-        ReflectionProperty|ReflectionParameter $reflectionProperty,
-        private readonly ?array $default = null,
+    public function setOptions(
+        ?array $default = null,
         ArrayShape|string $shape = ArrayShape::List,
-        private readonly string $separator = ',',
-        private readonly string $delimiter = ',',
-        private readonly string $enclosure = '"',
-        private readonly int $depth = 512,
-        private readonly int $flags = 0,
+        string $separator = ',',
+        string $delimiter = ',',
+        string $enclosure = '"',
+        int $depth = 512,
+        int $flags = 0,
         Type|string $type = Type::String,
-    ) {
-        [$this->type, $this->isNullable] = $this->init($reflectionProperty);
+    ): void {
         if (!$shape instanceof ArrayShape) {
-            $shape = ArrayShape::tryFrom($shape) ?? throw new MappingFailed('Unable to resolve the array shape; Verify your cast arguments.');
+            $shape = ArrayShape::tryFrom($shape) ?? throw new MappingFailed('Unable to resolve the array shape; Verify your options arguments.');
         }
 
         if (!$type instanceof Type) {
-            $type = Type::tryFrom($type);
+            $type = Type::tryFrom($type) ?? throw new MappingFailed('Unable to resolve the array value type; Verify your options arguments.');
         }
 
         $this->shape = $shape;
+        $this->depth = $depth;
+        $this->separator = $separator;
+        $this->delimiter = $delimiter;
+        $this->enclosure = $enclosure;
+        $this->flags = $flags;
+        $this->default = $default;
         $this->filterFlag = match (true) {
             1 > $this->depth && $this->shape->equals(ArrayShape::Json) => throw new MappingFailed('the json depth can not be less than 1.'),
             1 > strlen($this->separator) && $this->shape->equals(ArrayShape::List) => throw new MappingFailed('expects separator to be a non-empty string for list conversion; empty string given.'),

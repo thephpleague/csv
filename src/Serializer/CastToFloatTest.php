@@ -30,7 +30,10 @@ final class CastToFloatTest extends TestCase
     #[DataProvider('providesValidStringForInt')]
     public function testItCanConvertToArraygWithoutArguments(ReflectionProperty $prototype, ?string $input, ?float $default, ?float $expected): void
     {
-        self::assertSame($expected, (new CastToFloat(reflectionProperty: $prototype, default:$default))->toVariable($input));
+        $cast = new CastToFloat($prototype);
+        $cast->setOptions($default);
+
+        self::assertSame($expected, $cast->toVariable($input));
     }
 
     public static function providesValidStringForInt(): iterable

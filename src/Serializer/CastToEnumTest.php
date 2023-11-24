@@ -60,7 +60,8 @@ final class CastToEnumTest extends TestCase
 
     public function testItReturnsTheDefaultValueWhenTheVariableIsNullable(): void
     {
-        $cast = new CastToEnum(new ReflectionProperty(EnumClass::class, 'nullableCurrency'), 'Naira');
+        $cast = new CastToEnum(new ReflectionProperty(EnumClass::class, 'nullableCurrency'));
+        $cast->setOptions('Naira');
 
         self::assertSame(Currency::Naira, $cast->toVariable(null));
     }
@@ -81,7 +82,8 @@ final class CastToEnumTest extends TestCase
 
     public function testItReturnsTheDefaultValueWithUnionType(): void
     {
-        $cast = new CastToEnum(new ReflectionProperty(EnumClass::class, 'unionType'), 'orange');
+        $cast = new CastToEnum(new ReflectionProperty(EnumClass::class, 'unionType'));
+        $cast->setOptions('orange');
 
         self::assertSame(Colour::Violet, $cast->toVariable('violet'));
     }

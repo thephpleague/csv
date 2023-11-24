@@ -287,7 +287,7 @@ final class DenormalizerTest extends TestCase
         };
 
         $this->expectException(MappingFailed::class);
-        $this->expectExceptionMessage('Using more than one `League\Csv\Serializer\Cell` attribute on a class property or method is not supported.');
+        $this->expectExceptionMessage('Using more than one `'.MapCell::class.'` attribute on a class property or method is not supported.');
 
         new Denormalizer($class::class);
     }

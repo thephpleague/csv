@@ -160,9 +160,6 @@ adding a <code>MapCell</code> attribute on each property or method needed for th
 can use the optional second argument of <code>TabularDataReader::getObjects</code> to specify the
 header value, just like with <code>TabularDataReader::getRecords</code></p>
 
-<p class="message-warning">The <code>reflectionProperty</code> key can not be used with the
-<code>options</code> as it is a reserved argument used by the <code>TypeCasting</code> class.</p>
-
 In any case, if type casting fails, an exception will be thrown.
 
 ### Handling the empty string
@@ -263,7 +260,7 @@ public function setPlace(mixed $place): void
 > if the value is  null resolve the string `Abidjan` to `Place::Abidjan`. Once created,
 > call the method `setPlace` with the created `Place` enum filling the `$place` argument.
 
-<p class="notice">Using this class  with a <code>mixed</code> type without providing the <code>enum</code> parameter will trigger an exception.</p>
+<p class="notice">Using this class with a <code>mixed</code> type without providing the <code>enum</code> parameter will trigger an exception.</p>
 
 ### CastToDate
 
@@ -442,10 +439,6 @@ The `CastToNaira` will convert the cell value into a `Narai` object and if the v
 To allow your object to cast the cell value to your liking it needs to implement the `TypeCasting` interface.
 To do so, you must define a `toVariable` method that will return the correct value once converted.
 
-<p class="message-warning"><strong>Of note</strong> The class constructor method must take the property type value as
-one of its argument with the name <code>$reflectionProperty</code>. This means you <strong>can not</strong> use the
-<code>reflectionProperty</code> as a possible key of the associative array given to <code>options</code></p>
-
 ```php
 <?php
 
@@ -463,17 +456,11 @@ use League\Csv\Serializer\TypeCastingFailed;
 final class CastToNaira implements TypeCasting
 {
     private readonly bool $isNullable;
-    private readonly ?Naira $default;
+    private ?Naira $default;
 
     public function __construct(
         ReflectionProperty|ReflectionParameter $reflectionProperty, //always given by the Denormalizer
-        ?int $default = null //can be filled via the MapCell options array destructuring
     ) {
-        if (null !== $default) {
-            $default = Naira::fromKobos($default);
-        }
-        $this->default = $default;
-
         // It is recommended to handle the $reflectionProperty argument.
         // The argument gives you access to property/argument information.
         // it allows validating that the argument does support your casting
@@ -481,7 +468,15 @@ final class CastToNaira implements TypeCasting
         // it tells whether the property/argument is nullable or not
 
         $reflectionType = $reflectionProperty->getType();
-        if (!$reflectionType instanceof ReflectionNamedType || !in_array($reflectionType->getName(), [Naira::class, 'mixed'], true)) {
+        if (null === $reflectionType) {
+            throw new MappingFailed('untyped arguments are not supported.');
+        }
+        
+        if (!$reflectionType instanceof ReflectionNamedType) {
+            throw new MappingFailed('union or intersection type arguments are not supported.');
+        }
+
+        if (!in_array($reflectionType->getName(), [Naira::class, 'mixed'], true)) {
             $message = '`'.$reflectionProperty->getName()'.` is not typed with the '.Naira::class.' class or with `mixed`.';
 
             throw new MappingFailed(match (true) {
@@ -489,7 +484,14 @@ final class CastToNaira implements TypeCasting
                 $reflectionProperty instanceof ReflectionProperty => 'The property '.$message,
             });
         }
+
         $this->isNullable = $reflectionType->allowsNull();
+    }
+
+    public function setOptions(
+        ?int $default = null //will be filled via the MapCell options array destructuring
+    ) : void{
+        $this->default = null !== $default ?Naira::fromKobos($default) : $default;
     }
 
     public function toVariable(?string $value): ?Naira

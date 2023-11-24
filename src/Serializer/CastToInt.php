@@ -24,12 +24,16 @@ use function filter_var;
 final class CastToInt implements TypeCasting
 {
     private readonly bool $isNullable;
+    private ?int $default = null;
 
-    public function __construct(
-        ReflectionProperty|ReflectionParameter $reflectionProperty,
-        private readonly ?int $default = null,
-    ) {
+    public function __construct(ReflectionProperty|ReflectionParameter $reflectionProperty)
+    {
         $this->isNullable = $this->init($reflectionProperty);
+    }
+
+    public function setOptions(?int $default = null): void
+    {
+        $this->default = $default;
     }
 
     /**

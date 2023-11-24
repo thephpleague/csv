@@ -25,12 +25,16 @@ final class CastToBool implements TypeCasting
 {
     private readonly bool $isNullable;
     private readonly Type $type;
+    private ?bool $default = null;
 
-    public function __construct(
-        ReflectionProperty|ReflectionParameter $reflectionProperty,
-        private readonly ?bool $default = null
-    ) {
+    public function __construct(ReflectionProperty|ReflectionParameter $reflectionProperty)
+    {
         [$this->type, $this->isNullable] = $this->init($reflectionProperty);
+    }
+
+    public function setOptions(bool $default = null): void
+    {
+        $this->default = $default;
     }
 
     /**
