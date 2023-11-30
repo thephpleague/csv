@@ -335,12 +335,12 @@ The `type` option only supports scalar type (`string`, `int`, `float` and `bool`
 
 ## Extending Type Casting capabilities
 
-Two (2) mechanisms to extend typecasting are provided. You can register a closure via the `Denormalizer` class
+Two (2) mechanisms to extend typecasting are provided. You can register a callback via the `Denormalizer` class
 or create a `League\Csv\Serializer\TypeCasting` implementing class. Of course, the choice will depend on your use case.
 
-### Registering a closure
+### Registering a callback
 
-You can register a closure using the `Denormalizer` class to convert a specific type. The type can be
+You can register a callback using the `Denormalizer` class to convert a specific type. The type can be
 any built-in type or a specific class.
 
 ```php
@@ -362,7 +362,7 @@ $castToNaira = function (?string $value, bool $isNullable, int $default = null):
 Serializer\Denormalizer::registerType(Naira::class, $castToNaira);
 ```
 
-The `Denormalizer` will automatically call the closure for any `App\Domain\Money\Naira` conversion. You can
+The `Denormalizer` will automatically call the callback for any `App\Domain\Money\Naira` conversion. You can
 also use the `MapCell` attribute to further control the conversion
 
 To do so specify your casting with the attribute:
@@ -375,9 +375,9 @@ use League\Csv\Serializer;
 private ?Naira $amount;
 ```
 
-<p class="message-notice">No need to specify the <code>cast</code> argument as the closure is registered.</p>
+<p class="message-notice">No need to specify the <code>cast</code> argument as the callback is registered.</p>
 
-Using the closure mechanism you can redefine how to typecast to integer.
+Using the callback mechanism you can redefine how to typecast to integer.
 
 ```php
 use League\Csv\Serializer;
@@ -385,15 +385,15 @@ use League\Csv\Serializer;
 Serializer\Denormalizer::registerType('int', fn (?string $value): int => 42);
 ```
 
-The closure takes precedence over the built-in `CastToInt` class to convert
+The callback takes precedence over the built-in `CastToInt` class to convert
 to the `int` type during autodiscovery. You can still use the `CastToInt`
 class, but you are now require to explicitly declare it via the `MapCell`
 attribute using the `cast` argument.
 
-The closure signature is the following:
+The callback signature is the following:
 
 ```php
-closure(?string $value, bool $isNullable, ...$options): mixed;
+Closure(?string $value, bool $isNullable, ...$options): mixed;
 ```
 
 where:
@@ -402,8 +402,8 @@ where:
 - the `$isNullable` tells whether the argument or property is nullable
 - the `$options` are the extra configuration options you can pass to the `MapCell` attribute via `options`
 
-To complete the feature you can use `Denormalizer::unregisterType` to remove a registered closure for a specific `type`
-or remove all registered closure at once using `Denormalizer::unregisterAllTypes`.
+To complete the feature you can use `Denormalizer::unregisterType` to remove a registered callback for a specific `type`
+or remove all registered callbacks at once using `Denormalizer::unregisterAllTypes`.
 
 ```php
 use League\Csv\Serializer;
@@ -414,7 +414,7 @@ Serializer\Denormalizer::unregisterAllTypes();
 
 The three (3) methods are static.
 
-<p class="message-notice">the closure mechanism does not support <code>IntersectionType</code></p>
+<p class="message-notice">the callback mechanism does not support <code>IntersectionType</code></p>
 
 ### Implementing a TypeCasting class
 

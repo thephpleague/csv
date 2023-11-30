@@ -65,19 +65,19 @@ final class Denormalizer
     /**
      * @throws MappingFailed
      */
-    public static function registerType(string $type, Closure $closure): void
+    public static function registerType(string $type, Closure $callback): void
     {
-        ClosureCasting::register($type, $closure);
+        CallbackCasting::register($type, $callback);
     }
 
     public static function unregisterType(string $type): bool
     {
-        return ClosureCasting::unregister($type);
+        return CallbackCasting::unregister($type);
     }
 
     public static function unregisterAllTypes(): void
     {
-        ClosureCasting::unregisterAll();
+        CallbackCasting::unregisterAll();
     }
 
     /**
@@ -347,7 +347,7 @@ final class Denormalizer
     private function resolveTypeCasting(ReflectionProperty|ReflectionParameter $reflectionProperty, array $options = []): TypeCasting
     {
         $castResolver = function (ReflectionProperty|ReflectionParameter $reflectionProperty, $options): TypeCasting {
-            $cast = new ClosureCasting($reflectionProperty);
+            $cast = new CallbackCasting($reflectionProperty);
             $cast->setOptions(...$options);
 
             return $cast;
@@ -355,7 +355,7 @@ final class Denormalizer
 
         try {
             return match (true) {
-                ClosureCasting::supports($reflectionProperty) => $castResolver($reflectionProperty, $options),
+                CallbackCasting::supports($reflectionProperty) => $castResolver($reflectionProperty, $options),
                 default => Type::resolve($reflectionProperty, $options),
             };
         } catch (MappingFailed $exception) {

@@ -27,7 +27,7 @@ use function class_exists;
 /**
  * @template TValue
  */
-final class ClosureCasting implements TypeCasting
+final class CallbackCasting implements TypeCasting
 {
     /** @var array<string, Closure(?string, bool, mixed...): mixed> */
     private static array $casters = [];
@@ -35,7 +35,7 @@ final class ClosureCasting implements TypeCasting
     private string $type;
     private readonly bool $isNullable;
     /** @var Closure(?string, bool, mixed...): mixed */
-    private Closure $closure;
+    private Closure $callback;
     private array $options;
     private string $message;
 
@@ -48,7 +48,7 @@ final class ClosureCasting implements TypeCasting
             $reflectionProperty instanceof ReflectionProperty => 'The property `'.$reflectionProperty->getDeclaringClass()->getName().'::'.$reflectionProperty->getName().'` must be typed with a supported type.',
         };
 
-        $this->closure = fn (?string $value, bool $isNullable, mixed ...$arguments): ?string => $value;
+        $this->callback = fn (?string $value, bool $isNullable, mixed ...$arguments): ?string => $value;
     }
 
     /**
@@ -64,7 +64,7 @@ final class ClosureCasting implements TypeCasting
             throw new MappingFailed($this->message);
         }
 
-        $this->closure = self::$casters[$this->type];
+        $this->callback = self::$casters[$this->type];
         $this->options = $options;
     }
 
@@ -74,7 +74,7 @@ final class ClosureCasting implements TypeCasting
     public function toVariable(?string $value): mixed
     {
         try {
-            return ($this->closure)($value, $this->isNullable, ...$this->options);
+            return ($this->callback)($value, $this->isNullable, ...$this->options);
         } catch (Throwable $exception) {
             if ($exception instanceof TypeCastingFailed) {
                 throw $exception;
@@ -92,14 +92,14 @@ final class ClosureCasting implements TypeCasting
     }
 
     /**
-     * @param Closure(?string, bool, mixed...): TValue $closure
+     * @param Closure(?string, bool, mixed...): TValue $callback
      */
-    public static function register(string $type, Closure $closure): void
+    public static function register(string $type, Closure $callback): void
     {
         self::$casters[$type] = match (true) {
             class_exists($type),
             interface_exists($type),
-            Type::tryFrom($type) instanceof Type => $closure,
+            Type::tryFrom($type) instanceof Type => $callback,
             default => throw new MappingFailed('The `'.$type.'` could not be register.'),
         };
     }
