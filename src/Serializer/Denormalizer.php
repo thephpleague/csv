@@ -75,6 +75,11 @@ final class Denormalizer
         return ClosureCasting::unregister($type);
     }
 
+    public static function unregisterAllTypes(): void
+    {
+        ClosureCasting::unregisterAll();
+    }
+
     /**
      * @param class-string $className
      * @param array<?string> $record

@@ -402,15 +402,17 @@ where:
 - the `$isNullable` tells whether the argument or property is nullable
 - the `$options` are the extra configuration options you can pass to the `MapCell` attribute via `options`
 
-To complete the feature you can use `Denormalizer::unregisterType` to remove a registered closure for a specific `type`.
+To complete the feature you can use `Denormalizer::unregisterType` to remove a registered closure for a specific `type`
+or remove all registered closure at once using `Denormalizer::unregisterAllTypes`.
 
 ```php
 use League\Csv\Serializer;
 
 Serializer\Denormalizer::unregisterType(Naira::class);
+Serializer\Denormalizer::unregisterAllTypes();
 ```
 
-The two (2) methods are static.
+The three (3) methods are static.
 
 <p class="message-notice">the closure mechanism does not support <code>IntersectionType</code></p>
 

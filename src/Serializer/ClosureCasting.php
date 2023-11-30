@@ -115,6 +115,11 @@ final class ClosureCasting implements TypeCasting
         return true;
     }
 
+    public static function unregisterAll(): void
+    {
+        self::$casters = [];
+    }
+
     public static function supports(ReflectionParameter|ReflectionProperty $reflectionProperty): bool
     {
         foreach (self::getTypes($reflectionProperty->getType()) as $type) {
