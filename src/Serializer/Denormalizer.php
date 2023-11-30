@@ -150,7 +150,7 @@ final class Denormalizer
         $record = array_values($record);
         foreach ($this->propertySetters as $propertySetter) {
             $value = $record[$propertySetter->offset];
-            if ('' === $value && self::$emptyStringAsNull) {
+            if (is_string($value) && '' === trim($value) && self::$emptyStringAsNull) {
                 $value = null;
             }
 

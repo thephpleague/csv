@@ -153,7 +153,7 @@ The attribute can take up to three (3) arguments which are all optional:
 
 - The `column` argument tells the engine which record key to use via its numeric or name. If not present the property name or the name of the first argument of the `setter` method will be used. In such case, you are required to specify the property names information.
 - The `cast` argument which accept the name of a class implementing the `TypeCasting` interface and responsible for type casting the record value. If not present, the mechanism will try to resolve the typecasting based on the property or method argument type.
-- The `options` argument enables controlling typecasting by providing extra arguments to the `TypeCasting` class constructor. The argument expects an associative array and relies on named arguments to inject its value to the `TypeCasting` implementing class constructor.
+- The `options` argument enables controlling typecasting by providing extra arguments to `TypeCasting::setOptions` method. The argument expects an associative array and relies on named arguments to inject its value to the method.
 
 <p class="message-notice">You can use the mechanism on a CSV without a header row but it requires
 adding a <code>MapCell</code> attribute on each property or method needed for the conversion. Or you
@@ -260,7 +260,7 @@ public function setPlace(mixed $place): void
 > if the value is  null resolve the string `Abidjan` to `Place::Abidjan`. Once created,
 > call the method `setPlace` with the created `Place` enum filling the `$place` argument.
 
-<p class="notice">Using this class with a <code>mixed</code> type without providing the <code>enum</code> parameter will trigger an exception.</p>
+<p class="notice">Using this class with a <code>mixed</code> type without providing the <code>className</code> parameter will trigger an exception.</p>
 
 ### CastToDate
 
