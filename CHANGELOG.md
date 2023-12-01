@@ -15,7 +15,7 @@ All Notable changes to `Csv` will be documented in this file
 - `ResultSet::fromRecords`
 - `Stream::setMaxLineLen`
 - `Stream::getMaxLineLen`
-- `League\Csv\Serializer\Denormalizer` to allow casting records to objects [#508](https://github.com/thephpleague/csv/issues/508)
+- `League\Csv\Serializer\Denormalizer` to allow denormalizing records into objects [#508](https://github.com/thephpleague/csv/issues/508)
 - `League\Csv\FragmentFinder` to implement [RFC7111](https://www.rfc-editor.org/rfc/rfc7111)
 
 ### Deprecated
@@ -28,8 +28,8 @@ It's usage will trigger a `E_USER_DEPRECATED` call.
 
 - The optional `$header` argument for `TabularDataReader;;getRecords` becomes a full mapper between the records column offset and the column names [#498](https://github.com/thephpleague/csv/issues/498)
 - `ResultSet` constructor now allows the records to be an `array`.
-- The internal `Stream` object it will throw a `RuntimeException` if the rewind action fails
-- if calls to `fseek` fails (returns `-1` ) a new `RuntimeException` will be thrown too.
+- The internal `Stream` object will throw a `RuntimeException` if the rewind action fails
+- if calls to `fseek` fails (returns `-1` ) a `RuntimeException` will be thrown.
 - `Stream` can iterate and return the full line respecting `SplFielObject` flags. Previously it only returned the CSV records.
 - `MapIterator::fromIterable` to instantiate a `MapIterator` object from any iterable structure.
 
