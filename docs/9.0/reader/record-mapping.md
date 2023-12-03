@@ -120,10 +120,17 @@ public properties or arguments typed with one of the following type:
 
 the `nullable` aspect of the property is also automatically handled.
 
-If the autodiscovery feature is not enough, you can complete the conversion information using the
-`League\Csv\Serializer\MapCell` attribute.
+If the autodiscovery feature is not enough, you can complete the conversion information using the following
+PHP attributes:
 
-Here's an example of how the attribute works:
+- the `League\Csv\Serializer\MapCell`
+- the `League\Csv\Serializer\AfterMapping`
+
+<p class="message-info">The <code>AfterMapping</code> attribute is added in version <code>9.13.0</code></p>
+
+### Improving cell to property mapping
+
+Here's an example of how the `League\Csv\Serializer\MapCell` attribute works:
 
 ```php
 use League\Csv\Serializer;
@@ -161,6 +168,44 @@ can use the optional second argument of <code>TabularDataReader::getObjects</cod
 header value, just like with <code>TabularDataReader::getRecords</code></p>
 
 In any case, if type casting fails, an exception will be thrown.
+
+### Improving object creation
+
+<p class="message-notice">The feature is available since version <code>9.13.0</code></p>
+
+Because we are not using the object constructor method, you can work around that limitation by
+tagging one or more methods to be called after all the mapping is done. Tagging is made using
+the `League\Csv\Serializer\AfterMapping` attribute.
+
+```php
+use League\Csv\Serializer;
+
+#[Serializer\AfterMapping('validate')]
+final class ClimateRecord
+{
+    public function __construct(
+        public readonly Place $place,
+        public readonly ?float $temperature,
+        public readonly ?DateTimeImmutable $date,
+    ) {
+        $this->validate();
+    }
+
+    protected function validate(): void
+    {
+        //further validation on your object
+        //or any other post construction methods
+        //that is needed to be called
+    }
+}
+```
+
+In the above example, the `validate` method will be call once all the properties have been set but
+before the object is returned. You can specify as many methods belonging to the class as you want
+regardless of their visibility by separating them with a comma. The methods will be called
+in the order they have been declared.
+
+<p class="message-notice">If the method does not exist or requires explicit arguments an exception will be thrown.</p>
 
 ### Handling the empty string
 

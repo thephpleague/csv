@@ -357,6 +357,30 @@ final class DenormalizerTest extends TestCase
         new Denormalizer($foobar::class, ['temperature', 'place', 'observedOn']);
     }
 
+    public function testItWillCallAMethodAfterMapping(): void
+    {
+        /** @var UsingAfterMapping $res */
+        $res = Denormalizer::assign(UsingAfterMapping::class, ['addition' => '1']);
+
+        self::assertSame(2, $res->addition);
+    }
+
+    public function testIfFailsToUseAfterMappingWithUnknownMethod(): void
+    {
+        $this->expectException(MappingFailed::class);
+        $this->expectExceptionMessage('The method `addTow` is not defined on the `'.MissingMethodAfterMapping::class.'` class.');
+
+        Denormalizer::assign(MissingMethodAfterMapping::class, ['addition' => '1']);
+    }
+
+    public function testIfFailsToUseAfterMappingWithInvalidArgument(): void
+    {
+        $this->expectException(MappingFailed::class);
+        $this->expectExceptionMessage('The method `'.RequiresArgumentAfterMapping::class.'::addOne` has too many required parameters.');
+
+        Denormalizer::assign(RequiresArgumentAfterMapping::class, ['addition' => '1']);
+    }
+
     public function testItWillThrowIfTheClassContainsUninitializedProperties(): void
     {
         $foobar = new class ('prenoms', 18, 'M', new SplTempFileObject()) {
@@ -533,4 +557,46 @@ enum Place: string
 {
     case Yamoussokro = 'Yamoussokro';
     case Abidjan = 'Abidjan';
+}
+
+#[AfterMapping('addOne')]
+class UsingAfterMapping
+{
+    public function __construct(public int $addition)
+    {
+        $this->addOne();
+    }
+
+    private function addOne(): void
+    {
+        ++$this->addition;
+    }
+}
+
+#[AfterMapping('addOne', 'addTow')]
+class MissingMethodAfterMapping
+{
+    public function __construct(public int $addition)
+    {
+        $this->addOne();
+    }
+
+    private function addOne(): void
+    {
+        ++$this->addition;
+    }
+}
+
+#[AfterMapping('addOne')]
+class RequiresArgumentAfterMapping
+{
+    public function __construct(public int $addition)
+    {
+        $this->addOne(1);
+    }
+
+    private function addOne(int $add): void
+    {
+        $this->addition += $add;
+    }
 }

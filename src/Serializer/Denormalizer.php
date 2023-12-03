@@ -38,6 +38,8 @@ final class Denormalizer
     private readonly array $properties;
     /** @var array<PropertySetter> */
     private readonly array $propertySetters;
+    /** @var array<ReflectionMethod> */
+    private readonly array $postMapCalls;
 
     /**
      * @param class-string $className
@@ -50,6 +52,7 @@ final class Denormalizer
         $this->class = $this->setClass($className);
         $this->properties = $this->class->getProperties();
         $this->propertySetters = $this->setPropertySetters($propertyNames);
+        $this->postMapCalls = $this->setPostMapCalls();
     }
 
     public static function allowEmptyStringAsNull(): void
@@ -118,6 +121,10 @@ final class Denormalizer
                 $this->assertObjectIsInValidState($object);
             }
 
+            foreach ($this->postMapCalls as $accessor) {
+                $accessor->invoke($object);
+            }
+
             return $object;
         };
 
@@ -135,6 +142,10 @@ final class Denormalizer
 
         $this->hydrate($object, $record);
         $this->assertObjectIsInValidState($object);
+
+        foreach ($this->postMapCalls as $accessor) {
+            $accessor->invoke($object);
+        }
 
         return $object;
     }
@@ -216,6 +227,38 @@ final class Denormalizer
             $propertySetters => throw new MappingFailed('No property or method from `'.$this->class->getName().'` could be used for denormalization.'),
             default => $propertySetters,
         };
+    }
+
+    private function setPostMapCalls(): array
+    {
+        $methods = [];
+        $attributes = $this->class->getAttributes(AfterMapping::class, ReflectionAttribute::IS_INSTANCEOF);
+        $nbAttributes = count($attributes);
+        if (0 === $nbAttributes) {
+            return $methods;
+        }
+
+        if (1 < $nbAttributes) {
+            throw new MappingFailed('Using more than one `'.AfterMapping::class.'` attribute on a class property or method is not supported.');
+        }
+
+        /** @var AfterMapping $postMap */
+        $postMap = $attributes[0]->newInstance();
+        foreach ($postMap->methods as $method) {
+            try {
+                $accessor = $this->class->getMethod($method);
+            } catch (ReflectionException $exception) {
+                throw new MappingFailed('The method `'.$method.'` is not defined on the `'.$this->class->getName().'` class.', 0, $exception);
+            }
+
+            if (0 !== $accessor->getNumberOfRequiredParameters()) {
+                throw new MappingFailed('The method `'.$this->class->getName().'::'.$accessor->getName().'` has too many required parameters.');
+            }
+
+            $methods[] = $accessor;
+        }
+
+        return $methods;
     }
 
     /**
