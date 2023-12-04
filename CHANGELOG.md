@@ -45,7 +45,7 @@ It's usage will trigger a `E_USER_DEPRECATED` call.
 
 ### Fixed
 
-- The optional `$header` argument for `TabularDataReader;;getRecords` becomes a full mapper between the records column offset and the column names [#498](https://github.com/thephpleague/csv/issues/498)
+- The optional `$header` argument for `TabularDataReader::getRecords` becomes a full mapper between the records column offset and the column names [#498](https://github.com/thephpleague/csv/issues/498)
 - `ResultSet` constructor now allows the records to be an `array`.
 - The internal `Stream` object will throw a `RuntimeException` if the rewind action fails
 - if calls to `fseek` fails (returns `-1` ) a `RuntimeException` will be thrown.
