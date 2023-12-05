@@ -18,6 +18,7 @@ use DateTime;
 use DateTimeImmutable;
 use DateTimeInterface;
 use DateTimeZone;
+use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 use SplFileObject;
 use SplTempFileObject;
@@ -311,7 +312,7 @@ final class DenormalizerTest extends TestCase
         };
 
         $this->expectException(MappingFailed::class);
-        $this->expectExceptionMessage('`stdClass` must be an resolvable class implementing the `League\Csv\Serializer\TypeCasting` interface.');
+        $this->expectExceptionMessage('`stdClass` must be an resolvable class implementing the `League\Csv\Serializer\TypeCasting` interface or a supported alias.');
 
         new Denormalizer($foobar::class);
     }
@@ -550,6 +551,61 @@ final class DenormalizerTest extends TestCase
         $this->expectExceptionMessage('No property or method from `'.$class::class.'` could be used for denormalization.');
 
         Denormalizer::assign($class::class, ['date' => 'tomorrow']);
+    }
+
+    #[Test]
+    public function it_can_use_aliases(): void
+    {
+        self::assertSame([], Denormalizer::aliases());
+        self::assertFalse(Denormalizer::supportsAlias('@strtoupper'));
+
+        Denormalizer::registerType('string', fn (?string $str) => null === $str ? '' : strtoupper($str), '@strtoupper');
+
+        self::assertSame(['@strtoupper' => 'string'], Denormalizer::aliases());
+        self::assertTrue(Denormalizer::supportsAlias('@strtoupper'));
+
+        $class = new class ('toto') {
+            public function __construct(
+                #[MapCell(cast: '@strtoupper')]
+                public readonly string $str
+            ) {
+            }
+        };
+
+        $instance = Denormalizer::assign($class::class, ['str' => 'kinshasa']);
+
+        self::assertInstanceOf($class::class, $instance);
+        self::assertSame('KINSHASA', $instance->str);
+
+        self::assertTrue(Denormalizer::unregisterType('string', '@strtoupper'));
+        self::assertFalse(Denormalizer::unregisterType('string', '@strtoupper'));
+
+        $this->expectException(MappingFailed::class);
+        $this->expectExceptionMessage('`@strtoupper` must be an resolvable class implementing the `'.TypeCasting::class.'` interface or a supported alias.');
+        Denormalizer::assign($class::class, ['str' => 'kinshasa']);
+    }
+
+    #[Test]
+    public function it_will_fail_to_registered_an_invalid_alias_name(): void
+    {
+        $invalidAlias = 'invalidAlias';
+
+        $this->expectException(MappingFailed::class);
+        $this->expectExceptionMessage("The alias `$invalidAlias` is invalid. It must start with an `@` character and contain alphanumeric (letters, numbers, regardless of case) plus underscore (_).");
+
+        Denormalizer::registerType('string', fn (?string $str) => null === $str ? '' : strtoupper($str), $invalidAlias);
+    }
+
+    #[Test]
+    public function it_will_fail_to_registered_twice_the_same_alias(): void
+    {
+        $validAlias = '@alias';
+
+        $this->expectException(MappingFailed::class);
+        $this->expectExceptionMessage('The alias `'.$validAlias.'` is already registered. Please choose another name.');
+
+        Denormalizer::registerType('string', fn (?string $str) => null === $str ? '' : strtoupper($str), $validAlias);
+        Denormalizer::registerType('int', fn (?string $str) => null === $str ? '' : strtoupper($str), $validAlias);
     }
 }
 

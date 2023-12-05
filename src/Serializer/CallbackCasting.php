@@ -32,6 +32,9 @@ final class CallbackCasting implements TypeCasting
     /** @var array<string, Closure(?string, bool, mixed...): mixed> */
     private static array $casters = [];
 
+    /** @var array<string, array<string, Closure(?string, bool, mixed...): mixed>> */
+    private static array $aliases = [];
+
     private string $type;
     private readonly bool $isNullable;
     /** @var Closure(?string, bool, mixed...): mixed */
@@ -39,8 +42,10 @@ final class CallbackCasting implements TypeCasting
     private array $options;
     private string $message;
 
-    public function __construct(ReflectionProperty|ReflectionParameter $reflectionProperty)
-    {
+    public function __construct(
+        ReflectionProperty|ReflectionParameter $reflectionProperty,
+        private readonly ?string $alias = null
+    ) {
         [$this->type, $this->isNullable] = self::resolve($reflectionProperty);
 
         $this->message = match (true) {
@@ -56,15 +61,28 @@ final class CallbackCasting implements TypeCasting
      */
     public function setOptions(string $type = null, mixed ...$options): void
     {
-        if (Type::Mixed->value === $this->type && null !== $type) {
-            $this->type = $type;
-        }
+        if (null === $this->alias) {
+            if (Type::Mixed->value === $this->type && null !== $type) {
+                $this->type = $type;
+            }
 
-        if (!array_key_exists($this->type, self::$casters)) {
+            if (array_key_exists($this->type, self::$casters)) {
+                $this->callback = self::$casters[$this->type];
+                $this->options = $options;
+
+                return;
+            }
+
             throw new MappingFailed($this->message);
         }
 
-        $this->callback = self::$casters[$this->type];
+        if (Type::Mixed->value === $this->type) {
+            $this->type = self::aliases()[$this->alias];
+        }
+
+        /** @var Closure $callback */
+        $callback = self::$aliases[$this->type][$this->alias];
+        $this->callback = $callback;
         $this->options = $options;
     }
 
@@ -94,9 +112,32 @@ final class CallbackCasting implements TypeCasting
     /**
      * @param Closure(?string, bool, mixed...): TValue $callback
      */
-    public static function register(string $type, Closure $callback): void
+    public static function register(string $type, Closure $callback, string $alias = null): void
     {
-        self::$casters[$type] = match (true) {
+        if (null === $alias) {
+            self::$casters[$type] = match (true) {
+                class_exists($type),
+                interface_exists($type),
+                Type::tryFrom($type) instanceof Type => $callback,
+                default => throw new MappingFailed('The `'.$type.'` could not be register.'),
+            };
+
+            return;
+        }
+
+        if (1 !== preg_match('/^@\w+$/', $alias)) {
+            throw new MappingFailed("The alias `$alias` is invalid. It must start with an `@` character and contain alphanumeric (letters, numbers, regardless of case) plus underscore (_).");
+        }
+
+        foreach (self::$aliases as $aliases) {
+            foreach ($aliases as $registeredAlias => $__) {
+                if ($alias === $registeredAlias) {
+                    throw new MappingFailed("The alias `$alias` is already registered. Please choose another name.");
+                }
+            }
+        }
+
+        self::$aliases[$type][$alias] = match (true) {
             class_exists($type),
             interface_exists($type),
             Type::tryFrom($type) instanceof Type => $callback,
@@ -104,8 +145,19 @@ final class CallbackCasting implements TypeCasting
         };
     }
 
-    public static function unregister(string $type): bool
+    public static function unregister(string $type, string $alias = null): bool
     {
+        if (null !== $alias) {
+            $callback = self::$aliases[$type][$alias] ?? null;
+            if (null === $callback) {
+                return false;
+            }
+
+            unset(self::$aliases[$type][$alias]);
+
+            return true;
+        }
+
         if (!array_key_exists($type, self::$casters)) {
             return false;
         }
@@ -115,15 +167,62 @@ final class CallbackCasting implements TypeCasting
         return true;
     }
 
-    public static function unregisterAll(): void
+    public static function unregisterAliases(string $type): bool
     {
-        self::$casters = [];
+        if (!array_key_exists($type, self::$aliases)) {
+            return false;
+        }
+
+        unset(self::$aliases[$type]);
+
+        return true;
     }
 
-    public static function supports(ReflectionParameter|ReflectionProperty $reflectionProperty): bool
+    public static function unregisterAll(string $type = null): void
     {
-        foreach (self::getTypes($reflectionProperty->getType()) as $type) {
-            if (array_key_exists($type->getName(), self::$casters)) {
+        if (null !== $type) {
+            unset(self::$aliases[$type], self::$casters[$type]);
+
+            return;
+        }
+
+        self::$casters = [];
+        self::$aliases = [];
+    }
+
+    public static function supportsAlias(string $alias): bool
+    {
+        return array_key_exists($alias, self::aliases());
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    public static function aliases(): array
+    {
+        $res = [];
+        foreach (self::$aliases as $registeredType => $aliases) {
+            foreach ($aliases as $registeredAlias => $__) {
+                $res[$registeredAlias] = $registeredType;
+            }
+        }
+
+        return $res;
+    }
+
+    public static function supports(ReflectionParameter|ReflectionProperty $reflectionProperty, string $alias = null): bool
+    {
+        foreach (self::getTypes($reflectionProperty->getType()) as $propertyType) {
+            $type = $propertyType->getName();
+            if (null === $alias) {
+                if (array_key_exists($type, self::$casters)) {
+                    return true;
+                }
+
+                continue;
+            }
+
+            if ((self::aliases()[$alias] ?? null) === $type || (Type::Mixed->value === $type && self::supportsAlias($alias))) {
                 return true;
             }
         }
@@ -138,22 +237,38 @@ final class CallbackCasting implements TypeCasting
      */
     private static function resolve(ReflectionParameter|ReflectionProperty $reflectionProperty): array
     {
+        $types = self::getTypes($reflectionProperty->getType());
+
         $type = null;
         $isNullable = false;
-        foreach (self::getTypes($reflectionProperty->getType()) as $foundType) {
+        $hasMixed = false;
+        foreach ($types as $foundType) {
             if (!$isNullable && $foundType->allowsNull()) {
                 $isNullable = true;
             }
 
-            if (null === $type && array_key_exists($foundType->getName(), self::$casters)) {
-                $type = $foundType;
+            if (null === $type) {
+                if (
+                    array_key_exists($foundType->getName(), self::$casters)
+                    || array_key_exists($foundType->getName(), self::$aliases)
+                ) {
+                    $type = $foundType;
+                }
+
+                if (true !== $hasMixed && Type::Mixed->value === $foundType->getName()) {
+                    $hasMixed = true;
+                }
             }
         }
 
-        return $type instanceof ReflectionNamedType ? [$type->getName(), $isNullable] : throw new MappingFailed(match (true) {
-            $reflectionProperty instanceof ReflectionParameter => 'The method `'.$reflectionProperty->getDeclaringClass()?->getName().'::'.$reflectionProperty->getDeclaringFunction()->getName().'` argument `'.$reflectionProperty->getName().'` must be typed with a supported type.',
-            $reflectionProperty instanceof ReflectionProperty => 'The property `'.$reflectionProperty->getDeclaringClass()->getName().'::'.$reflectionProperty->getName().'` must be typed with a supported type.',
-        });
+        return match (true) {
+            $type instanceof ReflectionNamedType => [$type->getName(), $isNullable],
+            $hasMixed => [Type::Mixed->value, true],
+            default => throw new MappingFailed(match (true) {
+                $reflectionProperty instanceof ReflectionParameter => 'The method `'.$reflectionProperty->getDeclaringClass()?->getName().'::'.$reflectionProperty->getDeclaringFunction()->getName().'` argument `'.$reflectionProperty->getName().'` must be typed with a supported type.',
+                $reflectionProperty instanceof ReflectionProperty => 'The property `'.$reflectionProperty->getDeclaringClass()->getName().'::'.$reflectionProperty->getName().'` must be typed with a supported type.',
+            }),
+        };
     }
 
     /**

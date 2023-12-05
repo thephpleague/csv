@@ -68,19 +68,37 @@ final class Denormalizer
     /**
      * @throws MappingFailed
      */
-    public static function registerType(string $type, Closure $callback): void
+    public static function registerType(string $type, Closure $callback, string $alias = null): void
     {
-        CallbackCasting::register($type, $callback);
+        CallbackCasting::register($type, $callback, $alias);
     }
 
-    public static function unregisterType(string $type): bool
+    public static function unregisterType(string $type, string $alias = null): bool
     {
-        return CallbackCasting::unregister($type);
+        return CallbackCasting::unregister($type, $alias);
+    }
+
+    public static function unregisterTypeAliases(string $type): void
+    {
+        CallbackCasting::unregisterAliases($type);
     }
 
     public static function unregisterAllTypes(): void
     {
         CallbackCasting::unregisterAll();
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    public static function aliases(): array
+    {
+        return CallbackCasting::aliases();
+    }
+
+    public static function supportsAlias(string $alias): bool
+    {
+        return CallbackCasting::supportsAlias($alias);
     }
 
     /**
@@ -312,11 +330,7 @@ final class Denormalizer
      */
     private function findPropertySetter(MapCell $cell, ReflectionMethod|ReflectionProperty $accessor, array $propertyNames): PropertySetter
     {
-        /** @var ?class-string<TypeCasting> $typeCaster */
-        $typeCaster = $cell->cast;
-        if (null !== $typeCaster && (!class_exists($typeCaster) || !(new ReflectionClass($typeCaster))->implementsInterface(TypeCasting::class))) {
-            throw MappingFailed::dueToInvalidTypeCastingClass($typeCaster);
-        }
+        $typeCaster = $this->resolveTypeCaster($cell, $accessor);
 
         $offset = $cell->column ?? match (true) {
             $accessor instanceof ReflectionMethod => $this->getMethodFirstArgument($accessor)->getName(),
@@ -365,8 +379,6 @@ final class Denormalizer
     }
 
     /**
-     * @param class-string<TypeCasting> $typeCaster
-     *
      * @throws MappingFailed
      */
     private function getTypeCasting(
@@ -375,12 +387,22 @@ final class Denormalizer
         array $options
     ): TypeCasting {
         try {
+            if (str_starts_with($typeCaster, CallbackCasting::class.'@')) {
+                $cast = new CallbackCasting($reflectionProperty, substr($typeCaster, strlen(CallbackCasting::class)));
+                $cast->setOptions(...$options);
+
+                return $cast;
+            }
+
+            /** @var TypeCasting $cast */
             $cast = new $typeCaster($reflectionProperty);
             $cast->setOptions(...$options);
 
             return $cast;
+        } catch (MappingFailed $exception) {
+            throw $exception;
         } catch (Throwable $exception) {
-            throw $exception instanceof MappingFailed ? $exception : MappingFailed::dueToInvalidCastingArguments($exception);
+            throw MappingFailed::dueToInvalidCastingArguments($exception);
         }
     }
 
@@ -389,7 +411,7 @@ final class Denormalizer
      */
     private function resolveTypeCasting(ReflectionProperty|ReflectionParameter $reflectionProperty, array $options = []): TypeCasting
     {
-        $castResolver = function (ReflectionProperty|ReflectionParameter $reflectionProperty, $options): TypeCasting {
+        $castResolver = function (ReflectionProperty|ReflectionParameter $reflectionProperty, $options): CallbackCasting {
             $cast = new CallbackCasting($reflectionProperty);
             $cast->setOptions(...$options);
 
@@ -406,5 +428,32 @@ final class Denormalizer
         } catch (Throwable $exception) {
             throw MappingFailed::dueToInvalidCastingArguments($exception);
         }
+    }
+
+    public function resolveTypeCaster(MapCell $cell, ReflectionMethod|ReflectionProperty $accessor): ?string
+    {
+        /** @var ?class-string<TypeCasting> $typeCaster */
+        $typeCaster = $cell->cast;
+        if (null === $typeCaster) {
+            return null;
+        }
+
+        if (class_exists($typeCaster)) {
+            if (!(new ReflectionClass($typeCaster))->implementsInterface(TypeCasting::class)) {
+                throw MappingFailed::dueToInvalidTypeCastingClass($typeCaster);
+            }
+
+            return $typeCaster;
+        }
+
+        if ($accessor instanceof ReflectionMethod) {
+            $accessor = $accessor->getParameters()[0];
+        }
+
+        if (!CallbackCasting::supports($accessor, $typeCaster)) {
+            throw MappingFailed::dueToInvalidTypeCastingClass($typeCaster);
+        }
+
+        return CallbackCasting::class.$typeCaster;
     }
 }
