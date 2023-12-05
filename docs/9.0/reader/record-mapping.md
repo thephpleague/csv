@@ -502,9 +502,6 @@ use League\Csv\Serializer\TypeCastingFailed;
  */
 final class CastToNaira implements TypeCasting
 {
-    private readonly bool $isNullable;
-    private ?Naira $default;
-
     public function __construct(
         ReflectionProperty|ReflectionParameter $reflectionProperty, //always given by the Denormalizer
     ) {
@@ -512,52 +509,29 @@ final class CastToNaira implements TypeCasting
         // The argument gives you access to property/argument information.
         // it allows validating that the argument does support your casting
         // it allows adding support to union, intersection or unnamed type 
-        // it tells whether the property/argument is nullable or not
-
-        $reflectionType = $reflectionProperty->getType();
-        if (null === $reflectionType) {
-            throw new MappingFailed('untyped arguments are not supported.');
-        }
-        
-        if (!$reflectionType instanceof ReflectionNamedType) {
-            throw new MappingFailed('union or intersection type arguments are not supported.');
-        }
-
-        if (!in_array($reflectionType->getName(), [Naira::class, 'mixed'], true)) {
-            $message = '`'.$reflectionProperty->getName()'.` is not typed with the '.Naira::class.' class or with `mixed`.';
-
-            throw new MappingFailed(match (true) {
-                $reflectionProperty instanceof ReflectionParameter => 'The setter method argument '.$message,
-                $reflectionProperty instanceof ReflectionProperty => 'The property '.$message,
-            });
-        }
-
-        $this->isNullable = $reflectionType->allowsNull();
+        // it tells whether the property/argument is nullable or not.
+        // in case of error you should throw a MappingFailed exception
     }
 
     public function setOptions(
-        ?int $default = null //will be filled via the MapCell options array destructuring
-    ) : void{
-        $this->default = null !== $default ?Naira::fromKobos($default) : $default;
+        mixed ...$options //will be filled via the MapCell options array destructuring
+    ): void {
+        // in case of error you should throw a MappingFailed exception
     }
 
     public function toVariable(?string $value): ?Naira
     {
-        try {
-            if (null === $value && $this->isNullable) {
-                return $this->default;
-            }
-
-            return Naira::fromKobos(filter_var($value, FILTER_VALIDATE_INT));
-        } catch (Throwable $exception) {
-            throw new TypeCastingFailed('Unable to cast the given data `'.$value.'` to a `'.Money::class.'`.', 0, $exception);
-        }
+        //convert the Cell value into the expected type
+        // in case of error you should throw a TypeCastingFailed exception
     }
 }
 ```
 
 <p class="message-info">While the built-in <code>TypeCasting</code> classes do not support Intersection Type, your own
 implementing class can support them via inspection of the <code>$reflectionProperty</code> argument.</p>
+
+<p class="message-notice">Don't hesitate to check the repository code source to see how each default
+<code>TypeCasting</code> classes are implemented.</p>
 
 ## Using the feature without a TabularDataReader
 
