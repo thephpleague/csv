@@ -380,13 +380,14 @@ The `type` option only supports scalar type (`string`, `int`, `float` and `bool`
 
 ## Extending Type Casting capabilities
 
-Two (2) mechanisms to extend typecasting are provided. You can register a callback via the `Denormalizer` class
+Three (3) mechanisms to extend typecasting are provided. You can register a callback via the `Denormalizer` class
 or create a `League\Csv\Serializer\TypeCasting` implementing class. Of course, the choice will depend on your use case.
 
-### Registering a callback
+### Registering a type using a callback
 
 You can register a callback using the `Denormalizer` class to convert a specific type. The type can be
-any built-in type or a specific class.
+any built-in type or a specific class. Once registered, the type will be automatically resolved using your
+callback even during autodiscovery.
 
 ```php
 use App\Domain\Money\Naira;
@@ -461,10 +462,52 @@ The three (3) methods are static.
 
 <p class="message-notice">the callback mechanism does not support <code>IntersectionType</code></p>
 
+### Registering a type alias using a callback
+
+<p class="message-info">new in version <code>9.13.0</code></p>
+
+If you want to provide alternative way to convert your string into a specific type you can instead register an alias.
+Contrary to registering a type an alias :
+
+- is not available during autodiscovery and needs to be specified using the `MapCell` attribute `cast` argument.
+- does not take precedence over a type definition.
+
+Registering an alias is similar to registering a type via callback:
+
+```php
+use League\Csv\Serializer;
+
+Serializer\Denormalizer::registerAlias('@forty-two', 'int', fn (?string $value): int => 42);
+```
+
+The excepted callback argument follow the same signature and will be called exactly the same as with a type callback.
+
+<p class="message-notice">The alias must start with an <code>@</code> character and contain alphanumeric (letters, numbers, regardless of case) plus underscore (_).</p>
+
+Once generated you can use it as shown below:
+
+```php
+use App\Domain\Money
+use League\Csv\Serializer;
+
+#[Serializer\MapCell(column: 'amount', cast: '@forty-two')]
+private ?int $amount;
+```
+
+It is possible to unregister aliases using the following static methods:
+
+```php
+use League\Csv\Serializer;
+
+Serializer\Denormalizer::unregisterAlias('@forty-two');
+Serializer\Denormalizer::unregisterAllAliases();
+```
+
+<p class="message-info">If needed, can use the <code>Denormalizer::unregisterAll</code> to unregister all callbacks (alias and types)</p>
+
 ### Implementing a TypeCasting class
 
-If you need to support `Intersection` type or properties/argument without type, or you want to be
-able to fine tune the typecasting you can provide your own class to typecast the value according
+If you need to support `Intersection` type you need to provide your own class to typecast the value according
 to your own rules. Since the class is not registered by default:
 
 - you must configure its usage via the `MapCell` attribute `cast` argument
@@ -484,7 +527,6 @@ private ?Money $naira;
 
 The `CastToNaira` will convert the cell value into a `Narai` object and if the value is `null`, `20_00` will be used.
 To allow your object to cast the cell value to your liking it needs to implement the `TypeCasting` interface.
-To do so, you must define a `toVariable` method that will return the correct value once converted.
 
 ```php
 <?php
@@ -531,13 +573,13 @@ final class CastToNaira implements TypeCasting
 implementing class can support them via inspection of the <code>$reflectionProperty</code> argument.</p>
 
 <p class="message-notice">Don't hesitate to check the repository code source to see how each default
-<code>TypeCasting</code> classes are implemented.</p>
+<code>TypeCasting</code> classes are implemented for reference.</p>
 
 ## Using the feature without a TabularDataReader
 
 The feature can be used outside the package default usage via the `Denormalizer` class.
 
-The class exposes four (4) methods to ease `array` to `object` conversion:
+The class exposes four (4) methods to ease `array` to `object` denormalization:
 
 - `Denormalizer::denormalizeAll` and `Denormalizer::assignAll` to convert a collection of records into a collection of instances of a specified class.
 - `Denormalizer::denormalize` and `Denormalizer::assign` to convert a single record into a new instance of the specified class.

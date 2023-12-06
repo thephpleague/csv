@@ -68,22 +68,40 @@ final class Denormalizer
     /**
      * @throws MappingFailed
      */
-    public static function registerType(string $type, Closure $callback, string $alias = null): void
+    public static function registerType(string $type, Closure $callback): void
+    {
+        CallbackCasting::register($type, $callback);
+    }
+
+    public static function unregisterType(string $type): bool
+    {
+        return CallbackCasting::unregisterType($type);
+    }
+
+    public static function unregisterAllTypes(): void
+    {
+        CallbackCasting::unregisterTypes();
+    }
+
+    /**
+     * @throws MappingFailed
+     */
+    public static function registerAlias(string $alias, string $type, Closure $callback): void
     {
         CallbackCasting::register($type, $callback, $alias);
     }
 
-    public static function unregisterType(string $type, string $alias = null): bool
+    public static function unregisterAlias(string $alias): bool
     {
-        return CallbackCasting::unregister($type, $alias);
+        return CallbackCasting::unregisterAlias($alias);
     }
 
-    public static function unregisterTypeAliases(string $type): void
+    public static function unregisterAllAliases(): void
     {
-        CallbackCasting::unregisterAliases($type);
+        CallbackCasting::unregisterAliases();
     }
 
-    public static function unregisterAllTypes(): void
+    public static function unregisterAll(): void
     {
         CallbackCasting::unregisterAll();
     }

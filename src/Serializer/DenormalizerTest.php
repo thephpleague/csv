@@ -559,7 +559,7 @@ final class DenormalizerTest extends TestCase
         self::assertSame([], Denormalizer::aliases());
         self::assertFalse(Denormalizer::supportsAlias('@strtoupper'));
 
-        Denormalizer::registerType('string', fn (?string $str) => null === $str ? '' : strtoupper($str), '@strtoupper');
+        Denormalizer::registerAlias('@strtoupper', 'string', fn (?string $str) => null === $str ? '' : strtoupper($str));
 
         self::assertSame(['@strtoupper' => 'string'], Denormalizer::aliases());
         self::assertTrue(Denormalizer::supportsAlias('@strtoupper'));
@@ -577,8 +577,8 @@ final class DenormalizerTest extends TestCase
         self::assertInstanceOf($class::class, $instance);
         self::assertSame('KINSHASA', $instance->str);
 
-        self::assertTrue(Denormalizer::unregisterType('string', '@strtoupper'));
-        self::assertFalse(Denormalizer::unregisterType('string', '@strtoupper'));
+        self::assertTrue(Denormalizer::unregisterAlias('@strtoupper'));
+        self::assertFalse(Denormalizer::unregisterAlias('@strtoupper'));
 
         $this->expectException(MappingFailed::class);
         $this->expectExceptionMessage('`@strtoupper` must be an resolvable class implementing the `'.TypeCasting::class.'` interface or a supported alias.');
@@ -593,7 +593,7 @@ final class DenormalizerTest extends TestCase
         $this->expectException(MappingFailed::class);
         $this->expectExceptionMessage("The alias `$invalidAlias` is invalid. It must start with an `@` character and contain alphanumeric (letters, numbers, regardless of case) plus underscore (_).");
 
-        Denormalizer::registerType('string', fn (?string $str) => null === $str ? '' : strtoupper($str), $invalidAlias);
+        Denormalizer::registerAlias($invalidAlias, 'string', fn (?string $str) => null === $str ? '' : strtoupper($str));
     }
 
     #[Test]
@@ -604,8 +604,8 @@ final class DenormalizerTest extends TestCase
         $this->expectException(MappingFailed::class);
         $this->expectExceptionMessage('The alias `'.$validAlias.'` is already registered. Please choose another name.');
 
-        Denormalizer::registerType('string', fn (?string $str) => null === $str ? '' : strtoupper($str), $validAlias);
-        Denormalizer::registerType('int', fn (?string $str) => null === $str ? '' : strtoupper($str), $validAlias);
+        Denormalizer::registerAlias($validAlias, 'string', fn (?string $str) => null === $str ? '' : strtoupper($str));
+        Denormalizer::registerAlias($validAlias, 'int', fn (?string $str) => null === $str ? '' : strtoupper($str));
     }
 }
 
