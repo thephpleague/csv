@@ -191,9 +191,9 @@ final class CallbackCasting implements TypeCasting
         self::$aliases = [];
     }
 
-    public static function supportsAlias(string $alias): bool
+    public static function supportsAlias(?string $alias): bool
     {
-        return array_key_exists($alias, self::aliases());
+        return null !== $alias && array_key_exists($alias, self::aliases());
     }
 
     public static function supportsType(string $type): bool
@@ -218,7 +218,12 @@ final class CallbackCasting implements TypeCasting
 
     public static function supports(ReflectionParameter|ReflectionProperty $reflectionProperty, string $alias = null): bool
     {
-        foreach (self::getTypes($reflectionProperty->getType()) as $propertyType) {
+        $propertyTypeList = self::getTypes($reflectionProperty->getType());
+        if ([] === $propertyTypeList && self::supportsAlias($alias)) {
+            return true;
+        }
+
+        foreach ($propertyTypeList as $propertyType) {
             $type = $propertyType->getName();
             if (null === $alias) {
                 if (array_key_exists($type, self::$types)) {
@@ -243,6 +248,10 @@ final class CallbackCasting implements TypeCasting
      */
     private static function resolve(ReflectionParameter|ReflectionProperty $reflectionProperty): array
     {
+        if (null === $reflectionProperty->getType()) {
+            return [Type::Mixed->value, true];
+        }
+
         $types = self::getTypes($reflectionProperty->getType());
 
         $type = null;

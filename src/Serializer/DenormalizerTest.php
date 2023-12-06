@@ -607,6 +607,28 @@ final class DenormalizerTest extends TestCase
         Denormalizer::registerAlias($validAlias, 'string', fn (?string $str) => null === $str ? '' : strtoupper($str));
         Denormalizer::registerAlias($validAlias, 'int', fn (?string $str) => null === $str ? '' : strtoupper($str));
     }
+
+    #[Test]
+    public function it_will_succeed_with_an_alias_on_an_untyped_property(): void
+    {
+        Denormalizer::registerAlias('@lowercase', 'string', fn (?string $str) => strtolower((string) $str));
+
+        $class = new class ('toto') {
+            /**
+             * @param ?string $str
+             */
+            public function __construct(
+                #[MapCell(column:'place', cast: '@lowercase')]
+                public $str
+            ) {
+            }
+        };
+
+        $instance = Denormalizer::assign($class::class, ['place' => 'YaMouSSokro']);
+
+        self::assertInstanceOf($class::class, $instance);
+        self::assertSame('yamoussokro', $instance->str);
+    }
 }
 
 enum Place: string
