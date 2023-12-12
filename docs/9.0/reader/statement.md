@@ -113,7 +113,7 @@ $records = Statement::create()
 
 The second mechanism is based on [RFC7111](https://www.rfc-editor.org/rfc/rfc7111) and allow selecting
 part of your document according to its rows, columns or cells coordinates. The RFC, and thus, our class
-assume that your data is column size consistant and, in absence of a specified header, it will use the
+assume that your data is column size consistent and, in absence of a specified header, it will use the
 first record as reference to determine the input number of columns.
 
 The RFC defines three (3) types of selections and the `FragmentFinder` class supports them all.

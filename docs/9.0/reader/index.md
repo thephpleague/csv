@@ -171,7 +171,7 @@ $res = iterator_to_array($reader, true);
 // ];
 ```
 
-## CSV header
+## Document header
 
 While accessing the CSV header is done via the `getHeader` method which is part of the `TabularDataReader` API,
 Because CSV documents come in difference shape and form the class exposes a way to select and get the document Header
@@ -215,7 +215,7 @@ $header_offset = $csv->getHeaderOffset(); //returns 1000
 $header = $csv->getHeader(); //throws a SyntaxError exception
 ```
 
-Because the csv document is treated as tabular data the header can not contain duplicate entries.
+Because the CSV document is treated as tabular data the header can not contain duplicate entries.
 If the header contains duplicates an exception will be thrown on usage.
 
 ```php
@@ -246,13 +246,13 @@ try {
 }
 ```
 
-## CSV records
+## Document records
 
-To access the CSV records you will need to use the `getRecords` method. The method returns
-an `Iterator` containing all CSV document records. It will extract the records using the
-[CSV controls characters](/9.0/connections/controls/).
+To access the CSV records you will need to use the `getRecords` or the `getObjects` methods. The methods
+returns an `Iterator` containing all CSV document records as `array` or as objects. It will extract the
+records using the [CSV controls characters](/9.0/connections/controls/).
 
-<p class="message-notice"><code>getRecords</code> is part of the <code>TabularDataReader</code>.</p>
+<p class="message-notice"><code>getRecords</code> and <code>getObjects</code> are part of the <code>TabularDataReader</code> API.</p>
 
 ```php
 use League\Csv\Reader;
@@ -270,10 +270,9 @@ foreach ($records as $offset => $record) {
 }
 ```
 
-### Reader::getRecords with Reader::setHeaderOffset
+### Records selection with Reader::setHeaderOffset
 
-Just like the `getHeader` method, the method output depends on the selection of not of a header
-record using `setHeaderOffset`.
+Just like the `getHeader` method, the method output depends on the header record selected using `setHeaderOffset`.
 
 ```php
 use League\Csv\Reader;

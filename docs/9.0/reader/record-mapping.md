@@ -9,7 +9,7 @@ title: Denormalize a Tabular Data record into an object
 
 If you are working with a class which implements the `TabularDataReader` interface you can now deserialize
 your data using the `TabularDataReader::getObjects` method. The method will convert your document records
-into objects using the PHP's powerfull Reflection API.
+into objects using PHP's powerful Reflection API.
 
 Here's an example using the `Reader` class which implements the `TabularDataReader` interface:
 
@@ -23,16 +23,16 @@ foreach ($csv->getObjects(ClimaticRecord::class) as $weather) {
 }
 ```
 
-In the following sections we will explain the mechanism use and how you can control it.
+In the following sections we will explain the process and how you can control it.
 
 <p class="message-info">Of note, specifying the header offset is not mandatory for the mechanism to work.</p>
 
 ## Prerequisite
 
-The deserialization process is done in two steps. The first step is encoding your CSV into
+The deserialization process is done in two steps. The first step is decoding your CSV into
 a collection of records. This part is already handle by the package. Once decoding is done,
-the denormalization mechanism can happen. The process works mainly with DTO or objects
-without complex logic in their constructors.
+the denormalization mechanism can happen. The process is geared toward converting records
+into DTOs or objects without complex logic in their constructors.
 
 <p class="message-notice">The mechanism relies on PHP's <code>Reflection</code>
 feature. It does not use the class constructor to perform the conversion.
@@ -44,7 +44,7 @@ To work as intended the mechanism expects the following:
 - A target class where the array will be denormalized in;
 - information on how to convert cell values into object properties;
 
-As an example if we assume we have the following CSV document:
+As an example throughout the documentation we will assume the following CSV document:
 
 ```csv
 date,temperature,place
@@ -56,7 +56,7 @@ date,temperature,place
 2011-01-03,21,Yamoussoukro
 ```
 
-We can define a PHP DTO using the following properties.
+and define a PHP DTO using the following properties.
 
 ```php
 <?php
@@ -104,7 +104,7 @@ foreach ($csv->getObjects(ClimaticRecord::class) as $instance) {
 ## Defining the mapping rules
 
 By default, the denormalization engine will automatically fill public properties and call public methods
-using their name. In other words, if there is:
+using their names. In other words, if there is:
 
 - a public class property, which name is the same as a record key, the record value will be assigned to that property.
 - a public class method, whose name starts with `set` and ends with the record key with the first character upper-cased, the record value will be assigned to the method first argument.
@@ -128,7 +128,7 @@ PHP attributes:
 
 <p class="message-info">The <code>AfterMapping</code> attribute is added in version <code>9.13.0</code></p>
 
-### Improving cell to property mapping
+### Improving record mapping
 
 Here's an example of how the `League\Csv\Serializer\MapCell` attribute works:
 
@@ -150,10 +150,10 @@ private CarbonImmutable $observedOn;
 The above rule can be translated in plain English like this:
 
 > Convert the value of the associative array whose key is `date` into a `CarbonImmutable` object
-> using the date format `!Y-m-d` and the `Africa/Nairobi` timezone. Once created,
-> inject the instance into the class private property `observedOn`.
+> using the `CastToDate` class qith the date format `!Y-m-d` and the `Africa/Nairobi` timezone.
+> Once created, inject the instance into the class private property `observedOn`.
 
-This attribute will override the automatic resolution and enable fine-tuning type casting.
+This attribute will override any automatic resolution and enable fine-tuning type casting.
 It can be used on class properties and methods regardless of their visibility and their type.
 
 The attribute can take up to three (3) arguments which are all optional:
@@ -171,11 +171,11 @@ In any case, if type casting fails, an exception will be thrown.
 
 ### Improving object creation
 
-<p class="message-notice">The feature is available since version <code>9.13.0</code></p>
+<p class="message-info">The feature is available since version <code>9.13.0</code></p>
 
-Because we are not using the object constructor method, you can work around that limitation by
-tagging one or more methods to be called after all the mapping is done. Tagging is made using
-the `League\Csv\Serializer\AfterMapping` attribute.
+Because we are not using the object constructor method, we need a way to work around that limitation
+and tagging one or more methods that should be called after all mapping is done to return a valid object.
+Tagging is made using the `League\Csv\Serializer\AfterMapping` attribute.
 
 ```php
 use League\Csv\Serializer;
@@ -245,34 +245,71 @@ foreach ($csv->getObjects(ClimaticRecord::class) {
 ## Type casting
 
 The library comes bundled with seven (7) type casting classes which relies on the property type information.
-They all support `nullable` and `mixed` types.
+They all support `nullable`, `mixed` as well as non-typed properties.
 
 - They will return `null` or a specified default value, if the cell value is `null` and the type is `nullable`
 - If the value can not be cast they will throw an exception.
 
 For scalar conversion, type casting is done via PHP's `ext-filter` extension.
 
+<p class="message-info">Untyped properties are considered as being <code>mixed</code> type.</p>
+
+They are all registered by default so you do not need to specify them using the `cast` property of the `MapCell`
+attribute **unless you are using them on untyped or mixed property where using `cast` is mandatory**
+
 ### CastToString
 
-Converts the array value to a string or `null` depending on the property type information. The class takes one
-optional argument `default` which is the default value to return if the value is `null`.
+Converts the array value to a string or `null` depending on the property type information.
+The class takes one optional argument `default` which is the default value to return if
+the value is `null`.
 
-<p class="notice">By default, this class is also responsible for automatically typecasting <code>mixed</code> typed properties.</p>
+```php
+use League\Csv\Serializer\MapCell;
+
+#[MapCell(options: ['default' => 'Kouyaté'])]
+private ?string $firstname;
+```
+
+<p class="message-info">By default, this class is also responsible for automatically typecasting <code>mixed</code> typed properties.</p>
+<p class="message-info">Since the class is used by default you do not need to specify it via the <code>cast</code> property.</p>
 
 ### CastToBool
 
-Converts the array value to `true`, `false` or `null` depending on the property type information. The class takes one
-optional argument `default` which is the default boolean value to return if the value is `null`.
+Converts the array value to `true`, `false` or `null` depending on the property type information.
+The class takes one optional argument `default` which is the default boolean value to return if
+the value is `null`.
 
-Since typecasting relies on `ext-filter` rules, the following strings `1`, `true`, `on` and `yes` will all be cast
-in a case-insensitive way to `true` otherwise `false` will be used.
+<p cLass="message-info">Since typecasting relies on <code>ext-filter</code> rules, the following strings
+<code>1</code>, <code>true</code>, <code>on</code> and <code>yes</code> will all be cast in a
+case-insensitive way to <code>true</code> otherwise <code>false</code> will be used.</p>
 
-<p class="notice">This class is also responsible for automatically typecasting <code>true</code> and <code>false</code> typed properties.</p>
+```php
+use League\Csv\Serializer\MapCell;
+
+#[MapCell(options: ['default' => false])]
+private ?bool $isValid;
+```
+
+<p class="message-notice">This class is also responsible for automatically typecasting <code>true</code> and <code>false</code> typed properties.</p>
 
 ### CastToInt and CastToFloat
 
 Converts the array value to an `int` or a `float` depending on the property type information. The class takes one
 optional argument `default` which is the default `int` or `float` value to return if the value is `null`.
+
+```php
+use League\Csv\Serializer\CastToInt;
+use League\Csv\Serializer\MapCell;
+
+#[MapCell(cast:CastToInt::class, options: ['default' => 42])]
+private mixed $answerId;
+
+#[MapCell(options: ['default' => 15.8])]
+private ?float $temperature;
+```
+
+<p class="message-warning">When used with the <code>mixed</code> type or with an untyped property you are <strong>required</strong> to
+specify to casting class otherwise the conversion will use the <code>CastToString</code> class instead.</p>
 
 ### CastToEnum
 
@@ -280,24 +317,25 @@ Convert the array value to a PHP `Enum`, it supports both unit and backed enumer
 optionals arguments:
 
 - `default` which is the default Enum value to return if the value is `null`.
-- `className` which is the `Enum` to use for resolution if the property or method argument is typed as `mixed`.
+- `className` which is the `Enum` to use for resolution if the property or method argument is untyped or typed as `mixed`.
 
 If the `Enum` is backed the cell value will be considered as one of the `Enum` value; otherwise it will be used
 as one the `Enum` name. The same logic applies for the `default` value. If the default value
 is not `null` and the value given is incorrect, the mechanism will throw an exception.
 
 ```php
+use League\Csv\Serializer\CastToEnum;
 use League\Csv\Serializer\MapCell;
 
 #[MapCell(
-    column: 1,
-    cast: Serializer\CastToEnum::class,
+    column: 1,                // specify the record value via its offset
+    cast: CastToEnum::class,  // explicitly specified because the argument is mixed
     options: ['default' => 'Abidjan', 'className' => Place::class]
 )]
 public function setPlace(mixed $place): void
 {
     //apply the method logic whatever that is!
-    //knowing that $place is a Place::class instance
+    //knowing that $place will be a Place enum instance
 }
 ```
 
@@ -321,7 +359,20 @@ If the property is typed with:
 - `mixed` or the `DateTimeInterface`, a `DateTimeImmutable` instance will be used if the `className` argument is not given.
 - an interface that extends `DateTimInterface`, the `className` argument **MUST** be given.
 
-Whenever the `className` argument is required but is invalid or missing an exception will be thrown.
+```php
+use League\Csv\Serializer;
+use Carbon\CarbonImmutable;
+use Carbon\CarbonInterface;
+
+#[Serializer\MapCell(
+    options: [
+        'className' => CarbonImmutable::class //must be specified because CarbonInterface is an interface
+    ]
+)]
+private CarbonInterface $observedOn;
+```
+
+<p class="message-warning">Whenever the <code>className</code> argument is required but is invalid or missing an exception will be thrown.</p>
 
 ### CastToArray
 
@@ -346,7 +397,6 @@ Here's an example for casting a string via the `json` shape.
 use League\Csv\Serializer;
 
 #[Serializer\MapCell(
-    cast: Serializer\CastToArray::class,
     options: [
         'shape' => 'json',
         'flags' => JSON_BIGINT_AS_STRING
@@ -365,7 +415,6 @@ optional `type` argument as shown below.
 use League\Csv\Serializer;
 
 #[Serializer\MapCell(
-    cast: Serializer\CastToArray::class,
     options: [
         'shape' => 'csv',
         'delimiter' => ';',
