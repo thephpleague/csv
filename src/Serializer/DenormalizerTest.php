@@ -103,13 +103,9 @@ final class DenormalizerTest extends TestCase
             public function __construct(
                 #[MapCell(column:'temperature')]
                 public readonly float $temperature,
-                #[MapCell(column:2, cast: CastToEnum::class)]
+                #[MapCell(column:2)]
                 public readonly Place $place,
-                #[MapCell(
-                    column: 'date',
-                    cast: CastToDate::class,
-                    options: ['format' => '!Y-m-d', 'timezone' => 'Africa/Kinshasa'],
-                )]
+                #[MapCell(column:'date', options: ['format' => '!Y-m-d', 'timezone' => 'Africa/Kinshasa'])]
                 public readonly DateTimeInterface $observedOn
             ) {
             }
@@ -129,13 +125,9 @@ final class DenormalizerTest extends TestCase
             private float $temperature;
 
             public function __construct(
-                #[MapCell(column:2, cast: CastToEnum::class)]
+                #[MapCell(column:2)]
                 public readonly Place $place,
-                #[MapCell(
-                    column: 'date',
-                    cast: CastToDate::class,
-                    options: ['format' => '!Y-m-d', 'timezone' => 'Africa/Kinshasa'],
-                )]
+                #[MapCell(column: 'date', options: ['format' => '!Y-m-d', 'timezone' => 'Africa/Kinshasa'])]
                 private readonly DateTime $observedOn
             ) {
             }
@@ -185,13 +177,9 @@ final class DenormalizerTest extends TestCase
             private float $temperature;
 
             public function __construct(
-                #[MapCell(column:2, cast: CastToEnum::class)]
+                #[MapCell(column:2)]
                 public readonly Place $place,
-                #[MapCell(
-                    column: 'date',
-                    cast: CastToDate::class,
-                    options: ['format' => '!Y-m-d', 'timezone' => 'Africa/Kinshasa'],
-                )]
+                #[MapCell(column: 'date', options: ['format' => '!Y-m-d', 'timezone' => 'Africa/Kinshasa'])]
                 private readonly DateTime $observedOn
             ) {
             }
@@ -230,13 +218,9 @@ final class DenormalizerTest extends TestCase
             private float $temperature;
 
             public function __construct(
-                #[MapCell(column:2, cast: CastToEnum::class)]
+                #[MapCell(column:2)]
                 public readonly Place $place,
-                #[MapCell(
-                    column: 'date',
-                    cast: CastToDate::class,
-                    options: ['format' => '!Y-m-d', 'timezone' => 'Africa/Kinshasa'],
-                )]
+                #[MapCell(column: 'date', options: ['format' => '!Y-m-d', 'timezone' => 'Africa/Kinshasa'])]
                 private readonly DateTime $observedOn
             ) {
             }
@@ -275,13 +259,9 @@ final class DenormalizerTest extends TestCase
             public function __construct(
                 #[MapCell(column:'temperature'), MapCell(column:'date')] /* @phpstan-ignore-line */
                 public readonly float $temperature,
-                #[MapCell(column:2, cast: CastToEnum::class)]
+                #[MapCell(column:2)]
                 public readonly Place $place,
-                #[MapCell(
-                    column: 'date',
-                    cast: CastToDate::class,
-                    options: ['format' => '!Y-m-d', 'timezone' => 'Africa/Kinshasa'],
-                )]
+                #[MapCell(column: 'date', options: ['format' => '!Y-m-d', 'timezone' => 'Africa/Kinshasa'])]
                 public readonly DateTimeInterface $observedOn
             ) {
             }
@@ -299,13 +279,9 @@ final class DenormalizerTest extends TestCase
             public function __construct(
                 #[MapCell(column:'temperature', cast: stdClass::class)]
                 public readonly float $temperature,
-                #[MapCell(column:2, cast: CastToEnum::class)]
+                #[MapCell(column:2)]
                 public readonly Place $place,
-                #[MapCell(
-                    column: 'date',
-                    cast: CastToDate::class,
-                    options: ['format' => '!Y-m-d', 'timezone' => 'Africa/Kinshasa'],
-                )]
+                #[MapCell(column: 'date', options: ['format' => '!Y-m-d', 'timezone' => 'Africa/Kinshasa'])]
                 public readonly DateTimeInterface $observedOn
             ) {
             }
