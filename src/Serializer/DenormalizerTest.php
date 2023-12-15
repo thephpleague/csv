@@ -605,6 +605,40 @@ final class DenormalizerTest extends TestCase
         self::assertInstanceOf($class::class, $instance);
         self::assertSame('yamoussokro', $instance->str);
     }
+
+    #[Test]
+    public function it_will_ignore_the_property_during_auto_discovery(): void
+    {
+        $classIgnoreMethod = new class () {
+            public DateTimeInterface $observedOn;
+
+            #[MapCell(ignore: true)]
+            public function setObservedOn(DateTimeInterface $observedOn): void
+            {
+                $this->observedOn = DateTime::createFromInterface($observedOn);
+            }
+        };
+
+        $instance = Denormalizer::assign($classIgnoreMethod::class, ['observedOn' => '2023-10-01']);
+
+        self::assertInstanceOf($classIgnoreMethod::class, $instance);
+        self::assertInstanceOf(DateTimeImmutable::class, $instance->observedOn);
+
+        $classIgnoreProperty = new class () {
+            #[MapCell(ignore: true)]
+            public DateTimeInterface $observedOn;
+
+            public function setObservedOn(DateTimeInterface $observedOn): void
+            {
+                $this->observedOn = DateTime::createFromInterface($observedOn);
+            }
+        };
+
+        $instance = Denormalizer::assign($classIgnoreProperty::class, ['observedOn' => '2023-10-01']);
+
+        self::assertInstanceOf($classIgnoreProperty::class, $instance);
+        self::assertInstanceOf(DateTime::class, $instance->observedOn);
+    }
 }
 
 enum Place: string

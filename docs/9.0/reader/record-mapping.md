@@ -156,12 +156,14 @@ The above rule can be translated in plain English like this:
 This attribute will override any automatic resolution and enable fine-tuning type casting.
 It can be used on class properties and methods regardless of their visibility and their type.
 
-The attribute can take up to three (3) arguments which are all optional:
+The attribute can take up to four (4) arguments which are all optional:
 
 - The `column` argument tells the engine which record key to use via its numeric or name. If not present the property name or the name of the first argument of the `setter` method will be used. In such case, you are required to specify the property names information.
 - The `cast` argument which accept the name of a class implementing the `TypeCasting` interface and responsible for type casting the record value. If not present, the mechanism will try to resolve the typecasting based on the property or method argument type.
 - The `options` argument enables controlling typecasting by providing extra arguments to `TypeCasting::setOptions` method. The argument expects an associative array and relies on named arguments to inject its value to the method.
+- The `ignore` arguemnt which is a boolean control if the property or method should be completely ignored by the mechanism. By default its value is `false`. This property takes precedence over all the other properties of the attribute once set to `true`.
 
+<p class="message-info">The <code>ignore</code> argument was added in version <code>9.13.0</code></p>
 <p class="message-notice">You can use the mechanism on a CSV without a header row but it requires
 adding a <code>MapCell</code> attribute on each property or method needed for the conversion. Or you
 can use the optional second argument of <code>TabularDataReader::getObjects</code> to specify the

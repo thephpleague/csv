@@ -9,6 +9,7 @@ All Notable changes to `Csv` will be documented in this file
 - `SwapDelimiter` stream filter to allow working with multibyte CSV delimiter
 - `League\Csv\Serializer\AfterMapping` to work around the limitation aroud constructor usage.
 - `Denormalizer` can register type alias to simplify callback usage.
+- `League\Csv\Serializer\MapCell` has a new property `ignore` to qllow ignoring a property or a method typcasting during conversion.
 
 ### Deprecated
 

@@ -346,8 +346,12 @@ final class Denormalizer
      *
      * @throws MappingFailed
      */
-    private function findPropertySetter(MapCell $cell, ReflectionMethod|ReflectionProperty $accessor, array $propertyNames): PropertySetter
+    private function findPropertySetter(MapCell $cell, ReflectionMethod|ReflectionProperty $accessor, array $propertyNames): ?PropertySetter
     {
+        if ($cell->ignore) {
+            return null;
+        }
+
         $typeCaster = $this->resolveTypeCaster($cell, $accessor);
 
         $offset = $cell->column ?? match (true) {
