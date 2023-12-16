@@ -2,14 +2,14 @@
 
 All Notable changes to `Csv` will be documented in this file
 
-## [Next] - TBD
+## [9.13.0](https://github.com/thephpleague/csv/compare/9.12.0...9.13.0) - 2023-12-16
 
 ### Added
 
-- `SwapDelimiter` stream filter to allow working with multibyte CSV delimiter
-- `League\Csv\Serializer\AfterMapping` to work around the limitation aroud constructor usage.
-- `Denormalizer` can register type alias to simplify callback usage.
-- `League\Csv\Serializer\MapCell` has a new property `ignore` to qllow ignoring a property or a method typcasting during conversion.
+- `League\Csv\SwapDelimiter` stream filter to allow working with multibyte CSV delimiter
+- `League\Csv\Serializer\AfterMapping` to work around the limitation of not using the class constructor during denormalization.
+- `League\Csv\Serializer\Denormalizer` to allow registering type alias to improve callback usage.
+- `League\Csv\Serializer\MapCell` has a new property `ignore` to allow ignoring a property or a method during denormalization.
 
 ### Deprecated
 

@@ -25,6 +25,7 @@ use function array_key_exists;
 use function class_exists;
 
 /**
+ * @internal Container for registering Closure as type and/or type alias casting
  * @template TValue
  */
 final class CallbackCasting implements TypeCasting
