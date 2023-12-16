@@ -16,7 +16,10 @@ $csv = Reader::createFromPath('/path/to/your/csv/file.csv', 'r');
 $csv->setHeaderOffset(0);
 
 $header = $csv->getHeader(); //returns the CSV header record
-$records = $csv->getRecords(); //returns all the CSV records as an Iterator object
+
+//returns all the records as
+$records = $csv->getRecords(); // an Iterator object containing arrays
+$records = $csv->getObjects(MyDTO::class); //an Iterator object containing MyDTO objects
 
 echo $csv->toString(); //returns the CSV document as a string
 ```
