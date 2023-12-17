@@ -138,8 +138,9 @@ with the `getRecords` method.
 <p class="message-info">You can get more info on how to configure your class to enable this feature by
 visiting the <a href="/9.0/reader/record-mapping">record mapping documentation</a> page</p>
 
-### value, first and nth
+### value, first,  nth, firstAsObject and nthAsObject
 
+<p class="message-notice"><code>firstAsObject and nthAsObject</code> were added in version <code>9.14.0</code> for <code>Reader</code> and <code>ResultSet</code>.</p>
 <p class="message-notice"><code>first and nth</code> were added in version <code>9.9.0</code> for <code>Reader</code> and <code>ResultSet</code>.</p>
 <p class="message-notice"><code>value</code> was added in version <code>9.12.0</code> for <code>Reader</code> and <code>ResultSet</code>.</p>
 
@@ -197,6 +198,21 @@ $result->value(42); //returns null
 
 <p class="message-warning">The <code>fetchOne</code> method was deprecated in version <code>9.9.0</code>.
 it is recommended to use the <code>nth</code> method instead.</p>
+
+`firstAsObject` and `nthAsObject` are counterpart of `first` and `nth` respectively but returns `null` or
+an instance of the specified object. The methods requires, in addition to the record
+offset, the class name and optionnally a header mapper just like `getObjects`.
+
+```php
+use League\Csv\Reader;
+use League\Csv\Statement;
+
+$csv = Reader::createFromPath('/path/to/my/file.csv', 'r');
+$csv->setHeaderOffset(0);
+
+$csv->nthAsObject(3, ClimaticRecord::class);
+$csv->firstAsObject(OtherClimatRecord::class, [2 => 'observedOn', 1 => 'temparature', 0 => 'place']);
+```
 
 ### exists
 

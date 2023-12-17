@@ -415,6 +415,40 @@ abstract class TabularDataReaderTestCase extends TestCase
             self::assertInstanceOf($class::class, $object);
         }
     }
+
+    public function testGetNthObjectWithHeader(): void
+    {
+        $class = new class (5, Place::Galway, new DateTimeImmutable()) {
+            public function __construct(
+                public readonly float $temperature,
+                public readonly Place $place,
+                #[MapCell(
+                    column: 'date',
+                    options: ['format' => '!Y-m-d', 'timezone' => 'Africa/Kinshasa'],
+                )]
+                public readonly DateTimeInterface $observedOn
+            ) {
+            }
+        };
+
+        self::assertInstanceOf($class::class, $this->tabularDataWithHeader()->nthAsObject(2, $class::class));
+        self::assertInstanceOf($class::class, $this->tabularDataWithHeader()->firstAsObject($class::class));
+        self::assertNull($this->tabularDataWithHeader()->nthAsObject(42, $class::class));
+    }
+
+    public function testGetNthObjectWithCustomHeader(): void
+    {
+        $class = new class (5, Place::Galway, new DateTimeImmutable()) {
+            public function __construct(
+                public readonly float $temperature,
+                public readonly Place $place,
+                public readonly DateTimeInterface $observedOn
+            ) {
+            }
+        };
+
+        self::assertInstanceOf($class::class, $this->tabularDataWithHeader()->firstAsObject($class::class, ['observedOn', 'temperature', 'place']));
+    }
 }
 
 enum Place: string

@@ -288,8 +288,6 @@ class ResultSet implements TabularDataReader, JsonSerializable
      */
     protected function combineHeader(array $header): Iterator
     {
-
-
         return match (true) {
             [] === $header => $this->records,
             default => new MapIterator($this->records, function (array $record) use ($header): array {
@@ -340,6 +338,42 @@ class ResultSet implements TabularDataReader, JsonSerializable
         $result = $iterator->current();
 
         return $result ?? [];
+    }
+
+    /**
+     * @param class-string $className
+     *
+     * @throws InvalidArgument
+     */
+    public function nthAsObject(int $nth, string $className, array $header = []): ?object
+    {
+        $header = $this->prepareHeader($header);
+        $record = $this->nth($nth);
+        if ([] === $record) {
+            return null;
+        }
+
+        if ([] === $header || $this->header === $header) {
+            return Denormalizer::assign($className, $record);
+        }
+
+        $row = array_values($record);
+        $record = [];
+        foreach ($header as $offset => $headerName) {
+            $record[$headerName] = $row[$offset] ?? null;
+        }
+
+        return Denormalizer::assign($className, $record);
+    }
+
+    /**
+     * @param class-string $className
+     *
+     * @throws InvalidArgument
+     */
+    public function firstAsObject(string $className, array $header = []): ?object
+    {
+        return $this->nthAsObject(0, $className, $header);
     }
 
     /**
