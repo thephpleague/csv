@@ -14,6 +14,7 @@ declare(strict_types=1);
 namespace League\Csv\Serializer;
 
 use Closure;
+use DateTimeInterface;
 use Iterator;
 use League\Csv\MapIterator;
 use ReflectionAttribute;
@@ -24,6 +25,7 @@ use ReflectionParameter;
 use ReflectionProperty;
 use Throwable;
 
+use UnitEnum;
 use function array_search;
 use function array_values;
 use function count;
@@ -104,6 +106,16 @@ final class Denormalizer
     public static function unregisterAll(): void
     {
         CallbackCasting::unregisterAll();
+    }
+
+    /**
+     * @return array<string>
+     */
+    public static function types(): array
+    {
+        $default = [...array_column(Type::cases(), 'value'), ...CallbackCasting::types()];
+
+        return array_values(array_unique($default));
     }
 
     /**

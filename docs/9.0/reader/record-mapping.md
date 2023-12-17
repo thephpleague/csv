@@ -499,14 +499,19 @@ where:
 - the `$isNullable` tells whether the argument or property is nullable
 - the `$options` are the extra configuration options you can pass to the `MapCell` attribute via `options`
 
-To complete the feature you can use `Denormalizer::unregisterType` to remove a registered callback for a specific `type`
-or remove all registered callbacks at once using `Denormalizer::unregisterAllTypes`.
+To complete the feature you can use:
+
+- `Denormalizer::unregisterType` to remove a registered callback for a specific `type`
+- `Denormalizer::unregisterAllTypes` to remove all registered callbacks for all types.
+- `Denormalizer::types` to list all registered callbacks for all types. **new in 9.14.0**
 
 ```php
 use League\Csv\Serializer;
 
+
 Serializer\Denormalizer::unregisterType(Naira::class);
 Serializer\Denormalizer::unregisterAllTypes();
+Serializer\Denormalizer::types();
 ```
 
 The three (3) methods are static.
@@ -545,7 +550,11 @@ use League\Csv\Serializer;
 private ?int $amount;
 ```
 
-It is possible to unregister aliases using the following static methods:
+It is possible to:
+
+- unregister a specific alias using the `Denormalizer::unregisterAlias` method
+- unregister all aliases using the `Denormalizer::unregisterAliases` method
+- list all registered aliases using the `Denormalizer::aliases` method. The method returns an array with the alias as key and the type it is attached to as value.
 
 ```php
 use League\Csv\Serializer;

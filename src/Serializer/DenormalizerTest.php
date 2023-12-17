@@ -639,6 +639,25 @@ final class DenormalizerTest extends TestCase
         self::assertInstanceOf($classIgnoreProperty::class, $instance);
         self::assertInstanceOf(DateTime::class, $instance->observedOn);
     }
+
+    #[Test]
+    public function it_will_tell_whether_the_type_or_alias_is_supported(): void
+    {
+        Denormalizer::registerType(SplFileObject::class, fn (?string $value) => new SplFileObject((string) $value, 'r'));
+        Denormalizer::registerAlias('@file', SplTempFileObject::class, function (?string $value) {
+            $file = new SplTempFileObject();
+            $file->fwrite((string) $value);
+
+            return $file;
+        });
+
+        self::assertTrue(Denormalizer::supportsType(SplFileObject::class));
+        self::assertFalse(Denormalizer::supportsType(SplTempFileObject::class));
+
+        self::assertTrue(Denormalizer::supportsType('string'));
+        self::assertTrue(Denormalizer::supportsType('iterable'));
+        self::assertTrue(Denormalizer::supportsAlias('@file'));
+    }
 }
 
 enum Place: string

@@ -197,9 +197,17 @@ final class CallbackCasting implements TypeCasting
         return null !== $alias && array_key_exists($alias, self::aliases());
     }
 
-    public static function supportsType(string $type): bool
+    public static function supportsType(?string $type): bool
     {
-        return array_key_exists($type, self::$types);
+        return null !== $type && array_key_exists($type, self::$types);
+    }
+
+    /**
+     * @return array<string>
+     */
+    public static function types(): array
+    {
+        return array_keys(self::$types);
     }
 
     /**
