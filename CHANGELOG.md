@@ -2,6 +2,26 @@
 
 All Notable changes to `Csv` will be documented in this file
 
+## [Next](https://github.com/thephpleague/csv/compare/9.13.0...master) - TBD
+
+### Added
+
+- `League\Csv\TabularDataReader::nthAsObject` equivalent to `nth` but returns an object or `null`
+- `League\Csv\TabularDataReader::firstAsObject` equivalent to `first` but returns an object or null
+- `League\Csv\Serializer\Denormalizer::types` list all the registered types
+
+### Deprecated
+
+- None
+
+### Fixed
+
+- None
+
+### Removed
+
+- None
+
 ## [9.13.0](https://github.com/thephpleague/csv/compare/9.12.0...9.13.0) - 2023-12-16
 
 ### Added
