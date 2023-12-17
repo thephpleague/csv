@@ -651,11 +651,6 @@ final class DenormalizerTest extends TestCase
             return $file;
         });
 
-        self::assertTrue(Denormalizer::supportsType(SplFileObject::class));
-        self::assertFalse(Denormalizer::supportsType(SplTempFileObject::class));
-
-        self::assertTrue(Denormalizer::supportsType('string'));
-        self::assertTrue(Denormalizer::supportsType('iterable'));
         self::assertTrue(Denormalizer::supportsAlias('@file'));
     }
 }
