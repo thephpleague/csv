@@ -18,7 +18,12 @@ use CallbackFilterIterator;
 use Iterator;
 use LimitIterator;
 
+use function array_key_exists;
 use function array_reduce;
+use function array_search;
+use function array_values;
+use function is_string;
+use function trigger_error;
 
 use const E_USER_DEPRECATED;
 
@@ -35,6 +40,8 @@ class Statement
     protected int $offset = 0;
     /** iterator maximum length. */
     protected int $limit = -1;
+    /** @var array<string|int> */
+    protected array $select = [];
 
     /**
      * @throws Exception
@@ -47,6 +54,21 @@ class Statement
         }
 
         return $stmt->offset($offset)->limit($limit);
+    }
+
+    /**
+     * Sets the Iterator element columns.
+     */
+    public function select(string|int ...$columns): self
+    {
+        if ($columns === $this->select) {
+            return $this;
+        }
+
+        $clone = clone $this;
+        $clone->select = $columns;
+
+        return $clone;
     }
 
     /**
@@ -118,6 +140,7 @@ class Statement
      *
      * @param array<string> $header an optional header to use instead of the CSV document header
      *
+     * @throws InvalidArgument
      * @throws SyntaxError
      */
     public function process(TabularDataReader $tabular_data, array $header = []): TabularDataReader
@@ -136,7 +159,7 @@ class Statement
         /** @var Iterator<array-key, array<array-key, string|null>> $iterator */
         $iterator = new LimitIterator($iterator, $this->offset, $this->limit);
 
-        return new ResultSet($iterator, $header);
+        return $this->applySelect($iterator, $header);
     }
 
     /**
@@ -171,5 +194,53 @@ class Statement
         $it->uasort($compare);
 
         return $it;
+    }
+
+    /**
+     *
+     * @throws InvalidArgument
+     * @throws SyntaxError
+     */
+    protected function applySelect(Iterator $records, array $recordsHeader): TabularDataReader
+    {
+        if ([] === $this->select) {
+            return new ResultSet($records, $recordsHeader);
+        }
+
+        $hasHeader = [] !== $recordsHeader;
+        $selectColumn = function (array $header, string|int $field) use ($recordsHeader, $hasHeader): array {
+            if (is_string($field)) {
+                $index = array_search($field, $recordsHeader, true);
+                if (false === $index) {
+                    throw InvalidArgument::dueToInvalidColumnIndex($field, 'offset', __METHOD__);
+                }
+
+                $header[$index] = $field;
+
+                return $header;
+            }
+
+            if ($hasHeader && !array_key_exists($field, $recordsHeader)) {
+                throw InvalidArgument::dueToInvalidColumnIndex($field, 'offset', __METHOD__);
+            }
+
+            $header[$field] = $recordsHeader[$field] ?? $field;
+
+            return $header;
+        };
+
+        /** @var array<string> $header */
+        $header = array_reduce($this->select, $selectColumn, []);
+        $records = new MapIterator($records, function (array $record) use ($header): array {
+            $element = [];
+            $row = array_values($record);
+            foreach ($header as $offset => $headerName) {
+                $element[$headerName] = $row[$offset] ?? null;
+            }
+
+            return $element;
+        });
+
+        return new ResultSet($records, $hasHeader ? $header : []);
     }
 }

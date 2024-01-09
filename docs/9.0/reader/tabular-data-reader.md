@@ -447,6 +447,7 @@ $reader = Reader::createFromPath('/path/to/my/file.csv')
 ```
 
 <p class="message-notice">Added in version <code>9.12.0</code> for <code>Reader</code> and <code>ResultSet</code>.</p>
+<p class="message-info"> Wraps the functionality of <code>Statement::select</code>.</p>
 
 ### matching, matchingFirst, matchingFirstOrFail
 

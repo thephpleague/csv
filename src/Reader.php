@@ -395,7 +395,7 @@ class Reader extends AbstractCsv implements TabularDataReader, JsonSerializable
 
     public function select(string|int ...$columns): TabularDataReader
     {
-        return ResultSet::createFromTabularDataReader($this)->select(...$columns);
+        return Statement::create()->select(...$columns)->process($this);
     }
 
     /**

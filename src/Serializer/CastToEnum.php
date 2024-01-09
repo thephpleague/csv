@@ -86,7 +86,7 @@ class CastToEnum implements TypeCasting
                 return $enum->getCase($value)->getValue();
             }
 
-            $backedValue = 'int' === $enum->getBackingType()?->getName() ? filter_var($value, Type::Int->filterFlag()) : $value;
+            $backedValue = 'int' === $enum->getBackingType()->getName() ? filter_var($value, Type::Int->filterFlag()) : $value;
 
             return $this->class::from($backedValue); /* @phpstan-ignore-line */
         } catch (Throwable $exception) {

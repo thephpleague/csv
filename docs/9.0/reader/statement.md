@@ -107,6 +107,26 @@ $records = Statement::create()
 
 <p class="message-notice">When called multiple times, each call overrides the last setting for these options.</p>
 
+### Selecting columns
+
+<p class="message-info">new in version <code>9.15.0</code>.</p>
+
+You may not always want to select all columns from the tabular data. Using the `select` method,
+you can specify which columns to use. The column can be specified by their name, if the instance
+`getHeader` returns a non-empty array, or you can default to using the column offset. You
+can even mix them both.
+
+```php
+use League\Csv\Reader;
+use League\Csv\Statement;
+
+$reader = Reader::createFromPath('/path/to/file.csv');
+$records = Statement::create()
+    ->select(1, 3, 'field')
+    ->process($reader);
+// $records is a League\Csv\ResultSet instance with only 3 fields
+```
+
 ## FragmentFinder
 
 <p class="message-info">This mechanism is introduced with version <code>9.12.0</code>.</p>

@@ -2,6 +2,24 @@
 
 All Notable changes to `Csv` will be documented in this file
 
+## [Next](https://github.com/thephpleague/csv/compare/9.14.0...master) - TBD
+
+### Added
+
+- `Statement::select`
+
+### Deprecated
+
+- None
+
+### Fixed
+
+- `Reader::select` and `ResultSet::select` now internally use `Statement::select`
+
+### Removed
+
+- None
+
 ## [9.14.0](https://github.com/thephpleague/csv/compare/9.13.0...9.14.0) - 2023-12-29
 
 ### Added
