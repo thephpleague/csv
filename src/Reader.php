@@ -218,10 +218,7 @@ class Reader extends AbstractCsv implements TabularDataReader, JsonSerializable
 
     public function value(int|string $column = 0): mixed
     {
-        return match (true) {
-            is_string($column) => $this->first()[$column] ?? null,
-            default => array_values($this->first())[$column] ?? null,
-        };
+        return ResultSet::createFromTabularDataReader($this)->value($column);
     }
 
     /**
@@ -300,13 +297,7 @@ class Reader extends AbstractCsv implements TabularDataReader, JsonSerializable
      */
     public function each(Closure $closure): bool
     {
-        foreach ($this as $offset => $record) {
-            if (false === $closure($record, $offset)) {
-                return false;
-            }
-        }
-
-        return true;
+        return ResultSet::createFromTabularDataReader($this)->each($closure);
     }
 
     /**
@@ -314,13 +305,7 @@ class Reader extends AbstractCsv implements TabularDataReader, JsonSerializable
      */
     public function exists(Closure $closure): bool
     {
-        foreach ($this as $offset => $record) {
-            if (true === $closure($record, $offset)) {
-                return true;
-            }
-        }
-
-        return false;
+        return ResultSet::createFromTabularDataReader($this)->exists($closure);
     }
 
     /**
@@ -333,11 +318,7 @@ class Reader extends AbstractCsv implements TabularDataReader, JsonSerializable
      */
     public function reduce(Closure $closure, mixed $initial = null): mixed
     {
-        foreach ($this as $offset => $record) {
-            $initial = $closure($initial, $record, $offset);
-        }
-
-        return $initial;
+        return ResultSet::createFromTabularDataReader($this)->reduce($closure, $initial);
     }
 
     /**

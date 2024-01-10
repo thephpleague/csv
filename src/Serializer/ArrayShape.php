@@ -11,6 +11,8 @@
 
 namespace League\Csv\Serializer;
 
+use function in_array;
+
 enum ArrayShape: string
 {
     case List = 'list';
