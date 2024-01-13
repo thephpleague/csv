@@ -151,11 +151,9 @@ class Statement
         $iterator = $tabular_data->getRecords($header);
         $iterator = $this->applyFilter($iterator);
         $iterator = $this->buildOrderBy($iterator);
+        $iterator = new LimitIterator($iterator, $this->offset, $this->limit);
 
-        return  $this->applySelect(
-            new LimitIterator($iterator, $this->offset, $this->limit),
-            $header
-        );
+        return  $this->applySelect($iterator, $header);
     }
 
     /**
