@@ -16,6 +16,7 @@ All Notable changes to `Csv` will be documented in this file
 
 - `Reader::select` and `ResultSet::select` now internally use `Statement::select`
 - `Statement` should not throw when `LimitIterator` is used in combinaison with `ArrayIterator`.
+- `Statement` internal codebase improvement.
 
 ### Removed
 

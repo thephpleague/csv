@@ -25,9 +25,6 @@ use function array_reduce;
 use function array_search;
 use function array_values;
 use function is_string;
-use function trigger_error;
-
-use const E_USER_DEPRECATED;
 
 /**
  * Criteria to filter a {@link TabularDataReader} object.
@@ -147,28 +144,36 @@ class Statement
      */
     public function process(TabularDataReader $tabular_data, array $header = []): TabularDataReader
     {
-        if ([] !== $header) {
-            @trigger_error('Since league\csv 9.12.0: the $header argument is deprecated and will be removed in the next major release; Please use getRecords on the returned TabularDataReader', E_USER_DEPRECATED);
-        }
-
         if ([] === $header) {
             $header = $tabular_data->getHeader();
         }
 
-        $iterator =  array_reduce($this->where, $this->filter(...), $tabular_data->getRecords($header));
+        $iterator = $tabular_data->getRecords($header);
+        $iterator = $this->applyFilter($iterator);
         $iterator = $this->buildOrderBy($iterator);
-        /** @var Iterator<array-key, array<array-key, string|null>> $iterator */
-        $iterator = new LimitIterator($iterator, $this->offset, $this->limit);
 
-        return $this->applySelect($iterator, $header);
+        return  $this->applySelect(
+            new LimitIterator($iterator, $this->offset, $this->limit),
+            $header
+        );
     }
 
     /**
      * Filters elements of an Iterator using a callback function.
      */
-    protected function filter(Iterator $iterator, callable $callable): CallbackFilterIterator
+    protected function applyFilter(Iterator $iterator): Iterator
     {
-        return new CallbackFilterIterator($iterator, $callable);
+        $filter = function (array $record, string|int $key): bool {
+            foreach ($this->where as $where) {
+                if (true !== $where($record, $key)) {
+                    return false;
+                }
+            }
+
+            return true;
+        };
+
+        return new CallbackFilterIterator($iterator, $filter);
     }
 
     /**
@@ -255,5 +260,19 @@ class Statement
         });
 
         return new ResultSet($records, $hasHeader ? $header : []);
+    }
+
+    /**
+     * Filters elements of an Iterator using a callback function.
+     *
+     * DEPRECATION WARNING! This method will be removed in the next major point release.
+     *
+     * @see Statement::applyFilter()
+     * @deprecated Since version 9.15.0
+     * @codeCoverageIgnore
+     */
+    protected function filter(Iterator $iterator, callable $callable): CallbackFilterIterator
+    {
+        return new CallbackFilterIterator($iterator, $callable);
     }
 }
