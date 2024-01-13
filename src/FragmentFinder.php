@@ -107,22 +107,28 @@ class FragmentFinder
                         (null === $selection['end'] || $offset <= $selection['end'])
             );
 
-            return [$tabularDataReader->filter($rowFilter)];
+            return [Statement::create()->where($rowFilter)->process($tabularDataReader)];
         }
 
         if (self::TYPE_COLUMN === $type) {
-            $columns = array_reduce($selections, fn (array $columns, array $selection) => [...$columns, ...$selection['columns']], []);
+            $columns = array_reduce(
+                $selections,
+                fn (array $columns, array $selection) => [...$columns, ...$selection['columns']],
+                []
+            );
 
             return [match ([]) {
                 $columns => ResultSet::createFromRecords(),
-                default => $tabularDataReader->select(...$columns),
+                default => Statement::create()->select(...$columns)->process($tabularDataReader),
             }];
         }
 
         return array_map(
-            fn (array $selection) => $tabularDataReader
-                ->slice($selection['start'], $selection['length'])
-                ->select(...$selection['columns']),
+            fn (array $selection) => Statement::create()
+                ->select(...$selection['columns'])
+                ->offset($selection['start'])
+                ->limit($selection['length'])
+                ->process($tabularDataReader),
             $selections
         );
     }
