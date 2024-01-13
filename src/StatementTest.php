@@ -156,4 +156,28 @@ final class StatementTest extends TestCase
             'does not exists' => null,
         ], $results->first());
     }
+
+    public function testOrderByDoesNotThrowOnInvalidOffsetOrLimit(): void
+    {
+        $document = <<<CSV
+Integer,Float,Text,Multiline Text,Date and Time
+1,1.11,Foo,"Foo
+Bar",2020-01-01 01:01:01
+2,1.22,Bar,"Bar
+Baz",2020-02-02 02:02:02
+3,1.33,Baz,"Baz
+Foo",2020-03-03 03:03:03
+CSV;
+
+        $csv = Reader::createFromString($document);
+        $csv->setHeaderOffset(0);
+        $constraints = Statement::create()
+            ->select('Integer', 'Text', 'Date and Time')
+            ->where(fn (array $record): bool => (float) $record['Float'] < 1.3)
+            ->orderBy(fn (array $record1, array $record2): int => (int) $record2['Integer'] <=> (int) $record1['Integer'])
+            ->limit(5)
+            ->offset(2);
+
+        self::assertSame([], $constraints->process($csv)->nth(42));
+    }
 }

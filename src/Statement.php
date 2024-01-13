@@ -18,6 +18,8 @@ use CallbackFilterIterator;
 use Iterator;
 use LimitIterator;
 
+use OutOfBoundsException;
+
 use function array_key_exists;
 use function array_reduce;
 use function array_search;
@@ -153,9 +155,8 @@ class Statement
             $header = $tabular_data->getHeader();
         }
 
-        $iterator = $this->buildOrderBy(
-            array_reduce($this->where, $this->filter(...), $tabular_data->getRecords($header))
-        );
+        $iterator =  array_reduce($this->where, $this->filter(...), $tabular_data->getRecords($header));
+        $iterator = $this->buildOrderBy($iterator);
         /** @var Iterator<array-key, array<array-key, string|null>> $iterator */
         $iterator = new LimitIterator($iterator, $this->offset, $this->limit);
 
@@ -189,8 +190,20 @@ class Statement
             return $cmp ?? 0;
         };
 
+
+        $class = new class () extends ArrayIterator {
+            public function seek(int $offset): void
+            {
+                try {
+                    parent::seek($offset);
+                } catch (OutOfBoundsException) {
+                    return;
+                }
+            }
+        };
+
         /** @var ArrayIterator<array-key, array<string|null>> $it */
-        $it = new ArrayIterator([...$iterator]);
+        $it = new $class([...$iterator]);
         $it->uasort($compare);
 
         return $it;
