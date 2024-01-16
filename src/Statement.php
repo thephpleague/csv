@@ -153,7 +153,7 @@ class Statement
         $iterator = $this->buildOrderBy($iterator);
         $iterator = new LimitIterator($iterator, $this->offset, $this->limit);
 
-        return  $this->applySelect($iterator, $header);
+        return $this->applySelect($iterator, $header);
     }
 
     /**

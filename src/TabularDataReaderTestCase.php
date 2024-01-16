@@ -374,7 +374,7 @@ abstract class TabularDataReaderTestCase extends TestCase
     }
 
     /***************************
-     * TabularDataReader::getObjects
+     * TabularDataReader::getRecordsAsOject
      ****************************/
 
     public function testGetObjectWithHeader(): void
@@ -392,7 +392,7 @@ abstract class TabularDataReaderTestCase extends TestCase
             }
         };
 
-        foreach ($this->tabularDataWithHeader()->getObjects($class::class) as $object) {
+        foreach ($this->tabularDataWithHeader()->getRecordsAsObject($class::class) as $object) {
             self::assertInstanceOf($class::class, $object);
         }
     }
@@ -411,7 +411,7 @@ abstract class TabularDataReaderTestCase extends TestCase
             }
         };
 
-        foreach ($this->tabularDataWithHeader()->getObjects($class::class) as $object) {
+        foreach ($this->tabularDataWithHeader()->getRecordsAsObject($class::class) as $object) {
             self::assertInstanceOf($class::class, $object);
         }
     }

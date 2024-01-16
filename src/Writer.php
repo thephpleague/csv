@@ -28,7 +28,6 @@ use const STREAM_FILTER_WRITE;
 class Writer extends AbstractCsv implements TabularDataWriter
 {
     protected const STREAM_FILTER_MODE = STREAM_FILTER_WRITE;
-
     /** @var array<callable> callable collection to format the record before insertion. */
     protected array $formatters = [];
     /** @var array<callable> callable collection to validate the record before insertion. */

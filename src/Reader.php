@@ -417,7 +417,7 @@ class Reader extends AbstractCsv implements TabularDataReader, JsonSerializable
      * @throws MappingFailed
      * @throws TypeCastingFailed
      */
-    public function getObjects(string $className, array $header = []): Iterator
+    public function getRecordsAsObject(string $className, array $header = []): Iterator
     {
         /** @var array<string> $header */
         $header = $this->prepareHeader($header);
@@ -572,5 +572,24 @@ class Reader extends AbstractCsv implements TabularDataReader, JsonSerializable
                 return $formatter($assocRecord);
             }),
         };
+    }
+
+    /**
+     * DEPRECATION WARNING! This method will be removed in the next major point release.
+     *
+     * @see Reader::getRecordsAsObject()
+     * @deprecated Since version 9.15.0
+     * @codeCoverageIgnore
+     *
+     * @param class-string $className
+     * @param array<string> $header
+     *
+     * @throws Exception
+     * @throws MappingFailed
+     * @throws TypeCastingFailed
+     */
+    public function getObjects(string $className, array $header = []): Iterator
+    {
+        return $this->getRecordsAsObject($className, $header);
     }
 }
