@@ -8,7 +8,7 @@ title: Denormalize a Tabular Data record into an object
 <p class="message-notice">New in version <code>9.12.0</code></p>
 
 If you are working with a class which implements the `TabularDataReader` interface you can now deserialize
-your data using the `TabularDataReader::getObjects` method. The method will convert your document records
+your data using the `TabularDataReader::getRecordsAsObject` method. The method will convert your document records
 into objects using PHP's powerful Reflection API.
 
 Here's an example using the `Reader` class which implements the `TabularDataReader` interface:
@@ -18,7 +18,7 @@ use League\Csv\Reader;
 
 $csv = Reader::createFromString($document);
 $csv->setHeaderOffset(0);
-foreach ($csv->getObjects(ClimaticRecord::class) as $weather) {
+foreach ($csv->getRecordsAsObject(ClimaticRecord::class) as $weather) {
     // each $weather entry will be an instance of the ClimaticRecord class;
 }
 ```
@@ -89,14 +89,14 @@ enum Place
 }
 ```
 
-To get instances of your object, you now can call `TabularDataReader::getObjects` which returns
+To get instances of your object, you now can call `TabularDataReader::getRecordsAsObject` which returns
 an `Iterator` containing only instances of your specified class.
 
 ```php
 use League\Csv\Reader;
 
 $csv = Reader::createFromString($document);
-foreach ($csv->getObjects(ClimaticRecord::class) as $instance) {
+foreach ($csv->getRecordsAsObject(ClimaticRecord::class) as $instance) {
     // each $instance entry will be an instance of the ClimaticRecord class;
 }
 ```
@@ -166,7 +166,7 @@ The attribute can take up to four (4) arguments which are all optional:
 <p class="message-info">The <code>ignore</code> argument was added in version <code>9.13.0</code></p>
 <p class="message-info">You can use the mechanism on a CSV without a header row but it requires
 adding a <code>MapCell</code> attribute on each property or method needed for the conversion. Or you
-can use the optional second argument of <code>TabularDataReader::getObjects</code> to specify the
+can use the optional second argument of <code>TabularDataReader::getRecordsAsObject</code> to specify the
 header value, just like with <code>TabularDataReader::getRecords</code></p>
 
 In any case, if type casting fails, an exception will be thrown.
@@ -228,7 +228,7 @@ use League\Csv\Serializer\Denormalizer;
 
 $csv = Reader::createFromString($document);
 $csv->setHeaderOffset(0);
-foreach ($csv->getObjects(ClimaticRecord::class) {
+foreach ($csv->getRecordsAsObject(ClimaticRecord::class) {
     // the first record contains an empty string for temperature
     // it is converted into the null value and handle by the
     // default conversion type casting;
@@ -236,7 +236,7 @@ foreach ($csv->getObjects(ClimaticRecord::class) {
 
 Denormalizer::disallowEmptyStringAsNull();
 
-foreach ($csv->getObjects(ClimaticRecord::class) {   
+foreach ($csv->getRecordsAsObject(ClimaticRecord::class) {   
     // a TypeCastingFailed exception is thrown because we
     // can not convert the empty string into a valid
     // temperature property value

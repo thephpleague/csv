@@ -117,22 +117,25 @@ returned iterator. Added column will only contain the `null` value.
 
 <p class="message-warning">If the header record contains non-unique string values, a <code>Exception</code> exception is triggered.</p>
 
-### getObjects
+### getRecordsAsObject
 
-<p class="message-notice">Added in version <code>9.12.0</code> for <code>Reader</code> and <code>ResultSet</code>.</p>
+`getObjects` is deprecated in favor of `getRecordsAsObject` to make the public API more consistent.
+
+<p class="message-notice"><code>getObjects</code> Added in version <code>9.12.0</code> for <code>Reader</code> and <code>ResultSet</code>.</p>
+<p class="message-notice"><code>getRecordsAsObject</code> Added in version <code>9.15.0</code> for <code>Reader</code> and <code>ResultSet</code>.</p>
 
 If you prefer working with objects instead of arrays it is possible to deserialize your CSV document using
-the `getObjects` method. This method will convert each CSV record into your specified class instances.
+the `getRecordsAsObject` method. This method will convert each CSV record into your specified class instances.
 
 ```php
 $csv = Reader::createFromString($document);
 $csv->setHeaderOffset(0);
-foreach ($csv->getObjects(ClimaticRecord::class) as $instance) {
+foreach ($csv->getRecordsAsObject(ClimaticRecord::class) as $instance) {
     // each $instance entry will be an instance of the Weather class;
 }
 ```
 
-The `getObjects` method can take an optional `$header` argument which is the same mapper argument as the one use
+The `getRecordsAsObject` method can take an optional `$header` argument which is the same mapper argument as the one use
 with the `getRecords` method.
 
 <p class="message-info">You can get more info on how to configure your class to enable this feature by
