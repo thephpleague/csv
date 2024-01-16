@@ -208,9 +208,10 @@ class ResultSet implements TabularDataReader, JsonSerializable
      */
     public function getRecords(array $header = []): Iterator
     {
-        $header = $this->prepareHeader($header);
+        $iterator = $this->combineHeader($this->prepareHeader($header));
+        $iterator->rewind();
 
-        return $this->combineHeader($header);
+        return $iterator;
     }
 
     /**
@@ -221,7 +222,7 @@ class ResultSet implements TabularDataReader, JsonSerializable
      * @throws MappingFailed
      * @throws TypeCastingFailed
      */
-    public function getObjects(string $className, array $header = []): Iterator
+    public function getRecordsAsObject(string $className, array $header = []): Iterator
     {
         $header = $this->prepareHeader($header);
 
@@ -434,10 +435,10 @@ class ResultSet implements TabularDataReader, JsonSerializable
     }
 
     /**
+     * DEPRECATION WARNING! This method will be removed in the next major point release.
+     *
+     * @see ResultSet::nth()
      * @deprecated since version 9.9.0
-     *
-     * @see ::nth
-     *
      * @codeCoverageIgnore
      */
     public function fetchOne(int $nth_record = 0): array
@@ -446,18 +447,38 @@ class ResultSet implements TabularDataReader, JsonSerializable
     }
 
     /**
-     * @deprecated since version 9.8.0
+     * DEPRECATION WARNING! This method will be removed in the next major point release.
      *
-     * @see ::fetchColumnByName
-     * @see ::fetchColumnByOffset
-     *
+     * @see ResultSet::fetchColumnByOffset()
+     * @see ResultSet::fetchColumnByName()
+     * @deprecated Since version 9.8.0
      * @codeCoverageIgnore
-     * @throws Exception
+     *
+     * @param string|int $index
      */
     public function fetchColumn($index = 0): Iterator
     {
         return $this->yieldColumn(
             $this->getColumnIndex($index, 'offset', __METHOD__)
         );
+    }
+
+    /**
+     * DEPRECATION WARNING! This method will be removed in the next major point release.
+     *
+     * @see Reader::getRecordsAsObject()
+     * @deprecated Since version 9.15.0
+     * @codeCoverageIgnore
+     *
+     * @param class-string $className
+     * @param array<string> $header
+     *
+     * @throws Exception
+     * @throws MappingFailed
+     * @throws TypeCastingFailed
+     */
+    public function getObjects(string $className, array $header = []): Iterator
+    {
+        return $this->getRecordsAsObject($className, $header);
     }
 }
