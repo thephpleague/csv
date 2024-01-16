@@ -19,7 +19,7 @@ $header = $csv->getHeader(); //returns the CSV header record
 
 //returns all the records as
 $records = $csv->getRecords(); // an Iterator object containing arrays
-$records = $csv->getObjects(MyDTO::class); //an Iterator object containing MyDTO objects
+$records = $csv->getRecordsAsObject(MyDTO::class); //an Iterator object containing MyDTO objects
 
 echo $csv->toString(); //returns the CSV document as a string
 ```
