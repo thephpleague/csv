@@ -215,12 +215,14 @@ class ResultSet implements TabularDataReader, JsonSerializable
     }
 
     /**
-     * @param class-string $className
+     * @template T of object
+     * @param class-string<T> $className
      * @param array<string> $header
      *
      * @throws Exception
      * @throws MappingFailed
      * @throws TypeCastingFailed
+     * @return iterator<T>
      */
     public function getRecordsAsObject(string $className, array $header = []): Iterator
     {
