@@ -208,10 +208,7 @@ class ResultSet implements TabularDataReader, JsonSerializable
      */
     public function getRecords(array $header = []): Iterator
     {
-        $iterator = $this->combineHeader($this->prepareHeader($header));
-        $iterator->rewind();
-
-        return $iterator;
+        return $this->combineHeader($this->prepareHeader($header));
     }
 
     /**
