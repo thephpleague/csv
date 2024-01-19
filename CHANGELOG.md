@@ -19,7 +19,7 @@ All Notable changes to `Csv` will be documented in this file
 - `Statement` should not throw when `LimitIterator` is used in combinaison with `ArrayIterator`.
 - `Statement` internal codebase improvement.
 - Using the `$header` argument on `Statement::process` is no longer deprecated. `E_USER_DEPRECATED` is no longer triggered.
-- `ResultSet::getRecords` should not return `null` see [#514](https://github.com/thephpleague/csv/issues/514)
+- BOM stripping no longer depends on the `mbstring` extension
 
 ### Removed
 
