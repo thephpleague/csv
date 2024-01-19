@@ -216,7 +216,7 @@ EOF;
         fputcsv($fp, $record);
         $csv = Reader::createFromStream($fp);
         self::assertSame($expected_bom, $csv->getInputBOM());
-        foreach ($csv as $offset => $row) {
+        foreach ($csv as $row) {
             self::assertSame($expected, $row[0]);
         }
         $csv = null;

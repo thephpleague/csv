@@ -26,8 +26,6 @@ use function array_filter;
 use function array_unique;
 use function is_array;
 use function iterator_count;
-use function mb_strlen;
-use function mb_substr;
 use function strlen;
 use function substr;
 
@@ -113,7 +111,7 @@ class Reader extends AbstractCsv implements TabularDataReader, JsonSerializable
 
         $header = $this->removeBOM(
             $header,
-            !$this->is_input_bom_included ? mb_strlen($this->getInputBOM()) : 0,
+            !$this->is_input_bom_included ? strlen($this->getInputBOM()) : 0,
             $this->enclosure
         );
 
@@ -190,7 +188,7 @@ class Reader extends AbstractCsv implements TabularDataReader, JsonSerializable
             return $record;
         }
 
-        $record[0] = mb_substr($record[0], $bom_length);
+        $record[0] = substr($record[0], $bom_length);
         if ($enclosure.$enclosure !== substr($record[0].$record[0], strlen($record[0]) - 1, 2)) {
             return $record;
         }
@@ -463,7 +461,7 @@ class Reader extends AbstractCsv implements TabularDataReader, JsonSerializable
             return $iterator;
         }
 
-        $bom_length = mb_strlen($bom);
+        $bom_length = strlen($bom);
         $mapper = function (array $record, int $index) use ($bom_length): array {
             if (0 !== $index) {
                 return $record;
