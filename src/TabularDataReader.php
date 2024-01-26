@@ -40,6 +40,7 @@ use IteratorAggregate;
  * @method TabularDataReader matchingFirstOrFail(string $expression) extract the first found fragment identifier of the tabular data or fail
  * @method TabularDataReader|null matchingFirst(string $expression) extract the first found fragment identifier of the tabular data or return null if none is found
  * @method iterable<int, TabularDataReader> matching(string $expression) extract all found fragment identifiers for the tabular data
+ * @method iterable<int, TabularDataReader> chunkBy(int $length) Chunk the TabulaDataReader into smaller TabularDataReader instance of the given size or less.
  */
 interface TabularDataReader extends Countable, IteratorAggregate
 {

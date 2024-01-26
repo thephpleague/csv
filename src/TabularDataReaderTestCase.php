@@ -449,6 +449,17 @@ abstract class TabularDataReaderTestCase extends TestCase
 
         self::assertInstanceOf($class::class, $this->tabularDataWithHeader()->firstAsObject($class::class, ['observedOn', 'temperature', 'place']));
     }
+
+    public function testChunkingTabularDataUsingTheRangeMethod(): void
+    {
+        self::assertCount(2, [...$this->tabularData()->chunkBy(4)]);
+        foreach ($this->tabularDataWithHeader()->chunkBy(4) as $offset => $item) {
+            match ($offset) {
+                0 => self::assertCount(4, $item),
+                default => self::assertCount(2, $item),
+            };
+        }
+    }
 }
 
 enum Place: string

@@ -160,6 +160,36 @@ class ResultSet implements TabularDataReader, JsonSerializable
         return $initial;
     }
 
+    /**
+     * @param positive-int $length
+     *
+     * @throws InvalidArgument
+     *
+     * @return Iterator<TabularDataReader>
+     */
+    public function chunkBy(int $length): Iterator
+    {
+        if ($length < 1) {
+            throw InvalidArgument::dueToInvalidChunkSize($length, __METHOD__);
+        }
+
+        $records = [];
+        $i = 0;
+        foreach ($this->getRecords() as $record) {
+            $records[] = $record;
+            ++$i;
+            if ($i === $length) {
+                yield self::createFromRecords($records);
+                $i = 0;
+                $records = [];
+            }
+        }
+
+        if ([] !== $records) {
+            yield self::createFromRecords($records);
+        }
+    }
+
     public function filter(Closure $closure): TabularDataReader
     {
         return Statement::create()->where($closure)->process($this);

@@ -472,3 +472,23 @@ $reader->matchingFirstOrFail('row=3-1;4-6'); // will throw
 
 <p class="message-info"> Wraps the functionality of <code>FragmentFinder</code> class.</p>
 <p class="message-notice">Added in version <code>9.12.0</code> for <code>Reader</code> and <code>ResultSet</code>.</p>
+
+### chunkBy
+
+<p class="message-notice">Added in version <code>9.15.0</code> for <code>Reader</code> and <code>ResultSet</code>.</p>
+
+If you are dealing with a large CSV and you want it to be split in smaller sizes for better handling you can use
+the `chunkBy` method which breaks the `TabularDataReader` into multiple, smaller instance of a given size. The
+last instance may contain fewer records because of the chunk size you have chosen.
+
+```php
+use League\Csv\Reader;
+
+$reader = Reader::createFromString($csv);
+
+foreach ($reader->chunkBy(4) as $chunk) {
+    foreach ($chunk as $record) {
+        //the actual record will be found here.
+    }
+}
+```
