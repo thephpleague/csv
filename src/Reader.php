@@ -332,6 +332,14 @@ class Reader extends AbstractCsv implements TabularDataReader, JsonSerializable
     }
 
     /**
+     * @param array<string> $headers
+     */
+    public function mapHeader(array $headers): TabularDataReader
+    {
+        return Statement::create()->process($this, $headers);
+    }
+
+    /**
      * @param Closure(array<mixed>, array-key): bool $closure
      *
      * @throws Exception

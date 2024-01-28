@@ -9,6 +9,7 @@ All Notable changes to `Csv` will be documented in this file
 - `Statement::select`
 - `TabularDataReader::getRecordsAsObject`
 - `TabularDataReader::chunkBy`
+- `TabularDataReader::mapHeader`
 
 ### Deprecated
 

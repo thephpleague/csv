@@ -190,6 +190,14 @@ class ResultSet implements TabularDataReader, JsonSerializable
         }
     }
 
+    /**
+     * @param array<string> $headers
+     */
+    public function mapHeader(array $headers): TabularDataReader
+    {
+        return Statement::create()->process($this, $headers);
+    }
+
     public function filter(Closure $closure): TabularDataReader
     {
         return Statement::create()->where($closure)->process($this);

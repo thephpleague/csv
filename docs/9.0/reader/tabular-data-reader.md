@@ -452,6 +452,40 @@ $reader = Reader::createFromPath('/path/to/my/file.csv')
 <p class="message-notice">Added in version <code>9.12.0</code> for <code>Reader</code> and <code>ResultSet</code>.</p>
 <p class="message-info"> Wraps the functionality of <code>Statement::select</code>.</p>
 
+### mapHeader
+
+<p class="message-notice">Added in version <code>9.15.0</code> for <code>Reader</code> and <code>ResultSet</code>.</p>
+<p class="message-info"> Wraps the functionality of <code>Statement::process</code>.</p>
+
+Complementary to the `select` method, the `mapHeader` method allows you to redefine the column header
+names and order and returns a new `TabularDataReader`. The submitted array argument act like the
+array from the `Statement::process` method but instead of returning a iterable structure of
+records it returns a new `TabularDataReader` with a new header.
+
+```php
+$tabularData = $reader
+    ->slice(0, 10)
+    ->mapHeader([
+        3 => 'Year',
+        2 => 'Gender',
+        0 => 'Firstname',
+        1 => 'Count',
+    ]);
+
+//is equivalent to
+
+$tabularData = Statement::create()
+    ->offset(0)
+    ->limit(10)
+    ->process($reader, [
+        3 => 'Year',
+        2 => 'Gender',
+        0 => 'Firstname',
+        1 => 'Count',
+    ]);
+$tabularData->getHeader(); // returns ['Year', 'Gender', 'Firstname', 'Count'];
+```
+
 ### matching, matchingFirst, matchingFirstOrFail
 
 The `matching` method allows selecting records, columns or cells from the tabular data reader that match the
@@ -487,6 +521,7 @@ use League\Csv\Reader;
 $reader = Reader::createFromString($csv);
 
 foreach ($reader->chunkBy(4) as $chunk) {
+    // $chunk is a TabularDataReader instance
     foreach ($chunk as $record) {
         //the actual record will be found here.
     }
