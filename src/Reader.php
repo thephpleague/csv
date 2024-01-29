@@ -321,14 +321,13 @@ class Reader extends AbstractCsv implements TabularDataReader, JsonSerializable
 
     /**
      * @param positive-int $length
+     * @param Closure(TabularDataReader, int=): bool $closure
      *
      * @throws InvalidArgument
-     *
-     * @return Iterator<TabularDataReader>
      */
-    public function chunkBy(int $length): Iterator
+    public function chunkBy(int $length, Closure $closure): bool
     {
-        return ResultSet::createFromTabularDataReader($this)->chunkBy($length);
+        return ResultSet::createFromTabularDataReader($this)->chunkBy($length, $closure);
     }
 
     /**

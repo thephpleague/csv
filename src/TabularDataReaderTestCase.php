@@ -20,6 +20,7 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
+use ValueError;
 
 #[Group('tabulardata')]
 abstract class TabularDataReaderTestCase extends TestCase
@@ -452,13 +453,19 @@ abstract class TabularDataReaderTestCase extends TestCase
 
     public function testChunkingTabularDataUsingTheRangeMethod(): void
     {
-        self::assertCount(2, [...$this->tabularData()->chunkBy(4)]);
-        foreach ($this->tabularDataWithHeader()->chunkBy(4) as $offset => $item) {
-            match ($offset) {
-                0 => self::assertCount(4, $item),
-                default => self::assertCount(2, $item),
-            };
-        }
+        $this->tabularDataWithHeader()
+            ->chunkBy(
+                4,
+                function (TabularDataReader $tabularData, int $offset): bool {
+                    match ($offset) {
+                        0 => self::assertCount(4, $tabularData),
+                        1 => self::assertCount(2, $tabularData),
+                        default => throw new ValueError('This should not happen.'),
+                    };
+
+                    return true;
+                }
+            );
     }
 }
 
