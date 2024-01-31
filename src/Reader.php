@@ -452,7 +452,7 @@ class Reader extends AbstractCsv implements TabularDataReader, JsonSerializable
     /**
      * Returns the header to be used for iteration.
      *
-     * @param array<array-key, string|int> $header
+     * @param array<int|string> $header
      *
      * @throws SyntaxError If the header contains non unique column name
      *
