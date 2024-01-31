@@ -560,8 +560,7 @@ class Reader extends AbstractCsv implements TabularDataReader, JsonSerializable
         return $this->is_empty_records_included;
     }
 
-    /** @codeCoverageIgnore */
-    public function fetchColumn($index = 0): Iterator
+    public function fetchColumn(string|int $index = 0): Iterator
     {
         return ResultSet::createFromTabularDataReader($this)->fetchColumn($index);
     }

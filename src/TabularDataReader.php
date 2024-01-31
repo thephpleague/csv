@@ -143,5 +143,5 @@ interface TabularDataReader extends Countable, IteratorAggregate
      *
      * @return Iterator<int, mixed>
      */
-    public function fetchColumn($index = 0): Iterator;
+    public function fetchColumn(string|int $index = 0): Iterator;
 }

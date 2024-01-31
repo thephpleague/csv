@@ -393,6 +393,13 @@ class ResultSet implements TabularDataReader, JsonSerializable
         return $this->nthAsObject(0, $className, $header);
     }
 
+    public function fetchColumn(string|int $index = 0): Iterator
+    {
+        return $this->yieldColumn(
+            $this->getColumnIndex($index, 'offset', __METHOD__)
+        );
+    }
+
     /**
      * @throws Exception
      */
@@ -488,23 +495,6 @@ class ResultSet implements TabularDataReader, JsonSerializable
     public function fetchOne(int $nth_record = 0): array
     {
         return $this->nth($nth_record);
-    }
-
-    /**
-     * DEPRECATION WARNING! This method will be removed in the next major point release.
-     *
-     * @see ResultSet::fetchColumnByOffset()
-     * @see ResultSet::fetchColumnByName()
-     * @deprecated Since version 9.8.0
-     * @codeCoverageIgnore
-     *
-     * @param string|int $index
-     */
-    public function fetchColumn($index = 0): Iterator
-    {
-        return $this->yieldColumn(
-            $this->getColumnIndex($index, 'offset', __METHOD__)
-        );
     }
 
     /**

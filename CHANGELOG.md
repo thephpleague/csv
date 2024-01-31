@@ -22,6 +22,7 @@ All Notable changes to `Csv` will be documented in this file
 - `Statement` internal codebase improvement.
 - Using the `$header` argument on `Statement::process` is no longer deprecated. `E_USER_DEPRECATED` is no longer triggered.
 - BOM stripping no longer depends on the `mbstring` extension
+- `TabularDataReader::fetchColumn` is no longer deprecated
 
 ### Removed
 
