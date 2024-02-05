@@ -138,8 +138,8 @@ $constraints = Statement::create()
     ->select('Integer', 'Text', 'Date and Time')
     ->where(fn (array $record): bool => (float) $record['Float'] < 1.3)
     ->orderBy(fn (array $r1, array $r2): int => (int) $r2['Integer'] <=> (int) $r1['Integer'])
-    ->limit(5)
-    ->offset(2);
+    ->offset(2)
+    ->limit(5);
 
 $document = <<<CSV
 Integer,Float,Text,Multiline Text,Date and Time
@@ -154,11 +154,11 @@ CSV;
 $csv = Reader::createFromString($document);
 $csv->setHeaderOffset(0);
 $records = $constraints->process($csv);
-//returns a ResultSet containing records which validates all the constraints.
+//returns a ResultSet containing records which validate all the constraints.
 ```
 
-Since the `Statement` instance is created independent of the CSV document you can re-use it on different CSV
-document or `TabularDataReader` instances if needed.
+Since a `Statement` instance is independent of the CSV document you can re-use it on different CSV
+documents or `TabularDataReader` instances if needed.
 
 ## FragmentFinder
 

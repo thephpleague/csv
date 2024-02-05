@@ -29,7 +29,6 @@ use function unlink;
 use function xdebug_get_headers;
 
 use const PHP_EOL;
-use const PHP_VERSION_ID;
 
 #[Group('csv')]
 final class AbstractCsvTest extends TestCase
@@ -415,10 +414,6 @@ EOF;
 
     public function testOutputStripBOM(): void
     {
-        if (PHP_VERSION_ID >= 80300) {
-            self::markTestSkipped('Issue with PHPUnit in PHP8.3');
-        }
-
         $raw_csv = ByteSequence::BOM_UTF8."john,doe,john.doe@example.com\njane,doe,jane.doe@example.com\n";
         $csv = Reader::createFromString($raw_csv);
         $csv->setOutputBOM(ByteSequence::BOM_UTF16_BE);
@@ -434,10 +429,6 @@ EOF;
 
     public function testOutputDoesNotStripBOM(): void
     {
-        if (PHP_VERSION_ID >= 80300) {
-            self::markTestSkipped('Issue with PHPUnit in PHP8.3');
-        }
-
         $raw_csv = ByteSequence::BOM_UTF8."john,doe,john.doe@example.com\njane,doe,jane.doe@example.com\n";
         $csv = Reader::createFromString($raw_csv);
         $csv->setOutputBOM(ByteSequence::BOM_UTF16_BE);
