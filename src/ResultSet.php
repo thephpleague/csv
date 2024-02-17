@@ -161,40 +161,32 @@ class ResultSet implements TabularDataReader, JsonSerializable
     }
 
     /**
-     * @param positive-int $length
-     * @param Closure(TabularDataReader, int=): bool $closure
+     * @param positive-int $recordsCount
      *
      * @throws InvalidArgument
+     *
+     * @return iterable<TabularDataReader>
      */
-    public function chunkBy(int $length, Closure $closure): bool
+    public function chunkBy(int $recordsCount): iterable
     {
-        if ($length < 1) {
-            throw InvalidArgument::dueToInvalidChunkSize($length, __METHOD__);
+        if ($recordsCount < 1) {
+            throw InvalidArgument::dueToInvalidChunkSize($recordsCount, __METHOD__);
         }
 
         $header = $this->getHeader();
         $records = [];
         $nbRecords = 0;
-        $chunkOffset = 0;
         foreach ($this->getRecords() as $record) {
             $records[] = $record;
             ++$nbRecords;
-            if ($nbRecords === $length) {
-                $result = $closure(new self($records, $header), $chunkOffset);
-                if (false === $result) {
-                    return false;
-                }
-                $nbRecords = 0;
-                $records = [];
-                ++$chunkOffset;
+            if ($nbRecords === $recordsCount) {
+                yield new self($records, $header);
             }
         }
 
         if ([] !== $records) {
-            return $closure(new self($records, $header), $chunkOffset);
+            yield new self($records, $header);
         }
-
-        return true;
     }
 
     /**

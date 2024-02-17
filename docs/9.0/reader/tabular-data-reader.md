@@ -513,24 +513,15 @@ $reader->matchingFirstOrFail('row=3-1;4-6'); // will throw
 
 If you are dealing with a large CSV and you want it to be split in smaller sizes for better handling you can use
 the `chunkBy` method which breaks the `TabularDataReader` into multiple, smaller instances with a given size. The
-last instance may contain fewer records because of the chunk size you have chosen. The method passes each
-small instances to a closure.
+last instance may contain fewer records because of the chunk size you have chosen.
 
 ```php
 use League\Csv\Reader;
 use League\Csv\TabularDataReader;
 use League\Csv\Writer;
 
-Reader::createFromPath('path/to/a/huge/file.csv')
-    ->chunkBy(
-        1000,
-        function (TabularDataReader $data, int $offset): bool {
-            $writer = Writer::createFromPath('path/to/a/huge/file/split-'.($offset + 1).'.csv', 'w');
-            $writer->setEscape('');
-            $writer->insertOne($data->getHeader());
-            $writer->insertAll($data);
-
-            return true;
-        }
-    );
+$chunks = Reader::createFromPath('path/to/a/huge/file.csv')->chunkBy(1000);
+foreach ($chunks as $chunk) {
+ // $chunk is a small CSV of 1000 records or less
+}
 ```

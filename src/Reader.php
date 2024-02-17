@@ -320,14 +320,15 @@ class Reader extends AbstractCsv implements TabularDataReader, JsonSerializable
     }
 
     /**
-     * @param positive-int $length
-     * @param Closure(TabularDataReader, int=): bool $closure
+     * @param positive-int $recordsCount
      *
      * @throws InvalidArgument
+     *
+     * @return iterable<TabularDataReader>
      */
-    public function chunkBy(int $length, Closure $closure): bool
+    public function chunkBy(int $recordsCount): iterable
     {
-        return ResultSet::createFromTabularDataReader($this)->chunkBy($length, $closure);
+        return ResultSet::createFromTabularDataReader($this)->chunkBy($recordsCount);
     }
 
     /**
@@ -405,9 +406,10 @@ class Reader extends AbstractCsv implements TabularDataReader, JsonSerializable
      */
     public function getRecords(array $header = []): Iterator
     {
-        $header = $this->prepareHeader($header);
-
-        return $this->combineHeader($this->prepareRecords(), $header);
+        return $this->combineHeader(
+            $this->prepareRecords(),
+            $this->prepareHeader($header)
+        );
     }
 
     /**
