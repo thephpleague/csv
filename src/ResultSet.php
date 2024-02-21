@@ -32,6 +32,8 @@ use function iterator_count;
 
 /**
  * Represents the result set of a {@link Reader} processed by a {@link Statement}.
+ *
+ * @template TValue of array
  */
 class ResultSet implements TabularDataReader, JsonSerializable
 {
@@ -239,9 +241,9 @@ class ResultSet implements TabularDataReader, JsonSerializable
     /**
      * @param array<string> $header
      *
-     * @throws SyntaxError
+     * @throws Exception
      *
-     * @return Iterator<array-key, array<array-key, mixed>>
+     * @return Iterator<array-key, TValue>
      */
     public function getRecords(array $header = []): Iterator
     {
@@ -293,7 +295,7 @@ class ResultSet implements TabularDataReader, JsonSerializable
      *
      * @param array<array-key, string|int> $header
      *
-     * @return Iterator<array-key, array<array-key, mixed>>
+     * @return Iterator<array-key, TValue>
      */
     protected function combineHeader(array $header): Iterator
     {

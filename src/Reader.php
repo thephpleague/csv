@@ -33,6 +33,8 @@ use const STREAM_FILTER_READ;
 
 /**
  * A class to parse and read records from a CSV document.
+ *
+ * @template TValue of array
  */
 class Reader extends AbstractCsv implements TabularDataReader, JsonSerializable
 {
@@ -314,8 +316,6 @@ class Reader extends AbstractCsv implements TabularDataReader, JsonSerializable
 
     /**
      * @throws Exception
-     *
-     * @return Iterator<array-key, array<mixed>>
      */
     public function getIterator(): Iterator
     {
@@ -442,7 +442,7 @@ class Reader extends AbstractCsv implements TabularDataReader, JsonSerializable
      *
      * @throws Exception
      *
-     * @return Iterator<array<mixed>>
+     * @return Iterator<array-key, TValue>
      */
     public function getRecords(array $header = []): Iterator
     {

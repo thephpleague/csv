@@ -42,6 +42,9 @@ use IteratorAggregate;
  * @method iterable<int, TabularDataReader> matching(string $expression) extract all found fragment identifiers for the tabular data
  * @method iterable<TabularDataReader> chunkBy(int $recordsCount) Chunk the TabulaDataReader into smaller TabularDataReader instances of the given size or less.
  * @method TabularDataReader mapHeader(array $headers) Returns a new TabulaDataReader with a new set of headers.
+ *
+ * @template TValue of array
+ * @template-extends IteratorAggregate<array-key, TValue>
  */
 interface TabularDataReader extends Countable, IteratorAggregate
 {
