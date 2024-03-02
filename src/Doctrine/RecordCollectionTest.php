@@ -14,6 +14,7 @@ declare(strict_types=1);
 namespace League\Csv\Doctrine;
 
 use Doctrine\Common\Collections\Criteria;
+use Doctrine\Common\Collections\Order;
 use League\Csv\Reader;
 use League\Csv\Statement;
 use PHPUnit\Framework\Attributes\Group;
@@ -60,7 +61,7 @@ final class RecordCollectionTest extends TestCase
         self::assertSame([
             1 => ['field 1' => 'foo', 'field 2' => 'bar', 'field 3' => 'baz'],
             2 => ['field 1' => 'foofoo', 'field 2' => 'barbar', 'field 3' => 'bazbaz'],
-        ], $collection->matching(new Criteria(null, ['field 1' => Criteria::ASC]))->toArray());
+        ], $collection->matching(new Criteria(null, ['field 1' => Order::Ascending]))->toArray());
 
         $csv = null;
         fclose($fp);

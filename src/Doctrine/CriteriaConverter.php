@@ -15,6 +15,7 @@ namespace League\Csv\Doctrine;
 
 use Doctrine\Common\Collections\Criteria;
 use Doctrine\Common\Collections\Expr\ClosureExpressionVisitor;
+use Doctrine\Common\Collections\Order;
 use League\Csv\Statement;
 
 use function array_reverse;
@@ -63,10 +64,10 @@ final class CriteriaConverter
     public static function addOrderBy(Criteria $criteria, Statement $stmt = new Statement()): Statement
     {
         $next = null;
-        foreach (array_reverse($criteria->getOrderings()) as $field => $ordering) {
+        foreach (array_reverse($criteria->orderings()) as $field => $ordering) {
             $next = ClosureExpressionVisitor::sortByField(
                 $field,
-                Criteria::DESC === $ordering ? -1 : 1,
+                Order::Descending === $ordering ? -1 : 1,
                 $next
             );
         }
