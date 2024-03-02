@@ -29,8 +29,8 @@ final class SwapDelimiter extends php_user_filter
     private const FILTER_NAME = 'string.league.csv.delimiter';
     public const MODE_READ = 'read';
     public const MODE_WRITE = 'write';
-    private string $search;
-    private string $replace;
+    private string $search = '';
+    private string $replace = '';
 
     public static function getFiltername(): string
     {

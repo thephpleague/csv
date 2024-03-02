@@ -37,7 +37,7 @@ class Writer extends AbstractCsv implements TabularDataWriter
     protected ?int $flush_threshold = null;
     protected bool $enclose_all = false;
     /** @var array{0:array<string>,1:array<string>} */
-    protected array $enclosure_replace;
+    protected array $enclosure_replace = [[], []];
 
     protected function resetProperties(): void
     {

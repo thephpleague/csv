@@ -58,9 +58,9 @@ final class Stream implements SeekableIterator
     private bool $is_seekable;
     private bool $should_close_stream = false;
     /** @var mixed can be a null, false or a scalar type value. Current iterator value. */
-    private mixed $value;
+    private mixed $value = null;
     /** Current iterator key. */
-    private int $offset;
+    private int $offset = -1;
     /** Flags for the Document. */
     private int $flags = 0;
     private string $delimiter = ',';

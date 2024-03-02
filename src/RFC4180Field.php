@@ -50,14 +50,14 @@ class RFC4180Field extends php_user_filter
      *
      * @var array<string>
      */
-    protected array $search;
+    protected array $search = [];
 
     /**
      * The replacement value that replace found $search values.
      *
      * @var array<string>
      */
-    protected array $replace;
+    protected array $replace = [];
 
     /**
      * Characters that triggers enclosure with PHP fputcsv.

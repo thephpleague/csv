@@ -31,9 +31,9 @@ use const JSON_THROW_ON_ERROR;
  */
 final class CastToArray implements TypeCasting
 {
-    private ArrayShape $shape;
     private readonly Type $type;
     private readonly bool $isNullable;
+    private ArrayShape $shape;
     private int $filterFlag;
     /** @var non-empty-string */
     private string $separator = ',';
@@ -50,6 +50,8 @@ final class CastToArray implements TypeCasting
     public function __construct(ReflectionProperty|ReflectionParameter $reflectionProperty)
     {
         [$this->type, $this->isNullable] = $this->init($reflectionProperty);
+        $this->shape = ArrayShape::List;
+        $this->filterFlag = Type::String->filterFlag();
     }
 
     /**

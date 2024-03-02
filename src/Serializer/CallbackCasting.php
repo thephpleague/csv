@@ -40,7 +40,7 @@ final class CallbackCasting implements TypeCasting
     private readonly bool $isNullable;
     /** @var Closure(?string, bool, mixed...): mixed */
     private Closure $callback;
-    private array $options;
+    private array $options = [];
     private string $message;
 
     public function __construct(

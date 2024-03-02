@@ -42,7 +42,7 @@ class EncloseField extends php_user_filter
     public const FILTERNAME = 'convert.league.csv.enclosure';
 
     /** Default sequence. */
-    protected string $sequence;
+    protected string $sequence = '';
     /** Characters that triggers enclosure in PHP. */
     protected static string $force_enclosure = "\n\r\t ";
 
