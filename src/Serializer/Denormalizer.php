@@ -419,15 +419,11 @@ final class Denormalizer
         array $options
     ): TypeCasting {
         try {
-            if (str_starts_with($typeCaster, CallbackCasting::class.'@')) {
-                $cast = new CallbackCasting($reflectionProperty, substr($typeCaster, strlen(CallbackCasting::class)));
-                $cast->setOptions(...$options);
-
-                return $cast;
-            }
-
             /** @var TypeCasting $cast */
-            $cast = new $typeCaster($reflectionProperty);
+            $cast = match (str_starts_with($typeCaster, CallbackCasting::class.'@')) {
+                true => new CallbackCasting($reflectionProperty, substr($typeCaster, strlen(CallbackCasting::class))),
+                false => new $typeCaster($reflectionProperty),
+            };
             $cast->setOptions(...$options);
 
             return $cast;
