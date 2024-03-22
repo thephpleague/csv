@@ -204,7 +204,7 @@ class ResultSet implements TabularDataReader, JsonSerializable
         return Statement::create()->where($closure)->process($this);
     }
 
-    public function slice(int $offset, int $length = null): TabularDataReader
+    public function slice(int $offset, ?int $length = null): TabularDataReader
     {
         return Statement::create()->offset($offset)->limit($length ?? -1)->process($this);
     }

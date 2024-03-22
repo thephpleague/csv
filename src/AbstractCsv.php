@@ -246,7 +246,7 @@ abstract class AbstractCsv implements ByteSequence
      *
      * @throws Exception
      */
-    public function output(string $filename = null): int
+    public function output(?string $filename = null): int
     {
         if (null !== $filename) {
             $this->sendHeaders($filename);

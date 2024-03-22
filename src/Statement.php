@@ -45,7 +45,7 @@ class Statement
     /**
      * @throws Exception
      */
-    public static function create(callable $where = null, int $offset = 0, int $limit = -1): self
+    public static function create(?callable $where = null, int $offset = 0, int $limit = -1): self
     {
         $stmt = new self();
         if (null !== $where) {

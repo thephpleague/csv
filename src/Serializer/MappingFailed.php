@@ -44,7 +44,7 @@ final class MappingFailed extends LogicException implements SerializationFailed
         });
     }
 
-    public static function dueToInvalidCastingArguments(Throwable $exception = null): self
+    public static function dueToInvalidCastingArguments(?Throwable $exception = null): self
     {
         return new self('Unable to load the casting mechanism. Please verify your casting arguments', 0, $exception);
     }

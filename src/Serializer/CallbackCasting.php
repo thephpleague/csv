@@ -60,7 +60,7 @@ final class CallbackCasting implements TypeCasting
     /**
      * @throws MappingFailed
      */
-    public function setOptions(string $type = null, mixed ...$options): void
+    public function setOptions(?string $type = null, mixed ...$options): void
     {
         if (null === $this->alias) {
             if (Type::Mixed->value === $this->type && null !== $type) {
@@ -113,7 +113,7 @@ final class CallbackCasting implements TypeCasting
     /**
      * @param Closure(?string, bool, mixed...): TValue $callback
      */
-    public static function register(string $type, Closure $callback, string $alias = null): void
+    public static function register(string $type, Closure $callback, ?string $alias = null): void
     {
         if (null === $alias) {
             self::$types[$type] = match (true) {
@@ -225,7 +225,7 @@ final class CallbackCasting implements TypeCasting
         return $res;
     }
 
-    public static function supports(ReflectionParameter|ReflectionProperty $reflectionProperty, string $alias = null): bool
+    public static function supports(ReflectionParameter|ReflectionProperty $reflectionProperty, ?string $alias = null): bool
     {
         $propertyTypeList = self::getTypes($reflectionProperty->getType());
         if ([] === $propertyTypeList && self::supportsAlias($alias)) {

@@ -68,7 +68,7 @@ class CharsetConverter extends php_user_filter
     /**
      * Static method to add the stream filter to a {@link AbstractCsv} object.
      */
-    public static function addTo(AbstractCsv $csv, string $input_encoding, string $output_encoding, array $params = null): AbstractCsv
+    public static function addTo(AbstractCsv $csv, string $input_encoding, string $output_encoding, ?array $params = null): AbstractCsv
     {
         self::register();
 
