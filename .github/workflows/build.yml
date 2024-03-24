@@ -12,6 +12,11 @@ jobs:
             matrix:
                 php: ['8.1', '8.2', '8.3']
                 stability: [prefer-lowest, prefer-stable]
+                include:
+                    -   php: '8.4'
+                        flags: "--ignore-platform-req=php"
+                        phpunit-flags: '--no-coverage'
+                        stability: prefer-stable
         steps:
             - name: Checkout code
               uses: actions/checkout@v3
@@ -45,16 +50,16 @@ jobs:
 
             - name: Run Unit tests with coverage
               run: composer phpunit -- ${{ matrix.phpunit-flags }}
-              if: ${{ matrix.php == '8.2' || matrix.php == '8.1'}}
+              if: ${{ matrix.php == '8.3' || matrix.php == '8.2' || matrix.php == '8.1'}}
 
             - name:  Run Unit tests without coverage
               run: composer phpunit:min
-              if: ${{ matrix.php == '8.3'}}
+              if: ${{ matrix.php == '8.4'}}
 
             - name: Run static analysis
               run: composer phpstan
-              if: ${{ matrix.php == '8.2' && matrix.stability == 'prefer-stable'}}
+              if: ${{ matrix.php == '8.3' && matrix.stability == 'prefer-stable'}}
 
             - name: Run Coding style rules
               run: composer phpcs:fix
-              if: ${{ matrix.php == '8.2' && matrix.stability == 'prefer-stable'}}
+              if: ${{ matrix.php == '8.3' && matrix.stability == 'prefer-stable'}}
