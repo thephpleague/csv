@@ -228,14 +228,14 @@ EOF;
     {
         return [
             'withBOM' => [
-                [Reader::BOM_UTF16_LE.'john', 'doe', 'john.doe@example.com'],
-                Reader::BOM_UTF16_LE,
+                [Bom::Utf16Le->value.'john', 'doe', 'john.doe@example.com'],
+                Bom::Utf16Le->value,
                 'john',
             ],
             'withDoubleBOM' =>  [
-                [Reader::BOM_UTF16_LE.Reader::BOM_UTF16_LE.'john', 'doe', 'john.doe@example.com'],
-                Reader::BOM_UTF16_LE,
-                Reader::BOM_UTF16_LE.'john',
+                [Bom::Utf16Le->value.Bom::Utf16Le->value.'john', 'doe', 'john.doe@example.com'],
+                Bom::Utf16Le->value,
+                Bom::Utf16Le->value.'john',
             ],
             'withoutBOM' => [
                 ['john', 'doe', 'john.doe@example.com'],
@@ -247,7 +247,7 @@ EOF;
 
     public function testStripBOMWithEnclosure(): void
     {
-        $source = Reader::BOM_UTF8.'"parent name","child name","title"
+        $source = Bom::Utf8->value.'"parent name","child name","title"
             "parentA","childA","titleA"';
         $csv = Reader::createFromString($source);
         $csv->setHeaderOffset(0);
@@ -271,13 +271,13 @@ EOF;
 
     public function testDisablingBOMStripping(): void
     {
-        $expected_record = [Reader::BOM_UTF16_LE.'john', 'doe', 'john.doe@example.com'];
+        $expected_record = [Bom::Utf16Le->value.'john', 'doe', 'john.doe@example.com'];
         /** @var resource $fp */
         $fp = fopen('php://temp', 'r+');
         fputcsv($fp, $expected_record);
         $csv = Reader::createFromStream($fp);
         $csv->includeInputBOM();
-        self::assertSame(Reader::BOM_UTF16_LE, $csv->getInputBOM());
+        self::assertSame(Bom::Utf16Le->value, $csv->getInputBOM());
         foreach ($csv as $offset => $record) {
             self::assertSame($expected_record, $record);
         }
@@ -483,7 +483,7 @@ EOF;
 
     public function testRemovingEmptyRecordsWhenBOMStringIsPresent(): void
     {
-        $bom = Reader::BOM_UTF8;
+        $bom = Bom::Utf8->value;
         $text = <<<CSV
 $bom
 column 1,column 2,column 3
@@ -538,7 +538,7 @@ CSV;
 
     public function testGetHeaderThrowsIfTheFirstRecordOnlyContainsBOMString(): void
     {
-        $bom = Reader::BOM_UTF8;
+        $bom = Bom::Utf8->value;
         $text = <<<CSV
 $bom
 column 1,column 2,column 3

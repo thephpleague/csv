@@ -1,14 +1,15 @@
 includes:
+    - vendor/phpstan/phpstan-deprecation-rules/rules.neon
     - vendor/phpstan/phpstan-strict-rules/rules.neon
     - vendor/phpstan/phpstan-phpunit/extension.neon
-    - vendor/phpstan/phpstan-deprecation-rules/rules.neon
     - vendor/phpstan/phpstan-phpunit/rules.neon
 parameters:
+    ignoreErrors:
+        - '#implements deprecated interface League\\Csv\\ByteSequence#'
     level: max
     paths:
         - src
     checkGenericClassInNonGenericObjectType: false
     checkMissingIterableValueType: false
-    ignoreErrors:
     reportUnmatchedIgnoredErrors: true
     treatPhpDocTypesAsCertain: false

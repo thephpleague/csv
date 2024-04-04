@@ -107,6 +107,11 @@ final class Stream implements SeekableIterator
         ];
     }
 
+    public function ftell(): int|false
+    {
+        return ftell($this->stream);
+    }
+
     /**
      * Returns a new instance from a file path.
      *

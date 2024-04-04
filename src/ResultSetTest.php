@@ -187,7 +187,7 @@ final class ResultSetTest extends TabularDataReaderTestCase
 
     public function testFetchColumnWithColumnName(): void
     {
-        $source = Reader::BOM_UTF8.'"parent name","child name","title"
+        $source = Bom::Utf8->value.'"parent name","child name","title"
             "parentA","childA","titleA"';
         $csv = Reader::createFromString($source);
         $csv->setHeaderOffset(0);

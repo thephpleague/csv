@@ -17,7 +17,7 @@ namespace League\Csv;
  * DEPRECATION WARNING! This class will be removed in the next major point release.
  *
  * @deprecated since version 9.7.0
- * @see Info::fetchBOMSequence()
+ * @see Bom::tryFromSequence()
  * @codeCoverageIgnore
  *
  * Returns the BOM sequence found at the start of the string.
@@ -26,7 +26,7 @@ namespace League\Csv;
  */
 function bom_match(string $str): string
 {
-    return Info::fetchBOMSequence($str) ?? '';
+    return Bom::tryFromSequence($str)?->value ?? '';
 }
 
 /**

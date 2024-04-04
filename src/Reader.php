@@ -162,13 +162,13 @@ class Reader extends AbstractCsv implements TabularDataReader, JsonSerializable
      */
     protected function setHeader(int $offset): array
     {
-        $inputBom = '';
+        $inputBom = null;
         $header = $this->seekRow($offset);
         if (0 === $offset) {
-            $inputBom = $this->getInputBOM();
+            $inputBom = Bom::tryFrom($this->getInputBOM());
             $header = $this->removeBOM(
                 $header,
-                !$this->is_input_bom_included ? strlen($inputBom) : 0,
+                !$this->is_input_bom_included ? $inputBom?->length() ?? 0 : 0,
                 $this->enclosure
             );
         }
@@ -177,7 +177,7 @@ class Reader extends AbstractCsv implements TabularDataReader, JsonSerializable
             [] === $header,
             [null] === $header,
             [false] === $header,
-            [''] === $header && 0 === $offset && '' !== $inputBom => throw SyntaxError::dueToHeaderNotFound($offset),
+            [''] === $header && 0 === $offset && null !== $inputBom => throw SyntaxError::dueToHeaderNotFound($offset),
             default => $header,
         };
     }
@@ -481,9 +481,9 @@ class Reader extends AbstractCsv implements TabularDataReader, JsonSerializable
     protected function prepareRecords(): Iterator
     {
         $normalized = fn ($record): bool => is_array($record) && ($this->is_empty_records_included || $record !== [null]);
-        $bom = '';
+        $bom = null;
         if (!$this->is_input_bom_included) {
-            $bom = $this->getInputBOM();
+            $bom = Bom::tryFrom($this->getInputBOM());
         }
 
         $records = $this->stripBOM(new CallbackFilterIterator($this->getDocument(), $normalized), $bom);
@@ -501,24 +501,24 @@ class Reader extends AbstractCsv implements TabularDataReader, JsonSerializable
     /**
      * Strips the BOM sequence from the returned records if necessary.
      */
-    protected function stripBOM(Iterator $iterator, string $bom): Iterator
+    protected function stripBOM(Iterator $iterator, ?Bom $bom): Iterator
     {
-        if ('' === $bom) {
+        if (null === $bom) {
             return $iterator;
         }
 
-        $bom_length = strlen($bom);
-        $mapper = function (array $record, int $index) use ($bom_length): array {
+        $bomLength = $bom->length();
+        $mapper = function (array $record, int $index) use ($bomLength): array {
             if (0 !== $index) {
                 return $record;
             }
 
-            $record = $this->removeBOM($record, $bom_length, $this->enclosure);
-            if ([''] === $record) {
-                return [null];
-            }
+            $record = $this->removeBOM($record, $bomLength, $this->enclosure);
 
-            return $record;
+            return match ($record) {
+                [''] => [null],
+                default => $record,
+            };
         };
 
         return new CallbackFilterIterator(

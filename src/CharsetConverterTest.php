@@ -215,7 +215,7 @@ end']],
     public static function providesBOMSequences(): iterable
     {
         yield 'BOM UTF-8' => [
-            'sequence' => ByteSequence::BOM_UTF8,
+            'sequence' => Bom::Utf8->value,
         ];
     }
 }

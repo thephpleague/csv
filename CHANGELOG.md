@@ -6,15 +6,20 @@ All Notable changes to `Csv` will be documented in this file
 
 ### Added
 
-- None
+- `Bom` Enum
+- `Stream::ftell`
 
 ### Deprecated
 
-- None
+- `ByteSequence` Interface use the `Bom` enum instead
+- `Info::fetchBOMSequence` use `Bom::tryFromString` instead
 
 ### Fixed
 
 - `Reader` and `ResultSet` docblocks
+- internal code uses `Bom` enum instead of `Info::fetchBOMSequence`
+- the `AbstractCsv` BOM related properties are moved to being `Bom` instances instead of nullable string.
+- `setOutpuBOM` will only accept valid BOM sequences all other values will be silently ignored;
 
 ### Removed
 

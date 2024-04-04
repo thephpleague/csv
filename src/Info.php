@@ -24,28 +24,18 @@ use const COUNT_RECURSIVE;
 
 final class Info implements ByteSequence
 {
-    private const BOM_SEQUENCE_LIST = [
-        ByteSequence::BOM_UTF32_BE,
-        ByteSequence::BOM_UTF32_LE,
-        ByteSequence::BOM_UTF16_BE,
-        ByteSequence::BOM_UTF16_LE,
-        ByteSequence::BOM_UTF8,
-    ];
-
     /**
      * Returns the BOM sequence found at the start of the string.
      *
      * If no valid BOM sequence is found an empty string is returned
+     *
+     * @deprecated since version 9.16.0
+     * @see Bom::tryFromSequence()
+     * @codeCoverageIgnore
      */
     public static function fetchBOMSequence(string $str): ?string
     {
-        foreach (self::BOM_SEQUENCE_LIST as $sequence) {
-            if (str_starts_with($str, $sequence)) {
-                return $sequence;
-            }
-        }
-
-        return null;
+        return Bom::tryFromSequence($str)?->value;
     }
 
     /**
@@ -66,7 +56,7 @@ final class Info implements ByteSequence
         $delimiterStats = function (array $stats, string $delimiter) use ($csv, $stmt): array {
             $csv->setDelimiter($delimiter);
             $foundRecords = [];
-            foreach ($stmt->process($csv)->getRecords() as $record) {
+            foreach ($stmt->process($csv) as $record) {
                 if (1 < count($record)) {
                     $foundRecords[] = $record;
                 }

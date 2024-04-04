@@ -96,7 +96,7 @@ EOF;
 
         return [
             'invalid UTF32-BE' => ['', $invalidBOM, ';'],
-            'valid UTF32-BE' => [ByteSequence::BOM_UTF32_BE, $validBOM, ';'],
+            'valid UTF32-BE' => [Bom::Utf32Be->value, $validBOM, ';'],
         ];
     }
 
@@ -128,7 +128,7 @@ EOF;
             self::markTestSkipped(__METHOD__.' needs the xdebug extension to run');
         }
 
-        $raw_csv = ByteSequence::BOM_UTF8."john,doe,john.doe@example.com\njane,doe,jane.doe@example.com\n";
+        $raw_csv = Bom::Utf8->value."john,doe,john.doe@example.com\njane,doe,jane.doe@example.com\n";
         $csv = Reader::createFromString($raw_csv);
         ob_start();
         $csv->output('tést.csv');
@@ -175,9 +175,9 @@ EOF;
 
     public function testChunk(): void
     {
-        $raw_csv = ByteSequence::BOM_UTF8."john,doe,john.doe@example.com\njane,doe,jane.doe@example.com\n";
-        $csv = Reader::createFromString($raw_csv)->setOutputBOM(ByteSequence::BOM_UTF32_BE);
-        $expected = ByteSequence::BOM_UTF32_BE."john,doe,john.doe@example.com\njane,doe,jane.doe@example.com\n";
+        $raw_csv = Bom::Utf8->value."john,doe,john.doe@example.com\njane,doe,jane.doe@example.com\n";
+        $csv = Reader::createFromString($raw_csv)->setOutputBOM(Bom::Utf32Be->value);
+        $expected = Bom::Utf32Be->value."john,doe,john.doe@example.com\njane,doe,jane.doe@example.com\n";
         $res = '';
         foreach ($csv->chunk(32) as $chunk) {
             $res .= $chunk;
@@ -238,8 +238,8 @@ EOF;
     {
         self::assertSame('', $this->csv->getOutputBOM());
 
-        $this->csv->setOutputBOM(ByteSequence::BOM_UTF8);
-        self::assertSame(ByteSequence::BOM_UTF8, $this->csv->getOutputBOM());
+        $this->csv->setOutputBOM(Bom::Utf8->value);
+        self::assertSame(Bom::Utf8->value, $this->csv->getOutputBOM());
 
         $this->csv->setOutputBOM('');
         self::assertSame('', $this->csv->getOutputBOM());
@@ -247,7 +247,7 @@ EOF;
 
     public function testAddBOMSequences(): void
     {
-        $this->csv->setOutputBOM(ByteSequence::BOM_UTF8);
+        $this->csv->setOutputBOM(Bom::Utf8->value);
         $expected = chr(239).chr(187).chr(191).'john,doe,john.doe@example.com'.PHP_EOL
             .'jane,doe,jane.doe@example.com'.PHP_EOL;
         self::assertSame($expected, $this->csv->toString());
@@ -257,10 +257,10 @@ EOF;
     {
         $text = 'john,doe,john.doe@example.com'.PHP_EOL
             .'jane,doe,jane.doe@example.com'.PHP_EOL;
-        $reader = Reader::createFromString(ByteSequence::BOM_UTF32_BE.$text);
-        $reader->setOutputBOM(ByteSequence::BOM_UTF8);
+        $reader = Reader::createFromString(Bom::Utf32Be->value.$text);
+        $reader->setOutputBOM(Bom::Utf8->value);
 
-        self::assertSame(ByteSequence::BOM_UTF8.$text, $reader->toString());
+        self::assertSame(Bom::Utf8->value.$text, $reader->toString());
     }
 
     public function testEscape(): void
@@ -414,24 +414,24 @@ EOF;
 
     public function testOutputStripBOM(): void
     {
-        $raw_csv = ByteSequence::BOM_UTF8."john,doe,john.doe@example.com\njane,doe,jane.doe@example.com\n";
+        $raw_csv = Bom::Utf8->value."john,doe,john.doe@example.com\njane,doe,jane.doe@example.com\n";
         $csv = Reader::createFromString($raw_csv);
-        $csv->setOutputBOM(ByteSequence::BOM_UTF16_BE);
+        $csv->setOutputBOM(Bom::Utf16Be->value);
 
         ob_start();
         $csv->output();
         /** @var string $result */
         $result = ob_get_clean();
 
-        self::assertStringNotContainsString(ByteSequence::BOM_UTF8, $result);
-        self::assertTrue(str_starts_with($result, ByteSequence::BOM_UTF16_BE));
+        self::assertStringNotContainsString(Bom::Utf8->value, $result);
+        self::assertTrue(str_starts_with($result, Bom::Utf16Be->value));
     }
 
     public function testOutputDoesNotStripBOM(): void
     {
-        $raw_csv = ByteSequence::BOM_UTF8."john,doe,john.doe@example.com\njane,doe,jane.doe@example.com\n";
+        $raw_csv = Bom::Utf8->value."john,doe,john.doe@example.com\njane,doe,jane.doe@example.com\n";
         $csv = Reader::createFromString($raw_csv);
-        $csv->setOutputBOM(ByteSequence::BOM_UTF16_BE);
+        $csv->setOutputBOM(Bom::Utf16Be->value);
         $csv->includeInputBOM();
 
         ob_start();
@@ -439,8 +439,8 @@ EOF;
         /** @var string $result */
         $result = ob_get_clean();
 
-        self::assertStringContainsString(ByteSequence::BOM_UTF16_BE, $result);
-        self::assertStringContainsString(ByteSequence::BOM_UTF8, $result);
-        self::assertTrue(str_starts_with($result, ByteSequence::BOM_UTF16_BE.ByteSequence::BOM_UTF8));
+        self::assertStringContainsString(Bom::Utf16Be->value, $result);
+        self::assertStringContainsString(Bom::Utf8->value, $result);
+        self::assertTrue(str_starts_with($result, Bom::Utf16Be->value.Bom::Utf8->value));
     }
 }
