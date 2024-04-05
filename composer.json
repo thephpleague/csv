@@ -28,8 +28,7 @@
     "require": {
         "php": "^8.1.2",
         "ext-filter": "*",
-        "ext-json": "*",
-        "ext-mbstring": "*"
+        "ext-json": "*"
     },
     "require-dev": {
         "ext-dom": "*",
@@ -72,7 +71,8 @@
     },
     "suggest": {
         "ext-iconv" : "Needed to ease transcoding CSV using iconv stream filters",
-        "ext-dom" : "Required to use the XMLConverter and the HTMLConverter classes"
+        "ext-dom" : "Required to use the XMLConverter and the HTMLConverter classes",
+        "ext-mbstring": "Needed to ease transcoding CSV using mb stream filters"
     },
     "extra": {
         "branch-alias": {

@@ -20,7 +20,6 @@ use Stringable;
 
 use function filter_var;
 use function get_class;
-use function mb_strlen;
 use function rawurlencode;
 use function sprintf;
 use function str_replace;
@@ -287,7 +286,7 @@ abstract class AbstractCsv implements ByteSequence
         }
 
         $flag = FILTER_FLAG_STRIP_LOW;
-        if (strlen($filename) !== mb_strlen($filename)) {
+        if (1 === preg_match('/[^\x20-\x7E]/', $filename)) {
             $flag |= FILTER_FLAG_STRIP_HIGH;
         }
 
