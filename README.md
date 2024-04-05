@@ -25,7 +25,7 @@ Full documentation can be found at [csv.thephpleague.com](https://csv.thephpleag
 
 ## System Requirements
 
-You need the `mbstring` extension to use `Csv` and the latest stable version of PHP is recommended.
+You need the `ext-filter` extension to use `Csv` and the latest stable version of PHP is recommended.
 
 Please find below the PHP support for `Csv` version 9.
 
