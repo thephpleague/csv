@@ -186,6 +186,44 @@ EOF;
         self::assertSame($expected, $res);
     }
 
+    public function testSetOutputBOMTriggersException(): void
+    {
+        $this->expectException(InvalidArgument::class);
+
+        Reader::createFromString()->setOutputBOM('toto');
+    }
+
+    #[DataProvider('provdesValidOutputBomSequences')]
+    public function testSetOutputBOM(string $expected, Bom|string|null $bom): void
+    {
+        self::assertSame(
+            $expected,
+            Reader::createFromString()->setOutputBOM($bom)->getOutputBOM()
+        );
+    }
+
+    public static function provdesValidOutputBomSequences(): array
+    {
+        return [
+            'null' => [
+                'expected' => '',
+                'bom' => null,
+            ],
+            'empty string' => [
+                'expected' => '',
+                'bom' => '',
+            ],
+            'using a BOM string' => [
+                'expected' => Bom::Utf8->value,
+                'bom' => Bom::Utf8->value,
+            ],
+            'using a BOM instance' => [
+                'expected' => Bom::Utf8->value,
+                'bom' => Bom::Utf8,
+            ],
+        ];
+    }
+
     #[DataProvider('provideCsvFilterTestingData')]
     public function testStreamFilterMode(
         AbstractCsv $csv,

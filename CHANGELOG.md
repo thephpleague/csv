@@ -19,7 +19,7 @@ All Notable changes to `Csv` will be documented in this file
 - `Reader` and `ResultSet` docblocks
 - internal code uses `Bom` enum instead of `Info::fetchBOMSequence`
 - the `AbstractCsv` BOM related properties are moved to being `Bom` instances instead of nullable string.
-- `setOutpuBOM` will only accept valid BOM sequences all other values will be silently ignored;
+- `setOutpuBOM` will only accept valid BOM sequences all other values except the empty string will throw a `ValueError` exception;
 - The package no longer requires the `ext-mbstring` extension to work. But you should have it install in your system in order to use the `mbstring` related stream filters.
 
 ### Removed

@@ -55,6 +55,11 @@ class InvalidArgument extends Exception
         return new self($method.'() expects escape to be a single character or an empty string; `'.$escape.'` given.');
     }
 
+    public static function dueToInvalidBOMCharacter(string $method, Throwable $exception): self
+    {
+        return new self($method.'() expects a valid Byte Order Mark.', 0, $exception);
+    }
+
     public static function dueToInvalidColumnCount(int $columns_count, string $method): self
     {
         return new self($method.'() expects the column count to be greater or equal to -1 '.$columns_count.' given.');

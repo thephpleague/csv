@@ -17,6 +17,7 @@ use Generator;
 use RuntimeException;
 use SplFileObject;
 use Stringable;
+use Throwable;
 
 use function filter_var;
 use function get_class;
@@ -390,12 +391,23 @@ abstract class AbstractCsv implements ByteSequence
 
     /**
      * Sets the BOM sequence to prepend the CSV on output.
+     *
+     * @throws InvalidArgument if the given non-empty string is not a valid BOM sequence
      */
-    public function setOutputBOM(string $str): static
+    public function setOutputBOM(Bom|string|null $str): static
     {
-        $this->output_bom = Bom::tryFromSequence($str);
+        try {
+            $this->output_bom = match (true) {
+                $str instanceof Bom => $str,
+                null === $str,
+                '' === $str => null,
+                default => Bom::fromSequence($str),
+            };
 
-        return $this;
+            return $this;
+        } catch (Throwable $exception) {
+            throw InvalidArgument::dueToInvalidBOMCharacter(__METHOD__, $exception);
+        }
     }
 
     /**
