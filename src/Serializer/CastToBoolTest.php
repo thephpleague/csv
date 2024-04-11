@@ -108,14 +108,14 @@ final class CastToBoolTest extends TestCase
         ];
 
         yield 'with union type' => [
-            'reflectionProperty' => new ReflectionProperty(BoolClass::class, 'unionType'),
+            'propertyType' => new ReflectionProperty(BoolClass::class, 'unionType'),
             'default' =>  false,
             'input' => 'yes',
             'expected' => true,
         ];
 
         yield 'with nullable union type' => [
-            'reflectionProperty' => new ReflectionProperty(BoolClass::class, 'unionType'),
+            'propertyType' => new ReflectionProperty(BoolClass::class, 'unionType'),
             'default' => false,
             'input' => null,
             'expected' => false,

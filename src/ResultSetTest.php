@@ -256,16 +256,16 @@ final class ResultSetTest extends TabularDataReaderTestCase
     {
         return [
             'default values' => [
-                'key' => 0,
-                'value' => 1,
+                'index' => 0,
+                'item' => 1,
                 'expected' => [
                     ['john' => 'doe'],
                     ['jane' => 'doe'],
                 ],
             ],
             'changed key order' => [
-                'key' => 1,
-                'value' => 0,
+                'index' => 1,
+                'item' => 0,
                 'expected' => [
                     ['doe' => 'john'],
                     ['doe' => 'jane'],

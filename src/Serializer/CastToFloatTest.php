@@ -74,14 +74,14 @@ final class CastToFloatTest extends TestCase
         ];
 
         yield 'with union type' => [
-            'reflectionProperty' => new ReflectionProperty(FloatClass::class, 'unionType'),
+            'prototype' => new ReflectionProperty(FloatClass::class, 'unionType'),
             'input' => '23',
             'default' => 42.0,
             'expected' => 23.0,
         ];
 
         yield 'with nullable union type' => [
-            'reflectionProperty' => new ReflectionProperty(FloatClass::class, 'unionType'),
+            'prototype' => new ReflectionProperty(FloatClass::class, 'unionType'),
             'input' => null,
             'default' => 42.0,
             'expected' => 42.0,
