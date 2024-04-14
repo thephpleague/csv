@@ -52,7 +52,7 @@ class CharsetConverter extends php_user_filter
         self::register();
 
         $document->addStreamFilter(
-            self::getFiltername((Bom::tryFrom($document->getInputBOM()) ?? Bom::Utf8)->name(), $output_encoding),
+            self::getFiltername((Bom::tryFrom($document->getInputBOM()) ?? Bom::Utf8)->encoding(), $output_encoding),
             [self::BOM_SEQUENCE => self::SKIP_BOM_SEQUENCE]
         );
 

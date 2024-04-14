@@ -14,11 +14,12 @@ Depending on the software you are using to read your CSV you may need to adjust 
 On Windows, MS Excel expects an UTF-8 encoded CSV with its corresponding `BOM` character. To fulfill this requirement, you simply need to add the `UTF-8` `BOM` character if needed as explained below:
 
 ```php
+use League\Csv\Bom;
 use League\Csv\Reader;
 
 $reader = Reader::createFromPath('/path/to/my/file.csv', 'r');
 //let's set the output BOM
-$reader->setOutputBOM(Reader::BOM_UTF8);
+$reader->setOutputBOM(Bom::Utf8);
 //let's convert the incoming data from iso-88959-15 to utf-8
 $reader->addStreamFilter('convert.iconv.ISO-8859-15/UTF-8');
 //BOM detected and adjusted for the output
@@ -32,6 +33,7 @@ echo $reader->getContent();
 On a MacOS system, MS Excel requires a CSV encoded in `UTF-16 LE` using the `tab` character as delimiter. Here's an example on how to meet those requirements using the `League\Csv` package.
 
 ```php
+use League\Csv\Bom;
 use League\Csv\CharsetConverter;
 use League\Csv\Reader;
 use League\Csv\Writer;
@@ -43,7 +45,7 @@ $origin->setDelimiter(';');
 //let's use stream resource
 $writer = Writer::createFromStream(fopen('php://temp', 'r+'));
 //let's set the output BOM
-$writer->setOutputBOM(Reader::BOM_UTF16_LE);
+$writer->setOutputBOM(Bom::Utf16Le);
 //we set the tab as the delimiter character
 $writer->setDelimiter("\t");
 //let's convert the incoming data from iso-88959-15 to utf-16
@@ -68,10 +70,11 @@ and add the stream filter to you reader instance using the static method `Charse
 ```php
 <?php
 
+use League\Csv\Bom;
 use League\Csv\Reader;
 use League\Csv\CharsetConverter;
 
-$input = Reader::BOM_UTF16_BE."john,doe,john.doe@example.com\njane,doe,jane.doe@example.com\n";
+$input = Bom::Utf16Be->value."john,doe,john.doe@example.com\njane,doe,jane.doe@example.com\n";
 $document = Reader::createFromString($input);
 $document->includeInputBOM(); // de-activate the default skipping mechanism
 CharsetConverter::addBOMSkippingTo($document);

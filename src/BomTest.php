@@ -60,7 +60,7 @@ final class BomTest extends TestCase
     #[DataProvider('BomNamesProvider')]
     public function test_bom_detection_from_name(string $name, ?Bom $expected): void
     {
-        self::assertSame($expected, Bom::tryFromName($name));
+        self::assertSame($expected, Bom::tryFromEncoding($name));
     }
 
     public static function BomNamesProvider(): array
@@ -99,5 +99,28 @@ final class BomTest extends TestCase
                 'expected' => Bom::Utf32Be,
             ],
         ];
+    }
+
+    public function test_correct_encoding_is_detected(): void
+    {
+        self::assertTrue(Bom::Utf8->isUtf8());
+        self::assertFalse(Bom::Utf8->isUtf16());
+        self::assertFalse(Bom::Utf8->isUtf32());
+
+        self::assertFalse(Bom::Utf16Be->isUtf8());
+        self::assertTrue(Bom::Utf16Be->isUtf16());
+        self::assertFalse(Bom::Utf16Be->isUtf32());
+
+        self::assertFalse(Bom::Utf16Le->isUtf8());
+        self::assertTrue(Bom::Utf16Le->isUtf16());
+        self::assertFalse(Bom::Utf16Le->isUtf32());
+
+        self::assertFalse(Bom::Utf32Be->isUtf8());
+        self::assertFalse(Bom::Utf32Be->isUtf16());
+        self::assertTrue(Bom::Utf32Be->isUtf32());
+
+        self::assertFalse(Bom::Utf32Le->isUtf8());
+        self::assertFalse(Bom::Utf32Le->isUtf16());
+        self::assertTrue(Bom::Utf32Le->isUtf32());
     }
 }

@@ -106,16 +106,16 @@ foreach ($csv as $record) {
 It is not possible to detect the character encoding a CSV document (e.g. `UTF-8`, `UTF-16`, etc). However, it *is* possible to detect the input BOM and convert to UTF-8 where necessary.
 
 ```php
+use League\Csv\Bom;
 use League\Csv\Reader;
 use League\Csv\CharsetConverter;
 
 $csv = Reader::createFromPath('/path/to/your/csv/file.csv', 'r');
 $csv->setHeaderOffset(0);
 
-$input_bom = $csv->getInputBOM();
-
-if ($input_bom === Reader::BOM_UTF16_LE || $input_bom === Reader::BOM_UTF16_BE) {
-    CharsetConverter::addTo($csv, 'utf-16', 'utf-8');
+$inputBom = Bom::tryFrom($csv->getInputBOM());
+if ($inputBom instanceof Bom && !$inputBom->isUtf8()) {
+    CharsetConverter::addTo($csv, $inputBom->encoding(), Bom::Utf8->encoding());
 }
 
 foreach ($csv as $record) {

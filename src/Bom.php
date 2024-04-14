@@ -9,6 +9,8 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace League\Csv;
 
 use SplFileObject;
@@ -24,6 +26,12 @@ enum Bom: string
     case Utf16Le = "\xFF\xFE";
     case Utf8 = "\xEF\xBB\xBF";
 
+    public static function fromSequence(mixed $sequence): self
+    {
+        return self::tryFromSequence($sequence)
+            ?? throw new ValueError('No BOM sequence could be found on the given sequence.');
+    }
+
     public static function tryFromSequence(mixed $sequence): ?self
     {
         $str = match (true) {
@@ -31,7 +39,7 @@ enum Bom: string
             $sequence instanceof Stream => self::getContents($sequence, 4, 0),
             is_resource($sequence) => stream_get_contents($sequence, 4, 0),
             $sequence instanceof Stringable,
-            is_scalar($sequence) => substr((string) $sequence, 0, 4),
+            is_string($sequence) => substr((string) $sequence, 0, 4),
             default => $sequence,
         };
 
@@ -69,16 +77,16 @@ enum Bom: string
         }
     }
 
-    public static function fromSequence(mixed $sequence): self
+    public static function fromEncoding(string $name): self
     {
-        return self::tryFromSequence($sequence)
-            ?? throw new ValueError('No BOM sequence could be found on the given sequence.');
+        return self::tryFromEncoding($name)
+            ?? throw new ValueError('Unknown or unsupported BOM name `'.$name.'`.');
     }
 
     /**
      * @see https://unicode.org/faq/utf_bom.html#gen7
      */
-    public static function tryFromName(string $name): ?self
+    public static function tryFromEncoding(string $name): ?self
     {
         return match (strtoupper(str_replace(['_', '-'], '', $name))) {
             'UTF8' => self::Utf8,
@@ -92,18 +100,12 @@ enum Bom: string
         };
     }
 
-    public static function fromName(string $name): self
-    {
-        return self::tryFromName($name)
-            ?? throw new ValueError('Unknown or unsupported BOM name `'.$name.'`.');
-    }
-
     public function length(): int
     {
         return strlen($this->value);
     }
 
-    public function name(): string
+    public function encoding(): string
     {
         return match ($this) {
             self::Utf16Le => 'UTF-16LE',
@@ -111,6 +113,32 @@ enum Bom: string
             self::Utf32Le => 'UTF-32LE',
             self::Utf32Be => 'UTF-32BE',
             self::Utf8 => 'UTF-8',
+        };
+    }
+
+    public function isUtf8(): bool
+    {
+        return match ($this) {
+            self::Utf8 => true,
+            default => false,
+        };
+    }
+
+    public function isUtf16(): bool
+    {
+        return match ($this) {
+            self::Utf16Le,
+            self::Utf16Be => true,
+            default => false,
+        };
+    }
+
+    public function isUtf32(): bool
+    {
+        return match ($this) {
+            self::Utf32Le,
+            self::Utf32Be => true,
+            default => false,
         };
     }
 }
