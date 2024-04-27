@@ -20,6 +20,6 @@ final class DenormalizationFailed extends RuntimeException implements Serializat
 {
     public static function dueToUninitializedProperty(ReflectionProperty $reflectionProperty): self
     {
-        return new self('The property '.$reflectionProperty->getDeclaringClass()->getName().'::'.$reflectionProperty->getName().' is not initialized.');
+        return new self('The property '.$reflectionProperty->getDeclaringClass()->getName().'::'.$reflectionProperty->getName().' is not initialized; its value is missing from the source data.');
     }
 }

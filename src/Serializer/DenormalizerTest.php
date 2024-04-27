@@ -329,7 +329,7 @@ final class DenormalizerTest extends TestCase
         };
 
         $this->expectException(MappingFailed::class);
-        $this->expectExceptionMessage('The property type for `'.$foobar::class.'::observedOn` is missing or is not supported.');
+        $this->expectExceptionMessage('The property type definition for `'.$foobar::class.'::observedOn` is missing; register it using the `'.Denormalizer::class.'` class.');
 
         new Denormalizer($foobar::class, ['temperature', 'place', 'observedOn']);
     }
@@ -377,7 +377,7 @@ final class DenormalizerTest extends TestCase
         };
 
         $this->expectException(MappingFailed::class);
-        $this->expectExceptionMessage('The property type for `'.$foobar::class.'::annee` is missing or is not supported.');
+        $this->expectExceptionMessage('The property type definition for `'.$foobar::class.'::annee` is missing; register it using the `'.Denormalizer::class.'` class.');
 
         Denormalizer::assign(
             $foobar::class,
@@ -392,7 +392,7 @@ final class DenormalizerTest extends TestCase
         };
 
         $this->expectException(MappingFailed::class);
-        $this->expectExceptionMessage('The property type for `'.$foobar::class.'::traversable` is missing or is not supported.');
+        $this->expectExceptionMessage('The property type definition for `'.$foobar::class.'::traversable` is missing; register it using the `'.Denormalizer::class.'` class.');
 
         Denormalizer::assign($foobar::class, ['traversable' => '1']);
     }
@@ -653,6 +653,17 @@ final class DenormalizerTest extends TestCase
 
         self::assertTrue(Denormalizer::supportsAlias('@file'));
     }
+
+    #[Test]
+    public function it_will_fails_if_the_property_is_missing_from_source(): void
+    {
+        $data = ['foo' => 'bar'];
+
+        $this->expectException(DenormalizationFailed::class);
+        $this->expectExceptionMessage('The property '.MissingProperty::class.'::bar is not initialized; its value is missing from the source data.');
+
+        Denormalizer::assign(MissingProperty::class, $data);
+    }
 }
 
 enum Place: string
@@ -700,5 +711,14 @@ class RequiresArgumentAfterMapping
     private function addOne(int $add): void
     {
         $this->addition += $add;
+    }
+}
+
+class MissingProperty
+{
+    public function __construct(
+        public readonly string $foo,
+        public readonly string $bar,
+    ) {
     }
 }

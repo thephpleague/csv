@@ -22,11 +22,11 @@ final class MappingFailed extends LogicException implements SerializationFailed
 {
     public static function dueToUnsupportedType(ReflectionProperty|ReflectionParameter $reflectionProperty): self
     {
-        $suffix = 'is missing or is not supported.';
+        $suffix = 'is missing; register it using the `'.Denormalizer::class.'` class.';
 
         return new self(match (true) {
-            $reflectionProperty instanceof ReflectionParameter => 'The type for the method `'.$reflectionProperty->getDeclaringClass()?->getName().'::'.$reflectionProperty->getDeclaringFunction()->getName().'` first argument `'.$reflectionProperty->getName().'` '.$suffix,
-            $reflectionProperty instanceof ReflectionProperty => 'The property type for `'.$reflectionProperty->getDeclaringClass()->getName().'::'.$reflectionProperty->getName().'` '.$suffix,
+            $reflectionProperty instanceof ReflectionParameter => 'The type definition for the method `'.$reflectionProperty->getDeclaringClass()?->getName().'::'.$reflectionProperty->getDeclaringFunction()->getName().'` first argument `'.$reflectionProperty->getName().'` '.$suffix,
+            $reflectionProperty instanceof ReflectionProperty => 'The property type definition for `'.$reflectionProperty->getDeclaringClass()->getName().'::'.$reflectionProperty->getName().'` '.$suffix,
         });
     }
 
