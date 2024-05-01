@@ -380,14 +380,14 @@ class Reader extends AbstractCsv implements TabularDataReader, JsonSerializable
     }
 
     /**
-     * @param Closure(array<mixed>, array-key): bool $closure
+     * @param Closure(array, array-key): bool $predicate
      *
      * @throws Exception
      * @throws SyntaxError
      */
-    public function filter(Closure $closure): TabularDataReader
+    public function filter(Closure $predicate): TabularDataReader
     {
-        return Statement::create()->where($closure)->process($this);
+        return Statement::create()->where($predicate)->process($this);
     }
 
     /**
@@ -403,7 +403,7 @@ class Reader extends AbstractCsv implements TabularDataReader, JsonSerializable
     }
 
     /**
-     * @param Closure(array<string|null>, array<string|null>): int $orderBy
+     * @param Closure(array, array): int $orderBy
      *
      * @throws Exception
      * @throws SyntaxError

@@ -8,11 +8,21 @@ All Notable changes to `Csv` will be documented in this file
 
 - `Bom` enum
 - `Stream::ftell`
+- `Statement::orderByAsc`
+- `Statement::orderByDesc`
+- `Statement::andWhere`
+- `Statement::orWhere`
+- `Statement::whereNot`
+- `Statement::andWhereColumn`
+- `Statement::orWhereColumn`
+- `Statement::whereColumnNot`
+- `Constraint` feature to allow easier filtering and ordering of tabular data
 
 ### Deprecated
 
 - `ByteSequence` Interface use the `Bom` enum instead
-- `Info::fetchBOMSequence` use `Bom::tryFromString` instead
+- `Info::fetchBOMSequence` use `Bom::tryFromSequence` instead
+- `League\Csv\Doctrine` use the new `League\Csv\Constraint` feature instead
 
 ### Fixed
 

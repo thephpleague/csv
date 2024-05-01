@@ -85,6 +85,16 @@ class InvalidArgument extends Exception
         return new self($method.'() expects the limit to be greater or equal to -1, '.$limit.' given.');
     }
 
+    public static function dueToInvalidOrder(string $order, string $method): self
+    {
+        return new self($method.'() expects `ASC` or `DESC` in a case-insensitive way, '.$order.' given.');
+    }
+
+    public static function dueToInvalidOperator(string $operator, string $method): self
+    {
+        return new self($method.'() expects valid comparison operator in a case-insensitive way, '.$operator.' given.');
+    }
+
     public static function dueToInvalidSeekingPosition(int $position, string $method): self
     {
         return new self($method.'() can\'t seek stream to negative line '.$position);

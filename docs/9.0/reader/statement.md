@@ -41,16 +41,22 @@ $records = Statement::create()->process($reader);
 The `process` method returns a new `TabularDataReader` on which each constraint have been applied.
 If no constraint has been added the return object will contain the same data as its input.
 
-<p class="message-warning"><strong>Warning:</strong> since version <code>9.12.0</code> the optional
-<code>$header</code> argument used by the <code>process</code> method is deprecated.</p>
-
 ### Where clauses
 
 To filter the records from your input you may use the `where` method. The method can be
 called multiple time and each time it will add another constraint filter. This option
-follows the *First In First Out* rule. The filter excepts a callable similar to the
-one used by `array_filter`. For example the following filter will remove all the
-records whose `3rd` field does not contain a valid `email`:
+follows the *First In First Out* rule. The filter excepts a callable with the following
+signature:
+
+```php
+function(array $record, string|int $key): bool;
+```
+
+<p class="message-notice">The <code>$key</code> argument is optional and is only used if you want to filter the row over its offset.</p>
+
+If you omit the `$key` argument, the callable is similar to the one used by `array_filter`.
+For example the following filter will remove all the records whose `3rd` field does not
+contain a valid `email`:
 
 ```php
 use League\Csv\Reader;
@@ -62,6 +68,128 @@ $records = Statement::create()
     ->process($reader);
 // $records is a League\Csv\ResultSet instance
 ```
+
+<p class="message-info">New since version <code>9.16.0</code></p>
+
+To ease the `Statement::where` usage the following methods are introduced: `andWhere`, `orWhere` and `whereNot`;
+
+These methods are used to filter the record based on their column value. Instead of using a callable,
+the methods require three (3) arguments. The first argument is the column to filter on. It can be
+as a string (the column name, if it exists) or an integer (the column offset, negative indexes
+are supported). The second argument is a valid comparison operator in a case-insensitive
+way. The third argument is the value you want to compare the column value with.
+
+As an example the `Statement` instance below will select the records whose 2nd cell value
+is the integer `10` or where the `birthdate` column contains a date string representation
+that match the submitted regular expression.
+
+```php
+use League\Csv\Reader;
+use League\Csv\Statement;
+
+$reader = Reader::createFromPath('/path/to/file.csv');
+$records = Statement::create()
+    ->andWhere(1, '=', 10) //filtering is done of the second column
+    ->orWhere('birthdate', 'regexp', '/\d{1,2}\/\d{1,2}\/\d{2,4}/') //filtering is done on the `birthdate` column
+    ->whereNot('firstname', 'starts_with', 'P') //filtering is done case-sensitively on the first character of the column value
+    ->process($reader);
+// $records is a League\Csv\ResultSet instance
+```
+
+The methods support the basic comparison operators using their strict version in PHP:
+
+- equals: `=` or `EQ`, `IS`, or `EQUAL`;
+- not equals: `!=`, `<>`, `NEQ`, `IS NOT` or `NOT EQUAL`;
+- greater than: `>`, `GT` or `GREATER THAN`;
+- greater than or equal: `>=`, `GTE` or `GREATER THAN OR EQUAL`;
+- lesser than: `>`, `LT` or `LESSER THAN`;
+- lesser than or equal: `>=`, `LTE` or `LESSER THAN OR EQUAL`;
+
+The following parameter can only be used if the submitted value is an `array`
+as PHP's `in_array` function is used for comparison in strict mode.
+
+- in: `IN`;
+- not in: `NIN`;
+
+```php
+use League\Csv\Statement;
+
+$constraints = Statement::create()->orWhere('direction', 'not in', ['east', 'north']);
+```
+
+The following parameter can only be used if the submitted value is a tuple
+represented as a PHP's `array` as a list where the first argument represents
+the range minimal value and the second argument, the range maximal value.
+
+- between: `BETWEEN`;
+- not between: `NBETWEEN`, `NOT_BETWEEN` or `NOT BETWEEN`;
+
+```php
+use League\Csv\Statement;
+
+$constraints = Statement::create()->andWhere('points', 'between', [3, 5]);
+```
+
+The following parameters can only be used if the submitted value **and** the column value are `string`.
+
+- contains: `CONTAINS`;
+- does not contain: `NCONTAIN`, `NOT_CONTAIN`, `NOT CONTAIN`, `DOES NOT CONTAIN`;
+- starts with: `STARTS_WITH`;
+- end with: `ENDS_WITH`;
+- regexp: `REGEXP`;
+- not regexp: `NREGEXP`, `NOT_REGEXP`, `NOT REGEXP`;
+
+Internally they use one of the following PHP's function `str_contains`, `str_starts_with`,
+`str_ends_wtih` or `preg_match`.
+
+- All operators can be written in a case-insensitive way.
+- If the operator is unknown or invalid, a `StatementError` exception will be triggered.
+- If the specified column could not be found during process an `StatementError` exception is triggered;
+- If the `value` is incorrect according to the operator constraints an `InvalidArgument` exception will be triggered.
+
+To enable comparing columns with each other the following methods are also added: `andWhereColumn`, `orWhereColumn` and `whereColumnNot`
+
+The only distinction with their value counterparts is in the third argument.Instead of specifying a value, it specifies
+another column (via its string name or integer name) to compare columns with each other.
+
+```php
+use League\Csv\Reader;
+use League\Csv\Statement;
+
+$reader = Reader::createFromPath('/path/to/file.csv');
+$records = Statement::create()
+    ->andWhereColumn('created_at', '<', 'update_at') //filtering is done on both column value
+    ->whereNotColumn('fullname', 'starts_with', 4)   //filtering is done on both column but the second column is specified via its offset
+    ->process($reader);
+// $records is a League\Csv\ResultSet instance
+```
+
+For more complex queries you can use the classes and Enums defined under the `League\Csv\Constraint` namespace.
+They are used internally by the `Statement` class to implement all the new `where` methods and can be
+used independently to help create your own where expression as shown in the following example:
+
+```php
+use League\Csv\Constraint;
+use League\Csv\Reader;
+use League\Csv\Statement;
+
+$csv = Reader::createFromPath('/path/to/prenoms.csv')
+    ->setHeaderOffset(0);
+$records = Statement::create()
+    ->where(
+        Constraint\Critera::exclusiveOr(
+            Constraint\ColumnValue::filterOn('year', '=', '2024'), //filter using a column value
+            Constraint\TwoColumns::filterOn('created_at', '<', 'updated_at'), //compare two field together
+            fn (array $record, int|string|null $key = null): bool => (int) $key % 2 === 0, //using directly a Closure
+        )
+    )
+    ->process($csv);
+//This will filter the CSV document using the XOR logical operator
+//All constraints can not be true or false together
+```
+
+As shown in the example the `Criteria` class also combines `Closure` conditions, which means that
+you can use a callable whose signature matches the one use for the `where` method.
 
 ### Ordering
 
@@ -82,7 +210,47 @@ $records = Statement::create()
 ```
 
 <p class="message-warning"><strong>Warning:</strong> To sort the data <code>iterator_to_array</code> is used,
-which could lead to a performance penalty if you have a heavy CSV file to sort</p>
+which could lead to a performance penalty if you have a heavy tabular data reader to sort</p>
+
+<p class="message-info">New since version <code>9.16.0</code></p>
+
+The `orderByAsc` and `orderByDesc` methods are simpler version of the `orderBy` method.
+Instead of requiring a callable, it requires 2 arguments, the tabular data column to
+sort the document with. It can be as a string (the column name, if it exists) or an
+integer (the column offset, negative indexes are supported). And an optional
+callback to improve sorting results if needed. Sorting is done using the
+`<=>` spaceship operator.
+
+```php
+use League\Csv\Reader;
+use League\Csv\Statement;
+
+$reader = Reader::createFromPath('/path/to/file.csv');
+$records = Statement::create()
+    ->orderByDesc(1) //descending order according to the data of the 2nd column
+    ->orderByAsc('foo', strlen(...)) //ascending order according to the length of the value in the column `foo`
+    ->process($reader);
+// $records is a League\Csv\ResultSet instance
+```
+
+if you need to create more complex ordering you may align calls to `orderByAsc` and `orderByDesc` **or**
+use the `orderBy` method with the classes defined under the `League\Csv\Constraint` namespace as shown below:
+
+```php
+
+use League\Csv\Constraint;
+use League\Csv\Reader;
+use League\Csv\Statement;
+
+$sort = new Constraint\MultiSort(
+    Constraint\SingleSort::new(1, 'desc'),
+    Constraint\SingleSort::new('foo', 'asc', strlen(...)),
+);
+
+$reader = Reader::createFromPath('/path/to/file.csv');
+$records = Statement::create()->orderBy($sort)->process($reader);
+// Will return the same content as in the previous example.
+```
 
 ### Limit and Offset
 
@@ -176,6 +344,9 @@ You can select part of your data according to:
 - its row index using an expression that starts with the `row` keyword;
 - its column index using an expression that starts with the `col` keyword;
 - its cell coordinates using an expression that starts with the `cell` keyword;
+
+<p class="message-warning">While this package uses 0-indexed as PHP, the RFC7111 uses 1-indexed
+to designate columns and rows which might seems inconsistent with the rest of the package.</p>
 
 Here are some selection example:
 

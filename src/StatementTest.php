@@ -127,6 +127,42 @@ final class StatementTest extends TestCase
         self::assertEquals($result3, $result2);
     }
 
+    public function testAddWhere(): void
+    {
+        $stmt1 = Statement::create()->andWhere(0, '=', 'jane');
+        $result1 = $stmt1->process($this->csv);
+
+        self::assertCount(1, $result1);
+        self::assertEquals('jane', $result1->first()[0]);
+
+        $stmt2 = Statement::create()->andWhere(0, 'starts_with', 'j');
+        $result2 = $stmt2->process($this->csv);
+
+        self::assertCount(2, $result2);
+        self::assertEquals('jane', $result2->nth(1)[0]);
+
+        $stmt3 = Statement::create()->andWhere(2, 'starts_with', 'blablabla');
+        $result3 = $stmt3->process($this->csv);
+
+        self::assertCount(0, $result3);
+    }
+
+    public function testOrWhere(): void
+    {
+        $stmt1 = Statement::create()
+            ->orWhere(0, 'starts_with', 'ja')
+            ->orWhere(0, 'ends_with', 'hn');
+        $result1 = $stmt1->process($this->csv);
+
+        self::assertCount(2, $result1);
+        self::assertEquals('john', $result1->first()[0]);
+
+        $stmt3 = Statement::create()->orWhere(2, 'starts_with', 'blablabla');
+        $result3 = $stmt3->process($this->csv);
+
+        self::assertCount(0, $result3);
+    }
+
     public function testOrderBy(): void
     {
         $calculated = $this->stmt
@@ -134,6 +170,28 @@ final class StatementTest extends TestCase
             ->process($this->csv);
 
         self::assertSame(array_reverse($this->expected), array_values([...$calculated]));
+    }
+
+    public function testOrderByColumn(): void
+    {
+        $calculated = $this->stmt
+            ->orderByAsc(0)
+            ->process($this->csv);
+
+        self::assertSame(array_reverse($this->expected), array_values([...$calculated]));
+
+        $calculated = $this->stmt
+            ->orderByDesc(0)
+            ->process($this->csv);
+
+        self::assertSame($this->expected, array_values([...$calculated]));
+    }
+
+    public function testOrderByColumnThrowsExceptionIfTheOffsetDoesNotExists(): void
+    {
+        $this->expectException(StatementError::class);
+
+        $this->stmt->orderByDesc(-42)->process($this->csv);
     }
 
     public function testOrderByWithEquity(): void

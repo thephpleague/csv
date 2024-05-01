@@ -15,9 +15,9 @@ namespace League\Csv;
 
 use ArrayIterator;
 use CallbackFilterIterator;
+use Closure;
 use Iterator;
 use LimitIterator;
-
 use OutOfBoundsException;
 
 use function array_key_exists;
@@ -31,9 +31,9 @@ use function is_string;
  */
 class Statement
 {
-    /** @var array<callable> Callables to filter the iterator. */
+    /** @var array<callable(array, array-key): bool> Callables to filter the iterator. */
     protected array $where = [];
-    /** @var array<callable> Callables to sort the iterator. */
+    /** @var array<callable(array, array): int> Callables to sort the iterator. */
     protected array $order_by = [];
     /** iterator Offset. */
     protected int $offset = 0;
@@ -72,6 +72,8 @@ class Statement
 
     /**
      * Sets the Iterator filter method.
+     *
+     * @param callable(array, array-key): bool $where
      */
     public function where(callable $where): self
     {
@@ -81,8 +83,77 @@ class Statement
         return $clone;
     }
 
+    public function andWhere(string|int $column, Constraint\Comparison|string $operator, mixed $value): self
+    {
+        return $this->addCondition('and', $column, $operator, $value);
+    }
+
+    public function orWhere(string|int $column, Constraint\Comparison|string $operator, mixed $value): self
+    {
+        return $this->addCondition('or', $column, $operator, $value);
+    }
+
+    public function whereNot(string|int $column, Constraint\Comparison|string $operator, mixed $value): self
+    {
+        return $this->addCondition('not', $column, $operator, $value);
+    }
+
+    public function andWhereColumn(string|int $first, Constraint\Comparison|string $operator, string|int $second): self
+    {
+        return $this->addCondition('and', $first, $operator, $second, true);
+    }
+
+    public function orWhereColumn(string|int $first, Constraint\Comparison|string $operator, string|int $second): self
+    {
+        return $this->addCondition('or', $first, $operator, $second, true);
+    }
+
+    public function whereNotColumn(string|int $first, Constraint\Comparison|string $operator, string|int $second): self
+    {
+        return $this->addCondition('not', $first, $operator, $second, true);
+    }
+
+    /**
+     *
+     * @param 'and'|'or'|'not' $joiner
+     * @throws InvalidArgument
+     * @throws StatementError
+     */
+    final protected function addCondition(
+        string $joiner,
+        string|int $first,
+        Constraint\Comparison|string $operator,
+        mixed $second,
+        bool $secondIsColumn = false
+    ): self {
+        $predicate = match (true) {
+            !$secondIsColumn => Constraint\ColumnValue::filterOn($first, $operator, $second),
+            is_string($second),
+            is_int($second),
+            is_array($second) => Constraint\TwoColumns::filterOn($first, $operator, $second),
+            default => throw new StatementError('The second column must be a string, an integer or a list of strings or integer.'),
+        };
+
+        if ([] === $this->where) {
+            return $this->where($predicate);
+        }
+
+        $predicates = Constraint\Criteria::all(...$this->where);
+
+        $clone = clone $this;
+        $clone->where = [match ($joiner) {
+            'and' => $predicates->and($predicate),
+            'not' => $predicates->not($predicate),
+            'or' => $predicates->or($predicate),
+        }];
+
+        return $clone;
+    }
+
     /**
      * Sets an Iterator sorting callable function.
+     *
+     * @param callable(array, array): int $order_by
      */
     public function orderBy(callable $order_by): self
     {
@@ -90,6 +161,26 @@ class Statement
         $clone->order_by[] = $order_by;
 
         return $clone;
+    }
+
+    /**
+     * Ascending ordering of the tabular data according to a column value.
+     *
+     * The column value can be modified using the callback before ordering.
+     */
+    public function orderByAsc(string|int $column, ?Closure $callback = null): self
+    {
+        return $this->orderBy(Constraint\SingleSort::new($column, 'asc', $callback));
+    }
+
+    /**
+     * Descending ordering of the tabular data according to a column value.
+     *
+     * The column value can be modified using the callback before ordering.
+     */
+    public function orderByDesc(string|int $column, ?Closure $callback = null): self
+    {
+        return $this->orderBy(Constraint\SingleSort::new($column, 'desc', $callback));
     }
 
     /**
@@ -161,17 +252,11 @@ class Statement
      */
     protected function applyFilter(Iterator $iterator): Iterator
     {
-        $filter = function (array $record, string|int $key): bool {
-            foreach ($this->where as $where) {
-                if (true !== $where($record, $key)) {
-                    return false;
-                }
-            }
+        if ([] === $this->where) {
+            return $iterator;
+        }
 
-            return true;
-        };
-
-        return new CallbackFilterIterator($iterator, $filter);
+        return new CallbackFilterIterator($iterator, Constraint\Criteria::all(...$this->where));
     }
 
     /**
@@ -182,17 +267,6 @@ class Statement
         if ([] === $this->order_by) {
             return $iterator;
         }
-
-        $compare = function (array $record_a, array $record_b): int {
-            foreach ($this->order_by as $callable) {
-                if (0 !== ($cmp = $callable($record_a, $record_b))) {
-                    return $cmp;
-                }
-            }
-
-            return $cmp ?? 0;
-        };
-
 
         $class = new class () extends ArrayIterator {
             public function seek(int $offset): void
@@ -207,7 +281,7 @@ class Statement
 
         /** @var ArrayIterator<array-key, array<string|null>> $it */
         $it = new $class([...$iterator]);
-        $it->uasort($compare);
+        $it->uasort(Constraint\MultiSort::new(...$this->order_by));
 
         return $it;
     }

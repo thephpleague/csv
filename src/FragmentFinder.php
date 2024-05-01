@@ -107,7 +107,11 @@ class FragmentFinder
                         (null === $selection['end'] || $offset <= $selection['end'])
             );
 
-            return [Statement::create()->where($rowFilter)->process($tabularDataReader)];
+            return [
+                Statement::create()
+                    ->where($rowFilter)
+                    ->process($tabularDataReader),
+            ];
         }
 
         if (self::TYPE_COLUMN === $type) {

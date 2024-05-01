@@ -44,5 +44,6 @@
     },
     "config": {
         "sort-packages": true
-    }
+    },
+    "abandoned": "league/csv"
 }

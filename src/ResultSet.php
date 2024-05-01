@@ -199,9 +199,9 @@ class ResultSet implements TabularDataReader, JsonSerializable
         return Statement::create()->process($this, $headers);
     }
 
-    public function filter(Closure $closure): TabularDataReader
+    public function filter(Closure $predicate): TabularDataReader
     {
-        return Statement::create()->where($closure)->process($this);
+        return Statement::create()->where($predicate)->process($this);
     }
 
     public function slice(int $offset, ?int $length = null): TabularDataReader
