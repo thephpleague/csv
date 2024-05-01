@@ -157,24 +157,7 @@ final class Denormalizer
 
     public function denormalizeAll(iterable $records): Iterator
     {
-        $check = true;
-        $assign = function (array $record) use (&$check) {
-            $object = $this->class->newInstanceWithoutConstructor();
-            $this->hydrate($object, $record);
-
-            if ($check) {
-                $check = false;
-                $this->assertObjectIsInValidState($object);
-            }
-
-            foreach ($this->postMapCalls as $accessor) {
-                $accessor->invoke($object);
-            }
-
-            return $object;
-        };
-
-        return MapIterator::fromIterable($records, $assign);
+        return MapIterator::fromIterable($records, $this->denormalize(...));
     }
 
     /**
