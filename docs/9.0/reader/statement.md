@@ -218,8 +218,9 @@ The `orderByAsc` and `orderByDesc` methods are simpler version of the `orderBy` 
 Instead of requiring a callable, it requires 2 arguments, the tabular data column to
 sort the document with. It can be as a string (the column name, if it exists) or an
 integer (the column offset, negative indexes are supported). And an optional
-callback to improve sorting results if needed. Sorting is done using the
-`<=>` spaceship operator.
+callback to improve sorting results if needed. If no callback sorting algorithn is
+given, sorting is done using the `<=>` spaceship operator. A sorting callback is
+a `Closure` that can be used with PHP's `usort` or `uasort` method.
 
 ```php
 use League\Csv\Reader;
@@ -228,7 +229,7 @@ use League\Csv\Statement;
 $reader = Reader::createFromPath('/path/to/file.csv');
 $records = Statement::create()
     ->orderByDesc(1) //descending order according to the data of the 2nd column
-    ->orderByAsc('foo', strlen(...)) //ascending order according to the length of the value in the column `foo`
+    ->orderByAsc('foo', strcmp(...)) //ascending order according a callback compare function
     ->process($reader);
 // $records is a League\Csv\ResultSet instance
 ```
@@ -242,9 +243,9 @@ use League\Csv\Constraint;
 use League\Csv\Reader;
 use League\Csv\Statement;
 
-$sort = new Constraint\MultiSort(
+$sort = Constraint\MultiSort::new(
     Constraint\SingleSort::new(1, 'desc'),
-    Constraint\SingleSort::new('foo', 'asc', strlen(...)),
+    Constraint\SingleSort::new('foo', 'asc'),
 );
 
 $reader = Reader::createFromPath('/path/to/file.csv');

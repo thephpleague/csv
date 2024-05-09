@@ -24,6 +24,9 @@ use function is_int;
 
 final class SingleSort implements Sort
 {
+    /**
+     * @param Closure(mixed, mixed): int $callback
+     */
     private function __construct(
         public readonly Order $direction,
         public readonly string|int $column,
@@ -40,7 +43,22 @@ final class SingleSort implements Sort
             $direction = Order::fromOperator($direction);
         }
 
-        return new self($direction, $column, $callback ?? static fn (mixed $value): mixed => $value);
+        return new self(
+            $direction,
+            $column,
+            $callback ?? static fn (mixed $first, mixed $second): int => $first <=> $second
+        );
+    }
+
+    public function __invoke(array $row1, array $row2): int
+    {
+        $first = self::fieldValue($row1, $this->column);
+        $second = self::fieldValue($row2, $this->column);
+
+        return match ($this->direction) {
+            Order::Ascending => ($this->callback)($first, $second),
+            Order::Descending => ($this->callback)($second, $first),
+        };
     }
 
     private static function fieldValue(array $array, string|int $key): mixed
@@ -57,18 +75,5 @@ final class SingleSort implements Sort
         }
 
         return array_key_exists($offset, $array) ? $array[$offset] : throw StatementError::dueToUnknownColumn($key);
-    }
-
-    public function __invoke(array $row1, array $row2): int
-    {
-        return match ($this->direction) {
-            Order::Ascending => ($this->callback)(self::fieldValue($row1, $this->column)) <=> ($this->callback)(self::fieldValue($row2, $this->column)),
-            Order::Descending => ($this->callback)(self::fieldValue($row2, $this->column)) <=> ($this->callback)(self::fieldValue($row1, $this->column)),
-        };
-    }
-
-    public function constraint(): Closure
-    {
-        return $this(...);
     }
 }
