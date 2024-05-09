@@ -164,7 +164,11 @@ class Statement
         };
 
         if ([] === $this->where) {
-            return $this->where($predicate);
+            return $this->where(match ($joiner) {
+                'and' => $predicate,
+                'not' => Constraint\Criteria::none($predicate),
+                'or' => Constraint\Criteria::any($predicate),
+            });
         }
 
         $predicates = Constraint\Criteria::all(...$this->where);
