@@ -29,6 +29,9 @@ use function str_contains;
 use function str_ends_with;
 use function str_starts_with;
 
+/**
+ * Enable filtering a record based on the value of a one of its cell.
+ */
 final class ColumnValue implements Predicate
 {
     /**

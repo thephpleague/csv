@@ -31,7 +31,7 @@ final class Criteria implements PredicateCombinator
      *
      * @param Predicate|Closure(array, array-key): bool|callable(array, array-key): bool $predicate
      */
-    public static function new(Predicate|Closure|callable $predicate): self
+    public static function one(Predicate|Closure|callable $predicate): self
     {
         return new self(self::callableToClosure($predicate));
     }
@@ -122,7 +122,7 @@ final class Criteria implements PredicateCombinator
                 }
             }
 
-            return 0 !== $true % 2;
+            return 0 !== ($true % 2);
         });
     }
 
@@ -136,10 +136,6 @@ final class Criteria implements PredicateCombinator
      */
     public function and(Predicate|Closure|callable ...$predicates): self
     {
-        if ([] === $predicates) {
-            return $this;
-        }
-
         return self::all($this->predicate, ...$predicates);
     }
 
@@ -148,10 +144,6 @@ final class Criteria implements PredicateCombinator
      */
     public function or(Predicate|Closure|callable ...$predicates): self
     {
-        if ([] === $predicates) {
-            return $this;
-        }
-
         return self::any($this->predicate, ...$predicates);
     }
 
@@ -160,10 +152,6 @@ final class Criteria implements PredicateCombinator
      */
     public function not(Predicate|Closure|callable ...$predicates): self
     {
-        if ([] === $predicates) {
-            return $this;
-        }
-
         return self::none($this->predicate, ...$predicates);
     }
 
@@ -172,10 +160,6 @@ final class Criteria implements PredicateCombinator
      */
     public function xor(Predicate|Closure|callable ...$predicates): self
     {
-        if ([] === $predicates) {
-            return $this;
-        }
-
         return self::exclusiveOr($this->predicate, ...$predicates);
     }
 }

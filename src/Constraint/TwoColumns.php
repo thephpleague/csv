@@ -26,6 +26,9 @@ use function is_array;
 use function is_int;
 use function is_string;
 
+/**
+ * Enable filtering a record by comparing the values of two of its column.
+ */
 final class TwoColumns implements Predicate
 {
     /**
