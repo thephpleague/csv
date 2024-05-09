@@ -28,6 +28,9 @@ use function is_string;
 
 /**
  * Enable filtering a record by comparing the values of two of its column.
+ *
+ * When used with PHP's array_filter with the ARRAY_FILTER_USE_BOTH flag
+ * the record offset WILL NOT BE taken into account
  */
 final class TwoColumns implements Predicate
 {

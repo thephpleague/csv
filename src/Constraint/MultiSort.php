@@ -17,6 +17,11 @@ use Closure;
 
 use function array_map;
 
+/**
+ * Enable sorting a record based on multiple column.
+ *
+ * The class can be used with PHP's usort and uasort functions.
+ */
 final class MultiSort implements SortCombinator
 {
     /** @var array<Sort|Closure(array, array): int> */

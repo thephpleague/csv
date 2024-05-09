@@ -22,6 +22,11 @@ use function array_values;
 use function count;
 use function is_int;
 
+/**
+ * Enable sorting a record based on the value of a one of its cell.
+ *
+ * The class can be used with PHP's usort and uasort functions.
+ */
 final class SingleSort implements Sort
 {
     /**
@@ -34,6 +39,9 @@ final class SingleSort implements Sort
     ) {
     }
 
+    /**
+     * @param ?Closure(mixed, mixed): int $callback
+     */
     public static function new(
         string|int $column,
         Order|string $direction,

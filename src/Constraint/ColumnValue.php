@@ -31,6 +31,9 @@ use function str_starts_with;
 
 /**
  * Enable filtering a record based on the value of a one of its cell.
+ *
+ * When used with PHP's array_filter with the ARRAY_FILTER_USE_BOTH flag
+ * the record offset WILL NOT BE taken into account
  */
 final class ColumnValue implements Predicate
 {

@@ -13,6 +13,16 @@ declare(strict_types=1);
 
 namespace League\Csv\Constraint;
 
+/**
+ * Enable sorting a record based on its value.
+ *
+ * The class can be used directly with PHP's
+ * <ol>
+ * <li>usort and uasort.</li>
+ * <li>ArrayIterator::uasort.</li>
+ * <li>ArrayObject::uasort.</li>
+ * </ol>
+ */
 interface Sort
 {
     public function __invoke(array $row1, array $row2): int;

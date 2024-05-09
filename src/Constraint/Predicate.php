@@ -13,6 +13,15 @@ declare(strict_types=1);
 
 namespace League\Csv\Constraint;
 
+/**
+ * Enable filtering a record based on its value and/or its offset.
+ *
+ * The class can be used directly with PHP's
+ * <ol>
+ * <li>array_filter with the ARRAY_FILTER_USE_BOTH flag.</li>
+ * <li>CallbackFilterIterator class.</li>
+ * </ol>
+ */
 interface Predicate
 {
     public function __invoke(array $record, string|int $key): bool;
