@@ -16,6 +16,19 @@ namespace League\Csv\Constraint;
 use League\Csv\InvalidArgument;
 use League\Csv\StatementError;
 
+use function array_is_list;
+use function array_key_exists;
+use function array_values;
+use function count;
+use function in_array;
+use function is_array;
+use function is_int;
+use function is_string;
+use function preg_match;
+use function str_contains;
+use function str_ends_with;
+use function str_starts_with;
+
 final class ColumnValue implements Predicate
 {
     /**

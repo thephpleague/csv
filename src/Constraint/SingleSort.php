@@ -16,6 +16,12 @@ namespace League\Csv\Constraint;
 use Closure;
 use League\Csv\StatementError;
 
+use function array_is_list;
+use function array_key_exists;
+use function array_values;
+use function count;
+use function is_int;
+
 final class SingleSort implements Sort
 {
     private function __construct(

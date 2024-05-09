@@ -15,6 +15,8 @@ namespace League\Csv\Constraint;
 
 use Closure;
 
+use function array_map;
+
 final class Criteria implements PredicateCombinator
 {
     /**

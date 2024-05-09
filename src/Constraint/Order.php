@@ -15,6 +15,9 @@ namespace League\Csv\Constraint;
 
 use League\Csv\InvalidArgument;
 
+use function strtoupper;
+use function trim;
+
 enum Order: string
 {
     case Ascending = 'ASC';

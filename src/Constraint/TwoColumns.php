@@ -16,6 +16,16 @@ namespace League\Csv\Constraint;
 use League\Csv\InvalidArgument;
 use League\Csv\StatementError;
 
+use function array_filter;
+use function array_is_list;
+use function array_key_exists;
+use function array_map;
+use function array_values;
+use function count;
+use function is_array;
+use function is_int;
+use function is_string;
+
 final class TwoColumns implements Predicate
 {
     /**

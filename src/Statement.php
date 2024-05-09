@@ -26,6 +26,8 @@ use function array_key_exists;
 use function array_reduce;
 use function array_search;
 use function array_values;
+use function is_array;
+use function is_int;
 use function is_string;
 
 /**
