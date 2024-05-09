@@ -19,6 +19,8 @@ use Closure;
 use Iterator;
 use LimitIterator;
 use OutOfBoundsException;
+use ReflectionException;
+use ReflectionFunction;
 
 use function array_key_exists;
 use function array_reduce;
@@ -77,10 +79,35 @@ class Statement
      */
     public function where(callable $where): self
     {
+        $where = $this->wrapSingleArgumentCallable($where);
+
         $clone = clone $this;
         $clone->where[] = $where;
 
         return $clone;
+    }
+
+    /**
+     * Validation check to avoid BC break in 9.16+.
+     *
+     * @throws InvalidArgument
+     * @throws ReflectionException
+     *
+     * @return callable(array, array-key): bool
+     */
+    private function wrapSingleArgumentCallable(callable $where): callable
+    {
+        if ($where instanceof Constraint\Predicate) {
+            return $where;
+        }
+
+        $reflection = $where instanceof Closure ? new ReflectionFunction($where) : new ReflectionFunction($where(...));
+
+        return match ($reflection->getNumberOfRequiredParameters()) {
+            0 => throw new InvalidArgument('The where condition must be a callable with 2 required parameters.'),
+            1 => fn (array $record, int $key) => $where($record),
+            default => $where,
+        };
     }
 
     public function andWhere(string|int $column, Constraint\Comparison|string $operator, mixed $value): self
