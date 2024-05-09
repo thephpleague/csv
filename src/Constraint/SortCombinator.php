@@ -19,7 +19,7 @@ interface SortCombinator extends Sort
 {
     /**
      * Return an instance with the specified sorting algorithm
-     * added after the currently registered sorting algorithms
+     * added after the currently registered sorting algorithms.
      *
      * This method MUST retain the state of the current instance,
      * and return an instance that contains the specified changes.
@@ -30,7 +30,7 @@ interface SortCombinator extends Sort
 
     /**
      * Return an instance with the specified sorting algorithm
-     * added before the currently registered sorting algorithms
+     * added before the currently registered sorting algorithms.
      *
      * This method MUST retain the state of the current instance,
      * and return an instance that contains the specified changes.

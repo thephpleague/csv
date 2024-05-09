@@ -26,8 +26,6 @@ use function array_key_exists;
 use function array_reduce;
 use function array_search;
 use function array_values;
-use function is_array;
-use function is_int;
 use function is_string;
 
 /**
@@ -90,7 +88,10 @@ class Statement
     }
 
     /**
-     * Validation check to avoid BC break in 9.16+.
+     * Sanitize the number of required parameters for a predicate.
+     *
+     * To avoid BC break in 9.16+ version the predicate should have
+     * at least 1 required argument.
      *
      * @throws InvalidArgument
      * @throws ReflectionException
@@ -103,7 +104,7 @@ class Statement
             return $where;
         }
 
-        $reflection = $where instanceof Closure ? new ReflectionFunction($where) : new ReflectionFunction($where(...));
+        $reflection = new ReflectionFunction($where instanceof Closure ? $where : $where(...));
 
         return match ($reflection->getNumberOfRequiredParameters()) {
             0 => throw new InvalidArgument('The where condition must be a callable with 2 required parameters.'),
@@ -114,55 +115,39 @@ class Statement
 
     public function andWhere(string|int $column, Constraint\Comparison|string $operator, mixed $value): self
     {
-        return $this->addCondition('and', $column, $operator, $value);
+        return $this->addCondition('and', Constraint\ColumnValue::filterOn($column, $operator, $value));
     }
 
     public function orWhere(string|int $column, Constraint\Comparison|string $operator, mixed $value): self
     {
-        return $this->addCondition('or', $column, $operator, $value);
+        return $this->addCondition('or', Constraint\ColumnValue::filterOn($column, $operator, $value));
     }
 
     public function whereNot(string|int $column, Constraint\Comparison|string $operator, mixed $value): self
     {
-        return $this->addCondition('not', $column, $operator, $value);
+        return $this->addCondition('not', Constraint\ColumnValue::filterOn($column, $operator, $value));
     }
 
-    public function andWhereColumn(string|int $first, Constraint\Comparison|string $operator, string|int $second): self
+    public function andWhereColumn(string|int $first, Constraint\Comparison|string $operator, array|int|string $second): self
     {
-        return $this->addCondition('and', $first, $operator, $second, true);
+        return $this->addCondition('and', Constraint\TwoColumns::filterOn($first, $operator, $second));
     }
 
-    public function orWhereColumn(string|int $first, Constraint\Comparison|string $operator, string|int $second): self
+    public function orWhereColumn(string|int $first, Constraint\Comparison|string $operator, array|int|string $second): self
     {
-        return $this->addCondition('or', $first, $operator, $second, true);
+        return $this->addCondition('or', Constraint\TwoColumns::filterOn($first, $operator, $second));
     }
 
-    public function whereNotColumn(string|int $first, Constraint\Comparison|string $operator, string|int $second): self
+    public function whereNotColumn(string|int $first, Constraint\Comparison|string $operator, array|int|string $second): self
     {
-        return $this->addCondition('not', $first, $operator, $second, true);
+        return $this->addCondition('not', Constraint\TwoColumns::filterOn($first, $operator, $second));
     }
 
     /**
-     *
      * @param 'and'|'or'|'not' $joiner
-     * @throws InvalidArgument
-     * @throws StatementError
      */
-    final protected function addCondition(
-        string $joiner,
-        string|int $first,
-        Constraint\Comparison|string $operator,
-        mixed $second,
-        bool $secondIsColumn = false
-    ): self {
-        $predicate = match (true) {
-            !$secondIsColumn => Constraint\ColumnValue::filterOn($first, $operator, $second),
-            is_string($second),
-            is_int($second),
-            is_array($second) => Constraint\TwoColumns::filterOn($first, $operator, $second),
-            default => throw new StatementError('The second column must be a string, an integer or a list of strings or integer.'),
-        };
-
+    final protected function addCondition(string $joiner, Constraint\Predicate $predicate): self
+    {
         if ([] === $this->where) {
             return $this->where(match ($joiner) {
                 'and' => $predicate,
