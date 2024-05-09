@@ -32,7 +32,10 @@ final class MultiSort implements SortCombinator
      */
     private function __construct(Sort|Closure|callable ...$sorts)
     {
-        $this->sorts = array_map(self::callableToClosure(...), $sorts);
+        $this->sorts = array_map(
+            static fn (Sort|Closure|callable $sort): Sort|Closure => $sort instanceof Closure || $sort instanceof Sort ? $sort : $sort(...),
+            $sorts
+        );
     }
 
     /**
@@ -41,15 +44,6 @@ final class MultiSort implements SortCombinator
     public static function new(Sort|Closure|callable ...$sorts): self
     {
         return new self(...$sorts);
-    }
-
-    private static function callableToClosure(Sort|Closure|callable $sort): Sort|Closure
-    {
-        if ($sort instanceof Closure || $sort instanceof Sort) {
-            return $sort;
-        }
-
-        return $sort(...);
     }
 
     /**

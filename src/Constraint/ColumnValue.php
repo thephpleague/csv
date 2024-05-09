@@ -65,22 +65,6 @@ final class ColumnValue implements Predicate
         return new self($column, $operator, $value);
     }
 
-    private static function fieldValue(array $array, string|int $key): mixed
-    {
-        $offset = $key;
-        if (is_int($offset)) {
-            if (!array_is_list($array)) {
-                $array = array_values($array);
-            }
-
-            if ($offset < 0) {
-                $offset += count($array);
-            }
-        }
-
-        return array_key_exists($offset, $array) ? $array[$offset] : throw StatementError::dueToUnknownColumn($key);
-    }
-
     /**
      * @throws InvalidArgument
      * @throws StatementError
@@ -147,5 +131,21 @@ final class ColumnValue implements Predicate
         };
 
         return $filter($record);
+    }
+
+    private static function fieldValue(array $array, string|int $key): mixed
+    {
+        $offset = $key;
+        if (is_int($offset)) {
+            if (!array_is_list($array)) {
+                $array = array_values($array);
+            }
+
+            if ($offset < 0) {
+                $offset += count($array);
+            }
+        }
+
+        return array_key_exists($offset, $array) ? $array[$offset] : throw StatementError::dueToUnknownColumn($key);
     }
 }

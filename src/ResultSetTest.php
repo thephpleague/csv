@@ -410,4 +410,24 @@ CSV;
             ->process($reader)
             ->getRecords(['lastname' => 'nom de famille', 'firstname' => 'prenom', 'e-mail' => 'e-mail'])];
     }
+
+    public function testChunkByIssue524(): void
+    {
+        $csv = <<<CSV
+firstname,lastname,e-mail
+john,doe,john.doe@example.com
+jane,doe,jane.doe@example.com
+jose,doe,jose.doe@example.com
+jeny,doe,jeny.doe@example.com
+jack,doe,jack.doe@example.com
+CSV;
+        $reader = Reader::createFromString($csv)->setHeaderOffset(0);
+
+        $total = [];
+        foreach ($reader->chunkBy(2) as $row) {
+            $total[] = count($row);
+        }
+
+        self::assertSame([2, 2, 1], $total);
+    }
 }

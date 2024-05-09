@@ -183,6 +183,8 @@ class ResultSet implements TabularDataReader, JsonSerializable
             ++$nbRecords;
             if ($nbRecords === $recordsCount) {
                 yield new self($records, $header);
+                $records = [];
+                $nbRecords = 0;
             }
         }
 

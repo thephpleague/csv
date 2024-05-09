@@ -79,7 +79,7 @@ class Statement
      */
     public function where(callable $where): self
     {
-        $where = $this->wrapSingleArgumentCallable($where);
+        $where = self::wrapSingleArgumentCallable($where);
 
         $clone = clone $this;
         $clone->where[] = $where;
@@ -98,7 +98,7 @@ class Statement
      *
      * @return callable(array, array-key): bool
      */
-    private function wrapSingleArgumentCallable(callable $where): callable
+    final protected static function wrapSingleArgumentCallable(callable $where): callable
     {
         if ($where instanceof Constraint\Predicate) {
             return $where;
@@ -128,6 +128,11 @@ class Statement
         return $this->addCondition('not', Constraint\ColumnValue::filterOn($column, $operator, $value));
     }
 
+    public function xorWhere(string|int $column, Constraint\Comparison|string $operator, mixed $value): self
+    {
+        return $this->addCondition('xor', Constraint\ColumnValue::filterOn($column, $operator, $value));
+    }
+
     public function andWhereColumn(string|int $first, Constraint\Comparison|string $operator, array|int|string $second): self
     {
         return $this->addCondition('and', Constraint\TwoColumns::filterOn($first, $operator, $second));
@@ -138,13 +143,18 @@ class Statement
         return $this->addCondition('or', Constraint\TwoColumns::filterOn($first, $operator, $second));
     }
 
+    public function xorWhereColumn(string|int $first, Constraint\Comparison|string $operator, array|int|string $second): self
+    {
+        return $this->addCondition('xor', Constraint\TwoColumns::filterOn($first, $operator, $second));
+    }
+
     public function whereNotColumn(string|int $first, Constraint\Comparison|string $operator, array|int|string $second): self
     {
         return $this->addCondition('not', Constraint\TwoColumns::filterOn($first, $operator, $second));
     }
 
     /**
-     * @param 'and'|'or'|'not' $joiner
+     * @param 'and'|'not'|'or'|'xor' $joiner
      */
     final protected function addCondition(string $joiner, Constraint\Predicate $predicate): self
     {
@@ -153,6 +163,7 @@ class Statement
                 'and' => $predicate,
                 'not' => Constraint\Criteria::none($predicate),
                 'or' => Constraint\Criteria::any($predicate),
+                'xor' => Constraint\Criteria::exclusiveOr($predicate),
             });
         }
 
@@ -163,6 +174,7 @@ class Statement
             'and' => $predicates->and($predicate),
             'not' => $predicates->not($predicate),
             'or' => $predicates->or($predicate),
+            'xor' => $predicates->xor($predicate),
         }];
 
         return $clone;

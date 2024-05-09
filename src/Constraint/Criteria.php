@@ -16,6 +16,7 @@ namespace League\Csv\Constraint;
 use Closure;
 
 use function array_map;
+use function array_reduce;
 
 final class Criteria implements PredicateCombinator
 {
@@ -114,16 +115,11 @@ final class Criteria implements PredicateCombinator
     {
         $predicates = array_map(self::callableToClosure(...), $predicates);
 
-        return new self(function (array $record, int|string $key) use ($predicates): bool {
-            $true = 0;
-            foreach ($predicates as $predicate) {
-                if (true === $predicate($record, $key)) {
-                    $true++;
-                }
-            }
-
-            return 0 !== ($true % 2);
-        });
+        return new self(fn (array $record, int|string $key): bool => array_reduce(
+            $predicates,
+            fn (bool $bool, Predicate|Closure $predicate) => $predicate($record, $key) xor $bool,
+            false
+        ));
     }
 
     public function __invoke(array $record, int|string $key): bool

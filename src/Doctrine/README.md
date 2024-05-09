@@ -37,14 +37,14 @@ $csv->setDelimiter(';');
 $criteria = Criteria::create()
     ->andWhere(Criteria::expr()->eq('prenom', 'Adam'))
     ->orderBy( [ 'annee' => 'ASC', 'foo' => 'desc', ] )
-    ->setFirstResult(0)
+    ->setFirstResult(3)
     ->setMaxResults(10)
 ;
 
 $resultset = CsvDoctrine\CriteriaConverter::convert($criteria)->process($csv);
 ```
 
-can be written like follow since version `9.16.0`:
+can be written using only the `Statement` class since version `9.16.0`:
 
 ```php
 <?php
@@ -60,7 +60,7 @@ $criteria = Statement::create()
     ->andWhere('prenom', '=', 'Adam')
     ->orderByAsc('annee')
     ->orderByDesc('foo')
-    ->offset(0) //added for completeness but not required in this example
+    ->offset(3)
     ->limit(10);
     
 $resultset = $criteria->process($csv);

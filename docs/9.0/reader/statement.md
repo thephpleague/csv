@@ -71,7 +71,7 @@ $records = Statement::create()
 
 <p class="message-info">New since version <code>9.16.0</code></p>
 
-To ease the `Statement::where` usage the following methods are introduced: `andWhere`, `orWhere` and `whereNot`;
+To ease the `Statement::where` usage the following methods are introduced: `andWhere`, `whereNot`, `orWhere` and `xorWhere`;
 
 These methods are used to filter the record based on their column value. Instead of using a callable,
 the methods require three (3) arguments. The first argument is the column to filter on. It can be
@@ -147,10 +147,12 @@ Internally they use one of the following PHP's function `str_contains`, `str_sta
 - If the specified column could not be found during process an `StatementError` exception is triggered;
 - If the `value` is incorrect according to the operator constraints an `InvalidArgument` exception will be triggered.
 
-To enable comparing columns with each other the following methods are also added: `andWhereColumn`, `orWhereColumn` and `whereColumnNot`
+To enable comparing two columns with each other the following methods are also added:
+`andWhereColumn`, `whereColumnNot`, `orWhereColumn` and `xorWhereColumn`
 
-The only distinction with their value counterparts is in the third argument.Instead of specifying a value, it specifies
-another column (via its string name or integer name) to compare columns with each other.
+The only distinction with their value counterparts is in the third argument. Instead of specifying
+a value, it specifies another column (via its string name or integer name) to compare columns
+with each other.
 
 ```php
 use League\Csv\Reader;

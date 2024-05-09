@@ -66,6 +66,19 @@ final class TwoColumns implements Predicate
         return new self($firstColumn, $operator, $secondColumn);
     }
 
+    /**
+     * @throws InvalidArgument
+     */
+    public function __invoke(array $record, string|int $key): bool
+    {
+        $value = match (true) {
+            is_array($this->second) => array_map(fn (string|int $column) => self::fieldValue($record, $column), $this->second),
+            default => self::fieldValue($record, $this->second),
+        };
+
+        return ColumnValue::filterOn($this->first, $this->operator, $value)($record, $key);
+    }
+
     private static function fieldValue(array $array, string|int $key): mixed
     {
         $offset = $key;
@@ -80,18 +93,5 @@ final class TwoColumns implements Predicate
         }
 
         return array_key_exists($offset, $array) ? $array[$offset] : throw StatementError::dueToUnknownColumn($key);
-    }
-
-    /**
-     * @throws InvalidArgument
-     */
-    public function __invoke(array $record, string|int $key): bool
-    {
-        $value = match (true) {
-            is_array($this->second) => array_map(fn (string|int $column) => self::fieldValue($record, $column), $this->second),
-            default => self::fieldValue($record, $this->second),
-        };
-
-        return ColumnValue::filterOn($this->first, $this->operator, $value)($record, $key);
     }
 }

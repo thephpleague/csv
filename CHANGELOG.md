@@ -11,11 +11,13 @@ All Notable changes to `Csv` will be documented in this file
 - `Statement::orderByAsc`
 - `Statement::orderByDesc`
 - `Statement::andWhere`
-- `Statement::orWhere`
 - `Statement::whereNot`
+- `Statement::orWhere`
+- `Statement::xorWhere`
 - `Statement::andWhereColumn`
-- `Statement::orWhereColumn`
 - `Statement::whereColumnNot`
+- `Statement::orWhereColumn`
+- `Statement::xorWhereColumn`
 - `Constraint` feature to allow easier filtering and ordering of tabular data
 
 ### Deprecated
@@ -31,6 +33,7 @@ All Notable changes to `Csv` will be documented in this file
 - the `AbstractCsv` BOM related properties are moved to being `Bom` instances instead of nullable string.
 - `setOutpuBOM` will only accept valid BOM sequences all other values except the empty string will throw a `ValueError` exception;
 - The package no longer requires the `ext-mbstring` extension to work. But you should have it install in your system in order to use the `mbstring` related stream filters.
+- Issue [#524](https://github.com/thephpleague/csv/issues/524) fix issue with `ResultSet::chunkBy` not working as documented.
 
 ### Removed
 
