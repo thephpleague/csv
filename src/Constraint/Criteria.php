@@ -15,7 +15,6 @@ namespace League\Csv\Constraint;
 
 use Closure;
 
-use function array_map;
 use function array_reduce;
 
 final class Criteria implements PredicateCombinator
@@ -34,16 +33,9 @@ final class Criteria implements PredicateCombinator
      */
     public static function one(Predicate|Closure|callable $predicate): self
     {
-        return new self(self::callableToClosure($predicate));
-    }
-
-    private static function callableToClosure(Predicate|Closure|callable $predicate): Closure|Predicate
-    {
-        if ($predicate instanceof Closure || $predicate instanceof Predicate) {
-            return $predicate;
-        }
-
-        return $predicate(...);
+        return new self(
+            $predicate instanceof Closure || $predicate instanceof Predicate ? $predicate : $predicate(...)
+        );
     }
 
     /**
@@ -53,8 +45,6 @@ final class Criteria implements PredicateCombinator
      */
     public static function all(Predicate|Closure|callable ...$predicates): self
     {
-        $predicates = array_map(self::callableToClosure(...), $predicates);
-
         return new self(function (array $record, int|string $key) use ($predicates): bool {
             foreach ($predicates as $predicate) {
                 if (true !== $predicate($record, $key)) {
@@ -71,10 +61,8 @@ final class Criteria implements PredicateCombinator
      *
      * @param Predicate|Closure(array, array-key): bool|callable(array, array-key): bool ...$predicates
      */
-    public static function any(Predicate|Closure|callable ...$predicates): self
+    public static function some(Predicate|Closure|callable ...$predicates): self
     {
-        $predicates = array_map(self::callableToClosure(...), $predicates);
-
         return new self(function (array $record, int|string $key) use ($predicates): bool {
             foreach ($predicates as $predicate) {
                 if (true === $predicate($record, $key)) {
@@ -87,14 +75,26 @@ final class Criteria implements PredicateCombinator
     }
 
     /**
+     * Creates a new instance with predicates join using the logical XOR operator.
+     *
+     * @param Predicate|Closure(array, array-key): bool|callable(array, array-key): bool ...$predicates
+     */
+    public static function xsome(Predicate|Closure|callable ...$predicates): self
+    {
+        return new self(fn (array $record, int|string $key): bool => array_reduce(
+            $predicates,
+            fn (bool $bool, Predicate|Closure|callable $predicate) => $predicate($record, $key) xor $bool,
+            false
+        ));
+    }
+
+    /**
      * Creates a new instance with predicates join using the logical NOT operator.
      *
      * @param Predicate|Closure(array, array-key): bool|callable(array, array-key): bool ...$predicates
      */
     public static function none(Predicate|Closure|callable ...$predicates): self
     {
-        $predicates = array_map(self::callableToClosure(...), $predicates);
-
         return new self(function (array $record, int|string $key) use ($predicates): bool {
             foreach ($predicates as $predicate) {
                 if (true === $predicate($record, $key)) {
@@ -104,22 +104,6 @@ final class Criteria implements PredicateCombinator
 
             return true;
         });
-    }
-
-    /**
-     * Creates a new instance with predicates join using the logical XOR operator.
-     *
-     * @param Predicate|Closure(array, array-key): bool|callable(array, array-key): bool ...$predicates
-     */
-    public static function exclusiveOr(Predicate|Closure|callable ...$predicates): self
-    {
-        $predicates = array_map(self::callableToClosure(...), $predicates);
-
-        return new self(fn (array $record, int|string $key): bool => array_reduce(
-            $predicates,
-            fn (bool $bool, Predicate|Closure $predicate) => $predicate($record, $key) xor $bool,
-            false
-        ));
     }
 
     public function __invoke(array $record, int|string $key): bool
@@ -138,14 +122,6 @@ final class Criteria implements PredicateCombinator
     /**
      * @param Predicate|Closure(array, array-key): bool|callable(array, array-key): bool ...$predicates
      */
-    public function or(Predicate|Closure|callable ...$predicates): self
-    {
-        return self::any($this->predicate, ...$predicates);
-    }
-
-    /**
-     * @param Predicate|Closure(array, array-key): bool|callable(array, array-key): bool ...$predicates
-     */
     public function not(Predicate|Closure|callable ...$predicates): self
     {
         return self::none($this->predicate, ...$predicates);
@@ -154,8 +130,16 @@ final class Criteria implements PredicateCombinator
     /**
      * @param Predicate|Closure(array, array-key): bool|callable(array, array-key): bool ...$predicates
      */
+    public function or(Predicate|Closure|callable ...$predicates): self
+    {
+        return self::some($this->predicate, ...$predicates);
+    }
+
+    /**
+     * @param Predicate|Closure(array, array-key): bool|callable(array, array-key): bool ...$predicates
+     */
     public function xor(Predicate|Closure|callable ...$predicates): self
     {
-        return self::exclusiveOr($this->predicate, ...$predicates);
+        return self::xsome($this->predicate, ...$predicates);
     }
 }

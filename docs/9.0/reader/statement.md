@@ -179,7 +179,7 @@ $csv = Reader::createFromPath('/path/to/prenoms.csv')
     ->setHeaderOffset(0);
 $records = Statement::create()
     ->where(
-        Constraint\Critera::exclusiveOr(
+        Constraint\Critera::xSome(
             Constraint\ColumnValue::filterOn('year', '=', '2024'), //filter using a column value
             Constraint\TwoColumns::filterOn('created_at', '<', 'updated_at'), //compare two field together
             fn (array $record, int|string|null $key = null): bool => (int) $key % 2 === 0, //using directly a Closure
