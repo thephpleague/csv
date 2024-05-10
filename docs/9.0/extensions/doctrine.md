@@ -5,6 +5,43 @@ title: Using CSV with Doctrine packages
 
 # Doctrine specific adapter
 
+## Deprecation Warning
+
+<p class="message-warning">With the release of league\csv <code>9.16.0</code> this
+package is officially marked as deprecated no development aside security fixes
+will be applied to it. The package is also marked as abandoned if you use composer.
+For replacement please visit the [Constraint Builders documentation page](https://csv.thephpleague.com/9.0/reader/statement/)</p>
+
+In a nutshell, the features provided by this package have been implemented in a
+better integrated manner directly into the main package, without the need for a
+third party package.
+
+since version `9.16.0` you can write:
+
+```php
+<?php
+
+use League\Csv\Reader;
+use League\Csv\Statement;
+
+$csv = Reader::createFromPath('/path/to/my/file.csv');
+$csv->setHeaderOffset(0);
+$csv->setDelimiter(';');
+
+$criteria = Statement::create()
+    ->andWhere('prenom', '=', 'Adam')
+    ->orderByAsc('annee')
+    ->orderByDesc('foo')
+    ->offset(3)
+    ->limit(10);
+    
+$resultset = $criteria->process($csv);
+```
+
+Which covers all the features provided by this package.
+
+## Introduction
+
 This extension package contains:
 
 - a class to convert `League\Csv\Reader` instances into [Doctrine Collections](https://www.doctrine-project.org/projects/collections.html) objects.
