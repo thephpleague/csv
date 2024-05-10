@@ -30,7 +30,7 @@ use function is_int;
 final class SingleSort implements Sort
 {
     /**
-     * @param Closure(mixed, mixed): int $callback
+     * @param Closure(mixed, mixed): int<-1, 1> $callback
      */
     private function __construct(
         public readonly Order $direction,
@@ -40,7 +40,7 @@ final class SingleSort implements Sort
     }
 
     /**
-     * @param ?Closure(mixed, mixed): int $callback
+     * @param ?Closure(mixed, mixed): int<-1, 1> $callback
      */
     public static function new(
         string|int $column,
