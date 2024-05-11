@@ -47,11 +47,15 @@ final class ColumnValue implements Predicate
         public readonly mixed $value
     ) {
         match (true) {
-            !is_string($this->value) && in_array($this->operator, [Comparison::Regexp, Comparison::StartsWith, Comparison::EndsWith, Comparison::Contains], true) => throw new InvalidArgument('The value used for comparison with the `'.$operator->name.'` operator must be a string.'),
-            !is_array($this->value) && in_array($this->operator, [Comparison::In, Comparison::NotIn], true) => throw new InvalidArgument('The value used for comparison with the `'.$operator->name.'` operator must be an array.'),
-            (!is_array($this->value) || !array_is_list($this->value) || 2 !== count($this->value)) && in_array($this->operator, [Comparison::Between, Comparison::NotBetween], true) => throw new InvalidArgument('The value used for comparison with the `'.$operator->name.'` operator must be an list containing 2 values, the range minimun and maximum values.'),
-            default => null,
+            self::isCallback($this->value) => $this->value,
+            default => $this->validateValue($this->value),
         };
+    }
+
+    private static function isCallback(mixed $value): bool
+    {
+        return $value instanceof Closure
+            || (is_object($value) && is_callable($value));
     }
 
     public static function filterOn(
@@ -66,15 +70,29 @@ final class ColumnValue implements Predicate
         return new self($column, $operator, $value);
     }
 
+    private function formatValue(array $record, int|string $key): mixed
+    {
+        return self::isCallback($this->value) ?
+            $this->validateValue(($this->value)($record, $key))  /* @phpstan-ignore-line */
+            : $this->value;
+    }
+
+    private function validateValue(mixed $value): mixed
+    {
+        return match (true) {
+            !is_string($value) && in_array($this->operator, [Comparison::Regexp, Comparison::StartsWith, Comparison::EndsWith, Comparison::Contains], true) => throw new InvalidArgument('The value used for comparison with the `'.$this->operator->name.'` operator must be a string.'),
+            !is_array($value) && in_array($this->operator, [Comparison::In, Comparison::NotIn], true) => throw new InvalidArgument('The value used for comparison with the `'.$this->operator->name.'` operator must be an array.'),
+            (!is_array($value) || !array_is_list($value) || 2 !== count($value)) && in_array($this->operator, [Comparison::Between, Comparison::NotBetween], true) => throw new InvalidArgument('The value used for comparison with the `'.$this->operator->name.'` operator must be an list containing 2 values, the range minimun and maximum values.'),
+            default => $value,
+        };
+    }
+
     /**
      * @throws StatementError
      */
     public function __invoke(array $record, int|string $key): bool
     {
-        $value = $this->value;
-        if ($this->value instanceof Closure || (is_object($this->value) && is_callable($this->value))) {
-            $value = ($this->value)($record);
-        }
+        $value = $this->formatValue($record, $key);
 
         $filter = match ($this->operator) {
             Comparison::Equals => fn (array $record): bool => self::fieldValue($record, $this->column) === $value,

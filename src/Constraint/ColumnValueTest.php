@@ -45,12 +45,21 @@ final class ColumnValueTest extends ContraintTestCase
         self::assertCount(0, $result);
     }
 
+    #[Test]
     public function it_will_throw_if_the_column_does_not_exist(): void
     {
-        $predicate = ColumnValue::filterOn('City', '=', 'Dakar');
-        //$this->expectExceptionObject(StatementError::dueToUnknownColumn('City'));
+        $predicate = ColumnValue::filterOn('Ville', '=', 'Dakar');
+        $this->expectExceptionObject(StatementError::dueToUnknownColumn('Ville'));
 
-        $this->stmt->where($predicate)->process($this->document);
+        [...$this->stmt->where($predicate)->process($this->document)];
+    }
 
+    #[Test]
+    public function it_will_work_with_a_callback_value(): void
+    {
+        $predicate = ColumnValue::filterOn('CustomerID', '=', fn (array $row, int|string $key) => '1');
+
+        $result = $this->stmt->where($predicate)->process($this->document);
+        self::assertCount(1, $result);
     }
 }
