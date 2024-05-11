@@ -118,12 +118,12 @@ class ResultSet implements TabularDataReader, JsonSerializable
     }
 
     /**
-     * @param Closure(array<mixed>, array-key=): mixed $closure
+     * @param Closure(array<mixed>, array-key=): mixed $callback
      */
-    public function each(Closure $closure): bool
+    public function each(Closure $callback): bool
     {
         foreach ($this as $offset => $record) {
-            if (false === $closure($record, $offset)) {
+            if (false === $callback($record, $offset)) {
                 return false;
             }
         }
@@ -132,12 +132,12 @@ class ResultSet implements TabularDataReader, JsonSerializable
     }
 
     /**
-     * @param Closure(array<mixed>, array-key=): bool $closure
+     * @param Closure(array<mixed>, array-key=): bool $callback
      */
-    public function exists(Closure $closure): bool
+    public function exists(Closure $callback): bool
     {
         foreach ($this as $offset => $record) {
-            if (true === $closure($record, $offset)) {
+            if (true === $callback($record, $offset)) {
                 return true;
             }
         }
@@ -146,17 +146,17 @@ class ResultSet implements TabularDataReader, JsonSerializable
     }
 
     /**
-     * @param Closure(TInitial|null, array<mixed>, array-key=): TInitial $closure
+     * @param Closure(TInitial|null, array<mixed>, array-key=): TInitial $callback
      * @param TInitial|null $initial
      *
      * @template TInitial
      *
      * @return TInitial|null
      */
-    public function reduce(Closure $closure, mixed $initial = null): mixed
+    public function reduce(Closure $callback, mixed $initial = null): mixed
     {
         foreach ($this as $offset => $record) {
-            $initial = $closure($initial, $record, $offset);
+            $initial = $callback($initial, $record, $offset);
         }
 
         return $initial;

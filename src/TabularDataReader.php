@@ -28,9 +28,9 @@ use IteratorAggregate;
  * @method mixed value(int|string $column = 0) returns a given value from the first element of the tabular data.
  * @method Iterator nthAsObject(int $nth, string $className, array $header = []) returns the nth record from the tabular data as an instance of the defined class name.
  * @method Iterator firstAsObject(string $className, array $header = []) returns the first record from the tabular data as an instance of the defined class name.
- * @method bool each(Closure $closure) iterates over each record and passes it to a closure. Iteration is interrupted if the closure returns false
- * @method bool exists(Closure $closure) tells whether at least one record satisfies the predicate.
- * @method mixed reduce(Closure $closure, mixed $initial = null) reduces the collection to a single value, passing the result of each iteration into the subsequent iteration
+ * @method bool each(Closure $callback) iterates over each record and passes it to a closure. Iteration is interrupted if the closure returns false
+ * @method bool exists(Closure $callback) tells whether at least one record satisfies the predicate.
+ * @method mixed reduce(Closure $callback, mixed $initial = null) reduces the collection to a single value, passing the result of each iteration into the subsequent iteration
  * @method Iterator getObjects(string $className, array $header = []) Returns the tabular data records as an iterator object containing instance of the defined class name.
  * @method Iterator getRecordsAsObject(string $className, array $header = []) Returns the tabular data records as an iterator object containing instance of the defined class name.
  * @method TabularDataReader filter(Constraint\Predicate|Closure $predicate) returns all the elements of this collection for which your callback function returns `true`

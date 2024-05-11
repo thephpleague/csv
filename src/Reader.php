@@ -331,32 +331,32 @@ class Reader extends AbstractCsv implements TabularDataReader, JsonSerializable
     }
 
     /**
-     * @param Closure(array<mixed>, array-key=): (void|bool|null) $closure
+     * @param Closure(array<mixed>, array-key=): (void|bool|null) $callback
      */
-    public function each(Closure $closure): bool
+    public function each(Closure $callback): bool
     {
-        return ResultSet::createFromTabularDataReader($this)->each($closure);
+        return ResultSet::createFromTabularDataReader($this)->each($callback);
     }
 
     /**
-     * @param Closure(array<mixed>, array-key=): bool $closure
+     * @param Closure(array<mixed>, array-key=): bool $callback
      */
-    public function exists(Closure $closure): bool
+    public function exists(Closure $callback): bool
     {
-        return ResultSet::createFromTabularDataReader($this)->exists($closure);
+        return ResultSet::createFromTabularDataReader($this)->exists($callback);
     }
 
     /**
-     * @param Closure(TInitial|null, array<mixed>, array-key=): TInitial $closure
+     * @param Closure(TInitial|null, array<mixed>, array-key=): TInitial $callback
      * @param TInitial|null $initial
      *
      * @template TInitial
      *
      * @return TInitial|null
      */
-    public function reduce(Closure $closure, mixed $initial = null): mixed
+    public function reduce(Closure $callback, mixed $initial = null): mixed
     {
-        return ResultSet::createFromTabularDataReader($this)->reduce($closure, $initial);
+        return ResultSet::createFromTabularDataReader($this)->reduce($callback, $initial);
     }
 
     /**
