@@ -13,6 +13,7 @@ declare(strict_types=1);
 
 namespace League\Csv\Constraint;
 
+use Closure;
 use League\Csv\InvalidArgument;
 use League\Csv\StatementError;
 
@@ -66,73 +67,80 @@ final class ColumnValue implements Predicate
     }
 
     /**
-     * @throws InvalidArgument
      * @throws StatementError
      */
     public function __invoke(array $record, int|string $key): bool
     {
+        $value = $this->value;
+        if ($this->value instanceof Closure || (is_object($this->value) && is_callable($this->value))) {
+            $value = ($this->value)($record);
+        }
+
         $filter = match ($this->operator) {
-            Comparison::Equals => fn (array $record): bool => self::fieldValue($record, $this->column) === $this->value,
-            Comparison::NotEquals => fn (array $record): bool => self::fieldValue($record, $this->column) !== $this->value,
-            Comparison::GreaterThan => fn (array $record): bool => self::fieldValue($record, $this->column) > $this->value,
-            Comparison::GreaterThanOrEqual => fn (array $record): bool => self::fieldValue($record, $this->column) >= $this->value,
-            Comparison::LesserThan => fn (array $record): bool => self::fieldValue($record, $this->column) < $this->value,
-            Comparison::LesserThanOrEqual => fn (array $record): bool => self::fieldValue($record, $this->column) <= $this->value,
-            Comparison::Between => function (array $record): bool {
+            Comparison::Equals => fn (array $record): bool => self::fieldValue($record, $this->column) === $value,
+            Comparison::NotEquals => fn (array $record): bool => self::fieldValue($record, $this->column) !== $value,
+            Comparison::GreaterThan => fn (array $record): bool => self::fieldValue($record, $this->column) > $value,
+            Comparison::GreaterThanOrEqual => fn (array $record): bool => self::fieldValue($record, $this->column) >= $value,
+            Comparison::LesserThan => fn (array $record): bool => self::fieldValue($record, $this->column) < $value,
+            Comparison::LesserThanOrEqual => fn (array $record): bool => self::fieldValue($record, $this->column) <= $value,
+            Comparison::Between => function (array $record) use ($value): bool {
                 $fieldValue = self::fieldValue($record, $this->column);
 
-                return $fieldValue >= $this->value[0] && $fieldValue <= $this->value[1]; /* @phpstan-ignore-line */
+                return $fieldValue >= $value[0] && $fieldValue <= $value[1]; /* @phpstan-ignore-line */
             },
-            Comparison::NotBetween => function (array $record): bool {
+            Comparison::NotBetween => function (array $record) use ($value): bool {
                 $fieldValue = self::fieldValue($record, $this->column);
 
-                return $fieldValue < $this->value[0] || $fieldValue > $this->value[1]; /* @phpstan-ignore-line */
+                return $fieldValue < $value[0] || $fieldValue > $value[1]; /* @phpstan-ignore-line */
             },
-            Comparison::Regexp => function (array $record): bool {
+            Comparison::Regexp => function (array $record) use ($value): bool {
                 $fieldValue = self::fieldValue($record, $this->column);
 
-                return is_string($fieldValue) && 1 === preg_match($this->value, $fieldValue); /* @phpstan-ignore-line */
+                return is_string($fieldValue) && 1 === preg_match($value, $fieldValue); /* @phpstan-ignore-line */
             },
-            Comparison::NotRegexp => function (array $record): bool {
+            Comparison::NotRegexp => function (array $record) use ($value): bool {
                 $fieldValue = self::fieldValue($record, $this->column);
 
-                return is_string($fieldValue) && 1 !== preg_match($this->value, $fieldValue); /* @phpstan-ignore-line */
+                return is_string($fieldValue) && 1 !== preg_match($value, $fieldValue); /* @phpstan-ignore-line */
             },
-            Comparison::In => function (array $record): bool {
+            Comparison::In => function (array $record) use ($value): bool {
                 $fieldValue = self::fieldValue($record, $this->column);
 
-                return in_array($fieldValue, $this->value, is_scalar($fieldValue)); /* @phpstan-ignore-line */
+                return in_array($fieldValue, $value, is_scalar($fieldValue)); /* @phpstan-ignore-line */
             },
-            Comparison::NotIn => function (array $record): bool {
+            Comparison::NotIn => function (array $record) use ($value): bool {
                 $fieldValue = self::fieldValue($record, $this->column);
 
-                return !in_array($fieldValue, $this->value, is_scalar($fieldValue));  /* @phpstan-ignore-line */
+                return !in_array($fieldValue, $value, is_scalar($fieldValue));  /* @phpstan-ignore-line */
             },
-            Comparison::Contains => function (array $record): bool {
+            Comparison::Contains => function (array $record) use ($value): bool {
                 $fieldValue = self::fieldValue($record, $this->column);
 
-                return is_string($fieldValue) && str_contains(self::fieldValue($record, $this->column), $this->value); /* @phpstan-ignore-line */
+                return is_string($fieldValue) && str_contains(self::fieldValue($record, $this->column), $value); /* @phpstan-ignore-line */
             },
-            Comparison::NotContain => function (array $record): bool {
+            Comparison::NotContain => function (array $record) use ($value): bool {
                 $fieldValue = self::fieldValue($record, $this->column);
 
-                return is_string($fieldValue) && !str_contains(self::fieldValue($record, $this->column), $this->value); /* @phpstan-ignore-line */
+                return is_string($fieldValue) && !str_contains(self::fieldValue($record, $this->column), $value); /* @phpstan-ignore-line */
             },
-            Comparison::StartsWith => function (array $record): bool {
+            Comparison::StartsWith => function (array $record) use ($value): bool {
                 $fieldValue = self::fieldValue($record, $this->column);
 
-                return is_string($fieldValue) && str_starts_with(self::fieldValue($record, $this->column), $this->value); /* @phpstan-ignore-line */
+                return is_string($fieldValue) && str_starts_with(self::fieldValue($record, $this->column), $value); /* @phpstan-ignore-line */
             },
-            Comparison::EndsWith => function (array $record): bool {
+            Comparison::EndsWith => function (array $record) use ($value): bool {
                 $fieldValue = self::fieldValue($record, $this->column);
 
-                return is_string($fieldValue) && str_ends_with(self::fieldValue($record, $this->column), $this->value); /* @phpstan-ignore-line */
+                return is_string($fieldValue) && str_ends_with(self::fieldValue($record, $this->column), $value); /* @phpstan-ignore-line */
             },
         };
 
         return $filter($record);
     }
 
+    /**
+     * @throws StatementError
+     */
     private static function fieldValue(array $array, string|int $key): mixed
     {
         $offset = $key;
