@@ -14,6 +14,7 @@ declare(strict_types=1);
 namespace League\Csv\Constraint;
 
 use Closure;
+use League\Csv\InvalidArgument;
 use League\Csv\StatementError;
 
 use function array_is_list;
@@ -29,11 +30,14 @@ use function is_int;
  */
 final class SingleSort implements Sort
 {
+    private const ASCENDING = 'ASC';
+    private const DESCENDING = 'DESC';
+
     /**
      * @param Closure(mixed, mixed): int<-1, 1> $callback
      */
     private function __construct(
-        public readonly Order $direction,
+        public readonly string $direction,
         public readonly string|int $column,
         public readonly Closure $callback,
     ) {
@@ -44,15 +48,18 @@ final class SingleSort implements Sort
      */
     public static function new(
         string|int $column,
-        Order|string $direction,
+        string $direction,
         ?Closure $callback = null
     ): self {
-        if (!$direction instanceof Order) {
-            $direction = Order::fromOperator($direction);
-        }
+
+        $operator = match (strtoupper(trim($direction))) {
+            'ASC', 'ASCENDING', 'UP' => self::ASCENDING,
+            'DESC', 'DESCENDING', 'DOWN' => self::DESCENDING,
+            default => throw new InvalidArgument('Unknown operator or unsupported operator: '.$direction),
+        };
 
         return new self(
-            $direction,
+            $operator,
             $column,
             $callback ?? static fn (mixed $first, mixed $second): int => $first <=> $second
         );
@@ -64,8 +71,8 @@ final class SingleSort implements Sort
         $second = self::fieldValue($row2, $this->column);
 
         return match ($this->direction) {
-            Order::Ascending => ($this->callback)($first, $second),
-            Order::Descending => ($this->callback)($second, $first),
+            self::ASCENDING => ($this->callback)($first, $second),
+            default => ($this->callback)($second, $first),
         };
     }
 
