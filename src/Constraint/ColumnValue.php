@@ -21,10 +21,7 @@ use function array_is_list;
 use function array_key_exists;
 use function array_values;
 use function count;
-use function in_array;
-use function is_array;
 use function is_int;
-use function is_string;
 
 /**
  * Enable filtering a record based on the value of a one of its cell.
@@ -45,24 +42,9 @@ final class ColumnValue implements Predicate
         mixed $value
     ) {
         $this->value = match (true) {
-            self::isCallback($value) => $value,
-            default => $this->validateValue($value),
-        };
-    }
-
-    private static function isCallback(mixed $value): bool
-    {
-        return $value instanceof Closure
-            || (is_object($value) && is_callable($value));
-    }
-
-    private function validateValue(mixed $value): mixed
-    {
-        return match (true) {
-            !is_string($value) && in_array($this->operator, [Comparison::Regexp, Comparison::StartsWith, Comparison::EndsWith, Comparison::Contains], true) => throw new InvalidArgument('The value used for comparison with the `'.$this->operator->name.'` operator must be a string.'),
-            !is_array($value) && in_array($this->operator, [Comparison::In, Comparison::NotIn], true) => throw new InvalidArgument('The value used for comparison with the `'.$this->operator->name.'` operator must be an array.'),
-            (!is_array($value) || !array_is_list($value) || 2 !== count($value)) && in_array($this->operator, [Comparison::Between, Comparison::NotBetween], true) => throw new InvalidArgument('The value used for comparison with the `'.$this->operator->name.'` operator must be an list containing 2 values, the minimun and maximum values.'),
-            default => $value,
+            $value instanceof Closure || (is_object($value) && is_callable($value)),
+            $this->operator->accept($value) => $value,
+            default => throw new InvalidArgument('The value used for comparison with the `'.$this->operator->name.'` operator is not valid.'),
         };
     }
 
@@ -83,20 +65,19 @@ final class ColumnValue implements Predicate
      */
     public function __invoke(array $record, int|string $key): bool
     {
-        return $this->operator->compare(self::fieldValue($record, $this->column), $this->getValue($record, $key));
-    }
+        $first = self::value($record, $this->column);
+        $second = $this->value;
+        if ($second instanceof Closure || (is_object($second) && is_callable($second))) {
+            $second = ($second)($record, $key);
+        }
 
-    private function getValue(array $record, int|string $key): mixed
-    {
-        return self::isCallback($this->value) ?
-            $this->validateValue(($this->value)($record, $key))  /* @phpstan-ignore-line */
-            : $this->value;
+        return $this->operator->compare($first, $second);
     }
 
     /**
      * @throws StatementError
      */
-    private static function fieldValue(array $array, string|int $key): mixed
+    private static function value(array $array, string|int $key): mixed
     {
         $offset = $key;
         if (is_int($offset)) {

@@ -75,6 +75,9 @@ enum Comparison: string
         return self::tryFromOperator($operator) ?? throw new InvalidArgument('Unknown or unsupported comparison operator `'.$operator.'`');
     }
 
+    /**
+     * @throws InvalidArgument
+     */
     public function compare(mixed $first, mixed $second): bool
     {
         return match ($this) {
@@ -94,6 +97,23 @@ enum Comparison: string
             self::NotContain => is_string($second) ? (is_string($first) && !str_contains($first, $second)) : throw new InvalidArgument('The value used for comparison with the `'.$this->name.'` operator must be a string.'),
             self::StartsWith => is_string($second) ? (is_string($first) && str_starts_with($first, $second)) : throw new InvalidArgument('The value used for comparison with the `'.$this->name.'` operator must be a string.'),
             self::EndsWith => is_string($second) ? (is_string($first) && str_ends_with($first, $second)) : throw new InvalidArgument('The value used for comparison with the `'.$this->name.'` operator must be a string.'),
+        };
+    }
+
+    public function accept(mixed $value): bool
+    {
+        return match ($this) {
+            self::Between,
+            self::NotBetween => is_array($value) && array_is_list($value) && 2 === count($value),
+            self::In,
+            self::NotIn => is_array($value),
+            self::Regexp,
+            self::NotRegexp,
+            self::Contains,
+            self::NotContain,
+            self::StartsWith,
+            self::EndsWith => is_string($value),
+            default => true,
         };
     }
 }

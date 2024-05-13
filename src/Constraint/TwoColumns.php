@@ -72,14 +72,14 @@ final class TwoColumns implements Predicate
     public function __invoke(array $record, string|int $key): bool
     {
         $value = match (true) {
-            is_array($this->second) => array_map(fn (string|int $column) => self::fieldValue($record, $column), $this->second),
-            default => self::fieldValue($record, $this->second),
+            is_array($this->second) => array_map(fn (string|int $column) => self::value($record, $column), $this->second),
+            default => self::value($record, $this->second),
         };
 
         return ColumnValue::filterOn($this->first, $this->operator, $value)($record, $key);
     }
 
-    private static function fieldValue(array $array, string|int $key): mixed
+    private static function value(array $array, string|int $key): mixed
     {
         $offset = $key;
         if (is_int($offset)) {
