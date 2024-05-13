@@ -172,7 +172,7 @@ final class Stream implements SeekableIterator
      */
     public function getPathname(): string
     {
-        return stream_get_meta_data($this->stream)['uri'];
+        return stream_get_meta_data($this->stream)['uri'] ?? '';
     }
 
     /**

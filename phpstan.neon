@@ -5,11 +5,11 @@ includes:
     - vendor/phpstan/phpstan-phpunit/rules.neon
 parameters:
     ignoreErrors:
+        - identifier: missingType.generics
+        - identifier: missingType.iterableValue
         - '#implements deprecated interface League\\Csv\\ByteSequence#'
     level: max
     paths:
         - src
-    checkGenericClassInNonGenericObjectType: false
-    checkMissingIterableValueType: false
     reportUnmatchedIgnoredErrors: true
     treatPhpDocTypesAsCertain: false
