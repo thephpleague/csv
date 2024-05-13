@@ -57,38 +57,6 @@ final class Criteria implements PredicateCombinator
     }
 
     /**
-     * Creates a new instance with predicates join using the logical XOR operator.
-     *
-     * @param Predicate|Closure(array, array-key): bool|callable(array, array-key): bool ...$predicates
-     */
-    public static function some(Predicate|Closure|callable ...$predicates): self
-    {
-        return new self(fn (array $record, int|string $key): bool => array_reduce(
-            $predicates,
-            fn (bool $bool, Predicate|Closure|callable $predicate) => $predicate($record, $key) xor $bool,
-            false
-        ));
-    }
-
-    /**
-     * Creates a new instance with predicates join using the logical OR operator.
-     *
-     * @param Predicate|Closure(array, array-key): bool|callable(array, array-key): bool ...$predicates
-     */
-    public static function any(Predicate|Closure|callable ...$predicates): self
-    {
-        return new self(function (array $record, int|string $key) use ($predicates): bool {
-            foreach ($predicates as $predicate) {
-                if (true === $predicate($record, $key)) {
-                    return true;
-                }
-            }
-
-            return [] === $predicates;
-        });
-    }
-
-    /**
      * Creates a new instance with predicates join using the logical NOT operator.
      *
      * @param Predicate|Closure(array, array-key): bool|callable(array, array-key): bool ...$predicates
@@ -104,6 +72,38 @@ final class Criteria implements PredicateCombinator
 
             return true;
         });
+    }
+
+    /**
+     * Creates a new instance with predicates join using the logical OR operator.
+     *
+     * @param Predicate|Closure(array, array-key): bool|callable(array, array-key): bool ...$predicates
+     */
+    public static function some(Predicate|Closure|callable ...$predicates): self
+    {
+        return new self(function (array $record, int|string $key) use ($predicates): bool {
+            foreach ($predicates as $predicate) {
+                if (true === $predicate($record, $key)) {
+                    return true;
+                }
+            }
+
+            return [] === $predicates;
+        });
+    }
+
+    /**
+     * Creates a new instance with predicates join using the logical XOR operator.
+     *
+     * @param Predicate|Closure(array, array-key): bool|callable(array, array-key): bool ...$predicates
+     */
+    public static function xsome(Predicate|Closure|callable ...$predicates): self
+    {
+        return new self(fn (array $record, int|string $key): bool => array_reduce(
+            $predicates,
+            fn (bool $bool, Predicate|Closure|callable $predicate) => $predicate($record, $key) xor $bool,
+            false
+        ));
     }
 
     public function __invoke(array $record, int|string $key): bool
@@ -132,7 +132,7 @@ final class Criteria implements PredicateCombinator
      */
     public function or(Predicate|Closure|callable ...$predicates): self
     {
-        return self::any($this->predicate, ...$predicates);
+        return self::some($this->predicate, ...$predicates);
     }
 
     /**
@@ -140,6 +140,6 @@ final class Criteria implements PredicateCombinator
      */
     public function xor(Predicate|Closure|callable ...$predicates): self
     {
-        return self::some($this->predicate, ...$predicates);
+        return self::xsome($this->predicate, ...$predicates);
     }
 }
