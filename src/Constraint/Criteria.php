@@ -27,18 +27,6 @@ final class Criteria implements PredicateCombinator
     }
 
     /**
-     * Create a new instance with a single predicate.
-     *
-     * @param Predicate|Closure(array, array-key): bool|callable(array, array-key): bool $predicate
-     */
-    public static function one(Predicate|Closure|callable $predicate): self
-    {
-        return new self(
-            $predicate instanceof Closure || $predicate instanceof Predicate ? $predicate : $predicate(...)
-        );
-    }
-
-    /**
      * Creates a new instance with predicates join using the logical AND operator.
      *
      * @param Predicate|Closure(array, array-key): bool|callable(array, array-key): bool ...$predicates
@@ -47,7 +35,7 @@ final class Criteria implements PredicateCombinator
     {
         return new self(function (array $record, int|string $key) use ($predicates): bool {
             foreach ($predicates as $predicate) {
-                if (true !== $predicate($record, $key)) {
+                if (!$predicate($record, $key)) {
                     return false;
                 }
             }
@@ -65,7 +53,7 @@ final class Criteria implements PredicateCombinator
     {
         return new self(function (array $record, int|string $key) use ($predicates): bool {
             foreach ($predicates as $predicate) {
-                if (true === $predicate($record, $key)) {
+                if ($predicate($record, $key)) {
                     return false;
                 }
             }
@@ -79,16 +67,16 @@ final class Criteria implements PredicateCombinator
      *
      * @param Predicate|Closure(array, array-key): bool|callable(array, array-key): bool ...$predicates
      */
-    public static function some(Predicate|Closure|callable ...$predicates): self
+    public static function any(Predicate|Closure|callable ...$predicates): self
     {
         return new self(function (array $record, int|string $key) use ($predicates): bool {
             foreach ($predicates as $predicate) {
-                if (true === $predicate($record, $key)) {
+                if ($predicate($record, $key)) {
                     return true;
                 }
             }
 
-            return [] === $predicates;
+            return false;
         });
     }
 
@@ -97,7 +85,7 @@ final class Criteria implements PredicateCombinator
      *
      * @param Predicate|Closure(array, array-key): bool|callable(array, array-key): bool ...$predicates
      */
-    public static function xsome(Predicate|Closure|callable ...$predicates): self
+    public static function xany(Predicate|Closure|callable ...$predicates): self
     {
         return new self(fn (array $record, int|string $key): bool => array_reduce(
             $predicates,
@@ -132,7 +120,7 @@ final class Criteria implements PredicateCombinator
      */
     public function or(Predicate|Closure|callable ...$predicates): self
     {
-        return self::some($this->predicate, ...$predicates);
+        return self::any($this->predicate, ...$predicates);
     }
 
     /**
@@ -140,6 +128,6 @@ final class Criteria implements PredicateCombinator
      */
     public function xor(Predicate|Closure|callable ...$predicates): self
     {
-        return self::xsome($this->predicate, ...$predicates);
+        return self::xany($this->predicate, ...$predicates);
     }
 }

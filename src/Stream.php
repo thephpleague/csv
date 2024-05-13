@@ -420,7 +420,6 @@ final class Stream implements SeekableIterator
         return $line;
     }
 
-
     /**
      * Seeks to specified line.
      *

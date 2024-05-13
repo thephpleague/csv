@@ -162,8 +162,8 @@ class Statement
             return $this->where(match ($joiner) {
                 'and' => $predicate,
                 'not' => Constraint\Criteria::none($predicate),
-                'or' => Constraint\Criteria::some($predicate),
-                'xor' => Constraint\Criteria::xsome($predicate),
+                'or' => Constraint\Criteria::any($predicate),
+                'xor' => Constraint\Criteria::xany($predicate),
             });
         }
 

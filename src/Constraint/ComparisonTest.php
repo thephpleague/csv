@@ -30,84 +30,84 @@ final class ComparisonTest extends TestCase
 
     #[Test]
     #[DataProvider('provideValidComparisons')]
-    public function it_can_compare_two_values(mixed $first, mixed $second, string $operator, bool $expected): void
+    public function it_can_compare_two_values(mixed $needle, mixed $haystack, string $operator, bool $expected): void
     {
-        self::assertSame($expected, Comparison::fromOperator($operator)->compare($first, $second));
+        self::assertSame($expected, Comparison::fromOperator($operator)->compare($needle, $haystack));
     }
 
     #[Test]
     #[DataProvider('provideInvalidComparisons')]
-    public function it_fails_to_compare_two_values(mixed $first, mixed $second, string $operator): void
+    public function it_fails_to_compare_two_values(mixed $needle, mixed $haystack, string $operator): void
     {
         $this->expectException(InvalidArgument::class);
 
-        Comparison::fromOperator($operator)->compare($first, $second);
+        Comparison::fromOperator($operator)->compare($needle, $haystack);
     }
 
     public static function provideInvalidComparisons(): iterable
     {
         yield 'between with not an array' => [
-            'first' => 4,
-            'second' => '3,5',
+            'needle' => 4,
+            'haystack' => '3,5',
             'operator' => 'between',
         ];
 
         yield 'between without a list' => [
-            'first' => 4,
-            'second' =>  [3 => 3, 4 => 5],
+            'needle' => 4,
+            'haystack' =>  [3 => 3, 4 => 5],
             'operator' => 'between',
         ];
 
         yield 'between with a list without 2 members' => [
-            'first' => 4,
-            'second' =>  [3, 4, 5],
+            'needle' => 4,
+            'haystack' =>  [3, 4, 5],
             'operator' => 'between',
         ];
         yield 'not between with not an array' => [
-            'first' => 4,
-            'second' => '3,5',
+            'needle' => 4,
+            'haystack' => '3,5',
             'operator' => 'nbetween',
         ];
 
         yield 'not between without a list' => [
-            'first' => 4,
-            'second' =>  [3 => 3, 4 => 5],
+            'needle' => 4,
+            'haystack' =>  [3 => 3, 4 => 5],
             'operator' => 'nbetween',
         ];
 
         yield 'not between with a list without 2 members' => [
-            'first' => 4,
-            'second' =>  [3, 4, 5],
+            'needle' => 4,
+            'haystack' =>  [3, 4, 5],
             'operator' => 'nbetween',
         ];
 
         yield 'regexp does not work with anything else but string' => [
-            'first' => 'foobar',
-            'second' =>  [3, 4, 5],
+            'needle' => 'foobar',
+            'haystack' =>  [3, 4, 5],
             'operator' => 'regexp',
         ];
 
         yield 'nregexp does not work with anything else but string' => [
-            'first' => 'foobar',
-            'second' =>  [3, 4, 5],
+            'needle' => 'foobar',
+            'haystack' =>  [3, 4, 5],
             'operator' => 'nregexp',
         ];
 
         yield 'contains does not work with anything else but string' => [
-            'first' => 'foobar',
-            'second' =>  [3, 4, 5],
+            'needle' => 'foobar',
+            'haystack' =>  [3, 4, 5],
             'operator' => 'contains',
         ];
 
         yield 'ends with does not work with anything else but string' => [
-            'first' => 'foobar',
-            'second' =>  [3, 4, 5],
+            'needle' => 'foobar',
+            'haystack' =>  [3, 4, 5],
             'operator' => 'ends with',
         ];
 
         yield 'starts with does not work with anything else but string' => [
-            'first' => 'foobar',
-            'second' =>  [3, 4, 5],
+            'needle' => 'foobar',
+            'haystack' =>  [3, 4, 5],
             'operator' => 'starts with',
         ];
     }
@@ -115,120 +115,120 @@ final class ComparisonTest extends TestCase
     public static function provideValidComparisons(): iterable
     {
         yield 'eq' => [
-            'first' => 3,
-            'second' => 3,
+            'needle' => 3,
+            'haystack' => 3,
             'operator' => 'equals',
             'expected' => true,
         ];
 
         yield 'neq' => [
-            'first' => 3,
-            'second' => 4,
+            'needle' => 3,
+            'haystack' => 4,
             'operator' => 'not equal',
             'expected' => true,
         ];
 
         yield 'lt' => [
-            'first' => 3,
-            'second' => 4,
+            'needle' => 3,
+            'haystack' => 4,
             'operator' => 'lesser than',
             'expected' => true,
         ];
 
         yield 'gt' => [
-            'first' => 4,
-            'second' => 3,
+            'needle' => 4,
+            'haystack' => 3,
             'operator' => 'greater than',
             'expected' => true,
         ];
 
         yield 'gte' => [
-            'first' => 4,
-            'second' => 3,
+            'needle' => 4,
+            'haystack' => 3,
             'operator' => 'greater than or equal',
             'expected' => true,
         ];
 
         yield 'between' => [
-            'first' => 4,
-            'second' => [3, 5],
+            'needle' => 4,
+            'haystack' => [3, 5],
             'operator' => 'between',
             'expected' => true,
         ];
 
         yield 'not between' => [
-            'first' => 7,
-            'second' => [3, 5],
+            'needle' => 7,
+            'haystack' => [3, 5],
             'operator' => 'nbetween',
             'expected' => true,
         ];
 
         yield 'regexp' => [
-            'first' => 'fOobar',
-            'second' => '/oob/i',
+            'needle' => 'fOobar',
+            'haystack' => '/oob/i',
             'operator' => 'regexp',
             'expected' => true,
         ];
 
         yield 'not regexp' => [
-            'first' => 'fOobar',
-            'second' => '/oob/',
+            'needle' => 'fOobar',
+            'haystack' => '/oob/',
             'operator' => 'nregexp',
             'expected' => true,
         ];
 
         yield 'in' => [
-            'first' => 'toto',
-            'second' => ['foo', 'toto', 'bar'],
+            'needle' => 'toto',
+            'haystack' => ['foo', 'toto', 'bar'],
             'operator' => 'in',
             'expected' => true,
         ];
 
         yield 'not in' => [
-            'first' => 'toto',
-            'second' => ['foo', 'bar', 'baz'],
+            'needle' => 'toto',
+            'haystack' => ['foo', 'bar', 'baz'],
             'operator' => 'not in',
             'expected' => true,
         ];
 
         yield 'contains' => [
-            'first' => 'foObar',
-            'second' => 'oOb',
+            'needle' => 'foObar',
+            'haystack' => 'oOb',
             'operator' => 'contains',
             'expected' => true,
         ];
 
         yield 'not contains' => [
-            'first' => 'foObar',
-            'second' => 'oob',
+            'needle' => 'foObar',
+            'haystack' => 'oob',
             'operator' => 'not contain',
             'expected' => true,
         ];
 
         yield 'starts with' => [
-            'first' => 'foObar',
-            'second' => 'foO',
+            'needle' => 'foObar',
+            'haystack' => 'foO',
             'operator' => 'starts with',
             'expected' => true,
         ];
 
         yield 'starts with false' => [
-            'first' => 'foObar',
-            'second' => 'foo',
+            'needle' => 'foObar',
+            'haystack' => 'foo',
             'operator' => 'starts with',
             'expected' => false,
         ];
 
         yield 'ends with' => [
-            'first' => 'foObar',
-            'second' => 'Obar',
+            'needle' => 'foObar',
+            'haystack' => 'Obar',
             'operator' => 'ends with',
             'expected' => true,
         ];
 
         yield 'ends with false' => [
-            'first' => 'foObar',
-            'second' => 'obar',
+            'needle' => 'foObar',
+            'haystack' => 'obar',
             'operator' => 'ends with',
             'expected' => false,
         ];
