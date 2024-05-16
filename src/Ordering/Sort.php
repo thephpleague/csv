@@ -25,5 +25,5 @@ namespace League\Csv\Ordering;
  */
 interface Sort
 {
-    public function __invoke(mixed $row1, mixed $row2): int;
+    public function __invoke(mixed $valueA, mixed $valueB): int;
 }

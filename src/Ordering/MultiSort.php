@@ -73,10 +73,10 @@ final class MultiSort implements SortCombinator
         return (new self(...$sorts))->append(...$this->sorts);
     }
 
-    public function __invoke(mixed $row1, mixed $row2): int
+    public function __invoke(mixed $valueA, mixed $valueB): int
     {
         foreach ($this->sorts as $sort) {
-            if (0 !== ($result = $sort($row1, $row2))) {
+            if (0 !== ($result = $sort($valueA, $valueB))) {
                 return $result;
             }
         }

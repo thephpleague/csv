@@ -71,10 +71,10 @@ final class Column implements Sort
      * @throws ReflectionException
      * @throws StatementError
      */
-    public function __invoke(mixed $row1, mixed $row2): int
+    public function __invoke(mixed $valueA, mixed $valueB): int
     {
-        $first = Extract::value($row1, $this->column);
-        $second = Extract::value($row2, $this->column);
+        $first = Extract::value($valueA, $this->column);
+        $second = Extract::value($valueB, $this->column);
 
         return match ($this->direction) {
             self::ASCENDING => ($this->callback)($first, $second),
