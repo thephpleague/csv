@@ -24,5 +24,5 @@ namespace League\Csv\Constraint;
  */
 interface Predicate
 {
-    public function __invoke(array $record, string|int $key): bool;
+    public function __invoke(mixed $value, string|int $key): bool;
 }

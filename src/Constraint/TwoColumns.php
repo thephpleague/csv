@@ -13,15 +13,13 @@ declare(strict_types=1);
 
 namespace League\Csv\Constraint;
 
+use League\Csv\Extract;
 use League\Csv\InvalidArgument;
 use League\Csv\StatementError;
+use ReflectionException;
 
 use function array_filter;
-use function array_is_list;
-use function array_key_exists;
 use function array_map;
-use function array_values;
-use function count;
 use function is_array;
 use function is_int;
 use function is_string;
@@ -68,30 +66,16 @@ final class TwoColumns implements Predicate
 
     /**
      * @throws InvalidArgument
+     * @throws StatementError
+     * @throws ReflectionException
      */
-    public function __invoke(array $record, string|int $key): bool
+    public function __invoke(mixed $value, int|string $key): bool
     {
-        $value = match (true) {
-            is_array($this->second) => array_map(fn (string|int $column) => self::value($record, $column), $this->second),
-            default => self::value($record, $this->second),
+        $val = match (true) {
+            is_array($this->second) => array_map(fn (string|int $column) => Extract::value($value, $column), $this->second),
+            default => Extract::value($value, $this->second),
         };
 
-        return ColumnValue::filterOn($this->first, $this->operator, $value)($record, $key);
-    }
-
-    private static function value(array $array, string|int $key): mixed
-    {
-        $offset = $key;
-        if (is_int($offset)) {
-            if (!array_is_list($array)) {
-                $array = array_values($array);
-            }
-
-            if ($offset < 0) {
-                $offset += count($array);
-            }
-        }
-
-        return array_key_exists($offset, $array) ? $array[$offset] : throw StatementError::dueToUnknownColumn($key);
+        return Column::filterOn($this->first, $this->operator, $val)($value, $key);
     }
 }

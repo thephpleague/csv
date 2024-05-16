@@ -180,9 +180,9 @@ $csv = Reader::createFromPath('/path/to/prenoms.csv')
 $records = Statement::create()
     ->where(
         Constraint\Critera::xany(
-            Constraint\ColumnValue::filterOn('year', '=', '2024'), //filter using a column value
+            Constraint\Column::filterOn('year', '=', '2024'), //filter using a column value
             Constraint\TwoColumns::filterOn('created_at', '<', 'updated_at'), //compare two field together
-            fn (array $record, int|string|null $key = null): bool => (int) $key % 2 === 0, //using directly a Closure
+            fn (mixed $value, int|string $key): bool => (int) $key % 2 === 0, //using directly a Closure
         )
     )
     ->process($csv);
@@ -237,17 +237,17 @@ $records = Statement::create()
 ```
 
 if you need to create more complex ordering you may align calls to `orderByAsc` and `orderByDesc` **or**
-use the `orderBy` method with the classes defined under the `League\Csv\Constraint` namespace as shown below:
+use the `orderBy` method with the classes defined under the `League\Csv\Ordering` namespace as shown below:
 
 ```php
 
-use League\Csv\Constraint;
+use League\Csv\Ordering;
 use League\Csv\Reader;
 use League\Csv\Statement;
 
-$sort = Constraint\MultiSort::new(
-    Constraint\SingleSort::new(1, 'desc'),
-    Constraint\SingleSort::new('foo', 'asc'),
+$sort = Ordering\MultiSort::all(
+    Ordering\Column::sortOn(1, 'desc'),
+    Ordering\Column::sortOn('foo', 'asc'),
 );
 
 $reader = Reader::createFromPath('/path/to/file.csv');

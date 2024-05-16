@@ -11,30 +11,27 @@
 
 declare(strict_types=1);
 
-namespace League\Csv\Constraint;
+namespace League\Csv\Ordering;
 
 use Closure;
+use League\Csv\Extract;
 use League\Csv\InvalidArgument;
 use League\Csv\StatementError;
+use ReflectionException;
 
-use function array_is_list;
-use function array_key_exists;
-use function array_values;
-use function count;
-use function is_int;
+use function strtoupper;
+use function trim;
 
 /**
  * Enable sorting a record based on the value of a one of its cell.
- *
- * The class can be used with PHP's usort and uasort functions.
  */
-final class SingleSort implements Sort
+final class Column implements Sort
 {
     private const ASCENDING = 'ASC';
     private const DESCENDING = 'DESC';
 
     /**
-     * @param Closure(mixed, mixed): int<-1, 1> $callback
+     * @param Closure(mixed, mixed): int $callback
      */
     private function __construct(
         public readonly string $direction,
@@ -44,17 +41,22 @@ final class SingleSort implements Sort
     }
 
     /**
-     * @param ?Closure(mixed, mixed): int<-1, 1> $callback
+     * @param ?Closure(mixed, mixed): int $callback
      */
-    public static function new(
+    public static function sortBy(
         string|int $column,
-        string $direction,
+        string|int $direction,
         ?Closure $callback = null
     ): self {
 
-        $operator = match (strtoupper(trim($direction))) {
-            'ASC', 'ASCENDING', 'UP' => self::ASCENDING,
-            'DESC', 'DESCENDING', 'DOWN' => self::DESCENDING,
+        $operator = match (true) {
+            SORT_ASC === $direction => self::ASCENDING,
+            SORT_DESC === $direction => self::DESCENDING,
+            is_string($direction) => match (strtoupper(trim($direction))) {
+                'ASC', 'ASCENDING', 'UP' => self::ASCENDING,
+                'DESC', 'DESCENDING', 'DOWN' => self::DESCENDING,
+                default => throw new InvalidArgument('Unknown operator or unsupported operator: '.$direction),
+            },
             default => throw new InvalidArgument('Unknown operator or unsupported operator: '.$direction),
         };
 
@@ -65,30 +67,18 @@ final class SingleSort implements Sort
         );
     }
 
-    public function __invoke(array $row1, array $row2): int
+    /**
+     * @throws ReflectionException
+     * @throws StatementError
+     */
+    public function __invoke(mixed $row1, mixed $row2): int
     {
-        $first = self::fieldValue($row1, $this->column);
-        $second = self::fieldValue($row2, $this->column);
+        $first = Extract::value($row1, $this->column);
+        $second = Extract::value($row2, $this->column);
 
         return match ($this->direction) {
             self::ASCENDING => ($this->callback)($first, $second),
             default => ($this->callback)($second, $first),
         };
-    }
-
-    private static function fieldValue(array $array, string|int $key): mixed
-    {
-        $offset = $key;
-        if (is_int($offset)) {
-            if (!array_is_list($array)) {
-                $array = array_values($array);
-            }
-
-            if ($offset < 0) {
-                $offset += count($array);
-            }
-        }
-
-        return array_key_exists($offset, $array) ? $array[$offset] : throw StatementError::dueToUnknownColumn($key);
     }
 }

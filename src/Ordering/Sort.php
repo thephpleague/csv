@@ -11,7 +11,7 @@
 
 declare(strict_types=1);
 
-namespace League\Csv\Constraint;
+namespace League\Csv\Ordering;
 
 /**
  * Enable sorting a record based on its value.
@@ -25,5 +25,5 @@ namespace League\Csv\Constraint;
  */
 interface Sort
 {
-    public function __invoke(array $row1, array $row2): int;
+    public function __invoke(mixed $row1, mixed $row2): int;
 }

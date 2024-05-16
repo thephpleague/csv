@@ -11,7 +11,7 @@
 
 declare(strict_types=1);
 
-namespace League\Csv\Constraint;
+namespace League\Csv\Ordering;
 
 use Closure;
 
@@ -21,14 +21,17 @@ use function array_map;
  * Enable sorting a record based on multiple column.
  *
  * The class can be used with PHP's usort and uasort functions.
+ *
+ * @phpstan-import-type Ordering from SortCombinator
+ * @phpstan-import-type OrderingExtended from SortCombinator
  */
 final class MultiSort implements SortCombinator
 {
-    /** @var array<Sort|Closure(array, array): int> */
+    /** @var array<Ordering> */
     private readonly array $sorts;
 
     /**
-     * @param Sort|Closure(array, array): int|callable(array, array): int ...$sorts
+     * @param OrderingExtended ...$sorts
      */
     private function __construct(Sort|Closure|callable ...$sorts)
     {
@@ -39,15 +42,15 @@ final class MultiSort implements SortCombinator
     }
 
     /**
-     * @param Sort|Closure(array, array): int|callable(array, array): int ...$sorts
+     * @param OrderingExtended ...$sorts
      */
-    public static function new(Sort|Closure|callable ...$sorts): self
+    public static function all(Sort|Closure|callable ...$sorts): self
     {
         return new self(...$sorts);
     }
 
     /**
-     * @param Sort|Closure(array, array): int|callable(array, array): int ...$sorts
+     * @param OrderingExtended ...$sorts
      */
     public function append(Sort|Closure|callable ...$sorts): self
     {
@@ -59,7 +62,7 @@ final class MultiSort implements SortCombinator
     }
 
     /**
-     * @param Sort|Closure(array, array): int|callable(array, array): int ...$sorts
+     * @param OrderingExtended ...$sorts
      */
     public function prepend(Sort|Closure|callable ...$sorts): self
     {
@@ -70,7 +73,7 @@ final class MultiSort implements SortCombinator
         return (new self(...$sorts))->append(...$this->sorts);
     }
 
-    public function __invoke(array $row1, array $row2): int
+    public function __invoke(mixed $row1, mixed $row2): int
     {
         foreach ($this->sorts as $sort) {
             if (0 !== ($result = $sort($row1, $row2))) {

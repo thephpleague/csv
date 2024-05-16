@@ -21,6 +21,7 @@ abstract class ContraintTestCase extends TestCase
 {
     protected readonly Reader $document;
     protected readonly Statement $stmt;
+    protected readonly array $iterable;
 
     protected function setUp(): void
     {
@@ -37,5 +38,13 @@ CSV;
         $this->document = Reader::createFromString($csv);
         $this->document->setHeaderOffset(0);
         $this->stmt = Statement::create();
+        $this->iterable = [
+            ['volume' => 67, 'edition' => 2],
+            ['volume' => 86, 'edition' => 1],
+            ['volume' => 85, 'edition' => 6],
+            ['volume' => 98, 'edition' => 2],
+            ['volume' => 86, 'edition' => 6],
+            ['volume' => 67, 'edition' => 7],
+        ];
     }
 }

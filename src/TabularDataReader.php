@@ -35,7 +35,7 @@ use IteratorAggregate;
  * @method Iterator getRecordsAsObject(string $className, array $header = []) Returns the tabular data records as an iterator object containing instance of the defined class name.
  * @method TabularDataReader filter(Constraint\Predicate|Closure $predicate) returns all the elements of this collection for which your callback function returns `true`
  * @method TabularDataReader slice(int $offset, int $length = null) extracts a slice of $length elements starting at position $offset from the Collection.
- * @method TabularDataReader sorted(Constraint\Sort|Closure $orderBy) sorts the Collection according to the closure provided see Statement::orderBy method
+ * @method TabularDataReader sorted(Ordering\Sort|Closure $orderBy) sorts the Collection according to the closure provided see Statement::orderBy method
  * @method TabularDataReader select(string|int ...$columnOffsetOrName) extract a selection of the tabular data records columns.
  * @method TabularDataReader matchingFirstOrFail(string $expression) extract the first found fragment identifier of the tabular data or fail
  * @method TabularDataReader|null matchingFirst(string $expression) extract the first found fragment identifier of the tabular data or return null if none is found

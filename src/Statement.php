@@ -30,12 +30,15 @@ use function is_string;
 
 /**
  * Criteria to filter a {@link TabularDataReader} object.
+ *
+ * @phpstan-import-type ConditionExtended from Constraint\PredicateCombinator
+ * @phpstan-import-type OrderingExtended from Ordering\SortCombinator
  */
 class Statement
 {
-    /** @var array<callable(array, array-key): bool> Callables to filter the iterator. */
+    /** @var array<ConditionExtended> Callables to filter the iterator. */
     protected array $where = [];
-    /** @var array<callable(array, array): int> Callables to sort the iterator. */
+    /** @var array<OrderingExtended> Callables to sort the iterator. */
     protected array $order_by = [];
     /** iterator Offset. */
     protected int $offset = 0;
@@ -76,6 +79,9 @@ class Statement
      * Sets the Iterator filter method.
      *
      * @param callable(array, array-key): bool $where
+     *
+     * @throws ReflectionException
+     * @throws InvalidArgument
      */
     public function where(callable $where): self
     {
@@ -96,7 +102,7 @@ class Statement
      * @throws InvalidArgument
      * @throws ReflectionException
      *
-     * @return callable(array, array-key): bool
+     * @return ConditionExtended
      */
     final protected static function wrapSingleArgumentCallable(callable $where): callable
     {
@@ -108,29 +114,29 @@ class Statement
 
         return match ($reflection->getNumberOfRequiredParameters()) {
             0 => throw new InvalidArgument('The where condition must be a callable with 2 required parameters.'),
-            1 => fn (array $record, int $key) => $where($record),
+            1 => fn (mixed $record, int $key) => $where($record),
             default => $where,
         };
     }
 
     public function andWhere(string|int $column, Constraint\Comparison|string $operator, mixed $value): self
     {
-        return $this->addCondition('and', Constraint\ColumnValue::filterOn($column, $operator, $value));
+        return $this->addCondition('and', Constraint\Column::filterOn($column, $operator, $value));
     }
 
     public function orWhere(string|int $column, Constraint\Comparison|string $operator, mixed $value): self
     {
-        return $this->addCondition('or', Constraint\ColumnValue::filterOn($column, $operator, $value));
+        return $this->addCondition('or', Constraint\Column::filterOn($column, $operator, $value));
     }
 
     public function whereNot(string|int $column, Constraint\Comparison|string $operator, mixed $value): self
     {
-        return $this->addCondition('not', Constraint\ColumnValue::filterOn($column, $operator, $value));
+        return $this->addCondition('not', Constraint\Column::filterOn($column, $operator, $value));
     }
 
     public function xorWhere(string|int $column, Constraint\Comparison|string $operator, mixed $value): self
     {
-        return $this->addCondition('xor', Constraint\ColumnValue::filterOn($column, $operator, $value));
+        return $this->addCondition('xor', Constraint\Column::filterOn($column, $operator, $value));
     }
 
     public function andWhereColumn(string|int $first, Constraint\Comparison|string $operator, array|int|string $second): self
@@ -183,7 +189,7 @@ class Statement
     /**
      * Sets an Iterator sorting callable function.
      *
-     * @param callable(array, array): int $order_by
+     * @param OrderingExtended $order_by
      */
     public function orderBy(callable $order_by): self
     {
@@ -200,7 +206,7 @@ class Statement
      */
     public function orderByAsc(string|int $column, ?Closure $callback = null): self
     {
-        return $this->orderBy(Constraint\SingleSort::new($column, 'asc', $callback));
+        return $this->orderBy(Ordering\Column::sortBy($column, 'asc', $callback));
     }
 
     /**
@@ -210,7 +216,7 @@ class Statement
      */
     public function orderByDesc(string|int $column, ?Closure $callback = null): self
     {
-        return $this->orderBy(Constraint\SingleSort::new($column, 'desc', $callback));
+        return $this->orderBy(Ordering\Column::sortBy($column, 'desc', $callback));
     }
 
     /**
@@ -311,7 +317,7 @@ class Statement
 
         /** @var ArrayIterator<array-key, array<string|null>> $it */
         $it = new $class([...$iterator]);
-        $it->uasort(Constraint\MultiSort::new(...$this->order_by));
+        $it->uasort(Ordering\MultiSort::all(...$this->order_by));
 
         return $it;
     }

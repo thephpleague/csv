@@ -15,6 +15,10 @@ namespace League\Csv\Constraint;
 
 use Closure;
 
+/**
+ * @phpstan-type Condition Predicate|Closure(mixed, array-key): bool
+ * @phpstan-type ConditionExtended Predicate|Closure(mixed, array-key): bool|callable(mixed, array-key): bool
+ */
 interface PredicateCombinator extends Predicate
 {
     /**
@@ -25,7 +29,7 @@ interface PredicateCombinator extends Predicate
      * This method MUST retain the state of the current instance, and return
      * an instance that contains the specified changes.
      *
-     * @param Predicate|Closure(array, array-key): bool ...$predicates
+     * @param Condition ...$predicates
      */
     public function and(Predicate|Closure ...$predicates): self;
 
@@ -37,7 +41,7 @@ interface PredicateCombinator extends Predicate
      * This method MUST retain the state of the current instance, and return
      * an instance that contains the specified changes.
      *
-     * @param Predicate|Closure(array, array-key): bool ...$predicates
+     * @param Condition ...$predicates
      */
     public function or(Predicate|Closure ...$predicates): self;
 
@@ -49,7 +53,7 @@ interface PredicateCombinator extends Predicate
      * This method MUST retain the state of the current instance, and return
      * an instance that contains the specified changes.
      *
-     * @param Predicate|Closure(array, array-key): bool ...$predicates
+     * @param Condition ...$predicates
      */
     public function not(Predicate|Closure ...$predicates): self;
 
@@ -61,7 +65,7 @@ interface PredicateCombinator extends Predicate
      * This method MUST retain the state of the current instance, and return
      * an instance that contains the specified changes.
      *
-     * @param Predicate|Closure(array, array-key): bool ...$predicates
+     * @param Condition ...$predicates
      */
     public function xor(Predicate|Closure ...$predicates): self;
 }

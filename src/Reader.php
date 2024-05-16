@@ -403,12 +403,12 @@ class Reader extends AbstractCsv implements TabularDataReader, JsonSerializable
     }
 
     /**
-     * @param Closure(array, array): int $orderBy
+     * @param Closure(mixed, mixed): int $orderBy
      *
      * @throws Exception
      * @throws SyntaxError
      */
-    public function sorted(Constraint\Sort|Closure $orderBy): TabularDataReader
+    public function sorted(Ordering\Sort|Closure $orderBy): TabularDataReader
     {
         return Statement::create()->orderBy($orderBy)->process($this);
     }

@@ -11,17 +11,18 @@
 
 declare(strict_types=1);
 
-namespace League\Csv\Constraint;
+namespace League\Csv\Ordering;
 
+use League\Csv\Constraint\ContraintTestCase;
 use PHPUnit\Framework\Attributes\Test;
 
-final class SingleSortTest extends ContraintTestCase
+final class ColumnTest extends ContraintTestCase
 {
     #[Test]
     public function it_can_order_the_tabular_date_in_descending_order(): void
     {
         $stmt = $this->stmt->orderBy(
-            SingleSort::new('Country', 'down')
+            Column::sortBy('Country', 'down')
         );
 
         self::assertSame('UK', $stmt->process($this->document)->first()['Country']);
@@ -31,7 +32,7 @@ final class SingleSortTest extends ContraintTestCase
     public function it_can_order_the_tabular_date_in_ascending_order(): void
     {
         $stmt = $this->stmt->orderBy(
-            SingleSort::new('Country', 'up')
+            Column::sortBy('Country', 'up')
         );
 
         self::assertSame('UK', $stmt->process($this->document)->nth(4)['Country']);
@@ -41,7 +42,7 @@ final class SingleSortTest extends ContraintTestCase
     public function it_can_order_using_a_specific_order_algo(): void
     {
         $stmt = $this->stmt->orderBy(
-            SingleSort::new(
+            Column::sortBy(
                 'Country',
                 'desc',
                 fn (string $first, string $second): int => strlen($first) <=> strlen($second) /* @phpstan-ignore-line */

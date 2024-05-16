@@ -553,14 +553,14 @@ CSV;
 
     public function testOrderBy(): void
     {
-        $calculated = $this->csv->sorted(fn (array $rowA, array $rowB): int => strcmp($rowA[0], $rowB[0]));
+        $calculated = $this->csv->sorted(fn (array $rowA, array $rowB): int => strcmp($rowA[0], $rowB[0])); /* @phpstan-ignore-line */
 
         self::assertSame(array_reverse($this->expected), array_values([...$calculated]));
     }
 
     public function testOrderByWithEquity(): void
     {
-        $calculated = $this->csv->sorted(fn (array $rowA, array $rowB): int => strlen($rowA[0]) <=> strlen($rowB[0]));
+        $calculated = $this->csv->sorted(fn (array $rowA, array $rowB): int => strlen($rowA[0]) <=> strlen($rowB[0])); /* @phpstan-ignore-line */
 
         self::assertSame($this->expected, array_values([...$calculated]));
     }

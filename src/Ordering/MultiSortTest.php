@@ -11,8 +11,9 @@
 
 declare(strict_types=1);
 
-namespace League\Csv\Constraint;
+namespace League\Csv\Ordering;
 
+use League\Csv\Constraint\ContraintTestCase;
 use PHPUnit\Framework\Attributes\Test;
 
 final class MultiSortTest extends ContraintTestCase
@@ -22,7 +23,7 @@ final class MultiSortTest extends ContraintTestCase
     {
         self::assertSame(
             [...$this->document],
-            [...$this->stmt->orderBy(MultiSort::new())->process($this->document)]
+            [...$this->stmt->orderBy(MultiSort::all())->process($this->document)]
         );
     }
 
@@ -30,7 +31,7 @@ final class MultiSortTest extends ContraintTestCase
     public function it_can_order_the_tabular_date_when_an_algo_is_provided(): void
     {
         $stmt = $this->stmt->orderBy(
-            MultiSort::new()->append(SingleSort::new('Country', 'up'))
+            MultiSort::all()->append(Column::sortBy('Country', 'up'))
         );
 
         self::assertSame('UK', $stmt->process($this->document)->nth(4)['Country']);
@@ -39,15 +40,15 @@ final class MultiSortTest extends ContraintTestCase
     #[Test]
     public function it_respect_the_fifo_order_to_apply_sorting(): void
     {
-        $countryOrder = SingleSort::new('Country', 'ASC');
-        $idOrder = SingleSort::new('CustomerID', 'DeSc');
+        $countryOrder = Column::sortBy('Country', 'ASC');
+        $idOrder = Column::sortBy('CustomerID', 'DeSc');
 
         self::assertNotSame(
             $this->stmt
-                ->orderBy(MultiSort::new()->append($countryOrder)->prepend($idOrder))
+                ->orderBy(MultiSort::all()->append($countryOrder)->prepend($idOrder))
                 ->process($this->document)->first()['Country'],
             $this->stmt
-                ->orderBy(MultiSort::new()->append($idOrder)->prepend($countryOrder))
+                ->orderBy(MultiSort::all()->append($idOrder)->prepend($countryOrder))
                 ->process($this->document)->first()['Country']
         );
     }

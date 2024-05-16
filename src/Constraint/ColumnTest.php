@@ -16,12 +16,12 @@ namespace League\Csv\Constraint;
 use League\Csv\StatementError;
 use PHPUnit\Framework\Attributes\Test;
 
-final class ColumnValueTest extends ContraintTestCase
+final class ColumnTest extends ContraintTestCase
 {
     #[Test]
     public function it_can_filter_the_tabular_data_based_on_the_column_value(): void
     {
-        $predicate = ColumnValue::filterOn('Country', '=', 'UK');
+        $predicate = Column::filterOn('Country', '=', 'UK');
         $result = $this->stmt->where($predicate)->process($this->document);
 
         self::assertCount(1, $result);
@@ -30,7 +30,7 @@ final class ColumnValueTest extends ContraintTestCase
     #[Test]
     public function it_can_filter_the_tabular_data_based_on_the_column_value_and_the_column_offset(): void
     {
-        $predicate = ColumnValue::filterOn(0, 'in', ['1', '2']);
+        $predicate = Column::filterOn(0, 'in', ['1', '2']);
         $result = $this->stmt->where($predicate)->process($this->document);
 
         self::assertCount(2, $result);
@@ -39,7 +39,7 @@ final class ColumnValueTest extends ContraintTestCase
     #[Test]
     public function it_can_not_filter_the_tabular_data_based_on_the_column_name(): void
     {
-        $predicate = ColumnValue::filterOn('Country', '=', 'Country');
+        $predicate = Column::filterOn('Country', '=', 'Country');
         $result = $this->stmt->where($predicate)->process($this->document);
 
         self::assertCount(0, $result);
@@ -48,18 +48,9 @@ final class ColumnValueTest extends ContraintTestCase
     #[Test]
     public function it_will_throw_if_the_column_does_not_exist(): void
     {
-        $predicate = ColumnValue::filterOn('Ville', '=', 'Dakar');
+        $predicate = Column::filterOn('Ville', '=', 'Dakar');
         $this->expectExceptionObject(StatementError::dueToUnknownColumn('Ville'));
 
         [...$this->stmt->where($predicate)->process($this->document)];
-    }
-
-    #[Test]
-    public function it_will_work_with_a_callback_value(): void
-    {
-        $predicate = ColumnValue::filterOn('CustomerID', '=', fn (array $row, int|string $key) => '1');
-
-        $result = $this->stmt->where($predicate)->process($this->document);
-        self::assertCount(1, $result);
     }
 }

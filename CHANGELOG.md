@@ -18,7 +18,8 @@ All Notable changes to `Csv` will be documented in this file
 - `Statement::whereColumnNot`
 - `Statement::orWhereColumn`
 - `Statement::xorWhereColumn`
-- `Constraint` feature to allow easier filtering and ordering of tabular data
+- `Constraint` feature to allow easier filtering of tabular data
+- `Ordering` feature to allow easier ordering of tabular data
 
 ### Deprecated
 

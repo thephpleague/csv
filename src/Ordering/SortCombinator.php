@@ -11,10 +11,14 @@
 
 declare(strict_types=1);
 
-namespace League\Csv\Constraint;
+namespace League\Csv\Ordering;
 
 use Closure;
 
+/**
+ * @phpstan-type Ordering Sort|Closure(mixed, mixed): int
+ * @phpstan-type OrderingExtended Sort|Closure(mixed, mixed): int|callable(mixed, mixed): int
+ */
 interface SortCombinator extends Sort
 {
     /**
@@ -24,7 +28,7 @@ interface SortCombinator extends Sort
      * This method MUST retain the state of the current instance,
      * and return an instance that contains the specified changes.
      *
-     * @param Sort|Closure(array, array): int ...$sorts
+     * @param Ordering ...$sorts
      */
     public function append(Sort|Closure ...$sorts): self;
 
@@ -35,7 +39,7 @@ interface SortCombinator extends Sort
      * This method MUST retain the state of the current instance,
      * and return an instance that contains the specified changes.
      *
-     * @param Sort|Closure(array, array): int ...$sorts
+     * @param Ordering ...$sorts
      */
     public function prepend(Sort|Closure ...$sorts): self;
 }
