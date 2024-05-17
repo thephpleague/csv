@@ -13,11 +13,14 @@ declare(strict_types=1);
 
 namespace League\Csv\Query\Ordering;
 
+use ArrayIterator;
 use Closure;
+use Iterator;
 use League\Csv\Query\Select;
 use League\Csv\InvalidArgument;
 use League\Csv\Query\Sort;
 use League\Csv\StatementError;
+use OutOfBoundsException;
 use ReflectionException;
 
 use function strtoupper;
@@ -81,5 +84,34 @@ final class Column implements Sort
             self::ASCENDING => ($this->callback)($first, $second),
             default => ($this->callback)($second, $first),
         };
+    }
+
+    public function uasort(iterable $value): Iterator
+    {
+        return $this->sort(is_array($value) ? $value : iterator_to_array($value));
+    }
+
+    public function usort(iterable $value): Iterator
+    {
+        return $this->sort(is_array($value) ? array_values($value) : iterator_to_array($value, false));
+    }
+
+    private function sort(array $values): Iterator
+    {
+        $class = new class () extends ArrayIterator {
+            public function seek(int $offset): void
+            {
+                try {
+                    parent::seek($offset);
+                } catch (OutOfBoundsException) {
+                    return;
+                }
+            }
+        };
+
+        $it = new $class($values);
+        $it->uasort($this);
+
+        return $it;
     }
 }

@@ -173,7 +173,8 @@ They are used internally by the `Statement` class to implement all the new `wher
 used independently to help create your own where expression as shown in the following example:
 
 ```php
-use League\Csv\Query;
+use League\Csv\Query\Constraint;
+use League\Csv\Query\Select;
 
 $data = [
     ['volume' => 67, 'edition' => 2],
@@ -184,9 +185,9 @@ $data = [
     ['volume' => 67, 'edition' => 7],
 ];
 
-$criteria = Query\Constraint\Criteria::xany(
-    Query\Constraint\Column::filterOn('volume', 'gt', 80),
-    fn (mixed $record, int|string $key) => Query\Select::one($record, 'edition') < 6
+$criteria = Constraint\Criteria::xany(
+    Constraint\Column::filterOn('volume', 'gt', 80),
+    fn (mixed $record, int|string $key) => Select::one($record, 'edition') < 6
 );
 
 $filteredData = array_filter($data, $criteria, ARRAY_FILTER_USE_BOTH));
@@ -205,11 +206,12 @@ As an example let's order the records according to the lastname found on the rec
 
 ```php
 use League\Csv\Reader;
+use League\Csv\Query\Select;
 use League\Csv\Statement;
 
 $reader = Reader::createFromPath('/path/to/file.csv');
 $records = Statement::create()
-    ->orderBy(fn (array $rA, $rB): int => strcmp($rB[1] ?? '', $rA[1] ?? '')))
+    ->orderBy(fn (mixed $rA, mixed $rB): int => strcmp(Select::one($rB, 1) ?? '', Select::one($rA, 1) ?? '')))
     ->process($reader);
 // $records is a League\Csv\ResultSet instance
 ```
@@ -244,13 +246,13 @@ use the `orderBy` method with the classes defined under the `League\Csv\Query` n
 
 ```php
 
-use League\Csv\Query;
+use League\Csv\Query\Ordering;
 use League\Csv\Reader;
 use League\Csv\Statement;
 
-$sort = Query\Ordering\MultiSort::all(
-    Query\Ordering\Column::sortBy(1, 'desc'),
-    Query\Ordering\Column::sortBy('foo', 'asc', strcmp(...)),
+$sort = Ordering\MultiSort::all(
+    Ordering\Column::sortBy(1, 'desc'),
+    Ordering\Column::sortBy('foo', 'asc', strcmp(...)),
 );
 
 $reader = Reader::createFromPath('/path/to/file.csv');

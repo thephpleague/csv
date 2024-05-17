@@ -13,10 +13,12 @@ declare(strict_types=1);
 
 namespace League\Csv\Query\Constraint;
 
-
+use ArrayIterator;
+use CallbackFilterIterator;
+use Iterator;
+use IteratorIterator;
 use League\Csv\Query\Predicate;
 use League\Csv\Query\Select;
-
 use League\Csv\InvalidArgument;
 use League\Csv\StatementError;
 use ReflectionException;
@@ -26,6 +28,8 @@ use function array_map;
 use function is_array;
 use function is_int;
 use function is_string;
+
+use const ARRAY_FILTER_USE_BOTH;
 
 /**
  * Enable filtering a record by comparing the values of two of its column.
@@ -80,5 +84,21 @@ final class TwoColumns implements Predicate
         };
 
         return Column::filterOn($this->first, $this->operator, $val)($value, $key);
+    }
+
+    public function filter(iterable $value): Iterator
+    {
+        $value = match (true) {
+            is_array($value) => new ArrayIterator($value),
+            $value instanceof Iterator => $value,
+            default => new IteratorIterator($value),
+        };
+
+        return new CallbackFilterIterator($value, $this);
+    }
+
+    public function filterArray(array $values): array
+    {
+        return array_filter($values, $this,  ARRAY_FILTER_USE_BOTH);
     }
 }

@@ -13,6 +13,7 @@ declare(strict_types=1);
 
 namespace League\Csv\Query;
 
+use Iterator;
 
 /**
  * Enable filtering a record based on its value and/or its offset.
@@ -26,4 +27,8 @@ namespace League\Csv\Query;
 interface Predicate
 {
     public function __invoke(mixed $value, string|int $key): bool;
+
+    public function filter(iterable $value): Iterator;
+
+    public function filterArray(array $value): array;
 }

@@ -13,10 +13,13 @@ declare(strict_types=1);
 
 namespace League\Csv\Query\Ordering;
 
+use ArrayIterator;
 use Closure;
 
+use Iterator;
 use League\Csv\Query\Sort;
 use League\Csv\Query\SortCombinator;
+use OutOfBoundsException;
 use function array_map;
 
 /**
@@ -84,5 +87,34 @@ final class MultiSort implements SortCombinator
         }
 
         return $result ?? 0;
+    }
+
+    public function uasort(iterable $value): Iterator
+    {
+        return $this->sort(is_array($value) ? $value : iterator_to_array($value));
+    }
+
+    public function usort(iterable $value): Iterator
+    {
+        return $this->sort(is_array($value) ? array_values($value) : iterator_to_array($value, false));
+    }
+
+    private function sort(array $values): Iterator
+    {
+        $class = new class () extends ArrayIterator {
+            public function seek(int $offset): void
+            {
+                try {
+                    parent::seek($offset);
+                } catch (OutOfBoundsException) {
+                    return;
+                }
+            }
+        };
+
+        $it = new $class($values);
+        $it->uasort($this);
+
+        return $it;
     }
 }

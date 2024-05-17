@@ -13,6 +13,8 @@ declare(strict_types=1);
 
 namespace League\Csv\Query;
 
+use Iterator;
+
 /**
  * Enable sorting a record based on its value.
  *
@@ -26,4 +28,8 @@ namespace League\Csv\Query;
 interface Sort
 {
     public function __invoke(mixed $valueA, mixed $valueB): int;
+
+    public function uasort(iterable $value): Iterator;
+
+    public function usort(iterable $value): Iterator;
 }

@@ -17,7 +17,6 @@ use ArrayIterator;
 use CallbackFilterIterator;
 use Closure;
 use Iterator;
-use LimitIterator;
 use OutOfBoundsException;
 use ReflectionException;
 use ReflectionFunction;
@@ -276,50 +275,11 @@ class Statement
         }
 
         $iterator = $tabular_data->getRecords($header);
-        $iterator = $this->applyFilter($iterator);
-        $iterator = $this->buildOrderBy($iterator);
-        $iterator = new LimitIterator($iterator, $this->offset, $this->limit);
+        $iterator = Query\Constraint\Criteria::all(...$this->where)->filter($iterator);
+        $iterator = Query\Ordering\MultiSort::all(...$this->order_by)->uasort($iterator);
+        $iterator = Query\Slice::value($iterator, $this->offset, $this->limit);
 
         return $this->applySelect($iterator, $header);
-    }
-
-    /**
-     * Filters elements of an Iterator using a callback function.
-     */
-    protected function applyFilter(Iterator $iterator): Iterator
-    {
-        if ([] === $this->where) {
-            return $iterator;
-        }
-
-        return new CallbackFilterIterator($iterator, Query\Constraint\Criteria::all(...$this->where));
-    }
-
-    /**
-     * Sorts the Iterator.
-     */
-    protected function buildOrderBy(Iterator $iterator): Iterator
-    {
-        if ([] === $this->order_by) {
-            return $iterator;
-        }
-
-        $class = new class () extends ArrayIterator {
-            public function seek(int $offset): void
-            {
-                try {
-                    parent::seek($offset);
-                } catch (OutOfBoundsException) {
-                    return;
-                }
-            }
-        };
-
-        /** @var ArrayIterator<array-key, array<string|null>> $it */
-        $it = new $class([...$iterator]);
-        $it->uasort(Query\Ordering\MultiSort::all(...$this->order_by));
-
-        return $it;
     }
 
     /**
@@ -382,5 +342,56 @@ class Statement
     protected function filter(Iterator $iterator, callable $callable): CallbackFilterIterator
     {
         return new CallbackFilterIterator($iterator, $callable);
+    }
+
+    /**
+     * Filters elements of an Iterator using a callback function.
+     *
+     * DEPRECATION WARNING! This method will be removed in the next major point release.
+     *
+     * @see Statement::process()
+     * @deprecated Since version 9.16.0
+     * @codeCoverageIgnore
+     */
+     protected function applyFilter(Iterator $iterator): Iterator
+    {
+        if ([] === $this->where) {
+            return $iterator;
+        }
+
+        return new CallbackFilterIterator($iterator, Query\Constraint\Criteria::all(...$this->where));
+    }
+
+    /**
+     * Sorts the Iterator.
+     *
+     * DEPRECATION WARNING! This method will be removed in the next major point release.
+     *
+     * @see Statement::process()
+     * @deprecated Since version 9.16.0
+     * @codeCoverageIgnore
+     */
+    protected function buildOrderBy(Iterator $iterator): Iterator
+    {
+        if ([] === $this->order_by) {
+            return $iterator;
+        }
+
+        $class = new class () extends ArrayIterator {
+            public function seek(int $offset): void
+            {
+                try {
+                    parent::seek($offset);
+                } catch (OutOfBoundsException) {
+                    return;
+                }
+            }
+        };
+
+        /** @var ArrayIterator<array-key, array<string|null>> $it */
+        $it = new $class([...$iterator]);
+        $it->uasort(Query\Ordering\MultiSort::all(...$this->order_by));
+
+        return $it;
     }
 }
