@@ -31,8 +31,8 @@ use function is_string;
 /**
  * Criteria to filter a {@link TabularDataReader} object.
  *
- * @phpstan-import-type ConditionExtended from Constraint\PredicateCombinator
- * @phpstan-import-type OrderingExtended from Ordering\SortCombinator
+ * @phpstan-import-type ConditionExtended from \League\Csv\Query\PredicateCombinator
+ * @phpstan-import-type OrderingExtended from \League\Csv\Query\SortCombinator
  */
 class Statement
 {
@@ -106,7 +106,7 @@ class Statement
      */
     final protected static function wrapSingleArgumentCallable(callable $where): callable
     {
-        if ($where instanceof Constraint\Predicate) {
+        if ($where instanceof Query\Predicate) {
             return $where;
         }
 
@@ -119,61 +119,61 @@ class Statement
         };
     }
 
-    public function andWhere(string|int $column, Constraint\Comparison|string $operator, mixed $value): self
+    public function andWhere(string|int $column, Query\Constraint\Comparison|string $operator, mixed $value): self
     {
-        return $this->addCondition('and', Constraint\Column::filterOn($column, $operator, $value));
+        return $this->addCondition('and', Query\Constraint\Column::filterOn($column, $operator, $value));
     }
 
-    public function orWhere(string|int $column, Constraint\Comparison|string $operator, mixed $value): self
+    public function orWhere(string|int $column, Query\Constraint\Comparison|string $operator, mixed $value): self
     {
-        return $this->addCondition('or', Constraint\Column::filterOn($column, $operator, $value));
+        return $this->addCondition('or', Query\Constraint\Column::filterOn($column, $operator, $value));
     }
 
-    public function whereNot(string|int $column, Constraint\Comparison|string $operator, mixed $value): self
+    public function whereNot(string|int $column, Query\Constraint\Comparison|string $operator, mixed $value): self
     {
-        return $this->addCondition('not', Constraint\Column::filterOn($column, $operator, $value));
+        return $this->addCondition('not', Query\Constraint\Column::filterOn($column, $operator, $value));
     }
 
-    public function xorWhere(string|int $column, Constraint\Comparison|string $operator, mixed $value): self
+    public function xorWhere(string|int $column, Query\Constraint\Comparison|string $operator, mixed $value): self
     {
-        return $this->addCondition('xor', Constraint\Column::filterOn($column, $operator, $value));
+        return $this->addCondition('xor', Query\Constraint\Column::filterOn($column, $operator, $value));
     }
 
-    public function andWhereColumn(string|int $first, Constraint\Comparison|string $operator, array|int|string $second): self
+    public function andWhereColumn(string|int $first, Query\Constraint\Comparison|string $operator, array|int|string $second): self
     {
-        return $this->addCondition('and', Constraint\TwoColumns::filterOn($first, $operator, $second));
+        return $this->addCondition('and', Query\Constraint\TwoColumns::filterOn($first, $operator, $second));
     }
 
-    public function orWhereColumn(string|int $first, Constraint\Comparison|string $operator, array|int|string $second): self
+    public function orWhereColumn(string|int $first, Query\Constraint\Comparison|string $operator, array|int|string $second): self
     {
-        return $this->addCondition('or', Constraint\TwoColumns::filterOn($first, $operator, $second));
+        return $this->addCondition('or', Query\Constraint\TwoColumns::filterOn($first, $operator, $second));
     }
 
-    public function xorWhereColumn(string|int $first, Constraint\Comparison|string $operator, array|int|string $second): self
+    public function xorWhereColumn(string|int $first, Query\Constraint\Comparison|string $operator, array|int|string $second): self
     {
-        return $this->addCondition('xor', Constraint\TwoColumns::filterOn($first, $operator, $second));
+        return $this->addCondition('xor', Query\Constraint\TwoColumns::filterOn($first, $operator, $second));
     }
 
-    public function whereNotColumn(string|int $first, Constraint\Comparison|string $operator, array|int|string $second): self
+    public function whereNotColumn(string|int $first, Query\Constraint\Comparison|string $operator, array|int|string $second): self
     {
-        return $this->addCondition('not', Constraint\TwoColumns::filterOn($first, $operator, $second));
+        return $this->addCondition('not', Query\Constraint\TwoColumns::filterOn($first, $operator, $second));
     }
 
     /**
      * @param 'and'|'not'|'or'|'xor' $joiner
      */
-    final protected function addCondition(string $joiner, Constraint\Predicate $predicate): self
+    final protected function addCondition(string $joiner, Query\Predicate $predicate): self
     {
         if ([] === $this->where) {
             return $this->where(match ($joiner) {
                 'and' => $predicate,
-                'not' => Constraint\Criteria::none($predicate),
-                'or' => Constraint\Criteria::any($predicate),
-                'xor' => Constraint\Criteria::xany($predicate),
+                'not' => Query\Constraint\Criteria::none($predicate),
+                'or' => Query\Constraint\Criteria::any($predicate),
+                'xor' => Query\Constraint\Criteria::xany($predicate),
             });
         }
 
-        $predicates = Constraint\Criteria::all(...$this->where);
+        $predicates = Query\Constraint\Criteria::all(...$this->where);
 
         $clone = clone $this;
         $clone->where = [match ($joiner) {
@@ -206,7 +206,7 @@ class Statement
      */
     public function orderByAsc(string|int $column, ?Closure $callback = null): self
     {
-        return $this->orderBy(Ordering\Column::sortBy($column, 'asc', $callback));
+        return $this->orderBy(Query\Ordering\Column::sortBy($column, 'asc', $callback));
     }
 
     /**
@@ -216,7 +216,7 @@ class Statement
      */
     public function orderByDesc(string|int $column, ?Closure $callback = null): self
     {
-        return $this->orderBy(Ordering\Column::sortBy($column, 'desc', $callback));
+        return $this->orderBy(Query\Ordering\Column::sortBy($column, 'desc', $callback));
     }
 
     /**
@@ -292,7 +292,7 @@ class Statement
             return $iterator;
         }
 
-        return new CallbackFilterIterator($iterator, Constraint\Criteria::all(...$this->where));
+        return new CallbackFilterIterator($iterator, Query\Constraint\Criteria::all(...$this->where));
     }
 
     /**
@@ -317,7 +317,7 @@ class Statement
 
         /** @var ArrayIterator<array-key, array<string|null>> $it */
         $it = new $class([...$iterator]);
-        $it->uasort(Ordering\MultiSort::all(...$this->order_by));
+        $it->uasort(Query\Ordering\MultiSort::all(...$this->order_by));
 
         return $it;
     }

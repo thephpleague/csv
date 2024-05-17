@@ -11,10 +11,12 @@
 
 declare(strict_types=1);
 
-namespace League\Csv\Ordering;
+namespace League\Csv\Query\Ordering;
 
 use Closure;
 
+use League\Csv\Query\Sort;
+use League\Csv\Query\SortCombinator;
 use function array_map;
 
 /**

@@ -11,9 +11,10 @@
 
 declare(strict_types=1);
 
-namespace League\Csv\Constraint;
+namespace League\Csv\Query\Constraint;
 
-use League\Csv\Extract;
+use League\Csv\Query\Predicate;
+use League\Csv\Query\Select;
 use League\Csv\InvalidArgument;
 use League\Csv\StatementError;
 use ReflectionException;
@@ -58,6 +59,6 @@ final class Column implements Predicate
      */
     public function __invoke(mixed $value, int|string $key): bool
     {
-        return $this->operator->compare(Extract::value($value, $this->column), $this->value);
+        return $this->operator->compare(Select::one($value, $this->column), $this->value);
     }
 }

@@ -11,7 +11,8 @@
 
 declare(strict_types=1);
 
-namespace League\Csv\Constraint;
+namespace League\Csv\Query\Constraint;
+
 
 use League\Csv\InvalidArgument;
 use PHPUnit\Framework\Attributes\DataProvider;

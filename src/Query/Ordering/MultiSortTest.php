@@ -11,12 +11,13 @@
 
 declare(strict_types=1);
 
-namespace League\Csv\Ordering;
+namespace League\Csv\Query\Ordering;
 
-use League\Csv\Constraint\ContraintTestCase;
+use League\Csv\Query\QueryTestCase;
 use PHPUnit\Framework\Attributes\Test;
 
-final class MultiSortTest extends ContraintTestCase
+final class MultiSortTest extends QueryTestCase
+
 {
     #[Test]
     public function it_will_sort_nothing_if_no_sort_algorithm_is_provided(): void

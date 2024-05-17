@@ -380,12 +380,12 @@ class Reader extends AbstractCsv implements TabularDataReader, JsonSerializable
     }
 
     /**
-     * @param Constraint\Predicate|Closure(array, array-key): bool $predicate
+     * @param \League\Csv\Query\Predicate|Closure(array, array-key): bool $predicate
      *
      * @throws Exception
      * @throws SyntaxError
      */
-    public function filter(Constraint\Predicate|Closure $predicate): TabularDataReader
+    public function filter(Query\Predicate|Closure $predicate): TabularDataReader
     {
         return Statement::create()->where($predicate)->process($this);
     }
@@ -408,7 +408,7 @@ class Reader extends AbstractCsv implements TabularDataReader, JsonSerializable
      * @throws Exception
      * @throws SyntaxError
      */
-    public function sorted(Ordering\Sort|Closure $orderBy): TabularDataReader
+    public function sorted(Query\Sort|Closure $orderBy): TabularDataReader
     {
         return Statement::create()->orderBy($orderBy)->process($this);
     }

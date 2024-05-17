@@ -30,4 +30,9 @@ final class StatementError extends RuntimeException implements UnableToProcessCs
             },
         };
     }
+
+    public static function dueToMissingColumn(): self
+    {
+        return new self('No valid column were found with the given data.');
+    }
 }

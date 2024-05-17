@@ -11,13 +11,14 @@
 
 declare(strict_types=1);
 
-namespace League\Csv\Constraint;
+namespace League\Csv\Query;
+
 
 use League\Csv\Reader;
 use League\Csv\Statement;
 use PHPUnit\Framework\TestCase;
 
-abstract class ContraintTestCase extends TestCase
+abstract class QueryTestCase extends TestCase
 {
     protected readonly Reader $document;
     protected readonly Statement $stmt;

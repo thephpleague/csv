@@ -11,9 +11,11 @@
 
 declare(strict_types=1);
 
-namespace League\Csv\Constraint;
+namespace League\Csv\Query\Constraint;
 
 use Closure;
+use League\Csv\Query\Predicate;
+use League\Csv\Query\PredicateCombinator;
 
 use function array_reduce;
 

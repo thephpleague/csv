@@ -11,19 +11,19 @@
 
 declare(strict_types=1);
 
-namespace League\Csv\Ordering;
+namespace League\Csv\Query;
+
 
 /**
- * Enable sorting a record based on its value.
+ * Enable filtering a record based on its value and/or its offset.
  *
  * The class can be used directly with PHP's
  * <ol>
- * <li>usort and uasort.</li>
- * <li>ArrayIterator::uasort.</li>
- * <li>ArrayObject::uasort.</li>
+ * <li>array_filter with the ARRAY_FILTER_USE_BOTH flag.</li>
+ * <li>CallbackFilterIterator class.</li>
  * </ol>
  */
-interface Sort
+interface Predicate
 {
-    public function __invoke(mixed $valueA, mixed $valueB): int;
+    public function __invoke(mixed $value, string|int $key): bool;
 }

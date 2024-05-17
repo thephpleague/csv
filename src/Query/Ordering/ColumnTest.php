@@ -11,12 +11,13 @@
 
 declare(strict_types=1);
 
-namespace League\Csv\Ordering;
+namespace League\Csv\Query\Ordering;
 
-use League\Csv\Constraint\ContraintTestCase;
+use League\Csv\Query\QueryTestCase;
 use PHPUnit\Framework\Attributes\Test;
 
-final class ColumnTest extends ContraintTestCase
+final class ColumnTest extends QueryTestCase
+
 {
     #[Test]
     public function it_can_order_the_tabular_date_in_descending_order(): void

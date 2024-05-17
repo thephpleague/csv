@@ -201,7 +201,7 @@ class ResultSet implements TabularDataReader, JsonSerializable
         return Statement::create()->process($this, $headers);
     }
 
-    public function filter(Constraint\Predicate|Closure $predicate): TabularDataReader
+    public function filter(Query\Predicate|Closure $predicate): TabularDataReader
     {
         return Statement::create()->where($predicate)->process($this);
     }
@@ -211,7 +211,7 @@ class ResultSet implements TabularDataReader, JsonSerializable
         return Statement::create()->offset($offset)->limit($length ?? -1)->process($this);
     }
 
-    public function sorted(Ordering\Sort|Closure $orderBy): TabularDataReader
+    public function sorted(Query\Sort|Closure $orderBy): TabularDataReader
     {
         return Statement::create()->orderBy($orderBy)->process($this);
     }

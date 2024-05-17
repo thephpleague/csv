@@ -11,9 +11,12 @@
 
 declare(strict_types=1);
 
-namespace League\Csv\Constraint;
+namespace League\Csv\Query\Constraint;
 
-use League\Csv\Extract;
+
+use League\Csv\Query\Predicate;
+use League\Csv\Query\Select;
+
 use League\Csv\InvalidArgument;
 use League\Csv\StatementError;
 use ReflectionException;
@@ -72,8 +75,8 @@ final class TwoColumns implements Predicate
     public function __invoke(mixed $value, int|string $key): bool
     {
         $val = match (true) {
-            is_array($this->second) => array_map(fn (string|int $column) => Extract::value($value, $column), $this->second),
-            default => Extract::value($value, $this->second),
+            is_array($this->second) => array_map(fn (string|int $column) => Select::one($value, $column), $this->second),
+            default => Select::one($value, $this->second),
         };
 
         return Column::filterOn($this->first, $this->operator, $val)($value, $key);

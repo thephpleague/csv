@@ -11,11 +11,12 @@
 
 declare(strict_types=1);
 
-namespace League\Csv\Ordering;
+namespace League\Csv\Query\Ordering;
 
 use Closure;
-use League\Csv\Extract;
+use League\Csv\Query\Select;
 use League\Csv\InvalidArgument;
+use League\Csv\Query\Sort;
 use League\Csv\StatementError;
 use ReflectionException;
 
@@ -73,8 +74,8 @@ final class Column implements Sort
      */
     public function __invoke(mixed $valueA, mixed $valueB): int
     {
-        $first = Extract::value($valueA, $this->column);
-        $second = Extract::value($valueB, $this->column);
+        $first = Select::one($valueA, $this->column);
+        $second = Select::one($valueB, $this->column);
 
         return match ($this->direction) {
             self::ASCENDING => ($this->callback)($first, $second),

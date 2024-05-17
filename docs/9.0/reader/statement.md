@@ -168,13 +168,12 @@ $records = Statement::create()
 // $records is a League\Csv\ResultSet instance
 ```
 
-For more complex queries you can use the classes and Enums defined under the `League\Csv\Constraint` namespace.
+For more complex queries you can use the classes and Enums defined under the `League\Csv\Query` namespace.
 They are used internally by the `Statement` class to implement all the new `where` methods and can be
 used independently to help create your own where expression as shown in the following example:
 
 ```php
-use League\Csv\Constraint;
-use League\Csv\Extract;
+use League\Csv\Query;
 
 $data = [
     ['volume' => 67, 'edition' => 2],
@@ -185,9 +184,9 @@ $data = [
     ['volume' => 67, 'edition' => 7],
 ];
 
-$criteria = Constraint\Criteria::xany(
-    Constraint\Column::filterOn('volume', 'gt', 80),
-    fn (mixed $record, int|string $key) => Extract::value($record, 'edition') < 6
+$criteria = Query\Constraint\Criteria::xany(
+    Query\Constraint\Column::filterOn('volume', 'gt', 80),
+    fn (mixed $record, int|string $key) => Query\Select::one($record, 'edition') < 6
 );
 
 $filteredData = array_filter($data, $criteria, ARRAY_FILTER_USE_BOTH));
@@ -241,17 +240,17 @@ $records = Statement::create()
 ```
 
 if you need to create more complex ordering you may align calls to `orderByAsc` and `orderByDesc` **or**
-use the `orderBy` method with the classes defined under the `League\Csv\Ordering` namespace as shown below:
+use the `orderBy` method with the classes defined under the `League\Csv\Query` namespace as shown below:
 
 ```php
 
-use League\Csv\Ordering;
+use League\Csv\Query;
 use League\Csv\Reader;
 use League\Csv\Statement;
 
-$sort = Ordering\MultiSort::all(
-    Ordering\Column::sortBy(1, 'desc'),
-    Ordering\Column::sortBy('foo', 'asc', strcmp(...)),
+$sort = Query\Ordering\MultiSort::all(
+    Query\Ordering\Column::sortBy(1, 'desc'),
+    Query\Ordering\Column::sortBy('foo', 'asc', strcmp(...)),
 );
 
 $reader = Reader::createFromPath('/path/to/file.csv');
