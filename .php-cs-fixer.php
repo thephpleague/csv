@@ -1,5 +1,7 @@
 <?php
 
+use PhpCsFixer\Runner\Parallel\ParallelConfigFactory;
+
 $header = <<<EOF
 League.Csv (https://csv.thephpleague.com)
 
@@ -16,6 +18,7 @@ $finder = PhpCsFixer\Finder::create()
 $config = new PhpCsFixer\Config();
 
 return $config
+    ->setParallelConfig(ParallelConfigFactory::detect())
     ->setRules([
         '@PSR12' => true,
         'array_syntax' => ['syntax' => 'short'],

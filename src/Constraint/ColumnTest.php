@@ -49,7 +49,7 @@ final class ColumnTest extends ContraintTestCase
     public function it_will_throw_if_the_column_does_not_exist(): void
     {
         $predicate = Column::filterOn('Ville', '=', 'Dakar');
-        $this->expectExceptionObject(StatementError::dueToUnknownColumn('Ville'));
+        $this->expectExceptionObject(StatementError::dueToUnknownColumn('Ville', []));
 
         [...$this->stmt->where($predicate)->process($this->document)];
     }

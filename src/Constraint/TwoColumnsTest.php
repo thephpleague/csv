@@ -39,7 +39,7 @@ final class TwoColumnsTest extends ContraintTestCase
     public function it_will_throw_if_the_column_does_not_exist(): void
     {
         $predicate = TwoColumns::filterOn('City', '=', 'Dakar');
-        $this->expectExceptionObject(StatementError::dueToUnknownColumn('City'));
+        $this->expectExceptionObject(StatementError::dueToUnknownColumn('City', []));
 
         $this->stmt->where($predicate)->process($this->document);
     }

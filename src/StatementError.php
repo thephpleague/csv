@@ -17,11 +17,17 @@ use RuntimeException;
 
 final class StatementError extends RuntimeException implements UnableToProcessCsv
 {
-    public static function dueToUnknownColumn(string|int $column): self
+    public static function dueToUnknownColumn(string|int $column, array|object $value): self
     {
-        return match (is_string($column)) {
-            true => new self('The column `'.$column.'` does not exist in the tabular data document.'),
-            default => new self('The column with the offset `'.$column.'` does not exist in the tabular data document.'),
+        return match (true) {
+            is_object($value) => match (is_int($column)) {
+                true => new self('The object property name can not be the integer`' . $column . '`.'),
+                default => new self('The object property name `' . $column . '` could not be retrieved from the object.'),
+            },
+            default => match (is_string($column)) {
+                true => new self('The column `' . $column . '` does not exist in the input array.'),
+                default => new self('The column with the offset `' . $column . '` does not exist in the input array.'),
+            },
         };
     }
 }

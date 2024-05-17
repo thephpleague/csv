@@ -55,9 +55,9 @@ final class Column implements Sort
             is_string($direction) => match (strtoupper(trim($direction))) {
                 'ASC', 'ASCENDING', 'UP' => self::ASCENDING,
                 'DESC', 'DESCENDING', 'DOWN' => self::DESCENDING,
-                default => throw new InvalidArgument('Unknown operator or unsupported operator: '.$direction),
+                default => throw new InvalidArgument('Unknown or unsupported ordering operator value: '.$direction),
             },
-            default => throw new InvalidArgument('Unknown operator or unsupported operator: '.$direction),
+            default => throw new InvalidArgument('Unknown or unsupported ordering operator value: '.$direction),
         };
 
         return new self(

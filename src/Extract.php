@@ -29,8 +29,14 @@ use function ucfirst;
 final class Extract
 {
     /**
+     * Tries to retrieve the value from an array or an object.
+     *
+     * If the value is an array and the key is an integer the content will be retrieved
+     * from the array_values array form. Negative offset are supported.
+     * If the value is an object, the key MUST be a string.
+     *
      * @throws ReflectionException
-     * @throws StatementError
+     * @throws StatementError If the value can not be retrieved
      */
     public static function value(mixed $value, string|int $key): mixed
     {
@@ -57,7 +63,7 @@ final class Extract
             }
         }
 
-        return array_key_exists($offset, $value) ? $value[$offset] : throw StatementError::dueToUnknownColumn($key);
+        return array_key_exists($offset, $value) ? $value[$offset] : throw StatementError::dueToUnknownColumn($key, $value);
     }
 
     /**
@@ -66,12 +72,8 @@ final class Extract
      */
     private static function getObjectPropertyValue(object $value, string|int $key): mixed
     {
-        if ($value instanceof ArrayAccess && $value->offsetExists($key)) {
-            return $value->offsetGet($key);
-        }
-
-        if (is_int($key) || '' === $key) {
-            throw new StatementError('The property name must be an non-empty string.');
+        if (is_int($key)) {
+            throw StatementError::dueToUnknownColumn($key, $value);
         }
 
         $refl = new ReflectionObject($value);
@@ -79,14 +81,24 @@ final class Extract
             return $refl->getProperty($key)->getValue($value);
         }
 
-        $methodName = 'get'.ucfirst($key);
-        if ($refl->hasMethod($methodName)
-            && $refl->getMethod($methodName)->isPublic()
-            && 1 > $refl->getMethod($methodName)->getNumberOfRequiredParameters()
-        ) {
-            return $refl->getMethod($methodName)->invoke($value);
+        $methodNameList = [$key, 'get'.ucfirst($key), 'get'.$key];
+        foreach ($methodNameList as $methodName) {
+            if ($refl->hasMethod($methodName)
+                && $refl->getMethod($methodName)->isPublic()
+                && 1 > $refl->getMethod($methodName)->getNumberOfRequiredParameters()
+            ) {
+                return $refl->getMethod($methodName)->invoke($value);
+            }
         }
 
-        throw new StatementError('The property value could not be found.');
+        if (method_exists($value, '__call')) {
+            return $refl->getMethod('__call')->invoke($value, $methodNameList[1]);
+        }
+
+        if ($value instanceof ArrayAccess && $value->offsetExists($key)) {
+            return $value->offsetGet($key);
+        }
+
+        throw StatementError::dueToUnknownColumn($key, $value);
     }
 }
