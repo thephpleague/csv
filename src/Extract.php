@@ -19,12 +19,16 @@ use ReflectionObject;
 
 use function array_is_list;
 use function array_key_exists;
+use function array_map;
 use function array_values;
 use function count;
+use function explode;
+use function implode;
 use function is_array;
 use function is_int;
 use function is_object;
-use function ucfirst;
+use function lcfirst;
+use function str_replace;
 
 final class Extract
 {
@@ -81,7 +85,11 @@ final class Extract
             return $refl->getProperty($key)->getValue($value);
         }
 
-        $methodNameList = [$key, 'get'.ucfirst($key), 'get'.$key];
+        $methodNameList = [$key];
+        if (($camelCasedKey = self::camelCase($key)) !== $key) {
+            $methodNameList[] = $camelCasedKey;
+        }
+        $methodNameList[] = self::camelCase($key, 'get');
         foreach ($methodNameList as $methodName) {
             if ($refl->hasMethod($methodName)
                 && $refl->getMethod($methodName)->isPublic()
@@ -100,5 +108,17 @@ final class Extract
         }
 
         throw StatementError::dueToUnknownColumn($key, $value);
+    }
+
+    private static function camelCase(string $value, string $prefix = ''): string
+    {
+        if ('' !== $prefix) {
+            $prefix .= '_';
+        }
+
+        return lcfirst(implode('', array_map(
+            ucfirst(...),
+            explode(' ', str_replace(['-', '_'], ' ', $prefix.$value))
+        )));
     }
 }

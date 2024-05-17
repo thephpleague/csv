@@ -81,8 +81,8 @@ enum Comparison: string
     public function compare(mixed $needle, mixed $haystack): bool
     {
         return match ($this) {
-            self::Equals => is_scalar($needle) ? $needle === $haystack : $needle == $haystack,
-            self::NotEquals => is_scalar($needle) ? $needle !== $haystack : $needle != $haystack,
+            self::Equals => self::isStrict($needle) ? $needle === $haystack : $needle == $haystack,
+            self::NotEquals => self::isStrict($needle) ? $needle !== $haystack : $needle != $haystack,
             self::GreaterThan => $needle > $haystack,
             self::GreaterThanOrEqual => $needle >= $haystack,
             self::LesserThan => $needle < $haystack,
@@ -91,13 +91,18 @@ enum Comparison: string
             self::NotBetween => (is_array($haystack) && array_is_list($haystack) && 2 === count($haystack)) ? $needle < $haystack[0] || $needle > $haystack[1] : throw new InvalidArgument('The value used for comparison with the `'.$this->name.'` operator must be an list containing 2 values, the minimum and maximum values.'),
             self::Regexp => is_string($haystack) ? (is_string($needle) && 1 === preg_match($haystack, $needle)) : throw new InvalidArgument('The value used for comparison with the `'.$this->name.'` operator must be a string.'),
             self::NotRegexp => is_string($haystack) ? (is_string($needle) && 1 !== preg_match($haystack, $needle)) : throw new InvalidArgument('The value used for comparison with the `'.$this->name.'` operator must be a string.'),
-            self::In => is_array($haystack) ? in_array($needle, $haystack, is_scalar($needle)) : throw new InvalidArgument('The value used for comparison with the `'.$this->name.'` operator must be an array.'), /* @phpstan-ignore-line */
-            self::NotIn => is_array($haystack) ? !in_array($needle, $haystack, is_scalar($needle)) : throw new InvalidArgument('The value used for comparison with the `'.$this->name.'` operator must be an array.'), /* @phpstan-ignore-line */
+            self::In => is_array($haystack) ? in_array($needle, $haystack, self::isStrict($needle)) : throw new InvalidArgument('The value used for comparison with the `'.$this->name.'` operator must be an array.'), /* @phpstan-ignore-line */
+            self::NotIn => is_array($haystack) ? !in_array($needle, $haystack, self::isStrict($needle)) : throw new InvalidArgument('The value used for comparison with the `'.$this->name.'` operator must be an array.'), /* @phpstan-ignore-line */
             self::Contains => is_string($haystack) ? (is_string($needle) && str_contains($needle, $haystack)) : throw new InvalidArgument('The value used for comparison with the `'.$this->name.'` operator must be a string.'),
             self::NotContain => is_string($haystack) ? (is_string($needle) && !str_contains($needle, $haystack)) : throw new InvalidArgument('The value used for comparison with the `'.$this->name.'` operator must be a string.'),
             self::StartsWith => is_string($haystack) ? (is_string($needle) && str_starts_with($needle, $haystack)) : throw new InvalidArgument('The value used for comparison with the `'.$this->name.'` operator must be a string.'),
             self::EndsWith => is_string($haystack) ? (is_string($needle) && str_ends_with($needle, $haystack)) : throw new InvalidArgument('The value used for comparison with the `'.$this->name.'` operator must be a string.'),
         };
+    }
+
+    private static function isStrict(mixed $value): bool
+    {
+        return is_scalar($value) || null === $value;
     }
 
     public function accept(mixed $reference): bool

@@ -73,7 +73,7 @@ $records = Statement::create()
 
 To ease the `Statement::where` usage the following methods are introduced: `andWhere`, `whereNot`, `orWhere` and `xorWhere`;
 
-These methods are used to filter the record based on their column value. Instead of using a callable,
+These methods are used to filter the record based on their columns value. Instead of using a callable,
 the methods require three (3) arguments. The first argument is the column to filter on. It can be
 as a string (the column name, if it exists) or an integer (the column offset, negative indexes
 are supported). The second argument is a valid comparison operator in a case-insensitive
@@ -89,7 +89,7 @@ use League\Csv\Statement;
 
 $reader = Reader::createFromPath('/path/to/file.csv');
 $records = Statement::create()
-    ->andWhere(1, '=', 10) //filtering is done of the second column
+    ->andWhere(1, '=', '10') //filtering is done of the second column
     ->orWhere('birthdate', 'regexp', '/\d{1,2}\/\d{1,2}\/\d{2,4}/') //filtering is done on the `birthdate` column
     ->whereNot('firstname', 'starts_with', 'P') //filtering is done case-sensitively on the first character of the column value
     ->process($reader);
@@ -106,7 +106,9 @@ The methods support the basic comparison operators using their strict version in
 - lesser than or equal: `>=`, `LTE` or `LESSER THAN OR EQUAL`;
 
 The following parameter can only be used if the submitted value is an `array`
-as PHP's `in_array` function is used for comparison in strict mode.
+as PHP's `in_array` function is used for comparison. If the value to compare
+is a scalar value or `null`, `in_array` is used on strict mode otherwise the
+comparison is relaxed.
 
 - in: `IN`;
 - not in: `NIN`;
@@ -172,22 +174,24 @@ used independently to help create your own where expression as shown in the foll
 
 ```php
 use League\Csv\Constraint;
-use League\Csv\Reader;
-use League\Csv\Statement;
+use League\Csv\Extract;
 
-$csv = Reader::createFromPath('/path/to/prenoms.csv')
-    ->setHeaderOffset(0);
-$records = Statement::create()
-    ->where(
-        Constraint\Critera::xany(
-            Constraint\Column::filterOn('year', '=', '2024'), //filter using a column value
-            Constraint\TwoColumns::filterOn('created_at', '<', 'updated_at'), //compare two field together
-            fn (mixed $value, int|string $key): bool => (int) $key % 2 === 0, //using directly a Closure
-        )
-    )
-    ->process($csv);
-//This will filter the CSV document using the XOR logical operator
-//All constraints can not be true or false together
+$data = [
+    ['volume' => 67, 'edition' => 2],
+    ['volume' => 86, 'edition' => 1],
+    ['volume' => 85, 'edition' => 6],
+    ['volume' => 98, 'edition' => 2],
+    ['volume' => 86, 'edition' => 6],
+    ['volume' => 67, 'edition' => 7],
+];
+
+$criteria = Constraint\Criteria::xany(
+    Constraint\Column::filterOn('volume', 'gt', 80),
+    fn (mixed $record, int|string $key) => Extract::value($record, 'edition') < 6
+);
+
+$filteredData = array_filter($data, $criteria, ARRAY_FILTER_USE_BOTH));
+//Filtering an array using the XOR logical operator
 ```
 
 As shown in the example the `Criteria` class also combines `Closure` conditions, which means that
@@ -246,8 +250,8 @@ use League\Csv\Reader;
 use League\Csv\Statement;
 
 $sort = Ordering\MultiSort::all(
-    Ordering\Column::sortOn(1, 'desc'),
-    Ordering\Column::sortOn('foo', 'asc'),
+    Ordering\Column::sortBy(1, 'desc'),
+    Ordering\Column::sortBy('foo', 'asc', strcmp(...)),
 );
 
 $reader = Reader::createFromPath('/path/to/file.csv');

@@ -15,6 +15,7 @@ namespace League\Csv\Constraint;
 
 use ArrayIterator;
 use CallbackFilterIterator;
+use League\Csv\Extract;
 use PHPUnit\Framework\Attributes\Test;
 
 use const ARRAY_FILTER_USE_BOTH;
@@ -33,8 +34,8 @@ final class CriteriaTest extends ContraintTestCase
     #[Test]
     public function it_returns_a_value_when_some_predicates_are_given(): void
     {
-        $predicate1 = (fn (mixed $record, int $key) => is_array($record) && $record['volume'] > 80);
-        $predicate2 = (fn (mixed $record, int $key) => is_array($record) && $record['edition'] < 6);
+        $predicate1 = fn (mixed $record, int $key) => Extract::value($record, 'volume') > 80;
+        $predicate2 = fn (mixed $record, int $key) => Extract::value($record, 'edition') < 6;
 
         self::assertSame([
             1 => ['volume' => 86, 'edition' => 1],
@@ -65,8 +66,8 @@ final class CriteriaTest extends ContraintTestCase
     {
         $data = new ArrayIterator($this->iterable);
 
-        $predicate1 = (fn (mixed $record, int $key) => is_array($record) && $record['volume'] > 80);
-        $predicate2 = (fn (mixed $record, int $key) => is_array($record) && $record['edition'] < 6);
+        $predicate1 = fn (mixed $record, int $key) => Extract::value($record, 'volume') > 80;
+        $predicate2 = fn (mixed $record, int $key) => Extract::value($record, 'edition') < 6;
 
         self::assertSame([
             0 => ['volume' => 67, 'edition' => 2],
