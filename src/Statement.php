@@ -261,9 +261,9 @@ class Statement
     }
 
     /**
-     * Executes the prepared Statement on the {@link Reader} object.
+     * Executes the prepared Statement on the {@link TabularDataReader} object.
      *
-     * @param array<string> $header an optional header to use instead of the CSV document header
+     * @param array<string> $header an optional header to use instead of the tabular data header
      *
      * @throws InvalidArgument
      * @throws SyntaxError
@@ -275,24 +275,30 @@ class Statement
         }
 
         $iterator = $tabular_data->getRecords($header);
-        $iterator = Query\Constraint\Criteria::all(...$this->where)->filter($iterator);
-        $iterator = Query\Ordering\MultiSort::all(...$this->order_by)->sort($iterator);
-        $iterator = Query\Slice::value($iterator, $this->offset, $this->limit);
+        if ([] !== $this->where) {
+            $iterator = Query\Constraint\Criteria::all(...$this->where)->filter($iterator);
+        }
 
-        return $this->applySelect($iterator, $header);
+        if ([] !== $this->order_by) {
+            $iterator = Query\Ordering\MultiSort::all(...$this->order_by)->sort($iterator);
+        }
+
+        if (0 !== $this->offset || -1 !== $this->limit) {
+            $iterator = Query\Slice::value($iterator, $this->offset, $this->limit);
+        }
+
+        return match ($this->select) {
+            [] => new ResultSet($iterator, $header),
+            default => $this->applySelect($iterator, $header, $this->select),
+        };
     }
 
     /**
-     *
      * @throws InvalidArgument
      * @throws SyntaxError
      */
-    protected function applySelect(Iterator $records, array $recordsHeader): TabularDataReader
+    protected function applySelect(Iterator $records, array $recordsHeader, array $select): TabularDataReader
     {
-        if ([] === $this->select) {
-            return new ResultSet($records, $recordsHeader);
-        }
-
         $hasHeader = [] !== $recordsHeader;
         $selectColumn = function (array $header, string|int $field) use ($recordsHeader, $hasHeader): array {
             if (is_string($field)) {
@@ -316,7 +322,7 @@ class Statement
         };
 
         /** @var array<string> $header */
-        $header = array_reduce($this->select, $selectColumn, []);
+        $header = array_reduce($select, $selectColumn, []);
         $records = new MapIterator($records, function (array $record) use ($header): array {
             $element = [];
             $row = array_values($record);
