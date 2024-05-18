@@ -18,13 +18,12 @@ use CallbackFilterIterator;
 use Iterator;
 use IteratorIterator;
 use League\Csv\Query\Predicate;
-use League\Csv\Query\Select;
+use League\Csv\Query\Record;
 use League\Csv\InvalidArgument;
 use League\Csv\StatementError;
 use ReflectionException;
 
 use function array_filter;
-use function array_map;
 use function is_array;
 use function is_int;
 use function is_string;
@@ -79,8 +78,8 @@ final class TwoColumns implements Predicate
     public function __invoke(mixed $value, int|string $key): bool
     {
         $val = match (true) {
-            is_array($this->second) => array_map(fn (string|int $column) => Select::one($value, $column), $this->second),
-            default => Select::one($value, $this->second),
+            is_array($this->second) => array_values(Record::from($value)->values(...$this->second)),
+            default => Record::from($value)->field($this->second),
         };
 
         return Column::filterOn($this->first, $this->operator, $val)($value, $key);
@@ -97,8 +96,12 @@ final class TwoColumns implements Predicate
         return new CallbackFilterIterator($value, $this);
     }
 
-    public function filterArray(array $values): array
+    public function filterArray(iterable $values): array
     {
+        if (!is_array($values)) {
+            return array_filter(iterator_to_array($values), $this,  ARRAY_FILTER_USE_BOTH);
+        }
+
         return array_filter($values, $this,  ARRAY_FILTER_USE_BOTH);
     }
 }

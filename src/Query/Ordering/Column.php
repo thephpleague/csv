@@ -16,13 +16,15 @@ namespace League\Csv\Query\Ordering;
 use ArrayIterator;
 use Closure;
 use Iterator;
-use League\Csv\Query\Select;
+use IteratorIterator;
+use League\Csv\Query\Record;
 use League\Csv\InvalidArgument;
 use League\Csv\Query\Sort;
 use League\Csv\StatementError;
 use OutOfBoundsException;
 use ReflectionException;
 
+use Traversable;
 use function strtoupper;
 use function trim;
 
@@ -77,8 +79,8 @@ final class Column implements Sort
      */
     public function __invoke(mixed $valueA, mixed $valueB): int
     {
-        $first = Select::one($valueA, $this->column);
-        $second = Select::one($valueB, $this->column);
+        $first = Record::from($valueA)->field($this->column);
+        $second = Record::from($valueB)->field($this->column);
 
         return match ($this->direction) {
             self::ASCENDING => ($this->callback)($first, $second),
@@ -86,17 +88,7 @@ final class Column implements Sort
         };
     }
 
-    public function uasort(iterable $value): Iterator
-    {
-        return $this->sort(is_array($value) ? $value : iterator_to_array($value));
-    }
-
-    public function usort(iterable $value): Iterator
-    {
-        return $this->sort(is_array($value) ? array_values($value) : iterator_to_array($value, false));
-    }
-
-    private function sort(array $values): Iterator
+    public function sort(iterable $value): Iterator
     {
         $class = new class () extends ArrayIterator {
             public function seek(int $offset): void
@@ -109,9 +101,25 @@ final class Column implements Sort
             }
         };
 
-        $it = new $class($values);
+        if (!is_array($value)) {
+            $value = iterator_to_array($value);
+        }
+
+        $it = new $class($value);
         $it->uasort($this);
 
         return $it;
+    }
+
+    public function sortArray(iterable $value): array
+    {
+        if (!is_array($value)) {
+            $value = iterator_to_array($value);
+        }
+
+        $sorted = $value;
+        uasort($sorted, $this);
+
+        return $sorted;
     }
 }

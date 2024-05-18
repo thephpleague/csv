@@ -124,9 +124,13 @@ final class Criteria implements PredicateCombinator
         return new CallbackFilterIterator($value, $this);
     }
 
-    public function filterArray(array $values): array
+    public function filterArray(iterable $values): array
     {
-        return array_filter($values, $this, ARRAY_FILTER_USE_BOTH);
+        if (!is_array($values)) {
+            return array_filter(iterator_to_array($values), $this,  ARRAY_FILTER_USE_BOTH);
+        }
+
+        return array_filter($values, $this,  ARRAY_FILTER_USE_BOTH);
     }
 
     /**

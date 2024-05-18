@@ -30,5 +30,5 @@ interface Predicate
 
     public function filter(iterable $value): Iterator;
 
-    public function filterArray(array $value): array;
+    public function filterArray(iterable $value): array;
 }

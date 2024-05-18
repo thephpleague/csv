@@ -17,6 +17,7 @@ use ArrayAccess;
 use League\Csv\StatementError;
 use ReflectionException;
 use ReflectionObject;
+use TypeError;
 
 use function array_is_list;
 use function array_key_exists;
@@ -31,10 +32,36 @@ use function is_object;
 use function lcfirst;
 use function str_replace;
 
-final class Select
+final class Record
 {
+    public static function from(mixed $value): Record
+    {
+        return new self(match (true) {
+            is_object($value),
+            is_array($value) => $value,
+            default => throw new TypeError('The value must be an array or an object; received '.gettype($value).'.'),
+        });
+    }
+
+    private function __construct(private readonly array|object $record)
+    {
+    }
+
     /**
-     * Tries to retrieve the value from an array or an object.
+     * Tries to retrieve a single value from a record.
+     *
+     * @throws ReflectionException
+     * @throws StatementError If the value can not be retrieved
+     *@see Record::values()
+     *
+     */
+    public function field(string|int $key): mixed
+    {
+        return $this->values($key)[$key];
+    }
+
+    /**
+     * Tries to retrieve multiple values from a record.
      *
      * If the value is an array and the key is an integer the content will be retrieved
      * from the array_values array form. Negative offset are supported.
@@ -42,25 +69,14 @@ final class Select
      *
      * @throws ReflectionException
      * @throws StatementError If the value can not be retrieved
-     */
-    public static function one(mixed $value, string|int $key): mixed
-    {
-        $res = self::multiple($value, $key);
-
-        return $res[$key];
-    }
-
-    /**
-     * @throws ReflectionException
      *
      * @return non-empty-array<array-key, mixed>
      */
-    public static function multiple(mixed $value, string|int ...$key): array
+    public function values(string|int ...$key): array
     {
         return match (true) {
-            is_object($value) => self::getObjectPropertyValue($value, ...$key),
-            is_array($value) => self::getArrayEntry($value, ...$key),
-            default => throw new StatementError('The value must be an array or an object; received '.gettype($value).'.'),
+            is_object($this->record) => self::getObjectPropertyValue($this->record, ...$key),
+            default => self::getArrayEntry($this->record, ...$key),
         };
     }
 
@@ -69,7 +85,7 @@ final class Select
      *
      * @return non-empty-array<array-key, mixed>
      */
-    private static function getArrayEntry(array $value, string|int ...$keys): array
+    private function getArrayEntry(array $value, string|int ...$keys): array
     {
         $res = [];
         $arrValues = array_values($value);

@@ -276,7 +276,7 @@ class Statement
 
         $iterator = $tabular_data->getRecords($header);
         $iterator = Query\Constraint\Criteria::all(...$this->where)->filter($iterator);
-        $iterator = Query\Ordering\MultiSort::all(...$this->order_by)->uasort($iterator);
+        $iterator = Query\Ordering\MultiSort::all(...$this->order_by)->sort($iterator);
         $iterator = Query\Slice::value($iterator, $this->offset, $this->limit);
 
         return $this->applySelect($iterator, $header);

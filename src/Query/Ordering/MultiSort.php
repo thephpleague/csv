@@ -17,9 +17,11 @@ use ArrayIterator;
 use Closure;
 
 use Iterator;
+use IteratorIterator;
 use League\Csv\Query\Sort;
 use League\Csv\Query\SortCombinator;
 use OutOfBoundsException;
+use Traversable;
 use function array_map;
 
 /**
@@ -89,18 +91,16 @@ final class MultiSort implements SortCombinator
         return $result ?? 0;
     }
 
-    public function uasort(iterable $value): Iterator
+    public function sort(iterable $value): Iterator
     {
-        return $this->sort(is_array($value) ? $value : iterator_to_array($value));
-    }
+        if ([] === $this->sorts) {
+            return match (true) {
+                $value instanceof Iterator => $value,
+                $value instanceof Traversable => new IteratorIterator($value),
+                default => new ArrayIterator($value),
+            };
+        }
 
-    public function usort(iterable $value): Iterator
-    {
-        return $this->sort(is_array($value) ? array_values($value) : iterator_to_array($value, false));
-    }
-
-    private function sort(array $values): Iterator
-    {
         $class = new class () extends ArrayIterator {
             public function seek(int $offset): void
             {
@@ -112,9 +112,29 @@ final class MultiSort implements SortCombinator
             }
         };
 
-        $it = new $class($values);
+        if (!is_array($value)) {
+            $value = iterator_to_array($value);
+        }
+
+        $it = new $class($value);
         $it->uasort($this);
 
         return $it;
+    }
+
+    public function sortArray(iterable $value): array
+    {
+        if (!is_array($value)) {
+            $value = iterator_to_array($value);
+        }
+
+        if ([] === $this->sorts) {
+            return $value;
+        }
+
+        $sorted = $value;
+        uasort($sorted, $this);
+
+        return $sorted;
     }
 }

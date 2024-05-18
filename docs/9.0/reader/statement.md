@@ -173,8 +173,8 @@ They are used internally by the `Statement` class to implement all the new `wher
 used independently to help create your own where expression as shown in the following example:
 
 ```php
+use League\Csv\Query;
 use League\Csv\Query\Constraint;
-use League\Csv\Query\Select;
 
 $data = [
     ['volume' => 67, 'edition' => 2],
@@ -187,7 +187,7 @@ $data = [
 
 $criteria = Constraint\Criteria::xany(
     Constraint\Column::filterOn('volume', 'gt', 80),
-    fn (mixed $record, int|string $key) => Select::one($record, 'edition') < 6
+    fn (mixed $record, int|string $key) => Query\Record::from($record)->field('edition') < 6
 );
 
 $filteredData = array_filter($data, $criteria, ARRAY_FILTER_USE_BOTH));
@@ -206,12 +206,12 @@ As an example let's order the records according to the lastname found on the rec
 
 ```php
 use League\Csv\Reader;
-use League\Csv\Query\Select;
+use League\Csv\Query\Record;
 use League\Csv\Statement;
 
 $reader = Reader::createFromPath('/path/to/file.csv');
 $records = Statement::create()
-    ->orderBy(fn (mixed $rA, mixed $rB): int => strcmp(Select::one($rB, 1) ?? '', Select::one($rA, 1) ?? '')))
+    ->orderBy(fn (mixed $rA, mixed $rB): int => strcmp(Record::from($rB)->field(1) ?? '', Record::from($rA)->field(1) ?? '')))
     ->process($reader);
 // $records is a League\Csv\ResultSet instance
 ```
