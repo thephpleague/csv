@@ -21,6 +21,7 @@ use LimitIterator;
 
 use function array_slice;
 use function is_array;
+use function iterator_to_array;
 
 final class Slice
 {
@@ -37,12 +38,12 @@ final class Slice
         return new LimitIterator($iterator, $offset, $length);
     }
 
-    public static function array(array $values, int $offset = 0, int $length = -1): array
+    public static function array(iterable $values, int $offset = 0, int $length = -1): array
     {
         return match (true) {
             0 > $offset => throw InvalidArgument::dueToInvalidRecordOffset($offset, __METHOD__),
             -1 > $length => throw InvalidArgument::dueToInvalidLimit($length, __METHOD__),
-            default => array_slice($values, $offset, $length),
+            default => array_slice(!is_array($values) ? iterator_to_array($values) : $values, $offset, $length),
         };
     }
 }

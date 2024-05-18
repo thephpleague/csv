@@ -360,12 +360,18 @@ class Statement
      * @codeCoverageIgnore
      */
      protected function applyFilter(Iterator $iterator): Iterator
-    {
-        if ([] === $this->where) {
-            return $iterator;
-        }
+     {
+         $filter = function (array $record, string|int $key): bool {
+             foreach ($this->where as $where) {
+                 if (true !== $where($record, $key)) {
+                     return false;
+                 }
+             }
 
-        return new CallbackFilterIterator($iterator, Query\Constraint\Criteria::all(...$this->where));
+             return true;
+         };
+
+         return new CallbackFilterIterator($iterator, $filter);
     }
 
     /**
@@ -383,6 +389,17 @@ class Statement
             return $iterator;
         }
 
+        $compare = function (array $record_a, array $record_b): int {
+            foreach ($this->order_by as $callable) {
+                if (0 !== ($cmp = $callable($record_a, $record_b))) {
+                    return $cmp;
+                }
+            }
+
+            return $cmp ?? 0;
+        };
+
+
         $class = new class () extends ArrayIterator {
             public function seek(int $offset): void
             {
@@ -396,7 +413,7 @@ class Statement
 
         /** @var ArrayIterator<array-key, array<string|null>> $it */
         $it = new $class([...$iterator]);
-        $it->uasort(Query\Ordering\MultiSort::all(...$this->order_by));
+        $it->uasort($compare);
 
         return $it;
     }
