@@ -25,7 +25,14 @@ use function array_key_exists;
 use function array_reduce;
 use function array_search;
 use function array_values;
+use function debug_backtrace;
+use function end;
 use function is_string;
+use function func_num_args;
+use function trigger_error;
+
+use const DEBUG_BACKTRACE_IGNORE_ARGS;
+use const E_USER_DEPRECATED;
 
 /**
  * Criteria to filter a {@link TabularDataReader} object.
@@ -47,16 +54,49 @@ class Statement
     protected array $select = [];
 
     /**
+     * @param ?callable(array, array-key): bool $where, Deprecated argument use Statement::where instead
+     * @param int $offset, Deprecated argument use Statement::offset instead
+     * @param int $limit, Deprecated argument use Statement::limit instead
+     *
      * @throws Exception
+     * @throws InvalidArgument
+     * @throws ReflectionException
      */
     public static function create(?callable $where = null, int $offset = 0, int $limit = -1): self
     {
+        if (0 === func_num_args()) {
+            return new self();
+        }
+
+        self::triggerDeprecation('9.16.0', 'Using arguments with the `' . __METHOD__ . '` method is deprecated');
         $stmt = new self();
         if (null !== $where) {
             $stmt = $stmt->where($where);
         }
 
-        return $stmt->offset($offset)->limit($limit);
+        if (0 !== $offset) {
+            $stmt = $stmt->offset($offset);
+        }
+
+        if (-1 !== $limit) {
+            $stmt = $stmt->limit($limit);
+        }
+
+        return $stmt;
+    }
+
+    private static function triggerDeprecation(string $version, string $message): void
+    {
+        $backtrace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 2);
+        $caller = end($backtrace);
+        if (isset($caller['file'])) {
+            $message .= '; called from ' . $caller['file'];
+        }
+        if (isset($caller['line'])) {
+            $message .= ' on line ' . $caller['line'];
+        }
+
+        @trigger_error('Since league\csv '.$version.': '.$message . '.', E_USER_DEPRECATED);
     }
 
     /**

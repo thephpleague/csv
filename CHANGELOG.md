@@ -25,6 +25,7 @@ All Notable changes to `Csv` will be documented in this file
 - `ByteSequence` Interface use the `Bom` enum instead
 - `Info::fetchBOMSequence` use `Bom::tryFromSequence` instead
 - `League\Csv\Doctrine` use the new `League\Csv\Constraint` feature instead
+- `League\Csv\Statement::create` arguments; The method should be used without any argument at all. All arguments will be removed in the next major version.
 
 ### Fixed
 
