@@ -79,8 +79,8 @@ final class Column implements Sort
      */
     public function __invoke(mixed $valueA, mixed $valueB): int
     {
-        $first = Record::from($valueA)->field($this->column);
-        $second = Record::from($valueB)->field($this->column);
+        $first = Record::from($valueA)->value($this->column);
+        $second = Record::from($valueB)->value($this->column);
 
         return match ($this->direction) {
             self::ASCENDING => ($this->callback)($first, $second),
@@ -101,11 +101,7 @@ final class Column implements Sort
             }
         };
 
-        if (!is_array($value)) {
-            $value = iterator_to_array($value);
-        }
-
-        $it = new $class($value);
+        $it = new $class(!is_array($value) ? iterator_to_array($value) : $value);
         $it->uasort($this);
 
         return $it;
@@ -113,11 +109,7 @@ final class Column implements Sort
 
     public function sortArray(iterable $value): array
     {
-        if (!is_array($value)) {
-            $value = iterator_to_array($value);
-        }
-
-        $sorted = $value;
+        $sorted = !is_array($value) ? iterator_to_array($value) : $value;
         uasort($sorted, $this);
 
         return $sorted;

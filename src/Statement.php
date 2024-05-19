@@ -324,7 +324,7 @@ class Statement
         }
 
         if (0 !== $this->offset || -1 !== $this->limit) {
-            $iterator = Query\Slice::value($iterator, $this->offset, $this->limit);
+            $iterator = Query\Limit::new($this->offset, $this->limit)->slice($iterator);
         }
 
         return match ($this->select) {
@@ -363,7 +363,7 @@ class Statement
 
         /** @var array<string> $header */
         $header = array_reduce($select, $selectColumn, []);
-        $records = new MapIterator($records, function (array $record) use ($header): array {
+        $callback = function (array $record) use ($header): array {
             $element = [];
             $row = array_values($record);
             foreach ($header as $offset => $headerName) {
@@ -371,9 +371,9 @@ class Statement
             }
 
             return $element;
-        });
+        };
 
-        return new ResultSet($records, $hasHeader ? $header : []);
+        return new ResultSet(new MapIterator($records, $callback), $hasHeader ? $header : []);
     }
 
     /**

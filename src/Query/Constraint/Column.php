@@ -68,7 +68,7 @@ final class Column implements Predicate
      */
     public function __invoke(mixed $value, int|string $key): bool
     {
-        return $this->operator->compare(Record::from($value)->field($this->column), $this->value);
+        return $this->operator->compare(Record::from($value)->value($this->column), $this->value);
     }
 
     public function filter(iterable $value): Iterator
@@ -82,12 +82,12 @@ final class Column implements Predicate
         return new CallbackFilterIterator($value, $this);
     }
 
-    public function filterArray(iterable $values): array
+    public function filterArray(iterable $value): array
     {
-        if (!is_array($values)) {
-            return array_filter(iterator_to_array($values), $this,  ARRAY_FILTER_USE_BOTH);
-        }
-
-        return array_filter($values, $this,  ARRAY_FILTER_USE_BOTH);
+        return array_filter(
+            !is_array($value) ? iterator_to_array($value) : $value,
+            $this,
+            ARRAY_FILTER_USE_BOTH
+        );
     }
 }

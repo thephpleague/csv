@@ -78,8 +78,8 @@ final class TwoColumns implements Predicate
     public function __invoke(mixed $value, int|string $key): bool
     {
         $val = match (true) {
-            is_array($this->second) => array_values(Record::from($value)->values(...$this->second)),
-            default => Record::from($value)->field($this->second),
+            is_array($this->second) => array_values(Record::from($value)->select(...$this->second)),
+            default => Record::from($value)->value($this->second),
         };
 
         return Column::filterOn($this->first, $this->operator, $val)($value, $key);
@@ -87,21 +87,25 @@ final class TwoColumns implements Predicate
 
     public function filter(iterable $value): Iterator
     {
-        $value = match (true) {
-            is_array($value) => new ArrayIterator($value),
-            $value instanceof Iterator => $value,
-            default => new IteratorIterator($value),
-        };
-
-        return new CallbackFilterIterator($value, $this);
+        return new CallbackFilterIterator(
+            match (true) {
+                is_array($value) => new ArrayIterator($value),
+                $value instanceof Iterator => $value,
+                default => new IteratorIterator($value),
+            },
+            $this
+        );
     }
 
     public function filterArray(iterable $values): array
     {
-        if (!is_array($values)) {
-            return array_filter(iterator_to_array($values), $this,  ARRAY_FILTER_USE_BOTH);
-        }
-
-        return array_filter($values, $this,  ARRAY_FILTER_USE_BOTH);
+        return array_filter(
+            match (is_array($values)) {
+                true => $values,
+                false => iterator_to_array($values),
+            },
+            $this,
+            ARRAY_FILTER_USE_BOTH
+        );
     }
 }

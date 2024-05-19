@@ -52,12 +52,12 @@ final class Record
      *
      * @throws ReflectionException
      * @throws StatementError If the value can not be retrieved
-     *@see Record::values()
+     *@see Record::select()
      *
      */
-    public function field(string|int $key): mixed
+    public function value(string|int $key): mixed
     {
-        return $this->values($key)[$key];
+        return $this->select($key)[$key];
     }
 
     /**
@@ -72,7 +72,7 @@ final class Record
      *
      * @return non-empty-array<array-key, mixed>
      */
-    public function values(string|int ...$key): array
+    public function select(string|int ...$key): array
     {
         return match (true) {
             is_object($this->record) => self::getObjectPropertyValue($this->record, ...$key),
