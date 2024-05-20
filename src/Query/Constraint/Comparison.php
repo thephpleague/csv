@@ -13,7 +13,7 @@ declare(strict_types=1);
 
 namespace League\Csv\Query\Constraint;
 
-use League\Csv\Query\QueryError;
+use League\Csv\Query\QueryException;
 
 use function array_is_list;
 use function count;
@@ -68,15 +68,15 @@ enum Comparison: string
     }
 
     /**
-     * @throws QueryError
+     * @throws QueryException
      */
     public static function fromOperator(string $operator): self
     {
-        return self::tryFromOperator($operator) ?? throw new QueryError('Unknown or unsupported comparison operator `'.$operator.'`');
+        return self::tryFromOperator($operator) ?? throw new QueryException('Unknown or unsupported comparison operator `'.$operator.'`');
     }
 
     /**
-     * @throws QueryError
+     * @throws QueryException
      */
     public function compare(mixed $needle, mixed $haystack): bool
     {
@@ -87,16 +87,16 @@ enum Comparison: string
             self::GreaterThanOrEqual => $needle >= $haystack,
             self::LesserThan => $needle < $haystack,
             self::LesserThanOrEqual => $needle <= $haystack,
-            self::Between => (is_array($haystack) && array_is_list($haystack) && 2 === count($haystack)) ? $needle >= $haystack[0] && $needle <= $haystack[1] : throw new QueryError('The value used for comparison with the `'.$this->name.'` operator must be an list containing 2 values, the minimum and maximum values.'),
-            self::NotBetween => (is_array($haystack) && array_is_list($haystack) && 2 === count($haystack)) ? $needle < $haystack[0] || $needle > $haystack[1] : throw new QueryError('The value used for comparison with the `'.$this->name.'` operator must be an list containing 2 values, the minimum and maximum values.'),
-            self::Regexp => is_string($haystack) ? (is_string($needle) && 1 === preg_match($haystack, $needle)) : throw new QueryError('The value used for comparison with the `'.$this->name.'` operator must be a string.'),
-            self::NotRegexp => is_string($haystack) ? (is_string($needle) && 1 !== preg_match($haystack, $needle)) : throw new QueryError('The value used for comparison with the `'.$this->name.'` operator must be a string.'),
-            self::In => is_array($haystack) ? in_array($needle, $haystack, self::isStrict($needle)) : throw new QueryError('The value used for comparison with the `'.$this->name.'` operator must be an array.'), /* @phpstan-ignore-line */
-            self::NotIn => is_array($haystack) ? !in_array($needle, $haystack, self::isStrict($needle)) : throw new QueryError('The value used for comparison with the `'.$this->name.'` operator must be an array.'), /* @phpstan-ignore-line */
-            self::Contains => is_string($haystack) ? (is_string($needle) && str_contains($needle, $haystack)) : throw new QueryError('The value used for comparison with the `'.$this->name.'` operator must be a string.'),
-            self::NotContain => is_string($haystack) ? (is_string($needle) && !str_contains($needle, $haystack)) : throw new QueryError('The value used for comparison with the `'.$this->name.'` operator must be a string.'),
-            self::StartsWith => is_string($haystack) ? (is_string($needle) && str_starts_with($needle, $haystack)) : throw new QueryError('The value used for comparison with the `'.$this->name.'` operator must be a string.'),
-            self::EndsWith => is_string($haystack) ? (is_string($needle) && str_ends_with($needle, $haystack)) : throw new QueryError('The value used for comparison with the `'.$this->name.'` operator must be a string.'),
+            self::Between => (is_array($haystack) && array_is_list($haystack) && 2 === count($haystack)) ? $needle >= $haystack[0] && $needle <= $haystack[1] : throw new QueryException('The value used for comparison with the `'.$this->name.'` operator must be an list containing 2 values, the minimum and maximum values.'),
+            self::NotBetween => (is_array($haystack) && array_is_list($haystack) && 2 === count($haystack)) ? $needle < $haystack[0] || $needle > $haystack[1] : throw new QueryException('The value used for comparison with the `'.$this->name.'` operator must be an list containing 2 values, the minimum and maximum values.'),
+            self::Regexp => is_string($haystack) ? (is_string($needle) && 1 === preg_match($haystack, $needle)) : throw new QueryException('The value used for comparison with the `'.$this->name.'` operator must be a string.'),
+            self::NotRegexp => is_string($haystack) ? (is_string($needle) && 1 !== preg_match($haystack, $needle)) : throw new QueryException('The value used for comparison with the `'.$this->name.'` operator must be a string.'),
+            self::In => is_array($haystack) ? in_array($needle, $haystack, self::isStrict($needle)) : throw new QueryException('The value used for comparison with the `'.$this->name.'` operator must be an array.'), /* @phpstan-ignore-line */
+            self::NotIn => is_array($haystack) ? !in_array($needle, $haystack, self::isStrict($needle)) : throw new QueryException('The value used for comparison with the `'.$this->name.'` operator must be an array.'), /* @phpstan-ignore-line */
+            self::Contains => is_string($haystack) ? (is_string($needle) && str_contains($needle, $haystack)) : throw new QueryException('The value used for comparison with the `'.$this->name.'` operator must be a string.'),
+            self::NotContain => is_string($haystack) ? (is_string($needle) && !str_contains($needle, $haystack)) : throw new QueryException('The value used for comparison with the `'.$this->name.'` operator must be a string.'),
+            self::StartsWith => is_string($haystack) ? (is_string($needle) && str_starts_with($needle, $haystack)) : throw new QueryException('The value used for comparison with the `'.$this->name.'` operator must be a string.'),
+            self::EndsWith => is_string($haystack) ? (is_string($needle) && str_ends_with($needle, $haystack)) : throw new QueryException('The value used for comparison with the `'.$this->name.'` operator must be a string.'),
         };
     }
 

@@ -13,7 +13,7 @@ declare(strict_types=1);
 
 namespace League\Csv\Query\Constraint;
 
-use League\Csv\Query\QueryError;
+use League\Csv\Query\QueryException;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
@@ -23,7 +23,7 @@ final class ComparisonTest extends TestCase
     #[Test]
     public function it_will_throw_if_the_comparison_operator_is_unknown(): void
     {
-        $this->expectException(QueryError::class);
+        $this->expectException(QueryException::class);
 
         Comparison::fromOperator('foobar');
     }
@@ -39,7 +39,7 @@ final class ComparisonTest extends TestCase
     #[DataProvider('provideInvalidComparisons')]
     public function it_fails_to_compare_two_values(mixed $needle, mixed $haystack, string $operator): void
     {
-        $this->expectException(QueryError::class);
+        $this->expectException(QueryException::class);
 
         Comparison::fromOperator($operator)->compare($needle, $haystack);
     }

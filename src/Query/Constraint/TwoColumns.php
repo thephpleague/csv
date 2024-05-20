@@ -19,7 +19,7 @@ use Iterator;
 use IteratorIterator;
 use League\Csv\Query\Predicate;
 use League\Csv\Query\Row;
-use League\Csv\Query\QueryError;
+use League\Csv\Query\QueryException;
 use ReflectionException;
 
 use function array_filter;
@@ -38,7 +38,7 @@ use const ARRAY_FILTER_USE_BOTH;
 final class TwoColumns implements Predicate
 {
     /**
-     * @throws QueryError
+     * @throws QueryException
      */
     private function __construct(
         public readonly string|int $first,
@@ -48,13 +48,13 @@ final class TwoColumns implements Predicate
         if (is_array($this->second)) {
             $res = array_filter($this->second, fn (mixed $value): bool => !is_string($value) && !is_int($value));
             if ([] !== $res) {
-                throw new QueryError('The second column must be a string, an integer or a list of strings and/or integer.');
+                throw new QueryException('The second column must be a string, an integer or a list of strings and/or integer.');
             }
         }
     }
 
     /**
-     * @throws QueryError
+     * @throws QueryException
      */
     public static function filterOn(
         string|int $firstColumn,
@@ -69,7 +69,7 @@ final class TwoColumns implements Predicate
     }
 
     /**
-     * @throws QueryError
+     * @throws QueryException
      * @throws ReflectionException
      */
     public function __invoke(mixed $value, int|string $key): bool

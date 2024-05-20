@@ -30,11 +30,11 @@ final class Limit
         public readonly int $length,
     ){
         if (0 > $this->offset) {
-            throw new QueryError(__METHOD__.'() expects the offset to be greater or equal to 0, '.$this->offset.' given.');
+            throw new QueryException(__METHOD__.'() expects the offset to be greater or equal to 0, '.$this->offset.' given.');
         }
 
         if (-1 > $this->length) {
-            throw new QueryError(__METHOD__.'() expects the length to be greater or equal to -1, '.$this->length.' given.');
+            throw new QueryException(__METHOD__.'() expects the length to be greater or equal to -1, '.$this->length.' given.');
         }
     }
 

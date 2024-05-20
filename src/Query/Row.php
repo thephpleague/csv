@@ -50,7 +50,7 @@ final class Row
      * Tries to retrieve a single value from a record.
      *
      * @throws ReflectionException
-     * @throws QueryError If the value can not be retrieved
+     * @throws QueryException If the value can not be retrieved
      *@see Row::select()
      *
      */
@@ -67,7 +67,7 @@ final class Row
      * If the value is an object, the key MUST be a string.
      *
      * @throws ReflectionException
-     * @throws QueryError If the value can not be retrieved
+     * @throws QueryException If the value can not be retrieved
      *
      * @return non-empty-array<array-key, mixed>
      */
@@ -80,7 +80,7 @@ final class Row
     }
 
     /**
-     * @throws QueryError
+     * @throws QueryException
      *
      * @return non-empty-array<array-key, mixed>
      */
@@ -103,15 +103,15 @@ final class Row
                 }
             }
 
-            $res[$key] = array_key_exists($offset, $value) ? $value[$offset] : throw QueryError::dueToUnknownColumn($key, $value);
+            $res[$key] = array_key_exists($offset, $value) ? $value[$offset] : throw QueryException::dueToUnknownColumn($key, $value);
         }
 
-        return [] !== $res ? $res : throw QueryError::dueToMissingColumn();
+        return [] !== $res ? $res : throw QueryException::dueToMissingColumn();
     }
 
     /**
      * @throws ReflectionException
-     * @throws QueryError
+     * @throws QueryException
      *
      * @return non-empty-array<array-key, mixed>
      */
@@ -125,7 +125,7 @@ final class Row
             }
 
             if (is_int($key)) {
-                throw QueryError::dueToUnknownColumn($key, $value);
+                throw QueryException::dueToUnknownColumn($key, $value);
             }
 
             if ($refl->hasProperty($key) && $refl->getProperty($key)->isPublic()) {
@@ -158,10 +158,10 @@ final class Row
                 continue;
             }
 
-            throw QueryError::dueToUnknownColumn($key, $value);
+            throw QueryException::dueToUnknownColumn($key, $value);
         }
 
-        return [] !== $res ? $res : throw QueryError::dueToMissingColumn();
+        return [] !== $res ? $res : throw QueryException::dueToMissingColumn();
     }
 
     private static function camelCase(string $value, string $prefix = ''): string

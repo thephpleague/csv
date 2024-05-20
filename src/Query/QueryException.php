@@ -16,7 +16,7 @@ namespace League\Csv\Query;
 use League\Csv\UnableToProcessCsv;
 use RuntimeException;
 
-final class QueryError extends RuntimeException implements UnableToProcessCsv
+final class QueryException extends RuntimeException implements UnableToProcessCsv
 {
     public static function dueToUnknownColumn(string|int $column, array|object $value): self
     {

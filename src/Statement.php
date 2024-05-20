@@ -160,48 +160,48 @@ class Statement
 
     public function andWhere(string|int $column, Query\Constraint\Comparison|string $operator, mixed $value): self
     {
-        return $this->addCondition('and', Query\Constraint\Column::filterOn($column, $operator, $value));
+        return $this->appendCondition('and', Query\Constraint\Column::filterOn($column, $operator, $value));
     }
 
     public function orWhere(string|int $column, Query\Constraint\Comparison|string $operator, mixed $value): self
     {
-        return $this->addCondition('or', Query\Constraint\Column::filterOn($column, $operator, $value));
+        return $this->appendCondition('or', Query\Constraint\Column::filterOn($column, $operator, $value));
     }
 
     public function whereNot(string|int $column, Query\Constraint\Comparison|string $operator, mixed $value): self
     {
-        return $this->addCondition('not', Query\Constraint\Column::filterOn($column, $operator, $value));
+        return $this->appendCondition('not', Query\Constraint\Column::filterOn($column, $operator, $value));
     }
 
     public function xorWhere(string|int $column, Query\Constraint\Comparison|string $operator, mixed $value): self
     {
-        return $this->addCondition('xor', Query\Constraint\Column::filterOn($column, $operator, $value));
+        return $this->appendCondition('xor', Query\Constraint\Column::filterOn($column, $operator, $value));
     }
 
     public function andWhereColumn(string|int $first, Query\Constraint\Comparison|string $operator, array|int|string $second): self
     {
-        return $this->addCondition('and', Query\Constraint\TwoColumns::filterOn($first, $operator, $second));
+        return $this->appendCondition('and', Query\Constraint\TwoColumns::filterOn($first, $operator, $second));
     }
 
     public function orWhereColumn(string|int $first, Query\Constraint\Comparison|string $operator, array|int|string $second): self
     {
-        return $this->addCondition('or', Query\Constraint\TwoColumns::filterOn($first, $operator, $second));
+        return $this->appendCondition('or', Query\Constraint\TwoColumns::filterOn($first, $operator, $second));
     }
 
     public function xorWhereColumn(string|int $first, Query\Constraint\Comparison|string $operator, array|int|string $second): self
     {
-        return $this->addCondition('xor', Query\Constraint\TwoColumns::filterOn($first, $operator, $second));
+        return $this->appendCondition('xor', Query\Constraint\TwoColumns::filterOn($first, $operator, $second));
     }
 
     public function whereNotColumn(string|int $first, Query\Constraint\Comparison|string $operator, array|int|string $second): self
     {
-        return $this->addCondition('not', Query\Constraint\TwoColumns::filterOn($first, $operator, $second));
+        return $this->appendCondition('not', Query\Constraint\TwoColumns::filterOn($first, $operator, $second));
     }
 
     /**
      * @param 'and'|'not'|'or'|'xor' $joiner
      */
-    final protected function addCondition(string $joiner, Query\Predicate $predicate): self
+    final protected function appendCondition(string $joiner, Query\Predicate $predicate): self
     {
         if ([] === $this->where) {
             return $this->where(match ($joiner) {
