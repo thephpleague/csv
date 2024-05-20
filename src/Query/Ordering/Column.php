@@ -17,7 +17,7 @@ use ArrayIterator;
 use Closure;
 use Iterator;
 use IteratorIterator;
-use League\Csv\Query\Record;
+use League\Csv\Query\Row;
 use League\Csv\InvalidArgument;
 use League\Csv\Query\Sort;
 use League\Csv\StatementError;
@@ -79,8 +79,8 @@ final class Column implements Sort
      */
     public function __invoke(mixed $valueA, mixed $valueB): int
     {
-        $first = Record::from($valueA)->value($this->column);
-        $second = Record::from($valueB)->value($this->column);
+        $first = Row::from($valueA)->value($this->column);
+        $second = Row::from($valueB)->value($this->column);
 
         return match ($this->direction) {
             self::ASCENDING => ($this->callback)($first, $second),

@@ -32,9 +32,9 @@ use function is_object;
 use function lcfirst;
 use function str_replace;
 
-final class Record
+final class Row
 {
-    public static function from(mixed $value): Record
+    public static function from(mixed $value): Row
     {
         return new self(match (true) {
             is_object($value),
@@ -52,7 +52,7 @@ final class Record
      *
      * @throws ReflectionException
      * @throws StatementError If the value can not be retrieved
-     *@see Record::select()
+     *@see Row::select()
      *
      */
     public function value(string|int $key): mixed

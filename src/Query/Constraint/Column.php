@@ -18,7 +18,7 @@ use CallbackFilterIterator;
 use Iterator;
 use IteratorIterator;
 use League\Csv\Query\Predicate;
-use League\Csv\Query\Record;
+use League\Csv\Query\Row;
 use League\Csv\InvalidArgument;
 use League\Csv\StatementError;
 use ReflectionException;
@@ -68,7 +68,7 @@ final class Column implements Predicate
      */
     public function __invoke(mixed $value, int|string $key): bool
     {
-        return $this->operator->compare(Record::from($value)->value($this->column), $this->value);
+        return $this->operator->compare(Row::from($value)->value($this->column), $this->value);
     }
 
     public function filter(iterable $value): Iterator

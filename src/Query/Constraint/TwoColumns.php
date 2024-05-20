@@ -18,7 +18,7 @@ use CallbackFilterIterator;
 use Iterator;
 use IteratorIterator;
 use League\Csv\Query\Predicate;
-use League\Csv\Query\Record;
+use League\Csv\Query\Row;
 use League\Csv\InvalidArgument;
 use League\Csv\StatementError;
 use ReflectionException;
@@ -78,8 +78,8 @@ final class TwoColumns implements Predicate
     public function __invoke(mixed $value, int|string $key): bool
     {
         $val = match (true) {
-            is_array($this->second) => array_values(Record::from($value)->select(...$this->second)),
-            default => Record::from($value)->value($this->second),
+            is_array($this->second) => array_values(Row::from($value)->select(...$this->second)),
+            default => Row::from($value)->value($this->second),
         };
 
         return Column::filterOn($this->first, $this->operator, $val)($value, $key);

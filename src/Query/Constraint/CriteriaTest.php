@@ -16,7 +16,7 @@ namespace League\Csv\Query\Constraint;
 
 use ArrayIterator;
 use CallbackFilterIterator;
-use League\Csv\Query\Record;
+use League\Csv\Query\Row;
 use League\Csv\Query\QueryTestCase;
 
 use PHPUnit\Framework\Attributes\Test;
@@ -38,8 +38,8 @@ final class CriteriaTest extends QueryTestCase
     #[Test]
     public function it_returns_a_value_when_some_predicates_are_given(): void
     {
-        $predicate1 = fn (mixed $record, int $key) => Record::from($record)->value('volume') > 80;
-        $predicate2 = fn (mixed $record, int $key) => Record::from($record)->value('edition') < 6;
+        $predicate1 = fn (mixed $record, int $key) => Row::from($record)->value('volume') > 80;
+        $predicate2 = fn (mixed $record, int $key) => Row::from($record)->value('edition') < 6;
 
         self::assertSame([
             1 => ['volume' => 86, 'edition' => 1],
@@ -70,8 +70,8 @@ final class CriteriaTest extends QueryTestCase
     {
         $data = new ArrayIterator($this->iterable);
 
-        $predicate1 = fn (mixed $record, int $key) => Record::from($record)->value('volume') > 80;
-        $predicate2 = fn (mixed $record, int $key) => Record::from($record)->value('edition') < 6;
+        $predicate1 = fn (mixed $record, int $key) => Row::from($record)->value('volume') > 80;
+        $predicate2 = fn (mixed $record, int $key) => Row::from($record)->value('edition') < 6;
 
         self::assertSame([
             0 => ['volume' => 67, 'edition' => 2],
