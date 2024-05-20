@@ -11,11 +11,12 @@
 
 declare(strict_types=1);
 
-namespace League\Csv;
+namespace League\Csv\Query;
 
+use League\Csv\UnableToProcessCsv;
 use RuntimeException;
 
-final class StatementError extends RuntimeException implements UnableToProcessCsv
+final class QueryError extends RuntimeException implements UnableToProcessCsv
 {
     public static function dueToUnknownColumn(string|int $column, array|object $value): self
     {

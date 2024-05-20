@@ -19,8 +19,7 @@ use Iterator;
 use IteratorIterator;
 use League\Csv\Query\Predicate;
 use League\Csv\Query\Row;
-use League\Csv\InvalidArgument;
-use League\Csv\StatementError;
+use League\Csv\Query\QueryError;
 use ReflectionException;
 
 use function is_array;
@@ -37,7 +36,7 @@ use const ARRAY_FILTER_USE_BOTH;
 final class Column implements Predicate
 {
     /**
-     * @throws InvalidArgument
+     * @throws \League\Csv\Query\QueryError
      */
     private function __construct(
         public readonly string|int $column,
@@ -45,7 +44,7 @@ final class Column implements Predicate
         public readonly mixed $value,
     ) {
         if (!$this->operator->accept($this->value)) {
-            throw new InvalidArgument('The value used for comparison with the `'.$this->operator->name.'` operator is not valid.');
+            throw new QueryError('The value used for comparison with the `'.$this->operator->name.'` operator is not valid.');
         }
     }
 
@@ -62,9 +61,8 @@ final class Column implements Predicate
     }
 
     /**
-     * @throws InvalidArgument
      * @throws ReflectionException
-     * @throws StatementError
+     * @throws \League\Csv\Query\QueryError
      */
     public function __invoke(mixed $value, int|string $key): bool
     {
@@ -73,13 +71,11 @@ final class Column implements Predicate
 
     public function filter(iterable $value): Iterator
     {
-        $value = match (true) {
+        return new CallbackFilterIterator(match (true) {
             is_array($value) => new ArrayIterator($value),
             $value instanceof Iterator => $value,
             default => new IteratorIterator($value),
-        };
-
-        return new CallbackFilterIterator($value, $this);
+        }, $this);
     }
 
     public function filterArray(iterable $value): array

@@ -115,22 +115,20 @@ final class Criteria implements PredicateCombinator
 
     public function filter(iterable $value): Iterator
     {
-        $value = match (true) {
+        return new CallbackFilterIterator(match (true) {
             is_array($value) => new ArrayIterator($value),
             $value instanceof Iterator => $value,
             default => new IteratorIterator($value),
-        };
-
-        return new CallbackFilterIterator($value, $this);
+        }, $this);
     }
 
     public function filterArray(iterable $values): array
     {
-        if (!is_array($values)) {
-            return array_filter(iterator_to_array($values), $this,  ARRAY_FILTER_USE_BOTH);
-        }
-
-        return array_filter($values, $this,  ARRAY_FILTER_USE_BOTH);
+        return array_filter(
+            !is_array($values) ? iterator_to_array($values) : $values,
+            $this,
+            ARRAY_FILTER_USE_BOTH
+        );
     }
 
     /**

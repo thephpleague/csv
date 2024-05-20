@@ -13,7 +13,6 @@ declare(strict_types=1);
 
 namespace League\Csv\Query;
 
-
 use League\Csv\Reader;
 use League\Csv\Statement;
 use PHPUnit\Framework\TestCase;

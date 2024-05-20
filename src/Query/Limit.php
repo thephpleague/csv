@@ -16,10 +16,9 @@ namespace League\Csv\Query;
 use ArrayIterator;
 use Iterator;
 use IteratorIterator;
-use League\Csv\InvalidArgument;
 use LimitIterator;
-
 use Traversable;
+
 use function array_slice;
 use function is_array;
 use function iterator_to_array;
@@ -31,11 +30,11 @@ final class Limit
         public readonly int $length,
     ){
         if (0 > $this->offset) {
-            throw InvalidArgument::dueToInvalidRecordOffset($this->offset, __METHOD__);
+            throw new QueryError(__METHOD__.'() expects the offset to be greater or equal to 0, '.$this->offset.' given.');
         }
 
         if (-1 > $this->length) {
-            throw InvalidArgument::dueToInvalidLimit($this->length, __METHOD__);
+            throw new QueryError(__METHOD__.'() expects the length to be greater or equal to -1, '.$this->length.' given.');
         }
     }
 

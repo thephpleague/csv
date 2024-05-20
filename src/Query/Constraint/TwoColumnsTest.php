@@ -13,7 +13,7 @@ declare(strict_types=1);
 
 namespace League\Csv\Query\Constraint;
 
-use League\Csv\StatementError;
+use League\Csv\Query\QueryError;
 use PHPUnit\Framework\Attributes\Test;
 use League\Csv\Query\QueryTestCase;
 
@@ -41,7 +41,7 @@ final class TwoColumnsTest extends QueryTestCase
     public function it_will_throw_if_the_column_does_not_exist(): void
     {
         $predicate = TwoColumns::filterOn('City', '=', 'Dakar');
-        $this->expectExceptionObject(StatementError::dueToUnknownColumn('City', []));
+        $this->expectExceptionObject(QueryError::dueToUnknownColumn('City', []));
 
         $this->stmt->where($predicate)->process($this->document);
     }

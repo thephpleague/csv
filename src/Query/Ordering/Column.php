@@ -16,15 +16,12 @@ namespace League\Csv\Query\Ordering;
 use ArrayIterator;
 use Closure;
 use Iterator;
-use IteratorIterator;
 use League\Csv\Query\Row;
-use League\Csv\InvalidArgument;
 use League\Csv\Query\Sort;
-use League\Csv\StatementError;
+use League\Csv\Query\QueryError;
 use OutOfBoundsException;
 use ReflectionException;
 
-use Traversable;
 use function strtoupper;
 use function trim;
 
@@ -61,9 +58,9 @@ final class Column implements Sort
             is_string($direction) => match (strtoupper(trim($direction))) {
                 'ASC', 'ASCENDING', 'UP' => self::ASCENDING,
                 'DESC', 'DESCENDING', 'DOWN' => self::DESCENDING,
-                default => throw new InvalidArgument('Unknown or unsupported ordering operator value: '.$direction),
+                default => throw new QueryError('Unknown or unsupported ordering operator value: '.$direction),
             },
-            default => throw new InvalidArgument('Unknown or unsupported ordering operator value: '.$direction),
+            default => throw new QueryError('Unknown or unsupported ordering operator value: '.$direction),
         };
 
         return new self(
@@ -75,7 +72,7 @@ final class Column implements Sort
 
     /**
      * @throws ReflectionException
-     * @throws StatementError
+     * @throws QueryError
      */
     public function __invoke(mixed $valueA, mixed $valueB): int
     {

@@ -14,7 +14,6 @@ declare(strict_types=1);
 namespace League\Csv\Query;
 
 use ArrayAccess;
-use League\Csv\StatementError;
 use ReflectionException;
 use ReflectionObject;
 use TypeError;
@@ -51,7 +50,7 @@ final class Row
      * Tries to retrieve a single value from a record.
      *
      * @throws ReflectionException
-     * @throws StatementError If the value can not be retrieved
+     * @throws QueryError If the value can not be retrieved
      *@see Row::select()
      *
      */
@@ -68,7 +67,7 @@ final class Row
      * If the value is an object, the key MUST be a string.
      *
      * @throws ReflectionException
-     * @throws StatementError If the value can not be retrieved
+     * @throws QueryError If the value can not be retrieved
      *
      * @return non-empty-array<array-key, mixed>
      */
@@ -81,7 +80,7 @@ final class Row
     }
 
     /**
-     * @throws StatementError
+     * @throws QueryError
      *
      * @return non-empty-array<array-key, mixed>
      */
@@ -104,15 +103,15 @@ final class Row
                 }
             }
 
-            $res[$key] = array_key_exists($offset, $value) ? $value[$offset] : throw StatementError::dueToUnknownColumn($key, $value);
+            $res[$key] = array_key_exists($offset, $value) ? $value[$offset] : throw QueryError::dueToUnknownColumn($key, $value);
         }
 
-        return [] !== $res ? $res : throw StatementError::dueToMissingColumn();
+        return [] !== $res ? $res : throw QueryError::dueToMissingColumn();
     }
 
     /**
      * @throws ReflectionException
-     * @throws StatementError
+     * @throws QueryError
      *
      * @return non-empty-array<array-key, mixed>
      */
@@ -126,7 +125,7 @@ final class Row
             }
 
             if (is_int($key)) {
-                throw StatementError::dueToUnknownColumn($key, $value);
+                throw QueryError::dueToUnknownColumn($key, $value);
             }
 
             if ($refl->hasProperty($key) && $refl->getProperty($key)->isPublic()) {
@@ -159,10 +158,10 @@ final class Row
                 continue;
             }
 
-            throw StatementError::dueToUnknownColumn($key, $value);
+            throw QueryError::dueToUnknownColumn($key, $value);
         }
 
-        return [] !== $res ? $res : throw StatementError::dueToMissingColumn();
+        return [] !== $res ? $res : throw QueryError::dueToMissingColumn();
     }
 
     private static function camelCase(string $value, string $prefix = ''): string

@@ -24,7 +24,6 @@ use PHPUnit\Framework\Attributes\Test;
 use const ARRAY_FILTER_USE_BOTH;
 
 final class CriteriaTest extends QueryTestCase
-
 {
     #[Test]
     public function it_returns_a_value_when_no_predicate_is_given(): void

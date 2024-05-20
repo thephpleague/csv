@@ -13,6 +13,7 @@ declare(strict_types=1);
 
 namespace League\Csv;
 
+use League\Csv\Query\QueryError;
 use OutOfBoundsException;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
@@ -189,7 +190,7 @@ final class StatementTest extends TestCase
 
     public function testOrderByColumnThrowsExceptionIfTheOffsetDoesNotExists(): void
     {
-        $this->expectException(StatementError::class);
+        $this->expectException(QueryError::class);
 
         $this->stmt->orderByDesc(-42)->process($this->csv);
     }
