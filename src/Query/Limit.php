@@ -30,11 +30,11 @@ final class Limit
         public readonly int $length,
     ){
         if (0 > $this->offset) {
-            throw new QueryException(__METHOD__.'() expects the offset to be greater or equal to 0, '.$this->offset.' given.');
+            throw new QueryException(self::class.' expects the offset to be greater or equal to 0, '.$this->offset.' given.');
         }
 
         if (-1 > $this->length) {
-            throw new QueryException(__METHOD__.'() expects the length to be greater or equal to -1, '.$this->length.' given.');
+            throw new QueryException(self::class.' expects the length to be greater or equal to -1, '.$this->length.' given.');
         }
     }
 
@@ -56,12 +56,12 @@ final class Limit
         );
     }
 
-    public function sliceArray(iterable $values, int $offset = 0, int $length = -1): array
+    public function sliceArray(iterable $values): array
     {
         return array_slice(
             !is_array($values) ? iterator_to_array($values) : $values,
             $this->offset,
-            $this->length === -1 ? null : $length,
+            $this->length === -1 ? null : $this->length,
             true
         );
     }

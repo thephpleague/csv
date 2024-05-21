@@ -17,13 +17,13 @@ use ArrayIterator;
 use CallbackFilterIterator;
 use Iterator;
 use IteratorIterator;
-use League\Csv\Query\Predicate;
-use League\Csv\Query\Row;
-use League\Csv\Query\QueryException;
+use League\Csv\Query;
 use ReflectionException;
+use Traversable;
 
 use function is_array;
 use function array_filter;
+use function iterator_to_array;
 
 use const ARRAY_FILTER_USE_BOTH;
 
@@ -33,21 +33,22 @@ use const ARRAY_FILTER_USE_BOTH;
  * When used with PHP's array_filter with the ARRAY_FILTER_USE_BOTH flag
  * the record offset WILL NOT BE taken into account
  */
-final class Column implements Predicate
+final class Column implements Query\Predicate
 {
     /**
-     * @throws \League\Csv\Query\QueryException
+     * @throws Query\QueryException
      */
     private function __construct(
         public readonly string|int $column,
         public readonly Comparison $operator,
         public readonly mixed $value,
     ) {
-        if (!$this->operator->accept($this->value)) {
-            throw new QueryException('The value used for comparison with the `'.$this->operator->name.'` operator is not valid.');
-        }
+        $this->operator->accept($this->value);
     }
 
+    /**
+     * @throws Query\QueryException
+     */
     public static function filterOn(
         string|int $column,
         Comparison|string $operator,
@@ -62,19 +63,19 @@ final class Column implements Predicate
 
     /**
      * @throws ReflectionException
-     * @throws \League\Csv\Query\QueryException
+     * @throws Query\QueryException
      */
     public function __invoke(mixed $value, int|string $key): bool
     {
-        return $this->operator->compare(Row::from($value)->value($this->column), $this->value);
+        return $this->operator->compare(Query\Row::from($value)->value($this->column), $this->value);
     }
 
     public function filter(iterable $value): Iterator
     {
         return new CallbackFilterIterator(match (true) {
-            is_array($value) => new ArrayIterator($value),
             $value instanceof Iterator => $value,
-            default => new IteratorIterator($value),
+            $value instanceof Traversable => new IteratorIterator($value),
+            default => new ArrayIterator($value),
         }, $this);
     }
 

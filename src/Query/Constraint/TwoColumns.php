@@ -21,6 +21,7 @@ use League\Csv\Query\Predicate;
 use League\Csv\Query\Row;
 use League\Csv\Query\QueryException;
 use ReflectionException;
+use Traversable;
 
 use function array_filter;
 use function is_array;
@@ -84,23 +85,17 @@ final class TwoColumns implements Predicate
 
     public function filter(iterable $value): Iterator
     {
-        return new CallbackFilterIterator(
-            match (true) {
-                is_array($value) => new ArrayIterator($value),
-                $value instanceof Iterator => $value,
-                default => new IteratorIterator($value),
-            },
-            $this
-        );
+        return new CallbackFilterIterator(match (true) {
+            $value instanceof Iterator => $value,
+            $value instanceof Traversable => new IteratorIterator($value),
+            default => new ArrayIterator($value),
+        }, $this);
     }
 
-    public function filterArray(iterable $values): array
+    public function filterArray(iterable $value): array
     {
         return array_filter(
-            match (is_array($values)) {
-                true => $values,
-                false => iterator_to_array($values),
-            },
+            !is_array($value) ? iterator_to_array($value) : $value,
             $this,
             ARRAY_FILTER_USE_BOTH
         );

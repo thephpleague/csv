@@ -72,53 +72,80 @@ enum Comparison: string
      */
     public static function fromOperator(string $operator): self
     {
-        return self::tryFromOperator($operator) ?? throw new QueryException('Unknown or unsupported comparison operator `'.$operator.'`');
+        return self::tryFromOperator($operator) ?? throw QueryException::dueToUnknownOperator($operator);
     }
 
     /**
      * @throws QueryException
      */
-    public function compare(mixed $needle, mixed $haystack): bool
+    public function compare(mixed $subject, mixed $reference): bool
     {
+        $this->accept($reference);
+
         return match ($this) {
-            self::Equals => self::isStrict($needle) ? $needle === $haystack : $needle == $haystack,
-            self::NotEquals => self::isStrict($needle) ? $needle !== $haystack : $needle != $haystack,
-            self::GreaterThan => $needle > $haystack,
-            self::GreaterThanOrEqual => $needle >= $haystack,
-            self::LesserThan => $needle < $haystack,
-            self::LesserThanOrEqual => $needle <= $haystack,
-            self::Between => (is_array($haystack) && array_is_list($haystack) && 2 === count($haystack)) ? $needle >= $haystack[0] && $needle <= $haystack[1] : throw new QueryException('The value used for comparison with the `'.$this->name.'` operator must be an list containing 2 values, the minimum and maximum values.'),
-            self::NotBetween => (is_array($haystack) && array_is_list($haystack) && 2 === count($haystack)) ? $needle < $haystack[0] || $needle > $haystack[1] : throw new QueryException('The value used for comparison with the `'.$this->name.'` operator must be an list containing 2 values, the minimum and maximum values.'),
-            self::Regexp => is_string($haystack) ? (is_string($needle) && 1 === preg_match($haystack, $needle)) : throw new QueryException('The value used for comparison with the `'.$this->name.'` operator must be a string.'),
-            self::NotRegexp => is_string($haystack) ? (is_string($needle) && 1 !== preg_match($haystack, $needle)) : throw new QueryException('The value used for comparison with the `'.$this->name.'` operator must be a string.'),
-            self::In => is_array($haystack) ? in_array($needle, $haystack, self::isStrict($needle)) : throw new QueryException('The value used for comparison with the `'.$this->name.'` operator must be an array.'), /* @phpstan-ignore-line */
-            self::NotIn => is_array($haystack) ? !in_array($needle, $haystack, self::isStrict($needle)) : throw new QueryException('The value used for comparison with the `'.$this->name.'` operator must be an array.'), /* @phpstan-ignore-line */
-            self::Contains => is_string($haystack) ? (is_string($needle) && str_contains($needle, $haystack)) : throw new QueryException('The value used for comparison with the `'.$this->name.'` operator must be a string.'),
-            self::NotContain => is_string($haystack) ? (is_string($needle) && !str_contains($needle, $haystack)) : throw new QueryException('The value used for comparison with the `'.$this->name.'` operator must be a string.'),
-            self::StartsWith => is_string($haystack) ? (is_string($needle) && str_starts_with($needle, $haystack)) : throw new QueryException('The value used for comparison with the `'.$this->name.'` operator must be a string.'),
-            self::EndsWith => is_string($haystack) ? (is_string($needle) && str_ends_with($needle, $haystack)) : throw new QueryException('The value used for comparison with the `'.$this->name.'` operator must be a string.'),
+            self::Equals => self::isSingleValue($subject) ? $subject === $reference : $subject == $reference,
+            self::NotEquals => self::isSingleValue($subject) ? $subject !== $reference : $subject != $reference,
+            self::GreaterThan => $subject > $reference,
+            self::GreaterThanOrEqual => $subject >= $reference,
+            self::LesserThan => $subject < $reference,
+            self::LesserThanOrEqual => $subject <= $reference,
+            self::Between => $subject >= $reference[0] && $subject <= $reference[1], /* @phpstan-ignore-line */
+            self::NotBetween => $subject < $reference[0] || $subject > $reference[1], /* @phpstan-ignore-line */
+            self::In => in_array($subject, $reference, self::isSingleValue($subject)), /* @phpstan-ignore-line */
+            self::NotIn => !in_array($subject, $reference, self::isSingleValue($subject)), /* @phpstan-ignore-line */
+            self::Regexp => is_string($subject) && 1 === preg_match($reference, $subject), /* @phpstan-ignore-line */
+            self::NotRegexp => is_string($subject) && 1 !== preg_match($reference, $subject), /* @phpstan-ignore-line */
+            self::Contains => str_contains($subject, $reference), /* @phpstan-ignore-line */
+            self::NotContain => is_string($subject) && !str_contains($subject, $reference), /* @phpstan-ignore-line */
+            self::StartsWith => is_string($subject) && str_starts_with($subject, $reference), /* @phpstan-ignore-line */
+            self::EndsWith => is_string($subject) && str_ends_with($subject, $reference), /* @phpstan-ignore-line */
         };
     }
 
-    private static function isStrict(mixed $value): bool
+    private static function isSingleValue(mixed $value): bool
     {
         return is_scalar($value) || null === $value;
     }
 
-    public function accept(mixed $reference): bool
+    /**
+     * @throws QueryException
+     */
+    public function accept(mixed $reference): void
     {
-        return match ($this) {
+        match ($this) {
             self::Between,
-            self::NotBetween => is_array($reference) && array_is_list($reference) && 2 === count($reference),
+            self::NotBetween => match (true) {
+                !is_array($reference),
+                !array_is_list($reference),
+                 2 !== count($reference) => throw new QueryException('The value used for comparison with the `' . $this->name . '` operator must be an list containing 2 values, the minimum and maximum values.'),
+                default => true,
+            },
             self::In,
-            self::NotIn => is_array($reference),
+            self::NotIn => match (true) {
+                !is_array($reference) => throw new QueryException('The value used for comparison with the `' . $this->name . '` operator must be an array.'),
+                default => true,
+            },
             self::Regexp,
-            self::NotRegexp,
+            self::NotRegexp => match (true) {
+                !is_string($reference),
+                '' === $reference,
+                false === @preg_match($reference, '') => throw new QueryException('The value used for comparison with the `' . $this->name . '` operator must be a valid regular expression pattern string.'),
+                default => true,
+            },
             self::Contains,
             self::NotContain,
             self::StartsWith,
-            self::EndsWith => is_string($reference),
-            default => true,
+            self::EndsWith => match (true) {
+                !is_string($reference),
+                    '' === $reference => throw new QueryException('The value used for comparison with the `' . $this->name . '` operator must be a non empty string.'),
+                default => true,
+            },
+            self::Equals,
+            self::NotEquals,
+            self::GreaterThanOrEqual,
+            self::GreaterThan,
+            self::LesserThanOrEqual,
+            self::LesserThan => true,
         };
     }
 }

@@ -14,9 +14,9 @@ declare(strict_types=1);
 namespace League\Csv\Query;
 
 use League\Csv\UnableToProcessCsv;
-use RuntimeException;
+use Exception;
 
-final class QueryException extends RuntimeException implements UnableToProcessCsv
+final class QueryException extends Exception implements UnableToProcessCsv
 {
     public static function dueToUnknownColumn(string|int $column, array|object $value): self
     {
@@ -35,5 +35,10 @@ final class QueryException extends RuntimeException implements UnableToProcessCs
     public static function dueToMissingColumn(): self
     {
         return new self('No valid column were found with the given data.');
+    }
+
+    public static function dueToUnknownOperator(string $operator): self
+    {
+        return new self('Unknown or unsupported comparison operator `'.$operator.'`');
     }
 }
