@@ -121,20 +121,4 @@ final class MultiSort implements SortCombinator
 
         return $it;
     }
-
-    public function sortArray(iterable $value): array
-    {
-        if (!is_array($value)) {
-            $value = iterator_to_array($value);
-        }
-
-        if ([] === $this->sorts) {
-            return $value;
-        }
-
-        $sorted = $value;
-        uasort($sorted, $this);
-
-        return $sorted;
-    }
 }

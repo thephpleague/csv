@@ -91,13 +91,4 @@ final class TwoColumns implements Predicate
             default => new ArrayIterator($value),
         }, $this);
     }
-
-    public function filterArray(iterable $value): array
-    {
-        return array_filter(
-            !is_array($value) ? iterator_to_array($value) : $value,
-            $this,
-            ARRAY_FILTER_USE_BOTH
-        );
-    }
 }

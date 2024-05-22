@@ -29,6 +29,4 @@ interface Predicate
     public function __invoke(mixed $value, string|int $key): bool;
 
     public function filter(iterable $value): Iterator;
-
-    public function filterArray(iterable $value): array;
 }

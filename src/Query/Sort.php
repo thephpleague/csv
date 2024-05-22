@@ -30,6 +30,4 @@ interface Sort
     public function __invoke(mixed $valueA, mixed $valueB): int;
 
     public function sort(iterable $value): Iterator;
-
-    public function sortArray(iterable $value): array;
 }

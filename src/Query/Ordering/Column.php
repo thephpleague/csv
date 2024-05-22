@@ -103,12 +103,4 @@ final class Column implements Sort
 
         return $it;
     }
-
-    public function sortArray(iterable $value): array
-    {
-        $sorted = !is_array($value) ? iterator_to_array($value) : $value;
-        uasort($sorted, $this);
-
-        return $sorted;
-    }
 }

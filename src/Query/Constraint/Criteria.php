@@ -122,15 +122,6 @@ final class Criteria implements PredicateCombinator
         }, $this);
     }
 
-    public function filterArray(iterable $values): array
-    {
-        return array_filter(
-            !is_array($values) ? iterator_to_array($values) : $values,
-            $this,
-            ARRAY_FILTER_USE_BOTH
-        );
-    }
-
     /**
      * @param ConditionExtended ...$predicates
      */

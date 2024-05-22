@@ -55,14 +55,4 @@ final class Limit
             $this->length,
         );
     }
-
-    public function sliceArray(iterable $values): array
-    {
-        return array_slice(
-            !is_array($values) ? iterator_to_array($values) : $values,
-            $this->offset,
-            $this->length === -1 ? null : $this->length,
-            true
-        );
-    }
 }
