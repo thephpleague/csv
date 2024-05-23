@@ -26,7 +26,18 @@ use Iterator;
  */
 interface Predicate
 {
+    /**
+     * The class predicate method.
+     *
+     * Evaluates each element of an iterable structure based on its value and its offset.
+     * The method must return true if the predicate is satisfied, false otherwise.
+     */
     public function __invoke(mixed $value, string|int $key): bool;
 
+    /**
+     * Filters elements of an iterable structure using the class predicate method.
+     *
+     * @see Predicate::__invoke
+     */
     public function filter(iterable $value): Iterator;
 }

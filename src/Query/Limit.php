@@ -19,10 +19,6 @@ use IteratorIterator;
 use LimitIterator;
 use Traversable;
 
-use function array_slice;
-use function is_array;
-use function iterator_to_array;
-
 final class Limit
 {
     private function __construct(
@@ -43,6 +39,9 @@ final class Limit
         return new self($offset, $length);
     }
 
+    /**
+     * Allows iteration over a limited subset of items in an iterable structure.
+     */
     public function slice(iterable $value): LimitIterator
     {
         return new LimitIterator(

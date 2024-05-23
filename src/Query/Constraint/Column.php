@@ -21,12 +21,6 @@ use League\Csv\Query;
 use ReflectionException;
 use Traversable;
 
-use function is_array;
-use function array_filter;
-use function iterator_to_array;
-
-use const ARRAY_FILTER_USE_BOTH;
-
 /**
  * Enable filtering a record based on the value of a one of its cell.
  *

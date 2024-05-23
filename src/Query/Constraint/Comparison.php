@@ -76,6 +76,10 @@ enum Comparison: string
     }
 
     /**
+     * Values comparison.
+     *
+     * The method return true if the values satisfy the comparison operator, otherwise false is returned.
+     *
      * @throws QueryException
      */
     public function compare(mixed $subject, mixed $reference): bool
@@ -108,6 +112,8 @@ enum Comparison: string
     }
 
     /**
+     * Assert if the reference value can be used with the Enum operator.
+     *
      * @throws QueryException
      */
     public function accept(mixed $reference): void

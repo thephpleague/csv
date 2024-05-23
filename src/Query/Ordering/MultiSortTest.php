@@ -17,7 +17,6 @@ use League\Csv\Query\QueryTestCase;
 use PHPUnit\Framework\Attributes\Test;
 
 final class MultiSortTest extends QueryTestCase
-
 {
     #[Test]
     public function it_will_sort_nothing_if_no_sort_algorithm_is_provided(): void
@@ -32,7 +31,7 @@ final class MultiSortTest extends QueryTestCase
     public function it_can_order_the_tabular_date_when_an_algo_is_provided(): void
     {
         $stmt = $this->stmt->orderBy(
-            MultiSort::all()->append(Column::sortBy('Country', 'up'))
+            MultiSort::all()->append(Column::sortOn('Country', 'up'))
         );
 
         self::assertSame('UK', $stmt->process($this->document)->nth(4)['Country']);
@@ -41,8 +40,8 @@ final class MultiSortTest extends QueryTestCase
     #[Test]
     public function it_respect_the_fifo_order_to_apply_sorting(): void
     {
-        $countryOrder = Column::sortBy('Country', 'ASC');
-        $idOrder = Column::sortBy('CustomerID', 'DeSc');
+        $countryOrder = Column::sortOn('Country', 'ASC');
+        $idOrder = Column::sortOn('CustomerID', 'DeSc');
 
         self::assertNotSame(
             $this->stmt

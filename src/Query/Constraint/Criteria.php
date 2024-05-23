@@ -21,11 +21,8 @@ use IteratorIterator;
 use League\Csv\Query\Predicate;
 use League\Csv\Query\PredicateCombinator;
 
+use Traversable;
 use function array_reduce;
-use function is_array;
-use function array_filter;
-
-use const ARRAY_FILTER_USE_BOTH;
 
 /**
  * @phpstan-import-type Condition from PredicateCombinator
@@ -116,9 +113,9 @@ final class Criteria implements PredicateCombinator
     public function filter(iterable $value): Iterator
     {
         return new CallbackFilterIterator(match (true) {
-            is_array($value) => new ArrayIterator($value),
             $value instanceof Iterator => $value,
-            default => new IteratorIterator($value),
+            $value instanceof Traversable => new IteratorIterator($value),
+            default => new ArrayIterator($value),
         }, $this);
     }
 

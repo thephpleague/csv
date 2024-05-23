@@ -42,7 +42,7 @@ final class Row
         });
     }
 
-    private function __construct(private readonly array|object $record)
+    private function __construct(private readonly array|object $row)
     {
     }
 
@@ -51,7 +51,7 @@ final class Row
      *
      * @throws ReflectionException
      * @throws QueryException If the value can not be retrieved
-     *@see Row::select()
+     * @see Row::select()
      *
      */
     public function value(string|int $key): mixed
@@ -74,8 +74,8 @@ final class Row
     public function select(string|int ...$key): array
     {
         return match (true) {
-            is_object($this->record) => self::getObjectPropertyValue($this->record, ...$key),
-            default => self::getArrayEntry($this->record, ...$key),
+            is_object($this->row) => self::getObjectPropertyValue($this->row, ...$key),
+            default => self::getArrayEntry($this->row, ...$key),
         };
     }
 
@@ -84,26 +84,26 @@ final class Row
      *
      * @return non-empty-array<array-key, mixed>
      */
-    private function getArrayEntry(array $value, string|int ...$keys): array
+    private function getArrayEntry(array $row, string|int ...$keys): array
     {
         $res = [];
-        $arrValues = array_values($value);
+        $arrValues = array_values($row);
         foreach ($keys as $key) {
             if (array_key_exists($key, $res)) {
                 continue;
             }
             $offset = $key;
             if (is_int($offset)) {
-                if (!array_is_list($value)) {
-                    $value = $arrValues;
+                if (!array_is_list($row)) {
+                    $row = $arrValues;
                 }
 
                 if ($offset < 0) {
-                    $offset += count($value);
+                    $offset += count($row);
                 }
             }
 
-            $res[$key] = array_key_exists($offset, $value) ? $value[$offset] : throw QueryException::dueToUnknownColumn($key, $value);
+            $res[$key] = array_key_exists($offset, $row) ? $row[$offset] : throw QueryException::dueToUnknownColumn($key, $row);
         }
 
         return [] !== $res ? $res : throw QueryException::dueToMissingColumn();
@@ -115,21 +115,21 @@ final class Row
      *
      * @return non-empty-array<array-key, mixed>
      */
-    private static function getObjectPropertyValue(object $value, string|int ...$keys): array
+    private static function getObjectPropertyValue(object $row, string|int ...$keys): array
     {
         $res = [];
-        $refl = new ReflectionObject($value);
+        $object = new ReflectionObject($row);
         foreach ($keys as $key) {
             if (array_key_exists($key, $res)) {
                 continue;
             }
 
             if (is_int($key)) {
-                throw QueryException::dueToUnknownColumn($key, $value);
+                throw QueryException::dueToUnknownColumn($key, $row);
             }
 
-            if ($refl->hasProperty($key) && $refl->getProperty($key)->isPublic()) {
-                $res[$key] = $refl->getProperty($key)->getValue($value);
+            if ($object->hasProperty($key) && $object->getProperty($key)->isPublic()) {
+                $res[$key] = $object->getProperty($key)->getValue($row);
                 continue;
             }
 
@@ -139,26 +139,26 @@ final class Row
             }
             $methodNameList[] = self::camelCase($key, 'get');
             foreach ($methodNameList as $methodName) {
-                if ($refl->hasMethod($methodName)
-                    && $refl->getMethod($methodName)->isPublic()
-                    && 1 > $refl->getMethod($methodName)->getNumberOfRequiredParameters()
+                if ($object->hasMethod($methodName)
+                    && $object->getMethod($methodName)->isPublic()
+                    && 1 > $object->getMethod($methodName)->getNumberOfRequiredParameters()
                 ) {
-                    $res[$key] = $refl->getMethod($methodName)->invoke($value);
+                    $res[$key] = $object->getMethod($methodName)->invoke($row);
                     continue 2;
                 }
             }
 
-            if (method_exists($value, '__call')) {
-                $res[$key] = $refl->getMethod('__call')->invoke($value, $methodNameList[1]);
+            if (method_exists($row, '__call')) {
+                $res[$key] = $object->getMethod('__call')->invoke($row, $methodNameList[1]);
                 continue;
             }
 
-            if ($value instanceof ArrayAccess && $value->offsetExists($key)) {
-                $res[$key] =  $value->offsetGet($key);
+            if ($row instanceof ArrayAccess && $row->offsetExists($key)) {
+                $res[$key] =  $row->offsetGet($key);
                 continue;
             }
 
-            throw QueryException::dueToUnknownColumn($key, $value);
+            throw QueryException::dueToUnknownColumn($key, $row);
         }
 
         return [] !== $res ? $res : throw QueryException::dueToMissingColumn();

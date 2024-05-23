@@ -15,13 +15,13 @@ namespace League\Csv\Query\Ordering;
 
 use ArrayIterator;
 use Closure;
-
 use Iterator;
 use IteratorIterator;
 use League\Csv\Query\Sort;
 use League\Csv\Query\SortCombinator;
 use OutOfBoundsException;
 use Traversable;
+
 use function array_map;
 
 /**

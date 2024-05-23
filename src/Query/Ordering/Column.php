@@ -22,6 +22,9 @@ use League\Csv\Query\QueryException;
 use OutOfBoundsException;
 use ReflectionException;
 
+use function is_array;
+use function is_string;
+use function iterator_to_array;
 use function strtoupper;
 use function trim;
 
@@ -45,8 +48,10 @@ final class Column implements Sort
 
     /**
      * @param ?Closure(mixed, mixed): int $callback
+     *
+     * @throws QueryException
      */
-    public static function sortBy(
+    public static function sortOn(
         string|int $column,
         string|int $direction,
         ?Closure $callback = null

@@ -27,7 +27,17 @@ use Iterator;
  */
 interface Sort
 {
+    /**
+     * The class comparison method.
+     *
+     * The method must return an integer less than, equal to, or greater than zero
+     * if the first argument is considered to be respectively less than, equal to,
+     * or greater than the second.
+     */
     public function __invoke(mixed $valueA, mixed $valueB): int;
 
+    /**
+     * Sort an iterable structure with the class comparison method and maintain index association.
+     */
     public function sort(iterable $value): Iterator;
 }

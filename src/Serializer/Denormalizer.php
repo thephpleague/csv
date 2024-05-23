@@ -55,17 +55,25 @@ final class Denormalizer
         $this->postMapCalls = $this->setPostMapCalls();
     }
 
+    /**
+     * Enable converting empty string to the null value.
+     */
     public static function allowEmptyStringAsNull(): void
     {
         self::$emptyStringAsNull = true;
     }
 
+    /**
+     * Disable converting empty string to the null value.
+     */
     public static function disallowEmptyStringAsNull(): void
     {
         self::$emptyStringAsNull = false;
     }
 
     /**
+     * Register a global type conversion callback to convert a field into a specific type.
+     *
      * @throws MappingFailed
      */
     public static function registerType(string $type, Closure $callback): void
@@ -73,6 +81,13 @@ final class Denormalizer
         CallbackCasting::register($type, $callback);
     }
 
+    /**
+     * Unregister a global type conversion callback to convert a field into a specific type.
+     *
+     * @param string $type
+     *
+     * @return bool
+     */
     public static function unregisterType(string $type): bool
     {
         return CallbackCasting::unregisterType($type);
@@ -84,6 +99,8 @@ final class Denormalizer
     }
 
     /**
+     * Register a callback to convert a field into a specific type.
+     *
      * @throws MappingFailed
      */
     public static function registerAlias(string $alias, string $type, Closure $callback): void

@@ -230,7 +230,7 @@ class Statement
      *
      * @param OrderingExtended $order_by
      */
-    public function orderBy(callable $order_by): self
+    public function orderBy(callable|Query\Sort|Closure $order_by): self
     {
         $clone = clone $this;
         $clone->order_by[] = $order_by;
@@ -245,7 +245,7 @@ class Statement
      */
     public function orderByAsc(string|int $column, ?Closure $callback = null): self
     {
-        return $this->orderBy(Query\Ordering\Column::sortBy($column, 'asc', $callback));
+        return $this->orderBy(Query\Ordering\Column::sortOn($column, 'asc', $callback));
     }
 
     /**
@@ -255,7 +255,7 @@ class Statement
      */
     public function orderByDesc(string|int $column, ?Closure $callback = null): self
     {
-        return $this->orderBy(Query\Ordering\Column::sortBy($column, 'desc', $callback));
+        return $this->orderBy(Query\Ordering\Column::sortOn($column, 'desc', $callback));
     }
 
     /**
