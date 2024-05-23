@@ -25,20 +25,13 @@ use function array_key_exists;
 use function array_reduce;
 use function array_search;
 use function array_values;
-use function debug_backtrace;
-use function end;
 use function is_string;
-use function func_num_args;
-use function trigger_error;
-
-use const DEBUG_BACKTRACE_IGNORE_ARGS;
-use const E_USER_DEPRECATED;
 
 /**
  * Criteria to filter a {@link TabularDataReader} object.
  *
- * @phpstan-import-type ConditionExtended from \League\Csv\Query\PredicateCombinator
- * @phpstan-import-type OrderingExtended from \League\Csv\Query\SortCombinator
+ * @phpstan-import-type ConditionExtended from Query\PredicateCombinator
+ * @phpstan-import-type OrderingExtended from Query\SortCombinator
  */
 class Statement
 {
@@ -64,11 +57,6 @@ class Statement
      */
     public static function create(?callable $where = null, int $offset = 0, int $limit = -1): self
     {
-        if (0 === func_num_args()) {
-            return new self();
-        }
-
-        self::triggerDeprecation('9.16.0', 'Using arguments with the `' . __METHOD__ . '` method is deprecated');
         $stmt = new self();
         if (null !== $where) {
             $stmt = $stmt->where($where);
@@ -83,20 +71,6 @@ class Statement
         }
 
         return $stmt;
-    }
-
-    private static function triggerDeprecation(string $version, string $message): void
-    {
-        $backtrace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 2);
-        $caller = end($backtrace);
-        if (isset($caller['file'])) {
-            $message .= '; called from ' . $caller['file'];
-        }
-        if (isset($caller['line'])) {
-            $message .= ' on line ' . $caller['line'];
-        }
-
-        @trigger_error('Since league\csv '.$version.': '.$message . '.', E_USER_DEPRECATED);
     }
 
     /**
@@ -327,15 +301,17 @@ class Statement
             $iterator = Query\Limit::new($this->offset, $this->limit)->slice($iterator);
         }
 
-        return match ($this->select) {
-            [] => new ResultSet($iterator, $header),
-            default => $this->applySelect($iterator, $header, $this->select),
-        };
+        return (new ResultSet($iterator, $header))->select(...$this->select);
     }
 
     /**
+     * DEPRECATION WARNING! This method will be removed in the next major point release.
+     *
      * @throws InvalidArgument
+     *
      * @throws SyntaxError
+     * @see Statement::process()
+     * @deprecated Since version 9.16.0
      */
     protected function applySelect(Iterator $records, array $recordsHeader, array $select): TabularDataReader
     {

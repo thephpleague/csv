@@ -18,15 +18,20 @@ use CallbackFilterIterator;
 use Closure;
 use Generator;
 use Iterator;
+use IteratorIterator;
 use JsonSerializable;
 use League\Csv\Serializer\Denormalizer;
 use League\Csv\Serializer\MappingFailed;
 use League\Csv\Serializer\TypeCastingFailed;
 use LimitIterator;
+use Traversable;
 
 use function array_filter;
 use function array_flip;
+use function array_key_exists;
+use function array_reduce;
 use function array_search;
+use function array_values;
 use function is_string;
 use function iterator_count;
 
@@ -90,13 +95,17 @@ class ResultSet implements TabularDataReader, JsonSerializable
     }
 
     /**
-     * Returns a new instance from a collection without header..
+     * Returns a new instance from a collection without header.
      *
      * @throws SyntaxError
      */
-    public static function createFromRecords(Iterator|array $records = []): self
+    public static function createFromRecords(iterable $records = []): self
     {
-        return new self($records);
+        return new self(match (true) {
+            $records instanceof Iterator => $records,
+            $records instanceof Traversable => new IteratorIterator($records),
+            default => new ArrayIterator($records),
+        });
     }
 
     /**
@@ -218,7 +227,46 @@ class ResultSet implements TabularDataReader, JsonSerializable
 
     public function select(string|int ...$columns): TabularDataReader
     {
-        return Statement::create()->select(...$columns)->process($this);
+        if ([] === $columns) {
+            return $this;
+        }
+
+        $recordsHeader = $this->getHeader();
+        $hasHeader = [] !== $recordsHeader;
+        $selectColumn = function (array $header, string|int $field) use ($recordsHeader, $hasHeader): array {
+            if (is_string($field)) {
+                $index = array_search($field, $recordsHeader, true);
+                if (false === $index) {
+                    throw InvalidArgument::dueToInvalidColumnIndex($field, 'offset', __METHOD__);
+                }
+
+                $header[$index] = $field;
+
+                return $header;
+            }
+
+            if ($hasHeader && !array_key_exists($field, $recordsHeader)) {
+                throw InvalidArgument::dueToInvalidColumnIndex($field, 'offset', __METHOD__);
+            }
+
+            $header[$field] = $recordsHeader[$field] ?? $field;
+
+            return $header;
+        };
+
+        /** @var array<string> $header */
+        $header = array_reduce($columns, $selectColumn, []);
+        $callback = function (array $record) use ($header): array {
+            $element = [];
+            $row = array_values($record);
+            foreach ($header as $offset => $headerName) {
+                $element[$headerName] = $row[$offset] ?? null;
+            }
+
+            return $element;
+        };
+
+        return new self(new MapIterator($this, $callback), $hasHeader ? $header : []);
     }
 
     public function matching(string $expression): iterable
