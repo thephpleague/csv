@@ -149,8 +149,27 @@ Internally they use one of the following PHP's function `str_contains`, `str_sta
 - If the specified column could not be found during process an `StatementError` exception is triggered;
 - If the `value` is incorrect according to the operator constraints an `InvalidArgument` exception will be triggered.
 
+For complex constraints you can, instead of specifying an simple operator, choose to specificy
+a callback. In that case the callback method will be evaluated with the value of the specified
+column.
+
+```php
+use League\Csv\Reader;
+use League\Csv\Statement;
+
+$curDate = new DateTimeImmutable();
+
+$reader = Reader::createFromPath('/path/to/file.csv');
+$records = Statement::create()
+    ->andWhere(1, '=', '10') //filtering is done of the second column
+    ->orWhere('birthdate', fn (string $value): bool => DateTimeImmutable::createFromFormat('Y-m-d', $value) < $curDate) //filtering is done on the `birthdate` column
+    ->whereNot('firstname', 'starts_with', 'P') //filtering is done case-sensitively on the first character of the column value
+    ->process($reader);
+// $records is a League\Csv\ResultSet instance
+```
+
 To enable comparing two columns with each other the following methods are also added:
-`andWhereColumn`, `whereColumnNot`, `orWhereColumn` and `xorWhereColumn`
+`andWhereColumn`, `whereNotColumn`, `orWhereColumn` and `xorWhereColumn`
 
 The only distinction with their value counterparts is in the third argument. Instead of specifying
 a value, it specifies another column (via its string name or integer name) to compare columns
@@ -166,6 +185,57 @@ $records = Statement::create()
     ->whereNotColumn('fullname', 'starts_with', 4)   //filtering is done on both column but the second column is specified via its offset
     ->process($reader);
 // $records is a League\Csv\ResultSet instance
+```
+
+For complex constraints you can, instead of specifying an simple operator, choose to specificy
+a callback. In that case the callback method will be evaluated with the value of both columns.
+
+```php
+use League\Csv\Reader;
+use League\Csv\Statement;
+
+$reader = Reader::createFromPath('/path/to/file.csv');
+$records = Statement::create()
+     ->andWhereColumn('created_at', '<', 'update_at') //filtering is done on both column value
+    ->andWhereOffset(
+        'fullname', 
+        fn (string $valuefirst, string $valueSecond): bool =>  strlen($valuefirst) != strlen($valueSecond), 
+        4
+    ) 
+    ->process($reader);
+```
+
+To enable comparison around the record offset the following methods are also added:
+`andWhereOffset`, `whereNotOffset`, `orWhereOffset` and `xorWhereOffset`
+
+The method will only interact with the record offset as such you can only design an operator
+and the value with which you want to campare the offset with.
+
+```php
+use League\Csv\Reader;
+use League\Csv\Statement;
+
+$reader = Reader::createFromPath('/path/to/file.csv');
+$records = Statement::create()
+    ->andWhereOffset('<', 100) //filtering is done on the offset value only
+    ->process($reader);
+// $records is a League\Csv\ResultSet instance
+```
+
+For complex constraint you can, instead of specifying an operator and a value, choose to
+only specificy a callback. In that case the callback method will be evaluated with the value of the column
+and/or of its offset.
+
+```php
+use League\Csv\Reader;
+use League\Csv\Statement;
+
+$reader = Reader::createFromPath('/path/to/file.csv');
+$records = Statement::create()
+    ->andWhereOffset(fn (string|int $value): bool => fmod((float) $value, 2) == 0) 
+       // filtering is done on the record offset value
+       // records are kept only if the value is even.
+    ->process($reader);
 ```
 
 For more complex queries you can use the classes and Enums defined under the `League\Csv\Query` namespace.
