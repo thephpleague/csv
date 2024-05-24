@@ -129,9 +129,9 @@ class FragmentFinder
 
         return array_map(
             fn (array $selection) => Statement::create()
-                ->select(...$selection['columns'])
                 ->offset($selection['start'])
                 ->limit($selection['length'])
+                ->select(...$selection['columns'])
                 ->process($tabularDataReader),
             $selections
         );

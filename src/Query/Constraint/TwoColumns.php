@@ -15,6 +15,7 @@ namespace League\Csv\Query\Constraint;
 
 use ArrayIterator;
 use CallbackFilterIterator;
+use Closure;
 use Iterator;
 use IteratorIterator;
 use League\Csv\Query\Predicate;
@@ -43,13 +44,17 @@ final class TwoColumns implements Predicate
      */
     private function __construct(
         public readonly string|int $first,
-        public readonly Comparison $operator,
+        public readonly Comparison|Closure $operator,
         public readonly array|string|int $second,
     ) {
+        if ($this->operator instanceof Closure && is_array($this->second)) {
+            throw new QueryException('The second column must be a string if the operator is a callback.');
+        }
+
         if (is_array($this->second)) {
             $res = array_filter($this->second, fn (mixed $value): bool => !is_string($value) && !is_int($value));
             if ([] !== $res) {
-                throw new QueryException('The second column must be a string, an integer or a list of strings and/or integer.');
+                throw new QueryException('The second column must be a string, an integer or a list of strings and/or integer when the operator is not a callback.');
             }
         }
     }
@@ -59,10 +64,10 @@ final class TwoColumns implements Predicate
      */
     public static function filterOn(
         string|int $firstColumn,
-        Comparison|string $operator,
+        Comparison|Closure|string $operator,
         array|string|int $secondColumn
     ): self {
-        if (!$operator instanceof Comparison) {
+        if (is_string($operator)) {
             $operator = Comparison::fromOperator($operator);
         }
 
@@ -79,6 +84,10 @@ final class TwoColumns implements Predicate
             is_array($this->second) => array_values(Row::from($value)->select(...$this->second)),
             default => Row::from($value)->value($this->second),
         };
+
+        if ($this->operator instanceof Closure) {
+            return ($this->operator)(Row::from($value)->value($this->first), $val);
+        }
 
         return Column::filterOn($this->first, $this->operator, $val)($value, $key);
     }

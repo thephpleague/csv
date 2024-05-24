@@ -114,7 +114,7 @@ interface TabularDataReader extends Countable, IteratorAggregate
     public function fetchPairs($offset_index = 0, $value_index = 1): Iterator;
 
     /**
-     * DEPRECATION WARNING! This class will be removed in the next major point release.
+     * DEPRECATION WARNING! This method will be removed in the next major point release.
      *
      * @deprecated since version 9.9.0
      *
@@ -129,7 +129,7 @@ interface TabularDataReader extends Countable, IteratorAggregate
     public function fetchOne(int $nth_record = 0): array;
 
     /**
-     * DEPRECATION WARNING! This class will be removed in the next major point release.
+     * DEPRECATION WARNING! This method will be removed in the next major point release.
      *
      * @deprecated since version 9.8.0
      *

@@ -193,8 +193,8 @@ $filteredData = array_filter($data, $criteria, ARRAY_FILTER_USE_BOTH));
 //Filtering an array using the XOR logical operator
 ```
 
-As shown in the example the `Criteria` class also combines `Closure` conditions, which means that
-you can use a callable whose signature matches the one use for the `where` method.
+As shown in the example the `Criteria` class also combines `Closure` conditions, which means
+that you can use a callable whose signature matches the one use for the `where` method.
 
 ### Ordering
 
@@ -302,8 +302,8 @@ $records = Statement::create()
 // $records is a League\Csv\ResultSet instance with only 3 fields
 ```
 
-While we explain each method separately it is understood that you could use them all together to query your
-CSV document as you want like in the following example.
+While we explain each method separately it is understood that you could use them all together
+to query your CSV document as you want like in the following example.
 
 ```php
 use League\Csv\Reader;

@@ -54,4 +54,13 @@ final class ColumnTest extends QueryTestCase
 
         [...$this->stmt->where($predicate)->process($this->document)];
     }
+
+    #[Test]
+    public function it_can_filter_the_tabular_data_based_on_the_column_value_and_a_callback(): void
+    {
+        $predicate = Column::filterOn('Country', fn (string $value): bool => 'UK' === $value);
+        $result = $this->stmt->where($predicate)->process($this->document);
+
+        self::assertCount(1, $result);
+    }
 }

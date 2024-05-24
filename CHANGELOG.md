@@ -2,7 +2,7 @@
 
 All Notable changes to `Csv` will be documented in this file
 
-## [Next](https://github.com/thephpleague/csv/compare/9.15.0...master) - TBD
+## [9.16.0](https://github.com/thephpleague/csv/compare/9.15.0...9.16.0) - 2024-05-24
 
 ### Added
 
@@ -15,9 +15,13 @@ All Notable changes to `Csv` will be documented in this file
 - `Statement::orWhere`
 - `Statement::xorWhere`
 - `Statement::andWhereColumn`
-- `Statement::whereColumnNot`
+- `Statement::whereNotColumn`
 - `Statement::orWhereColumn`
 - `Statement::xorWhereColumn`
+- `Statement::andWhereOffset`
+- `Statement::whereNotOffset`
+- `Statement::orWhereOffset`
+- `Statement::xorWhereOffset`
 - `Query` feature to allow easier filtering, ordering and querying tabular data
 
 ### Deprecated
