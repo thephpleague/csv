@@ -256,7 +256,7 @@ final class Denormalizer
     private function setPropertySetters(array $propertyNames): array
     {
         $propertySetters = [];
-        $methodNames = array_map(fn (string|int $propertyName) => is_int($propertyName) ? null : 'set'.ucfirst($propertyName), $propertyNames);
+        $methodNames = array_map(fn (string $propertyName) => 'set'.ucfirst($propertyName), $propertyNames);
         foreach ([...$this->properties, ...$this->class->getMethods()] as $accessor) {
             $attributes = $accessor->getAttributes(MapCell::class, ReflectionAttribute::IS_INSTANCEOF);
             $propertySetter = match (count($attributes)) {
