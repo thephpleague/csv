@@ -222,7 +222,7 @@ If the header contains duplicates an exception will be thrown on usage.
 use League\Csv\Reader;
 
 $csv = Reader::createFromPath('/path/to/file.csv', 'r');
-$csv->fetchOne(0); //returns ['field1', 'field2', 'field1', 'field4']
+$csv->nth(0); //returns ['field1', 'field2', 'field1', 'field4']
 $csv->setHeaderOffset(0); //valid offset but the record contain duplicates
 $header_offset = $csv->getHeaderOffset(); //returns 0
 $records = $csv->getRecords(); //throws a SyntaxError exception
@@ -236,7 +236,7 @@ use League\Csv\Reader;
 use League\Csv\SyntaxError;
 
 $csv = Reader::createFromPath('/path/to/file.csv', 'r');
-$csv->fetchOne(0); //returns ['field1', 'field2', 'field1', 'field4']
+$csv->nth(0); //returns ['field1', 'field2', 'field1', 'field4']
 $csv->setHeaderOffset(0); //valid offset but the record contain duplicates
 $header_offset = $csv->getHeaderOffset(); //returns 0
 try {
@@ -248,11 +248,11 @@ try {
 
 ## Document records
 
-To access the CSV records you will need to use the `getRecords` or the `getObjects` methods. The methods
+To access the CSV records you will need to use the `getRecords` or the `getRecordsAsObjects` methods. The methods
 returns an `Iterator` containing all CSV document records as `array` or as objects. It will extract the
 records using the [CSV controls characters](/9.0/connections/controls/).
 
-<p class="message-notice"><code>getRecords</code> and <code>getObjects</code> are part of the <code>TabularDataReader</code> API.</p>
+<p class="message-notice"><code>getRecords</code> and <code>getRecordsAsObjects</code> are part of the <code>TabularDataReader</code> API.</p>
 
 ```php
 use League\Csv\Reader;

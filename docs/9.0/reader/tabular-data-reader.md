@@ -204,7 +204,7 @@ it is recommended to use the <code>nth</code> method instead.</p>
 
 `firstAsObject` and `nthAsObject` are counterpart of `first` and `nth` respectively but returns `null` or
 an instance of the specified object. The methods requires, in addition to the record
-offset, the class name and optionnally a header mapper just like `getObjects`.
+offset, the class name and optionally a header mapper just like `getRecordsAsObjects`.
 
 ```php
 use League\Csv\Reader;
