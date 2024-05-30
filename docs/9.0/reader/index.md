@@ -225,7 +225,7 @@ $csv = Reader::createFromPath('/path/to/file.csv', 'r');
 $csv->fetchOne(0); //returns ['field1', 'field2', 'field1', 'field4']
 $csv->setHeaderOffset(0); //valid offset but the record contain duplicates
 $header_offset = $csv->getHeaderOffset(); //returns 0
-$header = $csv->getHeader(); //throws a SyntaxError exception
+$records = $csv->getRecords(); //throws a SyntaxError exception
 ```
 
 <p class="message-info">Starting with <code>9.7.0</code> the <code>SyntaxError</code> exception thrown
@@ -240,7 +240,7 @@ $csv->fetchOne(0); //returns ['field1', 'field2', 'field1', 'field4']
 $csv->setHeaderOffset(0); //valid offset but the record contain duplicates
 $header_offset = $csv->getHeaderOffset(); //returns 0
 try {
-    $header = $csv->getHeader(); //throws a SyntaxError exception
+    $records = $csv->getRecords(); //throws a SyntaxError exception
 } catch (SyntaxError $exception) {
     $duplicates = $exception->duplicateColumnNames(); //returns ['field1']
 }
