@@ -5,7 +5,7 @@ description: "Working with CSV can often be much more difficult than you expect,
 google_analytics_tracking_id: UA-46050814-6
 # Github repository
 repository: 'csv'
-version: 9.1.4
+version: 9.16.0
 releases:
 #  next:
 #    version: '10.0'
@@ -16,7 +16,7 @@ releases:
   current:
     version: '9.0'
     requires: 'PHP >= 7.0.10'
-    latest: '9.1.4 - 2018-05-01'
+    latest: '9.16.0- 2018-05-01'
     supported_until: 'TBD'
     documentation_link: '/9.0/'
   previous:

@@ -10,7 +10,7 @@ title: Using CSV with Doctrine packages
 <p class="message-warning">With the release of league\csv <code>9.16.0</code> this
 package is officially marked as deprecated no development aside security fixes
 will be applied to it. The package is also marked as abandoned if you use composer.
-For replacement please visit the [Constraint Builders documentation page](https://csv.thephpleague.com/9.0/reader/statement/)</p>
+For replacement please visit the <a href="https://csv.thephpleague.com/9.0/reader/statement/">Constraint Builders documentation page</a></p>
 
 In a nutshell, the features provided by this package have been implemented in a
 better integrated manner directly into the main package, without the need for a
