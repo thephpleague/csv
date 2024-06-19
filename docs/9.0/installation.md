@@ -20,12 +20,15 @@ If you are using **PHP >= 8.0**, use version **9.6.2 or higher** for compatibili
 **Recommendation:** It is recommended to use the latest stable version of the `League\Csv` package in
 combination with the latest PHP version.
 
+<p class="message-notice">Since version <code>9.16.0</code> the <code>mbstring</code> extension is no
+longer required but it is still recommended if you are using or plan to use any mb related stream filter</p>
+
 ## Composer Install
 
 `League\Csv` is available on [Packagist](https://packagist.org/packages/league/csv) and can be installed using [Composer](https://getcomposer.org/):
 
 ```bash
-composer require league/csv:^9.0
+composer require league/csv:^{{ site.data.project.version }}
 ```
 
 ## Manual Install

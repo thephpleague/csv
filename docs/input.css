@@ -1,0 +1,565 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.top-logo {
+    margin-top: 225px;
+}
+.-right-logo {
+    margin-left: 45%;
+}
+
+@media only screen and (max-width: 600px) {
+    .top-logo {
+        margin-top: 100px;
+    }
+    .-right-logo {
+        margin-left: 75%;
+    }
+}
+
+pre {
+    @apply p-6 overflow-auto bg-gray-100 rounded-lg my-4;
+}
+
+.hover-button:hover {
+    @apply opacity-90 drop-shadow-lg;
+}
+
+.hover-block:hover {
+    @apply drop-shadow-lg;
+}
+
+.hover-text:hover {
+    @apply no-underline text-light;
+}
+
+.hover-text:hover .underline {
+    @apply no-underline text-light;
+}
+
+.hover-block:hover div.hover-action {
+    @apply bg-gradient-to-tr from-csv-base via-uri-base to-period-base text-white;
+}
+
+.hover-block:hover img.hover-action {
+    @apply bg-none opacity-100;
+}
+
+code {
+    @apply text-sm sm:text-base font-mono;
+}
+
+.language-php.highlighter-rouge {
+  position: relative;
+}
+
+.language-php.highlighter-rouge .copy-snippet {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  display: none;
+  text-decoration: none;
+  padding:2px;
+  border-right: 2px;
+  background-color:white;
+}
+
+.language-php.highlighter-rouge .copy-snippet-notification {
+  position: absolute;
+  top: 50px;
+  right: 10px;
+  color: whitesmoke;
+}
+
+.language-php.highlighter-rouge:hover .copy-snippet {
+  display: block;
+}
+
+.language-php .string {
+    color: #ff4143
+}
+
+.language-php .this,.language-php .keyword {
+    color: #2b3d50
+}
+
+.language-php .comment {
+    color: #b6b6b6
+}
+
+.language-php .property,.language-php .function,.language-php .class-name,.language-php .variable {
+    color: #07a
+}
+
+.language-php .punctuation {
+    color: #2b3d50
+}
+
+.language-php .php .keyword,.language-php .php .string {
+    color: #ff4143
+}
+
+.language-php .php .function,.language-php .php .property,.language-php .php .this,.language-php .php .variable,.language-php .php .operator,.language-php .php .punctuation {
+    color: #07a
+}
+
+.language-php .markup .token {
+    color: #2b3d50
+}
+
+.language-php .markup .token.comment {
+    color: #b6b6b6
+}
+
+.language-php .markup .token .php .keyword,.language-php .markup .token .php .string,.language-php .markup .token .php .punctuation {
+    color: #690
+}
+
+.language-php .markup .token .php .function,.language-php .markup .token .php .property,.language-php .markup .token .php .this,.language-php .markup .token .php .variable,.language-php .markup .token .php .operator {
+    color: #07a
+}
+
+.language-javascript .punctuation {
+    color: #007e74
+}
+
+.language-javascript .string {
+    color: #ff4143
+}
+
+.language-bash .comment {
+    color: #b6b6b6
+}
+
+.highlight .hll {
+    background-color: #ffc
+}
+
+.highlight .c {
+    color: #999988;
+    font-style: italic;
+}
+
+.highlight .err {
+    color: #a61717;
+    background-color: #e3d2d2
+}
+
+.highlight .k {
+    color: #000000;
+}
+
+.highlight .o {
+    color: #000000;
+}
+
+.highlight .cm {
+    color: #999988;
+}
+
+.highlight .cp {
+    color: #999999;
+    font-style: italic
+}
+
+.highlight .c1 {
+    color: #999988;
+    font-style: italic
+}
+
+.highlight .cs {
+    color: #999999;
+    font-style: italic
+}
+
+.highlight .gd {
+    color: #000000;
+    background-color: #fdd
+}
+
+.highlight .ge {
+    color: #000000;
+    font-style: italic
+}
+
+.highlight .gr {
+    color: #a00
+}
+
+.highlight .gh {
+    color: #999
+}
+
+.highlight .gi {
+    color: #000000;
+    background-color: #dfd
+}
+
+.highlight .go {
+    color: #888
+}
+
+.highlight .gp {
+    color: #555
+}
+
+.highlight .gs {
+    font-weight: normal
+}
+
+.highlight .gu {
+    color: #aaa
+}
+
+.highlight .gt {
+    color: #a00
+}
+
+.highlight .kc {
+    color: #000000;
+}
+
+.highlight .kd {
+    color: #000000;
+}
+
+.highlight .kn {
+    color: #000000;
+}
+
+.highlight .kp {
+    color: #000000;
+}
+
+.highlight .kr {
+    color: #000000;
+}
+
+.highlight .kt {
+    color: #445588;
+}
+
+.highlight .m {
+    color: #099
+}
+
+.highlight .s {
+    color: #d01040
+}
+
+.highlight .na {
+    color: teal
+}
+
+.highlight .nb {
+    color: #0086B3
+}
+
+.highlight .nc {
+    color: #445588;
+}
+
+.highlight .no {
+    color: teal
+}
+
+.highlight .nd {
+    color: #3c5d5d;
+}
+
+.highlight .ni {
+    color: purple
+}
+
+.highlight .ne {
+    color: #990000;
+}
+
+.highlight .nf {
+    color: #990000;
+}
+
+.highlight .nl {
+    color: #990000;
+}
+
+.highlight .nn {
+    color: #555
+}
+
+.highlight .nt {
+    color: navy
+}
+
+.highlight .nv {
+    color: teal
+}
+
+.highlight .ow {
+    color: #000000;
+}
+
+.highlight .w {
+    color: #bbb
+}
+
+.highlight .mf {
+    color: #099
+}
+
+.highlight .mh {
+    color: #099
+}
+
+.highlight .mi {
+    color: #099
+}
+
+.highlight .mo {
+    color: #099
+}
+
+.highlight .sb {
+    color: #d01040
+}
+
+.highlight .sc {
+    color: #d01040
+}
+
+.highlight .sd {
+    color: #d01040
+}
+
+.highlight .s2 {
+    color: #d01040
+}
+
+.highlight .se {
+    color: #d01040
+}
+
+.highlight .sh {
+    color: #d01040
+}
+
+.highlight .si {
+    color: #d01040
+}
+
+.highlight .sx {
+    color: #d01040
+}
+
+.highlight .sr {
+    color: #009926
+}
+
+.highlight .s1 {
+    color: #d01040
+}
+
+.highlight .ss {
+    color: #990073
+}
+
+.highlight .bp {
+    color: #999
+}
+
+.highlight .vc {
+    color: teal
+}
+
+.highlight .vg {
+    color: teal
+}
+
+.highlight .vi {
+    color: teal
+}
+
+.highlight .il {
+    color: #099
+}
+
+.message-info,
+.message-notice,
+.message-warning {
+  @apply p-5 my-3 rounded-lg text-light
+}
+
+.message-info a,
+.message-notice a,
+.message-warning a {
+    color: black
+}
+
+.message-info code,
+.message-notice code,
+.message-warning code {
+  margin-left:.3rem;
+  margin-right: .3rem;
+  padding-right: .3rem;
+  padding-left: .3rem;
+  background: rgba(255,255,255,0.8);
+}
+
+.message-info {
+    color: #196090;
+    background: #cce5f6;
+}
+
+.message-info code {
+    border-color: #5faee3;
+    color: #196090;
+}
+
+.message-notice {
+    color: #927608;
+    background: #fbedb8;
+}
+
+.message-notice code {
+    border-color: #f4d03f;
+    color: #927608;
+}
+
+.message-warning {
+    color: #a82315;
+    background: #fbdedb;
+}
+
+.message-warning code {
+    border-color: #ed7669;
+    color: #a82315;
+}
+
+.content h1 {
+  @apply font-black text-6xl tracking-tighter mb-6
+}
+
+.content h2 {
+  @apply text-3xl tracking-tight text-csv-base mt-10 mb-3
+}
+
+.content h3 {
+  @apply text-2xl tracking-tight text-gray-800 mt-10 mb-3 py-3
+}
+
+.content h4 {
+  @apply text-xl tracking-tight text-csv-dark mt-10 mb-3 py-3
+}
+
+.content {
+  @apply leading-loose
+}
+
+.content code.language-plaintext {
+  @apply text-orange-600
+}
+
+.content table {
+  @apply border-collapse border border-slate-400 w-full
+}
+
+.content thead {
+  @apply bg-gray-800 text-white bg-period-base
+}
+
+.content th,
+.content td {
+  @apply border border-slate-300 p-2
+}
+
+.content tr:nth-child(even) {
+  @apply bg-period-light
+}
+
+.header-permalink {
+  text-decoration: none;
+  color:transparent;
+  font-size:.8em;
+  vertical-align: super;
+}
+
+.header-permalink:hover,
+h1:hover .header-permalink,
+h2:hover .header-permalink,
+h3:hover .header-permalink,
+h4:hover .header-permalink,
+h5:hover .header-permalink {
+  text-decoration: none;
+  color:#777;
+}
+
+nav li a:hover {
+  @apply underline
+}
+
+nav li.selected a {
+  @apply text-csv-dark underline
+}
+
+.content ul li {
+  @apply list-disc mx-4
+}
+
+.content ol {
+  @apply my-4 pl-4
+}
+
+.content ol li {
+  @apply list-decimal mx-4
+}
+
+.content a {
+  @apply underline;
+}
+
+img {
+  @apply m-auto inline
+}
+
+.content p > img {
+  @apply object-none object-center
+}
+
+.algolia-autocomplete {
+  width: 100% !important
+}
+
+.algolia-autocomplete input {
+  font-weight: normal;
+  font-size: 16px;
+  border:1px solid #e8e8e8;
+  background-color:#f4f4f4;
+  padding:.5em 1em;
+  margin-left:.3em;
+  border-radius: .3em;
+  width: 80%;
+}
+
+@media (max-width: 768px) {
+  .algolia-autocomplete.algolia-autocomplete-right .ds-dropdown-menu {
+    max-width: calc(100vw - 2rem) !important;
+    width: calc(100vw - 2rem) !important;
+    min-width: 0 !important;
+    margin-left: 16px !important;
+    right: -3rem !important;
+  }
+  .algolia-autocomplete.algolia-autocomplete-right .ds-dropdown-menu:before {
+    right: 58px;
+  }
+  .algolia-autocomplete .algolia-docsearch-suggestion--content {
+    width: 100% !important;
+    padding-left: 0 !important;
+  }
+  .algolia-autocomplete .algolia-docsearch-suggestion--content:before {
+    display: none !important;
+  }
+  .algolia-autocomplete .algolia-docsearch-suggestion--subcategory-column {
+    display: none !important;
+  }
+}
