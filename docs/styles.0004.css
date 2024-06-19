@@ -1256,6 +1256,7 @@ code {
   top: 0.25rem;
   right: 0.25rem;
   display: none;
+  cursor: pointer;
   --tw-bg-opacity: 1;
   background-color: rgb(255 255 255 / var(--tw-bg-opacity));
   padding-left: 1rem;

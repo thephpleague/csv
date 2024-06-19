@@ -19,10 +19,8 @@
     notification.classList.add('copy-snippet-notification', 'hidden', 'rounded', 'p-2');
     snippet.appendChild(notification);
 
-    let link = document.createElement("a");
+    let link = document.createElement("span");
     link.classList.add("copy-snippet");
-    link.title = "Copy Snippet";
-    link.href = '#';
     link.innerHTML = "copy 📋";
     link.addEventListener('click', function (e) {
         let snippetParent = e.target.parentNode;
@@ -47,7 +45,6 @@
             notification.classList.remove('bg-red-800');
           }, 500);
         }
-        e.preventDefault();
       }, false);
     snippet.appendChild(link);
   });

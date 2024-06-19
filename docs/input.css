@@ -61,7 +61,7 @@ code {
 }
 
 .language-php.highlighter-rouge .copy-snippet {
-  @apply absolute top-1 right-1 px-4 py-2 bg-white hidden no-underline
+  @apply absolute top-1 right-1 px-4 py-2 bg-white hidden no-underline cursor-pointer
 }
 
 .language-php.highlighter-rouge .copy-snippet-notification {
