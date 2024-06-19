@@ -461,7 +461,7 @@ final class Stream implements SeekableIterator
      *
      * @see https://www.php.net/manual/en/splfileobject.fread.php
      *
-     * @param int<0, max> $length The number of bytes to read
+     * @param int<1, max> $length The number of bytes to read
      */
     public function fread(int $length): string|false
     {

@@ -258,7 +258,7 @@ final class StreamWrapper
     }
 
     /**
-     * @param int<0, max> $count
+     * @param int<1, max> $count
      */
     public function stream_read(int $count): string|false
     {
