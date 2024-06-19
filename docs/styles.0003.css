@@ -677,10 +677,6 @@ video {
   display: none;
 }
 
-.h-10 {
-  height: 2.5rem;
-}
-
 .h-12 {
   height: 3rem;
 }
@@ -707,10 +703,6 @@ video {
 
 .w-1\/2 {
   width: 50%;
-}
-
-.w-10 {
-  width: 2.5rem;
 }
 
 .w-12 {
@@ -850,10 +842,6 @@ video {
   border-width: 1px;
 }
 
-.border-2 {
-  border-width: 2px;
-}
-
 .border-t {
   border-top-width: 1px;
 }
@@ -873,10 +861,6 @@ video {
   border-color: rgb(203 213 225 / var(--tw-border-opacity));
 }
 
-.border-opacity-10 {
-  --tw-border-opacity: 0.1;
-}
-
 .border-opacity-50 {
   --tw-border-opacity: 0.5;
 }
@@ -889,11 +873,6 @@ video {
 .bg-csv-base {
   --tw-bg-opacity: 1;
   background-color: rgb(56 193 99 / var(--tw-bg-opacity));
-}
-
-.bg-csv-dark {
-  --tw-bg-opacity: 1;
-  background-color: rgb(39 135 69 / var(--tw-bg-opacity));
 }
 
 .bg-csv-light {
@@ -970,11 +949,6 @@ video {
 .py-10 {
   padding-top: 2.5rem;
   padding-bottom: 2.5rem;
-}
-
-.py-16 {
-  padding-top: 4rem;
-  padding-bottom: 4rem;
 }
 
 .py-2 {
@@ -1085,11 +1059,6 @@ video {
   line-height: 1.75rem;
 }
 
-.text-xs {
-  font-size: 0.75rem;
-  line-height: 1rem;
-}
-
 .font-black {
   font-weight: 900;
 }
@@ -1158,10 +1127,6 @@ video {
   -moz-osx-font-smoothing: grayscale;
 }
 
-.opacity-70 {
-  opacity: 0.7;
-}
-
 .shadow-lg {
   --tw-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
   --tw-shadow-colored: 0 10px 15px -3px var(--tw-shadow-color), 0 4px 6px -4px var(--tw-shadow-color);
@@ -1226,6 +1191,7 @@ pre {
   --tw-bg-opacity: 1;
   background-color: rgb(243 244 246 / var(--tw-bg-opacity));
   padding: 1.5rem;
+  line-height: 1.5;
 }
 
 .hover-button:hover {
@@ -1287,20 +1253,24 @@ code {
 
 .language-php.highlighter-rouge .copy-snippet {
   position: absolute;
-  top: 10px;
-  right: 10px;
+  top: 0.25rem;
+  right: 0.25rem;
   display: none;
-  text-decoration: none;
-  padding:2px;
-  border-right: 2px;
-  background-color:white;
+  --tw-bg-opacity: 1;
+  background-color: rgb(255 255 255 / var(--tw-bg-opacity));
+  padding-left: 1rem;
+  padding-right: 1rem;
+  padding-top: 0.5rem;
+  padding-bottom: 0.5rem;
+  text-decoration-line: none;
 }
 
 .language-php.highlighter-rouge .copy-snippet-notification {
   position: absolute;
-  top: 50px;
-  right: 10px;
-  color: whitesmoke;
+  top: 3.5rem;
+  right: 0.25rem;
+  --tw-text-opacity: 1;
+  color: rgb(255 255 255 / var(--tw-text-opacity));
 }
 
 .language-php.highlighter-rouge:hover .copy-snippet {
@@ -1903,10 +1873,6 @@ img {
     grid-column: span 3 / span 3;
   }
 
-  .sm\:flex {
-    display: flex;
-  }
-
   .sm\:h-\[50px\] {
     height: 50px;
   }
@@ -1958,11 +1924,6 @@ img {
     padding-right: 1.5rem;
   }
 
-  .sm\:py-24 {
-    padding-top: 6rem;
-    padding-bottom: 6rem;
-  }
-
   .sm\:py-3 {
     padding-top: 0.75rem;
     padding-bottom: 0.75rem;
@@ -1990,10 +1951,6 @@ img {
     gap: 0px;
   }
 
-  .md\:gap-6 {
-    gap: 1.5rem;
-  }
-
   .md\:p-6 {
     padding: 1.5rem;
   }
@@ -2011,11 +1968,6 @@ img {
   .md\:text-9xl {
     font-size: 8rem;
     line-height: 1;
-  }
-
-  .md\:text-lg {
-    font-size: 1.125rem;
-    line-height: 1.75rem;
   }
 }
 

@@ -2,6 +2,12 @@
 @tailwind components;
 @tailwind utilities;
 
+@layer utilities {
+  .top-50 {
+    top: 50px;
+  }
+}
+
 .top-logo {
     margin-top: 225px;
 }
@@ -19,7 +25,7 @@
 }
 
 pre {
-    @apply p-6 overflow-auto bg-gray-100 rounded-lg my-4;
+    @apply p-6 overflow-auto bg-gray-100 rounded-lg my-4 leading-normal;
 }
 
 .hover-button:hover {
@@ -51,29 +57,19 @@ code {
 }
 
 .language-php.highlighter-rouge {
-  position: relative;
+  @apply relative
 }
 
 .language-php.highlighter-rouge .copy-snippet {
-  position: absolute;
-  top: 10px;
-  right: 10px;
-  display: none;
-  text-decoration: none;
-  padding:2px;
-  border-right: 2px;
-  background-color:white;
+  @apply absolute top-1 right-1 px-4 py-2 bg-white hidden no-underline
 }
 
 .language-php.highlighter-rouge .copy-snippet-notification {
-  position: absolute;
-  top: 50px;
-  right: 10px;
-  color: whitesmoke;
+  @apply absolute top-14 right-1 text-white
 }
 
 .language-php.highlighter-rouge:hover .copy-snippet {
-  display: block;
+  @apply block;
 }
 
 .language-php .string {
