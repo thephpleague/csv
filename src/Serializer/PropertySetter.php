@@ -32,7 +32,7 @@ final class PropertySetter
     /**
      * @throws ReflectionException
      */
-    public function __invoke(object $object, ?string $value): void
+    public function __invoke(object $object, mixed $value): void
     {
         $typeCastedValue = $this->cast->toVariable($value);
 

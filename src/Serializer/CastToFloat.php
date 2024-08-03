@@ -39,13 +39,17 @@ final class CastToFloat implements TypeCasting
     /**
      * @throws TypeCastingFailed
      */
-    public function toVariable(?string $value): ?float
+    public function toVariable(mixed $value): ?float
     {
         if (null === $value) {
             return match ($this->isNullable) {
                 true => $this->default,
                 false => throw TypeCastingFailed::dueToNotNullableType('float'),
             };
+        }
+
+        if (!is_scalar($value)) {
+            throw TypeCastingFailed::dueToInvalidValue($value, Type::Int->value);
         }
 
         $float = filter_var($value, Type::Float->filterFlag());

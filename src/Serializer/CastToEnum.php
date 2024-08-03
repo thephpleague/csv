@@ -66,7 +66,7 @@ class CastToEnum implements TypeCasting
     /**
      * @throws TypeCastingFailed
      */
-    public function toVariable(?string $value): BackedEnum|UnitEnum|null
+    public function toVariable(mixed $value): BackedEnum|UnitEnum|null
     {
         return match (true) {
             null !== $value => $this->cast($value),
@@ -78,8 +78,16 @@ class CastToEnum implements TypeCasting
     /**
      * @throws TypeCastingFailed
      */
-    private function cast(string $value): BackedEnum|UnitEnum
+    private function cast(mixed $value): BackedEnum|UnitEnum
     {
+        if ($value instanceof $this->class) {
+            return $value;
+        }
+
+        if (!is_string($value)) {
+            throw throw TypeCastingFailed::dueToInvalidValue($value, $this->class);
+        }
+
         try {
             $enum = new ReflectionEnum($this->class);
             if (!$enum->isBacked()) {

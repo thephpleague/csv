@@ -23,7 +23,7 @@ interface TypeCasting
      *
      * @return TValue
      */
-    public function toVariable(?string $value): mixed;
+    public function toVariable(mixed $value): mixed;
 
     /**
      * Accepts additional parameters to configure the class

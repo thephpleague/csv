@@ -39,13 +39,17 @@ final class CastToInt implements TypeCasting
     /**
      * @throws TypeCastingFailed
      */
-    public function toVariable(?string $value): ?int
+    public function toVariable(mixed $value): ?int
     {
         if (null === $value) {
             return match ($this->isNullable) {
                 true => $this->default,
                 false => throw TypeCastingFailed::dueToNotNullableType('integer'),
             };
+        }
+
+        if (!is_scalar($value)) {
+            throw TypeCastingFailed::dueToInvalidValue($value, Type::Int->value);
         }
 
         $int = filter_var($value, Type::Int->filterFlag());

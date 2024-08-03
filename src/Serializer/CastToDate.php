@@ -79,7 +79,7 @@ final class CastToDate implements TypeCasting
     /**
      * @throws TypeCastingFailed
      */
-    public function toVariable(?string $value): DateTimeImmutable|DateTime|null
+    public function toVariable(mixed $value): DateTimeImmutable|DateTime|null
     {
         return match (true) {
             null !== $value && '' !== $value => $this->cast($value),
@@ -91,8 +91,20 @@ final class CastToDate implements TypeCasting
     /**
      * @throws TypeCastingFailed
      */
-    private function cast(string $value): DateTimeImmutable|DateTime
+    private function cast(mixed $value): DateTimeImmutable|DateTime
     {
+        if ($value instanceof DateTimeInterface) {
+            if ($value instanceof $this->class) {
+                return $value;
+            }
+
+            return ($this->class)::createFromInterface($value);
+        }
+
+        if (!is_string($value)) {
+            throw TypeCastingFailed::dueToInvalidValue($value, $this->class);
+        }
+
         try {
             $date = null !== $this->format ?
                 ($this->class)::createFromFormat($this->format, $value, $this->timezone) :

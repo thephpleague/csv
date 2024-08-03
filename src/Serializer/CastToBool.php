@@ -40,7 +40,7 @@ final class CastToBool implements TypeCasting
     /**
      * @throws TypeCastingFailed
      */
-    public function toVariable(?string $value): ?bool
+    public function toVariable(mixed $value): ?bool
     {
         $returnValue = match (true) {
             null !== $value => filter_var($value, Type::Bool->filterFlag()),

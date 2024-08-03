@@ -17,6 +17,7 @@ use JsonException;
 use ReflectionParameter;
 use ReflectionProperty;
 
+use Traversable;
 use function explode;
 use function is_array;
 use function json_decode;
@@ -95,7 +96,7 @@ final class CastToArray implements TypeCasting
         };
     }
 
-    public function toVariable(?string $value): ?array
+    public function toVariable(mixed $value): ?array
     {
         if (null === $value) {
             return match (true) {
@@ -107,6 +108,18 @@ final class CastToArray implements TypeCasting
 
         if ('' === $value) {
             return [];
+        }
+
+        if (is_array($value)) {
+            return $value;
+        }
+
+        if ($value instanceof Traversable) {
+            return iterator_to_array($value);
+        }
+
+        if (!is_string($value)) {
+            throw TypeCastingFailed::dueToInvalidValue($value, $this->type->value);
         }
 
         try {

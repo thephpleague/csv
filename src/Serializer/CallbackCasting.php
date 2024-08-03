@@ -30,15 +30,15 @@ use function class_exists;
  */
 final class CallbackCasting implements TypeCasting
 {
-    /** @var array<string, Closure(?string, bool, mixed...): mixed> */
+    /** @var array<string, Closure(mixed, bool, mixed...): mixed> */
     private static array $types = [];
 
-    /** @var array<string, array<string, Closure(?string, bool, mixed...): mixed>> */
+    /** @var array<string, array<string, Closure(mixed, bool, mixed...): mixed>> */
     private static array $aliases = [];
 
     private string $type;
     private readonly bool $isNullable;
-    /** @var Closure(?string, bool, mixed...): mixed */
+    /** @var Closure(mixed, bool, mixed...): mixed */
     private Closure $callback;
     private array $options = [];
     private string $message;
@@ -54,7 +54,7 @@ final class CallbackCasting implements TypeCasting
             $reflectionProperty instanceof ReflectionProperty => 'The property `'.$reflectionProperty->getDeclaringClass()->getName().'::'.$reflectionProperty->getName().'` must be typed with a supported type.',
         };
 
-        $this->callback = fn (?string $value, bool $isNullable, mixed ...$arguments): ?string => $value;
+        $this->callback = fn (mixed $value, bool $isNullable, mixed ...$arguments): mixed => $value;
     }
 
     /**
@@ -90,7 +90,7 @@ final class CallbackCasting implements TypeCasting
     /**
      * @return TValue
      */
-    public function toVariable(?string $value): mixed
+    public function toVariable(mixed $value): mixed
     {
         try {
             return ($this->callback)($value, $this->isNullable, ...$this->options);
@@ -111,7 +111,7 @@ final class CallbackCasting implements TypeCasting
     }
 
     /**
-     * @param Closure(?string, bool, mixed...): TValue $callback
+     * @param Closure(mixed, bool, mixed...): TValue $callback
      */
     public static function register(string $type, Closure $callback, ?string $alias = null): void
     {
