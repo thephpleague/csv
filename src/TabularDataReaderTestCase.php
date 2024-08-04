@@ -270,13 +270,17 @@ abstract class TabularDataReaderTestCase extends TestCase
     #[Test]
     public function it_returns_multiple_selections_in_one_tabular_data_instance(): void
     {
-        self::assertCount(1, $this->tabularData()->matching('row=1-2;5-4;2-4'));
+        $count = iterator_count($this->tabularData()->matching('row=1-2;5-4;2-4'));
+
+        self::assertSame(1, $count);
     }
 
     #[Test]
     public function it_returns_no_selection(): void
     {
-        self::assertCount(1, $this->tabularData()->matching('row=5-4'));
+        $count = iterator_count($this->tabularData()->matching('row=5-4'));
+
+        self::assertSame(1, $count);
     }
 
     #[Test]

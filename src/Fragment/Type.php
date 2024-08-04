@@ -15,8 +15,7 @@ namespace League\Csv\Fragment;
 
 enum Type: string
 {
-    case Row = 'row';
-    case Column = 'col';
     case Cell = 'cell';
-    case Unknown = 'unknown';
+    case Column = 'col';
+    case Row = 'row';
 }

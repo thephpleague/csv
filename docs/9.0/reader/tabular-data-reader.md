@@ -506,6 +506,7 @@ $reader->matchingFirstOrFail('row=3-1;4-6'); // will throw
 
 <p class="message-info"> Wraps the functionality of <code>FragmentFinder</code> class.</p>
 <p class="message-notice">Added in version <code>9.12.0</code> for <code>Reader</code> and <code>ResultSet</code>.</p>
+<p class="message-info">In addition to using a string expression, starting with version <code>9.17.0</code> you can alternatively use an `Expression` object.</p>
 
 ### chunkBy
 

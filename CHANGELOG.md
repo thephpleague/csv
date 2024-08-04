@@ -2,6 +2,25 @@
 
 All Notable changes to `Csv` will be documented in this file
 
+## [Next] - TBD
+
+### Added
+
+- `League\Csv\Fragment\Expression`
+
+### Deprecated
+
+- None
+
+### Fixed
+
+- `FragmentFinder` now removes duplicate selection.
+- `Cast*` methods are accept more input.
+
+### Removed
+
+- None
+
 ## [9.16.0](https://github.com/thephpleague/csv/compare/9.15.0...9.16.0) - 2024-05-24
 
 ### Added
