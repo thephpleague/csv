@@ -2,6 +2,27 @@
 
 All Notable changes to `Csv` will be documented in this file
 
+## [Next] - TBD
+
+### Added
+
+- `League\Csv\Fragment\Expression`
+- `League\Csv\Fragment\Selection` (internal class)
+
+### Deprecated
+
+- `League\Csv\FragmentFinder::findAll` use `League\Csv\Fragment\Expression::fragment` instead
+
+### Fixed
+
+- `Cast*` methods accept more input type.
+- `FragmentFinder` now removes duplicate selection.
+- `TabularaDataReader::matching` will return an empty `Iterable` instance when no selection is valid, previously and empty `TabularDataReader` instance was returned as unique item of the iterable returned.
+
+### Removed
+
+- None
+
 ## [9.16.0](https://github.com/thephpleague/csv/compare/9.15.0...9.16.0) - 2024-05-24
 
 ### Added

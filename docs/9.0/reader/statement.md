@@ -434,16 +434,17 @@ Here are some selection example:
 - `cell=5,2-8,9` : will select the cells located between row `4` and column `1` and row `7` and column `8`;
 
 Of note, the RFC allows for multiple selections, separated by a `;`. which are translated
-as `OR` expressions. To strictly cover The RFC the class exposes the `findAll` method
+as `OR` expressions. To strictly cover The RFC the class exposes the `find` method
 which returns an iterable containing the results of all found fragments as distinct `TabulatDataReader`
 instances.
 
-<p class="message-warning">If some selections are invalid no error is returned; the invalid
-selection is skipped from the returned value.</p>
+<p class="message-info">This <code>find</code> method is introduced with version <code>9.17.0</code>.</p>
+<p class="message-notice">The <code>findAll</code> method is deprecated, you should use <code>find</code> instead.</p>
+<p class="message-warning">If some selections are invalid no error is returned; the invalid selection is skipped from the returned value.</p>
 
 To restrict the returned values you may use the `findFirst` and `findFirstOrFail` methods.
 Both methods return on success a `TabularDataReader` instance. While the `first` method
-always return the first selection found or `null`; `firstOrFail` **MUST** return a
+always return the first selection found if it is not empty or `null`; `firstOrFail` **MUST** return a non-empty
 `TabularDataReader` instance or throw. It will also throw if the expression syntax is
 invalid while all the other methods just ignore the error.
 
@@ -456,15 +457,83 @@ use League\Csv\FragmentFinder;
 $reader = Reader::createFromPath('/path/to/file.csv');
 $finder = FragmentFinder::create();
 
-$finder->findAll('row=7-5;8-9', $reader);         // return an Iterator<TabularDataReader>
+$finder->find('row=7-5;8-9', $reader);         // return an Iterator<TabularDataReader>
 $finder->findFirst('row=7-5;8-9', $reader);       // return an TabularDataReader
 $finder->findFirstOrFail('row=7-5;8-9', $reader); // will throw
 ```
 
-- `FragmentFinder::findAll` returns an Iterator containing a single `TabularDataReader` because the first selection
+- `FragmentFinder::find` returns an Iterator containing a single `TabularDataReader` because the first selection
 is invalid;
 - `FragmentFinder::findFirst` returns the single valid `TabularDataReader`
 - `FragmentFinder::findFirstOrFail` throws a `SyntaxError`.
 
 Both classes, `FragmentFinder` and `Statement` returns an instance that implements the `TabularDataReader` interface
 which returns the found data in a consistent way.
+
+### Fragment Expression builder
+
+<p class="message-info">This mechanism is introduced with version <code>9.17.0</code>.</p>
+
+The `Expression` class provides an immutable, fluent interface to create valid expressions.
+We can rewrite the previous example as followed:
+
+```php
+use League\Csv\Reader;
+use League\Csv\Fragment\Expression;
+use League\Csv\FragmentFinder;
+
+$reader = Reader::createFromPath('/path/to/file.csv');
+$finder = FragmentFinder::create();
+$expression = Expression::fromRow('7-5', '8-9');
+
+$finder->find($expression, $reader);         // return an Iterator<TabularDataReader>
+$finder->findFirst($expression, $reader);       // return an TabularDataReader
+$finder->findFirstOrFail($expression, $reader); // will throw
+```
+
+The `Expression` validates that your selections are valid according to the selection scheme chosen.
+The class exposes method to create fragment expression for:
+
+- cell selection using `Expression::fromCell`;
+- row selection using `Expression::fromRow`;
+- column selection using `Expression::fromColumn`;
+
+```php
+use League\Csv\Fragment\Expression;
+
+$expression = Expression::fromRow('7-5', '8-9');
+echo $expression;
+// returns 'row=8-9' and removes `7-5` because it is an invalid selection
+```
+
+You can even gradually create your expression using a fluent and immutable API
+using the `push`, `unshift` and `remove` methods. And there are convenient method to
+inspect the class to know how nmany selections are present and to select them according
+to their indices using the `get` a `has` methods. You are also able to tell if a specific
+selection in present via the `contains` method.
+
+```php
+use League\Csv\Fragment\Expression;
+
+$expression = Expression::fromRow()
+    ->push('5-8')
+    ->unshift('12-15')
+    ->replace('5-8', '12-*')
+    ->remove('12-15');
+
+echo $expression->toString();  
+// or  
+echo $expression;
+// returns 'row=12-*'
+```
+
+You can use que `Expression` to directly query a `TabularDataReader` using the `fragment` method.
+The result will be an iterable structure containing `TabularDataReader` instances whose index present the
+selection used to generate the data. The `firstFragment` method can be used to return the first
+`TabularDataReader` instance regardless if it contains data or not.
+
+```php
+$document = Reader::createFromPath('/path/to/file.csv');
+Expression::fromRow('7-5', '8-9')->fragment($document); // returns an iterable<string, TabularDataReader>
+Expression::fromRow('7-5', '8-9')->firstFragment($document); // returns the first selection found regardless if it contains data or not
+```

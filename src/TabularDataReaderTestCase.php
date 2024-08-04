@@ -20,6 +20,7 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
+use Throwable;
 
 #[Group('tabulardata')]
 abstract class TabularDataReaderTestCase extends TestCase
@@ -232,13 +233,31 @@ abstract class TabularDataReaderTestCase extends TestCase
 
     #[Test]
     #[DataProvider('provideInvalidExpressions')]
+    public function it_will_fail_to_parse_invalid_expression(string $expression): void
+    {
+        $this->expectException(Throwable::class);
+
+        iterator_to_array($this->tabularData()->matching($expression));
+    }
+
+    public static function provideInvalidExpressions(): iterable
+    {
+        return [
+            'expression selection is invalid for cell 1' => ['expression' => 'cell=5'],
+            'expression selection is invalid for row or column 1' => ['expression' => 'row=4,3'],
+            'expression selection is invalid for row or column 2' => ['expression' => 'row=four-five'],
+        ];
+    }
+
+    #[Test]
+    #[DataProvider('provideExpressionWithIgnoredSelections')]
     public function it_will_return_null_on_invalid_expression(string $expression): void
     {
         self::assertNull($this->tabularData()->matchingFirst($expression));
     }
 
     #[Test]
-    #[DataProvider('provideInvalidExpressions')]
+    #[DataProvider('provideExpressionWithIgnoredSelections')]
     public function it_will_fail_to_parse_the_expression(string $expression): void
     {
         $this->expectException(FragmentNotFound::class);
@@ -246,22 +265,18 @@ abstract class TabularDataReaderTestCase extends TestCase
         $this->tabularData()->matchingFirstOrFail($expression);
     }
 
-    public static function provideInvalidExpressions(): iterable
+    public static function provideExpressionWithIgnoredSelections(): iterable
     {
         return [
-            'missing expression type' => ['2-4'],
             'missing expression selection row' => ['row='],
             'missing expression selection cell' => ['cell='],
             'missing expression selection coll' => ['col='],
-            'expression selection is invalid for cell 1' => ['cell=5'],
             'expression selection is invalid for cell 2' => ['cell=0,3'],
             'expression selection is invalid for cell 3' => ['cell=3,0'],
             'expression selection is invalid for cell 4' => ['cell=1,3-0,4'],
             'expression selection is invalid for cell 5' => ['cell=1,3-4,0'],
             'expression selection is invalid for cell 6' => ['cell=0,3-1,4'],
             'expression selection is invalid for cell 7' => ['cell=1,0-2,3'],
-            'expression selection is invalid for row or column 1' => ['row=4,3'],
-            'expression selection is invalid for row or column 2' => ['row=four-five'],
             'expression selection is invalid for row or column 3' => ['row=0-3'],
             'expression selection is invalid for row or column 4' => ['row=3-0'],
         ];
@@ -270,13 +285,13 @@ abstract class TabularDataReaderTestCase extends TestCase
     #[Test]
     public function it_returns_multiple_selections_in_one_tabular_data_instance(): void
     {
-        self::assertCount(1, $this->tabularData()->matching('row=1-2;5-4;2-4'));
+        self::assertSame(2, iterator_count($this->tabularData()->matching('row=1-2;5-4;2-4')));
     }
 
     #[Test]
     public function it_returns_no_selection(): void
     {
-        self::assertCount(1, $this->tabularData()->matching('row=5-4'));
+        self::assertSame(0, iterator_count($this->tabularData()->matching('row=5-4')));
     }
 
     #[Test]
