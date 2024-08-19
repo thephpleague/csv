@@ -44,8 +44,8 @@ abstract class AbstractCsv implements ByteSequence
     protected ?Bom $input_bom = null;
     protected ?Bom $output_bom = null;
     protected string $delimiter = ',';
-    protected string $enclosure = '"';
-    protected string $escape = '\\';
+    protected string $enclosure = '\\';
+    protected string $escape = '';
     protected bool $is_input_bom_included = false;
 
     /**
