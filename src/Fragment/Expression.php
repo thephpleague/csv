@@ -362,7 +362,7 @@ final class Expression implements Stringable, Countable, IteratorAggregate
         $nbColumns = Type::Row === $this->type ? 0 : $this->getTabularDataColumnCount($tabularDataReader);
 
         $statements = [] === $this->selections ? [] : match ($this->type) {
-            Type::Row => $this->queryByRows($nbColumns),
+            Type::Row => $this->queryByRows(),
             Type::Column => $this->queryByColumns($nbColumns),
             Type::Cell => $this->queryByCells($nbColumns),
         };
@@ -373,6 +373,10 @@ final class Expression implements Stringable, Countable, IteratorAggregate
     }
 
     /**
+     * @throws Exception
+     * @throws InvalidArgument
+     * @throws ReflectionException
+     *
      * @return iterable<string, Statement>
      */
     private function queryByCells(int $nbColumns = 0): iterable
@@ -390,7 +394,7 @@ final class Expression implements Stringable, Countable, IteratorAggregate
      *
      * @return iterable<string, Statement>
      */
-    private function queryByRows(int $nbColumns = 0): iterable
+    private function queryByRows(): iterable
     {
         $predicate = fn (array $record, int $offset): bool => [] !== array_filter(
             $this->selections,
