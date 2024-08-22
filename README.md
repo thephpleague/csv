@@ -51,6 +51,10 @@ composer require league/csv:^9.0
 
 ## Configuration
 
+> [!WARNING]
+> **Starting with PHP8.4 Deprecation notices will be trigger if you do not explicitly use the empty string as the escape parameter.**
+> see [Deprecation for PHP8.4](https://wiki.php.net/rfc/deprecations_php_8_4#deprecate_proprietary_csv_escaping_mechanism) and [CSV and PHP8.4](https://nyamsprod.com/blog/csv-and-php8-4/)
+
 > [!TIP]
 > If your CSV document was created or is read on a **Legacy Macintosh computer**, add the following lines before 
 using the library to help [PHP detect line ending](http://php.net/manual/en/function.fgetcsv.php#refsect1-function.fgetcsv-returnvalues).

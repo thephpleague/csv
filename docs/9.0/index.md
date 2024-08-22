@@ -25,6 +25,7 @@ use League\Csv\Statement;
 
 $csv = Reader::createFromPath('/path/to/your/csv/file.csv', 'r');
 $csv->setHeaderOffset(0); //set the CSV header offset
+$csv->setEscape(''); //required in PHP8.4+ to avoid deprecation notices
 
 //get 25 records starting from the 11th row
 $stmt = Statement::create()
@@ -57,6 +58,7 @@ $sth->execute();
 
 // We create the CSV into memory
 $csv = Writer::createFromFileObject(new SplTempFileObject());
+$csv->setEscape(''); //required in PHP8.4+ to avoid deprecation notices
 
 // We insert the CSV header
 $csv->insertOne(['firstname', 'lastname', 'email']);
@@ -90,6 +92,7 @@ $sth = $dbh->prepare(
 // with the header record and remove it from the iteration
 $csv = Reader::createFromPath('/path/to/your/csv/file.csv')
     ->setHeaderOffset(0)
+    ->setEscape('') //required in PHP8.4+ to avoid deprecation notices
 ;
 
 foreach ($csv as $record) {
@@ -112,6 +115,7 @@ use League\Csv\CharsetConverter;
 
 $csv = Reader::createFromPath('/path/to/your/csv/file.csv', 'r');
 $csv->setHeaderOffset(0);
+$csv->setEscape(''); //required in PHP8.4+ to avoid deprecation notices
 
 $inputBom = Bom::tryFrom($csv->getInputBOM());
 if ($inputBom instanceof Bom && !$inputBom->isUtf8()) {
@@ -134,6 +138,7 @@ use League\Csv\Reader;
 $csv = Reader::createFromPath('/path/to/prenoms.csv', 'r')
 $csv->setDelimiter(';');
 $csv->setHeaderOffset(0);
+$csv->setEscape(''); //required in PHP8.4+ to avoid deprecation notices
 
 $converter = (new XMLConverter())
     ->rootElement('csv')

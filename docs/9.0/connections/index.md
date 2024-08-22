@@ -33,6 +33,52 @@ if (!ini_get('auto_detect_line_endings')) {
 
 <p class="message-warning"><code>auto_detect_line_endings</code> is deprecated since <code>PHP 8.1</code>; and will be removed in <code>PHP 9.0</code></p>
 
+## Deprecation Notice
+
+Starting with PHP8.4+, because the library is built using the native CSV features of PHP
+your code may start emitting deprecation notices. To avoid those deprecations you
+must explicitly set the escape control character to be the empty string as
+shown in the example below:
+
+```php
+use League\Csv\Reader;
+use League\Csv\Writer;
+
+$csv = Reader::createFromPath('/path/to/file.csv', 'r');
+$csv->setEscape(''); //required in PHP8.4+
+
+$writer = Writer::createFromString();
+$writer->setEscape(''); //required in PHP8.4+
+```
+
+Doing so will prevent any deprecation notice. Of course, you are required to review on a
+case-by-case basis these changes as they may introduce some parsing bugs while reading
+existing CSV documents. A way to mitigate these issues is to re-encode your CSV
+documents and strip away the deprecated escape mechanism all together. This can
+be done using the script below:
+
+```php
+use League\Csv\Reader;
+use League\Csv\Writer;
+
+$csv = Reader::createFromPath('/path/to/file_with_escape_character.csv', 'r');
+$writer = Writer::createFromPath('/path/to/file_without_escape_character.csv', 'w');
+$writer->setEscape('');
+$writer->setDelimiter($csv->getDelimiter()); //we re-use the old document character controls
+$writer->setEnclosure($csv->getEnclosure()); //we re-use the old document character controls
+
+$writer->insertAll($csv); // deprecation notice from reading the old file will be emitted!
+```
+
+This straightforward strategy using the package will re-encode your old CSV documents.
+After that, you can use the new document by setting the escape character to the
+empty string, and you will never get any deprecation notice again. And since
+you created a new document it is easy to validate that your new document
+still contains the same data.
+
+Of course, it is highly recommended to adapt this script so that it can fit in
+your application lifecycle.
+
 ## Exceptions
 
 The default exception class thrown while using this library is `League\Csv\Exception` which extends PHP `Exception` class.
