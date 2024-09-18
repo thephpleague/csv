@@ -41,7 +41,7 @@ final class CastToString implements TypeCasting
     public function toVariable(mixed $value): ?string
     {
         $returnedValue = match(true) {
-            is_string($value) => (string) $value,
+            is_string($value) => $value,
             $this->isNullable => $this->default,
             default => throw TypeCastingFailed::dueToNotNullableType($this->type->value),
         };

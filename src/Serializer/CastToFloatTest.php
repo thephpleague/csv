@@ -28,8 +28,12 @@ final class CastToFloatTest extends TestCase
     }
 
     #[DataProvider('providesValidStringForInt')]
-    public function testItCanConvertToArraygWithoutArguments(ReflectionProperty $prototype, ?string $input, ?float $default, ?float $expected): void
-    {
+    public function testItCanConvertToArraygWithoutArguments(
+        ReflectionProperty $prototype,
+        string|int|float|null $input,
+        ?float $default,
+        ?float $expected
+    ): void {
         $cast = new CastToFloat($prototype);
         $cast->setOptions($default);
 
@@ -55,6 +59,20 @@ final class CastToFloatTest extends TestCase
         yield 'negative integer' => [
             'prototype' => new ReflectionProperty(FloatClass::class, 'nullableFloat'),
             'input' => '-10',
+            'default' => null,
+            'expected' => -10.0,
+        ];
+
+        yield 'integer type' => [
+            'prototype' => new ReflectionProperty(FloatClass::class, 'nullableFloat'),
+            'input' => -10,
+            'default' => null,
+            'expected' => -10.0,
+        ];
+
+        yield 'float type' => [
+            'prototype' => new ReflectionProperty(FloatClass::class, 'nullableFloat'),
+            'input' => -10.0,
             'default' => null,
             'expected' => -10.0,
         ];
