@@ -24,7 +24,7 @@ final class Limit
     private function __construct(
         public readonly int $offset,
         public readonly int $length,
-    ){
+    ) {
         if (0 > $this->offset) {
             throw new QueryException(self::class.' expects the offset to be greater or equal to 0, '.$this->offset.' given.');
         }

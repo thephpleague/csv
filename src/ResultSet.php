@@ -20,7 +20,6 @@ use Generator;
 use Iterator;
 use IteratorIterator;
 use JsonSerializable;
-use League\Csv\Fragment\Expression;
 use League\Csv\Serializer\Denormalizer;
 use League\Csv\Serializer\MappingFailed;
 use League\Csv\Serializer\TypeCastingFailed;
@@ -270,12 +269,12 @@ class ResultSet implements TabularDataReader, JsonSerializable
         return new self(new MapIterator($this, $callback), $hasHeader ? $header : []);
     }
 
-    public function matching(Expression|string $expression): iterable
+    public function matching(string $expression): iterable
     {
-        return Expression::from($expression)->fragment($this);
+        return FragmentFinder::create()->findAll($expression, $this);
     }
 
-    public function matchingFirst(Expression|string $expression): ?TabularDataReader
+    public function matchingFirst(string $expression): ?TabularDataReader
     {
         return FragmentFinder::create()->findFirst($expression, $this);
     }
@@ -284,7 +283,7 @@ class ResultSet implements TabularDataReader, JsonSerializable
      * @throws SyntaxError
      * @throws FragmentNotFound
      */
-    public function matchingFirstOrFail(Expression|string $expression): TabularDataReader
+    public function matchingFirstOrFail(string $expression): TabularDataReader
     {
         return FragmentFinder::create()->findFirstOrFail($expression, $this);
     }

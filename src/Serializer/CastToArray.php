@@ -16,8 +16,8 @@ namespace League\Csv\Serializer;
 use JsonException;
 use ReflectionParameter;
 use ReflectionProperty;
-
 use Traversable;
+
 use function explode;
 use function is_array;
 use function json_decode;

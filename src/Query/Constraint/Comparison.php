@@ -123,19 +123,19 @@ enum Comparison: string
             self::NotBetween => match (true) {
                 !is_array($reference),
                 !array_is_list($reference),
-                 2 !== count($reference) => throw new QueryException('The value used for comparison with the `' . $this->name . '` operator must be an list containing 2 values, the minimum and maximum values.'),
+                2 !== count($reference) => throw new QueryException('The value used for comparison with the `'.$this->name.'` operator must be an list containing 2 values, the minimum and maximum values.'),
                 default => true,
             },
             self::In,
             self::NotIn => match (true) {
-                !is_array($reference) => throw new QueryException('The value used for comparison with the `' . $this->name . '` operator must be an array.'),
+                !is_array($reference) => throw new QueryException('The value used for comparison with the `'.$this->name.'` operator must be an array.'),
                 default => true,
             },
             self::Regexp,
             self::NotRegexp => match (true) {
                 !is_string($reference),
                 '' === $reference,
-                false === @preg_match($reference, '') => throw new QueryException('The value used for comparison with the `' . $this->name . '` operator must be a valid regular expression pattern string.'),
+                false === @preg_match($reference, '') => throw new QueryException('The value used for comparison with the `'.$this->name.'` operator must be a valid regular expression pattern string.'),
                 default => true,
             },
             self::Contains,
@@ -143,7 +143,7 @@ enum Comparison: string
             self::StartsWith,
             self::EndsWith => match (true) {
                 !is_string($reference),
-                    '' === $reference => throw new QueryException('The value used for comparison with the `' . $this->name . '` operator must be a non empty string.'),
+                '' === $reference => throw new QueryException('The value used for comparison with the `'.$this->name.'` operator must be a non empty string.'),
                 default => true,
             },
             self::Equals,

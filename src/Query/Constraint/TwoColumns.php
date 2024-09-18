@@ -19,8 +19,8 @@ use Closure;
 use Iterator;
 use IteratorIterator;
 use League\Csv\Query\Predicate;
-use League\Csv\Query\Row;
 use League\Csv\Query\QueryException;
+use League\Csv\Query\Row;
 use ReflectionException;
 use Traversable;
 

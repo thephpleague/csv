@@ -31,7 +31,7 @@ final class OffsetTest extends QueryTestCase
     #[Test]
     public function it_can_filter_the_tabular_data_based_on_the_offset_value_and_a_callback(): void
     {
-        $predicate = Offset::filterOn(fn (int $key): bool => $key % 2 === 0);
+        $predicate = Offset::filterOn(fn (int $key): bool => 0 === $key % 2);
         $result = $this->stmt->where($predicate)->process($this->document);
 
         self::assertCount(2, $result);
