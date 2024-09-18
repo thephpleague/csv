@@ -129,10 +129,6 @@ final class CastToArray implements TypeCasting
                 ArrayShape::Csv => filter_var(str_getcsv($value, $this->delimiter, $this->enclosure, ''), $this->filterFlag, FILTER_REQUIRE_ARRAY),
             };
 
-            if (!is_array($result)) {
-                throw TypeCastingFailed::dueToInvalidValue($value, $this->type->value);
-            }
-
             return $result;
 
         } catch (JsonException $exception) {

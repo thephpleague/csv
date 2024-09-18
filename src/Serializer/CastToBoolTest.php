@@ -33,7 +33,7 @@ final class CastToBoolTest extends TestCase
     public function testItCanConvertStringToBool(
         ReflectionProperty $propertyType,
         ?bool $default,
-        ?string $input,
+        string|bool|null $input,
         ?bool $expected
     ): void {
         $cast = new CastToBool($propertyType);
@@ -119,6 +119,20 @@ final class CastToBoolTest extends TestCase
             'default' => false,
             'input' => null,
             'expected' => false,
+        ];
+
+        yield 'with a boolean false value' => [
+            'propertyType' => new ReflectionProperty(BoolClass::class, 'unionType'),
+            'default' => false,
+            'input' => false,
+            'expected' => false,
+        ];
+
+        yield 'with a boolean true value' => [
+            'propertyType' => new ReflectionProperty(BoolClass::class, 'unionType'),
+            'default' => false,
+            'input' => true,
+            'expected' => true,
         ];
     }
 

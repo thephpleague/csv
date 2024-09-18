@@ -27,7 +27,7 @@ final class CastToArrayTest extends TestCase
      * @param array<array-key, int|string> $expected
      */
     #[DataProvider('providesValidStringForArray')]
-    public function testItCanConvertToArraygWithoutArguments(string $shape, string $type, string $input, array $expected): void
+    public function testItCanConvertToArraygWithoutArguments(string $shape, string $type, string|array $input, array $expected): void
     {
         $cast = new CastToArray(new ReflectionProperty(ArrayClass::class, 'nullableIterable'));
         $cast->setOptions(shape:$shape, type:$type);
@@ -90,6 +90,13 @@ final class CastToArrayTest extends TestCase
             'shape' => 'csv',
             'type' => 'int',
             'input' => '"1",2,3,"4"',
+            'expected' => [1, 2, 3, 4],
+        ];
+
+        yield 'using an array overrides every other settings' => [
+            'shape' => 'csv',
+            'type' => 'int',
+            'input' => [1, 2, 3, 4],
             'expected' => [1, 2, 3, 4],
         ];
     }

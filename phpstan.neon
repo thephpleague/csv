@@ -13,3 +13,6 @@ parameters:
         - src
     reportUnmatchedIgnoredErrors: true
     treatPhpDocTypesAsCertain: false
+    parallel:
+        processTimeout: 300.0
+

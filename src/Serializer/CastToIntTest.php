@@ -30,9 +30,13 @@ final class CastToIntTest extends TestCase
     }
 
     #[DataProvider('providesValidStringForInt')]
-    public function testItCanConvertToArraygWithoutArguments(ReflectionProperty $reflectionProperty, ?string $input, ?int $default, ?int $expected): void
-    {
-        $cast = new CastToInt($reflectionProperty);
+    public function testItCanConvertToArraygWithoutArguments(
+        ReflectionProperty $property,
+        string|float|int|null $input,
+        ?int $default,
+        ?int $expected
+    ): void {
+        $cast = new CastToInt($property);
         $cast->setOptions($default);
 
         self::assertSame($expected, $cast->toVariable($input));
@@ -41,66 +45,80 @@ final class CastToIntTest extends TestCase
     public static function providesValidStringForInt(): iterable
     {
         yield 'positive integer' => [
-            'reflectionProperty' => new ReflectionProperty(IntClass::class, 'nullableInt'),
+            'property' => new ReflectionProperty(IntClass::class, 'nullableInt'),
             'input' => '1',
             'default' => null,
             'expected' => 1,
         ];
 
         yield 'zero' => [
-            'reflectionProperty' => new ReflectionProperty(IntClass::class, 'nullableInt'),
+            'property' => new ReflectionProperty(IntClass::class, 'nullableInt'),
             'input' => '0',
             'default' => null,
             'expected' => 0,
         ];
 
         yield 'negative integer' => [
-            'reflectionProperty' => new ReflectionProperty(IntClass::class, 'nullableInt'),
+            'property' => new ReflectionProperty(IntClass::class, 'nullableInt'),
             'input' => '-10',
             'default' => null,
             'expected' => -10,
         ];
 
         yield 'null value' => [
-            'reflectionProperty' => new ReflectionProperty(IntClass::class, 'nullableInt'),
+            'property' => new ReflectionProperty(IntClass::class, 'nullableInt'),
             'input' => null,
             'default' => null,
             'expected' => null,
         ];
 
         yield 'null value with default value' => [
-            'reflectionProperty' => new ReflectionProperty(IntClass::class, 'nullableInt'),
+            'property' => new ReflectionProperty(IntClass::class, 'nullableInt'),
             'input' => null,
             'default' => 10,
             'expected' => 10,
         ];
 
         yield 'conversion of the null value with a nullable float' => [
-            'reflectionProperty' => new ReflectionProperty(IntClass::class, 'nullableFloat'),
+            'property' => new ReflectionProperty(IntClass::class, 'nullableFloat'),
             'input' => null,
             'default' => 10,
             'expected' => 10,
         ];
 
         yield 'conversion with float' => [
-            'reflectionProperty' => new ReflectionProperty(IntClass::class, 'nullableFloat'),
+            'property' => new ReflectionProperty(IntClass::class, 'nullableFloat'),
             'input' => '1',
             'default' => null,
             'expected' => 1,
         ];
 
         yield 'with union type' => [
-            'reflectionProperty' => new ReflectionProperty(IntClass::class, 'unionType'),
+            'property' => new ReflectionProperty(IntClass::class, 'unionType'),
             'input' => '23',
             'default' => 42,
             'expected' => 23,
         ];
 
         yield 'with nullable union type' => [
-            'reflectionProperty' => new ReflectionProperty(IntClass::class, 'unionType'),
+            'property' => new ReflectionProperty(IntClass::class, 'unionType'),
             'input' => null,
             'default' => 42,
             'expected' => 42,
+        ];
+
+        yield 'integer type' => [
+            'property' => new ReflectionProperty(IntClass::class, 'nullableInt'),
+            'input' => -10,
+            'default' => null,
+            'expected' => -10,
+        ];
+
+        yield 'float type' => [
+            'property' => new ReflectionProperty(IntClass::class, 'nullableInt'),
+            'input' => -10.0,
+            'default' => null,
+            'expected' => -10,
         ];
     }
 

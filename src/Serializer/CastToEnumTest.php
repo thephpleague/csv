@@ -88,6 +88,24 @@ final class CastToEnumTest extends TestCase
         self::assertSame(Colour::Violet, $cast->toVariable('violet'));
     }
 
+    public function testItCanConvertABackedEnum(): void
+    {
+        $cast = new CastToEnum(new ReflectionProperty(EnumClass::class, 'colour'));
+        $orange = $cast->toVariable(Colour::Orange);
+
+        self::assertInstanceOf(Colour::class, $orange);
+        self::assertSame('Orange', $orange->name);
+        self::assertSame('orange', $orange->value);
+    }
+
+    public function testItWillThrowIfNotTheExpectedEnum(): void
+    {
+        $this->expectException(TypeCastingFailed::class);
+
+        $cast = new CastToEnum(new ReflectionProperty(EnumClass::class, 'colour'));
+        $cast->toVariable(DayOfTheWeek::Monday);
+    }
+
     #[DataProvider('invalidPropertyName')]
     public function testItWillThrowIfNotTypeAreSupported(string $propertyName): void
     {
