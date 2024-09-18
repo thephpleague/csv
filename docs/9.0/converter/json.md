@@ -10,7 +10,7 @@ The `JsonConverter` converts or store a CSV records collection into a JSON struc
 ## Settings
 
 Prior to converting your records collection into a JSON structure, you may wish to configure
-the converter. 
+the converter.
 
 <p class="message-warning">Because we are building a <code>JSON</code> structure, the <code>JsonConverter</code> object
 throws generic <code>SPL Exception</code> instead of <code>League\Csv\Exception</code>.</p>
@@ -64,7 +64,7 @@ public JsonConverter::encode(iterable $records): string
 public JsonConverter::save(iterable $records, mixed $destination, $context = null): int
 ```
 
-The `JsonConverter::convert` accepts an `iterable` which represents the records collection 
+The `JsonConverter::convert` accepts an `iterable` which represents the records collectioncl
 and returns a `iteratable` structure which will be lazily converted to JSON while avoiding
 high memory usage.The class is built to handle large CSV documents but can be used with
 small CSV document file if needed.
