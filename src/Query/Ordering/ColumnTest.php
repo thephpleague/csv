@@ -17,7 +17,6 @@ use League\Csv\Query\QueryTestCase;
 use PHPUnit\Framework\Attributes\Test;
 
 final class ColumnTest extends QueryTestCase
-
 {
     #[Test]
     public function it_can_order_the_tabular_date_in_descending_order(): void

@@ -13,12 +13,10 @@ declare(strict_types=1);
 
 namespace League\Csv\Query\Constraint;
 
-
 use ArrayIterator;
 use CallbackFilterIterator;
-use League\Csv\Query\Row;
 use League\Csv\Query\QueryTestCase;
-
+use League\Csv\Query\Row;
 use PHPUnit\Framework\Attributes\Test;
 
 use const ARRAY_FILTER_USE_BOTH;

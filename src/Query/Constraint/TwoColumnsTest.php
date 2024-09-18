@@ -14,11 +14,10 @@ declare(strict_types=1);
 namespace League\Csv\Query\Constraint;
 
 use League\Csv\Query\QueryException;
-use PHPUnit\Framework\Attributes\Test;
 use League\Csv\Query\QueryTestCase;
+use PHPUnit\Framework\Attributes\Test;
 
 final class TwoColumnsTest extends QueryTestCase
-
 {
     #[Test]
     public function it_can_filter_the_tabular_data_based_on_the_column_value(): void

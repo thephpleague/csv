@@ -13,8 +13,8 @@ declare(strict_types=1);
 
 namespace League\Csv\Query\Constraint;
 
-use League\Csv\Query\QueryTestCase;
 use League\Csv\Query\QueryException;
+use League\Csv\Query\QueryTestCase;
 use PHPUnit\Framework\Attributes\Test;
 
 final class ColumnTest extends QueryTestCase
