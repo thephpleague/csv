@@ -43,6 +43,7 @@ final class CastToBool implements TypeCasting
     public function toVariable(mixed $value): ?bool
     {
         $returnValue = match (true) {
+            is_bool($value) => $value,
             null !== $value => filter_var($value, Type::Bool->filterFlag()),
             $this->isNullable => $this->default,
             default => throw TypeCastingFailed::dueToNotNullableType('boolean'),
