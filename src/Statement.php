@@ -395,19 +395,19 @@ class Statement
      * @deprecated Since version 9.16.0
      * @codeCoverageIgnore
      */
-     protected function applyFilter(Iterator $iterator): Iterator
-     {
-         $filter = function (array $record, string|int $key): bool {
-             foreach ($this->where as $where) {
-                 if (true !== $where($record, $key)) {
-                     return false;
-                 }
-             }
+    protected function applyFilter(Iterator $iterator): Iterator
+    {
+        $filter = function (array $record, string|int $key): bool {
+            foreach ($this->where as $where) {
+                if (true !== $where($record, $key)) {
+                    return false;
+                }
+            }
 
-             return true;
-         };
+            return true;
+        };
 
-         return new CallbackFilterIterator($iterator, $filter);
+        return new CallbackFilterIterator($iterator, $filter);
     }
 
     /**

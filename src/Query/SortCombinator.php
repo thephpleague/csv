@@ -14,7 +14,6 @@ declare(strict_types=1);
 namespace League\Csv\Query;
 
 use Closure;
-use League\Csv\Query\Sort;
 
 /**
  * @phpstan-type Ordering Sort|Closure(mixed, mixed): int

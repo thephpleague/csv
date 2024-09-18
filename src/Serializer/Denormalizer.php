@@ -84,9 +84,7 @@ final class Denormalizer
     /**
      * Unregister a global type conversion callback to convert a field into a specific type.
      *
-     * @param string $type
      *
-     * @return bool
      */
     public static function unregisterType(string $type): bool
     {

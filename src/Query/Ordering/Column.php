@@ -16,9 +16,9 @@ namespace League\Csv\Query\Ordering;
 use ArrayIterator;
 use Closure;
 use Iterator;
+use League\Csv\Query\QueryException;
 use League\Csv\Query\Row;
 use League\Csv\Query\Sort;
-use League\Csv\Query\QueryException;
 use OutOfBoundsException;
 use ReflectionException;
 

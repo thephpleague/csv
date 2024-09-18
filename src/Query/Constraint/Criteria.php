@@ -20,8 +20,8 @@ use Iterator;
 use IteratorIterator;
 use League\Csv\Query\Predicate;
 use League\Csv\Query\PredicateCombinator;
-
 use Traversable;
+
 use function array_reduce;
 
 /**

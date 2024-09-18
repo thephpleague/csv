@@ -13,8 +13,8 @@ declare(strict_types=1);
 
 namespace League\Csv\Query;
 
-use League\Csv\UnableToProcessCsv;
 use Exception;
+use League\Csv\UnableToProcessCsv;
 
 final class QueryException extends Exception implements UnableToProcessCsv
 {
@@ -22,12 +22,12 @@ final class QueryException extends Exception implements UnableToProcessCsv
     {
         return match (true) {
             is_object($value) => match (is_int($column)) {
-                true => new self('The object property name can not be the integer`' . $column . '`.'),
-                default => new self('The object property name `' . $column . '` could not be retrieved from the object.'),
+                true => new self('The object property name can not be the integer`'.$column.'`.'),
+                default => new self('The object property name `'.$column.'` could not be retrieved from the object.'),
             },
             default => match (is_string($column)) {
-                true => new self('The column `' . $column . '` does not exist in the input array.'),
-                default => new self('The column with the offset `' . $column . '` does not exist in the input array.'),
+                true => new self('The column `'.$column.'` does not exist in the input array.'),
+                default => new self('The column with the offset `'.$column.'` does not exist in the input array.'),
             },
         };
     }

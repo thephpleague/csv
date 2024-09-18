@@ -6,18 +6,15 @@ All Notable changes to `Csv` will be documented in this file
 
 ### Added
 
-- `League\Csv\Fragment\Expression`
-- `League\Csv\Fragment\Selection` (internal class)
+- None
 
 ### Deprecated
 
-- `League\Csv\FragmentFinder::findAll` use `League\Csv\Fragment\Expression::fragment` instead
-
+- None
+- 
 ### Fixed
 
 - `Cast*` methods accept more input type.
-- `FragmentFinder` now removes duplicate selection.
-- `TabularaDataReader::matching` will return an empty `Iterable` instance when no selection is valid, previously and empty `TabularDataReader` instance was returned as unique item of the iterable returned.
 
 ### Removed
 
