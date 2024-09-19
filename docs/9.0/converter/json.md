@@ -115,7 +115,7 @@ This will produce the following response:
 ```
 
 Of note, since the CSV document is not encoded in `UTF-8` we first convert it using the `CharsetConverter` class
-otherwise an exceptio will be triggered when json encoding the data.
+otherwise an exception will be triggered when json encoding the data.
 
 If we wanted to store the data instead of displaying it we could do the following
 
