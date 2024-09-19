@@ -84,7 +84,7 @@ $converter = JsonConverter::create()
     ->addFlags(JSON_PRETTY_PRINT, JSON_UNESCAPED_SLASHES)
     ->depth(2)
     ->indentSize(2)
-    ->format(function (array $row) {
+    ->formatter(function (array $row) {
         $row['nombre'] = (int) $row['nombre'];
         $row['annee'] = (int) $row['annee'];
         $row['sexe']  = $row['sexe'] === 'M' ? 'male' : 'female';
