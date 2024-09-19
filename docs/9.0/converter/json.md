@@ -64,22 +64,22 @@ public JsonConverter::encode(iterable $records): string
 public JsonConverter::save(iterable $records, mixed $destination, $context = null): int
 ```
 
-The `JsonConverter::convert` accepts an `iterable` which represents the records collectioncl
-and returns a `iteratable` structure which will be lazily converted to JSON while avoiding
-high memory usage.The class is built to handle large CSV documents but can be used with
+The `JsonConverter::convert` accepts an `iterable` which represents the records collection
+and returns a `iterable` structure lazily converted to JSON one item at a time to avoid
+high memory usage. The class is built to handle large CSV documents but can be used with
 small CSV document file if needed.
 
-The `JsonConverter::encode` and `JsonConverter::save` methods a sugar syntactic methods to
-ease store the JSON in a file or show it to the world via its full JSON string representation.
+The `JsonConverter::encode` and `JsonConverter::save` methods are sugar syntactic methods to
+ease storing the JSON in a file or displaying it in its full JSON string representation.
 
 Here's a conversion example:
 
 ```php
-$csv = Reader::createFromPath(__DIR__.'/test_files/prenoms.csv');
-$csv->setDelimiter(';');
-$csv->setHeaderOffset(0);
+$document = Reader::createFromPath(__DIR__.'/test_files/prenoms.csv');
+$document->setDelimiter(';');
+$document->setHeaderOffset(0);
 
-CharsetConverter::addTo($csv, 'iso-8859-15', 'utf-8');
+CharsetConverter::addTo($document, 'iso-8859-15', 'utf-8');
 $converter = JsonConverter::create()
     ->addFlags(JSON_PRETTY_PRINT, JSON_UNESCAPED_SLASHES)
     ->depth(2)
@@ -92,9 +92,7 @@ $converter = JsonConverter::create()
         return $row;
     });
 
-$records = Statement::create()->offset(3)->limit(2)->process($csv);
-
-echo $converter->encode($records), PHP_EOL;
+echo $converter->encode($document->slice(3, 2)), PHP_EOL;
 ```
 
 This will produce the following response:
@@ -122,8 +120,8 @@ otherwise an exceptio will be triggered when json encoding the data.
 If we wanted to store the data instead of displaying it we could do the following
 
 ```diff
-- echo $converter->encode($records), PHP_EOL;
-+ $converter->save($records, 'my/new/document.json');
+- echo $converter->encode($document), PHP_EOL;
++ $converter->save($document, 'my/new/document.json');
 ```
 
 the generated CSV will then be stored at the `my/new/document.json` path.
@@ -134,6 +132,7 @@ The destination path can be specified using:
 - a resource created by `fopen`;
 - a string;
 
-If you provide a string or a `SplFileInfo` instance the file will be open using
-the `w` open mode and you can provide an additional `$context` parameter to fine
-tune where and how the JSON file will be stored.
+If you provide a string or a `SplFileInfo` instance:
+
+- the file will be open using the `w` open mode.
+- You can provide an additional `$context` parameter, a la `fopen`, to fine tune where and how the JSON file will be stored.
