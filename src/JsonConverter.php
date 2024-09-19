@@ -239,7 +239,7 @@ final class JsonConverter
             $records instanceof Iterator => $records,
             $records instanceof Traversable => (function () use ($records): Iterator {
                 foreach ($records as $offset => $record) {
-                    yield $offset => $records;
+                    yield $offset => $record;
                 }
             })(),
             default => new ArrayIterator($records),
