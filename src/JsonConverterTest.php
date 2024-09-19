@@ -108,7 +108,7 @@ final class JsonConverterTest extends TestCase
     public function it_can_manipulate_the_record_prior_to_json_encode(): void
     {
         $converter = JsonConverter::create()
-            ->formatter(fn (array $value) => array_map(strtoupper(...), $value));
+            ->formatter(fn (array $value, int|string $offset): array => array_map(strtoupper(...), $value));
 
         self::assertSame('[{"foo":"BAR"}]', $converter->encode([['foo' => 'bar']]));
     }

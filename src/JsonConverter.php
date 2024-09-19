@@ -141,7 +141,7 @@ final class JsonConverter
     }
 
     /**
-     * Set a callback to be used on each item before json encode.
+     * Set a callback to format each item before json encode.
      */
     public function formatter(?Closure $formatter): self
     {
