@@ -7,6 +7,9 @@ All Notable changes to `Csv` will be documented in this file
 ### Added
 
 - `League\Csv\JsonConverter`
+- `League\Csv\Constraint\Criteria::andNot`
+- `League\Csv\Constraint\Criteria::orNot`
+- `League\Csv\Constraint\Criteria::xorNot`
 
 ### Deprecated
 
@@ -14,7 +17,7 @@ All Notable changes to `Csv` will be documented in this file
 - 
 ### Fixed
 
-- `Cast*` methods accept more input type.
+- `Cast*` methods accept more input type to improve Denormalization usage when `Reader::addFormatter` is used or when the collection contains data other than string and `null`.
 
 ### Removed
 

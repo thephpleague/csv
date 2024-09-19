@@ -17,7 +17,7 @@ use ArrayIterator;
 use CallbackFilterIterator;
 use Closure;
 use Iterator;
-use IteratorIterator;
+use IteratorAggregate;
 use League\Csv\Query\Predicate;
 use League\Csv\Query\PredicateCombinator;
 use Traversable;
@@ -112,11 +112,21 @@ final class Criteria implements PredicateCombinator
 
     public function filter(iterable $value): Iterator
     {
-        return new CallbackFilterIterator(match (true) {
+        if ($value instanceof IteratorAggregate) {
+            $value = $value->getIterator();
+        }
+
+        $value = match (true) {
             $value instanceof Iterator => $value,
-            $value instanceof Traversable => new IteratorIterator($value),
+            $value instanceof Traversable => (function () use ($value): Iterator {
+                foreach ($value as $offset => $record) {
+                    yield $offset => $record;
+                }
+            })(),
             default => new ArrayIterator($value),
-        }, $this);
+        };
+
+        return new CallbackFilterIterator($value, $this);
     }
 
     /**
@@ -125,6 +135,11 @@ final class Criteria implements PredicateCombinator
     public function and(Predicate|Closure|callable ...$predicates): self
     {
         return self::all($this->predicate, ...$predicates);
+    }
+
+    public function andNot(Predicate|Closure|callable ...$predicates): self
+    {
+        return self::all($this->predicate, self::none(...$predicates));
     }
 
     /**
@@ -146,8 +161,24 @@ final class Criteria implements PredicateCombinator
     /**
      * @param ConditionExtended ...$predicates
      */
+    public function orNot(Predicate|Closure|callable ...$predicates): self
+    {
+        return self::any($this->predicate, self::none(...$predicates));
+    }
+
+    /**
+     * @param ConditionExtended ...$predicates
+     */
     public function xor(Predicate|Closure|callable ...$predicates): self
     {
         return self::xany($this->predicate, ...$predicates);
+    }
+
+    /**
+     * @param ConditionExtended ...$predicates
+     */
+    public function xorNot(Predicate|Closure|callable ...$predicates): self
+    {
+        return self::xany($this->predicate, self::none(...$predicates));
     }
 }
