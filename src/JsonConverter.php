@@ -13,17 +13,14 @@ declare(strict_types=1);
 
 namespace League\Csv;
 
-use ArrayIterator;
 use Closure;
 use Exception;
 use InvalidArgumentException;
 use Iterator;
-use IteratorAggregate;
 use JsonException;
 use RuntimeException;
 use SplFileInfo;
 use SplFileObject;
-use Traversable;
 
 use const JSON_ERROR_NONE;
 use const JSON_FORCE_OBJECT;
@@ -231,19 +228,7 @@ final class JsonConverter
             $end = '}';
         }
 
-        if ($records instanceof IteratorAggregate) {
-            $records = $records->getIterator();
-        }
-
-        $records = match (true) {
-            $records instanceof Iterator => $records,
-            $records instanceof Traversable => (function () use ($records): Iterator {
-                foreach ($records as $offset => $record) {
-                    yield $offset => $record;
-                }
-            })(),
-            default => new ArrayIterator($records),
-        };
+        $records = MapIterator::toIterator($records);
         $records->rewind();
         if (!$records->valid()) {
             yield $start.$end;

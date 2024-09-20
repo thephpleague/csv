@@ -16,11 +16,10 @@ namespace League\Csv\Query\Ordering;
 use ArrayIterator;
 use Closure;
 use Iterator;
-use IteratorIterator;
+use League\Csv\MapIterator;
 use League\Csv\Query\Sort;
 use League\Csv\Query\SortCombinator;
 use OutOfBoundsException;
-use Traversable;
 
 use function array_map;
 
@@ -94,11 +93,7 @@ final class MultiSort implements SortCombinator
     public function sort(iterable $value): Iterator
     {
         if ([] === $this->sorts) {
-            return match (true) {
-                $value instanceof Iterator => $value,
-                $value instanceof Traversable => new IteratorIterator($value),
-                default => new ArrayIterator($value),
-            };
+            return MapIterator::toIterator($value);
         }
 
         $class = new class () extends ArrayIterator {
@@ -112,11 +107,7 @@ final class MultiSort implements SortCombinator
             }
         };
 
-        if (!is_array($value)) {
-            $value = iterator_to_array($value);
-        }
-
-        $it = new $class($value);
+        $it = new $class(!is_array($value) ? iterator_to_array($value) : $value);
         $it->uasort($this);
 
         return $it;

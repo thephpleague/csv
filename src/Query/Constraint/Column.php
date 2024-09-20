@@ -13,14 +13,12 @@ declare(strict_types=1);
 
 namespace League\Csv\Query\Constraint;
 
-use ArrayIterator;
 use CallbackFilterIterator;
 use Closure;
 use Iterator;
-use IteratorIterator;
+use League\Csv\MapIterator;
 use League\Csv\Query;
 use ReflectionException;
-use Traversable;
 
 /**
  * Enable filtering a record based on the value of a one of its cell.
@@ -78,10 +76,6 @@ final class Column implements Query\Predicate
 
     public function filter(iterable $value): Iterator
     {
-        return new CallbackFilterIterator(match (true) {
-            $value instanceof Iterator => $value,
-            $value instanceof Traversable => new IteratorIterator($value),
-            default => new ArrayIterator($value),
-        }, $this);
+        return new CallbackFilterIterator(MapIterator::toIterator($value), $this);
     }
 }

@@ -18,13 +18,11 @@ use CallbackFilterIterator;
 use Closure;
 use Generator;
 use Iterator;
-use IteratorIterator;
 use JsonSerializable;
 use League\Csv\Serializer\Denormalizer;
 use League\Csv\Serializer\MappingFailed;
 use League\Csv\Serializer\TypeCastingFailed;
 use LimitIterator;
-use Traversable;
 
 use function array_filter;
 use function array_flip;
@@ -101,11 +99,7 @@ class ResultSet implements TabularDataReader, JsonSerializable
      */
     public static function createFromRecords(iterable $records = []): self
     {
-        return new self(match (true) {
-            $records instanceof Iterator => $records,
-            $records instanceof Traversable => new IteratorIterator($records),
-            default => new ArrayIterator($records),
-        });
+        return new self(MapIterator::toIterator($records));
     }
 
     /**

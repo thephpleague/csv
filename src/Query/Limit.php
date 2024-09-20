@@ -13,11 +13,8 @@ declare(strict_types=1);
 
 namespace League\Csv\Query;
 
-use ArrayIterator;
-use Iterator;
-use IteratorIterator;
+use League\Csv\MapIterator;
 use LimitIterator;
-use Traversable;
 
 final class Limit
 {
@@ -44,14 +41,6 @@ final class Limit
      */
     public function slice(iterable $value): LimitIterator
     {
-        return new LimitIterator(
-            match (true) {
-                $value instanceof Iterator => $value,
-                $value instanceof Traversable => new IteratorIterator($value),
-                default => new ArrayIterator($value),
-            },
-            $this->offset,
-            $this->length,
-        );
+        return new LimitIterator(MapIterator::toIterator($value), $this->offset, $this->length);
     }
 }

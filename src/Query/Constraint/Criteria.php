@@ -13,14 +13,12 @@ declare(strict_types=1);
 
 namespace League\Csv\Query\Constraint;
 
-use ArrayIterator;
 use CallbackFilterIterator;
 use Closure;
 use Iterator;
-use IteratorAggregate;
+use League\Csv\MapIterator;
 use League\Csv\Query\Predicate;
 use League\Csv\Query\PredicateCombinator;
-use Traversable;
 
 use function array_reduce;
 
@@ -112,21 +110,7 @@ final class Criteria implements PredicateCombinator
 
     public function filter(iterable $value): Iterator
     {
-        if ($value instanceof IteratorAggregate) {
-            $value = $value->getIterator();
-        }
-
-        $value = match (true) {
-            $value instanceof Iterator => $value,
-            $value instanceof Traversable => (function () use ($value): Iterator {
-                foreach ($value as $offset => $record) {
-                    yield $offset => $record;
-                }
-            })(),
-            default => new ArrayIterator($value),
-        };
-
-        return new CallbackFilterIterator($value, $this);
+        return new CallbackFilterIterator(MapIterator::toIterator($value), $this);
     }
 
     /**
