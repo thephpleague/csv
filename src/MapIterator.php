@@ -38,8 +38,8 @@ final class MapIterator extends IteratorIterator
     public static function fromIterable(iterable $iterator, callable $callable): self
     {
         return match (true) {
+            $iterator instanceof Traversable => new self($iterator, $callable),
             is_array($iterator) => new self(new ArrayIterator($iterator), $callable),
-            default => new self($iterator, $callable),
         };
     }
 
