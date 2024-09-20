@@ -25,7 +25,8 @@ final class PropertySetter
     public function __construct(
         private readonly ReflectionMethod|ReflectionProperty $accessor,
         public readonly int $offset,
-        private readonly TypeCasting $cast,
+        public readonly TypeCasting $cast,
+        public readonly bool $convertEmptyStringToNull = false,
     ) {
     }
 
@@ -34,6 +35,10 @@ final class PropertySetter
      */
     public function __invoke(object $object, mixed $value): void
     {
+        if ('' === $value && $this->convertEmptyStringToNull) {
+            $value = null;
+        }
+
         $typeCastedValue = $this->cast->toVariable($value);
 
         match (true) {

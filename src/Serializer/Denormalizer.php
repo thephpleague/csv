@@ -40,6 +40,7 @@ final class Denormalizer
     private readonly array $propertySetters;
     /** @var array<ReflectionMethod> */
     private readonly array $postMapCalls;
+    private readonly ?MapRecord $mapRecord;
 
     /**
      * @param class-string $className
@@ -50,6 +51,7 @@ final class Denormalizer
     public function __construct(string $className, array $propertyNames = [])
     {
         $this->class = $this->setClass($className);
+        $this->mapRecord = $this->getMapRecord();
         $this->properties = $this->class->getProperties();
         $this->propertySetters = $this->setPropertySetters($propertyNames);
         $this->postMapCalls = $this->setPostMapCalls();
@@ -204,12 +206,7 @@ final class Denormalizer
     {
         $record = array_values($record);
         foreach ($this->propertySetters as $propertySetter) {
-            $value = $record[$propertySetter->offset];
-            if (is_string($value) && '' === trim($value) && self::$emptyStringAsNull) {
-                $value = null;
-            }
-
-            $propertySetter($object, $value);
+            $propertySetter($object, $record[$propertySetter->offset]);
         }
     }
 
@@ -255,6 +252,7 @@ final class Denormalizer
     {
         $propertySetters = [];
         $methodNames = array_map(fn (string $propertyName) => 'set'.ucfirst($propertyName), $propertyNames);
+
         foreach ([...$this->properties, ...$this->class->getMethods()] as $accessor) {
             $attributes = $accessor->getAttributes(MapCell::class, ReflectionAttribute::IS_INSTANCEOF);
             $propertySetter = match (count($attributes)) {
@@ -273,36 +271,28 @@ final class Denormalizer
         };
     }
 
+    private function getMapRecord(): ?MapRecord
+    {
+        $attributes = $this->class->getAttributes(MapRecord::class, ReflectionAttribute::IS_INSTANCEOF);
+        $nbAttributes = count($attributes);
+
+        return match ($nbAttributes) {
+            0 => null,
+            1 => $attributes[0]->newInstance(),
+            default => throw new MappingFailed('Using more than one `'.MapRecord::class.'` attribute on a class property or method is not supported.'),
+        };
+    }
+
+    /**
+     * @return array<ReflectionMethod>
+     */
     private function setPostMapCalls(): array
     {
-        $methods = [];
-        $attributes = $this->class->getAttributes(AfterMapping::class, ReflectionAttribute::IS_INSTANCEOF);
-        $nbAttributes = count($attributes);
-        if (0 === $nbAttributes) {
-            return $methods;
+        if ($this->mapRecord instanceof MapRecord) {
+            return $this->mapRecord->afterMappingMethods($this->class);
         }
 
-        if (1 < $nbAttributes) {
-            throw new MappingFailed('Using more than one `'.AfterMapping::class.'` attribute on a class property or method is not supported.');
-        }
-
-        /** @var AfterMapping $postMap */
-        $postMap = $attributes[0]->newInstance();
-        foreach ($postMap->methods as $method) {
-            try {
-                $accessor = $this->class->getMethod($method);
-            } catch (ReflectionException $exception) {
-                throw new MappingFailed('The method `'.$method.'` is not defined on the `'.$this->class->getName().'` class.', 0, $exception);
-            }
-
-            if (0 !== $accessor->getNumberOfRequiredParameters()) {
-                throw new MappingFailed('The method `'.$this->class->getName().'::'.$accessor->getName().'` has too many required parameters.');
-            }
-
-            $methods[] = $accessor;
-        }
-
-        return $methods;
+        return AfterMapping::from($this->class)?->afterMappingMethods($this->class) ?? [];
     }
 
     /**
@@ -344,7 +334,8 @@ final class Denormalizer
             default => new PropertySetter(
                 $accessor,
                 $offset,
-                $this->resolveTypeCasting($reflectionProperty)
+                $this->resolveTypeCasting($reflectionProperty),
+                $this->mapRecord?->convertEmptyStringToNull ?? self::$emptyStringAsNull,
             ),
         };
     }
@@ -354,15 +345,15 @@ final class Denormalizer
      *
      * @throws MappingFailed
      */
-    private function findPropertySetter(MapCell $cell, ReflectionMethod|ReflectionProperty $accessor, array $propertyNames): ?PropertySetter
+    private function findPropertySetter(MapCell $mapCell, ReflectionMethod|ReflectionProperty $accessor, array $propertyNames): ?PropertySetter
     {
-        if ($cell->ignore) {
+        if ($mapCell->ignore) {
             return null;
         }
 
-        $typeCaster = $this->resolveTypeCaster($cell, $accessor);
+        $typeCaster = $this->resolveTypeCaster($mapCell, $accessor);
 
-        $offset = $cell->column ?? match (true) {
+        $offset = $mapCell->column ?? match (true) {
             $accessor instanceof ReflectionMethod => $this->getMethodFirstArgument($accessor)->getName(),
             $accessor instanceof ReflectionProperty => $accessor->getName(),
         };
@@ -386,11 +377,13 @@ final class Denormalizer
             $accessor instanceof ReflectionProperty => $accessor,
         };
 
+        $emptyStringToNull = $mapCell->convertEmptyStringToNull ?? $this->mapRecord?->convertEmptyStringToNull ?? self::$emptyStringAsNull;
+
         return match (true) {
             0 > $offset => throw new MappingFailed('offset integer position can only be positive or equals to 0; received `'.$offset.'`'),
             [] !== $propertyNames && $offset > count($propertyNames) - 1 => throw new MappingFailed('offset integer position can not exceed property names count.'),
-            null === $typeCaster => new PropertySetter($accessor, $offset, $this->resolveTypeCasting($reflectionProperty, $cell->options)),
-            default => new PropertySetter($accessor, $offset, $this->getTypeCasting($reflectionProperty, $typeCaster, $cell->options)),
+            null === $typeCaster => new PropertySetter($accessor, $offset, $this->resolveTypeCasting($reflectionProperty, $mapCell->options), $emptyStringToNull),
+            default => new PropertySetter($accessor, $offset, $this->getTypeCasting($reflectionProperty, $typeCaster, $mapCell->options), $emptyStringToNull),
         };
     }
 

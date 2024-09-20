@@ -31,8 +31,10 @@ final class CastToInt implements TypeCasting
         $this->isNullable = $this->init($reflectionProperty);
     }
 
-    public function setOptions(?int $default = null): void
-    {
+    public function setOptions(
+        ?int $default = null,
+        bool $emptyStringAsNull = false,
+    ): void {
         $this->default = $default;
     }
 

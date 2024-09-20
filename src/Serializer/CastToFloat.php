@@ -31,8 +31,10 @@ final class CastToFloat implements TypeCasting
         $this->isNullable = $this->init($reflectionProperty);
     }
 
-    public function setOptions(int|float|null $default = null): void
-    {
+    public function setOptions(
+        int|float|null $default = null,
+        bool $emptyStringAsNull = false,
+    ): void {
         $this->default = $default;
     }
 

@@ -107,10 +107,9 @@ By default, the denormalization engine will automatically fill public properties
 using their names. In other words, if there is:
 
 - a public class property, which name is the same as a record key, the record value will be assigned to that property.
-- a public class method, whose name starts with `set` and ends with the record key with the first character upper-cased, the record value will be assigned to the method first argument.
+- or, a public class method, whose name starts with `set` and ends with the record key with the first character upper-cased, the record value will be assigned to the method first argument.
 
-While the record value **MUST BE** a `string` or `null`, the autodiscovery feature works out of the box with
-public properties or arguments typed with one of the following type:
+The autodiscovery feature works out of the box with public properties or arguments typed with one of the following type:
 
 - a scalar type (`string`, `int`, `float`, `bool`)
 - `null`
@@ -125,10 +124,13 @@ PHP attributes:
 
 - the `League\Csv\Serializer\MapCell`
 - the `League\Csv\Serializer\AfterMapping`
+- the `League\Csv\Serializer\MapRecord`
 
 <p class="message-info">The <code>AfterMapping</code> attribute is added in version <code>9.13.0</code></p>
+<p class="message-info">The <code>MapRecord</code> attribute is added in version <code>9.17.0</code></p>
+<p class="message-notice">Before version <code>9.17.0</code> the cell value must be a <code>string</code> or <code>null</code>. Starting with <code>version 9.17.0</code>, the limitation has been lifted.</p>
 
-### Improving record mapping
+### Improving field mapping
 
 Here's an example of how the `League\Csv\Serializer\MapCell` attribute works:
 
@@ -162,7 +164,9 @@ The attribute can take up to four (4) arguments which are all optional:
 - The `cast` a string which represents the name of a class implementing the `TypeCasting` interface or an alias and responsible for type casting the record value. If not present, the mechanism will try to resolve the typecasting based on the property or method argument type.
 - The `options` an associative array to improve typecasting by providing extra options per class/alias. The argument expects an associative array and relies on named arguments to inject its value to the method.
 - The `ignore` a boolean which control if the property or method should be completely ignored by the mechanism. By default, its value is `false`. This property takes precedence over all the other properties of the attribute once set to `true`.
+- The `convertEmptyStringToNull` a value that can be a boolean or `null`, which control if empty string should be or not converted into the `null` value.
 
+<p class="message-info">The <code>convertEmptyStringToNull</code> argument was added in version <code>9.17.0</code></p>
 <p class="message-info">The <code>ignore</code> argument was added in version <code>9.13.0</code></p>
 <p class="message-info">You can use the mechanism on a CSV without a header row but it requires
 adding a <code>MapCell</code> attribute on each property or method needed for the conversion. Or you
@@ -171,47 +175,11 @@ header value, just like with <code>TabularDataReader::getRecords</code></p>
 
 In any case, if type casting fails, an exception will be thrown.
 
-### Improving object creation
-
-<p class="message-info">The feature is available since version <code>9.13.0</code></p>
-
-Because we are not using the object constructor method, we need a way to work around that limitation
-and tagging one or more methods that should be called after all mapping is done to return a valid object.
-Tagging is made using the `League\Csv\Serializer\AfterMapping` attribute.
-
-```php
-use League\Csv\Serializer;
-
-#[Serializer\AfterMapping('validate')]
-final class ClimateRecord
-{
-    public function __construct(
-        public readonly Place $place,
-        public readonly ?float $temperature,
-        public readonly ?DateTimeImmutable $date,
-    ) {
-        $this->validate();
-    }
-
-    protected function validate(): void
-    {
-        //further validation on your object
-        //or any other post construction methods
-        //that is needed to be called
-    }
-}
-```
-
-In the above example, the `validate` method will be call once all the properties have been set but
-before the object is returned. You can specify as many methods belonging to the class as you want
-regardless of their visibility by separating them with a comma. The methods will be called
-in the order they have been declared.
-
-<p class="message-notice">If the method does not exist or requires explicit arguments an exception will be thrown.</p>
+## Improving object creation
 
 ### Handling the empty string
 
-Out of the box the mechanism makes no distinction between an empty string and the `null` value.
+Out of the box the mechanism converts any empty string value into the `null` value.
 You can however change this behaviour using two (2) static methods:
 
 - `League\Csv\Serializer\Denormalizer::allowEmptyStringAsNull`
@@ -241,6 +209,106 @@ foreach ($csv->getRecordsAsObject(ClimaticRecord::class) {
     // can not convert the empty string into a valid
     // temperature property value
     // which expects `null` or a non-empty string.
+}
+```
+
+Starting with version `9.17.0` you can get a more granular effect and override the global setting. You can either
+control the conversion at the field level or at the object level.
+
+At the field level you need to use newly introduced `convertEmptyStringToNull` argument as shown in the example below:
+
+```php
+#[Serializer\MapCell(convertEmptyStringToNull: true)]
+private DateTimeImmutable $observedOn;
+```
+
+When the value is set to `true`, the conversion will happen. If set to `false`, no conversion will take place.
+By default, the value is set to `null` to defer the behaviour settings at the object level.
+
+At the object level you can use the new `MapRecord` attribute with the same argument.
+
+```php
+#[Serializer\MapRecord(convertEmptyStringToNull: true)]
+flnail readonly class Car
+{
+    public function __construct(
+        private Wheel $wheel,
+        private Driver $driver
+    ) { 
+    }
+}
+```
+
+Just like with the `MapCell` attribute, if set to `true` the conversion will happen for **all fields**, but if set
+to `false` no conversion will take place. By default, it is set to `null` and the conversion behaviour falls back
+to the global behaviour.
+
+### Post Mapping
+
+<p class="message-info">The feature is available since version <code>9.13.0</code></p>
+<p class="message-info">The <code>MapRecord</code> attribute is added in <code>9.17.0</code></p>
+
+Because we are not using the object constructor method, we need a way to work around that limitation
+and tagging one or more methods that should be called after all mapping is done to return a valid object.
+Tagging is made using the `League\Csv\Serializer\MapRecord` attribute.
+
+```php
+use League\Csv\Serializer;
+
+#[Serializer\MapRecord(afterMapping:['validate'])]
+final class ClimateRecord
+{
+    public function __construct(
+        public readonly Place $place,
+        public readonly ?float $temperature,
+        public readonly ?DateTimeImmutable $date,
+    ) {
+        $this->validate();
+    }
+
+    protected function validate(): void
+    {
+        //further validation on your object
+        //or any other post construction methods
+        //that is needed to be called
+    }
+}
+```
+
+In the above example, the `validate` method will be call once all the properties have been set but
+before the object is returned. You can specify as many methods belonging to the class as you want
+regardless of their visibility by adding them to the array. The methods will be called
+in the order they have been declared.
+
+<p class="message-notice">If the method does not exist or requires explicit arguments an exception will be thrown.</p>
+
+#### Deprecated attribute
+
+The `League\Csv\Serializer\AfterMapping` attribute is deprecated in favor of the `League\Csv\Serializer\MapRecord`
+attribute. If both attributes are used simultaneously, the content of the `AfterMapping` attribute will be ignored.
+
+The example is left for reference.
+
+```php
+use League\Csv\Serializer;
+
+#[Serializer\AfterMapping('validate')]
+final class ClimateRecord
+{
+    public function __construct(
+        public readonly Place $place,
+        public readonly ?float $temperature,
+        public readonly ?DateTimeImmutable $date,
+    ) {
+        $this->validate();
+    }
+
+    protected function validate(): void
+    {
+        //further validation on your object
+        //or any other post construction methods
+        //that is needed to be called
+    }
 }
 ```
 
@@ -508,7 +576,6 @@ To complete the feature you can use:
 ```php
 use League\Csv\Serializer;
 
-
 Serializer\Denormalizer::unregisterType(Naira::class);
 Serializer\Denormalizer::unregisterAllTypes();
 Serializer\Denormalizer::types();
@@ -621,7 +688,7 @@ final class CastToNaira implements TypeCasting
         // in case of error you should throw a MappingFailed exception
     }
 
-    public function toVariable(?string $value): ?Naira
+    public function toVariable(mixed $value): ?Naira
     {
         //convert the Cell value into the expected type
         // in case of error you should throw a TypeCastingFailed exception

@@ -60,8 +60,10 @@ final class CallbackCasting implements TypeCasting
     /**
      * @throws MappingFailed
      */
-    public function setOptions(?string $type = null, mixed ...$options): void
-    {
+    public function setOptions(
+        ?string $type = null,
+        mixed ...$options
+    ): void {
         if (null === $this->alias) {
             if (Type::Mixed->value === $this->type && null !== $type) {
                 $this->type = $type;

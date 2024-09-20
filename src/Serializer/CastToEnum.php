@@ -46,8 +46,11 @@ class CastToEnum implements TypeCasting
      *
      * @throws MappingFailed
      */
-    public function setOptions(?string $default = null, ?string $className = null): void
-    {
+    public function setOptions(
+        ?string $default = null,
+        ?string $className = null,
+        bool $emptyStringAsNull = false,
+    ): void {
         if (Type::Mixed->equals($this->type) || in_array($this->class, [BackedEnum::class , UnitEnum::class], true)) {
             if (null === $className || !enum_exists($className)) {
                 throw new MappingFailed('`'.$this->propertyName.'` type is `'.($this->class ?? 'mixed').'` but the specified class via the `$className` argument is invalid or could not be found.');

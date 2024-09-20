@@ -672,7 +672,7 @@ enum Place: string
     case Abidjan = 'Abidjan';
 }
 
-#[AfterMapping('addOne')]
+#[MapRecord(afterMapping: ['addOne'])]
 class UsingAfterMapping
 {
     public function __construct(public int $addition)
@@ -686,7 +686,7 @@ class UsingAfterMapping
     }
 }
 
-#[AfterMapping('addOne', 'addTow')]
+#[MapRecord(afterMapping: ['addOne', 'addTow'])]
 class MissingMethodAfterMapping
 {
     public function __construct(public int $addition)
@@ -700,7 +700,7 @@ class MissingMethodAfterMapping
     }
 }
 
-#[AfterMapping('addOne')]
+#[MapRecord(afterMapping: ['addOne'])]
 class RequiresArgumentAfterMapping
 {
     public function __construct(public int $addition)

@@ -58,7 +58,7 @@ final class CastToDate implements TypeCasting
         ?string $default = null,
         ?string $format = null,
         DateTimeZone|string|null $timezone = null,
-        ?string $className = null
+        ?string $className = null,
     ): void {
         $this->class = match (true) {
             !interface_exists($this->class) && !Type::Mixed->equals($this->type) => $this->class,

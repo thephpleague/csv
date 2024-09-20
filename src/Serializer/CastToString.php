@@ -30,8 +30,10 @@ final class CastToString implements TypeCasting
         [$this->type, $this->isNullable] = $this->init($reflectionProperty);
     }
 
-    public function setOptions(?string $default = null): void
-    {
+    public function setOptions(
+        ?string $default = null,
+        bool $emptyStringAsNull = false,
+    ): void {
         $this->default = $default;
     }
 

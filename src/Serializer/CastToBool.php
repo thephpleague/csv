@@ -32,8 +32,10 @@ final class CastToBool implements TypeCasting
         [$this->type, $this->isNullable] = $this->init($reflectionProperty);
     }
 
-    public function setOptions(?bool $default = null): void
-    {
+    public function setOptions(
+        ?bool $default = null,
+        bool $emptyStringAsNull = false,
+    ): void {
         $this->default = $default;
     }
 

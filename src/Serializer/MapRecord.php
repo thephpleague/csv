@@ -14,30 +14,33 @@ declare(strict_types=1);
 namespace League\Csv\Serializer;
 
 use Attribute;
-use ReflectionAttribute;
 use ReflectionClass;
 use ReflectionException;
 use ReflectionMethod;
+use ValueError;
 
 #[Attribute(Attribute::TARGET_CLASS)]
-final class AfterMapping
+final class MapRecord
 {
-    /** @var array<string> $methods */
-    public readonly array $methods;
-
-    public function __construct(string ...$methods)
-    {
-        $this->methods = $methods;
+    public function __construct(
+        /** @var array<string> $afterMapping */
+        public readonly array $afterMapping = [],
+        public readonly ?bool $convertEmptyStringToNull = null,
+    ) {
+        foreach ($this->afterMapping as $method) {
+            if (!is_string($method)) {
+                throw new ValueError('The method names must be strings.');
+            }
+        }
     }
 
     /**
-     *
      * @return array<ReflectionMethod>
      */
     public function afterMappingMethods(ReflectionClass $class): array
     {
         $methods = [];
-        foreach ($this->methods as $method) {
+        foreach ($this->afterMapping as $method) {
             try {
                 $accessor = $class->getMethod($method);
             } catch (ReflectionException $exception) {
@@ -52,20 +55,5 @@ final class AfterMapping
         }
 
         return $methods;
-    }
-
-    public static function from(ReflectionClass $class): ?self
-    {
-        $attributes = $class->getAttributes(AfterMapping::class, ReflectionAttribute::IS_INSTANCEOF);
-        $nbAttributes = count($attributes);
-        if (0 === $nbAttributes) {
-            return null;
-        }
-
-        if (1 < $nbAttributes) {
-            throw new MappingFailed('Using more than one `'.AfterMapping::class.'` attribute on a class property or method is not supported.');
-        }
-
-        return $attributes[0]->newInstance();
     }
 }
