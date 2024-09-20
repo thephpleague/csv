@@ -507,4 +507,14 @@ final class Stream implements SeekableIterator
     {
         return fflush($this->stream);
     }
+
+    /**
+     * Gets file size.
+     *
+     * @see https://www.php.net/manual/en/splfileinfo.getsize.php
+     */
+    public function getSize(): int|false
+    {
+        return fstat($this->stream)['size'] ?? false;
+    }
 }
