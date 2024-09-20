@@ -18,10 +18,11 @@ All Notable changes to `Csv` will be documented in this file
 ### Fixed
 
 - `Cast*` methods accept more input type to improve Denormalization usage when `Reader::addFormatter` is used or when the collection contains data other than string and `null`.
+- `Stream::getSize` is added to the internal `Stream` class
 
 ### Removed
 
-- None
+- leage\csv-doctrine is no longer a subplist of the main league/csv package.
 
 ## [9.16.0](https://github.com/thephpleague/csv/compare/9.15.0...9.16.0) - 2024-05-24
 
