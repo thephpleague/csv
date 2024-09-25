@@ -128,9 +128,8 @@ class HTMLConverter
      */
     public function table(string $class_name, string $id_value = ''): self
     {
-        if (1 === preg_match(",\s,", $id_value)) {
-            throw new DOMException("The id attribute's value must not contain whitespace (spaces, tabs etc.)");
-        }
+        1 !== preg_match(",\s,", $id_value) || throw new DOMException("The id attribute's value must not contain whitespace (spaces, tabs etc.)");
+
         $clone = clone $this;
         $clone->class_name = $class_name;
         $clone->id_value = $id_value;

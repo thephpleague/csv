@@ -280,10 +280,7 @@ class Statement
      */
     public function limit(int $limit): self
     {
-        if (-1 > $limit) {
-            throw InvalidArgument::dueToInvalidLimit($limit, __METHOD__);
-        }
-
+        $limit >= -1 || throw InvalidArgument::dueToInvalidLimit($limit, __METHOD__);
         if ($limit === $this->limit) {
             return $this;
         }

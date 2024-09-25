@@ -66,13 +66,9 @@ final class JsonConverter
         ?Closure $formatter
     ) {
         json_encode([], $flags & ~JSON_THROW_ON_ERROR, $depth);
-        if (JSON_ERROR_NONE !== json_last_error()) {
-            throw new InvalidArgumentException('The flags or the depth given are not valid JSON encoding parameters in PHP; '.json_last_error_msg());
-        }
 
-        if (1 > $indentSize) {
-            throw new InvalidArgumentException('The indentation space must be greater or equal to 1.');
-        }
+        JSON_ERROR_NONE === json_last_error() || throw new InvalidArgumentException('The flags or the depth given are not valid JSON encoding parameters in PHP; '.json_last_error_msg());
+        1 <= $indentSize || throw new InvalidArgumentException('The indentation space must be greater or equal to 1.');
 
         $this->flags = $flags;
         $this->depth = $depth;

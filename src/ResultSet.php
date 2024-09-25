@@ -54,9 +54,7 @@ class ResultSet implements TabularDataReader, JsonSerializable
      */
     public function __construct(Iterator|array $records, array $header = [])
     {
-        if ($header !== array_filter($header, is_string(...))) {
-            throw SyntaxError::dueToInvalidHeaderColumnNames();
-        }
+        $header === array_filter($header, is_string(...)) || throw SyntaxError::dueToInvalidHeaderColumnNames();
 
         $this->header = array_values($this->validateHeader($header));
         $this->records = match (true) {
@@ -174,9 +172,7 @@ class ResultSet implements TabularDataReader, JsonSerializable
      */
     public function chunkBy(int $recordsCount): iterable
     {
-        if ($recordsCount < 1) {
-            throw InvalidArgument::dueToInvalidChunkSize($recordsCount, __METHOD__);
-        }
+        $recordsCount > 0 || throw InvalidArgument::dueToInvalidChunkSize($recordsCount, __METHOD__);
 
         $header = $this->getHeader();
         $records = [];
@@ -323,10 +319,7 @@ class ResultSet implements TabularDataReader, JsonSerializable
      */
     protected function prepareHeader(array $header): array
     {
-        if ($header !== array_filter($header, is_string(...))) {
-            throw SyntaxError::dueToInvalidHeaderColumnNames();
-        }
-
+        $header === array_filter($header, is_string(...)) || throw SyntaxError::dueToInvalidHeaderColumnNames();
         $header = $this->validateHeader($header);
         if ([] === $header) {
             $header = $this->header;
@@ -382,9 +375,7 @@ class ResultSet implements TabularDataReader, JsonSerializable
 
     public function nth(int $nth_record): array
     {
-        if ($nth_record < 0) {
-            throw InvalidArgument::dueToInvalidRecordOffset($nth_record, __METHOD__);
-        }
+        0 <= $nth_record || throw InvalidArgument::dueToInvalidRecordOffset($nth_record, __METHOD__);
 
         $iterator = new LimitIterator($this->getIterator(), $nth_record, 1);
         $iterator->rewind();

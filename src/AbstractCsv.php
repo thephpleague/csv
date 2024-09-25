@@ -317,9 +317,7 @@ abstract class AbstractCsv implements ByteSequence
             return $this;
         }
 
-        if (1 !== strlen($delimiter)) {
-            throw InvalidArgument::dueToInvalidDelimiterCharacter($delimiter, __METHOD__);
-        }
+        1 === strlen($delimiter) || throw InvalidArgument::dueToInvalidDelimiterCharacter($delimiter, __METHOD__);
 
         $this->delimiter = $delimiter;
         $this->resetProperties();
@@ -338,9 +336,7 @@ abstract class AbstractCsv implements ByteSequence
             return $this;
         }
 
-        if (1 !== strlen($enclosure)) {
-            throw InvalidArgument::dueToInvalidEnclosureCharacter($enclosure, __METHOD__);
-        }
+        1 === strlen($enclosure) || throw InvalidArgument::dueToInvalidEnclosureCharacter($enclosure, __METHOD__);
 
         $this->enclosure = $enclosure;
         $this->resetProperties();
@@ -418,9 +414,7 @@ abstract class AbstractCsv implements ByteSequence
      */
     public function addStreamFilter(string $filtername, null|array $params = null): static
     {
-        if (!$this->document instanceof Stream) {
-            throw UnavailableFeature::dueToUnsupportedStreamFilterApi(get_class($this->document));
-        }
+        $this->document instanceof Stream || throw UnavailableFeature::dueToUnsupportedStreamFilterApi(get_class($this->document));
 
         $this->document->appendFilter($filtername, static::STREAM_FILTER_MODE, $params);
         $this->stream_filters[$filtername] = true;

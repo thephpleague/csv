@@ -79,9 +79,7 @@ class Reader extends AbstractCsv implements TabularDataReader, JsonSerializable
             return $this;
         }
 
-        if (null !== $offset && 0 > $offset) {
-            throw InvalidArgument::dueToInvalidHeaderOffset($offset, __METHOD__);
-        }
+        null === $offset || -1 < $offset || throw InvalidArgument::dueToInvalidHeaderOffset($offset, __METHOD__);
 
         $this->header_offset = $offset;
         $this->resetProperties();
@@ -536,9 +534,7 @@ class Reader extends AbstractCsv implements TabularDataReader, JsonSerializable
      */
     protected function prepareHeader($header = []): array
     {
-        if ($header !== (array_filter($header, is_string(...)))) {
-            throw SyntaxError::dueToInvalidHeaderColumnNames();
-        }
+        $header == array_filter($header, is_string(...)) || throw SyntaxError::dueToInvalidHeaderColumnNames();
 
         return $this->computeHeader($header);
     }

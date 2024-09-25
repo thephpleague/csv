@@ -45,9 +45,7 @@ final class TwoColumns implements Predicate
         public readonly Comparison|Closure $operator,
         public readonly array|string|int $second,
     ) {
-        if ($this->operator instanceof Closure && is_array($this->second)) {
-            throw new QueryException('The second column must be a string if the operator is a callback.');
-        }
+        !$this->operator instanceof Closure || !is_array($this->second) || throw new QueryException('The second column must be a string if the operator is a callback.');
 
         if (is_array($this->second)) {
             $res = array_filter($this->second, fn (mixed $value): bool => !is_string($value) && !is_int($value));

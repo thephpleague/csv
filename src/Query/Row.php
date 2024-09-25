@@ -124,9 +124,7 @@ final class Row
                 continue;
             }
 
-            if (is_int($key)) {
-                throw QueryException::dueToUnknownColumn($key, $row);
-            }
+            !is_int($key) || throw QueryException::dueToUnknownColumn($key, $row);
 
             if ($object->hasProperty($key) && $object->getProperty($key)->isPublic()) {
                 $res[$key] = $object->getProperty($key)->getValue($row);
