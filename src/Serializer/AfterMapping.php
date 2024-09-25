@@ -19,6 +19,11 @@ use ReflectionClass;
 use ReflectionException;
 use ReflectionMethod;
 
+/**
+ * @deprecated since version 9.17.0
+ *
+ * @see MapRecord
+ */
 #[Attribute(Attribute::TARGET_CLASS)]
 final class AfterMapping
 {
@@ -56,14 +61,14 @@ final class AfterMapping
 
     public static function from(ReflectionClass $class): ?self
     {
-        $attributes = $class->getAttributes(AfterMapping::class, ReflectionAttribute::IS_INSTANCEOF);
+        $attributes = $class->getAttributes(self::class, ReflectionAttribute::IS_INSTANCEOF);
         $nbAttributes = count($attributes);
         if (0 === $nbAttributes) {
             return null;
         }
 
         if (1 < $nbAttributes) {
-            throw new MappingFailed('Using more than one `'.AfterMapping::class.'` attribute on a class property or method is not supported.');
+            throw new MappingFailed('Using more than one `'.self::class.'` attribute on a class property or method is not supported.');
         }
 
         return $attributes[0]->newInstance();

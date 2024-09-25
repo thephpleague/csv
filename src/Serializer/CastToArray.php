@@ -16,7 +16,6 @@ namespace League\Csv\Serializer;
 use JsonException;
 use ReflectionParameter;
 use ReflectionProperty;
-use Traversable;
 
 use function explode;
 use function is_array;
@@ -28,7 +27,7 @@ use const FILTER_REQUIRE_ARRAY;
 use const JSON_THROW_ON_ERROR;
 
 /**
- * @implements TypeCasting<?array>
+ * @implements TypeCasting<array|null>
  */
 final class CastToArray implements TypeCasting
 {
@@ -114,22 +113,16 @@ final class CastToArray implements TypeCasting
             return $value;
         }
 
-        if ($value instanceof Traversable) {
-            return iterator_to_array($value);
-        }
-
         if (!is_string($value)) {
             throw TypeCastingFailed::dueToInvalidValue($value, $this->type->value);
         }
 
         try {
-            $result = match ($this->shape) {
+            return match ($this->shape) {
                 ArrayShape::Json => json_decode($value, true, $this->depth, $this->flags | JSON_THROW_ON_ERROR),
                 ArrayShape::List => filter_var(explode($this->separator, $value), $this->filterFlag, FILTER_REQUIRE_ARRAY),
                 ArrayShape::Csv => filter_var(str_getcsv($value, $this->delimiter, $this->enclosure, ''), $this->filterFlag, FILTER_REQUIRE_ARRAY),
             };
-
-            return $result;
 
         } catch (JsonException $exception) {
             throw TypeCastingFailed::dueToInvalidValue($value, $this->type->value, $exception);

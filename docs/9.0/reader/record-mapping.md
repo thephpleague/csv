@@ -497,6 +497,9 @@ public function setData(array $data): void;
 If the conversion succeeds, then the property will be set with an `array` of `float` values.
 The `type` option only supports scalar type (`string`, `int`, `float` and `bool`)
 
+<p class="message-info">Starting with version <code>9.17.0</code>, the class also supports
+denormalization to <code>ArrayIterator</code> and <code>ArrayObject</code>. No additional requirements are needed.</p>
+
 ## Extending Type Casting capabilities
 
 Three (3) mechanisms to extend typecasting are provided. You can register a callback via the `Denormalizer` class

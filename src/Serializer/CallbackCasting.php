@@ -14,6 +14,7 @@ declare(strict_types=1);
 namespace League\Csv\Serializer;
 
 use Closure;
+use ReflectionClass;
 use ReflectionNamedType;
 use ReflectionParameter;
 use ReflectionProperty;
@@ -32,7 +33,6 @@ final class CallbackCasting implements TypeCasting
 {
     /** @var array<string, Closure(mixed, bool, mixed...): mixed> */
     private static array $types = [];
-
     /** @var array<string, array<string, Closure(mixed, bool, mixed...): mixed>> */
     private static array $aliases = [];
 
@@ -69,11 +69,13 @@ final class CallbackCasting implements TypeCasting
                 $this->type = $type;
             }
 
-            if (array_key_exists($this->type, self::$types)) {
-                $this->callback = self::$types[$this->type];
+            try {
+                $this->callback = self::resolveSupportedType($this->type); /* @phpstan-ignore-line */
                 $this->options = $options;
 
                 return;
+            } catch (Throwable) {
+
             }
 
             throw new MappingFailed($this->message);
@@ -97,13 +99,8 @@ final class CallbackCasting implements TypeCasting
         try {
             return ($this->callback)($value, $this->isNullable, ...$this->options);
         } catch (Throwable $exception) {
-            if ($exception instanceof TypeCastingFailed) {
-                throw $exception;
-            }
-
-            if (null === $value) {
-                throw TypeCastingFailed::dueToNotNullableType($this->type, $exception);
-            }
+            ! $exception instanceof TypeCastingFailed || throw $exception;
+            null !== $value || throw TypeCastingFailed::dueToNotNullableType($this->type, $exception);
 
             throw TypeCastingFailed::dueToInvalidValue(match (true) {
                 '' === $value => 'empty string',
@@ -128,15 +125,11 @@ final class CallbackCasting implements TypeCasting
             return;
         }
 
-        if (1 !== preg_match('/^@\w+$/', $alias)) {
-            throw new MappingFailed("The alias `$alias` is invalid. It must start with an `@` character and contain alphanumeric (letters, numbers, regardless of case) plus underscore (_).");
-        }
+        1 === preg_match('/^@\w+$/', $alias) || throw new MappingFailed("The alias `$alias` is invalid. It must start with an `@` character and contain alphanumeric (letters, numbers, regardless of case) plus underscore (_).");
 
         foreach (self::$aliases as $aliases) {
             foreach ($aliases as $registeredAlias => $__) {
-                if ($alias === $registeredAlias) {
-                    throw new MappingFailed("The alias `$alias` is already registered. Please choose another name.");
-                }
+                $alias !== $registeredAlias || throw new MappingFailed("The alias `$alias` is already registered. Please choose another name.");
             }
         }
 
@@ -201,7 +194,17 @@ final class CallbackCasting implements TypeCasting
 
     public static function supportsType(?string $type): bool
     {
-        return null !== $type && array_key_exists($type, self::$types);
+        if (null === $type) {
+            return false;
+        }
+
+        try {
+            self::resolveSupportedType($type);  /* @phpstan-ignore-line */
+
+            return true;
+        } catch (Throwable) {
+            return false;
+        }
     }
 
     /**
@@ -237,7 +240,7 @@ final class CallbackCasting implements TypeCasting
         foreach ($propertyTypeList as $propertyType) {
             $type = $propertyType->getName();
             if (null === $alias) {
-                if (array_key_exists($type, self::$types)) {
+                if (self::supportsType($type)) {
                     return true;
                 }
 
@@ -251,6 +254,29 @@ final class CallbackCasting implements TypeCasting
 
         return false;
     }
+
+    /**
+     * @param class-string $type
+     */
+    private static function resolveSupportedType(string $type): Closure
+    {
+        foreach (self::$types as $registeredType => $callback) {
+            if ($type === $registeredType) {
+                return $callback;
+            }
+
+            try {
+                $reflType = new ReflectionClass($type);
+                if ($reflType->implementsInterface($registeredType)) {
+                    return $callback;
+                }
+            } catch (Throwable) {
+            }
+        }
+
+        throw new MappingFailed('The `'.$type.'` could not be resolved.');
+    }
+
 
     /**
      * @throws MappingFailed
@@ -275,7 +301,7 @@ final class CallbackCasting implements TypeCasting
 
             if (null === $type) {
                 if (
-                    array_key_exists($foundType->getName(), self::$types)
+                    self::supportsType($foundType->getName())
                     || array_key_exists($foundType->getName(), self::$aliases)
                 ) {
                     $type = $foundType;

@@ -50,9 +50,7 @@ final class CastToInt implements TypeCasting
             };
         }
 
-        if (!is_scalar($value)) {
-            throw TypeCastingFailed::dueToInvalidValue($value, Type::Int->value);
-        }
+        is_scalar($value) || throw TypeCastingFailed::dueToInvalidValue($value, Type::Int->value);
 
         $int = filter_var($value, Type::Int->filterFlag());
 
@@ -80,9 +78,7 @@ final class CastToInt implements TypeCasting
             }
         }
 
-        if (null === $type) {
-            throw throw MappingFailed::dueToTypeCastingUnsupportedType($reflectionProperty, $this, 'int', 'float', 'null', 'mixed');
-        }
+        null !== $type || throw throw MappingFailed::dueToTypeCastingUnsupportedType($reflectionProperty, $this, 'int', 'float', 'null', 'mixed');
 
         return $isNullable;
     }

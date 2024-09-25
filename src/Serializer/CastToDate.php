@@ -101,9 +101,7 @@ final class CastToDate implements TypeCasting
             return ($this->class)::createFromInterface($value);
         }
 
-        if (!is_string($value)) {
-            throw TypeCastingFailed::dueToInvalidValue($value, $this->class);
-        }
+        is_string($value) || throw TypeCastingFailed::dueToInvalidValue($value, $this->class);
 
         try {
             $date = null !== $this->format ?
@@ -146,9 +144,7 @@ final class CastToDate implements TypeCasting
             }
         }
 
-        if (null === $type) {
-            throw throw MappingFailed::dueToTypeCastingUnsupportedType($reflectionProperty, $this, DateTimeInterface::class, 'mixed');
-        }
+        null !== $type || throw throw MappingFailed::dueToTypeCastingUnsupportedType($reflectionProperty, $this, DateTimeInterface::class, 'mixed');
 
         /** @var class-string<DateTimeInterface> $className */
         $className = $type[1]->getName();

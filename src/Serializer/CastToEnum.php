@@ -52,10 +52,7 @@ class CastToEnum implements TypeCasting
         bool $emptyStringAsNull = false,
     ): void {
         if (Type::Mixed->equals($this->type) || in_array($this->class, [BackedEnum::class , UnitEnum::class], true)) {
-            if (null === $className || !enum_exists($className)) {
-                throw new MappingFailed('`'.$this->propertyName.'` type is `'.($this->class ?? 'mixed').'` but the specified class via the `$className` argument is invalid or could not be found.');
-            }
-
+            (null !== $className && enum_exists($className)) || throw new MappingFailed('`'.$this->propertyName.'` type is `'.($this->class ?? 'mixed').'` but the specified class via the `$className` argument is invalid or could not be found.');
             $this->class = $className;
         }
 
@@ -87,9 +84,7 @@ class CastToEnum implements TypeCasting
             return $value;
         }
 
-        if (!is_string($value)) {
-            throw throw TypeCastingFailed::dueToInvalidValue($value, $this->class);
-        }
+        is_string($value) || throw throw TypeCastingFailed::dueToInvalidValue($value, $this->class);
 
         try {
             $enum = new ReflectionEnum($this->class);
@@ -126,9 +121,7 @@ class CastToEnum implements TypeCasting
             }
         }
 
-        if (null === $type) {
-            throw throw MappingFailed::dueToTypeCastingUnsupportedType($reflectionProperty, $this, 'enum', 'mixed');
-        }
+        null !== $type || throw throw MappingFailed::dueToTypeCastingUnsupportedType($reflectionProperty, $this, 'enum', 'mixed');
 
         /** @var class-string<UnitEnum|BackedEnum> $className */
         $className = $type[1]->getName();

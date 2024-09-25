@@ -14,6 +14,7 @@ declare(strict_types=1);
 namespace League\Csv\Serializer;
 
 use Attribute;
+use ReflectionAttribute;
 use ReflectionClass;
 use ReflectionException;
 use ReflectionMethod;
@@ -28,9 +29,7 @@ final class MapRecord
         public readonly ?bool $convertEmptyStringToNull = null,
     ) {
         foreach ($this->afterMapping as $method) {
-            if (!is_string($method)) {
-                throw new ValueError('The method names must be strings.');
-            }
+            is_string($method) || throw new ValueError('The method names must be string.');
         }
     }
 
@@ -47,13 +46,25 @@ final class MapRecord
                 throw new MappingFailed('The method `'.$method.'` is not defined on the `'.$class->getName().'` class.', 0, $exception);
             }
 
-            if (0 !== $accessor->getNumberOfRequiredParameters()) {
-                throw new MappingFailed('The method `'.$class->getName().'::'.$accessor->getName().'` has too many required parameters.');
-            }
-
+            0 === $accessor->getNumberOfRequiredParameters() || throw new MappingFailed('The method `'.$class->getName().'::'.$accessor->getName().'` has too many required parameters.');
             $methods[] = $accessor;
         }
 
         return $methods;
+    }
+
+    /**
+     * @throws MappingFailed
+     */
+    public static function tryFrom(ReflectionClass $class): ?self
+    {
+        $attributes = $class->getAttributes(self::class, ReflectionAttribute::IS_INSTANCEOF);
+        $nbAttributes = count($attributes);
+
+        return match ($nbAttributes) {
+            0 => null,
+            1 => $attributes[0]->newInstance(),
+            default => throw new MappingFailed('Using more than one `'.self::class.'` attribute on a class property or method is not supported.'),
+        };
     }
 }

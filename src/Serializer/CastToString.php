@@ -79,9 +79,7 @@ final class CastToString implements TypeCasting
             }
         }
 
-        if (null === $type) {
-            throw throw MappingFailed::dueToTypeCastingUnsupportedType($reflectionProperty, $this, 'string', 'mixed', 'null');
-        }
+        null !== $type || throw throw MappingFailed::dueToTypeCastingUnsupportedType($reflectionProperty, $this, 'string', 'mixed', 'null');
 
         return [$type[0], $isNullable];
     }

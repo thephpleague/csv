@@ -31,7 +31,7 @@ use function is_int;
 
 final class Denormalizer
 {
-    private static bool $emptyStringAsNull = true;
+    private static bool $convertEmptyStringToNull = true;
 
     private readonly ReflectionClass $class;
     /** @var array<ReflectionProperty> */
@@ -39,7 +39,7 @@ final class Denormalizer
     /** @var array<PropertySetter> */
     private readonly array $propertySetters;
     /** @var array<ReflectionMethod> */
-    private readonly array $postMapCalls;
+    private readonly array $afterMappingCalls;
     private readonly ?MapRecord $mapRecord;
 
     /**
@@ -51,10 +51,10 @@ final class Denormalizer
     public function __construct(string $className, array $propertyNames = [])
     {
         $this->class = $this->setClass($className);
-        $this->mapRecord = $this->getMapRecord();
         $this->properties = $this->class->getProperties();
+        $this->mapRecord = MapRecord::tryFrom($this->class);
         $this->propertySetters = $this->setPropertySetters($propertyNames);
-        $this->postMapCalls = $this->setPostMapCalls();
+        $this->afterMappingCalls = $this->setAfterMappingCalls();
     }
 
     /**
@@ -62,7 +62,7 @@ final class Denormalizer
      */
     public static function allowEmptyStringAsNull(): void
     {
-        self::$emptyStringAsNull = true;
+        self::$convertEmptyStringToNull = true;
     }
 
     /**
@@ -70,7 +70,7 @@ final class Denormalizer
      */
     public static function disallowEmptyStringAsNull(): void
     {
-        self::$emptyStringAsNull = false;
+        self::$convertEmptyStringToNull = false;
     }
 
     /**
@@ -185,41 +185,21 @@ final class Denormalizer
     public function denormalize(array $record): object
     {
         $object = $this->class->newInstanceWithoutConstructor();
+        $values = array_values($record);
 
-        $this->hydrate($object, $record);
-        $this->assertObjectIsInValidState($object);
+        foreach ($this->propertySetters as $propertySetter) {
+            $propertySetter($object, $values);
+        }
 
-        foreach ($this->postMapCalls as $accessor) {
-            $accessor->invoke($object);
+        foreach ($this->afterMappingCalls as $callback) {
+            $callback->invoke($object);
+        }
+
+        foreach ($this->properties as $property) {
+            $property->isInitialized($object) || throw DenormalizationFailed::dueToUninitializedProperty($property);
         }
 
         return $object;
-    }
-
-    /**
-     * @param array<?string> $record
-     *
-     * @throws ReflectionException
-     * @throws TypeCastingFailed
-     */
-    private function hydrate(object $object, array $record): void
-    {
-        $record = array_values($record);
-        foreach ($this->propertySetters as $propertySetter) {
-            $propertySetter($object, $record[$propertySetter->offset]);
-        }
-    }
-
-    /**
-     * @throws DenormalizationFailed
-     */
-    private function assertObjectIsInValidState(object $object): void
-    {
-        foreach ($this->properties as $property) {
-            if (!$property->isInitialized($object)) {
-                throw DenormalizationFailed::dueToUninitializedProperty($property);
-            }
-        }
     }
 
     /**
@@ -229,9 +209,7 @@ final class Denormalizer
      */
     private function setClass(string $className): ReflectionClass
     {
-        if (!class_exists($className)) {
-            throw new MappingFailed('The class `'.$className.'` can not be denormalized; The class does not exist or could not be found.');
-        }
+        class_exists($className) || throw new MappingFailed('The class `'.$className.'` can not be denormalized; The class does not exist or could not be found.');
 
         $class = new ReflectionClass($className);
         if ($class->isInternal() && $class->isFinal()) {
@@ -270,29 +248,14 @@ final class Denormalizer
             default => $propertySetters,
         };
     }
-
-    private function getMapRecord(): ?MapRecord
-    {
-        $attributes = $this->class->getAttributes(MapRecord::class, ReflectionAttribute::IS_INSTANCEOF);
-        $nbAttributes = count($attributes);
-
-        return match ($nbAttributes) {
-            0 => null,
-            1 => $attributes[0]->newInstance(),
-            default => throw new MappingFailed('Using more than one `'.MapRecord::class.'` attribute on a class property or method is not supported.'),
-        };
-    }
-
     /**
      * @return array<ReflectionMethod>
      */
-    private function setPostMapCalls(): array
+    private function setAfterMappingCalls(): array
     {
-        if ($this->mapRecord instanceof MapRecord) {
-            return $this->mapRecord->afterMappingMethods($this->class);
-        }
-
-        return AfterMapping::from($this->class)?->afterMappingMethods($this->class) ?? [];
+        return $this->mapRecord?->afterMappingMethods($this->class)
+            ?? AfterMapping::from($this->class)?->afterMappingMethods($this->class) /* @phpstan-ignore-line */
+            ?? [];
     }
 
     /**
@@ -335,7 +298,7 @@ final class Denormalizer
                 $accessor,
                 $offset,
                 $this->resolveTypeCasting($reflectionProperty),
-                $this->mapRecord?->convertEmptyStringToNull ?? self::$emptyStringAsNull,
+                $this->mapRecord?->convertEmptyStringToNull ?? self::$convertEmptyStringToNull,
             ),
         };
     }
@@ -377,13 +340,15 @@ final class Denormalizer
             $accessor instanceof ReflectionProperty => $accessor,
         };
 
-        $emptyStringToNull = $mapCell->convertEmptyStringToNull ?? $this->mapRecord?->convertEmptyStringToNull ?? self::$emptyStringAsNull;
+        $convertEmptyStringToNull = $mapCell->convertEmptyStringToNull
+            ?? $this->mapRecord?->convertEmptyStringToNull
+            ?? self::$convertEmptyStringToNull;
 
         return match (true) {
             0 > $offset => throw new MappingFailed('offset integer position can only be positive or equals to 0; received `'.$offset.'`'),
             [] !== $propertyNames && $offset > count($propertyNames) - 1 => throw new MappingFailed('offset integer position can not exceed property names count.'),
-            null === $typeCaster => new PropertySetter($accessor, $offset, $this->resolveTypeCasting($reflectionProperty, $mapCell->options), $emptyStringToNull),
-            default => new PropertySetter($accessor, $offset, $this->getTypeCasting($reflectionProperty, $typeCaster, $mapCell->options), $emptyStringToNull),
+            null === $typeCaster => new PropertySetter($accessor, $offset, $this->resolveTypeCasting($reflectionProperty, $mapCell->options), $convertEmptyStringToNull),
+            default => new PropertySetter($accessor, $offset, $this->getTypeCasting($typeCaster, $reflectionProperty, $mapCell->options), $convertEmptyStringToNull),
         };
     }
 
@@ -405,8 +370,8 @@ final class Denormalizer
      * @throws MappingFailed
      */
     private function getTypeCasting(
-        ReflectionProperty|ReflectionParameter $reflectionProperty,
         string $typeCaster,
+        ReflectionProperty|ReflectionParameter $reflectionProperty,
         array $options
     ): TypeCasting {
         try {
@@ -449,10 +414,10 @@ final class Denormalizer
         }
     }
 
-    public function resolveTypeCaster(MapCell $cell, ReflectionMethod|ReflectionProperty $accessor): ?string
+    public function resolveTypeCaster(MapCell $mapCell, ReflectionMethod|ReflectionProperty $accessor): ?string
     {
         /** @var ?class-string<TypeCasting> $typeCaster */
-        $typeCaster = $cell->cast;
+        $typeCaster = $mapCell->cast;
         if (null === $typeCaster) {
             return null;
         }

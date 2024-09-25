@@ -23,18 +23,19 @@ use ReflectionProperty;
 final class PropertySetter
 {
     public function __construct(
-        private readonly ReflectionMethod|ReflectionProperty $accessor,
+        public readonly ReflectionMethod|ReflectionProperty $accessor,
         public readonly int $offset,
         public readonly TypeCasting $cast,
-        public readonly bool $convertEmptyStringToNull = false,
+        public readonly bool $convertEmptyStringToNull,
     ) {
     }
 
     /**
      * @throws ReflectionException
      */
-    public function __invoke(object $object, mixed $value): void
+    public function __invoke(object $object, array $recordValues): void
     {
+        $value = $recordValues[$this->offset];
         if ('' === $value && $this->convertEmptyStringToNull) {
             $value = null;
         }

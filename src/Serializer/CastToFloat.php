@@ -50,9 +50,7 @@ final class CastToFloat implements TypeCasting
             };
         }
 
-        if (!is_scalar($value)) {
-            throw TypeCastingFailed::dueToInvalidValue($value, Type::Int->value);
-        }
+        is_scalar($value) || throw TypeCastingFailed::dueToInvalidValue($value, Type::Int->value);
 
         $float = filter_var($value, Type::Float->filterFlag());
 
@@ -80,9 +78,7 @@ final class CastToFloat implements TypeCasting
             }
         }
 
-        if (null === $type) {
-            throw throw MappingFailed::dueToTypeCastingUnsupportedType($reflectionProperty, $this, 'float', 'null', 'mixed');
-        }
+        null !== $type || throw throw MappingFailed::dueToTypeCastingUnsupportedType($reflectionProperty, $this, 'float', 'null', 'mixed');
 
         return $isNullable;
     }
