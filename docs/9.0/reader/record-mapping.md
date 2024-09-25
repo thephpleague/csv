@@ -229,7 +229,7 @@ At the object level you can use the new `MapRecord` attribute with the same argu
 
 ```php
 #[Serializer\MapRecord(convertEmptyStringToNull: true)]
-flnail readonly class Car
+final readonly class Car
 {
     public function __construct(
         private Wheel $wheel,

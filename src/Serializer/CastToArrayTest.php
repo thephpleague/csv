@@ -29,7 +29,9 @@ final class CastToArrayTest extends TestCase
     #[DataProvider('providesValidStringForArray')]
     public function testItCanConvertToArraygWithoutArguments(string $shape, string $type, string|array $input, array $expected): void
     {
-        $cast = new CastToArray(new ReflectionProperty(ArrayClass::class, 'nullableIterable'));
+        $cast = new CastToArray(new ReflectionProperty((new class () {
+            public ?iterable $nullableIterable;
+        })::class, 'nullableIterable'));
         $cast->setOptions(shape:$shape, type:$type);
 
         self::assertSame($expected, $cast->toVariable($input));
@@ -105,13 +107,17 @@ final class CastToArrayTest extends TestCase
     {
         $this->expectException(MappingFailed::class);
 
-        new CastToArray(new ReflectionProperty(ArrayClass::class, 'nullableInt'));
+        new CastToArray(new ReflectionProperty((new class () {
+            public ?int $nullableInt;
+        })::class, 'nullableInt'));
     }
 
     public function testItFailsToCastInvalidJson(): void
     {
         $this->expectException(TypeCastingFailed::class);
-        $cast = new CastToArray(new ReflectionProperty(ArrayClass::class, 'nullableIterable'));
+        $cast = new CastToArray(new ReflectionProperty((new class () {
+            public ?iterable $nullableIterable;
+        })::class, 'nullableIterable'));
         $cast->setOptions(shape: 'json');
         $cast->toVariable('{"json":toto}');
     }
@@ -120,7 +126,9 @@ final class CastToArrayTest extends TestCase
     {
         $defaultValue = ['toto'];
 
-        $cast = new CastToArray(new ReflectionProperty(ArrayClass::class, 'nullableIterable'));
+        $cast = new CastToArray(new ReflectionProperty((new class () {
+            public ?iterable $nullableIterable;
+        })::class, 'nullableIterable'));
         $cast->setOptions(default: $defaultValue, shape: 'json');
 
         self::assertSame($defaultValue, $cast->toVariable(null));
@@ -131,7 +139,15 @@ final class CastToArrayTest extends TestCase
     {
         $this->expectException(MappingFailed::class);
 
-        $reflectionProperty = new ReflectionProperty(ArrayClass::class, $propertyName);
+        $class = new class () {
+            public ?int $nullableInt;
+            public array $array;
+            public DateTimeInterface|array|null $unionType;
+            public DateTimeInterface|string $invalidUnionType;
+            public Countable&Traversable $intersectionType;
+        };
+
+        $reflectionProperty = new ReflectionProperty($class::class, $propertyName);
 
         new CastToArray($reflectionProperty);
     }
@@ -144,14 +160,4 @@ final class CastToArrayTest extends TestCase
             'intersection type not supported' => ['propertyName' => 'intersectionType'],
         ];
     }
-}
-
-class ArrayClass
-{
-    public ?iterable $nullableIterable;
-    public ?int $nullableInt;
-    public array $array;
-    public DateTimeInterface|array|null $unionType;
-    public DateTimeInterface|string $invalidUnionType;
-    public Countable&Traversable $intersectionType;
 }
