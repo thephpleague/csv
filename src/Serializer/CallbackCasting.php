@@ -60,17 +60,15 @@ final class CallbackCasting implements TypeCasting
     /**
      * @throws MappingFailed
      */
-    public function setOptions(
-        ?string $type = null,
-        mixed ...$options
-    ): void {
+    public function setOptions(?string $type = null, mixed ...$options): void
+    {
         if (null === $this->alias) {
             if (Type::Mixed->value === $this->type && null !== $type) {
                 $this->type = $type;
             }
 
             try {
-                $this->callback = self::resolveSupportedType($this->type); /* @phpstan-ignore-line */
+                $this->callback = self::resolveTypeCallback($this->type); /* @phpstan-ignore-line */
                 $this->options = $options;
 
                 return;
@@ -85,9 +83,7 @@ final class CallbackCasting implements TypeCasting
             $this->type = self::aliases()[$this->alias];
         }
 
-        /** @var Closure $callback */
-        $callback = self::$aliases[$this->type][$this->alias];
-        $this->callback = $callback;
+        $this->callback = self::resolveAliasCallback($this->type, $this->alias);
         $this->options = $options;
     }
 
@@ -183,8 +179,8 @@ final class CallbackCasting implements TypeCasting
 
     public static function unregisterAll(): void
     {
-        self::$types = [];
-        self::$aliases = [];
+        self::unregisterTypes();
+        self::unregisterAliases();
     }
 
     public static function supportsAlias(?string $alias): bool
@@ -199,7 +195,7 @@ final class CallbackCasting implements TypeCasting
         }
 
         try {
-            self::resolveSupportedType($type);  /* @phpstan-ignore-line */
+            self::resolveTypeCallback($type);  /* @phpstan-ignore-line */
 
             return true;
         } catch (Throwable) {
@@ -247,8 +243,26 @@ final class CallbackCasting implements TypeCasting
                 continue;
             }
 
-            if ((self::aliases()[$alias] ?? null) === $type || (Type::Mixed->value === $type && self::supportsAlias($alias))) {
+            if (self::aliasSupportsType($type) || (Type::Mixed->value === $type && self::supportsAlias($alias))) {
                 return true;
+            }
+        }
+
+        return false;
+    }
+
+    private static function aliasSupportsType(string $type): bool
+    {
+        foreach (self::aliases() as $registeredType) {
+            if ($type === $registeredType) {
+                return true;
+            }
+
+            try {
+                if ((new ReflectionClass($type))->implementsInterface($registeredType)) {  /* @phpstan-ignore-line */
+                    return true;
+                }
+            } catch (Throwable) {
             }
         }
 
@@ -258,7 +272,7 @@ final class CallbackCasting implements TypeCasting
     /**
      * @param class-string $type
      */
-    private static function resolveSupportedType(string $type): Closure
+    private static function resolveTypeCallback(string $type): Closure
     {
         foreach (self::$types as $registeredType => $callback) {
             if ($type === $registeredType) {
@@ -277,6 +291,25 @@ final class CallbackCasting implements TypeCasting
         throw new MappingFailed('The `'.$type.'` could not be resolved.');
     }
 
+    private static function resolveAliasCallback(string $type, string $alias): Closure
+    {
+        $rType = self::aliases()[$alias] ?? null;
+        if (isset($rType)) {
+            return self::$aliases[$rType][$alias];
+        }
+
+        foreach (self::aliases() as $aliasName => $registeredType) {
+            try {
+                $reflType = new ReflectionClass($type); /* @phpstan-ignore-line */
+                if ($reflType->implementsInterface($registeredType)) {
+                    return self::$aliases[$registeredType][$aliasName];
+                }
+            } catch (Throwable) {
+            }
+        }
+
+        throw new MappingFailed('The `'.$type.'` could not be resolved.');
+    }
 
     /**
      * @throws MappingFailed
@@ -300,14 +333,12 @@ final class CallbackCasting implements TypeCasting
             }
 
             if (null === $type) {
-                if (
-                    self::supportsType($foundType->getName())
-                    || array_key_exists($foundType->getName(), self::$aliases)
-                ) {
+                $instanceName = $foundType->getName();
+                if (self::supportsType($instanceName) || array_key_exists($instanceName, self::$aliases)) {
                     $type = $foundType;
                 }
 
-                if (true !== $hasMixed && Type::Mixed->value === $foundType->getName()) {
+                if (true !== $hasMixed && Type::Mixed->value === $instanceName) {
                     $hasMixed = true;
                 }
             }

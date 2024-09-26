@@ -16,8 +16,6 @@ namespace League\Csv\Serializer;
 use Attribute;
 use ReflectionAttribute;
 use ReflectionClass;
-use ReflectionException;
-use ReflectionMethod;
 
 /**
  * @deprecated since version 9.17.0
@@ -27,36 +25,13 @@ use ReflectionMethod;
 #[Attribute(Attribute::TARGET_CLASS)]
 final class AfterMapping
 {
-    /** @var array<string> $methods */
+    public readonly MapRecord $mapRecord;
     public readonly array $methods;
 
     public function __construct(string ...$methods)
     {
-        $this->methods = $methods;
-    }
-
-    /**
-     *
-     * @return array<ReflectionMethod>
-     */
-    public function afterMappingMethods(ReflectionClass $class): array
-    {
-        $methods = [];
-        foreach ($this->methods as $method) {
-            try {
-                $accessor = $class->getMethod($method);
-            } catch (ReflectionException $exception) {
-                throw new MappingFailed('The method `'.$method.'` is not defined on the `'.$class->getName().'` class.', 0, $exception);
-            }
-
-            if (0 !== $accessor->getNumberOfRequiredParameters()) {
-                throw new MappingFailed('The method `'.$class->getName().'::'.$accessor->getName().'` has too many required parameters.');
-            }
-
-            $methods[] = $accessor;
-        }
-
-        return $methods;
+        $this->mapRecord = new MapRecord($methods);
+        $this->methods = $this->mapRecord->afterMapping;
     }
 
     public static function from(ReflectionClass $class): ?self

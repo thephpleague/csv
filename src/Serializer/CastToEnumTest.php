@@ -24,7 +24,11 @@ final class CastToEnumTest extends TestCase
 {
     public function testItCanConvertAStringBackedEnum(): void
     {
-        $cast = new CastToEnum(new ReflectionProperty(EnumClass::class, 'colour'));
+        $class = new class () {
+            public Colour $colour;
+        };
+
+        $cast = new CastToEnum(new ReflectionProperty($class::class, 'colour'));
         $orange = $cast->toVariable('orange');
 
         self::assertInstanceOf(Colour::class, $orange);
@@ -34,7 +38,11 @@ final class CastToEnumTest extends TestCase
 
     public function testItCanConvertAIntegerBackedEnum(): void
     {
-        $cast = new CastToEnum(new ReflectionProperty(EnumClass::class, 'dayOfTheWeek'));
+        $class = new class () {
+            public DayOfTheWeek $dayOfTheWeek;
+        };
+
+        $cast = new CastToEnum(new ReflectionProperty($class::class, 'dayOfTheWeek'));
         $monday = $cast->toVariable('1');
 
         self::assertInstanceOf(DayOfTheWeek::class, $monday);
@@ -44,7 +52,11 @@ final class CastToEnumTest extends TestCase
 
     public function testItCanConvertAUnitEnum(): void
     {
-        $cast = new CastToEnum(new ReflectionProperty(EnumClass::class, 'currency'));
+        $class = new class () {
+            public Currency $currency;
+        };
+
+        $cast = new CastToEnum(new ReflectionProperty($class::class, 'currency'));
         $naira = $cast->toVariable('Naira');
 
         self::assertInstanceOf(Currency::class, $naira);
@@ -53,14 +65,22 @@ final class CastToEnumTest extends TestCase
 
     public function testItReturnsNullWhenTheVariableIsNullable(): void
     {
-        $cast = new CastToEnum(new ReflectionProperty(EnumClass::class, 'nullableCurrency'));
+        $class = new class () {
+            public ?Currency $nullableCurrency;
+        };
+
+        $cast = new CastToEnum(new ReflectionProperty($class::class, 'nullableCurrency'));
 
         self::assertNull($cast->toVariable(null));
     }
 
     public function testItReturnsTheDefaultValueWhenTheVariableIsNullable(): void
     {
-        $cast = new CastToEnum(new ReflectionProperty(EnumClass::class, 'nullableCurrency'));
+        $class = new class () {
+            public ?Currency $nullableCurrency;
+        };
+
+        $cast = new CastToEnum(new ReflectionProperty($class::class, 'nullableCurrency'));
         $cast->setOptions('Naira');
 
         self::assertSame(Currency::Naira, $cast->toVariable(null));
@@ -70,19 +90,28 @@ final class CastToEnumTest extends TestCase
     {
         $this->expectException(TypeCastingFailed::class);
 
-        (new CastToEnum(new ReflectionProperty(EnumClass::class, 'currency')))->toVariable(null);
+        $class = new class () {
+            public Currency $currency;
+        };
+
+        (new CastToEnum(new ReflectionProperty($class::class, 'currency')))->toVariable(null);
     }
 
     public function testThrowsIfTheValueIsNotRecognizedByTheEnum(): void
     {
         $this->expectException(TypeCastingFailed::class);
-
-        (new CastToEnum(new ReflectionProperty(EnumClass::class, 'colour')))->toVariable('green');
+        $class = new class () {
+            public Colour $colour;
+        };
+        (new CastToEnum(new ReflectionProperty($class::class, 'colour')))->toVariable('green');
     }
 
     public function testItReturnsTheDefaultValueWithUnionType(): void
     {
-        $cast = new CastToEnum(new ReflectionProperty(EnumClass::class, 'unionType'));
+        $class = new class () {
+            public DateTimeInterface|Colour|null $unionType;
+        };
+        $cast = new CastToEnum(new ReflectionProperty($class::class, 'unionType'));
         $cast->setOptions('orange');
 
         self::assertSame(Colour::Violet, $cast->toVariable('violet'));
@@ -90,7 +119,10 @@ final class CastToEnumTest extends TestCase
 
     public function testItCanConvertABackedEnum(): void
     {
-        $cast = new CastToEnum(new ReflectionProperty(EnumClass::class, 'colour'));
+        $class = new class () {
+            public Colour $colour;
+        };
+        $cast = new CastToEnum(new ReflectionProperty($class::class, 'colour'));
         $orange = $cast->toVariable(Colour::Orange);
 
         self::assertInstanceOf(Colour::class, $orange);
@@ -101,8 +133,10 @@ final class CastToEnumTest extends TestCase
     public function testItWillThrowIfNotTheExpectedEnum(): void
     {
         $this->expectException(TypeCastingFailed::class);
-
-        $cast = new CastToEnum(new ReflectionProperty(EnumClass::class, 'colour'));
+        $class = new class () {
+            public Colour $colour;
+        };
+        $cast = new CastToEnum(new ReflectionProperty($class::class, 'colour'));
         $cast->toVariable(DayOfTheWeek::Monday);
     }
 
@@ -110,8 +144,12 @@ final class CastToEnumTest extends TestCase
     public function testItWillThrowIfNotTypeAreSupported(string $propertyName): void
     {
         $this->expectException(MappingFailed::class);
-
-        $reflectionProperty = new ReflectionProperty(EnumClass::class, $propertyName);
+        $class = new class () {
+            public ?bool $nullableBool;
+            public DateTimeInterface|int $invalidUnionType;
+            public Countable&Traversable $intersectionType;
+        };
+        $reflectionProperty = new ReflectionProperty($class::class, $propertyName);
 
         new CastToEnum($reflectionProperty);
     }
@@ -143,16 +181,4 @@ enum Currency
     case Dollar;
     case Euro;
     case Naira;
-}
-
-class EnumClass
-{
-    public DayOfTheWeek $dayOfTheWeek;
-    public Currency $currency;
-    public ?Currency $nullableCurrency;
-    public Colour $colour;
-    public ?bool $nullableBool;
-    public DateTimeInterface|Colour|null $unionType;
-    public DateTimeInterface|int $invalidUnionType;
-    public Countable&Traversable $intersectionType;
 }

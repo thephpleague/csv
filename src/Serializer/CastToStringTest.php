@@ -26,7 +26,9 @@ final class CastToStringTest extends TestCase
     {
         $this->expectException(MappingFailed::class);
 
-        new CastToString(new ReflectionProperty(StringClass::class, 'int'));
+        new CastToString(new ReflectionProperty((new class () {
+            public int $int;
+        })::class, 'int'));
     }
 
     #[DataProvider('providesValidInputValue')]
@@ -44,43 +46,60 @@ final class CastToStringTest extends TestCase
 
     public static function providesValidInputValue(): iterable
     {
+        $class = new class () {
+            public float $float;
+            public ?float $nullableFloat;
+            public int $int;
+            public ?int $nullableInt;
+            public string $string;
+            public ?string $nullableString;
+            public ?bool $nullableBool;
+            public bool $boolean;
+            public mixed $mixed;
+            public ?iterable $nullableIterable;
+            public array $array;
+            public DateTimeInterface|string|null $unionType;
+            public DateTimeInterface|int $invalidUnionType;
+            public Countable&Traversable $intersectionType;
+        };
+
         yield 'with a string/nullable type' => [
-            'reflectionProperty' => new ReflectionProperty(StringClass::class, 'nullableString'),
+            'reflectionProperty' => new ReflectionProperty($class::class, 'nullableString'),
             'default' => null,
             'input' => 'true',
             'expected' => 'true',
         ];
 
         yield 'with a string type' => [
-            'reflectionProperty' => new ReflectionProperty(StringClass::class, 'string'),
+            'reflectionProperty' => new ReflectionProperty($class::class, 'string'),
             'default' => null,
             'input' => 'yes',
             'expected' => 'yes',
         ];
 
         yield 'with a nullable string type and the null value' => [
-            'reflectionProperty' => new ReflectionProperty(StringClass::class, 'nullableString'),
+            'reflectionProperty' => new ReflectionProperty($class::class, 'nullableString'),
             'default' => null,
             'input' => null,
             'expected' => null,
         ];
 
         yield 'with a nullable string type and a non null default value' => [
-            'reflectionProperty' => new ReflectionProperty(StringClass::class, 'nullableString'),
+            'reflectionProperty' => new ReflectionProperty($class::class, 'nullableString'),
             'default' => 'foo',
             'input' => null,
             'expected' => 'foo',
         ];
 
         yield 'with union type' => [
-            'reflectionProperty' => new ReflectionProperty(StringClass::class, 'unionType'),
+            'reflectionProperty' => new ReflectionProperty($class::class, 'unionType'),
             'default' => 'foo',
             'input' => 'tata',
             'expected' => 'tata',
         ];
 
         yield 'with nullable union type' => [
-            'reflectionProperty' => new ReflectionProperty(StringClass::class, 'unionType'),
+            'reflectionProperty' => new ReflectionProperty($class::class, 'unionType'),
             'default' => 'foo',
             'input' => null,
             'expected' => 'foo',
@@ -92,7 +111,24 @@ final class CastToStringTest extends TestCase
     {
         $this->expectException(MappingFailed::class);
 
-        new CastToString(new ReflectionProperty(StringClass::class, $propertyName));
+        $class = new class () {
+            public float $float;
+            public ?float $nullableFloat;
+            public int $int;
+            public ?int $nullableInt;
+            public string $string;
+            public ?string $nullableString;
+            public ?bool $nullableBool;
+            public bool $boolean;
+            public mixed $mixed;
+            public ?iterable $nullableIterable;
+            public array $array;
+            public DateTimeInterface|string|null $unionType;
+            public DateTimeInterface|int $invalidUnionType;
+            public Countable&Traversable $intersectionType;
+        };
+
+        new CastToString(new ReflectionProperty($class::class, $propertyName));
     }
 
     public static function invalidPropertyName(): iterable
@@ -103,22 +139,4 @@ final class CastToStringTest extends TestCase
             'intersection type not supported' => ['propertyName' => 'intersectionType'],
         ];
     }
-}
-
-class StringClass
-{
-    public float $float;
-    public ?float $nullableFloat;
-    public int $int;
-    public ?int $nullableInt;
-    public string $string;
-    public ?string $nullableString;
-    public ?bool $nullableBool;
-    public bool $boolean;
-    public mixed $mixed;
-    public ?iterable $nullableIterable;
-    public array $array;
-    public DateTimeInterface|string|null $unionType;
-    public DateTimeInterface|int $invalidUnionType;
-    public Countable&Traversable $intersectionType;
 }

@@ -601,7 +601,6 @@ final class DenormalizerTest extends TestCase
         };
 
         $instance = Denormalizer::assign($class::class, ['place' => 'YaMouSSokro']);
-
         self::assertInstanceOf($class::class, $instance);
         self::assertSame('yamoussokro', $instance->str);
     }
@@ -659,10 +658,15 @@ final class DenormalizerTest extends TestCase
     {
         $data = ['foo' => 'bar'];
 
-        $this->expectException(DenormalizationFailed::class);
-        $this->expectExceptionMessage('The property '.MissingProperty::class.'::bar is not initialized; its value is missing from the source data.');
+        $class = new class () {
+            public string $foo;
+            public string $bar;
+        };
 
-        Denormalizer::assign(MissingProperty::class, $data);
+        $this->expectException(DenormalizationFailed::class);
+        $this->expectExceptionMessage('The property '.$class::class.'::bar is not initialized; its value is missing from the source data.');
+
+        Denormalizer::assign($class::class, $data);
     }
 }
 
@@ -711,14 +715,5 @@ class RequiresArgumentAfterMapping
     private function addOne(int $add): void
     {
         $this->addition += $add;
-    }
-}
-
-class MissingProperty
-{
-    public function __construct(
-        public readonly string $foo,
-        public readonly string $bar,
-    ) {
     }
 }

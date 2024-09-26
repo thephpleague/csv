@@ -254,7 +254,7 @@ final class Denormalizer
     private function setAfterMappingCalls(): array
     {
         return $this->mapRecord?->afterMappingMethods($this->class)
-            ?? AfterMapping::from($this->class)?->afterMappingMethods($this->class) /* @phpstan-ignore-line */
+            ?? AfterMapping::from($this->class)?->mapRecord->afterMappingMethods($this->class) /* @phpstan-ignore-line */
             ?? [];
     }
 

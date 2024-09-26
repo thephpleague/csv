@@ -24,7 +24,9 @@ final class CastToFloatTest extends TestCase
     {
         $this->expectException(MappingFailed::class);
 
-        new CastToFloat(new ReflectionProperty(FloatClass::class, 'string'));
+        new CastToFloat(new ReflectionProperty((new class () {
+            public string $string;
+        })::class, 'string'));
     }
 
     #[DataProvider('providesValidStringForInt')]
@@ -42,64 +44,69 @@ final class CastToFloatTest extends TestCase
 
     public static function providesValidStringForInt(): iterable
     {
+        $class = new class () {
+            public ?float $nullableFloat;
+            public DateTimeInterface|float|null $unionType;
+        };
+
         yield 'positive integer' => [
-            'prototype' => new ReflectionProperty(FloatClass::class, 'nullableFloat'),
+            'prototype' => new ReflectionProperty($class::class, 'nullableFloat'),
             'input' => '1',
             'default' => null,
             'expected' => 1.0,
         ];
 
         yield 'zero' => [
-            'prototype' => new ReflectionProperty(FloatClass::class, 'nullableFloat'),
+            'prototype' => new ReflectionProperty($class::class, 'nullableFloat'),
             'input' => '0',
             'default' => null,
             'expected' => 0.0,
         ];
 
         yield 'negative integer' => [
-            'prototype' => new ReflectionProperty(FloatClass::class, 'nullableFloat'),
+            'prototype' => new ReflectionProperty($class::class, 'nullableFloat'),
             'input' => '-10',
             'default' => null,
             'expected' => -10.0,
         ];
 
         yield 'integer type' => [
-            'prototype' => new ReflectionProperty(FloatClass::class, 'nullableFloat'),
+            'prototype' => new ReflectionProperty($class::class, 'nullableFloat'),
             'input' => -10,
             'default' => null,
             'expected' => -10.0,
         ];
 
         yield 'float type' => [
-            'prototype' => new ReflectionProperty(FloatClass::class, 'nullableFloat'),
+            'prototype' => new ReflectionProperty($class::class, 'nullableFloat'),
             'input' => -10.0,
             'default' => null,
             'expected' => -10.0,
         ];
 
         yield 'null value' => [
-            'prototype' => new ReflectionProperty(FloatClass::class, 'nullableFloat'),
+            'prototype' => new ReflectionProperty($class::class, 'nullableFloat'),
             'input' => null,
             'default' => null,
             'expected' => null,
         ];
 
         yield 'null value with default value' => [
-            'prototype' => new ReflectionProperty(FloatClass::class, 'nullableFloat'),
+            'prototype' => new ReflectionProperty($class::class, 'nullableFloat'),
             'input' => null,
             'default' => 10,
             'expected' => 10.0,
         ];
 
         yield 'with union type' => [
-            'prototype' => new ReflectionProperty(FloatClass::class, 'unionType'),
+            'prototype' => new ReflectionProperty($class::class, 'unionType'),
             'input' => '23',
             'default' => 42.0,
             'expected' => 23.0,
         ];
 
         yield 'with nullable union type' => [
-            'prototype' => new ReflectionProperty(FloatClass::class, 'unionType'),
+            'prototype' => new ReflectionProperty($class::class, 'unionType'),
             'input' => null,
             'default' => 42.0,
             'expected' => 42.0,
@@ -110,16 +117,8 @@ final class CastToFloatTest extends TestCase
     {
         $this->expectException(TypeCastingFailed::class);
 
-        (new CastToFloat(new ReflectionProperty(FloatClass::class, 'nullableFloat')))->toVariable('00foobar');
+        (new CastToFloat(new ReflectionProperty((new class () {
+            public ?float $nullableFloat;
+        })::class, 'nullableFloat')))->toVariable('00foobar');
     }
-}
-
-class FloatClass
-{
-    public float $float;
-    public ?float $nullableFloat;
-    public mixed $mixed;
-    public int $int;
-    public string $string;
-    public DateTimeInterface|float|null $unionType;
 }
