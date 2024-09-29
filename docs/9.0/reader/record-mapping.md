@@ -30,14 +30,14 @@ In the following sections we will explain the process and how you can control it
 ## Prerequisite
 
 The deserialization process is done in two steps. The first step is decoding your CSV into
-a collection of records. This part is already handle by the package. Once decoding is done,
-the denormalization mechanism can happen. The process is geared toward converting records
-into DTOs or objects without complex logic in their constructors.
+a collection of records. This part is already handle by the package. The second step is a
+denormalization process which we will focuse on. The process is geared toward converting
+record into DTO or objects without complex logic in their constructors.
 
 <p class="message-notice">The mechanism relies on PHP's <code>Reflection</code>
 feature. It does not use the class constructor to perform the conversion.
 This means that if the targeted object contains additional logic in its constructor,
-the mechanism may either fail or produced unexpected results.</p>
+the mechanism may either fail or produce unexpected results.</p>
 
 To work as intended the mechanism expects the following:
 
@@ -76,7 +76,7 @@ final class ClimaticRecord
         $this->date = new DateTimeImmutable($date, new DateTimeZone('Africa/Abidjan'));
     }
     
-    public function getDate(): DateTimeImmutable
+    public function getDate(): ?DateTimeImmutable
     {
         return $this->date;
     }
@@ -103,7 +103,7 @@ foreach ($csv->getRecordsAsObject(ClimaticRecord::class) as $instance) {
 
 ## Defining the mapping rules
 
-By default, the denormalization engine will automatically fill public properties and call public methods
+By default, the denormalization engine will automatically fill the class public properties and methods
 using their names. In other words, if there is:
 
 - a public class property, which name is the same as a record key, the record value will be assigned to that property.
@@ -123,12 +123,12 @@ If the autodiscovery feature is not enough, you can complete the conversion info
 PHP attributes:
 
 - the `League\Csv\Serializer\MapCell`
-- the `League\Csv\Serializer\AfterMapping`
+- the `League\Csv\Serializer\AfterMapping` (deprecated in 9.17.0)
 - the `League\Csv\Serializer\MapRecord`
 
-<p class="message-info">The <code>AfterMapping</code> attribute is added in version <code>9.13.0</code></p>
+<p class="message-info">The <code>AfterMapping</code> attribute is added in version <code>9.13.0</code> and deprecated in version <code>9.17.0</code></p>
 <p class="message-info">The <code>MapRecord</code> attribute is added in version <code>9.17.0</code></p>
-<p class="message-notice">Before version <code>9.17.0</code> the cell value must be a <code>string</code> or <code>null</code>. Starting with <code>version 9.17.0</code>, the limitation has been lifted.</p>
+<p class="message-notice">Before version <code>9.17.0</code> the cell value must be a <code>string</code> or <code>null</code>. Starting with <code>version 9.17.0</code>, this limitation has been lifted.</p>
 
 ### Improving field mapping
 
@@ -144,27 +144,29 @@ use Carbon\CarbonImmutable;
     options: [
         'format' => '!Y-m-d',
         'timezone' => 'Africa/Nairobi'
-    ])
-]
+    ],
+    convertEmptyStringToNull: false,
+)]
 private CarbonImmutable $observedOn;
 ```
 
 The above rule can be translated in plain English like this:
 
 > Convert the value of the associative array whose key is `date` into a `CarbonImmutable` object
-> using the `CastToDate` class qith the date format `!Y-m-d` and the `Africa/Nairobi` timezone.
+> using the `CastToDate` class with the date format `!Y-m-d` and the `Africa/Nairobi` timezone.
+> If the value is the empty string, do not convert it into the `null` value
 > Once created, inject the instance into the class private property `observedOn`.
 
 This attribute will override any automatic resolution and enable fine-tuning type casting.
 It can be used on class properties and methods regardless of their visibility and their type.
 
-The attribute can take up to four (4) arguments which are all optional:
+The attribute can take up to five (5) arguments which are all optional:
 
 - The `column` a string or an integer that tells the engine which record key to use via its offset or key. If not present the property name or the name of the first argument of the `setter` method will be used. In such case, you are required to specify the property names information.
 - The `cast` a string which represents the name of a class implementing the `TypeCasting` interface or an alias and responsible for type casting the record value. If not present, the mechanism will try to resolve the typecasting based on the property or method argument type.
 - The `options` an associative array to improve typecasting by providing extra options per class/alias. The argument expects an associative array and relies on named arguments to inject its value to the method.
 - The `ignore` a boolean which control if the property or method should be completely ignored by the mechanism. By default, its value is `false`. This property takes precedence over all the other properties of the attribute once set to `true`.
-- The `convertEmptyStringToNull` a value that can be a boolean or `null`, which control if empty string should be or not converted into the `null` value.
+- The `convertEmptyStringToNull` a value that can be a boolean or `null`, which control if empty string should be converted or not into the `null` value.
 
 <p class="message-info">The <code>convertEmptyStringToNull</code> argument was added in version <code>9.17.0</code></p>
 <p class="message-info">The <code>ignore</code> argument was added in version <code>9.13.0</code></p>
@@ -246,7 +248,8 @@ to the global behaviour.
 ### Post Mapping
 
 <p class="message-info">The feature is available since version <code>9.13.0</code></p>
-<p class="message-info">The <code>MapRecord</code> attribute is added in <code>9.17.0</code></p>
+<p class="message-info">The <code>MapRecord</code> attribute is added in <code>9.17.0</code> and should be used
+instead of the deprecated <code>AfterMapping</code> attribute.</p>
 
 Because we are not using the object constructor method, we need a way to work around that limitation
 and tagging one or more methods that should be called after all mapping is done to return a valid object.
@@ -324,7 +327,7 @@ For scalar conversion, type casting is done via PHP's `ext-filter` extension.
 
 <p class="message-info">Untyped properties are considered as being <code>mixed</code> type.</p>
 
-They are all registered by default so you do not need to specify them using the `cast` property of the `MapCell`
+They are all registered by default, hence, you do not need to specify them using the `cast` property of the `MapCell`
 attribute **unless you are using them on untyped or mixed property where using `cast` is mandatory**
 
 ### CastToString
@@ -515,7 +518,7 @@ callback even during autodiscovery.
 use App\Domain\Money\Naira;
 use League\Csv\Serializer;
 
-$castToNaira = function (?string $value, bool $isNullable, int $default = null): ?Naira {
+$castToNaira = function (mixed $value, bool $isNullable, int $default = null): ?Naira {
     if (null === $value && $isNullable) {
         if (null !== $default) {
             return Naira::fromKobos($default);
@@ -603,7 +606,7 @@ Registering an alias is similar to registering a type via callback:
 ```php
 use League\Csv\Serializer;
 
-Serializer\Denormalizer::registerAlias('@forty-two', 'int', fn (?string $value): int => 42);
+Serializer\Denormalizer::registerAlias('@forty-two', 'int', fn (mixed $value): int => 42);
 ```
 
 The excepted callback argument follow the same signature and will be called exactly the same as with a type callback.
@@ -655,7 +658,7 @@ use League\Csv\Serializer;
 private ?Money $naira;
 ```
 
-The `CastToNaira` will convert the cell value into a `Narai` object and if the value is `null`, `20_00` will be used.
+The `CastToNaira` will convert the cell value into a `Naria` object and if the value is `null`, `20_00` will be used.
 To allow your object to cast the cell value to your liking it needs to implement the `TypeCasting` interface.
 
 ```php
