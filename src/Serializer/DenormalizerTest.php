@@ -18,6 +18,7 @@ use DateTime;
 use DateTimeImmutable;
 use DateTimeInterface;
 use DateTimeZone;
+use League\Csv\Reader;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 use SplFileObject;
@@ -336,26 +337,62 @@ final class DenormalizerTest extends TestCase
 
     public function testItWillCallAMethodAfterMapping(): void
     {
-        /** @var UsingAfterMapping $res */
-        $res = Denormalizer::assign(UsingAfterMapping::class, ['addition' => '1']);
+        $usingAfterMapping = new #[MapRecord(afterMapping: ['addOne'])] class (23) {
+            public function __construct(public int $addition)
+            {
+                $this->addOne();
+            }
+
+            private function addOne(): void
+            {
+                ++$this->addition;
+            }
+        };
+
+        /** @var object{addition: int} $res */
+        $res = Denormalizer::assign($usingAfterMapping::class, ['addition' => '1']);
 
         self::assertSame(2, $res->addition);
     }
 
     public function testIfFailsToUseAfterMappingWithUnknownMethod(): void
     {
-        $this->expectException(MappingFailed::class);
-        $this->expectExceptionMessage('The method `addTow` is not defined on the `'.MissingMethodAfterMapping::class.'` class.');
+        $missingMethodAfterMapping = new #[MapRecord(afterMapping: ['addOne', 'addTow'])] class (23) {
+            public function __construct(public int $addition)
+            {
+                $this->addOne();
+            }
 
-        Denormalizer::assign(MissingMethodAfterMapping::class, ['addition' => '1']);
+            private function addOne(): void
+            {
+                ++$this->addition;
+            }
+        };
+
+        $this->expectException(MappingFailed::class);
+        $this->expectExceptionMessage('The method `addTow` is not defined on the `'.$missingMethodAfterMapping::class.'` class.');
+
+        Denormalizer::assign($missingMethodAfterMapping::class, ['addition' => '1']);
     }
 
     public function testIfFailsToUseAfterMappingWithInvalidArgument(): void
     {
-        $this->expectException(MappingFailed::class);
-        $this->expectExceptionMessage('The method `'.RequiresArgumentAfterMapping::class.'::addOne` has too many required parameters.');
+        $requiresArgumentAfterMapping = new #[MapRecord(afterMapping: ['addOne'])] class (23) {
+            public function __construct(public int $addition)
+            {
+                $this->addOne(1);
+            }
 
-        Denormalizer::assign(RequiresArgumentAfterMapping::class, ['addition' => '1']);
+            private function addOne(int $add): void
+            {
+                $this->addition += $add;
+            }
+        };
+
+        $this->expectException(MappingFailed::class);
+        $this->expectExceptionMessage('The method `'.$requiresArgumentAfterMapping::class.'::addOne` has too many required parameters.');
+
+        Denormalizer::assign($requiresArgumentAfterMapping::class, ['addition' => '1']);
     }
 
     public function testItWillThrowIfTheClassContainsUninitializedProperties(): void
@@ -668,52 +705,33 @@ final class DenormalizerTest extends TestCase
 
         Denormalizer::assign($class::class, $data);
     }
+
+    #[Test]
+    public function it_will_trim_white_space_on_request(): void
+    {
+        $csv = <<<CSV
+id,title,description
+ 23 , foobar  , je suis trop fort
+CSV;
+        $item = new #[MapRecord(trimFieldValueBeforeCasting: true)] class (23, 'foobar', ' je suis trop fort') {
+            public function __construct(
+                public int $id,
+                public string $title,
+                #[MapCell(trimFieldValueBeforeCasting: false)]
+                public string $description,
+            ) {
+            }
+        };
+
+        $document = Reader::createFromString($csv);
+        $document->setHeaderOffset(0);
+
+        self::assertEquals($item, $document->firstAsObject($item::class));
+    }
 }
 
 enum Place: string
 {
     case Yamoussokro = 'Yamoussokro';
     case Abidjan = 'Abidjan';
-}
-
-#[MapRecord(afterMapping: ['addOne'])]
-class UsingAfterMapping
-{
-    public function __construct(public int $addition)
-    {
-        $this->addOne();
-    }
-
-    private function addOne(): void
-    {
-        ++$this->addition;
-    }
-}
-
-#[MapRecord(afterMapping: ['addOne', 'addTow'])]
-class MissingMethodAfterMapping
-{
-    public function __construct(public int $addition)
-    {
-        $this->addOne();
-    }
-
-    private function addOne(): void
-    {
-        ++$this->addition;
-    }
-}
-
-#[MapRecord(afterMapping: ['addOne'])]
-class RequiresArgumentAfterMapping
-{
-    public function __construct(public int $addition)
-    {
-        $this->addOne(1);
-    }
-
-    private function addOne(int $add): void
-    {
-        $this->addition += $add;
-    }
 }

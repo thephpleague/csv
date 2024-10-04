@@ -27,6 +27,7 @@ final class MapRecord
         /** @var array<string> $afterMapping */
         public readonly array $afterMapping = [],
         public readonly ?bool $convertEmptyStringToNull = null,
+        public readonly bool $trimFieldValueBeforeCasting = false,
     ) {
         foreach ($this->afterMapping as $method) {
             is_string($method) || throw new ValueError('The method names must be string.');

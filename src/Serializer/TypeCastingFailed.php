@@ -31,4 +31,9 @@ final class TypeCastingFailed extends RuntimeException implements SerializationF
 
         return new self('Unable to cast the given data `'.$value.'` to a `'.$type.'`.', 0, $previous);
     }
+
+    public static function dueToUndefinedValue(string|int $offset): self
+    {
+        return new self('Unable to cast the record value; Missing value was for  offset`'.$offset.'.', 0);
+    }
 }

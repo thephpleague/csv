@@ -299,6 +299,7 @@ final class Denormalizer
                 $offset,
                 $this->resolveTypeCasting($reflectionProperty),
                 $this->mapRecord?->convertEmptyStringToNull ?? self::$convertEmptyStringToNull,
+                $this->mapRecord?->trimFieldValueBeforeCasting ?? false
             ),
         };
     }
@@ -344,11 +345,15 @@ final class Denormalizer
             ?? $this->mapRecord?->convertEmptyStringToNull
             ?? self::$convertEmptyStringToNull;
 
+        $trimFieldValueBeforeCasting = $mapCell->trimFieldValueBeforeCasting
+            ?? $this->mapRecord?->trimFieldValueBeforeCasting
+            ?? false;
+
         return match (true) {
             0 > $offset => throw new MappingFailed('offset integer position can only be positive or equals to 0; received `'.$offset.'`'),
             [] !== $propertyNames && $offset > count($propertyNames) - 1 => throw new MappingFailed('offset integer position can not exceed property names count.'),
-            null === $typeCaster => new PropertySetter($accessor, $offset, $this->resolveTypeCasting($reflectionProperty, $mapCell->options), $convertEmptyStringToNull),
-            default => new PropertySetter($accessor, $offset, $this->getTypeCasting($typeCaster, $reflectionProperty, $mapCell->options), $convertEmptyStringToNull),
+            null === $typeCaster => new PropertySetter($accessor, $offset, $this->resolveTypeCasting($reflectionProperty, $mapCell->options), $convertEmptyStringToNull, $trimFieldValueBeforeCasting),
+            default => new PropertySetter($accessor, $offset, $this->getTypeCasting($typeCaster, $reflectionProperty, $mapCell->options), $convertEmptyStringToNull, $trimFieldValueBeforeCasting),
         };
     }
 

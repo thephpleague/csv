@@ -167,6 +167,7 @@ The attribute can take up to five (5) arguments which are all optional:
 - The `options` an associative array to improve typecasting by providing extra options per class/alias. The argument expects an associative array and relies on named arguments to inject its value to the method.
 - The `ignore` a boolean which control if the property or method should be completely ignored by the mechanism. By default, its value is `false`. This property takes precedence over all the other properties of the attribute once set to `true`.
 - The `convertEmptyStringToNull` a value that can be a boolean or `null`, which control if empty string should be converted or not into the `null` value.
+- The `trimFieldValueBeforeCasting` a value that can be a boolean or `null`, which control if the string should be trimmed or not before conversion.
 
 <p class="message-info">The <code>convertEmptyStringToNull</code> argument was added in version <code>9.17.0</code></p>
 <p class="message-info">The <code>ignore</code> argument was added in version <code>9.13.0</code></p>
@@ -177,7 +178,54 @@ header value, just like with <code>TabularDataReader::getRecords</code></p>
 
 In any case, if type casting fails, an exception will be thrown.
 
+Since version `9.17.0` the `MapRecord` attribute can be used to control the full record conversion.
+
+The attribute can take up to three (3) arguments which are all optional:
+
+- The `afterMapping` an array containing a list of methods to call after mapping.
+- The `convertEmptyStringToNull` a value that can be a boolean or `null`, which control if empty string should be converted or not into the `null` value. **This value is overwritten by the value defined at field level.**
+- The `trimFieldValueBeforeCasting` a value that can be a boolean, which control if the string should be trimmed or not before conversion. **This value is overwritten by the value defined at field level.**
+
+<p class="message-info">The <code>convertEmptyStringToNull</code> value override the global settings but is overwritten by the same value defined on the <code>MapCell</code> attribute.</p>
+<p class="message-info">The <code>trimFieldValueBeforeCasting</code> value is overwritten by the same value defined on the <code>MapCell</code> attribute.</p>
+
 ## Improving object creation
+
+### Handling CSV cell content
+
+<p class="message-info">The feature is available since version <code>9.17.0</code></p>
+
+By default, CSV document only contains value represented by strings. To allow better denormalization
+you may need to trim the extra whitespace. Since version `9.17.0` the `MapCell` and the `MapRecord`
+attributes expose the following option: `trimFieldValueBeforeCasting`.
+By default, and to avoid BC break, their initial value is `false`. But when set to `true`, before using
+the data, the system will remove any whitespace surrounding the property value if it is a string.
+
+```php
+$csv = <<<CSV
+id,title,description
+ 23 , foobar  , je suis trop fort
+CSV;
+
+#[Serializer\MapRecord(trimFieldValueBeforeCasting: true)]
+final readonly class Item
+{
+    public function __construct(
+       public int $id,
+       public string $title,
+       #[Serializer\MapCell(trimFieldValueBeforeCasting: false)]
+       public string $description,
+    ) {}
+}
+
+
+$document = Reader::createFromString($csv);
+$document->setHeaderOffset(0);
+$item = $document->firstAsObject(Item::class);
+$item->id = 23;
+$item->title = 'foobar'; // the white space has been removed
+$item->description = ' je suis trop fort'; // the white space is preserved
+```
 
 ### Handling the empty string
 
@@ -453,7 +501,7 @@ Converts the value into a PHP `array`. You are required to specify the array sha
 provides three (3) shapes:
 
 - `list` converts the string using PHP `explode` function by default the `separator` option is `,`;
-- `csv` converts the string using PHP `str_getcsv` function with its default `delimiter` and `enclosure` options, the escape character is not available as its usage is not recommended to improve interoperability;
+- `csv` converts the string using CSV `Reader` class with its default `delimiter` and `enclosure` options, the escape character is not available as its usage is not recommended to improve interoperability;
 - `json` converts the string using PHP `json_decode` function with its default options;
 
 The following are examples for each shape expected string value:
@@ -491,6 +539,7 @@ use League\Csv\Serializer;
     options: [
         'shape' => 'csv',
         'delimiter' => ';',
+        'headerOffset' => 0,
         'type' => 'float',
     ])
 ]
@@ -500,8 +549,22 @@ public function setData(array $data): void;
 If the conversion succeeds, then the property will be set with an `array` of `float` values.
 The `type` option only supports scalar type (`string`, `int`, `float` and `bool`)
 
-<p class="message-info">Starting with version <code>9.17.0</code>, the class also supports
-denormalization to <code>ArrayIterator</code> and <code>ArrayObject</code>. No additional requirements are needed.</p>
+<p class="message-info">Starting with version <code>9.17.0</code>, when using the `list` or `csv` shape you can further
+trim whitespace before converting the data for each array element using the <code>trimElementValueBeforeCasting</code> option.</p>
+
+```php
+use League\Csv\Serializer;
+
+#[Serializer\MapCell(options: ['trimElementValueBeforeCasting' => true])]
+public function setData(array $data): void;
+
+//with the following input
+$stringWithSpace = 'foo , bar, baz ';
+//will be converted to if you specify it
+['foo', 'bar', 'baz']
+// by default if you do not specify the new attribute the conversion will be
+['foo ', ' bar', ' baz ']
+```
 
 ## Extending Type Casting capabilities
 

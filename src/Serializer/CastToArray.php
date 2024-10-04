@@ -14,13 +14,16 @@ declare(strict_types=1);
 namespace League\Csv\Serializer;
 
 use JsonException;
+use League\Csv\Exception;
+use League\Csv\Reader;
 use ReflectionParameter;
 use ReflectionProperty;
 
+use function array_map;
 use function explode;
+use function filter_var;
 use function is_array;
 use function json_decode;
-use function str_getcsv;
 use function strlen;
 
 use const FILTER_REQUIRE_ARRAY;
@@ -43,6 +46,8 @@ final class CastToArray implements TypeCasting
     private int $depth = 512;
     private int $flags = 0;
     private ?array $default = null;
+    private bool $trimElementValueBeforeCasting = false;
+    private ?int $headerOffset = null;
 
     /**
      * @throws MappingFailed
@@ -70,6 +75,8 @@ final class CastToArray implements TypeCasting
         int $depth = 512,
         int $flags = 0,
         Type|string $type = Type::String,
+        bool $trimElementValueBeforeCasting = false,
+        ?int $headerOffset = null,
     ): void {
         if (!$shape instanceof ArrayShape) {
             $shape = ArrayShape::tryFrom($shape) ?? throw new MappingFailed('Unable to resolve the array shape; Verify your options arguments.');
@@ -93,6 +100,8 @@ final class CastToArray implements TypeCasting
             1 !== strlen($this->enclosure) && $this->shape->equals(ArrayShape::Csv) => throw new MappingFailed('expects enclosure to be a single character; `'.$this->enclosure.'` given.'),
             default => $this->resolveFilterFlag($type),
         };
+        $this->trimElementValueBeforeCasting = $trimElementValueBeforeCasting;
+        $this->headerOffset = $headerOffset;
     }
 
     public function toVariable(mixed $value): ?array
@@ -117,16 +126,57 @@ final class CastToArray implements TypeCasting
             throw TypeCastingFailed::dueToInvalidValue($value, $this->type->value);
         }
 
-        try {
-            return match ($this->shape) {
-                ArrayShape::Json => json_decode($value, true, $this->depth, $this->flags | JSON_THROW_ON_ERROR),
-                ArrayShape::List => filter_var(explode($this->separator, $value), $this->filterFlag, FILTER_REQUIRE_ARRAY),
-                ArrayShape::Csv => filter_var(str_getcsv($value, $this->delimiter, $this->enclosure, ''), $this->filterFlag, FILTER_REQUIRE_ARRAY),
-            };
+        if ($this->shape->equals(ArrayShape::Json)) {
+            try {
+                $data = json_decode($value, true, $this->depth, $this->flags | JSON_THROW_ON_ERROR);
+            } catch (JsonException $exception) {
+                throw TypeCastingFailed::dueToInvalidValue($value, $this->type->value, $exception);
+            }
 
-        } catch (JsonException $exception) {
-            throw TypeCastingFailed::dueToInvalidValue($value, $this->type->value, $exception);
+            if (!is_array($data)) {
+                throw TypeCastingFailed::dueToInvalidValue($value, $this->type->value);
+            }
+
+            return $data;
         }
+
+        if ($this->shape->equals(ArrayShape::Csv)) {
+            try {
+                $data = Reader::createFromString($value);
+                $data->setDelimiter($this->delimiter);
+                $data->setEnclosure($this->enclosure);
+                $data->setEscape('');
+                $data->setHeaderOffset($this->headerOffset);
+                if ($this->trimElementValueBeforeCasting) {
+                    $data->addFormatter($this->trimString(...));
+                }
+                $data->addFormatter($this->filterElement(...));
+
+                return [...$data];
+            } catch (Exception $exception) {
+                throw TypeCastingFailed::dueToInvalidValue($value, $this->type->value, $exception);
+            }
+        }
+
+        $data = explode($this->separator, $value);
+
+        return $this->filterElement(match (true) {
+            $this->trimElementValueBeforeCasting => $this->trimString($data),
+            default => $data,
+        });
+    }
+
+    private function trimString(array $record): array
+    {
+        return array_map(
+            fn (mixed $value): mixed => is_string($value) ? trim($value) : $value,
+            $record
+        );
+    }
+
+    private function filterElement(array $record): array
+    {
+        return filter_var($record, $this->filterFlag, FILTER_REQUIRE_ARRAY);
     }
 
     /**

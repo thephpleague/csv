@@ -16,6 +16,7 @@ namespace League\Csv\Serializer;
 use Countable;
 use DateTimeInterface;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 use ReflectionProperty;
 use Traversable;
@@ -85,14 +86,14 @@ final class CastToArrayTest extends TestCase
             'shape' => 'csv',
             'type' => 'string',
             'input' => '"1",2,3,"4"',
-            'expected' => ['1', '2', '3', '4'],
+            'expected' => [['1', '2', '3', '4']],
         ];
 
         yield 'using the csv shape with type int' => [
             'shape' => 'csv',
             'type' => 'int',
             'input' => '"1",2,3,"4"',
-            'expected' => [1, 2, 3, 4],
+            'expected' => [[1, 2, 3, 4]],
         ];
 
         yield 'using an array overrides every other settings' => [
@@ -159,5 +160,22 @@ final class CastToArrayTest extends TestCase
             'union type not supported' => ['propertyName' => 'invalidUnionType'],
             'intersection type not supported' => ['propertyName' => 'intersectionType'],
         ];
+    }
+
+    #[Test]
+    public function it_can_trim_array_value_if_applicable(): void
+    {
+        $cast = new CastToArray(new ReflectionProperty((new class () {
+            public ?iterable $nullableIterable;
+        })::class, 'nullableIterable'));
+        $cast->setOptions(shape: 'list', trimElementValueBeforeCasting: true);
+
+        $string = 'john , john, foo';
+
+        self::assertSame(['john', 'john', 'foo'], $cast->toVariable($string));
+
+        $cast->setOptions(shape: 'list');
+
+        self::assertSame(['john ', ' john', ' foo'], $cast->toVariable($string));
     }
 }
