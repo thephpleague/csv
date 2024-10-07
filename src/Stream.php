@@ -504,4 +504,9 @@ final class Stream implements SeekableIterator
     {
         return fstat($this->stream)['size'] ?? false;
     }
+
+    public function getContents(?int $length = null, int $offset = -1): string|false
+    {
+        return stream_get_contents($this->stream, $length, $offset);
+    }
 }

@@ -24,6 +24,7 @@ All Notable changes to `Csv` will be documented in this file
 
 - `Cast*` methods accept more input type to improve Denormalization usage when `Reader::addFormatter` is used or when the collection contains data other than string and `null`.
 - `Stream::getSize` is added to the internal `Stream` class
+- `Stream::getContents` is added to the internal `Stream` class
 - `MapIterator::toIterator` is added to the internal class `MapIterator` class to convert any `iterable` into an `Iterator`.
 - Casting a CSV to an `array` it now will be a collection of array instead of a simple `array`.
 

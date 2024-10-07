@@ -19,6 +19,7 @@ use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
 use const JSON_FORCE_OBJECT;
+use const JSON_HEX_QUOT;
 use const JSON_PRETTY_PRINT;
 use const JSON_UNESCAPED_SLASHES;
 
@@ -50,9 +51,7 @@ final class JsonConverterTest extends TestCase
         self::assertSame($converter->encode($records), $nativeJson);
         self::assertSame(JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT, $converter->flags);
         self::assertSame(24, $converter->depth);
-        self::assertSame('    ', $converter->indentation);
-        self::assertTrue($converter->isPrettyPrint);
-        self::assertFalse($converter->isForceObject);
+        self::assertSame(4, $converter->indentSize);
     }
 
     #[Test]
@@ -111,5 +110,23 @@ final class JsonConverterTest extends TestCase
             ->formatter(fn (array $value, int|string $offset): array => array_map(strtoupper(...), $value));
 
         self::assertSame('[{"foo":"BAR"}]', $converter->encode([['foo' => 'bar']]));
+    }
+
+    #[Test]
+    public function it_can_use_syntactic_sugar_methods_to_set_json_flags(): void
+    {
+        $usingJsonFlags = JsonConverter::create()
+            ->addFlags(JSON_PRETTY_PRINT, JSON_UNESCAPED_SLASHES, JSON_FORCE_OBJECT)
+            ->removeFlags(JSON_HEX_QUOT)
+            ->depth(24);
+
+        $usingMethodFlags = JsonConverter::create()
+            ->withPrettyPrint()
+            ->withUnescapedSlashes()
+            ->withForceObject()
+            ->withoutHexQuot()
+            ->depth(24);
+
+        self::assertEquals($usingJsonFlags, $usingMethodFlags);
     }
 }

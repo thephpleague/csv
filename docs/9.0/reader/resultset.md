@@ -21,6 +21,10 @@ found records are returned as a [ResultSet](/9.0/reader/resultset) object.
 
 ### Json serialization
 
+<p class="message-info">A dedicated <code>JsonConverter</code> class is added in version <code>9.17.0</code>
+to help <a href="/9.0/converter/json/">converting ResultSet into proper JSON document</a> without consuming
+too much memory. It is the recommended way to convert to JSON.</p>
+
 The `ResultSet` class implements the `JsonSerializable` interface. As such you can use the `json_encode`
 function directly on the instantiated object. The interface is implemented  using PHP's `iterator_array`
 on the `ResultSet::getRecords` method. As such, the returned `JSON` string data is affected by the

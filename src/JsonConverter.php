@@ -13,6 +13,7 @@ declare(strict_types=1);
 
 namespace League\Csv;
 
+use BadMethodCallException;
 use Closure;
 use Exception;
 use InvalidArgumentException;
@@ -22,6 +23,26 @@ use RuntimeException;
 use SplFileInfo;
 use SplFileObject;
 
+use function array_filter;
+use function array_reduce;
+use function get_defined_constants;
+use function is_resource;
+use function is_string;
+use function json_encode;
+use function json_last_error;
+use function lcfirst;
+use function preg_match;
+use function restore_error_handler;
+use function set_error_handler;
+use function str_repeat;
+use function str_replace;
+use function str_starts_with;
+use function strlen;
+use function strtolower;
+use function substr;
+use function ucwords;
+
+use const ARRAY_FILTER_USE_KEY;
 use const JSON_ERROR_NONE;
 use const JSON_FORCE_OBJECT;
 use const JSON_PRETTY_PRINT;
@@ -30,41 +51,80 @@ use const JSON_THROW_ON_ERROR;
 /**
  * Converts and store tabular data into a JSON string.
  * @template T
+ *
+ * @method JsonConverter withHexTag() adds the JSON_HEX_TAG flag
+ * @method JsonConverter withoutHexTag() adds the JSON_HEX_TAG flag
+ * @method bool useHexTag() tells whether the JSON_HEX_TAG flag is used
+ * @method JsonConverter withHexAmp() adds the JSON_HEX_TAG flag
+ * @method JsonConverter withoutHexAmp() adds the JSON_HEX_TAG flag
+ * @method bool useHexAmp() tells whether the JSON_HEX_TAG flag is used
+ * @method JsonConverter withHexApos() adds the JSON_HEX_TAG flag
+ * @method JsonConverter withoutHexApos() adds the JSON_HEX_TAG flag
+ * @method bool useHexApos() tells whether the JSON_HEX_TAG flag is used
+ * @method JsonConverter withHexQuot() adds the JSON_HEX_TAG flag
+ * @method JsonConverter withoutHexQuot() adds the JSON_HEX_TAG flag
+ * @method bool useHexQuot() tells whether the JSON_HEX_TAG flag is used
+ * @method JsonConverter withForceObject() adds the JSON_HEX_TAG flag
+ * @method JsonConverter withoutForceObject() adds the JSON_HEX_TAG flag
+ * @method bool useForceObject() tells whether the JSON_HEX_TAG flag is used
+ * @method JsonConverter withNumericCheck() adds the JSON_HEX_TAG flag
+ * @method JsonConverter withoutNumericCheck() adds the JSON_HEX_TAG flag
+ * @method bool useNumericCheck() tells whether the JSON_HEX_TAG flag is used
+ * @method JsonConverter withUnescapedSlashes() adds the JSON_HEX_TAG flag
+ * @method JsonConverter withoutUnescapedSlashes() adds the JSON_HEX_TAG flag
+ * @method bool useUnescapedSlashes() tells whether the JSON_HEX_TAG flag is used
+ * @method JsonConverter withPrettyPrint() adds the JSON_HEX_TAG flag
+ * @method JsonConverter withoutPrettyPrint() adds the JSON_HEX_TAG flag
+ * @method bool usePrettyPrint() tells whether the JSON_HEX_TAG flag is used
+ * @method JsonConverter withUnescapedUnicode() adds the JSON_HEX_TAG flag
+ * @method JsonConverter withoutUnescapedUnicode() adds the JSON_HEX_TAG flag
+ * @method bool useUnescapedUnicode() tells whether the JSON_HEX_TAG flag is used
+ * @method JsonConverter withPartialOutputOnError() adds the JSON_HEX_TAG flag
+ * @method JsonConverter withoutPartialOutputOnError() adds the JSON_HEX_TAG flag
+ * @method bool usePartialOutputOnError() tells whether the JSON_HEX_TAG flag is used
+ * @method JsonConverter withPreserveZeroFraction() adds the JSON_HEX_TAG flag
+ * @method JsonConverter withoutPreserveZeroFraction() adds the JSON_HEX_TAG flag
+ * @method bool usePreserveZeroFraction() tells whether the JSON_HEX_TAG flag is used
+ * @method JsonConverter withUnescapedLineTerminators() adds the JSON_HEX_TAG flag
+ * @method JsonConverter withoutUnescapedLineTerminators() adds the JSON_HEX_TAG flag
+ * @method bool useUnescapedLineTerminators() tells whether the JSON_HEX_TAG flag is used
+ * @method JsonConverter withInvalidUtf8Ignore() adds the JSON_HEX_TAG flag
+ * @method JsonConverter withoutInvalidUtf8Ignore() adds the JSON_HEX_TAG flag
+ * @method bool useInvalidUtf8Ignore() tells whether the JSON_HEX_TAG flag is used
+ * @method JsonConverter withInvalidUtf8Substitute() adds the JSON_HEX_TAG flag
+ * @method JsonConverter withoutInvalidUtf8Substitute() adds the JSON_HEX_TAG flag
+ * @method bool useInvalidUtf8Substitute() tells whether the JSON_HEX_TAG flag is used
+ * @method JsonConverter withThrowOnError() adds the JSON_HEX_TAG flag
+ * @method JsonConverter withoutThrowOnError() adds the JSON_HEX_TAG flag
+ * @method bool useThrowOnError() tells whether the JSON_HEX_TAG flag is used
  */
 final class JsonConverter
 {
     public readonly int $flags;
     /** @var int<1, max> */
     public readonly int $depth;
-    /** @var non-empty-string */
-    public readonly string $indentation;
+    /** @var int<1, max> */
+    public readonly int $indentSize;
     /** @var Closure(T, array-key): mixed */
     public readonly Closure $formatter;
-    public readonly bool $isPrettyPrint;
-    public readonly bool $isForceObject;
+    private readonly bool $isPrettyPrint;
+    private readonly bool $isForceObject;
+    /** @var non-empty-string */
+    private readonly string $indentation;
     /** @var Closure(string, array-key): string */
     private readonly Closure $internalFormatter;
 
     public static function create(): self
     {
-        return new self(
-            flags: 0,
-            depth: 512,
-            indentSize: 4,
-            formatter: null,
-        );
+        return new self(flags: 0, depth: 512, indentSize: 4, formatter: null);
     }
 
     /**
      * @param int<1, max> $depth
      * @param int<1, max> $indentSize
      */
-    private function __construct(
-        int $flags,
-        int $depth,
-        int $indentSize,
-        ?Closure $formatter
-    ) {
+    private function __construct(int $flags, int $depth, int $indentSize, ?Closure $formatter)
+    {
         json_encode([], $flags & ~JSON_THROW_ON_ERROR, $depth);
 
         JSON_ERROR_NONE === json_last_error() || throw new InvalidArgumentException('The flags or the depth given are not valid JSON encoding parameters in PHP; '.json_last_error_msg());
@@ -72,6 +132,7 @@ final class JsonConverter
 
         $this->flags = $flags;
         $this->depth = $depth;
+        $this->indentSize = $indentSize;
         $this->indentation = str_repeat(' ', $indentSize);
         $this->formatter = $formatter ?? fn (mixed $value) => $value;
         $this->isPrettyPrint = ($this->flags & JSON_PRETTY_PRINT) === JSON_PRETTY_PRINT;
@@ -80,29 +141,106 @@ final class JsonConverter
     }
 
     /**
-     * Adds a list of JSON flags.
+     * @return Closure(string, array-key): string
      */
-    public function addFlags(int ...$flag): self
+    private function setInternalFormatter(): Closure
     {
-        $flags = array_reduce($flag, fn (int $flag, int $value): int => $flag | $value, $this->flags);
-        if ($flags === $this->flags) {
-            return $this;
+        $callback = match ($this->isForceObject) {
+            false => fn (string $json, int|string $offset): string => $json,
+            default => fn (string $json, int|string $offset): string => '"'.json_encode($offset).'":'.$json,
+        };
+
+        return match ($this->isPrettyPrint) {
+            false => $callback,
+            default => fn (string $json, int|string $offset): string => $this->prettyPrint($callback($json, $offset)),
+        };
+    }
+
+    /**
+     * @throws BadMethodCallException
+     */
+    public function __call(string $name, array $arguments): mixed
+    {
+        return match (true) {
+            str_starts_with($name, 'without') => $this->removeFlags(self::methodToFlag()[lcfirst(substr($name, 7))] ?? throw new BadMethodCallException('The method "'.self::class.'::'.$name.'" does not exist.')),
+            str_starts_with($name, 'with') => $this->addFlags(self::methodToFlag()[lcfirst(substr($name, 4))] ?? throw new BadMethodCallException('The method "'.self::class.'::'.$name.'" does not exist.')),
+            str_starts_with($name, 'use') => $this->useFlags(self::methodToFlag()[lcfirst(substr($name, 3))] ?? throw new BadMethodCallException('The method "'.self::class.'::'.$name.'" does not exist.')),
+            default => throw new BadMethodCallException('The method "'.self::class.'::'.$name.'" does not exist.'),
+        };
+    }
+
+    /**
+     * Returns the PHP json flag associated to its method suffix to ease method lookup.
+     *
+     * @return array<string, int>
+     */
+    private static function methodToFlag(): array
+    {
+        static $methods;
+
+        if (null === $methods) {
+            $methods = [];
+            /** @var array<string, int> $jsonFlags */
+            $jsonFlags = get_defined_constants(true)['json'];
+            $jsonEncodeFlags = array_filter(
+                $jsonFlags,
+                fn (string $key) => 1 !== preg_match('/^(JSON_BIGINT_AS_STRING|JSON_OBJECT_AS_ARRAY|JSON_ERROR_)(.*)?$/', $key),
+                ARRAY_FILTER_USE_KEY
+            );
+
+            foreach ($jsonEncodeFlags as $name => $value) {
+                $methods[lcfirst(str_replace('_', '', ucwords(strtolower(substr($name, 5)), '_')))] = $value;
+            }
         }
 
-        return new self($flags, $this->depth, strlen($this->indentation), $this->formatter);
+        return $methods;
+    }
+
+    /**
+     * Adds a list of JSON flags.
+     */
+    public function addFlags(int ...$flags): self
+    {
+        return $this->setFlags(
+            array_reduce($flags, fn (int $carry, int $flag): int => $carry | $flag, $this->flags)
+        );
     }
 
     /**
      * Removes a list of JSON flags.
      */
-    public function removeFlags(int ...$flag): self
+    public function removeFlags(int ...$flags): self
     {
-        $flags = array_reduce($flag, fn (int $flag, int $value): int => $flag & ~$value, $this->flags);
-        if ($flags === $this->flags) {
-            return $this;
+        return $this->setFlags(
+            array_reduce($flags, fn (int $carry, int $flag): int => $carry & ~$flag, $this->flags)
+        );
+    }
+
+    /**
+     * Tells whether the flag is being used by the current JsonConverter.
+     */
+    public function useFlags(int ...$flags): bool
+    {
+        foreach ($flags as $flag) {
+            // the flag is always used even if it is not set by the user
+            if (JSON_THROW_ON_ERROR === $flag) {
+                continue;
+            }
+
+            if (($this->flags & $flag) !== $flag) {
+                return false;
+            }
         }
 
-        return new self($flags, $this->depth, strlen($this->indentation), $this->formatter);
+        return [] !== $flags;
+    }
+
+    private function setFlags(int $flags): self
+    {
+        return match ($flags) {
+            $this->flags => $this,
+            default => new self($flags, $this->depth, $this->indentSize, $this->formatter),
+        };
     }
 
     /**
@@ -112,11 +250,10 @@ final class JsonConverter
      */
     public function depth(int $depth): self
     {
-        if ($depth === $this->depth) {
-            return $this;
-        }
-
-        return new self($this->flags, $depth, strlen($this->indentation), $this->formatter);
+        return match ($depth) {
+            $this->depth => $this,
+            default => new self($this->flags, $depth, $this->indentSize, $this->formatter),
+        };
     }
 
     /**
@@ -126,11 +263,10 @@ final class JsonConverter
      */
     public function indentSize(int $indentSize): self
     {
-        if ($indentSize === strlen($this->indentation)) {
-            return $this;
-        }
-
-        return new self($this->flags, $this->depth, $indentSize, $this->formatter);
+        return match ($indentSize) {
+            $this->indentSize => $this,
+            default => new self($this->flags, $this->depth, $indentSize, $this->formatter),
+        };
     }
 
     /**
@@ -138,7 +274,7 @@ final class JsonConverter
      */
     public function formatter(?Closure $formatter): self
     {
-        return new self($this->flags, $this->depth, strlen($this->indentation), $formatter);
+        return new self($this->flags, $this->depth, $this->indentSize, $formatter);
     }
 
     /**
@@ -161,28 +297,28 @@ final class JsonConverter
      */
     public function save(iterable $records, mixed $destination, $context = null): int
     {
-        $bytes = 0;
         $stream = match(true) {
             $destination instanceof Stream,
             $destination instanceof SplFileObject => $destination,
             $destination instanceof SplFileInfo => $destination->openFile(mode:'w', context: $context),
             is_resource($destination) => Stream::createFromResource($destination),
-            is_string($destination) => Stream::createFromPath(path: $destination, open_mode:'w', context: $context),
-            default => throw new InvalidArgumentException('The path must be a stream or a SplFileInfo object.'),
+            is_string($destination) => Stream::createFromPath($destination, 'w', $context),
+            default => throw new InvalidArgumentException('The destination path must be a filename, a stream or a SplFileInfo object.'),
         };
-
+        $bytes = 0;
+        $writtenBytes = 0;
         set_error_handler(fn (int $errno, string $errstr, string $errfile, int $errline) => true);
         foreach ($this->convert($records) as $line) {
-            $addedBytes = $stream->fwrite($line);
-            if (false === $addedBytes) {
-                restore_error_handler();
-
-                throw new RuntimeException('Unable to write to the stream.');
+            if (false === ($writtenBytes = $stream->fwrite($line))) {
+                break;
             }
-            $bytes += $addedBytes;
+            $bytes += $writtenBytes;
         }
-
         restore_error_handler();
+
+        if (false === $writtenBytes) {
+            throw new RuntimeException('Unable to write to the stream.');
+        }
 
         return $bytes;
     }
@@ -197,12 +333,11 @@ final class JsonConverter
      */
     public function encode(iterable $records): string
     {
-        $json = '';
-        foreach ($this->convert($records) as $line) {
-            $json .= $line;
-        }
+        $stream = Stream::createFromString();
+        $this->save($records, $stream);
+        $stream->rewind();
 
-        return $json;
+        return $stream->getContents(); /* @phpstan-ignore-line */
     }
 
     /**
@@ -269,23 +404,6 @@ final class JsonConverter
             ),
             $offset
         );
-    }
-
-    /**
-     * @return Closure(string, array-key): string
-     */
-    private function setInternalFormatter(): Closure
-    {
-        $callback = fn (string $json, int|string $offset): string => $json;
-        if ($this->isForceObject) {
-            $callback = fn (string $json, int|string $offset): string => '"'.json_encode($offset).'":'.$json;
-        }
-
-        if (!$this->isPrettyPrint) {
-            return $callback;
-        }
-
-        return fn (string $json, int|string $offset): string => $this->prettyPrint($callback($json, $offset));
     }
 
     /**
