@@ -233,7 +233,7 @@ $item->description = ' je suis trop fort'; // the white space is preserved
 
 Out of the box the mechanism converts any empty string value into the `null` value.
 
-##### Using Attributes
+#### Using Attributes
 
 Starting with version `9.17.0` a granular and robust system is introduced. It is now the recommended
 way to handle empty string conversion. When in used the new feature override the now deprecated
