@@ -337,7 +337,24 @@ final class JsonConverter
         $this->save($records, $stream);
         $stream->rewind();
 
-        return $stream->getContents(); /* @phpstan-ignore-line */
+        return (string) $stream->getContents();
+    }
+
+    /**
+     * Sends and makes the JSON structure downloadable via HTTP.
+     *.
+     * Returns the number of characters read from the handle and passed through to the output.
+     *
+     * @param iterable<T> $records
+     *
+     * @throws Exception
+     * @throws JsonException
+     */
+    public function download(iterable $records, string $filename): int
+    {
+        HttpHeaders::forFileDownload($filename, 'application/json');
+
+        return $this->save($records, new SplFileObject('php://output', 'w'));
     }
 
     /**

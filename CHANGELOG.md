@@ -6,6 +6,7 @@ All Notable changes to `Csv` will be documented in this file
 
 ### Added
 
+- `League\Csv\XMLConverter::download`
 - `League\Csv\JsonConverter`
 - `League\Csv\Constraint\Criteria::andNot`
 - `League\Csv\Constraint\Criteria::orNot`
@@ -27,6 +28,7 @@ All Notable changes to `Csv` will be documented in this file
 - `Stream::getContents` is added to the internal `Stream` class
 - `MapIterator::toIterator` is added to the internal class `MapIterator` class to convert any `iterable` into an `Iterator`.
 - Casting a CSV to an `array` it now will be a collection of array instead of a simple `array`.
+- Added the internal class `HttpHeaders` to improve file download throughout the codebase.
 
 ### Removed
 

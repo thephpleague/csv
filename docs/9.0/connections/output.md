@@ -138,7 +138,7 @@ To avoid breaking the flow of your application, you should create a Response obj
 use League\Csv\Reader;
 
 $reader = Reader::createFromPath('/path/to/my/file.csv', 'r');
-return new Response($reader->getContent(), 200, [
+return new Response($reader->toString(), 200, [
     'Content-Encoding' => 'none',
     'Content-Type' => 'text/csv; charset=UTF-8',
     'Content-Disposition' => 'attachment; filename="name-for-your-file.csv"',

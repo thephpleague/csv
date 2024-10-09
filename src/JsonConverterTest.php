@@ -129,4 +129,24 @@ final class JsonConverterTest extends TestCase
 
         self::assertEquals($usingJsonFlags, $usingMethodFlags);
     }
+
+    public function testDownload(): void
+    {
+        if (!function_exists('xdebug_get_headers')) {
+            self::markTestSkipped(__METHOD__.' needs the xdebug extension to run');
+        }
+
+        ob_start();
+        JsonConverter::create()->download([['foo' => 'bar']], 'foobar.json');
+        $output = ob_get_clean();
+        $headers = xdebug_get_headers();
+
+        // Due to the variety of ways the xdebug expresses Content-Type of text files,
+        // we cannot count on complete string matching.
+        self::assertStringContainsString('content-type: application/json', strtolower($headers[0]));
+        self::assertSame('content-transfer-encoding: binary', strtolower($headers[1]));
+        self::assertSame('content-description: File Transfer', $headers[2]);
+        self::assertStringContainsString('content-disposition: attachment; filename="foobar.json"', $headers[3]);
+        self::assertSame('[{"foo":"bar"}]', $output);
+    }
 }

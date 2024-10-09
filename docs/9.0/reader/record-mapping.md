@@ -121,18 +121,20 @@ The autodiscovery feature works out of the box with public properties or argumen
 
 the `nullable` aspect of the property is also automatically handled.
 
+<p class="message-notice">Before version <code>9.17.0</code> the cell value must be a <code>string</code> or <code>null</code> for the feature to work.
+Starting with <code>version 9.17.0</code>, the value can also be of the expected type for the property.</p>
+
 ### Improving field mapping
 
-If the autodiscovery feature is not enough, you can complete the conversion information using the following
-PHP attributes:
+If the autodiscovery feature is not enough, you can complete the conversion using PHP attributes:
+The following attributes are supported:
 
 - the `League\Csv\Serializer\MapCell`
-- the `League\Csv\Serializer\AfterMapping` (deprecated in 9.17.0)
 - the `League\Csv\Serializer\MapRecord`
+- the `League\Csv\Serializer\AfterMapping` (deprecated in 9.17.0)
 
 <p class="message-info">The <code>AfterMapping</code> attribute is added in version <code>9.13.0</code> and deprecated in version <code>9.17.0</code></p>
 <p class="message-info">The <code>MapRecord</code> attribute is added in version <code>9.17.0</code></p>
-<p class="message-notice">Before version <code>9.17.0</code> the cell value must be a <code>string</code> or <code>null</code>. Starting with <code>version 9.17.0</code>, this limitation has been lifted.</p>
 
 Here's an example of how the `League\Csv\Serializer\MapCell` attribute works:
 
@@ -171,14 +173,14 @@ The attribute can take up to five (5) arguments which are all optional:
 - The `convertEmptyStringToNull` a value that can be a boolean or `null`, which control if empty string should be converted or not into the `null` value.
 - The `trimFieldValueBeforeCasting` a value that can be a boolean or `null`, which control if the string should be trimmed or not before conversion.
 
-<p class="message-info">The <code>convertEmptyStringToNull</code> argument was added in version <code>9.17.0</code></p>
-<p class="message-info">The <code>ignore</code> argument was added in version <code>9.13.0</code></p>
-<p class="message-info">You can use the mechanism on a CSV without a header row but it requires
-adding a <code>MapCell</code> attribute on each property or method needed for the conversion. Or you
-can use the optional second argument of <code>TabularDataReader::getRecordsAsObject</code> to specify the
-header value, just like with <code>TabularDataReader::getRecords</code></p>
+<p class="message-info">You can use the mechanism on a CSV without a header row, but it requires adding a <code>MapCell</code>
+attribute on each property or method needed for the conversion. Or you can use the optional second argument of
+<code>TabularDataReader::getRecordsAsObject</code> to specify the header value,
+just like with <code>TabularDataReader::getRecords</code></p>
+<p class="message-info">The <code>ignore</code> argument is available since version <code>9.13.0</code></p>
+<p class="message-info"><code>convertEmptyStringToNull</code> argument and <code>trimFieldValueBeforeCasting</code> arguments are available since version <code>9.17.0</code></p>
 
-In any case, if type casting fails, an exception will be thrown.
+In any case, if type casting fails, an exception is thrown.
 
 Since version `9.17.0` the `MapRecord` attribute can be used to control the full record conversion.
 
@@ -193,7 +195,7 @@ The attribute can take up to three (3) arguments which are all optional:
 
 ## Improving object creation
 
-### Handling CSV cell content
+### Handling string
 
 <p class="message-info">The feature is available since version <code>9.17.0</code></p>
 
@@ -277,7 +279,7 @@ When called these methods will change the behaviour when it comes to handling em
 `Denormalizer::allowEmptyStringAsNull` will convert any empty string into the `null` value
 before typecasting whereas `Denormalizer::disallowEmptyStringAsNull` will preserve the value.
 
-**Using these methods will affect the results of all conversion throughout your codebase.**
+<p class="message-warning">Using these methods will affect the results of all conversion throughout your codebase.</p>
 
 ```php
 use League\Csv\Reader;
@@ -379,7 +381,7 @@ They all support `nullable`, `mixed` as well as non-typed properties.
 - They will return `null` or a specified default value, if the cell value is `null` and the type is `nullable`
 - If the value can not be cast they will throw an exception.
 
-For scalar conversion, type casting is done via PHP's `ext-filter` extension.
+For scalar conversion, type casting is done using PHP's `ext-filter` extension.
 
 <p class="message-info">Untyped properties are considered as being <code>mixed</code> type.</p>
 
@@ -481,7 +483,7 @@ Converts the cell value into a PHP `DateTimeInterface` implementing object. You 
 - the date format via the `format` argument
 - the date timezone if needed  via the `timezone` argument
 - the `default` which is the default value to return if the value is `null`; should be `null` or a parsable date time `string`
-- the `className` the class to use if the property is typed `mixed` or any interface that extends `DateTimeInterface`.
+- the `className` the class to use if the property is typed `mixed` or any class that extends `DateTimeInterface`.
 
 If the property is typed with:
 
@@ -559,6 +561,7 @@ The `type` option only supports scalar type (`string`, `int`, `float` and `bool`
 
 <p class="message-info">Starting with version <code>9.17.0</code>, when using the `list` or `csv` shape you can further
 trim whitespace before converting the data for each array element using the <code>trimElementValueBeforeCasting</code> option.</p>
+<p class="message-info">Starting with version <code>9.17.0</code>, when the `csv` shape is used the casted array will always represent a collection of array.</p>
 
 ```php
 use League\Csv\Serializer;
@@ -576,8 +579,8 @@ $stringWithSpace = 'foo , bar, baz ';
 
 ## Extending Type Casting capabilities
 
-Three (3) mechanisms to extend typecasting are provided. You can register a callback via the `Denormalizer` class
-or create a `League\Csv\Serializer\TypeCasting` implementing class. Of course, the choice will depend on your use case.
+Three (3) mechanisms to extend typecasting are provided. Of course, you are free to choose the mechanism of your choice
+depending on your use case.
 
 ### Registering a type using a callback
 

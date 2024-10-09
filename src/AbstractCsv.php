@@ -14,6 +14,7 @@ declare(strict_types=1);
 namespace League\Csv;
 
 use Generator;
+use InvalidArgumentException;
 use RuntimeException;
 use SplFileObject;
 use Stringable;
@@ -246,7 +247,11 @@ abstract class AbstractCsv implements ByteSequence
     public function output(?string $filename = null): int
     {
         if (null !== $filename) {
-            $this->sendHeaders($filename);
+            try {
+                HttpHeaders::forFileDownload($filename, 'text/csv');
+            } catch (InvalidArgumentException $exception) {
+                throw new InvalidArgument($exception->getMessage());
+            }
         }
 
         $this->document->rewind();
@@ -269,41 +274,6 @@ abstract class AbstractCsv implements ByteSequence
         }
 
         return $res1 + $res2;
-    }
-
-    /**
-     * Send the CSV headers.
-     *
-     * Adapted from Symfony\Component\HttpFoundation\ResponseHeaderBag::makeDisposition
-     *
-     * @throws Exception if the submitted header is invalid according to RFC 6266
-     *
-     * @see https://tools.ietf.org/html/rfc6266#section-4.3
-     */
-    protected function sendHeaders(string $filename): void
-    {
-        if (strlen($filename) !== strcspn($filename, '\\/')) {
-            throw InvalidArgument::dueToInvalidHeaderFilename($filename);
-        }
-
-        $flag = FILTER_FLAG_STRIP_LOW;
-        if (1 === preg_match('/[^\x20-\x7E]/', $filename)) {
-            $flag |= FILTER_FLAG_STRIP_HIGH;
-        }
-
-        /** @var string $filtered_name */
-        $filtered_name = filter_var($filename, FILTER_UNSAFE_RAW, $flag);
-        $filename_fallback = str_replace('%', '', $filtered_name);
-
-        $disposition = sprintf('attachment; filename="%s"', str_replace('"', '\\"', $filename_fallback));
-        if ($filename !== $filename_fallback) {
-            $disposition .= sprintf("; filename*=utf-8''%s", rawurlencode($filename));
-        }
-
-        header('Content-Type: text/csv');
-        header('Content-Transfer-Encoding: binary');
-        header('Content-Description: File Transfer');
-        header('Content-Disposition: '.$disposition);
     }
 
     /**
@@ -480,5 +450,46 @@ abstract class AbstractCsv implements ByteSequence
     public function __toString(): string
     {
         return $this->toString();
+    }
+
+    /**
+     * DEPRECATION WARNING! This method will be removed in the next major point release.
+     *
+     * @throws Exception if the submitted header is invalid according to RFC 6266
+     *
+     * @see HttpHeaders::forFileDownload()
+     * @codeCoverageIgnore
+     *
+     * Send the CSV headers.
+     *
+     * Adapted from Symfony\Component\HttpFoundation\ResponseHeaderBag::makeDisposition
+     *
+     * @deprecated since version 9.17.0
+     * @see https://tools.ietf.org/html/rfc6266#section-4.3
+     */
+    protected function sendHeaders(string $filename): void
+    {
+        if (strlen($filename) !== strcspn($filename, '\\/')) {
+            throw InvalidArgument::dueToInvalidHeaderFilename($filename);
+        }
+
+        $flag = FILTER_FLAG_STRIP_LOW;
+        if (1 === preg_match('/[^\x20-\x7E]/', $filename)) {
+            $flag |= FILTER_FLAG_STRIP_HIGH;
+        }
+
+        /** @var string $filtered_name */
+        $filtered_name = filter_var($filename, FILTER_UNSAFE_RAW, $flag);
+        $filename_fallback = str_replace('%', '', $filtered_name);
+
+        $disposition = sprintf('attachment; filename="%s"', str_replace('"', '\\"', $filename_fallback));
+        if ($filename !== $filename_fallback) {
+            $disposition .= sprintf("; filename*=utf-8''%s", rawurlencode($filename));
+        }
+
+        header('Content-Type: text/csv');
+        header('Content-Transfer-Encoding: binary');
+        header('Content-Description: File Transfer');
+        header('Content-Disposition: '.$disposition);
     }
 }

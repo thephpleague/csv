@@ -178,3 +178,47 @@ echo htmlentities($dom->saveXML());
 //   </csv>
 // </root>
 ```
+
+## Download
+
+<p class="message-info">new in version <code>9.17.0</code></p>
+
+To download the generated XML on the fly you can use the `XMLConverter::download` method:
+
+```php
+use League\Csv\Reader;
+use League\Csv\XMLConverter;
+
+$reader = Reader::createFromPath('file.csv');
+$reader->setHeaderOffset(0);
+
+header('Cache-Control: no-cache, no-store, must-revalidate');
+header('Pragma: no-cache');
+header('Expires: 0');
+ //the filename will be the name of the downloaded xml as shown by your HTTP client!
+XMLConverter::create()->download($reader, 'generated_file.xml');
+die;
+```
+
+<p class="message-info">the <code>download</code> method returns the total number of bytes sent.</p>
+<p class="message-info">If you are using the package inside a framework please use the framework recommended way instead of the <code>download</code> method.</p>
+<p class="message-notice">The caching headers are given as an example for using additional headers, it is up to the user to decide if those headers are needed or not.</p>
+
+By default, the method will set the encoding to `utf-8` and will not format the XML. You can set those values using
+the method optional arguments.
+
+```php
+use League\Csv\Reader;
+use League\Csv\XMLConverter;
+
+$reader = Reader::createFromPath('file.csv');
+$reader->setHeaderOffset(0);
+
+header('Cache-Control: no-cache, no-store, must-revalidate');
+header('Pragma: no-cache');
+header('Expires: 0');
+XMLConverter::create()->download($reader, 'generated_file.xml', encoding: 'iso-8859-1', formatOutput: true);
+die;
+```
+
+<p class="message-warning">No check is done on the validity of the <code>encoding</code> string provided.</p>
