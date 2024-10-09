@@ -29,10 +29,11 @@ In the following sections we will explain the process and how you can control it
 
 ## Prerequisite
 
-The deserialization process is done in two steps. The first step is decoding your CSV into
-a collection of records. This part is already handle by the package. The second step is a
-denormalization process which we will focuse on. The process is geared toward converting
-record into DTO or objects without complex logic in their constructors.
+The deserialization process is done in two steps. The first step is decoding your CSV record into
+a PHP `array`, this part is already handle by the package. The second step is a denormalization
+process which will convert your `array` into an object. This is the part we will focus on.
+The process is geared toward converting records into DTO or objects without complex
+logic in their constructors.
 
 <p class="message-notice">The mechanism relies on PHP's <code>Reflection</code>
 feature. It does not use the class constructor to perform the conversion.
@@ -41,7 +42,7 @@ the mechanism may either fail or produce unexpected results.</p>
 
 To work as intended the mechanism expects the following:
 
-- A target class where the array will be denormalized in;
+- A target class where the `array` will be denormalized in;
 - information on how to convert cell values into object properties;
 
 As an example throughout the documentation we will assume the following CSV document:
@@ -96,6 +97,7 @@ an `Iterator` containing only instances of your specified class.
 use League\Csv\Reader;
 
 $csv = Reader::createFromString($document);
+/** @var ClimaticRecord $instance */
 foreach ($csv->getRecordsAsObject(ClimaticRecord::class) as $instance) {
     // each $instance entry will be an instance of the ClimaticRecord class;
 }
@@ -119,6 +121,8 @@ The autodiscovery feature works out of the box with public properties or argumen
 
 the `nullable` aspect of the property is also automatically handled.
 
+### Improving field mapping
+
 If the autodiscovery feature is not enough, you can complete the conversion information using the following
 PHP attributes:
 
@@ -129,8 +133,6 @@ PHP attributes:
 <p class="message-info">The <code>AfterMapping</code> attribute is added in version <code>9.13.0</code> and deprecated in version <code>9.17.0</code></p>
 <p class="message-info">The <code>MapRecord</code> attribute is added in version <code>9.17.0</code></p>
 <p class="message-notice">Before version <code>9.17.0</code> the cell value must be a <code>string</code> or <code>null</code>. Starting with <code>version 9.17.0</code>, this limitation has been lifted.</p>
-
-### Improving field mapping
 
 Here's an example of how the `League\Csv\Serializer\MapCell` attribute works:
 
@@ -230,7 +232,43 @@ $item->description = ' je suis trop fort'; // the white space is preserved
 ### Handling the empty string
 
 Out of the box the mechanism converts any empty string value into the `null` value.
-You can however change this behaviour using two (2) static methods:
+
+##### Using Attributes
+
+Starting with version `9.17.0` a granular and robust system is introduced. It is now the recommended
+way to handle empty string conversion. When in used the new feature override the now deprecated
+global state mechanism. You can control the conversion at the field or at the record level.
+
+At the field level you need to use newly introduced `convertEmptyStringToNull` argument.
+
+When the value is set to `true`, the conversion will happen. If set to `false`, no conversion will take
+place. By default, the value is set to `null` to defer the behaviour settings at the object level.
+
+At the object level you can use the new `MapRecord` attribute with the same argument and the same
+possible values. If the value is set to `null` the behaviour will fall back to the global behaviour to
+avoid BC break.
+
+```php
+#[Serializer\MapRecord(convertEmptyStringToNull: true)]
+final readonly class Car
+{
+    public function __construct(
+        private Wheel $wheel,
+        #[Serializer\MapCell(convertEmptyStringToNull: false)]
+        private Driver $driver
+    ) {}
+}
+```
+
+In the above example, every property will see the empty string being converted to `null` except
+for the `$driver` property.
+
+#### Using global state
+
+<p class="message-warning">Using the global state is no longer recommended. This feature is
+deprecated and will be removed in the next major release.</p>
+
+This system rely on two (2) static methods:
 
 - `League\Csv\Serializer\Denormalizer::allowEmptyStringAsNull`
 - `League\Csv\Serializer\Denormalizer::disallowEmptyStringAsNull`
@@ -238,7 +276,8 @@ You can however change this behaviour using two (2) static methods:
 When called these methods will change the behaviour when it comes to handling empty string.
 `Denormalizer::allowEmptyStringAsNull` will convert any empty string into the `null` value
 before typecasting whereas `Denormalizer::disallowEmptyStringAsNull` will preserve the value.
-Using these methods will affect the results of the process throughout your codebase.
+
+**Using these methods will affect the results of all conversion throughout your codebase.**
 
 ```php
 use League\Csv\Reader;
@@ -261,37 +300,6 @@ foreach ($csv->getRecordsAsObject(ClimaticRecord::class) {
     // which expects `null` or a non-empty string.
 }
 ```
-
-Starting with version `9.17.0` you can get a more granular effect and override the global setting. You can either
-control the conversion at the field level or at the object level.
-
-At the field level you need to use newly introduced `convertEmptyStringToNull` argument as shown in the example below:
-
-```php
-#[Serializer\MapCell(convertEmptyStringToNull: true)]
-private DateTimeImmutable $observedOn;
-```
-
-When the value is set to `true`, the conversion will happen. If set to `false`, no conversion will take place.
-By default, the value is set to `null` to defer the behaviour settings at the object level.
-
-At the object level you can use the new `MapRecord` attribute with the same argument.
-
-```php
-#[Serializer\MapRecord(convertEmptyStringToNull: true)]
-final readonly class Car
-{
-    public function __construct(
-        private Wheel $wheel,
-        private Driver $driver
-    ) { 
-    }
-}
-```
-
-Just like with the `MapCell` attribute, if set to `true` the conversion will happen for **all fields**, but if set
-to `false` no conversion will take place. By default, it is set to `null` and the conversion behaviour falls back
-to the global behaviour.
 
 ### Post Mapping
 

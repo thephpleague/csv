@@ -488,11 +488,11 @@ final class DenormalizerTest extends TestCase
             public ?string $foo;
         };
 
-        Denormalizer::disallowEmptyStringAsNull();
+        Denormalizer::disallowEmptyStringAsNull(); /* @phpstan-ignore-line */
 
         self::assertSame('', Denormalizer::assign($foobar::class, $record)->foo); /* @phpstan-ignore-line */
 
-        Denormalizer::allowEmptyStringAsNull();
+        Denormalizer::allowEmptyStringAsNull(); /* @phpstan-ignore-line */
 
         self::assertNull(Denormalizer::assign($foobar::class, $record)->foo);
     }

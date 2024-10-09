@@ -58,7 +58,12 @@ final class Denormalizer
     }
 
     /**
-     * Enable converting empty string to the null value.
+     * @deprecated since version 9.17.0
+     *
+     * @see MapRecord::$convertEmptyStringToNull
+     * @see MapCell::$convertEmptyStringToNull
+     *
+     * Enables converting empty string to the null value.
      */
     public static function allowEmptyStringAsNull(): void
     {
@@ -66,7 +71,12 @@ final class Denormalizer
     }
 
     /**
-     * Disable converting empty string to the null value.
+     * @deprecated since version 9.17.0
+     *
+     * @see MapRecord::$convertEmptyStringToNull
+     * @see MapCell::$convertEmptyStringToNull
+     *
+     * Disables converting empty string to the null value.
      */
     public static function disallowEmptyStringAsNull(): void
     {

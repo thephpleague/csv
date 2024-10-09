@@ -5,15 +5,17 @@ title: Converting a CSV into a JSON
 
 # JSON conversion
 
-The `JsonConverter` converts or store a CSV records collection into a JSON structure.
-
-## Settings
-
-Prior to converting your records collection into a JSON structure, you may wish to configure
-the converter.
+The `JsonConverter` converts or store a collection into a JSON structure.
 
 <p class="message-warning">Because we are building a <code>JSON</code> structure, the <code>JsonConverter</code> object
 throws generic <code>SPL Exception</code> instead of <code>League\Csv\Exception</code>.</p>
+
+To reduce memory usage, the converter transform one record at a time. This means that the class object settings are
+geared toward a single element and not the whole claass,
+
+## Settings
+
+Prior to converting your collection into a JSON structure, you may wish to configure it.
 
 ### JSON encode flags
 
@@ -43,11 +45,11 @@ $converter = JsonConverter::create()
     ->withoutHexQuot();
 ```
 
-<p class="message-notice">Because we are converting one record at a time, the class always uses <code>JSON_THROW_ON_ERROR</code>
-to stop the collection conversion. As such adding or removing the flag using the methods describe here before will
-have no effect on its usage, the flag is <strong>ALWAYS</strong> set.</p>
+<p class="message-notice">The class always uses the <code>JSON_THROW_ON_ERROR</code> to enable stop the collection
+conversion in case of an error. That's why adding or removing the flag using the methods will have no effect on its
+usage, the flag is <strong>ALWAYS</strong> set.</p>
 
-At any given time you can check which flags is being used via the `JsonConverter::useFlags` method. As for the other method
+To quickly check which flags is being used, calle the `JsonConverter::useFlags` method. As for the other methods
 a more expressive way exists.
 
 ```php
