@@ -118,3 +118,18 @@ while (false !== ($record = fgetcsv($resource))) {
 ```
 
 <p class="message-info">If your system supports the <code>iconv</code> extension you should use PHP's built in iconv stream filters instead for better performance.</p>
+
+<p class="message-info">new in version <code>8.17.0</code></p>
+
+Tbe code above can be simplified using one of the two static methods:
+
+```php
+use League\Csv\CharsetConverter;
+
+$resource = fopen('/path/to/my/file', 'r');
+$filter = CharsetConverter::appendTo($resource, 'utf-8', 'iso-8859-15');
+echo stream_get_contents($resource); // the return string is converted from 'utf-8' to 'iso-8859-15'
+```
+
+The `appendTo` and `prependTo` static methods will make sure to register the stream filter before attaching it to the
+resource.

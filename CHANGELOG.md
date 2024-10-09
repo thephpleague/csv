@@ -6,6 +6,10 @@ All Notable changes to `Csv` will be documented in this file
 
 ### Added
 
+- `League\Csv\SwapDelimiter::apppendTo`
+- `League\Csv\SwapDelimiter::prependTo`
+- `League\Csv\CharsetConverter::apppendTo`
+- `League\Csv\CharsetConverter::prependTo`
 - `League\Csv\XMLConverter::download`
 - `League\Csv\JsonConverter`
 - `League\Csv\Constraint\Criteria::andNot`

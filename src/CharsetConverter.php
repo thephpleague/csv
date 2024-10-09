@@ -15,6 +15,8 @@ namespace League\Csv;
 
 use OutOfRangeException;
 use php_user_filter;
+use RuntimeException;
+use TypeError;
 
 use function array_combine;
 use function array_map;
@@ -75,9 +77,60 @@ class CharsetConverter extends php_user_filter
     public static function register(): void
     {
         $filter_name = self::FILTERNAME.'.*';
-        if (!in_array($filter_name, stream_get_filters(), true)) {
-            stream_filter_register($filter_name, self::class);
-        }
+
+        in_array($filter_name, stream_get_filters(), true) || stream_filter_register($filter_name, self::class);
+    }
+
+    /**
+     * @param resource $stream
+     *
+     * @throws TypeError
+     * @throws RuntimeException
+     *
+     * @return resource
+     */
+    public static function appendTo(mixed $stream, string $input_encoding = 'UTF-8', string $output_encoding = 'UTF-8'): mixed
+    {
+        self::register();
+
+        is_resource($stream) || throw new TypeError('Argument passed must be a stream resource, '.gettype($stream).' given.');
+        'stream' === ($type = get_resource_type($stream)) || throw new TypeError('Argument passed must be a stream resource, '.$type.' resource given');
+
+        $filtername = self::getFiltername($input_encoding, $output_encoding);
+
+        set_error_handler(fn (int $errno, string $errstr, string $errfile, int $errline) => true);
+        $filter = stream_filter_append($stream, $filtername);
+        restore_error_handler();
+
+        is_resource($filter) || throw new RuntimeException('Could not append the registered stream filter: '.$filtername);
+
+        return $filter;
+    }
+
+    /**
+     * @param resource $stream
+     *
+     * @throws TypeError
+     * @throws RuntimeException
+     *
+     * @return resource
+     */
+    public static function prependTo(mixed $stream, string $input_encoding = 'UTF-8', string $output_encoding = 'UTF-8'): mixed
+    {
+        self::register();
+
+        is_resource($stream) || throw new TypeError('Argument passed must be a stream resource, '.gettype($stream).' given.');
+        'stream' === ($type = get_resource_type($stream)) || throw new TypeError('Argument passed must be a stream resource, '.$type.' resource given');
+
+        $filtername = self::getFiltername($input_encoding, $output_encoding);
+
+        set_error_handler(fn (int $errno, string $errstr, string $errfile, int $errline) => true);
+        $filter = stream_filter_prepend($stream, $filtername);
+        restore_error_handler();
+
+        is_resource($filter) || throw new RuntimeException('Could not prepend the registered stream filter: '.$filtername);
+
+        return $filter;
     }
 
     /**
@@ -107,11 +160,8 @@ class CharsetConverter extends php_user_filter
         }
 
         $key = strtolower($encoding);
-        if (isset($encoding_list[$key])) {
-            return $encoding_list[$key];
-        }
 
-        throw new OutOfRangeException('The submitted charset '.$encoding.' is not supported by the mbstring extension.');
+        return $encoding_list[$key] ?? throw new OutOfRangeException('The submitted charset '.$encoding.' is not supported by the mbstring extension.');
     }
 
     public function onCreate(): bool

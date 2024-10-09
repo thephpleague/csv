@@ -39,7 +39,7 @@
         "phpstan/phpstan-phpunit": "^1.4.0",
         "phpstan/phpstan-strict-rules": "^1.6.1",
         "phpunit/phpunit": "^10.5.16 || ^11.4.0",
-        "symfony/var-dumper": "^6.4.6 || ^7.1.5"
+        "symfony/var-dumper": "^6.4.8 || ^7.1.5"
     },
     "autoload": {
         "psr-4": {

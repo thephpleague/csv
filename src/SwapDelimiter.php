@@ -14,6 +14,8 @@ declare(strict_types=1);
 namespace League\Csv;
 
 use php_user_filter;
+use RuntimeException;
+use TypeError;
 
 use function in_array;
 use function str_replace;
@@ -42,9 +44,7 @@ final class SwapDelimiter extends php_user_filter
      */
     public static function register(): void
     {
-        if (!in_array(self::FILTER_NAME, stream_get_filters(), true)) {
-            stream_filter_register(self::FILTER_NAME, self::class);
-        }
+        in_array(self::FILTER_NAME, stream_get_filters(), true) || stream_filter_register(self::FILTER_NAME, self::class);
     }
 
     /**
@@ -59,6 +59,63 @@ final class SwapDelimiter extends php_user_filter
             'separator' => $csv->getDelimiter(),
             'mode' => $csv instanceof Writer ? self::MODE_WRITE : self::MODE_READ,
         ]);
+    }
+
+    /**
+     * @param resource $stream
+     *
+     * @throws TypeError
+     * @throws RuntimeException
+     *
+     * @return resource
+     */
+    public static function appendTo(mixed $stream, string $inputDelimiter, string $delimiter): mixed
+    {
+        self::register();
+
+        is_resource($stream) || throw new TypeError('Argument passed must be a stream resource, '.gettype($stream).' given.');
+        'stream' === ($type = get_resource_type($stream)) || throw new TypeError('Argument passed must be a stream resource, '.$type.' resource given');
+
+        set_error_handler(fn (int $errno, string $errstr, string $errfile, int $errline) => true);
+        $filter = stream_filter_append($stream, self::getFiltername(), params: [
+            'mb_separator' => $inputDelimiter,
+            'separator' => $delimiter,
+            'mode' => str_contains(stream_get_meta_data($stream)['mode'], 'r') ? self::MODE_READ : self::MODE_WRITE,
+        ]);
+        restore_error_handler();
+
+        is_resource($filter) || throw new RuntimeException('Could not append the registered stream filter: '.self::getFiltername());
+
+        return $filter;
+    }
+
+    /**
+     * @param resource $stream
+     *
+     * @throws TypeError
+     * @throws RuntimeException
+     *
+     * @return resource
+     */
+    public static function prependTo(mixed $stream, string $inputDelimiter, string $delimiter): mixed
+    {
+        self::register();
+
+        is_resource($stream) || throw new TypeError('Argument passed must be a stream resource, '.gettype($stream).' given.');
+        'stream' === ($type = get_resource_type($stream)) || throw new TypeError('Argument passed must be a stream resource, '.$type.' resource given');
+
+        $filtername = self::getFiltername();
+        set_error_handler(fn (int $errno, string $errstr, string $errfile, int $errline) => true);
+        $filter = stream_filter_append($stream, $filtername, params: [
+            'mb_separator' => $inputDelimiter,
+            'separator' => $delimiter,
+            'mode' => str_contains(stream_get_meta_data($stream)['mode'], 'r') ? self::MODE_READ : self::MODE_WRITE,
+        ]);
+        restore_error_handler();
+
+        is_resource($filter) || throw new RuntimeException('Could not prepend the registered stream filter: '.$filtername);
+
+        return $filter;
     }
 
     public function onCreate(): bool
