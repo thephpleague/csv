@@ -416,7 +416,7 @@ final class JsonConverter
         $buffer = [];
         while ($records->valid()) {
             if ($incr === $this->chunkSize) {
-                yield $this->format($buffer, $offset).$separator;
+                yield $this->format($buffer, $offset - $incr).$separator;
 
                 $incr = 0;
                 $buffer = [];
@@ -429,9 +429,8 @@ final class JsonConverter
             $records->next();
         }
 
-        $last = $this->format($buffer, $offset);
-        if ('' !== $last) {
-            yield $last.$separator;
+        if ([] !== $buffer) {
+            yield $this->format($buffer, $offset - $incr).$separator;
         }
 
         yield $this->format([$current], $offset++).$end;
