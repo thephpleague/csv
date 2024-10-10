@@ -35,6 +35,7 @@ final class JsonConverterTest extends TestCase
 
         CharsetConverter::addTo($csv, 'iso-8859-15', 'utf-8');
         $converter = JsonConverter::create()
+            ->chunkSize(2)
             ->addFlags(JSON_PRETTY_PRINT, JSON_UNESCAPED_SLASHES, JSON_FORCE_OBJECT)
             ->removeFlags(JSON_FORCE_OBJECT)
             ->depth(24);

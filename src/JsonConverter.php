@@ -25,6 +25,7 @@ use SplFileObject;
 
 use function array_filter;
 use function array_reduce;
+use function array_values;
 use function get_defined_constants;
 use function is_resource;
 use function is_string;
@@ -44,7 +45,6 @@ use function ucwords;
 
 use const ARRAY_FILTER_USE_KEY;
 use const JSON_ERROR_NONE;
-use const JSON_FORCE_OBJECT;
 use const JSON_PRETTY_PRINT;
 use const JSON_THROW_ON_ERROR;
 
@@ -107,25 +107,37 @@ final class JsonConverter
     public readonly int $indentSize;
     /** @var Closure(T, array-key): mixed */
     public readonly Closure $formatter;
-    private readonly bool $isPrettyPrint;
-    private readonly bool $isForceObject;
-    /** @var non-empty-string */
-    private readonly string $indentation;
-    /** @var Closure(string, array-key): string */
-    private readonly Closure $internalFormatter;
     /** @var int<1, max> */
     public readonly int $chunkSize;
+    /** @var non-empty-string */
+    private readonly string $start;
+    /** @var non-empty-string */
+    private readonly string $end;
+    /** @var non-empty-string */
+    private readonly string $separator;
+    /** @var non-empty-string */
+    private readonly string $emptyIterable;
+    /** @var non-empty-string */
+    private readonly string $indentation;
+    /** @var Closure(array<int, T>): string */
+    private readonly Closure $jsonEncodeChunk;
 
     public static function create(): self
     {
-        return new self(flags: 0, depth: 512, indentSize: 4, formatter: null, chunkSize: 500);
+        return new self(
+            flags: 0,
+            depth: 512,
+            indentSize: 4,
+            formatter: fn (mixed $value, int|string $offset) => $value,
+            chunkSize: 500
+        );
     }
 
     /**
      * @param int<1, max> $depth
      * @param int<1, max> $indentSize
      */
-    private function __construct(int $flags, int $depth, int $indentSize, ?Closure $formatter, int $chunkSize)
+    private function __construct(int $flags, int $depth, int $indentSize, Closure $formatter, int $chunkSize)
     {
         json_encode([], $flags & ~JSON_THROW_ON_ERROR, $depth);
 
@@ -136,34 +148,77 @@ final class JsonConverter
         $this->flags = $flags;
         $this->depth = $depth;
         $this->indentSize = $indentSize;
-        $this->indentation = str_repeat(' ', $indentSize);
-        $this->formatter = $formatter ?? fn (mixed $value) => $value;
-        $this->isPrettyPrint = ($this->flags & JSON_PRETTY_PRINT) === JSON_PRETTY_PRINT;
-        $this->isForceObject = ($this->flags & JSON_FORCE_OBJECT) === JSON_FORCE_OBJECT;
-        $this->internalFormatter = $this->setInternalFormatter();
+        $this->formatter = $formatter;
         $this->chunkSize = $chunkSize;
+
+        // Initialize private properties used for conversion.
+        // To optimize the process, we pre-calculate properties
+        // and closure needed to speed up encoding
+        $this->indentation = str_repeat(' ', $this->indentSize);
+        $start = '[';
+        $end = ']';
+        $separator = ',';
+        $chunkFormatter = array_values(...);
+        $prettyPrintFormatter = fn (string $json): string => $json;
+        if ($this->useForceObject()) {
+            $start = '{';
+            $end = '}';
+            $chunkFormatter = fn (array $value): array => $value;
+        }
+
+        $this->emptyIterable = $start.$end;
+        if ($this->usePrettyPrint()) {
+            $start .= "\n";
+            $end = "\n".$end;
+            $separator .= "\n";
+            $prettyPrintFormatter = $this->prettyPrint(...);
+        }
+
+        $flags = ($this->flags & ~JSON_PRETTY_PRINT) | JSON_THROW_ON_ERROR;
+        $this->start = $start;
+        $this->end = $end;
+        $this->separator = $separator;
+        $this->jsonEncodeChunk = fn (array $chunk): string => ($prettyPrintFormatter)(substr(
+            string: json_encode(($chunkFormatter)($chunk), $flags, $this->depth), /* @phpstan-ignore-line */
+            offset: 1,
+            length: -1
+        ));
     }
 
     /**
-     * @return Closure(string, array-key): string
+     * Pretty Print the JSON string without using JSON_PRETTY_PRINT
+     * The method also allow using an arbitrary length for the indentation.
      */
-    private function setInternalFormatter(): Closure
+    private function prettyPrint(string $json): string
     {
-        $callback = match ($this->isForceObject) {
-            false => fn (string $json, int|string $offset): string => $json,
-            default => fn (string $json, int|string $offset): string => '"'.json_encode($offset).'":'.$json,
-        };
+        $level = 1;
+        $inQuotes = false;
+        $escape = false;
+        $length = strlen($json);
+        $str = $this->indentation;
+        for ($i = 0; $i < $length; $i++) {
+            $char = $json[$i];
+            if ('"' === $char && !$escape) {
+                $inQuotes = !$inQuotes;
+            }
 
-        return match ($this->isPrettyPrint) {
-            false => $callback,
-            default => fn (string $json, int|string $offset): string => $this->prettyPrint($callback($json, $offset)),
-        };
+            $escape = '\\' === $char && !$escape;
+            $str .= $inQuotes ? $char : match ($char) {
+                '{', '[' => $char."\n".str_repeat($this->indentation, ++$level),
+                '}', ']' =>  "\n".str_repeat($this->indentation, --$level).$char,
+                ',' => $char."\n".str_repeat($this->indentation, $level),
+                ':' => $char.' ',
+                default => $char,
+            };
+        }
+
+        return $str;
     }
 
     /**
      * @throws BadMethodCallException
      */
-    public function __call(string $name, array $arguments): mixed
+    public function __call(string $name, array $arguments): self|bool
     {
         return match (true) {
             str_starts_with($name, 'without') => $this->removeFlags(self::methodToFlag()[lcfirst(substr($name, 7))] ?? throw new BadMethodCallException('The method "'.self::class.'::'.$name.'" does not exist.')),
@@ -226,12 +281,8 @@ final class JsonConverter
     public function useFlags(int ...$flags): bool
     {
         foreach ($flags as $flag) {
-            // the flag is always used even if it is not set by the user
-            if (JSON_THROW_ON_ERROR === $flag) {
-                continue;
-            }
-
-            if (($this->flags & $flag) !== $flag) {
+            // the JSON_THROW_ON_ERROR flag is always used even if it is not set by the user
+            if (JSON_THROW_ON_ERROR !== $flag && ($this->flags & $flag) !== $flag) {
                 return false;
             }
         }
@@ -239,6 +290,9 @@ final class JsonConverter
         return [] !== $flags;
     }
 
+    /**
+     * Sets the encoding flags.
+     */
     private function setFlags(int $flags): self
     {
         return match ($flags) {
@@ -291,7 +345,43 @@ final class JsonConverter
      */
     public function formatter(?Closure $formatter): self
     {
+        $formatter ??= fn (mixed $value, int|string $offset) => $value;
+
         return new self($this->flags, $this->depth, $this->indentSize, $formatter, $this->chunkSize);
+    }
+
+    /**
+     * Sends and makes the JSON structure downloadable via HTTP.
+     *.
+     * Returns the number of characters read from the handle and passed through to the output.
+     *
+     * @param iterable<T> $records
+     *
+     * @throws Exception
+     * @throws JsonException
+     */
+    public function download(iterable $records, string $filename): int
+    {
+        HttpHeaders::forFileDownload($filename, 'application/json');
+
+        return $this->save($records, new SplFileObject('php://output', 'w'));
+    }
+
+    /**
+     * Returns the JSON representation of a tabular data collection.
+     *
+     * @param iterable<T> $records
+     *
+     * @throws Exception
+     * @throws JsonException
+     */
+    public function encode(iterable $records): string
+    {
+        $stream = Stream::createFromString();
+        $this->save($records, $stream);
+        $stream->rewind();
+
+        return (string) $stream->getContents();
     }
 
     /**
@@ -314,7 +404,7 @@ final class JsonConverter
      */
     public function save(iterable $records, mixed $destination, $context = null): int
     {
-        $stream = match(true) {
+        $stream = match (true) {
             $destination instanceof Stream,
             $destination instanceof SplFileObject => $destination,
             $destination instanceof SplFileInfo => $destination->openFile(mode:'w', context: $context),
@@ -339,40 +429,6 @@ final class JsonConverter
     }
 
     /**
-     * Returns the JSON representation of a tabular data collection.
-     *
-     * @param iterable<T> $records
-     *
-     * @throws Exception
-     * @throws JsonException
-     */
-    public function encode(iterable $records): string
-    {
-        $stream = Stream::createFromString();
-        $this->save($records, $stream);
-        $stream->rewind();
-
-        return (string) $stream->getContents();
-    }
-
-    /**
-     * Sends and makes the JSON structure downloadable via HTTP.
-     *.
-     * Returns the number of characters read from the handle and passed through to the output.
-     *
-     * @param iterable<T> $records
-     *
-     * @throws Exception
-     * @throws JsonException
-     */
-    public function download(iterable $records, string $filename): int
-    {
-        HttpHeaders::forFileDownload($filename, 'application/json');
-
-        return $this->save($records, new SplFileObject('php://output', 'w'));
-    }
-
-    /**
      * Returns an Iterator that you can iterate to generate the actual JSON string representation.
      *
      * @param iterable<T> $records
@@ -384,107 +440,40 @@ final class JsonConverter
      */
     public function convert(iterable $records): Iterator
     {
-        $start = '[';
-        $end = ']';
-        if ($this->isForceObject) {
-            $start = '{';
-            $end = '}';
-        }
-
-        $records = MapIterator::toIterator($records);
-        $records->rewind();
-        if (!$records->valid()) {
-            yield $start.$end;
+        $iterator = MapIterator::fromIterable($records, $this->formatter);
+        $iterator->rewind();
+        if (!$iterator->valid()) {
+            yield $this->emptyIterable;
 
             return;
         }
 
-        $separator = ',';
-        if ($this->isPrettyPrint) {
-            $start .= "\n";
-            $end = "\n".$end;
-            $separator .= "\n";
-        }
-
-        $offset = 0;
-        $current = $records->current();
-        $records->next();
-
-        yield $start;
-
         $incr = 0;
-        $buffer = [];
-        while ($records->valid()) {
+        $chunk = [];
+        $offset = 0;
+        $current = $iterator->current();
+        $iterator->next();
+
+        yield $this->start;
+
+        while ($iterator->valid()) {
             if ($incr === $this->chunkSize) {
-                yield $this->format($buffer, $offset).$separator;
+                yield ($this->jsonEncodeChunk)($chunk).$this->separator;
 
                 $incr = 0;
-                $buffer = [];
-            }
-            $incr++;
-            $buffer[] = $current;
-
-            $offset++;
-            $current = $records->current();
-            $records->next();
-        }
-
-        $last = $this->format($buffer, $offset);
-        if ('' !== $last) {
-            yield $last.$separator;
-        }
-
-        yield $this->format([$current], $offset++).$end;
-    }
-
-    /**
-     * @throws JsonException
-     */
-    private function format(array $value, int $offset): string
-    {
-        $data = [];
-        foreach ($value as $item) {
-            $data[] = ($this->formatter)($item, $offset);
-            ++$offset;
-        }
-
-        $json = json_encode(
-            value: $data,
-            flags: ($this->flags & ~JSON_PRETTY_PRINT) | JSON_THROW_ON_ERROR,
-            depth: $this->depth
-        );
-
-        return ($this->internalFormatter)(substr($json, 1, -1), $offset);
-    }
-
-    /**
-     * Pretty Print the JSON string without using JSON_PRETTY_PRINT
-     * The method also allow using an arbitrary length for the indentation.
-     */
-    private function prettyPrint(string $json): string
-    {
-        $level = 1;
-        $inQuotes = false;
-        $escape = false;
-        $length = strlen($json);
-
-        $str = $this->indentation;
-        for ($i = 0; $i < $length; $i++) {
-            $char = $json[$i];
-            if ('"' === $char && !$escape) {
-                $inQuotes = !$inQuotes;
+                $chunk = [];
             }
 
-            $escape = '\\' === $char && !$escape;
-            $str .= $inQuotes ? $char : match ($char) {
-                '{', '[' => $char."\n".str_repeat($this->indentation, ++$level),
-                '}', ']' =>  "\n".str_repeat($this->indentation, --$level).$char,
-                ',' => $char."\n".str_repeat($this->indentation, $level),
-                ':' => $char.' ',
-                default => $char,
-            };
+            ++$incr;
+            $chunk[++$offset] = $current;
+            $current = $iterator->current();
+            $iterator->next();
         }
 
-        return $str;
+        if ([] !== $chunk) {
+            yield ($this->jsonEncodeChunk)($chunk).$this->separator;
+        }
+
+        yield ($this->jsonEncodeChunk)([$offset => $current]).$this->end;
     }
 }
