@@ -66,6 +66,7 @@ final class JsonConverterTest extends TestCase
                 ->addFlags(0)
                 ->removeFlags(0)
                 ->depth(512)
+                ->chunkSize(500)
         );
     }
 
@@ -83,6 +84,14 @@ final class JsonConverterTest extends TestCase
         $this->expectException(InvalidArgumentException::class);
 
         JsonConverter::create()->indentSize(0); /* @phpstan-ignore-line */
+    }
+
+    #[Test]
+    public function it_fails_if_the_chunk_size_is_invalud(): void
+    {
+        $this->expectException(InvalidArgumentException::class);
+
+        JsonConverter::create()->chunkSize(0); /* @phpstan-ignore-line */
     }
 
     #[Test]

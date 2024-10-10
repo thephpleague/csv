@@ -2,6 +2,24 @@
 
 All Notable changes to `Csv` will be documented in this file
 
+## [Next](https://github.com/thephpleague/csv/compare/9.17.0...master) - TBD
+
+### Added
+
+- `League\Csv\JsonConverter::chunkSize`
+
+### Deprecated
+
+- None
+
+### Fixed
+
+- None
+
+### Remove
+
+- None
+
 ## [9.17.0](https://github.com/thephpleague/csv/compare/9.16.0...9.17.0) - 2024-10-10
 
 ### Added
