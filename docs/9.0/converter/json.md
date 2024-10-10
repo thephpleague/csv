@@ -110,6 +110,25 @@ structure. The resulting conversion may differ to what you expect. This callback
 specify how each item will be converted. The formatter should return a type that can be handled
 by PHP `json_encode` function.
 
+### Chunk Size
+
+<p class="message-notice">available since version <code>9.18.0</code></p>
+
+```php
+public JsonConverter::chunkSize(int $chunkSize): self
+```
+
+This method sets the number of rows to buffer before convert into JSON string. This allow
+for faster conversion while retaining the low memory usage. Of course, the default
+chunk size can vary for one scenario to another. The correct size is therefore
+left to the user discretion. By default, the value is `500`. The value can not
+be lower than one otherwise a exception will be thrown.
+
+```php
+$converter = JsonConverter::create()->chunkSize(1_000);
+$converter->chunkSize; //returns the value used
+```
+
 ## Conversion
 
 ```php

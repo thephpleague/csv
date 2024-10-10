@@ -113,22 +113,25 @@ final class JsonConverter
     private readonly string $indentation;
     /** @var Closure(string, array-key): string */
     private readonly Closure $internalFormatter;
+    /** @var int<1, max> */
+    public readonly int $chunkSize;
 
     public static function create(): self
     {
-        return new self(flags: 0, depth: 512, indentSize: 4, formatter: null);
+        return new self(flags: 0, depth: 512, indentSize: 4, formatter: null, chunkSize: 500);
     }
 
     /**
      * @param int<1, max> $depth
      * @param int<1, max> $indentSize
      */
-    private function __construct(int $flags, int $depth, int $indentSize, ?Closure $formatter)
+    private function __construct(int $flags, int $depth, int $indentSize, ?Closure $formatter, int $chunkSize)
     {
         json_encode([], $flags & ~JSON_THROW_ON_ERROR, $depth);
 
         JSON_ERROR_NONE === json_last_error() || throw new InvalidArgumentException('The flags or the depth given are not valid JSON encoding parameters in PHP; '.json_last_error_msg());
         1 <= $indentSize || throw new InvalidArgumentException('The indentation space must be greater or equal to 1.');
+        1 <= $chunkSize || throw new InvalidArgumentException('The chunk size must be greater or equal to 1.');
 
         $this->flags = $flags;
         $this->depth = $depth;
@@ -138,6 +141,7 @@ final class JsonConverter
         $this->isPrettyPrint = ($this->flags & JSON_PRETTY_PRINT) === JSON_PRETTY_PRINT;
         $this->isForceObject = ($this->flags & JSON_FORCE_OBJECT) === JSON_FORCE_OBJECT;
         $this->internalFormatter = $this->setInternalFormatter();
+        $this->chunkSize = $chunkSize;
     }
 
     /**
@@ -239,7 +243,7 @@ final class JsonConverter
     {
         return match ($flags) {
             $this->flags => $this,
-            default => new self($flags, $this->depth, $this->indentSize, $this->formatter),
+            default => new self($flags, $this->depth, $this->indentSize, $this->formatter, $this->chunkSize),
         };
     }
 
@@ -252,7 +256,7 @@ final class JsonConverter
     {
         return match ($depth) {
             $this->depth => $this,
-            default => new self($this->flags, $depth, $this->indentSize, $this->formatter),
+            default => new self($this->flags, $depth, $this->indentSize, $this->formatter, $this->chunkSize),
         };
     }
 
@@ -265,7 +269,20 @@ final class JsonConverter
     {
         return match ($indentSize) {
             $this->indentSize => $this,
-            default => new self($this->flags, $this->depth, $indentSize, $this->formatter),
+            default => new self($this->flags, $this->depth, $indentSize, $this->formatter, $this->chunkSize),
+        };
+    }
+
+    /**
+     * Set the indentation size.
+     *
+     * @param int<1, max> $chunkSize
+     */
+    public function chunkSize(int $chunkSize): self
+    {
+        return match ($chunkSize) {
+            $this->chunkSize => $this,
+            default => new self($this->flags, $this->depth, $this->indentSize, $this->formatter, $chunkSize),
         };
     }
 
@@ -274,7 +291,7 @@ final class JsonConverter
      */
     public function formatter(?Closure $formatter): self
     {
-        return new self($this->flags, $this->depth, $this->indentSize, $formatter);
+        return new self($this->flags, $this->depth, $this->indentSize, $formatter, $this->chunkSize);
     }
 
     /**
@@ -395,30 +412,49 @@ final class JsonConverter
 
         yield $start;
 
+        $incr = 0;
+        $buffer = [];
         while ($records->valid()) {
-            yield $this->format($current, $offset).$separator;
+            if ($incr === $this->chunkSize) {
+                yield $this->format($buffer, $offset).$separator;
+
+                $incr = 0;
+                $buffer = [];
+            }
+            $incr++;
+            $buffer[] = $current;
 
             $offset++;
             $current = $records->current();
             $records->next();
         }
 
-        yield $this->format($current, $offset).$end;
+        $last = $this->format($buffer, $offset);
+        if ('' !== $last) {
+            yield $last.$separator;
+        }
+
+        yield $this->format([$current], $offset++).$end;
     }
 
     /**
      * @throws JsonException
      */
-    private function format(mixed $value, int|string $offset): string
+    private function format(array $value, int $offset): string
     {
-        return ($this->internalFormatter)(
-            json_encode(
-                value: ($this->formatter)($value, $offset),
-                flags: ($this->flags & ~JSON_PRETTY_PRINT) | JSON_THROW_ON_ERROR,
-                depth: $this->depth
-            ),
-            $offset
+        $data = [];
+        foreach ($value as $item) {
+            $data[] = ($this->formatter)($item, $offset);
+            ++$offset;
+        }
+
+        $json = json_encode(
+            value: $data,
+            flags: ($this->flags & ~JSON_PRETTY_PRINT) | JSON_THROW_ON_ERROR,
+            depth: $this->depth
         );
+
+        return ($this->internalFormatter)(substr($json, 1, -1), $offset);
     }
 
     /**
