@@ -316,9 +316,7 @@ final class JsonConverter
         }
         restore_error_handler();
 
-        if (false === $writtenBytes) {
-            throw new RuntimeException('Unable to write to the stream.');
-        }
+        false !== $writtenBytes || throw new RuntimeException('Unable to write '.(isset($line) ? '`'.$line.'`' : '').' to the destination path.');
 
         return $bytes;
     }
