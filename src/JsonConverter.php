@@ -25,7 +25,6 @@ use SplFileObject;
 
 use function array_filter;
 use function array_reduce;
-use function array_values;
 use function get_defined_constants;
 use function is_resource;
 use function is_string;
@@ -136,12 +135,16 @@ final class JsonConverter
     /**
      * @param int<1, max> $depth
      * @param int<1, max> $indentSize
+     * @param Closure(T, array-key): mixed $formatter
+     * @param int<1, max> $chunkSize
+     *
+     * @throws InvalidArgumentException
      */
     private function __construct(int $flags, int $depth, int $indentSize, Closure $formatter, int $chunkSize)
     {
         json_encode([], $flags & ~JSON_THROW_ON_ERROR, $depth);
 
-        JSON_ERROR_NONE === json_last_error() || throw new InvalidArgumentException('The flags or the depth given are not valid JSON encoding parameters in PHP; '.json_last_error_msg());
+        JSON_ERROR_NONE === ($errorCode = json_last_error()) || throw new InvalidArgumentException('The flags or the depth given are not valid JSON encoding parameters in PHP; '.json_last_error_msg(), $errorCode);
         1 <= $indentSize || throw new InvalidArgumentException('The indentation space must be greater or equal to 1.');
         1 <= $chunkSize || throw new InvalidArgumentException('The chunk size must be greater or equal to 1.');
 
@@ -221,9 +224,9 @@ final class JsonConverter
     public function __call(string $name, array $arguments): self|bool
     {
         return match (true) {
-            str_starts_with($name, 'without') => $this->removeFlags(self::methodToFlag()[lcfirst(substr($name, 7))] ?? throw new BadMethodCallException('The method "'.self::class.'::'.$name.'" does not exist.')),
-            str_starts_with($name, 'with') => $this->addFlags(self::methodToFlag()[lcfirst(substr($name, 4))] ?? throw new BadMethodCallException('The method "'.self::class.'::'.$name.'" does not exist.')),
-            str_starts_with($name, 'use') => $this->useFlags(self::methodToFlag()[lcfirst(substr($name, 3))] ?? throw new BadMethodCallException('The method "'.self::class.'::'.$name.'" does not exist.')),
+            str_starts_with($name, 'without') => $this->removeFlags(self::suffixToFlag()[lcfirst(substr($name, 7))] ?? throw new BadMethodCallException('The method "'.self::class.'::'.$name.'" does not exist.')),
+            str_starts_with($name, 'with') => $this->addFlags(self::suffixToFlag()[lcfirst(substr($name, 4))] ?? throw new BadMethodCallException('The method "'.self::class.'::'.$name.'" does not exist.')),
+            str_starts_with($name, 'use') => $this->useFlags(self::suffixToFlag()[lcfirst(substr($name, 3))] ?? throw new BadMethodCallException('The method "'.self::class.'::'.$name.'" does not exist.')),
             default => throw new BadMethodCallException('The method "'.self::class.'::'.$name.'" does not exist.'),
         };
     }
@@ -233,12 +236,12 @@ final class JsonConverter
      *
      * @return array<string, int>
      */
-    private static function methodToFlag(): array
+    private static function suffixToFlag(): array
     {
-        static $methods;
+        static $suffix2Flag;
 
-        if (null === $methods) {
-            $methods = [];
+        if (null === $suffix2Flag) {
+            $suffix2Flag = [];
             /** @var array<string, int> $jsonFlags */
             $jsonFlags = get_defined_constants(true)['json'];
             $jsonEncodeFlags = array_filter(
@@ -248,11 +251,11 @@ final class JsonConverter
             );
 
             foreach ($jsonEncodeFlags as $name => $value) {
-                $methods[lcfirst(str_replace('_', '', ucwords(strtolower(substr($name, 5)), '_')))] = $value;
+                $suffix2Flag[lcfirst(str_replace('_', '', ucwords(strtolower(substr($name, 5)), '_')))] = $value;
             }
         }
 
-        return $methods;
+        return $suffix2Flag;
     }
 
     /**
