@@ -154,9 +154,8 @@ final class JsonConverter
         $this->formatter = $formatter;
         $this->chunkSize = $chunkSize;
 
-        // Initialize private properties used for conversion.
-        // To optimize the process, we pre-calculate properties
-        // and closure needed to speed up encoding
+        // Initialize settings and closure to use for conversion.
+        // To speed up the process we pre-calculate them
         $this->indentation = str_repeat(' ', $this->indentSize);
         $start = '[';
         $end = ']';
