@@ -58,11 +58,10 @@ $enclosure = $csv->getEnclosure(); //returns "|"
 This is a PHP specific control character which sometimes interferes with CSV parsing and writing.
 It is recommended in versions preceding `9.2.0` to never change its default value unless you do understand its usage and its consequences.
 
-<p class="message-warning">Starting with version <code>PHP8.4</code> using this method with
-anything other than the empty string will trigger a <code>PHP deprecation notice!</code>
+<p class="message-warning">Starting with version <code>PHP7.4</code> it is recommended to use the library
+with the escape parameter equal to the empty string.
 see <a href="https://wiki.php.net/rfc/deprecations_php_8_4#deprecate_proprietary_csv_escaping_mechanism">Deprecation for PHP8.4</a> and
-<a href="https://nyamsprod.com/blog/csv-and-php8-4/">CSV and PHP8.4</a> for more information.
-</p>
+<a href="https://nyamsprod.com/blog/csv-and-php8-4/">CSV and PHP8.4</a> for more information.</p>
 
 ### Description
 

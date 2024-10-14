@@ -52,7 +52,7 @@ composer require league/csv:^9.0
 ## Configuration
 
 > [!WARNING]
-> **Starting with PHP8.4 Deprecation notices will be trigger if you do not explicitly use the empty string as the escape parameter.**
+> **Starting with PHP8.4 Deprecation notices will be trigger if you do not explicitly set the escape parameter.**
 > see [Deprecation for PHP8.4](https://wiki.php.net/rfc/deprecations_php_8_4#deprecate_proprietary_csv_escaping_mechanism) and [CSV and PHP8.4](https://nyamsprod.com/blog/csv-and-php8-4/)
 
 > [!TIP]
