@@ -216,7 +216,36 @@ If you provide a string or a `SplFileInfo` instance:
 
 ## Download
 
-To download the generated JSON on the fly you can use the `JsonConverter::download` method:
+<p class="message-warning">If you are using the package inside a framework please use the framework recommended way instead of the describe mechanism hereafter.</p>
+
+To download the generated JSON you can use the `JsonConverter::download` method. The method returns
+the total number of bytes sent just like the `JsonConverter::save` method and enable downloading the JSON on the fly.
+
+### General purpose
+
+```php
+use League\Csv\Reader;
+use League\Csv\JsonConverter;
+
+$reader = Reader::createFromPath('file.csv');
+$reader->setHeaderOffset(0);
+
+header('Cache-Control: no-cache, no-store, must-revalidate');
+header('Pragma: no-cache');
+header('Expires: 0');
+header('Content-Type: application/json; charset=UTF-8');
+header('Content-Description: File Transfer');
+header('Content-Disposition: attachment; filename="name-for-your-file.json"');
+
+JsonConverter::create()->download($reader);
+die;
+```
+
+In this scenario, you have to specify all the headers for the file to be downloaded.
+
+### Using a filename
+
+If you want to reduce the number of headers to write you can specify the downloaded filename.
 
 ```php
 use League\Csv\Reader;
@@ -233,6 +262,4 @@ JsonConverter::create()->download($reader, 'generated_file.json');
 die;
 ```
 
-<p class="message-info">the <code>download</code> method returns the total number of bytes sent like the <code>save</code> method.</p>
-<p class="message-info">If you are using the package inside a framework please use the framework recommended way instead of the <code>download</code> method.</p>
 <p class="message-notice">The caching headers are given as an example for using additional headers, it is up to the user to decide if those headers are needed or not.</p>

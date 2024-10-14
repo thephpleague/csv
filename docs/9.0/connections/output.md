@@ -66,10 +66,12 @@ echo $csv->getContent();
 
 ## Downloading the document
 
+<p class="message-warning">starting with version <code>9.18.0</code>, the <code>download</code> method replaces the <code>output</code> method which is deprecated.</p>
+
 To make your CSV document downloadable use the `output` method to force the use of the output buffer on the CSV content.
 
 ```php
-public AbstractCsv::output(string $filename = null): int
+public AbstractCsv::download(?string $filename = null): int
 ```
 
 The method returns the number of characters read from the handle and passed through to the output.
@@ -86,7 +88,7 @@ header('Content-Description: File Transfer');
 header('Content-Disposition: attachment; filename="name-for-your-file.csv"');
 
 $reader = Reader::createFromPath('/path/to/my/file.csv', 'r');
-$reader->output();
+$reader->download();
 die;
 ```
 
@@ -96,13 +98,11 @@ die;
 use League\Csv\Reader;
 
 $reader = Reader::createFromPath('file.csv');
-$reader->output('name-for-your-file.csv');
+$reader->download('name-for-your-file.csv');
 die;
 ```
 
 <p class="message-notice">If you just need to make the CSV downloadable, end your script with a call to <code>die</code> just after the <code>output</code> method. You <strong>should not</strong> return the method returned value.</p>
-
-<p class="message-warning">starting with version <code>9.1.0</code>, the <code>output</code> method will throw an <code>Exception</code> if the provided <code>$filename</code> does not comply with <a href="https://tools.ietf.org/html/rfc6266#section-4">RFC6266</a></p>
 
 ## Outputting the document into chunks
 

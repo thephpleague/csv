@@ -69,13 +69,15 @@ class XMLConverter
      *
      * @throws Exception
      */
-    public function download(iterable $records, string $filename, string $encoding = 'utf-8', bool $formatOutput = false): int|false
+    public function download(iterable $records, ?string $filename = null, string $encoding = 'utf-8', bool $formatOutput = false): int|false
     {
         $document = $this->convert($records);
         $document->encoding = $encoding;
         $document->formatOutput = $formatOutput;
 
-        HttpHeaders::forFileDownload($filename, 'application/xml');
+        if (null !== $filename) {
+            HttpHeaders::forFileDownload($filename, 'application/xml; charset='.strtolower($encoding));
+        }
 
         return $document->save('php://output');
     }

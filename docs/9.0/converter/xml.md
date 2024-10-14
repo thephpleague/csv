@@ -181,6 +181,37 @@ echo htmlentities($dom->saveXML());
 
 ## Download
 
+<p class="message-warning">If you are using the package inside a framework please use the framework recommended way instead of the describe mechanism hereafter.</p>
+
+To download the generated JSON you can use the `XMLConverter::download` method. The method returns
+the total number of bytes sent just like the `XMLConverter::save` method and enable downloading the XML on the fly.
+
+### General purpose
+
+<p class="message-info">new in version <code>9.18.0</code></p>
+
+```php
+use League\Csv\Reader;
+use League\Csv\JsonConverter;
+
+$reader = Reader::createFromPath('file.csv');
+$reader->setHeaderOffset(0);
+
+header('Cache-Control: no-cache, no-store, must-revalidate');
+header('Pragma: no-cache');
+header('Expires: 0');
+header('Content-Type: text/xml; charset=UTF-8');
+header('Content-Description: File Transfer');
+header('Content-Disposition: attachment; filename="name-for-your-file.xml"');
+
+XMLConverter::create()->download($reader);
+die;
+```
+
+In this scenario, you have to specify all the headers for the file to be downloaded.
+
+### Using a filename
+
 <p class="message-info">new in version <code>9.17.0</code></p>
 
 To download the generated XML on the fly you can use the `XMLConverter::download` method:
@@ -196,12 +227,10 @@ header('Cache-Control: no-cache, no-store, must-revalidate');
 header('Pragma: no-cache');
 header('Expires: 0');
  //the filename will be the name of the downloaded xml as shown by your HTTP client!
-XMLConverter::create()->download($reader, 'generated_file.xml');
+XMLConverter::create()->download($reader, 'name-for-your-file.xml');
 die;
 ```
 
-<p class="message-info">the <code>download</code> method returns the total number of bytes sent.</p>
-<p class="message-info">If you are using the package inside a framework please use the framework recommended way instead of the <code>download</code> method.</p>
 <p class="message-notice">The caching headers are given as an example for using additional headers, it is up to the user to decide if those headers are needed or not.</p>
 
 By default, the method will set the encoding to `utf-8` and will not format the XML. You can set those values using
@@ -217,7 +246,12 @@ $reader->setHeaderOffset(0);
 header('Cache-Control: no-cache, no-store, must-revalidate');
 header('Pragma: no-cache');
 header('Expires: 0');
-XMLConverter::create()->download($reader, 'generated_file.xml', encoding: 'iso-8859-1', formatOutput: true);
+XMLConverter::create()->download(
+    records: $reader,
+    filename: 'generated_file.xml',
+    encoding: 'iso-8859-1',
+    formatOutput: true,
+);
 die;
 ```
 

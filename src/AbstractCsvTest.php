@@ -13,6 +13,7 @@ declare(strict_types=1);
 
 namespace League\Csv;
 
+use InvalidArgumentException;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
@@ -110,16 +111,16 @@ EOF;
     public function testOutputSize(): void
     {
         ob_start();
-        $length = $this->csv->output('test.csv');
+        $length = $this->csv->download('test.csv');
         ob_end_clean();
         self::assertSame(60, $length);
     }
 
     public function testInvalidOutputFile(): void
     {
-        $this->expectException(InvalidArgument::class);
+        $this->expectException(InvalidArgumentException::class);
 
-        $this->csv->output('invalid/file.csv');
+        $this->csv->download('invalid/file.csv');
     }
 
     public function testOutputHeaders(): void
@@ -131,7 +132,7 @@ EOF;
         $raw_csv = Bom::Utf8->value."john,doe,john.doe@example.com\njane,doe,jane.doe@example.com\n";
         $csv = Reader::createFromString($raw_csv);
         ob_start();
-        $csv->output('tést.csv');
+        $csv->download('tést.csv');
         ob_end_clean();
         $headers = xdebug_get_headers();
 
@@ -457,7 +458,7 @@ EOF;
         $csv->setOutputBOM(Bom::Utf16Be->value);
 
         ob_start();
-        $csv->output();
+        $csv->download();
         /** @var string $result */
         $result = ob_get_clean();
 
@@ -473,7 +474,7 @@ EOF;
         $csv->includeInputBOM();
 
         ob_start();
-        $csv->output();
+        $csv->download();
         /** @var string $result */
         $result = ob_get_clean();
 

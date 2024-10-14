@@ -242,16 +242,12 @@ abstract class AbstractCsv implements ByteSequence
      *
      * Returns the number of characters read from the handle and passed through to the output.
      *
-     * @throws Exception
+     * @throws InvalidArgumentException|Exception
      */
-    public function output(?string $filename = null): int
+    public function download(?string $filename = null): int
     {
         if (null !== $filename) {
-            try {
-                HttpHeaders::forFileDownload($filename, 'text/csv');
-            } catch (InvalidArgumentException $exception) {
-                throw new InvalidArgument($exception->getMessage());
-            }
+            HttpHeaders::forFileDownload($filename, 'text/csv');
         }
 
         $this->document->rewind();
@@ -262,7 +258,6 @@ abstract class AbstractCsv implements ByteSequence
 
         $stream = Stream::createFromString($this->getOutputBOM());
         $stream->rewind();
-
         $res1 = $stream->fpassthru();
         if (false === $res1) {
             throw new RuntimeException('Unable to output the document.');
@@ -491,5 +486,27 @@ abstract class AbstractCsv implements ByteSequence
         header('Content-Transfer-Encoding: binary');
         header('Content-Description: File Transfer');
         header('Content-Disposition: '.$disposition);
+    }
+
+    /**
+     * DEPRECATION WARNING! This method will be removed in the next major point release.
+     *
+     * @codeCoverageIgnore
+     * @deprecated since version 9.18.0
+     * @see AbstractCsv::download()
+     *
+     * Outputs all data on the CSV file.
+     *
+     * Returns the number of characters read from the handle and passed through to the output.
+     *
+     * @throws Exception
+     */
+    public function output(?string $filename = null): int
+    {
+        try {
+            return $this->download($filename);
+        } catch (InvalidArgumentException $exception) {
+            throw new InvalidArgument($exception->getMessage());
+        }
     }
 }

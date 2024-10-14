@@ -363,9 +363,11 @@ final class JsonConverter
      * @throws Exception
      * @throws JsonException
      */
-    public function download(iterable $records, string $filename): int
+    public function download(iterable $records, ?string $filename = null): int
     {
-        HttpHeaders::forFileDownload($filename, 'application/json');
+        if (null !== $filename) {
+            HttpHeaders::forFileDownload($filename, 'application/json; charset=utf-8');
+        }
 
         return $this->save($records, new SplFileObject('php://output', 'w'));
     }

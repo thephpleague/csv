@@ -7,14 +7,16 @@ All Notable changes to `Csv` will be documented in this file
 ### Added
 
 - `League\Csv\JsonConverter::chunkSize`
+- `League\Csv\AbstractCsv::download`
 
 ### Deprecated
 
-- None
+- `League\Csv\AbstractCsv::output` use `League\Csv\AbstractCsv::download` instead
 
 ### Fixed
 
-- None
+- `League\Csv\JsonConverter::download` the filename is now nullable
+- `League\Csv\XMLConverter::download` the filename is now nullable
 
 ### Remove
 
