@@ -22,6 +22,7 @@ use JsonException;
 use RuntimeException;
 use SplFileInfo;
 use SplFileObject;
+use TypeError;
 
 use function array_filter;
 use function array_reduce;
@@ -30,7 +31,6 @@ use function is_resource;
 use function is_string;
 use function json_encode;
 use function json_last_error;
-use function lcfirst;
 use function preg_match;
 use function restore_error_handler;
 use function set_error_handler;
@@ -104,8 +104,8 @@ final class JsonConverter
     public readonly int $depth;
     /** @var int<1, max> */
     public readonly int $indentSize;
-    /** @var Closure(T, array-key): mixed */
-    public readonly Closure $formatter;
+    /** @var ?Closure(T, array-key): mixed */
+    public readonly ?Closure $formatter;
     /** @var int<1, max> */
     public readonly int $chunkSize;
     /** @var non-empty-string */
@@ -127,7 +127,7 @@ final class JsonConverter
             flags: 0,
             depth: 512,
             indentSize: 4,
-            formatter: fn (mixed $value, int|string $offset) => $value,
+            formatter: null,
             chunkSize: 500
         );
     }
@@ -135,12 +135,12 @@ final class JsonConverter
     /**
      * @param int<1, max> $depth
      * @param int<1, max> $indentSize
-     * @param Closure(T, array-key): mixed $formatter
+     * @param ?Closure(T, array-key): mixed $formatter
      * @param int<1, max> $chunkSize
      *
      * @throws InvalidArgumentException
      */
-    private function __construct(int $flags, int $depth, int $indentSize, Closure $formatter, int $chunkSize)
+    private function __construct(int $flags, int $depth, int $indentSize, ?Closure $formatter, int $chunkSize)
     {
         json_encode([], $flags & ~JSON_THROW_ON_ERROR, $depth);
 
@@ -223,19 +223,17 @@ final class JsonConverter
     public function __call(string $name, array $arguments): self|bool
     {
         return match (true) {
-            str_starts_with($name, 'without') => $this->removeFlags(self::suffixToFlag()[lcfirst(substr($name, 7))] ?? throw new BadMethodCallException('The method "'.self::class.'::'.$name.'" does not exist.')),
-            str_starts_with($name, 'with') => $this->addFlags(self::suffixToFlag()[lcfirst(substr($name, 4))] ?? throw new BadMethodCallException('The method "'.self::class.'::'.$name.'" does not exist.')),
-            str_starts_with($name, 'use') => $this->useFlags(self::suffixToFlag()[lcfirst(substr($name, 3))] ?? throw new BadMethodCallException('The method "'.self::class.'::'.$name.'" does not exist.')),
+            str_starts_with($name, 'without') => $this->removeFlags(self::methodToFlag($name, 7)),
+            str_starts_with($name, 'with') => $this->addFlags(self::methodToFlag($name, 4)),
+            str_starts_with($name, 'use') => $this->useFlags(self::methodToFlag($name, 3)),
             default => throw new BadMethodCallException('The method "'.self::class.'::'.$name.'" does not exist.'),
         };
     }
 
     /**
      * Returns the PHP json flag associated to its method suffix to ease method lookup.
-     *
-     * @return array<string, int>
      */
-    private static function suffixToFlag(): array
+    private static function methodToFlag(string $method, int $prefixSize): int
     {
         static $suffix2Flag;
 
@@ -250,11 +248,12 @@ final class JsonConverter
             );
 
             foreach ($jsonEncodeFlags as $name => $value) {
-                $suffix2Flag[lcfirst(str_replace('_', '', ucwords(strtolower(substr($name, 5)), '_')))] = $value;
+                $suffix2Flag[str_replace('_', '', ucwords(strtolower(substr($name, 5)), '_'))] = $value;
             }
         }
 
-        return $suffix2Flag;
+        return $suffix2Flag[substr($method, $prefixSize)]
+            ?? throw new BadMethodCallException('The method "'.self::class.'::'.$method.'" does not exist.');
     }
 
     /**
@@ -347,8 +346,6 @@ final class JsonConverter
      */
     public function formatter(?Closure $formatter): self
     {
-        $formatter ??= fn (mixed $value, int|string $offset) => $value;
-
         return new self($this->flags, $this->depth, $this->indentSize, $formatter, $this->chunkSize);
     }
 
@@ -401,10 +398,10 @@ final class JsonConverter
      * @param SplFileInfo|SplFileObject|Stream|resource|string $destination
      * @param resource|null $context
      *
-     * @throws UnavailableStream
-     * @throws InvalidArgumentException
      * @throws JsonException
      * @throws RuntimeException
+     * @throws TypeError
+     * @throws UnavailableStream
      */
     public function save(iterable $records, mixed $destination, $context = null): int
     {
@@ -414,7 +411,7 @@ final class JsonConverter
             $destination instanceof SplFileInfo => $destination->openFile(mode:'w', context: $context),
             is_resource($destination) => Stream::createFromResource($destination),
             is_string($destination) => Stream::createFromPath($destination, 'w', $context),
-            default => throw new InvalidArgumentException('The destination path must be a filename, a stream or a SplFileInfo object.'),
+            default => throw new TypeError('The destination path must be a filename, a stream or a SplFileInfo object.'),
         };
         $bytes = 0;
         $writtenBytes = 0;
@@ -427,7 +424,7 @@ final class JsonConverter
         }
         restore_error_handler();
 
-        false !== $writtenBytes || throw new RuntimeException('Unable to write '.(isset($line) ? '`'.$line.'`' : '').' to the destination path.');
+        false !== $writtenBytes || throw new RuntimeException('Unable to write '.(isset($line) ? '`'.$line.'`' : '').' to the destination path `'.$stream->getPathname().'`.');
 
         return $bytes;
     }
@@ -444,7 +441,11 @@ final class JsonConverter
      */
     public function convert(iterable $records): Iterator
     {
-        $iterator = MapIterator::fromIterable($records, $this->formatter);
+        $iterator = match ($this->formatter) {
+            null => MapIterator::toIterator($records),
+            default => MapIterator::fromIterable($records, $this->formatter)
+        };
+
         $iterator->rewind();
         if (!$iterator->valid()) {
             yield $this->emptyIterable;
@@ -452,8 +453,8 @@ final class JsonConverter
             return;
         }
 
-        $incr = 0;
         $chunk = [];
+        $chunkOffset = 0;
         $offset = 0;
         $current = $iterator->current();
         $iterator->next();
@@ -461,15 +462,16 @@ final class JsonConverter
         yield $this->start;
 
         while ($iterator->valid()) {
-            if ($incr === $this->chunkSize) {
+            if ($chunkOffset === $this->chunkSize) {
                 yield ($this->jsonEncodeChunk)($chunk).$this->separator;
 
-                $incr = 0;
+                $chunkOffset = 0;
                 $chunk = [];
             }
 
-            ++$incr;
-            $chunk[++$offset] = $current;
+            $chunk[$offset] = $current;
+            ++$chunkOffset;
+            ++$offset;
             $current = $iterator->current();
             $iterator->next();
         }

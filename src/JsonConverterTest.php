@@ -13,10 +13,13 @@ declare(strict_types=1);
 
 namespace League\Csv;
 
+use DateTimeImmutable;
 use InvalidArgumentException;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
+use RuntimeException;
+use TypeError;
 
 use const JSON_FORCE_OBJECT;
 use const JSON_HEX_QUOT;
@@ -140,7 +143,8 @@ final class JsonConverterTest extends TestCase
         self::assertEquals($usingJsonFlags, $usingMethodFlags);
     }
 
-    public function testDownload(): void
+    #[Test]
+    public function it_can_make_the_generated_json_downloadable_ont_the_fly(): void
     {
         if (!function_exists('xdebug_get_headers')) {
             self::markTestSkipped(__METHOD__.' needs the xdebug extension to run');
@@ -158,5 +162,24 @@ final class JsonConverterTest extends TestCase
         self::assertSame('content-description: File Transfer', $headers[2]);
         self::assertStringContainsString('content-disposition: attachment; filename="foobar.json"', $headers[3]);
         self::assertSame('[{"foo":"bar"}]', $output);
+    }
+
+    #[Test]
+    public function it_fails_if_the_destination_path_type_is_invalid(): void
+    {
+        $this->expectException(TypeError::class);
+
+        JsonConverter::create()->save([['foo' => 'bar']], new DateTimeImmutable()); /* @phpstan-ignore-line */
+    }
+
+    #[Test]
+    public function it_fails_to_write_to_the_destination_path_if_it_is_open_in_read_mode_only(): void
+    {
+        $this->expectExceptionObject(new RuntimeException('Unable to write `[` to the destination path `'.__FILE__.'`.'));
+
+        /** @var resource $stream */
+        $stream = fopen(__FILE__, 'r');
+
+        JsonConverter::create()->save([['foo' => 'bar']], $stream);
     }
 }

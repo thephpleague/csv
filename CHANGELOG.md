@@ -17,6 +17,7 @@ All Notable changes to `Csv` will be documented in this file
 
 - `League\Csv\JsonConverter::download` the filename is now nullable
 - `League\Csv\XMLConverter::download` the filename is now nullable
+- `League\Csv\JsonConverter::save` throws a `TypeError` exception if the `$destination` type is not supported.
 
 ### Remove
 
