@@ -259,17 +259,42 @@ class ResultSet implements TabularDataReader, JsonSerializable
         return new self(new MapIterator($this, $callback), $hasHeader ? $header : []);
     }
 
+    /**
+     * EXPERIMENTAL WARNING! This method implementation will change in the next major point release.
+     *
+     * Extract all found fragment identifiers for the specifield tabular data
+     *
+     * @experimental since version 9.12.0
+     *
+     * @throws SyntaxError
+     * @return iterable<int, TabularDataReader>
+     */
     public function matching(string $expression): iterable
     {
         return FragmentFinder::create()->findAll($expression, $this);
     }
 
+    /**
+     * EXPERIMENTAL WARNING! This method implementation will change in the next major point release.
+     *
+     * Extract the first found fragment identifier of the tabular data or returns null
+     *
+     * @experimental since version 9.12.0
+     *
+     * @throws SyntaxError
+     */
     public function matchingFirst(string $expression): ?TabularDataReader
     {
         return FragmentFinder::create()->findFirst($expression, $this);
     }
 
     /**
+     * EXPERIMENTAL WARNING! This method implementation will change in the next major point release.
+     *
+     * Extract the first found fragment identifier of the tabular data or fail
+     *
+     * @experimental since version 9.12.0
+     *
      * @throws SyntaxError
      * @throws FragmentNotFound
      */

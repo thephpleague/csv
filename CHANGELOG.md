@@ -2,7 +2,7 @@
 
 All Notable changes to `Csv` will be documented in this file
 
-## [Next](https://github.com/thephpleague/csv/compare/9.17.0...master) - TBD
+## [9.18.0](https://github.com/thephpleague/csv/compare/9.17.0...9.18.0) - 2024-10-18
 
 ### Added
 
@@ -12,6 +12,7 @@ All Notable changes to `Csv` will be documented in this file
 ### Deprecated
 
 - `League\Csv\AbstractCsv::output` use `League\Csv\AbstractCsv::download` instead
+- `League\Csv\FragmentFinder` and derived methods are marked as **experimental** as their results will be changed in the next major version.
 
 ### Fixed
 

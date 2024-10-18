@@ -25,7 +25,11 @@ use function range;
 use const FILTER_VALIDATE_INT;
 
 /**
+ * EXPERIMENTAL WARNING! This class implementation will change in the next major point release.
+ *
  * @phpstan-type selection array{selection:string, start:int<-1, max>, end:?int, length:int, columns:array<int>}
+ *
+ * @experimental
  */
 class FragmentFinder
 {
@@ -42,8 +46,13 @@ class FragmentFinder
     }
 
     /**
-     * @throws SyntaxError
+     * EXPERIMENTAL WARNING! This method implementation will change in the next major point release.
      *
+     * Extract all found fragment identifiers for the specifield tabular data
+     *
+     * @experimental since version 9.12.0
+     *
+     * @throws SyntaxError
      * @return iterable<int, TabularDataReader>
      */
     public function findAll(string $expression, TabularDataReader $tabularDataReader): iterable
@@ -52,6 +61,12 @@ class FragmentFinder
     }
 
     /**
+     * EXPERIMENTAL WARNING! This method implementation will change in the next major point release.
+     *
+     * Extract the first found fragment identifier of the tabular data or returns null
+     *
+     * @experimental since version 9.12.0
+     *
      * @throws SyntaxError
      */
     public function findFirst(string $expression, TabularDataReader $tabularDataReader): ?TabularDataReader
@@ -65,6 +80,12 @@ class FragmentFinder
     }
 
     /**
+     * EXPERIMENTAL WARNING! This method implementation will change in the next major point release.
+     *
+     * Extract the first found fragment identifier of the tabular data or fail
+     *
+     * @experimental since version 9.12.0
+     *
      * @throws SyntaxError
      * @throws FragmentNotFound if the expression can not be parsed
      */

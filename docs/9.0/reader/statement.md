@@ -409,6 +409,10 @@ documents or `TabularDataReader` instances if needed.
 ## FragmentFinder
 
 <p class="message-info">This mechanism is introduced with version <code>9.12.0</code>.</p>
+<p class="message-warning">This implementation is marked as experimetal since version <code>9.12.0</code>.
+The public API is stable but the implementation and returned value will change in the next version to
+take into account edge cases and improve error and selection handling. It is recommended to avoid using
+the current implementation <strong>or</strong> restrict its usage for simple selection in version 9.</p>
 
 The second mechanism is based on [RFC7111](https://www.rfc-editor.org/rfc/rfc7111) and allow selecting
 part of your document according to its rows, columns or cells coordinates. The RFC, and thus, our class
