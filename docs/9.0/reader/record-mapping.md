@@ -5,6 +5,10 @@ title: Denormalize a Tabular Data record into an object
 
 # Record to object conversion
 
+<p class="message-warning">This feature intentionally does not support PHP8,4+ property hooks and
+asymetric visibility. If your object uses those features you are better off using a fully fledge
+denormalizing tool specific to PHP. You may found a much better fit on <a href="https://packagist.org/">packagist.org</a>.</p>
+
 <p class="message-notice">New in version <code>9.12.0</code></p>
 
 If you are working with a class which implements the `TabularDataReader` interface you can now deserialize
