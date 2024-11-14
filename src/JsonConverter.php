@@ -365,7 +365,7 @@ final class JsonConverter
             HttpHeaders::forFileDownload($filename, 'application/json; charset=utf-8');
         }
 
-        return $this->save($records, new SplFileObject('php://output', 'w'));
+        return $this->save($records, new SplFileObject('php://output', 'wb'));
     }
 
     /**
@@ -408,9 +408,9 @@ final class JsonConverter
         $stream = match (true) {
             $destination instanceof Stream,
             $destination instanceof SplFileObject => $destination,
-            $destination instanceof SplFileInfo => $destination->openFile(mode:'w', context: $context),
+            $destination instanceof SplFileInfo => $destination->openFile(mode:'wb', context: $context),
             is_resource($destination) => Stream::createFromResource($destination),
-            is_string($destination) => Stream::createFromPath($destination, 'w', $context),
+            is_string($destination) => Stream::createFromPath($destination, 'wb', $context),
             default => throw new TypeError('The destination path must be a filename, a stream or a SplFileInfo object.'),
         };
         $bytes = 0;
