@@ -72,8 +72,6 @@ use const JSON_THROW_ON_ERROR;
  * @method JsonConverter withUnescapedSlashes() adds the JSON_HEX_TAG flag
  * @method JsonConverter withoutUnescapedSlashes() adds the JSON_HEX_TAG flag
  * @method bool useUnescapedSlashes() tells whether the JSON_HEX_TAG flag is used
- * @method JsonConverter withPrettyPrint() adds the JSON_HEX_TAG flag
- * @method JsonConverter withoutPrettyPrint() adds the JSON_HEX_TAG flag
  * @method bool usePrettyPrint() tells whether the JSON_HEX_TAG flag is used
  * @method JsonConverter withUnescapedUnicode() adds the JSON_HEX_TAG flag
  * @method JsonConverter withoutUnescapedUnicode() adds the JSON_HEX_TAG flag
@@ -231,6 +229,29 @@ final class JsonConverter
     }
 
     /**
+     * @param int<1, max> $indentSize
+     */
+    public function withPrettyPrint(int $indentSize = 4): self
+    {
+        $instance = $this->addFlags(JSON_PRETTY_PRINT);
+        if ($indentSize === $instance->indentSize) {
+            return $instance;
+        }
+
+        return new self($instance->flags, $instance->depth, $indentSize, $instance->formatter, $instance->chunkSize);
+    }
+
+    public function withoutPrettyPrint(): self
+    {
+        $instance = $this->removeFlags(JSON_PRETTY_PRINT);
+        if (4 === $instance->indentSize) {
+            return $instance;
+        }
+
+        return new self($instance->flags, $instance->depth, 4, $instance->formatter, $instance->chunkSize);
+    }
+
+    /**
      * Returns the PHP json flag associated to its method suffix to ease method lookup.
      */
     private static function methodToFlag(string $method, int $prefixSize): int
@@ -312,19 +333,6 @@ final class JsonConverter
         return match ($depth) {
             $this->depth => $this,
             default => new self($this->flags, $depth, $this->indentSize, $this->formatter, $this->chunkSize),
-        };
-    }
-
-    /**
-     * Set the indentation size.
-     *
-     * @param int<1, max> $indentSize
-     */
-    public function indentSize(int $indentSize): self
-    {
-        return match ($indentSize) {
-            $this->indentSize => $this,
-            default => new self($this->flags, $this->depth, $indentSize, $this->formatter, $this->chunkSize),
         };
     }
 
@@ -481,5 +489,24 @@ final class JsonConverter
         }
 
         yield ($this->jsonEncodeChunk)([$offset => $current]).$this->end;
+    }
+
+    /**
+     * DEPRECATION WARNING! This method will be removed in the next major point release.
+     *
+     * @see JsonConverter::withPrettyPrint()
+     * @deprecated Since version 9.19.0
+     * @codeCoverageIgnore
+     *
+     * Set the indentation size.
+     *
+     * @param int<1, max> $indentSize
+     */
+    public function indentSize(int $indentSize): self
+    {
+        return match ($indentSize) {
+            $this->indentSize => $this,
+            default => new self($this->flags, $this->depth, $indentSize, $this->formatter, $this->chunkSize),
+        };
     }
 }

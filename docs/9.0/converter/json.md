@@ -85,6 +85,10 @@ $converter->depth; //returns the actual depth value (as used by json_encode)
 
 ### Json encode indentation
 
+<p class="message-warning">This method is deprecated as of version <code>9.19.0</code> use
+<code>JsonConverter::withPrettyPrint</code> instead and add the <code>$identSize</code> argument
+to its call</p>
+
 ```php
 public JsonConverter::indentSize(int $indentSize): self
 ```
@@ -93,10 +97,14 @@ This method sets the JSON indentation size value if you use the `JSON_PRETTY_PRI
 all other situation this value stored via this method is never used. By default, the indentation
 size is the same as in PHP (ie : 4 characters long).
 
-```php
-$converter = JsonConverter::create()->indentSize(2);
+```diff
+- $converter = JsonConverter::create()->indentSize(2);
++ $converter = JsonConverter::create()->withPrettyPrint(2);
 $converter->indentSize; //returns the value used
 ```
+
+<p class="message-notice">When using <code>withoutPrettyPrint</code>, the <code>indentSize</code>
+is automatically resetted to its default value of <code>4</code>.</p>
 
 ### Json encode formatter
 

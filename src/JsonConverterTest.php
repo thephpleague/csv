@@ -66,7 +66,6 @@ final class JsonConverterTest extends TestCase
         self::assertSame(
             $converter,
             $converter
-                ->indentSize(4)
                 ->addFlags(0)
                 ->removeFlags(0)
                 ->depth(512)
@@ -87,7 +86,7 @@ final class JsonConverterTest extends TestCase
     {
         $this->expectException(InvalidArgumentException::class);
 
-        JsonConverter::create()->indentSize(0); /* @phpstan-ignore-line */
+        JsonConverter::create()->withPrettyPrint(0); /* @phpstan-ignore-line */
     }
 
     #[Test]
@@ -95,16 +94,8 @@ final class JsonConverterTest extends TestCase
     {
         $this->expectException(InvalidArgumentException::class);
 
-        JsonConverter::create()->chunkSize(0); /* @phpstan-ignore-line */
-    }
-
-    #[Test]
-    public function it_only_uses_indentation_if_pretty_print_is_present(): void
-    {
-        self::assertSame(
-            json_encode([['foo' => 'bar']]),
-            JsonConverter::create()->indentSize(23)->encode([['foo' => 'bar']]),
-        );
+        JsonConverter::create()->chunkSize(0);
+        /* @phpstan-ignore-line */
     }
 
     #[Test]

@@ -10,12 +10,12 @@ All Notable changes to `Csv` will be documented in this file
 
 ### Deprecated
 
-- None
+- `JsonConverter::indentSize`
 
 ### Fixed
 
-- None
-- 
+- `JsonConverter::withPrettyPrint` now accepts the `$identSize` as its unique parameter.
+
 ### Remove
 
 - None
