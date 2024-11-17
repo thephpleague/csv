@@ -54,7 +54,7 @@ final class Column implements Sort
     public static function sortOn(
         string|int $column,
         string|int $direction,
-        ?Closure $callback = null
+        Closure|callable|null $callback = null
     ): self {
 
         $operator = match (true) {
@@ -67,6 +67,10 @@ final class Column implements Sort
             },
             default => throw new QueryException('Unknown or unsupported ordering operator value: '.$direction),
         };
+
+        if (is_callable($callback)) {
+            $callback = Closure::fromCallable($callback);
+        }
 
         return new self(
             $operator,

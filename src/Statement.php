@@ -132,62 +132,62 @@ class Statement
         };
     }
 
-    public function andWhere(string|int $column, Query\Constraint\Comparison|Closure|string $operator, mixed $value = null): self
+    public function andWhere(string|int $column, Query\Constraint\Comparison|Closure|callable|string $operator, mixed $value = null): self
     {
         return $this->appendWhere('and', Query\Constraint\Column::filterOn($column, $operator, $value));
     }
 
-    public function orWhere(string|int $column, Query\Constraint\Comparison|Closure|string $operator, mixed $value = null): self
+    public function orWhere(string|int $column, Query\Constraint\Comparison|Closure|callable|string $operator, mixed $value = null): self
     {
         return $this->appendWhere('or', Query\Constraint\Column::filterOn($column, $operator, $value));
     }
 
-    public function whereNot(string|int $column, Query\Constraint\Comparison|Closure|string $operator, mixed $value = null): self
+    public function whereNot(string|int $column, Query\Constraint\Comparison|Closure|callable|string $operator, mixed $value = null): self
     {
         return $this->appendWhere('not', Query\Constraint\Column::filterOn($column, $operator, $value));
     }
 
-    public function xorWhere(string|int $column, Query\Constraint\Comparison|Closure|string $operator, mixed $value = null): self
+    public function xorWhere(string|int $column, Query\Constraint\Comparison|Closure|callable|string $operator, mixed $value = null): self
     {
         return $this->appendWhere('xor', Query\Constraint\Column::filterOn($column, $operator, $value));
     }
 
-    public function andWhereColumn(string|int $first, Query\Constraint\Comparison|string $operator, array|int|string $second): self
+    public function andWhereColumn(string|int $first, Query\Constraint\Comparison|callable|string $operator, array|int|string $second): self
     {
         return $this->appendWhere('and', Query\Constraint\TwoColumns::filterOn($first, $operator, $second));
     }
 
-    public function orWhereColumn(string|int $first, Query\Constraint\Comparison|string $operator, array|int|string $second): self
+    public function orWhereColumn(string|int $first, Query\Constraint\Comparison|callable|string $operator, array|int|string $second): self
     {
         return $this->appendWhere('or', Query\Constraint\TwoColumns::filterOn($first, $operator, $second));
     }
 
-    public function xorWhereColumn(string|int $first, Query\Constraint\Comparison|string $operator, array|int|string $second): self
+    public function xorWhereColumn(string|int $first, Query\Constraint\Comparison|callable|string $operator, array|int|string $second): self
     {
         return $this->appendWhere('xor', Query\Constraint\TwoColumns::filterOn($first, $operator, $second));
     }
 
-    public function whereNotColumn(string|int $first, Query\Constraint\Comparison|string $operator, array|int|string $second): self
+    public function whereNotColumn(string|int $first, Query\Constraint\Comparison|callable|string $operator, array|int|string $second): self
     {
         return $this->appendWhere('not', Query\Constraint\TwoColumns::filterOn($first, $operator, $second));
     }
 
-    public function andWhereOffset(Query\Constraint\Comparison|Closure|string $operator, mixed $value = null): self
+    public function andWhereOffset(Query\Constraint\Comparison|Closure|callable|string $operator, mixed $value = null): self
     {
         return $this->appendWhere('and', Query\Constraint\Offset::filterOn($operator, $value));
     }
 
-    public function orWhereOffset(Query\Constraint\Comparison|Closure|string $operator, mixed $value = null): self
+    public function orWhereOffset(Query\Constraint\Comparison|Closure|callable|string $operator, mixed $value = null): self
     {
         return $this->appendWhere('or', Query\Constraint\Offset::filterOn($operator, $value));
     }
 
-    public function xorWhereOffset(Query\Constraint\Comparison|Closure|string $operator, mixed $value = null): self
+    public function xorWhereOffset(Query\Constraint\Comparison|Closure|callable|string $operator, mixed $value = null): self
     {
         return $this->appendWhere('xor', Query\Constraint\Offset::filterOn($operator, $value));
     }
 
-    public function whereNotOffset(Query\Constraint\Comparison|Closure|string $operator, mixed $value = null): self
+    public function whereNotOffset(Query\Constraint\Comparison|Closure|callable|string $operator, mixed $value = null): self
     {
         return $this->appendWhere('not', Query\Constraint\Offset::filterOn($operator, $value));
     }

@@ -46,11 +46,15 @@ final class Column implements Query\Predicate
      */
     public static function filterOn(
         string|int $column,
-        Comparison|Closure|string $operator,
+        Comparison|Closure|callable|string $operator,
         mixed $value = null,
     ): self {
         if ($operator instanceof Closure) {
             return new self($column, $operator, null);
+        }
+
+        if (is_callable($operator)) {
+            return new self($column, Closure::fromCallable($operator), $value);
         }
 
         return new self(

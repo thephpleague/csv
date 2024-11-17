@@ -60,11 +60,15 @@ final class TwoColumns implements Predicate
      */
     public static function filterOn(
         string|int $firstColumn,
-        Comparison|Closure|string $operator,
+        Comparison|Closure|callable|string $operator,
         array|string|int $secondColumn
     ): self {
         if (is_string($operator)) {
             $operator = Comparison::fromOperator($operator);
+        }
+
+        if (is_callable($operator)) {
+            return new self($firstColumn, Closure::fromCallable($operator), $secondColumn);
         }
 
         return new self($firstColumn, $operator, $secondColumn);

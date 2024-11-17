@@ -94,8 +94,7 @@ final class JsonConverterTest extends TestCase
     {
         $this->expectException(InvalidArgumentException::class);
 
-        JsonConverter::create()->chunkSize(0);
-        /* @phpstan-ignore-line */
+        JsonConverter::create()->chunkSize(0); /* @phpstan-ignore-line */
     }
 
     #[Test]
