@@ -8,6 +8,7 @@ parameters:
         - identifier: missingType.generics
         - identifier: missingType.iterableValue
         - '#implements deprecated interface League\\Csv\\ByteSequence#'
+        - '#Attribute class Deprecated does not exist.#'
     level: max
     paths:
         - src

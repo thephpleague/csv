@@ -13,6 +13,8 @@ declare(strict_types=1);
 
 namespace League\Csv;
 
+use Deprecated;
+
 /**
  * DEPRECATION WARNING! This namespace function will be removed in the next major point release.
  *
@@ -24,6 +26,7 @@ namespace League\Csv;
  *
  * If no valid BOM sequence is found an empty string is returned
  */
+#[Deprecated(message:'Use Bom::tryFromSequence()', since:'league/csv:9.7.0')]
 function bom_match(string $str): string
 {
     return Bom::tryFromSequence($str)?->value ?? '';
@@ -47,6 +50,7 @@ function bom_match(string $str): string
  *
  * @return array<string,int>
  */
+#[Deprecated(message:'Use Info::getDelimiterStats() instead', since:'league/csv:9.8.0')]
 function delimiter_detect(Reader $csv, array $delimiters, int $limit = 1): array
 {
     return Info::getDelimiterStats($csv, $delimiters, $limit);

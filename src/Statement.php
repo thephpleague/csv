@@ -16,6 +16,7 @@ namespace League\Csv;
 use ArrayIterator;
 use CallbackFilterIterator;
 use Closure;
+use Deprecated;
 use Iterator;
 use OutOfBoundsException;
 use ReflectionException;
@@ -330,6 +331,7 @@ class Statement
      * @see Statement::process()
      * @deprecated Since version 9.16.0
      */
+    #[Deprecated(message:'Use Statement::process() instead', since:'league/csv:9.16.0')]
     protected function applySelect(Iterator $records, array $recordsHeader, array $select): TabularDataReader
     {
         $hasHeader = [] !== $recordsHeader;
@@ -378,6 +380,7 @@ class Statement
      * @deprecated Since version 9.15.0
      * @codeCoverageIgnore
      */
+    #[Deprecated(message:'Use Statement::applyFilter() instead', since:'league/csv:9.15.0')]
     protected function filter(Iterator $iterator, callable $callable): CallbackFilterIterator
     {
         return new CallbackFilterIterator($iterator, $callable);
@@ -392,6 +395,7 @@ class Statement
      * @deprecated Since version 9.16.0
      * @codeCoverageIgnore
      */
+    #[Deprecated(message:'Use Statement::process() instead', since:'league/csv:9.16.0')]
     protected function applyFilter(Iterator $iterator): Iterator
     {
         $filter = function (array $record, string|int $key): bool {
@@ -416,6 +420,7 @@ class Statement
      * @deprecated Since version 9.16.0
      * @codeCoverageIgnore
      */
+    #[Deprecated(message:'Use Statement::process() instead', since:'league/csv:9.16.0')]
     protected function buildOrderBy(Iterator $iterator): Iterator
     {
         if ([] === $this->order_by) {

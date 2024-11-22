@@ -13,6 +13,8 @@ declare(strict_types=1);
 
 namespace League\Csv;
 
+use Deprecated;
+
 use function array_fill_keys;
 use function array_filter;
 use function array_reduce;
@@ -33,6 +35,7 @@ final class Info implements ByteSequence
      * @see Bom::tryFromSequence()
      * @codeCoverageIgnore
      */
+    #[Deprecated(message:'use Bom::tryFromSequence instead', since:'league/csv:9.16.0')]
     public static function fetchBOMSequence(string $str): ?string
     {
         return Bom::tryFromSequence($str)?->value;

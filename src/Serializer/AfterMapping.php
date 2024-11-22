@@ -14,6 +14,7 @@ declare(strict_types=1);
 namespace League\Csv\Serializer;
 
 use Attribute;
+use Deprecated;
 use ReflectionAttribute;
 use ReflectionClass;
 
@@ -23,6 +24,7 @@ use ReflectionClass;
  * @see MapRecord
  */
 #[Attribute(Attribute::TARGET_CLASS)]
+#[Deprecated(message:'Use MapRecord attribute instead', since:'league/csv:9.17.0')]
 final class AfterMapping
 {
     public readonly MapRecord $mapRecord;

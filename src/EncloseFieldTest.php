@@ -13,6 +13,7 @@ declare(strict_types=1);
 
 namespace League\Csv;
 
+use Deprecated;
 use InvalidArgumentException;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
@@ -26,6 +27,7 @@ use function stream_get_filters;
  * @deprecated since version 9.10.0
  */
 #[Group('filter')]
+#[Deprecated(message:'Use Writer::forceEnclosure instead', since:'league/csv:9.10.0')]
 final class EncloseFieldTest extends TestCase
 {
     /**

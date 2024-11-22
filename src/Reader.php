@@ -15,6 +15,7 @@ namespace League\Csv;
 
 use CallbackFilterIterator;
 use Closure;
+use Deprecated;
 use Iterator;
 use JsonSerializable;
 use League\Csv\Serializer\Denormalizer;
@@ -614,6 +615,7 @@ class Reader extends AbstractCsv implements TabularDataReader, JsonSerializable
      * @deprecated since version 9.9.0
      * @codeCoverageIgnore
      */
+    #[Deprecated(message:'Use Reader::nth instead', since:'league/csv:9.9.0')]
     public function fetchOne(int $nth_record = 0): array
     {
         return $this->nth($nth_record);
@@ -633,6 +635,7 @@ class Reader extends AbstractCsv implements TabularDataReader, JsonSerializable
      * @throws MappingFailed
      * @throws TypeCastingFailed
      */
+    #[Deprecated(message:'Use Reader::getRecordsAsObject instead', since:'league/csv:9.15.0')]
     public function getObjects(string $className, array $header = []): Iterator
     {
         return $this->getRecordsAsObject($className, $header);

@@ -13,6 +13,7 @@ declare(strict_types=1);
 
 namespace League\Csv;
 
+use Deprecated;
 use Throwable;
 
 use function array_count_values;
@@ -34,6 +35,7 @@ class SyntaxError extends Exception
      *
      * @deprecated since version 9.7.0
      */
+    #[Deprecated(message:'Use namd constructor instead', since:'league/csv:9.7.0')]
     public function __construct(string $message = '', int $code = 0, ?Throwable $previous = null)
     {
         parent::__construct($message, $code, $previous);

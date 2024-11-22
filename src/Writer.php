@@ -13,6 +13,8 @@ declare(strict_types=1);
 
 namespace League\Csv;
 
+use Deprecated;
+
 use function array_map;
 use function array_reduce;
 use function implode;
@@ -226,6 +228,7 @@ class Writer extends AbstractCsv implements TabularDataWriter
      *   - NULL values,
      *   - or objects implementing the __toString() method.
      */
+    #[Deprecated(message:'No longer used', since:'league/csv:9.8.0')]
     protected function formatRecord(array $record, callable $formatter): array
     {
         return $formatter($record);
@@ -241,6 +244,7 @@ class Writer extends AbstractCsv implements TabularDataWriter
      *
      * @see https://php.net/manual/en/function.fputcsv.php
      */
+    #[Deprecated(message:'No longer used', since:'league/csv:9.9.0')]
     protected function addRecord(array $record): int|false
     {
         return $this->document->fputcsv($record, $this->delimiter, $this->enclosure, $this->escape, $this->newline);
@@ -254,6 +258,7 @@ class Writer extends AbstractCsv implements TabularDataWriter
      *
      * Applies post insertion actions.
      */
+    #[Deprecated(message:'No longer used', since:'league/csv:9.9.0')]
     protected function consolidate(): int
     {
         if (null === $this->flush_threshold) {
@@ -278,6 +283,7 @@ class Writer extends AbstractCsv implements TabularDataWriter
      *
      * Returns the current newline sequence characters.
      */
+    #[Deprecated(message:'Use Writer::getEndOfLine()', since:'league/csv:9.8.0')]
     public function getNewline(): string
     {
         return $this->getEndOfLine();
@@ -292,6 +298,7 @@ class Writer extends AbstractCsv implements TabularDataWriter
      *
      * Sets the newline sequence.
      */
+    #[Deprecated(message:'Use Writer::setEndOfLine()', since:'league/csv:9.8.0')]
     public function setNewline(string $newline): self
     {
         return $this->setEndOfLine($newline);

@@ -13,6 +13,7 @@ declare(strict_types=1);
 
 namespace League\Csv;
 
+use Deprecated;
 use DOMDocument;
 use DOMElement;
 use DOMException;
@@ -39,9 +40,10 @@ class HTMLConverter
      * DEPRECATION WARNING! This method will be removed in the next major point release.
      *
      * @throws DOMException
-     * @see HTMLConverterTest::create()
+     * @see HTMLConverter::create()
      * @deprecated since version 9.7.0
      */
+    #[Deprecated(message:'use HTNLConverter::create instead', since:'league/csv:9.7.0')]
     public function __construct()
     {
         $this->xml_converter = XMLConverter::create()

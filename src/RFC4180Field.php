@@ -13,6 +13,7 @@ declare(strict_types=1);
 
 namespace League\Csv;
 
+use Deprecated;
 use InvalidArgumentException;
 use php_user_filter;
 use TypeError;
@@ -41,6 +42,7 @@ use const STREAM_FILTER_WRITE;
  *
  * @see https://tools.ietf.org/html/rfc4180#section-2
  */
+#[Deprecated(message:'use its AbstractCsv::setEscape instead', since:'league/csv:9.2.0')]
 class RFC4180Field extends php_user_filter
 {
     public const FILTERNAME = 'convert.league.csv.rfc4180';

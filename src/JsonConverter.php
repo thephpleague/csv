@@ -15,6 +15,7 @@ namespace League\Csv;
 
 use BadMethodCallException;
 use Closure;
+use Deprecated;
 use Exception;
 use InvalidArgumentException;
 use Iterator;
@@ -502,6 +503,7 @@ final class JsonConverter
      *
      * @param int<1, max> $indentSize
      */
+    #[Deprecated(message:'Use JsonConverter::withPrettyPrint instead', since:'league/csv:9.19.0')]
     public function indentSize(int $indentSize): self
     {
         return match ($indentSize) {
