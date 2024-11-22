@@ -13,7 +13,6 @@ declare(strict_types=1);
 
 namespace League\Csv;
 
-use Deprecated;
 use InvalidArgumentException;
 use php_user_filter;
 
@@ -38,7 +37,6 @@ use function strlen;
  * @see https://tools.ietf.org/html/rfc4180#section-2
  * @see https://bugs.php.net/bug.php?id=38301
  */
-#[Deprecated(message:'Use Writter::forceEnclosure instead', since:'league/csv:9.10.0')]
 class EncloseField extends php_user_filter
 {
     public const FILTERNAME = 'convert.league.csv.enclosure';

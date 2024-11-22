@@ -13,7 +13,6 @@ declare(strict_types=1);
 
 namespace League\Csv;
 
-use Deprecated;
 use InvalidArgumentException;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
@@ -31,7 +30,6 @@ use const STREAM_FILTER_READ;
  * @deprecated since version 9.2.0
  */
 #[Group('filter')]
-#[Deprecated(message:'Test will be removed their are left to avoid regression', since:'league/csv:9.2.0')]
 final class RFC4180FieldTest extends TestCase
 {
     /**

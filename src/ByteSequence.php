@@ -11,15 +11,12 @@
 
 namespace League\Csv;
 
-use Deprecated;
-
 /**
  * Defines constants for common BOM sequences.
  *
  * @deprecated since version 9.16.0
  * @see Bom
  */
-#[Deprecated(message:'Use Bom Enum instead', since:'league/csv:9.16.0')]
 interface ByteSequence
 {
     public const BOM_UTF8 = "\xEF\xBB\xBF";
