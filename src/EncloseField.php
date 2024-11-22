@@ -13,6 +13,7 @@ declare(strict_types=1);
 
 namespace League\Csv;
 
+use Deprecated;
 use InvalidArgumentException;
 use php_user_filter;
 
@@ -49,6 +50,7 @@ class EncloseField extends php_user_filter
     /**
      * Static method to return the stream filter filtername.
      */
+    #[Deprecated(message: 'Use Writer::forceEnclosure instead', since: 'league/csv:9.10.0')]
     public static function getFiltername(): string
     {
         return self::FILTERNAME;
@@ -57,6 +59,7 @@ class EncloseField extends php_user_filter
     /**
      * Static method to register the class as a stream filter.
      */
+    #[Deprecated(message: 'Use Writer::forceEnclosure instead', since: 'league/csv:9.10.0')]
     public static function register(): void
     {
         if (!in_array(self::FILTERNAME, stream_get_filters(), true)) {
@@ -70,6 +73,7 @@ class EncloseField extends php_user_filter
      * @throws InvalidArgumentException if the sequence is malformed
      * @throws Exception
      */
+    #[Deprecated(message: 'Use Writer::forceEnclosure instead', since: 'league/csv:9.10.0')]
     public static function addTo(Writer $csv, string $sequence): Writer
     {
         self::register();
@@ -93,6 +97,7 @@ class EncloseField extends php_user_filter
         return strlen($sequence) !== strcspn($sequence, self::$force_enclosure);
     }
 
+    #[Deprecated(message: 'Use Writer::forceEnclosure instead', since: 'league/csv:9.10.0')]
     public function onCreate(): bool
     {
         return is_array($this->params)
@@ -105,6 +110,7 @@ class EncloseField extends php_user_filter
      * @param resource $out
      * @param int $consumed
      */
+    #[Deprecated(message: 'Use Writer::forceEnclosure instead', since: 'league/csv:9.10.0')]
     public function filter($in, $out, &$consumed, bool $closing): int
     {
         /** @var array $params */

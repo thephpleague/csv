@@ -139,7 +139,6 @@ class EscapeFormula
      *
      * @param mixed $value value to check if it is stringable
      */
-    #[Deprecated(message:'No longer in use', since:'league/csv:9.7.2')]
     protected function isStringable(mixed $value): bool
     {
         return is_string($value) || $value instanceof Stringable;

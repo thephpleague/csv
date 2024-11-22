@@ -13,6 +13,7 @@ declare(strict_types=1);
 
 namespace League\Csv;
 
+use Deprecated;
 use InvalidArgumentException;
 use php_user_filter;
 use TypeError;
@@ -67,6 +68,7 @@ class RFC4180Field extends php_user_filter
     /**
      * Static method to add the stream filter to a {@link AbstractCsv} object.
      */
+    #[Deprecated(message: 'Use Reader::setEscape or Writer::setEscape instead', since: 'league/csv:9.2.0')]
     public static function addTo(AbstractCsv $csv, string $whitespace_replace = ''): AbstractCsv
     {
         self::register();
@@ -89,6 +91,7 @@ class RFC4180Field extends php_user_filter
      * Add a formatter to the {@link Writer} object to format the record
      * field to avoid enclosure around a field with an empty space.
      */
+    #[Deprecated(message: 'Use Reader::setEscape or Writer::setEscape instead', since: 'league/csv:9.2.0')]
     public static function addFormatterTo(Writer $csv, string $whitespace_replace): Writer
     {
         if ('' == $whitespace_replace || strlen($whitespace_replace) !== strcspn($whitespace_replace, self::$force_enclosure)) {
@@ -105,6 +108,7 @@ class RFC4180Field extends php_user_filter
     /**
      * Static method to register the class as a stream filter.
      */
+    #[Deprecated(message: 'Use Reader::setEscape or Writer::setEscape instead', since: 'league/csv:9.2.0')]
     public static function register(): void
     {
         if (!in_array(self::FILTERNAME, stream_get_filters(), true)) {
@@ -115,6 +119,7 @@ class RFC4180Field extends php_user_filter
     /**
      * Static method to return the stream filter filtername.
      */
+    #[Deprecated(message: 'Use Reader::setEscape or Writer::setEscape instead', since: 'league/csv:9.2.0')]
     public static function getFiltername(): string
     {
         return self::FILTERNAME;
@@ -125,6 +130,7 @@ class RFC4180Field extends php_user_filter
      * @param resource $out
      * @param int $consumed
      */
+    #[Deprecated(message: 'Use Reader::setEscape or Writer::setEscape instead', since: 'league/csv:9.2.0')]
     public function filter($in, $out, &$consumed, bool $closing): int
     {
         while (null !== ($bucket = stream_bucket_make_writeable($in))) {
@@ -136,6 +142,7 @@ class RFC4180Field extends php_user_filter
         return PSFS_PASS_ON;
     }
 
+    #[Deprecated(message: 'Use Reader::setEscape or Writer::setEscape instead', since: 'league/csv:9.2.0')]
     public function onCreate(): bool
     {
         if (!is_array($this->params)) {

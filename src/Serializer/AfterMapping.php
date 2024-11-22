@@ -14,6 +14,7 @@ declare(strict_types=1);
 namespace League\Csv\Serializer;
 
 use Attribute;
+use Deprecated;
 use ReflectionAttribute;
 use ReflectionClass;
 
@@ -28,12 +29,14 @@ final class AfterMapping
     public readonly MapRecord $mapRecord;
     public readonly array $methods;
 
+    #[Deprecated(message: 'Use Leauge\Csv\Serializer\MapRecord instead', since: 'league/csv:9.17.0')]
     public function __construct(string ...$methods)
     {
         $this->mapRecord = new MapRecord($methods);
         $this->methods = $this->mapRecord->afterMapping;
     }
 
+    #[Deprecated(message: 'Use Leauge\Csv\Serializer\MapRecord instead', since: 'league/csv:9.17.0')]
     public static function from(ReflectionClass $class): ?self
     {
         $attributes = $class->getAttributes(self::class, ReflectionAttribute::IS_INSTANCEOF);
