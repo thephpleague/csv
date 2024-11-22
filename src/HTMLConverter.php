@@ -43,7 +43,7 @@ class HTMLConverter
      * @see HTMLConverter::create()
      * @deprecated since version 9.7.0
      */
-    #[Deprecated(message:'use HTNLConverter::create instead', since:'league/csv:9.7.0')]
+    #[Deprecated(message:'use HTMLConverter::create instead', since:'league/csv:9.7.0')]
     public function __construct()
     {
         $this->xml_converter = XMLConverter::create()
