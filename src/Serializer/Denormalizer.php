@@ -66,7 +66,7 @@ final class Denormalizer
      *
      * Enables converting empty string to the null value.
      */
-    #[Deprecated(message:'Use MapRecord::$convertEmptyStringToNull or MapCell::$convertEmptyStringToNullinstead', since:'league/csv:9.17.0')]
+    #[Deprecated(message:'use League\Csv\Serializer\MapRecord::$convertEmptyStringToNull or League\Csv\Serializer\MapCell::$convertEmptyStringToNullinstead', since:'league/csv:9.17.0')]
     public static function allowEmptyStringAsNull(): void
     {
         self::$convertEmptyStringToNull = true;
@@ -80,7 +80,7 @@ final class Denormalizer
      *
      * Disables converting empty string to the null value.
      */
-    #[Deprecated(message:'Use MapRecord::$convertEmptyStringToNull or MapCell::$convertEmptyStringToNullinstead', since:'league/csv:9.17.0')]
+    #[Deprecated(message:'use League\Csv\Serializer\MapRecord::$convertEmptyStringToNull or League\Csv\Serializer\MapCell::$convertEmptyStringToNullinstead', since:'league/csv:9.17.0')]
     public static function disallowEmptyStringAsNull(): void
     {
         self::$convertEmptyStringToNull = false;

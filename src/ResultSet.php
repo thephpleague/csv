@@ -547,7 +547,7 @@ class ResultSet implements TabularDataReader, JsonSerializable
      * @deprecated since version 9.9.0
      * @codeCoverageIgnore
      */
-    #[Deprecated(message:'Use Resultset::nth instead', since:'league/csv:9.9.0')]
+    #[Deprecated(message:'use League\Csv\Resultset::nth() instead', since:'league/csv:9.9.0')]
     public function fetchOne(int $nth_record = 0): array
     {
         return $this->nth($nth_record);
@@ -567,7 +567,7 @@ class ResultSet implements TabularDataReader, JsonSerializable
      * @throws MappingFailed
      * @throws TypeCastingFailed
      */
-    #[Deprecated(message:'Use ResultSet::getRecordsAsObject instead', since:'league/csv:9.15.0')]
+    #[Deprecated(message:'use League\Csv\ResultSet::getRecordsAsObject() instead', since:'league/csv:9.15.0')]
     public function getObjects(string $className, array $header = []): Iterator
     {
         return $this->getRecordsAsObject($className, $header);

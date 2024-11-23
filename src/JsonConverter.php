@@ -503,7 +503,7 @@ final class JsonConverter
      *
      * @param int<1, max> $indentSize
      */
-    #[Deprecated(message:'Use JsonConverter::withPrettyPrint instead', since:'league/csv:9.19.0')]
+    #[Deprecated(message:'use League\Csv\JsonConverter::withPrettyPrint() instead', since:'league/csv:9.19.0')]
     public function indentSize(int $indentSize): self
     {
         return match ($indentSize) {

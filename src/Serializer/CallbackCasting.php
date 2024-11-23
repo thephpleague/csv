@@ -377,7 +377,7 @@ final class CallbackCasting implements TypeCasting
      * @see CallbackCasting::unregisterType()
      * @codeCoverageIgnore
      */
-    #[Deprecated(message:'Use CallbackCasting::unregisterType instead', since:'league/csv:9.13.0')]
+    #[Deprecated(message:'use League\Csv\Serializer\CallbackCasting::unregisterType() instead', since:'league/csv:9.13.0')]
     public static function unregister(string $type): bool
     {
         return self::unregisterType($type);

@@ -35,7 +35,7 @@ final class Info implements ByteSequence
      * @see Bom::tryFromSequence()
      * @codeCoverageIgnore
      */
-    #[Deprecated(message:'use Bom::tryFromSequence instead', since:'league/csv:9.16.0')]
+    #[Deprecated(message:'use League\Csv\Bom::tryFromSequence() instead', since:'league/csv:9.16.0')]
     public static function fetchBOMSequence(string $str): ?string
     {
         return Bom::tryFromSequence($str)?->value;

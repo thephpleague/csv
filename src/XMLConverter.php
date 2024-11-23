@@ -47,7 +47,6 @@ class XMLConverter
      * @deprecated since version 9.7.0
      * @see XMLConverter::create()
      */
-    #[Deprecated(message:'Use named constructor instead', since:'league/csv:9.7.0')]
     public function __construct()
     {
     }

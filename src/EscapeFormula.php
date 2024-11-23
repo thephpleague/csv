@@ -152,7 +152,7 @@ class EscapeFormula
      *
      * @see escapeRecord
      */
-    #[Deprecated(message:'use EscapeFormula::escapeRecord instead', since:'league/csv:9.11.0')]
+    #[Deprecated(message:'use League\Csv\EscapeFormula::escapeRecord() instead', since:'league/csv:9.11.0')]
     public function __invoke(array $record): array
     {
         return $this->escapeRecord($record);

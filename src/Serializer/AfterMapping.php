@@ -29,26 +29,22 @@ final class AfterMapping
     public readonly MapRecord $mapRecord;
     public readonly array $methods;
 
-    #[Deprecated(message: 'Use Leauge\Csv\Serializer\MapRecord instead', since: 'league/csv:9.17.0')]
+    #[Deprecated(message: 'use League\Csv\Serializer\MapRecord instead', since: 'league/csv:9.17.0')]
     public function __construct(string ...$methods)
     {
         $this->mapRecord = new MapRecord($methods);
         $this->methods = $this->mapRecord->afterMapping;
     }
 
-    #[Deprecated(message: 'Use Leauge\Csv\Serializer\MapRecord instead', since: 'league/csv:9.17.0')]
     public static function from(ReflectionClass $class): ?self
     {
         $attributes = $class->getAttributes(self::class, ReflectionAttribute::IS_INSTANCEOF);
         $nbAttributes = count($attributes);
-        if (0 === $nbAttributes) {
-            return null;
-        }
 
-        if (1 < $nbAttributes) {
-            throw new MappingFailed('Using more than one `'.self::class.'` attribute on a class property or method is not supported.');
-        }
-
-        return $attributes[0]->newInstance();
+        return match (true) {
+            0 === $nbAttributes => null,
+            1 < $nbAttributes => throw new MappingFailed('Using more than one `'.self::class.'` attribute on a class property or method is not supported.'),
+            default => $attributes[0]->newInstance(),
+        };
     }
 }

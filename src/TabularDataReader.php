@@ -127,7 +127,7 @@ interface TabularDataReader extends Countable, IteratorAggregate
      *
      * @throws UnableToProcessCsv if argument is less than 0
      */
-    #[Deprecated(message:'Use TabularDataReader::nth() instead', since:'league/csv:9.9.0')]
+    #[Deprecated(message:'use League\Csv\TabularDataReader::nth() instead', since:'league/csv:9.9.0')]
     public function fetchOne(int $nth_record = 0): array;
 
     /**
