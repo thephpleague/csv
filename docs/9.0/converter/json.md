@@ -69,6 +69,17 @@ $converter->useHexQuot();      // returns false the flag is not used
 $converter->flags;             //returns the actual flags value (as used by json_encode)
 ```
 
+<p class="message-info">Starting with version <code>9.18.1</code> use
+<code>JsonConverter::withPrettyPrint</code> to directly set the indent size with the argument <code>$identSize</code>
+to its call</p>
+
+```php
+$converter = JsonConverter::create()->withPrettyPrint(2);
+```
+
+will produce a JSON with an indentation size of `2`.
+
+
 ### Json encode depth
 
 ```php
@@ -85,7 +96,7 @@ $converter->depth; //returns the actual depth value (as used by json_encode)
 
 ### Json encode indentation
 
-<p class="message-warning">This method is deprecated as of version <code>9.19.0</code> use
+<p class="message-warning">This method is deprecated as of version <code>9.18.1</code> use
 <code>JsonConverter::withPrettyPrint</code> instead and add the <code>$identSize</code> argument
 to its call</p>
 
@@ -102,9 +113,6 @@ size is the same as in PHP (ie : 4 characters long).
 + $converter = JsonConverter::create()->withPrettyPrint(2);
 $converter->indentSize; //returns the value used
 ```
-
-<p class="message-notice">When using <code>withoutPrettyPrint</code>, the <code>indentSize</code>
-is automatically resetted to its default value of <code>4</code>.</p>
 
 ### Json encode formatter
 

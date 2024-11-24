@@ -172,4 +172,28 @@ final class JsonConverterTest extends TestCase
 
         JsonConverter::create()->save([['foo' => 'bar']], $stream);
     }
+
+    #[Test]
+    public function it_can_set_the_indentation_size_using_pretty_print(): void
+    {
+        $converter = JsonConverter::create();
+        self::assertSame(4, $converter->indentSize);
+        self::assertFalse($converter->usePrettyPrint());
+
+        $converter = $converter->withPrettyPrint();
+        self::assertSame(4, $converter->indentSize);
+        self::assertTrue($converter->usePrettyPrint());
+
+        $converter = $converter->withPrettyPrint(2);
+        self::assertSame(2, $converter->indentSize);
+        self::assertTrue($converter->usePrettyPrint());
+
+        $converter = $converter->withPrettyPrint();
+        self::assertSame(2, $converter->indentSize);
+        self::assertTrue($converter->usePrettyPrint());
+
+        $converter = $converter->withoutPrettyPrint();
+        self::assertSame(2, $converter->indentSize);
+        self::assertFalse($converter->usePrettyPrint());
+    }
 }
