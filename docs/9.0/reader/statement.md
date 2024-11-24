@@ -406,6 +406,41 @@ $records = $constraints->process($csv);
 Since a `Statement` instance is independent of the CSV document you can re-use it on different CSV
 documents or `TabularDataReader` instances if needed.
 
+### Adding constraint on condition
+
+<p class="message-info">new in version <code>9.19.0</code>.</p>
+
+The `Statement::class` now allows the building or the CSV query using conditions.
+
+```php
+$stmt = Statement::create();
+if ($condition) {
+    $stmt = $stmt->where(fn (array $row) => $row['column'] !== 'data');
+} else {
+    $stmt = $stmt->where(fn (array $row) => $row['column'] === 'data');
+}
+```
+
+becomes
+
+```php
+$stmt = Statement::create()
+    ->when(
+        $condition,
+        fn (Statement $q) => $q->where(fn (array $row) => $row['column'] !== 'data'),
+        fn (Statement $q) => $q->where(fn (array $row) => $row['column'] === 'data'),
+    );
+)
+```
+
+The `else` expression is not required but if present in **MUST BE** a callable which only
+accepts the `Statement` instance and returns `null` or a `Statement` instance.
+
+The only requirements are:
+
+- that the condition is a `boolean` or a callable that returns a `boolean`.
+- the callback returns a `Statement` instance or null.
+
 ## FragmentFinder
 
 <p class="message-info">This mechanism is introduced with version <code>9.12.0</code>.</p>

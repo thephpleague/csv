@@ -7,6 +7,7 @@ All Notable changes to `Csv` will be documented in this file
 ### Added
 
 - `JsonConverter::withPrettyPrint` now accepts an optional `$identSize` parameter as its unique parameter.
+- `Statement::when` to enable conditionable query building.
 
 ### Deprecated
 

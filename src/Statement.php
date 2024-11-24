@@ -293,6 +293,26 @@ class Statement
     }
 
     /**
+     * Apply the callback if the given "condition" is (or resolves to) true.
+     *
+     * @param (callable($this): bool)|bool $condition
+     * @param callable($this): (self|null) $onSuccess
+     * @param ?callable($this): (self|null) $onFail
+     */
+    public function when(callable|bool $condition, callable $onSuccess, ?callable $onFail = null): self
+    {
+        if (!is_bool($condition)) {
+            $condition = $condition($this);
+        }
+
+        return match (true) {
+            $condition => $onSuccess($this),
+            null !== $onFail => $onFail($this),
+            default => $this,
+        } ?? $this;
+    }
+
+    /**
      * Executes the prepared Statement on the {@link TabularDataReader} object.
      *
      * @param array<string> $header an optional header to use instead of the tabular data header
@@ -436,7 +456,6 @@ class Statement
 
             return $cmp ?? 0;
         };
-
 
         $class = new class () extends ArrayIterator {
             public function seek(int $offset): void
