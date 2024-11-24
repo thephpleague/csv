@@ -16,6 +16,7 @@ All Notable changes to `Csv` will be documented in this file
 
 - `JsonConverter::withPrettyPrint` now accepts the `$identSize` as its unique parameter.
 - Adding support for `callable` in the `Query\Constraint` namespace.
+- `HttpHeaders::forFileDownload` to be inline with RFC2183 and Header name and value best practices.
 
 ### Remove
 

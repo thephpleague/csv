@@ -141,7 +141,7 @@ EOF;
         self::assertStringContainsString('content-type: text/csv', strtolower($headers[0]));
         self::assertSame('content-transfer-encoding: binary', strtolower($headers[1]));
         self::assertSame('content-description: File Transfer', $headers[2]);
-        self::assertStringContainsString('content-disposition: attachment; filename="tst.csv"; filename*=utf-8\'\'t%C3%A9st.csv', $headers[3]);
+        self::assertStringContainsString('content-disposition: attachment;filename="tst.csv";filename*=UTF-8\'\'t%c3%a9st.csv', $headers[3]);
     }
 
     public function testChunkDoesNotTimeoutAfterReading(): void

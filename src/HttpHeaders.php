@@ -40,14 +40,20 @@ final class HttpHeaders
      */
     public static function forFileDownload(string $filename, string $contentType): void
     {
-        !(str_contains($filename, '/') || str_contains($filename, '\\')) || throw new InvalidArgumentException('The filename `'.$filename.'` cannot contain the "/" and "\" characters.');
+        if (str_contains($filename, '/') || str_contains($filename, '\\')) {
+            throw new InvalidArgumentException('The filename `'.$filename.'` cannot contain the "/" or "\" characters.');
+        }
 
         /** @var string $filteredName */
         $filteredName = filter_var($filename, FILTER_UNSAFE_RAW, FILTER_FLAG_STRIP_LOW | FILTER_FLAG_STRIP_HIGH);
         $fallbackName = str_replace('%', '', $filteredName);
-        $disposition = 'attachment; filename="'.str_replace('"', '\\"', $fallbackName).'"';
+        $disposition = 'attachment;filename="'.str_replace('"', '\\"', $fallbackName).'"';
         if ($filename !== $fallbackName) {
-            $disposition .= "; filename*=utf-8''".rawurlencode($filename);
+            $disposition .= ";filename*=UTF-8''".preg_replace_callback(
+                '/[%"\x00-\x1F\x7F-\xFF]/',
+                static fn (array $matches): string => strtolower(rawurlencode($matches[0])),
+                $filename
+            );
         }
 
         header('content-type: '.$contentType);
