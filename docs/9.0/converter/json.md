@@ -69,7 +69,7 @@ $converter->useHexQuot();      // returns false the flag is not used
 $converter->flags;             //returns the actual flags value (as used by json_encode)
 ```
 
-<p class="message-info">Starting with version <code>9.18.1</code> use
+<p class="message-info">Starting with version <code>9.19.0</code> use
 <code>JsonConverter::withPrettyPrint</code> to directly set the indent size with the argument <code>$identSize</code>
 to its call</p>
 
@@ -96,7 +96,7 @@ $converter->depth; //returns the actual depth value (as used by json_encode)
 
 ### Json encode indentation
 
-<p class="message-warning">This method is deprecated as of version <code>9.18.1</code> use
+<p class="message-warning">This method is deprecated as of version <code>9.19.0</code> use
 <code>JsonConverter::withPrettyPrint</code> instead and add the <code>$identSize</code> argument
 to its call</p>
 
@@ -170,10 +170,9 @@ $document->setHeaderOffset(0);
 
 CharsetConverter::addTo($document, 'iso-8859-15', 'utf-8');
 $converter = JsonConverter::create()
-    ->withPrettyPrint()
+    ->withPrettyPrint(2)
     ->withUnescapedSlashes()
     ->depth(2)
-    ->indentSize(2)
     ->formatter(function (array $row) {
         $row['nombre'] = (int) $row['nombre'];
         $row['annee'] = (int) $row['annee'];

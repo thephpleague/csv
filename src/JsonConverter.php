@@ -488,14 +488,14 @@ final class JsonConverter
      * DEPRECATION WARNING! This method will be removed in the next major point release.
      *
      * @see JsonConverter::withPrettyPrint()
-     * @deprecated Since version 9.18.1
+     * @deprecated Since version 9.19.0
      * @codeCoverageIgnore
      *
      * Set the indentation size.
      *
      * @param int<1, max> $indentSize
      */
-    #[Deprecated(message:'use League\Csv\JsonConverter::withPrettyPrint() instead', since:'league/csv:9.18.1')]
+    #[Deprecated(message:'use League\Csv\JsonConverter::withPrettyPrint() instead', since:'league/csv:9.19.0')]
     public function indentSize(int $indentSize): self
     {
         return match ($indentSize) {
