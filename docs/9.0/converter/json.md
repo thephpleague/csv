@@ -79,7 +79,6 @@ $converter = JsonConverter::create()->withPrettyPrint(2);
 
 will produce a JSON with an indentation size of `2`.
 
-
 ### Json encode depth
 
 ```php
