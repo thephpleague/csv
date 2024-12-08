@@ -2,12 +2,13 @@
 
 All Notable changes to `Csv` will be documented in this file
 
-## [Next](https://github.com/thephpleague/csv/compare/9.18.0...master) - TBD
+## [9.19.0](https://github.com/thephpleague/csv/compare/9.18.0...9.19.0) - 2024-12-08
 
 ### Added
 
 - `JsonConverter::withPrettyPrint` now accepts an optional `$identSize` parameter as its unique parameter.
 - `Statement::when` to enable conditionable query building.
+- Using PHP8.4 `Deprecated` attribute to signal deprecated public API methods and constants.
 
 ### Deprecated
 
