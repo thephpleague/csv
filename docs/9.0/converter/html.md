@@ -44,7 +44,6 @@ This method sets the optional attribute name for the field name on the HTML `td`
 
 <p class="message-info">If none is used or an empty string is given, the field name information won't be exported to the HTML table.</p>
 
-
 ### HTMLConverter::formatter
 
 <p class="message-info">New feature introduced in version <code>9.20.0</code></p>

@@ -54,7 +54,7 @@ final class Column implements Query\Predicate
         }
 
         if (is_callable($operator)) {
-            return new self($column, Closure::fromCallable($operator), $value);
+            return new self($column, $operator(...), $value);
         }
 
         return new self(

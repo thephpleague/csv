@@ -54,7 +54,7 @@ public XMLConverter::formatter(?callback $formatter): mixed
 ```
 
 This method allow to apply a callback prior to converting your collection individual item.
-This callback allows you to specify how each item will be converted. The formatter should 
+This callback allows you to specify how each item will be converted. The formatter should
 return an associative array suitable for conversion.
 
 ## Conversion

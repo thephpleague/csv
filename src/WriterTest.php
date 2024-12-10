@@ -93,6 +93,10 @@ final class WriterTest extends TestCase
     {
         $csv = Writer::createFromPath(__DIR__.'/../test_files/foo.csv', 'a+');
         $csv->insertOne(['jane', 'doe', 'jane.doe@example.com']);
+
+        self::assertFalse($csv->encloseAll());
+        self::assertFalse($csv->encloseNone());
+        self::assertTrue($csv->encloseSelective());
         self::assertStringContainsString('jane,doe,jane.doe@example.com', $csv->toString());
     }
 
@@ -303,6 +307,44 @@ final class WriterTest extends TestCase
 "1996"|"Jeep"|"Grand Cherokee"|"MUST SELL!
             air, moon roof, loaded"|"4799.00"
 CSV;
+
+        self::assertTrue($csv->encloseAll());
+        self::assertFalse($csv->encloseNone());
+        self::assertFalse($csv->encloseSelective());
+        self::assertStringContainsString($expected, $csv->toString());
+    }
+
+    public function testEncloseNothing(): void
+    {
+        /**
+         * @see https://en.wikipedia.org/wiki/Comma-separated_values#Example
+         */
+        $records = [
+            ['Year', 'Make', 'Model', 'Description', 'Price'],
+            [1997, 'Ford', 'E350', 'ac,abs,moon', '3000.00'],
+            [1999, 'Chevy', 'Venture "Extended Edition"', null, '4900.00'],
+            [1999, 'Chevy', 'Venture "Extended Edition, Very Large"', null, '5000.00'],
+            [1996, 'Jeep', 'Grand Cherokee', 'MUST SELL!
+            air, moon roof, loaded', '4799.00'],
+        ];
+
+        $csv = Writer::createFromString();
+        $csv->setDelimiter('|');
+        $csv->noEnclosure();
+        $csv->insertAll($records);
+
+        $expected = <<<CSV
+Year|Make|Model|Description|Price
+1997|Ford|E350|ac,abs,moon|3000.00
+1999|Chevy|Venture "Extended Edition"||4900.00
+1999|Chevy|Venture "Extended Edition, Very Large"||5000.00
+1996|Jeep|Grand Cherokee|MUST SELL!
+            air, moon roof, loaded|4799.00
+CSV;
+
+        self::assertFalse($csv->encloseAll());
+        self::assertTrue($csv->encloseNone());
+        self::assertFalse($csv->encloseSelective());
         self::assertStringContainsString($expected, $csv->toString());
     }
 }

@@ -68,15 +68,13 @@ final class Column implements Sort
             default => throw new QueryException('Unknown or unsupported ordering operator value: '.$direction),
         };
 
-        if (is_callable($callback)) {
-            $callback = Closure::fromCallable($callback);
-        }
+        $callback = match (true) {
+            null === $callback => static fn (mixed $first, mixed $second): int => $first <=> $second,
+            $callback instanceof Closure => $callback,
+            default => $callback(...),
+        };
 
-        return new self(
-            $operator,
-            $column,
-            $callback ?? static fn (mixed $first, mixed $second): int => $first <=> $second
-        );
+        return new self($operator, $column, $callback);
     }
 
     /**

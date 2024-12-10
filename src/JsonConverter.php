@@ -104,8 +104,8 @@ final class JsonConverter
     public readonly int $depth;
     /** @var int<1, max> */
     public readonly int $indentSize;
-    /** @var ?callable(T, array-key): mixed */
-    public readonly mixed $formatter;
+    /** @var ?Closure(T, array-key): mixed */
+    public readonly ?Closure $formatter;
     /** @var int<1, max> */
     public readonly int $chunkSize;
     /** @var non-empty-string */
@@ -151,7 +151,7 @@ final class JsonConverter
         $this->flags = $flags;
         $this->depth = $depth;
         $this->indentSize = $indentSize;
-        $this->formatter = $formatter;
+        $this->formatter = ($formatter instanceof Closure || null === $formatter) ? $formatter : $formatter(...);
         $this->chunkSize = $chunkSize;
 
         // Initialize settings and closure to use for conversion.
