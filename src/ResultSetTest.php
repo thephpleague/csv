@@ -35,6 +35,7 @@ final class ResultSetTest extends TabularDataReaderTestCase
     protected function setUp(): void
     {
         $tmp = new SplTempFileObject();
+        $tmp->setCsvControl(escape: '\\');
         foreach ($this->expected as $row) {
             $tmp->fputcsv($row);
         }
@@ -173,6 +174,7 @@ final class ResultSetTest extends TabularDataReaderTestCase
         ];
 
         $tmp = new SplTempFileObject();
+        $tmp->setCsvControl(escape: '\\');
         foreach ($arr as $row) {
             $tmp->fputcsv($row);
         }
@@ -203,6 +205,7 @@ final class ResultSetTest extends TabularDataReaderTestCase
         ];
 
         $file = new SplTempFileObject();
+        $file->setCsvControl(escape: '\\');
         foreach ($raw as $row) {
             $file->fputcsv($row);
         }
@@ -220,6 +223,7 @@ final class ResultSetTest extends TabularDataReaderTestCase
         ];
 
         $file = new SplTempFileObject();
+        $file->setCsvControl(escape: '\\');
         foreach ($raw as $row) {
             $file->fputcsv($row);
         }
@@ -312,6 +316,7 @@ final class ResultSetTest extends TabularDataReaderTestCase
         ];
 
         $tmp = new SplTempFileObject();
+        $tmp->setCsvControl(escape: '\\');
         foreach ($expected as $row) {
             $tmp->fputcsv($row);
         }

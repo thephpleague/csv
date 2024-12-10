@@ -38,8 +38,8 @@ final class WriterTest extends TestCase
     protected function tearDown(): void
     {
         $csv = new SplFileObject(__DIR__.'/../test_files/foo.csv', 'w');
-        $csv->setCsvControl();
-        $csv->fputcsv(['john', 'doe', 'john.doe@example.com'], ',', '"');
+        $csv->setCsvControl(escape: '');
+        $csv->fputcsv(['john', 'doe', 'john.doe@example.com']);
         unset($this->csv);
     }
 
