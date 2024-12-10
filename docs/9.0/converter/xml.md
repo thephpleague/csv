@@ -50,7 +50,7 @@ This method sets the XML field name and optionally the attribute name for the fi
 <p class="message-info">New feature introduced in version <code>9.20.0</code></p>
 
 ```php
-public XMLConverter::formatter(?callback $formatter): mixed
+public XMLConverter::formatter(?callable $formatter): self
 ```
 
 This method allow to apply a callback prior to converting your collection individual item.
