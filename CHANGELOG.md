@@ -9,7 +9,7 @@ All Notable changes to `Csv` will be documented in this file
 - `XMLConverter::formatter`
 - `HTMLConverter::formatter`
 - `Writer::encloseNone`
-- `Writer::encloseRelax`
+- `Writer::encloseSelective`
 - `Writer::noEnclosure`
 
 ### Deprecated
