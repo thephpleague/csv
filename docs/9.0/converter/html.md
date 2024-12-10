@@ -44,6 +44,22 @@ This method sets the optional attribute name for the field name on the HTML `td`
 
 <p class="message-info">If none is used or an empty string is given, the field name information won't be exported to the HTML table.</p>
 
+
+### HTMLConverter::formatter
+
+<p class="message-info">New feature introduced in version <code>9.20.0</code></p>
+
+```php
+public HTMLConverter::formatter(?callback $formatter): mixed
+```
+
+This method allow to apply a callback prior to converting your collection individual item.
+This callback allows you to specify how each item will be converted. The formatter should
+return an associative array suitable for conversion.
+
+<p class="message-notice">The <code>Formatter</code> callback does not affect the footer
+and/or header conversion.</p>
+
 ## Conversion
 
 <p class="message-info">Since version <code>9.3.0</code> this method accepts optional header and footer records to display them in the exported HTML table.</p>

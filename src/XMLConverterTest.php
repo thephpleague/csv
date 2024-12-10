@@ -19,6 +19,8 @@ use DOMException;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 
+use function array_map;
+
 #[Group('converter')]
 final class XMLConverterTest extends TestCase
 {
@@ -116,5 +118,29 @@ final class XMLConverterTest extends TestCase
         self::assertSame('content-description: File Transfer', $headers[2]);
         self::assertStringContainsString('content-disposition: attachment;filename="foobar.xml"', $headers[3]);
         self::assertSame($xml, $output);
+    }
+
+    public function testToXMLWithFormatter(): void
+    {
+        $csv = Reader::createFromPath(__DIR__.'/../test_files/prenoms.csv', 'r')
+            ->setDelimiter(';')
+            ->setHeaderOffset(0)
+        ;
+
+        $stmt = Statement::create()
+            ->offset(3)
+            ->limit(5)
+        ;
+
+        $records = $stmt->process($csv);
+
+        $converter = XMLConverter::create()
+            ->rootElement('csv')
+            ->recordElement('record', 'offset')
+            ->fieldElement('field', 'name')
+            ->formatter(fn (array $record, int|string $key): array => array_map(strtoupper(...), $record));
+        ;
+
+        self::assertStringContainsString('ABEL', (string) $converter->convert($records)->saveXML());
     }
 }

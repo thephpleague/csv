@@ -2,6 +2,25 @@
 
 All Notable changes to `Csv` will be documented in this file
 
+## [Next](https://github.com/thephpleague/csv/compare/9.19.0...master) - TBD
+
+### Added
+
+- `XMLConverter::formatter`
+- `HTMLConverter::formatter`
+
+### Deprecated
+
+- None
+
+### Fixed
+
+- `JsonConverter::formatter` now accepts callable before only `Closure` where accepted.
+
+### Removed
+
+- None
+
 ## [9.19.0](https://github.com/thephpleague/csv/compare/9.18.0...9.19.0) - 2024-12-08
 
 ### Added

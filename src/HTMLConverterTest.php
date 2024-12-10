@@ -17,6 +17,8 @@ use DOMException;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 
+use function array_map;
+
 #[Group('converter')]
 final class HTMLConverterTest extends TestCase
 {
@@ -146,5 +148,30 @@ final class HTMLConverterTest extends TestCase
     {
         $this->expectException(DOMException::class);
         HTMLConverter::create()->table('table-csv-data', 'te st');
+    }
+
+    public function testToHTMLWithFormatter(): void
+    {
+        $csv = Reader::createFromPath(__DIR__.'/../test_files/prenoms.csv', 'r')
+            ->setDelimiter(';')
+            ->setHeaderOffset(0)
+        ;
+
+        $stmt = Statement::create()
+            ->offset(3)
+            ->limit(5)
+        ;
+
+        $records = $stmt->process($csv);
+
+        $converter = HTMLConverter::create()
+            ->table('table-csv-data', 'test')
+            ->td('title')
+            ->tr('data-record-offset')
+            ->formatter(fn (array $record, int|string $key): array => array_map(strtoupper(...), $record));
+        ;
+
+        $html = $converter->convert($records);
+        self::assertStringContainsString('ABEL', $html);
     }
 }
