@@ -32,7 +32,7 @@ class Writer extends AbstractCsv implements TabularDataWriter
 {
     protected const ENCLOSE_ALL = 1;
     protected const ENCLOSE_SELECTIVE = 0;
-    protected const ENCLOSE_NONE = -2;
+    protected const ENCLOSE_NONE = -1;
 
     protected const STREAM_FILTER_MODE = STREAM_FILTER_WRITE;
     /** @var array<callable> callable collection to format the record before insertion. */
