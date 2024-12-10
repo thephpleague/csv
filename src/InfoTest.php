@@ -64,9 +64,9 @@ final class InfoTest extends TestCase
     public function testDetectDelimiterListWithInconsistentCSV(): void
     {
         $data = new SplTempFileObject();
-        $data->setCsvControl(';');
+        $data->setCsvControl(separator: ';', escape: '\\');
         $data->fputcsv(['toto', 'tata', 'tutu']);
-        $data->setCsvControl('|');
+        $data->setCsvControl('|', escape: '\\');
         $data->fputcsv(['toto', 'tata', 'tutu']);
         $data->fputcsv(['toto', 'tata', 'tutu']);
         $data->fputcsv(['toto', 'tata', 'tutu']);

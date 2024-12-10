@@ -8,6 +8,9 @@ All Notable changes to `Csv` will be documented in this file
 
 - `XMLConverter::formatter`
 - `HTMLConverter::formatter`
+- `Writer::encloseNone`
+- `Writer::encloseNecessary`
+- `Writer::noEnclosure`
 
 ### Deprecated
 
@@ -16,6 +19,7 @@ All Notable changes to `Csv` will be documented in this file
 ### Fixed
 
 - `JsonConverter::formatter` now accepts callable before only `Closure` where accepted.
+- The protected property `Writer::$enclose_all` is no longer a boolean but an integer
 
 ### Removed
 

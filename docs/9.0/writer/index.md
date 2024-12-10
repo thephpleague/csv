@@ -127,19 +127,28 @@ By default, `getFlushTreshold` returns `null`.
 <p class="message-info"><code>Writer::insertAll</code> always flushes its buffer when all records are inserted, regardless of the threshold value.</p>
 <p class="message-info">If set to <code>null</code> the inner flush mechanism of PHP's <code>fputcsv</code> will be used.</p>
 
-## Force Enclosure
+## Enclosure
 
 <p class="message-info">Since version <code>9.10.0</code> you can provide control the presence of enclosure around all records.</p>
+<p class="message-info">Since version <code>9.20.0</code> generating CSV without enclosure is allowed.</p>
 
 ```php
 public Writer::forceEnclosure(): self
 public Writer::relaxEnclosure(): self
+public Writer::noEnclosure(): self
 public Writer::encloseAll(): bool
+public Writer::encloseNecessary(): bool
+public Writer::encloseNone(): bool
 ```
 
 By default, the `Writer` adds enclosures only around records that requires them. For all other records no enclosure character is present,
-With this feature, you can force the enclosure to be present on every record entry or CSV cell. The inclusion will respect
-the presence of enclosures inside the cell content as well as the presence of PHP's escape character.
+With this feature, you can:
+
+- force the enclosure to be present on every record entry or CSV cell;
+- completely remove the presence of enclosure;
+
+<p class="message-warning">When this feature is activated the <code>$escape</code> character is completely ignored (it is the same as setting it to the empty string.)</p>
+<p class="message-warning">When no enclosure is used, the library <strong>DO NOT CHECK</strong> for multiline fields.</p>
 
 ```php
 <?php

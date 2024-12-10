@@ -38,6 +38,7 @@ final class ReaderTest extends TabularDataReaderTestCase
     protected function setUp(): void
     {
         $tmp = new SplTempFileObject();
+        $tmp->setCsvControl(escape: '\\');
         foreach ($this->expected as $row) {
             $tmp->fputcsv($row);
         }
@@ -156,6 +157,7 @@ EOF;
         ];
 
         $file = new SplTempFileObject();
+        $file->setCsvControl(escape: '\\');
         foreach ($raw as $row) {
             $file->fputcsv($row);
         }
@@ -213,7 +215,7 @@ EOF;
     {
         /** @var resource $fp */
         $fp = fopen('php://temp', 'r+');
-        fputcsv($fp, $record);
+        fputcsv($fp, $record, escape: '');
         $csv = Reader::createFromStream($fp);
         self::assertSame($expected_bom, $csv->getInputBOM());
         foreach ($csv as $row) {
@@ -274,7 +276,7 @@ EOF;
         $expected_record = [Bom::Utf16Le->value.'john', 'doe', 'john.doe@example.com'];
         /** @var resource $fp */
         $fp = fopen('php://temp', 'r+');
-        fputcsv($fp, $expected_record);
+        fputcsv($fp, $expected_record, escape: '');
         $csv = Reader::createFromStream($fp);
         $csv->includeInputBOM();
         self::assertSame(Bom::Utf16Le->value, $csv->getInputBOM());
@@ -333,7 +335,7 @@ EOF;
         /** @var resource $tmp */
         $tmp = fopen('php://temp', 'r+');
         foreach ($this->expected as $row) {
-            fputcsv($tmp, $row);
+            fputcsv($tmp, $row, escape: '');
         }
 
         $csv = Reader::createFromStream($tmp);
@@ -363,6 +365,7 @@ EOF;
         ];
 
         $tmp = new SplTempFileObject();
+        $tmp->setCsvControl(escape: '\\');
         foreach ($expected as $row) {
             $tmp->fputcsv($row);
         }

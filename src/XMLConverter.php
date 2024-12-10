@@ -13,6 +13,7 @@ declare(strict_types=1);
 
 namespace League\Csv;
 
+use Closure;
 use DOMAttr;
 use DOMDocument;
 use DOMElement;
@@ -34,8 +35,8 @@ class XMLConverter
     protected string $column_attr = '';
     /** XML offset attribute name. */
     protected string $offset_attr = '';
-    /** @var ?callable(array, array-key): array */
-    public mixed $formatter = null;
+    /** @var ?Closure(array, array-key): array */
+    public ?Closure $formatter = null;
 
     public static function create(): self
     {
@@ -161,7 +162,7 @@ class XMLConverter
     public function formatter(?callable $formatter): self
     {
         $clone = clone $this;
-        $clone->formatter = $formatter;
+        $clone->formatter = ($formatter instanceof Closure || null === $formatter) ? $formatter : $formatter(...);
 
         return $clone;
     }

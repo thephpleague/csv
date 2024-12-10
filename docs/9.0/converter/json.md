@@ -116,7 +116,7 @@ $converter->indentSize; //returns the value used
 ### Json encode formatter
 
 ```php
-public JsonConverter::formatter(?callback $formatter): mixed
+public JsonConverter::formatter(?callable $formatter): self
 ```
 
 This method allow to apply a callback prior to `json_encode` your collection individual item.

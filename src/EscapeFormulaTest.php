@@ -63,7 +63,7 @@ final class EscapeFormulaTest extends TestCase
         $record = ['2', '2017-07-25', 'Important Client', '=2+5', 240, "\ttab", "\rcr", null];
         $expected = "2,2017-07-25,\"Important Client\",'=2+5,240,\"'\ttab\",\"'\rcr\",\n";
         $csv = Writer::createFromFileObject(new SplTempFileObject());
-        $csv->addFormatter(new EscapeFormula());
+        $csv->addFormatter((new EscapeFormula())->escapeRecord(...));
         $csv->insertOne($record);
         self::assertStringContainsString($expected, $csv->toString());
     }

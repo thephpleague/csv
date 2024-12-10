@@ -127,7 +127,7 @@ class Statement
         $reflection = new ReflectionFunction($where instanceof Closure ? $where : $where(...));
 
         return match ($reflection->getNumberOfRequiredParameters()) {
-            0 => throw new InvalidArgument('The where condition must be a callable with 2 required parameters.'),
+            0 => throw new InvalidArgument('The where condition must be callable with 2 required parameters.'),
             1 => fn (mixed $record, int $key) => $where($record),
             default => $where,
         };

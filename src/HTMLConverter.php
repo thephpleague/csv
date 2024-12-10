@@ -13,6 +13,7 @@ declare(strict_types=1);
 
 namespace League\Csv;
 
+use Closure;
 use Deprecated;
 use DOMDocument;
 use DOMElement;
@@ -30,8 +31,8 @@ class HTMLConverter
     /** table id attribute value. */
     protected string $id_value = '';
     protected XMLConverter $xml_converter;
-    /** @var ?callable(array, array-key): array */
-    protected mixed $formatter = null;
+    /** @var ?Closure(array, array-key): array */
+    protected ?Closure $formatter = null;
 
     public static function create(): self
     {
@@ -174,7 +175,7 @@ class HTMLConverter
     public function formatter(?callable $formatter): self
     {
         $clone = clone $this;
-        $clone->formatter = $formatter;
+        $clone->formatter = ($formatter instanceof Closure || null === $formatter) ? $formatter : $formatter(...);
 
         return $clone;
     }

@@ -38,6 +38,7 @@ final class StatementTest extends TestCase
     protected function setUp(): void
     {
         $tmp = new SplTempFileObject();
+        $tmp->setCsvControl(escape: '\\');
         foreach ($this->expected as $row) {
             $tmp->fputcsv($row);
         }

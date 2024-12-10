@@ -30,6 +30,10 @@ use const STREAM_FILTER_WRITE;
  */
 class Writer extends AbstractCsv implements TabularDataWriter
 {
+    protected const ENCLOSE_ALL = 1;
+    protected const ENCLOSE_NECESSARY = 0;
+    protected const ENCLOSE_NONE = -1;
+
     protected const STREAM_FILTER_MODE = STREAM_FILTER_WRITE;
     /** @var array<callable> callable collection to format the record before insertion. */
     protected array $formatters = [];
@@ -38,7 +42,7 @@ class Writer extends AbstractCsv implements TabularDataWriter
     protected string $newline = "\n";
     protected int $flush_counter = 0;
     protected ?int $flush_threshold = null;
-    protected bool $enclose_all = false;
+    protected int $enclose_all = self::ENCLOSE_NECESSARY;
     /** @var array{0:array<string>,1:array<string>} */
     protected array $enclosure_replace = [[], []];
     /** @var Closure(array): (int|false) */
@@ -54,14 +58,15 @@ class Writer extends AbstractCsv implements TabularDataWriter
         ];
 
         $this->insertRecord = fn (array $record): int|false => match ($this->enclose_all) {
-            true => $this->document->fwrite(implode(
+            self::ENCLOSE_ALL => $this->document->fwrite(implode(
                 $this->delimiter,
                 array_map(
                     fn ($content) => $this->enclosure.$content.$this->enclosure,
                     str_replace($this->enclosure_replace[0], $this->enclosure_replace[1], $record)
                 )
             ).$this->newline),
-            false => $this->document->fputcsv($record, $this->delimiter, $this->enclosure, $this->escape, $this->newline),
+            self::ENCLOSE_NONE => $this->document->fwrite(implode($this->delimiter, $record).$this->newline),
+            default => $this->document->fputcsv($record, $this->delimiter, $this->enclosure, $this->escape, $this->newline),
         };
     }
 
@@ -86,7 +91,24 @@ class Writer extends AbstractCsv implements TabularDataWriter
      */
     public function encloseAll(): bool
     {
-        return $this->enclose_all;
+        return self::ENCLOSE_ALL === $this->enclose_all;
+    }
+
+    /**
+     * Tells whether new entries will be selectively enclosed on writing
+     * if the field content requires encoding.
+     */
+    public function encloseNecessary(): bool
+    {
+        return self::ENCLOSE_NECESSARY === $this->enclose_all;
+    }
+
+    /**
+     * Tells whether new entries will never be enclosed on writing.
+     */
+    public function encloseNone(): bool
+    {
+        return self::ENCLOSE_NONE === $this->enclose_all;
     }
 
     /**
@@ -206,7 +228,7 @@ class Writer extends AbstractCsv implements TabularDataWriter
 
     public function relaxEnclosure(): self
     {
-        $this->enclose_all = false;
+        $this->enclose_all = self::ENCLOSE_NECESSARY;
         $this->resetProperties();
 
         return $this;
@@ -214,7 +236,15 @@ class Writer extends AbstractCsv implements TabularDataWriter
 
     public function forceEnclosure(): self
     {
-        $this->enclose_all = true;
+        $this->enclose_all = self::ENCLOSE_ALL;
+        $this->resetProperties();
+
+        return $this;
+    }
+
+    public function noEnclosure(): self
+    {
+        $this->enclose_all = self::ENCLOSE_NONE;
         $this->resetProperties();
 
         return $this;
