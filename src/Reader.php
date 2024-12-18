@@ -330,30 +330,30 @@ class Reader extends AbstractCsv implements TabularDataReader, JsonSerializable
     }
 
     /**
-     * @param Closure(array<mixed>, array-key=): (void|bool|null) $callback
+     * @param callable(array<mixed>, array-key=): (void|bool|null) $callback
      */
-    public function each(Closure $callback): bool
+    public function each(callable $callback): bool
     {
         return ResultSet::createFromTabularDataReader($this)->each($callback);
     }
 
     /**
-     * @param Closure(array<mixed>, array-key=): bool $callback
+     * @param callable(array<mixed>, array-key=): bool $callback
      */
-    public function exists(Closure $callback): bool
+    public function exists(callable $callback): bool
     {
         return ResultSet::createFromTabularDataReader($this)->exists($callback);
     }
 
     /**
-     * @param Closure(TInitial|null, array<mixed>, array-key=): TInitial $callback
+     * @param callable(TInitial|null, array<mixed>, array-key=): TInitial $callback
      * @param TInitial|null $initial
      *
      * @template TInitial
      *
      * @return TInitial|null
      */
-    public function reduce(Closure $callback, mixed $initial = null): mixed
+    public function reduce(callable $callback, mixed $initial = null): mixed
     {
         return ResultSet::createFromTabularDataReader($this)->reduce($callback, $initial);
     }

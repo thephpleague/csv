@@ -120,9 +120,9 @@ class ResultSet implements TabularDataReader, JsonSerializable
     }
 
     /**
-     * @param Closure(array<mixed>, array-key=): mixed $callback
+     * @param callable(array<mixed>, array-key=): mixed $callback
      */
-    public function each(Closure $callback): bool
+    public function each(callable $callback): bool
     {
         foreach ($this as $offset => $record) {
             if (false === $callback($record, $offset)) {
@@ -134,9 +134,9 @@ class ResultSet implements TabularDataReader, JsonSerializable
     }
 
     /**
-     * @param Closure(array<mixed>, array-key=): bool $callback
+     * @param callable(array<mixed>, array-key=): bool $callback
      */
-    public function exists(Closure $callback): bool
+    public function exists(callable $callback): bool
     {
         foreach ($this as $offset => $record) {
             if (true === $callback($record, $offset)) {
@@ -148,14 +148,14 @@ class ResultSet implements TabularDataReader, JsonSerializable
     }
 
     /**
-     * @param Closure(TInitial|null, array<mixed>, array-key=): TInitial $callback
+     * @param callable(TInitial|null, array<mixed>, array-key=): TInitial $callback
      * @param TInitial|null $initial
      *
      * @template TInitial
      *
      * @return TInitial|null
      */
-    public function reduce(Closure $callback, mixed $initial = null): mixed
+    public function reduce(callable $callback, mixed $initial = null): mixed
     {
         foreach ($this as $offset => $record) {
             $initial = $callback($initial, $record, $offset);
