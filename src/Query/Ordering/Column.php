@@ -47,7 +47,7 @@ final class Column implements Sort
     }
 
     /**
-     * @param ?Closure(mixed, mixed): int $callback
+     * @param (callable(mixed, mixed): int)|(Closure(mixed, mixed): int)|null $callback
      *
      * @throws QueryException
      */

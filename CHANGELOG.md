@@ -14,8 +14,8 @@ All Notable changes to `Csv` will be documented in this file
 
 ### Fixed
 
-- [#554](https://github.com/thephpleague/csv/pull/544) Fix stream filte removal
-- Fix Statement callaback signature
+- [#554](https://github.com/thephpleague/csv/pull/544) Fix stream filte removal by [crocodele](https://github.com/crocodele)
+- Fix Statement callback and closure signature
 
 ### Removed
 

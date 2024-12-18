@@ -238,7 +238,7 @@ class Statement
      *
      * The column value can be modified using the callback before ordering.
      */
-    public function orderByAsc(string|int $column, ?Closure $callback = null): self
+    public function orderByAsc(string|int $column, callable|Closure|null $callback = null): self
     {
         return $this->orderBy(Query\Ordering\Column::sortOn($column, 'asc', $callback));
     }
@@ -248,7 +248,7 @@ class Statement
      *
      * The column value can be modified using the callback before ordering.
      */
-    public function orderByDesc(string|int $column, ?Closure $callback = null): self
+    public function orderByDesc(string|int $column, callable|Closure|null $callback = null): self
     {
         return $this->orderBy(Query\Ordering\Column::sortOn($column, 'desc', $callback));
     }
