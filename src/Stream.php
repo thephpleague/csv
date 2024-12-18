@@ -83,7 +83,9 @@ final class Stream implements SeekableIterator
     {
         array_walk_recursive($this->filters, static function ($filter): void {
             if (is_resource($filter)) {
-                @stream_filter_remove($filter);
+                set_error_handler(fn (int $errno, string $errstr, string $errfile, int $errline) => true);
+                stream_filter_remove($filter);
+                restore_error_handler();
             }
         });
 
