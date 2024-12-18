@@ -14,6 +14,7 @@ declare(strict_types=1);
 namespace League\Csv;
 
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\DoesNotPerformAssertions;
 use PHPUnit\Framework\Attributes\Group;
 use SplFileObject;
 use SplTempFileObject;
@@ -636,5 +637,19 @@ CSV;
 
         Reader::createFromString($csv)
             ->getRecords(['Annee' => 'Year', 'Prenom' => 'Firstname', 'Nombre' => 'Count']);
+    }
+
+    #[DoesNotPerformAssertions]
+    public function testStreamWithFiltersDestructsGracefully(): void
+    {
+        /** @var resource $fp */
+        $fp = fopen('php://temp', 'r+');
+        fputcsv($fp, ['abc', '123'], escape: '');
+
+        $csv = Reader::createFromStream($fp);
+        $csv->addStreamFilter('convert.iconv.UTF-8/UTF-16');
+
+        // An explicitly closed file handle makes the stream filter resources invalid
+        fclose($fp);
     }
 }
