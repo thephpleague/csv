@@ -165,6 +165,20 @@ class ResultSet implements TabularDataReader, JsonSerializable
     }
 
     /**
+     * Run a map over each container members.
+     *
+     * @template TMap
+     *
+     * @param callable(array, int): TMap $callback
+     *
+     * @return Iterator<TMap>
+     */
+    public function map(callable $callback): Iterator
+    {
+        return MapIterator::fromIterable($this, $callback);
+    }
+
+    /**
      * @param positive-int $recordsCount
      *
      * @throws InvalidArgument

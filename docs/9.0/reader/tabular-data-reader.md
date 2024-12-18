@@ -372,6 +372,28 @@ $nbTotalCells = $resultSet->reduce(fn (?int $carry, array $records) => ($carry ?
 
 The closure is similar as the one used with `array_reduce`.
 
+### map
+
+<p class="message-notice">Added in version <code>9.21.0</code> for <code>Reader</code> and <code>ResultSet</code>.</p>
+
+The `map` method iterates over the tabular data records on map the found records to a defined structure.
+
+```php
+use League\Csv\Reader;
+use League\Csv\ResultSet;
+
+$reader = Reader::createFromPath('/path/to/my/file.csv', 'r');
+$resultSet = ResultSet::createFromTabularDataReader($reader);
+
+$mapper = fn (array $records, int $offset): int => 42;
+foreach ($resultSet->map($mapper) as $member) {
+    echo $member; //will always return the integer 42.
+}
+```
+
+<p class="message-info">This method is useful if you want, for instance, to cast the record to an instance
+you do not have control over and thus you can not use any <code>*asObject</code> methods.</p>
+
 ## Collection methods
 
 The following methods return all a new `TabularDataReader` instance.

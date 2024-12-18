@@ -309,6 +309,15 @@ abstract class TabularDataReaderTestCase extends TestCase
     }
 
     /***************************
+     * TabularDataReader::mao
+     ****************************/
+
+    public function testMap(): void
+    {
+        self::assertContains(42, $this->tabularData()->map(fn (array $record, int $offset): int => 42));
+    }
+
+    /***************************
      * TabularDataReader::reduce
      ****************************/
 
