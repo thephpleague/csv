@@ -7,6 +7,7 @@ All Notable changes to `Csv` will be documented in this file
 ### Added
 
 - Adding the `TabularDataReader::map` method.
+- Adding `CallbackStreamFilter` class
 
 ### Deprecated
 
