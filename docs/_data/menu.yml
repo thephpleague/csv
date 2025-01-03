@@ -9,8 +9,9 @@ version:
             Document Loading: '/9.0/connections/instantiation/'
             Character Controls: '/9.0/connections/controls/'
             BOM Sequences: '/9.0/connections/bom/'
-            Stream Filters: '/9.0/connections/filters/'
             Document output: '/9.0/connections/output/'
+            Stream Filters: '/9.0/connections/filters/'
+            Callback Stream Filter : '/9.0/connections/callback-stream-filter/'
         Inserting Records:
             Writer Connection: '/9.0/writer/'
             Bundled Helpers: '/9.0/writer/helpers/'
@@ -27,7 +28,6 @@ version:
             Force Enclosure : '/9.0/interoperability/enclose-field/'
             Handling Delimiter : '/9.0/interoperability/swap-delimiter/'
             Formula Injection : '/9.0/interoperability/escape-formula-injection/'
-            Callback Stream Filter : '/9.0/interoperability/callback-stream-filter/'
         Converting Records:
             Overview: '/9.0/converter/'
             Charset Converter: '/9.0/converter/charset/'

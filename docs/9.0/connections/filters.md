@@ -148,3 +148,4 @@ The library comes bundled with the following stream filters:
 - [RFC4180Field](/9.0/interoperability/rfc4180-field/) stream filter to read or write RFC4180 compliant CSV field;
 - [CharsetConverter](/9.0/converter/charset/) stream filter to convert your CSV document content using the `mbstring` extension;
 - [SkipBOMSequence](/9.0/connections/bom/) stream filter to skip your CSV document BOM sequence if present;
+- [CallbackStramFilter](/9.0/connections/callback-strean-filter/) apply a callback via a stream filter. 
