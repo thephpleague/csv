@@ -25,13 +25,18 @@ use function is_numeric;
 use function mb_convert_encoding;
 use function mb_list_encodings;
 use function preg_match;
+use function restore_error_handler;
+use function set_error_handler;
 use function sprintf;
 use function stream_bucket_append;
 use function stream_bucket_make_writeable;
+use function stream_bucket_new;
 use function stream_filter_register;
 use function stream_get_filters;
 use function strtolower;
 use function substr;
+
+use const PSFS_FEED_ME;
 
 /**
  * Converts resource stream or tabular data content charset.
@@ -53,7 +58,7 @@ class CharsetConverter extends php_user_filter
     {
         self::register();
 
-        $document->addStreamFilter(
+        $document->appendStreamFilterOnRead(
             self::getFiltername((Bom::tryFrom($document->getInputBOM()) ?? Bom::Utf8)->encoding(), $output_encoding),
             [self::BOM_SEQUENCE => self::SKIP_BOM_SEQUENCE]
         );
@@ -68,7 +73,11 @@ class CharsetConverter extends php_user_filter
     {
         self::register();
 
-        return $csv->addStreamFilter(self::getFiltername($input_encoding, $output_encoding), $params);
+        if ($csv instanceof Reader) {
+            return $csv->appendStreamFilterOnRead(self::getFiltername($input_encoding, $output_encoding), $params);
+        }
+
+        return $csv->appendStreamFilterOnWrite(self::getFiltername($input_encoding, $output_encoding), $params);
     }
 
     /**
@@ -191,18 +200,24 @@ class CharsetConverter extends php_user_filter
 
     public function filter($in, $out, &$consumed, bool $closing): int
     {
-        set_error_handler(fn (int $errno, string $errstr, string $errfile, int $errline) => true);
-        $alreadyRun = false;
+        $data = '';
         while (null !== ($bucket = stream_bucket_make_writeable($in))) {
-            $content = $bucket->data;
-            if (!$alreadyRun && $this->skipBomSequence && null !== ($bom = Bom::tryFromSequence($content))) {
-                $content = substr($content, $bom->length());
-            }
-            $alreadyRun = true;
-            $bucket->data = mb_convert_encoding($content, $this->output_encoding, $this->input_encoding);
+            $data .= $bucket->data;
             $consumed += $bucket->datalen;
-            stream_bucket_append($out, $bucket);
         }
+
+        if ('' === $data) {
+            return PSFS_FEED_ME;
+        }
+
+        if ($this->skipBomSequence && null !== ($bom = Bom::tryFromSequence($data))) {
+            $data = substr($data, $bom->length());
+        }
+
+        $data = mb_convert_encoding($data, $this->output_encoding, $this->input_encoding);
+
+        set_error_handler(fn (int $errno, string $errstr, string $errfile, int $errline) => true);
+        stream_bucket_append($out, stream_bucket_new($this->stream, $data));
         restore_error_handler();
 
         return PSFS_PASS_ON;

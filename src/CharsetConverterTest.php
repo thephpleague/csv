@@ -84,7 +84,7 @@ final class CharsetConverterTest extends TestCase
         $expected = 'Batman,Superman,Anaïs';
         $raw = mb_convert_encoding($expected, 'iso-8859-15', 'utf-8');
         $csv = Reader::createFromString($raw)
-            ->addStreamFilter('string.toupper');
+            ->appendStreamFilterOnRead('string.toupper');
         CharsetConverter::addTo($csv, 'iso-8859-15', 'utf-8');
 
         self::assertContains(CharsetConverter::FILTERNAME.'.*', stream_get_filters());
@@ -98,8 +98,8 @@ final class CharsetConverterTest extends TestCase
         $expected = 'Batman,Superman,Anaïs';
         $raw = mb_convert_encoding($expected, 'iso-8859-15', 'utf-8');
         $csv = Reader::createFromString($raw)
-            ->addStreamFilter('string.toupper')
-            ->addStreamFilter('convert.league.csv.iso-8859-15:utf-8')
+            ->appendStreamFilterOnRead('string.toupper')
+            ->appendStreamFilterOnRead('convert.league.csv.iso-8859-15:utf-8')
         ;
     }
 

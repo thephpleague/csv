@@ -324,28 +324,28 @@ EOF;
         $this->csv->setEnclosure('foo');
     }
 
-    public function testAddStreamFilter(): void
+    public function testappendStreamFilter(): void
     {
         $csv = Reader::createFromPath(__DIR__.'/../test_files/foo.csv');
-        $csv->addStreamFilter('string.rot13');
-        $csv->addStreamFilter('string.tolower');
-        $csv->addStreamFilter('string.toupper');
+        $csv->appendStreamFilterOnRead('string.rot13');
+        $csv->appendStreamFilterOnRead('string.tolower');
+        $csv->appendStreamFilterOnRead('string.toupper');
         foreach ($csv as $row) {
             self::assertSame($row, ['WBUA', 'QBR', 'WBUA.QBR@RKNZCYR.PBZ']);
         }
     }
 
-    public function testFailedAddStreamFilter(): void
+    public function testFailedappendStreamFilter(): void
     {
         $csv = Writer::createFromFileObject(new SplTempFileObject());
         self::assertFalse($csv->supportsStreamFilterOnWrite());
 
         $this->expectException(UnavailableFeature::class);
 
-        $csv->addStreamFilter('string.toupper');
+        $csv->appendStreamFilterOnRead('string.toupper');
     }
 
-    public function testFailedAddStreamFilterWithWrongFilter(): void
+    public function testFailedappendStreamFilterWithWrongFilter(): void
     {
         $this->expectException(InvalidArgument::class);
 
@@ -353,7 +353,7 @@ EOF;
         $tmpfile = tmpfile();
 
         Writer::createFromStream($tmpfile)
-            ->addStreamFilter('foobar.toupper');
+            ->appendStreamFilterOnRead('foobar.toupper');
     }
 
     public function testStreamFilterDetection(): void
@@ -363,7 +363,7 @@ EOF;
 
         self::assertFalse($csv->hasStreamFilter($filtername));
 
-        $csv->addStreamFilter($filtername);
+        $csv->appendStreamFilterOnRead($filtername);
 
         self::assertTrue($csv->hasStreamFilter($filtername));
     }
@@ -372,7 +372,7 @@ EOF;
     {
         $path = __DIR__.'/../test_files/foo.csv';
         $csv = Reader::createFromPath($path);
-        $csv->addStreamFilter('string.toupper');
+        $csv->appendStreamFilterOnRead('string.toupper');
 
         self::assertStringContainsString('JOHN', $csv->toString());
 
@@ -384,7 +384,7 @@ EOF;
     public function testSetStreamFilterOnWriter(): void
     {
         $csv = Writer::createFromPath(__DIR__.'/../test_files/newline.csv', 'w+');
-        $csv->addStreamFilter('string.toupper');
+        $csv->appendStreamFilterOnWrite('string.toupper');
         $csv->insertOne([1, 'two', 3, "new\r\nline"]);
 
         self::assertStringContainsString("1,TWO,3,\"NEW\r\nLINE\"", $csv->toString());

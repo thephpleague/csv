@@ -647,7 +647,7 @@ CSV;
         fputcsv($fp, ['abc', '123'], escape: '');
 
         $csv = Reader::createFromStream($fp);
-        $csv->addStreamFilter('convert.iconv.UTF-8/UTF-16');
+        $csv->appendStreamFilterOnRead('convert.iconv.UTF-8/UTF-16');
 
         // An explicitly closed file handle makes the stream filter resources invalid
         fclose($fp);

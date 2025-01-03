@@ -21,7 +21,7 @@ $reader = Reader::createFromPath('/path/to/my/file.csv', 'r');
 //let's set the output BOM
 $reader->setOutputBOM(Bom::Utf8);
 //let's convert the incoming data from iso-88959-15 to utf-8
-$reader->addStreamFilter('convert.iconv.ISO-8859-15/UTF-8');
+$reader->appendStreamFilter('convert.iconv.ISO-8859-15/UTF-8');
 //BOM detected and adjusted for the output
 echo $reader->getContent();
 ```

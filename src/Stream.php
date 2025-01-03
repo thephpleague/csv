@@ -185,10 +185,27 @@ final class Stream implements SeekableIterator
      *
      * @throws InvalidArgument if the filter can not be appended
      */
-    public function appendFilter(string $filtername, int $read_write, ?array $params = null): void
+    public function appendFilter(string $filtername, int $read_write, mixed $params = null): void
     {
         set_error_handler(fn (int $errno, string $errstr, string $errfile, int $errline) => true);
-        $res = stream_filter_append($this->stream, $filtername, $read_write, $params ?? []);
+        $res = stream_filter_append($this->stream, $filtername, $read_write, $params);
+        restore_error_handler();
+        is_resource($res) || throw InvalidArgument::dueToStreamFilterNotFound($filtername);
+
+        $this->filters[$filtername][] = $res;
+    }
+
+    /**
+     * Appends a filter.
+     *
+     * @see http://php.net/manual/en/function.stream-filter-append.php
+     *
+     * @throws InvalidArgument if the filter can not be appended
+     */
+    public function prependFilter(string $filtername, int $read_write, mixed $params = null): void
+    {
+        set_error_handler(fn (int $errno, string $errstr, string $errfile, int $errline) => true);
+        $res = stream_filter_prepend($this->stream, $filtername, $read_write, $params);
         restore_error_handler();
         is_resource($res) || throw InvalidArgument::dueToStreamFilterNotFound($filtername);
 

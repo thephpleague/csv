@@ -64,7 +64,7 @@ final class WriterTest extends TestCase
         self::assertTrue($csv->supportsStreamFilterOnWrite());
 
         $csv->setFlushThreshold(3);
-        $csv->addStreamFilter('string.toupper');
+        $csv->appendStreamFilterOnWrite('string.toupper');
         $csv->insertOne(['jane', 'doe', 'jane@example.com']);
         $csv->insertOne(['jane', 'doe', 'jane@example.com']);
         $csv->insertOne(['jane', 'doe', 'jane@example.com']);

@@ -11,7 +11,6 @@ version:
             BOM Sequences: '/9.0/connections/bom/'
             Document output: '/9.0/connections/output/'
             Stream Filters: '/9.0/connections/filters/'
-            Callback Stream Filter : '/9.0/connections/callback-stream-filter/'
         Inserting Records:
             Writer Connection: '/9.0/writer/'
             Bundled Helpers: '/9.0/writer/helpers/'

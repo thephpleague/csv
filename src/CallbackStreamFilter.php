@@ -14,127 +14,148 @@ declare(strict_types=1);
 namespace League\Csv;
 
 use Closure;
+use LogicException;
+use OutOfBoundsException;
 use php_user_filter;
+use ReflectionException;
+use ReflectionFunction;
 use RuntimeException;
-use TypeError;
+use Throwable;
+use ValueError;
 
-use function array_key_exists;
-use function is_resource;
+use function array_keys;
+use function in_array;
+use function restore_error_handler;
+use function set_error_handler;
+use function stream_bucket_append;
+use function stream_bucket_make_writeable;
+use function stream_bucket_new;
+use function stream_filter_register;
+use function stream_get_filters;
+
+use const PSFS_ERR_FATAL;
+use const PSFS_FEED_ME;
+use const PSFS_PASS_ON;
 
 final class CallbackStreamFilter extends php_user_filter
 {
-    private const FILTER_NAME = 'string.league.csv.stream.callback.filter';
+    /** @var array<string, Closure(string, mixed): string> */
+    private static array $filters = [];
 
-    public static function getFiltername(string $name): string
-    {
-        return self::FILTER_NAME.'.'.$name;
-    }
-
-    /**
-     * Static method to register the class as a stream filter.
-     */
-    public static function register(string $name): void
-    {
-        $filtername = self::getFiltername($name);
-        if (!in_array($filtername, stream_get_filters(), true)) {
-            stream_filter_register($filtername, self::class);
-        }
-    }
-
-    /**
-     * Static method to attach the stream filter to a CSV Reader or Writer instance.
-     */
-    public static function addTo(AbstractCsv $csv, string $name, callable $callback): void
-    {
-        self::register($name);
-
-        $csv->addStreamFilter(self::getFiltername($name), [
-            'name' => $name,
-            'callback' => $callback instanceof Closure ? $callback : $callback(...),
-        ]);
-    }
-
-    /**
-     * @param resource $stream
-     * @param callable(string): string $callback
-     *
-     * @throws TypeError
-     * @throws RuntimeException
-     *
-     * @return resource
-     */
-    public static function appendTo(mixed $stream, string $name, callable $callback): mixed
-    {
-        self::register($name);
-
-        is_resource($stream) || throw new TypeError('Argument passed must be a stream resource, '.gettype($stream).' given.');
-        'stream' === ($type = get_resource_type($stream)) || throw new TypeError('Argument passed must be a stream resource, '.$type.' resource given');
-
-        set_error_handler(fn (int $errno, string $errstr, string $errfile, int $errline) => true);
-        $filter = stream_filter_append($stream, self::getFiltername($name), params: [
-            'name' => $name,
-            'callback' => $callback instanceof Closure ? $callback : $callback(...),
-        ]);
-        restore_error_handler();
-
-        if (!is_resource($filter)) {
-            throw new RuntimeException('Could not append the registered stream filter: '.self::getFiltername($name));
-        }
-
-        return $filter;
-    }
-
-    /**
-     * @param resource $stream
-     * @param callable(string): string $callback
-     *
-     * @throws TypeError
-     * @throws RuntimeException
-     *
-     * @return resource
-     */
-    public static function prependTo(mixed $stream, string $name, callable $callback): mixed
-    {
-        self::register($name);
-
-        is_resource($stream) || throw new TypeError('Argument passed must be a stream resource, '.gettype($stream).' given.');
-        'stream' === ($type = get_resource_type($stream)) || throw new TypeError('Argument passed must be a stream resource, '.$type.' resource given');
-
-        $filtername = self::getFiltername($name);
-        set_error_handler(fn (int $errno, string $errstr, string $errfile, int $errline) => true);
-        $filter = stream_filter_append($stream, $filtername, params: [
-            'name' => $name,
-            'callback' => $callback instanceof Closure ? $callback : $callback(...),
-        ]);
-        restore_error_handler();
-
-        if (!is_resource($filter)) {
-            throw new RuntimeException('Could not append the registered stream filter: '.self::getFiltername($name));
-        }
-
-        return $filter;
-    }
+    /** @var ?Closure(string, mixed): string */
+    private ?Closure $callback = null;
 
     public function onCreate(): bool
     {
-        return is_array($this->params) &&
-            array_key_exists('name', $this->params) &&
-            self::getFiltername($this->params['name']) === $this->filtername &&
-            array_key_exists('callback', $this->params) &&
-            $this->params['callback'] instanceof Closure
-        ;
+        $this->callback = self::$filters[$this->filtername] ?? null;
+
+        return $this->callback instanceof Closure;
+    }
+
+    public function onClose(): void
+    {
+        $this->callback = null;
     }
 
     public function filter($in, $out, &$consumed, bool $closing): int
     {
-        /** @var Closure(string): string $callback */
-        $callback = $this->params['callback']; /* @phpstan-ignore-line */
+        $data = '';
         while (null !== ($bucket = stream_bucket_make_writeable($in))) {
-            $bucket->data = ($callback)($bucket->data);
+            $data .= $bucket->data;
             $consumed += $bucket->datalen;
-            stream_bucket_append($out, $bucket);
         }
 
+        if (null === $this->callback) {
+            return PSFS_FEED_ME;
+        }
+
+        try {
+            $data = ($this->callback)($data, $this->params);
+        } catch (Throwable $exception) {
+            $this->onClose();
+            trigger_error('An error occurred while executing the stream filter `'.$this->filtername.'`: '.$exception->getMessage(), E_USER_WARNING);
+
+            return PSFS_ERR_FATAL;
+        }
+
+        set_error_handler(fn (int $errno, string $errstr, string $errfile, int $errline) => true);
+        stream_bucket_append($out, stream_bucket_new($this->stream, $data));
+        restore_error_handler();
+
         return PSFS_PASS_ON;
+    }
+
+    /**
+     * Static method to register the class as a stream filter.
+     *
+     * @param callable(string, ?array): string $callback
+     */
+    public static function register(string $filtername, callable $callback): void
+    {
+        if (isset(self::$filters[$filtername]) || in_array($filtername, stream_get_filters(), true)) {
+            throw new LogicException('The stream filter "'.$filtername.'" is already registered.');
+        }
+
+        $callback = self::normalizeCallback($callback);
+        if (!stream_filter_register($filtername, self::class)) {
+            throw new RuntimeException('The stream filter "'.$filtername.'" could not be registered.');
+        }
+
+        self::$filters[$filtername] = $callback;
+    }
+
+    /**
+     * @param callable(string, ?array): string $callback
+     *
+     * @throws ReflectionException|ValueError
+     *
+     * @return Closure(string, mixed): string
+     */
+    private static function normalizeCallback(callable $callback): Closure
+    {
+        if (!$callback instanceof Closure) {
+            $callback = $callback(...);
+        }
+
+        $reflection = new ReflectionFunction($callback);
+        if (!$reflection->isInternal()) {
+            return $callback;
+        }
+
+        if (1 !== $reflection->getNumberOfParameters()) {
+            throw new ValueError('The PHP function "'.$reflection->getName().'" can not be used directly; wrap it in a callback.');
+        }
+
+        return fn (string $bucket, mixed $params): string => $callback($bucket);
+    }
+
+    /**
+     * Tells whether a callback with the given name is already registered or not.
+     */
+    public static function isRegistered(string $filtername): bool
+    {
+        return isset(self::$filters[$filtername]);
+    }
+
+    /**
+     * Returns the list of registered filters.
+     *
+     * @return array<string>
+     */
+    public static function registeredFilternames(): array
+    {
+        return array_keys(self::$filters);
+    }
+
+    /**
+     * Returns the closure attached to the filtername.
+     *
+     * @throws OutOfBoundsException if no callback is attached to the filter name
+     *
+     * @return Closure(string, mixed): string
+     */
+    public static function callback(string $filtername): Closure
+    {
+        return self::$filters[$filtername] ?? throw new OutOfBoundsException('No callback is attached to the stream filter "'.$filtername.'".');
     }
 }

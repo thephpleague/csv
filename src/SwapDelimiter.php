@@ -54,10 +54,19 @@ final class SwapDelimiter extends php_user_filter
     {
         self::register();
 
-        $csv->addStreamFilter(self::getFiltername(), [
+        if ($csv instanceof Reader) {
+            $csv->appendStreamFilterOnRead(self::getFiltername(), [
+                'mb_separator' => $inputDelimiter,
+                'separator' => $csv->getDelimiter(),
+                'mode' => self::MODE_READ,
+            ]);
+            return;
+        }
+
+        $csv->appendStreamFilterOnWrite(self::getFiltername(), [
             'mb_separator' => $inputDelimiter,
             'separator' => $csv->getDelimiter(),
-            'mode' => $csv instanceof Writer ? self::MODE_WRITE : self::MODE_READ,
+            'mode' => self::MODE_WRITE,
         ]);
     }
 
@@ -140,12 +149,16 @@ final class SwapDelimiter extends php_user_filter
 
     public function filter($in, $out, &$consumed, bool $closing): int
     {
+        $data = '';
         while (null !== ($bucket = stream_bucket_make_writeable($in))) {
-            $content = $bucket->data;
-            $bucket->data = str_replace($this->search, $this->replace, $content);
+            $data .= $bucket->data;
             $consumed += $bucket->datalen;
-            stream_bucket_append($out, $bucket);
         }
+
+        $data = str_replace($this->search, $this->replace, $data);
+        set_error_handler(fn (int $errno, string $errstr, string $errfile, int $errline) => true);
+        stream_bucket_append($out, stream_bucket_new($this->stream, $data));
+        restore_error_handler();
 
         return PSFS_PASS_ON;
     }
