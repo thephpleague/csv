@@ -16,16 +16,25 @@ namespace League\Csv;
 use Deprecated;
 use InvalidArgumentException;
 use php_user_filter;
+use Throwable;
 
 use function array_map;
 use function in_array;
+use function restore_error_handler;
+use function set_error_handler;
 use function str_replace;
 use function strcspn;
 use function stream_bucket_append;
 use function stream_bucket_make_writeable;
+use function stream_bucket_new;
 use function stream_filter_register;
 use function stream_get_filters;
 use function strlen;
+use function trigger_error;
+
+use const E_USER_WARNING;
+use const PSFS_ERR_FATAL;
+use const PSFS_PASS_ON;
 
 /**
  * A stream filter to improve enclosure character usage.
@@ -110,15 +119,25 @@ class EncloseField extends php_user_filter
      */
     public function filter($in, $out, &$consumed, bool $closing): int
     {
+        $data = '';
+        while (null !== ($bucket = stream_bucket_make_writeable($in))) {
+            $data .= $bucket->data;
+            $consumed += $bucket->datalen;
+        }
+
         /** @var array $params */
         $params = $this->params;
-        /** @var string $sequence */
-        $sequence = $params['sequence'];
-        while (null !== ($bucket = stream_bucket_make_writeable($in))) {
-            $bucket->data = str_replace($sequence, '', $bucket->data);
-            $consumed += $bucket->datalen;
-            stream_bucket_append($out, $bucket);
+        try {
+            $data = str_replace($params['sequence'], '', $data);
+        } catch (Throwable $exception) {
+            trigger_error('An error occurred while executing the stream filter `'.$this->filtername.'`: '.$exception->getMessage(), E_USER_WARNING);
+
+            return PSFS_ERR_FATAL;
         }
+
+        set_error_handler(fn (int $errno, string $errstr, string $errfile, int $errline) => true);
+        stream_bucket_append($out, stream_bucket_new($this->stream, $data));
+        restore_error_handler();
 
         return PSFS_PASS_ON;
     }

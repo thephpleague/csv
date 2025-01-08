@@ -21,10 +21,12 @@ use SplFileObject;
 use SplTempFileObject;
 
 use function chr;
+use function fopen;
 use function function_exists;
 use function ob_get_clean;
 use function ob_start;
 use function strtolower;
+use function tempnam;
 use function tmpfile;
 use function unlink;
 use function xdebug_get_headers;
@@ -240,6 +242,12 @@ EOF;
         yield 'Reader with stream capability' => [
             'csv' => Reader::createFromString(),
             'useFilterRead' => true,
+            'useFilterWrite' => true,
+        ];
+
+        yield 'Reader with stream capability but without write capability' => [
+            'csv' => Reader::createFromStream(fopen('php://temp', 'r')), /* @phpstan-ignore-line */
+            'useFilterRead' => true,
             'useFilterWrite' => false,
         ];
 
@@ -251,6 +259,12 @@ EOF;
 
         yield 'Writer with stream capability' => [
             'csv' => Writer::createFromString(),
+            'useFilterRead' => true,
+            'useFilterWrite' => true,
+        ];
+
+        yield 'Writer with stream capability but without read capabilities' => [
+            'csv' => Writer::createFromStream(fopen(tempnam('/tmp', 'foo'), 'w')), /* @phpstan-ignore-line */
             'useFilterRead' => false,
             'useFilterWrite' => true,
         ];

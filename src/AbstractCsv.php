@@ -172,8 +172,13 @@ abstract class AbstractCsv implements ByteSequence
      */
     public function supportsStreamFilterOnRead(): bool
     {
-        return $this->document instanceof Stream
-            && (static::STREAM_FILTER_MODE & STREAM_FILTER_READ) === STREAM_FILTER_READ;
+        if (!$this->document instanceof Stream) {
+            return false;
+        }
+
+        $mode = $this->document->getMode();
+
+        return strcspn($mode, 'r+') !== strlen($mode);
     }
 
     /**
@@ -181,8 +186,13 @@ abstract class AbstractCsv implements ByteSequence
      */
     public function supportsStreamFilterOnWrite(): bool
     {
-        return $this->document instanceof Stream
-            && (static::STREAM_FILTER_MODE & STREAM_FILTER_WRITE) === STREAM_FILTER_WRITE;
+        if (!$this->document instanceof Stream) {
+            return false;
+        }
+
+        $mode = $this->document->getMode();
+
+        return strcspn($mode, 'wae+') !== strlen($mode);
     }
 
     /**

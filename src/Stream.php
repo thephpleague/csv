@@ -112,6 +112,14 @@ final class Stream implements SeekableIterator
         ];
     }
 
+    /**
+     * Returns the actual mode used to open the resource stream.
+     */
+    public function getMode(): string
+    {
+        return stream_get_meta_data($this->stream)['mode'];
+    }
+
     public function ftell(): int|false
     {
         return ftell($this->stream);

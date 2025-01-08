@@ -34,19 +34,19 @@ final class StreamFilter
     /**
      * Remove a filter from a stream.
      *
-     * @param resource $streamFilter
+     * @param resource $stream_filter
      */
-    public static function remove($streamFilter): bool
+    public static function remove($stream_filter): bool
     {
-        if (!is_resource($streamFilter)) {
-            throw new TypeError('Argument passed must be a stream resource, '.gettype($streamFilter).' given.');
+        if (!is_resource($stream_filter)) {
+            throw new TypeError('Argument passed must be a stream resource, '.gettype($stream_filter).' given.');
         }
 
-        if ('stream filter' !== ($type = get_resource_type($streamFilter))) {
+        if ('stream filter' !== ($type = get_resource_type($stream_filter))) {
             throw new TypeError('Argument passed must be a stream filter resource, '.$type.' resource given');
         }
 
-        return stream_filter_remove($streamFilter);
+        return stream_filter_remove($stream_filter);
     }
 
     /**
@@ -85,7 +85,7 @@ final class StreamFilter
      */
     public static function prependOnReadTo(mixed $stream, string $filtername, mixed $params = null): mixed
     {
-        return self::prependFilter(STREAM_FILTER_READ, $stream, $filtername, $params ?? []);
+        return self::prependFilter(STREAM_FILTER_READ, $stream, $filtername, $params);
     }
 
     /**
@@ -98,7 +98,7 @@ final class StreamFilter
      */
     public static function prependOnWriteTo(mixed $stream, string $filtername, mixed $params = null): mixed
     {
-        return self::prependFilter(STREAM_FILTER_WRITE, $stream, $filtername, $params ?? []);
+        return self::prependFilter(STREAM_FILTER_WRITE, $stream, $filtername, $params);
     }
 
     /**

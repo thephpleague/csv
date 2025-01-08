@@ -6,13 +6,14 @@ All Notable changes to `Csv` will be documented in this file
 
 ### Added
 
-- Adding the `TabularDataReader::map` method.
-- Adding `StreamFilter` class
-- Adding `CallbackStreamFilter` class
+- `TabularDataReader::map` method.
+- `StreamFilter` class
+- `CallbackStreamFilter` class
 - `AbstractCsv::appendStreamFilterOnRead`
 - `AbstractCsv::appendStreamFilterOnWrite`
 - `AbstractCsv::prependStreamFilterOnRead`
 - `AbstractCsv::prependStreamFilterOnWrite`
+- `Stream::getMode` returns the underlying stream mode; internal codebase.
 
 ### Deprecated
 
@@ -20,7 +21,8 @@ All Notable changes to `Csv` will be documented in this file
 
 ### Fixed
 
-- Improve `CharsetConverter` ans `SwapDelimiter` internal code.
+- Improve `CharsetConverter` and `SwapDelimiter` internal code.
+- Fix `supportStreamFilterOnRead`and `supportStreamFilterOnWrite` to expose the document real stream filter capabilities.
 
 ### Removed
 

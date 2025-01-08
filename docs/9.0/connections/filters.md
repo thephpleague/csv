@@ -101,9 +101,9 @@ The `AbstractCsv::addStreamFilter` method adds a stream filter to the connection
 - The `$filtername` parameter is a string that represents the filter as registered using php `stream_filter_register` function or one of [PHP internal stream filter](http://php.net/manual/en/filters.php).
 - The `$params` : This filter will be added with the specified parameters to the end of the list.
 
-The `appendStreamFilterOn*` methods add the stream filter at the bottom of the stream filter queue whereas
-`prependStreamFilterOn*` methods add the stream filter on top of the queue. Both methods share the same
-arguments and the same return type.
+The `appendStreamFilterOn*` methods add the stream filter at the end of the stream filter chain whereas
+`prependStreamFilterOn*` methods add the stream filter at the start of the chain. Both methods share
+the same arguments and the same return type.
 
 <p class="message-warning">Each time your call a method with the same argument the corresponding filter is attached again.</p>
 
@@ -162,9 +162,9 @@ $reader = null;
 
 The library comes bundled with the following stream filters:
 
+- [EncloseField](/9.0/interoperability/enclose-field/) stream filter to force field enclosure on write;
 - [RFC4180Field](/9.0/interoperability/rfc4180-field/) stream filter to read or write RFC4180 compliant CSV field;
 - [CharsetConverter](/9.0/converter/charset/) stream filter to convert your CSV document content using the `mbstring` extension;
-- [SkipBOMSequence](/9.0/connections/bom/) stream filter to skip your CSV document BOM sequence if present;
 
 ## Custom Stream Filter
 
@@ -172,12 +172,12 @@ The library comes bundled with the following stream filters:
 
 Sometimes you may encounter a scenario where you need to create a specific stream filter
 to resolve your issue. Instead of having to put up with the hassle of creating a
-fully fledge stream filter, the package provides a simple feature to register any callback
+fully fledged stream filter, the package provides a simple feature to register any callback
 as a stream filter and to use it either with a CSV class or with PHP stream resources.
 
-### Registering the callbacks
+### Registering the callback
 
-Before using your custom stream filter you will need to register it via the `CallbackStreamFilter` class.
+Before using your custom stream filter you will first need to register it via the `CallbackStreamFilter` class.
 This class is a global registry that will store all your custom callbacks filters.
 
 ```php
@@ -199,7 +199,7 @@ callable(string $bucket [, mixed $params]): string
 - the `$bucket` parameter represents the chunk of the stream you will be operating on.
 - the `$params` represents an additional, **optional**, parameter you may pass onto the callback when it is being attached.
 
-Once registered you can use the filter via its `$filtername`. You can register multiple times your callback
+Once registered you can apply the filter via its `$filtername`. It is possible to register multiple times the same callback
 but each registration needs to be done with a unique name otherwise an exception will be triggered.
 
 You can always check for the existence of your registered filter by calling the `CallbackStreamFilter::isRegistered` method.
@@ -214,11 +214,19 @@ CallbackStreamFilter::isRegistered('string.tolower');
 //returns false - exits, is registered by PHP itself not by StreamFilter
 ```
 
-Last but not least, you can always list all the registered filter names by calling the
+The class allows listing all the registered filter names by calling the
 
 ```php
 CallbackStreamFilter::registeredFilterNames(); // returns a list
 ```
+
+And also returning a specific registered callback via the `callback` method.
+
+```php
+CallbackStreamFilter::callback($filtername); // returns a Closure
+```
+
+If no callback associated to `$filtername` exists, an exception will be thrown.
 
 <p class="message-info">To avoid conflict with already registered stream filters a best
 practice is to namespace your own filters by using a unique prefix. Instead of
@@ -241,15 +249,15 @@ public static methods:
 - `StreamFilter::prependOnReadTo`
 - `StreamFilter::prependOnWriteTo`
 
-They will all add the filter to the stream filter queue attached to the structure
+They will all add the filter to the stream filter chain attached to the structure
 (League/CSV objects or PHP stream resource). They all share the same signature and only differ in:
 
-- where in the queue the filter is added (at the top or at the bottom of the stream filter queue);
+- where in the chain the filter is added (at the top or at the bottom of the stream filter chain);
 - which mode (read or write) will be used;
 - their return value may be a `Reader` or a `Writer` instance or a reference to the attached stream filter.
 
 To illustrate their usage let's check the two examples below, one with the `Reader` class and another one
-with PHP stream resources.
+with a PHP stream resource.
 
 ### Usage with CSV objects
 
@@ -258,7 +266,7 @@ This type of document is parsable by the package but only if you enable the depr
 
 If you no longer want to rely on that feature which has been deprecated since PHP 8.1 and will be
 removed from PHP once PHP9.0 is released, you can, as an alternative, use the `StreamFilter`
-instead by replacing the offending character with a supported alternative.
+instead to replace the offending character with a supported alternative.
 
 ```php
 use League\Csv\CallbackStreamFilter;
@@ -289,7 +297,7 @@ return $document->first();
 The `appendOnReadTo` method will check for the availability of the filter via its
 name `myapp.replace.eol`. If  it is not present a `LogicException` will be
 thrown, otherwise it will attach the filter to the CSV document object at the
-bottom of the stream filter queue using the reading mode.
+bottom of the stream filter chain using the reading mode.
 
 <p class="message-warning">On read, the CSV document content is <strong>never changed or replaced</strong>.
 However, on write, the changes <strong>are persisted</strong> into the created document.</p>
