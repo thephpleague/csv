@@ -99,7 +99,7 @@ enum Comparison: string
             self::NotIn => !in_array($subject, $reference, self::isSingleValue($subject)), /* @phpstan-ignore-line */
             self::Regexp => is_string($subject) && 1 === preg_match($reference, $subject), /* @phpstan-ignore-line */
             self::NotRegexp => is_string($subject) && 1 !== preg_match($reference, $subject), /* @phpstan-ignore-line */
-            self::Contains => str_contains($subject, $reference), /* @phpstan-ignore-line */
+            self::Contains => is_string($subject) && str_contains($subject, $reference), /* @phpstan-ignore-line */
             self::NotContain => is_string($subject) && !str_contains($subject, $reference), /* @phpstan-ignore-line */
             self::StartsWith => is_string($subject) && str_starts_with($subject, $reference), /* @phpstan-ignore-line */
             self::EndsWith => is_string($subject) && str_ends_with($subject, $reference), /* @phpstan-ignore-line */
