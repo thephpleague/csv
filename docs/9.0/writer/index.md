@@ -134,7 +134,7 @@ By default, `getFlushTreshold` returns `null`.
 
 ```php
 public Writer::forceEnclosure(): self
-public Writer::relaxEnclosure(): self
+public Writer::necessaryEnclosure(): self
 public Writer::noEnclosure(): self
 public Writer::encloseAll(): bool
 public Writer::encloseNecessary(): bool
@@ -149,6 +149,7 @@ With this feature, you can:
 
 <p class="message-warning">When this feature is activated the <code>$escape</code> character is completely ignored (it is the same as setting it to the empty string.)</p>
 <p class="message-warning">When no enclosure is used, the library <strong>DO NOT CHECK</strong> for multiline fields.</p>
+<p class="message-notice"><code>relaxEnclosure</code> is deprecated since version <code>9.22.0</code> and is replaced by <code>necessaryEnclosure</code></p>
 
 ```php
 <?php

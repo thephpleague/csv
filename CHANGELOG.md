@@ -6,11 +6,11 @@ All Notable changes to `Csv` will be documented in this file
 
 ### Added
 
-- None
+- `Writer::necessaryEnclosure`
 
 ### Deprecated
 
-- None
+- `Writer::relaxEnclosure` use `Writer::necessaryEnclosure`
 
 ### Fixed
 

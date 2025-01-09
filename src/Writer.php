@@ -226,7 +226,7 @@ class Writer extends AbstractCsv implements TabularDataWriter
         return $this;
     }
 
-    public function relaxEnclosure(): self
+    public function necessaryEnclosure(): self
     {
         $this->enclose_all = self::ENCLOSE_NECESSARY;
         $this->resetProperties();
@@ -337,5 +337,20 @@ class Writer extends AbstractCsv implements TabularDataWriter
     public function setNewline(string $newline): self
     {
         return $this->setEndOfLine($newline);
+    }
+
+    /**
+     * DEPRECATION WARNING! This method will be removed in the next major point release.
+     *
+     * @see Writer::necessaryEnclosure()
+     * @deprecated Since version 9.22.0
+     * @codeCoverageIgnore
+     *
+     * Sets the enclosure threshold to only enclose necessary fields.
+     */
+    #[Deprecated(message:'use League\Csv\Writer::necessaryEnclosure()', since:'league/csv:9.22.0')]
+    public function relaxEnclosure(): self
+    {
+        return $this->necessaryEnclosure();
     }
 }

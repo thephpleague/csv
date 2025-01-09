@@ -191,7 +191,7 @@ final class WriterTest extends TestCase
         self::assertStringContainsString('"value 2-0","value 2-1"'."\n", $csv);
         self::assertStringContainsString('"to""to","foo\"bar"'."\n", $csv);
 
-        $writer->relaxEnclosure();
+        $writer->necessaryEnclosure();
         self::assertFalse($writer->encloseAll());
     }
 
