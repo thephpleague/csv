@@ -14,7 +14,7 @@ All Notable changes to `Csv` will be documented in this file
 
 ### Fixed
 
-- None
+- `Comparison::CONTAINS` must check the value is a string before calling `str_compare` [#548](https://github.com/thephpleague/csv/pull/548) by [cage-is](https://github.com/cage-is)
 
 ### Removed
 

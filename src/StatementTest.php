@@ -251,12 +251,12 @@ Officer,John,117
 Major,Avery
 CSV;
 
-        $csv = Reader::createFromString($document)->setHeaderOffset(0);
-        $statement = Statement::create()->andWhere('Number', Comparison::Contains, '117');
+        $csv = Reader::createFromString($document);
+        $csv->setHeaderOffset(0);
 
-        // The count is really just to have the comparison iterate the entire
-        // list. The last item in the list will break the comparison because of
-        // the lack of is_string(...).
-        self::assertSame(1, $statement->process($csv)->count());
+        $statement = Statement::create()
+            ->andWhere('Number', Comparison::Contains, '117');
+
+        self::assertCount(1, $statement->process($csv));
     }
 }
