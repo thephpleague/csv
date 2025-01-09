@@ -35,9 +35,9 @@ class Writer extends AbstractCsv implements TabularDataWriter
     protected const ENCLOSE_NONE = -1;
 
     protected const STREAM_FILTER_MODE = STREAM_FILTER_WRITE;
-    /** @var array<callable> callable collection to format the record before insertion. */
+    /** @var array<Closure(array): array> callable collection to format the record before insertion. */
     protected array $formatters = [];
-    /** @var array<callable> callable collection to validate the record before insertion. */
+    /** @var array<Closure(array): bool> callable collection to validate the record before insertion. */
     protected array $validators = [];
     protected string $newline = "\n";
     protected int $flush_counter = 0;
@@ -57,16 +57,16 @@ class Writer extends AbstractCsv implements TabularDataWriter
             [$this->enclosure.$this->enclosure, $this->escape.$this->enclosure],
         ];
 
-        $this->insertRecord = fn (array $record): int|false => match ($this->enclose_all) {
-            self::ENCLOSE_ALL => $this->document->fwrite(implode(
+        $this->insertRecord = match ($this->enclose_all) {
+            self::ENCLOSE_ALL => fn (array $record): int|false => $this->document->fwrite(implode(
                 $this->delimiter,
                 array_map(
                     fn ($content) => $this->enclosure.$content.$this->enclosure,
                     str_replace($this->enclosure_replace[0], $this->enclosure_replace[1], $record)
                 )
             ).$this->newline),
-            self::ENCLOSE_NONE => $this->document->fwrite(implode($this->delimiter, $record).$this->newline),
-            default => $this->document->fputcsv($record, $this->delimiter, $this->enclosure, $this->escape, $this->newline),
+            self::ENCLOSE_NONE => fn (array $record): int|false => $this->document->fwrite(implode($this->delimiter, $record).$this->newline),
+            default => fn (array $record): int|false => $this->document->fputcsv($record, $this->delimiter, $this->enclosure, $this->escape, $this->newline),
         };
     }
 
@@ -178,20 +178,24 @@ class Writer extends AbstractCsv implements TabularDataWriter
 
     /**
      * Adds a record formatter.
+     *
+     * @param callable(array): array $formatter
      */
     public function addFormatter(callable $formatter): self
     {
-        $this->formatters[] = $formatter;
+        $this->formatters[] = !$formatter instanceof Closure ? $formatter(...) : $formatter;
 
         return $this;
     }
 
     /**
      * Adds a record validator.
+     *
+     * @param callable(array): bool $validator
      */
     public function addValidator(callable $validator, string $validator_name): self
     {
-        $this->validators[$validator_name] = $validator;
+        $this->validators[$validator_name] = !$validator instanceof Closure ? $validator(...) : $validator;
 
         return $this;
     }
@@ -318,7 +322,7 @@ class Writer extends AbstractCsv implements TabularDataWriter
      *
      * Returns the current newline sequence characters.
      */
-    #[Deprecated(message:'use League\Csv\Writer::getEndOfLine()', since:'league/csv:9.8.0')]
+    #[Deprecated(message:'use League\Csv\Writer::getEndOfLine()', since:'league/csv:9.10.0')]
     public function getNewline(): string
     {
         return $this->getEndOfLine();
@@ -333,7 +337,7 @@ class Writer extends AbstractCsv implements TabularDataWriter
      *
      * Sets the newline sequence.
      */
-    #[Deprecated(message:'use League\Csv\Writer::setEndOfLine()', since:'league/csv:9.8.0')]
+    #[Deprecated(message:'use League\Csv\Writer::setEndOfLine()', since:'league/csv:9.10.0')]
     public function setNewline(string $newline): self
     {
         return $this->setEndOfLine($newline);
