@@ -13,6 +13,7 @@ declare(strict_types=1);
 
 namespace League\Csv;
 
+use League\Csv\Query\Constraint\Comparison;
 use League\Csv\Query\QueryException;
 use OutOfBoundsException;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -239,5 +240,23 @@ CSV;
             ->offset(2);
 
         self::assertSame([], $constraints->process($csv)->nth(42));
+    }
+
+    public function testItCanCompareNullValue(): void
+    {
+        $document = <<<CSV
+Title,Name,Number
+Commander,Fred,104
+Officer,John,117
+Major,Avery
+CSV;
+
+        $csv = Reader::createFromString($document)->setHeaderOffset(0);
+        $statement = Statement::create()->andWhere('Number', Comparison::Contains, '117');
+
+        // The count is really just to have the comparison iterate the entire
+        // list. The last item in the list will break the comparison because of
+        // the lack of is_string(...).
+        self::assertSame(1, $statement->process($csv)->count());
     }
 }
