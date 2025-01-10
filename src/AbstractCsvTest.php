@@ -425,6 +425,16 @@ EOF;
         self::assertSame($expected, Writer::createFromFileObject(new SplFileObject($path))->getPathname());
     }
 
+    #[Group('network')]
+    #[DataProvider('getPathnameProviderRemote')]
+    public function testGetPathnameRemote(string $path, string $expected): void
+    {
+        self::assertSame($expected, Reader::createFromPath($path)->getPathname());
+        self::assertSame($expected, Reader::createFromFileObject(new SplFileObject($path))->getPathname());
+        self::assertSame($expected, Writer::createFromFileObject(new SplFileObject($path))->getPathname());
+        self::assertSame($expected, Writer::createFromFileObject(new SplFileObject($path))->getPathname());
+    }
+
     public static function getPathnameProvider(): array
     {
         return [
@@ -436,6 +446,12 @@ EOF;
                 'path' => __DIR__.'/../test_files/foo.csv',
                 'expected' => __DIR__.'/../test_files/foo.csv',
             ],
+        ];
+    }
+
+    public static function getPathnameProviderRemote(): array
+    {
+        return [
             'external uri' => [
                 'path' => 'https://raw.githubusercontent.com/thephpleague/csv/8.2.3/test/data/foo.csv',
                 'expected' => 'https://raw.githubusercontent.com/thephpleague/csv/8.2.3/test/data/foo.csv',
