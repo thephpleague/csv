@@ -88,7 +88,7 @@ final class CallbackStreamFilter extends php_user_filter
     /**
      * Static method to register the class as a stream filter.
      *
-     * @param callable(string, ?array): string $callback
+     * @param callable(string, mixed): string $callback
      */
     public static function register(string $filtername, callable $callback): void
     {
@@ -105,7 +105,7 @@ final class CallbackStreamFilter extends php_user_filter
     }
 
     /**
-     * @param callable(string, ?array): string $callback
+     * @param callable(string, mixed): string $callback
      *
      * @throws ReflectionException|ValueError
      *
