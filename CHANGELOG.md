@@ -16,6 +16,7 @@ All Notable changes to `Csv` will be documented in this file
 
 - `Comparison::CONTAINS` must check the value is a string before calling `str_compare` [#548](https://github.com/thephpleague/csv/pull/548) by [cage-is](https://github.com/cage-is)
 - Fix testing to improve Debian integration [#549](https://github.com/thephpleague/csv/pull/549) by [David Prévot and tenzap](https://github.com/tenzap)
+- `Bom::tryFromSequence` and `Bom::fromSequence` supports the `Reader` and `Writer` class.
 
 ### Removed
 

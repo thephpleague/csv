@@ -38,6 +38,7 @@ enum Bom: string
             $sequence instanceof SplFileObject,
             $sequence instanceof Stream => self::getContents($sequence, 4, 0),
             is_resource($sequence) => stream_get_contents($sequence, 4, 0),
+            $sequence instanceof AbstractCsv => $sequence->getInputBOM(),
             $sequence instanceof Stringable,
             is_string($sequence) => substr((string) $sequence, 0, 4),
             default => $sequence,

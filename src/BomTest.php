@@ -21,7 +21,7 @@ use function chr;
 final class BomTest extends TestCase
 {
     #[DataProvider('BomSequencesProvider')]
-    public function test_bom_detection_from_sequence(string $sequence, ?Bom $expected): void
+    public function test_bom_detection_from_sequence(string|AbstractCsv $sequence, ?Bom $expected): void
     {
         self::assertSame($expected, Bom::tryFromSequence($sequence));
     }
@@ -52,6 +52,10 @@ final class BomTest extends TestCase
             ],
             'UTF32 LE BOM sequence' => [
                 'sequence' => chr(255).chr(254).chr(0).chr(0),
+                'expected' => Bom::Utf32Le,
+            ],
+            'UTF32 LE BOM sequence in Reader class' => [
+                'sequence' => Reader::createFromString(chr(255).chr(254).chr(0).chr(0)),
                 'expected' => Bom::Utf32Le,
             ],
         ];

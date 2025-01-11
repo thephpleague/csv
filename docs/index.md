@@ -66,6 +66,9 @@ $csv->setHeaderOffset(0);
 
 //build a statement
 $stmt = Statement::create()
+    ->select('firstname', 'lastname', 'email')
+    ->andWhere('firstname', 'starts with', 'A')
+    ->orderByAsc('email')
     ->offset(10)
     ->limit(25);
 
@@ -124,14 +127,13 @@ PHP stream filters can directly be used to ease manipulating CSV document
 
 ```php
 use League\Csv\Reader;
+use League\Csv\Bom;
 
 $csv = Reader::createFromPath('/path/to/your/csv/file.csv', 'r');
 $csv->setHeaderOffset(0);
 
-$input_bom = $csv->getInputBOM();
-
-if ($input_bom === Reader::BOM_UTF16_LE || $input_bom === Reader::BOM_UTF16_BE) {
-    $csv->addStreamFilter('convert.iconv.UTF-16/UTF-8');
+if (Bom::tryFromSequence($csv)?->isUtf16() ?? false) {
+    $csv->appendStreamFilterOnRead('convert.iconv.UTF-16/UTF-8');
 }
 
 foreach ($csv as $record) {
