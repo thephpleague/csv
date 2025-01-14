@@ -82,6 +82,50 @@ abstract class TabularDataReaderTestCase extends TestCase
     }
 
     /***************************
+     * TabularDataReader::selectAllExcept
+     ****************************/
+
+
+    #[Test]
+    public function testTabularselectAllExceptWithoutHeader(): void
+    {
+        self::assertSame([1 => 'temperature', 2 => 'place'], $this->tabularData()->selectAllExcept(0)->first());
+    }
+
+    #[Test]
+    public function testTabularselectAllExceptWithHeader(): void
+    {
+        self::assertSame(['temperature' => '1', 'place' => 'Galway'], $this->tabularDataWithHeader()->selectAllExcept('date')->first());
+        self::assertSame(['place' => 'Galway'], $this->tabularDataWithHeader()->selectAllExcept('temperature', 'date')->first());
+        self::assertSame(['place' => 'Galway'], $this->tabularDataWithHeader()->selectAllExcept(1, 'date')->first());
+        self::assertSame(['place' => 'Galway'], $this->tabularDataWithHeader()->selectAllExcept('temperature', 0)->first());
+    }
+
+    public function testTabularReaderselectAllExceptFailsWithInvalidColumn(): void
+    {
+        $this->expectException(InvalidArgument::class);
+
+        $this->tabularData()
+            ->selectAllExcept('temperature', 'place');
+    }
+
+    public function testTabularReaderselectAllExceptFailsWithInvalidColumnName(): void
+    {
+        $this->expectException(InvalidArgument::class);
+
+        $this->tabularDataWithHeader()
+            ->selectAllExcept('temperature', 'foobar');
+    }
+
+    public function testTabularReaderselectAllExceptFailsWithInvalidColumnOffset(): void
+    {
+        $this->expectException(InvalidArgument::class);
+
+        $this->tabularDataWithHeader()
+            ->selectAllExcept(0, 18);
+    }
+
+    /***************************
      * TabularDataReader::matching, matchingFirst, matchingFirstOrFail
      **************************/
 

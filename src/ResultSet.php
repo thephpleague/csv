@@ -31,6 +31,7 @@ use function array_key_exists;
 use function array_reduce;
 use function array_search;
 use function array_values;
+use function is_int;
 use function is_string;
 use function iterator_count;
 
@@ -272,6 +273,74 @@ class ResultSet implements TabularDataReader, JsonSerializable
         };
 
         return new self(new MapIterator($this, $callback), $hasHeader ? $header : []);
+    }
+
+    public function selectAllExcept(string|int ...$columns): TabularDataReader
+    {
+        if ([] === $columns) {
+            return $this;
+        }
+
+        $recordsHeader = $this->getHeader();
+        $hasHeader = [] !== $recordsHeader;
+        $selectColumnsToSkip = function (array $res, string|int $column) use ($recordsHeader, $hasHeader): array {
+            if ($hasHeader) {
+                if (is_string($column)) {
+                    $index = array_search($column, $recordsHeader, true);
+                    if (false === $index) {
+                        throw InvalidArgument::dueToInvalidColumnIndex($column, 'offset', __METHOD__);
+                    }
+
+                    $res[$index] = 1;
+
+                    return $res;
+                }
+
+                if (!array_key_exists($column, $recordsHeader)) {
+                    throw InvalidArgument::dueToInvalidColumnIndex($column, 'offset', __METHOD__);
+                }
+
+                $res[$column] = 1;
+
+                return $res;
+            }
+
+            if (!is_int($column)) {
+                throw InvalidArgument::dueToInvalidColumnIndex($column, 'offset', __METHOD__);
+            }
+
+            $res[$column] = 1;
+
+            return $res;
+        };
+
+        /** @var array<int> $columnsToSkip */
+        $columnsToSkip = array_reduce($columns, $selectColumnsToSkip, []);
+        $callback = function (array $record) use ($columnsToSkip): array {
+            $element = [];
+            $index = 0;
+            foreach ($record as $name => $value) {
+                if (!array_key_exists($index, $columnsToSkip)) {
+                    $element[$name] = $value;
+                }
+                ++$index;
+            }
+
+            return $element;
+        };
+
+        $newHeader = [];
+        if ($hasHeader) {
+            $newHeader = array_values(
+                array_filter(
+                    $recordsHeader,
+                    fn (string|int $key) => !array_key_exists($key, $columnsToSkip),
+                    ARRAY_FILTER_USE_KEY
+                )
+            );
+        }
+
+        return new self(new MapIterator($this, $callback), $newHeader);
     }
 
     /**

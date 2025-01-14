@@ -36,6 +36,10 @@ use function is_string;
  */
 class Statement
 {
+    final protected const COLUMN_ALL = 0;
+    final protected const COLUMN_INCLUDE = 1;
+    final protected const COLUMN_EXCLUDE = 2;
+
     /** @var array<ConditionExtended> Callables to filter the iterator. */
     protected array $where = [];
     /** @var array<OrderingExtended> Callables to sort the iterator. */
@@ -46,6 +50,8 @@ class Statement
     protected int $limit = -1;
     /** @var array<string|int> */
     protected array $select = [];
+    /** @var self::COLUMN_* */
+    protected int $select_mode = self::COLUMN_ALL;
 
     /**
      * @param ?callable(array, array-key): bool $where, Deprecated argument use Statement::where instead
@@ -75,16 +81,33 @@ class Statement
     }
 
     /**
-     * Sets the Iterator element columns.
+     * Select all the columns from the tabular data that MUST BE present in the ResultSet.
      */
     public function select(string|int ...$columns): self
     {
-        if ($columns === $this->select) {
+        if ($columns === $this->select && self::COLUMN_INCLUDE === $this->select_mode) {
             return $this;
         }
 
         $clone = clone $this;
         $clone->select = $columns;
+        $clone->select_mode = [] === $columns ? self::COLUMN_ALL : self::COLUMN_INCLUDE;
+
+        return $clone;
+    }
+
+    /**
+     * Select all the columns from the tabular data that MUST NOT BE present in the ResultSet.
+     */
+    public function selectAllExcept(string|int ...$columns): self
+    {
+        if ($columns === $this->select && self::COLUMN_EXCLUDE === $this->select_mode) {
+            return $this;
+        }
+
+        $clone = clone $this;
+        $clone->select = $columns;
+        $clone->select_mode = [] === $columns ? self::COLUMN_ALL : self::COLUMN_EXCLUDE;
 
         return $clone;
     }
@@ -339,7 +362,13 @@ class Statement
             $iterator = Query\Limit::new($this->offset, $this->limit)->slice($iterator);
         }
 
-        return (new ResultSet($iterator, $header))->select(...$this->select);
+        $iterator = new ResultSet($iterator, $header);
+
+        return match ($this->select_mode) {
+            self::COLUMN_EXCLUDE => $iterator->selectAllExcept(...$this->select),
+            self::COLUMN_INCLUDE => $iterator->select(...$this->select),
+            default => $iterator,
+        };
     }
 
     /**

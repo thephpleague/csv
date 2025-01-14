@@ -39,6 +39,7 @@ use IteratorAggregate;
  * @method TabularDataReader slice(int $offset, ?int $length = null) extracts a slice of $length elements starting at position $offset from the Collection.
  * @method TabularDataReader sorted(Query\Sort|Closure $orderBy) sorts the Collection according to the closure provided see Statement::orderBy method
  * @method TabularDataReader select(string|int ...$columnOffsetOrName) extract a selection of the tabular data records columns.
+ * @method TabularDataReader selectAllExcept(string|int ...$columnOffsetOrName) specifies the names or index of one or more columns to exclude from the selection of the tabular data records columns.
  * @method TabularDataReader matchingFirstOrFail(string $expression) extract the first found fragment identifier of the tabular data or fail
  * @method TabularDataReader|null matchingFirst(string $expression) extract the first found fragment identifier of the tabular data or return null if none is found
  * @method iterable<int, TabularDataReader> matching(string $expression) extract all found fragment identifiers for the tabular data

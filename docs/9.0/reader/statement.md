@@ -406,6 +406,28 @@ $records = $constraints->process($csv);
 Since a `Statement` instance is independent of the CSV document you can re-use it on different CSV
 documents or `TabularDataReader` instances if needed.
 
+In the event where you have a lot of fields to select but a few to remove you may use the `selectAllExcept` method
+to select all the fields except the one you will specify as argument to the method:
+
+```php
+$constraints = Statement::create()
+    ->selectAllExcept('Integer')
+    ->andWhere('Float', '<', 1.3)
+    ->orderByDesc('Integer')
+    ->offset(2)
+    ->limit(5);
+
+//will select all the fields except the `Integer` one.
+```
+
+Last but not least, to clear all selected columns and start a new, you need to call either
+the `select` or the `selectAllExcept` methods with no parameter. It will return a new
+`Statement` instance cleared of any previously made selection.
+
+<p class="message-notice"><code>selectAllExcept</code> is available since version <code>9.22.0</code>.</p>
+<p class="message-warning">You can not use <code>select</code> and <code>selectAllExcept</code> within the same
+statement, both methods are mutually exclusive.</p>
+
 ### Adding constraint on condition
 
 <p class="message-info">new in version <code>9.19.0</code>.</p>

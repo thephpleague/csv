@@ -455,7 +455,7 @@ $records = $resultSet->slice(10, 25);
 <p class="message-info"> Wraps the functionality of <code>Statement::offset</code> and <code>Statement::limit</code>.</p>
 <p class="message-notice">Added in version <code>9.11.0</code> for <code>Reader</code> and <code>ResultSet</code>.</p>
 
-### select
+### select and selectAllExcept
 
 You may not always want to select all columns from the tabular data. Using the `select` method,
 you can specify which columns to use. The column can be specified by their name, if the instance
@@ -473,6 +473,22 @@ $reader = Reader::createFromPath('/path/to/my/file.csv')
 
 <p class="message-notice">Added in version <code>9.12.0</code> for <code>Reader</code> and <code>ResultSet</code>.</p>
 <p class="message-info"> Wraps the functionality of <code>Statement::select</code>.</p>
+
+In the event where you have a lot of fields to select but a few to remove you may use the `selectAllExcept` method
+to select all the fields except the one you will specify as argument to the method:
+
+```php
+use League\Csv\Reader;
+
+$reader = Reader::createFromPath('/path/to/my/file.csv')
+    ->selectAllExcept(3);
+
+//$reader is a new TabularDataReader with all the fields except the 4th one.
+// fields are re-indexed.
+```
+
+<p class="message-notice">Added in version <code>9.22.0</code> for <code>Reader</code> and <code>ResultSet</code>.</p>
+<p class="message-info"> Wraps the functionality of <code>Statement::selectAllExcept</code>.</p>
 
 ### mapHeader
 

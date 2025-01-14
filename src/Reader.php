@@ -475,6 +475,11 @@ class Reader extends AbstractCsv implements TabularDataReader, JsonSerializable
         return ResultSet::createFromTabularDataReader($this)->select(...$columns);
     }
 
+    public function selectAllExcept(string|int ...$columns): TabularDataReader
+    {
+        return ResultSet::createFromTabularDataReader($this)->selectAllExcept(...$columns);
+    }
+
     /**
      * @param array<string> $header
      *

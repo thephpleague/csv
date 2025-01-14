@@ -259,4 +259,23 @@ CSV;
 
         self::assertCount(1, $statement->process($csv));
     }
+
+    public function testselectAllExcept(): void
+    {
+        $document = <<<CSV
+Title,Name,Number
+Commander,Fred,104
+Officer,John,117
+Major,Avery
+CSV;
+
+        $csv = Reader::createFromString($document);
+        $csv->setHeaderOffset(0);
+
+        $statement = Statement::create()
+            ->limit(1)
+            ->selectAllExcept('Number');
+
+        self::assertSame(['Title' => 'Commander', 'Name' => 'Fred'], $statement->process($csv)->first());
+    }
 }
