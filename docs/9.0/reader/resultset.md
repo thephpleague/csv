@@ -9,6 +9,71 @@ A `League\Csv\ResultSet` object represents the associated result set of processi
 This object is returned from [Statement::process](/9.0/reader/statement/#apply-the-constraints-to-a-csv-document) execution.
 
 <p class="message-info">Starting with version <code>9.6.0</code>, the class implements the <code>League\Csv\TabularDataReader</code> interface.</p>
+<p class="message-info">Starting with version <code>9.22.0</code>, the class implements the <code>League\Csv\TabularData</code> interface.</p>
+
+## Instantiation
+
+<p class="message-notice">Starting with version <code>9.22.0</code></p>
+
+The `ResultSet` object can be instantiated from other objects than `Statement`.
+
+You can instantiate it directly from any object that implements the `League\Csv\TabularData` like the `Reader` class:
+
+```php
+$resultSet = ResultSet::createFromTabularData(Reader::createFromPath('path/to/file.csv'));
+```
+
+But you can also instantiate it from RDBMS results using the `ResultSet::createFromRdbms` method:
+
+```php
+$db = new SQLite3( '/path/to/my/db.sqlite');
+$stmt = $db->query("SELECT * FROM users");
+$stmt instanceof SQLite3Result || throw new RuntimeException('SQLite3 results not available');
+
+$user24 = ResultSet::createFromRdbms($stmt)->nth(23);
+```
+
+the `createFromRdbms` can be used with the following Database Extensions:
+
+- SQLite3 (`SQLite3Result` object)
+- MySQL Improved Extension (`mysqli_result` object)
+- PostgreSQL (`PgSql\Result` object returned by the `pg_get_result`)
+- PDO (`PDOStatement` object)
+
+<p class="message-warning">Beware when using the <code>PDOStatement</code>, the class does not support rewinding the object.
+As such using the instance on huge results will trigger high memory usage as all the data will be stored in a
+<code>ArrayIterator</code> instance for cache to allow rewinding and inspecting the tabular data.</p>
+
+Behind the scene the named constructor leverages the `RdbmsResult` class which implements the `TabularData` interface.
+This class is responsible from converting RDBMS results into TabularData` instances. But you can also use the class
+to retrieve column names from the listed Database extensions as follow:
+
+```php
+$db = new SQLite3( '/path/to/my/db.sqlite');
+$stmt = $db->query("SELECT * FROM users");
+$stmt instanceof SQLite3Result || throw new RuntimeException('SQLite3 results not available');
+
+$names = RdbmsResult::columnNames($stmt);
+//will return ['firstname', 'lastname', ...]
+```
+
+The same class can also convert the Database result into an `Iterator` using the `records` public static method.
+
+```php
+$db = new SQLite3( '/path/to/my/db.sqlite');
+$stmt = $db->query(
+    "SELECT *
+       FROM users 
+            INNER JOIN permissions 
+               ON users.id = permissions.user_id
+      WHERE users.is_active = 't'
+        AND permissions.is_active = 't'"
+    );
+$stmt instanceof SQLite3Result || throw new RuntimeException('SQLite3 results not available');
+foreach (RdbmsResult::records($stmt) as $record) {
+  // returns each found record which match the processed query.
+}
+```
 
 ## Selecting records
 

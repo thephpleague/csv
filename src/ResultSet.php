@@ -24,6 +24,8 @@ use League\Csv\Serializer\Denormalizer;
 use League\Csv\Serializer\MappingFailed;
 use League\Csv\Serializer\TypeCastingFailed;
 use LimitIterator;
+use RuntimeException;
+use ValueError;
 
 use function array_filter;
 use function array_flip;
@@ -77,29 +79,36 @@ class ResultSet implements TabularDataReader, JsonSerializable
         };
     }
 
-    public function __destruct()
+    /**
+     * Returns a new instance from a object representing the result of querying a database.
+     *
+     * @throws RuntimeException If the column names can not be found
+     * @throws ValueError if the result object is unknown or unsupported
+     */
+    public static function createFromRdbms(object $result): self
     {
-        unset($this->records);
+        return self::createFromTabularData(RdbmsResult::from($result));
     }
 
     /**
-     * Returns a new instance from an object implementing the TabularDataReader interface.
-     *
-     * @throws SyntaxError
+     * Returns a new instance from a tabular data implementing object.
      */
-    public static function createFromTabularDataReader(TabularDataReader $reader): self
+    public static function createFromTabularData(TabularData $records): self
     {
-        return new self($reader->getRecords(), $reader->getHeader());
+        return new self($records->getIterator(), $records->getHeader());
     }
 
     /**
      * Returns a new instance from a collection without header.
-     *
-     * @throws SyntaxError
      */
     public static function createFromRecords(iterable $records = []): self
     {
         return new self(MapIterator::toIterator($records));
+    }
+
+    public function __destruct()
+    {
+        unset($this->records);
     }
 
     /**
@@ -654,5 +663,16 @@ class ResultSet implements TabularDataReader, JsonSerializable
     public function getObjects(string $className, array $header = []): Iterator
     {
         return $this->getRecordsAsObject($className, $header);
+    }
+
+    /**
+     * Returns a new instance from an object implementing the TabularDataReader interface.
+     *
+     * @throws SyntaxError
+     */
+    #[Deprecated(message:'use League\Csv\ResultSet::createFromTabularData() instead', since:'league/csv:9.22.0')]
+    public static function createFromTabularDataReader(TabularDataReader $reader): self
+    {
+        return self::createFromTabularData($reader);
     }
 }

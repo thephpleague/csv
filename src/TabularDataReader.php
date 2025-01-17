@@ -17,7 +17,6 @@ use Closure;
 use Countable;
 use Deprecated;
 use Iterator;
-use IteratorAggregate;
 
 /**
  * Represents a Tabular data.
@@ -45,43 +44,14 @@ use IteratorAggregate;
  * @method iterable<int, TabularDataReader> matching(string $expression) extract all found fragment identifiers for the tabular data
  * @method iterable<TabularDataReader> chunkBy(int $recordsCount) Chunk the TabulaDataReader into smaller TabularDataReader instances of the given size or less.
  * @method TabularDataReader mapHeader(array $headers) Returns a new TabulaDataReader with a new set of headers.
- *
- * @template TValue of array
- * @template-extends IteratorAggregate<array-key, TValue>
  */
-interface TabularDataReader extends Countable, IteratorAggregate
+interface TabularDataReader extends Countable, TabularData
 {
     /**
      * Returns the number of records contained in the tabular data structure
      * excluding the header record.
      */
     public function count(): int;
-
-    /**
-     * Returns the tabular data records as an iterator object containing flat array.
-     *
-     * Each record is represented as a simple array containing strings or null values.
-     *
-     * If the CSV document has a header record then each record is combined
-     * to the header record and the header record is removed from the iterator.
-     *
-     * If the CSV document is inconsistent. Missing record fields are
-     * filled with null values while extra record fields are strip from
-     * the returned object.
-     *
-     * @return Iterator<array-key, array<array-key, mixed>>
-     */
-    public function getIterator(): Iterator;
-
-    /**
-     * Returns the header associated with the tabular data.
-     *
-     * The header must contain unique string or to be an empty array
-     * if no header was specified.
-     *
-     * @return array<string>
-     */
-    public function getHeader(): array;
 
     /**
      * Returns the tabular data records as an iterator object.

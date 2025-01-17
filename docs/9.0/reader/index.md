@@ -11,6 +11,7 @@ the `League\Csv\TabularDataReader` interface.
 
 <p class="message-notice">Starting with version <code>9.1.0</code>, <code>createFromPath</code> has its default <code>open_mode</code> parameter set to <code>r</code>.</p>
 <p class="message-notice">Prior to <code>9.1.0</code>, the open mode was <code>r+</code> which looks for write permissions on the file and throws an <code>Exception</code> if the file cannot be opened with the permission set. For sake of clarity, it is strongly suggested to set <code>r</code> mode on the file to ensure it can be opened.</p>
+<p class="message-info">Starting with version <code>9.22.0</code>, the class implements the <code>League\Csv\TabularData</code> interface.</p>
 
 The `Reader` provides a convenient and straight forward API to access and handle CSV. While most
 of its capabilities are explained in the [Tabular Data Reader documentation page](/9.0/reader/tabular-data-reader),

@@ -9,10 +9,14 @@ All Notable changes to `Csv` will be documented in this file
 - `Writer::necessaryEnclosure`
 - `TabularDataReader::selectAllExcept`
 - `Statement::selectAllExcept`
+- `ResultSet::createFromTabularData`
+- `RdbmsResult`
+- `TabularData`
 
 ### Deprecated
 
 - `Writer::relaxEnclosure` use `Writer::necessaryEnclosure`
+- `ResultSet::createFromTabularDataReader` use `ResultSet::createFromTabularData`
 
 ### Fixed
 
