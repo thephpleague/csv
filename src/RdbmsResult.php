@@ -16,10 +16,12 @@ namespace League\Csv;
 use ArrayIterator;
 use Iterator;
 use mysqli_result;
+use OutOfBoundsException;
 use PDO;
 use PDOStatement;
 use PgSql\Result;
 use RuntimeException;
+use SeekableIterator;
 use SQLite3Result;
 use Throwable;
 use ValueError;
@@ -80,7 +82,7 @@ final class RdbmsResult implements TabularData
     }
 
     /**
-     * @throws RuntimeException If the DB result is unknown or unsupported or no column names information is found.
+     * @throws RuntimeException If no column names information is found.
      *
      * @return array<string>
      */
@@ -88,9 +90,9 @@ final class RdbmsResult implements TabularData
     {
         return match (true) {
             $result instanceof PDOStatement => array_map(
-                function (int $i) use ($result): string {
-                    $metadata = $result->getColumnMeta($i);
-                    false !== $metadata || throw new RuntimeException('Unable to get metadata for column '.$i);
+                function (int $index) use ($result): string {
+                    $metadata = $result->getColumnMeta($index);
+                    false !== $metadata || throw new RuntimeException('Unable to get metadata for column '.$index);
 
                     return $metadata['name'];
                 },
@@ -145,7 +147,7 @@ final class RdbmsResult implements TabularData
                     return false !== $this->current;
                 }
             },
-            $result instanceof mysqli_result => new class ($result) implements Iterator {
+            $result instanceof mysqli_result => new class ($result) implements SeekableIterator {
                 private array|false|null $current;
                 private int $key = 0;
 
@@ -153,9 +155,16 @@ final class RdbmsResult implements TabularData
                 {
                 }
 
+                public function seek(int $offset): void
+                {
+                    if (!$this->result->data_seek($offset)) {
+                        throw new OutOfBoundsException('Unable to seek to offset '.$offset);
+                    }
+                }
+
                 public function rewind(): void
                 {
-                    $this->result->data_seek(0);
+                    $this->seek(0);
                     $this->current = $this->result->fetch_assoc();
                     $this->key = 0;
                 }
@@ -182,7 +191,7 @@ final class RdbmsResult implements TabularData
                         && null !== $this->current;
                 }
             },
-            $result instanceof Result => new class ($result) implements Iterator {
+            $result instanceof Result => new class ($result) implements SeekableIterator {
                 private array|false|null $current;
                 private int $key = 0;
 
@@ -190,9 +199,16 @@ final class RdbmsResult implements TabularData
                 {
                 }
 
+                public function seek(int $offset): void
+                {
+                    if (!pg_result_seek($this->result, $offset)) {
+                        throw new OutOfBoundsException('Unable to seek to offset '.$offset);
+                    }
+                }
+
                 public function rewind(): void
                 {
-                    pg_result_seek($this->result, 0);
+                    $this->seek(0);
                     $this->current = pg_fetch_assoc($this->result);
                     $this->key = 0;
                 }
@@ -219,11 +235,17 @@ final class RdbmsResult implements TabularData
                         && null !== $this->current;
                 }
             },
-            $result instanceof PDOStatement => new class ($result) implements Iterator {
+            $result instanceof PDOStatement => new class ($result) implements SeekableIterator {
                 private ?ArrayIterator $cacheIterator;
 
                 public function __construct(private readonly PDOStatement $result)
                 {
+                }
+
+                public function seek(int $offset): void
+                {
+                    $this->cacheIterator ??= new ArrayIterator($this->result->fetchAll(PDO::FETCH_ASSOC));
+                    $this->cacheIterator->seek($offset);
                 }
 
                 public function rewind(): void
