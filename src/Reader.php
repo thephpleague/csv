@@ -46,22 +46,10 @@ class Reader extends AbstractCsv implements TabularDataReader, JsonSerializable
     protected bool $is_empty_records_included = false;
     /** @var array<string> header record. */
     protected array $header = [];
-    /** @var array<callable> callable collection to format the record before reading. */
-    protected array $formatters = [];
 
     public static function createFromPath(string $path, string $open_mode = 'r', $context = null): static
     {
         return parent::createFromPath($path, $open_mode, $context);
-    }
-
-    /**
-     * Adds a record formatter.
-     */
-    public function addFormatter(callable $formatter): self
-    {
-        $this->formatters[] = $formatter;
-
-        return $this;
     }
 
     /**
@@ -610,7 +598,7 @@ class Reader extends AbstractCsv implements TabularDataReader, JsonSerializable
     {
         $formatter = fn (array $record): array => array_reduce(
             $this->formatters,
-            fn (array $record, callable $formatter): array => $formatter($record),
+            fn (array $record, Closure $formatter): array => $formatter($record),
             $record
         );
 

@@ -35,8 +35,6 @@ class Writer extends AbstractCsv implements TabularDataWriter
     protected const ENCLOSE_NONE = -1;
 
     protected const STREAM_FILTER_MODE = STREAM_FILTER_WRITE;
-    /** @var array<Closure(array): array> callable collection to format the record before insertion. */
-    protected array $formatters = [];
     /** @var array<Closure(array): bool> callable collection to validate the record before insertion. */
     protected array $validators = [];
     protected string $newline = "\n";
@@ -174,18 +172,6 @@ class Writer extends AbstractCsv implements TabularDataWriter
         foreach ($this->validators as $name => $validator) {
             true === $validator($record) || throw CannotInsertRecord::triggerOnValidation($name, $record);
         }
-    }
-
-    /**
-     * Adds a record formatter.
-     *
-     * @param callable(array): array $formatter
-     */
-    public function addFormatter(callable $formatter): self
-    {
-        $this->formatters[] = !$formatter instanceof Closure ? $formatter(...) : $formatter;
-
-        return $this;
     }
 
     /**

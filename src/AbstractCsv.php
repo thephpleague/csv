@@ -13,6 +13,7 @@ declare(strict_types=1);
 
 namespace League\Csv;
 
+use Closure;
 use Deprecated;
 use Generator;
 use InvalidArgumentException;
@@ -51,6 +52,8 @@ abstract class AbstractCsv implements ByteSequence
     protected string $enclosure = '"';
     protected string $escape = '\\';
     protected bool $is_input_bom_included = false;
+    /** @var array<Closure(array): array> collection of Closure to format the record before reading. */
+    protected array $formatters = [];
 
     /**
      * @final This method should not be overwritten in child classes
@@ -339,6 +342,18 @@ abstract class AbstractCsv implements ByteSequence
 
         $this->escape = $escape;
         $this->resetProperties();
+
+        return $this;
+    }
+
+    /**
+     * Adds a record formatter.
+     *
+     * @param callable(array): array $formatter
+     */
+    public function addFormatter(callable $formatter): static
+    {
+        $this->formatters[] = !$formatter instanceof Closure ? $formatter(...) : $formatter;
 
         return $this;
     }
