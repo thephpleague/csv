@@ -39,12 +39,12 @@ use const SQLITE3_ASSOC;
 final class RdbmsResult implements TabularData
 {
     /**
-     * @param Iterator<array-key, array<array-key, mixed>> $records
-     * @param array<string>|array{} $headers
+     * @param Iterator<array-key, array<array-key, mixed>> $rows
+     * @param array<string>|array{} $header
      */
     private function __construct(
-        private readonly Iterator $records,
-        private readonly array $headers
+        private readonly Iterator $rows,
+        private readonly array $header
     ) {
     }
 
@@ -53,7 +53,7 @@ final class RdbmsResult implements TabularData
      */
     public function getHeader(): array
     {
-        return $this->headers;
+        return $this->header;
     }
 
     /**
@@ -61,7 +61,7 @@ final class RdbmsResult implements TabularData
      */
     public function getIterator(): Iterator
     {
-        return $this->records;
+        return $this->rows;
     }
 
     public static function tryFrom(object $result): ?self
@@ -78,7 +78,7 @@ final class RdbmsResult implements TabularData
      */
     public static function from(object $result): self
     {
-        return new self(self::records($result), self::columnNames($result));
+        return new self(self::rows($result), self::columnNames($result));
     }
 
     /**
@@ -108,7 +108,7 @@ final class RdbmsResult implements TabularData
     /**
      * @return Iterator<array-key, array<array-key, mixed>>
      */
-    public static function records(object $result): Iterator
+    public static function rows(object $result): Iterator
     {
         return match (true) {
             $result instanceof SQLite3Result => new class ($result) implements Iterator {

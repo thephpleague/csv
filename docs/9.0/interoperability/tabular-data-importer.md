@@ -80,14 +80,14 @@ $names = RdbmsResult::columnNames($result);
 //will return ['firstname', 'lastname', ...]
 ```
 
-- convert the result into an `Iterator` using the `records` public static method.
+- convert the result into an `Iterator` using the `rows` public static method.
 
 ```php
 mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
 $connection = new mysqli("localhost", "my_user", "my_password", "world");
 $result = $connection->query("SELECT * FROM authors");
 $result instanceOf mysqli_result || throw new RuntimeException('MySQL results not available');
-foreach (RdbmsResult::records($stmt) as $record) {
+foreach (RdbmsResult::rows($stmt) as $record) {
   // returns each found record which match the processed query.
 }
 ```
@@ -116,13 +116,13 @@ JSON;
 
 $tabularData = new class ($payload) implements TabularData {
     private readonly array $header;
-    private readonly ArrayIterator $records;
+    private readonly ArrayIterator $rows;
     public function __construct(string $payload)
     {
         try {
             $data = json_decode($payload, true);
             $this->header = array_keys($data[0] ?? []);
-            $this->records = new ArrayIterator($data);
+            $this->rows = new ArrayIterator($data);
         } catch (Throwable $exception) {
             throw new ValueError('The provided JSON payload could not be converted into a Tabular Data instance.', previous: $exception);
         }
@@ -135,7 +135,7 @@ $tabularData = new class ($payload) implements TabularData {
 
     public function getIterator() : Iterator
     {
-        return $this->records;
+        return $this->rows;
     }
 };
 
