@@ -10,13 +10,16 @@ All Notable changes to `Csv` will be documented in this file
 - `TabularDataReader::selectAllExcept`
 - `Statement::selectAllExcept`
 - `ResultSet::createFromTabularData`
-- `RdbmsResult`
-- `TabularData`
+- `ResultSet::createFromRdbms`
+- `RdbmsResult` class to allow converting RDBMS result into `ResultSet`
+- `TabularData` interface
 
 ### Deprecated
 
 - `Writer::relaxEnclosure` use `Writer::necessaryEnclosure`
 - `ResultSet::createFromTabularDataReader` use `ResultSet::createFromTabularData`
+- `ResultSet::createFromRecords` use `ResultSet::createFromTabularData`
+- `ResultSet::__construct` use `ResultSet::createFromTabularData`
 
 ### Fixed
 

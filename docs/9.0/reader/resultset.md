@@ -44,36 +44,7 @@ the `createFromRdbms` can be used with the following Database Extensions:
 As such using the instance on huge results will trigger high memory usage as all the data will be stored in a
 <code>ArrayIterator</code> instance for cache to allow rewinding and inspecting the tabular data.</p>
 
-Behind the scene the named constructor leverages the `RdbmsResult` class which implements the `TabularData` interface.
-This class is responsible from converting RDBMS results into TabularData` instances. But you can also use the class
-to retrieve column names from the listed Database extensions as follow:
-
-```php
-$db = new SQLite3( '/path/to/my/db.sqlite');
-$stmt = $db->query("SELECT * FROM users");
-$stmt instanceof SQLite3Result || throw new RuntimeException('SQLite3 results not available');
-
-$names = RdbmsResult::columnNames($stmt);
-//will return ['firstname', 'lastname', ...]
-```
-
-The same class can also convert the Database result into an `Iterator` using the `records` public static method.
-
-```php
-$db = new SQLite3( '/path/to/my/db.sqlite');
-$stmt = $db->query(
-    "SELECT *
-       FROM users 
-            INNER JOIN permissions 
-               ON users.id = permissions.user_id
-      WHERE users.is_active = 't'
-        AND permissions.is_active = 't'"
-    );
-$stmt instanceof SQLite3Result || throw new RuntimeException('SQLite3 results not available');
-foreach (RdbmsResult::records($stmt) as $record) {
-  // returns each found record which match the processed query.
-}
-```
+Please refer to the [TabularData Importer](/9.0/interoperability/tabular-data-importer) for more information.
 
 ## Selecting records
 

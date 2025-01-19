@@ -98,14 +98,6 @@ class ResultSet implements TabularDataReader, JsonSerializable
         return new self($records->getIterator(), $records->getHeader());
     }
 
-    /**
-     * Returns a new instance from a collection without header.
-     */
-    public static function createFromRecords(iterable $records = []): self
-    {
-        return new self(MapIterator::toIterator($records));
-    }
-
     public function __destruct()
     {
         unset($this->records);
@@ -674,5 +666,14 @@ class ResultSet implements TabularDataReader, JsonSerializable
     public static function createFromTabularDataReader(TabularDataReader $reader): self
     {
         return self::createFromTabularData($reader);
+    }
+
+    /**
+     * Returns a new instance from a collection without header.
+     */
+    #[Deprecated(message:'use League\Csv\ResultSet::createFromTabularData() instead', since:'league/csv:9.22.0')]
+    public static function createFromRecords(iterable $records = []): self
+    {
+        return new self(MapIterator::toIterator($records));
     }
 }

@@ -13,6 +13,8 @@ declare(strict_types=1);
 
 namespace League\Csv;
 
+use Iterator;
+
 use function array_filter;
 use function array_map;
 use function array_reduce;
@@ -117,7 +119,17 @@ class FragmentFinder
 
         $selections = array_filter($selections, fn (array $selection) => -1 !== $selection['start']);
         if ([] === $selections) {
-            return [ResultSet::createFromRecords()];
+            return [ResultSet::createFromTabularData(new class () implements TabularData {
+                public function getHeader(): array
+                {
+                    return [];
+                }
+
+                public function getIterator(): Iterator
+                {
+                    return MapIterator::toIterator([]);
+                }
+            })];
         }
 
         if (self::TYPE_ROW === $type) {
@@ -143,7 +155,17 @@ class FragmentFinder
             );
 
             return [match ([]) {
-                $columns => ResultSet::createFromRecords(),
+                $columns => ResultSet::createFromTabularData(new class () implements TabularData {
+                    public function getHeader(): array
+                    {
+                        return [];
+                    }
+
+                    public function getIterator(): Iterator
+                    {
+                        return MapIterator::toIterator([]);
+                    }
+                }),
                 default => Statement::create()->select(...$columns)->process($tabularDataReader),
             }];
         }

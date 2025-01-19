@@ -27,6 +27,7 @@ version:
             Force Enclosure : '/9.0/interoperability/enclose-field/'
             Handling Delimiter : '/9.0/interoperability/swap-delimiter/'
             Formula Injection : '/9.0/interoperability/escape-formula-injection/'
+            Tabular Data: '/9.0/interoperability/tabular-data-importer/'
         Converting Records:
             Overview: '/9.0/converter/'
             Charset Converter: '/9.0/converter/charset/'
