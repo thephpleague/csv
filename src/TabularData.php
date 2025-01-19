@@ -44,7 +44,7 @@ interface TabularData extends IteratorAggregate
      * filled with null values while extra record fields are strip from
      * the returned object.
      *
-     * @return Iterator<array-key, array<array-key, mixed>>
+     * @return Iterator<array-key, TValue>
      */
     public function getIterator(): Iterator;
 }
