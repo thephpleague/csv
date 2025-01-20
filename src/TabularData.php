@@ -25,24 +25,23 @@ interface TabularData extends IteratorAggregate
     /**
      * Returns the header associated with the tabular data.
      *
-     * The header must contain unique string or to be an empty array
-     * if no header was specified.
+     * The header must contain unique string or be an empty array
+     * if no header is specified.
      *
      * @return array<string>
      */
     public function getHeader(): array;
 
     /**
-     * Returns the tabular data records as an iterator object containing flat array.
+     * Returns the tabular data rows as an iterator object containing flat array.
      *
-     * Each record is represented as a simple array containing strings or null values.
+     * Each row is represented as a simple array containing values.
      *
-     * If the CSV document has a header record then each record is combined
-     * to the header record and the header record is removed from the iterator.
+     * If the tabular data has a header included as a separate row then each record
+     * is combined to the header record and the header record is removed from the iteration.
      *
-     * If the CSV document is inconsistent. Missing record fields are
-     * filled with null values while extra record fields are strip from
-     * the returned object.
+     * If the tabular data is inconsistent. Missing fields are filled with null values
+     * while extra record fields are strip from the returned array.
      *
      * @return Iterator<array-key, TValue>
      */

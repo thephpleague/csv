@@ -36,7 +36,7 @@ class XMLConverter
     /** XML offset attribute name. */
     protected string $offset_attr = '';
     /** @var ?Closure(array, array-key): array */
-    public ?Closure $formatter = null;
+    protected ?Closure $formatter = null;
 
     public static function create(): self
     {
