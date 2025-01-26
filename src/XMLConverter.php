@@ -72,7 +72,7 @@ class XMLConverter
             $records = MapIterator::fromIterable($records, $this->formatter);
         }
 
-        $doc = self::supportsModerDom() ? XMLDocument::createEmpty(version:'1.0', encoding:'utf-8') : new DOMDocument(version:'1.0', encoding:'utf-8');
+        $doc = self::supportsModerDom() ? XMLDocument::createEmpty() : new DOMDocument(version:'1.0', encoding:'UTF-8');
         $node = $this->import($records, $doc);
         $doc->appendChild($node);
 
