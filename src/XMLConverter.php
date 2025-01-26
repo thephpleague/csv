@@ -14,11 +14,16 @@ declare(strict_types=1);
 namespace League\Csv;
 
 use Closure;
+use Dom\Element;
+use Dom\XMLDocument;
 use DOMAttr;
 use DOMDocument;
 use DOMElement;
 use DOMException;
 use Exception;
+
+use function class_exists;
+use function extension_loaded;
 
 /**
  * Converts tabular data into a DOMDocument object.
@@ -38,6 +43,11 @@ class XMLConverter
     /** @var ?Closure(array, array-key): array */
     protected ?Closure $formatter = null;
 
+    private static function supportsModerDom(): bool
+    {
+        return extension_loaded('dom') && class_exists(XMLDocument::class);
+    }
+
     public static function create(): self
     {
         return new self();
@@ -56,13 +66,13 @@ class XMLConverter
     /**
      * Converts a Record collection into a DOMDocument.
      */
-    public function convert(iterable $records): DOMDocument
+    public function convert(iterable $records): DOMDocument|XMLDocument
     {
         if (null !== $this->formatter) {
             $records = MapIterator::fromIterable($records, $this->formatter);
         }
 
-        $doc = new DOMDocument('1.0');
+        $doc = self::supportsModerDom() ? XMLDocument::createEmpty(version:'1.0', encoding:'utf-8') : new DOMDocument(version:'1.0', encoding:'utf-8');
         $node = $this->import($records, $doc);
         $doc->appendChild($node);
 
@@ -79,14 +89,16 @@ class XMLConverter
     public function download(iterable $records, ?string $filename = null, string $encoding = 'utf-8', bool $formatOutput = false): int|false
     {
         $document = $this->convert($records);
-        $document->encoding = $encoding;
-        $document->formatOutput = $formatOutput;
 
         if (null !== $filename) {
             HttpHeaders::forFileDownload($filename, 'application/xml; charset='.strtolower($encoding));
         }
 
-        return $document->save('php://output');
+        if ($document instanceof DOMDocument) {
+            return $document->save('php://output');
+        }
+
+        return $document->saveXmlFile('php://output');
     }
 
     /**
@@ -94,7 +106,7 @@ class XMLConverter
      *
      * **DOES NOT** attach to the DOMDocument
      */
-    public function import(iterable $records, DOMDocument $doc): DOMElement
+    public function import(iterable $records, DOMDocument|XMLDocument $doc): DOMElement|Element
     {
         $root = $doc->createElement($this->root_name);
         foreach ($records as $offset => $record) {
@@ -108,7 +120,7 @@ class XMLConverter
      * Converts a CSV record into a DOMElement and
      * adds its offset as DOMElement attribute.
      */
-    protected function recordToElement(DOMDocument $doc, array $record, int $offset): DOMElement
+    protected function recordToElement(DOMDocument|XMLDocument $doc, array $record, int $offset): DOMElement|Element
     {
         $node = $doc->createElement($this->record_name);
         foreach ($record as $node_name => $value) {
@@ -129,7 +141,7 @@ class XMLConverter
      * Converts the CSV item into a DOMElement and adds the item offset
      * as attribute to the returned DOMElement
      */
-    protected function fieldToElement(DOMDocument $doc, string $value, int|string $node_name): DOMElement
+    protected function fieldToElement(DOMDocument|XMLDocument $doc, string $value, int|string $node_name): DOMElement|Element
     {
         $item = $doc->createElement($this->field_name);
         $item->appendChild($doc->createTextNode($value));

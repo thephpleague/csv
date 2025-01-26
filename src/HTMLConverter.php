@@ -14,7 +14,9 @@ declare(strict_types=1);
 namespace League\Csv;
 
 use Closure;
-use Deprecated;
+use Dom\HTMLDocument;
+use Dom\HTMLElement;
+use Dom\XMLDocument;
 use DOMDocument;
 use DOMElement;
 use DOMException;
@@ -30,9 +32,15 @@ class HTMLConverter
     protected string $class_name = 'table-csv-data';
     /** table id attribute value. */
     protected string $id_value = '';
-    protected XMLConverter $xml_converter;
     /** @var ?Closure(array, array-key): array */
     protected ?Closure $formatter = null;
+    protected string $offset_attr = '';
+    protected string $column_attr = '';
+
+    private static function supportsModerDom(): bool
+    {
+        return extension_loaded('dom') && class_exists(HTMLDocument::class);
+    }
 
     public static function create(): self
     {
@@ -48,11 +56,6 @@ class HTMLConverter
      */
     public function __construct()
     {
-        $this->xml_converter = XMLConverter::create()
-            ->rootElement('table')
-            ->recordElement('tr')
-            ->fieldElement('td')
-        ;
     }
 
     /**
@@ -67,29 +70,46 @@ class HTMLConverter
             $records = MapIterator::fromIterable($records, $this->formatter);
         }
 
-        $doc = new DOMDocument('1.0');
-        if ([] === $header_record && [] === $footer_record) {
-            $table = $this->xml_converter->import($records, $doc);
-            $this->addHTMLAttributes($table);
-            $doc->appendChild($table);
-
-            /** @var string $content */
-            $content = $doc->saveHTML();
-
-            return $content;
+        $document = self::supportsModerDom() ? HTMLDocument::createEmpty() : new DOMDocument('1.0');
+        $table = $document->createElement('table');
+        if ('' !== $this->class_name) {
+            $table->setAttribute('class', $this->class_name);
         }
 
-        $table = $doc->createElement('table');
+        if ('' !== $this->id_value) {
+            $table->setAttribute('id', $this->id_value);
+        }
 
-        $this->addHTMLAttributes($table);
         $this->appendHeaderSection('thead', $header_record, $table);
         $this->appendHeaderSection('tfoot', $footer_record, $table);
 
-        $table->appendChild($this->xml_converter->rootElement('tbody')->import($records, $doc));
+        $tbody = $table;
+        if ($table->hasChildNodes()) {
+            $tbody = $document->createElement('tbody');
+            $table->appendChild($tbody);
+        }
 
-        $doc->appendChild($table);
+        foreach ($records as $offset => $record) {
+            $tr = $document->createElement('tr');
+            if ('' !== $this->offset_attr) {
+                $tr->setAttribute($this->offset_attr, (string) $offset);
+            }
 
-        return (string) $doc->saveHTML();
+            foreach ($record as $field_name => $field_value) {
+                $td = $document->createElement('td');
+                if ('' !== $this->column_attr) {
+                    $td->setAttribute($this->column_attr, (string) $field_name);
+                }
+                $td->appendChild($document->createTextNode($field_value));
+                $tr->appendChild($td);
+            }
+
+            $tbody->appendChild($tr);
+        }
+
+        $document->appendChild($table);
+
+        return (string) $document->saveHTML($table);
     }
 
     /**
@@ -97,36 +117,25 @@ class HTMLConverter
      *
      * @throws DOMException
      */
-    protected function appendHeaderSection(string $node_name, array $record, DOMElement $table): void
+    protected function appendHeaderSection(string $node_name, array $record, DOMElement|HTMLElement $table): void
     {
         if ([] === $record) {
             return;
         }
 
-        /** @var DOMDocument $ownerDocument */
-        $ownerDocument = $table->ownerDocument;
-        $node = $this->xml_converter
-            ->rootElement($node_name)
-            ->recordElement('tr')
-            ->fieldElement('th')
-            ->import([$record], $ownerDocument)
-        ;
-
-        /** @var DOMElement $element */
-        foreach ($node->getElementsByTagName('th') as $element) {
-            $element->setAttribute('scope', 'col');
+        /** @var DOMDocument|HTMLDocument $document */
+        $document = $table->ownerDocument;
+        $header = $document->createElement($node_name);
+        $tr = $document->createElement('tr');
+        foreach ($record as $field_value) {
+            $th = $document->createElement('th');
+            $th->setAttribute('scope', 'col');
+            $th->appendChild($document->createTextNode($field_value));
+            $tr->appendChild($th);
         }
 
-        $table->appendChild($node);
-    }
-
-    /**
-     * Adds class and id attributes to an HTML tag.
-     */
-    protected function addHTMLAttributes(DOMElement $node): void
-    {
-        $node->setAttribute('class', $this->class_name);
-        $node->setAttribute('id', $this->id_value);
+        $header->appendChild($tr);
+        $table->appendChild($header);
     }
 
     /**
@@ -150,8 +159,16 @@ class HTMLConverter
      */
     public function tr(string $record_offset_attribute_name): self
     {
+        if ($record_offset_attribute_name === $this->offset_attr) {
+            return $this;
+        }
+
+        if (!self::filterAttributeNme($record_offset_attribute_name)) {
+            throw new DOMException('The submitted attribute name `'.$record_offset_attribute_name.'` is not valid.');
+        }
+
         $clone = clone $this;
-        $clone->xml_converter = $this->xml_converter->recordElement('tr', $record_offset_attribute_name);
+        $clone->offset_attr = $record_offset_attribute_name;
 
         return $clone;
     }
@@ -161,10 +178,31 @@ class HTMLConverter
      */
     public function td(string $fieldname_attribute_name): self
     {
+        if ($fieldname_attribute_name === $this->column_attr) {
+            return $this;
+        }
+
+        if (!self::filterAttributeNme($fieldname_attribute_name)) {
+            throw new DOMException('The submitted attribute name `'.$fieldname_attribute_name.'` is not valid.');
+        }
+
         $clone = clone $this;
-        $clone->xml_converter = $this->xml_converter->fieldElement('td', $fieldname_attribute_name);
+        $clone->column_attr = $fieldname_attribute_name;
 
         return $clone;
+    }
+
+    private static function filterAttributeNme(string $attribute_name): bool
+    {
+        try {
+            $document = self::supportsModerDom() ? XmlDocument::createEmpty() : new DOMDocument('1.0');
+            $div = $document->createElement('div');
+            $div->setAttribute($attribute_name, 'foo');
+
+            return true;
+        } catch (DOMException) {
+            return false;
+        }
     }
 
     /**

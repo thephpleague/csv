@@ -11,7 +11,9 @@ The `HTMLConverter` converts a CSV records collection into an HTML Table using P
 
 Prior to converting your records collection into an HTML table, you may wish to configure optional information to improve your table rendering.
 
-<p class="message-warning">Because we are using the <a href="/9.0/converter/xml/">XMLConverter</a> internally, if an error occurs while validating the submitted values, a <code>DOMException</code> exception will be thrown.</p>
+<p class="message-warning">Before version <code>9.22</code> the class was using the <a href="/9.0/converter/xml/">XMLConverter</a> internally.
+This is no longer the case to take advantage of PHP8.4 new functionalities. If an error occurs while validating the submitted values,
+a <code>DOMException</code> exception will be thrown.</p>
 
 ### HTMLConverter::table
 

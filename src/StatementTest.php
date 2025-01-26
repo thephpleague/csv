@@ -41,7 +41,7 @@ final class StatementTest extends TestCase
         $tmp = new SplTempFileObject();
         $tmp->setCsvControl(escape: '\\');
         foreach ($this->expected as $row) {
-            $tmp->fputcsv($row);
+            $tmp->fputcsv($row, escape: '\\');
         }
 
         $this->csv = Reader::createFromFileObject($tmp);

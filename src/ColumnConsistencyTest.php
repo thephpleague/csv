@@ -32,7 +32,7 @@ final class ColumnConsistencyTest extends TestCase
     {
         $csv = new SplFileObject(__DIR__.'/../test_files/foo.csv', 'w');
         $csv->setCsvControl(escape: '\\');
-        $csv->fputcsv(fields: ['john', 'doe', 'john.doe@example.com']);
+        $csv->fputcsv(fields: ['john', 'doe', 'john.doe@example.com'], escape: '\\');
         unset($this->csv);
     }
 

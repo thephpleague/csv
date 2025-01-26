@@ -27,6 +27,8 @@ All Notable changes to `Csv` will be documented in this file
 - Fix testing to improve Debian integration [#549](https://github.com/thephpleague/csv/pull/549) by [David Prévot and tenzap](https://github.com/tenzap)
 - `Bom::tryFromSequence` and `Bom::fromSequence` supports the `Reader` and `Writer` classes.
 - `XMLConverter::$formatter` visibility it should not be public.
+- `XMLConverter` internal rewritten to take advantage of PHP8.4 new dom classes
+- `HTMLConverter` internal rewritten to take advantage of PHP8.4 new dom classes
 
 ### Removed
 

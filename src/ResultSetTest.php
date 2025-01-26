@@ -39,7 +39,7 @@ final class ResultSetTest extends TabularDataReaderTestCase
         $tmp = new SplTempFileObject();
         $tmp->setCsvControl(escape: '\\');
         foreach ($this->expected as $row) {
-            $tmp->fputcsv($row);
+            $tmp->fputcsv($row, escape: '\\');
         }
 
         $this->csv = Reader::createFromFileObject($tmp);
@@ -198,7 +198,7 @@ final class ResultSetTest extends TabularDataReaderTestCase
         $tmp = new SplTempFileObject();
         $tmp->setCsvControl(escape: '\\');
         foreach ($arr as $row) {
-            $tmp->fputcsv($row);
+            $tmp->fputcsv($row, escape: '\\');
         }
 
         $csv = Reader::createFromFileObject($tmp);
@@ -229,7 +229,7 @@ final class ResultSetTest extends TabularDataReaderTestCase
         $file = new SplTempFileObject();
         $file->setCsvControl(escape: '\\');
         foreach ($raw as $row) {
-            $file->fputcsv($row);
+            $file->fputcsv($row, escape: '\\');
         }
         $csv = Reader::createFromFileObject($file);
         $res = $this->stmt->process($csv)->fetchColumnByOffset(2);
@@ -247,7 +247,7 @@ final class ResultSetTest extends TabularDataReaderTestCase
         $file = new SplTempFileObject();
         $file->setCsvControl(escape: '\\');
         foreach ($raw as $row) {
-            $file->fputcsv($row);
+            $file->fputcsv($row, escape: '\\');
         }
         $csv = Reader::createFromFileObject($file);
         $res = $this->stmt->process($csv)->fetchColumnByOffset(2);
@@ -340,7 +340,7 @@ final class ResultSetTest extends TabularDataReaderTestCase
         $tmp = new SplTempFileObject();
         $tmp->setCsvControl(escape: '\\');
         foreach ($expected as $row) {
-            $tmp->fputcsv($row);
+            $tmp->fputcsv($row, escape: '\\');
         }
 
         $reader = Reader::createFromFileObject($tmp)->setHeaderOffset(0);
