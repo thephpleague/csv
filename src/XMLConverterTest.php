@@ -111,7 +111,7 @@ final class XMLConverterTest extends TestCase
         $output = ob_get_clean();
         $headers = xdebug_get_headers();
 
-        $xml = '<?xml version="1.0" encoding="utf-8"?>'."\n".'<csv><row><cell name="foo">bar</cell></row></csv>'."\n";
+        $xml = '<?xml version="1.0" encoding="UTF-8"?>'."\n".'<csv><row><cell name="foo">bar</cell></row></csv>'."\n";
 
         self::assertStringContainsString('content-type: application/xml', strtolower($headers[0]));
         self::assertSame('content-transfer-encoding: binary', strtolower($headers[1]));
