@@ -26,7 +26,6 @@ use function function_exists;
 use function ob_get_clean;
 use function ob_start;
 use function strtolower;
-use function Symfony\Component\VarDumper\Dumper\esc;
 use function tempnam;
 use function tmpfile;
 use function unlink;
@@ -47,7 +46,7 @@ final class AbstractCsvTest extends TestCase
     {
         $tmp = new SplTempFileObject();
         foreach ($this->expected as $row) {
-            $tmp->fputcsv($row, escape: "\\");
+            $tmp->fputcsv($row, escape: '\\');
         }
 
         $this->csv = Reader::createFromFileObject($tmp);

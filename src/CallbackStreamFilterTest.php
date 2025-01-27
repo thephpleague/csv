@@ -114,7 +114,7 @@ CSV;
         StreamFilter::appendOnReadTo($stream, 'swap.carrier.return');
         StreamFilter::prependOnReadTo($stream, 'toUpper');
         $data = [];
-        while (($record = fgetcsv($stream, 1000, ',', escape: "\\")) !== false) {
+        while (($record = fgetcsv($stream, 1000, ',', escape: '\\')) !== false) {
             $data[] = $record;
         }
         fclose($stream);

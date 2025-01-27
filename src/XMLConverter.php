@@ -88,6 +88,7 @@ class XMLConverter
      */
     public function download(iterable $records, ?string $filename = null, string $encoding = 'utf-8', bool $formatOutput = false): int|false
     {
+        /** @var XMLDocument|DOMDocument $document */
         $document = $this->convert($records);
 
         if (null !== $filename) {

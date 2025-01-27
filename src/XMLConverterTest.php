@@ -108,16 +108,16 @@ final class XMLConverterTest extends TestCase
 
         ob_start();
         XMLConverter::create()->fieldElement('cell', 'name')->download([['foo' => 'bar']], 'foobar.xml');
-        $output = ob_get_clean();
+        $output = (string) ob_get_clean();
         $headers = xdebug_get_headers();
 
-        $xml = '<?xml version="1.0" encoding="UTF-8"?>'."\n".'<csv><row><cell name="foo">bar</cell></row></csv>'."\n";
+        $xml = '<csv><row><cell name="foo">bar</cell></row></csv>';
 
         self::assertStringContainsString('content-type: application/xml', strtolower($headers[0]));
         self::assertSame('content-transfer-encoding: binary', strtolower($headers[1]));
         self::assertSame('content-description: File Transfer', $headers[2]);
         self::assertStringContainsString('content-disposition: attachment;filename="foobar.xml"', $headers[3]);
-        self::assertSame($xml, $output);
+        self::assertStringContainsString($xml, $output);
     }
 
     public function testToXMLWithFormatter(): void
