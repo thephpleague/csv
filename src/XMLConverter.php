@@ -95,7 +95,10 @@ class XMLConverter
             HttpHeaders::forFileDownload($filename, 'application/xml; charset='.strtolower($encoding));
         }
 
+        $document->formatOutput = $formatOutput;
         if ($document instanceof DOMDocument) {
+            $document->encoding = strtoupper($encoding);
+
             return $document->save('php://output');
         }
 
