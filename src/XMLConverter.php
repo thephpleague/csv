@@ -189,7 +189,9 @@ class XMLConverter
      */
     protected function filterElementName(string $value): string
     {
-        return (new DOMElement($value))->tagName;
+        $document = self::supportsModerDom() ? XmlDocument::createEmpty() : new DOMDocument('1.0');
+
+        return $document->createElement($value)->tagName;
     }
 
     /**
