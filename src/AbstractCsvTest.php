@@ -46,7 +46,7 @@ final class AbstractCsvTest extends TestCase
     {
         $tmp = new SplTempFileObject();
         foreach ($this->expected as $row) {
-            $tmp->fputcsv($row);
+            $tmp->fputcsv($row, escape: '\\');
         }
 
         $this->csv = Reader::createFromFileObject($tmp);

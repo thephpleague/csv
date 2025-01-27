@@ -41,7 +41,7 @@ final class ReaderTest extends TabularDataReaderTestCase
         $tmp = new SplTempFileObject();
         $tmp->setCsvControl(escape: '\\');
         foreach ($this->expected as $row) {
-            $tmp->fputcsv($row);
+            $tmp->fputcsv($row, escape: '\\');
         }
 
         $this->csv = Reader::createFromFileObject($tmp);
@@ -160,7 +160,7 @@ EOF;
         $file = new SplTempFileObject();
         $file->setCsvControl(escape: '\\');
         foreach ($raw as $row) {
-            $file->fputcsv($row);
+            $file->fputcsv($row, escape: '\\');
         }
         $csv = Reader::createFromFileObject($file);
         $csv->setHeaderOffset(0);
@@ -368,7 +368,7 @@ EOF;
         $tmp = new SplTempFileObject();
         $tmp->setCsvControl(escape: '\\');
         foreach ($expected as $row) {
-            $tmp->fputcsv($row);
+            $tmp->fputcsv($row, escape: '\\');
         }
 
         $reader = Reader::createFromFileObject($tmp)->setHeaderOffset(0);
