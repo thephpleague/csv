@@ -16,7 +16,6 @@ namespace League\Csv;
 use Closure;
 use Dom\Element;
 use Dom\XMLDocument;
-use DOMAttr;
 use DOMDocument;
 use DOMElement;
 use DOMException;
@@ -220,7 +219,11 @@ class XMLConverter
             return $value;
         }
 
-        return (new DOMAttr($value))->name;
+        $document = self::supportsModerDom() ? XmlDocument::createEmpty() : new DOMDocument('1.0');
+        $element = $document->createElement('foo');
+        $element->setAttribute($value, 'foo');
+
+        return $value;
     }
 
     /**
