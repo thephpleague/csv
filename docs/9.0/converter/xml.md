@@ -220,7 +220,7 @@ the total number of bytes sent just like the `XMLConverter::save` method and ena
 
 ```php
 use League\Csv\Reader;
-use League\Csv\JsonConverter;
+use League\Csv\XMLConverter;
 
 $reader = Reader::createFromPath('file.csv');
 $reader->setHeaderOffset(0);
