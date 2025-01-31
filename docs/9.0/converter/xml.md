@@ -7,6 +7,9 @@ title: Converting a CSV into a XML DOMDocument object
 
 The `XMLConverter` converts a CSV records collection into a PHP `DOMDocument`.
 
+<p class="message-info">Starting with version <code>9.22.0</code>, support for
+returning <code>\Dom\XmlDocument</code> instances is added</p>
+
 ## Settings
 
 Prior to converting your records collection into XML, you may wish to configure the element and its associated attribute names. To do so, `XMLConverter` provides methods to set up these settings.
@@ -57,10 +60,23 @@ This method allow to apply a callback prior to converting your collection indivi
 This callback allows you to specify how each item will be converted. The formatter should
 return an associative array suitable for conversion.
 
+### XMLConverter::xmlClass
+
+<p class="message-info">New feature introduced in version <code>9.22.0</code></p>
+
+```php
+public XMLConverter::xmlClass(string $xmlClass): self
+```
+
+This method allow to specify the return type when calling the `convert` method.
+The accepted values are `DomDocument` or `Dom\XmlDocument` class names any other
+value will trigger a `ValueError` from the API. To avoid BC break the default
+value if this method is **NEVER** call is `DomDocument`.
+
 ## Conversion
 
 ```php
-public XMLConverter::convert(iterable $records): DOMDocument
+public XMLConverter::convert(iterable $records): DOMDocument|\Dom\XmlDocument
 ```
 
 The `XMLConverter::convert` accepts an `iterable` which represents the records collection and returns a `DOMDocument` object.
@@ -120,7 +136,7 @@ echo htmlentities($dom->saveXML());
 <p class="message-info">New feature introduced in version <code>9.3.0</code></p>
 
 ```php
-public XMLConverter::import(iterable $records, DOMDocument $doc): DOMElement
+public XMLConverter::import(iterable $records, DOMDocument|\Dom\XMLDocument $doc): DOMElement|\Dom\Element
 ```
 
 Instead of converting your tabular data into a full XML document you can now import it into an already existing `DOMDocument` object.
@@ -129,7 +145,7 @@ To do so, you need to specify which document the data should be imported into us
 This method takes two arguments:
 
 - the tabular data as defined for the `XMLConverter::convert` method;
-- a `DOMDocument` object to import the data into;
+- a `DOMDocument` or a `\Dom\XmlDocument` object to import the data into;
 
 Note that the resulting `DOMElement` is attached to the given `DOMDocument` object but not yet included in the document tree.
 To include it, you still need to call a DOM insertion method like `appendChild` or `insertBefore` with a node that *is* currently in the document tree.

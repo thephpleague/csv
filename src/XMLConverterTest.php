@@ -13,13 +13,14 @@ declare(strict_types=1);
 
 namespace League\Csv;
 
+use Dom\XMLDocument;
 use DOMDocument;
-use DOMElement;
 use DOMException;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 
 use function array_map;
+use function class_exists;
 
 #[Group('converter')]
 final class XMLConverterTest extends TestCase
@@ -44,24 +45,19 @@ final class XMLConverterTest extends TestCase
             ->fieldElement('field', 'name')
         ;
 
-        $dom = $converter->convert($records);
+        $dom = $converter->convert($records, XMLDocument::class);
         $record_list = $dom->getElementsByTagName('record');
-
-        /** @var DOMElement $record_node */
         $record_node = $record_list->item(0);
-
         $field_list = $dom->getElementsByTagName('field');
-
-        /** @var DOMElement $field_node */
         $field_node = $field_list->item(0);
 
-        /** @var DOMElement $baseTag */
-        $baseTag = $dom->documentElement;
-
-        self::assertSame('csv', $baseTag->tagName);
+        self::assertNotNull($dom->documentElement);
+        self::assertSame('csv', $dom->documentElement->tagName);
         self::assertEquals(5, $record_list->length);
+        self::assertNotNull($record_node);
         self::assertTrue($record_node->hasAttribute('offset'));
         self::assertEquals(20, $field_list->length);
+        self::assertNotNull($field_node);
         self::assertTrue($field_node->hasAttribute('name'));
     }
 
@@ -93,7 +89,7 @@ final class XMLConverterTest extends TestCase
             ->fieldElement('field', 'name')
         ;
 
-        $doc = new DOMDocument('1.0');
+        $doc = class_exists(XMLDocument::class) ? XMLDocument::createEmpty() : new DOMDocument('1.0');
         $element = $converter->import($records, $doc);
 
         self::assertCount(0, $doc->childNodes);

@@ -20,9 +20,14 @@ use DOMDocument;
 use DOMElement;
 use DOMException;
 use Exception;
+use RuntimeException;
+use ValueError;
 
 use function class_exists;
 use function extension_loaded;
+use function in_array;
+use function strtolower;
+use function strtoupper;
 
 /**
  * Converts tabular data into a DOMDocument object.
@@ -41,10 +46,23 @@ class XMLConverter
     protected string $offset_attr = '';
     /** @var ?Closure(array, array-key): array */
     protected ?Closure $formatter = null;
+    /** @var class-string */
+    protected string $xml_class = DomDocument::class;
 
-    private static function supportsModerDom(): bool
+    /**
+     * @param class-string $xml_class
+     *
+     * @throws RuntimeException If the extension is not present
+     * @throws ValueError If the XML class used is invalid
+     */
+    private static function newXmlDocument(string $xml_class = DOMDocument::class): DOMDocument|XMLDocument
     {
-        return extension_loaded('dom') && class_exists(XMLDocument::class);
+        return match (true) {
+            !extension_loaded('dom') => throw new RuntimeException('The DOM extension is not loaded.'),
+            !in_array($xml_class, [XMLDocument::class , DOMDocument::class], true) => throw new ValueError('The xml class is invalid.'),
+            XMLDocument::class === $xml_class && class_exists(XMLDocument::class) => XMLDocument::createEmpty(),
+            default => new DOMDocument(encoding: 'UTF-8'),
+        };
     }
 
     public static function create(): self
@@ -63,19 +81,76 @@ class XMLConverter
     }
 
     /**
-     * Converts a Record collection into a DOMDocument.
+     * XML root element setter.
+     *
+     * @throws DOMException
      */
-    public function convert(iterable $records): DOMDocument|XMLDocument
+    public function rootElement(string $node_name): self
     {
-        if (null !== $this->formatter) {
-            $records = MapIterator::fromIterable($records, $this->formatter);
+        $clone = clone $this;
+        $clone->root_name = $this->filterElementName($node_name);
+
+        return $clone;
+    }
+
+    /**
+     * XML Record element setter.
+     *
+     * @throws DOMException
+     */
+    public function recordElement(string $node_name, string $record_offset_attribute_name = ''): self
+    {
+        $clone = clone $this;
+        $clone->record_name = $this->filterElementName($node_name);
+        $clone->offset_attr = $this->filterAttributeName($record_offset_attribute_name);
+
+        return $clone;
+    }
+
+    /**
+     * XML Field element setter.
+     *
+     * @throws DOMException
+     */
+    public function fieldElement(string $node_name, string $fieldname_attribute_name = ''): self
+    {
+        $clone = clone $this;
+        $clone->field_name = $this->filterElementName($node_name);
+        $clone->column_attr = $this->filterAttributeName($fieldname_attribute_name);
+
+        return $clone;
+    }
+
+    /**
+     * @param class-string $xmlClass
+     */
+    public function xmlClass(string $xmlClass): self
+    {
+        if (!in_array($xmlClass, [XMLDocument::class , DOMDocument::class], true)) {
+            throw new ValueError('The xml class is invalid.');
         }
 
-        $doc = self::supportsModerDom() ? XMLDocument::createEmpty() : new DOMDocument(version:'1.0', encoding:'UTF-8');
-        $node = $this->import($records, $doc);
-        $doc->appendChild($node);
+        if ($this->xml_class === $xmlClass) {
+            return $this;
+        }
 
-        return $doc;
+        $clone = clone $this;
+        $clone->xml_class = $xmlClass;
+
+        return $clone;
+    }
+
+    /**
+     * Set a callback to format each item before json encode.
+     *
+     * @param ?callable(array, array-key): array $formatter
+     */
+    public function formatter(?callable $formatter): self
+    {
+        $clone = clone $this;
+        $clone->formatter = ($formatter instanceof Closure || null === $formatter) ? $formatter : $formatter(...);
+
+        return $clone;
     }
 
     /**
@@ -105,12 +180,27 @@ class XMLConverter
     }
 
     /**
+     * Converts a Record collection into a DOMDocument.
+     */
+    public function convert(iterable $records): DOMDocument|XMLDocument
+    {
+        $document = self::newXmlDocument($this->xml_class);
+        $document->appendChild($this->import($records, $document));
+
+        return $document;
+    }
+
+    /**
      * Creates a new DOMElement related to the given DOMDocument.
      *
      * **DOES NOT** attach to the DOMDocument
      */
     public function import(iterable $records, DOMDocument|XMLDocument $doc): DOMElement|Element
     {
+        if (null !== $this->formatter) {
+            $records = MapIterator::fromIterable($records, $this->formatter);
+        }
+
         $root = $doc->createElement($this->root_name);
         foreach ($records as $offset => $record) {
             $root->appendChild($this->recordToElement($doc, $record, $offset));
@@ -123,12 +213,11 @@ class XMLConverter
      * Converts a CSV record into a DOMElement and
      * adds its offset as DOMElement attribute.
      */
-    protected function recordToElement(DOMDocument|XMLDocument $doc, array $record, int $offset): DOMElement|Element
+    protected function recordToElement(DOMDocument|XMLDocument $document, array $record, int $offset): DOMElement|Element
     {
-        $node = $doc->createElement($this->record_name);
+        $node = $document->createElement($this->record_name);
         foreach ($record as $node_name => $value) {
-            $item = $this->fieldToElement($doc, (string) $value, $node_name);
-            $node->appendChild($item);
+            $node->appendChild($this->fieldToElement($document, (string) $value, $node_name));
         }
 
         if ('' !== $this->offset_attr) {
@@ -144,10 +233,10 @@ class XMLConverter
      * Converts the CSV item into a DOMElement and adds the item offset
      * as attribute to the returned DOMElement
      */
-    protected function fieldToElement(DOMDocument|XMLDocument $doc, string $value, int|string $node_name): DOMElement|Element
+    protected function fieldToElement(DOMDocument|XMLDocument $document, string $value, int|string $node_name): DOMElement|Element
     {
-        $item = $doc->createElement($this->field_name);
-        $item->appendChild($doc->createTextNode($value));
+        $item = $document->createElement($this->field_name);
+        $item->appendChild($document->createTextNode($value));
 
         if ('' !== $this->column_attr) {
             $item->setAttribute($this->column_attr, (string) $node_name);
@@ -157,55 +246,13 @@ class XMLConverter
     }
 
     /**
-     * XML root element setter.
-     *
-     * @throws DOMException
-     */
-    public function rootElement(string $node_name): self
-    {
-        $clone = clone $this;
-        $clone->root_name = $this->filterElementName($node_name);
-
-        return $clone;
-    }
-
-    /**
-     * Set a callback to format each item before json encode.
-     *
-     * @param ?callable(array, array-key): array $formatter
-     */
-    public function formatter(?callable $formatter): self
-    {
-        $clone = clone $this;
-        $clone->formatter = ($formatter instanceof Closure || null === $formatter) ? $formatter : $formatter(...);
-
-        return $clone;
-    }
-
-    /**
      * Filters XML element name.
      *
      * @throws DOMException If the Element name is invalid
      */
     protected function filterElementName(string $value): string
     {
-        $document = self::supportsModerDom() ? XmlDocument::createEmpty() : new DOMDocument('1.0');
-
-        return $document->createElement($value)->tagName;
-    }
-
-    /**
-     * XML Record element setter.
-     *
-     * @throws DOMException
-     */
-    public function recordElement(string $node_name, string $record_offset_attribute_name = ''): self
-    {
-        $clone = clone $this;
-        $clone->record_name = $this->filterElementName($node_name);
-        $clone->offset_attr = $this->filterAttributeName($record_offset_attribute_name);
-
-        return $clone;
+        return self::newXmlDocument(XMLDocument::class)->createElement($value)->tagName;
     }
 
     /**
@@ -221,24 +268,9 @@ class XMLConverter
             return $value;
         }
 
-        $document = self::supportsModerDom() ? XmlDocument::createEmpty() : new DOMDocument('1.0');
-        $element = $document->createElement('foo');
+        $element = self::newXmlDocument(XMLDocument::class)->createElement('foo');
         $element->setAttribute($value, 'foo');
 
         return $value;
-    }
-
-    /**
-     * XML Field element setter.
-     *
-     * @throws DOMException
-     */
-    public function fieldElement(string $node_name, string $fieldname_attribute_name = ''): self
-    {
-        $clone = clone $this;
-        $clone->field_name = $this->filterElementName($node_name);
-        $clone->column_attr = $this->filterAttributeName($fieldname_attribute_name);
-
-        return $clone;
     }
 }

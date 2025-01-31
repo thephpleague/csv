@@ -29,12 +29,10 @@ final class HTMLConverterTest extends TestCase
             ->setHeaderOffset(0)
         ;
 
-        $stmt = Statement::create()
+        $records = Statement::create()
             ->offset(3)
             ->limit(5)
-        ;
-
-        $records = $stmt->process($csv);
+            ->process($csv);
 
         $converter = HTMLConverter::create()
             ->table('table-csv-data', 'test')
@@ -58,12 +56,10 @@ final class HTMLConverterTest extends TestCase
             ->setHeaderOffset(0)
         ;
 
-        $stmt = Statement::create()
+        $records = Statement::create()
             ->offset(3)
             ->limit(5)
-        ;
-
-        $records = $stmt->process($csv);
+            ->process($csv);
 
         $converter = HTMLConverter::create()
             ->table('table-csv-data', 'test')
@@ -89,12 +85,10 @@ final class HTMLConverterTest extends TestCase
             ->setHeaderOffset(0)
         ;
 
-        $stmt = Statement::create()
+        $records = Statement::create()
             ->offset(3)
             ->limit(5)
-        ;
-
-        $records = $stmt->process($csv);
+            ->process($csv);
 
         $converter = HTMLConverter::create()
             ->table('table-csv-data', 'test')
@@ -120,12 +114,10 @@ final class HTMLConverterTest extends TestCase
             ->setHeaderOffset(0)
         ;
 
-        $stmt = Statement::create()
+        $records = Statement::create()
             ->offset(3)
             ->limit(5)
-        ;
-
-        $records = $stmt->process($csv);
+            ->process($csv);
 
         $converter = HTMLConverter::create()
             ->table('table-csv-data', 'test')
@@ -154,24 +146,19 @@ final class HTMLConverterTest extends TestCase
     {
         $csv = Reader::createFromPath(__DIR__.'/../test_files/prenoms.csv', 'r')
             ->setDelimiter(';')
-            ->setHeaderOffset(0)
-        ;
+            ->setHeaderOffset(0);
 
-        $stmt = Statement::create()
+        $records = Statement::create()
             ->offset(3)
             ->limit(5)
-        ;
-
-        $records = $stmt->process($csv);
+            ->process($csv);
 
         $converter = HTMLConverter::create()
             ->table('table-csv-data', 'test')
             ->td('title')
             ->tr('data-record-offset')
             ->formatter(fn (array $record, int|string $key): array => array_map(strtoupper(...), $record));
-        ;
 
-        $html = $converter->convert($records);
-        self::assertStringContainsString('ABEL', $html);
+        self::assertStringContainsString('ABEL', $converter->convert($records));
     }
 }
