@@ -47,13 +47,6 @@ class HTMLConverter
         return new self();
     }
 
-    /**
-     * DEPRECATION WARNING! This method will be removed in the next major point release.
-     *
-     * @throws DOMException
-     * @see HTMLConverter::create()
-     * @deprecated since version 9.7.0
-     */
     public function __construct()
     {
     }

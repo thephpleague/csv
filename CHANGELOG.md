@@ -13,6 +13,7 @@ All Notable changes to `Csv` will be documented in this file
 - `ResultSet::createFromRdbms`
 - `RdbmsResult` class to allow converting RDBMS result into `ResultSet`
 - `TabularData` interface
+- `XMLConverter::supportsHeader`
 
 ### Deprecated
 
@@ -30,6 +31,7 @@ All Notable changes to `Csv` will be documented in this file
 - `XMLConverter::$formatter` visibility it should not be public.
 - `XMLConverter` internal rewritten to take advantage of PHP8.4 new dom classes
 - `HTMLConverter` internal rewritten to take advantage of PHP8.4 new dom classes
+- `XMLConverter::fieldElement` now has a `nullable` field element to allow using headers names as cell names.
 
 ### Removed
 

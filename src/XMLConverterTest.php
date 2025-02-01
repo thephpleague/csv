@@ -16,8 +16,11 @@ namespace League\Csv;
 use Dom\XMLDocument;
 use DOMDocument;
 use DOMException;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
+use Throwable;
 
 use function array_map;
 use function class_exists;
@@ -144,5 +147,65 @@ final class XMLConverterTest extends TestCase
         $dom->appendChild($converter->import($records, $dom));
 
         self::assertStringContainsString('ABEL', (string) $dom->saveXML());
+    }
+
+    #[Test]
+    public function it_can_use_the_document_header_as_cell_name(): void
+    {
+        $csv = Reader::createFromPath(__DIR__.'/../test_files/prenoms.csv', 'r')
+            ->setDelimiter(';')
+            ->setHeaderOffset(0)
+            ->slice(0, 2);
+
+        $converter = XMLConverter::create()
+            ->rootElement('stats')
+            ->recordElement('per_name', 'offset')
+            ->fieldElement(null);
+
+        /** @var DOMDocument|XMLDocument $dom */
+        $dom = class_exists(XMLDocument::class) ? XMLDocument::createEmpty() : new DOMDocument(encoding: 'UTF-8');
+        $dom->appendChild($converter->import($csv, $dom));
+        $dom->formatOutput = true;
+
+        $generatedXml = (string) $dom->saveXML();
+
+        self::assertStringContainsString('<per_name offset="1">', $generatedXml);
+        self::assertStringContainsString('<nombre>55</nombre>', $generatedXml);
+        self::assertStringContainsString('<sexe>M</sexe>', $generatedXml);
+        self::assertStringContainsString('<annee>2004</annee>', $generatedXml);
+    }
+
+    #[Test]
+    public function it_will_trigger_an_exception_if_the_header_is_invalid(): void
+    {
+        $csv = Reader::createFromPath(__DIR__.'/../test_files/prenoms.csv', 'r')
+            ->setDelimiter(';')
+            ->slice(0, 2);
+
+        $converter = XMLConverter::create()
+            ->rootElement('stats')
+            ->recordElement('per_name', 'offset')
+            ->fieldElement(null);
+
+        /** @var DOMDocument|XMLDocument $dom */
+        $dom = class_exists(XMLDocument::class) ? XMLDocument::createEmpty() : new DOMDocument(encoding: 'UTF-8');
+
+        $this->expectException(Throwable::class);
+        $converter->import($csv, $dom);
+    }
+
+    #[Test]
+    #[DataProvider('provideHeader')]
+    public function it_will_tell_if_it_can_use_a_specific_header(array $header, bool $expected): void
+    {
+        self::assertSame($expected, XMLConverter::supportsHeader($header));
+    }
+
+    public static function provideHeader(): iterable
+    {
+        yield 'no header' => ['header' => [], 'expected' => false];
+        yield 'header with name value' => ['header' => ['foo', 'bar'], 'expected' => true];
+        yield 'header with numeric index' => ['header' => [1, 'bar'], 'expected' => false];
+        yield 'header with string as numeric index' => ['header' => ['1', 'bar'], 'expected' => false];
     }
 }

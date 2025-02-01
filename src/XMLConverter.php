@@ -22,6 +22,7 @@ use DOMElement;
 use DOMException;
 use Exception;
 use RuntimeException;
+use Throwable;
 use ValueError;
 
 use function class_exists;
@@ -40,7 +41,7 @@ class XMLConverter
     /** XML Node name. */
     protected string $record_name = 'row';
     /** XML Item name. */
-    protected string $field_name = 'cell';
+    protected ?string $field_name = 'cell';
     /** XML column attribute name. */
     protected string $column_attr = '';
     /** XML offset attribute name. */
@@ -68,12 +69,6 @@ class XMLConverter
         return new self();
     }
 
-    /**
-     * DEPRECATION WARNING! This method will be removed in the next major point release.
-     *
-     * @deprecated since version 9.7.0
-     * @see XMLConverter::create()
-     */
     public function __construct()
     {
     }
@@ -86,7 +81,7 @@ class XMLConverter
     public function rootElement(string $node_name): self
     {
         $clone = clone $this;
-        $clone->root_name = $this->filterElementName($node_name);
+        $clone->root_name = (string) $this->filterElementName($node_name);
 
         return $clone;
     }
@@ -99,7 +94,7 @@ class XMLConverter
     public function recordElement(string $node_name, string $record_offset_attribute_name = ''): self
     {
         $clone = clone $this;
-        $clone->record_name = $this->filterElementName($node_name);
+        $clone->record_name = (string) $this->filterElementName($node_name);
         $clone->offset_attr = $this->filterAttributeName($record_offset_attribute_name);
 
         return $clone;
@@ -110,7 +105,7 @@ class XMLConverter
      *
      * @throws DOMException
      */
-    public function fieldElement(string $node_name, string $fieldname_attribute_name = ''): self
+    public function fieldElement(?string $node_name, string $fieldname_attribute_name = ''): self
     {
         $clone = clone $this;
         $clone->field_name = $this->filterElementName($node_name);
@@ -203,11 +198,12 @@ class XMLConverter
      */
     protected function fieldToElement(DOMDocument|XMLDocument $document, string $value, int|string $node_name): DOMElement|Element
     {
-        $item = $document->createElement($this->field_name);
+        $node_name = (string) $node_name;
+        $item = $document->createElement($this->field_name ?? $node_name);
         $item->appendChild($document->createTextNode($value));
 
         if ('' !== $this->column_attr) {
-            $item->setAttribute($this->column_attr, (string) $node_name);
+            $item->setAttribute($this->column_attr, $node_name);
         }
 
         return $item;
@@ -218,8 +214,12 @@ class XMLConverter
      *
      * @throws DOMException If the Element name is invalid
      */
-    protected function filterElementName(string $value): string
+    protected function filterElementName(?string $value): ?string
     {
+        if (null === $value) {
+            return null;
+        }
+
         return self::newXmlDocument(XMLDocument::class)->createElement($value)->tagName;
     }
 
@@ -258,5 +258,19 @@ class XMLConverter
         $document->appendChild($this->import($records, $document));
 
         return $document;
+    }
+
+    public static function supportsHeader(array $header): bool
+    {
+        $document = self::newXmlDocument(XMLDocument::class);
+        foreach ($header as $header_value) {
+            try {
+                $res = $document->createElement($header_value)->tagName;
+            } catch (Throwable) {
+                return false;
+            }
+        }
+
+        return [] !== $header;
     }
 }

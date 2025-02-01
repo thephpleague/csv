@@ -40,13 +40,25 @@ This method sets the XML record name and optionally the attribute name for the r
 ### XMLConverter::fieldElement
 
 ```php
-public XMLConverter::fieldElement(string $node_name, string $fieldname_attribute_name = ''): self
+public XMLConverter::fieldElement(?string $node_name, string $fieldname_attribute_name = ''): self
 ```
 
-This method sets the XML field name and optionally the attribute name for the field name value.
+This method sets the XML field name and optionally the attribute name for the field name value. If the field name
+is `null` then the converter will use the CSV header names as field name.
 
 <p class="message-info">The default field element name is <code>cell</code>.</p>
 <p class="message-info">The default attribute name is an empty string.</p>
+<p class="message-notice">The field element can be <code>null</code> since version <code>9.22.0</code>.</p>
+
+If the field name is invalid an exception will be thrown. If you opt-in to use the record names as field element name,
+the exception will only be thrown on XML conversion. If you want to check if the CSV current header are usable as
+field name value you can use the new `XMLConverter::supportsHeader` method which returns `false` if at least on
+of the header name is invalid.
+
+```php
+XMLConverter::supportsHeader(['foo', 'bar', '1']);   // returns false
+XMLConverter::supportsHeader(['foo', 'bar', 'foo']); // returns true
+```
 
 ### XMLConverter::formatter
 
