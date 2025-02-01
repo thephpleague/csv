@@ -60,77 +60,6 @@ This method allow to apply a callback prior to converting your collection indivi
 This callback allows you to specify how each item will be converted. The formatter should
 return an associative array suitable for conversion.
 
-### XMLConverter::xmlClass
-
-<p class="message-info">New feature introduced in version <code>9.22.0</code></p>
-
-```php
-public XMLConverter::xmlClass(string $xmlClass): self
-```
-
-This method allow to specify the return type when calling the `convert` method.
-The accepted values are `DomDocument` or `Dom\XmlDocument` class names any other
-value will trigger a `ValueError` from the API. To avoid BC break the default
-value if this method is **NEVER** call is `DomDocument`.
-
-## Conversion
-
-```php
-public XMLConverter::convert(iterable $records): DOMDocument|\Dom\XmlDocument
-```
-
-The `XMLConverter::convert` accepts an `iterable` which represents the records collection and returns a `DOMDocument` object.
-
-```php
-use League\Csv\XMLConverter;
-use League\Csv\Statement;
-use League\Csv\Reader;
-
-$csv = Reader::createFromPath('/path/to/prenoms.csv', 'r');
-$csv->setDelimiter(';');
-$csv->setHeaderOffset(0);
-
-$stmt = (new Statement())
-    ->where(function (array $record) {
-        return 'Anaïs' === $record['prenoms'];
-    })
-    ->offset(0)
-    ->limit(2)
-;
-
-$converter = (new XMLConverter())
-    ->rootElement('csv')
-    ->recordElement('record', 'offset')
-    ->fieldElement('field', 'name')
-;
-
-$records = $stmt->process($csv);
-
-$dom = $converter->convert($records);
-$dom->formatOutput = true;
-$dom->encoding = 'iso-8859-15';
-
-echo '<pre>', PHP_EOL;
-echo htmlentities($dom->saveXML());
-// <?xml version="1.0" encoding="iso-8859-15"?>
-// <csv>
-//   <record offset="71">
-//     <field name="prenoms">Anaïs</field>
-//     <field name="nombre">137</field>
-//     <field name="sexe">F</field>
-//     <field name="annee">2004</field>
-//   </record>
-//   <record offset="1099">
-//     <field name="prenoms">Anaïs</field>
-//     <field name="nombre">124</field>
-//     <field name="sexe">F</field>
-//     <field name="annee">2005</field>
-//   </record>
-// </csv>
-```
-
-<p class="message-info">If needed you can use the <a href="/9.0/converter/charset/">CharsetConverter</a> object to correctly encode your CSV records before conversion.</p>
-
 ## Import
 
 <p class="message-info">New feature introduced in version <code>9.3.0</code></p>
@@ -206,6 +135,66 @@ echo htmlentities($dom->saveXML());
 //   </csv>
 // </root>
 ```
+
+## Conversion
+
+<p class="message-notice">The method is deprecated in version <code>9.22.0</code> use <code>XMLConverter::import</code> instead</p>
+
+```php
+public XMLConverter::convert(iterable $records): DOMDocument
+```
+
+The `XMLConverter::convert` accepts an `iterable` which represents the records collection and returns a `DOMDocument` object.
+
+```php
+use League\Csv\XMLConverter;
+use League\Csv\Statement;
+use League\Csv\Reader;
+
+$csv = Reader::createFromPath('/path/to/prenoms.csv', 'r');
+$csv->setDelimiter(';');
+$csv->setHeaderOffset(0);
+
+$stmt = (new Statement())
+    ->where(function (array $record) {
+        return 'Anaïs' === $record['prenoms'];
+    })
+    ->offset(0)
+    ->limit(2)
+;
+
+$converter = (new XMLConverter())
+    ->rootElement('csv')
+    ->recordElement('record', 'offset')
+    ->fieldElement('field', 'name')
+;
+
+$records = $stmt->process($csv);
+
+$dom = $converter->convert($records);
+$dom->formatOutput = true;
+$dom->encoding = 'iso-8859-15';
+
+echo '<pre>', PHP_EOL;
+echo htmlentities($dom->saveXML());
+// <?xml version="1.0" encoding="iso-8859-15"?>
+// <csv>
+//   <record offset="71">
+//     <field name="prenoms">Anaïs</field>
+//     <field name="nombre">137</field>
+//     <field name="sexe">F</field>
+//     <field name="annee">2004</field>
+//   </record>
+//   <record offset="1099">
+//     <field name="prenoms">Anaïs</field>
+//     <field name="nombre">124</field>
+//     <field name="sexe">F</field>
+//     <field name="annee">2005</field>
+//   </record>
+// </csv>
+```
+
+<p class="message-info">If needed you can use the <a href="/9.0/converter/charset/">CharsetConverter</a> object to correctly encode your CSV records before conversion.</p>
 
 ## Download
 

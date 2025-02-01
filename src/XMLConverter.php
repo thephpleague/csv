@@ -14,6 +14,7 @@ declare(strict_types=1);
 namespace League\Csv;
 
 use Closure;
+use Deprecated;
 use Dom\Element;
 use Dom\XMLDocument;
 use DOMDocument;
@@ -46,16 +47,13 @@ class XMLConverter
     protected string $offset_attr = '';
     /** @var ?Closure(array, array-key): array */
     protected ?Closure $formatter = null;
-    /** @var class-string */
-    protected string $xml_class = DomDocument::class;
 
     /**
-     * @param class-string $xml_class
      *
      * @throws RuntimeException If the extension is not present
      * @throws ValueError If the XML class used is invalid
      */
-    private static function newXmlDocument(string $xml_class = DOMDocument::class): DOMDocument|XMLDocument
+    private static function newXmlDocument(string $xml_class): DOMDocument|XMLDocument
     {
         return match (true) {
             !extension_loaded('dom') => throw new RuntimeException('The DOM extension is not loaded.'),
@@ -122,25 +120,6 @@ class XMLConverter
     }
 
     /**
-     * @param class-string $xmlClass
-     */
-    public function xmlClass(string $xmlClass): self
-    {
-        if (!in_array($xmlClass, [XMLDocument::class , DOMDocument::class], true)) {
-            throw new ValueError('The xml class is invalid.');
-        }
-
-        if ($this->xml_class === $xmlClass) {
-            return $this;
-        }
-
-        $clone = clone $this;
-        $clone->xml_class = $xmlClass;
-
-        return $clone;
-    }
-
-    /**
      * Set a callback to format each item before json encode.
      *
      * @param ?callable(array, array-key): array $formatter
@@ -163,8 +142,8 @@ class XMLConverter
     public function download(iterable $records, ?string $filename = null, string $encoding = 'utf-8', bool $formatOutput = false): int|false
     {
         /** @var XMLDocument|DOMDocument $document */
-        $document = $this->convert($records);
-
+        $document = self::newXmlDocument(XMLDocument::class);
+        $document->appendChild($this->import($records, $document));
         if (null !== $filename) {
             HttpHeaders::forFileDownload($filename, 'application/xml; charset='.strtolower($encoding));
         }
@@ -177,17 +156,6 @@ class XMLConverter
         }
 
         return $document->saveXmlFile('php://output');
-    }
-
-    /**
-     * Converts a Record collection into a DOMDocument.
-     */
-    public function convert(iterable $records): DOMDocument|XMLDocument
-    {
-        $document = self::newXmlDocument($this->xml_class);
-        $document->appendChild($this->import($records, $document));
-
-        return $document;
     }
 
     /**
@@ -272,5 +240,23 @@ class XMLConverter
         $element->setAttribute($value, 'foo');
 
         return $value;
+    }
+
+    /**
+     * DEPRECATION WARNING! This method will be removed in the next major point release.
+     *
+     * @see XMLConverter::import()
+     * @deprecated Since version 9.22.0
+     * @codeCoverageIgnore
+     *
+     * Converts a Record collection into a DOMDocument.
+     */
+    #[Deprecated(message:'use League\Csv\XMLConverter::impoprt()', since:'league/csv:9.22.0')]
+    public function convert(iterable $records): DOMDocument
+    {
+        $document = new DOMDocument(encoding: 'UTF-8');
+        $document->appendChild($this->import($records, $document));
+
+        return $document;
     }
 }

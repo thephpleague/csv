@@ -20,6 +20,7 @@ All Notable changes to `Csv` will be documented in this file
 - `ResultSet::createFromTabularDataReader` use `ResultSet::createFromTabularData`
 - `ResultSet::createFromRecords` use `ResultSet::createFromTabularData`
 - `ResultSet::__construct` use `ResultSet::createFromTabularData`
+- `XMLConverter::convert` use `XMLConverter::import` instead
 
 ### Fixed
 

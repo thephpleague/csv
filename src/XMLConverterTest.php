@@ -45,7 +45,9 @@ final class XMLConverterTest extends TestCase
             ->fieldElement('field', 'name')
         ;
 
-        $dom = $converter->convert($records, XMLDocument::class);
+        /** @var DOMDocument|XMLDocument $dom */
+        $dom = class_exists(XMLDocument::class) ? XMLDocument::createEmpty() : new DOMDocument(encoding: 'UTF-8');
+        $dom->appendChild($converter->import($records, $dom));
         $record_list = $dom->getElementsByTagName('record');
         $record_node = $record_list->item(0);
         $field_list = $dom->getElementsByTagName('field');
@@ -137,6 +139,10 @@ final class XMLConverterTest extends TestCase
             ->formatter(fn (array $record, int|string $key): array => array_map(strtoupper(...), $record));
         ;
 
-        self::assertStringContainsString('ABEL', (string) $converter->convert($records)->saveXML());
+        /** @var DOMDocument|XMLDocument $dom */
+        $dom = class_exists(XMLDocument::class) ? XMLDocument::createEmpty() : new DOMDocument(encoding: 'UTF-8');
+        $dom->appendChild($converter->import($records, $dom));
+
+        self::assertStringContainsString('ABEL', (string) $dom->saveXML());
     }
 }
