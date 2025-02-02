@@ -45,7 +45,7 @@ final class StatementTest extends TestCase
         }
 
         $this->csv = Reader::createFromFileObject($tmp);
-        $this->stmt = Statement::create();
+        $this->stmt = (new Statement());
     }
 
     protected function tearDown(): void
@@ -118,7 +118,7 @@ final class StatementTest extends TestCase
     {
         $func2 = fn (array $row): bool => !in_array('john', $row, true);
 
-        $stmt = Statement::create(fn (array $row): bool => !in_array('jane', $row, true));
+        $stmt = (new Statement())->where(fn (array $row): bool => !in_array('jane', $row, true));
         $result1 = $stmt->process($this->csv);
 
         $result2 = $stmt->where($func2)->process($result1, ['foo', 'bar']);
@@ -132,19 +132,19 @@ final class StatementTest extends TestCase
 
     public function testAddWhere(): void
     {
-        $stmt1 = Statement::create()->andWhere(0, '=', 'jane');
+        $stmt1 = (new Statement())->andWhere(0, '=', 'jane');
         $result1 = $stmt1->process($this->csv);
 
         self::assertCount(1, $result1);
         self::assertEquals('jane', $result1->first()[0]);
 
-        $stmt2 = Statement::create()->andWhere(0, 'starts_with', 'j');
+        $stmt2 = (new Statement())->andWhere(0, 'starts_with', 'j');
         $result2 = $stmt2->process($this->csv);
 
         self::assertCount(2, $result2);
         self::assertEquals('jane', $result2->nth(1)[0]);
 
-        $stmt3 = Statement::create()->andWhere(2, 'starts_with', 'blablabla');
+        $stmt3 = (new Statement())->andWhere(2, 'starts_with', 'blablabla');
         $result3 = $stmt3->process($this->csv);
 
         self::assertCount(0, $result3);
@@ -152,7 +152,7 @@ final class StatementTest extends TestCase
 
     public function testOrWhere(): void
     {
-        $stmt1 = Statement::create()
+        $stmt1 = (new Statement())
             ->orWhere(0, 'starts_with', 'ja')
             ->orWhere(0, 'ends_with', 'hn');
         $result1 = $stmt1->process($this->csv);
@@ -160,7 +160,7 @@ final class StatementTest extends TestCase
         self::assertCount(2, $result1);
         self::assertEquals('john', $result1->first()[0]);
 
-        $stmt3 = Statement::create()->orWhere(2, 'starts_with', 'blablabla');
+        $stmt3 = (new Statement())->orWhere(2, 'starts_with', 'blablabla');
         $result3 = $stmt3->process($this->csv);
 
         self::assertCount(0, $result3);
@@ -208,7 +208,7 @@ final class StatementTest extends TestCase
 
     public function testHeaderMapperOnStatement(): void
     {
-        $results = Statement::create()
+        $results = (new Statement())
             ->process($this->csv, [2 => 'e-mail', 1 => 'lastname', 33 => 'does not exists']);
         self::assertSame(['e-mail', 'lastname', 'does not exists'], $results->getHeader());
         self::assertSame([
@@ -232,7 +232,7 @@ CSV;
 
         $csv = Reader::createFromString($document);
         $csv->setHeaderOffset(0);
-        $constraints = Statement::create()
+        $constraints = (new Statement())
             ->select('Integer', 'Text', 'Date and Time')
             ->where(fn (array $record): bool => (float) $record['Float'] < 1.3)
             ->orderBy(fn (array $record1, array $record2): int => (int) $record2['Integer'] <=> (int) $record1['Integer']) /* @phpstan-ignore-line */
@@ -254,7 +254,7 @@ CSV;
         $csv = Reader::createFromString($document);
         $csv->setHeaderOffset(0);
 
-        $statement = Statement::create()
+        $statement = (new Statement())
             ->andWhere('Number', Comparison::Contains, '117');
 
         self::assertCount(1, $statement->process($csv));
@@ -272,7 +272,7 @@ CSV;
         $csv = Reader::createFromString($document);
         $csv->setHeaderOffset(0);
 
-        $statement = Statement::create()
+        $statement = (new Statement())
             ->limit(1)
             ->selectAllExcept('Number');
 

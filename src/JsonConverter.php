@@ -28,6 +28,7 @@ use TypeError;
 use function array_filter;
 use function array_reduce;
 use function get_defined_constants;
+use function is_bool;
 use function is_resource;
 use function is_string;
 use function json_encode;
@@ -348,6 +349,26 @@ final class JsonConverter
     public function formatter(?callable $formatter): self
     {
         return new self($this->flags, $this->depth, $this->indentSize, $formatter, $this->chunkSize);
+    }
+
+    /**
+     * Apply the callback if the given "condition" is (or resolves to) true.
+     *
+     * @param (callable($this): bool)|bool $condition
+     * @param callable($this): (self|null) $onSuccess
+     * @param ?callable($this): (self|null) $onFail
+     */
+    public function when(callable|bool $condition, callable $onSuccess, ?callable $onFail = null): self
+    {
+        if (!is_bool($condition)) {
+            $condition = $condition($this);
+        }
+
+        return match (true) {
+            $condition => $onSuccess($this),
+            null !== $onFail => $onFail($this),
+            default => $this,
+        } ?? $this;
     }
 
     /**

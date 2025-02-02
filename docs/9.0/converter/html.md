@@ -54,12 +54,50 @@ This method sets the optional attribute name for the field name on the HTML `td`
 public HTMLConverter::formatter(?callable $formatter): self
 ```
 
-This method allow to apply a callback prior to converting your collection individual item.
+This method allows to apply a callback prior to converting your collection individual item.
 This callback allows you to specify how each item will be converted. The formatter should
 return an associative array suitable for conversion.
 
 <p class="message-notice">The <code>Formatter</code> callback does not affect the footer
 and/or header conversion.</p>
+
+### HTMLConverter::when
+
+<p class="message-info">New feature introduced in version <code>9.22.0</code></p>
+
+This method allows to conditionally create your converter depending on the success or
+failure of a condition.
+
+```php
+use League\Csv\HTMLConverter;
+
+$converter = (new HTMLConverter());
+if ($condition) {
+    $converter = $converter->td('data-field');
+} else {
+    $converter = $converter->td('');
+}
+```
+
+becomes
+
+```php
+$converter = (new HTMLConverter())
+    ->when(
+        $condition,
+        fn (HTMLConverter $c) => $c->td('data-field'),
+        fn (HTMLConverter $c) => $c->td(''),
+    );
+)
+```
+
+The `else` expression is not required but if present in **MUST BE** a callable which only
+accepts the `HTMLConverter` instance and returns `null` or a `HTMLConverter` instance.
+
+The only requirements are:
+
+- that the condition is a `boolean` or a callable that returns a `boolean`.
+- the callback returns a `HTMLConverter` instance or null.
 
 ## Conversion
 
@@ -85,7 +123,7 @@ $sth = $dbh->prepare("SELECT firstname, lastname, email FROM users LIMIT 2");
 $sth->setFetchMode(PDO::FETCH_ASSOC);
 $sth->execute();
 
-$converter = (new HTMLConverter())
+$converter = new HTMLConverter()
     ->table('table-csv-data', 'users')
     ->tr('data-record-offset')
     ->td('title')

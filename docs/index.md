@@ -91,10 +91,10 @@ use League\Csv\XMLConverter;
 $file = new SplFileObject('/path/to/your/csv/file.csv', 'r');
 $csv = Reader::createFromFileObject($file);
 
-$converter = XMLConverter::create()
+$converter = new XMLConverter()
     ->rootElement('csv')
     ->recordElement('record', 'offset')
-    ->fieldElement('field', 'name');
+    ->fieldElement(null);
 
 $dom = $converter->convert($csv);
 $dom->formatOutput = true;
@@ -106,17 +106,17 @@ echo htmlentities($dom->saveXML());
 // <csv>
 //   ...
 //   <record offset="71">
-//     <field name="prenoms">Anaïs</field>
-//     <field name="nombre">137</field>
-//     <field name="sexe">F</field>
-//     <field name="annee">2004</field>
+//     <prenoms>Anaïs</prenoms>
+//     <nombre>137</nombre>
+//     <sexe>F</sexe>
+//     <annee>2004</annee>
 //   </record>
 //   ...
 //   <record offset="1099">
-//     <field name="prenoms">Anaïs</field>
-//     <field name="nombre">124</field>
-//     <field name="sexe">F</field>
-//     <field name="annee">2005</field>
+//     <prenoms>Anaïs</prenoms>
+//     <nombre>124</nombre>
+//     <sexe>F</sexe>
+//     <annee>2005</annee>
 //   </record>
 // </csv>
 ```

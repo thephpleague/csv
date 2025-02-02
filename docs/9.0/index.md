@@ -28,7 +28,7 @@ $csv->setHeaderOffset(0); //set the CSV header offset
 $csv->setEscape(''); //required in PHP8.4+ to avoid deprecation notices
 
 //get 25 records starting from the 11th row
-$stmt = Statement::create()
+$stmt = new Statement()
     ->offset(10)
     ->limit(25)
 ;
@@ -140,7 +140,7 @@ $csv->setDelimiter(';');
 $csv->setHeaderOffset(0);
 $csv->setEscape(''); //required in PHP8.4+ to avoid deprecation notices
 
-$converter = (new XMLConverter())
+$converter = new XMLConverter()
     ->rootElement('csv')
     ->recordElement('record', 'offset')
     ->fieldElement('field', 'name')

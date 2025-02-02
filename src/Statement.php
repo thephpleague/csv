@@ -54,33 +54,6 @@ class Statement
     protected int $select_mode = self::COLUMN_ALL;
 
     /**
-     * @param ?callable(array, array-key): bool $where, Deprecated argument use Statement::where instead
-     * @param int $offset, Deprecated argument use Statement::offset instead
-     * @param int $limit, Deprecated argument use Statement::limit instead
-     *
-     * @throws Exception
-     * @throws InvalidArgument
-     * @throws ReflectionException
-     */
-    public static function create(?callable $where = null, int $offset = 0, int $limit = -1): self
-    {
-        $stmt = new self();
-        if (null !== $where) {
-            $stmt = $stmt->where($where);
-        }
-
-        if (0 !== $offset) {
-            $stmt = $stmt->offset($offset);
-        }
-
-        if (-1 !== $limit) {
-            $stmt = $stmt->limit($limit);
-        }
-
-        return $stmt;
-    }
-
-    /**
      * Select all the columns from the tabular data that MUST BE present in the ResultSet.
      */
     public function select(string|int ...$columns): self
@@ -530,5 +503,40 @@ class Statement
         $it->uasort($compare);
 
         return $it;
+    }
+
+
+    /**
+     * DEPRECATION WARNING! This method will be removed in the next major point release.
+     *
+     * @param ?callable(array, array-key): bool $where , Deprecated argument use Statement::where instead
+     * @param int $offset, Deprecated argument use Statement::offset instead
+     * @param int $limit, Deprecated argument use Statement::limit instead
+     *
+     * @throws Exception
+     * @throws InvalidArgument
+     * @throws ReflectionException
+     *
+     * @see Statement::__construct()
+     * @deprecated Since version 9.22.0
+     * @codeCoverageIgnore
+     */
+    #[Deprecated(message:'use League\Csv\Statement::__construct() instead', since:'league/csv:9.22.0')]
+    public static function create(?callable $where = null, int $offset = 0, int $limit = -1): self
+    {
+        $stmt = new self();
+        if (null !== $where) {
+            $stmt = $stmt->where($where);
+        }
+
+        if (0 !== $offset) {
+            $stmt = $stmt->offset($offset);
+        }
+
+        if (-1 !== $limit) {
+            $stmt = $stmt->limit($limit);
+        }
+
+        return $stmt;
     }
 }

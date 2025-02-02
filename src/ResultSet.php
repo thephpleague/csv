@@ -214,22 +214,22 @@ class ResultSet implements TabularDataReader, JsonSerializable
      */
     public function mapHeader(array $headers): TabularDataReader
     {
-        return Statement::create()->process($this, $headers);
+        return (new Statement())->process($this, $headers);
     }
 
     public function filter(Query\Predicate|Closure $predicate): TabularDataReader
     {
-        return Statement::create()->where($predicate)->process($this);
+        return (new Statement())->where($predicate)->process($this);
     }
 
     public function slice(int $offset, ?int $length = null): TabularDataReader
     {
-        return Statement::create()->offset($offset)->limit($length ?? -1)->process($this);
+        return (new Statement())->offset($offset)->limit($length ?? -1)->process($this);
     }
 
     public function sorted(Query\Sort|Closure $orderBy): TabularDataReader
     {
-        return Statement::create()->orderBy($orderBy)->process($this);
+        return (new Statement())->orderBy($orderBy)->process($this);
     }
 
     public function select(string|int ...$columns): TabularDataReader
@@ -356,7 +356,7 @@ class ResultSet implements TabularDataReader, JsonSerializable
      */
     public function matching(string $expression): iterable
     {
-        return FragmentFinder::create()->findAll($expression, $this);
+        return (new FragmentFinder())->findAll($expression, $this);
     }
 
     /**
@@ -370,7 +370,7 @@ class ResultSet implements TabularDataReader, JsonSerializable
      */
     public function matchingFirst(string $expression): ?TabularDataReader
     {
-        return FragmentFinder::create()->findFirst($expression, $this);
+        return (new FragmentFinder())->findFirst($expression, $this);
     }
 
     /**
@@ -385,7 +385,7 @@ class ResultSet implements TabularDataReader, JsonSerializable
      */
     public function matchingFirstOrFail(string $expression): TabularDataReader
     {
-        return FragmentFinder::create()->findFirstOrFail($expression, $this);
+        return (new FragmentFinder())->findFirstOrFail($expression, $this);
     }
 
     /**

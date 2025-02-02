@@ -43,7 +43,7 @@ final class JsonConverterTest extends TestCase
             ->removeFlags(JSON_FORCE_OBJECT)
             ->depth(24);
 
-        $records = Statement::create()->offset(3)->limit(5)->process($csv);
+        $records = (new Statement())->offset(3)->limit(5)->process($csv);
 
         $tmp = tmpfile();
         $converter->save($records, $tmp);

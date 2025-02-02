@@ -28,6 +28,7 @@ use ValueError;
 use function class_exists;
 use function extension_loaded;
 use function in_array;
+use function is_bool;
 use function strtolower;
 use function strtoupper;
 
@@ -62,11 +63,6 @@ class XMLConverter
             XMLDocument::class === $xml_class && class_exists(XMLDocument::class) => XMLDocument::createEmpty(),
             default => new DOMDocument(encoding: 'UTF-8'),
         };
-    }
-
-    public static function create(): self
-    {
-        return new self();
     }
 
     public function __construct()
@@ -210,6 +206,26 @@ class XMLConverter
     }
 
     /**
+     * Apply the callback if the given "condition" is (or resolves to) true.
+     *
+     * @param (callable($this): bool)|bool $condition
+     * @param callable($this): (self|null) $onSuccess
+     * @param ?callable($this): (self|null) $onFail
+     */
+    public function when(callable|bool $condition, callable $onSuccess, ?callable $onFail = null): self
+    {
+        if (!is_bool($condition)) {
+            $condition = $condition($this);
+        }
+
+        return match (true) {
+            $condition => $onSuccess($this),
+            null !== $onFail => $onFail($this),
+            default => $this,
+        } ?? $this;
+    }
+
+    /**
      * Filters XML element name.
      *
      * @throws DOMException If the Element name is invalid
@@ -272,5 +288,20 @@ class XMLConverter
         }
 
         return [] !== $header;
+    }
+
+    /**
+     * DEPRECATION WARNING! This method will be removed in the next major point release.
+     *
+     * @see XMLConverter::__construct()
+     * @deprecated Since version 9.22.0
+     * @codeCoverageIgnore
+     *
+     * Returns an new instance.
+     */
+    #[Deprecated(message:'use League\Csv\XMLConverter::__construct()', since:'league/csv:9.22.0')]
+    public static function create(): self
+    {
+        return new self();
     }
 }

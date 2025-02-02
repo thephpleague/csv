@@ -144,6 +144,44 @@ $converter = JsonConverter::create()->chunkSize(1_000);
 $converter->chunkSize; //returns the value used
 ```
 
+### JsonConverter::when
+
+<p class="message-info">New feature introduced in version <code>9.22.0</code></p>
+
+This method allows to conditionally create your converter depending on the success or
+failure of a condition.
+
+```php
+use League\Csv\JsonConverter;
+
+$converter = JsonConverter::create();
+if ($condition) {
+    $converter = $converter->chunkSize(1_000);
+} else {
+    $converter = $converter->chunkSize(200);
+}
+```
+
+becomes
+
+```php
+$stmt = JsonConverter::create()
+    ->when(
+        $condition,
+        fn (JsonConverter $c) => $c->chunkSize(1_000),
+        fn (JsonConverter $c) => $c->chunkSize(200),
+    );
+)
+```
+
+The `else` expression is not required but if present in **MUST BE** a callable which only
+accepts the `JsonConverter` instance and returns `null` or a `JsonConverter` instance.
+
+The only requirements are:
+
+- that the condition is a `boolean` or a callable that returns a `boolean`.
+- the callback returns a `JsonConverter` instance or null.
+
 ## Conversion
 
 ```php

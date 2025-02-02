@@ -34,8 +34,8 @@ abstract class TabularDataReaderTestCase extends TestCase
 
     public function testExistsRecord(): void
     {
-        self::assertFalse(Statement::create()->process($this->tabularData())->exists(fn (array $record) => array_key_exists('foobar', $record)));
-        self::assertTrue(Statement::create()->process($this->tabularData())->exists(fn (array $record) => count($record) < 5));
+        self::assertFalse((new Statement())->process($this->tabularData())->exists(fn (array $record) => array_key_exists('foobar', $record)));
+        self::assertTrue((new Statement())->process($this->tabularData())->exists(fn (array $record) => count($record) < 5));
     }
 
     /***************************

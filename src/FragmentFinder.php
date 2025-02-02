@@ -13,6 +13,7 @@ declare(strict_types=1);
 
 namespace League\Csv;
 
+use Deprecated;
 use Iterator;
 
 use function array_filter;
@@ -41,11 +42,6 @@ class FragmentFinder
     private const TYPE_ROW = 'row';
     private const TYPE_COLUMN = 'col';
     private const TYPE_UNKNOWN = 'unknown';
-
-    public static function create(): self
-    {
-        return new self();
-    }
 
     /**
      * EXPERIMENTAL WARNING! This method implementation will change in the next major point release.
@@ -141,7 +137,7 @@ class FragmentFinder
             );
 
             return [
-                Statement::create()
+                (new Statement())
                     ->where($rowFilter)
                     ->process($tabularDataReader),
             ];
@@ -166,12 +162,12 @@ class FragmentFinder
                         return MapIterator::toIterator([]);
                     }
                 }),
-                default => Statement::create()->select(...$columns)->process($tabularDataReader),
+                default => (new Statement())->select(...$columns)->process($tabularDataReader),
             }];
         }
 
         return array_map(
-            fn (array $selection) => Statement::create()
+            fn (array $selection) => (new Statement())
                 ->offset($selection['start'])
                 ->limit($selection['length'])
                 ->select(...$selection['columns'])
@@ -434,5 +430,20 @@ class FragmentFinder
             'length' => $cellEndRow - $cellStartRow + 1,
             'columns' => range($cellStartCol, ($cellEndCol > $nbColumns - 1) ? $nbColumns - 1 : $cellEndCol),
         ];
+    }
+
+    /**
+     * DEPRECATION WARNING! This method will be removed in the next major point release.
+     *
+     * @see FragmentFinder::__construct()
+     * @deprecated Since version 9.22.0
+     * @codeCoverageIgnore
+     *
+     * Returns a new instance.
+     */
+    #[Deprecated(message:'use League\Csv\FragmentFinder::__construct()', since:'league/csv:9.22.0')]
+    public static function create(): self
+    {
+        return new self();
     }
 }

@@ -28,7 +28,7 @@ $csv = Reader::createFromPath('/path/to/my/file.csv');
 $csv->setHeaderOffset(0);
 $csv->setDelimiter(';');
 
-$criteria = Statement::create()
+$criteria = (new Statement())
     ->andWhere('prenom', '=', 'Adam')
     ->orderByAsc('annee')
     ->orderByDesc('foo')
@@ -114,7 +114,7 @@ $csv = Reader::createFromPath('/path/to/my/file.csv');
 $csv->setHeaderOffset(0);
 $csv->setDelimiter(';');
 
-$stmt = Statement::create()
+$stmt = (new Statement())
     ->where(fn (array $row): bool => isset($row['email']) && str_ends_with($row['email'], '@github.com'));
 
 $collection = new RecordCollection($stmt->process($csv));

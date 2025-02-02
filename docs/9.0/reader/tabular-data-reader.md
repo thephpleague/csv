@@ -97,7 +97,7 @@ Aboubakar,6,M,2004
 CSV;
 
 $reader = Reader::createFromString($csv);
-$resultSet = Statement::create()->process($reader);
+$resultSet = (new Statement())->process($reader);
 $records = $resultSet->getRecords([3 => 'Year', 0 => 'Firstname', 4 => 'Yolo']);
 var_dump([...$records][0]);
 //returns something like this
@@ -157,7 +157,7 @@ use League\Csv\Statement;
 $reader = Reader::createFromPath('/path/to/my/file.csv', 'r');
 $reader->setHeaderOffset(0);
 
-$stmt = Statement::create()
+$stmt = (new Statement())
     ->offset(10)
     ->limit(12)
 ;
@@ -188,7 +188,7 @@ use League\Csv\Statement;
 $reader = Reader::createFromPath('/path/to/my/file.csv', 'r');
 $reader->setHeaderOffset(0);
 
-$stmt = Statement::create()
+$stmt = (new Statement())
     ->offset(10)
     ->limit(12)
 ;
@@ -228,7 +228,7 @@ use League\Csv\Reader;
 use League\Csv\Statement;
 
 $reader = Reader::createFromPath('/path/to/my/file.csv', 'r');
-$resultSet = Statement::create()->process($reader);
+$resultSet = (new Statement())->process($reader);
 
 $exists = $resultSet->exists(fn (array $records) => in_array('twenty-five', $records, true));
 
@@ -244,7 +244,7 @@ The `fetchColumnByName` returns an Iterator containing all the values of a singl
 ```php
 $reader = Reader::createFromPath('/path/to/my/file.csv');
 $reader->setHeaderOffset(0);
-$records = Statement::create()->process($reader);
+$records = (new Statement())->process($reader);
 foreach ($records->fetchColumnByName('e-mail') as $value) {
     //$value is a string representing the value
     //of a given record for the selected column
@@ -262,7 +262,7 @@ header offset.
 ```php
 $reader = Reader::createFromPath('/path/to/my/file.csv');
 $reader->setHeaderOffset(0);
-$records = Statement::create()->process($reader);
+$records = (new Statement())->process($reader);
 foreach ($records->fetchColumnByOffset(3) as $value) {
     //$value is a string representing the value
     //of a given record for the selected column
@@ -295,7 +295,7 @@ sacha
 EOF;
 
 $reader = Reader::createFromString($str);
-$records = Statement::create()->process($reader);
+$records = (new Statement())->process($reader);
 
 foreach ($records->fetchPairs() as $firstname => $lastname) {
     // - first iteration
@@ -444,7 +444,7 @@ use League\Csv\Reader;
 use League\Csv\Statement;
 
 $reader = Reader::createFromPath('/path/to/my/file.csv', 'r');
-$resultSet = Statement::create()->process($reader);
+$resultSet = (new Statement())->process($reader);
 
 $records = $resultSet->slice(10, 25);
 
@@ -512,7 +512,7 @@ $tabularData = $reader
 
 //is equivalent to
 
-$tabularData = Statement::create()
+$tabularData = (new Statement())
     ->offset(0)
     ->limit(10)
     ->process($reader, [

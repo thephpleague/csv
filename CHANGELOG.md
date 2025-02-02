@@ -14,6 +14,9 @@ All Notable changes to `Csv` will be documented in this file
 - `RdbmsResult` class to allow converting RDBMS result into `ResultSet`
 - `TabularData` interface
 - `XMLConverter::supportsHeader`
+- `XMLConverter::when`
+- `HTMLConverter::when`
+- `JsonConverter::when`
 
 ### Deprecated
 
@@ -22,6 +25,10 @@ All Notable changes to `Csv` will be documented in this file
 - `ResultSet::createFromRecords` use `ResultSet::createFromTabularData`
 - `ResultSet::__construct` use `ResultSet::createFromTabularData`
 - `XMLConverter::convert` use `XMLConverter::import` instead
+- `XMLConverter::create` use `XMLConverter::__construct` instead
+- `HTMLConverter::create` use `HTMLConverter::__construct` instead
+- `Statement::create` use `Statement::__construct` instead
+- `FragmentFinder::create` use `FragmentFinder::__construct` instead
 
 ### Fixed
 

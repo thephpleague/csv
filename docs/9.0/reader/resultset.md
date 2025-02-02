@@ -82,7 +82,7 @@ foreach ($records as $record) {
 }
 
 $reader = Reader::createFromFileObject($tmp)->setHeaderOffset(0);
-$stmt = Statement::create()->offset(1)->limit(1);
+$stmt = (new Statement())->offset(1)->limit(1);
 $result = $stmt->process($reader);
 
 echo '<pre>', PHP_EOL;

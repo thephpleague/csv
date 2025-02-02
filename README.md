@@ -11,7 +11,7 @@ by utilizing PHP native features whenever possible.
 
 ## Highlights
 
-- Easy to use API
+- Straightforward API
 - Read from and Write to CSV documents in a memory efficient and scalable way
 - Flexible and powerful query features and array to object mapping.
 - Transform CSV documents into popular format (`JSON`, `XML` or `HTML`)

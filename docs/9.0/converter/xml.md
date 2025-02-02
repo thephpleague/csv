@@ -72,6 +72,44 @@ This method allow to apply a callback prior to converting your collection indivi
 This callback allows you to specify how each item will be converted. The formatter should
 return an associative array suitable for conversion.
 
+### XMLConverter::when
+
+<p class="message-info">New feature introduced in version <code>9.22.0</code></p>
+
+This method allows to conditionally create your converter depending on the success or
+failure of a condition.
+
+```php
+use League\Csv\XMLConverter;
+
+$converter = (new XMLConverter());
+if ($condition) {
+    $converter = $converter->fieldElement(null);
+} else {
+    $converter = $converter->fieldElement('cell');
+}
+```
+
+becomes
+
+```php
+$stmt = (new XMLConverter())
+    ->when(
+        $condition,
+        fn (XMLConverter $c) => $c->fieldElement(null),
+        fn (XMLConverter $c) => $c->fieldElement('cell'),
+    );
+)
+```
+
+The `else` expression is not required but if present in **MUST BE** a callable which only
+accepts the `XMLConverter` instance and returns `null` or a `XMLConverter` instance.
+
+The only requirements are:
+
+- that the condition is a `boolean` or a callable that returns a `boolean`.
+- the callback returns a `XMLConverter` instance or null.
+
 ## Import
 
 <p class="message-info">New feature introduced in version <code>9.3.0</code></p>
@@ -100,7 +138,7 @@ $csv = Reader::createFromPath('/path/to/prenoms.csv', 'r');
 $csv->setDelimiter(';');
 $csv->setHeaderOffset(0);
 
-$stmt = (new Statement())
+$stmt = new Statement()
     ->where(function (array $record) {
         return 'Anaïs' === $record['prenoms'];
     })
@@ -108,7 +146,7 @@ $stmt = (new Statement())
     ->limit(2)
 ;
 
-$converter = (new XMLConverter())
+$converter = new XMLConverter()
     ->rootElement('csv')
     ->recordElement('record', 'offset')
     ->fieldElement('field', 'name')
@@ -167,7 +205,7 @@ $csv = Reader::createFromPath('/path/to/prenoms.csv', 'r');
 $csv->setDelimiter(';');
 $csv->setHeaderOffset(0);
 
-$stmt = (new Statement())
+$stmt = new Statement()
     ->where(function (array $record) {
         return 'Anaïs' === $record['prenoms'];
     })
@@ -175,7 +213,7 @@ $stmt = (new Statement())
     ->limit(2)
 ;
 
-$converter = (new XMLConverter())
+$converter = new XMLConverter()
     ->rootElement('csv')
     ->recordElement('record', 'offset')
     ->fieldElement('field', 'name')
@@ -233,7 +271,7 @@ header('Content-Type: text/xml; charset=UTF-8');
 header('Content-Description: File Transfer');
 header('Content-Disposition: attachment; filename="name-for-your-file.xml"');
 
-XMLConverter::create()->download($reader);
+new XMLConverter()->download($reader);
 die;
 ```
 
@@ -256,7 +294,7 @@ header('Cache-Control: no-cache, no-store, must-revalidate');
 header('Pragma: no-cache');
 header('Expires: 0');
  //the filename will be the name of the downloaded xml as shown by your HTTP client!
-XMLConverter::create()->download($reader, 'name-for-your-file.xml');
+new XMLConverter()->download($reader, 'name-for-your-file.xml');
 die;
 ```
 
@@ -275,7 +313,7 @@ $reader->setHeaderOffset(0);
 header('Cache-Control: no-cache, no-store, must-revalidate');
 header('Pragma: no-cache');
 header('Expires: 0');
-XMLConverter::create()->download(
+new XMLConverter()->download(
     records: $reader,
     filename: 'generated_file.xml',
     encoding: 'iso-8859-1',

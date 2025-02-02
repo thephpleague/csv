@@ -34,7 +34,7 @@ use League\Csv\Reader;
 use League\Csv\Statement;
 
 $reader = Reader::createFromPath('/path/to/file.csv');
-$records = Statement::create()->process($reader);
+$records = (new Statement())->process($reader);
 // $records is a League\Csv\ResultSet instance
 ```
 
@@ -63,7 +63,7 @@ use League\Csv\Reader;
 use League\Csv\Statement;
 
 $reader = Reader::createFromPath('/path/to/file.csv');
-$records = Statement::create()
+$records = (new Statement())
     ->where(fn (array $record): bool => false !== filter_var($record[2] ?? '', FILTER_VALIDATE_EMAIL))
     ->process($reader);
 // $records is a League\Csv\ResultSet instance
@@ -88,7 +88,7 @@ use League\Csv\Reader;
 use League\Csv\Statement;
 
 $reader = Reader::createFromPath('/path/to/file.csv');
-$records = Statement::create()
+$records = (new Statement())
     ->andWhere(1, '=', '10') //filtering is done of the second column
     ->orWhere('birthdate', 'regexp', '/\d{1,2}\/\d{1,2}\/\d{2,4}/') //filtering is done on the `birthdate` column
     ->whereNot('firstname', 'starts_with', 'P') //filtering is done case-sensitively on the first character of the column value
@@ -116,7 +116,7 @@ comparison is relaxed.
 ```php
 use League\Csv\Statement;
 
-$constraints = Statement::create()->orWhere('direction', 'not in', ['east', 'north']);
+$constraints = (new Statement())->orWhere('direction', 'not in', ['east', 'north']);
 ```
 
 The following parameter can only be used if the submitted value is a tuple
@@ -129,7 +129,7 @@ the range minimal value and the second argument, the range maximal value.
 ```php
 use League\Csv\Statement;
 
-$constraints = Statement::create()->andWhere('points', 'between', [3, 5]);
+$constraints = (new Statement())->andWhere('points', 'between', [3, 5]);
 ```
 
 The following parameters can only be used if the submitted value **and** the column value are `string`.
@@ -160,7 +160,7 @@ use League\Csv\Statement;
 $curDate = new DateTimeImmutable();
 
 $reader = Reader::createFromPath('/path/to/file.csv');
-$records = Statement::create()
+$records = (new Statement())
     ->andWhere(1, '=', '10') //filtering is done of the second column
     ->orWhere('birthdate', fn (string $value): bool => DateTimeImmutable::createFromFormat('Y-m-d', $value) < $curDate) //filtering is done on the `birthdate` column
     ->whereNot('firstname', 'starts_with', 'P') //filtering is done case-sensitively on the first character of the column value
@@ -180,7 +180,7 @@ use League\Csv\Reader;
 use League\Csv\Statement;
 
 $reader = Reader::createFromPath('/path/to/file.csv');
-$records = Statement::create()
+$records = (new Statement())
     ->andWhereColumn('created_at', '<', 'update_at') //filtering is done on both column value
     ->whereNotColumn('fullname', 'starts_with', 4)   //filtering is done on both column but the second column is specified via its offset
     ->process($reader);
@@ -195,7 +195,7 @@ use League\Csv\Reader;
 use League\Csv\Statement;
 
 $reader = Reader::createFromPath('/path/to/file.csv');
-$records = Statement::create()
+$records = (new Statement())
      ->andWhereColumn('created_at', '<', 'update_at') //filtering is done on both column value
     ->andWhereOffset(
         'fullname', 
@@ -216,7 +216,7 @@ use League\Csv\Reader;
 use League\Csv\Statement;
 
 $reader = Reader::createFromPath('/path/to/file.csv');
-$records = Statement::create()
+$records = (new Statement())
     ->andWhereOffset('<', 100) //filtering is done on the offset value only
     ->process($reader);
 // $records is a League\Csv\ResultSet instance
@@ -231,7 +231,7 @@ use League\Csv\Reader;
 use League\Csv\Statement;
 
 $reader = Reader::createFromPath('/path/to/file.csv');
-$records = Statement::create()
+$records = (new Statement())
     ->andWhereOffset(fn (string|int $value): bool => fmod((float) $value, 2) == 0) 
        // filtering is done on the record offset value
        // records are kept only if the value is even.
@@ -279,7 +279,7 @@ use League\Csv\Reader;
 use League\Csv\Statement;
 
 $reader = Reader::createFromPath('/path/to/file.csv');
-$records = Statement::create()
+$records = (new Statement())
     ->orderBy(fn (mixed $rA, mixed $rB): int => strcmp(Query\Row::from($rB)->field(1) ?? '', Query\Row::from($rA)->field(1) ?? '')))
     ->process($reader);
 // $records is a League\Csv\ResultSet instance
@@ -303,7 +303,7 @@ use League\Csv\Reader;
 use League\Csv\Statement;
 
 $reader = Reader::createFromPath('/path/to/file.csv');
-$records = Statement::create()
+$records = (new Statement())
     ->orderByDesc(1) //descending order according to the data of the 2nd column
     ->orderByAsc('foo', strcmp(...)) //ascending order according a callback compare function
     ->process($reader);
@@ -325,7 +325,7 @@ $sort = Query\Ordering\MultiSort::all(
 );
 
 $reader = Reader::createFromPath('/path/to/file.csv');
-$records = Statement::create()->orderBy($sort)->process($reader);
+$records = (new Statement())->orderBy($sort)->process($reader);
 // Will return the same content as in the previous example.
 ```
 
@@ -343,7 +343,7 @@ use League\Csv\Reader;
 use League\Csv\Statement;
 
 $reader = Reader::createFromPath('/path/to/file.csv');
-$records = Statement::create()
+$records = (new Statement())
     ->limit(5)
     ->offset(9)
     ->process($reader);
@@ -366,7 +366,7 @@ use League\Csv\Reader;
 use League\Csv\Statement;
 
 $reader = Reader::createFromPath('/path/to/file.csv');
-$records = Statement::create()
+$records = (new Statement())
     ->select(1, 3, 'field')
     ->process($reader);
 // $records is a League\Csv\ResultSet instance with only 3 fields
@@ -379,7 +379,7 @@ to query your CSV document as you want like in the following example.
 use League\Csv\Reader;
 use League\Csv\Statement;
 
-$constraints = Statement::create()
+$constraints = (new Statement())
     ->select('Integer', 'Text', 'Date and Time')
     ->andWhere('Float', '<', 1.3)
     ->orderByDesc('Integer')
@@ -410,7 +410,7 @@ In the event where you have a lot of fields to select but a few to remove you ma
 to select all the fields except the one you will specify as argument to the method:
 
 ```php
-$constraints = Statement::create()
+$constraints = (new Statement())
     ->selectAllExcept('Integer')
     ->andWhere('Float', '<', 1.3)
     ->orderByDesc('Integer')
@@ -435,7 +435,7 @@ statement, both methods are mutually exclusive.</p>
 The `Statement::class` now allows the building or the CSV query using conditions.
 
 ```php
-$stmt = Statement::create();
+$stmt = (new Statement());
 if ($condition) {
     $stmt = $stmt->where(fn (array $row) => $row['column'] !== 'data');
 } else {
@@ -446,7 +446,7 @@ if ($condition) {
 becomes
 
 ```php
-$stmt = Statement::create()
+$stmt = (new Statement())
     ->when(
         $condition,
         fn (Statement $q) => $q->where(fn (array $row) => $row['column'] !== 'data'),
@@ -516,7 +516,7 @@ use League\Csv\Reader;
 use League\Csv\FragmentFinder;
 
 $reader = Reader::createFromPath('/path/to/file.csv');
-$finder = FragmentFinder::create();
+$finder = new FragmentFinder();
 
 $finder->find('row=7-5;8-9', $reader);         // return an Iterator<TabularDataReader>
 $finder->findFirst('row=7-5;8-9', $reader);       // return an TabularDataReader

@@ -165,7 +165,7 @@ EOF;
         $csv = Reader::createFromFileObject($file);
         $csv->setHeaderOffset(0);
 
-        $res = Statement::create()->process($csv);
+        $res = (new Statement())->process($csv);
         self::assertEquals($csv->nth(3), $res->nth(3));
         self::assertEquals($csv->fetchColumnByName('firstname'), $res->fetchColumnByName('firstname'));
         self::assertEquals($csv->fetchColumnByOffset(1), $res->fetchColumnByOffset(1));

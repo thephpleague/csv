@@ -43,7 +43,7 @@ final class ResultSetTest extends TabularDataReaderTestCase
         }
 
         $this->csv = Reader::createFromFileObject($tmp);
-        $this->stmt = Statement::create();
+        $this->stmt = (new Statement());
     }
 
     protected function tearDown(): void
@@ -100,7 +100,7 @@ final class ResultSetTest extends TabularDataReaderTestCase
     {
         $func2 = fn (array $row): bool => !in_array('john', $row, true);
 
-        $stmt = Statement::create(fn (array $row): bool => !in_array('jane', $row, true));
+        $stmt = (new Statement())->where(fn (array $row): bool => !in_array('jane', $row, true));
 
         $result1 = $stmt->process($this->csv);
         $result2 = $stmt->where($func2)->process($result1);
@@ -344,7 +344,7 @@ final class ResultSetTest extends TabularDataReaderTestCase
         }
 
         $reader = Reader::createFromFileObject($tmp)->setHeaderOffset(0);
-        $result = Statement::create(null, 1, 1)->process($reader);
+        $result = (new Statement())->offset(1)->limit(1)->process($reader);
         self::assertSame(
             '[{"First Name":"jane","Last Name":"doe","E-mail":"jane.doe@example.com"}]',
             json_encode($result)
@@ -360,8 +360,8 @@ final class ResultSetTest extends TabularDataReaderTestCase
             4,5,6'
         );
         $csv->setDelimiter(',');
-        $resultSet = Statement::create()->process($csv);
-        Statement::create()->process($resultSet, ['foo', 'foo']);
+        $resultSet = (new Statement())->process($csv);
+        (new Statement())->process($resultSet, ['foo', 'foo']);
     }
 
     public function testHeaderThrowsExceptionOnInvalidColumnNames(): void
@@ -373,27 +373,27 @@ final class ResultSetTest extends TabularDataReaderTestCase
             4,5,6'
         );
         $csv->setDelimiter(',');
-        $resultSet = Statement::create()->process($csv);
-        Statement::create()->process($resultSet, ['foo', 3]); /* @phpstan-ignore-line */
+        $resultSet = (new Statement())->process($csv);
+        (new Statement())->process($resultSet, ['foo', 3]); /* @phpstan-ignore-line */
     }
 
     public function testOrderBy(): void
     {
-        $calculated = Statement::create()->process($this->csv)->sorted(fn (array $rowA, array $rowB): int => strcmp($rowA[0], $rowB[0]));
+        $calculated = (new Statement())->process($this->csv)->sorted(fn (array $rowA, array $rowB): int => strcmp($rowA[0], $rowB[0]));
 
         self::assertSame(array_reverse($this->expected), array_values([...$calculated]));
     }
 
     public function testOrderByWithEquity(): void
     {
-        $calculated = Statement::create()->process($this->csv)->sorted(fn (array $rowA, array $rowB): int => strlen($rowA[0]) <=> strlen($rowB[0]));
+        $calculated = (new Statement())->process($this->csv)->sorted(fn (array $rowA, array $rowB): int => strlen($rowA[0]) <=> strlen($rowB[0]));
 
         self::assertSame($this->expected, array_values([...$calculated]));
     }
 
     public function testHeaderMapperOnResultSet(): void
     {
-        $results = Statement::create()
+        $results = (new Statement())
             ->process($this->csv)
             ->getRecords([2 => 'e-mail', 1 => 'lastname', 33 => 'does not exists']);
 
@@ -414,7 +414,7 @@ CSV;
         $reader = Reader::createFromString($csv)
             ->setHeaderOffset(0);
 
-        $resultSet = Statement::create()->process($reader);
+        $resultSet = (new Statement())->process($reader);
 
         self::assertSame(
             ['nom de famille' => 'doe', 'prenom' => 'john', 'e-mail' => 'john.doe@example.com'],
@@ -433,7 +433,7 @@ CSV;
             ->setHeaderOffset(0);
         $this->expectException(SyntaxError::class);
 
-        [...Statement::create()
+        [...(new Statement())
             ->process($reader)
             ->getRecords(['lastname' => 'nom de famille', 'firstname' => 'prenom', 'e-mail' => 'e-mail'])];
     }

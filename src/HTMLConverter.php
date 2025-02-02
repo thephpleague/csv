@@ -14,6 +14,7 @@ declare(strict_types=1);
 namespace League\Csv;
 
 use Closure;
+use Deprecated;
 use Dom\HTMLDocument;
 use Dom\HTMLElement;
 use Dom\XMLDocument;
@@ -21,6 +22,7 @@ use DOMDocument;
 use DOMElement;
 use DOMException;
 
+use function is_bool;
 use function preg_match;
 
 /**
@@ -37,14 +39,9 @@ class HTMLConverter
     protected string $offset_attr = '';
     protected string $column_attr = '';
 
-    private static function supportsModerDom(): bool
+    private static function supportsModernDom(): bool
     {
         return extension_loaded('dom') && class_exists(HTMLDocument::class);
-    }
-
-    public static function create(): self
-    {
-        return new self();
     }
 
     public function __construct()
@@ -63,7 +60,7 @@ class HTMLConverter
             $records = MapIterator::fromIterable($records, $this->formatter);
         }
 
-        $document = self::supportsModerDom() ? HTMLDocument::createEmpty() : new DOMDocument('1.0');
+        $document = self::supportsModernDom() ? HTMLDocument::createEmpty() : new DOMDocument('1.0');
         $table = $document->createElement('table');
         if ('' !== $this->class_name) {
             $table->setAttribute('class', $this->class_name);
@@ -188,7 +185,7 @@ class HTMLConverter
     private static function filterAttributeNme(string $attribute_name): bool
     {
         try {
-            $document = self::supportsModerDom() ? XmlDocument::createEmpty() : new DOMDocument('1.0');
+            $document = self::supportsModernDom() ? XmlDocument::createEmpty() : new DOMDocument('1.0');
             $div = $document->createElement('div');
             $div->setAttribute($attribute_name, 'foo');
 
@@ -209,5 +206,40 @@ class HTMLConverter
         $clone->formatter = ($formatter instanceof Closure || null === $formatter) ? $formatter : $formatter(...);
 
         return $clone;
+    }
+
+    /**
+     * Apply the callback if the given "condition" is (or resolves to) true.
+     *
+     * @param (callable($this): bool)|bool $condition
+     * @param callable($this): (self|null) $onSuccess
+     * @param ?callable($this): (self|null) $onFail
+     */
+    public function when(callable|bool $condition, callable $onSuccess, ?callable $onFail = null): self
+    {
+        if (!is_bool($condition)) {
+            $condition = $condition($this);
+        }
+
+        return match (true) {
+            $condition => $onSuccess($this),
+            null !== $onFail => $onFail($this),
+            default => $this,
+        } ?? $this;
+    }
+
+    /**
+     * DEPRECATION WARNING! This method will be removed in the next major point release.
+     *
+     * @see XMLConverter::__construct()
+     * @deprecated Since version 9.22.0
+     * @codeCoverageIgnore
+     *
+     * Returns an new instance.
+     */
+    #[Deprecated(message:'use League\Csv\HTMLConverter::__construct()', since:'league/csv:9.22.0')]
+    public static function create(): self
+    {
+        return new self();
     }
 }

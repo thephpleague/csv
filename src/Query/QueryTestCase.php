@@ -37,7 +37,7 @@ CustomerID,CustomerName,ContactName,Address,City,PostalCode,Country
 CSV;
         $this->document = Reader::createFromString($csv);
         $this->document->setHeaderOffset(0);
-        $this->stmt = Statement::create();
+        $this->stmt = (new Statement());
         $this->iterable = [
             ['volume' => 67, 'edition' => 2],
             ['volume' => 86, 'edition' => 1],
