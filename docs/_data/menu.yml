@@ -8,7 +8,8 @@ version:
             Overview: '/9.0/connections/'
             Document Loading: '/9.0/connections/instantiation/'
             Character Controls: '/9.0/connections/controls/'
-            BOM Sequences: '/9.0/connections/bom/'
+            Charset Converter: '/9.0/converter/charset/'
+            BOM Sequence: '/9.0/connections/bom/'
             Document output: '/9.0/connections/output/'
             Stream Filters: '/9.0/connections/filters/'
         Inserting Records:
@@ -24,7 +25,6 @@ version:
             Overview : '/9.0/interoperability/'
             Handling Delimiter : '/9.0/interoperability/swap-delimiter/'
             Formula Injection : '/9.0/interoperability/escape-formula-injection/'
-            Charset Converter: '/9.0/converter/charset/'
             Tabular Data Importer: '/9.0/interoperability/tabular-data-importer/'
             Document Encoding : '/9.0/interoperability/encoding/'
             RFC4180 Field : '/9.0/interoperability/rfc4180-field/'
