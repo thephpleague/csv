@@ -46,7 +46,7 @@ final class JsonConverterBench
         $document = $this->getDocument();
         $tmpFile = tmpfile();
 
-        $bytes = JsonConverter::create()->save($document, $tmpFile);
+        $bytes = (new JsonConverter())->save($document, $tmpFile);
 
         $this->assertSameSize($bytes, $tmpFile);
     }
@@ -58,7 +58,7 @@ final class JsonConverterBench
         $document = $this->getDocument();
         $tmpFile = tmpfile();
 
-        $bytes = JsonConverter::create()->withForceObject()->save($document, $tmpFile);
+        $bytes = (new JsonConverter())->withForceObject()->save($document, $tmpFile);
 
         $this->assertSameSize($bytes, $tmpFile);
     }
@@ -70,7 +70,7 @@ final class JsonConverterBench
         $document = $this->getDocument();
         $tmpFile = tmpfile();
 
-        $bytes = JsonConverter::create()->withPrettyPrint()->save($document, $tmpFile);
+        $bytes = (new JsonConverter())->withPrettyPrint()->save($document, $tmpFile);
 
         $this->assertSameSize($bytes, $tmpFile);
     }
@@ -82,7 +82,7 @@ final class JsonConverterBench
         $document = $this->getDocument();
         $tmpFile = tmpfile();
 
-        $bytes = JsonConverter::create()->chunkSize(1)->save($document, $tmpFile);
+        $bytes = (new JsonConverter())->chunkSize(1)->save($document, $tmpFile);
 
         $this->assertSameSize($bytes, $tmpFile);
     }

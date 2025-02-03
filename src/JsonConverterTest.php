@@ -37,7 +37,7 @@ final class JsonConverterTest extends TestCase
         $csv->setHeaderOffset(0);
 
         CharsetConverter::addTo($csv, 'iso-8859-15', 'utf-8');
-        $converter = JsonConverter::create()
+        $converter = (new JsonConverter())
             ->chunkSize(2)
             ->addFlags(JSON_PRETTY_PRINT, JSON_UNESCAPED_SLASHES, JSON_FORCE_OBJECT)
             ->removeFlags(JSON_FORCE_OBJECT)
@@ -61,7 +61,7 @@ final class JsonConverterTest extends TestCase
     #[Test]
     public function it_has_default_values(): void
     {
-        $converter = JsonConverter::create();
+        $converter = (new JsonConverter());
 
         self::assertSame(
             $converter,
@@ -78,7 +78,7 @@ final class JsonConverterTest extends TestCase
     {
         $this->expectException(InvalidArgumentException::class);
 
-        JsonConverter::create()->depth(-1); /* @phpstan-ignore-line */
+        (new JsonConverter())->depth(-1); /* @phpstan-ignore-line */
     }
 
     #[Test]
@@ -86,7 +86,7 @@ final class JsonConverterTest extends TestCase
     {
         $this->expectException(InvalidArgumentException::class);
 
-        JsonConverter::create()->withPrettyPrint(0); /* @phpstan-ignore-line */
+        (new JsonConverter())->withPrettyPrint(0); /* @phpstan-ignore-line */
     }
 
     #[Test]
@@ -94,13 +94,13 @@ final class JsonConverterTest extends TestCase
     {
         $this->expectException(InvalidArgumentException::class);
 
-        JsonConverter::create()->chunkSize(0); /* @phpstan-ignore-line */
+        (new JsonConverter())->chunkSize(0); /* @phpstan-ignore-line */
     }
 
     #[Test]
     public function it_returns_a_null_object_if_the_collection_is_empty(): void
     {
-        $converter = JsonConverter::create();
+        $converter = (new JsonConverter());
 
         self::assertSame('[]', $converter->encode([]));
         self::assertSame('{}', $converter->addFlags(JSON_FORCE_OBJECT)->encode([]));
@@ -109,7 +109,7 @@ final class JsonConverterTest extends TestCase
     #[Test]
     public function it_can_manipulate_the_record_prior_to_json_encode(): void
     {
-        $converter = JsonConverter::create()
+        $converter = (new JsonConverter())
             ->formatter(fn (array $value, int|string $offset): array => array_map(strtoupper(...), $value));
 
         self::assertSame('[{"foo":"BAR"}]', $converter->encode([['foo' => 'bar']]));
@@ -118,12 +118,12 @@ final class JsonConverterTest extends TestCase
     #[Test]
     public function it_can_use_syntactic_sugar_methods_to_set_json_flags(): void
     {
-        $usingJsonFlags = JsonConverter::create()
+        $usingJsonFlags = (new JsonConverter())
             ->addFlags(JSON_PRETTY_PRINT, JSON_UNESCAPED_SLASHES, JSON_FORCE_OBJECT)
             ->removeFlags(JSON_HEX_QUOT)
             ->depth(24);
 
-        $usingMethodFlags = JsonConverter::create()
+        $usingMethodFlags = (new JsonConverter())
             ->withPrettyPrint()
             ->withUnescapedSlashes()
             ->withForceObject()
@@ -141,7 +141,7 @@ final class JsonConverterTest extends TestCase
         }
 
         ob_start();
-        JsonConverter::create()->download([['foo' => 'bar']], 'foobar.json');
+        (new JsonConverter())->download([['foo' => 'bar']], 'foobar.json');
         $output = ob_get_clean();
         $headers = xdebug_get_headers();
 
@@ -159,7 +159,7 @@ final class JsonConverterTest extends TestCase
     {
         $this->expectException(TypeError::class);
 
-        JsonConverter::create()->save([['foo' => 'bar']], new DateTimeImmutable()); /* @phpstan-ignore-line */
+        (new JsonConverter())->save([['foo' => 'bar']], new DateTimeImmutable()); /* @phpstan-ignore-line */
     }
 
     #[Test]
@@ -170,13 +170,13 @@ final class JsonConverterTest extends TestCase
         /** @var resource $stream */
         $stream = fopen(__FILE__, 'r');
 
-        JsonConverter::create()->save([['foo' => 'bar']], $stream);
+        (new JsonConverter())->save([['foo' => 'bar']], $stream);
     }
 
     #[Test]
     public function it_can_set_the_indentation_size_using_pretty_print(): void
     {
-        $converter = JsonConverter::create();
+        $converter = (new JsonConverter());
         self::assertSame(4, $converter->indentSize);
         self::assertFalse($converter->usePrettyPrint());
 

@@ -121,17 +121,8 @@ final class JsonConverter
     private readonly string $indentation;
     /** @var Closure(array<int, T>): string */
     private readonly Closure $jsonEncodeChunk;
-
-    public static function create(): self
-    {
-        return new self(
-            flags: 0,
-            depth: 512,
-            indentSize: 4,
-            formatter: null,
-            chunkSize: 500
-        );
-    }
+    /** @var array<string> */
+    private array $indentationLevels = [];
 
     /**
      * @param int<1, max> $depth
@@ -141,8 +132,13 @@ final class JsonConverter
      *
      * @throws InvalidArgumentException
      */
-    private function __construct(int $flags, int $depth, int $indentSize, ?callable $formatter, int $chunkSize)
-    {
+    public function __construct(
+        int $flags = 0,
+        int $depth = 512,
+        int $indentSize = 4,
+        ?callable $formatter = null,
+        int $chunkSize = 500
+    ) {
         json_encode([], $flags & ~JSON_THROW_ON_ERROR, $depth);
 
         JSON_ERROR_NONE === ($errorCode = json_last_error()) || throw new InvalidArgumentException('The flags or the depth given are not valid JSON encoding parameters in PHP; '.json_last_error_msg(), $errorCode);
@@ -198,7 +194,7 @@ final class JsonConverter
         $inQuotes = false;
         $escape = false;
         $length = strlen($json);
-        $str = $this->indentation;
+        $str = [$this->indentation];
         for ($i = 0; $i < $length; $i++) {
             $char = $json[$i];
             if ('"' === $char && !$escape) {
@@ -206,16 +202,16 @@ final class JsonConverter
             }
 
             $escape = '\\' === $char && !$escape;
-            $str .= $inQuotes ? $char : match ($char) {
-                '{', '[' => $char."\n".str_repeat($this->indentation, ++$level),
-                '}', ']' =>  "\n".str_repeat($this->indentation, --$level).$char,
-                ',' => $char."\n".str_repeat($this->indentation, $level),
+            $str[] = $inQuotes ? $char : match ($char) {
+                '{', '[' => $char.($this->indentationLevels[++$level] ??= "\n".str_repeat($this->indentation, $level)),
+                '}', ']' =>  ($this->indentationLevels[--$level] ??= "\n".str_repeat($this->indentation, $level)).$char,
+                ',' => $char.($this->indentationLevels[$level] ??= "\n".str_repeat($this->indentation, $level)),
                 ':' => $char.' ',
                 default => $char,
             };
         }
 
-        return $str;
+        return implode('', $str);
     }
 
     /**
@@ -523,5 +519,24 @@ final class JsonConverter
             $this->indentSize => $this,
             default => new self($this->flags, $this->depth, $indentSize, $this->formatter, $this->chunkSize),
         };
+    }
+
+    /**
+     * DEPRECATION WARNING! This method will be removed in the next major point release.
+     *
+     * @see JsonConverter::__construct()
+     * @deprecated Since version 9.22.0
+     * @codeCoverageIgnore
+     */
+    #[Deprecated(message:'use League\Csv\JsonConverter::__construct() instead', since:'league/csv:9.22.0')]
+    public static function create(): self
+    {
+        return new self(
+            flags: 0,
+            depth: 512,
+            indentSize: 4,
+            formatter: null,
+            chunkSize: 500
+        );
     }
 }

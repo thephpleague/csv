@@ -16,6 +16,24 @@ The only pre-requisite is that each element of your collection must either be an
 object implementing the `JsonSerializable` interface or a PHP structure that
 can be encoded via `json_encode`.
 
+## Instantiation
+
+To create a new `JsonConverter` instance you can call its constructor or the `create` named constructor.
+The latter is deprecated since version `9.22.0` and will be removed whenever the next major version
+is released.
+
+```diff
+- JsonConverter::create()->download($record);
++ (new JsonConverter())->download($record);
+```
+
+With the release of `PHP8.4`, the parenthesis around the constructor are no longer needed.
+
+```php
+(new JsonConverter())->download($record); //old usage (deprecated in PHP8.4+)
+new JsonConverter()->download($record); //new and fast-forward method usage
+```
+
 ## Settings
 
 Prior to converting your collection into a JSON structure, you may wish to configure it.
@@ -35,13 +53,13 @@ If you prefer a more expressive way for setting the flags you can use the `with*
 whose name are derived from PHP JSON constants.
 
 ```php
-$converter = JsonConverter::create()
+$converter = (new JsonConverter())
     ->addFlags(JSON_PRETTY_PRINT, JSON_HEX_QUOT, JSON_UNESCAPED_SLASHES, JSON_FORCE_OBJECT)
     ->removeFlags(JSON_HEX_QUOT);
 
 //is equivalent to
 
-$converter = JsonConverter::create()
+$converter = (new JsonConverter())
     ->withPrettyPrint()
     ->withHexQuot()
     ->withUnescapedSlashes()
@@ -57,7 +75,7 @@ To quickly check which flags is being used, calle the `JsonConverter::useFlags` 
 a more expressive way exists.
 
 ```php
-$converter = JsonConverter::create()
+$converter = (new JsonConverter())
     ->addFlags(JSON_PRETTY_PRINT, JSON_UNESCAPED_SLASHES, JSON_FORCE_OBJECT)
     ->removeFlags(JSON_HEX_QUOT);
     
@@ -74,7 +92,7 @@ $converter->flags;             //returns the actual flags value (as used by json
 to its call</p>
 
 ```php
-$converter = JsonConverter::create()->withPrettyPrint(2);
+$converter = (new JsonConverter())->withPrettyPrint(2);
 ```
 
 will produce a JSON with an indentation size of `2`.
@@ -89,7 +107,7 @@ This method sets the JSON depth value during conversion. The method is a proxy t
 `json_encode` depth parameter.
 
 ```php
-$converter = JsonConverter::create()->depth(2);
+$converter = (new JsonConverter())->depth(2);
 $converter->depth; //returns the actual depth value (as used by json_encode) 
 ```
 
@@ -108,8 +126,8 @@ all other situation this value stored via this method is never used. By default,
 size is the same as in PHP (ie : 4 characters long).
 
 ```diff
-- $converter = JsonConverter::create()->indentSize(2);
-+ $converter = JsonConverter::create()->withPrettyPrint(2);
+- $converter = (new JsonConverter())->indentSize(2);
++ $converter = (new JsonConverter())->withPrettyPrint(2);
 $converter->indentSize; //returns the value used
 ```
 
@@ -140,7 +158,7 @@ left to the user discretion. By default, the value is `500`. The value can not
 be lower than one otherwise a exception will be thrown.
 
 ```php
-$converter = JsonConverter::create()->chunkSize(1_000);
+$converter = (new JsonConverter())->chunkSize(1_000);
 $converter->chunkSize; //returns the value used
 ```
 
@@ -154,7 +172,7 @@ failure of a condition.
 ```php
 use League\Csv\JsonConverter;
 
-$converter = JsonConverter::create();
+$converter = (new JsonConverter());
 if ($condition) {
     $converter = $converter->chunkSize(1_000);
 } else {
@@ -165,7 +183,7 @@ if ($condition) {
 becomes
 
 ```php
-$stmt = JsonConverter::create()
+$stmt = (new JsonConverter())
     ->when(
         $condition,
         fn (JsonConverter $c) => $c->chunkSize(1_000),
@@ -206,7 +224,7 @@ $document->setDelimiter(';');
 $document->setHeaderOffset(0);
 
 CharsetConverter::addTo($document, 'iso-8859-15', 'utf-8');
-$converter = JsonConverter::create()
+$converter = (new JsonConverter())
     ->withPrettyPrint(2)
     ->withUnescapedSlashes()
     ->depth(2)
@@ -289,7 +307,7 @@ header('Content-Type: application/json; charset=UTF-8');
 header('Content-Description: File Transfer');
 header('Content-Disposition: attachment; filename="name-for-your-file.json"');
 
-JsonConverter::create()->download($reader);
+(new JsonConverter())->download($reader);
 die;
 ```
 
@@ -310,7 +328,7 @@ header('Cache-Control: no-cache, no-store, must-revalidate');
 header('Pragma: no-cache');
 header('Expires: 0');
  //the filename will be the name of the downloaded json as shown by your HTTP client!
-JsonConverter::create()->download($reader, 'generated_file.json');
+(new JsonConverter())->download($reader, 'generated_file.json');
 die;
 ```
 

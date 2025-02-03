@@ -65,7 +65,7 @@ $csv->setDelimiter(';');
 $csv->setHeaderOffset(0);
 
 //build a statement
-$stmt = Statement::create()
+$stmt = new Statement()
     ->select('firstname', 'lastname', 'email')
     ->andWhere('firstname', 'starts with', 'A')
     ->orderByAsc('email')
