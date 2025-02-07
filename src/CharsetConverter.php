@@ -18,11 +18,12 @@ use php_user_filter;
 use RuntimeException;
 use TypeError;
 
-use function array_combine;
 use function array_map;
+use function array_reduce;
 use function in_array;
 use function is_numeric;
 use function mb_convert_encoding;
+use function mb_encoding_aliases;
 use function mb_list_encodings;
 use function preg_match;
 use function restore_error_handler;
@@ -164,13 +165,17 @@ class CharsetConverter extends php_user_filter
     {
         static $encoding_list;
         if (null === $encoding_list) {
-            $list = mb_list_encodings();
-            $encoding_list = array_combine(array_map(strtolower(...), $list), $list);
+            $encoding_list = array_reduce(mb_list_encodings(), function (array $list, string $encoding): array {
+                foreach (mb_encoding_aliases($encoding) as $alias) {
+                    $list[strtolower($alias)] = $encoding;
+                }
+                $list[strtolower($encoding)] = $encoding;
+
+                return $list;
+            }, []);
         }
 
-        $key = strtolower($encoding);
-
-        return $encoding_list[$key] ?? throw new OutOfRangeException('The submitted charset '.$encoding.' is not supported by the mbstring extension.');
+        return $encoding_list[strtolower($encoding)] ?? throw new OutOfRangeException('The submitted charset '.$encoding.' is not supported by the mbstring extension.');
     }
 
     public function onCreate(): bool

@@ -17,6 +17,7 @@ All Notable changes to `Csv` will be documented in this file
 - `XMLConverter::when`
 - `HTMLConverter::when`
 - `JsonConverter::when`
+- `CharsetConverter` now also handles encoding alias as defined by `mb_encoding_aliases`
 
 ### Deprecated
 

@@ -353,7 +353,7 @@ abstract class TabularDataReaderTestCase extends TestCase
     }
 
     /***************************
-     * TabularDataReader::mao
+     * TabularDataReader::map
      ****************************/
 
     public function testMap(): void
