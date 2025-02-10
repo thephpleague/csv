@@ -335,21 +335,7 @@ class Statement
             $iterator = Query\Limit::new($this->offset, $this->limit)->slice($iterator);
         }
 
-        $iterator = ResultSet::createFromTabularData(new class ($iterator, $header) implements TabularData {
-            public function __construct(private Iterator $iterator, private array $header)
-            {
-            }
-
-            public function getHeader(): array
-            {
-                return $this->header;
-            }
-
-            public function getIterator(): Iterator
-            {
-                return $this->iterator;
-            }
-        });
+        $iterator = new ResultSet($iterator, $header);
 
         return match ($this->select_mode) {
             self::COLUMN_EXCLUDE => $iterator->selectAllExcept(...$this->select),

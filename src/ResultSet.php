@@ -24,8 +24,11 @@ use League\Csv\Serializer\Denormalizer;
 use League\Csv\Serializer\MappingFailed;
 use League\Csv\Serializer\TypeCastingFailed;
 use LimitIterator;
+use mysqli_result;
+use PDOStatement;
+use PgSql\Result;
 use RuntimeException;
-use ValueError;
+use SQLite3Result;
 
 use function array_filter;
 use function array_flip;
@@ -80,21 +83,16 @@ class ResultSet implements TabularDataReader, JsonSerializable
     }
 
     /**
-     * Returns a new instance from a object representing the result of querying a database.
-     *
-     * @throws RuntimeException If the column names can not be found
-     * @throws ValueError if the result object is unknown or unsupported
-     */
-    public static function createFromRdbms(object $result): self
-    {
-        return self::createFromTabularData(RdbmsResult::from($result));
-    }
-
-    /**
      * Returns a new instance from a tabular data implementing object.
+     *
+     * @throws RuntimeException|SyntaxError If the column names can not be found
      */
-    public static function createFromTabularData(TabularData $records): self
+    public static function createFromTabularData(PDOStatement|Result|mysqli_result|SQLite3Result|TabularData $records): self
     {
+        if (!$records instanceof TabularData) {
+            $records = RdbmsResult::from($records);
+        }
+
         return new self($records->getIterator(), $records->getHeader());
     }
 
