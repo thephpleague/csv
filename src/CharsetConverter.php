@@ -65,6 +65,16 @@ class CharsetConverter extends php_user_filter
     protected string $buffer = '';
 
     /**
+     * Static method to register the class as a stream filter.
+     */
+    public static function register(): void
+    {
+        $filter_name = self::FILTERNAME.'.*';
+
+        in_array($filter_name, stream_get_filters(), true) || stream_filter_register($filter_name, self::class);
+    }
+
+    /**
      * Static method to add the stream filter to a {@link AbstractCsv} object.
      */
     public static function addTo(AbstractCsv $csv, string $input_encoding, string $output_encoding, ?array $params = null): AbstractCsv
@@ -79,16 +89,6 @@ class CharsetConverter extends php_user_filter
     }
 
     /**
-     * Static method to register the class as a stream filter.
-     */
-    public static function register(): void
-    {
-        $filter_name = self::FILTERNAME.'.*';
-
-        in_array($filter_name, stream_get_filters(), true) || stream_filter_register($filter_name, self::class);
-    }
-
-    /**
      * @param resource $stream
      *
      * @throws TypeError
@@ -98,20 +98,7 @@ class CharsetConverter extends php_user_filter
      */
     public static function appendOnReadTo(mixed $stream, string $input_encoding = 'UTF-8', string $output_encoding = 'UTF-8'): mixed
     {
-        self::register();
-
-        is_resource($stream) || throw new TypeError('Argument passed must be a stream resource, '.gettype($stream).' given.');
-        'stream' === ($type = get_resource_type($stream)) || throw new TypeError('Argument passed must be a stream resource, '.$type.' resource given');
-
-        $filtername = self::getFiltername($input_encoding, $output_encoding);
-
-        set_error_handler(fn (int $errno, string $errstr, string $errfile, int $errline) => true);
-        $filter = stream_filter_append($stream, $filtername, STREAM_FILTER_READ);
-        restore_error_handler();
-
-        is_resource($filter) || throw new RuntimeException('Could not append the registered stream filter: '.$filtername);
-
-        return $filter;
+        return self::appendFilter($stream, STREAM_FILTER_READ, $input_encoding, $output_encoding);
     }
 
     /**
@@ -124,20 +111,7 @@ class CharsetConverter extends php_user_filter
      */
     public static function appendOnWriteTo(mixed $stream, string $input_encoding = 'UTF-8', string $output_encoding = 'UTF-8'): mixed
     {
-        self::register();
-
-        is_resource($stream) || throw new TypeError('Argument passed must be a stream resource, '.gettype($stream).' given.');
-        'stream' === ($type = get_resource_type($stream)) || throw new TypeError('Argument passed must be a stream resource, '.$type.' resource given');
-
-        $filtername = self::getFiltername($input_encoding, $output_encoding);
-
-        set_error_handler(fn (int $errno, string $errstr, string $errfile, int $errline) => true);
-        $filter = stream_filter_append($stream, $filtername, STREAM_FILTER_WRITE);
-        restore_error_handler();
-
-        is_resource($filter) || throw new RuntimeException('Could not append the registered stream filter: '.$filtername);
-
-        return $filter;
+        return self::appendFilter($stream, STREAM_FILTER_WRITE, $input_encoding, $output_encoding);
     }
 
     /**
@@ -150,20 +124,7 @@ class CharsetConverter extends php_user_filter
      */
     public static function prependOnReadTo(mixed $stream, string $input_encoding = 'UTF-8', string $output_encoding = 'UTF-8'): mixed
     {
-        self::register();
-
-        is_resource($stream) || throw new TypeError('Argument passed must be a stream resource, '.gettype($stream).' given.');
-        'stream' === ($type = get_resource_type($stream)) || throw new TypeError('Argument passed must be a stream resource, '.$type.' resource given');
-
-        $filtername = self::getFiltername($input_encoding, $output_encoding);
-
-        set_error_handler(fn (int $errno, string $errstr, string $errfile, int $errline) => true);
-        $filter = stream_filter_prepend($stream, $filtername, STREAM_FILTER_READ);
-        restore_error_handler();
-
-        is_resource($filter) || throw new RuntimeException('Could not prepend the registered stream filter: '.$filtername);
-
-        return $filter;
+        return self::prependFilter($stream, STREAM_FILTER_READ, $input_encoding, $output_encoding);
     }
 
     /**
@@ -176,20 +137,62 @@ class CharsetConverter extends php_user_filter
      */
     public static function prependOnWriteTo(mixed $stream, string $input_encoding = 'UTF-8', string $output_encoding = 'UTF-8'): mixed
     {
-        self::register();
+        return self::prependFilter($stream, STREAM_FILTER_WRITE, $input_encoding, $output_encoding);
+    }
 
+    /**
+     * @param resource $stream
+     *
+     * @throws RuntimeException|TypeError
+     *
+     * @return resource
+     */
+    final protected static function appendFilter(mixed $stream, int $mode, string $input_encoding = 'UTF-8', string $output_encoding = 'UTF-8'): mixed
+    {
+        self::register();
+        $filtername = self::getFiltername($input_encoding, $output_encoding);
+        set_error_handler(fn (int $errno, string $errstr, string $errfile, int $errline) => true);
+        $filter = stream_filter_append(self::filterStream($stream), $filtername, $mode);
+        restore_error_handler();
+
+        is_resource($filter) || throw new RuntimeException('Could not append the registered stream filter: '.$filtername);
+
+        return $filter;
+    }
+
+    /**
+     * @param resource $stream
+     *
+     * @throws RuntimeException|TypeError
+     *
+     * @return resource
+     */
+    final protected static function prependFilter(mixed $stream, int $mode, string $input_encoding = 'UTF-8', string $output_encoding = 'UTF-8'): mixed
+    {
+        self::register();
+        $filtername = self::getFiltername($input_encoding, $output_encoding);
+        set_error_handler(fn (int $errno, string $errstr, string $errfile, int $errline) => true);
+        $filter = stream_filter_prepend(self::filterStream($stream), $filtername, $mode);
+        restore_error_handler();
+
+        is_resource($filter) || throw new RuntimeException('Could not append the registered stream filter: '.$filtername);
+
+        return $filter;
+    }
+
+    /**
+     * @param resource $stream
+     *
+     * @throws TypeError
+     *
+     * @return resource
+     */
+    final protected static function filterStream(mixed $stream): mixed
+    {
         is_resource($stream) || throw new TypeError('Argument passed must be a stream resource, '.gettype($stream).' given.');
         'stream' === ($type = get_resource_type($stream)) || throw new TypeError('Argument passed must be a stream resource, '.$type.' resource given');
 
-        $filtername = self::getFiltername($input_encoding, $output_encoding);
-
-        set_error_handler(fn (int $errno, string $errstr, string $errfile, int $errline) => true);
-        $filter = stream_filter_prepend($stream, $filtername, STREAM_FILTER_WRITE);
-        restore_error_handler();
-
-        is_resource($filter) || throw new RuntimeException('Could not prepend the registered stream filter: '.$filtername);
-
-        return $filter;
+        return $stream;
     }
 
     /**
@@ -210,7 +213,7 @@ class CharsetConverter extends php_user_filter
      *
      * @throws OutOfRangeException if the charset is malformed or unsupported
      */
-    protected static function filterEncoding(string $encoding): string
+    final protected static function filterEncoding(string $encoding): string
     {
         static $encoding_list;
         if (null === $encoding_list) {
@@ -276,7 +279,6 @@ class CharsetConverter extends php_user_filter
             return PSFS_FEED_ME;
         }
 
-        $this->buffer = '';
         try {
             set_error_handler(fn (int $errno, string $errstr, string $errfile, int $errline) => true);
             $outputBuffer = mb_convert_encoding($inputBuffer, $this->output_encoding, $this->input_encoding);
@@ -287,6 +289,7 @@ class CharsetConverter extends php_user_filter
         } catch (Throwable) {
             return PSFS_ERR_FATAL;
         } finally {
+            $this->buffer = '';
             restore_error_handler();
         }
     }
@@ -320,7 +323,7 @@ class CharsetConverter extends php_user_filter
     /**
      * Walker method to convert the offset and the value of a CSV record field.
      */
-    protected function encodeField(int|float|string|null $value, int|string $offset): array
+    final protected function encodeField(int|float|string|null $value, int|string $offset): array
     {
         if (null !== $value && !is_numeric($value)) {
             $value = mb_convert_encoding($value, $this->output_encoding, $this->input_encoding);
@@ -366,6 +369,13 @@ class CharsetConverter extends php_user_filter
     }
 
     /**
+     * DEPRECATION WARNING! This method will be removed in the next major point release.
+     *
+     * @codeCoverageIgnore
+     * @see self::appendOnReadTo()
+     * @see self::appendOnWriteTo()
+     * @deprecated since version 9.22.0
+     *
      * @param resource $stream
      *
      * @throws TypeError
@@ -376,23 +386,17 @@ class CharsetConverter extends php_user_filter
     #[Deprecated(message:'use League\Csv\CharserConverter::appendOnReadTo() or League\Csv\CharserConverter::appendOnWriteTo() instead', since:'league/csv:9.22.0')]
     public static function appendTo(mixed $stream, string $input_encoding = 'UTF-8', string $output_encoding = 'UTF-8'): mixed
     {
-        self::register();
-
-        is_resource($stream) || throw new TypeError('Argument passed must be a stream resource, '.gettype($stream).' given.');
-        'stream' === ($type = get_resource_type($stream)) || throw new TypeError('Argument passed must be a stream resource, '.$type.' resource given');
-
-        $filtername = self::getFiltername($input_encoding, $output_encoding);
-
-        set_error_handler(fn (int $errno, string $errstr, string $errfile, int $errline) => true);
-        $filter = stream_filter_append($stream, $filtername);
-        restore_error_handler();
-
-        is_resource($filter) || throw new RuntimeException('Could not append the registered stream filter: '.$filtername);
-
-        return $filter;
+        return self::appendFilter($stream, 0, $input_encoding, $output_encoding);
     }
 
     /**
+     * DEPRECATION WARNING! This method will be removed in the next major point release.
+     *
+     * @codeCoverageIgnore
+     * @see self::prependOnReadTo()
+     * @see self::prependOnWriteTo()
+     * @deprecated since version 9.22.0
+     *
      * @param resource $stream
      *
      * @throws TypeError
@@ -403,26 +407,12 @@ class CharsetConverter extends php_user_filter
     #[Deprecated(message:'use League\Csv\CharserConverter::prependOnReadTo() or League\Csv\CharserConverter::prependOnWriteTo() instead', since:'league/csv:9.22.0')]
     public static function prependTo(mixed $stream, string $input_encoding = 'UTF-8', string $output_encoding = 'UTF-8'): mixed
     {
-        self::register();
-
-        is_resource($stream) || throw new TypeError('Argument passed must be a stream resource, '.gettype($stream).' given.');
-        'stream' === ($type = get_resource_type($stream)) || throw new TypeError('Argument passed must be a stream resource, '.$type.' resource given');
-
-        $filtername = self::getFiltername($input_encoding, $output_encoding);
-
-        set_error_handler(fn (int $errno, string $errstr, string $errfile, int $errline) => true);
-        $filter = stream_filter_prepend($stream, $filtername);
-        restore_error_handler();
-
-        is_resource($filter) || throw new RuntimeException('Could not prepend the registered stream filter: '.$filtername);
-
-        return $filter;
+        return self::prependFilter($stream, 0, $input_encoding, $output_encoding);
     }
 
     /**
      * Static method to add the stream filter to a {@link Reader} object to handle BOM skipping.
      */
-    #[Deprecated(message:'Deprecated without replacement', since:'league/csv:9.22.0')]
     public static function addBOMSkippingTo(Reader $document, string $output_encoding = 'UTF-8'): Reader
     {
         self::register();
