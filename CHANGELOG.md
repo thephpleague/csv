@@ -18,6 +18,7 @@ All Notable changes to `Csv` will be documented in this file
 - `HTMLConverter::when`
 - `JsonConverter::when`
 - `CharsetConverter` now also handles encoding alias as defined by `mb_encoding_aliases`
+- `CharsetConverter::appendOnReadTo`, `CharsetConverter::appendOnWriteTo`, `CharsetConverter::prependOnReadTo`, `CharsetConverter::prependOnWriteTo`
 
 ### Deprecated
 
@@ -30,6 +31,9 @@ All Notable changes to `Csv` will be documented in this file
 - `HTMLConverter::create` use `HTMLConverter::__construct` instead
 - `Statement::create` use `Statement::__construct` instead
 - `FragmentFinder::create` use `FragmentFinder::__construct` instead
+- `CharsetConverter::appendTo`, `CharsetConverter::prependTo` use the more strict methods added on the instance
+- `CharsetConverter::addBOMSkippingTo` without replacement, the `Reader` already strips the BOM sequence
+
 
 ### Fixed
 

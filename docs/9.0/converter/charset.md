@@ -117,19 +117,31 @@ while (false !== ($record = fgetcsv($resource))) {
 }
 ```
 
-<p class="message-info">If your system supports the <code>iconv</code> extension you should use PHP's built in iconv stream filters instead for better performance.</p>
+<p class="message-info">If your system supports the <code>iconv</code> extension you should use PHP's built
+in iconv stream filters instead for better performance.</p>
 
-<p class="message-info">new in version <code>8.17.0</code></p>
+<p class="message-info">available since version <code>9.22.0</code></p>
 
-Tbe code above can be simplified using one of the two static methods:
+When not mentioned, PHP will register the stream filter twice as a stream filter that can be used on read
+and as a stream filter that can be used on write. This behaviour may introduce subtle issues if you are
+not aware of that behaviour. To avoid such scenario we are introducing the following more strict methods:
+
+- `CharsetConverter::appendOnReadTo`,
+- `CharsetConverter::appendOnWriteTo`,
+- `CharsetConverter::prependOnReadTo`,
+- `CharsetConverter::prependOnWriteTo`
+
+To better convey when the conversion will happen. So if you only want to convert the resource on read you
+should use the following snippet
 
 ```php
 use League\Csv\CharsetConverter;
 
-$resource = fopen('/path/to/my/file', 'r');
-$filter = CharsetConverter::appendTo($resource, 'utf-8', 'iso-8859-15');
+$resource = fopen('/path/to/my/file', 'r+');
+$filter = CharsetConverter::appendOnReadTo($resource, 'utf-8', 'iso-8859-15');
 echo stream_get_contents($resource); // the return string is converted from 'utf-8' to 'iso-8859-15'
 ```
 
-The `appendTo` and `prependTo` static methods will make sure to register the stream filter before attaching it to the
-resource.
+<p class="message-info">Even if the resource is writable, the stream filter will only be used when the file is read</p>
+<p class="message-warning">The <code>appendTo</code> and <code>prependTo</code> static methods that were introduced in
+version <code>9.17</code> are therefore deprecated as of version <code>9.22</code></p>

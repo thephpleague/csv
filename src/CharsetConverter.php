@@ -13,15 +13,20 @@ declare(strict_types=1);
 
 namespace League\Csv;
 
+use Deprecated;
 use OutOfRangeException;
 use php_user_filter;
 use RuntimeException;
+use Throwable;
 use TypeError;
 
 use function array_map;
 use function array_reduce;
+use function get_resource_type;
+use function gettype;
 use function in_array;
 use function is_numeric;
+use function is_resource;
 use function mb_convert_encoding;
 use function mb_encoding_aliases;
 use function mb_list_encodings;
@@ -32,12 +37,18 @@ use function sprintf;
 use function stream_bucket_append;
 use function stream_bucket_make_writeable;
 use function stream_bucket_new;
+use function stream_filter_append;
+use function stream_filter_prepend;
 use function stream_filter_register;
 use function stream_get_filters;
 use function strtolower;
 use function substr;
 
+use const PSFS_ERR_FATAL;
 use const PSFS_FEED_ME;
+use const PSFS_PASS_ON;
+use const STREAM_FILTER_READ;
+use const STREAM_FILTER_WRITE;
 
 /**
  * Converts resource stream or tabular data content charset.
@@ -51,21 +62,7 @@ class CharsetConverter extends php_user_filter
     protected string $input_encoding = 'UTF-8';
     protected string $output_encoding = 'UTF-8';
     protected bool $skipBomSequence =  false;
-
-    /**
-     * Static method to add the stream filter to a {@link Reader} object to handle BOM skipping.
-     */
-    public static function addBOMSkippingTo(Reader $document, string $output_encoding = 'UTF-8'): Reader
-    {
-        self::register();
-
-        $document->appendStreamFilterOnRead(
-            self::getFiltername((Bom::tryFrom($document->getInputBOM()) ?? Bom::Utf8)->encoding(), $output_encoding),
-            [self::BOM_SEQUENCE => self::SKIP_BOM_SEQUENCE]
-        );
-
-        return $document;
-    }
+    protected string $buffer = '';
 
     /**
      * Static method to add the stream filter to a {@link AbstractCsv} object.
@@ -99,7 +96,7 @@ class CharsetConverter extends php_user_filter
      *
      * @return resource
      */
-    public static function appendTo(mixed $stream, string $input_encoding = 'UTF-8', string $output_encoding = 'UTF-8'): mixed
+    public static function appendOnReadTo(mixed $stream, string $input_encoding = 'UTF-8', string $output_encoding = 'UTF-8'): mixed
     {
         self::register();
 
@@ -109,7 +106,7 @@ class CharsetConverter extends php_user_filter
         $filtername = self::getFiltername($input_encoding, $output_encoding);
 
         set_error_handler(fn (int $errno, string $errstr, string $errfile, int $errline) => true);
-        $filter = stream_filter_append($stream, $filtername);
+        $filter = stream_filter_append($stream, $filtername, STREAM_FILTER_READ);
         restore_error_handler();
 
         is_resource($filter) || throw new RuntimeException('Could not append the registered stream filter: '.$filtername);
@@ -125,7 +122,7 @@ class CharsetConverter extends php_user_filter
      *
      * @return resource
      */
-    public static function prependTo(mixed $stream, string $input_encoding = 'UTF-8', string $output_encoding = 'UTF-8'): mixed
+    public static function appendOnWriteTo(mixed $stream, string $input_encoding = 'UTF-8', string $output_encoding = 'UTF-8'): mixed
     {
         self::register();
 
@@ -135,7 +132,59 @@ class CharsetConverter extends php_user_filter
         $filtername = self::getFiltername($input_encoding, $output_encoding);
 
         set_error_handler(fn (int $errno, string $errstr, string $errfile, int $errline) => true);
-        $filter = stream_filter_prepend($stream, $filtername);
+        $filter = stream_filter_append($stream, $filtername, STREAM_FILTER_WRITE);
+        restore_error_handler();
+
+        is_resource($filter) || throw new RuntimeException('Could not append the registered stream filter: '.$filtername);
+
+        return $filter;
+    }
+
+    /**
+     * @param resource $stream
+     *
+     * @throws TypeError
+     * @throws RuntimeException
+     *
+     * @return resource
+     */
+    public static function prependOnReadTo(mixed $stream, string $input_encoding = 'UTF-8', string $output_encoding = 'UTF-8'): mixed
+    {
+        self::register();
+
+        is_resource($stream) || throw new TypeError('Argument passed must be a stream resource, '.gettype($stream).' given.');
+        'stream' === ($type = get_resource_type($stream)) || throw new TypeError('Argument passed must be a stream resource, '.$type.' resource given');
+
+        $filtername = self::getFiltername($input_encoding, $output_encoding);
+
+        set_error_handler(fn (int $errno, string $errstr, string $errfile, int $errline) => true);
+        $filter = stream_filter_prepend($stream, $filtername, STREAM_FILTER_READ);
+        restore_error_handler();
+
+        is_resource($filter) || throw new RuntimeException('Could not prepend the registered stream filter: '.$filtername);
+
+        return $filter;
+    }
+
+    /**
+     * @param resource $stream
+     *
+     * @throws TypeError
+     * @throws RuntimeException
+     *
+     * @return resource
+     */
+    public static function prependOnWriteTo(mixed $stream, string $input_encoding = 'UTF-8', string $output_encoding = 'UTF-8'): mixed
+    {
+        self::register();
+
+        is_resource($stream) || throw new TypeError('Argument passed must be a stream resource, '.gettype($stream).' given.');
+        'stream' === ($type = get_resource_type($stream)) || throw new TypeError('Argument passed must be a stream resource, '.$type.' resource given');
+
+        $filtername = self::getFiltername($input_encoding, $output_encoding);
+
+        set_error_handler(fn (int $errno, string $errstr, string $errfile, int $errline) => true);
+        $filter = stream_filter_prepend($stream, $filtername, STREAM_FILTER_WRITE);
         restore_error_handler();
 
         is_resource($filter) || throw new RuntimeException('Could not prepend the registered stream filter: '.$filtername);
@@ -205,27 +254,41 @@ class CharsetConverter extends php_user_filter
 
     public function filter($in, $out, &$consumed, bool $closing): int
     {
-        $data = '';
+        $inputBuffer = $this->buffer;
         while (null !== ($bucket = stream_bucket_make_writeable($in))) {
-            $data .= $bucket->data;
+            $inputBuffer .= $bucket->data;
             $consumed += $bucket->datalen;
         }
 
-        if ('' === $data) {
+        if ('' === $inputBuffer && !$closing) {
             return PSFS_FEED_ME;
         }
 
-        if ($this->skipBomSequence && null !== ($bom = Bom::tryFromSequence($data))) {
-            $data = substr($data, $bom->length());
+        if ($this->skipBomSequence && null !== ($bom = Bom::tryFromSequence($inputBuffer))) {
+            $inputBuffer = substr($inputBuffer, $bom->length());
         }
 
-        $data = mb_convert_encoding($data, $this->output_encoding, $this->input_encoding);
+        // if the stream content is invalid then we store it and
+        // ask for more content to try to correctly convert the data
+        if (!mb_check_encoding($inputBuffer, $this->input_encoding) && !$closing) {
+            $this->buffer = $inputBuffer;
 
-        set_error_handler(fn (int $errno, string $errstr, string $errfile, int $errline) => true);
-        stream_bucket_append($out, stream_bucket_new($this->stream, $data));
-        restore_error_handler();
+            return PSFS_FEED_ME;
+        }
 
-        return PSFS_PASS_ON;
+        $this->buffer = '';
+        try {
+            set_error_handler(fn (int $errno, string $errstr, string $errfile, int $errline) => true);
+            $outputBuffer = mb_convert_encoding($inputBuffer, $this->output_encoding, $this->input_encoding);
+            $streamBucket = stream_bucket_new($this->stream, $outputBuffer);
+            stream_bucket_append($out, $streamBucket);
+
+            return PSFS_PASS_ON;
+        } catch (Throwable) {
+            return PSFS_ERR_FATAL;
+        } finally {
+            restore_error_handler();
+        }
     }
 
     /**
@@ -300,5 +363,75 @@ class CharsetConverter extends php_user_filter
         $clone->output_encoding = $encoding;
 
         return $clone;
+    }
+
+    /**
+     * @param resource $stream
+     *
+     * @throws TypeError
+     * @throws RuntimeException
+     *
+     * @return resource
+     */
+    #[Deprecated(message:'use League\Csv\CharserConverter::appendOnReadTo() or League\Csv\CharserConverter::appendOnWriteTo() instead', since:'league/csv:9.22.0')]
+    public static function appendTo(mixed $stream, string $input_encoding = 'UTF-8', string $output_encoding = 'UTF-8'): mixed
+    {
+        self::register();
+
+        is_resource($stream) || throw new TypeError('Argument passed must be a stream resource, '.gettype($stream).' given.');
+        'stream' === ($type = get_resource_type($stream)) || throw new TypeError('Argument passed must be a stream resource, '.$type.' resource given');
+
+        $filtername = self::getFiltername($input_encoding, $output_encoding);
+
+        set_error_handler(fn (int $errno, string $errstr, string $errfile, int $errline) => true);
+        $filter = stream_filter_append($stream, $filtername);
+        restore_error_handler();
+
+        is_resource($filter) || throw new RuntimeException('Could not append the registered stream filter: '.$filtername);
+
+        return $filter;
+    }
+
+    /**
+     * @param resource $stream
+     *
+     * @throws TypeError
+     * @throws RuntimeException
+     *
+     * @return resource
+     */
+    #[Deprecated(message:'use League\Csv\CharserConverter::prependOnReadTo() or League\Csv\CharserConverter::prependOnWriteTo() instead', since:'league/csv:9.22.0')]
+    public static function prependTo(mixed $stream, string $input_encoding = 'UTF-8', string $output_encoding = 'UTF-8'): mixed
+    {
+        self::register();
+
+        is_resource($stream) || throw new TypeError('Argument passed must be a stream resource, '.gettype($stream).' given.');
+        'stream' === ($type = get_resource_type($stream)) || throw new TypeError('Argument passed must be a stream resource, '.$type.' resource given');
+
+        $filtername = self::getFiltername($input_encoding, $output_encoding);
+
+        set_error_handler(fn (int $errno, string $errstr, string $errfile, int $errline) => true);
+        $filter = stream_filter_prepend($stream, $filtername);
+        restore_error_handler();
+
+        is_resource($filter) || throw new RuntimeException('Could not prepend the registered stream filter: '.$filtername);
+
+        return $filter;
+    }
+
+    /**
+     * Static method to add the stream filter to a {@link Reader} object to handle BOM skipping.
+     */
+    #[Deprecated(message:'Deprecated without replacement', since:'league/csv:9.22.0')]
+    public static function addBOMSkippingTo(Reader $document, string $output_encoding = 'UTF-8'): Reader
+    {
+        self::register();
+
+        $document->appendStreamFilterOnRead(
+            self::getFiltername((Bom::tryFrom($document->getInputBOM()) ?? Bom::Utf8)->encoding(), $output_encoding),
+            [self::BOM_SEQUENCE => self::SKIP_BOM_SEQUENCE]
+        );
+
+        return $document;
     }
 }
