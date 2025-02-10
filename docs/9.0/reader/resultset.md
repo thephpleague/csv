@@ -23,17 +23,17 @@ You can instantiate it directly from any object that implements the `League\Csv\
 $resultSet = ResultSet::createFromTabularData(Reader::createFromPath('path/to/file.csv'));
 ```
 
-But you can also instantiate it from RDBMS results using the `ResultSet::createFromRdbms` method:
+Apart from `TabularData` implementing object, the method also accepts results from RDBMS query as shown below:
 
 ```php
 $db = new SQLite3( '/path/to/my/db.sqlite');
 $stmt = $db->query("SELECT * FROM users");
 $stmt instanceof SQLite3Result || throw new RuntimeException('SQLite3 results not available');
 
-$user24 = ResultSet::createFromRdbms($stmt)->nth(23);
+$user24 = ResultSet::createFromTabularData($stmt)->nth(23);
 ```
 
-the `createFromRdbms` can be used with the following Database Extensions:
+The `createFromTabularData` supports the following Database Extensions:
 
 - SQLite3 (`SQLite3Result` object)
 - MySQL Improved Extension (`mysqli_result` object)

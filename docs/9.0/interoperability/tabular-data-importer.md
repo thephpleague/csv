@@ -48,22 +48,23 @@ $resultSet = ResultSet::createFromTabularData(
 A common source of tabular data are RDBMS result. From listing the content of a table to returning the result of
 a complex query on multiple tables with joins, RDBMS result are always express as tabular data. As such it is possible
 to convert them and manipulate via the package. To ease such manipulation the `ResultSet` class exposes the
-`ResultSet::createFromRdbms` method:
+`ResultSet::createFromTabularData` method:
 
 ```php
 $connection = new SQLite3( '/path/to/my/db.sqlite');
 $stmt = $connection->query("SELECT * FROM users");
 $stmt instanceof SQLite3Result || throw new RuntimeException('SQLite3 results not available');
 
-$user24 = ResultSet::createFromRdbms($stmt)->nth(23);
+$user24 = ResultSet::createFromTabularData($stmt)->nth(23);
 ```
 
-the `createFromRdbms` can be used with the following Database Extensions:
+The `createFromTabularData` can be used with the following Database Extensions:
 
 - SQLite3 (`SQLite3Result` object)
 - MySQL Improved Extension (`mysqli_result` object)
 - PostgreSQL (`PgSql\Result` object returned by the `pg_get_result`)
 - PDO (`PDOStatement` object)
+- Any class that implements the `TabularData` interface
 
 Behind the scene the named constructor leverages the `League\Csv\RdbmsResult` class which implements the `TabularData` interface.
 This class is responsible from converting RDBMS results into `TabularData` instances. But you can also use the class

@@ -10,7 +10,6 @@ All Notable changes to `Csv` will be documented in this file
 - `TabularDataReader::selectAllExcept`
 - `Statement::selectAllExcept`
 - `ResultSet::createFromTabularData`
-- `ResultSet::createFromRdbms`
 - `RdbmsResult` class to allow converting RDBMS result into `ResultSet`
 - `TabularData` interface
 - `XMLConverter::supportsHeader`
@@ -32,15 +31,13 @@ All Notable changes to `Csv` will be documented in this file
 - `Statement::create` use `Statement::__construct` instead
 - `FragmentFinder::create` use `FragmentFinder::__construct` instead
 - `CharsetConverter::appendTo`, `CharsetConverter::prependTo` use the more strict methods added on the instance
-- `CharsetConverter::addBOMSkippingTo` without replacement, the `Reader` already strips the BOM sequence
-
 
 ### Fixed
 
 - `Comparison::CONTAINS` must check the value is a string before calling `str_compare` [#548](https://github.com/thephpleague/csv/pull/548) by [cage-is](https://github.com/cage-is)
 - Fix testing to improve Debian integration [#549](https://github.com/thephpleague/csv/pull/549) by [David Prévot and tenzap](https://github.com/tenzap)
 - `Bom::tryFromSequence` and `Bom::fromSequence` supports the `Reader` and `Writer` classes.
-- `XMLConverter::$formatter` visibility it should not be public.
+- `XMLConverter::$formatter` should not be public.
 - `XMLConverter` internal rewritten to take advantage of PHP8.4 new dom classes
 - `HTMLConverter` internal rewritten to take advantage of PHP8.4 new dom classes
 - `XMLConverter::fieldElement` now has a `nullable` field element to allow using headers names as cell names.
