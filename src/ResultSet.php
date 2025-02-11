@@ -54,6 +54,10 @@ class ResultSet implements TabularDataReader, JsonSerializable
     protected Iterator $records;
 
     /**
+     * @internal
+     *
+     * @see self::createFromTabularData() for public API usage
+     *
      * @param Iterator|array<array-key, array<array-key, mixed>> $records
      * @param array<string> $header
      *
