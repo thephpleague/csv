@@ -25,11 +25,13 @@ use League\Csv\Serializer\MappingFailed;
 use League\Csv\Serializer\TypeCastingFailed;
 use LimitIterator;
 use mysqli_result;
+use PDOException;
 use PDOStatement;
 use PgSql\Result;
 use RuntimeException;
 use SQLite3Result;
 
+use Throwable;
 use function array_filter;
 use function array_flip;
 use function array_key_exists;
@@ -56,7 +58,7 @@ class ResultSet implements TabularDataReader, JsonSerializable
     /**
      * @internal
      *
-     * @see self::createFromTabularData() for public API usage
+     * @see self::from() for public API usage
      *
      * @param Iterator|array<array-key, array<array-key, mixed>> $records
      * @param array<string> $header
@@ -91,13 +93,26 @@ class ResultSet implements TabularDataReader, JsonSerializable
      *
      * @throws RuntimeException|SyntaxError If the column names can not be found
      */
-    public static function createFromTabularData(PDOStatement|Result|mysqli_result|SQLite3Result|TabularData $records): self
+    public static function tryFrom(PDOStatement|Result|mysqli_result|SQLite3Result|TabularData $records): ?self
     {
-        if (!$records instanceof TabularData) {
-            $records = RdbmsResult::from($records);
+        try {
+            return self::from($records);
+        } catch (Throwable) {
+            return null;
         }
+    }
 
-        return new self($records->getIterator(), $records->getHeader());
+    /**
+     * Returns a new instance from a tabular data implementing object.
+     *
+     * @throws RuntimeException|SyntaxError If the column names can not be found
+     */
+    public static function from(PDOStatement|Result|mysqli_result|SQLite3Result|TabularData $records): self
+    {
+        return match (true) {
+            $records instanceof TabularData => new self($records->getIterator(), $records->getHeader()),
+            default => new self(RdbmsResult::rows($records), RdbmsResult::columnNames($records)),
+        };
     }
 
     public function __destruct()
@@ -664,16 +679,16 @@ class ResultSet implements TabularDataReader, JsonSerializable
      *
      * @throws SyntaxError
      */
-    #[Deprecated(message:'use League\Csv\ResultSet::createFromTabularData() instead', since:'league/csv:9.22.0')]
+    #[Deprecated(message:'use League\Csv\ResultSet::from() instead', since:'league/csv:9.22.0')]
     public static function createFromTabularDataReader(TabularDataReader $reader): self
     {
-        return self::createFromTabularData($reader);
+        return self::from($reader);
     }
 
     /**
      * Returns a new instance from a collection without header.
      */
-    #[Deprecated(message:'use League\Csv\ResultSet::createFromTabularData() instead', since:'league/csv:9.22.0')]
+    #[Deprecated(message:'use League\Csv\ResultSet::from() instead', since:'league/csv:9.22.0')]
     public static function createFromRecords(iterable $records = []): self
     {
         return new self(MapIterator::toIterator($records));

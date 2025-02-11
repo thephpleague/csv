@@ -69,7 +69,7 @@ SQL;
         self::assertCount(6, iterator_to_array($tabularData));
         self::assertSame(
             ['id' => 1, 'name' => 'Ronnie', 'email' => 'ronnie@example.com'],
-            ResultSet::createFromTabularData($tabularData)->first()
+            ResultSet::from($tabularData)->first()
         );
     }
 
@@ -110,7 +110,7 @@ SQL;
         self::assertCount(6, iterator_to_array($tabularData));
         self::assertSame(
             ['id' => 1, 'name' => 'Ronnie', 'email' => 'ronnie@example.com'],
-            ResultSet::createFromTabularData($tabularData)->first()
+            ResultSet::from($tabularData)->first()
         );
     }
 

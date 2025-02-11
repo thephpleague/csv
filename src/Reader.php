@@ -224,7 +224,7 @@ class Reader extends AbstractCsv implements TabularDataReader, JsonSerializable
 
     public function fetchColumn(string|int $index = 0): Iterator
     {
-        return ResultSet::createFromTabularData($this)->fetchColumn($index);
+        return ResultSet::from($this)->fetchColumn($index);
     }
 
     /**
@@ -232,7 +232,7 @@ class Reader extends AbstractCsv implements TabularDataReader, JsonSerializable
      */
     public function fetchColumnByName(string $name): Iterator
     {
-        return ResultSet::createFromTabularData($this)->fetchColumnByName($name);
+        return ResultSet::from($this)->fetchColumnByName($name);
     }
 
     /**
@@ -240,12 +240,12 @@ class Reader extends AbstractCsv implements TabularDataReader, JsonSerializable
      */
     public function fetchColumnByOffset(int $offset = 0): Iterator
     {
-        return ResultSet::createFromTabularData($this)->fetchColumnByOffset($offset);
+        return ResultSet::from($this)->fetchColumnByOffset($offset);
     }
 
     public function value(int|string $column = 0): mixed
     {
-        return ResultSet::createFromTabularData($this)->value($column);
+        return ResultSet::from($this)->value($column);
     }
 
     /**
@@ -253,7 +253,7 @@ class Reader extends AbstractCsv implements TabularDataReader, JsonSerializable
      */
     public function first(): array
     {
-        return ResultSet::createFromTabularData($this)->first();
+        return ResultSet::from($this)->first();
     }
 
     /**
@@ -261,7 +261,7 @@ class Reader extends AbstractCsv implements TabularDataReader, JsonSerializable
      */
     public function nth(int $nth_record): array
     {
-        return ResultSet::createFromTabularData($this)->nth($nth_record);
+        return ResultSet::from($this)->nth($nth_record);
     }
 
     /**
@@ -271,7 +271,7 @@ class Reader extends AbstractCsv implements TabularDataReader, JsonSerializable
      */
     public function nthAsObject(int $nth, string $className, array $header = []): ?object
     {
-        return ResultSet::createFromTabularData($this)->nthAsObject($nth, $className, $header);
+        return ResultSet::from($this)->nthAsObject($nth, $className, $header);
     }
 
     /**
@@ -281,12 +281,12 @@ class Reader extends AbstractCsv implements TabularDataReader, JsonSerializable
      */
     public function firstAsObject(string $className, array $header = []): ?object
     {
-        return ResultSet::createFromTabularData($this)->firstAsObject($className, $header);
+        return ResultSet::from($this)->firstAsObject($className, $header);
     }
 
     public function fetchPairs($offset_index = 0, $value_index = 1): Iterator
     {
-        return ResultSet::createFromTabularData($this)->fetchPairs($offset_index, $value_index);
+        return ResultSet::from($this)->fetchPairs($offset_index, $value_index);
     }
 
     /**
@@ -322,7 +322,7 @@ class Reader extends AbstractCsv implements TabularDataReader, JsonSerializable
      */
     public function each(callable $callback): bool
     {
-        return ResultSet::createFromTabularData($this)->each($callback);
+        return ResultSet::from($this)->each($callback);
     }
 
     /**
@@ -330,7 +330,7 @@ class Reader extends AbstractCsv implements TabularDataReader, JsonSerializable
      */
     public function exists(callable $callback): bool
     {
-        return ResultSet::createFromTabularData($this)->exists($callback);
+        return ResultSet::from($this)->exists($callback);
     }
 
     /**
@@ -343,7 +343,7 @@ class Reader extends AbstractCsv implements TabularDataReader, JsonSerializable
      */
     public function reduce(callable $callback, mixed $initial = null): mixed
     {
-        return ResultSet::createFromTabularData($this)->reduce($callback, $initial);
+        return ResultSet::from($this)->reduce($callback, $initial);
     }
 
     /**
@@ -369,7 +369,7 @@ class Reader extends AbstractCsv implements TabularDataReader, JsonSerializable
      */
     public function chunkBy(int $recordsCount): iterable
     {
-        return ResultSet::createFromTabularData($this)->chunkBy($recordsCount);
+        return ResultSet::from($this)->chunkBy($recordsCount);
     }
 
     /**
@@ -460,12 +460,12 @@ class Reader extends AbstractCsv implements TabularDataReader, JsonSerializable
 
     public function select(string|int ...$columns): TabularDataReader
     {
-        return ResultSet::createFromTabularData($this)->select(...$columns);
+        return ResultSet::from($this)->select(...$columns);
     }
 
     public function selectAllExcept(string|int ...$columns): TabularDataReader
     {
-        return ResultSet::createFromTabularData($this)->selectAllExcept(...$columns);
+        return ResultSet::from($this)->selectAllExcept(...$columns);
     }
 
     /**

@@ -9,7 +9,7 @@ All Notable changes to `Csv` will be documented in this file
 - `Writer::necessaryEnclosure`
 - `TabularDataReader::selectAllExcept`
 - `Statement::selectAllExcept`
-- `ResultSet::createFromTabularData`
+- `ResultSet::from` and `ResultSet::tryFrom`
 - `RdbmsResult` class to allow converting RDBMS result into `ResultSet`
 - `TabularData` interface
 - `XMLConverter::supportsHeader`
@@ -22,9 +22,9 @@ All Notable changes to `Csv` will be documented in this file
 ### Deprecated
 
 - `Writer::relaxEnclosure` use `Writer::necessaryEnclosure`
-- `ResultSet::createFromTabularDataReader` use `ResultSet::createFromTabularData`
-- `ResultSet::createFromRecords` use `ResultSet::createFromTabularData`
-- `ResultSet::__construct` use `ResultSet::createFromTabularData`
+- `ResultSet::createFromTabularDataReader` use `ResultSet::from`
+- `ResultSet::createFromRecords` use `ResultSet::from`
+- `ResultSet::__construct` is marked as being `internal` and deprecated before being made private use `ResultSet::from`
 - `XMLConverter::convert` use `XMLConverter::import` instead
 - `XMLConverter::create` use `XMLConverter::__construct` instead
 - `HTMLConverter::create` use `HTMLConverter::__construct` instead

@@ -38,9 +38,7 @@ For instance the `Reader` class  implements the `TabularData` interface as such 
 a `ResultSet` instance using the following code:
 
 ```php
-$resultSet = ResultSet::createFromTabularData(
-    Reader::createFromPath('path/to/file.csv')
-);
+$resultSet = ResultSet::from(Reader::createFromPath('path/to/file.csv'));
 ```
 
 ## Database Importer usage
@@ -55,7 +53,7 @@ $connection = new SQLite3( '/path/to/my/db.sqlite');
 $stmt = $connection->query("SELECT * FROM users");
 $stmt instanceof SQLite3Result || throw new RuntimeException('SQLite3 results not available');
 
-$user24 = ResultSet::createFromTabularData($stmt)->nth(23);
+$user24 = ResultSet::from($stmt)->nth(23);
 ```
 
 The `createFromTabularData` can be used with the following Database Extensions:
@@ -140,5 +138,5 @@ $tabularData = new class ($payload) implements TabularData {
     }
 };
 
-$resultSet = ResultSet::createFromTabularData($tabularData);
+$resultSet = ResultSet::from($tabularData);
 ```

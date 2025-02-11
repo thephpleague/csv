@@ -53,7 +53,7 @@ final class ResultSetTest extends TabularDataReaderTestCase
 
     protected function tabularData(): TabularDataReader
     {
-        return ResultSet::createFromTabularData(new class () implements TabularData {
+        return ResultSet::from(new class () implements TabularData {
             public function getHeader(): array
             {
                 return [];
@@ -76,7 +76,7 @@ final class ResultSetTest extends TabularDataReaderTestCase
 
     protected function tabularDataWithHeader(): TabularDataReader
     {
-        return ResultSet::createFromTabularData(new class () implements TabularData {
+        return ResultSet::from(new class () implements TabularData {
             public function getHeader(): array
             {
                 return ['date', 'temperature', 'place'];

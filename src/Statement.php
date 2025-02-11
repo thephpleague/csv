@@ -390,7 +390,7 @@ class Statement
             return $element;
         };
 
-        return ResultSet::createFromTabularData(new class (new MapIterator($records, $callback), $hasHeader ? $header : []) implements TabularData {
+        return ResultSet::from(new class (new MapIterator($records, $callback), $hasHeader ? $header : []) implements TabularData {
             public function __construct(private Iterator $iterator, private array $header)
             {
             }

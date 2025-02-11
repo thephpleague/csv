@@ -20,7 +20,7 @@ The `ResultSet` object can be instantiated from other objects than `Statement`.
 You can instantiate it directly from any object that implements the `League\Csv\TabularData` like the `Reader` class:
 
 ```php
-$resultSet = ResultSet::createFromTabularData(Reader::createFromPath('path/to/file.csv'));
+$resultSet = ResultSet::from(Reader::createFromPath('path/to/file.csv'));
 ```
 
 Apart from `TabularData` implementing object, the method also accepts results from RDBMS query as shown below:
@@ -30,7 +30,7 @@ $db = new SQLite3( '/path/to/my/db.sqlite');
 $stmt = $db->query("SELECT * FROM users");
 $stmt instanceof SQLite3Result || throw new RuntimeException('SQLite3 results not available');
 
-$user24 = ResultSet::createFromTabularData($stmt)->nth(23);
+$user24 = ResultSet::from($stmt)->nth(23);
 ```
 
 The `createFromTabularData` supports the following Database Extensions:

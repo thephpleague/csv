@@ -115,7 +115,7 @@ class FragmentFinder
 
         $selections = array_filter($selections, fn (array $selection) => -1 !== $selection['start']);
         if ([] === $selections) {
-            return [ResultSet::createFromTabularData(new class () implements TabularData {
+            return [ResultSet::from(new class () implements TabularData {
                 public function getHeader(): array
                 {
                     return [];
@@ -151,7 +151,7 @@ class FragmentFinder
             );
 
             return [match ([]) {
-                $columns => ResultSet::createFromTabularData(new class () implements TabularData {
+                $columns => ResultSet::from(new class () implements TabularData {
                     public function getHeader(): array
                     {
                         return [];
