@@ -24,7 +24,6 @@ use RuntimeException;
 use SeekableIterator;
 use SQLite3Result;
 use Throwable;
-use ValueError;
 
 use function array_column;
 use function array_map;
@@ -36,35 +35,9 @@ use function range;
 
 use const SQLITE3_ASSOC;
 
-final class RdbmsResult implements TabularData
+final class RdbmsResult
 {
-    /**
-     * @param Iterator<array-key, array<array-key, mixed>> $rows
-     * @param array<string>|array{} $header
-     */
-    private function __construct(
-        private readonly Iterator $rows,
-        private readonly array $header
-    ) {
-    }
-
-    /**
-     * @return array<string>|array{}
-     */
-    public function getHeader(): array
-    {
-        return $this->header;
-    }
-
-    /**
-     * @return Iterator<array-key, array<array-key, mixed>>
-     */
-    public function getIterator(): Iterator
-    {
-        return $this->rows;
-    }
-
-    public static function tryFrom(object $result): ?self
+    public static function tryFrom(PDOStatement|Result|mysqli_result|SQLite3Result $result): ?TabularData
     {
         try {
             return self::from($result);
@@ -76,9 +49,9 @@ final class RdbmsResult implements TabularData
     /**
      * @throws RuntimeException If the DB result is unknown or unsupported
      */
-    public static function from(object $result): self
+    public static function from(PDOStatement|Result|mysqli_result|SQLite3Result $result): TabularData
     {
-        return new self(self::rows($result), self::columnNames($result));
+        return new DataTable(self::rows($result), self::columnNames($result));
     }
 
     /**
@@ -86,7 +59,7 @@ final class RdbmsResult implements TabularData
      *
      * @return array<string>
      */
-    public static function columnNames(object $result): array
+    public static function columnNames(PDOStatement|Result|mysqli_result|SQLite3Result $result): array
     {
         return match (true) {
             $result instanceof PDOStatement => array_map(
@@ -101,14 +74,13 @@ final class RdbmsResult implements TabularData
             $result instanceof Result => array_map(fn (int $index) => pg_field_name($result, $index), range(0, pg_num_fields($result) - 1)),
             $result instanceof mysqli_result => array_column($result->fetch_fields(), 'name'),
             $result instanceof SQLite3Result => array_map($result->columnName(...), range(0, $result->numColumns() - 1)),
-            default => throw new ValueError('Unknown or unsupported RDBMS result object '.$result::class),
         };
     }
 
     /**
      * @return Iterator<array-key, array<array-key, mixed>>
      */
-    public static function rows(object $result): Iterator
+    public static function rows(PDOStatement|Result|mysqli_result|SQLite3Result $result): Iterator
     {
         return match (true) {
             $result instanceof SQLite3Result => new class ($result) implements Iterator {
@@ -274,7 +246,6 @@ final class RdbmsResult implements TabularData
                     return $this->cacheIterator?->valid() ?? false;
                 }
             },
-            default => throw new ValueError('Unknown or unsupported RDBMS result object '.$result::class),
         };
     }
 }

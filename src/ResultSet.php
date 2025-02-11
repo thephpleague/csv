@@ -25,13 +25,12 @@ use League\Csv\Serializer\MappingFailed;
 use League\Csv\Serializer\TypeCastingFailed;
 use LimitIterator;
 use mysqli_result;
-use PDOException;
 use PDOStatement;
 use PgSql\Result;
 use RuntimeException;
 use SQLite3Result;
-
 use Throwable;
+
 use function array_filter;
 use function array_flip;
 use function array_key_exists;
@@ -93,10 +92,10 @@ class ResultSet implements TabularDataReader, JsonSerializable
      *
      * @throws RuntimeException|SyntaxError If the column names can not be found
      */
-    public static function tryFrom(PDOStatement|Result|mysqli_result|SQLite3Result|TabularData $records): ?self
+    public static function tryFrom(PDOStatement|Result|mysqli_result|SQLite3Result|TabularData $tabularData): ?self
     {
         try {
-            return self::from($records);
+            return self::from($tabularData);
         } catch (Throwable) {
             return null;
         }
@@ -107,12 +106,13 @@ class ResultSet implements TabularDataReader, JsonSerializable
      *
      * @throws RuntimeException|SyntaxError If the column names can not be found
      */
-    public static function from(PDOStatement|Result|mysqli_result|SQLite3Result|TabularData $records): self
+    public static function from(PDOStatement|Result|mysqli_result|SQLite3Result|TabularData $tabularData): self
     {
-        return match (true) {
-            $records instanceof TabularData => new self($records->getIterator(), $records->getHeader()),
-            default => new self(RdbmsResult::rows($records), RdbmsResult::columnNames($records)),
-        };
+        if (!$tabularData instanceof TabularData) {
+            $tabularData = RdbmsResult::from($tabularData);
+        }
+
+        return new self($tabularData->getIterator(), $tabularData->getHeader());
     }
 
     public function __destruct()

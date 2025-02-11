@@ -20,7 +20,6 @@ use SQLite3;
 use SQLite3Exception;
 use SQLite3Result;
 use SQLite3Stmt;
-use stdClass;
 
 use function iterator_to_array;
 
@@ -62,7 +61,7 @@ SQL;
         $stmt = $db->prepare('SELECT * FROM users');
         /** @var SQLite3Result $result */
         $result = $stmt->execute();
-        /** @var RdbmsResult $tabularData */
+        /** @var TabularData $tabularData */
         $tabularData = RdbmsResult::tryFrom($result);
 
         self::assertSame(['id', 'name', 'email'], $tabularData->getHeader());
@@ -103,7 +102,7 @@ SQL;
 
         $stmt = $connection->prepare('SELECT * FROM users');
         $stmt->execute();
-        /** @var RdbmsResult $tabularData */
+        /** @var TabularData $tabularData */
         $tabularData = RdbmsResult::tryFrom($stmt);
 
         self::assertSame(['id', 'name', 'email'], $tabularData->getHeader());
@@ -112,11 +111,5 @@ SQL;
             ['id' => 1, 'name' => 'Ronnie', 'email' => 'ronnie@example.com'],
             ResultSet::from($tabularData)->first()
         );
-    }
-
-    #[Test]
-    public function it_will_fail_with_an_unknown_object(): void
-    {
-        self::assertNull(RdbmsResult::tryFrom(new stdClass()));
     }
 }
