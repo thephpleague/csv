@@ -28,7 +28,6 @@ use function in_array;
 use function is_numeric;
 use function is_resource;
 use function mb_convert_encoding;
-use function mb_encoding_aliases;
 use function mb_list_encodings;
 use function preg_match;
 use function restore_error_handler;
@@ -216,16 +215,8 @@ class CharsetConverter extends php_user_filter
     final protected static function filterEncoding(string $encoding): string
     {
         static $encoding_list;
-        if (null === $encoding_list) {
-            $encoding_list = array_reduce(mb_list_encodings(), function (array $list, string $encoding): array {
-                foreach (mb_encoding_aliases($encoding) as $alias) {
-                    $list[strtolower($alias)] = $encoding;
-                }
-                $list[strtolower($encoding)] = $encoding;
 
-                return $list;
-            }, []);
-        }
+        $encoding_list ??= array_reduce(mb_list_encodings(), fn (array $list, string $encoding): array => [...$list, ...[strtolower($encoding) => $encoding]], []);
 
         return $encoding_list[strtolower($encoding)] ?? throw new OutOfRangeException('The submitted charset '.$encoding.' is not supported by the mbstring extension.');
     }
