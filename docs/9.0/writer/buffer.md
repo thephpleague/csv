@@ -42,7 +42,7 @@ The `from` supports the following Database Extensions:
 <p class="message-info">The <code>Buffer</code> class is mutable. On instantiation, it copies and stores the full source data in-memory.</p>
 
 ## Insert Records
- 
+
 The class provides two method to insert records `insertOne` will insert a single record while `insertAll` will insert new records into the instance.
 Because tabular data can have a header or not, both methods accept either a list of values or an array of column names and
 values as shown below:
@@ -109,6 +109,7 @@ use League\Csv\Query\Predicate;
 Buffer::update(Predicate|Closure|Callable|array|int $where, array $record): int;
 Buffer::delete(Predicate|Closure|Callable|array|int $where): int;
 ```
+
 Just like the `insert` method, these methods return the number of successfully updated or deleted records or
 trigger an exception if the parameters are invalid.
 
