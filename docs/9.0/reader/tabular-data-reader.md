@@ -237,6 +237,30 @@ $exists = $resultSet->exists(fn (array $records) => in_array('twenty-five', $rec
 
 ## Selecting columns
 
+### fetchColumn
+
+The `fetchColumn` returns an Iterator containing all the values of a single column specified by its
+header offset if you provide an integer or its header name if you provide a string name that exists.
+
+```php
+$reader = Reader::createFromPath('/path/to/my/file.csv');
+$reader->setHeaderOffset(0);
+$records = (new Statement())->process($reader);
+foreach ($records->fetchColumn(3) as $value) {
+    //$value is a string representing the value
+    //of a given record for the selected column
+    //$value may be equal to 'john.doe@example.com'
+}
+
+foreach ($records->fetchColumn('3') as $value) {
+    //$value is a string representing the value
+    //of a given record for the selected column whose name is '3'
+    //$value may be equal to 'john.doe@example.com'
+}
+```
+
+Two additional methods are added to ease distinguish usage
+
 ### fetchColumnByName
 
 The `fetchColumnByName` returns an Iterator containing all the values of a single column specified by its header name if it exists.

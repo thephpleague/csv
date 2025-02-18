@@ -44,8 +44,6 @@ The `createFromTabularData` supports the following Database Extensions:
 As such using the instance on huge results will trigger high memory usage as all the data will be stored in a
 <code>ArrayIterator</code> instance for cache to allow rewinding and inspecting the tabular data.</p>
 
-Please refer to the [TabularData Importer](/9.0/interoperability/tabular-data-importer) for more information.
-
 ## Selecting records
 
 Please header over the [TabularDataReader documentation page](/9.0/reader/tabular-data-reader)

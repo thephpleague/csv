@@ -52,9 +52,9 @@ class FragmentFinder
      * @throws SyntaxError
      * @return iterable<int, TabularDataReader>
      */
-    public function findAll(string $expression, TabularDataReader $tabularDataReader): iterable
+    public function findAll(string $expression, TabularData $tabularData): iterable
     {
-        return $this->find($this->parseExpression($expression, $tabularDataReader), $tabularDataReader);
+        return $this->find($this->parseExpression($expression, $tabularData), $tabularData);
     }
 
     /**
@@ -66,9 +66,9 @@ class FragmentFinder
      *
      * @throws SyntaxError
      */
-    public function findFirst(string $expression, TabularDataReader $tabularDataReader): ?TabularDataReader
+    public function findFirst(string $expression, TabularData $tabularData): ?TabularDataReader
     {
-        $fragment = $this->find($this->parseExpression($expression, $tabularDataReader), $tabularDataReader)[0];
+        $fragment = $this->find($this->parseExpression($expression, $tabularData), $tabularData)[0];
 
         return match ([]) {
             $fragment->first() => null,
@@ -86,14 +86,14 @@ class FragmentFinder
      * @throws SyntaxError
      * @throws FragmentNotFound if the expression can not be parsed
      */
-    public function findFirstOrFail(string $expression, TabularDataReader $tabularDataReader): TabularDataReader
+    public function findFirstOrFail(string $expression, TabularData $tabularData): TabularDataReader
     {
-        $parsedExpression = $this->parseExpression($expression, $tabularDataReader);
+        $parsedExpression = $this->parseExpression($expression, $tabularData);
         if ([] !== array_filter($parsedExpression['selections'], fn (array $selection) => -1 === $selection['start'])) {
             throw new FragmentNotFound('The expression `'.$expression.'` contains an invalid or an unsupported selection for the tabular data.');
         }
 
-        $fragment = $this->find($parsedExpression, $tabularDataReader)[0];
+        $fragment = $this->find($parsedExpression, $tabularData)[0];
 
         return match ([]) {
             $fragment->first() => throw new FragmentNotFound('No fragment found in the tabular data with the expression `'.$expression.'`.'),
@@ -108,13 +108,13 @@ class FragmentFinder
      *
      * @return array<int, TabularDataReader>
      */
-    private function find(array $parsedExpression, TabularDataReader $tabularDataReader): array
+    private function find(array $parsedExpression, TabularData $tabularData): array
     {
         ['type' => $type, 'selections' => $selections] = $parsedExpression;
 
         $selections = array_filter($selections, fn (array $selection) => -1 !== $selection['start']);
         if ([] === $selections) {
-            return [ResultSet::from(DataTable::fromEmpty())];
+            return [new ResultSet()];
         }
 
         if (self::TYPE_ROW === $type) {
@@ -128,7 +128,7 @@ class FragmentFinder
             return [
                 (new Statement())
                     ->where($rowFilter)
-                    ->process($tabularDataReader),
+                    ->process($tabularData),
             ];
         }
 
@@ -140,8 +140,8 @@ class FragmentFinder
             );
 
             return [match ([]) {
-                $columns => ResultSet::from(DataTable::fromEmpty()),
-                default => (new Statement())->select(...$columns)->process($tabularDataReader),
+                $columns => new ResultSet(),
+                default => (new Statement())->select(...$columns)->process($tabularData),
             }];
         }
 
@@ -150,7 +150,7 @@ class FragmentFinder
                 ->offset($selection['start'])
                 ->limit($selection['length'])
                 ->select(...$selection['columns'])
-                ->process($tabularDataReader),
+                ->process($tabularData),
             $selections
         );
     }
@@ -158,7 +158,7 @@ class FragmentFinder
     /**
      * @return array{type:string, selections:non-empty-array<selection>}
      */
-    private function parseExpression(string $expression, TabularDataReader $tabularDataReader): array
+    private function parseExpression(string $expression, TabularData $tabularData): array
     {
         if (1 !== preg_match(self::REGEXP_URI_FRAGMENT, $expression, $matches)) {
             return [
@@ -182,8 +182,8 @@ class FragmentFinder
             explode(';', $matches['selections']),
             fn (array $selections, string $selection): array => [...$selections, match ($type) {
                 self::TYPE_ROW => $this->parseRowSelection($selection),
-                self::TYPE_COLUMN => $this->parseColumnSelection($selection, $tabularDataReader),
-                default => $this->parseCellSelection($selection, $tabularDataReader),
+                self::TYPE_COLUMN => $this->parseColumnSelection($selection, $tabularData),
+                default => $this->parseCellSelection($selection, $tabularData),
             }],
             []
         );
@@ -230,12 +230,12 @@ class FragmentFinder
     /**
      * @return selection
      */
-    private function parseColumnSelection(string $selection, TabularDataReader $tabularDataReader): array
+    private function parseColumnSelection(string $selection, TabularData $tabularData): array
     {
         [$start, $end] = $this->parseRowColumnSelection($selection);
-        $header = $tabularDataReader->getHeader();
+        $header = $tabularData->getHeader();
         if ([] === $header) {
-            $header = $tabularDataReader->first();
+            $header = $tabularData->nth(0);
         }
 
         $nbColumns = count($header);
@@ -311,7 +311,7 @@ class FragmentFinder
     /**
      * @return selection
      */
-    private function parseCellSelection(string $selection, TabularDataReader $tabularDataReader): array
+    private function parseCellSelection(string $selection, TabularData $tabularData): array
     {
         if (1 !== preg_match(self::REGEXP_CELLS_SELECTION, $selection, $found)) {
             return [
@@ -338,9 +338,9 @@ class FragmentFinder
         --$cellStartRow;
         --$cellStartCol;
 
-        $header = $tabularDataReader->getHeader();
+        $header = $tabularData->getHeader();
         if ([] === $header) {
-            $header = $tabularDataReader->first();
+            $header = $tabularData->nth(0);
         }
 
         $nbColumns = count($header);

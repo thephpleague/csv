@@ -12,6 +12,7 @@ All Notable changes to `Csv` will be documented in this file
 - `ResultSet::from` and `ResultSet::tryFrom`
 - `RdbmsResult` class to allow converting RDBMS result into `ResultSet`
 - `TabularData` interface
+- `Buffer` class
 - `XMLConverter::supportsHeader`
 - `XMLConverter::when`
 - `HTMLConverter::when`

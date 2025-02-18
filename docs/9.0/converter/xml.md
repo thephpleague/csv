@@ -186,6 +186,49 @@ echo htmlentities($dom->saveXML());
 // </root>
 ```
 
+The result is different if you set the field element as `null`:
+
+```php
+$converter = new XMLConverter()
+    ->rootElement('csv')
+    ->recordElement('record', 'offset')
+    ->fieldElement(null)
+;
+
+$records = $stmt->process($csv);
+
+$dom = new DOMDocument('1.0');
+$dom->loadXML('<root><header><name>My CSV Document</name></header></root>');
+
+$data = $converter->import($records, $dom);
+$dom->appendChild($data);
+$dom->formatOutput = true;
+$dom->encoding = 'iso-8859-15';
+
+echo '<pre>', PHP_EOL;
+echo htmlentities($dom->saveXML());
+// <?xml version="1.0" encoding="iso-8859-15"?>
+// <root>
+//   <header>
+//     <name>My CSV Document</name>
+//   </header>
+//   <csv>
+//     <record offset="71">
+//       <prenoms>Anaïs</field>
+//       <nombre>137</field>
+//       <sexe>F</field>
+//       <annee>2004</field>
+//     </record>
+//     <record offset="1099">
+//       <prenoms>Anaïs</field>
+//       <nombre>124</field>
+//       <sexe>F</field>
+//       <annee>2005</field>
+//     </record>
+//   </csv>
+// </root>
+```
+
 ## Conversion
 
 <p class="message-notice">The method is deprecated in version <code>9.22.0</code> use <code>XMLConverter::import</code> instead</p>

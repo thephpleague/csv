@@ -29,7 +29,7 @@ use function array_values;
 use function is_string;
 
 /**
- * Criteria to filter a {@link TabularDataReader} object.
+ * Criteria to filter a {@link TabularData} object.
  *
  * @phpstan-import-type ConditionExtended from Query\PredicateCombinator
  * @phpstan-import-type OrderingExtended from Query\SortCombinator
@@ -309,15 +309,19 @@ class Statement
     }
 
     /**
-     * Executes the prepared Statement on the {@link TabularDataReader} object.
+     * Executes the prepared Statement on the {@link TabularData} object.
      *
      * @param array<string> $header an optional header to use instead of the tabular data header
      *
      * @throws InvalidArgument
      * @throws SyntaxError
      */
-    public function process(TabularDataReader $tabular_data, array $header = []): TabularDataReader
+    public function process(TabularData $tabular_data, array $header = []): TabularDataReader
     {
+        if (!$tabular_data instanceof TabularDataReader) {
+            $tabular_data = ResultSet::from($tabular_data);
+        }
+
         if ([] === $header) {
             $header = $tabular_data->getHeader();
         }
@@ -390,7 +394,7 @@ class Statement
             return $element;
         };
 
-        return ResultSet::from(new DataTable(new MapIterator($records, $callback), $hasHeader ? $header : []));
+        return new ResultSet(new MapIterator($records, $callback), $hasHeader ? $header : []);
     }
 
     /**

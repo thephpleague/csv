@@ -32,18 +32,18 @@
     "require-dev": {
         "ext-dom": "*",
         "ext-xdebug": "*",
-        "friendsofphp/php-cs-fixer": "^3.68.1",
-        "phpbench/phpbench": "^1.3.1",
-        "phpstan/phpstan": "^1.12.15",
+        "friendsofphp/php-cs-fixer": "^3.69.0",
+        "phpbench/phpbench": "^1.4.0",
+        "phpstan/phpstan": "^1.12.18",
         "phpstan/phpstan-deprecation-rules": "^1.2.1",
         "phpstan/phpstan-phpunit": "^1.4.2",
-        "phpstan/phpstan-strict-rules": "^1.6.1",
-        "phpunit/phpunit": "^10.5.16 || ^11.5.3",
-        "symfony/var-dumper": "^6.4.8 || ^7.2.0"
+        "phpstan/phpstan-strict-rules": "^1.6.2",
+        "phpunit/phpunit": "^10.5.16 || ^11.5.7",
+        "symfony/var-dumper": "^6.4.8 || ^7.2.3"
     },
     "autoload": {
         "psr-4": {
-            "League\\Csv\\": "src/"
+            "League\\Csv\\": "src"
         },
         "files": ["src/functions_include.php"]
     },

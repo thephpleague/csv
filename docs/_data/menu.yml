@@ -13,8 +13,9 @@ version:
             Document output: '/9.0/connections/output/'
             Stream Filters: '/9.0/connections/filters/'
         Inserting Records:
-            Writer Connection: '/9.0/writer/'
+            CSV Writer: '/9.0/writer/'
             Bundled Helpers: '/9.0/writer/helpers/'
+            Tabular Data Buffer: '/9.0/writer/buffer/'
         Selecting Records:
             Tabular Data Reader: '/9.0/reader/tabular-data-reader/'
             CSV Reader: '/9.0/reader/'
