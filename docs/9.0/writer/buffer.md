@@ -13,7 +13,7 @@ CRUD operations, a buffer implements the basic methods in relation to tabular da
 can not handle large tabular data content as all the data is stored in-memory, so it does not takes advantage of
 PHP stream capabilities like the `Reader` or the `Writer` do.
 
-## Instantiation
+## Loading Data into the buffer
 
 The `Buffer` object can be instantiated from any object that implements the `League\Csv\TabularData` like the `Reader`
 or the `ResultSet` classes:
@@ -41,7 +41,33 @@ The `from` supports the following Database Extensions:
 
 <p class="message-info">The <code>Buffer</code> class is mutable. On instantiation, it copies and stores the full source data in-memory.</p>
 
-## Insert Records
+### Generic Importer Logic
+
+The `League\Csv\Buffer` class can also be used to ease importing data from various source to be handled
+by the package. Keep in mind that the codebase to generate an instance may vary depending on the source and
+the size of your data but the logic should stay the same.
+
+```php
+use League\Csv\Buffer;
+use League\Csv\TabularData;
+
+$payload = <<<JSON
+[
+    {"id": 1, "firstname": "Jonn", "lastname": "doe", "email": "john@example.com"},
+    {"id": 2, "firstname": "Jane", "lastname": "doe", "email": "jane@example.com"},
+]
+JSON;
+
+$data = json_decode($payload, true);
+$tabularData = new Buffer(rows: $data, header: array_keys($data[0] ?? []))
+```
+
+## Modifying the buffer data
+
+Because of its in-memory and mutable state, the `Buffer` is best suited to help modifying the data on the fly before
+persisting it on a more suitable storage layer. To do so, the class provide a straightforward CRUP public API.
+
+### Insert Records
 
 The class provides two method to insert records `insertOne` will insert a single record while `insertAll` will insert new records into the instance.
 Because tabular data can have a header or not, both methods accept either a list of values or an array of column names and
@@ -97,7 +123,7 @@ The same will happen if the list does not contain the same number of fields as t
 $buffer->insertOne(['first', 'third']); //will trigger an exception
 ```
 
-## Update or Delete Records
+### Update or Delete Records
 
 The class also provides an `update` and `delete` methods. Those method are responsible for updating or deleting records
 based on some constraints and use the following signature.
@@ -153,7 +179,55 @@ $affectedRowsCount = $buffer->update(Column::filterOn('location', '=', 'Berkeley
 The previous example will update all the rows `location` field from the `Buffer` instance which contains the value `Berkeley`.
 To know more about the predicates you can refer to the `ResultSet` documentation page.
 
-## Select Records
+### Record validation
+
+By default, the `Buffer` instance will only validate the column field names, if a header is provided, otherwise,
+column consistency or column value are ignored. To improve validation you can use a record validator.
+
+The validator is a `callable` or a `Closure` which takes a single record as an `array` as its sole argument and returns
+a `boolean` to indicate if it satisfies the validator rule.
+
+```php
+function(array $record): bool
+```
+
+The validator **must** return `true` to validate the submitted record.
+
+Any other expression, including truthy ones like `yes`, `1` will make the inserting or updating methods throw
+an `League\Csv\CannotInsertRecord` exception.
+
+You can attach as many validators as you want using the `Buffer::addValidator` method. Validators are applied following
+the *First In First Out* rule.
+
+<p class="message-warning">The record is checked against your supplied validators <strong>after it has been checked for field names integrity</strong>.</p>
+
+`Buffer::addValidator` takes two (2) **required** parameters:
+
+- A validator `callable`;
+- A validator name. If another validator was already registered with the given name, it will be overridden.
+
+On failure a `League\Csv\CannotInsertRecord` exception is thrown.
+This exception will give access to:
+
+- the validator name;
+- the record which failed the validation;
+
+```php
+use League\Csv\Buffer;
+use League\Csv\CannotInsertRecord;
+
+$buffer = new Buffer();
+$buffer->addValidator(fn (array $row): bool => 10 == count($row), 'row_must_contain_10_cells');
+
+try {
+    $buffer->insertOne(['john', 'doe', 'john.doe@example.com']);
+} catch (CannotInsertRecord $e) {
+    echo $e->getName(); //displays 'row_must_contain_10_cells'
+    $e->getData();//returns the invalid data ['john', 'doe', 'john.doe@example.com']
+}
+```
+
+## Accessing Buffer data
 
 Since version `9.6` the package provides a common API to works with tabular data like structure. A tabular data
 is data organized in rows and columns. The fact that the package aim at interacting mainly with CSV does not
@@ -210,7 +284,7 @@ $records = new Statement()
 
 `$records` will be a `ResultSet` instance that you can manipulate further more if needed.
 
-## Storing the Buffer data
+## Persisting Buffer data
 
 The `Buffer` content can be store using the `to` method.
 The method takes 2 arguments, the `Writer` class or any class that implements the `TabularWriter` interface and a boolean
@@ -250,28 +324,3 @@ $writer->insertOne($buffer->getHeader());
 
 Of course, you can use any [converter class](/9.0/converter/) that can convert the data into a `Html`, a `Xml` or a `Json` document.
 Or simply, use the class select features to expose the buffer content to your specific storing logic in your codebase;
-
-## Generic Importer Logic
-
-The `League\Csv\Buffer` class can also be used to ease importing data from various source to be handled
-by the package. Keep in mind that the codebase to generate an instance may vary depending on the source and
-the size of your data but the logic should stay the same.
-
-```php
-use League\Csv\Buffer;
-use League\Csv\TabularData;
-
-$payload = <<<JSON
-[
-    {"id": 1, "firstname": "Jonn", "lastname": "doe", "email": "john@example.com"},
-    {"id": 2, "firstname": "Jane", "lastname": "doe", "email": "jane@example.com"},
-]
-JSON;
-
-try {
-    $data = json_decode($payload, true);
-    $tabularData = new Buffer($data, array_keys($data[0] ?? []))
-} catch (Throwable $exception) {
-    throw new ValueError('The provided JSON payload could not be converted into a Tabular Data instance.', previous: $exception);
-}
-```

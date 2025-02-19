@@ -12,6 +12,7 @@
 declare(strict_types=1);
 
 use League\Csv\Buffer;
+use League\Csv\CannotInsertRecord;
 use League\Csv\Query\Constraint\Offset;
 use League\Csv\Writer;
 use PHPUnit\Framework\Attributes\CoversClass;
@@ -680,5 +681,29 @@ SQL;
         ];
 
         self::assertSame($expected, iterator_to_array($dataTable->fetchPairs(1, 2)));
+    }
+
+    #[Test]
+    public function it_can_validate_a_record_on_insertion(): void
+    {
+        $dataTable = new Buffer();
+        $dataTable->addValidator(fn (array $row): bool => $row[1] >= 0, 'func1');
+
+        $this->expectExceptionObject(CannotInsertRecord::triggerOnValidation('func1', ['column1', -1]));
+
+        $dataTable->insertOne(['column1', 1]);
+        $dataTable->insertOne(['column1', -1]);
+    }
+
+    #[Test]
+    public function it_can_validate_a_record_on_update(): void
+    {
+        $dataTable = new Buffer();
+        $dataTable->addValidator(fn (array $row): bool => $row[1] >= 0, 'func1');
+
+        $this->expectExceptionObject(CannotInsertRecord::triggerOnValidation('func1', ['column1', -1]));
+
+        $dataTable->insertOne(['column1', 1]);
+        $dataTable->update(0, [1 => -1]);
     }
 }

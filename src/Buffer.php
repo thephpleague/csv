@@ -59,6 +59,8 @@ final class Buffer implements TabularData
     private readonly array $sortedHeader;
     /** @var array<int, array<array-key, mixed>> */
     private array $rows = [];
+    /** @var array<Closure(array): bool> callable collection to validate the record before insertion. */
+    private array $validators = [];
 
     /**
      * @param iterable<array-key, array<array-key, mixed>> $rows
@@ -282,15 +284,35 @@ final class Buffer implements TabularData
         }
     }
 
+    /**
+     * Adds a record validator.
+     *
+     * @param (callable(array): bool)|(Closure(array): bool) $validator
+     */
+    public function addValidator(callable $validator, string $validator_name): self
+    {
+        $this->validators[$validator_name] = !$validator instanceof Closure ? $validator(...) : $validator;
+
+        return $this;
+    }
+
+    /**
+     * @throws CannotInsertRecord
+     */
     public function insertOne(array $record): int
     {
-        $this->rows[] = $this->formatInsertRecord($record);
+        $record = $this->formatInsertRecord($record);
+
+        $this->validateRecord($record);
+        $this->rows[] = $record;
 
         return 1;
     }
 
     /**
      * @param iterable<array> $records
+     *
+     * @throws CannotInsertRecord
      */
     public function insertAll(iterable $records): int
     {
@@ -304,6 +326,8 @@ final class Buffer implements TabularData
 
     /**
      * @throws QueryException
+     * @throws CannotInsertRecord
+     * @throws SyntaxError
      */
     public function update(Predicate|Closure|callable|array|int $where, array $record): int
     {
@@ -326,6 +350,7 @@ final class Buffer implements TabularData
                     $currentRecord[$index] = $record[$index];
                 }
 
+                $this->validateRecord($currentRecord);
                 $this->rows[$offset] = $currentRecord;
                 $affectedRecords++;
             }
@@ -408,6 +433,18 @@ final class Buffer implements TabularData
         sort($keys);
 
         return $keys === $this->sortedHeader;
+    }
+
+    /**
+     * Validates a record.
+     *
+     * @throws CannotInsertRecord If the validation failed
+     */
+    private function validateRecord(array $record): void
+    {
+        foreach ($this->validators as $name => $validator) {
+            true === $validator($record) || throw CannotInsertRecord::triggerOnValidation($name, $record);
+        }
     }
 
     private function filterUpdateRecord(array $record): bool
