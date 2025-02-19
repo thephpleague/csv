@@ -30,6 +30,7 @@ $stmt = $db->query("SELECT * FROM users");
 $stmt instanceof SQLite3Result || throw new RuntimeException('SQLite3 results not available');
 
 $user24 = Buffer::from($stmt)->nth(23);
+// returns ['id' => 42, 'firstname' => 'john', 'lastname' => 'doe', ...]
 ```
 
 The `from` supports the following Database Extensions:
@@ -40,6 +41,22 @@ The `from` supports the following Database Extensions:
 - PDO (`PDOStatement` object)
 
 <p class="message-info">The <code>Buffer</code> class is mutable. On instantiation, it copies and stores the full source data in-memory.</p>
+
+You can tell the `Buffer` instance to exclude the header when importing the data using the `from` named constructor
+using the method second optional argument with one of the class public constant:
+
+- `Buffer::INCLUDE_HEADER`
+- `Buffer::EXCLUDE_HEADER`
+
+```php
+$db = new SQLite3( '/path/to/my/db.sqlite');
+$stmt = $db->query("SELECT * FROM users");
+$stmt instanceof SQLite3Result || throw new RuntimeException('SQLite3 results not available');
+
+$user24 = Buffer::from($stmt, Buffer::EXCLUDE_HEADER)->nth(23);
+//will return a list of properties without any column name attach to them!!
+// returns [42, 'john', 'doe', ...]
+```
 
 ### Generic Importer Logic
 
@@ -227,6 +244,72 @@ try {
 }
 ```
 
+## Persisting Buffer data
+
+The `Buffer` content can be store using the `to` method. The method takes 2 arguments, the `Writer` class or any class
+that implements the `TabularWriter` interface and the same  second optional argument used with the `from` method to tell
+whether the header should also be written as the first line in the stored persistence layer using the
+`TabularWriter` or not.
+
+```php
+use League\Csv\Buffer;
+use League\Csv\Writer;
+
+$reader = Reader::createFromPath('/path/to/input.csv');
+$reader->setHeaderOffset(0);
+$buffer = Buffer::from($reader->slice(0, 30000)));
+
+// apply some CRUD operation or not depending
+// on your business logic
+
+$writer = Writer::createFromPath('/path/to/output.csv');
+$buffer->to($writer, Buffer::EXCLUDE_HEADER);
+```
+
+If the header is present it will be the first entry to be written if you need to write the header on another
+line you should manually store the `Buffer` instance using your own code as shown bellow:
+
+```php
+use League\Csv\Buffer;
+use League\Csv\Reader;
+use League\Csv\Writer;
+
+$reader = Reader::createFromPath('/path/to/input.csv');
+$reader->setHeaderOffset(0);
+$buffer = Buffer::from($reader->slice(0, 30_000)));
+
+// apply some CRUD operation or not depending
+// on your business logic
+
+$writer = Writer::createFromPath('/path/to/output.csv');
+$writer->insertAll($buffer->getRecords());
+$writer->insertOne($buffer->getHeader());
+```
+
+Of course, you can use any [converter class](/9.0/converter/) that can convert the data into
+a `HTML`, a `XML` or a `Json` document.
+
+```php
+use League\Csv\Buffer;
+use League\Csv\JsonConverter;
+use League\Csv\Reader;
+
+$reader = Reader::createFromPath('/path/to/input.csv');
+$reader->setHeaderOffset(0);
+$buffer = Buffer::from($reader->slice(0, 30_000)));
+
+// apply some CRUD operation or not depending
+// on your business logic
+
+(new JsonConverter())
+    ->withPrettyPrint(2)
+    ->withUnescapedSlashes()
+    ->withoutUnescapedUnicode()
+    ->save($buffer->getRecords(), '/path/to/output.json')
+```
+
+Or simply, use the class select features to expose the buffer content to your specific storing logic in your codebase;
+
 ## Accessing Buffer data
 
 Since version `9.6` the package provides a common API to works with tabular data like structure. A tabular data
@@ -257,10 +340,11 @@ interface TabularData
 }
 ```
 
-The `Buffer` class implements the  `TabularData` interface, if you already are familiar with the `Reader` class
-then you will be familiar with the API. You may refer to the tabular data reader API to see how these methods at work.
+The `Buffer` class implements the `TabularData` interface, if you already are familiar with the `Reader` class
+then you will be familiar with the API. You may refer to the [tabular data reader API](/9.0/reader/tabular-data-reader/)
+documentation to see how these methods work.
 
-If you need more advanced filtering capabilities you can still use a `Statement` class on it.
+If you need more advanced filtering capabilities you can use the [Statement](/9.0/reader/statement/) class for that.
 
 ```php
 use League\Csv\Buffer;
@@ -284,43 +368,22 @@ $records = new Statement()
 
 `$records` will be a `ResultSet` instance that you can manipulate further more if needed.
 
-## Persisting Buffer data
-
-The `Buffer` content can be store using the `to` method.
-The method takes 2 arguments, the `Writer` class or any class that implements the `TabularWriter` interface and a boolean
-`$includeHeader` that tells if the header should also be written using the `TabularWriter` or not.
+Last but not least, since the `Buffer` is an in-memory tabular data it exposes the following 2 (two) methods `Buffer::isEmpty`
+and `Buffer::includeHeader` to quickly know if the instance contains a defined header and if it has already some records in it.
 
 ```php
-use League\Csv\Writer;
+use League\Csv\Buffer;
+use League\Csv\Reader;
+use League\Csv\Statement;
 
-$reader = Reader::createFromPath('/path/to/input.csv');
+$reader = Reader::createFromPath('/path/to/file.csv');
 $reader->setHeaderOffset(0);
 $buffer = Buffer::from($reader->slice(0, 30000)));
 
-// apply some CRUD operation or not depending
-// on your business logic
+$buffer->isEmpty();       // return false
+$buffer->includeHeader(); // return true
 
-$writer = Writer::createFromPath('/path/to/output.csv');
-$buffer->to($writer);
+$emptyBuffer = new Buffer();
+$emptyBuffer->isEmpty();       // return true
+$emptyBuffer->includeHeader(); // return false
 ```
-
-If the header is present it will be the first entry to be written if you need to write the header on another line you should
-manually store the `Buffer` instance using your own code as shown bellow:
-
-```php
-use League\Csv\Writer;
-
-$reader = Reader::createFromPath('/path/to/input.csv');
-$reader->setHeaderOffset(0);
-$buffer = Buffer::from($reader->slice(0, 30000)));
-
-// apply some CRUD operation or not depending
-// on your business logic
-
-$writer = Writer::createFromPath('/path/to/output.csv');
-$writer->insertAll($buffer->getRecords());
-$writer->insertOne($buffer->getHeader());
-```
-
-Of course, you can use any [converter class](/9.0/converter/) that can convert the data into a `Html`, a `Xml` or a `Json` document.
-Or simply, use the class select features to expose the buffer content to your specific storing logic in your codebase;

@@ -7,15 +7,15 @@ version:
         Connections Settings:
             Overview: '/9.0/connections/'
             Document Loading: '/9.0/connections/instantiation/'
+            Document Output: '/9.0/connections/output/'
             Character Controls: '/9.0/connections/controls/'
-            Charset Converter: '/9.0/converter/charset/'
             BOM Sequence: '/9.0/connections/bom/'
-            Document output: '/9.0/connections/output/'
+            Charset Converter: '/9.0/converter/charset/'
             Stream Filters: '/9.0/connections/filters/'
         Inserting Records:
             CSV Writer: '/9.0/writer/'
-            Bundled Helpers: '/9.0/writer/helpers/'
             Tabular Data Buffer: '/9.0/writer/buffer/'
+            Bundled Helpers: '/9.0/writer/helpers/'
         Selecting Records:
             Tabular Data Reader: '/9.0/reader/tabular-data-reader/'
             CSV Reader: '/9.0/reader/'

@@ -32,30 +32,3 @@ $writer->insertOne(["foo", "bar"]); //will trigger a CannotInsertRecord exceptio
 ## Charset formatter
 
 [League\Csv\CharsetConverter](/9.0/converter/charset/) will help you encode your records depending on your settings.
-
-```php
-use League\Csv\CharsetConverter;
-use League\Csv\Writer;
-
-$writer = Writer::createFromPath('/path/to/your/csv/file.csv');
-$formatter = (new CharsetConverter())
-    ->inputEncoding('utf-8')
-    ->outputEncoding('iso-8859-15')
-;
-$writer->addFormatter($formatter);
-$writer->insertOne(["foo", "bébé", "jouet"]);
-//all 'utf-8' characters are now automatically encoded into 'iso-8859-15' charset
-```
-
-If your `Writer` object supports PHP stream filters then it's recommended to use the `CharsetConverter` object via the library [stream filtering mechanism](/9.0/connections/filters/) instead, as shown below:
-
-```php
-use League\Csv\CharsetConverter;
-use League\Csv\Writer;
-
-$writer = Writer::createFromPath('/path/to/your/csv/file.csv');
-CharsetConverter::addTo($writer, 'utf-8', 'iso-8859-15');
-
-$writer->insertOne(["foo", "bébé", "jouet"]);
-//all 'utf-8' characters are now automatically encoded into 'iso-8859-15' charset
-```

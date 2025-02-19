@@ -41,6 +41,8 @@ final class BufferTest extends TestCase
             $dataTable->nth(0)
         );
         self::assertSame(6, $dataTable->recordCount());
+        self::assertTrue($dataTable->includeHeader());
+        self::assertFalse($dataTable->isEmpty());
 
         $weather = new class (new DateTimeImmutable(), 6, 'Brussels') {
             public function __construct(
@@ -69,6 +71,8 @@ final class BufferTest extends TestCase
         ]);
 
         self::assertSame([], $dataTable->getHeader());
+        self::assertFalse($dataTable->includeHeader());
+        self::assertFalse($dataTable->isEmpty());
         self::assertSame(['2011-01-01', '1', 'Galway'], $dataTable->nth(0));
         self::assertSame([], $dataTable->nth(42));
         self::assertSame(6, $dataTable->recordCount());
@@ -141,7 +145,8 @@ final class BufferTest extends TestCase
     public function it_will_return_no_rows_if_non_rows_are_supplied(): void
     {
         $emptyDataTable = new Buffer();
-
+        self::assertFalse($emptyDataTable->includeHeader());
+        self::assertTrue($emptyDataTable->isEmpty());
         self::assertSame([], $emptyDataTable->getHeader());
         self::assertSame(0, $emptyDataTable->recordCount());
 
@@ -334,7 +339,7 @@ SQL;
         self::assertSame(6, $tabularData->recordCount());
         self::assertSame(
             [1, 'Ronnie', 'ronnie@example.com'],
-            Buffer::from($tabularData, false)->nth(0)
+            Buffer::from($tabularData, Buffer::EXCLUDE_HEADER)->nth(0)
         );
     }
 
@@ -374,7 +379,7 @@ SQL;
         $stmt = $db->prepare('SELECT * FROM users');
         /** @var SQLite3Result $result */
         $result = $stmt->execute();
-        $tabularData = Buffer::from($result, false);
+        $tabularData = Buffer::from($result, Buffer::EXCLUDE_HEADER);
 
         self::assertSame([], $tabularData->getHeader());
         self::assertSame(6, $tabularData->recordCount());
@@ -451,7 +456,7 @@ SQL;
 
         $stmt = $connection->prepare('SELECT * FROM users');
         $stmt->execute();
-        $tabularData = Buffer::from($stmt, false);
+        $tabularData = Buffer::from($stmt, Buffer::EXCLUDE_HEADER);
 
         self::assertSame([], $tabularData->getHeader());
         self::assertSame(6, $tabularData->recordCount());
@@ -611,7 +616,7 @@ SQL;
         ], ['date', 'temperature']);
 
         $writer = Writer::createFromString();
-        $res = $dataTable->to($writer, false);
+        $res = $dataTable->to($writer, Buffer::EXCLUDE_HEADER);
 
         self::assertSame(27, $res);
         self::assertSame("2011-01-01,1\n2011-01-02,-1\n", $writer->toString());

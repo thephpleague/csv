@@ -53,6 +53,9 @@ use function iterator_to_array;
 
 final class Buffer implements TabularData
 {
+    public const INCLUDE_HEADER = 1;
+    public const EXCLUDE_HEADER = 2;
+
     /** @var list<string>|array{} */
     private readonly array $header;
     /** @var list<string>|array{} */
@@ -87,10 +90,10 @@ final class Buffer implements TabularData
      *
      * @throws RuntimeException|SyntaxError If the column names can not be found
      */
-    public static function from(PDOStatement|Result|mysqli_result|SQLite3Result|TabularData $dataStorage, bool $includeHeader = true): self
+    public static function from(PDOStatement|Result|mysqli_result|SQLite3Result|TabularData $dataStorage, int $options = self::INCLUDE_HEADER): self
     {
         if ($dataStorage instanceof TabularData) {
-            if ($includeHeader) {
+            if (self::INCLUDE_HEADER === $options) {
                 $instance = new self(header: $dataStorage->getHeader());
                 $instance->rows = iterator_to_array($dataStorage->getRecords(), false);
 
@@ -103,7 +106,7 @@ final class Buffer implements TabularData
             return $instance;
         }
 
-        if ($includeHeader) {
+        if (self::INCLUDE_HEADER === $options) {
             $instance = new self(header: RdbmsResult::columnNames($dataStorage));
             $instance->rows = RdbmsResult::rows($dataStorage);
 
@@ -120,15 +123,25 @@ final class Buffer implements TabularData
      * @throws CannotInsertRecord
      * @throws Exception
      */
-    public function to(TabularDataWriter $dataStorage, bool $includeHeader = true): int
+    public function to(TabularDataWriter $dataStorage, int $options = self::INCLUDE_HEADER): int
     {
         $bytes = 0;
         $header = $this->getHeader();
-        if ($includeHeader && [] !== $header) {
+        if (self::INCLUDE_HEADER === $options && [] !== $header) {
             $bytes += $dataStorage->insertOne($header);
         }
 
         return $bytes + $dataStorage->insertAll($this->getRecords()); /* @phpstan-ignore-line */
+    }
+
+    public function isEmpty(): bool
+    {
+        return [] === $this->rows;
+    }
+
+    public function includeHeader(): bool
+    {
+        return [] !== $this->header;
     }
 
     public function recordCount(): int
@@ -301,10 +314,7 @@ final class Buffer implements TabularData
      */
     public function insertOne(array $record): int
     {
-        $record = $this->formatInsertRecord($record);
-
-        $this->validateRecord($record);
-        $this->rows[] = $record;
+        $this->rows[] = $this->validateRecord($this->formatInsertRecord($record));
 
         return 1;
     }
@@ -347,11 +357,10 @@ final class Buffer implements TabularData
         foreach ($this->getRecords() as $offset => $currentRecord) {
             if ($where($currentRecord, $offset)) {
                 foreach ($record as $index => $value) {
-                    $currentRecord[$index] = $record[$index];
+                    $currentRecord[$index] = $value;
                 }
 
-                $this->validateRecord($currentRecord);
-                $this->rows[$offset] = $currentRecord;
+                $this->rows[$offset] = $this->validateRecord($currentRecord);
                 $affectedRecords++;
             }
         }
@@ -440,11 +449,13 @@ final class Buffer implements TabularData
      *
      * @throws CannotInsertRecord If the validation failed
      */
-    private function validateRecord(array $record): void
+    private function validateRecord(array $record): array
     {
         foreach ($this->validators as $name => $validator) {
             true === $validator($record) || throw CannotInsertRecord::triggerOnValidation($name, $record);
         }
+
+        return $record;
     }
 
     private function filterUpdateRecord(array $record): bool
