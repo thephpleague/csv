@@ -64,7 +64,7 @@ class ResultSet implements TabularDataReader, JsonSerializable
      *
      * @throws SyntaxError
      */
-    public function __construct(Iterator|array $records, array $header = [])
+    public function __construct(Iterator|array $records = [], array $header = [])
     {
         $header === array_filter($header, is_string(...)) || throw SyntaxError::dueToInvalidHeaderColumnNames();
 
@@ -109,10 +109,10 @@ class ResultSet implements TabularDataReader, JsonSerializable
     public static function from(PDOStatement|Result|mysqli_result|SQLite3Result|TabularData $tabularData): self
     {
         if (!$tabularData instanceof TabularData) {
-            $tabularData = RdbmsResult::from($tabularData);
+            return new self(RdbmsResult::iteratorRows($tabularData), RdbmsResult::columnNames($tabularData));
         }
 
-        return new self($tabularData->getIterator(), $tabularData->getHeader());
+        return new self($tabularData->getRecords(), $tabularData->getHeader());
     }
 
     public function __destruct()
@@ -477,9 +477,14 @@ class ResultSet implements TabularDataReader, JsonSerializable
         };
     }
 
-    public function count(): int
+    public function recordCount(): int
     {
         return iterator_count($this->records);
+    }
+
+    public function count(): int
+    {
+        return $this->recordCount();
     }
 
     public function jsonSerialize(): array
@@ -500,11 +505,11 @@ class ResultSet implements TabularDataReader, JsonSerializable
         };
     }
 
-    public function nth(int $nth_record): array
+    public function nth(int $nth): array
     {
-        0 <= $nth_record || throw InvalidArgument::dueToInvalidRecordOffset($nth_record, __METHOD__);
+        0 <= $nth || throw InvalidArgument::dueToInvalidRecordOffset($nth, __METHOD__);
 
-        $iterator = new LimitIterator($this->getIterator(), $nth_record, 1);
+        $iterator = new LimitIterator($this->getIterator(), $nth, 1);
         $iterator->rewind();
 
         /** @var array|null $result */
@@ -625,7 +630,7 @@ class ResultSet implements TabularDataReader, JsonSerializable
         };
     }
 
-    public function fetchPairs($offset_index = 0, $value_index = 1): Iterator
+    public function fetchPairs(string|int $offset_index = 0, string|int $value_index = 1): Iterator
     {
         $offset = $this->getColumnIndex($offset_index, 'offset', __METHOD__);
         $value = $this->getColumnIndex($value_index, 'value', __METHOD__);

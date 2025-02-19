@@ -13,239 +13,79 @@ declare(strict_types=1);
 
 namespace League\Csv;
 
-use ArrayIterator;
 use Iterator;
 use mysqli_result;
-use OutOfBoundsException;
 use PDO;
 use PDOStatement;
 use PgSql\Result;
 use RuntimeException;
-use SeekableIterator;
 use SQLite3Result;
-use Throwable;
 
 use function array_column;
 use function array_map;
 use function pg_fetch_assoc;
 use function pg_field_name;
 use function pg_num_fields;
-use function pg_result_seek;
 use function range;
 
 use const SQLITE3_ASSOC;
 
 final class RdbmsResult
 {
-    public static function tryFrom(PDOStatement|Result|mysqli_result|SQLite3Result $result): ?TabularData
-    {
-        try {
-            return self::from($result);
-        } catch (Throwable) {
-            return null;
-        }
-    }
-
-    /**
-     * @throws RuntimeException If the DB result is unknown or unsupported
-     */
-    public static function from(PDOStatement|Result|mysqli_result|SQLite3Result $result): TabularData
-    {
-        return new DataTable(self::rows($result), self::columnNames($result));
-    }
-
     /**
      * @throws RuntimeException If no column names information is found.
      *
-     * @return array<string>
+     * @return list<string>
      */
     public static function columnNames(PDOStatement|Result|mysqli_result|SQLite3Result $result): array
     {
         return match (true) {
-            $result instanceof PDOStatement => array_map(
-                function (int $index) use ($result): string {
-                    $metadata = $result->getColumnMeta($index);
-                    false !== $metadata || throw new RuntimeException('Unable to get metadata for column '.$index);
-
-                    return $metadata['name'];
-                },
-                range(0, $result->columnCount() - 1)
-            ),
-            $result instanceof Result => array_map(fn (int $index) => pg_field_name($result, $index), range(0, pg_num_fields($result) - 1)),
             $result instanceof mysqli_result => array_column($result->fetch_fields(), 'name'),
+            $result instanceof Result => array_map(fn (int $index) => pg_field_name($result, $index), range(0, pg_num_fields($result) - 1)),
             $result instanceof SQLite3Result => array_map($result->columnName(...), range(0, $result->numColumns() - 1)),
+            $result instanceof PDOStatement => array_map(fn (int $index): string => $result->getColumnMeta($index)['name'] ?? throw new RuntimeException('Unable to get metadata for column '.$index), range(0, $result->columnCount() - 1)),
         };
     }
 
     /**
-     * @return Iterator<array-key, array<array-key, mixed>>
+     * @return array<int, array<array-key, mixed>>
      */
-    public static function rows(PDOStatement|Result|mysqli_result|SQLite3Result $result): Iterator
+    public static function rows(PDOStatement|Result|mysqli_result|SQLite3Result $result): array
     {
-        return match (true) {
-            $result instanceof SQLite3Result => new class ($result) implements Iterator {
-                private array|false $current;
-                private int $key = 0;
+        if ($result instanceof PDOStatement) {
+            return $result->fetchAll(PDO::FETCH_ASSOC);
+        }
 
-                public function __construct(private readonly SQLite3Result $result)
-                {
-                }
+        /** @var array<int, array<array-key, mixed>> $records */
+        $records = [];
+        if ($result instanceof mysqli_result) {
+            while ($record = $result->fetch_assoc()) {
+                $records[] = $record;
+            }
 
-                public function rewind(): void
-                {
-                    $this->result->reset();
-                    $this->current = $this->result->fetchArray(SQLITE3_ASSOC);
-                    $this->key = 0;
-                }
+            return $records;
+        }
 
-                public function current(): array|false
-                {
-                    return $this->current;
-                }
+        if ($result instanceof Result) {
+            while ($record = pg_fetch_assoc($result)) {
+                $records[] = $record;
+            }
 
-                public function key(): string|int|null
-                {
-                    return $this->key;
-                }
+            return $records;
+        }
 
-                public function next(): void
-                {
-                    $this->current = $this->result->fetchArray(SQLITE3_ASSOC);
-                    $this->key++;
-                }
+        while ($record = $result->fetchArray(SQLITE3_ASSOC)) {
+            $records[] = $record;
+        }
 
-                public function valid(): bool
-                {
-                    return false !== $this->current;
-                }
-            },
-            $result instanceof mysqli_result => new class ($result) implements SeekableIterator {
-                private array|false|null $current;
-                private int $key = 0;
+        return $records;
+    }
 
-                public function __construct(private readonly mysqli_result $result)
-                {
-                }
-
-                public function seek(int $offset): void
-                {
-                    if (!$this->result->data_seek($offset)) {
-                        throw new OutOfBoundsException('Unable to seek to offset '.$offset);
-                    }
-                }
-
-                public function rewind(): void
-                {
-                    $this->seek(0);
-                    $this->current = $this->result->fetch_assoc();
-                    $this->key = 0;
-                }
-
-                public function current(): array|false|null
-                {
-                    return $this->current;
-                }
-
-                public function key(): string|int|null
-                {
-                    return $this->key;
-                }
-
-                public function next(): void
-                {
-                    $this->current = $this->result->fetch_assoc();
-                    $this->key++;
-                }
-
-                public function valid(): bool
-                {
-                    return false !== $this->current
-                        && null !== $this->current;
-                }
-            },
-            $result instanceof Result => new class ($result) implements SeekableIterator {
-                private array|false|null $current;
-                private int $key = 0;
-
-                public function __construct(private readonly Result $result)
-                {
-                }
-
-                public function seek(int $offset): void
-                {
-                    if (!pg_result_seek($this->result, $offset)) {
-                        throw new OutOfBoundsException('Unable to seek to offset '.$offset);
-                    }
-                }
-
-                public function rewind(): void
-                {
-                    $this->seek(0);
-                    $this->current = pg_fetch_assoc($this->result);
-                    $this->key = 0;
-                }
-
-                public function current(): array|false|null
-                {
-                    return $this->current;
-                }
-
-                public function key(): string|int|null
-                {
-                    return $this->key;
-                }
-
-                public function next(): void
-                {
-                    $this->current = pg_fetch_assoc($this->result);
-                    $this->key++;
-                }
-
-                public function valid(): bool
-                {
-                    return false !== $this->current
-                        && null !== $this->current;
-                }
-            },
-            $result instanceof PDOStatement => new class ($result) implements SeekableIterator {
-                private ?ArrayIterator $cacheIterator;
-
-                public function __construct(private readonly PDOStatement $result)
-                {
-                }
-
-                public function seek(int $offset): void
-                {
-                    $this->cacheIterator ??= new ArrayIterator($this->result->fetchAll(PDO::FETCH_ASSOC));
-                    $this->cacheIterator->seek($offset);
-                }
-
-                public function rewind(): void
-                {
-                    $this->cacheIterator ??= new ArrayIterator($this->result->fetchAll(PDO::FETCH_ASSOC));
-                    $this->cacheIterator->rewind();
-                }
-
-                public function current(): mixed
-                {
-                    return $this->cacheIterator?->current() ?? false;
-                }
-
-                public function key(): string|int|null
-                {
-                    return $this->cacheIterator?->key() ?? null;
-                }
-
-                public function next(): void
-                {
-                    $this->cacheIterator?->next();
-                }
-
-                public function valid(): bool
-                {
-                    return $this->cacheIterator?->valid() ?? false;
-                }
-            },
-        };
+    /**
+     * @return Iterator<int, array<array-key, mixed>>
+     */
+    public static function iteratorRows(PDOStatement|Result|mysqli_result|SQLite3Result $result): Iterator
+    {
+        return MapIterator::toIterator(self::rows($result));
     }
 }

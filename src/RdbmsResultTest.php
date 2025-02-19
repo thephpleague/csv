@@ -21,8 +21,6 @@ use SQLite3Exception;
 use SQLite3Result;
 use SQLite3Stmt;
 
-use function iterator_to_array;
-
 final class RdbmsResultTest extends TestCase
 {
     #[Test]
@@ -62,10 +60,10 @@ SQL;
         /** @var SQLite3Result $result */
         $result = $stmt->execute();
         /** @var TabularData $tabularData */
-        $tabularData = RdbmsResult::tryFrom($result);
+        $tabularData = ResultSet::tryFrom($result);
 
         self::assertSame(['id', 'name', 'email'], $tabularData->getHeader());
-        self::assertCount(6, iterator_to_array($tabularData));
+        self::assertSame(6, $tabularData->recordCount());
         self::assertSame(
             ['id' => 1, 'name' => 'Ronnie', 'email' => 'ronnie@example.com'],
             ResultSet::from($tabularData)->first()
@@ -103,10 +101,10 @@ SQL;
         $stmt = $connection->prepare('SELECT * FROM users');
         $stmt->execute();
         /** @var TabularData $tabularData */
-        $tabularData = RdbmsResult::tryFrom($stmt);
+        $tabularData = ResultSet::tryFrom($stmt);
 
         self::assertSame(['id', 'name', 'email'], $tabularData->getHeader());
-        self::assertCount(6, iterator_to_array($tabularData));
+        self::assertSame(6, $tabularData->recordCount());
         self::assertSame(
             ['id' => 1, 'name' => 'Ronnie', 'email' => 'ronnie@example.com'],
             ResultSet::from($tabularData)->first()

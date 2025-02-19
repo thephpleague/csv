@@ -259,9 +259,9 @@ class Reader extends AbstractCsv implements TabularDataReader, JsonSerializable
     /**
      * @throws Exception
      */
-    public function nth(int $nth_record): array
+    public function nth(int $nth): array
     {
-        return ResultSet::from($this)->nth($nth_record);
+        return ResultSet::from($this)->nth($nth);
     }
 
     /**
@@ -284,7 +284,7 @@ class Reader extends AbstractCsv implements TabularDataReader, JsonSerializable
         return ResultSet::from($this)->firstAsObject($className, $header);
     }
 
-    public function fetchPairs($offset_index = 0, $value_index = 1): Iterator
+    public function fetchPairs(string|int $offset_index = 0, string|int $value_index = 1): Iterator
     {
         return ResultSet::from($this)->fetchPairs($offset_index, $value_index);
     }
@@ -292,13 +292,21 @@ class Reader extends AbstractCsv implements TabularDataReader, JsonSerializable
     /**
      * @throws Exception
      */
-    public function count(): int
+    public function recordCount(): int
     {
         if (-1 === $this->nb_records) {
             $this->nb_records = iterator_count($this->getRecords());
         }
 
         return $this->nb_records;
+    }
+
+    /**
+     * @throws Exception
+     */
+    public function count(): int
+    {
+        return $this->recordCount();
     }
 
     /**

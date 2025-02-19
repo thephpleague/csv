@@ -65,6 +65,20 @@ class XMLConverter
         };
     }
 
+    public static function supportsHeader(array $header): bool
+    {
+        $document = self::newXmlDocument(XMLDocument::class);
+        foreach ($header as $header_value) {
+            try {
+                $document->createElement($header_value);
+            } catch (Throwable) {
+                return false;
+            }
+        }
+
+        return [] !== $header;
+    }
+
     public function __construct()
     {
     }
@@ -274,20 +288,6 @@ class XMLConverter
         $document->appendChild($this->import($records, $document));
 
         return $document;
-    }
-
-    public static function supportsHeader(array $header): bool
-    {
-        $document = self::newXmlDocument(XMLDocument::class);
-        foreach ($header as $header_value) {
-            try {
-                $res = $document->createElement($header_value)->tagName;
-            } catch (Throwable) {
-                return false;
-            }
-        }
-
-        return [] !== $header;
     }
 
     /**

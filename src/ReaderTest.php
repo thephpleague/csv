@@ -52,7 +52,7 @@ final class ReaderTest extends TabularDataReaderTestCase
         unset($this->csv);
     }
 
-    protected function tabularData(): TabularDataReader
+    protected function tabularDataWithoutHeader(): TabularDataReader
     {
         $csv = <<<CSV
 date,temperature,place

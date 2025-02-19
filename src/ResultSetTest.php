@@ -49,9 +49,9 @@ final class ResultSetTest extends TabularDataReaderTestCase
         unset($this->csv, $this->stmt);
     }
 
-    protected function tabularData(): TabularDataReader
+    protected function tabularDataWithoutHeader(): TabularDataReader
     {
-        return ResultSet::from(new DataTable([
+        return new ResultSet([
             ['date', 'temperature', 'place'],
             ['2011-01-01', '1', 'Galway'],
             ['2011-01-02', '-1', 'Galway'],
@@ -59,19 +59,19 @@ final class ResultSetTest extends TabularDataReaderTestCase
             ['2011-01-01', '6', 'Berkeley'],
             ['2011-01-02', '8', 'Berkeley'],
             ['2011-01-03', '5', 'Berkeley'],
-        ], []));
+        ], []);
     }
 
     protected function tabularDataWithHeader(): TabularDataReader
     {
-        return ResultSet::from(new DataTable([
+        return new ResultSet([
             ['2011-01-01', '1', 'Galway'],
             ['2011-01-02', '-1', 'Galway'],
             ['2011-01-03', '0', 'Galway'],
             ['2011-01-01', '6', 'Berkeley'],
             ['2011-01-02', '8', 'Berkeley'],
             ['2011-01-03', '5', 'Berkeley'],
-        ], ['date', 'temperature', 'place']));
+        ], ['date', 'temperature', 'place']);
     }
 
     public function testFilter(): void
