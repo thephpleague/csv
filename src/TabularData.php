@@ -20,6 +20,7 @@ use Iterator;
  * @method object|null nthAsObject(int $nth, string $className, array $header = []) returns the nth record from the tabular data as an instance of the defined class name.
  * @method Iterator map(callable $callback) Run a map over each container record.
  * @method Iterator getRecordsAsObject(string $className, array $header = []) Returns the tabular data records as an iterator object containing instance of the defined class name.
+ * @method int recordCount() Returns the number of records contained in the tabular data structure excluding the header even if it is present
  */
 interface TabularData
 {
@@ -45,7 +46,7 @@ interface TabularData
      * filled with null values while extra record fields are strip from
      * the returned object.
      *
-     * @param array<string> $header an optional header mapper to use instead of the CSV document header
+     * @param array<int, string> $header an optional header mapper to use instead of the tabular data header
      *
      * @return Iterator<array-key, array<array-key, mixed>>
      */
@@ -78,10 +79,4 @@ interface TabularData
      * @throws UnableToProcessCsv if the column index is invalid or not found
      */
     public function fetchPairs(string|int $offset_index = 0, string|int $value_index = 1): Iterator;
-
-    /**
-     * Returns the number of records contained in the tabular data structure
-     * excluding the header record.
-     */
-    public function recordCount(): int;
 }

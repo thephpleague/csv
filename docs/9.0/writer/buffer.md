@@ -15,14 +15,22 @@ PHP stream capabilities like the `Reader` or the `Writer` do.
 
 ## Loading Data into the buffer
 
-The `Buffer` object can be instantiated from any object that implements the `League\Csv\TabularData` like the `Reader`
-or the `ResultSet` classes:
+### Using the package classes
+
+The `Buffer` object can be instantiated from any object that implements the package `TabularData` interface
+like the `Reader` or the `ResultSet` classes:
 
 ```php
 $buffer = Buffer::from(Reader::createFromPath('path/to/file.csv'));
+//or
+$document = Reader::createFromPath('path/to/file.csv');
+$document->setHeaderOffset(0);       
+$altBuffer = Buffer::from($document->slice(0, 30_000));
 ```
 
-Apart from `TabularData` implementing object, the method also accepts results from RDBMS query as shown below:
+### Using RDBMS result
+
+The `from` method also accepts results from RDBMS query as shown below:
 
 ```php
 $db = new SQLite3( '/path/to/my/db.sqlite');
@@ -33,17 +41,15 @@ $user24 = Buffer::from($stmt)->nth(23);
 // returns ['id' => 42, 'firstname' => 'john', 'lastname' => 'doe', ...]
 ```
 
-The `from` supports the following Database Extensions:
+The method supports the following Database Extensions:
 
 - SQLite3 (`SQLite3Result` object)
 - MySQL Improved Extension (`mysqli_result` object)
 - PostgreSQL (`PgSql\Result` object returned by the `pg_get_result`)
 - PDO (`PDOStatement` object)
 
-<p class="message-info">The <code>Buffer</code> class is mutable. On instantiation, it copies and stores the full source data in-memory.</p>
-
-You can tell the `Buffer` instance to exclude the header when importing the data using the `from` named constructor
-using the method second optional argument with one of the class public constant:
+You can tell the `Buffer` instance to include or exclude the header when importing the data using the
+second optional argument of the `from` named constructor with one of the class public constant:
 
 - `Buffer::INCLUDE_HEADER`
 - `Buffer::EXCLUDE_HEADER`
@@ -56,6 +62,7 @@ $stmt instanceof SQLite3Result || throw new RuntimeException('SQLite3 results no
 $user24 = Buffer::from($stmt, Buffer::EXCLUDE_HEADER)->nth(23);
 //will return a list of properties without any column name attach to them!!
 // returns [42, 'john', 'doe', ...]
+// the header information will be lost and not header data will be present
 ```
 
 ### Generic Importer Logic
@@ -76,68 +83,123 @@ $payload = <<<JSON
 JSON;
 
 $data = json_decode($payload, true);
-$tabularData = new Buffer(rows: $data, header: array_keys($data[0] ?? []))
+$tabularData = new Buffer(array_keys($data[0] ?? []));
+$tabularData->insert(...$data);
 ```
+
+### Buffer state
+
+<p class="message-info">The <code>Buffer</code> class is mutable. On instantiation,
+it copies and stores the full source data in-memory.</p>
+
+Once loaded, at any given moment, the `Buffer` exposes the following 2 (two) methods
+`Buffer::hasHeader` and `Buffer::isEmpty` to tell whether the instance contains a
+defined header and/or if it has already some records in it.
+
+```php
+use League\Csv\Buffer;
+use League\Csv\Reader;
+use League\Csv\Statement;
+
+$reader = Reader::createFromPath('/path/to/file.csv');
+$reader->setHeaderOffset(0);
+
+$buffer = Buffer::from($reader->slice(0, 30_000)));
+$buffer->isEmpty();   // return false
+$buffer->hasHeader(); // return true
+
+$emptyBuffer = new Buffer();
+$emptyBuffer->isEmpty();   // return true
+$emptyBuffer->hasHeader(); // return false
+```
+
+<p class="message-notice">The <code>Buffer</code> header can not be changed once the object
+has been instantiated. To change the header you are required to create a new
+<code>Buffer</code> instance.</p>
 
 ## Modifying the buffer data
 
-Because of its in-memory and mutable state, the `Buffer` is best suited to help modifying the data on the fly before
-persisting it on a more suitable storage layer. To do so, the class provide a straightforward CRUP public API.
+Because of its in-memory and mutable state, the `Buffer` is best suited to help modifying
+the data on the fly before persisting it on a more suitable storage layer. To do so, the
+class provides a straightforward CRUD public API.
 
 ### Insert Records
 
-The class provides two method to insert records `insertOne` will insert a single record while `insertAll` will insert new records into the instance.
-Because tabular data can have a header or not, both methods accept either a list of values or an array of column names and
-values as shown below:
+The class provides the `insert` method to add records to the instance. Because tabular data
+can have a header or not the method accepts either a variadic list of records values
+or of associative arrays as shown below:
 
 ```php
-$buffer = Buffer::from(Reader::createFromPath('path/to/file.csv'));
-$affectedRowsCount = $buffer->insertAll([['first', 'second', 'third']]);
-$affectedRowsCount = $buffer->insertOne(['first', 'second', 'third']);
+$buffer = new Buffer(); 
+$buffer->getHeader(); // returns []
+$buffer->hasHeader(); // return false
+$buffer->insert(
+    ['moko', 'mibalé', 'misató'], 
+    [
+        'first column' => 'un', 
+        'second column' => 'deux', 
+        'third column' => 'trois',
+    ],
+    ['one', 'two', 'three'],
+); // returns 3
+
+return iterator_to_array($buffer->getRecords());
+// [
+//     ['moko', 'mibalé', 'misató'],
+//     ['un', 'deux', 'trois'],
+//     ['one', 'two', 'three'],
+// ];
 ```
 
-The method returns the number of successfully inserted records or trigger an exception if the parameters are invalid.
+The method returns the number of successfully inserted records or trigger an exception if the
+insertion can not occur.
 
-<p class="message-notice">If no header is defined for the instance, column consistency is not checked on insertion.
-And only list are accepted as record to be inserted.</p>
+<p class="message-notice">If no header is defined for the instance, column consistency is not
+checked on insertion and associative array are inserted without their corresponding keys.</p>
 
-Let's create a new `Buffer` instance from a `Reader` object.
+Let's create a new `Buffer` instance **with a header specified**.
 
 ```php
 $document = Reader::createFromPath('path/to/file.csv');
-$document->setHeaderOffset(0);
+$document->setHeaderOffset(0); //the Reader header will be imported alongside its records
 $buffer = Buffer::from($document); 
 $buffer->getHeader(); // returns ['column1', 'column2', 'column3']
+$buffer->hasHeader(); // return true
 ```
 
-We can insert a new record using a list as long as the list has the same length as the `Buffer` instance or the
-`Buffer` instance has no header attached to it.
+We can insert a new record using a list as long as the list has the same length as the `Buffer`
+instance or the `Buffer` instance has no header attached to it.
 
 ```php
-$affectedRowsCount = $buffer->insertOne(['first', 'second', 'third']); 
+$affectedRowsCount = $buffer->insert(['first', 'second', 'third']);
+$buffer->last(); // returns ['column1' => 'first', 'column2' => 'second', 'column3' => 'third'];
 //will work because the list contains the same number of fields as in the header
 ```
+
+Of note, on insertion the `Buffer::last` method returns the record associated
+with the last inserted record. Complementary to the `last` method, the `Buffer::first` method
+will return the first inserted record.
 
 We can also insert a record if it shares the exact same key as the header values.
 
 ```php
-$affectedRowsCount = $buffer->insertAll([[
+$affectedRowsCount = $buffer->insert([
     'column1' => 'first', 
     'column2' => 'second', 
     'column3' => 'third',
-]]); 
+]); 
 ```
 
 On the other hand, trying to insert an incomplete record will trigger an exception.
 
 ```php
-$buffer->insertOne(['column1' => 'first',  'column3' => 'third']); //will trigger an exception
+$buffer->insert(['column1' => 'first', 'column3' => 'third']); //will trigger an exception
 ```
 
 The same will happen if the list does not contain the same number of fields as the header does when it is present.
 
 ```php
-$buffer->insertOne(['first', 'third']); //will trigger an exception
+$buffer->insert(['first', 'third']); //will trigger an exception
 ```
 
 ### Update or Delete Records
@@ -196,6 +258,27 @@ $affectedRowsCount = $buffer->update(Column::filterOn('location', '=', 'Berkeley
 The previous example will update all the rows `location` field from the `Buffer` instance which contains the value `Berkeley`.
 To know more about the predicates you can refer to the `ResultSet` documentation page.
 
+### Record formatting
+
+Before insertion, the record can be further formatted using a formatter.
+A formatter is a `callable` which accepts a single record as an `array` on input and returns an array representing the formatted record according to its inner rules.
+
+```php
+function(array $record): array
+```
+
+You can attach as many formatters as you want using the `Buffer::addFormatter` method.
+Formatters are applied following the *First In First Out* rule.
+
+```php
+use League\Csv\Buffer;
+
+$buffer = new Buffer();
+$buffer->addFormatter(fn (array $row): array => array_map('strtoupper', $row));
+$buffer->insert(['john', 'doe', 'john.doe@example.com']);
+$buffer->nth(); //returns ['JOHN', 'DOE', 'JOHN.DOE@EXAMPLE.COM']
+```
+
 ### Record validation
 
 By default, the `Buffer` instance will only validate the column field names, if a header is provided, otherwise,
@@ -216,7 +299,7 @@ an `League\Csv\CannotInsertRecord` exception.
 You can attach as many validators as you want using the `Buffer::addValidator` method. Validators are applied following
 the *First In First Out* rule.
 
-<p class="message-warning">The record is checked against your supplied validators <strong>after it has been checked for field names integrity</strong>.</p>
+<p class="message-warning">The record is checked against your supplied validators <strong>after it has been checked for field names integrity and formatted using the optionals registered formatters.</strong>.</p>
 
 `Buffer::addValidator` takes two (2) **required** parameters:
 
@@ -237,7 +320,7 @@ $buffer = new Buffer();
 $buffer->addValidator(fn (array $row): bool => 10 == count($row), 'row_must_contain_10_cells');
 
 try {
-    $buffer->insertOne(['john', 'doe', 'john.doe@example.com']);
+    $buffer->insert(['john', 'doe', 'john.doe@example.com']);
 } catch (CannotInsertRecord $e) {
     echo $e->getName(); //displays 'row_must_contain_10_cells'
     $e->getData();//returns the invalid data ['john', 'doe', 'john.doe@example.com']
@@ -367,23 +450,3 @@ $records = new Statement()
 ```
 
 `$records` will be a `ResultSet` instance that you can manipulate further more if needed.
-
-Last but not least, since the `Buffer` is an in-memory tabular data it exposes the following 2 (two) methods `Buffer::isEmpty`
-and `Buffer::includeHeader` to quickly know if the instance contains a defined header and if it has already some records in it.
-
-```php
-use League\Csv\Buffer;
-use League\Csv\Reader;
-use League\Csv\Statement;
-
-$reader = Reader::createFromPath('/path/to/file.csv');
-$reader->setHeaderOffset(0);
-$buffer = Buffer::from($reader->slice(0, 30000)));
-
-$buffer->isEmpty();       // return false
-$buffer->includeHeader(); // return true
-
-$emptyBuffer = new Buffer();
-$emptyBuffer->isEmpty();       // return true
-$emptyBuffer->includeHeader(); // return false
-```

@@ -46,7 +46,7 @@ final class BufferBench
         $numRows = 100_000;
         $writer = new Buffer(header: ['foo', 'bar', 'baz']);
         for ($i = 1; $i <= $numRows; ++$i) {
-            $writer->insertOne(["csv--{$i}1", "csv--{$i}2", "csv--{$i}3"]);
+            $writer->insert(["csv--{$i}1", "csv--{$i}2", "csv--{$i}3"]);
         }
 
         assert($numRows === $writer->recordCount());
