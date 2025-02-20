@@ -21,6 +21,8 @@ use SQLite3Exception;
 use SQLite3Result;
 use SQLite3Stmt;
 
+use function iterator_count;
+
 final class RdbmsResultTest extends TestCase
 {
     #[Test]
@@ -63,7 +65,7 @@ SQL;
         $tabularData = ResultSet::tryFrom($result);
 
         self::assertSame(['id', 'name', 'email'], $tabularData->getHeader());
-        self::assertSame(6, $tabularData->recordCount());
+        self::assertSame(6, iterator_count($tabularData->getRecords()));
         self::assertSame(
             ['id' => 1, 'name' => 'Ronnie', 'email' => 'ronnie@example.com'],
             ResultSet::from($tabularData)->first()
@@ -104,7 +106,7 @@ SQL;
         $tabularData = ResultSet::tryFrom($stmt);
 
         self::assertSame(['id', 'name', 'email'], $tabularData->getHeader());
-        self::assertSame(6, $tabularData->recordCount());
+        self::assertSame(6, iterator_count($tabularData->getRecords()));
         self::assertSame(
             ['id' => 1, 'name' => 'Ronnie', 'email' => 'ronnie@example.com'],
             ResultSet::from($tabularData)->first()

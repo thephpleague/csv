@@ -409,11 +409,11 @@ jane,doe,jane.doe@example.com
 CSV;
         $reader = Reader::createFromString($csv)
             ->setHeaderOffset(0);
-        $this->expectException(SyntaxError::class);
 
+        $this->expectException(SyntaxError::class);
         [...(new Statement())
             ->process($reader)
-            ->getRecords(['lastname' => 'nom de famille', 'firstname' => 'prenom', 'e-mail' => 'e-mail'])];
+            ->getRecords(['lastname' => 'nom de famille', 'firstname' => 'prenom', 'e-mail' => 'e-mail'])]; /* @phpstan-ignore-line */
     }
 
     public function testChunkByIssue524(): void

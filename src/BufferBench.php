@@ -23,7 +23,7 @@ final class BufferBench
 {
     #[Bench\OutputTimeUnit('seconds')]
     #[Bench\Assert('mode(variant.mem.peak) < 4700000'), Bench\Assert('mode(variant.time.avg) < 10000000')]
-    public function benchReading1MRowsCSVUsingSplFileObject(): void
+    public function benchLoadingRecordsUsingFromSplFileObject(): void
     {
         $path = dirname(__DIR__).'/test_files/prenoms.csv';
 
@@ -32,7 +32,7 @@ final class BufferBench
 
     #[Bench\OutputTimeUnit('seconds')]
     #[Bench\Assert('mode(variant.mem.peak) < 4700000'), Bench\Assert('mode(variant.time.avg) < 10000000')]
-    public function benchReading1MRowsCSVUsingStream(): void
+    public function benchLoadingRecordsUsingFromStreamResource(): void
     {
         $path = dirname(__DIR__).'/test_files/prenoms.csv';
 
@@ -40,18 +40,28 @@ final class BufferBench
     }
 
     #[Bench\OutputTimeUnit('seconds')]
-    #[Bench\Assert('mode(variant.mem.peak) < 56000000'), Bench\Assert('mode(variant.time.avg) < 10000000')]
+    #[Bench\Assert('mode(variant.mem.peak) < 40000000'), Bench\Assert('mode(variant.time.avg) < 10000000')]
     public function benchWritingAndDeletingEntries(): void
     {
-        $numRows = 100_000;
-        $writer = new Buffer(header: ['foo', 'bar', 'baz']);
+        $numRows = 10_000;
+        $buffer = new Buffer(header: ['foo', 'bar', 'baz']);
         for ($i = 1; $i <= $numRows; ++$i) {
-            $writer->insertOne(["csv--{$i}1", "csv--{$i}2", "csv--{$i}3"]);
+            $buffer->insert(
+                ["csv--{$i}1", "csv--{$i}2", "csv--{$i}3"],
+                ["csv--{$i}1", "csv--{$i}2", "csv--{$i}3"],
+                ["csv--{$i}1", "csv--{$i}2", "csv--{$i}3"],
+                ["csv--{$i}1", "csv--{$i}2", "csv--{$i}3"],
+                ["csv--{$i}1", "csv--{$i}2", "csv--{$i}3"],
+                ["csv--{$i}1", "csv--{$i}2", "csv--{$i}3"],
+                ["csv--{$i}1", "csv--{$i}2", "csv--{$i}3"],
+                ["csv--{$i}1", "csv--{$i}2", "csv--{$i}3"],
+                ["csv--{$i}1", "csv--{$i}2", "csv--{$i}3"],
+                ["csv--{$i}1", "csv--{$i}2", "csv--{$i}3"],
+            );
         }
 
-        assert($numRows === $writer->recordCount());
-
-        $writer->delete(fn (array $row, int $offset) => ($offset % 2) === 0);
+        $buffer->delete(fn (array $row, int $offset) => ($offset % 2) === 0);
+        assert(50_000 === $buffer->recordCount());
     }
 
 }

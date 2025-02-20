@@ -9,32 +9,31 @@ version:
             Document Loading: '/9.0/connections/instantiation/'
             Document Output: '/9.0/connections/output/'
             Character Controls: '/9.0/connections/controls/'
+            Stream Filters: '/9.0/connections/filters/'
             BOM Sequence: '/9.0/connections/bom/'
             Charset Converter: '/9.0/converter/charset/'
-            Stream Filters: '/9.0/connections/filters/'
-        Inserting Records:
-            CSV Writer: '/9.0/writer/'
-            Tabular Data Buffer: '/9.0/writer/buffer/'
-            Bundled Helpers: '/9.0/writer/helpers/'
         Selecting Records:
             Tabular Data Reader: '/9.0/reader/tabular-data-reader/'
             CSV Reader: '/9.0/reader/'
             Result Set: '/9.0/reader/resultset/'
             Constraint Builders: '/9.0/reader/statement/'
             Record Mapping: '/9.0/reader/record-mapping/'
+        Inserting Records:
+            CSV Writer: '/9.0/writer/'
+            Tabular Data Buffer: '/9.0/writer/buffer/'
+            Bundled Helpers: '/9.0/writer/helpers/'
         Interoperability:
             Overview : '/9.0/interoperability/'
             Handling Delimiter : '/9.0/interoperability/swap-delimiter/'
             Formula Injection : '/9.0/interoperability/escape-formula-injection/'
-            Tabular Data Importer: '/9.0/interoperability/tabular-data-importer/'
             Document Encoding : '/9.0/interoperability/encoding/'
             RFC4180 Field : '/9.0/interoperability/rfc4180-field/'
             Force Enclosure : '/9.0/interoperability/enclose-field/'
         Converting Records:
             Overview: '/9.0/converter/'
+            JSON Converter: '/9.0/converter/json/'
             XML Converter: '/9.0/converter/xml/'
             HTML Converter: '/9.0/converter/html/'
-            JSON Converter: '/9.0/converter/json/'
         Extensions:
             Overview: '/9.0/extensions/'
             Doctrine: '/9.0/extensions/doctrine'

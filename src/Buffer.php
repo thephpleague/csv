@@ -16,40 +16,38 @@ namespace League\Csv;
 use CallbackFilterIterator;
 use Closure;
 use Iterator;
-use League\Csv\Query\Constraint\Comparison;
 use League\Csv\Query\Constraint\Criteria;
-use League\Csv\Query\Constraint\Offset;
 use League\Csv\Query\Predicate;
-use League\Csv\Query\QueryException;
 use League\Csv\Serializer\Denormalizer;
 use League\Csv\Serializer\MappingFailed;
 use League\Csv\Serializer\TypeCastingFailed;
 use mysqli_result;
-use OutOfBoundsException;
 use PDOStatement;
 use PgSql\Result;
 use ReflectionException;
 use RuntimeException;
 use SQLite3Result;
-use Throwable;
-use TypeError;
-use ValueError;
 
 use function array_combine;
 use function array_diff;
+use function array_fill_keys;
 use function array_filter;
 use function array_is_list;
 use function array_key_exists;
+use function array_key_first;
+use function array_key_last;
 use function array_keys;
 use function array_map;
+use function array_push;
+use function array_reduce;
 use function array_unique;
 use function array_values;
 use function count;
 use function in_array;
-use function is_array;
 use function is_int;
-use function is_string;
-use function iterator_to_array;
+use function sort;
+
+use const ARRAY_FILTER_USE_KEY;
 
 final class Buffer implements TabularData
 {
@@ -60,18 +58,21 @@ final class Buffer implements TabularData
     private readonly array $header;
     /** @var list<string>|array{} */
     private readonly array $sortedHeader;
-    /** @var array<int, array<array-key, mixed>> */
+    /** @var array<string, null> */
+    private readonly array $nullRecord;
+    /** @var array<int, list<mixed>> */
     private array $rows = [];
     /** @var array<Closure(array): bool> callable collection to validate the record before insertion. */
     private array $validators = [];
+    /** @var array<Closure(array): array> collection of Closure to format the record before reading. */
+    private array $formatters = [];
 
     /**
-     * @param iterable<array-key, array<array-key, mixed>> $rows
      * @param list<string>|array{} $header
      *
      * @throws SyntaxError
      */
-    public function __construct(iterable $rows = [], array $header = [])
+    public function __construct(array $header = [])
     {
         $this->header = match (true) {
             !array_is_list($header) => throw new SyntaxError('The header must be a list of unique column names.'),
@@ -81,8 +82,7 @@ final class Buffer implements TabularData
         };
         sort($header);
         $this->sortedHeader = $header;
-
-        $this->insertAll($rows);
+        $this->nullRecord = array_fill_keys($this->header, null);
     }
 
     /**
@@ -92,29 +92,21 @@ final class Buffer implements TabularData
      */
     public static function from(PDOStatement|Result|mysqli_result|SQLite3Result|TabularData $dataStorage, int $options = self::INCLUDE_HEADER): self
     {
-        if ($dataStorage instanceof TabularData) {
-            if (self::INCLUDE_HEADER === $options) {
-                $instance = new self(header: $dataStorage->getHeader());
-                $instance->rows = iterator_to_array($dataStorage->getRecords(), false);
+        /** @var Iterator<int, array> $rows */
+        $rows = $dataStorage instanceof TabularData ? $dataStorage->getRecords() : RdbmsResult::rows($dataStorage);
+        $instance = new self(match (true) {
+            self::EXCLUDE_HEADER === $options => [],
+            $dataStorage instanceof TabularData => $dataStorage->getHeader(),
+            default => RdbmsResult::columnNames($dataStorage),
+        });
 
-                return $instance;
-            }
-
-            $instance = new self();
-            $instance->rows = iterator_to_array(new MapIterator($dataStorage->getRecords(), fn (array $row) => array_values($row)), false); /* @phpstan-ignore-line */
-
-            return $instance;
+        /**
+         * @var int $offset
+         * @var list<mixed> $row
+         */
+        foreach (new MapIterator($rows, fn (array $record): array => array_values($record)) as $offset => $row) {
+            $instance->rows[$offset] = $row;
         }
-
-        if (self::INCLUDE_HEADER === $options) {
-            $instance = new self(header: RdbmsResult::columnNames($dataStorage));
-            $instance->rows = RdbmsResult::rows($dataStorage);
-
-            return $instance;
-        }
-
-        $instance = new self();
-        $instance->rows = array_map(array_values(...), RdbmsResult::rows($dataStorage));
 
         return $instance;
     }
@@ -131,7 +123,7 @@ final class Buffer implements TabularData
             $bytes += $dataStorage->insertOne($header);
         }
 
-        return $bytes + $dataStorage->insertAll($this->getRecords()); /* @phpstan-ignore-line */
+        return $bytes + $dataStorage->insertAll($this->getRecords());
     }
 
     public function isEmpty(): bool
@@ -139,7 +131,7 @@ final class Buffer implements TabularData
         return [] === $this->rows;
     }
 
-    public function includeHeader(): bool
+    public function hasHeader(): bool
     {
         return [] !== $this->header;
     }
@@ -157,28 +149,22 @@ final class Buffer implements TabularData
         return $this->header;
     }
 
+    /**
+     * @throws SyntaxError
+     *
+     * @return Iterator<int, array>
+     */
     public function getRecords(array $header = []): Iterator
     {
         $header = match (true) {
-            !array_is_list($header) => throw new SyntaxError('The header must be a list of unique column names.'),
+            [] === $header => $this->header,
+            $header !== array_filter($header, is_int(...), ARRAY_FILTER_USE_KEY) => throw new SyntaxError('The header must be a list of unique column names.'),
             $header !== array_filter($header, is_string(...)) => throw SyntaxError::dueToInvalidHeaderColumnNames(),
             $header !== array_unique($header) => throw SyntaxError::dueToDuplicateHeaderColumnNames($header),
-            [] === $header => $this->header,
             default => $header,
         };
 
-        return MapIterator::fromIterable($this->rows, match ([]) {
-            $this->header => fn (array $row): array => array_values($row),
-            default => function (array $row) use ($header): array {
-                $record = [];
-                $values = array_values($row);
-                foreach ($header as $offset => $headerName) {
-                    $record[$headerName] = $values[$offset] ?? null;
-                }
-
-                return $record;
-            },
-        });
+        return MapIterator::fromIterable($this->rows, fn (array $row): array => $this->rowToRecord($row, $header));
     }
 
     /**
@@ -213,65 +199,112 @@ final class Buffer implements TabularData
         return MapIterator::fromIterable($this->getRecords(), $callback);
     }
 
+    /**
+     * @param non-negative-int $nth
+     *
+     * @throws InvalidArgument
+     */
     public function nth(int $nth): array
     {
-        try {
-            array_key_exists($nth, $this->rows) || throw new OutOfBoundsException('The specified offset does not exist.');
-            $values = array_values($this->rows[$nth]);
-            if ([] === $this->header) {
-                return $values;
-            }
-
-            $record = [];
-            foreach ($this->header as $index => $headerName) {
-                $record[$headerName] = $values[$index] ?? null;
-            }
-
-            return $record;
-        } catch (Throwable) {
+        if ([] === ($row = $this->nthRow($nth, __METHOD__))) {
             return [];
         }
+
+        return $this->rowToRecord($row, $this->header);
+    }
+
+    /**
+     * @template T of object
+     *
+     * @param non-negative-int $nth
+     * @param class-string<T> $className
+     * @param array<string> $header
+     *
+     * @throws InvalidArgument
+     * @throws ReflectionException
+     */
+    public function nthAsObject(int $nth, string $className, array $header = []): ?object
+    {
+        if ([] === ($row = $this->nthRow($nth, __METHOD__))) {
+            return null;
+        }
+
+        return Denormalizer::assign($className, $this->rowToRecord($row, [] !== $header ? $header : $this->header));
+    }
+
+    public function firstOffset(): ?int
+    {
+        return array_key_first($this->rows);
+    }
+
+    public function first(): array
+    {
+        return null === ($offset = $this->firstOffset()) ? [] : $this->rowToRecord($this->rows[$offset], $this->header);
     }
 
     /**
      * @param class-string $className
      * @param array<string> $header
      *
-     * @throws SyntaxError
      * @throws ReflectionException
      */
-    public function nthAsObject(int $nth, string $className, array $header = []): ?object
+    public function firstAsObject(string $className, array $header = []): ?object
     {
-        $record = $this->nth($nth);
-        if ([] === $record) {
+        if ([] === ($row = $this->rows[$this->firstOffset()] ?? [])) {
             return null;
         }
 
-        if ([] === $header) {
-            return Denormalizer::assign($className, $record);
+        return Denormalizer::assign($className, $this->rowToRecord($row, [] !== $header ? $header : $this->header));
+    }
+
+    public function lastOffset(): ?int
+    {
+        return array_key_last($this->rows);
+    }
+
+    public function last(): array
+    {
+        return null === ($offset = $this->lastOffset()) ? [] : $this->rowToRecord($this->rows[$offset], $this->header);
+    }
+
+    /**
+     * @param class-string $className
+     * @param array<string> $header
+     *
+     * @throws ReflectionException
+     */
+    public function lastAsObject(string $className, array $header = []): ?object
+    {
+        if ([] === ($row = $this->rows[$this->lastOffset()] ?? [])) {
+            return null;
         }
 
-        $header = match (true) {
-            !array_is_list($header) => throw new SyntaxError('The header must be a list of unique column names.'),
-            $header !== array_filter($header, is_string(...)) => throw SyntaxError::dueToInvalidHeaderColumnNames(),
-            $header !== array_unique($header) => throw SyntaxError::dueToDuplicateHeaderColumnNames($header),
-            default => $header,
-        };
+        return Denormalizer::assign($className, $this->rowToRecord($row, [] !== $header ? $header : $this->header));
+    }
 
-        $values = array_values($record);
-        $record = [];
-        foreach ($header as $index => $headerName) {
-            $record[$headerName] = $values[$index] ?? null;
+    /**
+     * @throws InvalidArgument
+     */
+    private function nthRow(int $nth, string $method): array
+    {
+        -1 < $nth || throw InvalidArgument::dueToInvalidRecordOffset($nth, $method);
+        if (null === ($first = $this->firstOffset())) {
+            return [];
         }
 
-        return Denormalizer::assign($className, $record);
+        $offset = $first + $nth;
+        if (!array_key_exists($offset, $this->rows)) {
+            return [];
+        }
+
+        return $this->rows[$nth + $first];
     }
 
     public function fetchColumn(int|string $index = 0): Iterator
     {
         if (is_int($index)) {
-            $index > -1 || throw new OutOfBoundsException('The specified column `'.$index.'` does not exist.');
-            [] === $this->header || array_key_exists($index, $this->header) || throw new OutOfBoundsException('The specified column `'.$index.'` does not exist.');
+            $index > -1 || throw InvalidArgument::dueToInvalidColumnIndex($index, 'offset', __METHOD__);
+            [] === $this->header || array_key_exists($index, $this->header) || throw InvalidArgument::dueToInvalidColumnIndex($index, 'name', __METHOD__);
 
             $iterator = new MapIterator($this->getRecords(), fn (array $row) => array_values($row));
             $iterator = new CallbackFilterIterator($iterator, fn (array $row) => array_key_exists($index, $row));
@@ -279,32 +312,34 @@ final class Buffer implements TabularData
             return new MapIterator($iterator, fn (array $row) => $row[$index]);
         }
 
-        [] !== $this->header || throw new OutOfBoundsException('The specified column `'.$index.'` does not exist.');
-        in_array($index, $this->header, true) || throw new OutOfBoundsException('The specified column `'.$index.'` does not exist.');
+        [] !== $this->header || throw InvalidArgument::dueToInvalidColumnIndex($index, 'name', __METHOD__);
+        in_array($index, $this->header, true) || throw InvalidArgument::dueToInvalidColumnIndex($index, 'name', __METHOD__);
 
         $iterator = new CallbackFilterIterator($this->getRecords(), fn (array $row) => array_key_exists($index, $row));
 
         return new MapIterator($iterator, fn (array $row) => $row[$index]);
     }
 
-    public function fetchPairs(string|int $offset_index = 0, string|int $value_index = 1): Iterator
-    {
-        $offset = $this->fetchIndex($offset_index);
-        $value = $this->fetchIndex($value_index);
-
-        foreach (new CallbackFilterIterator($this->getRecords(), fn (array $record) => isset($record[$offset])) as $record) {
-            yield $record[$offset] => $record[$value] ?? null;
-        }
-    }
-
     /**
      * Adds a record validator.
      *
-     * @param (callable(array): bool)|(Closure(array): bool) $validator
+     * @param callable(array): bool $validator
      */
-    public function addValidator(callable $validator, string $validator_name): self
+    public function addValidator(callable $validator, string $name): self
     {
-        $this->validators[$validator_name] = !$validator instanceof Closure ? $validator(...) : $validator;
+        $this->validators[$name] = !$validator instanceof Closure ? $validator(...) : $validator;
+
+        return $this;
+    }
+
+    /**
+     * Adds a record formatter.
+     *
+     * @param callable(array): array $formatter
+     */
+    public function addFormatter(callable $formatter): self
+    {
+        $this->formatters[] = !$formatter instanceof Closure ? $formatter(...) : $formatter;
 
         return $this;
     }
@@ -312,129 +347,81 @@ final class Buffer implements TabularData
     /**
      * @throws CannotInsertRecord
      */
-    public function insertOne(array $record): int
+    public function insert(array ...$records): int
     {
-        $this->rows[] = $this->validateRecord($this->formatInsertRecord($record));
+        [] !== $records || throw CannotInsertRecord::triggerOnValidation('@buffer_record_validation_on_insert', $records);
 
-        return 1;
+        array_push($this->rows, ...array_map($this->formatInsertRecord(...), $records));
+
+        return count($records);
     }
 
     /**
-     * @param iterable<array> $records
-     *
-     * @throws CannotInsertRecord
-     */
-    public function insertAll(iterable $records): int
-    {
-        $affectedRows = 0;
-        foreach ($records as $record) {
-            $affectedRows += $this->insertOne($record);
-        }
-
-        return $affectedRows;
-    }
-
-    /**
-     * @throws QueryException
      * @throws CannotInsertRecord
      * @throws SyntaxError
      */
-    public function update(Predicate|Closure|callable|array|int $where, array $record): int
+    public function update(Predicate|Closure|callable $where, array $record): int
     {
-        $where = $this->filterPredicate($where);
-        $this->filterUpdateRecord($record) || throw new ValueError('The specified record contain invalid column names.');
-
-        if (array_is_list($record) && [] !== $this->header) {
-            $formattedRecord = [];
-            foreach ($this->header as $offset => $headerName) {
-                $formattedRecord[$headerName] = $record[$offset] ?? null;
+        $record = $this->filterUpdateRecord($record);
+        $updateRecord = function (array $row) use ($record): array {
+            foreach ($record as $index => $value) {
+                $row[$index] = $value;
             }
 
-            $record = $formattedRecord;
-        }
+            return $this->validateRecord($row);
+        };
 
         $affectedRecords = 0;
-        foreach ($this->getRecords() as $offset => $currentRecord) {
-            if ($where($currentRecord, $offset)) {
-                foreach ($record as $index => $value) {
-                    $currentRecord[$index] = $value;
-                }
-
-                $this->rows[$offset] = $this->validateRecord($currentRecord);
-                $affectedRecords++;
-            }
+        /** @var Iterator<int, array> $iterator */
+        $iterator = new MapIterator(new CallbackFilterIterator($this->getRecords(), $this->filterPredicate($where)), $updateRecord);
+        foreach ($iterator as $offset => $row) {
+            $this->rows[$offset] = $row;
+            $affectedRecords++;
         }
 
         return $affectedRecords;
     }
 
     /**
-     * @throws QueryException|SyntaxError
+     * @throws SyntaxError
      */
-    public function delete(Predicate|Closure|callable|array|int $where): int
+    public function delete(Predicate|Closure|callable $where): int
     {
         $affectedRecords = 0;
-        $where = $this->filterPredicate($where);
-        foreach ($this->getRecords() as $offset => $record) {
-            if ($where($record, $offset)) {
-                unset($this->rows[$offset]);
-                $affectedRecords++;
-            }
+        foreach (new CallbackFilterIterator($this->getRecords(), $this->filterPredicate($where)) as $offset => $row) {
+            unset($this->rows[$offset]);
+            $affectedRecords++;
         }
 
         return $affectedRecords;
     }
 
-    private function fetchIndex(string|int $index): string|int
+    public function truncate(): void
     {
-        if (is_string($index)) {
-            [] !== $this->header || throw new OutOfBoundsException('The specified column `'.$index.'` does not exist.');
-            in_array($index, $this->header, true) || throw new OutOfBoundsException('The specified column `'.$index.'` does not exist.');
-
-            return $index;
-        }
-
-        $index > -1 || throw new OutOfBoundsException('The specified column `'.$index.'` does not exist.');
-        [] === $this->header || array_key_exists($index, $this->header) || throw new OutOfBoundsException('The specified column `'.$index.'` does not exist.');
-        if ([] === $this->header) {
-            return $index;
-        }
-
-        return $this->header[$index];
+        $this->rows = [];
     }
 
+    /**
+     * @throws CannotInsertRecord
+     */
     private function formatInsertRecord(array $record): array
     {
-        if (!$this->filterInsertRecord($record)) {
-            throw new ValueError('The specified record contain invalid column names.');
-        }
+        $this->filterInsertRecord($record) || throw CannotInsertRecord::triggerOnValidation('@buffer_record_validation_on_insert', $record);
 
-        if ([] === $this->header) {
-            return array_values($record);
-        }
-
-        if (array_is_list($record)) {
-            return array_combine($this->header, $record);
-        }
-
-        // re-order the associative array to have all the data
-        // correctly aligned
-        $newRow = [];
-        foreach ($this->header as $name) {
-            $newRow[$name] = $record[$name];
-        }
-
-        return $newRow;
+        return $this->validateRecord(match (true) {
+            [] === $this->header => !array_is_list($record) ? array_values($record) : $record,
+            array_is_list($record) => array_combine($this->header, $record),
+            default => [...$this->nullRecord, ...$record],
+        });
     }
 
     private function filterInsertRecord(array $record): bool
     {
-        $recordIsList = array_is_list($record);
         if ([] === $this->header) {
-            return $recordIsList;
+            return true;
         }
 
-        if ($recordIsList) {
+        if (array_is_list($record)) {
             return count($record) === count($this->header);
         }
 
@@ -445,65 +432,56 @@ final class Buffer implements TabularData
     }
 
     /**
+     * @throws CannotInsertRecord
+     */
+    private function filterUpdateRecord(array $record): array
+    {
+        [] !== $record || throw CannotInsertRecord::triggerOnValidation('@buffer_record_validation_on_update', $record);
+        if (array_is_list($record)) {
+            return $this->rowToRecord($record, $this->header);
+        }
+
+        $keys = array_keys($record);
+
+        return match (true) {
+            $keys === array_filter($keys, is_int(...)) => $record,
+            $keys !== array_filter($keys, is_string(...)),
+            [] !== array_diff($keys, $this->header) => throw CannotInsertRecord::triggerOnValidation('@buffer_record_validation_on_update', $record),
+            default => $record,
+        };
+    }
+
+    /**
      * Validates a record.
      *
      * @throws CannotInsertRecord If the validation failed
      */
     private function validateRecord(array $record): array
     {
+        $record = array_reduce($this->formatters, fn (array $record, callable $formatter): array => $formatter($record), $record);
         foreach ($this->validators as $name => $validator) {
             true === $validator($record) || throw CannotInsertRecord::triggerOnValidation($name, $record);
         }
 
+        return !array_is_list($record) ? array_values($record) : $record;
+    }
+
+    private function filterPredicate(Predicate|Closure|callable $predicate): Predicate
+    {
+        return !$predicate instanceof Predicate ? Criteria::all($predicate) : $predicate;
+    }
+
+    private function rowToRecord(array $row, array $header): array
+    {
+        if ([] === $header) {
+            return $row;
+        }
+
+        $record = [];
+        foreach ($header as $offset => $headerName) {
+            $record[$headerName] = $row[$offset] ?? null;
+        }
+
         return $record;
-    }
-
-    private function filterUpdateRecord(array $record): bool
-    {
-        if (array_is_list($record)) {
-            return true;
-        }
-
-        $keys = array_keys($record);
-
-        return match (true) {
-            $keys === array_filter($keys, is_int(...)) => true,
-            $keys !== array_filter($keys, is_string(...)),
-            [] !== array_diff($keys, $this->header) => false,
-            default => true,
-        };
-    }
-
-    /**
-     * @throws QueryException
-     */
-    private function filterPredicate(Predicate|Closure|callable|array|int $predicate): Predicate
-    {
-        if (is_int($predicate)) {
-            array_key_exists($predicate, $this->rows) || throw new OutOfBoundsException('The specified offset does not exist.');
-
-            return Offset::filterOn('=', $predicate);
-        }
-
-        if (!is_array($predicate)) {
-            return Criteria::all($predicate);
-        }
-
-        if ($predicate === array_filter($predicate, is_int(...))) {
-            $foundPredicate = array_filter(
-                array_map(fn (int $index): ?int => array_key_exists($index, $this->rows) ? $index : null, $predicate),
-                fn (?int $index): bool => null !== $index
-            );
-
-            ($foundPredicate === $predicate) || throw new OutOfBoundsException('At least one of the specified offset does not exist.');
-
-            return Offset::filterOn(Comparison::In, $predicate);
-        }
-
-        try {
-            return Criteria::all($predicate); /* @phpstan-ignore-line */
-        } catch (Throwable $exception) {
-            throw new TypeError('The specified predicate is invalid.', previous: $exception);
-        }
     }
 }
