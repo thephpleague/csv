@@ -63,6 +63,27 @@ interface TabularDataReader extends TabularData, IteratorAggregate, Countable
     public function getIterator(): Iterator;
 
     /**
+     * Returns the number of records contained in the tabular data structure
+     * excluding the header record.
+     */
+    public function count(): int;
+
+    /**
+     * Returns the next key-value pairs from the tabular data (first
+     * column is the key, second column is the value).
+     *
+     * By default, if no column index is provided:
+     * - the first column is used to provide the keys
+     * - the second column is used to provide the value
+     *
+     * @param string|int $offset_index The column index to serve as offset
+     * @param string|int $value_index The column index to serve as value
+     *
+     * @throws UnableToProcessCsv if the column index is invalid or not found
+     */
+    public function fetchPairs(string|int $offset_index = 0, string|int $value_index = 1): Iterator;
+
+    /**
      * DEPRECATION WARNING! This method will be removed in the next major point release.
      *
      * @deprecated since version 9.9.0
@@ -77,10 +98,4 @@ interface TabularDataReader extends TabularData, IteratorAggregate, Countable
      */
     #[Deprecated(message:'use League\Csv\TabularDataReader::nth() instead', since:'league/csv:9.9.0')]
     public function fetchOne(int $nth_record = 0): array;
-
-    /**
-     * Returns the number of records contained in the tabular data structure
-     * excluding the header record.
-     */
-    public function count(): int;
 }

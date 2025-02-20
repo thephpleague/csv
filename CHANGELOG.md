@@ -10,7 +10,7 @@ All Notable changes to `Csv` will be documented in this file
 - `TabularDataReader::selectAllExcept`
 - `Statement::selectAllExcept`
 - `ResultSet::from` and `ResultSet::tryFrom`
-- `RdbmsResult` class to allow converting RDBMS result into `ResultSet`
+- `RdbmsResult` class to ease importing RDBMS result into the package classes
 - `TabularData` interface
 - `Buffer` class
 - `XMLConverter::supportsHeader`

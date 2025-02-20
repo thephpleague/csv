@@ -45,7 +45,7 @@ interface TabularData
      * filled with null values while extra record fields are strip from
      * the returned object.
      *
-     * @param array<string> $header an optional header mapper to use instead of the CSV document header
+     * @param array<int, string> $header an optional header mapper to use instead of the tabular data header
      *
      * @return Iterator<array-key, array<array-key, mixed>>
      */
@@ -63,25 +63,4 @@ interface TabularData
      * @return Iterator<int, mixed>
      */
     public function fetchColumn(string|int $index = 0): Iterator;
-
-    /**
-     * Returns the next key-value pairs from the tabular data (first
-     * column is the key, second column is the value).
-     *
-     * By default, if no column index is provided:
-     * - the first column is used to provide the keys
-     * - the second column is used to provide the value
-     *
-     * @param string|int $offset_index The column index to serve as offset
-     * @param string|int $value_index The column index to serve as value
-     *
-     * @throws UnableToProcessCsv if the column index is invalid or not found
-     */
-    public function fetchPairs(string|int $offset_index = 0, string|int $value_index = 1): Iterator;
-
-    /**
-     * Returns the number of records contained in the tabular data structure
-     * excluding the header record.
-     */
-    public function recordCount(): int;
 }

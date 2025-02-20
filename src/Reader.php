@@ -292,21 +292,13 @@ class Reader extends AbstractCsv implements TabularDataReader, JsonSerializable
     /**
      * @throws Exception
      */
-    public function recordCount(): int
+    public function count(): int
     {
         if (-1 === $this->nb_records) {
             $this->nb_records = iterator_count($this->getRecords());
         }
 
         return $this->nb_records;
-    }
-
-    /**
-     * @throws Exception
-     */
-    public function count(): int
-    {
-        return $this->recordCount();
     }
 
     /**

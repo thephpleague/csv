@@ -109,7 +109,13 @@ class ResultSet implements TabularDataReader, JsonSerializable
     public static function from(PDOStatement|Result|mysqli_result|SQLite3Result|TabularData $tabularData): self
     {
         if (!$tabularData instanceof TabularData) {
-            return new self(RdbmsResult::iteratorRows($tabularData), RdbmsResult::columnNames($tabularData));
+            /** @var ArrayIterator<array-key, array<array-key, mixed>> $data */
+            $data = new ArrayIterator();
+            foreach (RdbmsResult::rows($tabularData) as $offset => $row) {
+                $data[$offset] = $row;
+            }
+
+            return new self($data, RdbmsResult::columnNames($tabularData));
         }
 
         return new self($tabularData->getRecords(), $tabularData->getHeader());
@@ -477,14 +483,9 @@ class ResultSet implements TabularDataReader, JsonSerializable
         };
     }
 
-    public function recordCount(): int
-    {
-        return iterator_count($this->records);
-    }
-
     public function count(): int
     {
-        return $this->recordCount();
+        return iterator_count($this->records);
     }
 
     public function jsonSerialize(): array
