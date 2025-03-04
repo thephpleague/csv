@@ -227,22 +227,6 @@ class Reader extends AbstractCsv implements TabularDataReader, JsonSerializable
         return ResultSet::from($this)->fetchColumn($index);
     }
 
-    /**
-     * @throws Exception
-     */
-    public function fetchColumnByName(string $name): Iterator
-    {
-        return ResultSet::from($this)->fetchColumnByName($name);
-    }
-
-    /**
-     * @throws Exception
-     */
-    public function fetchColumnByOffset(int $offset = 0): Iterator
-    {
-        return ResultSet::from($this)->fetchColumnByOffset($offset);
-    }
-
     public function value(int|string $column = 0): mixed
     {
         return ResultSet::from($this)->value($column);
@@ -613,6 +597,38 @@ class Reader extends AbstractCsv implements TabularDataReader, JsonSerializable
                 return $formatter($assocRecord);
             }),
         };
+    }
+
+    /**
+     * DEPRECATION WARNING! This method will be removed in the next major point release.
+     *
+     * @throws Exception
+     *
+     * @deprecated since version 9.23.0
+     * @codeCoverageIgnore
+     *
+     * @see ResultSet::fetchColumn()
+     */
+    #[Deprecated(message:'use League\Csv\Resultset::fetchColumn() instead', since:'league/csv:9.23.0')]
+    public function fetchColumnByName(string $name): Iterator
+    {
+        return ResultSet::from($this)->fetchColumnByName($name);
+    }
+
+    /**
+     * DEPRECATION WARNING! This method will be removed in the next major point release.
+     *
+     * @throws Exception
+     *
+     * @deprecated since version 9.23.0
+     * @codeCoverageIgnore
+     *
+     * @see ResultSet::fetchColumn()
+     */
+    #[Deprecated(message:'use League\Csv\Resultset::fetchColumn() instead', since:'league/csv:9.23.0')]
+    public function fetchColumnByOffset(int $offset = 0): Iterator
+    {
+        return ResultSet::from($this)->fetchColumnByOffset($offset);
     }
 
     /**

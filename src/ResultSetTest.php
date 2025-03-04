@@ -109,12 +109,12 @@ final class ResultSetTest extends TabularDataReaderTestCase
         $this->csv->setHeaderOffset(0);
         $resultSet = $this->stmt->process($this->csv);
         if (is_int($field)) {
-            [...$resultSet->fetchColumnByOffset($field)];
+            [...$resultSet->fetchColumn($field)];
 
             return;
         }
 
-        [...$resultSet->fetchColumnByName($field)];
+        [...$resultSet->fetchColumn($field)];
     }
 
     public static function invalidFieldNameProvider(): array
@@ -130,13 +130,13 @@ final class ResultSetTest extends TabularDataReaderTestCase
         $this->expectException(InvalidArgument::class);
 
         $this->csv->setHeaderOffset(0);
-        [...$this->stmt->process($this->csv)->fetchColumnByOffset(-1)];
+        [...$this->stmt->process($this->csv)->fetchColumn(-1)];
     }
 
     public function testFetchColumn(): void
     {
-        self::assertContains('john', [...$this->stmt->process($this->csv)->fetchColumnByOffset(0)]);
-        self::assertContains('jane', [...$this->stmt->process($this->csv)->fetchColumnByOffset(0)]);
+        self::assertContains('john', [...$this->stmt->process($this->csv)->fetchColumn(0)]);
+        self::assertContains('jane', [...$this->stmt->process($this->csv)->fetchColumn(0)]);
     }
 
     public function testFetchColumnByNameTriggersException(): void
@@ -144,7 +144,7 @@ final class ResultSetTest extends TabularDataReaderTestCase
         $this->expectException(InvalidArgument::class);
         $this->csv->setHeaderOffset(0);
 
-        [...$this->stmt->process($this->csv)->fetchColumnByName('foobar')];
+        [...$this->stmt->process($this->csv)->fetchColumn('foobar')];
     }
 
     public function testFetchColumnByOffsetTriggersException(): void
@@ -152,7 +152,7 @@ final class ResultSetTest extends TabularDataReaderTestCase
         $this->expectException(InvalidArgument::class);
         $this->csv->setHeaderOffset(0);
 
-        [...$this->stmt->process($this->csv)->fetchColumnByOffset(24)];
+        [...$this->stmt->process($this->csv)->fetchColumn(24)];
     }
 
     public function testFetchColumnByOffsetTriggersOutOfRangeException(): void
@@ -161,7 +161,7 @@ final class ResultSetTest extends TabularDataReaderTestCase
 
         $this->csv->setHeaderOffset(0);
 
-        [...$this->stmt->process($this->csv)->fetchColumnByOffset(-1)];
+        [...$this->stmt->process($this->csv)->fetchColumn(-1)];
     }
 
     public function testFetchAssocWithRowIndex(): void
@@ -194,7 +194,7 @@ final class ResultSetTest extends TabularDataReaderTestCase
         $csv = Reader::createFromString($source);
         $csv->setHeaderOffset(0);
 
-        self::assertContains('parentA', [...$this->stmt->process($csv)->fetchColumnByName('parent name')]);
+        self::assertContains('parentA', [...$this->stmt->process($csv)->fetchColumn('parent name')]);
     }
 
     public function testFetchColumnInconsistentColumnCSV(): void
@@ -210,7 +210,7 @@ final class ResultSetTest extends TabularDataReaderTestCase
             $file->fputcsv($row, escape: '\\');
         }
         $csv = Reader::createFromFileObject($file);
-        $res = $this->stmt->process($csv)->fetchColumnByOffset(2);
+        $res = $this->stmt->process($csv)->fetchColumn(2);
 
         self::assertCount(1, [...$res]);
     }
@@ -228,7 +228,7 @@ final class ResultSetTest extends TabularDataReaderTestCase
             $file->fputcsv($row, escape: '\\');
         }
         $csv = Reader::createFromFileObject($file);
-        $res = $this->stmt->process($csv)->fetchColumnByOffset(2);
+        $res = $this->stmt->process($csv)->fetchColumn(2);
         self::assertCount(0, [...$res]);
     }
 

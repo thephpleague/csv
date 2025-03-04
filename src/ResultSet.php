@@ -562,26 +562,6 @@ class ResultSet implements TabularDataReader, JsonSerializable
         );
     }
 
-    /**
-     * @throws Exception
-     */
-    public function fetchColumnByName(string $name): Iterator
-    {
-        return $this->yieldColumn(
-            $this->getColumnIndexByValue($name, 'name', __METHOD__)
-        );
-    }
-
-    /**
-     * @throws Exception
-     */
-    public function fetchColumnByOffset(int $offset): Iterator
-    {
-        return $this->yieldColumn(
-            $this->getColumnIndexByKey($offset, 'offset', __METHOD__)
-        );
-    }
-
     protected function yieldColumn(string|int $offset): Generator
     {
         yield from new MapIterator(
@@ -645,6 +625,42 @@ class ResultSet implements TabularDataReader, JsonSerializable
         foreach ($iterator as $pair) {
             yield $pair[0] => $pair[1];
         }
+    }
+
+    /**
+     * DEPRECATION WARNING! This method will be removed in the next major point release.
+     *
+     * @throws Exception
+     *
+     * @deprecated since version 9.23.0
+     * @codeCoverageIgnore
+     *
+     * @see ResultSet::fetchColumn()
+     */
+    #[Deprecated(message:'use League\Csv\Resultset::fetchColumn() instead', since:'league/csv:9.23.0')]
+    public function fetchColumnByName(string $name): Iterator
+    {
+        return $this->yieldColumn(
+            $this->getColumnIndexByValue($name, 'name', __METHOD__)
+        );
+    }
+
+    /**
+     * DEPRECATION WARNING! This method will be removed in the next major point release.
+     *
+     * @throws Exception
+     *
+     * @deprecated since version 9.23.0
+     * @codeCoverageIgnore
+     *
+     * @see ResultSet::fetchColumn()
+     */
+    #[Deprecated(message:'use League\Csv\Resultset::fetchColumn() instead', since:'league/csv:9.23.0')]
+    public function fetchColumnByOffset(int $offset): Iterator
+    {
+        return $this->yieldColumn(
+            $this->getColumnIndexByKey($offset, 'offset', __METHOD__)
+        );
     }
 
     /**
