@@ -23,6 +23,7 @@ use SplTempFileObject;
 use function chr;
 use function fopen;
 use function function_exists;
+use function implode;
 use function ob_get_clean;
 use function ob_start;
 use function strtolower;
@@ -137,13 +138,17 @@ EOF;
         $csv->download('tést.csv');
         ob_end_clean();
         $headers = xdebug_get_headers();
+        if ([] === $headers) {
+            self::markTestSkipped(__METHOD__.' needs the xdebug function `xdebug_get_headers` to run and returns actual data.');
+        }
+        $header = implode("\n", $headers);
 
         // Due to the variety of ways the xdebug expresses Content-Type of text files,
         // we cannot count on complete string matching.
-        self::assertStringContainsString('content-type: text/csv', strtolower($headers[0]));
-        self::assertSame('content-transfer-encoding: binary', strtolower($headers[1]));
-        self::assertSame('content-description: File Transfer', $headers[2]);
-        self::assertStringContainsString('content-disposition: attachment;filename="tst.csv";filename*=UTF-8\'\'t%c3%a9st.csv', $headers[3]);
+        self::assertStringContainsString('content-type: text/csv', strtolower($header));
+        self::assertStringContainsString('content-transfer-encoding: binary', strtolower($header));
+        self::assertStringContainsString('content-description: File Transfer', $header);
+        self::assertStringContainsString('content-disposition: attachment;filename="tst.csv";filename*=UTF-8\'\'t%c3%a9st.csv', $header);
     }
 
     public function testChunkDoesNotTimeoutAfterReading(): void

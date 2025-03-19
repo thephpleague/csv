@@ -24,6 +24,8 @@ use Throwable;
 
 use function array_map;
 use function class_exists;
+use function implode;
+use function xdebug_get_headers;
 
 #[Group('converter')]
 final class XMLConverterTest extends TestCase
@@ -111,14 +113,16 @@ final class XMLConverterTest extends TestCase
         (new XMLConverter())->fieldElement('cell', 'name')->download([['foo' => 'bar']], 'foobar.xml');
         $output = (string) ob_get_clean();
         $headers = xdebug_get_headers();
+        if ([] === $headers) {
+            self::markTestSkipped(__METHOD__.' needs the xdebug function `xdebug_get_headers` to run and returns actual data.');
+        }
+        $header = implode("\n", $headers);
 
-        $xml = '<csv><row><cell name="foo">bar</cell></row></csv>';
-
-        self::assertStringContainsString('content-type: application/xml', strtolower($headers[0]));
-        self::assertSame('content-transfer-encoding: binary', strtolower($headers[1]));
-        self::assertSame('content-description: File Transfer', $headers[2]);
-        self::assertStringContainsString('content-disposition: attachment;filename="foobar.xml"', $headers[3]);
-        self::assertStringContainsString($xml, $output);
+        self::assertStringContainsString('content-type: application/xml', strtolower($header));
+        self::assertStringContainsString('content-transfer-encoding: binary', strtolower($header));
+        self::assertStringContainsString('content-description: File Transfer', $header);
+        self::assertStringContainsString('content-disposition: attachment;filename="foobar.xml"', $header);
+        self::assertStringContainsString('<csv><row><cell name="foo">bar</cell></row></csv>', $output);
     }
 
     public function testToXMLWithFormatter(): void
