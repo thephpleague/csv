@@ -87,6 +87,7 @@ final class CastToDateTest extends TestCase
     public function testItCShouldThrowIfNoConversionIsPossible(): void
     {
         $this->expectException(TypeCastingFailed::class);
+        $this->expectExceptionMessageMatches('/for the object property `dateTimeInterface`/');
 
         (new CastToDate(new ReflectionProperty((new class () {
             public ?MyDateInterface $dateTimeInterface;

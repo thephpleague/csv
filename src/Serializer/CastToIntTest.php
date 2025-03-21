@@ -133,6 +133,7 @@ final class CastToIntTest extends TestCase
     public function testItFailsToConvertNonIntegerString(): void
     {
         $this->expectException(TypeCastingFailed::class);
+        $this->expectExceptionMessageMatches('/for the object property `nullableInt`/');
 
         (new CastToInt(new ReflectionProperty((new class () {
             public ?int $nullableInt;

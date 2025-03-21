@@ -25,10 +25,17 @@ final class CastToFloat implements TypeCasting
 {
     private readonly bool $isNullable;
     private ?float $default = null;
+    private readonly string $variableName;
 
     public function __construct(ReflectionProperty|ReflectionParameter $reflectionProperty)
     {
         $this->isNullable = $this->init($reflectionProperty);
+        $this->variableName = $reflectionProperty->getName();
+    }
+
+    public function variableName(): string
+    {
+        return $this->variableName;
     }
 
     public function setOptions(
@@ -46,16 +53,16 @@ final class CastToFloat implements TypeCasting
         if (null === $value) {
             return match ($this->isNullable) {
                 true => $this->default,
-                false => throw TypeCastingFailed::dueToNotNullableType('float'),
+                false => throw TypeCastingFailed::dueToNotNullableType('float', variableName: $this->variableName),
             };
         }
 
-        is_scalar($value) || throw TypeCastingFailed::dueToInvalidValue($value, Type::Int->value);
+        is_scalar($value) || throw TypeCastingFailed::dueToInvalidValue($value, Type::Int->value, variableName: $this->variableName);
 
         $float = filter_var($value, Type::Float->filterFlag());
 
         return match ($float) {
-            false => throw TypeCastingFailed::dueToInvalidValue($value, Type::Float->value),
+            false => throw TypeCastingFailed::dueToInvalidValue($value, Type::Float->value, variableName: $this->variableName),
             default => $float,
         };
     }
