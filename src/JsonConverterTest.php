@@ -21,6 +21,9 @@ use PHPUnit\Framework\TestCase;
 use RuntimeException;
 use TypeError;
 
+use function implode;
+use function xdebug_get_headers;
+
 use const JSON_FORCE_OBJECT;
 use const JSON_HEX_QUOT;
 use const JSON_PRETTY_PRINT;
@@ -144,13 +147,17 @@ final class JsonConverterTest extends TestCase
         (new JsonConverter())->download([['foo' => 'bar']], 'foobar.json');
         $output = ob_get_clean();
         $headers = xdebug_get_headers();
+        if ([] === $headers) {
+            self::markTestSkipped(__METHOD__.' needs the xdebug function `xdebug_get_headers` to run and returns actual data.');
+        }
+        $header = implode("\n", $headers);
 
         // Due to the variety of ways the xdebug expresses Content-Type of text files,
         // we cannot count on complete string matching.
-        self::assertStringContainsString('content-type: application/json', strtolower($headers[0]));
-        self::assertSame('content-transfer-encoding: binary', strtolower($headers[1]));
-        self::assertSame('content-description: File Transfer', $headers[2]);
-        self::assertStringContainsString('content-disposition: attachment;filename="foobar.json"', $headers[3]);
+        self::assertStringContainsString('content-type: application/json', strtolower($header));
+        self::assertStringContainsString('content-transfer-encoding: binary', strtolower($header));
+        self::assertStringContainsString('content-description: File Transfer', $header);
+        self::assertStringContainsString('content-disposition: attachment;filename="foobar.json"', $header);
         self::assertSame('[{"foo":"bar"}]', $output);
     }
 
