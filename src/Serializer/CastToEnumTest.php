@@ -89,6 +89,7 @@ final class CastToEnumTest extends TestCase
     public function testThrowsOnNullIfTheVariableIsNotNullable(): void
     {
         $this->expectException(TypeCastingFailed::class);
+        $this->expectExceptionMessageMatches('/Casting the property `currency` using the record field `currency` failed;/');
 
         $class = new class () {
             public Currency $currency;

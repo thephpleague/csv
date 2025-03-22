@@ -116,6 +116,8 @@ final class CastToArrayTest extends TestCase
     public function testItFailsToCastInvalidJson(): void
     {
         $this->expectException(TypeCastingFailed::class);
+        $this->expectExceptionMessageMatches('/Casting the property `nullableIterable` using the record field `nullableIterable` failed;/');
+
         $cast = new CastToArray(new ReflectionProperty((new class () {
             public ?iterable $nullableIterable;
         })::class, 'nullableIterable'));
