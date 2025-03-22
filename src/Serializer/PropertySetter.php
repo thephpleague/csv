@@ -54,7 +54,7 @@ final class PropertySetter
     private function getRecordValue(array $record): mixed
     {
         if (!array_key_exists($this->offset, $record)) {
-            throw TypeCastingFailed::dueToUndefinedValue($this->offset, $this->accessor->getName());
+            throw TypeCastingFailed::dueToUndefinedValue($this->offset, TypeCastInfo::fromAccessor($this->accessor));
         }
 
         $value = $record[$this->offset];

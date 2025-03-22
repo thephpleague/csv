@@ -35,7 +35,7 @@ final class CastToDate implements TypeCasting
     private readonly bool $isNullable;
     private DateTimeImmutable|DateTime|null $default = null;
     private readonly Type $type;
-    private readonly string $variableName;
+    private readonly TypeCastInfo $info;
     private ?DateTimeZone $timezone = null;
     private ?string $format = null;
 
@@ -46,7 +46,7 @@ final class CastToDate implements TypeCasting
         ReflectionProperty|ReflectionParameter $reflectionProperty,
     ) {
         [$this->type, $this->class, $this->isNullable] = $this->init($reflectionProperty);
-        $this->variableName = $reflectionProperty->getName();
+        $this->info = TypeCastInfo::fromAccessor($reflectionProperty);
     }
 
     /**
@@ -64,7 +64,7 @@ final class CastToDate implements TypeCasting
             !interface_exists($this->class) && !Type::Mixed->equals($this->type) => $this->class,
             DateTimeInterface::class === $this->class && null === $className => DateTimeImmutable::class,
             interface_exists($this->class) && null !== $className && class_exists($className) && (new ReflectionClass($className))->implementsInterface($this->class) => $className,
-            default => throw new MappingFailed('`'.$this->variableName.'` type is `'.($this->class ?? 'mixed').'` but the specified class via the `$className` argument is invalid or could not be found.'),
+            default => throw new MappingFailed('`'.$this->info->targetName.'` type is `'.($this->class ?? 'mixed').'` but the specified class via the `$className` argument is invalid or could not be found.'),
         };
 
         try {
@@ -76,9 +76,9 @@ final class CastToDate implements TypeCasting
         }
     }
 
-    public function variableName(): string
+    public function info(): TypeCastInfo
     {
-        return $this->variableName;
+        return $this->info;
     }
 
     /**
@@ -89,7 +89,7 @@ final class CastToDate implements TypeCasting
         return match (true) {
             null !== $value && '' !== $value => $this->cast($value),
             $this->isNullable => $this->default,
-            default => throw TypeCastingFailed::dueToNotNullableType($this->class, variableName: $this->variableName),
+            default => throw TypeCastingFailed::dueToNotNullableType($this->class, info: $this->info),
         };
     }
 
@@ -106,7 +106,7 @@ final class CastToDate implements TypeCasting
             return ($this->class)::createFromInterface($value);
         }
 
-        is_string($value) || throw TypeCastingFailed::dueToInvalidValue($value, $this->class, variableName: $this->variableName);
+        is_string($value) || throw TypeCastingFailed::dueToInvalidValue($value, $this->class, info: $this->info);
 
         try {
             $date = null !== $this->format ?
@@ -120,7 +120,7 @@ final class CastToDate implements TypeCasting
                 throw $exception;
             }
 
-            throw TypeCastingFailed::dueToInvalidValue($value, $this->class, $exception, $this->variableName);
+            throw TypeCastingFailed::dueToInvalidValue($value, $this->class, $exception, $this->info);
         }
 
         return $date;

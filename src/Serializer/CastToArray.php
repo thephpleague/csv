@@ -48,7 +48,7 @@ final class CastToArray implements TypeCasting
     private ?array $default = null;
     private bool $trimElementValueBeforeCasting = false;
     private ?int $headerOffset = null;
-    private readonly string $variableName;
+    private readonly TypeCastInfo $info;
 
     /**
      * @throws MappingFailed
@@ -58,12 +58,12 @@ final class CastToArray implements TypeCasting
         [$this->type, $this->isNullable] = $this->init($reflectionProperty);
         $this->shape = ArrayShape::List;
         $this->filterFlag = Type::String->filterFlag();
-        $this->variableName = $reflectionProperty->getName();
+        $this->info = TypeCastInfo::fromAccessor($reflectionProperty);
     }
 
-    public function variableName(): string
+    public function info(): TypeCastInfo
     {
-        return $this->variableName;
+        return $this->info;
     }
 
     /**
@@ -117,7 +117,7 @@ final class CastToArray implements TypeCasting
             return match (true) {
                 $this->isNullable,
                 Type::Mixed->equals($this->type) => $this->default,
-                default => throw TypeCastingFailed::dueToNotNullableType($this->type->value, variableName: $this->variableName),
+                default => throw TypeCastingFailed::dueToNotNullableType($this->type->value, info: $this->info),
             };
         }
 
@@ -130,18 +130,18 @@ final class CastToArray implements TypeCasting
         }
 
         if (!is_string($value)) {
-            throw TypeCastingFailed::dueToInvalidValue($value, $this->type->value, variableName: $this->variableName);
+            throw TypeCastingFailed::dueToInvalidValue($value, $this->type->value, info: $this->info);
         }
 
         if ($this->shape->equals(ArrayShape::Json)) {
             try {
                 $data = json_decode($value, true, $this->depth, $this->flags | JSON_THROW_ON_ERROR);
             } catch (JsonException $exception) {
-                throw TypeCastingFailed::dueToInvalidValue($value, $this->type->value, $exception, $this->variableName);
+                throw TypeCastingFailed::dueToInvalidValue($value, $this->type->value, $exception, $this->info);
             }
 
             if (!is_array($data)) {
-                throw TypeCastingFailed::dueToInvalidValue($value, $this->type->value, variableName: $this->variableName);
+                throw TypeCastingFailed::dueToInvalidValue($value, $this->type->value, info: $this->info);
             }
 
             return $data;
@@ -161,7 +161,7 @@ final class CastToArray implements TypeCasting
 
                 return [...$data];
             } catch (Exception $exception) {
-                throw TypeCastingFailed::dueToInvalidValue($value, $this->type->value, $exception, $this->variableName);
+                throw TypeCastingFailed::dueToInvalidValue($value, $this->type->value, $exception, $this->info);
             }
         }
 

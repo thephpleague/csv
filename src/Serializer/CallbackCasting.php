@@ -43,7 +43,7 @@ final class CallbackCasting implements TypeCasting
     private Closure $callback;
     private array $options = [];
     private string $message;
-    private readonly string $variableName;
+    private readonly TypeCastInfo $info;
 
     public function __construct(
         ReflectionProperty|ReflectionParameter $reflectionProperty,
@@ -57,12 +57,12 @@ final class CallbackCasting implements TypeCasting
         };
 
         $this->callback = fn (mixed $value, bool $isNullable, mixed ...$arguments): mixed => $value;
-        $this->variableName = $reflectionProperty->getName();
+        $this->info = TypeCastInfo::fromAccessor($reflectionProperty);
     }
 
-    public function variableName(): string
+    public function info(): TypeCastInfo
     {
-        return $this->variableName;
+        return $this->info;
     }
 
     /**
@@ -104,12 +104,12 @@ final class CallbackCasting implements TypeCasting
             return ($this->callback)($value, $this->isNullable, ...$this->options);
         } catch (Throwable $exception) {
             ! $exception instanceof TypeCastingFailed || throw $exception;
-            null !== $value || throw TypeCastingFailed::dueToNotNullableType($this->type, $exception, $this->variableName);
+            null !== $value || throw TypeCastingFailed::dueToNotNullableType($this->type, $exception, $this->info);
 
             throw TypeCastingFailed::dueToInvalidValue(match (true) {
                 '' === $value => 'empty string',
                 default => $value,
-            }, $this->type, $exception, $this->variableName);
+            }, $this->type, $exception, $this->info);
         }
     }
 
