@@ -16,24 +16,59 @@ namespace League\Csv\Serializer;
 use RuntimeException;
 use Throwable;
 
+use function is_int;
+
 final class TypeCastingFailed extends RuntimeException implements SerializationFailed
 {
-    public static function dueToNotNullableType(string $type, ?Throwable $exception = null): self
+    public readonly ?TypeCastInfo $info;
+
+    public function __construct(string $message, int $code = 0, ?Throwable $previous = null, ?TypeCastInfo $info = null)
     {
-        return new self('The `null` value can not be cast to an `'.$type.'`; the property type is not nullable.', 0, $exception);
+        parent::__construct(self::format($message, $info), $code, $previous);
+
+        $this->info = $info;
     }
 
-    public static function dueToInvalidValue(mixed $value, string $type, ?Throwable $previous = null): self
+    private static function format(string $message, ?TypeCastInfo $info = null): string
+    {
+        if (null === $info) {
+            return $message;
+        }
+
+        $className = $info->targetClassName;
+        if (null !== $className) {
+            $className .= '::';
+        }
+
+        $target = $info->targetName;
+        $target = (TypeCastingTargetType::MethodFirstArgument === $info->targetType)
+            ? 'the method `'.$className.$info->targetMethodName.'()` first argument `'.$target.'`'
+            : 'the property `'.$className.$target.'`';
+
+        $source = $info->source;
+        $source = is_int($source)
+            ? "the record field offset `$source`"
+            : "the record field `$source`";
+
+        return "Casting $target using $source failed; $message";
+    }
+
+    public static function dueToNotNullableType(string $type, ?Throwable $exception = null, ?TypeCastInfo $info = null): self
+    {
+        return new self('The `null` value can not be cast to a `'.$type.'`; the property type is not nullable.', 0, $exception, $info);
+    }
+
+    public static function dueToInvalidValue(mixed $value, string $type, ?Throwable $previous = null, ?TypeCastInfo $info = null): self
     {
         if (!is_scalar($value)) {
             $value = gettype($value);
         }
 
-        return new self('Unable to cast the given data `'.$value.'` to a `'.$type.'`.', 0, $previous);
+        return new self('Unable to cast the given data `'.$value.'` to a `'.$type.'`.', 0, $previous, $info);
     }
 
-    public static function dueToUndefinedValue(string|int $offset): self
+    public static function dueToUndefinedValue(string|int $offset, ?TypeCastInfo $info = null): self
     {
-        return new self('Unable to cast the record value; Missing value was for  offset`'.$offset.'.', 0);
+        return new self('Unable to cast the record value; Missing value was for offset `'.$offset.'`.', 0, info: $info);
     }
 }

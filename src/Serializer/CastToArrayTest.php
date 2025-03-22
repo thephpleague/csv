@@ -21,6 +21,8 @@ use PHPUnit\Framework\TestCase;
 use ReflectionProperty;
 use Traversable;
 
+use function preg_quote;
+
 final class CastToArrayTest extends TestCase
 {
     /**
@@ -115,10 +117,14 @@ final class CastToArrayTest extends TestCase
 
     public function testItFailsToCastInvalidJson(): void
     {
-        $this->expectException(TypeCastingFailed::class);
-        $cast = new CastToArray(new ReflectionProperty((new class () {
+        $object = new class () {
             public ?iterable $nullableIterable;
-        })::class, 'nullableIterable'));
+        };
+
+        $this->expectException(TypeCastingFailed::class);
+        $this->expectExceptionMessageMatches('/Casting the property `'.preg_quote($object::class, '/').'::nullableIterable` using the record field `nullableIterable` failed;/');
+
+        $cast = new CastToArray(new ReflectionProperty($object::class, 'nullableIterable'));
         $cast->setOptions(shape: 'json');
         $cast->toVariable('{"json":toto}');
     }

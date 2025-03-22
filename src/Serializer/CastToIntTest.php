@@ -20,6 +20,8 @@ use PHPUnit\Framework\TestCase;
 use ReflectionProperty;
 use Traversable;
 
+use function preg_quote;
+
 final class CastToIntTest extends TestCase
 {
     public function testItFailsToInstantiateWithAnUnSupportedType(): void
@@ -132,11 +134,14 @@ final class CastToIntTest extends TestCase
 
     public function testItFailsToConvertNonIntegerString(): void
     {
-        $this->expectException(TypeCastingFailed::class);
-
-        (new CastToInt(new ReflectionProperty((new class () {
+        $object = new class () {
             public ?int $nullableInt;
-        })::class, 'nullableInt')))->toVariable('00foobar');
+        };
+
+        $this->expectException(TypeCastingFailed::class);
+        $this->expectExceptionMessageMatches('/Casting the property `'.preg_quote($object::class, '/').'::nullableInt` using the record field `nullableInt` failed;/');
+
+        (new CastToInt(new ReflectionProperty($object::class, 'nullableInt')))->toVariable('00foobar');
     }
 
     #[DataProvider('invalidPropertyName')]

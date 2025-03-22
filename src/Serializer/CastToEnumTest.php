@@ -20,6 +20,8 @@ use PHPUnit\Framework\TestCase;
 use ReflectionProperty;
 use Traversable;
 
+use function preg_quote;
+
 final class CastToEnumTest extends TestCase
 {
     public function testItCanConvertAStringBackedEnum(): void
@@ -88,11 +90,12 @@ final class CastToEnumTest extends TestCase
 
     public function testThrowsOnNullIfTheVariableIsNotNullable(): void
     {
-        $this->expectException(TypeCastingFailed::class);
-
         $class = new class () {
             public Currency $currency;
         };
+
+        $this->expectException(TypeCastingFailed::class);
+        $this->expectExceptionMessageMatches('/Casting the property `'.preg_quote($class::class, '/').'::currency` using the record field `currency` failed;/');
 
         (new CastToEnum(new ReflectionProperty($class::class, 'currency')))->toVariable(null);
     }
