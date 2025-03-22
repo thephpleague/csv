@@ -23,7 +23,7 @@ use ValueError;
 use function strtolower;
 use function substr;
 
-final class TypeCastInfo
+final class TypeCastingInfo
 {
     public function __construct(
         public readonly int|string $source,

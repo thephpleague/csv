@@ -25,13 +25,13 @@ final class CastToBool implements TypeCasting
 {
     private readonly bool $isNullable;
     private readonly Type $type;
-    private readonly TypeCastInfo $info;
+    private readonly TypeCastingInfo $info;
     private ?bool $default = null;
 
     public function __construct(ReflectionProperty|ReflectionParameter $reflectionProperty)
     {
         [$this->type, $this->isNullable] = $this->init($reflectionProperty);
-        $this->info = TypeCastInfo::fromAccessor($reflectionProperty);
+        $this->info = TypeCastingInfo::fromAccessor($reflectionProperty);
     }
 
     public function setOptions(
@@ -41,7 +41,7 @@ final class CastToBool implements TypeCasting
         $this->default = $default;
     }
 
-    public function info(): TypeCastInfo
+    public function info(): TypeCastingInfo
     {
         return $this->info;
     }

@@ -24,15 +24,15 @@ final class CastToString implements TypeCasting
     private readonly bool $isNullable;
     private readonly Type $type;
     private ?string $default = null;
-    private readonly TypeCastInfo $variableName;
+    private readonly TypeCastingInfo $variableName;
 
     public function __construct(ReflectionProperty|ReflectionParameter $reflectionProperty)
     {
         [$this->type, $this->isNullable] = $this->init($reflectionProperty);
-        $this->variableName = TypeCastInfo::fromAccessor($reflectionProperty);
+        $this->variableName = TypeCastingInfo::fromAccessor($reflectionProperty);
     }
 
-    public function info(): TypeCastInfo
+    public function info(): TypeCastingInfo
     {
         return $this->variableName;
     }

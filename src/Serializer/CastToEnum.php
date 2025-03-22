@@ -28,7 +28,7 @@ class CastToEnum implements TypeCasting
     private readonly bool $isNullable;
     private readonly Type $type;
     private ?UnitEnum $default = null;
-    private readonly TypeCastInfo $info;
+    private readonly TypeCastingInfo $info;
     /** @var class-string<UnitEnum|BackedEnum> */
     private string $class;
 
@@ -38,10 +38,10 @@ class CastToEnum implements TypeCasting
     public function __construct(ReflectionProperty|ReflectionParameter $reflectionProperty)
     {
         [$this->type, $this->class, $this->isNullable] = $this->init($reflectionProperty);
-        $this->info = TypeCastInfo::fromAccessor($reflectionProperty);
+        $this->info = TypeCastingInfo::fromAccessor($reflectionProperty);
     }
 
-    public function info(): TypeCastInfo
+    public function info(): TypeCastingInfo
     {
         return $this->info;
     }

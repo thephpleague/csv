@@ -25,15 +25,15 @@ final class CastToInt implements TypeCasting
 {
     private readonly bool $isNullable;
     private ?int $default = null;
-    private readonly TypeCastInfo $info;
+    private readonly TypeCastingInfo $info;
 
     public function __construct(ReflectionProperty|ReflectionParameter $reflectionProperty)
     {
         $this->isNullable = $this->init($reflectionProperty);
-        $this->info = TypeCastInfo::fromAccessor($reflectionProperty);
+        $this->info = TypeCastingInfo::fromAccessor($reflectionProperty);
     }
 
-    public function info(): TypeCastInfo
+    public function info(): TypeCastingInfo
     {
         return $this->info;
     }

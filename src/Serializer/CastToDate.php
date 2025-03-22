@@ -35,7 +35,7 @@ final class CastToDate implements TypeCasting
     private readonly bool $isNullable;
     private DateTimeImmutable|DateTime|null $default = null;
     private readonly Type $type;
-    private readonly TypeCastInfo $info;
+    private readonly TypeCastingInfo $info;
     private ?DateTimeZone $timezone = null;
     private ?string $format = null;
 
@@ -46,7 +46,7 @@ final class CastToDate implements TypeCasting
         ReflectionProperty|ReflectionParameter $reflectionProperty,
     ) {
         [$this->type, $this->class, $this->isNullable] = $this->init($reflectionProperty);
-        $this->info = TypeCastInfo::fromAccessor($reflectionProperty);
+        $this->info = TypeCastingInfo::fromAccessor($reflectionProperty);
     }
 
     /**
@@ -76,7 +76,7 @@ final class CastToDate implements TypeCasting
         }
     }
 
-    public function info(): TypeCastInfo
+    public function info(): TypeCastingInfo
     {
         return $this->info;
     }

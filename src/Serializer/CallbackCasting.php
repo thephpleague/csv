@@ -43,7 +43,7 @@ final class CallbackCasting implements TypeCasting
     private Closure $callback;
     private array $options = [];
     private string $message;
-    private readonly TypeCastInfo $info;
+    private readonly TypeCastingInfo $info;
 
     public function __construct(
         ReflectionProperty|ReflectionParameter $reflectionProperty,
@@ -57,10 +57,10 @@ final class CallbackCasting implements TypeCasting
         };
 
         $this->callback = fn (mixed $value, bool $isNullable, mixed ...$arguments): mixed => $value;
-        $this->info = TypeCastInfo::fromAccessor($reflectionProperty);
+        $this->info = TypeCastingInfo::fromAccessor($reflectionProperty);
     }
 
-    public function info(): TypeCastInfo
+    public function info(): TypeCastingInfo
     {
         return $this->info;
     }

@@ -48,7 +48,7 @@ final class CastToArray implements TypeCasting
     private ?array $default = null;
     private bool $trimElementValueBeforeCasting = false;
     private ?int $headerOffset = null;
-    private readonly TypeCastInfo $info;
+    private readonly TypeCastingInfo $info;
 
     /**
      * @throws MappingFailed
@@ -58,10 +58,10 @@ final class CastToArray implements TypeCasting
         [$this->type, $this->isNullable] = $this->init($reflectionProperty);
         $this->shape = ArrayShape::List;
         $this->filterFlag = Type::String->filterFlag();
-        $this->info = TypeCastInfo::fromAccessor($reflectionProperty);
+        $this->info = TypeCastingInfo::fromAccessor($reflectionProperty);
     }
 
-    public function info(): TypeCastInfo
+    public function info(): TypeCastingInfo
     {
         return $this->info;
     }
