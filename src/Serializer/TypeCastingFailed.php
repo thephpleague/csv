@@ -50,7 +50,7 @@ final class TypeCastingFailed extends RuntimeException implements SerializationF
 
     public static function dueToNotNullableType(string $type, ?Throwable $exception = null, ?TypeCastInfo $info = null): self
     {
-        return new self('The `null` value can not be cast to an `'.$type.'`; the property type is not nullable.', 0, $exception, $info);
+        return new self('The `null` value can not be cast to a `'.$type.'`; the property type is not nullable.', 0, $exception, $info);
     }
 
     public static function dueToInvalidValue(mixed $value, string $type, ?Throwable $previous = null, ?TypeCastInfo $info = null): self
@@ -64,6 +64,6 @@ final class TypeCastingFailed extends RuntimeException implements SerializationF
 
     public static function dueToUndefinedValue(string|int $offset, ?TypeCastInfo $info = null): self
     {
-        return new self('Unable to cast the record value; Missing value was for offset`'.$offset.'.', 0, info: $info);
+        return new self('Unable to cast the record value; Missing value was for offset `'.$offset.'`.', 0, info: $info);
     }
 }
