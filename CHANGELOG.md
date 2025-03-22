@@ -18,6 +18,7 @@ All Notable changes to `Csv` will be documented in this file
 - `HTMLConverter::when`
 - `JsonConverter::when`
 - `CharsetConverter::appendOnReadTo`, `CharsetConverter::appendOnWriteTo`, `CharsetConverter::prependOnReadTo`, `CharsetConverter::prependOnWriteTo`
+- `TypeCastingInfo` to improve error message when type casting fails during denormalization [#561](https://github.com/thephpleague/csv/pull/561)
 
 ### Deprecated
 
