@@ -115,11 +115,13 @@ final class CastToFloatTest extends TestCase
 
     public function testItFailsToConvertNonIntegerString(): void
     {
-        $this->expectException(TypeCastingFailed::class);
-        $this->expectExceptionMessageMatches('/Casting the property `nullableFloat` using the record field `nullableFloat` failed;/');
-
-        (new CastToFloat(new ReflectionProperty((new class () {
+        $object = new class () {
             public ?float $nullableFloat;
-        })::class, 'nullableFloat')))->toVariable('00foobar');
+        };
+
+        $this->expectException(TypeCastingFailed::class);
+        $this->expectExceptionMessageMatches('/Casting the property `'.preg_quote($object::class, '/').'::nullableFloat` using the record field `nullableFloat` failed;/');
+
+        (new CastToFloat(new ReflectionProperty($object::class, 'nullableFloat')))->toVariable('00foobar');
     }
 }

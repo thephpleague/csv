@@ -18,6 +18,8 @@ use League\Csv\TabularDataReader;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
+use function preg_quote;
+
 final class TypeCastingFailedTest extends TestCase
 {
     private TabularDataReader $reader;
@@ -67,7 +69,7 @@ CSV;
         };
 
         $this->expectException(TypeCastingFailed::class);
-        $this->expectExceptionMessageMatches('/Casting the property `tags` using the record field offset `5` failed;/');
+        $this->expectExceptionMessageMatches('/Casting the property `'.preg_quote($foobar::class, '/').'::tags` using the record field offset `5` failed;/');
 
         $this->reader->nthAsObject(2, $foobar::class);
     }
@@ -100,7 +102,7 @@ CSV;
         };
 
         $this->expectException(TypeCastingFailed::class);
-        $this->expectExceptionMessageMatches('/Casting the property `tags` using the record field `tags` failed;/');
+        $this->expectExceptionMessageMatches('/Casting the property `'.preg_quote($foobar::class, '/').'::tags` using the record field `tags` failed;/');
 
         $this->reader->nthAsObject(2, $foobar::class);
     }
@@ -133,7 +135,7 @@ CSV;
         };
 
         $this->expectException(TypeCastingFailed::class);
-        $this->expectExceptionMessageMatches('/Casting the method `setReview\(\)` first argument `foobar` using the record field `review` failed;/');
+        $this->expectExceptionMessageMatches('/Casting the method `'.preg_quote($foobar::class, '/').'::setReview\(\)` first argument `foobar` using the record field `review` failed;/');
 
         $this->reader->nthAsObject(2, $foobar::class);
     }
@@ -167,7 +169,7 @@ CSV;
         };
 
         $this->expectException(TypeCastingFailed::class);
-        $this->expectExceptionMessageMatches('/Casting the method `setReview\(\)` first argument `foobar` using the record field offset `6` failed;/');
+        $this->expectExceptionMessageMatches('/Casting the method `'.preg_quote($foobar::class, '/').'::setReview\(\)` first argument `foobar` using the record field offset `6` failed;/');
 
         $this->reader->nthAsObject(2, $foobar::class);
     }

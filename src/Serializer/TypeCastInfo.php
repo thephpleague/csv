@@ -30,21 +30,42 @@ final class TypeCastInfo
         public readonly TypeCastingTargetType $targetType,
         public readonly string $targetName,
         public readonly ?string $targetMethodName,
+        public readonly ?string $targetClassName,
     ) {
     }
 
     public static function fromAccessor(ReflectionMethod|ReflectionProperty|ReflectionParameter $accessor): self
     {
-        if ($accessor instanceof ReflectionMethod) {
-            $accessor = $accessor->getParameters()[0] ?? null;
-            if (null === $accessor) {
-                throw new ValueError('The method must contain at least one parameter in its signature.');
-            }
+        return match (true) {
+            $accessor instanceof ReflectionMethod => self::fromMethod($accessor),
+            $accessor instanceof ReflectionParameter => self::fromMethodFirstArgument($accessor),
+            $accessor instanceof ReflectionProperty => self::fromProperty($accessor),
+        };
+    }
+
+    public static function fromMethod(ReflectionMethod $accessor): self
+    {
+        $accessor = $accessor->getParameters()[0] ?? null;
+        if (null === $accessor) {
+            throw new ValueError('The method must contain at least one parameter in its signature.');
         }
 
-        return $accessor instanceof ReflectionProperty
-            ? self::fromProperty($accessor)
-            : self::fromMethodFirstArgument($accessor);
+        return self::fromMethodFirstArgument($accessor);
+    }
+
+    public static function fromMethodFirstArgument(ReflectionParameter $accessor): self
+    {
+        /** @var ReflectionMethod $method */
+        $method = $accessor->getDeclaringFunction();
+        $className = $method->getDeclaringClass()->getName();
+
+        return new self(
+            self::resolveSource($method),
+            TypeCastingTargetType::MethodFirstArgument,
+            $accessor->getName(),
+            $method->getName(),
+            $className,
+        );
     }
 
     public static function fromProperty(ReflectionProperty $accessor): self
@@ -52,23 +73,14 @@ final class TypeCastInfo
         $attributes = $accessor->getAttributes(MapCell::class, ReflectionAttribute::IS_INSTANCEOF);
         $source = [] === $attributes ? $accessor->getName() : ($attributes[0]->newInstance()->column ?? $accessor->getName());
 
+        $className = $accessor->getDeclaringClass()->getName();
+
         return new self(
             $source,
             TypeCastingTargetType::PropertyName,
             $accessor->getName(),
-            null
-        );
-    }
-
-    public static function fromMethodFirstArgument(ReflectionParameter $accessor): self
-    {
-        $method = $accessor->getDeclaringFunction();
-
-        return new self(
-            self::resolveSource($method),
-            TypeCastingTargetType::MethodFirstArgument,
-            $accessor->getName(),
-            $method->getName(),
+            null,
+            $className,
         );
     }
 
@@ -91,7 +103,7 @@ final class TypeCastInfo
     {
         $name = $method->getName();
         if (!str_starts_with($name, 'set')) {
-            throw new ValueError('The method `'.$name.'` has not Mapping information and does not start with `set`.');
+            throw new ValueError('The method `'.$name.'` has no Mapping information and does not start with `set`.');
         }
 
         return strtolower($name[3]).substr($name, 4);

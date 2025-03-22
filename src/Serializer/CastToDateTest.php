@@ -22,6 +22,8 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use ReflectionProperty;
 
+use function preg_quote;
+
 final class CastToDateTest extends TestCase
 {
     public function testItCanConvertADateWithoutArguments(): void
@@ -86,12 +88,14 @@ final class CastToDateTest extends TestCase
 
     public function testItCShouldThrowIfNoConversionIsPossible(): void
     {
-        $this->expectException(TypeCastingFailed::class);
-        $this->expectExceptionMessageMatches('/Casting the property `dateTimeInterface` using the record field `dateTimeInterface` failed;/');
-
-        (new CastToDate(new ReflectionProperty((new class () {
+        $object = new class () {
             public ?MyDateInterface $dateTimeInterface;
-        })::class, 'dateTimeInterface')))->toVariable('DateClass');
+        };
+
+        $this->expectException(TypeCastingFailed::class);
+        $this->expectExceptionMessageMatches('/Casting the property `'.preg_quote($object::class, '/').'::dateTimeInterface` using the record field `dateTimeInterface` failed;/');
+
+        (new CastToDate(new ReflectionProperty($object::class, 'dateTimeInterface')))->toVariable('DateClass');
     }
 
     public function testItCShouldThrowIfTheOptionsAreInvalid(): void

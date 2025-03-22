@@ -35,10 +35,15 @@ final class TypeCastingFailed extends RuntimeException implements SerializationF
             return $message;
         }
 
+        $className = $info->targetClassName;
+        if (null !== $className) {
+            $className .= '::';
+        }
+
         $target = $info->targetName;
         $target = (TypeCastingTargetType::MethodFirstArgument === $info->targetType)
-            ? 'the method `'.$info->targetMethodName.'()` first argument `'.$target.'`'
-            : 'the property `'.$target.'`';
+            ? 'the method `'.$className.$info->targetMethodName.'()` first argument `'.$target.'`'
+            : 'the property `'.$className.$target.'`';
 
         $source = $info->source;
         $source = is_int($source)
