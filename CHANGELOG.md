@@ -2,6 +2,24 @@
 
 All Notable changes to `Csv` will be documented in this file
 
+## [Next](https://github.com/thephpleague/csv/compare/9.22.0...master) - TBD
+
+### Added
+
+- `TypeCastingInfo` to improve error message when type casting fails during denormalization [#561](https://github.com/thephpleague/csv/pull/561)
+
+### Deprecated
+
+- `fetchColumnByOffset` and `fetchColumnByName` use `fetchColumn` instead.
+
+### Fixed
+
+- Test suite around header testing using Xdebug functions
+
+### Remove
+
+- None
+
 ## [9.22.0](https://github.com/thephpleague/csv/compare/9.21.0...9.22.0) - 2025-02-28
 
 ### Added
@@ -18,7 +36,6 @@ All Notable changes to `Csv` will be documented in this file
 - `HTMLConverter::when`
 - `JsonConverter::when`
 - `CharsetConverter::appendOnReadTo`, `CharsetConverter::appendOnWriteTo`, `CharsetConverter::prependOnReadTo`, `CharsetConverter::prependOnWriteTo`
-- `TypeCastingInfo` to improve error message when type casting fails during denormalization [#561](https://github.com/thephpleague/csv/pull/561)
 
 ### Deprecated
 
