@@ -135,7 +135,7 @@ CSV;
         };
 
         $this->expectException(TypeCastingFailed::class);
-        $this->expectExceptionMessageMatches('/Casting the method `'.preg_quote($foobar::class, '/').'::setReview\(\)` first argument `foobar` using the record field `review` failed;/');
+        $this->expectExceptionMessageMatches('/Casting the first argument `foobar` of the method `'.preg_quote($foobar::class, '/').'::setReview\(\)` using the record field `review` failed;/');
 
         $this->reader->nthAsObject(2, $foobar::class);
     }
@@ -169,7 +169,7 @@ CSV;
         };
 
         $this->expectException(TypeCastingFailed::class);
-        $this->expectExceptionMessageMatches('/Casting the method `'.preg_quote($foobar::class, '/').'::setReview\(\)` first argument `foobar` using the record field offset `6` failed;/');
+        $this->expectExceptionMessageMatches('/Casting the first argument `foobar` of the method `'.preg_quote($foobar::class, '/').'::setReview\(\)` using the record field offset `6` failed;/');
 
         $this->reader->nthAsObject(2, $foobar::class);
     }
