@@ -680,7 +680,7 @@ Registering an alias is similar to registering a type via callback:
 ```php
 use League\Csv\Serializer;
 
-Serializer\Denormalizer::registerAlias('@forty-two', 'int', fn (mixed $value): int => 42);
+Serializer\Denormalizer::registerAlias('@forty_two', 'int', fn (mixed $value): int => 42);
 ```
 
 The excepted callback argument follow the same signature and will be called exactly the same as with a type callback.
@@ -693,7 +693,7 @@ Once generated you can use it as shown below:
 use App\Domain\Money
 use League\Csv\Serializer;
 
-#[Serializer\MapCell(column: 'amount', cast: '@forty-two')]
+#[Serializer\MapCell(column: 'amount', cast: '@forty_two')]
 private ?int $amount;
 ```
 
@@ -706,7 +706,7 @@ It is possible to:
 ```php
 use League\Csv\Serializer;
 
-Serializer\Denormalizer::unregisterAlias('@forty-two');
+Serializer\Denormalizer::unregisterAlias('@forty_two');
 Serializer\Denormalizer::unregisterAllAliases();
 ```
 
