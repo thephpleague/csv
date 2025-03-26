@@ -14,7 +14,7 @@ All Notable changes to `Csv` will be documented in this file
 
 ### Fixed
 
-- Test suite around header testing using Xdebug functions
+- Test suite around header testing using Xdebug functions [#559](https://github.com/thephpleague/csv/pull/559)
 
 ### Remove
 
