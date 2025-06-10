@@ -221,27 +221,27 @@ abstract class AbstractCsv implements ByteSequence
      */
     public function chunk(int $length): Generator
     {
-        if ($length < 1) {
-            throw InvalidArgument::dueToInvalidChunkSize($length, __METHOD__);
-        }
+        0 < $length || throw InvalidArgument::dueToInvalidChunkSize($length, __METHOD__);
 
+        $this->getInputBOM();
         $this->document->rewind();
         $this->document->setFlags(0);
-        if (-1 === $this->document->fseek(strlen($this->getInputBOM()))) {
-            throw new RuntimeException('Unable to seek the document.');
-        }
+        $this->is_input_bom_included || -1 < $this->document->fseek($this->input_bom?->length() ?? 0) || throw new RuntimeException('Unable to seek the document.');
 
-        yield from str_split($this->getOutputBOM().$this->document->fread($length), $length);
+        yield from str_split($this->output_bom?->value.$this->document->fread($length), $length);
 
         while ($this->document->valid()) {
-            yield $this->document->fread($length);
+            $chunk = $this->document->fread($length);
+            false !== $chunk || throw new RuntimeException('Unable to read the document.');
+
+            yield $chunk;
         }
     }
 
     /**
      * Retrieves the CSV content.
      *
-     * @throws Exception If the string representation can not be returned
+     * @throws Exception If the string representation cannot be returned
      */
     public function toString(): string
     {
@@ -278,7 +278,7 @@ abstract class AbstractCsv implements ByteSequence
         $this->is_input_bom_included || -1 < $this->document->fseek($this->input_bom?->length() ?? 0) || throw new RuntimeException('Unable to seek the document.');
 
         $documentOutputLength = 0;
-        while (!$this->document->eof()) {
+        while ($this->document->valid()) {
             $chunk = $this->document->fread(8192);
             false !== $chunk || throw new RuntimeException('Unable to read the document.');
             $documentOutputLength += strlen($chunk);
