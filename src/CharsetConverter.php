@@ -272,7 +272,7 @@ class CharsetConverter extends php_user_filter
 
         try {
             set_error_handler(fn (int $errno, string $errstr, string $errfile, int $errline) => true);
-            $outputBuffer = mb_convert_encoding($inputBuffer, $this->output_encoding, $this->input_encoding);
+            $outputBuffer = (string) mb_convert_encoding($inputBuffer, $this->output_encoding, $this->input_encoding);
             $streamBucket = stream_bucket_new($this->stream, $outputBuffer);
             stream_bucket_append($out, $streamBucket);
 

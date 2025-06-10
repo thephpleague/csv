@@ -23,7 +23,6 @@ use Stringable;
 use Throwable;
 
 use function filter_var;
-use function flush;
 use function get_class;
 use function rawurlencode;
 use function sprintf;
@@ -269,17 +268,14 @@ abstract class AbstractCsv implements ByteSequence
 
         $bomOutputLength = 0;
         if (null !== $this->output_bom) {
-            $stream = Stream::createFromString($this->output_bom->value);
-            $stream->rewind();
-            $bomOutputLength = $stream->fpassthru();
-            false !== $bomOutputLength || throw new RuntimeException('Unable to output the document.');
+            echo $this->output_bom->value;
+            $bomOutputLength = $this->output_bom->length();
         }
 
+        $this->getInputBOM();
         $this->document->rewind();
         $this->document->setFlags(0);
-        if (!$this->is_input_bom_included && -1 === $this->document->fseek($this->input_bom?->length() ?? 0)) {
-            throw new RuntimeException('Unable to seek the document.');
-        }
+        $this->is_input_bom_included || -1 < $this->document->fseek($this->input_bom?->length() ?? 0) || throw new RuntimeException('Unable to seek the document.');
 
         $documentOutputLength = 0;
         while (!$this->document->eof()) {

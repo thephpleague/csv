@@ -66,7 +66,7 @@ final class CharsetConverterTest extends TestCase
     public function testCharsetConverterConvertsAnArray(): void
     {
         $expected = ['Batman', 'Superman', 'Anaïs'];
-        $raw = explode(',', mb_convert_encoding(implode(',', $expected), 'iso-8859-15', 'utf-8'));
+        $raw = explode(',', (string) mb_convert_encoding(implode(',', $expected), 'iso-8859-15', 'utf-8'));
         $converter = (new CharsetConverter())
             ->inputEncoding('iso-8859-15')
             ->inputEncoding('iso-8859-15')
@@ -89,7 +89,7 @@ final class CharsetConverterTest extends TestCase
     public function testCharsetConverterAsStreamFilter(): void
     {
         $expected = 'Batman,Superman,Anaïs';
-        $raw = mb_convert_encoding($expected, 'iso-8859-15', 'utf-8');
+        $raw = (string) mb_convert_encoding($expected, 'iso-8859-15', 'utf-8');
         $csv = Reader::createFromString($raw)
             ->appendStreamFilterOnRead('string.toupper');
         CharsetConverter::addTo($csv, 'iso-8859-15', 'utf-8');
@@ -103,8 +103,8 @@ final class CharsetConverterTest extends TestCase
         $this->expectException(InvalidArgument::class);
         stream_filter_register(CharsetConverter::FILTERNAME.'.*', CharsetConverter::class);
         $expected = 'Batman,Superman,Anaïs';
-        $raw = mb_convert_encoding($expected, 'iso-8859-15', 'utf-8');
-        $csv = Reader::createFromString($raw)
+        $raw = (string) mb_convert_encoding($expected, 'iso-8859-15', 'utf-8');
+        Reader::createFromString($raw)
             ->appendStreamFilterOnRead('string.toupper')
             ->appendStreamFilterOnRead('convert.league.csv.iso-8859-15:utf-8')
         ;
