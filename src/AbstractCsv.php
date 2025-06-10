@@ -23,6 +23,7 @@ use Stringable;
 use Throwable;
 
 use function filter_var;
+use function flush;
 use function get_class;
 use function rawurlencode;
 use function sprintf;
@@ -266,25 +267,30 @@ abstract class AbstractCsv implements ByteSequence
             HttpHeaders::forFileDownload($filename, 'text/csv');
         }
 
+        $bomOutputLength = 0;
+        if (null !== $this->output_bom) {
+            $stream = Stream::createFromString($this->output_bom->value);
+            $stream->rewind();
+            $bomOutputLength = $stream->fpassthru();
+            false !== $bomOutputLength || throw new RuntimeException('Unable to output the document.');
+        }
+
         $this->document->rewind();
         $this->document->setFlags(0);
-        if (!$this->is_input_bom_included && -1 === $this->document->fseek(strlen($this->getInputBOM()))) {
+        if (!$this->is_input_bom_included && -1 === $this->document->fseek($this->input_bom?->length() ?? 0)) {
             throw new RuntimeException('Unable to seek the document.');
         }
 
-        $stream = Stream::createFromString($this->getOutputBOM());
-        $stream->rewind();
-        $res1 = $stream->fpassthru();
-        if (false === $res1) {
-            throw new RuntimeException('Unable to output the document.');
+        $documentOutputLength = 0;
+        while (!$this->document->eof()) {
+            $chunk = $this->document->fread(8192);
+            false !== $chunk || throw new RuntimeException('Unable to read the document.');
+            $documentOutputLength += strlen($chunk);
+            echo $chunk;
+            flush();
         }
 
-        $res2 = $this->document->fpassthru();
-        if (false === $res2) {
-            throw new RuntimeException('Unable to output the document.');
-        }
-
-        return $res1 + $res2;
+        return $bomOutputLength + $documentOutputLength;
     }
 
     /**
