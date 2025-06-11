@@ -45,7 +45,7 @@ leaving your source data unchanged.
 
 While the `TabularDataReader` is not a fully fledged collection instance it still exposes a lots of methods
 that fall into the category of records collection manipulations. Because chaining is at the core of most of
-its methods you can be sure that each manipulation returns a new instance preserving your original data.
+the methods you can be sure that each manipulation returns a new instance preserving your original data.
 
 ### Countable, IteratorAggregate
 
@@ -141,11 +141,13 @@ with the `getRecords` method.
 <p class="message-info">You can get more info on how to configure your class to enable this feature by
 visiting the <a href="/9.0/reader/record-mapping">record mapping documentation</a> page</p>
 
-### value, first,  nth, firstAsObject and nthAsObject
+### value, first, last, nth, firstAsObject, lastAsObject and nthAsObject
 
 <p class="message-notice"><code>firstAsObject and nthAsObject</code> were added in version <code>9.14.0</code> for <code>Reader</code> and <code>ResultSet</code>.</p>
 <p class="message-notice"><code>first and nth</code> were added in version <code>9.9.0</code> for <code>Reader</code> and <code>ResultSet</code>.</p>
 <p class="message-notice"><code>value</code> was added in version <code>9.12.0</code> for <code>Reader</code> and <code>ResultSet</code>.</p>
+<p class="message-notice"><code>last and lastAsObject</code> was added in version <code>9.23.0</code> for <code>Buffer</code>.</p>
+<p class="message-notice"><code>last and lastAsObject</code> was added in version <code>9.24.0</code> for <code>Reader</code> and <code>ResultSet</code>.</p>
 
 You may access any record using its offset starting at `0` in the collection using the `nth` method.
 if no record is found, an empty `array` is returned.
@@ -171,10 +173,15 @@ $result->nth(3);
 
 $result->first();
 $result->nth(0);
-//returns the first matching record from the recordset or an empty record if none is found.
+// returns the first matching record from the resultset or an empty record if none is found.
+$result->last();
+// returns the last matching record from the resultset or an empty record if none is found.
 ```
 
-As an alias to `nth`, the `first` method returns the first record from the instance without the need of an argument.
+As an alias to `nth`, the `first` method returns the first record from the instance without
+the need of an argument. The `last` method returns the last record from the instance. It
+is specifically crafted to keep a decent performance even when the underlying document
+is a huge file.
 
 If you are only interested in retrieving a specific value from a single row, you can use
 the `value` method. By default, it will return the first record item, but you are free
@@ -195,16 +202,17 @@ $stmt = (new Statement())
 $result = $stmt->process($reader);
 $result->value(2);       //returns 'john.doe@example.com'
 $result->value('email'); //returns 'john.doe@example.com'
-$result->value('toto'); //returns null
-$result->value(42); //returns null
+$result->value('toto');  //returns null
+$result->value(42);      //returns null
 ```
 
 <p class="message-warning">The <code>fetchOne</code> method was deprecated in version <code>9.9.0</code>.
 it is recommended to use the <code>nth</code> method instead.</p>
 
-`firstAsObject` and `nthAsObject` are counterpart of `first` and `nth` respectively but returns `null` or
-an instance of the specified object. The methods requires, in addition to the record
-offset, the class name and optionally a header mapper just like `getRecordsAsObjects`.
+`firstAsObject` and `nthAsObject` are counterpart of `first` and `nth` respectively but
+returns `null` or an instance of the specified object. The methods require, in addition
+to the record offset, the class name and optionally a header mapper just
+like `getRecordsAsObjects`.
 
 ```php
 use League\Csv\Reader;
