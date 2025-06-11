@@ -6,7 +6,7 @@ All Notable changes to `Csv` will be documented in this file
 
 ### Added
 
-- None
+- `TabularData::last` and `TabularData::lastAsObject`
 
 ### Deprecated
 

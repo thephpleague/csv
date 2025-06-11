@@ -522,6 +522,33 @@ abstract class TabularDataReaderTestCase extends TestCase
     {
         self::assertCount(2, [...$this->tabularDataWithHeader()->chunkBy(4)]);
     }
+
+    /**************************************************************
+     * TabularDataReader::last and TabularDataReader::lastAsObject
+     **************************************************************/
+
+    #[Test]
+    public function it_will_create_a_datable_with_a_header(): void
+    {
+        $weather = new class (new DateTimeImmutable(), 6, 'Brussels') {
+            public function __construct(
+                public readonly DateTimeImmutable $date,
+                public readonly int $temperature,
+                public readonly string $place,
+            ) {
+            }
+        };
+
+        $tabularData = $this->tabularDataWithHeader();
+        $last = $tabularData->last();
+        $objLast = $tabularData->lastAsObject($weather::class);
+
+        self::assertSame(['date' => '2011-01-03', 'temperature' => '5', 'place' => 'Berkeley'], $last);
+        self::assertInstanceOf($weather::class, $objLast);
+        self::assertEquals(new DateTimeImmutable('2011-01-03'), $objLast->date);
+        self::assertSame(5, $objLast->temperature);
+        self::assertEquals('Berkeley', $objLast->place);
+    }
 }
 
 enum Place: string

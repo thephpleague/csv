@@ -21,15 +21,18 @@ use JsonSerializable;
 use League\Csv\Serializer\Denormalizer;
 use League\Csv\Serializer\MappingFailed;
 use League\Csv\Serializer\TypeCastingFailed;
+use ReflectionException;
 use SplFileObject;
 
 use function array_filter;
+use function array_reduce;
 use function array_unique;
 use function is_array;
 use function iterator_count;
 use function strlen;
 use function substr;
 
+use const PHP_INT_MAX;
 use const STREAM_FILTER_READ;
 
 /**
@@ -238,6 +241,80 @@ class Reader extends AbstractCsv implements TabularDataReader, JsonSerializable
     public function first(): array
     {
         return ResultSet::from($this)->first();
+    }
+
+    protected function getLastRecord(array $header): array
+    {
+        $this->document->setFlags(SplFileObject::READ_CSV);
+        $this->document->setCsvControl($this->delimiter, $this->enclosure, $this->escape);
+        $this->document->seek(PHP_INT_MAX);
+        $offset = $this->document->key();
+        $row = false;
+        for (; $offset >= 0; --$offset) {
+            if ($this->header_offset === $offset) {
+                continue;
+            }
+            $this->document->seek($offset);
+            /** @var array|false $row */
+            $row = $this->document->current();
+            if ($row !== [null] && false !== $row) {
+                break;
+            }
+        }
+
+        if (false === $row || $row === [null]) {
+            return [];
+        }
+
+        if (0 === $offset) {
+            $row = $this->removeBOM($row, $this->input_bom?->length() ?? 0, $this->enclosure);
+        }
+
+        $formatter = fn (array $record): array => array_reduce(
+            $this->formatters,
+            fn (array $record, Closure $formatter): array => $formatter($record),
+            $record
+        );
+
+        $record = $row;
+        if ([] === $header) {
+            $header = $this->getHeader();
+            ;
+        }
+
+        if ([] !== $header) {
+            $record = [];
+            foreach ($header as $index => $headerName) {
+                $record[$headerName] = $row[$index] ?? null;
+            }
+        }
+
+        return $formatter($record);
+    }
+
+    public function last(): array
+    {
+        return $this->getLastRecord([]);
+    }
+
+    /**
+     * @param class-string $className
+     *
+     * @throws ReflectionException
+     */
+    public function lastAsObject(string $className, array $header = []): ?object
+    {
+        $lastRecord = $this->getLastRecord($header);
+        if ([] === $lastRecord) {
+            return null;
+        }
+
+        return Denormalizer::assign($className, $lastRecord);
+    }
+
+    protected function getComputedHeader(array $header): array
+    {
+        return [] !== $header ? $header : $this->getHeader();
     }
 
     /**

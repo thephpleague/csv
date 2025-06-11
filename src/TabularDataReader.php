@@ -27,8 +27,6 @@ use IteratorAggregate;
  *
  * @method Iterator fetchColumnByName(string $name) returns a column from its name
  * @method Iterator fetchColumnByOffset(int $offset) returns a column from its offset
- * @method array first() returns the first record from the tabular data.
- * @method object|null firstAsObject(string $className, array $header = []) returns the first record from the tabular data as an instance of the defined class name.
  * @method mixed value(int|string $column = 0) returns a given value from the first element of the tabular data.
  * @method bool each(Closure $callback) iterates over each record and passes it to a closure. Iteration is interrupted if the closure returns false
  * @method bool exists(Closure $callback) tells whether at least one record satisfies the predicate.

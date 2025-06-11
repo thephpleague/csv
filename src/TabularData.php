@@ -18,6 +18,10 @@ use Iterator;
 /**
  * @method array nth(int $nth) returns the nth record from the tabular data.
  * @method object|null nthAsObject(int $nth, string $className, array $header = []) returns the nth record from the tabular data as an instance of the defined class name.
+ * @method array first() returns the first record from the tabular data.
+ * @method object|null firstAsObject(string $className, array $header = []) returns the last record from the tabular data as an instance of the defined class name.
+ * @method array last() returns the first record from the tabular data.
+ * @method object|null lastAsObject(string $className, array $header = []) returns the last record from the tabular data as an instance of the defined class name.
  * @method Iterator map(callable $callback) Run a map over each container record.
  * @method Iterator getRecordsAsObject(string $className, array $header = []) Returns the tabular data records as an iterator object containing instance of the defined class name.
  */

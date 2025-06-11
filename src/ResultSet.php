@@ -27,6 +27,7 @@ use LimitIterator;
 use mysqli_result;
 use PDOStatement;
 use PgSql\Result;
+use ReflectionException;
 use RuntimeException;
 use SQLite3Result;
 use Throwable;
@@ -498,6 +499,14 @@ class ResultSet implements TabularDataReader, JsonSerializable
         return $this->nth(0);
     }
 
+    public function last(): array
+    {
+        $last = [];
+        foreach ($this->getRecords() as $last); /* @phpstan-ignore-line */
+
+        return $last;
+    }
+
     public function value(int|string $column = 0): mixed
     {
         return match (true) {
@@ -553,6 +562,33 @@ class ResultSet implements TabularDataReader, JsonSerializable
     public function firstAsObject(string $className, array $header = []): ?object
     {
         return $this->nthAsObject(0, $className, $header);
+    }
+
+    /**
+     * @param class-string $className
+     *
+     * @throws SyntaxError
+     * @throws ReflectionException
+     */
+    public function lastAsObject(string $className, array $header = []): ?object
+    {
+        $header = $this->prepareHeader($header);
+        $record = $this->last();
+        if ([] === $record) {
+            return null;
+        }
+
+        if ([] === $header || $this->header === $header) {
+            return Denormalizer::assign($className, $record);
+        }
+
+        $row = array_values($record);
+        $record = [];
+        foreach ($header as $offset => $headerName) {
+            $record[$headerName] = $row[$offset] ?? null;
+        }
+
+        return Denormalizer::assign($className, $record);
     }
 
     public function fetchColumn(string|int $index = 0): Iterator
