@@ -312,11 +312,6 @@ class Reader extends AbstractCsv implements TabularDataReader, JsonSerializable
         return Denormalizer::assign($className, $lastRecord);
     }
 
-    protected function getComputedHeader(array $header): array
-    {
-        return [] !== $header ? $header : $this->getHeader();
-    }
-
     /**
      * @throws Exception
      */
