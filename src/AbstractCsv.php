@@ -230,7 +230,7 @@ abstract class AbstractCsv implements ByteSequence
 
         yield from str_split($this->output_bom?->value.$this->document->fread($length), $length);
 
-        while ($this->document->valid()) {
+        while (!$this->document->eof()) {
             $chunk = $this->document->fread($length);
             false !== $chunk || throw new RuntimeException('Unable to read the document.');
 
@@ -278,7 +278,7 @@ abstract class AbstractCsv implements ByteSequence
         $this->is_input_bom_included || -1 < $this->document->fseek($this->input_bom?->length() ?? 0) || throw new RuntimeException('Unable to seek the document.');
 
         $documentOutputLength = 0;
-        while ($this->document->valid()) {
+        while (!$this->document->eof()) {
             $chunk = $this->document->fread(8192);
             false !== $chunk || throw new RuntimeException('Unable to read the document.');
             $documentOutputLength += strlen($chunk);
