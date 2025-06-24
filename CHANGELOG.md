@@ -2,7 +2,7 @@
 
 All Notable changes to `Csv` will be documented in this file
 
-## [Next](https://github.com/thephpleague/csv/compare/9.23.0...master) - TBD
+## [9.24.0](https://github.com/thephpleague/csv/compare/9.23.0...9.24.0) - 2025-06-24
 
 ### Added
 
@@ -14,7 +14,7 @@ All Notable changes to `Csv` will be documented in this file
 
 ### Fixed
 
-- None
+- Improved implementation for `AbstractCsv::download` method
 
 ### Remove
 
@@ -24,7 +24,7 @@ All Notable changes to `Csv` will be documented in this file
 
 ### Added
 
-- `TypeCastingInfo` to improve error message when type casting fails during denormalization [#561](https://github.com/thephpleague/csv/pull/561)
+- `TypeCastingInfo` to improve the error message when type casting fails during denormalization [#561](https://github.com/thephpleague/csv/pull/561)
 
 ### Deprecated
 
