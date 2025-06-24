@@ -43,8 +43,6 @@ class Writer extends AbstractCsv implements TabularDataWriter
     protected int $enclose_all = self::ENCLOSE_NECESSARY;
     /** @var array{0:array<string>,1:array<string>} */
     protected array $enclosure_replace = [[], []];
-    /** @var Closure(array): (int|false) */
-    protected Closure $insertRecord;
 
     protected function resetProperties(): void
     {
@@ -54,17 +52,20 @@ class Writer extends AbstractCsv implements TabularDataWriter
             [$this->enclosure, $this->escape.$this->enclosure.$this->enclosure],
             [$this->enclosure.$this->enclosure, $this->escape.$this->enclosure],
         ];
+    }
 
-        $this->insertRecord = match ($this->enclose_all) {
-            self::ENCLOSE_ALL => fn (array $record): int|false => $this->document->fwrite(implode(
+    protected function insertRecord(array $record): int|false
+    {
+        return match ($this->enclose_all) {
+            self::ENCLOSE_ALL => $this->document->fwrite(implode(
                 $this->delimiter,
                 array_map(
                     fn ($content) => $this->enclosure.$content.$this->enclosure,
                     str_replace($this->enclosure_replace[0], $this->enclosure_replace[1], $record)
                 )
             ).$this->newline),
-            self::ENCLOSE_NONE => fn (array $record): int|false => $this->document->fwrite(implode($this->delimiter, $record).$this->newline),
-            default => fn (array $record): int|false => $this->document->fputcsv($record, $this->delimiter, $this->enclosure, $this->escape, $this->newline),
+            self::ENCLOSE_NONE => $this->document->fwrite(implode($this->delimiter, $record).$this->newline),
+            default => $this->document->fputcsv($record, $this->delimiter, $this->enclosure, $this->escape, $this->newline),
         };
     }
 
@@ -143,7 +144,7 @@ class Writer extends AbstractCsv implements TabularDataWriter
         $record = array_reduce($this->formatters, fn (array $record, callable $formatter): array => $formatter($record), $record);
         $this->validateRecord($record);
         set_error_handler(fn (int $errno, string $errstr, string $errfile, int $errline) => true);
-        $bytes = ($this->insertRecord)($record);
+        $bytes = $this->insertRecord($record);
         restore_error_handler();
         if (false === $bytes) {
             throw CannotInsertRecord::triggerOnInsertion($record);
