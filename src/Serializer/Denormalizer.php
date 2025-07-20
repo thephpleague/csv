@@ -386,8 +386,11 @@ final class Denormalizer
         return false; // No match
     }
 
-    private static function normalizeKey(string $key): string
+    private static function normalizeKey(?string $key): ?string
     {
+        if (is_null($key)) {
+            return null;
+        }
         // Remove spaces and underscores
         $key = str_replace([' ', '_'], '', $key);
 
