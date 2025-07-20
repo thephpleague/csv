@@ -341,7 +341,8 @@ final class Denormalizer
             }
 
             /** @var int<0, max>|false $index */
-            $index = array_search($offset, $propertyNames, true);
+            $index = self::normalizedMatch($offset, $propertyNames);
+
             if (false === $index) {
                 throw new MappingFailed('The `'.$offset.'` property could not be found in the property names list; Please verify your property names list.');
             }
@@ -370,7 +371,34 @@ final class Denormalizer
         };
     }
 
-    /**
+
+
+    public static function normalizedMatch(string $needle, array $haystack): int|false
+    {
+        $normalizedNeedle = self::normalizeKey($needle);
+
+        foreach ($haystack as $index => $item) {
+            if (self::normalizeKey($item) === $normalizedNeedle) {
+                return $index; // Return the matching index
+            }
+        }
+
+        return false; // No match
+    }
+
+    private static function normalizeKey(string $key): string
+    {
+        // Remove spaces and underscores
+        $key = str_replace([' ', '_'], '', $key);
+
+        // Convert camelCase to lowercase (flatten everything)
+        $key = strtolower(preg_replace('/([a-z])([A-Z])/', '$1$2', $key));
+
+        return $key;
+    }
+
+
+/**
      * @throws MappingFailed
      */
     private function getMethodFirstArgument(ReflectionMethod $reflectionMethod): ReflectionParameter

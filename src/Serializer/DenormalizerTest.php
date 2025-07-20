@@ -63,6 +63,50 @@ final class DenormalizerTest extends TestCase
         }
     }
 
+    public function testItFindsNormalizedColumns(): void
+    {
+        $records = [
+            [
+                'observedOn' => '2023-10-30',
+                'temperature' => '-1.5',
+                'place' => 'Abidjan',
+            ],
+            [
+                'observed_on' => '2023-10-30',
+                'temperature' => '-3',
+                'place' => 'Abidjan',
+            ],
+            [
+                'observed On' => '2023-10-30',
+                'temperature' => '-3',
+                'place' => 'Abidjan',
+            ],
+            [
+                'observedon' => '2023-10-30',
+                'temperature' => '-3',
+                'place' => 'Abidjan',
+            ],
+        ];
+
+        $class = new class (5, Place::Yamoussokro, new DateTimeImmutable()) {
+            public function __construct(
+                public readonly float $temperature,
+                public readonly Place $place,
+                #[MapCell(
+                    options: ['format' => '!Y-m-d', 'timezone' => 'Africa/Kinshasa'],
+                )]
+                public readonly DateTimeInterface $observedOn
+            ) {
+            }
+        };
+
+        $results = [...Denormalizer::assignAll($class::class, $records, ['observedOn', 'temperature', 'place'])];
+        self::assertCount(4, $results);
+        foreach ($results as $result) {
+            self::assertInstanceOf($class::class, $result);
+        }
+    }
+
     public function testItConvertsARecordsToAnObjectUsingRecordAttribute(): void
     {
         $record = [
