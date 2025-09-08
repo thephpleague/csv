@@ -368,7 +368,7 @@ echo json_encode($reader, JSON_PRETTY_PRINT), PHP_EOL;
 
 $reader->setHeaderOffset(0);
 echo '<pre>', PHP_EOL;
-echo json_encode($result, JSON_PRETTY_PRINT), PHP_EOL;
+echo json_encode($reader, JSON_PRETTY_PRINT), PHP_EOL;
 //display
 //[
 //    {
