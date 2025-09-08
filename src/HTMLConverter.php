@@ -90,7 +90,7 @@ class HTMLConverter
                 if ('' !== $this->column_attr) {
                     $td->setAttribute($this->column_attr, (string) $field_name);
                 }
-                $td->appendChild($document->createTextNode($field_value));
+                $td->appendChild($document->createTextNode((string) $field_value));
                 $tr->appendChild($td);
             }
 
@@ -120,7 +120,7 @@ class HTMLConverter
         foreach ($record as $field_value) {
             $th = $document->createElement('th');
             $th->setAttribute('scope', 'col');
-            $th->appendChild($document->createTextNode($field_value));
+            $th->appendChild($document->createTextNode((string) $field_value));
             $tr->appendChild($th);
         }
 
