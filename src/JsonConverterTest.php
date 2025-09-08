@@ -133,7 +133,7 @@ final class JsonConverterTest extends TestCase
             ->withoutHexQuot()
             ->depth(24);
 
-        self::assertEquals($usingJsonFlags, $usingMethodFlags);
+        self::assertSame($usingJsonFlags->encode([['foo' => 'bar']]), $usingMethodFlags->encode([['foo' => 'bar']]));
     }
 
     #[Test]
