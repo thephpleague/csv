@@ -208,7 +208,7 @@ final class JsonConverterTest extends TestCase
     #[Test]
     public function it_can_generate_an_empty_ldjson_file(): void
     {
-        $converter = (new JsonConverter())->format(JsonFormat::LdJson);
+        $converter = (new JsonConverter())->format(JsonFormat::NdJson);
 
         self::assertSame('', $converter->encode([]));
     }
@@ -216,7 +216,7 @@ final class JsonConverterTest extends TestCase
     #[Test]
     public function it_can_generate_ldjson_file_with_data(): void
     {
-        $converter = (new JsonConverter())->format(JsonFormat::LdJson);
+        $converter = (new JsonConverter())->format(JsonFormat::NdJson);
 
         self::assertSame(
             '{"foo":"bar"}'."\n".'{"foo":"bar"}'."\n".'{"foo":"bar"}'."\n",
@@ -232,9 +232,9 @@ final class JsonConverterTest extends TestCase
     public function it_can_tell_which_fornat_it_is_using(): void
     {
         $converter = new JsonConverter();
-        $newConverter = $converter->format(JsonFormat::LdJson);
+        $newConverter = $converter->format(JsonFormat::NdJson);
 
         self::assertSame(JsonFormat::Standard, $converter->format);
-        self::assertSame(JsonFormat::LdJson, $newConverter->format);
+        self::assertSame(JsonFormat::NdJson, $newConverter->format);
     }
 }

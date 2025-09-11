@@ -163,18 +163,18 @@ final class JsonConverter
             $chunkFormatter = fn (array $value): array => $value;
         }
 
-        if (JsonFormat::LdJson === $this->format) {
+        if (JsonFormat::NdJson === $this->format) {
             $start = '';
             $end = "\n";
             $separator = "\n";
         }
 
-        $this->emptyIterable = JsonFormat::LdJson === $this->format ? '' : $start.$end;
+        $this->emptyIterable = JsonFormat::NdJson === $this->format ? '' : $start.$end;
         if ($this->usePrettyPrint()) {
             $start .= "\n";
             $end = "\n".$end;
             $separator .= "\n";
-            if (JsonFormat::LdJson === $this->format) {
+            if (JsonFormat::NdJson === $this->format) {
                 $start = '';
                 $end = "\n";
                 $separator = "\n";
@@ -398,7 +398,7 @@ final class JsonConverter
     public function download(iterable $records, ?string $filename = null): int
     {
         if (null !== $filename) {
-            $mimetype = JsonFormat::LdJson === $this->format ? 'application/jsonl' : 'application/json';
+            $mimetype = JsonFormat::NdJson === $this->format ? 'application/jsonl' : 'application/json';
             HttpHeaders::forFileDownload($filename, $mimetype.'; charset=utf-8');
         }
 
@@ -492,12 +492,14 @@ final class JsonConverter
 
         $chunk = [];
         $chunkOffset = 0;
-        $chunkSize = JsonFormat::LdJson === $this->format ? 1 : $this->chunkSize;
+        $chunkSize = JsonFormat::NdJson === $this->format ? 1 : $this->chunkSize;
         $offset = 0;
         $current = $iterator->current();
         $iterator->next();
 
-        yield $this->start;
+        if (JsonFormat::NdJson !== $this->format) {
+            yield $this->start;
+        }
 
         while ($iterator->valid()) {
             if ($chunkOffset === $chunkSize) {

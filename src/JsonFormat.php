@@ -16,5 +16,5 @@ namespace League\Csv;
 enum JsonFormat
 {
     case Standard;
-    case LdJson;
+    case NdJson;
 }
