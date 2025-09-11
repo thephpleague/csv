@@ -73,6 +73,7 @@ final class JsonConverterTest extends TestCase
                 ->removeFlags(0)
                 ->depth(512)
                 ->chunkSize(500)
+                ->format(JsonFormat::Standard)
         );
     }
 
@@ -202,5 +203,38 @@ final class JsonConverterTest extends TestCase
         $converter = $converter->withoutPrettyPrint();
         self::assertSame(2, $converter->indentSize);
         self::assertFalse($converter->usePrettyPrint());
+    }
+
+    #[Test]
+    public function it_can_generate_an_empty_ldjson_file(): void
+    {
+        $converter = (new JsonConverter())->format(JsonFormat::LdJson);
+
+        self::assertSame('', $converter->encode([]));
+    }
+
+    #[Test]
+    public function it_can_generate_ldjson_file_with_data(): void
+    {
+        $converter = (new JsonConverter())->format(JsonFormat::LdJson);
+
+        self::assertSame(
+            '{"foo":"bar"}'."\n".'{"foo":"bar"}'."\n".'{"foo":"bar"}'."\n",
+            $converter->encode([
+                ['foo' => 'bar'],
+                ['foo' => 'bar'],
+                ['foo' => 'bar'],
+            ])
+        );
+    }
+
+    #[Test]
+    public function it_can_tell_which_fornat_it_is_using(): void
+    {
+        $converter = new JsonConverter();
+        $newConverter = $converter->format(JsonFormat::LdJson);
+
+        self::assertSame(JsonFormat::Standard, $converter->format);
+        self::assertSame(JsonFormat::LdJson, $newConverter->format);
     }
 }

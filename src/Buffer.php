@@ -90,8 +90,12 @@ final class Buffer implements TabularData
      *
      * @throws RuntimeException|SyntaxError If the column names can not be found
      */
-    public static function from(PDOStatement|Result|mysqli_result|SQLite3Result|TabularData $dataStorage, int $options = self::INCLUDE_HEADER): self
+    public static function from(PDOStatement|Result|mysqli_result|SQLite3Result|TabularData|TabularDataProvider $dataStorage, int $options = self::INCLUDE_HEADER): self
     {
+        if ($dataStorage instanceof TabularDataProvider) {
+            $dataStorage = $dataStorage->getTabularData();
+        }
+
         /** @var Iterator<int, array> $rows */
         $rows = $dataStorage instanceof TabularData ? $dataStorage->getRecords() : RdbmsResult::rows($dataStorage);
         $instance = new self(match (true) {

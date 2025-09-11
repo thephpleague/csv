@@ -13,12 +13,13 @@ declare(strict_types=1);
 
 namespace League\Csv\Query;
 
+use Deprecated;
 use League\Csv\MapIterator;
 use LimitIterator;
 
 final class Limit
 {
-    private function __construct(
+    public function __construct(
         public readonly int $offset,
         public readonly int $length,
     ) {
@@ -26,6 +27,14 @@ final class Limit
         -2 < $this->length || throw new QueryException(self::class.' expects the length to be greater or equal to -1, '.$this->length.' given.');
     }
 
+    /**
+     * DEPRECATION WARNING! This method will be removed in the next major point release.
+     *
+     * @see Limit::__construct()
+     * @deprecated Since version 9.25.0
+     * @codeCoverageIgnore
+     */
+    #[Deprecated(message:'use League\Csv\JsonConverter::__construct() instead', since:'league/csv:9.25.0')]
     public static function new(int $offset, int $length): self
     {
         return new self($offset, $length);

@@ -316,10 +316,10 @@ class Statement
      * @throws InvalidArgument
      * @throws SyntaxError
      */
-    public function process(TabularData $tabular_data, array $header = []): TabularDataReader
+    public function process(TabularData|TabularDataProvider $tabular_data, array $header = []): TabularDataReader
     {
-        if (!$tabular_data instanceof TabularDataReader) {
-            $tabular_data = ResultSet::from($tabular_data);
+        if ($tabular_data instanceof TabularDataProvider) {
+            $tabular_data = $tabular_data->getTabularData();
         }
 
         if ([] === $header) {
@@ -336,7 +336,7 @@ class Statement
         }
 
         if (0 !== $this->offset || -1 !== $this->limit) {
-            $iterator = Query\Limit::new($this->offset, $this->limit)->slice($iterator);
+            $iterator = (new Query\Limit($this->offset, $this->limit))->slice($iterator);
         }
 
         $iterator = new ResultSet($iterator, $header);

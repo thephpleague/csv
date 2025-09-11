@@ -284,6 +284,47 @@ If you provide a string or a `SplFileInfo` instance:
 - the file will be open using the `w` open mode.
 - You can provide an additional `$context` parameter, a la `fopen`, to fine tune where and how the JSON file will be stored.
 
+
+## JSON Format
+
+<p class="message-notice">available since version <code>9.25.0</code></p>
+
+When exporting a collection to JSON, you can choose between two output styles:
+
+- **Standard JSON** – the entire collection is represented as a single JSON array.
+- **JSON Lines (LDJSON)** – each record is written as a separate [JSON object on its own line](https://jsonlines.org/).
+
+The `JsonConverter::format` method allows you to configure which style to use:
+
+```php
+use League\Csv\JsonConverter;
+use League\Csv\JsonFormat;
+
+echo (new JsonConverter())
+    ->format(JsonFormat::LdJson)
+    ->encode([
+        ['city' => 'Accra', 'country' => 'Ghana'],
+        ['city' => 'Nouakchott', 'country' => 'Mauritania'],
+        ['city' => 'Gaborone', 'country' => 'Botswana'],
+    ]);
+// returns
+// {"city":"Accra","country":"Ghana"}
+// {"city":"Nouakchott","country":"Mauritania"}
+// {"city":"Gaborone","country":"Botswana"}
+```
+You can inspect the current format via the `JsonConverter::format` property.
+This property always contains one of the `JsonFormat` enum values:
+
+- `JsonFormat::Standard`— produces a single JSON array containing all records.
+- `JsonFormat::LdJson` — produces one JSON object per line.
+
+<p class="message-warning">The converter does not restrict JSON encoding options when using
+<code>JsonFormat::LdJson</code>. For example, enabling <code>JSON_PRETTY_PRINT</code>
+will still work, but it will technically generate a non-compliant JSON Lines output.</p>
+
+<p class="message-warning">When <code>JsonFormat::LdJson</code> is selected, 
+the <code>chunksize</code> feature is disabled.</p>
+
 ## Download
 
 <p class="message-warning">If you are using the package inside a framework please use the framework recommended way instead of the describe mechanism hereafter.</p>

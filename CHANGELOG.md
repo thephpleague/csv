@@ -2,6 +2,28 @@
 
 All Notable changes to `Csv` will be documented in this file
 
+## [Next](https://github.com/thephpleague/csv/compare/9.24.1...master) - TBD
+
+### Added
+
+- `JsonFormat` Enum to allow exporting to JsonLines with the `JsonConverter` object.
+- `TabularDataProvider` interface to allow connecting to the package features without implementing all the methods.
+
+### Deprecated
+
+- None
+
+### Fixed
+
+- Fix possible memory leaks with the `Writer` class [#563](https://github.com/thephpleague/csv/issues/563) - thanks to [pope-12](https://github.com/pope-12)
+- Fix test around equality, PHPUnit and closures [#568](https://github.com/thephpleague/csv/issues/568)
+- Added support for `PHP8.5` in github actions
+- Ensure `DOMDocument::createTextNode()` [] receives a string [#567](https://github.com/thephpleague/csv/pull/567) by [serpentblade](https://github.com/serpentblade)
+
+### Remove
+
+- None
+
 ## [9.24.1](https://github.com/thephpleague/csv/compare/9.24.0...9.24.1) - 2025-06-25
 
 ### Added

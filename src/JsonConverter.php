@@ -109,13 +109,10 @@ final class JsonConverter
     public readonly ?Closure $formatter;
     /** @var int<1, max> */
     public readonly int $chunkSize;
-    /** @var non-empty-string */
+    public readonly JsonFormat $format;
     private readonly string $start;
-    /** @var non-empty-string */
     private readonly string $end;
-    /** @var non-empty-string */
     private readonly string $separator;
-    /** @var non-empty-string */
     private readonly string $emptyIterable;
     /** @var non-empty-string */
     private readonly string $indentation;
@@ -137,7 +134,8 @@ final class JsonConverter
         int $depth = 512,
         int $indentSize = 4,
         ?callable $formatter = null,
-        int $chunkSize = 500
+        int $chunkSize = 500,
+        JsonFormat $jsonFormat = JsonFormat::Standard,
     ) {
         json_encode([], $flags & ~JSON_THROW_ON_ERROR, $depth);
 
@@ -149,10 +147,10 @@ final class JsonConverter
         $this->depth = $depth;
         $this->indentSize = $indentSize;
         $this->formatter = ($formatter instanceof Closure || null === $formatter) ? $formatter : $formatter(...);
-        $this->chunkSize = $chunkSize;
+        $this->format = $jsonFormat;
 
         // Initialize settings and closure to use for conversion.
-        // To speed up the process we pre-calculate them
+        // To speed up the process, we pre-calculate them
         $this->indentation = str_repeat(' ', $this->indentSize);
         $start = '[';
         $end = ']';
@@ -165,15 +163,27 @@ final class JsonConverter
             $chunkFormatter = fn (array $value): array => $value;
         }
 
-        $this->emptyIterable = $start.$end;
+        if (JsonFormat::LdJson === $this->format) {
+            $start = '';
+            $end = "\n";
+            $separator = "\n";
+        }
+
+        $this->emptyIterable = JsonFormat::LdJson === $this->format ? '' : $start.$end;
         if ($this->usePrettyPrint()) {
             $start .= "\n";
             $end = "\n".$end;
             $separator .= "\n";
+            if (JsonFormat::LdJson === $this->format) {
+                $start = '';
+                $end = "\n";
+                $separator = "\n";
+            }
             $prettyPrintFormatter = $this->prettyPrint(...);
         }
 
         $flags = ($this->flags & ~JSON_PRETTY_PRINT) | JSON_THROW_ON_ERROR;
+        $this->chunkSize = $chunkSize;
         $this->start = $start;
         $this->end = $end;
         $this->separator = $separator;
@@ -237,7 +247,7 @@ final class JsonConverter
 
         return match (true) {
             $flags === $this->flags && $indentSize === $this->indentSize => $this,
-            default => new self($flags, $this->depth, $indentSize, $this->formatter, $this->chunkSize),
+            default => new self($flags, $this->depth, $indentSize, $this->formatter, $this->chunkSize, $this->format),
         };
     }
 
@@ -302,6 +312,14 @@ final class JsonConverter
         return [] !== $flags;
     }
 
+    public function format(JsonFormat $format): self
+    {
+        return match ($format) {
+            $this->format => $this,
+            default => new self($this->flags, $this->depth, $this->indentSize, $this->formatter, $this->chunkSize, $format),
+        };
+    }
+
     /**
      * Sets the encoding flags.
      */
@@ -309,7 +327,7 @@ final class JsonConverter
     {
         return match ($flags) {
             $this->flags => $this,
-            default => new self($flags, $this->depth, $this->indentSize, $this->formatter, $this->chunkSize),
+            default => new self($flags, $this->depth, $this->indentSize, $this->formatter, $this->chunkSize, $this->format),
         };
     }
 
@@ -322,7 +340,7 @@ final class JsonConverter
     {
         return match ($depth) {
             $this->depth => $this,
-            default => new self($this->flags, $depth, $this->indentSize, $this->formatter, $this->chunkSize),
+            default => new self($this->flags, $depth, $this->indentSize, $this->formatter, $this->chunkSize, $this->format),
         };
     }
 
@@ -335,7 +353,7 @@ final class JsonConverter
     {
         return match ($chunkSize) {
             $this->chunkSize => $this,
-            default => new self($this->flags, $this->depth, $this->indentSize, $this->formatter, $chunkSize),
+            default => new self($this->flags, $this->depth, $this->indentSize, $this->formatter, $chunkSize, $this->format),
         };
     }
 
@@ -344,7 +362,7 @@ final class JsonConverter
      */
     public function formatter(?callable $formatter): self
     {
-        return new self($this->flags, $this->depth, $this->indentSize, $formatter, $this->chunkSize);
+        return new self($this->flags, $this->depth, $this->indentSize, $formatter, $this->chunkSize, $this->format);
     }
 
     /**
@@ -380,7 +398,8 @@ final class JsonConverter
     public function download(iterable $records, ?string $filename = null): int
     {
         if (null !== $filename) {
-            HttpHeaders::forFileDownload($filename, 'application/json; charset=utf-8');
+            $mimetype = JsonFormat::LdJson === $this->format ? 'application/jsonl' : 'application/json';
+            HttpHeaders::forFileDownload($filename, $mimetype.'; charset=utf-8');
         }
 
         return $this->save($records, new SplFileObject('php://output', 'wb'));
@@ -473,6 +492,7 @@ final class JsonConverter
 
         $chunk = [];
         $chunkOffset = 0;
+        $chunkSize = JsonFormat::LdJson === $this->format ? 1 : $this->chunkSize;
         $offset = 0;
         $current = $iterator->current();
         $iterator->next();
@@ -480,7 +500,7 @@ final class JsonConverter
         yield $this->start;
 
         while ($iterator->valid()) {
-            if ($chunkOffset === $this->chunkSize) {
+            if ($chunkOffset === $chunkSize) {
                 yield ($this->jsonEncodeChunk)($chunk).$this->separator;
 
                 $chunkOffset = 0;
@@ -517,7 +537,7 @@ final class JsonConverter
     {
         return match ($indentSize) {
             $this->indentSize => $this,
-            default => new self($this->flags, $this->depth, $indentSize, $this->formatter, $this->chunkSize),
+            default => new self($this->flags, $this->depth, $indentSize, $this->formatter, $this->chunkSize, $this->format),
         };
     }
 
@@ -536,7 +556,8 @@ final class JsonConverter
             depth: 512,
             indentSize: 4,
             formatter: null,
-            chunkSize: 500
+            chunkSize: 500,
+            jsonFormat: JsonFormat::Standard
         );
     }
 }

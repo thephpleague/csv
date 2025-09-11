@@ -52,9 +52,20 @@ class FragmentFinder
      * @throws SyntaxError
      * @return iterable<int, TabularDataReader>
      */
-    public function findAll(string $expression, TabularData $tabularData): iterable
+    public function findAll(string $expression, TabularData|TabularDataProvider $tabularData): iterable
     {
+        $tabularData = self::tabularData($tabularData);
+
         return $this->find($this->parseExpression($expression, $tabularData), $tabularData);
+    }
+
+    private static function tabularData(TabularData|TabularDataProvider $tabularData): TabularData
+    {
+        if ($tabularData instanceof TabularData) {
+            return $tabularData;
+        }
+
+        return $tabularData->getTabularData();
     }
 
     /**
@@ -66,8 +77,9 @@ class FragmentFinder
      *
      * @throws SyntaxError
      */
-    public function findFirst(string $expression, TabularData $tabularData): ?TabularDataReader
+    public function findFirst(string $expression, TabularData|TabularDataProvider $tabularData): ?TabularDataReader
     {
+        $tabularData = self::tabularData($tabularData);
         $fragment = $this->find($this->parseExpression($expression, $tabularData), $tabularData)[0];
 
         return match ([]) {
@@ -86,8 +98,9 @@ class FragmentFinder
      * @throws SyntaxError
      * @throws FragmentNotFound if the expression can not be parsed
      */
-    public function findFirstOrFail(string $expression, TabularData $tabularData): TabularDataReader
+    public function findFirstOrFail(string $expression, TabularData|TabularDataProvider $tabularData): TabularDataReader
     {
+        $tabularData = self::tabularData($tabularData);
         $parsedExpression = $this->parseExpression($expression, $tabularData);
         if ([] !== array_filter($parsedExpression['selections'], fn (array $selection) => -1 === $selection['start'])) {
             throw new FragmentNotFound('The expression `'.$expression.'` contains an invalid or an unsupported selection for the tabular data.');
