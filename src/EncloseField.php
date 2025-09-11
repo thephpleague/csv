@@ -20,8 +20,6 @@ use Throwable;
 
 use function array_map;
 use function in_array;
-use function restore_error_handler;
-use function set_error_handler;
 use function str_replace;
 use function strcspn;
 use function stream_bucket_append;
@@ -135,9 +133,9 @@ class EncloseField extends php_user_filter
             return PSFS_ERR_FATAL;
         }
 
-        set_error_handler(fn (int $errno, string $errstr, string $errfile, int $errline) => true);
-        stream_bucket_append($out, stream_bucket_new($this->stream, $data));
-        restore_error_handler();
+        Warning::cloak(function () use ($data, $out) {
+            stream_bucket_append($out, stream_bucket_new($this->stream, $data));
+        });
 
         return PSFS_PASS_ON;
     }

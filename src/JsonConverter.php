@@ -34,8 +34,6 @@ use function is_string;
 use function json_encode;
 use function json_last_error;
 use function preg_match;
-use function restore_error_handler;
-use function set_error_handler;
 use function str_repeat;
 use function str_replace;
 use function str_starts_with;
@@ -155,7 +153,11 @@ final class JsonConverter
         $start = '[';
         $end = ']';
         $separator = ',';
-        $chunkFormatter = array_values(...);
+        $chunkFormatter = fn (array $value): array => $value;
+        if (JsonFormat::NdJson !== $this->format) {
+            $chunkFormatter = array_values(...);
+        }
+
         $prettyPrintFormatter = fn (string $json): string => $json;
         if ($this->useForceObject()) {
             $start = '{';
@@ -187,11 +189,9 @@ final class JsonConverter
         $this->start = $start;
         $this->end = $end;
         $this->separator = $separator;
-        $this->jsonEncodeChunk = fn (array $chunk): string => ($prettyPrintFormatter)(substr(
-            string: json_encode(($chunkFormatter)($chunk), $flags, $this->depth), /* @phpstan-ignore-line */
-            offset: 1,
-            length: -1
-        ));
+        $this->jsonEncodeChunk = (JsonFormat::NdJson === $this->format)
+            ? fn (array $chunk): string => implode($this->separator, array_map(fn ($value) => json_encode(($chunkFormatter)($value), $flags, $this->depth), $chunk))
+            : fn (array $chunk): string => ($prettyPrintFormatter)(substr(json_encode(($chunkFormatter)($chunk), $flags, $this->depth), /* @phpstan-ignore-line */ 1, -1));
     }
 
     /**
@@ -452,14 +452,14 @@ final class JsonConverter
         };
         $bytes = 0;
         $writtenBytes = 0;
-        set_error_handler(fn (int $errno, string $errstr, string $errfile, int $errline) => true);
         foreach ($this->convert($records) as $line) {
-            if (false === ($writtenBytes = $stream->fwrite($line))) {
+            /** @var int|false $writtenBytes */
+            $writtenBytes = Warning::cloak($stream->fwrite(...), $line);
+            if (false === $writtenBytes) {
                 break;
             }
             $bytes += $writtenBytes;
         }
-        restore_error_handler();
 
         false !== $writtenBytes || throw new RuntimeException('Unable to write '.(isset($line) ? '`'.$line.'`' : '').' to the destination path `'.$stream->getPathname().'`.');
 
@@ -492,7 +492,6 @@ final class JsonConverter
 
         $chunk = [];
         $chunkOffset = 0;
-        $chunkSize = JsonFormat::NdJson === $this->format ? 1 : $this->chunkSize;
         $offset = 0;
         $current = $iterator->current();
         $iterator->next();
@@ -502,7 +501,7 @@ final class JsonConverter
         }
 
         while ($iterator->valid()) {
-            if ($chunkOffset === $chunkSize) {
+            if ($chunkOffset === $this->chunkSize) {
                 yield ($this->jsonEncodeChunk)($chunk).$this->separator;
 
                 $chunkOffset = 0;

@@ -21,9 +21,6 @@ use function get_resource_type;
 use function gettype;
 use function in_array;
 use function is_resource;
-use function restore_error_handler;
-use function set_error_handler;
-use function stream_filter_append;
 use function stream_get_filters;
 
 use const STREAM_FILTER_READ;
@@ -121,10 +118,8 @@ final class StreamFilter
             };
         }
 
-        set_error_handler(fn (int $errno, string $errstr, string $errfile, int $errline) => true);
-        $filter = stream_filter_prepend($stream, $filtername, $mode, $params);
-        restore_error_handler();
-
+        /** @var resource|false $filter */
+        $filter = Warning::cloak(stream_filter_prepend(...), $stream, $filtername, $mode, $params);
         if (!is_resource($filter)) {
             throw new RuntimeException('Could not append the registered stream filter: '.$filtername);
         }
@@ -152,10 +147,8 @@ final class StreamFilter
             };
         }
 
-        set_error_handler(fn (int $errno, string $errstr, string $errfile, int $errline) => true);
-        $filter = stream_filter_append($stream, $filtername, $mode, $params);
-        restore_error_handler();
-
+        /** @var resource|false $filter */
+        $filter = Warning::cloak(stream_filter_append(...), $stream, $filtername, $mode, $params);
         if (!is_resource($filter)) {
             throw new RuntimeException('Could not append the registered stream filter: '.$filtername);
         }

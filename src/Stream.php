@@ -21,7 +21,6 @@ use TypeError;
 use ValueError;
 
 use function array_keys;
-use function array_walk_recursive;
 use function fclose;
 use function feof;
 use function fflush;
@@ -36,10 +35,7 @@ use function get_resource_type;
 use function gettype;
 use function is_array;
 use function is_resource;
-use function restore_error_handler;
 use function rewind;
-use function set_error_handler;
-use function stream_filter_append;
 use function stream_filter_remove;
 use function stream_get_meta_data;
 use function strlen;
@@ -81,18 +77,19 @@ final class Stream implements SeekableIterator
 
     public function __destruct()
     {
-        set_error_handler(fn (int $errno, string $errstr, string $errfile, int $errline) => true);
-
-        array_walk_recursive($this->filters, static function ($filter): void {
-            if (is_resource($filter)) {
-                stream_filter_remove($filter);
+        Warning::cloak(
+            array_walk_recursive(...),
+            $this->filters,
+            static function ($filter): void {
+                if (is_resource($filter)) {
+                    stream_filter_remove($filter);
+                }
             }
-        });
+        );
+
         if ($this->should_close_stream && is_resource($this->stream)) {
             fclose($this->stream);
         }
-
-        restore_error_handler();
 
         unset($this->stream);
     }
@@ -140,10 +137,8 @@ final class Stream implements SeekableIterator
             $args[] = $context;
         }
 
-        set_error_handler(fn (int $errno, string $errstr, string $errfile, int $errline) => true);
-        $resource = fopen(...$args);
-        restore_error_handler();
-
+        /** @var resource|false $resource */
+        $resource = Warning::cloak(fopen(...), ...$args);
         is_resource($resource) || throw UnavailableStream::dueToPathNotFound($path);
 
         $instance = new self($resource);
@@ -195,9 +190,8 @@ final class Stream implements SeekableIterator
      */
     public function appendFilter(string $filtername, int $read_write, mixed $params = null): void
     {
-        set_error_handler(fn (int $errno, string $errstr, string $errfile, int $errline) => true);
-        $res = stream_filter_append($this->stream, $filtername, $read_write, $params);
-        restore_error_handler();
+        /** @var resource|false $res */
+        $res = Warning::cloak(stream_filter_append(...), $this->stream, $filtername, $read_write, $params);
         is_resource($res) || throw InvalidArgument::dueToStreamFilterNotFound($filtername);
 
         $this->filters[$filtername][] = $res;
@@ -212,9 +206,8 @@ final class Stream implements SeekableIterator
      */
     public function prependFilter(string $filtername, int $read_write, mixed $params = null): void
     {
-        set_error_handler(fn (int $errno, string $errstr, string $errfile, int $errline) => true);
-        $res = stream_filter_prepend($this->stream, $filtername, $read_write, $params);
-        restore_error_handler();
+        /** @var resource|false $res */
+        $res = Warning::cloak(stream_filter_prepend(...), $this->stream, $filtername, $read_write, $params);
         is_resource($res) || throw InvalidArgument::dueToStreamFilterNotFound($filtername);
 
         $this->filters[$filtername][] = $res;

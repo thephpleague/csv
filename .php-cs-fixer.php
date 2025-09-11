@@ -19,6 +19,7 @@ $config = new PhpCsFixer\Config();
 
 return $config
     ->setParallelConfig(ParallelConfigFactory::detect())
+    ->setUnsupportedPhpVersionAllowed(true)
     ->setRules([
         '@PSR12' => true,
         'array_syntax' => ['syntax' => 'short'],

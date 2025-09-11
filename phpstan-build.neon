@@ -8,7 +8,6 @@ parameters:
         - identifier: missingType.generics
         - identifier: missingType.iterableValue
         - '#implements deprecated interface League\\Csv\\ByteSequence#'
-        - '#Parameter \#4 \$params of function stream_filter_(pre|ap)pend expects array, mixed given#'
         - '#Dom\\HTMLElement#'
         - '#Dom\\XMLDocument#'
         - '#Dom\\HTMLDocument#'
