@@ -284,7 +284,6 @@ If you provide a string or a `SplFileInfo` instance:
 - the file will be open using the `w` open mode.
 - You can provide an additional `$context` parameter, a la `fopen`, to fine tune where and how the JSON file will be stored.
 
-
 ## JSON Format
 
 <p class="message-notice">available since version <code>9.25.0</code></p>
@@ -312,6 +311,7 @@ echo (new JsonConverter())
 // {"city":"Nouakchott","country":"Mauritania"}
 // {"city":"Gaborone","country":"Botswana"}
 ```
+
 You can inspect the current format via the `JsonConverter::format` property.
 This property always contains one of the `JsonFormat` enum values:
 
@@ -322,7 +322,7 @@ This property always contains one of the `JsonFormat` enum values:
 <code>JsonFormat::LdJson</code>. For example, enabling <code>JSON_PRETTY_PRINT</code>
 will still work, but it will technically generate a non-compliant JSON Lines output.</p>
 
-<p class="message-warning">When <code>JsonFormat::LdJson</code> is selected, 
+<p class="message-warning">When <code>JsonFormat::LdJson</code> is selected,
 the <code>chunksize</code> feature is disabled.</p>
 
 ## Download
