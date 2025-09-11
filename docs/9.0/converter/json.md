@@ -291,7 +291,7 @@ If you provide a string or a `SplFileInfo` instance:
 When exporting a collection to JSON, you can choose between two output styles:
 
 - **Standard JSON** – the entire collection is represented as a single JSON array.
-- **JSON Lines (LDJSON)** – each record is written as a separate [JSON object on its own line](https://jsonlines.org/).
+- **JSON Lines (NDJSON)** – each record is written as a separate [JSON object on its own line](https://jsonlines.org/).
 
 The `JsonConverter::format` method allows you to configure which style to use:
 
@@ -300,7 +300,7 @@ use League\Csv\JsonConverter;
 use League\Csv\JsonFormat;
 
 echo (new JsonConverter())
-    ->format(JsonFormat::LdJson)
+    ->format(JsonFormat::NdJson)
     ->encode([
         ['city' => 'Accra', 'country' => 'Ghana'],
         ['city' => 'Nouakchott', 'country' => 'Mauritania'],
@@ -316,13 +316,13 @@ You can inspect the current format via the `JsonConverter::format` property.
 This property always contains one of the `JsonFormat` enum values:
 
 - `JsonFormat::Standard`— produces a single JSON array containing all records.
-- `JsonFormat::LdJson` — produces one JSON object per line.
+- `JsonFormat::NdJson` — produces one JSON object per line.
 
 <p class="message-warning">The converter does not restrict JSON encoding options when using
-<code>JsonFormat::LdJson</code>. For example, enabling <code>JSON_PRETTY_PRINT</code>
+<code>JsonFormat::NdJson</code>. For example, enabling <code>JSON_PRETTY_PRINT</code>
 will still work, but it will technically generate a non-compliant JSON Lines output.</p>
 
-<p class="message-warning">When <code>JsonFormat::LdJson</code> is selected,
+<p class="message-warning">When <code>JsonFormat::NdJson</code> is selected,
 the <code>chunksize</code> feature is disabled.</p>
 
 ## Download
