@@ -317,13 +317,15 @@ This property always contains one of the `JsonFormat` enum values:
 
 - `JsonFormat::Standard`— produces a single JSON array containing all records.
 - `JsonFormat::NdJson` — produces one JSON object per line.
+- `JsonFormat::NdJsonHeader` — produces one JSON list per line with the first line representing the file header
+- `JsonFormat::NdJsonHeaderLess` — produces one JSON list per line without any header
+
+<p class="message-notice"><code>JsonFormat::NdJsonHeader</code> and <code>JsonFormat::NdJsonHeaderLess</code> are added
+in version <code>9.26</code>.</p>
 
 <p class="message-warning">The converter does not restrict JSON encoding options when using
 <code>JsonFormat::NdJson</code>. For example, enabling <code>JSON_PRETTY_PRINT</code>
 will still work, but it will technically generate a non-compliant JSON Lines output.</p>
-
-<p class="message-warning">When <code>JsonFormat::NdJson</code> is selected,
-the <code>chunksize</code> feature is disabled.</p>
 
 ## Download
 

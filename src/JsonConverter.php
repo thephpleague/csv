@@ -17,6 +17,7 @@ use BadMethodCallException;
 use Closure;
 use Deprecated;
 use Exception;
+use Generator;
 use InvalidArgumentException;
 use Iterator;
 use JsonException;
@@ -26,8 +27,12 @@ use SplFileObject;
 use TypeError;
 
 use function array_filter;
+use function array_map;
 use function array_reduce;
+use function array_values;
 use function get_defined_constants;
+use function implode;
+use function in_array;
 use function is_bool;
 use function is_resource;
 use function is_string;
@@ -154,7 +159,7 @@ final class JsonConverter
         $end = ']';
         $separator = ',';
         $chunkFormatter = fn (array $value): array => $value;
-        if (JsonFormat::NdJson !== $this->format) {
+        if (JsonFormat::Standard === $this->format) {
             $chunkFormatter = array_values(...);
         }
 
@@ -165,18 +170,18 @@ final class JsonConverter
             $chunkFormatter = fn (array $value): array => $value;
         }
 
-        if (JsonFormat::NdJson === $this->format) {
+        if (JsonFormat::Standard !== $this->format) {
             $start = '';
             $end = "\n";
             $separator = "\n";
         }
 
-        $this->emptyIterable = JsonFormat::NdJson === $this->format ? '' : $start.$end;
+        $this->emptyIterable = JsonFormat::Standard !== $this->format ? '' : $start.$end;
         if ($this->usePrettyPrint()) {
             $start .= "\n";
             $end = "\n".$end;
             $separator .= "\n";
-            if (JsonFormat::NdJson === $this->format) {
+            if (JsonFormat::Standard !== $this->format) {
                 $start = '';
                 $end = "\n";
                 $separator = "\n";
@@ -189,9 +194,10 @@ final class JsonConverter
         $this->start = $start;
         $this->end = $end;
         $this->separator = $separator;
-        $this->jsonEncodeChunk = (JsonFormat::NdJson === $this->format)
-            ? fn (array $chunk): string => implode($this->separator, array_map(fn ($value) => json_encode(($chunkFormatter)($value), $flags, $this->depth), $chunk))
-            : fn (array $chunk): string => ($prettyPrintFormatter)(substr(json_encode(($chunkFormatter)($chunk), $flags, $this->depth), /* @phpstan-ignore-line */ 1, -1));
+        $this->jsonEncodeChunk = match ($this->format) {
+            JsonFormat::Standard => fn (array $chunk): string => ($prettyPrintFormatter)(substr(json_encode(($chunkFormatter)($chunk), $flags, $this->depth), /* @phpstan-ignore-line */ 1, -1)),
+            default => fn (array $chunk): string => implode($this->separator, array_map(fn ($value) => json_encode(($chunkFormatter)($value), $flags, $this->depth), $chunk)),
+        };
     }
 
     /**
@@ -391,32 +397,38 @@ final class JsonConverter
      * Returns the number of characters read from the handle and passed through to the output.
      *
      * @param iterable<T> $records
+     * @param array<string> $header
      *
      * @throws Exception
      * @throws JsonException
      */
-    public function download(iterable $records, ?string $filename = null): int
+    public function download(iterable|TabularDataProvider $records, ?string $filename = null, array $header = []): int
     {
         if (null !== $filename) {
-            $mimetype = JsonFormat::NdJson === $this->format ? 'application/jsonl' : 'application/json';
+            $mimetype = JsonFormat::Standard === $this->format ? 'application/json' : 'application/x-ndjson';
             HttpHeaders::forFileDownload($filename, $mimetype.'; charset=utf-8');
         }
 
-        return $this->save($records, new SplFileObject('php://output', 'wb'));
+        return $this->save(
+            records: $records,
+            destination: new SplFileObject('php://output', 'wb'),
+            header: $header,
+        );
     }
 
     /**
      * Returns the JSON representation of a tabular data collection.
      *
      * @param iterable<T> $records
+     * @param array<string> $header
      *
      * @throws Exception
      * @throws JsonException
      */
-    public function encode(iterable $records): string
+    public function encode(iterable $records, array $header = []): string
     {
         $stream = Stream::createFromString();
-        $this->save($records, $stream);
+        $this->save(records: $records, destination: $stream, header: $header);
         $stream->rewind();
 
         return (string) $stream->getContents();
@@ -434,13 +446,14 @@ final class JsonConverter
      * @param iterable<T> $records
      * @param SplFileInfo|SplFileObject|Stream|resource|string $destination
      * @param resource|null $context
+     * @param array<string> $header
      *
      * @throws JsonException
      * @throws RuntimeException
      * @throws TypeError
      * @throws UnavailableStream
      */
-    public function save(iterable $records, mixed $destination, $context = null): int
+    public function save(iterable|TabularDataProvider $records, mixed $destination, $context = null, array $header = []): int
     {
         $stream = match (true) {
             $destination instanceof Stream,
@@ -452,7 +465,7 @@ final class JsonConverter
         };
         $bytes = 0;
         $writtenBytes = 0;
-        foreach ($this->convert($records) as $line) {
+        foreach ($this->convert($records, $header) as $line) {
             /** @var int|false $writtenBytes */
             $writtenBytes = Warning::cloak($stream->fwrite(...), $line);
             if (false === $writtenBytes) {
@@ -470,18 +483,35 @@ final class JsonConverter
      * Returns an Iterator that you can iterate to generate the actual JSON string representation.
      *
      * @param iterable<T> $records
+     * @param array<string> $header
      *
      * @throws JsonException
      * @throws Exception
      *
      * @return Iterator<string>
      */
-    public function convert(iterable $records): Iterator
+    public function convert(iterable|TabularDataProvider $records, array $header = []): Iterator
     {
+        if ($records instanceof TabularDataProvider) {
+            $tabularData = $records->getTabularData();
+            $records = $tabularData->getRecords();
+            if ([] === $header) {
+                $header = $tabularData->getHeader();
+            }
+        }
+
         $iterator = match ($this->formatter) {
             null => MapIterator::toIterator($records),
             default => MapIterator::fromIterable($records, $this->formatter)
         };
+
+        if (in_array($this->format, [JsonFormat::NdJsonHeader, JsonFormat::NdJsonHeaderLess], true)) {
+            if ($records instanceof TabularData && [] === $header) {
+                $header = $records->getHeader();
+            }
+
+            $iterator = self::getList($iterator, $header, $this->format)();
+        }
 
         $iterator->rewind();
         if (!$iterator->valid()) {
@@ -496,7 +526,7 @@ final class JsonConverter
         $current = $iterator->current();
         $iterator->next();
 
-        if (JsonFormat::NdJson !== $this->format) {
+        if (JsonFormat::Standard === $this->format) {
             yield $this->start;
         }
 
@@ -520,6 +550,28 @@ final class JsonConverter
         }
 
         yield ($this->jsonEncodeChunk)([$offset => $current]).$this->end;
+    }
+
+    /**
+     * @param array<string> $header
+     *
+     * @throws InvalidArgument
+     *
+     * @return Closure(): Generator
+     */
+    private static function getList(Iterator $data, array $header, JsonFormat $format): Closure
+    {
+        if (JsonFormat::NdJsonHeaderLess === $format) {
+            return fn () => yield from new MapIterator($data, fn (array $record): array => array_values($record));
+        }
+
+        [] !== $header || throw new InvalidArgument('the tabular data header is empty.');
+
+        return function () use ($header, $data) {
+            yield $header;
+
+            yield from new MapIterator($data, fn (array $record): array => array_values($record));
+        };
     }
 
     /**

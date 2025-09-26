@@ -17,4 +17,6 @@ enum JsonFormat
 {
     case Standard;
     case NdJson;
+    case NdJsonHeader;
+    case NdJsonHeaderLess;
 }
