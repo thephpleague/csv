@@ -54,8 +54,16 @@ class HTMLConverter
      * @param array<string> $header_record An optional array of headers outputted using the `<thead>` and `<th>` elements
      * @param array<string> $footer_record An optional array of footers outputted using the `<tfoot>` and `<th>` elements
      */
-    public function convert(iterable $records, array $header_record = [], array $footer_record = []): string
+    public function convert(iterable|TabularData|TabularDataProvider $records, array $header_record = [], array $footer_record = []): string
     {
+        if ($records instanceof TabularDataProvider) {
+            $records = $records->getTabularData();
+        }
+
+        if ($records instanceof TabularData) {
+            $records = $records->getRecords();
+        }
+
         if (null !== $this->formatter) {
             $records = MapIterator::fromIterable($records, $this->formatter);
         }

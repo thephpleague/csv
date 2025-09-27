@@ -237,4 +237,60 @@ final class JsonConverterTest extends TestCase
         self::assertSame(JsonFormat::Standard, $converter->format);
         self::assertSame(JsonFormat::NdJson, $newConverter->format);
     }
+
+    #[Test]
+    public function it_can_force_generate_ldjson_with_list_headers(): void
+    {
+        $csv = Reader::createFromPath(__DIR__.'/../test_files/prenoms.csv')
+            ->setDelimiter(';')
+            ->setHeaderOffset(0);
+
+        CharsetConverter::addTo($csv, 'iso-8859-15', 'utf-8');
+
+        $data = (new JsonConverter())
+            ->format(JsonFormat::NdJsonHeader)
+            ->encode(
+                records: $csv->slice(0, 3),
+                header: $csv->getHeader(),
+            );
+
+        self::assertStringContainsString('["prenoms","nombre","sexe","annee"]', $data);
+    }
+
+    #[Test]
+    public function it_can_force_generate_ldjson_without_headers(): void
+    {
+        $csv = Reader::createFromPath(__DIR__.'/../test_files/prenoms.csv')
+            ->setDelimiter(';')
+            ->setHeaderOffset(0);
+
+        CharsetConverter::addTo($csv, 'iso-8859-15', 'utf-8');
+
+        $data = (new JsonConverter())
+            ->format(JsonFormat::NdJsonHeaderLess)
+            ->encode(
+                records: $csv->slice(0, 3),
+                header: $csv->getHeader(),
+            );
+
+        self::assertStringNotContainsString('["prenoms","nombre","sexe","annee"]', $data);
+    }
+
+    #[Test]
+    public function it_fails_generating_the_ldjson_if_no_header_is_provided(): void
+    {
+        $this->expectException(InvalidArgument::class);
+
+        $csv = Reader::createFromPath(__DIR__.'/../test_files/prenoms.csv')
+            ->setDelimiter(';')
+            ->setHeaderOffset(0);
+
+        CharsetConverter::addTo($csv, 'iso-8859-15', 'utf-8');
+
+        $this->expectException(InvalidArgument::class);
+
+        (new JsonConverter())
+            ->format(JsonFormat::NdJsonHeader)
+            ->encode(records: $csv->slice(0, 3));
+    }
 }

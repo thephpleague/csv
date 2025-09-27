@@ -396,13 +396,13 @@ final class JsonConverter
      *.
      * Returns the number of characters read from the handle and passed through to the output.
      *
-     * @param iterable<T> $records
+     * @param TabularDataProvider|TabularData|iterable<T> $records
      * @param array<string> $header
      *
      * @throws Exception
      * @throws JsonException
      */
-    public function download(iterable|TabularDataProvider $records, ?string $filename = null, array $header = []): int
+    public function download(TabularDataProvider|TabularData|iterable $records, ?string $filename = null, array $header = []): int
     {
         if (null !== $filename) {
             $mimetype = JsonFormat::Standard === $this->format ? 'application/json' : 'application/x-ndjson';
@@ -419,13 +419,13 @@ final class JsonConverter
     /**
      * Returns the JSON representation of a tabular data collection.
      *
-     * @param iterable<T> $records
+     * @param TabularDataProvider|TabularData|iterable<T> $records
      * @param array<string> $header
      *
      * @throws Exception
      * @throws JsonException
      */
-    public function encode(iterable $records, array $header = []): string
+    public function encode(TabularDataProvider|TabularData|iterable $records, array $header = []): string
     {
         $stream = Stream::createFromString();
         $this->save(records: $records, destination: $stream, header: $header);
@@ -443,7 +443,7 @@ final class JsonConverter
      * required to provide a file with the correct open
      * mode.
      *
-     * @param iterable<T> $records
+     * @param TabularDataProvider|TabularData|iterable<T> $records
      * @param SplFileInfo|SplFileObject|Stream|resource|string $destination
      * @param resource|null $context
      * @param array<string> $header
@@ -453,7 +453,7 @@ final class JsonConverter
      * @throws TypeError
      * @throws UnavailableStream
      */
-    public function save(iterable|TabularDataProvider $records, mixed $destination, $context = null, array $header = []): int
+    public function save(TabularDataProvider|TabularData|iterable $records, mixed $destination, $context = null, array $header = []): int
     {
         $stream = match (true) {
             $destination instanceof Stream,
@@ -482,7 +482,7 @@ final class JsonConverter
     /**
      * Returns an Iterator that you can iterate to generate the actual JSON string representation.
      *
-     * @param iterable<T> $records
+     * @param TabularDataProvider|TabularData|iterable<T> $records
      * @param array<string> $header
      *
      * @throws JsonException
@@ -490,14 +490,14 @@ final class JsonConverter
      *
      * @return Iterator<string>
      */
-    public function convert(iterable|TabularDataProvider $records, array $header = []): Iterator
+    public function convert(TabularDataProvider|TabularData|iterable $records, array $header = []): Iterator
     {
         if ($records instanceof TabularDataProvider) {
-            $tabularData = $records->getTabularData();
-            $records = $tabularData->getRecords();
-            if ([] === $header) {
-                $header = $tabularData->getHeader();
-            }
+            $records = $records->getTabularData();
+        }
+
+        if ($records instanceof TabularData) {
+            $records = $records->getRecords();
         }
 
         $iterator = match ($this->formatter) {
@@ -506,10 +506,6 @@ final class JsonConverter
         };
 
         if (in_array($this->format, [JsonFormat::NdJsonHeader, JsonFormat::NdJsonHeaderLess], true)) {
-            if ($records instanceof TabularData && [] === $header) {
-                $header = $records->getHeader();
-            }
-
             $iterator = self::getList($iterator, $header, $this->format)();
         }
 
@@ -565,7 +561,7 @@ final class JsonConverter
             return fn () => yield from new MapIterator($data, fn (array $record): array => array_values($record));
         }
 
-        [] !== $header || throw new InvalidArgument('the tabular data header is empty.');
+        [] !== $header || throw new InvalidArgument('A non empty header must be provided when using `JsonFormat::NdJsonHeader`.');
 
         return function () use ($header, $data) {
             yield $header;
