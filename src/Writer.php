@@ -115,8 +115,16 @@ class Writer extends AbstractCsv implements TabularDataWriter
      * @throws CannotInsertRecord
      * @throws Exception
      */
-    public function insertAll(iterable $records): int
+    public function insertAll(TabularDataProvider|TabularData|iterable $records): int
     {
+        if ($records instanceof TabularDataProvider) {
+            $records = $records->getTabularData();
+        }
+
+        if ($records instanceof TabularData) {
+            $records = $records->getRecords();
+        }
+
         $bytes = 0;
         foreach ($records as $record) {
             $bytes += $this->insertOne($record);

@@ -38,7 +38,7 @@ interface TabularDataWriter
      * A record is an array that can contain scalar type values, NULL values
      * or objects implementing the __toString method.
      *
-     * @param array<null|int|float|string|Stringable> $record
+     * @param array<mixed> $record
      *
      * @throws CannotInsertRecord If the record can not be inserted
      * @throws Exception If the record can not be inserted
