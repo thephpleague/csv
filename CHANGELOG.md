@@ -2,12 +2,13 @@
 
 All Notable changes to `Csv` will be documented in this file
 
-## [Next](https://github.com/thephpleague/csv/compare/9.25.0...master) - TBD
+## [9.26.0](https://github.com/thephpleague/csv/compare/9.25.0...9.26.0) - 2025-10-01
 
 ### Added
 
 - `JsonFormat::NdJsonHeader` and `JsonFormat::NdJsonHeaderLess`
 - `JsonConverter` conversion methods accept an optional `$header` parameter to handle the new JSON formats.
+- `Writer::insertAll` and converter classes `convert` methods now accept `TabularData` and `TabularDataProvider` implementing classes
 
 ### Deprecated
 
