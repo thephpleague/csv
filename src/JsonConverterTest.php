@@ -35,7 +35,7 @@ final class JsonConverterTest extends TestCase
     #[Test]
     public function it_will_convert_a_tabular_data_reader_into_a_json(): void
     {
-        $csv = Reader::createFromPath(__DIR__.'/../test_files/prenoms.csv');
+        $csv = Reader::from(__DIR__.'/../test_files/prenoms.csv');
         $csv->setDelimiter(';');
         $csv->setHeaderOffset(0);
 
@@ -241,7 +241,7 @@ final class JsonConverterTest extends TestCase
     #[Test]
     public function it_can_force_generate_ldjson_with_list_headers(): void
     {
-        $csv = Reader::createFromPath(__DIR__.'/../test_files/prenoms.csv')
+        $csv = Reader::from(__DIR__.'/../test_files/prenoms.csv')
             ->setDelimiter(';')
             ->setHeaderOffset(0);
 
@@ -260,7 +260,7 @@ final class JsonConverterTest extends TestCase
     #[Test]
     public function it_can_force_generate_ldjson_without_headers(): void
     {
-        $csv = Reader::createFromPath(__DIR__.'/../test_files/prenoms.csv')
+        $csv = Reader::from(__DIR__.'/../test_files/prenoms.csv')
             ->setDelimiter(';')
             ->setHeaderOffset(0);
 
@@ -281,7 +281,7 @@ final class JsonConverterTest extends TestCase
     {
         $this->expectException(InvalidArgument::class);
 
-        $csv = Reader::createFromPath(__DIR__.'/../test_files/prenoms.csv')
+        $csv = Reader::from(__DIR__.'/../test_files/prenoms.csv')
             ->setDelimiter(';')
             ->setHeaderOffset(0);
 

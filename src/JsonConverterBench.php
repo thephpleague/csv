@@ -89,7 +89,7 @@ final class JsonConverterBench
 
     private function getDocument(): Reader
     {
-        $document = Reader::createFromPath(dirname(__DIR__).'/test_files/prenoms.csv');
+        $document = Reader::from(dirname(__DIR__).'/test_files/prenoms.csv');
         $document->setHeaderOffset(0);
         $document->setDelimiter(';');
         CharsetConverter::addTo($document, 'iso-8859-15', 'utf-8');

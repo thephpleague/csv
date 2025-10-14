@@ -32,7 +32,7 @@ final class WriterTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->csv = Writer::createFromFileObject(new SplTempFileObject());
+        $this->csv = Writer::from(new SplTempFileObject());
     }
 
     protected function tearDown(): void
@@ -59,7 +59,7 @@ final class WriterTest extends TestCase
 
     public function testSupportsStreamFilter(): void
     {
-        $csv = Writer::createFromPath(__DIR__.'/../test_files/foo.csv');
+        $csv = Writer::from(__DIR__.'/../test_files/foo.csv');
 
         self::assertTrue($csv->supportsStreamFilterOnWrite());
 
@@ -91,7 +91,7 @@ final class WriterTest extends TestCase
 
     public function testInsertNormalFile(): void
     {
-        $csv = Writer::createFromPath(__DIR__.'/../test_files/foo.csv', 'a+');
+        $csv = Writer::from(__DIR__.'/../test_files/foo.csv', 'a+');
         $csv->insertOne(['jane', 'doe', 'jane.doe@example.com']);
 
         self::assertFalse($csv->encloseAll());
@@ -105,7 +105,7 @@ final class WriterTest extends TestCase
     {
         $this->expectException(CannotInsertRecord::class);
 
-        Writer::createFromPath(__DIR__.'/../test_files/foo.csv', 'r')->insertOne($record);
+        Writer::from(__DIR__.'/../test_files/foo.csv', 'r')->insertOne($record);
     }
 
     public static function inputDataProvider(): array
@@ -139,7 +139,7 @@ final class WriterTest extends TestCase
     {
         /** @var resource $fp */
         $fp = fopen('php://temp', 'r+');
-        $csv = Writer::createFromStream($fp);
+        $csv = Writer::from($fp);
         $csv->setDelimiter('|');
 
         $expected = [
@@ -162,7 +162,7 @@ final class WriterTest extends TestCase
     {
         /** @var resource $resource */
         $resource = tmpfile();
-        $csv = Writer::createFromStream($resource);
+        $csv = Writer::from($resource);
         self::assertSame("\n", $csv->getEndOfLine());
         $csv->setEndOfLine("\r\n");
         $csv->insertOne(['jane', 'doe']);
@@ -178,7 +178,7 @@ final class WriterTest extends TestCase
             ['to"to', 'foo\"bar'],
         ];
 
-        $writer = Writer::createFromString();
+        $writer = Writer::fromString();
         self::assertFalse($writer->encloseAll());
 
         $writer->forceEnclosure();
@@ -212,7 +212,7 @@ final class WriterTest extends TestCase
     public function testWriterTriggerExceptionWithNonSeekableStream(): void
     {
         $this->expectException(UnavailableStream::class);
-        $writer = Writer::createFromPath('php://null', 'w');
+        $writer = Writer::from('php://null', 'w');
         $writer->setEndOfLine("\r\n");
         $writer->insertOne(['foo', 'bar']);
     }
@@ -226,7 +226,7 @@ final class WriterTest extends TestCase
     public function testRFC4180WriterMode(string $expected, array $record): void
     {
         foreach (["\r\n", "\n", "\r"] as $eol) {
-            $csv = Writer::createFromString();
+            $csv = Writer::fromString();
             $csv->setEndOfLine($eol);
             $csv->setEscape('');
             $csv->insertOne($record);
@@ -294,7 +294,7 @@ final class WriterTest extends TestCase
             air, moon roof, loaded', '4799.00'],
         ];
 
-        $csv = Writer::createFromString();
+        $csv = Writer::fromString();
         $csv->setDelimiter('|');
         $csv->forceEnclosure();
         $csv->insertAll($records);
@@ -328,7 +328,7 @@ CSV;
             air, moon roof, loaded', '4799.00'],
         ];
 
-        $csv = Writer::createFromString();
+        $csv = Writer::fromString();
         $csv->setDelimiter('|');
         $csv->noEnclosure();
         $csv->insertAll($records);

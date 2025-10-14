@@ -31,7 +31,7 @@ observedOn💩temperature💩place
 2023-10-03💩💩Abidjan
 CSV;
 
-        $reader = Reader::createFromString($document);
+        $reader = Reader::fromString($document);
         $reader->setDelimiter("\x02");
         SwapDelimiter::addTo($reader, '💩');
         $reader->setHeaderOffset(0);
@@ -45,7 +45,7 @@ CSV;
     #[Test]
     public function it_can_swap_the_delimiter_on_write(): void
     {
-        $writer = Writer::createFromString();
+        $writer = Writer::fromString();
         $writer->setDelimiter("\x02");
         SwapDelimiter::addTo($writer, '💩');
 

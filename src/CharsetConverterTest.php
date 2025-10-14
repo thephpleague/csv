@@ -90,7 +90,7 @@ final class CharsetConverterTest extends TestCase
     {
         $expected = 'Batman,Superman,Anaïs';
         $raw = (string) mb_convert_encoding($expected, 'iso-8859-15', 'utf-8');
-        $csv = Reader::createFromString($raw)
+        $csv = Reader::fromString($raw)
             ->appendStreamFilterOnRead('string.toupper');
         CharsetConverter::addTo($csv, 'iso-8859-15', 'utf-8');
 
@@ -104,7 +104,7 @@ final class CharsetConverterTest extends TestCase
         stream_filter_register(CharsetConverter::FILTERNAME.'.*', CharsetConverter::class);
         $expected = 'Batman,Superman,Anaïs';
         $raw = (string) mb_convert_encoding($expected, 'iso-8859-15', 'utf-8');
-        Reader::createFromString($raw)
+        Reader::fromString($raw)
             ->appendStreamFilterOnRead('string.toupper')
             ->appendStreamFilterOnRead('convert.league.csv.iso-8859-15:utf-8')
         ;
@@ -162,7 +162,7 @@ final class CharsetConverterTest extends TestCase
 "start
 end"
 CSV;
-        $reader = Reader::createFromString($data);
+        $reader = Reader::fromString($data);
         CharsetConverter::addBOMSkippingTo($reader);
         $reader->includeInputBOM();
 
@@ -180,7 +180,7 @@ end']],
 "start
 end"
 CSV;
-        $reader = Reader::createFromString($sequence.$data);
+        $reader = Reader::fromString($sequence.$data);
         $reader->includeInputBOM();
         CharsetConverter::addBOMSkippingTo($reader);
 
@@ -198,7 +198,7 @@ end']],
 "{$sequence}start
 end"
 CSV;
-        $reader = Reader::createFromString($sequence.$data);
+        $reader = Reader::fromString($sequence.$data);
         $reader->includeInputBOM();
         CharsetConverter::addBOMSkippingTo($reader);
 
@@ -212,7 +212,7 @@ end']],
     #[DataProvider('providesBOMSequences')]
     public function testItOnlySkipOnceTheBOMSequenceBeforeConsumingTheCSVStreamOnSingleLine(string $sequence): void
     {
-        $reader = Reader::createFromString($sequence.$sequence.'start,'.$sequence.'end');
+        $reader = Reader::fromString($sequence.$sequence.'start,'.$sequence.'end');
         CharsetConverter::addBOMSkippingTo($reader);
         $reader->includeInputBOM();
 

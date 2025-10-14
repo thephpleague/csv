@@ -27,7 +27,7 @@ final class BufferBench
     {
         $path = dirname(__DIR__).'/test_files/prenoms.csv';
 
-        Buffer::from(Reader::createFromFileObject(new SplFileObject($path)));
+        Buffer::from(Reader::from(new SplFileObject($path)));
     }
 
     #[Bench\OutputTimeUnit('seconds')]
@@ -36,7 +36,7 @@ final class BufferBench
     {
         $path = dirname(__DIR__).'/test_files/prenoms.csv';
 
-        Buffer::from(Reader::createFromPath($path));
+        Buffer::from(Reader::from($path));
     }
 
     #[Bench\OutputTimeUnit('seconds')]

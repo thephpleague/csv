@@ -44,7 +44,7 @@ final class StatementTest extends TestCase
             $tmp->fputcsv($row, escape: '\\');
         }
 
-        $this->csv = Reader::createFromFileObject($tmp);
+        $this->csv = Reader::from($tmp);
         $this->stmt = (new Statement());
     }
 
@@ -230,7 +230,7 @@ Baz",2020-02-02 02:02:02
 Foo",2020-03-03 03:03:03
 CSV;
 
-        $csv = Reader::createFromString($document);
+        $csv = Reader::fromString($document);
         $csv->setHeaderOffset(0);
         $constraints = (new Statement())
             ->select('Integer', 'Text', 'Date and Time')
@@ -251,7 +251,7 @@ Officer,John,117
 Major,Avery
 CSV;
 
-        $csv = Reader::createFromString($document);
+        $csv = Reader::fromString($document);
         $csv->setHeaderOffset(0);
 
         $statement = (new Statement())
@@ -269,7 +269,7 @@ Officer,John,117
 Major,Avery
 CSV;
 
-        $csv = Reader::createFromString($document);
+        $csv = Reader::fromString($document);
         $csv->setHeaderOffset(0);
 
         $statement = (new Statement())

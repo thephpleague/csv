@@ -55,7 +55,7 @@ final class BomTest extends TestCase
                 'expected' => Bom::Utf32Le,
             ],
             'UTF32 LE BOM sequence in Reader class' => [
-                'sequence' => Reader::createFromString(chr(255).chr(254).chr(0).chr(0)),
+                'sequence' => Reader::fromString(chr(255).chr(254).chr(0).chr(0)),
                 'expected' => Bom::Utf32Le,
             ],
         ];

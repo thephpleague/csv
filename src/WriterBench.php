@@ -27,7 +27,7 @@ final class WriterBench
         $numRows = 1_000_000;
         $path = dirname(__DIR__).'/test_files/csv_write_with_one_million_rows.csv';
 
-        $writer = Writer::createFromFileObject(new SplFileObject($path, 'w'));
+        $writer = Writer::from(new SplFileObject($path, 'w'));
         for ($i = 1; $i <= $numRows; ++$i) {
             $writer->insertOne(["csv--{$i}1", "csv--{$i}2", "csv--{$i}3"]);
         }
@@ -42,7 +42,7 @@ final class WriterBench
         $numRows = 1_000_000;
         $path = dirname(__DIR__).'/test_files/csv_write_with_one_million_rows.csv';
 
-        $writer = Writer::createFromPath($path, 'w');
+        $writer = Writer::from($path, 'w');
         for ($i = 1; $i <= $numRows; ++$i) {
             $writer->insertOne(["csv--{$i}1", "csv--{$i}2", "csv--{$i}3"]);
         }

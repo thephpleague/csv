@@ -51,7 +51,7 @@ final class RFC4180FieldTest extends TestCase
     #[DataProvider('bugsProvider')]
     public function testStreamFilterOnWrite(string $expected, array $record): void
     {
-        $csv = Writer::createFromPath('php://temp');
+        $csv = Writer::from('php://temp');
         RFC4180Field::addTo($csv);
         self::assertContains(RFC4180Field::getFiltername(), stream_get_filters());
         $csv->setEndOfLine("\r\n");
@@ -79,7 +79,7 @@ final class RFC4180FieldTest extends TestCase
     #[DataProvider('readerBugsProvider')]
     public function testStreamFilterOnRead(string $expected, array $record): void
     {
-        $csv = Reader::createFromString($expected);
+        $csv = Reader::fromString($expected);
         RFC4180Field::addTo($csv);
         self::assertSame($record, $csv->first());
     }
@@ -137,7 +137,7 @@ final class RFC4180FieldTest extends TestCase
 
     public function testDoNotEncloseWhiteSpacedField(): void
     {
-        $csv = Writer::createFromString('');
+        $csv = Writer::fromString('');
         $csv->setDelimiter('|');
         RFC4180Field::addTo($csv, "\0");
         $csv->insertAll($this->records);
@@ -149,6 +149,6 @@ final class RFC4180FieldTest extends TestCase
     public function testDoNotEncloseWhiteSpacedFieldThrowsException(): void
     {
         $this->expectException(InvalidArgumentException::class);
-        RFC4180Field::addTo(Writer::createFromString(''), "\t\0");
+        RFC4180Field::addTo(Writer::fromString(''), "\t\0");
     }
 }

@@ -13,6 +13,7 @@ declare(strict_types=1);
 
 namespace League\Csv;
 
+use Deprecated;
 use RuntimeException;
 use SeekableIterator;
 use SplFileObject;
@@ -35,6 +36,7 @@ use function get_resource_type;
 use function gettype;
 use function is_array;
 use function is_resource;
+use function is_string;
 use function rewind;
 use function stream_filter_remove;
 use function stream_get_meta_data;
@@ -49,10 +51,6 @@ use const SEEK_SET;
  */
 final class Stream implements SeekableIterator
 {
-    /** @var resource */
-    private $stream;
-    private bool $is_seekable;
-    private bool $should_close_stream = false;
     /** @var mixed can be a null, false or a scalar type value. Current iterator value. */
     private mixed $value = null;
     /** Current iterator key. */
@@ -69,10 +67,11 @@ final class Stream implements SeekableIterator
     /**
      * @param resource $stream stream type resource
      */
-    private function __construct($stream)
-    {
-        $this->is_seekable = stream_get_meta_data($stream)['seekable'];
-        $this->stream = $stream;
+    private function __construct(
+        private $stream,
+        private readonly bool $is_seekable,
+        private readonly bool $should_close_stream = false,
+    ) {
     }
 
     public function __destruct()
@@ -125,50 +124,38 @@ final class Stream implements SeekableIterator
     /**
      * Returns a new instance from a file path.
      *
+     * @param resource|string $filename
      * @param resource|null $context
      *
-     * @throws UnavailableStream if the stream resource can not be created
+     * @throws UnavailableStream if the stream resource cannot be created
      */
-    public static function createFromPath(string $path, string $open_mode = 'r', $context = null): self
+    public static function from($filename, string $mode = 'r', $context = null): self
     {
-        $args = [$path, $open_mode];
-        if (null !== $context) {
-            $args[] = false;
-            $args[] = $context;
+        $should_close_stream = false;
+        if (is_string($filename)) {
+            $should_close_stream = true;
+            /** @var resource|false $resource */
+            $resource = @fopen(filename: $filename, mode: $mode, context: $context);
+            is_resource($resource) || throw UnavailableStream::dueToPathNotFound($filename);
+
+            $filename = $resource;
         }
 
-        /** @var resource|false $resource */
-        $resource = Warning::cloak(fopen(...), ...$args);
-        is_resource($resource) || throw UnavailableStream::dueToPathNotFound($path);
+        is_resource($filename) || throw new TypeError('Argument passed must be a stream resource or a string, '.gettype($filename).' given.');
+        'stream' === ($type = get_resource_type($filename)) || throw new TypeError('Argument passed must be a stream resource, '.$type.' resource given');
 
-        $instance = new self($resource);
-        $instance->should_close_stream = true;
-
-        return $instance;
+        return new self($filename, stream_get_meta_data($filename)['seekable'], $should_close_stream);
     }
 
     /**
      * Returns a new instance from a string.
      */
-    public static function createFromString(Stringable|string $content = ''): self
+    public static function fromString(Stringable|string $content = ''): self
     {
-        /** @var resource $resource */
-        $resource = fopen('php://temp', 'r+');
-        fwrite($resource, (string) $content);
-
-        $instance = new self($resource);
-        $instance->should_close_stream = true;
+        $instance = self::from('php://temp', 'r+');
+        $instance->fwrite((string) $content);
 
         return $instance;
-    }
-
-    public static function createFromResource(mixed $stream): self
-    {
-        return match (true) {
-            !is_resource($stream) => throw new TypeError('Argument passed must be a stream resource, '.gettype($stream).' given.'),
-            'stream' !== ($type = get_resource_type($stream)) => throw new TypeError('Argument passed must be a stream resource, '.$type.' resource given'),
-            default => new self($stream),
-        };
     }
 
     /**
@@ -531,5 +518,54 @@ final class Stream implements SeekableIterator
     public function getContents(?int $length = null, int $offset = -1): string|false
     {
         return stream_get_contents($this->stream, $length, $offset);
+    }
+
+    /**
+     * DEPRECATION WARNING! This method will be removed in the next major point release.
+     * @deprecated since version 9.27.0
+     * @codeCoverageIgnore
+     *
+     * @param resource $stream
+     *
+     * @throws UnavailableStream if the stream resource is invalid
+     *
+     * Returns a new instance from a stream resource
+     */
+    #[Deprecated(message:'use League\Csv\Stream::from() instead', since:'league/csv:9.27.0')]
+    public static function createFromResource(mixed $stream): self
+    {
+        is_resource($stream) || throw new TypeError('Argument passed must be a stream resource or a string, '.gettype($stream).' given.');
+
+        return self::from($stream);
+    }
+
+    /**
+     * DEPRECATION WARNING! This method will be removed in the next major point release.
+     * @deprecated since version 9.27.0
+     * @codeCoverageIgnore
+     *
+     * @param resource|null $context
+     *
+     * @throws UnavailableStream if the stream resource cannot be created
+     *
+     * Returns a new instance from a file path.
+     */
+    #[Deprecated(message:'use League\Csv\Stream::from() instead', since:'league/csv:9.27.0')]
+    public static function createFromPath(string $path, string $open_mode = 'r', $context = null): self
+    {
+        return self::from($path, $open_mode, $context);
+    }
+
+    /**
+     * DEPRECATION WARNING! This method will be removed in the next major point release.
+     * @deprecated since version 9.27.0
+     * @codeCoverageIgnore
+     *
+     * Returns a new instance from a string.
+     */
+    #[Deprecated(message:'use League\Csv\Stream::fromString() instead', since:'league/csv:9.27.0')]
+    public static function createFromString(Stringable|string $content = ''): self
+    {
+        return self::fromString($content);
     }
 }

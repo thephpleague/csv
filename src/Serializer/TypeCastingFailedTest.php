@@ -36,7 +36,7 @@ rating,title,author,type,asin,tags,review
 5,Prey,Michael Crichton,Book,0007154534,,
 CSV;
 
-        $this->reader = Reader::createFromString($csv);
+        $this->reader = Reader::fromString($csv);
         $this->reader->setHeaderOffset(0);
     }
 

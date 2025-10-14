@@ -25,7 +25,7 @@ final class ColumnConsistencyTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->csv = Writer::createFromFileObject(new SplTempFileObject());
+        $this->csv = Writer::from(new SplTempFileObject());
     }
 
     protected function tearDown(): void

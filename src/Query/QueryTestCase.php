@@ -35,7 +35,7 @@ CustomerID,CustomerName,ContactName,Address,City,PostalCode,Country
 4,Around the Horn,Thomas Hardy,120 Hanover Sq.,London,WA1 1DP,UK
 5,Berglunds snabbköp,Christina Berglund,Berguvsvägen 8,Luleå,S-958 22,Sweden
 CSV;
-        $this->document = Reader::createFromString($csv);
+        $this->document = Reader::fromString($csv);
         $this->document->setHeaderOffset(0);
         $this->stmt = (new Statement());
         $this->iterable = [

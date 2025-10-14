@@ -25,7 +25,7 @@ final class InfoTest extends TestCase
     {
         $file = new SplTempFileObject();
         $file->fwrite("How are you today ?\nI'm doing fine thanks!");
-        $csv = Reader::createFromFileObject($file);
+        $csv = Reader::from($file);
 
         $this->expectException(Exception::class);
 
@@ -38,7 +38,7 @@ final class InfoTest extends TestCase
 
         $file = new SplTempFileObject();
         $file->fwrite("How are you today ?\nI'm doing fine thanks!");
-        $csv = Reader::createFromFileObject($file);
+        $csv = Reader::from($file);
 
         Info::getDelimiterStats($csv, [',', []]); /* @phpstan-ignore-line */
     }
@@ -47,7 +47,7 @@ final class InfoTest extends TestCase
     {
         $file = new SplTempFileObject();
         $file->fwrite("How are you today ?\nI'm doing fine thanks!");
-        $csv = Reader::createFromFileObject($file);
+        $csv = Reader::from($file);
 
         self::assertSame(['toto' => 0, '|' => 0], Info::getDelimiterStats($csv, ['toto', '|'], 5));
     }
@@ -56,7 +56,7 @@ final class InfoTest extends TestCase
     {
         $file = new SplTempFileObject();
         $file->fwrite("How are you today ?\nI'm doing fine thanks!");
-        $csv = Reader::createFromFileObject($file);
+        $csv = Reader::from($file);
 
         self::assertSame(['toto' => 0], Info::getDelimiterStats($csv, ['toto'], 5));
     }
@@ -73,7 +73,7 @@ final class InfoTest extends TestCase
 
         self::assertSame(
             ['|' => 12, ';' => 4],
-            Info::getDelimiterStats(Reader::createFromFileObject($data), ['|', ';'], 5)
+            Info::getDelimiterStats(Reader::from($data), ['|', ';'], 5)
         );
     }
 
@@ -81,7 +81,7 @@ final class InfoTest extends TestCase
     {
         $file = new SplTempFileObject();
         $file->fwrite("How are you today ?\nI'm doing fine thanks!");
-        $csv = Reader::createFromFileObject($file);
+        $csv = Reader::from($file);
         $csv->setDelimiter('@');
 
         Info::getDelimiterStats($csv, ['toto', '|'], 5);
@@ -96,7 +96,7 @@ foo;bar;hello_world
 42;1,2,3,4,5;true
 EOF;
         $expected = [';' => 4, ',' => 0];
-        $reader = Reader::createFromString($text);
+        $reader = Reader::fromString($text);
 
         self::assertSame($expected, Info::getDelimiterStats($reader, [';', ','], 1));
     }

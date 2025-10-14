@@ -52,14 +52,14 @@ final class StreamTest extends TestCase
     {
         $this->expectException(UnavailableStream::class);
 
-        clone Stream::createFromResource(STDOUT);
+        clone Stream::from(STDOUT);
     }
 
     public function testCreateStreamWithInvalidParameter(): void
     {
         $this->expectException(TypeError::class);
 
-        Stream::createFromResource(__DIR__.'/../test_files/foo.csv');
+        Stream::createFromResource(__DIR__.'/../test_files/foo.csv'); /* @phpstan-ignore-line */
     }
 
     public function testCreateStreamWithWrongResourceType(): void
@@ -69,7 +69,7 @@ final class StreamTest extends TestCase
         /** @var resource $resource */
         $resource = stream_filter_append(STDOUT, 'string.rot13', STREAM_FILTER_WRITE);
 
-        Stream::createFromResource($resource);
+        Stream::from($resource);
     }
 
     public function testCreateStreamFromPath(): void
@@ -77,7 +77,7 @@ final class StreamTest extends TestCase
         $path = 'no/such/file.csv';
         $this->expectException(UnavailableStream::class);
         $this->expectExceptionMessage('`'.$path.'`: failed to open stream: No such file or directory');
-        Stream::createFromPath($path);
+        Stream::from($path);
     }
 
     public function testCreateStreamFromPathWithContext(): void
@@ -93,7 +93,7 @@ final class StreamTest extends TestCase
             fputcsv($fp, $row, escape: '');
         }
 
-        $stream = Stream::createFromPath(
+        $stream = Stream::from(
             StreamWrapper::PROTOCOL.'://stream',
             'r+',
             stream_context_create([StreamWrapper::PROTOCOL => ['stream' => $fp]])
@@ -107,7 +107,7 @@ final class StreamTest extends TestCase
     public function testfputcsv(string $delimiter, string $enclosure, string $escape): void
     {
         $this->expectException(InvalidArgument::class);
-        $stream = Stream::createFromResource(STDOUT);
+        $stream = Stream::from(STDOUT);
         $stream->fputcsv(['john', 'doe', 'john.doe@example.com'], $delimiter, $enclosure, $escape);
     }
 
@@ -122,7 +122,7 @@ final class StreamTest extends TestCase
 
     public function testVarDump(): void
     {
-        $stream = Stream::createFromResource(STDOUT);
+        $stream = Stream::from(STDOUT);
         $debugInfo = $stream->__debugInfo();
 
         self::assertArrayHasKey('delimiter', $debugInfo);
@@ -134,7 +134,7 @@ final class StreamTest extends TestCase
     public function testSeekThrowsException(): void
     {
         $this->expectException(InvalidArgument::class);
-        $stream = Stream::createFromResource(STDOUT);
+        $stream = Stream::from(STDOUT);
         $stream->seek(-1);
     }
 
@@ -142,14 +142,14 @@ final class StreamTest extends TestCase
     {
         $this->expectException(UnavailableFeature::class);
 
-        $stream = Stream::createFromResource(STDOUT);
+        $stream = Stream::from(STDOUT);
         $stream->fputcsv(['foo', 'bar'], escape: '');
         $stream->fseek(-1);
     }
 
     public function testSeek(): void
     {
-        $doc = Stream::createFromPath(__DIR__.'/../test_files/prenoms.csv');
+        $doc = Stream::from(__DIR__.'/../test_files/prenoms.csv');
         $doc->setCsvControl(';');
         $doc->setFlags(SplFileObject::READ_CSV);
         $doc->seek(1);
@@ -158,7 +158,7 @@ final class StreamTest extends TestCase
 
     public function testSeekToPositionZero(): void
     {
-        $doc = Stream::createFromString();
+        $doc = Stream::fromString();
         $doc->seek(0);
         self::assertSame(0, $doc->key());
     }
@@ -167,20 +167,20 @@ final class StreamTest extends TestCase
     {
         $this->expectException(UnavailableFeature::class);
 
-        $stream = Stream::createFromResource(STDIN);
+        $stream = Stream::from(STDIN);
         $stream->rewind();
     }
 
     public function testCreateStreamWithNonSeekableStream(): void
     {
         $this->expectException(UnavailableFeature::class);
-        $stream = Stream::createFromResource(STDIN);
+        $stream = Stream::from(STDIN);
         $stream->seek(3);
     }
 
     public function testCsvControl(): void
     {
-        $doc = Stream::createFromString('foo,bar');
+        $doc = Stream::fromString('foo,bar');
         self::assertSame([',', '"', '\\'], $doc->getCsvControl());
         $expected = [';', '|', '"'];
         $doc->setCsvControl(...$expected);
@@ -191,7 +191,7 @@ final class StreamTest extends TestCase
 
     public function testCsvControlAcceptsEmptyEscapeString(): void
     {
-        $doc = Stream::createFromString();
+        $doc = Stream::fromString();
         $expected = [';', '|', ''];
         $doc->setCsvControl(...$expected);
         self::assertSame($expected, $doc->getCsvControl());
@@ -202,7 +202,7 @@ final class StreamTest extends TestCase
         $filtername = 'foo.bar';
         $this->expectException(InvalidArgument::class);
         $this->expectExceptionMessage('unable to locate filter `'.$filtername.'`');
-        $stream = Stream::createFromPath('php://temp', 'r+');
+        $stream = Stream::from('php://temp', 'r+');
         $stream->appendFilter($filtername, STREAM_FILTER_READ);
     }
 
@@ -214,7 +214,7 @@ Duis nec sapien felis, ac sodales nisl.
 Nulla vitae magna vitae purus aliquet consequat.
 TEXT;
         $newText = '';
-        $file = Stream::createFromString($text);
+        $file = Stream::fromString($text);
         $file->setMaxLineLen(20);
         foreach ($file as $line) {
             $newText .= $line."\n";

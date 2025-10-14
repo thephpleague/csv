@@ -62,7 +62,7 @@ final class EscapeFormulaTest extends TestCase
     {
         $record = ['2', '2017-07-25', 'Important Client', '=2+5', 240, "\ttab", "\rcr", null];
         $expected = "2,2017-07-25,\"Important Client\",'=2+5,240,\"'\ttab\",\"'\rcr\",\n";
-        $csv = Writer::createFromFileObject(new SplTempFileObject());
+        $csv = Writer::from(new SplTempFileObject());
         $csv->addFormatter((new EscapeFormula())->escapeRecord(...));
         $csv->insertOne($record);
         self::assertStringContainsString($expected, $csv->toString());
@@ -80,11 +80,11 @@ final class EscapeFormulaTest extends TestCase
     {
         $escaoeFormula = new EscapeFormula();
         $record = ['2', '2017-07-25', 'Important Client', '=2+5', '240', "\ttab", "\rcr", ''];
-        $csv = Writer::createFromString();
+        $csv = Writer::fromString();
         $csv->addFormatter($escaoeFormula->escapeRecord(...));
         $csv->insertOne($record);
 
-        $reader = Reader::createFromString($csv->toString());
+        $reader = Reader::fromString($csv->toString());
         self::assertNotEquals($record, $reader->first());
 
         $reader->addFormatter($escaoeFormula->unescapeRecord(...));
@@ -95,7 +95,7 @@ final class EscapeFormulaTest extends TestCase
     {
         $formatter = new EscapeFormula();
         $input = "2,2017-07-25,\"Important Client\",\"'=2+5\",\"240\",\"'\ttab\",\"'\rcr\",\n";
-        $reader = Reader::createFromString($input)->setEnclosure('"');
+        $reader = Reader::fromString($input)->setEnclosure('"');
         $result = array_map($formatter->unescapeRecord(...), iterator_to_array($reader));
         $formatted_records = [['2', '2017-07-25', 'Important Client', '=2+5', '240', "\ttab", "\rcr", '']];
         self::assertEquals($formatted_records, $result);

@@ -18,12 +18,16 @@ use Deprecated;
 use Generator;
 use InvalidArgumentException;
 use RuntimeException;
+use SplFileInfo;
 use SplFileObject;
 use Stringable;
 use Throwable;
+use TypeError;
 
 use function filter_var;
 use function get_class;
+use function gettype;
+use function is_resource;
 use function rawurlencode;
 use function sprintf;
 use function str_replace;
@@ -80,41 +84,29 @@ abstract class AbstractCsv implements ByteSequence
     }
 
     /**
-     * Returns a new instance from a SplFileObject.
-     */
-    public static function createFromFileObject(SplFileObject $file): static
-    {
-        return new static($file);
-    }
-
-    /**
-     * Returns a new instance from a PHP resource stream.
-     *
-     * @param resource $stream
-     */
-    public static function createFromStream($stream): static
-    {
-        return new static(Stream::createFromResource($stream));
-    }
-
-    /**
      * Returns a new instance from a string.
      */
-    public static function createFromString(Stringable|string $content = ''): static
+    public static function fromString(Stringable|string $content = ''): static
     {
-        return new static(Stream::createFromString($content));
+        return new static(Stream::fromString($content));
     }
 
     /**
      * Returns a new instance from a file path.
      *
-     * @param resource|null $context the resource context
+     * @param SplFileInfo|SplFileObject|resource|string $filename an SPL file object, a resource stream or a file path
+     * @param non-empty-string $mode the file path open mode used with a file path or a SplFileInfo object
+     * @param resource|null $context the resource context used with a file pathor a SplFileInfo object
      *
      * @throws UnavailableStream
      */
-    public static function createFromPath(string $path, string $open_mode = 'r+', $context = null): static
+    public static function from($filename, string $mode = 'r+', $context = null): static
     {
-        return new static(Stream::createFromPath($path, $open_mode, $context));
+        return match (true) {
+            $filename instanceof SplFileObject => new static($filename),
+            $filename instanceof SplFileInfo => new static($filename->openFile(mode: $mode, context: $context)),
+            default => new static(Stream::from($filename, $mode, $context)),
+        };
     }
 
     /**
@@ -620,5 +612,66 @@ abstract class AbstractCsv implements ByteSequence
         }
 
         return $this->appendStreamFilterOnWrite($filtername, $params);
+    }
+
+    /**
+     * DEPRECATION WARNING! This method will be removed in the next major point release.
+     * @codeCoverageIgnore
+     * @deprecated since version 9.27.0
+     *
+     * Returns a new instance from a SplFileObject.
+     */
+    #[Deprecated(message:'use League\Csv\AbstractCsv::from() instead', since:'league/csv:9.27.0')]
+    public static function createFromFileObject(SplFileObject $file): static
+    {
+        return new static($file);
+    }
+
+    /**
+     * DEPRECATION WARNING! This method will be removed in the next major point release.
+     * @codeCoverageIgnore
+     * @deprecated since version 9.27.0
+     *
+     * Returns a new instance from a PHP resource stream.
+     *
+     * @param resource $stream
+     */
+    #[Deprecated(message:'use League\Csv\AbstractCsv::from() instead', since:'league/csv:9.27.0')]
+    public static function createFromStream($stream): static
+    {
+        is_resource($stream) || throw new TypeError('Argument passed must be a stream resource or a string, '.gettype($stream).' given.');
+
+        return new static(Stream::from($stream));
+    }
+
+    /**
+     * DEPRECATION WARNING! This method will be removed in the next major point release.
+     * @codeCoverageIgnore
+     * @deprecated since version 9.27.0
+     *
+     * Returns a new instance from a string.
+     */
+    #[Deprecated(message:'use League\Csv\AbstractCsv::fromString() instead', since:'league/csv:9.27.0')]
+    public static function createFromString(Stringable|string $content = ''): static
+    {
+        return self::fromString($content);
+    }
+
+    /**
+     * DEPRECATION WARNING! This method will be removed in the next major point release.
+     * @codeCoverageIgnore
+     * @deprecated since version 9.27.0
+     *
+     * Returns a new instance from a file path.
+     *
+     * @param non-empty-string $open_mode
+     * @param resource|null $context the resource context
+     *
+     * @throws UnavailableStream
+     */
+    #[Deprecated(message:'use League\Csv\AbstractCsv::from() instead', since:'league/csv:9.27.0')]
+    public static function createFromPath(string $path, string $open_mode = 'r+', $context = null): static
+    {
+        return new static(Stream::from($path, $open_mode, $context));
     }
 }

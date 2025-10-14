@@ -40,7 +40,7 @@ final class ResultSetTest extends TabularDataReaderTestCase
             $tmp->fputcsv($row, escape: '\\');
         }
 
-        $this->csv = Reader::createFromFileObject($tmp);
+        $this->csv = Reader::from($tmp);
         $this->stmt = (new Statement());
     }
 
@@ -179,7 +179,7 @@ final class ResultSetTest extends TabularDataReaderTestCase
             $tmp->fputcsv($row, escape: '\\');
         }
 
-        $csv = Reader::createFromFileObject($tmp);
+        $csv = Reader::from($tmp);
         $csv->setHeaderOffset(2);
         self::assertContains(
             ['D' => '6', 'E' => '7', 'F' => '8'],
@@ -191,7 +191,7 @@ final class ResultSetTest extends TabularDataReaderTestCase
     {
         $source = Bom::Utf8->value.'"parent name","child name","title"
             "parentA","childA","titleA"';
-        $csv = Reader::createFromString($source);
+        $csv = Reader::fromString($source);
         $csv->setHeaderOffset(0);
 
         self::assertContains('parentA', [...$this->stmt->process($csv)->fetchColumn('parent name')]);
@@ -209,7 +209,7 @@ final class ResultSetTest extends TabularDataReaderTestCase
         foreach ($raw as $row) {
             $file->fputcsv($row, escape: '\\');
         }
-        $csv = Reader::createFromFileObject($file);
+        $csv = Reader::from($file);
         $res = $this->stmt->process($csv)->fetchColumn(2);
 
         self::assertCount(1, [...$res]);
@@ -227,7 +227,7 @@ final class ResultSetTest extends TabularDataReaderTestCase
         foreach ($raw as $row) {
             $file->fputcsv($row, escape: '\\');
         }
-        $csv = Reader::createFromFileObject($file);
+        $csv = Reader::from($file);
         $res = $this->stmt->process($csv)->fetchColumn(2);
         self::assertCount(0, [...$res]);
     }
@@ -321,7 +321,7 @@ final class ResultSetTest extends TabularDataReaderTestCase
             $tmp->fputcsv($row, escape: '\\');
         }
 
-        $reader = Reader::createFromFileObject($tmp)->setHeaderOffset(0);
+        $reader = Reader::from($tmp)->setHeaderOffset(0);
         $result = (new Statement())->offset(1)->limit(1)->process($reader);
         self::assertSame(
             '[{"First Name":"jane","Last Name":"doe","E-mail":"jane.doe@example.com"}]',
@@ -332,7 +332,7 @@ final class ResultSetTest extends TabularDataReaderTestCase
     public function testHeaderThrowsExceptionOnError(): void
     {
         $this->expectException(SyntaxError::class);
-        $csv = Reader::createFromString(
+        $csv = Reader::fromString(
             'field1,field1,field3
             1,2,3
             4,5,6'
@@ -345,7 +345,7 @@ final class ResultSetTest extends TabularDataReaderTestCase
     public function testHeaderThrowsExceptionOnInvalidColumnNames(): void
     {
         $this->expectException(SyntaxError::class);
-        $csv = Reader::createFromString(
+        $csv = Reader::fromString(
             'field1,field1,field3
             1,2,3
             4,5,6'
@@ -389,7 +389,7 @@ firstname,lastname,e-mail
 john,doe,john.doe@example.com
 jane,doe,jane.doe@example.com
 CSV;
-        $reader = Reader::createFromString($csv)
+        $reader = Reader::fromString($csv)
             ->setHeaderOffset(0);
 
         $resultSet = (new Statement())->process($reader);
@@ -407,7 +407,7 @@ firstname,lastname,e-mail
 john,doe,john.doe@example.com
 jane,doe,jane.doe@example.com
 CSV;
-        $reader = Reader::createFromString($csv)
+        $reader = Reader::fromString($csv)
             ->setHeaderOffset(0);
 
         $this->expectException(SyntaxError::class);
@@ -426,7 +426,7 @@ jose,doe,jose.doe@example.com
 jeny,doe,jeny.doe@example.com
 jack,doe,jack.doe@example.com
 CSV;
-        $reader = Reader::createFromString($csv)->setHeaderOffset(0);
+        $reader = Reader::fromString($csv)->setHeaderOffset(0);
 
         $total = [];
         foreach ($reader->chunkBy(2) as $row) {

@@ -32,7 +32,7 @@ final class XMLConverterTest extends TestCase
 {
     public function testToXML(): void
     {
-        $csv = Reader::createFromPath(__DIR__.'/../test_files/prenoms.csv', 'r')
+        $csv = Reader::from(__DIR__.'/../test_files/prenoms.csv', 'r')
             ->setDelimiter(';')
             ->setHeaderOffset(0)
         ;
@@ -78,7 +78,7 @@ final class XMLConverterTest extends TestCase
 
     public function testImport(): void
     {
-        $csv = Reader::createFromPath(__DIR__.'/../test_files/prenoms.csv', 'r')
+        $csv = Reader::from(__DIR__.'/../test_files/prenoms.csv', 'r')
             ->setDelimiter(';')
             ->setHeaderOffset(0)
         ;
@@ -127,7 +127,7 @@ final class XMLConverterTest extends TestCase
 
     public function testToXMLWithFormatter(): void
     {
-        $csv = Reader::createFromPath(__DIR__.'/../test_files/prenoms.csv', 'r')
+        $csv = Reader::from(__DIR__.'/../test_files/prenoms.csv', 'r')
             ->setDelimiter(';')
             ->setHeaderOffset(0)
         ;
@@ -156,7 +156,7 @@ final class XMLConverterTest extends TestCase
     #[Test]
     public function it_can_use_the_document_header_as_cell_name(): void
     {
-        $csv = Reader::createFromPath(__DIR__.'/../test_files/prenoms.csv', 'r')
+        $csv = Reader::from(__DIR__.'/../test_files/prenoms.csv', 'r')
             ->setDelimiter(';')
             ->setHeaderOffset(0)
             ->slice(0, 2);
@@ -182,7 +182,7 @@ final class XMLConverterTest extends TestCase
     #[Test]
     public function it_will_trigger_an_exception_if_the_header_is_invalid(): void
     {
-        $csv = Reader::createFromPath(__DIR__.'/../test_files/prenoms.csv', 'r')
+        $csv = Reader::from(__DIR__.'/../test_files/prenoms.csv', 'r')
             ->setDelimiter(';')
             ->slice(0, 2);
 

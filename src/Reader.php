@@ -50,9 +50,9 @@ class Reader extends AbstractCsv implements TabularDataReader, JsonSerializable
     /** @var array<string> header record. */
     protected array $header = [];
 
-    public static function createFromPath(string $path, string $open_mode = 'r', $context = null): static
+    public static function from($filename, string $mode = 'r', $context = null): static
     {
-        return parent::createFromPath($path, $open_mode, $context);
+        return parent::from($filename, $mode, $context);
     }
 
     /**
@@ -734,5 +734,23 @@ class Reader extends AbstractCsv implements TabularDataReader, JsonSerializable
     public function getObjects(string $className, array $header = []): Iterator
     {
         return $this->getRecordsAsObject($className, $header);
+    }
+
+    /**
+     * DEPRECATION WARNING! This method will be removed in the next major point release.
+     * @codeCoverageIgnore
+     * @deprecated since version 9.27.0
+     *
+     * Returns a new instance from a file path.
+     *
+     * @param non-empty-string $open_mode
+     * @param resource|null $context the resource context
+     *
+     * @throws UnavailableStream
+     */
+    #[Deprecated(message:'use League\Csv\AbstractCsv::from() instead', since:'league/csv:9.27.0')]
+    public static function createFromPath(string $path, string $open_mode = 'r', $context = null): static
+    {
+        return parent::from($path, $open_mode, $context);
     }
 }

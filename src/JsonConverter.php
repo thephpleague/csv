@@ -34,8 +34,6 @@ use function get_defined_constants;
 use function implode;
 use function in_array;
 use function is_bool;
-use function is_resource;
-use function is_string;
 use function json_encode;
 use function json_last_error;
 use function preg_match;
@@ -427,7 +425,7 @@ final class JsonConverter
      */
     public function encode(TabularDataProvider|TabularData|iterable $records, array $header = []): string
     {
-        $stream = Stream::createFromString();
+        $stream = Stream::fromString();
         $this->save(records: $records, destination: $stream, header: $header);
         $stream->rewind();
 
@@ -459,9 +457,7 @@ final class JsonConverter
             $destination instanceof Stream,
             $destination instanceof SplFileObject => $destination,
             $destination instanceof SplFileInfo => $destination->openFile(mode:'wb', context: $context),
-            is_resource($destination) => Stream::createFromResource($destination),
-            is_string($destination) => Stream::createFromPath($destination, 'wb', $context),
-            default => throw new TypeError('The destination path must be a filename, a stream or a SplFileInfo object.'),
+            default => Stream::from($destination, 'wb', $context),
         };
         $bytes = 0;
         $writtenBytes = 0;

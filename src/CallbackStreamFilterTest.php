@@ -42,7 +42,7 @@ observedOn💩temperature💩place
 2023-10-03💩💩Abidjan
 CSV;
 
-        $reader = Reader::createFromString($document);
+        $reader = Reader::fromString($document);
         $reader->setDelimiter("\x02");
         CallbackStreamFilter::register('swap.delemiter.in', fn (string $bucket): string => str_replace('💩', "\x02", $bucket));
         StreamFilter::appendOnReadTo($reader, 'swap.delemiter.in');
@@ -57,7 +57,7 @@ CSV;
     #[Test]
     public function it_can_swap_the_delimiter_on_write(): void
     {
-        $writer = Writer::createFromString();
+        $writer = Writer::fromString();
         $writer->setDelimiter("\x02");
         CallbackStreamFilter::register('swap.delemiter.out', fn (string $bucket): string => str_replace("\x02", '💩', $bucket));
         StreamFilter::prependOnWriteTo($writer, 'swap.delemiter.out');
@@ -90,7 +90,7 @@ CSV;
     public function it_can_be_added_to_a_csv_document(): void
     {
         $csv = "title1,title2,title3\rcontent11,content12,content13\rcontent21,content22,content23\r";
-        $document = Reader::createFromString($csv);
+        $document = Reader::fromString($csv);
         $document->setHeaderOffset(0);
 
         CallbackStreamFilter::register('swap.carrier.return', fn (string $bucket): string => str_replace("\r", "\n", $bucket));

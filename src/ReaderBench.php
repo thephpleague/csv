@@ -27,7 +27,7 @@ final class ReaderBench
         $path = dirname(__DIR__).'/test_files/csv_with_one_million_rows.csv';
 
         $numReadRows = 0;
-        foreach (Reader::createFromFileObject(new SplFileObject($path)) as $__) {
+        foreach (Reader::from(new SplFileObject($path)) as $__) {
             ++$numReadRows;
         }
 
@@ -41,7 +41,7 @@ final class ReaderBench
         $path = dirname(__DIR__).'/test_files/csv_with_one_million_rows.csv';
 
         $numReadRows = 0;
-        foreach (Reader::createFromPath($path) as $__) {
+        foreach (Reader::from($path) as $__) {
             ++$numReadRows;
         }
 

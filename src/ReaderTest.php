@@ -44,7 +44,7 @@ final class ReaderTest extends TabularDataReaderTestCase
             $tmp->fputcsv($row, escape: '\\');
         }
 
-        $this->csv = Reader::createFromFileObject($tmp);
+        $this->csv = Reader::from($tmp);
     }
 
     protected function tearDown(): void
@@ -64,7 +64,7 @@ date,temperature,place
 2011-01-03,5,Berkeley
 CSV;
 
-        return Reader::createFromString($csv);
+        return Reader::fromString($csv);
     }
 
     protected function tabularDataWithHeader(): TabularDataReader
@@ -79,7 +79,7 @@ date,temperature,place
 2011-01-03,5,Berkeley
 CSV;
 
-        return Reader::createFromString($csv)->setHeaderOffset(0);
+        return Reader::fromString($csv)->setHeaderOffset(0);
     }
 
     public function testReaderWithEmptyEscapeChar1(): void
@@ -92,7 +92,7 @@ Year,Make,Model,Description,Price
 1996,Jeep,Grand Cherokee,"MUST SELL!
 air, moon roof, loaded",4799.00
 EOF;
-        $csv = Reader::createFromString($source);
+        $csv = Reader::fromString($source);
         $csv->setEscape('');
         self::assertCount(5, $csv);
         $csv->setHeaderOffset(0);
@@ -103,7 +103,7 @@ EOF;
     {
         $source = '"parent name","child name","title"
             "parentA","childA","titleA"';
-        $csv = Reader::createFromString($source);
+        $csv = Reader::fromString($source);
         $csv->setEscape('');
         self::assertCount(2, $csv);
         $csv->setHeaderOffset(0);
@@ -162,7 +162,7 @@ EOF;
         foreach ($raw as $row) {
             $file->fputcsv($row, escape: '\\');
         }
-        $csv = Reader::createFromFileObject($file);
+        $csv = Reader::from($file);
         $csv->setHeaderOffset(0);
 
         $res = (new Statement())->process($csv);
@@ -174,7 +174,7 @@ EOF;
 
     public function testHeaderThrowsExceptionOnError(): void
     {
-        $csv = Reader::createFromString(
+        $csv = Reader::fromString(
             'field1,field1,field3
             1,2,3
             4,5,6'
@@ -195,7 +195,7 @@ foo,bar,baz
 
 1,2,3
 EOF;
-        $csv = Reader::createFromString($str);
+        $csv = Reader::fromString($str);
         $csv->setHeaderOffset(2);
         try {
             $csv->getHeader();
@@ -217,7 +217,7 @@ EOF;
         /** @var resource $fp */
         $fp = fopen('php://temp', 'r+');
         fputcsv($fp, $record, escape: '');
-        $csv = Reader::createFromStream($fp);
+        $csv = Reader::from($fp);
         self::assertSame($expected_bom, $csv->getInputBOM());
         foreach ($csv as $row) {
             self::assertSame($expected, $row[0]);
@@ -252,7 +252,7 @@ EOF;
     {
         $source = Bom::Utf8->value.'"parent name","child name","title"
             "parentA","childA","titleA"';
-        $csv = Reader::createFromString($source);
+        $csv = Reader::fromString($source);
         $csv->setHeaderOffset(0);
         $expected = ['parent name' => 'parentA', 'child name' => 'childA', 'title' => 'titleA'];
         foreach ($csv->getRecords() as $record) {
@@ -264,7 +264,7 @@ EOF;
     {
         $source = '"parent name","child name","title"
             "parentA","childA","titleA"';
-        $csv = Reader::createFromString($source);
+        $csv = Reader::fromString($source);
         $csv->setHeaderOffset(0);
         $expected = ['parent name' => 'parentA', 'child name' => 'childA', 'title' => 'titleA'];
         foreach ($csv->getRecords() as $offset => $record) {
@@ -278,7 +278,7 @@ EOF;
         /** @var resource $fp */
         $fp = fopen('php://temp', 'r+');
         fputcsv($fp, $expected_record, escape: '');
-        $csv = Reader::createFromStream($fp);
+        $csv = Reader::from($fp);
         $csv->includeInputBOM();
         self::assertSame(Bom::Utf16Le->value, $csv->getInputBOM());
         foreach ($csv as $offset => $record) {
@@ -296,7 +296,7 @@ EOF;
         $obj  = new SplFileObject($path, 'w+');
         $obj->fwrite("1st\n2nd\n");
         $obj->setFlags($flag);
-        $reader = Reader::createFromFileObject($obj);
+        $reader = Reader::from($obj);
         self::assertCount($fetch_count, $reader);
         $reader = null;
         $obj = null;
@@ -339,7 +339,7 @@ EOF;
             fputcsv($tmp, $row, escape: '');
         }
 
-        $csv = Reader::createFromStream($tmp);
+        $csv = Reader::from($tmp);
         $csv->setHeaderOffset(23)->getRecords();
     }
 
@@ -371,7 +371,7 @@ EOF;
             $tmp->fputcsv($row, escape: '\\');
         }
 
-        $reader = Reader::createFromFileObject($tmp)->setHeaderOffset(0);
+        $reader = Reader::from($tmp)->setHeaderOffset(0);
         self::assertSame(
             '[{"First Name":"jane","Last Name":"doe","E-mail":"jane.doe@example.com"}]',
             json_encode($reader)
@@ -380,7 +380,7 @@ EOF;
 
     public function testCreateFromPath(): void
     {
-        $csv = Reader::createFromPath(__DIR__.'/../test_files/foo_readonly.csv');
+        $csv = Reader::from(__DIR__.'/../test_files/foo_readonly.csv');
         self::assertCount(1, $csv);
     }
 
@@ -455,28 +455,28 @@ EOF;
 
         return [
             'FileObject' => [
-                Reader::createFromFileObject($rsrc),
+                Reader::from($rsrc),
                 $expected_with_skipping,
                 $expected_with_preserving,
                 $expected_with_skipping_with_header,
                 $expected_with_preserving_with_header,
             ],
             'Stream' => [
-                Reader::createFromString($source),
+                Reader::fromString($source),
                 $expected_with_skipping,
                 $expected_with_preserving,
                 $expected_with_skipping_with_header,
                 $expected_with_preserving_with_header,
             ],
             'FileObject with empty escape char' =>  [
-                Reader::createFromFileObject($rsrc)->setEscape(''),
+                Reader::from($rsrc)->setEscape(''),
                 $expected_with_skipping,
                 $expected_with_preserving,
                 $expected_with_skipping_with_header,
                 $expected_with_preserving_with_header,
             ],
             'Stream with empty escape char' => [
-                Reader::createFromString($source)->setEscape(''),
+                Reader::fromString($source)->setEscape(''),
                 $expected_with_skipping,
                 $expected_with_preserving,
                 $expected_with_skipping_with_header,
@@ -493,7 +493,7 @@ $bom
 column 1,column 2,column 3
 cell11,cell12,cell13
 CSV;
-        $csv = Reader::createFromString($text);
+        $csv = Reader::fromString($text);
         $csv->setHeaderOffset(1);
 
         self::assertCount(1, $csv);
@@ -520,7 +520,7 @@ CSV;
 column 1,column 2,column 3
 cell11,cell12,cell13
 CSV;
-        $csv = Reader::createFromString($text);
+        $csv = Reader::fromString($text);
         $csv->setHeaderOffset(1);
 
         self::assertCount(1, $csv);
@@ -548,7 +548,7 @@ $bom
 column 1,column 2,column 3
 cell11,cell12,cell13
 CSV;
-        $csv = Reader::createFromString($text);
+        $csv = Reader::fromString($text);
         $csv->setHeaderOffset(0);
 
         $this->expectException(Exception::class);
@@ -577,7 +577,7 @@ John,Doe,2001
 Jane,Doe,2005
 CSV;
 
-        $reader = Reader::createFromString($csv);
+        $reader = Reader::fromString($csv);
         $reader->setHeaderOffset(0);
         self::assertSame([
             [
@@ -620,7 +620,7 @@ Abiga,6,F,2004
 Aboubacar,8,M,2004
 Aboubakar,6,M,2004
 CSV;
-        $firstRow = [...Reader::createFromString($csv)
+        $firstRow = [...Reader::fromString($csv)
             ->getRecords([3 => 'Year', 0 => 'Firstname', 1 => 'Count'])][0];
         self::assertSame(['Year' => '2004', 'Firstname' => 'Abel', 'Count' => '14'], $firstRow);
     }
@@ -635,7 +635,7 @@ Aboubakar,6,M,2004
 CSV;
         $this->expectException(SyntaxError::class);
 
-        Reader::createFromString($csv)
+        Reader::fromString($csv)
             ->getRecords(['Annee' => 'Year', 'Prenom' => 'Firstname', 'Nombre' => 'Count']);
     }
 
@@ -646,7 +646,7 @@ CSV;
         $fp = fopen('php://temp', 'r+');
         fputcsv($fp, ['abc', '123'], escape: '');
 
-        $csv = Reader::createFromStream($fp);
+        $csv = Reader::from($fp);
         $csv->appendStreamFilterOnRead('convert.iconv.UTF-8/UTF-16');
 
         // An explicitly closed file handle makes the stream filter resources invalid

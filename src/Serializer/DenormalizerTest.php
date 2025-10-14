@@ -723,7 +723,7 @@ CSV;
             }
         };
 
-        $document = Reader::createFromString($csv);
+        $document = Reader::fromString($csv);
         $document->setHeaderOffset(0);
 
         self::assertEquals($item, $document->firstAsObject($item::class));

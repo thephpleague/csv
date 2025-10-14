@@ -42,7 +42,7 @@ final class EncloseFieldTest extends TestCase
 
     public function testEncloseAll(): void
     {
-        $csv = Writer::createFromString('');
+        $csv = Writer::fromString('');
         $csv->setDelimiter('|');
         EncloseField::addTo($csv, "\t\x1f");
         self::assertContains(EncloseField::getFiltername(), stream_get_filters());
@@ -88,7 +88,7 @@ CSV;
     {
         $this->expectException(InvalidArgumentException::class);
 
-        $csv = Writer::createFromString('');
+        $csv = Writer::fromString('');
         $csv->setDelimiter('|');
         EncloseField::addTo($csv, 'foo');
     }

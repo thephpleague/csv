@@ -656,7 +656,7 @@ SQL;
             ['2011-01-02', '-1'],
         );
 
-        $writer = Writer::createFromString();
+        $writer = Writer::fromString();
         $res = $buffer->to($writer);
 
         self::assertSame(44, $res);
@@ -672,7 +672,7 @@ SQL;
             ['2011-01-02', '-1'],
         );
 
-        $writer = Writer::createFromString();
+        $writer = Writer::fromString();
         $res = $buffer->to($writer, Buffer::EXCLUDE_HEADER);
 
         self::assertSame(27, $res);
@@ -688,7 +688,7 @@ SQL;
             ['2011-01-02', '-1'],
         );
 
-        $writer = Writer::createFromString();
+        $writer = Writer::fromString();
         $res = $buffer->to($writer);
 
         self::assertSame(27, $res);
@@ -782,7 +782,7 @@ date,temperature,place
 2011-01-03,5,Berkeley
 CSV;
 
-        $document = Reader::createFromString($csv);
+        $document = Reader::fromString($csv);
         $document->setHeaderOffset(0);
 
         $buffer = Buffer::from($document->slice(2, 3));
