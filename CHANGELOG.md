@@ -2,6 +2,24 @@
 
 All Notable changes to `Csv` will be documented in this file
 
+## [Next](https://github.com/thephpleague/csv/compare/9.26.0...master) - TBD
+
+### Added
+
+- None
+
+### Deprecated
+
+- None
+
+### Fixed
+
+- None
+
+### Remove
+
+- None
+
 ## [9.27.0](https://github.com/thephpleague/csv/compare/9.26.0...9.27.0) - 2025-10-16
 
 ### Added
@@ -60,9 +78,8 @@ All Notable changes to `Csv` will be documented in this file
 
 ### Fixed
 
-- Fix possible memory leaks with the `Writer` class [#563](https://github.com/thephpleague/csv/issues/563) - thanks to [pope-12](https://github.com/pope-12)
 - Fix test around equality, PHPUnit and closures [#568](https://github.com/thephpleague/csv/issues/568)
-- Added support for `PHP8.5` in github actions
+- Added support for `PHP8.5` in GitHub actions
 - Ensure `DOMDocument::createTextNode()` [] receives a string [#567](https://github.com/thephpleague/csv/pull/567) by [serpentblade](https://github.com/serpentblade)
 
 ### Remove
