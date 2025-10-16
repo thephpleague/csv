@@ -24,7 +24,7 @@ since version `9.16.0` you can write:
 use League\Csv\Reader;
 use League\Csv\Statement;
 
-$csv = Reader::createFromPath('/path/to/my/file.csv');
+$csv = Reader::from('/path/to/my/file.csv');
 $csv->setHeaderOffset(0);
 $csv->setDelimiter(';');
 
@@ -54,7 +54,7 @@ use Doctrine\Common\Collections\Criteria;
 use League\Csv\Doctrine as CsvDoctrine;
 use League\Csv\Reader;
 
-$csv = Reader::createFromPath('/path/to/my/file.csv');
+$csv = Reader::from('/path/to/my/file.csv');
 $csv->setHeaderOffset(0);
 $csv->setDelimiter(';');
 
@@ -98,7 +98,7 @@ composer require league/csv-doctrine
 use League\Csv\Doctrine\RecordCollection;
 use League\Csv\Reader;
 
-$csv = Reader::createFromPath('/path/to/my/file.csv');
+$csv = Reader::from('/path/to/my/file.csv');
 $csv->setHeaderOffset(0);
 $csv->setDelimiter(';');
 
@@ -110,7 +110,7 @@ $collection = new RecordCollection($csv);
 ```php
 <?php
 
-$csv = Reader::createFromPath('/path/to/my/file.csv');
+$csv = Reader::from('/path/to/my/file.csv');
 $csv->setHeaderOffset(0);
 $csv->setDelimiter(';');
 
@@ -129,7 +129,7 @@ use Doctrine\Common\Collections\Criteria;
 use League\Csv\Doctrine\CriteriaConverter;
 use League\Csv\Reader;
 
-$csv = Reader::createFromPath('/path/to/my/file.csv');
+$csv = Reader::from('/path/to/my/file.csv');
 $csv->setHeaderOffset(0);
 $csv->setDelimiter(';');
 

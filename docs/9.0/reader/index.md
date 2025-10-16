@@ -47,7 +47,7 @@ The returned records are normalized using the following rules:
 ```php
 use League\Csv\Reader;
 
-$reader = Reader::createFromPath('/path/to/my/file.csv', 'r');
+$reader = Reader::from('/path/to/my/file.csv', 'r');
 $reader->setHeaderOffset(0);
 $records = $reader->getRecords();
 foreach ($records as $offset => $record) {
@@ -87,7 +87,7 @@ john,doe,john.doe@example.com
 CSV;
 
 $formatter = fn (array $row): array => array_map(strtoupper(...), $row);
-$reader = Reader::createFromString($csv)
+$reader = Reader::fromString($csv)
     ->setHeaderOffset(0)
     ->addFormatter($formatter);
 [...$reader]; 
@@ -138,7 +138,7 @@ $source = <<<EOF
 "parentA","childA","titleA"
 EOF;
 
-$reader = Reader::createFromString($source);
+$reader = Reader::fromString($source);
 $reader->isEmptyRecordsIncluded(); //returns false
 iterator_to_array($reader, true);
 // [
@@ -191,7 +191,7 @@ public Reader::getHeader(void): array
 ```php
 use League\Csv\Reader;
 
-$csv = Reader::createFromPath('/path/to/file.csv', 'r');
+$csv = Reader::from('/path/to/file.csv', 'r');
 $csv->setHeaderOffset(0);
 $header_offset = $csv->getHeaderOffset(); //returns 0
 $header = $csv->getHeader(); //returns ['First Name', 'Last Name', 'E-mail']
@@ -210,7 +210,7 @@ to access the invalid record.</p>
 ```php
 use League\Csv\Reader;
 
-$csv = Reader::createFromPath('/path/to/file.csv', 'r');
+$csv = Reader::from('/path/to/file.csv', 'r');
 $csv->setHeaderOffset(1000); //valid offset but the CSV does not contain 1000 records
 $header_offset = $csv->getHeaderOffset(); //returns 1000
 $header = $csv->getHeader(); //throws a SyntaxError exception
@@ -222,7 +222,7 @@ If the header contains duplicates an exception will be thrown on usage.
 ```php
 use League\Csv\Reader;
 
-$csv = Reader::createFromPath('/path/to/file.csv', 'r');
+$csv = Reader::from('/path/to/file.csv', 'r');
 $csv->nth(0); //returns ['field1', 'field2', 'field1', 'field4']
 $csv->setHeaderOffset(0); //valid offset but the record contain duplicates
 $header_offset = $csv->getHeaderOffset(); //returns 0
@@ -236,7 +236,7 @@ will return the list of duplicate column names.</p>
 use League\Csv\Reader;
 use League\Csv\SyntaxError;
 
-$csv = Reader::createFromPath('/path/to/file.csv', 'r');
+$csv = Reader::from('/path/to/file.csv', 'r');
 $csv->nth(0); //returns ['field1', 'field2', 'field1', 'field4']
 $csv->setHeaderOffset(0); //valid offset but the record contain duplicates
 $header_offset = $csv->getHeaderOffset(); //returns 0
@@ -258,7 +258,7 @@ records using the [CSV controls characters](/9.0/connections/controls/).
 ```php
 use League\Csv\Reader;
 
-$reader = Reader::createFromPath('/path/to/my/file.csv', 'r');
+$reader = Reader::from('/path/to/my/file.csv', 'r');
 $records = $reader->getRecords();
 foreach ($records as $offset => $record) {
     //$offset : represents the record offset
@@ -278,7 +278,7 @@ Just like the `getHeader` method, the method output depends on the header record
 ```php
 use League\Csv\Reader;
 
-$reader = Reader::createFromPath('/path/to/my/file.csv', 'r');
+$reader = Reader::from('/path/to/my/file.csv', 'r');
 $reader->setHeaderOffset(0);
 $records = $reader->getRecords();
 foreach ($records as $offset => $record) {
@@ -299,7 +299,7 @@ from the returned <code>Iterator</code>.</p>
 ```php
 use League\Csv\Reader;
 
-$reader = Reader::createFromPath('/path/to/my/file.csv', 'r');
+$reader = Reader::from('/path/to/my/file.csv', 'r');
 $reader->setHeaderOffset(0);
 $records = $reader->getRecords(['firstname', 'lastname', 'email']);
 foreach ($records as $offset => $record) {
@@ -347,7 +347,7 @@ foreach ($records as $record) {
     $tmp->fputcsv($record);
 }
 
-$reader = Reader::createFromFileObject($tmp);
+$reader = Reader::from($tmp);
 echo '<pre>', PHP_EOL;
 echo json_encode($reader, JSON_PRETTY_PRINT), PHP_EOL;
 //display

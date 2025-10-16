@@ -32,7 +32,7 @@ The `EncloseField::addTo` method will:
 use League\Csv\EncloseField;
 use League\Csv\Writer;
 
-$writer = Writer::createFromPath('php://temp');
+$writer = Writer::from('php://temp');
 EncloseField::addTo($writer, "\t\x1f"); //adding the stream filter to force enclosure
 $writer->insertAll($iterable_data);
 $writer->output('mycsvfile.csv'); //outputting a CSV Document with all its fields enclosed

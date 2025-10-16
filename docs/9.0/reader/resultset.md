@@ -20,7 +20,7 @@ The `ResultSet` object can be instantiated from other objects than `Statement`.
 You can instantiate it directly from any object that implements the `League\Csv\TabularData` like the `Reader` class:
 
 ```php
-$resultSet = ResultSet::from(Reader::createFromPath('path/to/file.csv'));
+$resultSet = ResultSet::from(Reader::from('path/to/file.csv'));
 ```
 
 Apart from `TabularData` implementing object, the method also accepts results from RDBMS query as shown below:
@@ -79,7 +79,7 @@ foreach ($records as $record) {
     $tmp->fputcsv($record);
 }
 
-$reader = Reader::createFromFileObject($tmp)->setHeaderOffset(0);
+$reader = Reader::from($tmp)->setHeaderOffset(0);
 $stmt = (new Statement())->offset(1)->limit(1);
 $result = $stmt->process($reader);
 

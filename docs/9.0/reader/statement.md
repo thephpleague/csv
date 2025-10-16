@@ -33,7 +33,7 @@ Once your constraint is ready to be used, use its `process` method on a `Tabular
 use League\Csv\Reader;
 use League\Csv\Statement;
 
-$reader = Reader::createFromPath('/path/to/file.csv');
+$reader = Reader::from('/path/to/file.csv');
 $records = (new Statement())->process($reader);
 // $records is a League\Csv\ResultSet instance
 ```
@@ -62,7 +62,7 @@ contain a valid `email`:
 use League\Csv\Reader;
 use League\Csv\Statement;
 
-$reader = Reader::createFromPath('/path/to/file.csv');
+$reader = Reader::from('/path/to/file.csv');
 $records = (new Statement())
     ->where(fn (array $record): bool => false !== filter_var($record[2] ?? '', FILTER_VALIDATE_EMAIL))
     ->process($reader);
@@ -87,7 +87,7 @@ that match the submitted regular expression.
 use League\Csv\Reader;
 use League\Csv\Statement;
 
-$reader = Reader::createFromPath('/path/to/file.csv');
+$reader = Reader::from('/path/to/file.csv');
 $records = (new Statement())
     ->andWhere(1, '=', '10') //filtering is done of the second column
     ->orWhere('birthdate', 'regexp', '/\d{1,2}\/\d{1,2}\/\d{2,4}/') //filtering is done on the `birthdate` column
@@ -159,7 +159,7 @@ use League\Csv\Statement;
 
 $curDate = new DateTimeImmutable();
 
-$reader = Reader::createFromPath('/path/to/file.csv');
+$reader = Reader::from('/path/to/file.csv');
 $records = (new Statement())
     ->andWhere(1, '=', '10') //filtering is done of the second column
     ->orWhere('birthdate', fn (string $value): bool => DateTimeImmutable::createFromFormat('Y-m-d', $value) < $curDate) //filtering is done on the `birthdate` column
@@ -179,7 +179,7 @@ with each other.
 use League\Csv\Reader;
 use League\Csv\Statement;
 
-$reader = Reader::createFromPath('/path/to/file.csv');
+$reader = Reader::from('/path/to/file.csv');
 $records = (new Statement())
     ->andWhereColumn('created_at', '<', 'update_at') //filtering is done on both column value
     ->whereNotColumn('fullname', 'starts_with', 4)   //filtering is done on both column but the second column is specified via its offset
@@ -194,7 +194,7 @@ a callback. In that case the callback method will be evaluated with the value of
 use League\Csv\Reader;
 use League\Csv\Statement;
 
-$reader = Reader::createFromPath('/path/to/file.csv');
+$reader = Reader::from('/path/to/file.csv');
 $records = (new Statement())
      ->andWhereColumn('created_at', '<', 'update_at') //filtering is done on both column value
     ->andWhereOffset(
@@ -215,7 +215,7 @@ and the value with which you want to campare the offset with.
 use League\Csv\Reader;
 use League\Csv\Statement;
 
-$reader = Reader::createFromPath('/path/to/file.csv');
+$reader = Reader::from('/path/to/file.csv');
 $records = (new Statement())
     ->andWhereOffset('<', 100) //filtering is done on the offset value only
     ->process($reader);
@@ -230,7 +230,7 @@ and/or of its offset.
 use League\Csv\Reader;
 use League\Csv\Statement;
 
-$reader = Reader::createFromPath('/path/to/file.csv');
+$reader = Reader::from('/path/to/file.csv');
 $records = (new Statement())
     ->andWhereOffset(fn (string|int $value): bool => fmod((float) $value, 2) == 0) 
        // filtering is done on the record offset value
@@ -278,7 +278,7 @@ use League\Csv\Query;
 use League\Csv\Reader;
 use League\Csv\Statement;
 
-$reader = Reader::createFromPath('/path/to/file.csv');
+$reader = Reader::from('/path/to/file.csv');
 $records = (new Statement())
     ->orderBy(fn (mixed $rA, mixed $rB): int => strcmp(Query\Row::from($rB)->field(1) ?? '', Query\Row::from($rA)->field(1) ?? '')))
     ->process($reader);
@@ -302,7 +302,7 @@ a `Closure` that can be used with PHP's `usort` or `uasort` method.
 use League\Csv\Reader;
 use League\Csv\Statement;
 
-$reader = Reader::createFromPath('/path/to/file.csv');
+$reader = Reader::from('/path/to/file.csv');
 $records = (new Statement())
     ->orderByDesc(1) //descending order according to the data of the 2nd column
     ->orderByAsc('foo', strcmp(...)) //ascending order according a callback compare function
@@ -324,7 +324,7 @@ $sort = Query\Ordering\MultiSort::all(
     Query\Ordering\Column::sortBy('foo', 'asc', strcmp(...)),
 );
 
-$reader = Reader::createFromPath('/path/to/file.csv');
+$reader = Reader::from('/path/to/file.csv');
 $records = (new Statement())->orderBy($sort)->process($reader);
 // Will return the same content as in the previous example.
 ```
@@ -342,7 +342,7 @@ limit the number of records to at most `5` starting from the `10`th found record
 use League\Csv\Reader;
 use League\Csv\Statement;
 
-$reader = Reader::createFromPath('/path/to/file.csv');
+$reader = Reader::from('/path/to/file.csv');
 $records = (new Statement())
     ->limit(5)
     ->offset(9)
@@ -365,7 +365,7 @@ can even mix them both.
 use League\Csv\Reader;
 use League\Csv\Statement;
 
-$reader = Reader::createFromPath('/path/to/file.csv');
+$reader = Reader::from('/path/to/file.csv');
 $records = (new Statement())
     ->select(1, 3, 'field')
     ->process($reader);
@@ -396,7 +396,7 @@ Baz",2020-02-02 02:02:02
 Foo",2020-03-03 03:03:03
 CSV;
 
-$csv = Reader::createFromString($document);
+$csv = Reader::fromString($document);
 $csv->setHeaderOffset(0);
 $csv->addFormatter(fn (array $record) => [...$record, ...['Float' => (float) $record['Float'], 'Integer' => (int) $record['Integer']]])
 $records = $constraints->process($csv);
@@ -515,7 +515,7 @@ For example, with the following partially invalid expression:
 use League\Csv\Reader;
 use League\Csv\FragmentFinder;
 
-$reader = Reader::createFromPath('/path/to/file.csv');
+$reader = Reader::from('/path/to/file.csv');
 $finder = new FragmentFinder();
 
 $finder->find('row=7-5;8-9', $reader);         // return an Iterator<TabularDataReader>

@@ -24,7 +24,7 @@ csv;content;in;japanese;locale
 CSV;
 
 setlocale(LC_ALL, 'ja_JP.SJIS');
-$reader = Reader::createFromString($document);
+$reader = Reader::fromString($document);
 $reader->setHeaderOffset(0);
 $reader->first();
 ```
@@ -46,7 +46,7 @@ The `SwapDelimiter::addTo` method will:
 use League\Csv\SwapDelimiter;
 use League\Csv\Writer;
 
-$writer = Writer::createFromString();
+$writer = Writer::fromString();
 $writer->setDelimiter("\x02");
 SwapDelimiter::addTo($writer, '💩');
 $writer->insertOne(['toto', 'tata', 'foobar']);
@@ -70,7 +70,7 @@ observedOn💩temperature💩place
 2023-10-03💩15💩Yamoussokro
 CSV;
 
-$reader = Reader::createFromString($document);
+$reader = Reader::fromString($document);
 $reader->setHeaderOffset(0);
 $reader->setDelimiter("\x02");
 SwapDelimiter::addTo($reader, '💩');

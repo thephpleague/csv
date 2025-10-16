@@ -25,11 +25,11 @@ public AbstractCsv::supportsStreamFilterOnWrite(void): bool
 use League\Csv\Reader;
 use League\Csv\Writer;
 
-$reader = Reader::createFromPath('/path/to/my/file.csv', 'r');
+$reader = Reader::from('/path/to/my/file.csv', 'r');
 $reader->supportsStreamFilterOnRead(); //returns true
 $reader->supportsStreamFilterOnWrite(); //returns false
 
-$writer = Writer::createFromFileObject(new SplTempFileObject());
+$writer = Writer::from(new SplTempFileObject());
 $writer->supportsStreamFilterOnRead(); //returns false, the API can not be used
 $writer->supportsStreamFilterOnWrite(); //returns false, the API can not be used
 ```
@@ -53,11 +53,11 @@ Regardless of the stream filter API being supported by a specific CSV object, `g
 use League\Csv\Reader;
 use League\Csv\Writer;
 
-$reader = Reader::createFromPath('/path/to/my/file.csv', 'r');
+$reader = Reader::from('/path/to/my/file.csv', 'r');
 $reader->supportsStreamFilter(); //returns true
 $reader->getStreamFilterMode(); //returns STREAM_FILTER_READ
 
-$writer = Writer::createFromFileObject(new SplTempFileObject());
+$writer = Writer::from(new SplTempFileObject());
 $writer->supportsStreamFilter(); //returns false, the API can not be used
 $writer->getStreamFilterMode(); //returns STREAM_FILTER_WRITE
 ```
@@ -116,7 +116,7 @@ use MyLib\Transcode;
 stream_filter_register('convert.utf8decode', Transcode::class);
 // 'MyLib\Transcode' is a class that extends PHP's php_user_filter class
 
-$reader = Reader::createFromPath('/path/to/my/chinese.csv', 'r');
+$reader = Reader::from('/path/to/my/chinese.csv', 'r');
 if ($reader->supportsStreamFilterOnRead()) {
     $reader->appendStreamFilterOnRead('convert.utf8decode');
     $reader->appendStreamFilterOnRead('string.toupper');
@@ -149,7 +149,7 @@ use MyLib\Transcode;
 stream_filter_register('convert.utf8decode', Transcode::class);
 $fp = fopen('/path/to/my/chines.csv', 'r');
 stream_filter_append($fp, 'string.rot13'); //stream filter attached outside of League\Csv
-$reader = Reader::createFromStream($fp);
+$reader = Reader::from($fp);
 $reader->prependStreamFilterOnRead('convert.utf8decode');
 $reader->prependStreamFilterOnRead('string.toupper');
 $reader->hasStreamFilter('string.rot13'); //returns false
@@ -214,7 +214,7 @@ CallbackStreamFilter::isRegistered('string.tolower');
 //returns false - exits, is registered by PHP itself not by StreamFilter
 ```
 
-The class allows listing all the registered filter names by calling the
+The class lists all the registered filter names by calling the
 
 ```php
 CallbackStreamFilter::registeredFilterNames(); // returns a list
@@ -277,7 +277,7 @@ $csv = "title1,title2,title3\r".
      . "content11,content12,content13\r"
      . "content21,content22,content23\r";
 
-$document = Reader::createFromString($csv);
+$document = Reader::fromString($csv);
 $document->setHeaderOffset(0);
 
 CallbackStreamFilter::register(

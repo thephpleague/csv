@@ -23,7 +23,7 @@ Access and filter records from a CSV document saved on the local filesystem.
 use League\Csv\Reader;
 use League\Csv\Statement;
 
-$csv = Reader::createFromPath('/path/to/your/csv/file.csv', 'r');
+$csv = Reader::from('/path/to/your/csv/file.csv', 'r');
 $csv->setHeaderOffset(0); //set the CSV header offset
 $csv->setEscape(''); //required in PHP8.4+ to avoid deprecation notices
 
@@ -57,7 +57,7 @@ $sth->setFetchMode(PDO::FETCH_ASSOC);
 $sth->execute();
 
 // We create the CSV into memory
-$csv = Writer::createFromFileObject(new SplTempFileObject());
+$csv = Writer::from(new SplTempFileObject());
 $csv->setEscape(''); //required in PHP8.4+ to avoid deprecation notices
 
 // We insert the CSV header
@@ -90,7 +90,7 @@ $sth = $dbh->prepare(
 
 // By setting the header offset we index all records
 // with the header record and remove it from the iteration
-$csv = Reader::createFromPath('/path/to/your/csv/file.csv')
+$csv = Reader::from('/path/to/your/csv/file.csv')
     ->setHeaderOffset(0)
     ->setEscape('') //required in PHP8.4+ to avoid deprecation notices
 ;
@@ -113,7 +113,7 @@ use League\Csv\Bom;
 use League\Csv\Reader;
 use League\Csv\CharsetConverter;
 
-$csv = Reader::createFromPath('/path/to/your/csv/file.csv', 'r');
+$csv = Reader::from('/path/to/your/csv/file.csv', 'r');
 $csv->setHeaderOffset(0);
 $csv->setEscape(''); //required in PHP8.4+ to avoid deprecation notices
 
@@ -135,7 +135,7 @@ The `XMLConverter` object provided by this package can easily convert a CSV docu
 use League\Csv\XMLConverter;
 use League\Csv\Reader;
 
-$csv = Reader::createFromPath('/path/to/prenoms.csv', 'r')
+$csv = Reader::from('/path/to/prenoms.csv', 'r')
 $csv->setDelimiter(';');
 $csv->setHeaderOffset(0);
 $csv->setEscape(''); //required in PHP8.4+ to avoid deprecation notices

@@ -57,7 +57,7 @@ $encoder = (new CharsetConverter())
     ->outputEncoding('iso-8859-15')
 ;
 
-$writer = Writer::createFromPath('/path/to/your/csv/file.csv');
+$writer = Writer::from('/path/to/your/csv/file.csv');
 $writer->addFormatter($encoder);
 
 $writer->insertOne(["foo", "bébé", "jouet"]);
@@ -86,7 +86,7 @@ The `CharsetConverter::addTo` static method:
 use League\Csv\CharsetConverter;
 use League\Csv\Writer;
 
-$writer = Writer::createFromPath('/path/to/your/csv/file.csv');
+$writer = Writer::from('/path/to/your/csv/file.csv');
 CharsetConverter::addTo($writer, 'utf8', 'iso-8859-15');
 
 $writer->insertOne(["foo", "bébé", "jouet"]);

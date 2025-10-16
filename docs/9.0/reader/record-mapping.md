@@ -16,7 +16,7 @@ Here's an example using the `Reader` class which implements the `TabularDataRead
 ```php
 use League\Csv\Reader;
 
-$csv = Reader::createFromString($document);
+$csv = Reader::fromString($document);
 $csv->setHeaderOffset(0);
 foreach ($csv->getRecordsAsObject(ClimaticRecord::class) as $weather) {
     // each $weather entry will be an instance of the ClimaticRecord class;
@@ -96,7 +96,7 @@ an `Iterator` containing only instances of your specified class.
 ```php
 use League\Csv\Reader;
 
-$csv = Reader::createFromString($document);
+$csv = Reader::fromString($document);
 /** @var ClimaticRecord $instance */
 foreach ($csv->getRecordsAsObject(ClimaticRecord::class) as $instance) {
     // each $instance entry will be an instance of the ClimaticRecord class;
@@ -223,7 +223,7 @@ final readonly class Item
 }
 
 
-$document = Reader::createFromString($csv);
+$document = Reader::fromString($csv);
 $document->setHeaderOffset(0);
 $item = $document->firstAsObject(Item::class);
 $item->id = 23;
@@ -285,7 +285,7 @@ before typecasting whereas `Denormalizer::disallowEmptyStringAsNull` will preser
 use League\Csv\Reader;
 use League\Csv\Serializer\Denormalizer;
 
-$csv = Reader::createFromString($document);
+$csv = Reader::fromString($document);
 $csv->setHeaderOffset(0);
 foreach ($csv->getRecordsAsObject(ClimaticRecord::class) {
     // the first record contains an empty string for temperature

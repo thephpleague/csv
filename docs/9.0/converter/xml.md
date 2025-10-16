@@ -134,7 +134,7 @@ use League\Csv\XMLConverter;
 use League\Csv\Statement;
 use League\Csv\Reader;
 
-$csv = Reader::createFromPath('/path/to/prenoms.csv', 'r');
+$csv = Reader::from('/path/to/prenoms.csv', 'r');
 $csv->setDelimiter(';');
 $csv->setHeaderOffset(0);
 
@@ -244,7 +244,7 @@ use League\Csv\XMLConverter;
 use League\Csv\Statement;
 use League\Csv\Reader;
 
-$csv = Reader::createFromPath('/path/to/prenoms.csv', 'r');
+$csv = Reader::from('/path/to/prenoms.csv', 'r');
 $csv->setDelimiter(';');
 $csv->setHeaderOffset(0);
 
@@ -304,7 +304,7 @@ the total number of bytes sent just like the `XMLConverter::save` method and ena
 use League\Csv\Reader;
 use League\Csv\XMLConverter;
 
-$reader = Reader::createFromPath('file.csv');
+$reader = Reader::from('file.csv');
 $reader->setHeaderOffset(0);
 
 header('Cache-Control: no-cache, no-store, must-revalidate');
@@ -330,7 +330,7 @@ To download the generated XML on the fly you can use the `XMLConverter::download
 use League\Csv\Reader;
 use League\Csv\XMLConverter;
 
-$reader = Reader::createFromPath('file.csv');
+$reader = Reader::from('file.csv');
 $reader->setHeaderOffset(0);
 
 header('Cache-Control: no-cache, no-store, must-revalidate');
@@ -350,7 +350,7 @@ the method optional arguments.
 use League\Csv\Reader;
 use League\Csv\XMLConverter;
 
-$reader = Reader::createFromPath('file.csv');
+$reader = Reader::from('file.csv');
 $reader->setHeaderOffset(0);
 
 header('Cache-Control: no-cache, no-store, must-revalidate');

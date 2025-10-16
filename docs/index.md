@@ -12,7 +12,7 @@ layout: homepage
 use League\Csv\Reader;
 
 //load the CSV document from a file path
-$csv = Reader::createFromPath('/path/to/your/csv/file.csv', 'r');
+$csv = Reader::from('/path/to/your/csv/file.csv', 'r');
 $csv->setHeaderOffset(0);
 
 $header = $csv->getHeader(); //returns the CSV header record
@@ -39,7 +39,7 @@ $records = [
 ];
 
 //load the CSV document from a string
-$csv = Writer::createFromString();
+$csv = Writer::fromString();
 
 //insert the header
 $csv->insertOne($header);
@@ -60,7 +60,7 @@ use League\Csv\Statement;
 
 //load the CSV document from a stream
 $stream = fopen('/path/to/your/csv/file.csv', 'r');
-$csv = Reader::createFromStream($stream);
+$csv = Reader::from($stream);
 $csv->setDelimiter(';');
 $csv->setHeaderOffset(0);
 
@@ -89,7 +89,7 @@ use League\Csv\XMLConverter;
 
 //load the CSV document from a SplFileObject
 $file = new SplFileObject('/path/to/your/csv/file.csv', 'r');
-$csv = Reader::createFromFileObject($file);
+$csv = Reader::from($file);
 
 $converter = new XMLConverter()
     ->rootElement('csv')
@@ -129,7 +129,7 @@ PHP stream filters can directly be used to ease manipulating CSV document
 use League\Csv\Reader;
 use League\Csv\Bom;
 
-$csv = Reader::createFromPath('/path/to/your/csv/file.csv', 'r');
+$csv = Reader::from('/path/to/your/csv/file.csv', 'r');
 $csv->setHeaderOffset(0);
 
 if (Bom::tryFromSequence($csv)?->isUtf16() ?? false) {

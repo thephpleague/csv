@@ -112,7 +112,7 @@ The CSV document current BOM character is detected using the `getInputBOM` metho
 ```php
 use League\Csv\Reader;
 
-$csv = Reader::createFromPath('/path/to/file.csv');
+$csv = Reader::from('/path/to/file.csv');
 $bom = $csv->getInputBOM();
 ```
 
@@ -133,7 +133,7 @@ public AbstractCsv::getOutputBOM(void): string
 use League\Csv\Bom;
 use League\Csv\Reader;
 
-$csv = Reader::createFromPath('/path/to/file.csv', 'r');
+$csv = Reader::from('/path/to/file.csv', 'r');
 $csv->setOutputBOM(Bom::Utf8);
 $bom = $csv->getOutputBOM(); //returns "\xEF\xBB\xBF"
 ```
@@ -163,7 +163,7 @@ If your document does not contain any BOM sequence you can speed up the CSV iter
 
 ```php
 $raw_csv = Bom::Utf8->value."john,doe,john.doe@example.com\njane,doe,jane.doe@example.com\n";
-$csv = Reader::createFromString($raw_csv);
+$csv = Reader::fromString($raw_csv);
 $csv->setOutputBOM(Bom::Utf16Le);
 $csv->includeInputBOM();
 ob_start();

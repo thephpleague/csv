@@ -21,7 +21,7 @@ public AbstractCsv::getDelimiter(void): string
 ```php
 use League\Csv\Reader;
 
-$csv = Reader::createFromPath('/path/to/file.csv', 'r');
+$csv = Reader::from('/path/to/file.csv', 'r');
 $csv->setDelimiter(';');
 $delimiter = $csv->getDelimiter(); //returns ";"
 ```
@@ -44,7 +44,7 @@ public AbstractCsv::getEnclosure(void): string
 ```php
 use League\Csv\Writer;
 
-$csv = Writer::createFromPath('/path/to/file.csv');
+$csv = Writer::from('/path/to/file.csv');
 $csv->setEnclosure('|');
 $enclosure = $csv->getEnclosure(); //returns "|"
 ```
@@ -75,7 +75,7 @@ public AbstractCsv::getEscape(void): string
 ```php
 use League\Csv\Reader;
 
-$csv = Reader::createFromPath('/path/to/file.csv', 'r');
+$csv = Reader::from('/path/to/file.csv', 'r');
 $csv->setEscape('\\');
 $escape = $csv->getEscape(); //returns "\"
 ```
@@ -87,7 +87,7 @@ $escape = $csv->getEscape(); //returns "\"
 ```php
 use League\Csv\Reader;
 
-$csv = Reader::createFromPath('/path/to/file.csv', 'r');
+$csv = Reader::from('/path/to/file.csv', 'r');
 $csv->setEscape('');
 $escape = $csv->getEscape(); //returns ""
 ```
@@ -101,7 +101,7 @@ $file = new SplTempFileObject();
 $file->setFlags(SplFileObject::READ_CSV);
 $file->setCsvControl('|', "'", "\\");
 
-$csv = Reader::createFromFileObject($file);
+$csv = Reader::from($file);
 
 echo $csv->getDelimiter(); //display '|'
 echo $csv->getEnclosure(); //display "'"
@@ -136,7 +136,7 @@ and returns an associated array whose keys are the submitted delimiters characte
 use League\Csv\Info;
 use League\Csv\Reader;
 
-$reader = Reader::createFromPath('/path/to/file.csv', 'r');
+$reader = Reader::from('/path/to/file.csv', 'r');
 $reader->setEnclosure('"');
 $reader->setEscape('\\');
 

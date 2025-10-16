@@ -17,7 +17,7 @@ On Windows, MS Excel expects an UTF-8 encoded CSV with its corresponding `BOM` c
 use League\Csv\Bom;
 use League\Csv\Reader;
 
-$reader = Reader::createFromPath('/path/to/my/file.csv', 'r');
+$reader = Reader::from('/path/to/my/file.csv', 'r');
 //let's set the output BOM
 $reader->setOutputBOM(Bom::Utf8);
 //let's convert the incoming data from iso-88959-15 to utf-8
@@ -39,11 +39,11 @@ use League\Csv\Reader;
 use League\Csv\Writer;
 
 //the current CSV is ISO-8859-15 encoded with a ";" delimiter
-$origin = Reader::createFromPath('/path/to/french.csv', 'r');
+$origin = Reader::from('/path/to/french.csv', 'r');
 $origin->setDelimiter(';');
 
 //let's use stream resource
-$writer = Writer::createFromStream(fopen('php://temp', 'r+'));
+$writer = Writer::from(fopen('php://temp', 'r+'));
 //let's set the output BOM
 $writer->setOutputBOM(Bom::Utf16Le);
 //we set the tab as the delimiter character
@@ -75,7 +75,7 @@ use League\Csv\Reader;
 use League\Csv\CharsetConverter;
 
 $input = Bom::Utf16Be->value."john,doe,john.doe@example.com\njane,doe,jane.doe@example.com\n";
-$document = Reader::createFromString($input);
+$document = Reader::fromString($input);
 $document->includeInputBOM(); // de-activate the default skipping mechanism
 CharsetConverter::addBOMSkippingTo($document);
 var_dump([...$document]);

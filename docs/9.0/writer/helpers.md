@@ -19,7 +19,7 @@ use League\Csv\Writer;
 use League\Csv\ColumnConsistency;
 
 $validator = new ColumnConsistency();
-$writer = Writer::createFromPath('/path/to/your/csv/file.csv');
+$writer = Writer::from('/path/to/your/csv/file.csv');
 $writer->addValidator($validator, 'column_consistency');
 $validator->getColumnCount(); //returns -1
 $writer->insertOne(["foo", "bar", "baz"]);

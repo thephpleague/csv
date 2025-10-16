@@ -25,7 +25,7 @@ A good example of what you can achieve can be seen with the following snippet
 ```php
 use League\Csv\Reader;
 
-$records = Reader::createFromPath('/path/to/file.csv')
+$records = Reader::from('/path/to/file.csv')
     ->filter(fn (array $record): bool => false !== filter_var($record[2] ?? '', FILTER_VALIDATE_EMAIL))
     ->select(1, 4, 5)
     ->slice(3, 5)
@@ -56,7 +56,7 @@ as well as iterate over all the record using the `foreach` structure.
 ```php
 use League\Csv\Reader;
 
-$reader = Reader::createFromPath('/path/to/my/file.csv');
+$reader = Reader::from('/path/to/my/file.csv');
 count($reader); //returns 4
 foreach ($reader as $offset => $record) {
     //iterates over the 4 records.
@@ -73,7 +73,7 @@ has no header, it will return the empty array.
 ```php
 use League\Csv\Reader;
 
-$reader = Reader::createFromPath('/path/to/my/file.csv');
+$reader = Reader::from('/path/to/my/file.csv');
 $reader->getHeader(); //is empty because no header information was given
 ```
 
@@ -96,7 +96,7 @@ Aboubacar,8,M,2004
 Aboubakar,6,M,2004
 CSV;
 
-$reader = Reader::createFromString($csv);
+$reader = Reader::fromString($csv);
 $resultSet = (new Statement())->process($reader);
 $records = $resultSet->getRecords([3 => 'Year', 0 => 'Firstname', 4 => 'Yolo']);
 var_dump([...$records][0]);
@@ -128,7 +128,7 @@ If you prefer working with objects instead of arrays it is possible to deseriali
 the `getRecordsAsObject` method. This method will convert each CSV record into your specified class instances.
 
 ```php
-$csv = Reader::createFromString($document);
+$csv = Reader::fromString($document);
 $csv->setHeaderOffset(0);
 foreach ($csv->getRecordsAsObject(ClimaticRecord::class) as $instance) {
     // each $instance entry will be an instance of the Weather class;
@@ -156,7 +156,7 @@ if no record is found, an empty `array` is returned.
 use League\Csv\Reader;
 use League\Csv\Statement;
 
-$reader = Reader::createFromPath('/path/to/my/file.csv', 'r');
+$reader = Reader::from('/path/to/my/file.csv', 'r');
 $reader->setHeaderOffset(0);
 
 $stmt = (new Statement())
@@ -192,7 +192,7 @@ column offset, If no column is found `null` is returned.
 use League\Csv\Reader;
 use League\Csv\Statement;
 
-$reader = Reader::createFromPath('/path/to/my/file.csv', 'r');
+$reader = Reader::from('/path/to/my/file.csv', 'r');
 $reader->setHeaderOffset(0);
 
 $stmt = (new Statement())
@@ -218,7 +218,7 @@ like `getRecordsAsObjects`.
 use League\Csv\Reader;
 use League\Csv\Statement;
 
-$csv = Reader::createFromPath('/path/to/my/file.csv', 'r');
+$csv = Reader::from('/path/to/my/file.csv', 'r');
 $csv->setHeaderOffset(0);
 
 $csv->nthAsObject(3, ClimaticRecord::class);
@@ -235,7 +235,7 @@ Tests for the existence of a record that satisfies a given predicate.
 use League\Csv\Reader;
 use League\Csv\Statement;
 
-$reader = Reader::createFromPath('/path/to/my/file.csv', 'r');
+$reader = Reader::from('/path/to/my/file.csv', 'r');
 $resultSet = (new Statement())->process($reader);
 
 $exists = $resultSet->exists(fn (array $records) => in_array('twenty-five', $records, true));
@@ -251,7 +251,7 @@ The `fetchColumn` returns an Iterator containing all the values of a single colu
 header offset if you provide an integer or its header name if you provide a string name that exists.
 
 ```php
-$reader = Reader::createFromPath('/path/to/my/file.csv');
+$reader = Reader::from('/path/to/my/file.csv');
 $reader->setHeaderOffset(0);
 $records = (new Statement())->process($reader);
 foreach ($records->fetchColumn(3) as $value) {
@@ -274,7 +274,7 @@ Two additional methods are added to ease distinguish usage
 The `fetchColumnByName` returns an Iterator containing all the values of a single column specified by its header name if it exists.
 
 ```php
-$reader = Reader::createFromPath('/path/to/my/file.csv');
+$reader = Reader::from('/path/to/my/file.csv');
 $reader->setHeaderOffset(0);
 $records = (new Statement())->process($reader);
 foreach ($records->fetchColumnByName('e-mail') as $value) {
@@ -292,7 +292,7 @@ The `fetchColumnByOffset` returns an Iterator containing all the values of a sin
 header offset.
 
 ```php
-$reader = Reader::createFromPath('/path/to/my/file.csv');
+$reader = Reader::from('/path/to/my/file.csv');
 $reader->setHeaderOffset(0);
 $records = (new Statement())->process($reader);
 foreach ($records->fetchColumnByOffset(3) as $value) {
@@ -326,7 +326,7 @@ foo,bar
 sacha
 EOF;
 
-$reader = Reader::createFromString($str);
+$reader = Reader::fromString($str);
 $records = (new Statement())->process($reader);
 
 foreach ($records->fetchPairs() as $firstname => $lastname) {
@@ -367,8 +367,8 @@ closure.
 use League\Csv\Reader;
 use League\Csv\Writer;
 
-$writer = Writer::createFromString();
-$reader = Reader::createFromPath('/path/to/my/file.csv', 'r');
+$writer = Writer::fromString();
+$reader = Reader::from('/path/to/my/file.csv', 'r');
 $reader->each(function (array $record, int $offset) use ($writer) {
      if ($offset < 10) {
         return $writer->insertOne($record);
@@ -394,7 +394,7 @@ the result of each iteration into the subsequent iteration:
 use League\Csv\Reader;
 use League\Csv\ResultSet;
 
-$reader = Reader::createFromPath('/path/to/my/file.csv', 'r');
+$reader = Reader::from('/path/to/my/file.csv', 'r');
 $resultSet = ResultSet::createFromTabularDataReader($reader);
 
 $nbTotalCells = $resultSet->reduce(fn (?int $carry, array $records) => ($carry ?? 0) + count($records));
@@ -414,7 +414,7 @@ The `map` method iterates over the tabular data records on map the found records
 use League\Csv\Reader;
 use League\Csv\ResultSet;
 
-$reader = Reader::createFromPath('/path/to/my/file.csv', 'r');
+$reader = Reader::from('/path/to/my/file.csv', 'r');
 $resultSet = ResultSet::createFromTabularDataReader($reader);
 
 $mapper = fn (array $records, int $offset): int => 42;
@@ -440,7 +440,7 @@ keys of the elements are preserved.
 ```php
 use League\Csv\Reader;
 
-$reader = Reader::createFromPath('/path/to/my/file.csv', 'r');
+$reader = Reader::from('/path/to/my/file.csv', 'r');
 $records = $reader->filter(fn (array $record): => 5 === count($record));
 
 //$records is a ResultSet object with only records with 5 elements
@@ -456,7 +456,7 @@ Sorts the CSV document while keeping the original keys.
 ```php
 use League\Csv\Reader;
 
-$reader = Reader::createFromPath('/path/to/my/file.csv', 'r');
+$reader = Reader::from('/path/to/my/file.csv', 'r');
 $records = $reader->sorted(fn (array $recordA, array $recordB) => $recordA['firstname'] <=> $recordB['firstname']);
 
 //$records is a ResultSet containing the sorted CSV document. 
@@ -475,7 +475,7 @@ Keys have to be preserved by this method. Calling this method will only return t
 use League\Csv\Reader;
 use League\Csv\Statement;
 
-$reader = Reader::createFromPath('/path/to/my/file.csv', 'r');
+$reader = Reader::from('/path/to/my/file.csv', 'r');
 $resultSet = (new Statement())->process($reader);
 
 $records = $resultSet->slice(10, 25);
@@ -497,7 +497,7 @@ can even mix them both.
 ```php
 use League\Csv\Reader;
 
-$reader = Reader::createFromPath('/path/to/my/file.csv')
+$reader = Reader::from('/path/to/my/file.csv')
     ->select(2, 5, 8);
 
 //$reader is a new TabularDataReader with 3 columns
@@ -512,7 +512,7 @@ to select all the fields except the one you will specify as argument to the meth
 ```php
 use League\Csv\Reader;
 
-$reader = Reader::createFromPath('/path/to/my/file.csv')
+$reader = Reader::from('/path/to/my/file.csv')
     ->selectAllExcept(3);
 
 //$reader is a new TabularDataReader with all the fields except the 4th one.
@@ -567,7 +567,7 @@ Conversely, `matchingFirst` wraps the functionality of `FragmentFinder::findFirs
 ```php
 use League\Csv\Reader;
 
-$reader = Reader::createFromString($csv);
+$reader = Reader::fromString($csv);
 
 $reader->matching('row=3-1;4-6'); //returns an iterable containing all the TabularDataReader instance that are valid.
 $reader->matchingFirst('row=3-1;4-6'); // will return 1 selected fragment as a TabularReaderData instance
@@ -590,7 +590,7 @@ use League\Csv\Reader;
 use League\Csv\TabularDataReader;
 use League\Csv\Writer;
 
-$chunks = Reader::createFromPath('path/to/a/huge/file.csv')->chunkBy(1000);
+$chunks = Reader::from('path/to/a/huge/file.csv')->chunkBy(1000);
 foreach ($chunks as $chunk) {
  // $chunk is a small CSV of 1000 records or less
 }

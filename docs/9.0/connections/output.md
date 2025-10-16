@@ -31,7 +31,7 @@ Use the `toString` method to return the full CSV content.
 ```php
 use League\Csv\Reader;
 
-$reader = Reader::createFromPath('/path/to/my/file.csv', 'r');
+$reader = Reader::from('/path/to/my/file.csv', 'r');
 echo $reader->toString();
 ```
 
@@ -44,7 +44,7 @@ If the CSV document is not seekable a `Exception` or a `RuntimeException` may be
 ```php
 use League\Csv\Writer;
 
-$csv = Writer::createFromFileObject(new SplFileObject('php://output', 'w'));
+$csv = Writer::from(new SplFileObject('php://output', 'w'));
 $csv->insertOne(['foo', 'bar']);
 echo $csv->toString();
 //throws a RuntimeException because the SplFileObject is not seekable
@@ -55,7 +55,7 @@ echo $csv->toString();
 ```php
 use League\Csv\Writer;
 
-$csv = Writer::createFromFileObject(new SplFileObject('php://output', 'w'));
+$csv = Writer::from(new SplFileObject('php://output', 'w'));
 $csv->insertOne(['foo', 'bar']);
 echo $csv;
 echo $csv->getContent();
@@ -87,7 +87,7 @@ header('Content-Type: text/csv; charset=UTF-8');
 header('Content-Description: File Transfer');
 header('Content-Disposition: attachment; filename="name-for-your-file.csv"');
 
-$reader = Reader::createFromPath('/path/to/my/file.csv', 'r');
+$reader = Reader::from('/path/to/my/file.csv', 'r');
 $reader->download();
 die;
 ```
@@ -97,7 +97,7 @@ die;
 ```php
 use League\Csv\Reader;
 
-$reader = Reader::createFromPath('file.csv');
+$reader = Reader::from('file.csv');
 $reader->download('name-for-your-file.csv');
 die;
 ```
@@ -123,7 +123,7 @@ header('Content-Type: text/csv; charset=UTF-8');
 header('Content-Description: File Transfer');
 header('Content-Disposition: attachment; filename="name-for-your-file.csv"');
 
-$reader = Reader::createFromPath('/path/to/huge/file.csv', 'r');
+$reader = Reader::from('/path/to/huge/file.csv', 'r');
 foreach ($reader->chunk(1024) as $chunk) {
     echo dechex(strlen($chunk))."\r\n$chunk\r\n";
 }
@@ -137,7 +137,7 @@ To avoid breaking the flow of your application, you should create a Response obj
 ```php
 use League\Csv\Reader;
 
-$reader = Reader::createFromPath('/path/to/my/file.csv', 'r');
+$reader = Reader::from('/path/to/my/file.csv', 'r');
 return new Response($reader->toString(), 200, [
     'Content-Encoding' => 'none',
     'Content-Type' => 'text/csv; charset=UTF-8',
@@ -161,7 +161,7 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
 $stmt = $dbh->prepare("SELECT * FROM users");
 $stmt->setFetchMode(PDO::FETCH_ASSOC);
 $stmt->execute();
-$csv = Writer::createFromPath('php://temp', 'r+');
+$csv = Writer::from('php://temp', 'r+');
 $csv->insertAll($stmt);
 
 //we create a callable to output the CSV in chunks

@@ -30,7 +30,7 @@ $records = [
     ['john', 'doe', 'john.doe@example.com'],
 ];
 
-$writer = Writer::createFromPath('/path/to/saved/file.csv', 'w+');
+$writer = Writer::from('/path/to/saved/file.csv', 'w+');
 $writer->insertOne(['john', 'doe', 'john.doe@example.com']);
 $writer->insertAll($records); //using an array
 $writer->insertAll(new ArrayIterator($records)); //using a Traversable object
@@ -51,7 +51,7 @@ $records = [
 ];
 
 try {
-    $writer = Writer::createFromPath('/path/to/saved/file.csv', 'r');
+    $writer = Writer::from('/path/to/saved/file.csv', 'r');
     $writer->insertAll($records);
 } catch (CannotInsertRecord $e) {
     $e->getRecord(); //returns [1, 2, 3]
@@ -65,7 +65,7 @@ use League\Csv\Writer;
 
 $record = ['"foo"', 'foo bar', 'baz ', 'foo\\"bar'];
 
-$writer = Writer::createFromString();
+$writer = Writer::fromString();
 $writer->insertOne($record);
 $writer->setEscape('');
 $writer->insertOne($record);
@@ -99,7 +99,7 @@ public Writer::getEndOfLine(void): string
 ```php
 use League\Csv\Writer;
 
-$writer = Writer::createFromFileObject(new SplFileObject());
+$writer = Writer::from(new SplFileObject());
 $writer->getEndOfLine();        //returns "\n";
 $writer->setEndOfLine("\r\n");
 $writer->getEndOfLine();        //returns "\r\n";
@@ -161,7 +161,7 @@ $collection = [
     ['to"to', 'foo\"bar'],
 ];
 
-$writer = Writer::createFromString();
+$writer = Writer::fromString();
 $writer->encloseAll(); //return false;
 $writer->forceEnclosure();
 $writer->encloseAll(); //return true;
@@ -206,7 +206,7 @@ use League\Csv\Writer;
 $formatter = function (array $row): array {
     return array_map('strtoupper', $row);
 };
-$writer = Writer::createFromFileObject(new SplTempFileObject());
+$writer = Writer::from(new SplTempFileObject());
 $writer->addFormatter($formatter);
 $writer->insertOne(['john', 'doe', 'john.doe@example.com']);
 

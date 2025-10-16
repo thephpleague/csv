@@ -44,10 +44,10 @@ shown in the example below:
 use League\Csv\Reader;
 use League\Csv\Writer;
 
-$csv = Reader::createFromPath('/path/to/file.csv', 'r');
+$csv = Reader::from('/path/to/file.csv', 'r');
 $csv->setEscape(''); //required in PHP8.4+
 
-$writer = Writer::createFromString();
+$writer = Writer::fromString();
 $writer->setEscape(''); //required in PHP8.4+
 ```
 
@@ -61,8 +61,8 @@ be done using the script below:
 use League\Csv\Reader;
 use League\Csv\Writer;
 
-$csv = Reader::createFromPath('/path/to/file_with_escape_character.csv', 'r');
-$writer = Writer::createFromPath('/path/to/file_without_escape_character.csv', 'w');
+$csv = Reader::from('/path/to/file_with_escape_character.csv', 'r');
+$writer = Writer::from('/path/to/file_without_escape_character.csv', 'w');
 $writer->setEscape('');
 $writer->setDelimiter($csv->getDelimiter()); //we re-use the old document character controls
 $writer->setEnclosure($csv->getEnclosure()); //we re-use the old document character controls
@@ -88,7 +88,7 @@ use League\Csv\Exception;
 use League\Csv\Reader;
 
 try {
-    $csv = Reader::createFromPath('/path/to/file.csv', 'r');
+    $csv = Reader::from('/path/to/file.csv', 'r');
     $csv->setDelimiter('toto');
 } catch (Exception $e) {
     echo $e->getMessage(), PHP_EOL;
@@ -104,7 +104,7 @@ use League\Csv\Exception;
 use League\Csv\Writer;
 
 try {
-    $csv = Writer::createFromFileObject(new SplFileObject('php://output', 'w'));
+    $csv = Writer::from(new SplFileObject('php://output', 'w'));
     $csv->setEndOfLine("\r\n");
     $csv->insertOne(["foo", "bar"]);
 } catch (Exception | RuntimeException $e) {

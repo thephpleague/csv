@@ -219,7 +219,7 @@ ease storing the JSON in a file or displaying it in its full JSON string represe
 Here's a conversion example:
 
 ```php
-$document = Reader::createFromPath(__DIR__.'/test_files/prenoms.csv');
+$document = Reader::from(__DIR__.'/test_files/prenoms.csv');
 $document->setDelimiter(';');
 $document->setHeaderOffset(0);
 
@@ -340,7 +340,7 @@ the total number of bytes sent just like the `JsonConverter::save` method and en
 use League\Csv\Reader;
 use League\Csv\JsonConverter;
 
-$reader = Reader::createFromPath('file.csv');
+$reader = Reader::from('file.csv');
 $reader->setHeaderOffset(0);
 
 header('Cache-Control: no-cache, no-store, must-revalidate');
@@ -364,7 +364,7 @@ If you want to reduce the number of headers to write you can specify the downloa
 use League\Csv\Reader;
 use League\Csv\JsonConverter;
 
-$reader = Reader::createFromPath('file.csv');
+$reader = Reader::from('file.csv');
 $reader->setHeaderOffset(0);
 
 header('Cache-Control: no-cache, no-store, must-revalidate');

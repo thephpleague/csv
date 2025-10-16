@@ -35,7 +35,7 @@ use League\Csv\EscapeFormula;
 use League\Csv\Writer;
 
 $formatter = new EscapeFormula();
-$writer = Writer::createFromPath('php://temp', 'r+');
+$writer = Writer::from('php://temp', 'r+');
 $writer->addFormatter($formatter->escapeRecord(...));
 $writer->insertOne(['2', '2017-07-25', 'Important Client', '=2+5', 240, null]);
 $writer->toString();
@@ -50,7 +50,7 @@ use League\Csv\EscapeFormula;
 use League\Csv\Reader;
 
 $formatter = new EscapeFormula();
-$reader = Reader::createFromPath('/path/to/my/file.csv');
+$reader = Reader::from('/path/to/my/file.csv');
 $reader->addFormatter($formatter->unescapeRecord(...))
 $reader->first(); 
 // returns ['2', '2017-07-25', 'Important Client', '=2+5', '240', '']

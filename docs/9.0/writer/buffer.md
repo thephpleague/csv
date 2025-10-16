@@ -23,9 +23,9 @@ The `Buffer` object can be instantiated from any object that implements the pack
 like the `Reader` or the `ResultSet` classes:
 
 ```php
-$buffer = Buffer::from(Reader::createFromPath('path/to/file.csv'));
+$buffer = Buffer::from(Reader::from('path/to/file.csv'));
 //or
-$document = Reader::createFromPath('path/to/file.csv');
+$document = Reader::from('path/to/file.csv');
 $document->setHeaderOffset(0);       
 $altBuffer = Buffer::from($document->slice(0, 30_000));
 ```
@@ -104,7 +104,7 @@ use League\Csv\Buffer;
 use League\Csv\Reader;
 use League\Csv\Statement;
 
-$reader = Reader::createFromPath('/path/to/file.csv');
+$reader = Reader::from('/path/to/file.csv');
 $reader->setHeaderOffset(0);
 
 $buffer = Buffer::from($reader->slice(50, 30_000)));
@@ -181,7 +181,7 @@ checked on insertion and associative array are inserted without their correspond
 Let's create a new `Buffer` instance **with a header specified**.
 
 ```php
-$document = Reader::createFromPath('path/to/file.csv');
+$document = Reader::from('path/to/file.csv');
 $document->setHeaderOffset(0); //the Reader header will be imported alongside its records
 $buffer = Buffer::from($document); 
 $buffer->getHeader(); // returns ['column1', 'column2', 'column3']
@@ -236,7 +236,7 @@ The `truncate` method remove all the records present in the `Buffer` instance le
 header state unchanged.
 
 ```php
-$document = Reader::createFromPath('path/to/file.csv');
+$document = Reader::from('path/to/file.csv');
 $document->setHeaderOffset(0); //the Reader header will be imported alongside its records
 $buffer = Buffer::from($document);  
 $buffer->isEmpty(); // returns false
@@ -257,7 +257,7 @@ use League\Csv\Buffer;
 use League\Csv\Query\Constraint\Column;
 use League\Csv\Reader;
 
-$reader = Reader::createFromPath('path/to/file.csv');
+$reader = Reader::from('path/to/file.csv');
 $reader->setHeaderOffset(0);
 
 $buffer = Buffer::from($reader->slice(0, 300)); //copy the first 300 lines of the Reader class
@@ -357,14 +357,14 @@ using the `TabularWriter` or not.
 use League\Csv\Buffer;
 use League\Csv\Writer;
 
-$reader = Reader::createFromPath('/path/to/input.csv');
+$reader = Reader::from('/path/to/input.csv');
 $reader->setHeaderOffset(0);
 $buffer = Buffer::from($reader->slice(0, 30000)));
 
 // apply some CRUD operation or not depending
 // on your business logic
 
-$writer = Writer::createFromPath('/path/to/output.csv');
+$writer = Writer::from('/path/to/output.csv');
 $buffer->to($writer, Buffer::EXCLUDE_HEADER);
 ```
 
@@ -376,14 +376,14 @@ use League\Csv\Buffer;
 use League\Csv\Reader;
 use League\Csv\Writer;
 
-$reader = Reader::createFromPath('/path/to/input.csv');
+$reader = Reader::from('/path/to/input.csv');
 $reader->setHeaderOffset(0);
 $buffer = Buffer::from($reader->slice(0, 30_000)));
 
 // apply some CRUD operation or not depending
 // on your business logic
 
-$writer = Writer::createFromPath('/path/to/output.csv');
+$writer = Writer::from('/path/to/output.csv');
 $writer->insertAll($buffer->getRecords());
 $writer->insertOne($buffer->getHeader());
 ```
@@ -396,7 +396,7 @@ use League\Csv\Buffer;
 use League\Csv\JsonConverter;
 use League\Csv\Reader;
 
-$reader = Reader::createFromPath('/path/to/input.csv');
+$reader = Reader::from('/path/to/input.csv');
 $reader->setHeaderOffset(0);
 $buffer = Buffer::from($reader->slice(0, 30_000)));
 
@@ -452,7 +452,7 @@ use League\Csv\Buffer;
 use League\Csv\Reader;
 use League\Csv\Statement;
 
-$reader = Reader::createFromPath('/path/to/file.csv');
+$reader = Reader::from('/path/to/file.csv');
 $reader->setHeaderOffset(0);
 $buffer = Buffer::from($reader->slice(0, 30000)));
 
