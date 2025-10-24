@@ -258,10 +258,10 @@ abstract class AbstractCsv implements ByteSequence
             HttpHeaders::forFileDownload($filename, 'text/csv');
         }
 
-        $bomOutputLength = 0;
+        $bytes = 0;
+        $output = new SplFileObject('php://output', 'wb');
         if (null !== $this->output_bom) {
-            echo $this->output_bom->value;
-            $bomOutputLength = $this->output_bom->length();
+            $bytes += $output->fwrite($this->output_bom->value);
         }
 
         $this->getInputBOM();
@@ -269,16 +269,14 @@ abstract class AbstractCsv implements ByteSequence
         $this->document->setFlags(0);
         $this->is_input_bom_included || -1 < $this->document->fseek($this->input_bom?->length() ?? 0) || throw new RuntimeException('Unable to seek the document.');
 
-        $documentOutputLength = 0;
         while (!$this->document->eof()) {
             $chunk = $this->document->fread(8192);
             false !== $chunk || throw new RuntimeException('Unable to read the document.');
-            $documentOutputLength += strlen($chunk);
-            echo $chunk;
-            flush();
+            $bytes += $output->fwrite($chunk);
+            $output->fflush();
         }
 
-        return $bomOutputLength + $documentOutputLength;
+        return $bytes;
     }
 
     /**
