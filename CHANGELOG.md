@@ -2,7 +2,7 @@
 
 All Notable changes to `Csv` will be documented in this file
 
-## [Next](https://github.com/thephpleague/csv/compare/9.26.0...master) - TBD
+## [9.27.1](https://github.com/thephpleague/csv/compare/9.27.0...9.27.1) - 2025-10-25
 
 ### Added
 
@@ -14,7 +14,7 @@ All Notable changes to `Csv` will be documented in this file
 
 ### Fixed
 
-- None
+- `AbstractCsv::download` improved implementation see #[569](https://github.com/thephpleague/csv/issues/569)
 
 ### Remove
 
