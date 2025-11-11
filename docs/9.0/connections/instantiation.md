@@ -39,10 +39,10 @@ public static AbstractCsv::from(
 ): self
 ```
 
-If an `string` or a `SplFileInfo` object is given as the `$filename` argument, a new instance
-is created *à la* `fopen` and the `$mode` and the `$context` parameters are taking into account.
+If a `string` or a `SplFileInfo` object is given as the `$filename` argument, a new instance
+is created *à la* `fopen` and the `$mode` and `$context` parameters are taken into account.
 
-Otherwise, when a stream resource or an `SplFileObject` instance is given both arguments are
+Otherwise, when a stream resource or an `SplFileObject` instance is given, both arguments are
 ignored.
 
 <div class="message-notice">Since version <code>9.27.0</code> the following methods are <strong>deprecated</strong>:
