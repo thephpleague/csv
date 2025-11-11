@@ -84,17 +84,11 @@ Because PHP's `fputcsv` implementation uses a hardcoded `\n`, we need to be able
 with one supplied by the developer for more interoperability between CSV packages on different platforms.
 The end of line sequence will be appended to each newly inserted CSV record.
 
-### Description
+The `getEndOfLine()` and `setEndOfline()` methods set and returns the CSV end of line
+used by the `Writer` class. The setter method expects a string sequence to be used.
 
 <p class="message-notice"><code>setEndOfline</code> and <code>getEndOfLine</code> are available since version
 <code>9.10.0</code>.</p>
-
-```php
-public Writer::setEndOfline(string $sequence): self
-public Writer::getEndOfLine(void): string
-```
-
-### Example
 
 ```php
 use League\Csv\Writer;
@@ -114,8 +108,6 @@ echo $writer->toString();       //displays "one,two\r\n";
 ## Flushing the buffer
 
 For advanced usages, you can now manually indicate when the flushing mechanism occurs while adding new content to your CSV document.
-
-### Description
 
 ```php
 public Writer::setFlushThreshold(?int $treshold): self

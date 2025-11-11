@@ -38,7 +38,7 @@ new JsonConverter()->download($record); //new and fast-forward method usage
 
 Prior to converting your collection into a JSON structure, you may wish to configure it.
 
-### JSON encode flags
+### Encoding Flags
 
 ```php
 public JsonConverter::addFlags(int ...$flag): self
@@ -97,7 +97,7 @@ $converter = (new JsonConverter())->withPrettyPrint(2);
 
 will produce a JSON with an indentation size of `2`.
 
-### Json encode depth
+### Encoding Depth
 
 ```php
 public JsonConverter::depth(int $depth): self
@@ -111,7 +111,7 @@ $converter = (new JsonConverter())->depth(2);
 $converter->depth; //returns the actual depth value (as used by json_encode) 
 ```
 
-### Json encode indentation
+### Encode Indentation
 
 <p class="message-warning">This method is deprecated as of version <code>9.19.0</code> use
 <code>JsonConverter::withPrettyPrint</code> instead and add the <code>$identSize</code> argument
@@ -131,7 +131,7 @@ size is the same as in PHP (ie : 4 characters long).
 $converter->indentSize; //returns the value used
 ```
 
-### Json encode formatter
+### Encoding Formatter
 
 ```php
 public JsonConverter::formatter(?callable $formatter): self
@@ -162,7 +162,7 @@ $converter = (new JsonConverter())->chunkSize(1_000);
 $converter->chunkSize; //returns the value used
 ```
 
-### JsonConverter::when
+### Conditional Settings
 
 <p class="message-info">New feature introduced in version <code>9.22.0</code></p>
 

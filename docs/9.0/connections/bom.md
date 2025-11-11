@@ -5,11 +5,9 @@ title: BOM sequence detection and addition
 
 # BOM sequences
 
-## Detecting the BOM sequence
+## Definition
 
 To improve interoperability with programs interacting with CSV, the package now provides an enum `Bom` to help you detect the appropriate <abbr title="Byte Order Mark">BOM</abbr> sequence.
-
-### BOM definition
 
 The `Bom` enum provides the following value :
 
@@ -19,7 +17,9 @@ The `Bom` enum provides the following value :
 - `Bom::utf32Be` : which handles the `UTF-32` `BOM` with Big-Endian sequence;
 - `Bom::utf32Le` : which handles the `UTF-32` `BOM` with Little-Endian sequence;
 
-### Detecting the BOM from a sequence of characters
+## Detection
+
+### From a Sequence of Characters
 
 ```php
 Bom::fromSequence(mixed $sequence): Bom
@@ -37,7 +37,7 @@ Bom::tryFromSequence(Bom::Utf8->value.'hello world!'); //returns Bom::Utf8
 Bom::tryFromSequence('hello world!'.Bom::Utf16Le->value); //returns null
 ```
 
-### Detecting the BOM from the encoding name
+### From the Encoding Name
 
 ```php
 Bom::fromEncoding(string $encoding): Bom
@@ -55,7 +55,7 @@ Bom::tryFromEncoding('u_t_F--8'); //returns Bom::Utf8
 Bom::tryFromEncoding('foobar'); //returns null
 ```
 
-### Accessing the BOM properties
+## Accessing the BOM properties
 
 Once you have a valid `Bom` instance you can access:
 
@@ -99,7 +99,7 @@ bom_match(ByteSequence::BOM_UTF8.'hello world!'); //returns '\xEF\xBB\xBF'
 bom_match('hello world!'.ByteSequence::BOM_UTF16_BE); //returns ''
 ```
 
-## Managing CSV documents BOM sequence
+## Handling CSV documents
 
 ### Detecting the BOM sequence
 

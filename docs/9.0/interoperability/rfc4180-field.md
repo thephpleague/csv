@@ -18,7 +18,7 @@ When using this stream filter you can easily create or read a [RFC4180 compliant
 
 <p class="message-warning">Changing the CSV objects control characters <strong>after registering the stream filter</strong> may result in unexpected returned records.</p>
 
-## Usage with League\CSV objects
+## With CSV objects
 
 ```php
 public static RFC4180Field::addTo(AbstractCsv $csv, string $whitespace_replace = ''): AbstractCsv
@@ -74,11 +74,11 @@ $writer->insertOne(['foo bar', 'bar']);
 echo $writer->getContent(); //display ' o bar,baz' instead of 'foo bar,baz'
 ```
 
-### On records insertion
+### On Records Insertion
 
 <p class="message-info">To fully comply with <code>RFC4180</code> you will also need to use <code>League\Csv\Writer::setNewline</code>.</p>
 
-### On records extraction
+### On Records Extraction
 
 Conversely, to read a RFC4180 compliant CSV document, when using the `League\Csv\Reader` object, you just need to add the `League\Csv\RFC4180Field` stream filter as shown below:
 
@@ -95,7 +95,7 @@ foreach ($csv as $record) {
 }
 ```
 
-## Usage with PHP stream resources
+## With PHP streams
 
 ```php
 public static RFC4180Field::register(): void

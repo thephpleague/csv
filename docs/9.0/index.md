@@ -13,9 +13,7 @@ layout: default
 
 **League\Csv** is a simple library to ease CSV document [loading](/9.0/connections/) as well as [writing](/9.0/writer/), [selecting](/9.0/reader/) and [converting](/9.0/converter/) CSV records.
 
-## Usage
-
-### Parsing a CSV document
+## Parsing a CSV document
 
 Access and filter records from a CSV document saved on the local filesystem.
 
@@ -39,7 +37,7 @@ foreach ($records as $record) {
 }
 ```
 
-### Exporting a database table as a CSV document
+## Exporting a database table as a CSV document
 
 Fetch data using a `PDOStatement` object, then create a CSV document which is output to the browser.
 
@@ -76,7 +74,7 @@ $csv->output('users.csv');
 die;
 ```
 
-### Importing CSV records into a database table
+## Importing CSV records into a database table
 
 Import records from a CSV document into a database using a `PDOStatement` object
 
@@ -104,7 +102,7 @@ foreach ($csv as $record) {
 }
 ```
 
-### Encoding a CSV document into a given charset
+## Encoding a CSV document into a given charset
 
 It is not possible to detect the character encoding a CSV document (e.g. `UTF-8`, `UTF-16`, etc). However, it *is* possible to detect the input BOM and convert to UTF-8 where necessary.
 
@@ -127,7 +125,7 @@ foreach ($csv as $record) {
 }
 ```
 
-### Converting a CSV document into a XML document
+## Converting a CSV document into a XML document
 
 The `XMLConverter` object provided by this package can easily convert a CSV document into a `DOMDocument` object.
 

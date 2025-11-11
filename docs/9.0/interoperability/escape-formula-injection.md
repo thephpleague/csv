@@ -57,7 +57,7 @@ $reader->first();
 // the escaping characters are removed.
 ```
 
-## Usage with PHP stream resources
+## Usage with PHP streams
 
 You can use the `EscapeFormula` to format your records before calling `fputcsv` or `SplFileObject::fputcsv`.
 

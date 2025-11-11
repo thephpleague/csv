@@ -16,7 +16,7 @@ The `EncloseField` is a PHP stream filter which forces the `Writer` class to enc
 <code>Writer::forceEnclosure</code> method for better results and improved DX. Please refer to
 <a href="/9.0/writer/#force-enclosure">its documentation</a> for more informations.</p>
 
-## Usage with Writer objects
+## With Writer objects
 
 ```php
 public static EncloseField::addTo(Writer $csv, string $sequence): Writer
@@ -40,7 +40,7 @@ $writer->output('mycsvfile.csv'); //outputting a CSV Document with all its field
 
 <p class="message-warning">The <code>$sequence</code> argument should be a sequence containing at least one character that forces <code>fputcsv</code> to enclose the field value. If not, an <code>InvalidArgumentException</code> exception will be thrown.</p>
 
-## Usage with PHP stream resources
+## With PHP Streams
 
 ```php
 public static EncloseField::register(): void

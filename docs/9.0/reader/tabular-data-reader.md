@@ -5,6 +5,8 @@ title: Tabular Data Reader
 
 # Tabular Data Reader Common API
 
+## Why does it exist?
+
 Introduced in version `9.6` the `League\Csv\TabularDataReader` interface provides a common
 API to works with tabular data like structure. Once implemented, it can be used to work
 with HTML tables, simple RDBMS tables, CSV document and so forth. A tabular data
@@ -44,10 +46,10 @@ leaving your source data unchanged.
 ## Available methods
 
 While the `TabularDataReader` is not a fully fledged collection instance it still exposes a lots of methods
-that fall into the category of records collection manipulations. Because chaining is at the core of most of
-the methods you can be sure that each manipulation returns a new instance preserving your original data.
+that fall into the category of records collection manipulations. Because chaining is at the core of the API,
+most methods return a new instance preserving your original data.
 
-### Countable, IteratorAggregate
+### Counting and traversing the records
 
 Any `TabularDataReader` instance implements the `Countable` and the `IteratorAggregate` interface.
 It means that at any given time you can access the number of elements that are included in the instance

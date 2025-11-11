@@ -27,7 +27,7 @@ $writer = Writer::fromString('john,doe,john.doe@example.com');
 
 <p class="message-notice">The <code>$content</code> argument default value is an empty string to ease usage.</p>
 
-## Loading from a file or a stream
+## Loading from a file pointer
 
 <p class="message-notice">This new API is introduced in version <code>9.27.0</code></p>
 
@@ -162,7 +162,7 @@ $reader = Reader::createFromFileObject(new SplFileObject('/path/to/your/csv/file
 $writer = Writer::createFromFileObject(new SplTempFileObject());
 ```
 
-## Accessing the CSV document path
+## Accessing the document path
 
 <p class="message-notice">New in version <code>9.2.0</code></p>
 

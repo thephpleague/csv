@@ -40,7 +40,7 @@ $records = $encoder->convert($csv);
 
 The resulting data is converted from `iso-8859-15` to the default `UTF-8` since no output encoding charset was set using the `CharsertConverter::outputEncoding` method.
 
-## CharsetConverter as a Writer formatter
+## As a Writer formatter
 
 ```php
 public CharsetConverter::__invoke(array $record): array
@@ -64,7 +64,7 @@ $writer->insertOne(["foo", "bébé", "jouet"]);
 //all 'utf-8' characters are now automatically encoded into 'iso-8859-15' charset
 ```
 
-## CharsetConverter as a PHP stream filter
+## As a PHP stream filter
 
 ```php
 public static CharsetConverter::addTo(AbstractCsv $csv, string $input_encoding, string $output_encoding): AbstractCsv
@@ -72,14 +72,14 @@ public static CharsetConverter::register(): void
 public static CharsetConverter::getFiltername(string $input_encoding, string $output_encoding): string
 ```
 
-### Usage with CSV objects
+### With CSV object
 
-If your CSV object supports PHP stream filters then you can use the `CharsetConverter` class as a PHP stream filter using the library [stream filtering mechanism](/9.0/connections/filters/) instead.
+If your CSV object supports PHP stream filters; then you can use the `CharsetConverter` class as a PHP stream filter using the library [stream filtering mechanism](/9.0/connections/filters/) instead.
 
 The `CharsetConverter::addTo` static method:
 
 - registers the `CharsetConverter` class under the generic filtername `convert.league.csv.*` if it is not registered yet;
-- configures the stream filter using the supplied parameters;
+- configure the stream filter using the supplied parameters;
 - adds the configured stream filter to the submitted CSV object;
 
 ```php
@@ -93,7 +93,7 @@ $writer->insertOne(["foo", "bébé", "jouet"]);
 //all 'utf-8' characters are now automatically encoded into 'iso-8859-15' charset
 ```
 
-### Usage with PHP stream resources
+### With PHP Stream
 
 To use this stream filter outside `League\Csv` objects you need to:
 
