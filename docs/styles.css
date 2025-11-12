@@ -594,6 +594,7 @@ video {
   display: none;
   height: calc(100vh - 4.5rem);
   width: 18rem;
+  flex-shrink: 0;
   align-self: flex-start;
   overflow-y: auto;
   padding-right: 2rem;
@@ -901,6 +902,10 @@ video {
 
 .gap-6 {
   gap: 1.5rem;
+}
+
+.gap-8 {
+  gap: 2rem;
 }
 
 .space-y-2 > :not([hidden]) ~ :not([hidden]) {

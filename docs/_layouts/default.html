@@ -19,7 +19,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;500&family=Onest:wght@300;400;500;600;700;900&display=swap" rel="stylesheet">
-    <link href="{{ site.data.manifest['docs.css'] }}" rel="stylesheet">
+    <link href="{{ site.data.manifest['docs.css'] }}?v={{ site.time | date:'%s' }}" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/docsearch.js@2/dist/cdn/docsearch.min.css">
     <script async src="https://www.googletagmanager.com/gtag/js?id={{  site.data.project.google_analytics_tracking_id }}"></script>
     <script>
@@ -42,7 +42,7 @@
             <input type="search" id="doc-search" class="w-64" placeholder="search the docs...">
         </div>
     </header>
-    <main class="relative flex justify-center mx-auto max-w-8xl sm:px-2 lg:px-8 xl:px-12">
+    <main class="relative flex justify-center mx-auto max-w-8xl sm:px-2 lg:px-8 xl:px-12 gap-8">
         <label for="navigation" class="fixed top-5 right-5 z-50 flex items-center justify-center w-12 h-12 mb-4 ml-4 bg-white border rounded-full shadow-lg cursor-pointer text-slate-600 border-slate-300 lg:hidden transition duration-200 ease-in-out active:scale-95">
             <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M4 8h16M4 16h16" />
@@ -183,7 +183,7 @@
         </div>
     </footer>
 </div>
-<script src="{{ site.data.manifest['docs.js'] }}"></script>
+<script src="{{ site.data.manifest['docs.js'] }}?v={{ site.time | date:'%s' }}"></script>
 <script src="https://cdn.jsdelivr.net/npm/docsearch.js@2/dist/cdn/docsearch.min.js"></script>
 <script> docsearch({
     apiKey: '63ba748e8f5bceb91934667c118972d0',

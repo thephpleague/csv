@@ -10,8 +10,8 @@
     <title>{{ site.data.project.tagline }} - {{ site.data.project.title }}</title>
     <link rel="icon" type="image/x-icon" href="//theme.thephpleague.com/img/favicon.ico" />
     <link rel="apple-touch-icon-precomposed" href="//theme.thephpleague.com/img/apple-touch-icon-precomposed.png">
-    <link rel="stylesheet" href="//theme.thephpleague.com/css/all.css?12">
-    <link rel="stylesheet"href="{{ site.data.manifest['docs.css'] }}">
+    <link rel="stylesheet" href="//theme.thephpleague.com/css/all.css?v={{ site.time | date:'%s' }}">
+    <link rel="stylesheet"href="{{ site.data.manifest['docs.css'] }}?v={{ site.time | date:'%s' }}">
     <link rel="canonical" href="{{ page.redirect.to }}">
     <script async src="https://www.googletagmanager.com/gtag/js?id={{  site.data.project.google_analytics_tracking_id }}"></script>
     <script>
