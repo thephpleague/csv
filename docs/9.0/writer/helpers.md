@@ -112,9 +112,9 @@ enum Pure implements JsonSerializable
 
 $arr = ['city' => Pure::Foo, 'habitants' => 7_000_000];
 $doc = Writer::fromString();
-$doc->addFormatter(EnumFormatter::usingCallback(fn (UnitEnum $value) => 'fourty-two'));
+$doc->addFormatter(EnumFormatter::usingCallback(fn (UnitEnum $value) => 'forty-two'));
 $doc->insertOne($arr);
 
 $doc->toString();
-// returns "fourty-two,7000000 \n",
+// returns "forty-two,7000000 \n",
 ```
