@@ -1,6 +1,7 @@
 ---
 layout: default
-title: Installation
+title: Installing the CSV package
+description: How to install the package in your codebase
 ---
 
 # Installation

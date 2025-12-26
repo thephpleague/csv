@@ -1,6 +1,7 @@
 ---
 layout: default
 title: CSV document Reader connection
+description: Ease selecting and manipulating CSV document records.
 ---
 
 # Reader Connection

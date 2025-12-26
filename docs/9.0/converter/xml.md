@@ -1,6 +1,7 @@
 ---
 layout: default
 title: Converting a CSV into a XML DOMDocument object
+description: The XMLConverter class converts a CSV records collection into an XML document using PHP's DOM extension capabilities
 ---
 
 # XML conversion

@@ -1,5 +1,7 @@
 ---
 layout: default
+title: CSV Manipulation package
+description: The package offers a clear and consistent API for building, parsing, and modifying CSVs
 ---
 
 # Overview

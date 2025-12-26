@@ -1,6 +1,7 @@
 ---
 layout: default
 title: Tabular Data Buffer
+description: A class that represents a unit of data processing that can be used to manage and transform tabular data efficiently using basic CRUD operations.
 ---
 
 # Tabular Data Buffer

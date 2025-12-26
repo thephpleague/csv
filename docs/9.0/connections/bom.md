@@ -1,6 +1,7 @@
 ---
 layout: default
 title: BOM sequence detection and addition
+description: BOM Handling made straightforward when processing a CSV file
 ---
 
 # BOM sequences

@@ -1,6 +1,7 @@
 ---
 layout: default
 title: Loading CSV documents
+description: The different ways the package allow to load and interact with CSV documents
 ---
 
 # Document loading

@@ -1,6 +1,7 @@
 ---
 layout: default
 title: Using CSV with Doctrine packages
+description: A Class to enable working with CSV document using Doctrine Selection feature - Deprecated feature
 ---
 
 # Doctrine specific adapter

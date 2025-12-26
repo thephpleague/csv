@@ -1,6 +1,7 @@
 ---
 layout: default
 title: Controlling PHP Stream Filters
+description: Attaching and using PHP Stream Filter to improve CSV document parsing and writing
 ---
 
 # Stream Filters

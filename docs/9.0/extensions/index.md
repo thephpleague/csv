@@ -1,6 +1,7 @@
 ---
 layout: default
 title: League\CSV extensions
+description: Extensions and/or Plugins to expand the package capabilities and features
 ---
 
 # CSV extensions

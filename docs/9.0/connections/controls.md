@@ -1,6 +1,7 @@
 ---
 layout: default
 title: Csv character controls
+description: Setting and Getting CSV document character controls to allow CSV document parsing
 ---
 
 # CSV character controls

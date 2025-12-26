@@ -1,0 +1,40 @@
+
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#386FFF">
+<meta name="description" content="{{ description }}">
+<meta name="keywords" content="{{ site.data.project.keywords }}" />
+<meta name="docsearch:version" content="{{ version }}">
+
+<link rel="icon" sizes="any" href="/assets/img/csv-logo.svg" type="image/svg+xml">
+<link rel="icon" sizes="32x32" href="/assets/img/favicon-32x32.png" type="image/png">
+<link rel="icon" sizes="16x16" href="/assets/img/favicon-16x16.png" type="image/png">
+<link rel="shortcut icon" href="/assets/img/favicon.ico">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;500&family=Onest:wght@300;400;500;600;700;900&display=swap" rel="stylesheet">
+<link href="{{ site.data.manifest['docs.css'] }}?v={{ site.time | date:'%s' }}" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/docsearch.js@2/dist/cdn/docsearch.min.css" rel="stylesheet">
+
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:site" content="@thephpleague" />
+<meta name="twitter:title" content="{{ full_title }}" />
+<meta name="twitter:description" content="{{ description }}" />
+<meta name="twitter:creator" content="@nyamsprod" />
+<meta name="twitter:image:src" content="https://csv.thephpleague.com/assets/img/csv_large_logo.png" />
+
+<meta itemprop="name" content="{{ full_title }}" />
+<meta itemprop="description" content="{{ description }}" />
+<meta itemprop="image" content="https://csv.thephpleague.com/assets/img/csv_large_logo.png" />
+
+<meta property="og:title" content="{{ full_title }}" />
+<meta property="og:description" content="{{ description }}" />
+<meta property="og:image" content="https://csv.thephpleague.com/assets/img/csv_large_logo.png" />
+
+<script async src="https://www.googletagmanager.com/gtag/js?id={{ site.data.project.google_analytics_tracking_id }}"></script>
+<script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag() { dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', '{{ site.data.project.google_analytics_tracking_id }}');
+</script>

@@ -1,6 +1,7 @@
 ---
 layout: default
 title: Denormalize a Tabular Data record into an object
+description: Converts your CSV records into PHP objects using PHP's powerful Reflection API.
 ---
 
 # Record to object conversion

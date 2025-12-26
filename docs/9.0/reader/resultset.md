@@ -1,6 +1,7 @@
 ---
 layout: default
 title: Accessing Records from a CSV document
+description: Represents the result of processing CSV document.
 ---
 
 # Result Set

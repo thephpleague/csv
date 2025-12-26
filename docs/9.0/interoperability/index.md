@@ -1,6 +1,7 @@
 ---
 layout: default
 title: CSV document interoperability
+description: Improving interoperability between PHP and other language CSV processing feature.
 ---
 
 # Document interoperability

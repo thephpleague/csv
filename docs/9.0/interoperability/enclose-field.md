@@ -1,6 +1,7 @@
 ---
 layout: default
 title: Force Enclosure
+description: A Stream filter to force enclosure around CSV fields - deprecated feature
 ---
 
 # Force field enclosure

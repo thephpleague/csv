@@ -1,6 +1,7 @@
 ---
 layout: default
 title: Converting a CSV into an HTML table
+description: The HTMLConverter class converts a CSV records collection into an HTML Table using PHP's DOM extension capabilities
 ---
 
 # HTML conversion

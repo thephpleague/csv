@@ -1,6 +1,7 @@
 ---
 layout: default
 title: Converting a collection into a JSON
+description: The JsonConverter class converts and store CSV records collection into a JSON or a JSON-Lines structure in a memory efficient way
 ---
 
 # JSON conversion

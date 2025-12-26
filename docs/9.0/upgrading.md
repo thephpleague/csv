@@ -2,6 +2,7 @@
 layout: default
 title: Upgrading from 8.x to 9.x
 redirect_from: /upgrading/9.0/
+description: This guide will help you migrate from a 8.x version to the package 9.0 version
 ---
 
 # Upgrading from 8.x to 9.x

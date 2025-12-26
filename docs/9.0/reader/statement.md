@@ -1,6 +1,7 @@
 ---
 layout: default
 title: CSV document constraint Builder
+description: Allows processing CSV records with a constraint builder of a Fragment Finder
 ---
 
 # Constraint Builders

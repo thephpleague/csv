@@ -1,6 +1,7 @@
 ---
 layout: default
 title: CSV Formula Injection
+description: A feature to reduce Formula Injection in Spreadsheet programs when using CSV
 ---
 
 # Prevents CSV Formula Injection

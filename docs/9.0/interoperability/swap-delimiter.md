@@ -1,6 +1,7 @@
 ---
 layout: default
 title: Handling multibytes delimiter
+description: A Stream filter to enable working with CSV document using multibytes delimiters
 ---
 
 # Multibyte delimiter

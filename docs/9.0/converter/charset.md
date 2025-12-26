@@ -1,6 +1,7 @@
 ---
 layout: default
 title: Converting Csv records character encoding
+description: The CharsetConverter class converts your CSV records using PHP's mbstring extension
 ---
 
 # Charset conversion

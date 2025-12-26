@@ -1,6 +1,7 @@
 ---
 layout: default
 title: CSV document interoperability
+description: A Stream filter to improve RFC4180 compliance around CSV fields - deprecated feature
 ---
 
 # RFC4180 Field compliance

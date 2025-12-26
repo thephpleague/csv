@@ -1,6 +1,7 @@
 ---
 layout: default
 title: CSV document charset encoding
+description: A Stream filter to improve working with CSV field encoding
 ---
 
 # BOM and CSV encoding

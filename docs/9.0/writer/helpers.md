@@ -1,6 +1,7 @@
 ---
 layout: default
 title: Bundled Writer helpers
+description: Bundled insertion helpers to format and validate records before insertion
 ---
 
 # Bundled insertion helpers
@@ -72,7 +73,7 @@ $value = $formatter->encode(Pure::Foo);
 
 ### Encoding Enum found in records
 
-The class can be used as a `Closure` to convert enum found in a `array`. 
+The class can be used as a `Closure` to convert enum found in a `array`.
 
 ```php
 use League\Csv\EnumFormatter;
