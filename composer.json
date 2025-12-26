@@ -32,14 +32,14 @@
     "require-dev": {
         "ext-dom": "*",
         "ext-xdebug": "*",
-        "friendsofphp/php-cs-fixer": "^3.75.0",
-        "phpbench/phpbench": "^1.4.1",
-        "phpstan/phpstan": "^1.12.27",
+        "friendsofphp/php-cs-fixer": "^3.92.3",
+        "phpbench/phpbench": "^1.4.3",
+        "phpstan/phpstan": "^1.12.32",
         "phpstan/phpstan-deprecation-rules": "^1.2.1",
         "phpstan/phpstan-phpunit": "^1.4.2",
         "phpstan/phpstan-strict-rules": "^1.6.2",
-        "phpunit/phpunit": "^10.5.16 || ^11.5.22 || ^12.3.6",
-        "symfony/var-dumper": "^6.4.8 || ^7.3.0"
+        "phpunit/phpunit": "^10.5.16 || ^11.5.22 || ^12.5.4",
+        "symfony/var-dumper": "^6.4.8 || ^7.4.0 || ^8.0"
     },
     "autoload": {
         "psr-4": {

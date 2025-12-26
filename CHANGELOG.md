@@ -2,6 +2,24 @@
 
 All Notable changes to `Csv` will be documented in this file
 
+## [Next](https://github.com/thephpleague/csv/compare/9.27.0...9.27.1) - TBD
+
+### Added
+
+- `EnumFormatter` to format Enum for CSV serialization
+
+### Deprecated
+
+- None
+
+### Fixed
+
+- None
+
+### Remove
+
+- None
+
 ## [9.27.1](https://github.com/thephpleague/csv/compare/9.27.0...9.27.1) - 2025-10-25
 
 ### Added
