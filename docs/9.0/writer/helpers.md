@@ -36,12 +36,14 @@ $writer->insertOne(["foo", "bar"]); //will trigger a CannotInsertRecord exceptio
 
 ## Enum Formatter
 
-The `League\Csv\EnumFormatter` class allows serializing `Enum` introduced in `PHP8.1` as CSV field value.
+<p class="message-notice">Available since version <code>9.28</code></p>
 
-The class is **an immutable formatter** designed to convert PHP enums (`UnitEnum`) into scalar or
-serializable values suitable for CSV export (or similar flat formats).
+The `League\Csv\EnumFormatter` class is **an immutable formatter** designed to convert 
+PHP enums (`UnitEnum`), introduced in `PHP8.1`, into scalar or serializable values
+suitable for CSV export (or similar flat formats).
 
 It can be used directly as a callable and supports multiple exclusive formatting strategies.
+Those strategies are exclusive and are chosen via named constructors.
 
 | Strategy     | Description                                         | Named constructors |
 |--------------|-----------------------------------------------------|--------------------|
@@ -50,7 +52,7 @@ It can be used directly as a callable and supports multiple exclusive formatting
 | **JSON**     | Uses `jsonSerialize()` for `JsonSerializable` enums | `usingJson`        |
 | **Callback** | Uses a user-defined callable                        | `usingCallback`    |
 
-### Encoding a single enum
+### Encoding a Single Enum
 
 You can encode a single enum manually using the `encode()` method:
 
@@ -61,27 +63,32 @@ $value = EnumFormatter::useJson()->encode(Pure::Foo);
 // returns "foo"
 ```
 
-If an enum cannot be serialized using the selected strategy, a `TypeError` is thrown:
+When using `EnumFormatter::useJson()`, internally the `Pure` Enum must implement the `JsonSerializable` interface,
+the formatter `encode()` method will return the call to the `jsonSerialize()` method. If an enum cannot be
+serialized using the selected strategy, a `TypeError` is thrown:
 
 ```php
 use League\Csv\EnumFormatter;
 
-$formatter = EnumFormatter::useNative();
+$formatter = EnumFormatter::usingValue();
 $value = $formatter->encode(Pure::Foo);
 // Enum `Pure` cannot be serialized for CSV.
 ```
 
-### Encoding Enum found in records
+In this case the `Pure` Enum is not a Backed enum so the `value` property does not exist and can not be called
+resulting in a `TypeError` being thrown.
 
-The class can be used as a `Closure` to convert enum found in a `array`.
+### Encoding Enum in Records
+
+The class can be used as a callable to convert enum found in a `array`.
 
 ```php
 use League\Csv\EnumFormatter;
 
-enum Status
+enum Status: int
 {
-    case Active;
-    case Inactive;
+    case Active = 1;
+    case Inactive = 0;
 }
 
 $record = [
@@ -119,3 +126,7 @@ $doc->insertOne($arr);
 $doc->toString();
 // returns "forty-two,7000000 \n",
 ```
+
+When using the `usingCallback()` named constructor the callback takes a single argument 
+a `UnitEnum` and is expected to return a value suitable for CSV encoding or any encoding
+you want to use.
