@@ -2,7 +2,7 @@
 
 All Notable changes to `Csv` will be documented in this file
 
-## [Next](https://github.com/thephpleague/csv/compare/9.27.0...9.27.1) - TBD
+## [9.28.0](https://github.com/thephpleague/csv/compare/9.27.1...9.28.0) - 2025-12-27
 
 ### Added
 

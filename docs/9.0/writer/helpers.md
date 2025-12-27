@@ -38,7 +38,7 @@ $writer->insertOne(["foo", "bar"]); //will trigger a CannotInsertRecord exceptio
 
 <p class="message-notice">Available since version <code>9.28</code></p>
 
-The `League\Csv\EnumFormatter` class is **an immutable formatter** designed to convert 
+The `League\Csv\EnumFormatter` class is **an immutable formatter** designed to convert
 PHP enums (`UnitEnum`), introduced in `PHP8.1`, into scalar or serializable values
 suitable for CSV export (or similar flat formats).
 
@@ -127,6 +127,6 @@ $doc->toString();
 // returns "forty-two,7000000 \n",
 ```
 
-When using the `usingCallback()` named constructor the callback takes a single argument 
+When using the `usingCallback()` named constructor the callback takes a single argument
 a `UnitEnum` and is expected to return a value suitable for CSV encoding or any encoding
 you want to use.
