@@ -10,12 +10,8 @@ jobs:
         runs-on: ubuntu-22.04
         strategy:
             matrix:
-                php: ['8.1', '8.2', '8.3', '8.4']
+                php: ['8.2', '8.3', '8.4', '8.5']
                 stability: [prefer-lowest, prefer-stable]
-                include:
-                    -   php: '8.5'
-                        flags: "--ignore-platform-req=php"
-                        stability: prefer-stable
         steps:
             - name: Checkout code
               uses: actions/checkout@v4
@@ -49,11 +45,6 @@ jobs:
 
             - name: Run Unit tests with coverage
               run: composer phpunit -- ${{ matrix.phpunit-flags }}
-              if: ${{ matrix.php != '8.5' }}
-
-            - name: Run Unit tests without coverage
-              run: vendor/bin/phpunit --no-coverage
-              if: ${{ matrix.php == '8.5' }}
 
             - name: Run static analysis
               run: composer phpstan-build
