@@ -26,15 +26,15 @@ use ReflectionException;
  * When used with PHP's array_filter with the ARRAY_FILTER_USE_BOTH flag
  * the record offset WILL NOT BE taken into account
  */
-final class Column implements Query\Predicate
+final readonly class Column implements Query\Predicate
 {
     /**
      * @throws Query\QueryException
      */
     private function __construct(
-        public readonly string|int $column,
-        public readonly Comparison|Closure $operator,
-        public readonly mixed $value,
+        public string|int $column,
+        public Comparison|Closure $operator,
+        public mixed $value,
     ) {
         if (!$this->operator instanceof Closure) {
             $this->operator->accept($this->value);

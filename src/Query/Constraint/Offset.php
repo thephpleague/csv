@@ -25,14 +25,14 @@ use League\Csv\Query;
  * When used with PHP's array_filter with the ARRAY_FILTER_USE_BOTH flag
  * the record value WILL NOT BE taken into account
  */
-final class Offset implements Query\Predicate
+final readonly class Offset implements Query\Predicate
 {
     /**
      * @throws Query\QueryException
      */
     private function __construct(
-        public readonly Comparison|Closure $operator,
-        public readonly mixed $value,
+        public Comparison|Closure $operator,
+        public mixed $value,
     ) {
         if (!$this->operator instanceof Closure) {
             $this->operator->accept($this->value);

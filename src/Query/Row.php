@@ -31,7 +31,7 @@ use function is_object;
 use function lcfirst;
 use function str_replace;
 
-final class Row
+final readonly class Row
 {
     public static function from(mixed $value): Row
     {
@@ -42,7 +42,7 @@ final class Row
         });
     }
 
-    private function __construct(private readonly array|object $row)
+    private function __construct(private array|object $row)
     {
     }
 

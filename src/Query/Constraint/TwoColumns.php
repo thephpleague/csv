@@ -35,15 +35,15 @@ use const ARRAY_FILTER_USE_BOTH;
  * When used with PHP's array_filter with the ARRAY_FILTER_USE_BOTH flag
  * the record offset WILL NOT BE taken into account
  */
-final class TwoColumns implements Predicate
+final readonly class TwoColumns implements Predicate
 {
     /**
      * @throws QueryException
      */
     private function __construct(
-        public readonly string|int $first,
-        public readonly Comparison|Closure $operator,
-        public readonly array|string|int $second,
+        public string|int $first,
+        public Comparison|Closure $operator,
+        public array|string|int $second,
     ) {
         !$this->operator instanceof Closure || !is_array($this->second) || throw new QueryException('The second column must be a string if the operator is a callback.');
 

@@ -23,14 +23,14 @@ use function is_string;
 /**
  * @internal
  */
-final class PropertySetter
+final readonly class PropertySetter
 {
     public function __construct(
-        public readonly ReflectionMethod|ReflectionProperty $accessor,
-        public readonly int $offset,
-        public readonly TypeCasting $cast,
-        public readonly bool $convertEmptyStringToNull,
-        public readonly bool $trimFieldValueBeforeCasting,
+        public ReflectionMethod|ReflectionProperty $accessor,
+        public int $offset,
+        public TypeCasting $cast,
+        public bool $convertEmptyStringToNull,
+        public bool $trimFieldValueBeforeCasting,
     ) {
     }
 

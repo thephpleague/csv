@@ -31,10 +31,10 @@ use function array_map;
  * @phpstan-import-type Ordering from SortCombinator
  * @phpstan-import-type OrderingExtended from SortCombinator
  */
-final class MultiSort implements SortCombinator
+final readonly class MultiSort implements SortCombinator
 {
     /** @var array<Ordering> */
-    private readonly array $sorts;
+    private array $sorts;
 
     /**
      * @param OrderingExtended ...$sorts

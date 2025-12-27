@@ -31,7 +31,7 @@ use function trim;
 /**
  * Enable sorting a record based on the value of a one of its cell.
  */
-final class Column implements Sort
+final readonly class Column implements Sort
 {
     private const ASCENDING = 'ASC';
     private const DESCENDING = 'DESC';
@@ -40,9 +40,9 @@ final class Column implements Sort
      * @param Closure(mixed, mixed): int $callback
      */
     private function __construct(
-        public readonly string $direction,
-        public readonly string|int $column,
-        public readonly Closure $callback,
+        public string $direction,
+        public string|int $column,
+        public Closure $callback,
     ) {
     }
 

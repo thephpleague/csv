@@ -26,7 +26,7 @@ use UnitEnum;
  * - JSON (JsonSerializable)
  * - callback
  */
-final class EnumFormatter
+final readonly class EnumFormatter
 {
     private const NAME_FORMAT = 'name';
     private const VALUE_FORMAT = 'value';
@@ -34,9 +34,9 @@ final class EnumFormatter
     private const CALLBACK_FORMAT = 'callback';
 
     private function __construct(
-        private readonly string $format,
-        private readonly ?Closure $callback
-    ){
+        private string $format,
+        private ?Closure $callback
+    ) {
     }
 
     public static function usingName(): self
@@ -56,7 +56,7 @@ final class EnumFormatter
 
     /**
      * Register a callback that will convert the UnitEnum in a representation suitable
-     * to be used by PHP's fputcsv and fwrite functions without emitting errors
+     * to be used by PHP's fputcsv and fwrite functions without emitting errors.
      *
      * @param callable(UnitEnum): mixed $callback
      */
@@ -77,7 +77,7 @@ final class EnumFormatter
 
     /**
      * Encodes the UnitEnum in a representation suitable to be used
-     * by PHP's fputcsv and fwrite functions without emitting errors
+     * by PHP's fputcsv and fwrite functions without emitting errors.
      *
      * @throws TypeError If the encoding does not work
      */

@@ -26,12 +26,12 @@ use function array_reduce;
  * @phpstan-import-type Condition from PredicateCombinator
  * @phpstan-import-type ConditionExtended from PredicateCombinator
  */
-final class Criteria implements PredicateCombinator
+final readonly class Criteria implements PredicateCombinator
 {
     /**
      * @param Condition $predicate
      */
-    private function __construct(private readonly Predicate|Closure $predicate)
+    private function __construct(private Predicate|Closure $predicate)
     {
     }
 
