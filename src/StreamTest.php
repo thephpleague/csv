@@ -167,14 +167,19 @@ final class StreamTest extends TestCase
     {
         $this->expectException(UnavailableFeature::class);
 
-        $stream = Stream::from(STDIN);
+        /** @var resource $filePointer */
+        $filePointer = fopen('php://stdout', 'w');
+        $stream = Stream::from($filePointer);
         $stream->rewind();
     }
 
     public function testCreateStreamWithNonSeekableStream(): void
     {
         $this->expectException(UnavailableFeature::class);
-        $stream = Stream::from(STDIN);
+
+        /** @var resource $filePointer */
+        $filePointer = fopen('php://stdout', 'w');
+        $stream = Stream::from($filePointer);
         $stream->seek(3);
     }
 
