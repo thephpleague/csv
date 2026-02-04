@@ -119,9 +119,7 @@ class Writer extends AbstractCsv implements TabularDataWriter
     {
         if ($records instanceof TabularDataProvider) {
             $records = $records->getTabularData();
-        }
-
-        if ($records instanceof TabularData) {
+        } elseif ($records instanceof TabularData) {
             $records = $records->getRecords();
         }
 
