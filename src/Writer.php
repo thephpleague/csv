@@ -117,16 +117,12 @@ class Writer extends AbstractCsv implements TabularDataWriter
      */
     public function insertAll(TabularDataProvider|TabularData|iterable $records): int
     {
-        if ($records instanceof TabularDataProvider) {
-            $records = $records->getTabularData();
-        }
-
-        if ($records instanceof TabularData) {
-            $records = $records->getRecords();
-        }
-
         $bytes = 0;
-        foreach ($records as $record) {
+        foreach (match (true) {
+            $records instanceof TabularDataProvider => $records->getTabularData()->getRecords(),
+            $records instanceof TabularData => $records->getRecords(),
+            default => $records,
+        } as $record) {
             $bytes += $this->insertOne($record);
         }
 
