@@ -570,7 +570,7 @@ final class JsonConverter
      * DEPRECATION WARNING! This method will be removed in the next major point release.
      *
      * @see JsonConverter::withPrettyPrint()
-     * @deprecated Since version 9.19.0
+     * @deprecated Since version 9.19.0, use League\Csv\JsonConverter::withPrettyPrint() instead
      * @codeCoverageIgnore
      *
      * Set the indentation size.
@@ -590,7 +590,7 @@ final class JsonConverter
      * DEPRECATION WARNING! This method will be removed in the next major point release.
      *
      * @see JsonConverter::__construct()
-     * @deprecated Since version 9.22.0
+     * @deprecated Since version 9.22.0, use League\Csv\JsonConverter::__construct() instead
      * @codeCoverageIgnore
      */
     #[Deprecated(message:'use League\Csv\JsonConverter::__construct() instead', since:'league/csv:9.22.0')]

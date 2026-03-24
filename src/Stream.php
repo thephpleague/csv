@@ -522,7 +522,7 @@ final class Stream implements SeekableIterator
 
     /**
      * DEPRECATION WARNING! This method will be removed in the next major point release.
-     * @deprecated since version 9.27.0
+     * @deprecated since version 9.27.0, use League\Csv\Stream::from() instead
      * @codeCoverageIgnore
      *
      * @param resource $stream
@@ -541,7 +541,7 @@ final class Stream implements SeekableIterator
 
     /**
      * DEPRECATION WARNING! This method will be removed in the next major point release.
-     * @deprecated since version 9.27.0
+     * @deprecated since version 9.27.0, use League\Csv\Stream::from() instead
      * @codeCoverageIgnore
      *
      * @param resource|null $context
@@ -558,7 +558,7 @@ final class Stream implements SeekableIterator
 
     /**
      * DEPRECATION WARNING! This method will be removed in the next major point release.
-     * @deprecated since version 9.27.0
+     * @deprecated since version 9.27.0, use League\Csv\Stream::fromString() instead
      * @codeCoverageIgnore
      *
      * Returns a new instance from a string.

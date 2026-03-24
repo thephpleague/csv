@@ -466,7 +466,7 @@ abstract class AbstractCsv implements ByteSequence
     /**
      * DEPRECATION WARNING! This method will be removed in the next major point release.
      *
-     * @deprecated since version 9.7.0
+     * @deprecated since version 9.7.0, use League\Csv\AbstractCsv::supportsStreamFilterOnRead() or League\Csv\AbstractCsv::supportsStreamFilterOnWrite() instead
      * @see AbstractCsv::supportsStreamFilterOnRead
      * @see AbstractCsv::supportsStreamFilterOnWrite
      * @codeCoverageIgnore
@@ -482,7 +482,7 @@ abstract class AbstractCsv implements ByteSequence
     /**
      * DEPRECATION WARNING! This method will be removed in the next major point release.
      *
-     * @deprecated since version 9.7.0
+     * @deprecated since version 9.7.0, use League\Csv\AbstractCsv::supportsStreamFilterOnRead() or League\Csv\AbstractCsv::supportsStreamFilterOnWrite() instead
      * @see AbstractCsv::supportsStreamFilterOnRead
      * @see AbstractCsv::supportsStreamFilterOnWrite
      * @codeCoverageIgnore
@@ -500,7 +500,7 @@ abstract class AbstractCsv implements ByteSequence
      *
      * DEPRECATION WARNING! This method will be removed in the next major point release
      *
-     * @deprecated since version 9.7.0
+     * @deprecated since version 9.7.0, use League\Csv\AbstractCsv::toString() instead
      * @see AbstractCsv::toString
      * @codeCoverageIgnore
      */
@@ -513,7 +513,7 @@ abstract class AbstractCsv implements ByteSequence
     /**
      * DEPRECATION WARNING! This method will be removed in the next major point release.
      *
-     * @deprecated since version 9.1.0
+     * @deprecated since version 9.1.0, use League\Csv\AbstractCsv::toString() instead
      * @see AbstractCsv::toString
      * @codeCoverageIgnore
      *
@@ -537,7 +537,7 @@ abstract class AbstractCsv implements ByteSequence
      *
      * Adapted from Symfony\Component\HttpFoundation\ResponseHeaderBag::makeDisposition
      *
-     * @deprecated since version 9.17.0
+     * @deprecated since version 9.17.0, the method no longer affect the outcome of the class, use League\Csv\HttpHeaders::forFileDownload instead
      * @see https://tools.ietf.org/html/rfc6266#section-4.3
      */
     #[Deprecated(message:'the method no longer affect the outcome of the class, use League\Csv\HttpHeaders::forFileDownload instead', since:'league/csv:9.17.0')]
@@ -571,7 +571,7 @@ abstract class AbstractCsv implements ByteSequence
      * DEPRECATION WARNING! This method will be removed in the next major point release.
      *
      * @codeCoverageIgnore
-     * @deprecated since version 9.18.0
+     * @deprecated since version 9.18.0, use League\Csv\AbstractCsv::download() instead
      * @see AbstractCsv::download()
      *
      * Outputs all data on the CSV file.
@@ -593,7 +593,7 @@ abstract class AbstractCsv implements ByteSequence
     /**
      * DEPRECATION WARNING! This method will be removed in the next major point release.
      * @codeCoverageIgnore
-     * @deprecated since version 9.22.0
+     * @deprecated since version 9.22.0, use League\Csv\AbstractCsv::appendStreamFilterOnRead() or League\Csv\AbstractCsv::prependStreamFilterOnRead() instead
      * @see AbstractCsv::appendStreamFilterOnRead()
      * @see AbstractCsv::appendStreamFilterOnWrite()
      *
@@ -615,7 +615,7 @@ abstract class AbstractCsv implements ByteSequence
     /**
      * DEPRECATION WARNING! This method will be removed in the next major point release.
      * @codeCoverageIgnore
-     * @deprecated since version 9.27.0
+     * @deprecated since version 9.27.0, use League\Csv\AbstractCsv::from() instead
      *
      * Returns a new instance from a SplFileObject.
      */
@@ -628,7 +628,7 @@ abstract class AbstractCsv implements ByteSequence
     /**
      * DEPRECATION WARNING! This method will be removed in the next major point release.
      * @codeCoverageIgnore
-     * @deprecated since version 9.27.0
+     * @deprecated since version 9.27.0, use League\Csv\AbstractCsv::from() instead
      *
      * Returns a new instance from a PHP resource stream.
      *
@@ -645,7 +645,7 @@ abstract class AbstractCsv implements ByteSequence
     /**
      * DEPRECATION WARNING! This method will be removed in the next major point release.
      * @codeCoverageIgnore
-     * @deprecated since version 9.27.0
+     * @deprecated since version 9.27.0, use League\Csv\AbstractCsv::fromString() instead
      *
      * Returns a new instance from a string.
      */
@@ -658,7 +658,7 @@ abstract class AbstractCsv implements ByteSequence
     /**
      * DEPRECATION WARNING! This method will be removed in the next major point release.
      * @codeCoverageIgnore
-     * @deprecated since version 9.27.0
+     * @deprecated since version 9.27.0, use League\Csv\AbstractCsv::from() instead
      *
      * Returns a new instance from a file path.
      *

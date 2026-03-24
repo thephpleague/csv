@@ -132,7 +132,7 @@ class EscapeFormula
     }
 
     /**
-     * @deprecated since 9.7.2 will be removed in the next major release
+     * @deprecated since 9.7.2, will be removed in the next major release
      * @codeCoverageIgnore
      *
      * Tells whether the submitted value is stringable.
@@ -145,7 +145,7 @@ class EscapeFormula
     }
 
     /**
-     * @deprecated since 9.11.0 will be removed in the next major release
+     * @deprecated since 9.11.0, use League\Csv\EscapeFormula::escapeRecord() instead
      * @codeCoverageIgnore
      *
      * League CSV formatter hook.

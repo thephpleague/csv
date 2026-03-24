@@ -240,7 +240,7 @@ class HTMLConverter
      * DEPRECATION WARNING! This method will be removed in the next major point release.
      *
      * @see XMLConverter::__construct()
-     * @deprecated Since version 9.22.0
+     * @deprecated Since version 9.22.0, use League\Csv\HTMLConverter::__construct()
      * @codeCoverageIgnore
      *
      * Returns an new instance.

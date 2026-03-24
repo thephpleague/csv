@@ -355,7 +355,7 @@ class Statement
      *
      * @throws SyntaxError
      * @see Statement::process()
-     * @deprecated Since version 9.16.0
+     * @deprecated Since version 9.16.0, this method no longer affects on the outcome of the class, use League\Csv\Statement::process() instead
      */
     #[Deprecated(message:'this method no longer affects on the outcome of the class, use League\Csv\Statement::process() instead', since:'league/csv:9.16.0')]
     protected function applySelect(Iterator $records, array $recordsHeader, array $select): TabularDataReader
@@ -403,7 +403,7 @@ class Statement
      * DEPRECATION WARNING! This method will be removed in the next major point release.
      *
      * @see Statement::applyFilter()
-     * @deprecated Since version 9.15.0
+     * @deprecated Since version 9.15.0, this method no longer affects on the outcome of the class, use League\Csv\Statement::applyFilter() instead
      * @codeCoverageIgnore
      */
     #[Deprecated(message:'this method no longer affects on the outcome of the class, use League\Csv\Statement::applyFilter() instead', since:'league/csv:9.15.0')]
@@ -418,7 +418,7 @@ class Statement
      * DEPRECATION WARNING! This method will be removed in the next major point release.
      *
      * @see Statement::process()
-     * @deprecated Since version 9.16.0
+     * @deprecated Since version 9.16.0, this method no longer affects on the outcome of the class, use League\Csv\Statement::process() instead
      * @codeCoverageIgnore
      */
     #[Deprecated(message:'this method no longer affects on the outcome of the class, use League\Csv\Statement::process() instead', since:'league/csv:9.16.0')]
@@ -443,7 +443,7 @@ class Statement
      * DEPRECATION WARNING! This method will be removed in the next major point release.
      *
      * @see Statement::process()
-     * @deprecated Since version 9.16.0
+     * @deprecated Since version 9.16.0, this method no longer affects on the outcome of the class, use League\Csv\Statement::process() instead
      * @codeCoverageIgnore
      */
     #[Deprecated(message:'this method no longer affects on the outcome of the class, use League\Csv\Statement::process() instead', since:'league/csv:9.16.0')]
@@ -494,7 +494,7 @@ class Statement
      * @throws ReflectionException
      *
      * @see Statement::__construct()
-     * @deprecated Since version 9.22.0
+     * @deprecated Since version 9.22.0, use League\Csv\Statement::__construct() instead
      * @codeCoverageIgnore
      */
     #[Deprecated(message:'use League\Csv\Statement::__construct() instead', since:'league/csv:9.22.0')]

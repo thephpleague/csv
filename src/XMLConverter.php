@@ -284,7 +284,7 @@ class XMLConverter
      * DEPRECATION WARNING! This method will be removed in the next major point release.
      *
      * @see XMLConverter::import()
-     * @deprecated Since version 9.22.0
+     * @deprecated Since version 9.22.0, use League\Csv\XMLConverter::impoprt()
      * @codeCoverageIgnore
      *
      * Converts a Record collection into a DOMDocument.
@@ -302,7 +302,7 @@ class XMLConverter
      * DEPRECATION WARNING! This method will be removed in the next major point release.
      *
      * @see XMLConverter::__construct()
-     * @deprecated Since version 9.22.0
+     * @deprecated Since version 9.22.0, use League\Csv\XMLConverter::__construct()
      * @codeCoverageIgnore
      *
      * Returns an new instance.

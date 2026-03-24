@@ -359,7 +359,7 @@ class CharsetConverter extends php_user_filter
      * @codeCoverageIgnore
      * @see self::appendOnReadTo()
      * @see self::appendOnWriteTo()
-     * @deprecated since version 9.22.0
+     * @deprecated since version 9.22.0, use League\Csv\CharserConverter::appendOnReadTo() or League\Csv\CharserConverter::appendOnWriteTo() instead
      *
      * @param resource $stream
      *
@@ -380,7 +380,7 @@ class CharsetConverter extends php_user_filter
      * @codeCoverageIgnore
      * @see self::prependOnReadTo()
      * @see self::prependOnWriteTo()
-     * @deprecated since version 9.22.0
+     * @deprecated since version 9.22.0, use League\Csv\CharserConverter::prependOnReadTo() or League\Csv\CharserConverter::prependOnWriteTo() instead
      *
      * @param resource $stream
      *

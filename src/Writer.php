@@ -245,7 +245,7 @@ class Writer extends AbstractCsv implements TabularDataWriter
     /**
      * DEPRECATION WARNING! This method will be removed in the next major point release.
      *
-     * @deprecated since version 9.8.0
+     * @deprecated since version 9.8.0, no longer affecting the class behaviour
      * @codeCoverageIgnore
      *
      * Format a record.
@@ -264,7 +264,7 @@ class Writer extends AbstractCsv implements TabularDataWriter
     /**
      * DEPRECATION WARNING! This method will be removed in the next major point release.
      *
-     * @deprecated Since version 9.9.0
+     * @deprecated Since version 9.9.0, no longer affecting the class behaviour
      * @codeCoverageIgnore
      *
      * Adds a single record to a CSV Document using PHP algorithm.
@@ -280,7 +280,7 @@ class Writer extends AbstractCsv implements TabularDataWriter
     /**
      * DEPRECATION WARNING! This method will be removed in the next major point release.
      *
-     * @deprecated Since version 9.9.0
+     * @deprecated Since version 9.9.0, no longer affecting the class behaviour
      * @codeCoverageIgnore
      *
      * Applies post insertion actions.
@@ -305,7 +305,7 @@ class Writer extends AbstractCsv implements TabularDataWriter
      * DEPRECATION WARNING! This method will be removed in the next major point release.
      *
      * @see Writer::getEndOfLine()
-     * @deprecated Since version 9.10.0
+     * @deprecated Since version 9.10.0, use League\Csv\Writer::getEndOfLine()
      * @codeCoverageIgnore
      *
      * Returns the current newline sequence characters.
@@ -320,7 +320,7 @@ class Writer extends AbstractCsv implements TabularDataWriter
      * DEPRECATION WARNING! This method will be removed in the next major point release.
      *
      * @see Writer::setEndOfLine()
-     * @deprecated Since version 9.10.0
+     * @deprecated Since version 9.10.0, use League\Csv\Writer::setEndOfLine()
      * @codeCoverageIgnore
      *
      * Sets the newline sequence.
@@ -335,7 +335,7 @@ class Writer extends AbstractCsv implements TabularDataWriter
      * DEPRECATION WARNING! This method will be removed in the next major point release.
      *
      * @see Writer::necessaryEnclosure()
-     * @deprecated Since version 9.22.0
+     * @deprecated Since version 9.22.0, use League\Csv\Writer::necessaryEnclosure()
      * @codeCoverageIgnore
      *
      * Sets the enclosure threshold to only enclose necessary fields.

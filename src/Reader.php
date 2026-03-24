@@ -676,7 +676,7 @@ class Reader extends AbstractCsv implements TabularDataReader, JsonSerializable
      *
      * @throws Exception
      *
-     * @deprecated since version 9.23.0
+     * @deprecated since version 9.23.0, use League\Csv\Resultset::fetchColumn() instead
      * @codeCoverageIgnore
      *
      * @see ResultSet::fetchColumn()
@@ -692,7 +692,7 @@ class Reader extends AbstractCsv implements TabularDataReader, JsonSerializable
      *
      * @throws Exception
      *
-     * @deprecated since version 9.23.0
+     * @deprecated since version 9.23.0, use League\Csv\Resultset::fetchColumn() instead
      * @codeCoverageIgnore
      *
      * @see ResultSet::fetchColumn()
@@ -707,7 +707,7 @@ class Reader extends AbstractCsv implements TabularDataReader, JsonSerializable
      * DEPRECATION WARNING! This method will be removed in the next major point release.
      *
      * @see Reader::nth()
-     * @deprecated since version 9.9.0
+     * @deprecated since version 9.9.0, use League\Csv\Reader::nth() instead
      * @codeCoverageIgnore
      */
     #[Deprecated(message:'use League\Csv\Reader::nth() instead', since:'league/csv:9.9.0')]
@@ -720,7 +720,7 @@ class Reader extends AbstractCsv implements TabularDataReader, JsonSerializable
      * DEPRECATION WARNING! This method will be removed in the next major point release.
      *
      * @see Reader::getRecordsAsObject()
-     * @deprecated Since version 9.15.0
+     * @deprecated Since version 9.15.0, use League\Csv\Reader::getRecordsAsObject() instead
      * @codeCoverageIgnore
      *
      * @param class-string $className
@@ -739,7 +739,7 @@ class Reader extends AbstractCsv implements TabularDataReader, JsonSerializable
     /**
      * DEPRECATION WARNING! This method will be removed in the next major point release.
      * @codeCoverageIgnore
-     * @deprecated since version 9.27.0
+     * @deprecated since version 9.27.0, use League\Csv\AbstractCsv::from() instead
      *
      * Returns a new instance from a file path.
      *
