@@ -14,16 +14,17 @@ declare(strict_types=1);
 namespace League\Csv\Serializer;
 
 use Attribute;
+use Closure;
 
 #[Attribute(Attribute::TARGET_METHOD | Attribute::TARGET_PROPERTY)]
 final readonly class MapCell
 {
     /**
-     * @param class-string|string|null $cast
+     * @param Closure|class-string|string|null $cast
      */
     public function __construct(
         public string|int|null $column = null,
-        public ?string $cast = null,
+        public Closure|string|null $cast = null,
         public array $options = [],
         public bool $ignore = false,
         public ?bool $convertEmptyStringToNull = null,

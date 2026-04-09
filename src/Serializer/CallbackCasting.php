@@ -49,7 +49,7 @@ final class CallbackCasting implements TypeCasting
         ReflectionProperty|ReflectionParameter $reflectionProperty,
         private readonly ?string $alias = null
     ) {
-        [$this->type, $this->isNullable] = self::resolve($reflectionProperty);
+        [$this->type, $this->isNullable] = self::resolve($reflectionProperty, $alias);
 
         $this->message = match (true) {
             $reflectionProperty instanceof ReflectionParameter => 'The method `'.$reflectionProperty->getDeclaringClass()?->getName().'::'.$reflectionProperty->getDeclaringFunction()->getName().'` argument `'.$reflectionProperty->getName().'` must be typed with a supported type.',
@@ -251,7 +251,11 @@ final class CallbackCasting implements TypeCasting
                 continue;
             }
 
-            if (self::aliasSupportsType($type) || (Type::Mixed->value === $type && self::supportsAlias($alias))) {
+            if (
+                self::aliasSupportsType($type) ||
+                (Type::Mixed->value === $type && self::supportsAlias($alias))
+                || isset(self::$aliases[Type::Mixed->value][$alias])
+            ) {
                 return true;
             }
         }
@@ -324,7 +328,7 @@ final class CallbackCasting implements TypeCasting
      *
      * @return array{0:string, 1:bool}
      */
-    private static function resolve(ReflectionParameter|ReflectionProperty $reflectionProperty): array
+    private static function resolve(ReflectionParameter|ReflectionProperty $reflectionProperty, ?string $alias = null): array
     {
         if (null === $reflectionProperty->getType()) {
             return [Type::Mixed->value, true];
@@ -334,7 +338,8 @@ final class CallbackCasting implements TypeCasting
 
         $type = null;
         $isNullable = false;
-        $hasMixed = false;
+        $hasMixed = null !== $alias && isset(self::$aliases[Type::Mixed->value][$alias]);
+
         foreach ($types as $foundType) {
             if (!$isNullable && $foundType->allowsNull()) {
                 $isNullable = true;
