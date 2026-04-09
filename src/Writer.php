@@ -15,6 +15,7 @@ namespace League\Csv;
 
 use Closure;
 use Deprecated;
+use SplFileInfo;
 
 use function array_map;
 use function array_reduce;
@@ -41,6 +42,18 @@ class Writer extends AbstractCsv implements TabularDataWriter
     protected int $enclose_all = self::ENCLOSE_NECESSARY;
     /** @var array{0:array<string>,1:array<string>} */
     protected array $enclosure_replace = [[], []];
+
+    /**
+     * @param SplFileInfo|string $path an SPL file object, a file path or a stream URI
+     * @param non-empty-string $mode the file path open mode
+     * @param resource|null $context the resource context used with a file path or a SplFileInfo object
+     *
+     * @throws UnavailableStream
+     */
+    public static function fromPath(SplFileInfo|string $path, string $mode = 'r+', $context = null): static
+    {
+        return parent::fromPath($path, $mode, $context);
+    }
 
     protected function resetProperties(): void
     {

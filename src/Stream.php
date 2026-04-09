@@ -234,7 +234,7 @@ final class Stream implements SeekableIterator
      *
      * @see https://www.php.net/manual/en/splfileobject.getcsvcontrol.php
      *
-     * @return array<string>
+     * @return array{0: string, 1: string, 2: string}
      */
     public function getCsvControl(): array
     {
