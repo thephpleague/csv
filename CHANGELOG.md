@@ -6,7 +6,9 @@ All Notable changes to `Csv` will be documented in this file
 
 ### Added
 
-- None
+- Support for `Closure` in constant expressions during Record Mapping.
+- `AbstractCsv::fromStream` to instantiate a `Reader` or a `Writer` instance from a stream or a `SplFileObject` object
+- `AbstractCsv::fromPath` to instantiate a `Reader` or a `Writer` instance from a path as a string or a `SplFileInfo` object
 
 ### Deprecated
 

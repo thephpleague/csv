@@ -717,8 +717,7 @@ Serializer\Denormalizer::unregisterAllAliases();
 
 <p class="message-info">new in version <code>9.29</code></p>
 
-You can directly register a callback if you are using `PHP8.5+` prior to this version the code will throw an error since using
-a static closure on attribute is not yet valid.
+You can directly register a callback if you are using `PHP8.5+` prior to this version the code will throw an error since using a static closure on attribute is not yet valid.
 
 Once your code is migrated to the correct PHP version you can write the following:
 
@@ -735,17 +734,13 @@ use League\Csv\Serializer;
 private ?int $amount;
 ```
 
-This will result in the same mapping as the previous example using the alias. But you no longer have to register the `alias` yourself as 
-this is taking care of by the engine itself. 
+This will result in the same mapping as the previous example using the alias. But you no longer have to register the `alias` yourself as this is taking care of by the engine itself.
 
-<p class="message-notice">Of note, if you want to re-use multiple time registering the callback casting using an
-explicit <code>alias</code> will always be the recommended way.</p>
-
+<p class="message-notice">Of note, if you want to re-use multiple time registering the callback casting using an explicit <code>alias</code> will always be the recommended way.</p>
 
 ### Implementing a TypeCasting class
 
-If you need to support `Intersection` type you need to provide your own class to typecast the value according
-to your own rules. Since the class is not registered by default:
+If you need to support `Intersection` type you need to provide your own class to typecast the value according to your own rules. Since the class is not registered by default:
 
 - you must configure its usage via the `MapCell` attribute `cast` argument
 - it won't be available during autodiscovery.
