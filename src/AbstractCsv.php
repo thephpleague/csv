@@ -87,24 +87,6 @@ abstract class AbstractCsv implements ByteSequence
     }
 
     /**
-     * Returns a new instance from a file path.
-     *
-     * @param SplFileInfo|SplFileObject|resource|string $filename an SPL file object, a resource stream or a file path
-     * @param non-empty-string $mode the file path open mode used with a file path or a SplFileInfo object
-     * @param resource|null $context the resource context used with a file pathor a SplFileInfo object
-     *
-     * @throws UnavailableStream
-     */
-    public static function from($filename, string $mode = 'r+', $context = null): static
-    {
-        return match (true) {
-            $filename instanceof SplFileObject => new static($filename),
-            $filename instanceof SplFileInfo => new static($filename->openFile(mode: $mode, context: $context)),
-            default => new static(Stream::from($filename, $mode, $context)),
-        };
-    }
-
-    /**
      * @param SplFileInfo|string $path an SPL file object, a file path or a stream URI
      * @param non-empty-string $mode the file path open mode
      * @param resource|null $context the resource context used with a file path or a SplFileInfo object
@@ -113,10 +95,7 @@ abstract class AbstractCsv implements ByteSequence
      */
     public static function fromPath(SplFileInfo|string $path, string $mode = 'r', $context = null): static
     {
-        return match (true) {
-            $path instanceof SplFileInfo => static::from(filename: $path->openFile(mode: $mode, context: $context)),
-            default => static::from(filename: $path, mode: $mode, context: $context),
-        };
+        return static::from(filename: $path, mode: $mode, context: $context);
     }
 
     /**
@@ -129,8 +108,8 @@ abstract class AbstractCsv implements ByteSequence
     public static function fromStream($stream): static
     {
         if (!$stream instanceof SplFileObject) {
-            is_resource($stream) || throw new TypeError('Argument passed must be a stream resource, '.gettype($stream).' given.');
-            'stream' === ($type = get_resource_type($stream)) || throw new TypeError('Argument passed must be a stream resource, '.$type.' resource given');
+            is_resource($stream) || throw new TypeError('Argument passed must be a stream resource or an SplFileObject instance, '.gettype($stream).' given.');
+            'stream' === ($type = get_resource_type($stream)) || throw new TypeError('Argument passed must be a stream resource or an SplFileObject instance, '.$type.' resource given');
         }
 
         return static::from(filename: $stream);
@@ -142,6 +121,23 @@ abstract class AbstractCsv implements ByteSequence
     public static function fromString(Stringable|string $content = ''): static
     {
         return new static(document: Stream::fromString($content));
+    }
+
+    /**
+     * Returns a new instance from a file path.
+     *
+     * @param SplFileInfo|SplFileObject|resource|string $filename an SPL file object, a resource stream or a file path
+     * @param non-empty-string $mode the file path open mode used with a file path or a SplFileInfo object
+     * @param resource|null $context the resource context used with a file pathor a SplFileInfo object
+     *
+     * @throws UnavailableStream
+     */
+    public static function from($filename, string $mode = 'r+', $context = null): static
+    {
+        return new static($filename instanceof SplFileObject
+            ? $filename
+            : Stream::from($filename, $mode, $context)
+        );
     }
 
     /**

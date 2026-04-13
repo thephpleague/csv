@@ -16,6 +16,7 @@ namespace League\Csv;
 use Deprecated;
 use RuntimeException;
 use SeekableIterator;
+use SplFileInfo;
 use SplFileObject;
 use Stringable;
 use TypeError;
@@ -124,7 +125,7 @@ final class Stream implements SeekableIterator
     /**
      * Returns a new instance from a file path.
      *
-     * @param resource|string $filename
+     * @param resource|string|SplFileInfo $filename
      * @param resource|null $context
      *
      * @throws UnavailableStream if the stream resource cannot be created
@@ -132,6 +133,10 @@ final class Stream implements SeekableIterator
     public static function from($filename, string $mode = 'r', $context = null): self
     {
         $should_close_stream = false;
+        if ($filename instanceof SplFileInfo) {
+            $filename = $filename->getPathname();
+        }
+
         if (is_string($filename)) {
             $should_close_stream = true;
             /** @var resource|false $resource */

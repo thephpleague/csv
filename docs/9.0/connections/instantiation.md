@@ -8,7 +8,9 @@ description: The different ways the package allow to load and interact with CSV 
 
 Because CSV documents come in different forms, we use named constructors to offer several ways to load them.
 
-## Loading from a string
+## New API
+
+### Loading from a string
 
 <p class="message-notice">This new API is introduced in version <code>9.27.0</code></p>
 
@@ -28,7 +30,53 @@ $writer = Writer::fromString('john,doe,john.doe@example.com');
 
 <p class="message-notice">The <code>$content</code> argument default value is an empty string to ease usage.</p>
 
-## Loading from a file pointer
+### Loading from a path
+
+<div class="message-info">Since version <code>9.29.0</code></div>
+<div class="message-notice">Since version <code>9.27.0</code> the <code>createFromPath()</code> method is <strong>deprecated</strong></div>
+
+```php
+public static Reader::fromPath(SplFileInfo|string $path, string $mode = 'r', ?resource $context = null): Reader
+public static Writer::fromPath(SplFileInfo|string $path, string $mode = 'r+', ?resource $context = null): Writer
+```
+
+Creates a new object *à la* `fopen`.
+
+```php
+use League\Csv\Reader;
+use League\Csv\Writer;
+
+$reader = Reader::fromPath('/path/to/your/csv/file.csv', 'r');
+$writer = Writer::fromPath(new SplFileInfo('/path/to/your/csv/file.csv'), 'w');
+```
+
+<p class="message-warning">A <code>SplFileObject</code> does not expose its context. If it was created with one, you must pass it explicitly to the <code>$context</code> argument.
+Alternatively, you can use the <code>fromStream</code> method.</p>
+
+### Loading from stream
+
+<div class="message-info">Since version <code>9.29.0</code></div>
+<div class="message-notice">Since version <code>9.27.0</code> the <code>createFromStream()</code> and <code>createFromFileObject()</code> methods are <strong>deprecated</strong></div>
+
+```php
+public static AbstractCsv::fromStream(SplFileObject|resource $stream): self
+```
+Creates a new object from a stream resource or a streaming object.
+
+```php
+use League\Csv\Reader;
+use League\Csv\Writer;
+
+$reader = Reader::fromStream(fopen('/path/to/the/file.csv', 'r+'));
+$writer = Writer::fromStream(tmpfile());
+$reader = Reader::fromStream(new SplFileObject('/path/to/your/csv/file.csv'));
+$writer = Writer::fromStream(new SplTempFileObject());
+```
+
+The provided stream—whether a resource or a SplFileObject—is used as-is. It is the developer’s responsibility to ensure that the stream
+is valid and has the appropriate permissions; otherwise, exceptions may be thrown during use.
+
+### Loading from a file pointer
 
 <p class="message-notice">This new API is introduced in version <code>9.27.0</code></p>
 
@@ -46,7 +94,7 @@ is created *à la* `fopen` and the `$mode` and `$context` parameters are taken i
 Otherwise, when a stream resource or an `SplFileObject` instance is given, both arguments are
 ignored.
 
-<div class="message-notice">Since version <code>9.27.0</code> the following methods are <strong>deprecated</strong>:
+<div class="message-notice">Since version <code>9.27.0</code> this method can be use to replace the <strong>deprecated</strong> methods:
 <ul>
     <li><code>createFromPath()</code></li>
     <li><code>createFromStream()</code></li>
