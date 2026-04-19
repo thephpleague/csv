@@ -18,6 +18,8 @@ use Closure;
 use Deprecated;
 use Iterator;
 use JsonSerializable;
+use League\Csv\Schema\Inspector;
+use League\Csv\Schema\Schema;
 use League\Csv\Serializer\Denormalizer;
 use League\Csv\Serializer\MappingFailed;
 use League\Csv\Serializer\TypeCastingFailed;
@@ -414,6 +416,16 @@ class Reader extends AbstractCsv implements TabularDataReader, JsonSerializable
     public function map(callable $callback): Iterator
     {
         return MapIterator::fromIterable($this, $callback);
+    }
+
+    public function inferSchema(?Inspector $inspector = null, array $header = []): Schema
+    {
+        return ($inspector ?? Inspector::default())->schema($this, $header);
+    }
+
+    public function inferRecords(?Inspector $inspector = null, array $header = []): Iterator
+    {
+        return $this->inferSchema($inspector, $header)->parse($this);
     }
 
     /**
