@@ -13,15 +13,18 @@ declare(strict_types=1);
 
 namespace League\Csv\Schema;
 
+use DateTime;
 use DateTimeImmutable;
 use DateTimeInterface;
 use DateTimeZone;
 use Exception;
+use Throwable;
 use ValueError;
 
 use function array_map;
 use function array_values;
 use function is_string;
+use function is_subclass_of;
 use function iterator_to_array;
 use function trim;
 
@@ -29,26 +32,48 @@ final class DateField extends FieldEvaluator implements Field
 {
     /** @var non-empty-string */
     public readonly string $format;
-    public readonly ?DateTimeZone $timezone;
+    public readonly DateTimeZone $timezone;
+    /** @var class-string<DateTimeImmutable|DateTime> */
+    public readonly string $outputClass;
 
-    public function __construct(string $format, DateTimeZone|string|null $timezone = null, float $confidenceThreshold = 0.8)
-    {
+    /**
+     * @param non-empty-string $format
+     * @param class-string<DateTimeImmutable|DateTime> $outputClass
+     */
+    public function __construct(
+        string $format,
+        DateTimeZone|string|null $timezone = null,
+        string $outputClass = DateTimeImmutable::class,
+        float $confidenceThreshold = 0.8,
+    ) {
         $format = trim($format);
         '' !== $format || throw new ValueError('The date field format can not be empty.');
         $timezone = self::filterTimezone($timezone);
+        self::filterDateTimeInterfaceClass($outputClass);
 
         parent::__construct($confidenceThreshold);
         $this->format = $format;
         $this->timezone = $timezone;
+        $this->outputClass = $outputClass;
     }
 
-    public static function common(DateTimeZone|string|null $timezone = null): FieldList
-    {
-        return self::machine($timezone)->append(self::localized($timezone));
+    /**
+     * @param class-string<DateTimeImmutable|DateTime> $outputClass
+     */
+    public static function common(
+        DateTimeZone|string|null $timezone = null,
+        string $outputClass = DateTimeImmutable::class,
+    ): FieldList {
+        return self::machine($timezone, $outputClass)->append(self::localized($timezone, $outputClass));
     }
 
-    public static function machine(DateTimeZone|string|null $timezone = null): FieldList
-    {
+    /**
+     * @param class-string<DateTimeImmutable|DateTime> $outputClass
+     */
+    public static function machine(
+        DateTimeZone|string|null $timezone = null,
+        string $outputClass = DateTimeImmutable::class,
+    ): FieldList {
         $formats = [
             'Y-m-d',
             'Y-m-d H:i:s',
@@ -58,11 +83,16 @@ final class DateField extends FieldEvaluator implements Field
             DateTimeInterface::ISO8601_EXPANDED,
         ];
 
-        return self::fromFormat($formats, $timezone, .8);
+        return self::fromFormat($formats, $timezone, $outputClass, .8);
     }
 
-    public static function localized(DateTimeZone|string|null $timezone = null): FieldList
-    {
+    /**
+     * @param class-string<DateTimeImmutable|DateTime> $outputClass
+     */
+    public static function localized(
+        DateTimeZone|string|null $timezone = null,
+        string $outputClass = DateTimeImmutable::class,
+    ): FieldList {
         $formats = [
             // Europe Dates
             'd/m/Y',
@@ -74,27 +104,35 @@ final class DateField extends FieldEvaluator implements Field
             'm.d.Y',
         ];
 
-        return self::fromFormat($formats, $timezone, .7);
+        return self::fromFormat($formats, $timezone, $outputClass, .7);
     }
 
     /**
      * @param iterable<non-empty-string> $formats
+     * @param class-string<DateTimeImmutable|DateTime> $outputClass
      */
     public static function fromFormat(
         iterable $formats,
         DateTimeZone|string|null $timezone = null,
-        float $confidenceThreshold = 0.8
+        string $outputClass = DateTimeImmutable::class,
+        float $confidenceThreshold = 0.8,
     ): FieldList {
         return new FieldList(...array_values(array_map(
-            fn (string $format): DateField => new DateField($format, $timezone, $confidenceThreshold),
+            fn (string $format): DateField => new DateField($format, $timezone, $outputClass, $confidenceThreshold),
             iterator_to_array($formats)
         )));
     }
 
-    private static function filterTimezone(DateTimeZone|string|null $timeZone): ?DateTimeZone
+    private static function filterDateTimeInterfaceClass(string $className): void
+    {
+        is_subclass_of($className, DateTimeInterface::class)
+        || throw new ValueError('The date field class '.$className.' does not implement the DateTimeInterface interface.');
+    }
+
+    private static function filterTimezone(DateTimeZone|string|null $timeZone): DateTimeZone
     {
         if (null === $timeZone) {
-            return null;
+            return new DateTimeZone('UTC');
         }
 
         if ($timeZone instanceof DateTimeZone) {
@@ -118,10 +156,10 @@ final class DateField extends FieldEvaluator implements Field
         return FieldType::Date->value;
     }
 
-    public function parse(mixed $value): ?DateTimeImmutable
+    public function parse(mixed $value): ?DateTimeInterface
     {
         if ($value instanceof DateTimeInterface) {
-            return $value instanceof DateTimeImmutable ? $value : DateTimeImmutable::createFromInterface($value);
+            return $value::class === $this->outputClass ? $value : $this->outputClass::createFromInterface($value);
         }
 
         if (!is_string($value)) {
@@ -134,12 +172,12 @@ final class DateField extends FieldEvaluator implements Field
         }
 
         try {
-            $value = DateTimeImmutable::createFromFormat($this->format, $value, $this->timezone);
+            $value = $this->outputClass::createFromFormat($this->format, $value, $this->timezone);
             if (false === $value) {
                 return null;
             }
 
-            $errors = DateTimeImmutable::getLastErrors();
+            $errors = $this->outputClass::getLastErrors();
             if (
                 (isset($errors['warning_count']) && 0 < $errors['warning_count']) ||
                 (isset($errors['error_count']) && 0 < $errors['error_count'])
@@ -148,7 +186,7 @@ final class DateField extends FieldEvaluator implements Field
             }
 
             return $value;
-        } catch (ValueError) {
+        } catch (Throwable) {
             return null;
         }
     }
@@ -157,7 +195,8 @@ final class DateField extends FieldEvaluator implements Field
     {
         return new FieldMetadata([
             'format' => $this->format,
-            'timezone' => $this->timezone?->getName(),
+            'timezone' => $this->timezone->getName(),
+            'class' => $this->outputClass,
         ]);
     }
 }

@@ -15,6 +15,7 @@ namespace League\Csv\Schema;
 
 use DateTime;
 use DateTimeImmutable;
+use DateTimeInterface;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 
@@ -63,4 +64,24 @@ final class DateFieldTest extends TestCase
         self::assertNull($this->field->parse([]));
         self::assertNull($this->field->parse(123));
     }
+
+    public function test_it_can_return_another_implementing_datetime_interface(): void
+    {
+        $field = new DateField('Y-m-d', outputClass: MyDate::class);
+        $result = $field->parse('2024-01-01');
+
+        self::assertInstanceOf(MyDate::class, $result);
+        self::assertSame('2024-01-01', $result->format('Y-m-d'));
+        self::assertSame(MyDate::class, $field->metadata()->get('class'));
+        self::assertSame('Y-m-d', $field->metadata()->get('format'));
+        self::assertSame('UTC', $field->metadata()->get('timezone'));
+    }
+}
+
+interface MyDateInterface extends DateTimeInterface
+{
+}
+
+class MyDate extends DateTimeImmutable implements MyDateInterface
+{
 }

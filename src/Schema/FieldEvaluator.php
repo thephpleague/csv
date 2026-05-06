@@ -20,14 +20,23 @@ use function trim;
 
 abstract class FieldEvaluator
 {
-    public function __construct(protected readonly float $confidenceThreshold = 0.8)
+    protected readonly float $confidenceThreshold;
+
+    public function __construct(float $confidenceThreshold = 0.8)
     {
-        ($confidenceThreshold >= 0 && $confidenceThreshold <= 1) || throw new ValueError('the confidence threshold must be between 0 and 1.');
+        $this->confidenceThreshold = self::filterConfidenceThreshold($confidenceThreshold);
     }
 
     public function confidenceThreshold(): float
     {
         return $this->confidenceThreshold;
+    }
+
+    protected static final function filterConfidenceThreshold(float $confidenceThreshold): float
+    {
+        ($confidenceThreshold >= 0 && $confidenceThreshold <= 1) || throw new ValueError('the confidence threshold must be between 0 and 1.');
+
+        return $confidenceThreshold;
     }
 
     public function score(iterable $values): float
