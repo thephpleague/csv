@@ -41,7 +41,7 @@ final class CallbackStreamFilter extends php_user_filter
     private static array $filters = [];
 
     /** @var ?Closure(string, mixed): string */
-    private ?Closure $callback;
+    private ?Closure $callback = null;
 
     public function onCreate(): bool
     {
