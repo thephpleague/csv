@@ -61,6 +61,7 @@ Alternatively, you can use the <code>fromStream</code> method.</p>
 ```php
 public static AbstractCsv::fromStream(SplFileObject|resource $stream): self
 ```
+
 Creates a new object from a stream resource or a streaming object.
 
 ```php
