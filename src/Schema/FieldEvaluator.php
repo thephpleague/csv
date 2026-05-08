@@ -32,7 +32,7 @@ abstract class FieldEvaluator
         return $this->confidenceThreshold;
     }
 
-    protected static final function filterConfidenceThreshold(float $confidenceThreshold): float
+    final protected static function filterConfidenceThreshold(float $confidenceThreshold): float
     {
         ($confidenceThreshold >= 0 && $confidenceThreshold <= 1) || throw new ValueError('the confidence threshold must be between 0 and 1.');
 

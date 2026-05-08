@@ -147,12 +147,12 @@ final class SchemaTest extends TestCase
         ]);
 
         $result = iterator_to_array(
-            $schema->map(fn (Field $field, $key) => strtoupper($field->name()))
+            $schema->map(fn (Field $field, $key) => $field->name())
         );
 
         self::assertSame([
-            'name' => 'STRING',
-            'age' => 'NUMERIC',
+            'name' => 'string',
+            'age' => 'numeric',
         ], $result);
     }
 
