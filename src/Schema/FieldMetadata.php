@@ -57,7 +57,10 @@ final class FieldMetadata implements Countable, IteratorAggregate
 
     public function all(): array
     {
-        return $this->data;
+        return array_map(
+            fn (mixed $value) => $value instanceof self ? $value->all() : $value,
+            $this->data
+        );
     }
 
     public function isEmpty(): bool

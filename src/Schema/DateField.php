@@ -21,11 +21,8 @@ use Exception;
 use Throwable;
 use ValueError;
 
-use function array_map;
-use function array_values;
 use function is_string;
 use function is_subclass_of;
-use function iterator_to_array;
 use function trim;
 
 final class DateField extends FieldEvaluator implements Field
@@ -35,6 +32,28 @@ final class DateField extends FieldEvaluator implements Field
     public readonly DateTimeZone $timezone;
     /** @var class-string<DateTimeImmutable|DateTime> */
     public readonly string $outputClass;
+
+    /** @var list<non-empty-string> */
+    private const FORMAT_MACHINES = [
+        'Y-m-d',
+        'Y-m-d H:i:s',
+        'Y-m-d\TH:i:s',
+        DateTimeInterface::RFC3339,
+        DateTimeInterface::RFC3339_EXTENDED,
+        DateTimeInterface::ISO8601_EXPANDED,
+    ];
+
+    /** @var list<non-empty-string> */
+    private const FORMAT_LOCALIZED = [
+        // Europe Dates
+        'd/m/Y',
+        'd-m-Y',
+        'd.m.Y',
+        // American Dates
+        'm/d/Y',
+        'm-d-Y',
+        'm.d.Y',
+    ];
 
     /**
      * @param non-empty-string $format
@@ -74,16 +93,7 @@ final class DateField extends FieldEvaluator implements Field
         DateTimeZone|string|null $timezone = null,
         string $outputClass = DateTimeImmutable::class,
     ): FieldList {
-        $formats = [
-            'Y-m-d',
-            'Y-m-d H:i:s',
-            'Y-m-d\TH:i:s',
-            DateTimeInterface::RFC3339,
-            DateTimeInterface::RFC3339_EXTENDED,
-            DateTimeInterface::ISO8601_EXPANDED,
-        ];
-
-        return self::fromFormat($formats, $timezone, $outputClass, .8);
+        return self::fromFormat(self::FORMAT_MACHINES, $timezone, $outputClass, .8);
     }
 
     /**
@@ -93,18 +103,7 @@ final class DateField extends FieldEvaluator implements Field
         DateTimeZone|string|null $timezone = null,
         string $outputClass = DateTimeImmutable::class,
     ): FieldList {
-        $formats = [
-            // Europe Dates
-            'd/m/Y',
-            'd-m-Y',
-            'd.m.Y',
-            // American Dates
-            'm/d/Y',
-            'm-d-Y',
-            'm.d.Y',
-        ];
-
-        return self::fromFormat($formats, $timezone, $outputClass, .7);
+        return self::fromFormat(self::FORMAT_LOCALIZED, $timezone, $outputClass, .7);
     }
 
     /**
@@ -117,10 +116,12 @@ final class DateField extends FieldEvaluator implements Field
         string $outputClass = DateTimeImmutable::class,
         float $confidenceThreshold = 0.8,
     ): FieldList {
-        return new FieldList(...array_values(array_map(
-            fn (string $format): DateField => new DateField($format, $timezone, $outputClass, $confidenceThreshold),
-            iterator_to_array($formats)
-        )));
+        $res = [];
+        foreach ($formats as $format) {
+            $res[] = new self($format, $timezone, $outputClass, $confidenceThreshold);
+        }
+
+        return new FieldList(...$res);
     }
 
     private static function filterDateTimeInterfaceClass(string $className): void

@@ -23,4 +23,5 @@ enum FieldType: string
     case Numeric = 'numeric';
     case String  = 'string';
     case StructuredString = 'structured_string';
+    case Set = 'set';
 }
