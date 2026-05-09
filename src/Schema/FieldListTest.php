@@ -228,4 +228,22 @@ final class FieldListTest extends TestCase
 
         self::assertSame($list, $new);
     }
+
+    public function testRemoveByName(): void
+    {
+        $list = new FieldList($this->s1, $this->s2);
+
+        $new = $list->removeByName($this->s1);
+
+        self::assertSame([$this->s2], $new->all());
+    }
+
+    public function testRemoveByNameNoMatchReturnsSameInstance(): void
+    {
+        $list = new FieldList($this->s1);
+
+        $new = $list->removeByName('enum');
+
+        self::assertSame($list, $new);
+    }
 }

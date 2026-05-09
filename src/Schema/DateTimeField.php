@@ -25,7 +25,7 @@ use function is_string;
 use function is_subclass_of;
 use function trim;
 
-final class DateField extends FieldEvaluator implements Field
+final class DateTimeField extends FieldEvaluator implements Field
 {
     /** @var non-empty-string */
     public readonly string $format;
@@ -41,6 +41,7 @@ final class DateField extends FieldEvaluator implements Field
         DateTimeInterface::RFC3339,
         DateTimeInterface::RFC3339_EXTENDED,
         DateTimeInterface::ISO8601_EXPANDED,
+        'U',
     ];
 
     /** @var list<non-empty-string> */
@@ -164,14 +165,14 @@ final class DateField extends FieldEvaluator implements Field
 
     public function type(): FieldType
     {
-        return FieldType::Date;
+        return FieldType::Datetime;
     }
 
     public function name(): string
     {
         $format = ('U' === $this->format) ? 'timestamp' : $this->format;
 
-        return FieldType::Date->value.'(format='.$format.',timezone='.$this->timezone->getName().')';
+        return FieldType::Datetime->value.'(format='.$format.',timezone='.$this->timezone->getName().')';
     }
 
     public function parse(mixed $value): ?DateTimeInterface

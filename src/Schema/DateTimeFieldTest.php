@@ -19,14 +19,14 @@ use DateTimeInterface;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 
-#[CoversClass(DateField::class)]
-final class DateFieldTest extends TestCase
+#[CoversClass(DateTimeField::class)]
+final class DateTimeFieldTest extends TestCase
 {
-    private DateField $field;
+    private DateTimeField $field;
 
     protected function setUp(): void
     {
-        $this->field = new DateField('Y-m-d');
+        $this->field = new DateTimeField('Y-m-d');
     }
 
     public function testParseUsesNativeConstructorWhenFormatIsEmpty(): void
@@ -39,7 +39,7 @@ final class DateFieldTest extends TestCase
 
     public function testParseUsesCreateFromFormatWhenFormatIsProvided(): void
     {
-        $field = new DateField('d-m-Y');
+        $field = new DateTimeField('d-m-Y');
         $result = $field->parse('01-01-2024');
 
         self::assertInstanceOf(DateTimeImmutable::class, $result);
@@ -67,7 +67,7 @@ final class DateFieldTest extends TestCase
 
     public function test_it_can_return_another_implementing_datetime_interface(): void
     {
-        $field = new DateField('Y-m-d', outputClass: MyDate::class);
+        $field = new DateTimeField('Y-m-d', outputClass: MyDate::class);
         $result = $field->parse('2024-01-01');
 
         self::assertInstanceOf(MyDate::class, $result);
@@ -75,12 +75,12 @@ final class DateFieldTest extends TestCase
         self::assertSame(MyDate::class, $field->metadata()->get('class'));
         self::assertSame('Y-m-d', $field->metadata()->get('format'));
         self::assertSame('UTC', $field->metadata()->get('timezone'));
-        self::assertSame('date(format=Y-m-d,timezone=UTC)', $field->name());
+        self::assertSame('datetime(format=Y-m-d,timezone=UTC)', $field->name());
     }
 
     public function test_it_uses_a_simpler_representation_for_timestamp(): void
     {
-        self::assertSame('date(format=timestamp,timezone=UTC)', DateField::timestamp()->name());
+        self::assertSame('datetime(format=timestamp,timezone=UTC)', DateTimeField::timestamp()->name());
     }
 }
 

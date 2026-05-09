@@ -87,8 +87,8 @@ final class SchemaTest extends TestCase
         ]);
 
         self::assertSame([
-            'name' => 'string',
-            'age' => 'numeric',
+            'name' => 'custom(string)',
+            'age' => 'custom(numeric)',
         ], $schema->types());
     }
 
@@ -151,8 +151,8 @@ final class SchemaTest extends TestCase
         );
 
         self::assertSame([
-            'name' => 'string',
-            'age' => 'numeric',
+            'name' => 'custom(string)',
+            'age' => 'custom(numeric)',
         ], $result);
     }
 
@@ -165,8 +165,8 @@ final class SchemaTest extends TestCase
 
         $schema = new Schema($fields);
 
-        self::assertSame('string', $schema->get(0)->name());
-        self::assertSame('numeric', $schema->get(1)->name());
+        self::assertSame('custom(string)', $schema->get(0)->name());
+        self::assertSame('custom(numeric)', $schema->get(1)->name());
     }
 
     public function testHasWithNumericIndex(): void

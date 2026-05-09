@@ -180,4 +180,18 @@ final class FieldList implements Countable, IteratorAggregate
 
         return $this->fields === $fields ? $this : new self(...$fields);
     }
+
+    public function removeByName(Field|string $name): self
+    {
+        if ($name instanceof Field) {
+            $name = $name->name();
+        }
+
+        $fields = array_filter(
+            $this->fields,
+            fn (Field $field): bool => $field->name() !== $name
+        );
+
+        return $this->fields === $fields ? $this : new self(...$fields);
+    }
 }

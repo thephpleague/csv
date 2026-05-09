@@ -13,15 +13,8 @@ declare(strict_types=1);
 
 namespace League\Csv\Schema;
 
-enum FieldType: string
+enum ClockStyle
 {
-    case Boolean = 'boolean';
-    case Custom = 'custom';
-    case Datetime = 'datetime';
-    case Enum = 'enum';
-    case Json = 'json';
-    case Numeric = 'numeric';
-    case String  = 'string';
-    case Set = 'set';
-    case Time = 'time';
+    case Padded;
+    case NonPadded;
 }

@@ -52,7 +52,7 @@ final class CustomField extends FieldEvaluator implements Field
 
     public function name(): string
     {
-        return $this->fieldTypeName;
+        return FieldType::Custom->value.'('.$this->fieldTypeName.')';
     }
 
     /**
