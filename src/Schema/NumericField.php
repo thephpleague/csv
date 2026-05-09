@@ -13,6 +13,8 @@ declare(strict_types=1);
 
 namespace League\Csv\Schema;
 
+use ValueError;
+
 use function filter_var;
 use function is_float;
 use function is_int;
@@ -30,7 +32,7 @@ final class NumericField extends FieldEvaluator implements Field
         float $confidenceThreshold = 0.8
     ) {
         if (null !== $min && null !== $max && $min > $max) {
-            throw new \ValueError('Minimum length can not be greater than maximum length.');
+            throw new ValueError('Minimum length can not be greater than maximum length.');
         }
 
         parent::__construct($confidenceThreshold);

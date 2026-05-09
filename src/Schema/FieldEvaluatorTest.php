@@ -70,56 +70,6 @@ final class FieldEvaluatorTest extends TestCase
 
         self::assertSame(-1, $field->evaluate('invAlid'));
     }
-
-    // --------------------------------------------------------
-    // score()
-    // --------------------------------------------------------
-
-    public function testScoreIgnoresNullAndEmptyValues(): void
-    {
-        $field = new DummyField();
-
-        $score = $field->score([
-            null,
-            '',
-            '   ',
-            'valid-1',
-            'invalid',
-        ]);
-
-        self::assertSame(1.0, $score);
-    }
-
-    public function testScoreReturnsZeroWhenNoCountedValues(): void
-    {
-        $field = new DummyField();
-
-        self::assertSame(0.0, $field->score([
-            null,
-            '',
-            '   ',
-        ]));
-    }
-
-    public function testScoreIsPerfectWhenAllValid(): void
-    {
-        $field = new DummyField();
-
-        self::assertSame(1.0, $field->score([
-            'valid-1',
-            'valid-2',
-        ]));
-    }
-
-    public function testScoreIsZeroWhenAllInvalid(): void
-    {
-        $field = new DummyField();
-
-        self::assertSame(0.0, $field->score([
-            'invAlid-1',
-            'invAlid-2',
-        ]));
-    }
 }
 
 final class DummyField extends FieldEvaluator

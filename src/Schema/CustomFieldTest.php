@@ -67,26 +67,6 @@ final class CustomFieldTest extends TestCase
     // score()
     // --------------------------------------------------------
 
-    public function testScoreUsesCustomParsingLogic(): void
-    {
-        $field = new CustomField(
-            fn ($value) => is_int($value) ? $value : null,
-            'custom',
-        );
-
-        $score = $field->score([
-            1,
-            2,
-            '3',
-            null,
-            '',
-        ]);
-
-        // valid = 2 (1,2)
-        // counted = 3 (1,2,'3')
-        self::assertSame(2 / 3, $score);
-    }
-
     // --------------------------------------------------------
     // type()
     // --------------------------------------------------------

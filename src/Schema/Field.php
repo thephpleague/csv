@@ -30,17 +30,6 @@ interface Field extends FieldParser
     public function confidenceThreshold(): float;
 
     /**
-     * Scores a sample of values to estimate type confidence.
-     *
-     * IMPORTANT:
-     * The iterable is expected to be a *representative sample* of the dataset,
-     * not the full dataset. Implementations may assume limited size for performance.
-     *
-     * @param iterable $values Sample of dataset values
-     */
-    public function score(iterable $values): float;
-
-    /**
      * Score a single value to estimate its type.
      *
      * returns -1 if the value is invalid

@@ -94,17 +94,6 @@ final class StringFieldTest extends TestCase
     }
 
     // --------------------------------------------------------
-    // score()
-    // --------------------------------------------------------
-
-    public function testScoreAlwaysReturnsOne(): void
-    {
-        self::assertSame(1.0, $this->field->score(['a', 'b', 'c']));
-        self::assertSame(1.0, $this->field->score([1, 2, 3]));
-        self::assertSame(1.0, $this->field->score([]));
-    }
-
-    // --------------------------------------------------------
     // type()
     // --------------------------------------------------------
 

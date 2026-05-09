@@ -58,11 +58,6 @@ final class FieldListTest extends TestCase
                 return 0.5;
             }
 
-            public function score(iterable $values): float
-            {
-                return 1.0;
-            }
-
             public function parse(mixed $value): mixed
             {
                 return $value;

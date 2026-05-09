@@ -89,7 +89,7 @@ final readonly class StringLengthConstraint implements StringConstraint
         $range = (null === $this->min && null === $this->max)
             ? '' :
             (
-            $this->min === $this->max
+                $this->min === $this->max
                 ? '['.$this->min.']'
                 : '['.$this->min.','.$this->max.']'
             );

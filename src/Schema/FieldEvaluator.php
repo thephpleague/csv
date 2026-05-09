@@ -39,26 +39,6 @@ abstract class FieldEvaluator
         return $confidenceThreshold;
     }
 
-    public function score(iterable $values): float
-    {
-        $valid = 0;
-        $counted = 0;
-
-        foreach ($values as $value) {
-            $eval = $this->evaluate($value);
-            if (0 === $eval) {
-                continue;
-            }
-
-            $counted++;
-            if (1 === $eval) {
-                $valid++;
-            }
-        }
-
-        return 0 < $counted ? $valid / $counted : 0.0;
-    }
-
     /**
      * @return int<-1, 1>
      */

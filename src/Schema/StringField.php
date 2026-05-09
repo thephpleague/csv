@@ -126,20 +126,15 @@ final class StringField extends FieldEvaluator implements Field
      */
     public function evaluate(mixed $value): int
     {
-        return match (true) {
-            null !== $this->constraint => parent::evaluate($value),
-            is_string($value) => 1,
-            default => 0,
-        };
-    }
-
-    public function score(iterable $values): float
-    {
-        return null === $this->constraint ? 1.0 : parent::score($values);
+        return null === $this->constraint
+            ? (is_string($value) ? 1 : 0)
+            : parent::evaluate($value);
     }
 
     public function confidenceThreshold(): float
     {
-        return null === $this->constraint ? 0.0 : parent::confidenceThreshold();
+        return null === $this->constraint
+            ? 0.0
+            : parent::confidenceThreshold();
     }
 }
