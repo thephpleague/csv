@@ -107,6 +107,21 @@ final class DateField extends FieldEvaluator implements Field
     }
 
     /**
+     * @param class-string<DateTimeImmutable|DateTime> $outputClass
+     */
+    public static function timestamp(
+        string $outputClass = DateTimeImmutable::class,
+        float $confidenceThreshold = .8
+    ): self {
+        return new self(
+            format: 'U',
+            timezone: 'UTC',
+            outputClass: $outputClass,
+            confidenceThreshold: $confidenceThreshold,
+        );
+    }
+
+    /**
      * @param iterable<non-empty-string> $formats
      * @param class-string<DateTimeImmutable|DateTime> $outputClass
      */
@@ -154,7 +169,9 @@ final class DateField extends FieldEvaluator implements Field
 
     public function name(): string
     {
-        return FieldType::Date->value;
+        $format = ('U' === $this->format) ? 'timestamp' : $this->format;
+
+        return FieldType::Date->value.'(format='.$format.',timezone='.$this->timezone->getName().')';
     }
 
     public function parse(mixed $value): ?DateTimeInterface

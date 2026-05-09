@@ -59,6 +59,9 @@ abstract class FieldEvaluator
         return 0 < $counted ? $valid / $counted : 0.0;
     }
 
+    /**
+     * @return int<-1, 1>
+     */
     public function evaluate(mixed $value): int
     {
         if (null === $value) {

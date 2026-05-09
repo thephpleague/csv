@@ -83,6 +83,6 @@ final class NumericFieldTest extends TestCase
 
     public function test_metadata_contains_expected_structure(): void
     {
-        self::assertTrue($this->field->metadata()->isEmpty());
+        self::assertFalse($this->field->metadata()->isEmpty());
     }
 }

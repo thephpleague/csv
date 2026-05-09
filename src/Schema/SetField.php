@@ -67,7 +67,7 @@ final class SetField extends FieldEvaluator implements Field
 
     public function name(): string
     {
-        return FieldType::Set->value;
+        return FieldType::Set->value.'('.$this->enumField->name().')';
     }
 
     /**

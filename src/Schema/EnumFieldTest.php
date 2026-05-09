@@ -52,7 +52,7 @@ final class EnumFieldTest extends TestCase
         self::assertSame($value, $result);
         self::assertSame(FieldType::Enum, $this->field->type());
         self::assertSame(TestEnum::class, $this->field->enumClass);
-        self::assertSame('enum', $this->field->name());
+        self::assertSame('enum(League\Csv\Schema\TestEnum)', $this->field->name());
     }
 
     public function testItParsesEnumByName(): void

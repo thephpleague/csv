@@ -36,8 +36,8 @@ final class StringFieldTest extends TestCase
     {
         return [
             ['hello', 'hello'],
-            [' world ', ' world '],
-            ['', ''],
+            [' world ', 'world'],
+            ['', null],
             ['123', '123'],
         ];
     }
@@ -127,5 +127,75 @@ final class StringFieldTest extends TestCase
         $field = new StringField();
 
         self::assertTrue($field->metadata()->isEmpty());
+    }
+
+    public function test_max_length_constraint_applied(): void
+    {
+        $field = StringField::max(3);
+
+        self::assertSame('string[,3]', $field->name());
+        self::assertNull($field->parse(null));
+        self::assertNull($field->parse('abcdef'));
+        self::assertSame('a', $field->parse('a'));
+        self::assertSame('ab', $field->parse('ab'));
+        self::assertSame('abc', $field->parse('abc'));
+    }
+
+    public function test_fixed_length_constraint_applied(): void
+    {
+        $field = StringField::fixed(3);
+
+        self::assertSame('string[3]', $field->name());
+        self::assertNull($field->parse(null));
+        self::assertNull($field->parse('abcdef'));
+        self::assertNull($field->parse('a'));
+        self::assertNull($field->parse('ab'));
+        self::assertSame('abc', $field->parse('abc'));
+    }
+
+    public function test_min_length_constraint_applied(): void
+    {
+        $field = StringField::min(3);
+
+        self::assertSame('string[3,]', $field->name());
+        self::assertNull($field->parse(null));
+        self::assertNull($field->parse('a'));
+        self::assertNull($field->parse('ab'));
+        self::assertSame('abc', $field->parse('abc'));
+        self::assertSame('abcdef', $field->parse('abcdef'));
+    }
+
+    // --------------------------------------------------------
+    // Factory constructors
+    // --------------------------------------------------------
+
+    public function testUuidFactoryCreatesValidStrategy(): void
+    {
+        $field = StringField::uuid();
+
+        self::assertSame(FieldType::String, $field->type());
+        self::assertSame('string(uuid)', $field->name());
+        self::assertSame(0.8, $field->confidenceThreshold());
+    }
+
+    public function testUlidFactoryCreatesValidStrategy(): void
+    {
+        $field = StringField::ulid();
+
+        self::assertSame('string(ulid)', $field->name());
+    }
+
+    public function testHexColorFactoryCreatesValidStrategy(): void
+    {
+        $field = StringField::hexColor();
+
+        self::assertSame('string(hex_color)', $field->name());
+    }
+
+    public function testJwtTokenFactoryCreatesValidStrategy(): void
+    {
+        $field = StringField::jwtToken();
+
+        self::assertSame('string(jwt_token)', $field->name());
     }
 }

@@ -13,14 +13,11 @@ declare(strict_types=1);
 
 namespace League\Csv\Schema;
 
-enum FieldType: string
+interface StringConstraint
 {
-    case Boolean = 'boolean';
-    case Custom = 'custom';
-    case Date = 'date';
-    case Enum = 'enum';
-    case Json = 'json';
-    case Numeric = 'numeric';
-    case String  = 'string';
-    case Set = 'set';
+    public function apply(string $value): ?string;
+    /**
+     * @return non-empty-string
+     */
+    public function fieldTypeName(): string;
 }

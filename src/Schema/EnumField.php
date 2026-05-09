@@ -70,7 +70,7 @@ final class EnumField extends FieldEvaluator implements Field
 
     public function name(): string
     {
-        return FieldType::Enum->value;
+        return FieldType::Enum->value.'('.$this->enumClass.')';
     }
 
     public function parse(mixed $value): ?UnitEnum

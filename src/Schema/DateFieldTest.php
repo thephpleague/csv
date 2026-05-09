@@ -75,6 +75,12 @@ final class DateFieldTest extends TestCase
         self::assertSame(MyDate::class, $field->metadata()->get('class'));
         self::assertSame('Y-m-d', $field->metadata()->get('format'));
         self::assertSame('UTC', $field->metadata()->get('timezone'));
+        self::assertSame('date(format=Y-m-d,timezone=UTC)', $field->name());
+    }
+
+    public function test_it_uses_a_simpler_representation_for_timestamp(): void
+    {
+        self::assertSame('date(format=timestamp,timezone=UTC)', DateField::timestamp()->name());
     }
 }
 

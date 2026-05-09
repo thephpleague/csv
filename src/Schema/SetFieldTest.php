@@ -59,7 +59,7 @@ final class SetFieldTest extends TestCase
     {
         $field = SetField::fromEnum(TestSetEnum::class);
 
-        self::assertSame(FieldType::Set->value, $field->name());
+        self::assertSame('set(enum(League\Csv\Schema\Tests\TestSetEnum))', $field->name());
     }
 
     public function test_it_returns_null_for_non_string_values(): void
