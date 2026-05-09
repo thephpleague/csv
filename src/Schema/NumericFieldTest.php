@@ -17,6 +17,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use stdClass;
+use ValueError;
 
 #[CoversClass(NumericField::class)]
 final class NumericFieldTest extends TestCase
@@ -84,5 +85,82 @@ final class NumericFieldTest extends TestCase
     public function test_metadata_contains_expected_structure(): void
     {
         self::assertFalse($this->field->metadata()->isEmpty());
+    }
+
+    // --------------------------------------------------------
+    // Factory constructors
+    // --------------------------------------------------------
+
+    public function testMinFactory(): void
+    {
+        $field = NumericField::min(4);
+
+        self::assertSame(FieldType::Numeric, $field->type());
+        self::assertSame('numeric[4,]', $field->name());
+        self::assertSame(0.8, $field->confidenceThreshold());
+        self::assertSame(5, $field->parse(5));
+        self::assertNull($field->parse(-4.1));
+        self::assertNull($field->parse('0'));
+    }
+
+    public function testMaxFactory(): void
+    {
+        $field = NumericField::max(4);
+
+        self::assertSame(FieldType::Numeric, $field->type());
+        self::assertSame('numeric[,4]', $field->name());
+        self::assertSame(0.8, $field->confidenceThreshold());
+        self::assertNull($field->parse(5));
+        self::assertSame(-4.1, $field->parse(-4.1));
+        self::assertSame(0, $field->parse('0'));
+    }
+
+    public function testFixedFactory(): void
+    {
+        $field = NumericField::fixed(4);
+
+        self::assertSame(FieldType::Numeric, $field->type());
+        self::assertSame('numeric[4]', $field->name());
+        self::assertSame(0.8, $field->confidenceThreshold());
+        self::assertNull($field->parse(5));
+        self::assertNull($field->parse(-4.1));
+        self::assertSame(4, $field->parse('4'));
+    }
+
+    public function testBetweenFactory(): void
+    {
+        $field = NumericField::between(-4, 4);
+
+        self::assertSame(FieldType::Numeric, $field->type());
+        self::assertSame('numeric[-4,4]', $field->name());
+        self::assertSame(0.8, $field->confidenceThreshold());
+        self::assertNull($field->parse(5));
+        self::assertNull($field->parse(-4.1));
+        self::assertSame(0, $field->parse('0'));
+    }
+
+    public function testPositiveFactory(): void
+    {
+        $field = NumericField::positive(.5);
+
+        self::assertSame(FieldType::Numeric, $field->type());
+        self::assertSame('numeric[0,]', $field->name());
+        self::assertSame(0.5, $field->confidenceThreshold());
+    }
+
+    public function testNegativeFactory(): void
+    {
+        $field = NumericField::negative(1);
+
+        self::assertSame(FieldType::Numeric, $field->type());
+        self::assertSame('numeric[,0]', $field->name());
+        self::assertSame(1.0, $field->confidenceThreshold());
+    }
+
+    public function testItFailsToInstantiateBetweenFactoryWithInvalidValues(): void
+    {
+        $this->expectException(ValueError::class);
+
+        NumericField::between(4, -4);
     }
 }

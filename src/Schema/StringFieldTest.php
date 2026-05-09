@@ -18,6 +18,8 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use stdClass;
 
+#[CoversClass(StructuredStringConstraint::class)]
+#[CoversClass(StringLengthConstraint::class)]
 #[CoversClass(StringField::class)]
 final class StringFieldTest extends TestCase
 {

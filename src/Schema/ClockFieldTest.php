@@ -13,8 +13,10 @@ declare(strict_types=1);
 
 namespace League\Csv\Schema;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 
+#[CoversClass(ClockField::class)]
 final class ClockFieldTest extends TestCase
 {
     public function test_hours_constructor_parses_correctly(): void

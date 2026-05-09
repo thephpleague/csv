@@ -13,6 +13,8 @@ declare(strict_types=1);
 
 namespace League\Csv\Schema;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+
 use function filter_var;
 use function in_array;
 use function is_bool;
@@ -22,6 +24,7 @@ use function trim;
 use const FILTER_NULL_ON_FAILURE;
 use const FILTER_VALIDATE_BOOLEAN;
 
+#[CoversClass(BooleanField::class)]
 final class BooleanField extends FieldEvaluator implements Field
 {
     public function type(): FieldType

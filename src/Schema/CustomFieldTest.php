@@ -16,6 +16,7 @@ namespace League\Csv\Schema;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 
+#[CoversClass(CallbackFieldParser::class)]
 #[CoversClass(CustomField::class)]
 final class CustomFieldTest extends TestCase
 {
