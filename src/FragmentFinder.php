@@ -292,18 +292,17 @@ class FragmentFinder
      */
     private function parseRowColumnSelection(string $selection): array
     {
-        if (1 !== preg_match(self::REGEXP_ROWS_COLUMNS_SELECTION, $selection, $found)) {
+        if (1 !== preg_match(self::REGEXP_ROWS_COLUMNS_SELECTION, $selection, $found, PREG_UNMATCHED_AS_NULL)) {
             return [-1, 0];
         }
 
-        $start = $found['start'];
-        $end = $found['end'] ?? null;
-        $start = filter_var($start, FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]);
+        $start = filter_var($found['start'], FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]);
         if (false === $start) {
             return [-1, 0];
         }
         --$start;
 
+        $end = $found['end'];
         if (null === $end || '*' === $end) {
             return [$start, $end];
         }
