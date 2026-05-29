@@ -273,6 +273,37 @@ abstract class TabularDataReaderTestCase extends TestCase
             'expression' => 'cell=48,12',
             'expected' => null,
         ];
+
+        yield 'multiple single rows without range endpoint' => [
+            'expression' => 'row=1;3',
+            'expected' => [
+                0 => ['date', 'temperature', 'place'],
+                1 => ['2011-01-02', '-1', 'Galway'],
+            ],
+        ];
+
+        yield 'mixed single row and row range' => [
+            'expression' => 'row=1;3-5',
+            'expected' => [
+                0 => ['date', 'temperature', 'place'],
+                1 => ['2011-01-02', '-1', 'Galway'],
+                2 => ['2011-01-03', '0', 'Galway'],
+                3 => ['2011-01-01', '6', 'Berkeley'],
+            ],
+        ];
+
+        yield 'multiple single columns without range endpoint' => [
+            'expression' => 'col=1;3',
+            'expected' => [
+                0 => [0 => 'date', 2 => 'place'],
+                1 => [0 => '2011-01-01', 2 => 'Galway'],
+                2 => [0 => '2011-01-02', 2 => 'Galway'],
+                3 => [0 => '2011-01-03', 2 => 'Galway'],
+                4 => [0 => '2011-01-01', 2 => 'Berkeley'],
+                5 => [0 => '2011-01-02', 2 => 'Berkeley'],
+                6 => [0 => '2011-01-03', 2 => 'Berkeley'],
+            ],
+        ];
     }
 
     #[Test]
@@ -323,6 +354,7 @@ abstract class TabularDataReaderTestCase extends TestCase
             'expression selection is invalid for cell 7' => ['cell=1,0-2,3'],
             'expression selection is invalid for row or column 3' => ['row=0-3'],
             'expression selection is invalid for row or column 4' => ['row=3-0'],
+            'all single row selections are out of bounds' => ['row=0;0'],
         ];
     }
 
@@ -350,6 +382,23 @@ abstract class TabularDataReaderTestCase extends TestCase
         $this->expectException(FragmentNotFound::class);
 
         $this->tabularDataWithoutHeader()->matchingFirstOrFail('row=42');
+    }
+
+    #[Test]
+    public function it_throws_when_expression_contains_invalid_single_selection_alongside_valid(): void
+    {
+        $this->expectException(FragmentNotFound::class);
+
+        $this->tabularDataWithoutHeader()->matchingFirstOrFail('row=0;3');
+    }
+
+    #[Test]
+    public function it_returns_valid_rows_when_mixed_selection_contains_invalid_single_row(): void
+    {
+        $result = $this->tabularDataWithoutHeader()->matchingFirst('row=0;3');
+
+        self::assertNotNull($result);
+        self::assertSame([0 => ['2011-01-02', '-1', 'Galway']], [...$result]);
     }
 
     /***************************
