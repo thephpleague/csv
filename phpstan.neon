@@ -22,4 +22,3 @@ parameters:
     treatPhpDocTypesAsCertain: false
     parallel:
         processTimeout: 300.0
-

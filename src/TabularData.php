@@ -13,6 +13,7 @@ declare(strict_types=1);
 
 namespace League\Csv;
 
+use Closure;
 use Iterator;
 
 /**
@@ -24,6 +25,7 @@ use Iterator;
  * @method object|null lastAsObject(string $className, array $header = []) returns the last record from the tabular data as an instance of the defined class name.
  * @method Iterator map(callable $callback) Run a map over each container record.
  * @method Iterator getRecordsAsObject(string $className, array $header = []) Returns the tabular data records as an iterator object containing instance of the defined class name.
+ * @method mixed reduce(Closure $callback, mixed $initial = null) reduces the collection to a single value, passing the result of each iteration into the subsequent iteration
  */
 interface TabularData
 {
