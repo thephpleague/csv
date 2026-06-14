@@ -13,6 +13,7 @@ declare(strict_types=1);
 
 namespace League\Csv\Schema;
 
+use DateTimeInterface;
 use ValueError;
 
 use function array_map;
@@ -23,15 +24,15 @@ use function preg_match;
 use function strlen;
 use function trim;
 
-final class ClockField extends FieldEvaluator implements Field
+final class TimeField extends FieldEvaluator implements Field
 {
     /** @var non-empty-string */
     private readonly string $pattern;
 
     private function __construct(
         public readonly string $separator,
-        public readonly ClockPrecision $clockPrecision,
-        public readonly ClockStyle $clockStyle,
+        public readonly TimePrecision $precision,
+        public readonly TimePadding $padding,
         float $confidenceThreshold = 0.8
     ) {
         (1 === strlen($separator) && !ctype_digit($this->separator)) || throw new ValueError('The separator character must be a non-empty single byte string.');
@@ -41,19 +42,19 @@ final class ClockField extends FieldEvaluator implements Field
         $this->pattern = $this->generatePattern();
     }
 
-    public static function seconds(string $separator = ':', ClockStyle $clockStyle = ClockStyle::Padded, float $confidenceThreshold = 0.8): self
+    public static function seconds(string $separator = ':', TimePadding $padding = TimePadding::Padded, float $confidenceThreshold = 0.8): self
     {
-        return new self($separator, ClockPrecision::HoursMinutesSeconds, $clockStyle, $confidenceThreshold);
+        return new self($separator, TimePrecision::HoursMinutesSeconds, $padding, $confidenceThreshold);
     }
 
-    public static function minutes(string $separator = ':', ClockStyle $clockStyle = ClockStyle::Padded, float $confidenceThreshold = 0.8): self
+    public static function minutes(string $separator = ':', TimePadding $padding = TimePadding::Padded, float $confidenceThreshold = 0.8): self
     {
-        return new self($separator, ClockPrecision::HoursMinutes, $clockStyle, $confidenceThreshold);
+        return new self($separator, TimePrecision::HoursMinutes, $padding, $confidenceThreshold);
     }
 
-    public static function hours(string $separator = ':', ClockStyle $clockStyle = ClockStyle::Padded, float $confidenceThreshold = 0.8): self
+    public static function hours(string $separator = ':', TimePadding $padding = TimePadding::Padded, float $confidenceThreshold = 0.8): self
     {
-        return new self($separator, ClockPrecision::Hours, $clockStyle, $confidenceThreshold);
+        return new self($separator, TimePrecision::Hours, $padding, $confidenceThreshold);
     }
 
     public function type(): FieldType
@@ -68,22 +69,26 @@ final class ClockField extends FieldEvaluator implements Field
 
     public function name(): string
     {
-        $precision = match ($this->clockPrecision) {
-            ClockPrecision::Hours => 'hours',
-            ClockPrecision::HoursMinutes => 'hours_minutes',
-            ClockPrecision::HoursMinutesSeconds => 'hours_minutes_seconds',
+        $precision = match ($this->precision) {
+            TimePrecision::Hours => 'hours',
+            TimePrecision::HoursMinutes => 'hours_minutes',
+            TimePrecision::HoursMinutesSeconds => 'hours_minutes_seconds',
         };
 
-        $style = match ($this->clockStyle) {
-            ClockStyle::NonPadded => 'non_padded',
-            ClockStyle::Padded => 'padded',
+        $paddingMode = match ($this->padding) {
+            TimePadding::Unpadded => 'un_padded',
+            TimePadding::Padded => 'padded',
         };
 
-        return FieldType::Time->value.'(precision='.$precision.',style='.$style.',separator='.$this->separator.')';
+        return FieldType::Time->value.'(precision='.$precision.',padding='.$paddingMode.',separator='.$this->separator.')';
     }
 
     public function parse(mixed $value): ?string
     {
+        if ($value instanceof DateTimeInterface) {
+            return $value->format('H:i:s');
+        }
+
         if (!is_string($value)) {
             return null;
         }
@@ -116,14 +121,14 @@ final class ClockField extends FieldEvaluator implements Field
      */
     private function generatePattern(): string
     {
-        $digit = fn () => ClockStyle::Padded === $this->clockStyle ? '\d{2}' : '\d{1,2}';
+        $digit = fn () => TimePadding::Padded === $this->padding ? '\d{2}' : '\d{1,2}';
 
         $patternParts = array_map(
             fn (string $part): string => "(?<{$part}>".$digit().')',
-            match ($this->clockPrecision) {
-                ClockPrecision::Hours => ['hour'],
-                ClockPrecision::HoursMinutes => ['hour', 'minute'],
-                ClockPrecision::HoursMinutesSeconds => ['hour', 'minute', 'second'],
+            match ($this->precision) {
+                TimePrecision::Hours => ['hour'],
+                TimePrecision::HoursMinutes => ['hour', 'minute'],
+                TimePrecision::HoursMinutesSeconds => ['hour', 'minute', 'second'],
             }
         );
 

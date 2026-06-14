@@ -13,8 +13,9 @@ declare(strict_types=1);
 
 namespace League\Csv\Schema;
 
-enum ClockStyle
+enum TimePrecision
 {
-    case Padded;
-    case NonPadded;
+    case Hours;
+    case HoursMinutes;
+    case HoursMinutesSeconds;
 }
