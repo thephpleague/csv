@@ -27,7 +27,8 @@
     ],
     "require": {
         "php": "^8.2.0",
-        "ext-filter": "*"
+        "ext-filter": "*",
+        "symfony/polyfill-php86": "^1.37"
     },
     "require-dev": {
         "ext-dom": "*",
