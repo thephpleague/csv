@@ -22,23 +22,23 @@ final class ColumnTest extends QueryTestCase
 {
     #[Test]
     #[DataProvider('provideDirections')]
-    public function it_normalizes_the_direction(SortDirection|string|int $direction, SortDirection $expected): void
+    public function it_normalizes_the_direction(SortDirection|string|int $direction, string $expected): void
     {
         self::assertSame($expected, Column::sortOn('Country', $direction)->direction);
     }
 
     public static function provideDirections(): iterable
     {
-        yield 'ascending enum' => [SortDirection::Ascending, SortDirection::Ascending];
-        yield 'descending enum' => [SortDirection::Descending, SortDirection::Descending];
-        yield 'SORT_ASC' => [SORT_ASC, SortDirection::Ascending];
-        yield 'SORT_DESC' => [SORT_DESC, SortDirection::Descending];
-        yield 'Asc' => [' Asc ', SortDirection::Ascending];
-        yield 'ascending' => ['ascending', SortDirection::Ascending];
-        yield 'up' => ['up', SortDirection::Ascending];
-        yield 'Desc' => [' Desc ', SortDirection::Descending];
-        yield 'descending' => ['descending', SortDirection::Descending];
-        yield 'down' => ['down', SortDirection::Descending];
+        yield 'ascending enum' => [SortDirection::Ascending, 'ASC'];
+        yield 'descending enum' => [SortDirection::Descending, 'DESC'];
+        yield 'SORT_ASC' => [SORT_ASC, 'ASC'];
+        yield 'SORT_DESC' => [SORT_DESC, 'DESC'];
+        yield 'Asc' => [' Asc ', 'ASC'];
+        yield 'ascending' => ['ascending', 'ASC'];
+        yield 'up' => ['up', 'ASC'];
+        yield 'Desc' => [' Desc ', 'DESC'];
+        yield 'descending' => ['descending', 'DESC'];
+        yield 'down' => ['down', 'DESC'];
     }
 
     #[Test]

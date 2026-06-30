@@ -46,7 +46,7 @@
             "League\\Csv\\": "src"
         },
         "files": [
-            "src/polyfill86.php",
+            "polyfill/sort_direction.php",
             "src/functions_include.php"
         ]
     },

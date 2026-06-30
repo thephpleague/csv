@@ -34,14 +34,17 @@ use function trim;
  */
 final readonly class Column implements Sort
 {
+    public string $direction;
+
     /**
      * @param Closure(mixed, mixed): int $callback
      */
     private function __construct(
-        public SortDirection $direction,
+        SortDirection $direction,
         public string|int $column,
         public Closure $callback,
     ) {
+        $this->direction = self::stringifyDirection($direction);
     }
 
     /**
@@ -83,6 +86,14 @@ final readonly class Column implements Sort
         };
     }
 
+    private static function stringifyDirection(SortDirection $direction): string
+    {
+        return match ($direction) {
+            SortDirection::Ascending => 'ASC',
+            SortDirection::Descending => 'DESC',
+        };
+    }
+
     /**
      * @throws ReflectionException
      * @throws QueryException
@@ -93,8 +104,8 @@ final readonly class Column implements Sort
         $second = Row::from($valueB)->value($this->column);
 
         return match ($this->direction) {
-            SortDirection::Ascending => ($this->callback)($first, $second),
-            SortDirection::Descending => ($this->callback)($second, $first),
+            'ASC' => ($this->callback)($first, $second),
+            default => ($this->callback)($second, $first),
         };
     }
 
