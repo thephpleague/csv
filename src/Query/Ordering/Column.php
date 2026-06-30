@@ -54,8 +54,23 @@ final readonly class Column implements Sort
         SortDirection|string|int $direction,
         Closure|callable|null $callback = null
     ): self {
+        return new self(
+            self::normalizeDirection($direction),
+            $column,
+            match (true) {
+                null === $callback => static fn (mixed $first, mixed $second): int => $first <=> $second,
+                $callback instanceof Closure => $callback,
+                default => $callback(...),
+            }
+        );
+    }
 
-        $operator = match (true) {
+    /**
+     * @throws QueryException
+     */
+    private static function normalizeDirection(SortDirection|string|int $direction): SortDirection
+    {
+        return match (true) {
             $direction instanceof SortDirection => $direction,
             SORT_ASC === $direction => SortDirection::Ascending,
             SORT_DESC === $direction => SortDirection::Descending,
@@ -66,14 +81,6 @@ final readonly class Column implements Sort
             },
             default => throw new QueryException('Unknown or unsupported ordering operator value: '.$direction),
         };
-
-        $callback = match (true) {
-            null === $callback => static fn (mixed $first, mixed $second): int => $first <=> $second,
-            $callback instanceof Closure => $callback,
-            default => $callback(...),
-        };
-
-        return new self($operator, $column, $callback);
     }
 
     /**
