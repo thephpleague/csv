@@ -27,8 +27,7 @@
     ],
     "require": {
         "php": "^8.2.0",
-        "ext-filter": "*",
-        "symfony/polyfill-php86": "^1.37"
+        "ext-filter": "*"
     },
     "require-dev": {
         "ext-dom": "*",
@@ -46,7 +45,10 @@
         "psr-4": {
             "League\\Csv\\": "src"
         },
-        "files": ["src/functions_include.php"]
+        "files": [
+            "src/polyfill86.php",
+            "src/functions_include.php"
+        ]
     },
     "scripts": {
         "benchmark": "phpbench run src --report=default",

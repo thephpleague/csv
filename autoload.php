@@ -1,5 +1,6 @@
 <?php
 
+require __DIR__ . '/src/polyfill86.php';
 require __DIR__ . '/src/functions_include.php';
 
 spl_autoload_register(static function (string $class): void {
