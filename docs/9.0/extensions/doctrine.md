@@ -54,7 +54,6 @@ This extension package contains:
 use Doctrine\Common\Collections\Criteria;
 use League\Csv\Doctrine as CsvDoctrine;
 use League\Csv\Reader;
-use SortDirection;
 
 $csv = Reader::from('/path/to/my/file.csv');
 $csv->setHeaderOffset(0);
@@ -62,7 +61,7 @@ $csv->setDelimiter(';');
 
 $criteria = Criteria::create()
     ->andWhere(Criteria::expr()->eq('prenom', 'Adam'))
-    ->orderBy( [ 'annee' => SortDirection::Ascending, 'foo' => SortDirection::Descending, ] )
+    ->orderBy( [ 'annee' => 'ASC', 'foo' => 'desc', ] )
     ->setFirstResult(0)
     ->setMaxResults(10)
 ;
@@ -130,7 +129,6 @@ $collection = new RecordCollection($stmt->process($csv));
 use Doctrine\Common\Collections\Criteria;
 use League\Csv\Doctrine\CriteriaConverter;
 use League\Csv\Reader;
-use SortDirection;
 
 $csv = Reader::from('/path/to/my/file.csv');
 $csv->setHeaderOffset(0);
@@ -138,7 +136,7 @@ $csv->setDelimiter(';');
 
 $criteria = Criteria::create()
     ->andWhere(Criteria::expr()->eq('name', 'Adam'))
-    ->orderBy(['years', SortDirection::Ascending])
+    ->orderBy(['years', 'ASC'])
     ->setFirstResult(0)
     ->setMaxResults(10)
 ;
