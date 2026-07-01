@@ -11,7 +11,7 @@
 
 declare(strict_types=1);
 
-if (!enum_exists('SortDirection', false)) {
+if (PHP_VERSION_ID < 80600 && !enum_exists('SortDirection', false)) {
     enum SortDirection
     {
         case Ascending;

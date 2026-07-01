@@ -45,8 +45,10 @@
         "psr-4": {
             "League\\Csv\\": "src"
         },
+        "classmap": [
+            "polyfill"
+        ],
         "files": [
-            "polyfill/sort_direction.php",
             "src/functions_include.php"
         ]
     },
