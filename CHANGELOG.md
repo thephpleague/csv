@@ -16,7 +16,7 @@ All Notable changes to `Csv` will be documented in this file
 
 ### Fixed
 
-- None
+- `Writer::forceEnclosure` now doubles embedded enclosures when the escape character is the empty string.
 
 ### Remove
 
