@@ -21,6 +21,7 @@ use function array_fill_keys;
 use function array_keys;
 use function array_map;
 use function is_string;
+use function str_starts_with;
 
 /**
  * A Formatter to tackle CSV Formula Injection.
@@ -109,7 +110,7 @@ class EscapeFormula
 
         return match (true) {
             null == $strOrNull,
-            !isset($strOrNull[0], $this->special_chars[$strOrNull[0]]) => $cell,
+            !isset($this->special_chars[$strOrNull[0]]) && !str_starts_with($strOrNull, $this->escape) => $cell,
             default => $this->escape.$strOrNull,
         };
     }
@@ -124,10 +125,11 @@ class EscapeFormula
 
         return match (true) {
             null === $strOrNull,
-            !isset($strOrNull[0], $strOrNull[1]),
-            $strOrNull[0] !== $this->escape,
-            !isset($this->special_chars[$strOrNull[1]]) => $cell,
-            default => substr($strOrNull, 1),
+            !str_starts_with($strOrNull, $this->escape),
+            !isset($strOrNull[strlen($this->escape)]),
+            !isset($this->special_chars[$strOrNull[strlen($this->escape)]])
+                && !str_starts_with($strOrNull, $this->escape.$this->escape) => $cell,
+            default => substr($strOrNull, strlen($this->escape)),
         };
     }
 

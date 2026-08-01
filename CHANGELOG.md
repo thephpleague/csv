@@ -16,7 +16,7 @@ All Notable changes to `Csv` will be documented in this file
 
 ### Fixed
 
-- None
+- `EscapeFormula` round-trip now preserves fields starting with the escape character
 
 ### Remove
 
