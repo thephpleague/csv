@@ -16,6 +16,7 @@ All Notable changes to `Csv` will be documented in this file
 
 ### Fixed
 
+- `Writer::forceEnclosure` now doubles embedded enclosures when the escape character is the empty string.
 - `EscapeFormula` round-trip now preserves fields starting with the escape character
 
 ### Remove

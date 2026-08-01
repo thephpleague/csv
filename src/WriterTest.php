@@ -195,6 +195,72 @@ final class WriterTest extends TestCase
         self::assertFalse($writer->encloseAll());
     }
 
+    /**
+     * @param array<string> $record
+     *
+     * @see https://github.com/thephpleague/csv/issues/532
+     */
+    #[DataProvider('forceEnclosureEmptyEscapeProvider')]
+    public function testForceEnclosureWithEmptyEscapeDoublesQuotes(string $expected, array $record): void
+    {
+        $writer = Writer::fromString();
+        $writer->setEscape('');
+        $writer->forceEnclosure();
+        $writer->insertOne($record);
+
+        $csv = $writer->toString();
+        self::assertSame($expected."\n", $csv);
+
+        // the writer must be able to parse back its own output unchanged
+        $reader = Reader::fromString($csv);
+        $reader->setEscape('');
+        self::assertSame([$record], [...$reader->getRecords()]);
+    }
+
+    public static function forceEnclosureEmptyEscapeProvider(): array
+    {
+        return [
+            'embedded enclosure' => [
+                'expected' => '"va""lue","b"',
+                'record' => ['va"lue', 'b'],
+            ],
+            'consecutive enclosures' => [
+                'expected' => '"a""""b","c"',
+                'record' => ['a""b', 'c'],
+            ],
+            'enclosure and delimiter' => [
+                'expected' => '"x""y,z","d"',
+                'record' => ['x"y,z', 'd'],
+            ],
+            'delimiter only' => [
+                'expected' => '"p,q","e"',
+                'record' => ['p,q', 'e'],
+            ],
+            'embedded newline' => [
+                'expected' => "\"li\nne\",\"f\"",
+                'record' => ["li\nne", 'f'],
+            ],
+            'no special char' => [
+                'expected' => '"plain","x"',
+                'record' => ['plain', 'x'],
+            ],
+            'wrapped in enclosures' => [
+                'expected' => '"""wrap""","l"',
+                'record' => ['"wrap"', 'l'],
+            ],
+        ];
+    }
+
+    public function testForceEnclosureWithLegacyEscapeIsUnchanged(): void
+    {
+        $writer = Writer::fromString();
+        $writer->forceEnclosure();
+        $writer->insertOne(['to"to', 'foo\"bar']);
+
+        // the legacy non-empty escape path must keep doubling once, never twice
+        self::assertSame('"to""to","foo\"bar"'."\n", $writer->toString());
+    }
+
     public function testAddValidationRules(): void
     {
         $this->expectException(CannotInsertRecord::class);
