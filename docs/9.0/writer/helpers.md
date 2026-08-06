@@ -59,11 +59,11 @@ You can encode a single enum manually using the `encode()` method:
 ```php
 use League\Csv\EnumFormatter;
 
-$value = EnumFormatter::useJson()->encode(Pure::Foo);
+$value = EnumFormatter::usingJson()->encode(Pure::Foo);
 // returns "foo"
 ```
 
-When using `EnumFormatter::useJson()`, internally the `Pure` Enum must implement the `JsonSerializable` interface,
+When using `EnumFormatter::usingJson()`, internally the `Pure` Enum must implement the `JsonSerializable` interface,
 the formatter `encode()` method will return the call to the `jsonSerialize()` method. If an enum cannot be
 serialized using the selected strategy, a `TypeError` is thrown:
 
