@@ -652,4 +652,18 @@ CSV;
         // An explicitly closed file handle makes the stream filter resources invalid
         fclose($fp);
     }
+
+    public function test_handline_bom_expression_issue_586(): void
+    {
+        $bom = Bom::Utf8->value;
+        $contents = [
+            '"a,b",c' => ["a,b", "c"],
+            '"a'."\n".'b",c' => ['a'."\n".'b', "c"],
+        ];
+
+        foreach ($contents as $content => $expected) {
+            self::assertSame($expected, Reader::fromString($content)->first());
+            self::assertSame($expected, Reader::fromString($bom.$content)->first());
+        }
+    }
 }

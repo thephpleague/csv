@@ -533,10 +533,9 @@ class Reader extends AbstractCsv implements TabularDataReader, JsonSerializable
      */
     public function getRecords(array $header = []): Iterator
     {
-        return $this->combineHeader(
-            $this->prepareRecords(),
-            $this->prepareHeader($header)
-        );
+        $foundHeaders = $this->prepareHeader($header);
+
+        return $this->combineHeader($this->prepareRecords(), $foundHeaders);
     }
 
     /**
@@ -568,12 +567,12 @@ class Reader extends AbstractCsv implements TabularDataReader, JsonSerializable
     protected function prepareRecords(): Iterator
     {
         $normalized = fn ($record): bool => is_array($record) && ($this->is_empty_records_included || $record !== [null]);
-        $bom = null;
+        $document = $this->getDocument();
         if (!$this->is_input_bom_included) {
-            $bom = Bom::tryFrom($this->getInputBOM());
+            $document = SkipBomIterator::fromDocument($document, $this->delimiter, $this->enclosure, $this->escape);
         }
 
-        $records = $this->stripBOM(new CallbackFilterIterator($this->getDocument(), $normalized), $bom);
+        $records = new CallbackFilterIterator($document, $normalized);
         if (null !== $this->header_offset) {
             $records = new CallbackFilterIterator($records, fn (array $record, int $offset): bool => $offset !== $this->header_offset);
         }
@@ -587,6 +586,7 @@ class Reader extends AbstractCsv implements TabularDataReader, JsonSerializable
 
     /**
      * Strips the BOM sequence from the returned records if necessary.
+     * @deprecated
      */
     protected function stripBOM(Iterator $iterator, ?Bom $bom): Iterator
     {
