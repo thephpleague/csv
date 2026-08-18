@@ -20,58 +20,39 @@ use const SEEK_SET;
 /**
  * @internal
  */
-final class SkipBomIterator implements Iterator
+final readonly class SkipBomIterator implements Iterator
 {
-    public static function fromDocument(
-        SplFileObject|Stream $document,
-        string $delimiter = ',',
-        string $enclosure = '"',
-        string $escape = '\\',
-    ): self {
+    private int $offset;
 
-        return new self(
-            $document,
-            Bom::tryFromSequence($document)?->length() ?? 0,
-            $delimiter,
-            $enclosure,
-            $escape,
-        );
-    }
-
-    public function __construct(
-        private readonly SplFileObject|Stream $file,
-        private readonly int $offset,
-        private readonly string $delimiter = ',',
-        private readonly string $enclosure = '"',
-        private readonly string $escape = '\\',
-    ) {
-        $this->file->setFlags(SplFileObject::READ_CSV);
-        $this->file->setCsvControl($this->delimiter, $this->enclosure, $this->escape);
+    public function __construct(private SplFileObject|Stream $document)
+    {
+        $this->offset = Bom::tryFromSequence($document)?->length() ?? 0;
+        $this->document->setFlags(SplFileObject::READ_CSV);
     }
 
     public function current(): mixed
     {
-        return $this->file->current();
+        return $this->document->current();
     }
 
     public function fseek(int $offset, int $whence): int
     {
-        return $this->file->fseek($offset, $whence);
+        return $this->document->fseek($offset, $whence);
     }
 
     public function key(): int
     {
-        return $this->file->key();
+        return $this->document->key();
     }
 
     public function next(): void
     {
-        $this->file->next();
+        $this->document->next();
     }
 
     public function rewind(): void
     {
-        $this->file->rewind();
+        $this->document->rewind();
         if (0 !== $this->offset) {
             $this->fseek($this->offset, SEEK_SET);
         }
@@ -79,6 +60,6 @@ final class SkipBomIterator implements Iterator
 
     public function valid(): bool
     {
-        return !$this->file->eof();
+        return !$this->document->eof();
     }
 }

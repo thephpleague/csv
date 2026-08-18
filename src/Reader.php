@@ -569,7 +569,7 @@ class Reader extends AbstractCsv implements TabularDataReader, JsonSerializable
         $normalized = fn ($record): bool => is_array($record) && ($this->is_empty_records_included || $record !== [null]);
         $document = $this->getDocument();
         if (!$this->is_input_bom_included) {
-            $document = SkipBomIterator::fromDocument($document, $this->delimiter, $this->enclosure, $this->escape);
+            $document = new SkipBomIterator($document);
         }
 
         $records = new CallbackFilterIterator($document, $normalized);
