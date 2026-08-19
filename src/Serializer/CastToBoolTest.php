@@ -102,7 +102,7 @@ final class CastToBoolTest extends TestCase
 
         yield 'with a null type' => [
             'propertyType' => new ReflectionProperty((new class () {
-                public ?bool $boolean;
+                public ?bool $boolean = null;
             })::class, 'boolean'),
             'default' => null,
             'input' => null,
@@ -111,7 +111,7 @@ final class CastToBoolTest extends TestCase
 
         yield 'with another default type' => [
             'propertyType' => new ReflectionProperty((new class () {
-                public ?bool $nullableBool;
+                public ?bool $nullableBool = null;
             })::class, 'nullableBool'),
             'default' => false,
             'input' => null,
@@ -129,7 +129,7 @@ final class CastToBoolTest extends TestCase
 
         yield 'with union type' => [
             'propertyType' => new ReflectionProperty((new class () {
-                public DateTimeInterface|bool|null $unionType;
+                public DateTimeInterface|bool|null $unionType = null;
             })::class, 'unionType'),
             'default' =>  false,
             'input' => 'yes',
@@ -138,7 +138,7 @@ final class CastToBoolTest extends TestCase
 
         yield 'with nullable union type' => [
             'propertyType' => new ReflectionProperty((new class () {
-                public DateTimeInterface|bool|null $unionType;
+                public DateTimeInterface|bool|null $unionType = null;
             })::class, 'unionType'),
             'default' => false,
             'input' => null,
@@ -147,7 +147,7 @@ final class CastToBoolTest extends TestCase
 
         yield 'with a boolean false value' => [
             'propertyType' => new ReflectionProperty((new class () {
-                public DateTimeInterface|bool|null $unionType;
+                public DateTimeInterface|bool|null $unionType = null;
             })::class, 'unionType'),
             'default' => false,
             'input' => false,
@@ -156,7 +156,7 @@ final class CastToBoolTest extends TestCase
 
         yield 'with a boolean true value' => [
             'propertyType' => new ReflectionProperty((new class () {
-                public DateTimeInterface|bool|null $unionType;
+                public DateTimeInterface|bool|null $unionType = null;
             })::class, 'unionType'),
             'default' => false,
             'input' => true,
@@ -170,12 +170,12 @@ final class CastToBoolTest extends TestCase
         $this->expectException(MappingFailed::class);
 
         $class = new class () {
-            public ?bool $nullableBool;
+            public ?bool $nullableBool = null;
             public bool $boolean;
             public mixed $mixed;
             public string $string;
-            public ?int $nullableInt;
-            public DateTimeInterface|bool|null $unionType;
+            public ?int $nullableInt = null;
+            public DateTimeInterface|bool|null $unionType = null;
             public DateTimeInterface|string $invalidUnionType;
             public Countable&Traversable $intersectionType;
         };

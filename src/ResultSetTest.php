@@ -357,14 +357,14 @@ final class ResultSetTest extends TabularDataReaderTestCase
 
     public function testOrderBy(): void
     {
-        $calculated = (new Statement())->process($this->csv)->sorted(fn (array $rowA, array $rowB): int => strcmp($rowA[0], $rowB[0]));
+        $calculated = (new Statement())->process($this->csv)->sorted(fn (array $rowA, array $rowB): int => strcmp((string) $rowA[0], (string) $rowB[0]));
 
         self::assertSame(array_reverse($this->expected), array_values([...$calculated]));
     }
 
     public function testOrderByWithEquity(): void
     {
-        $calculated = (new Statement())->process($this->csv)->sorted(fn (array $rowA, array $rowB): int => strlen($rowA[0]) <=> strlen($rowB[0]));
+        $calculated = (new Statement())->process($this->csv)->sorted(fn (array $rowA, array $rowB): int => strlen((string) $rowA[0]) <=> strlen((string) $rowB[0]));
 
         self::assertSame($this->expected, array_values([...$calculated]));
     }

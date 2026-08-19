@@ -312,8 +312,8 @@ final class Denormalizer
                 $accessor,
                 $offset,
                 $this->resolveTypeCasting($reflectionProperty),
-                $this->mapRecord?->convertEmptyStringToNull ?? self::$convertEmptyStringToNull,
-                $this->mapRecord?->trimFieldValueBeforeCasting ?? false
+                $this->mapRecord->convertEmptyStringToNull ?? self::$convertEmptyStringToNull,
+                $this->mapRecord->trimFieldValueBeforeCasting ?? false
             ),
         };
     }
@@ -356,11 +356,11 @@ final class Denormalizer
         };
 
         $convertEmptyStringToNull = $mapCell->convertEmptyStringToNull
-            ?? $this->mapRecord?->convertEmptyStringToNull
+            ?? $this->mapRecord->convertEmptyStringToNull
             ?? self::$convertEmptyStringToNull;
 
         $trimFieldValueBeforeCasting = $mapCell->trimFieldValueBeforeCasting
-            ?? $this->mapRecord?->trimFieldValueBeforeCasting
+            ?? $this->mapRecord->trimFieldValueBeforeCasting
             ?? false;
 
         return match (true) {

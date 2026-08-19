@@ -39,12 +39,12 @@ final class RdbmsResult
      */
     public static function columnNames(PDOStatement|Result|mysqli_result|SQLite3Result $result): array
     {
-        return match (true) {
+        return array_values(array_filter(match (true) {
             $result instanceof PDOStatement => array_map(fn (int $index): string => $result->getColumnMeta($index)['name'] ?? throw new RuntimeException('Unable to get metadata for column '.$index), range(0, $result->columnCount() - 1)),
             $result instanceof mysqli_result => array_column($result->fetch_fields(), 'name'),
             $result instanceof Result => array_map(fn (int $index) => pg_field_name($result, $index), range(0, pg_num_fields($result) - 1)),
             $result instanceof SQLite3Result => array_map($result->columnName(...), range(0, $result->numColumns() - 1)),
-        };
+        }, is_string(...)));
     }
 
     /**
@@ -54,7 +54,9 @@ final class RdbmsResult
     {
         if ($result instanceof PDOStatement) {
             while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
-                yield $row; /* @phpstan-ignore-line */
+                if (is_array($row)) {
+                    yield $row;
+                }
             }
 
             return;

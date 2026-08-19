@@ -25,7 +25,6 @@ use Throwable;
 use TypeError;
 
 use function filter_var;
-use function get_class;
 use function get_resource_type;
 use function gettype;
 use function is_resource;
@@ -45,7 +44,7 @@ use const STREAM_FILTER_WRITE;
 /**
  * An abstract class to enable CSV document loading.
  */
-abstract class AbstractCsv implements ByteSequence
+abstract class AbstractCsv implements ByteSequence, Stringable
 {
     protected const STREAM_FILTER_MODE = STREAM_FILTER_READ;
 
@@ -177,7 +176,7 @@ abstract class AbstractCsv implements ByteSequence
      */
     public function getOutputBOM(): string
     {
-        return $this->output_bom?->value ?? '';
+        return $this->output_bom->value ?? '';
     }
 
     /**
@@ -190,7 +189,7 @@ abstract class AbstractCsv implements ByteSequence
             $this->input_bom = Bom::tryFromSequence($this->document);
         }
 
-        return $this->input_bom?->value ?? '';
+        return $this->input_bom->value ?? '';
     }
 
     /**
@@ -241,6 +240,8 @@ abstract class AbstractCsv implements ByteSequence
      * Returns the CSV document as a Generator of string chunk.
      *
      * @throws Exception if the number of bytes is less than 1
+     *
+     * @return Generator<int, string>
      */
     public function chunk(int $length): Generator
     {
@@ -292,7 +293,9 @@ abstract class AbstractCsv implements ByteSequence
         $bytes = 0;
         $output = new SplFileObject('php://output', 'wb');
         if (null !== $this->output_bom) {
-            $bytes += $output->fwrite($this->output_bom->value);
+            $newBytes = $output->fwrite($this->output_bom->value);
+            false !== $newBytes || throw new RuntimeException('Unable to read the document.');
+            $bytes += $newBytes;
         }
 
         $this->getInputBOM();
@@ -303,7 +306,10 @@ abstract class AbstractCsv implements ByteSequence
         while (!$this->document->eof()) {
             $chunk = $this->document->fread(8192);
             false !== $chunk || throw new RuntimeException('Unable to read the document.');
-            $bytes += $output->fwrite($chunk);
+            $newBytes = $output->fwrite($chunk);
+            false !== $newBytes || throw new RuntimeException('Unable to read the document.');
+            $bytes += $newBytes;
+
             $output->fflush();
         }
 
@@ -430,7 +436,7 @@ abstract class AbstractCsv implements ByteSequence
      */
     public function appendStreamFilterOnRead(string $filtername, mixed $params = null): static
     {
-        $this->document instanceof Stream || throw UnavailableFeature::dueToUnsupportedStreamFilterApi(get_class($this->document));
+        $this->document instanceof Stream || throw UnavailableFeature::dueToUnsupportedStreamFilterApi($this->document::class);
 
         $this->document->appendFilter($filtername, STREAM_FILTER_READ, $params);
         $this->stream_filters[$filtername] = true;
@@ -448,7 +454,7 @@ abstract class AbstractCsv implements ByteSequence
      */
     public function appendStreamFilterOnWrite(string $filtername, mixed $params = null): static
     {
-        $this->document instanceof Stream || throw UnavailableFeature::dueToUnsupportedStreamFilterApi(get_class($this->document));
+        $this->document instanceof Stream || throw UnavailableFeature::dueToUnsupportedStreamFilterApi($this->document::class);
 
         $this->document->appendFilter($filtername, STREAM_FILTER_WRITE, $params);
         $this->stream_filters[$filtername] = true;
@@ -466,7 +472,7 @@ abstract class AbstractCsv implements ByteSequence
      */
     public function prependStreamFilterOnWrite(string $filtername, mixed $params = null): static
     {
-        $this->document instanceof Stream || throw UnavailableFeature::dueToUnsupportedStreamFilterApi(get_class($this->document));
+        $this->document instanceof Stream || throw UnavailableFeature::dueToUnsupportedStreamFilterApi($this->document::class);
 
         $this->document->prependFilter($filtername, STREAM_FILTER_WRITE, $params);
         $this->stream_filters[$filtername] = true;
@@ -484,7 +490,7 @@ abstract class AbstractCsv implements ByteSequence
      */
     public function prependStreamFilterOnRead(string $filtername, mixed $params = null): static
     {
-        $this->document instanceof Stream || throw UnavailableFeature::dueToUnsupportedStreamFilterApi(get_class($this->document));
+        $this->document instanceof Stream || throw UnavailableFeature::dueToUnsupportedStreamFilterApi($this->document::class);
 
         $this->document->prependFilter($filtername, STREAM_FILTER_READ, $params);
         $this->stream_filters[$filtername] = true;

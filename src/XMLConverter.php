@@ -167,6 +167,8 @@ class XMLConverter
      * Creates a new DOMElement related to the given DOMDocument.
      *
      * **DOES NOT** attach to the DOMDocument
+     *
+     * @return ($doc is DOMDocument ? DOMElement : Element)
      */
     public function import(TabularDataProvider|TabularData|iterable $records, DOMDocument|XMLDocument $doc): DOMElement|Element
     {
@@ -183,6 +185,7 @@ class XMLConverter
         }
 
         $root = $doc->createElement($this->root_name);
+        false !== $root || throw new DOMException('The record could not be created.');
         foreach ($records as $offset => $record) {
             $root->appendChild($this->recordToElement($doc, $record, $offset));
         }
@@ -193,10 +196,13 @@ class XMLConverter
     /**
      * Converts a CSV record into a DOMElement and
      * adds its offset as DOMElement attribute.
+     *
+     * @return ($document is DOMDocument ? DOMElement : Element)
      */
     protected function recordToElement(DOMDocument|XMLDocument $document, array $record, int $offset): DOMElement|Element
     {
         $node = $document->createElement($this->record_name);
+        false !== $node || throw new DOMException('The record could not be created.');
         foreach ($record as $node_name => $value) {
             $node->appendChild($this->fieldToElement($document, (string) $value, $node_name));
         }
@@ -213,11 +219,14 @@ class XMLConverter
      *
      * Converts the CSV item into a DOMElement and adds the item offset
      * as attribute to the returned DOMElement
+     *
+     * @return ($document is DOMDocument ? DOMElement : Element)
      */
     protected function fieldToElement(DOMDocument|XMLDocument $document, string $value, int|string $node_name): DOMElement|Element
     {
         $node_name = (string) $node_name;
         $item = $document->createElement($this->field_name ?? $node_name);
+        false !== $item || throw new DOMException('Unable to create the '.($this->field_name ?? $node_name).' element.');
         $item->appendChild($document->createTextNode($value));
 
         if ('' !== $this->column_attr) {
@@ -258,7 +267,9 @@ class XMLConverter
             return null;
         }
 
-        return self::newXmlDocument(XMLDocument::class)->createElement($value)->tagName;
+        $element = self::newXmlDocument(XMLDocument::class)->createElement($value);
+
+        return false !== $element ? $element->tagName : throw new DOMException('The element could not be resolved.');
     }
 
     /**

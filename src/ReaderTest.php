@@ -184,7 +184,7 @@ EOF;
 
         $this->expectExceptionObject(SyntaxError::dueToDuplicateHeaderColumnNames(['field1']));
 
-        [...$csv];
+        $res = [...$csv];
     }
 
     public function testHeaderThrowsExceptionOnEmptyLine(): void
@@ -557,14 +557,14 @@ CSV;
 
     public function testOrderBy(): void
     {
-        $calculated = $this->csv->sorted(fn (array $rowA, array $rowB): int => strcmp($rowA[0], $rowB[0])); /* @phpstan-ignore-line */
+        $calculated = $this->csv->sorted(fn (array $rowA, array $rowB): int => strcmp((string) $rowA[0], (string) $rowB[0])); /* @phpstan-ignore-line */
 
         self::assertSame(array_reverse($this->expected), array_values([...$calculated]));
     }
 
     public function testOrderByWithEquity(): void
     {
-        $calculated = $this->csv->sorted(fn (array $rowA, array $rowB): int => strlen($rowA[0]) <=> strlen($rowB[0])); /* @phpstan-ignore-line */
+        $calculated = $this->csv->sorted(fn (array $rowA, array $rowB): int => strlen((string) $rowA[0]) <=> strlen((string) $rowB[0]));  /* @phpstan-ignore-line */
 
         self::assertSame($this->expected, array_values([...$calculated]));
     }
@@ -657,8 +657,8 @@ CSV;
     {
         $bom = Bom::Utf8->value;
         $contents = [
-            '"a,b",c' => ["a,b", "c"],
-            '"a'."\n".'b",c' => ['a'."\n".'b', "c"],
+            '"a,b",c' => ['a,b', 'c'],
+            '"a'."\n".'b",c' => ['a'."\n".'b', 'c'],
         ];
 
         foreach ($contents as $content => $expected) {
@@ -672,6 +672,6 @@ CSV;
         $csv = Reader::fromString(Bom::Utf8->value.'"a,b",c'."\n".'1,2');
         $csv->setHeaderOffset(0);
 
-        self::assertSame(["a,b","c"], $csv->getHeader());
+        self::assertSame(['a,b', 'c'], $csv->getHeader());
     }
 }

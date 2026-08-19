@@ -33,7 +33,7 @@ final class CastToArrayTest extends TestCase
     public function testItCanConvertToArraygWithoutArguments(string $shape, string $type, string|array $input, array $expected): void
     {
         $cast = new CastToArray(new ReflectionProperty((new class () {
-            public ?iterable $nullableIterable;
+            public ?iterable $nullableIterable = null;
         })::class, 'nullableIterable'));
         $cast->setOptions(shape:$shape, type:$type);
 
@@ -111,14 +111,14 @@ final class CastToArrayTest extends TestCase
         $this->expectException(MappingFailed::class);
 
         new CastToArray(new ReflectionProperty((new class () {
-            public ?int $nullableInt;
+            public ?int $nullableInt = null;
         })::class, 'nullableInt'));
     }
 
     public function testItFailsToCastInvalidJson(): void
     {
         $object = new class () {
-            public ?iterable $nullableIterable;
+            public ?iterable $nullableIterable = null;
         };
 
         $this->expectException(TypeCastingFailed::class);
@@ -134,7 +134,7 @@ final class CastToArrayTest extends TestCase
         $defaultValue = ['toto'];
 
         $cast = new CastToArray(new ReflectionProperty((new class () {
-            public ?iterable $nullableIterable;
+            public ?iterable $nullableIterable = null;
         })::class, 'nullableIterable'));
         $cast->setOptions(default: $defaultValue, shape: 'json');
 
@@ -147,9 +147,9 @@ final class CastToArrayTest extends TestCase
         $this->expectException(MappingFailed::class);
 
         $class = new class () {
-            public ?int $nullableInt;
+            public ?int $nullableInt = null;
             public array $array;
-            public DateTimeInterface|array|null $unionType;
+            public DateTimeInterface|array|null $unionType = null;
             public DateTimeInterface|string $invalidUnionType;
             public Countable&Traversable $intersectionType;
         };
@@ -172,7 +172,7 @@ final class CastToArrayTest extends TestCase
     public function it_can_trim_array_value_if_applicable(): void
     {
         $cast = new CastToArray(new ReflectionProperty((new class () {
-            public ?iterable $nullableIterable;
+            public ?iterable $nullableIterable = null;
         })::class, 'nullableIterable'));
         $cast->setOptions(shape: 'list', trimElementValueBeforeCasting: true);
 

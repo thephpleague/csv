@@ -170,7 +170,7 @@ final class Stream implements SeekableIterator
      */
     public function getPathname(): string
     {
-        return stream_get_meta_data($this->stream)['uri'];
+        return stream_get_meta_data($this->stream)['uri'] ?? '';
     }
 
     /**
@@ -453,7 +453,7 @@ final class Stream implements SeekableIterator
      *
      * @see https://www.php.net/manual/en/splfileobject.fpassthru.php
      */
-    public function fpassthru(): int|false
+    public function fpassthru(): int
     {
         return fpassthru($this->stream);
     }

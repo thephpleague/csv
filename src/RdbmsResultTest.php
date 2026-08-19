@@ -61,8 +61,9 @@ SQL;
         $stmt = $db->prepare('SELECT * FROM users');
         /** @var SQLite3Result $result */
         $result = $stmt->execute();
-        /** @var TabularData $tabularData */
+
         $tabularData = ResultSet::tryFrom($result);
+        self::assertNotNull($tabularData);
 
         self::assertSame(['id', 'name', 'email'], $tabularData->getHeader());
         self::assertSame(6, iterator_count($tabularData->getRecords()));
@@ -102,8 +103,9 @@ SQL;
 
         $stmt = $connection->prepare('SELECT * FROM users');
         $stmt->execute();
-        /** @var TabularData $tabularData */
+
         $tabularData = ResultSet::tryFrom($stmt);
+        self::assertNotNull($tabularData);
 
         self::assertSame(['id', 'name', 'email'], $tabularData->getHeader());
         self::assertSame(6, iterator_count($tabularData->getRecords()));

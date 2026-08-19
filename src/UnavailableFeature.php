@@ -13,7 +13,6 @@ declare(strict_types=1);
 
 namespace League\Csv;
 
-use Deprecated;
 use Throwable;
 
 /**
@@ -21,11 +20,6 @@ use Throwable;
  */
 class UnavailableFeature extends Exception
 {
-    /**
-     * DEPRECATION WARNING! This class will be removed in the next major point release.
-     *
-     * @deprecated since version 9.7.0
-     */
     public function __construct(string $message = '', int $code = 0, ?Throwable $previous = null)
     {
         parent::__construct($message, $code, $previous);
