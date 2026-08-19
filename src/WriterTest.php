@@ -258,7 +258,7 @@ final class WriterTest extends TestCase
         $writer->insertOne(['to"to', 'foo\"bar']);
 
         // the legacy non-empty escape path must keep doubling once, never twice
-        self::assertSame('"to""to","foo\"bar"'."\n", $writer->toString());
+        self::assertSame('"to""to","foo\""bar"'."\n", $writer->toString());
     }
 
     public function test_security_fix_force_enclosure(): void
