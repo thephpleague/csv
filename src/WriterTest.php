@@ -189,7 +189,7 @@ final class WriterTest extends TestCase
 
         self::assertStringContainsString('"1","2"'."\n", $csv);
         self::assertStringContainsString('"value 2-0","value 2-1"'."\n", $csv);
-        self::assertStringContainsString('"to""to","foo\"bar"'."\n", $csv);
+        self::assertStringContainsString('"to""to","foo\""bar"'."\n", $csv);
 
         $writer->necessaryEnclosure();
         self::assertFalse($writer->encloseAll());
@@ -258,7 +258,22 @@ final class WriterTest extends TestCase
         $writer->insertOne(['to"to', 'foo\"bar']);
 
         // the legacy non-empty escape path must keep doubling once, never twice
-        self::assertSame('"to""to","foo\"bar"'."\n", $writer->toString());
+        self::assertSame('"to""to","foo\""bar"'."\n", $writer->toString());
+    }
+
+    public function test_security_fix_force_enclosure(): void
+    {
+        $record = ['a"b,INJECTED', 'col2'];
+        $writer = Writer::fromString()
+            ->forceEnclosure();
+
+        $writer->insertOne($record);
+        self::assertSame('"a""b,INJECTED","col2"'."\n", $writer->toString());
+
+        $reader = Reader::fromString($writer->toString())
+            ->setEscape('');
+
+        self::assertSame($record, $reader->first());
     }
 
     public function testAddValidationRules(): void
