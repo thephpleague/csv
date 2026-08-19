@@ -69,7 +69,7 @@ final class EnumFormatterTest extends TestCase
         $doc->addFormatter(EnumFormatter::usingValue());
 
         $this->expectException(TypeError::class);
-        $this->expectExceptionMessageIsOrContains('The Enum `'.Pure::class.'` cannot be encoded using the "value" strategy');
+        $this->expectExceptionMessage('The Enum `'.Pure::class.'` cannot be encoded using the "value" strategy');
 
         $doc->insertOne($arr);
     }
@@ -81,7 +81,7 @@ final class EnumFormatterTest extends TestCase
         $doc->addFormatter(EnumFormatter::usingJson());
 
         $this->expectException(TypeError::class);
-        $this->expectExceptionMessageIsOrContains('The Enum `'.WithoutJson::class.'` cannot be encoded using the "json" strategy');
+        $this->expectExceptionMessage('The Enum `'.WithoutJson::class.'` cannot be encoded using the "json" strategy');
 
         $doc->insertOne($arr);
     }
@@ -93,7 +93,7 @@ final class EnumFormatterTest extends TestCase
         $doc->addFormatter(EnumFormatter::usingJson());
 
         $this->expectException(TypeError::class);
-        $this->expectExceptionMessageIsOrContains('The Enum `'.WithoutJson::class.'` cannot be encoded using the "json" strategy');
+        $this->expectExceptionMessage('The Enum `'.WithoutJson::class.'` cannot be encoded using the "json" strategy');
 
         $doc->insertOne($arr);
     }

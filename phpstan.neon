@@ -8,6 +8,7 @@ parameters:
         - identifier: missingType.generics
         - identifier: missingType.iterableValue
         - '#implements deprecated interface League\\Csv\\ByteSequence#'
+        - '#Call to deprecated method expectExceptionMessage\(\) of class PHPUnit\\Framework\\TestCase:#'
     level: 9
     paths:
         - src

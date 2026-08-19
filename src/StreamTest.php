@@ -76,7 +76,7 @@ final class StreamTest extends TestCase
     {
         $path = 'no/such/file.csv';
         $this->expectException(UnavailableStream::class);
-        $this->expectExceptionMessageIsOrContains('`'.$path.'`: failed to open stream: No such file or directory');
+        $this->expectExceptionMessage('`'.$path.'`: failed to open stream: No such file or directory');
         Stream::from($path);
     }
 
@@ -206,7 +206,7 @@ final class StreamTest extends TestCase
     {
         $filtername = 'foo.bar';
         $this->expectException(InvalidArgument::class);
-        $this->expectExceptionMessageIsOrContains('unable to locate filter `'.$filtername.'`');
+        $this->expectExceptionMessage('unable to locate filter `'.$filtername.'`');
         $stream = Stream::from('php://temp', 'r+');
         $stream->appendFilter($filtername, STREAM_FILTER_READ);
     }
