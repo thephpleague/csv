@@ -169,7 +169,7 @@ final class StatementTest extends TestCase
     public function testOrderBy(): void
     {
         $calculated = $this->stmt
-            ->orderBy(fn (array $rowA, array $rowB): int => strcmp((string) $rowA[0], (string) $rowB[0]))
+            ->orderBy(fn (array $rowA, array $rowB): int => strcmp((string) $rowA[0], (string) $rowB[0]))  /* @phpstan-ignore-line */
             ->process($this->csv);
 
         self::assertSame(array_reverse($this->expected), array_values([...$calculated]));
@@ -200,7 +200,7 @@ final class StatementTest extends TestCase
     public function testOrderByWithEquity(): void
     {
         $calculated = $this->stmt
-            ->orderBy(fn (array $rowA, array $rowB): int => strlen((string) $rowA[0]) <=> strlen((string) $rowB[0]))
+            ->orderBy(fn (array $rowA, array $rowB): int => strlen((string) $rowA[0]) <=> strlen((string) $rowB[0]))  /* @phpstan-ignore-line */
             ->process($this->csv);
 
         self::assertSame($this->expected, array_values([...$calculated]));
@@ -235,7 +235,7 @@ CSV;
         $constraints = (new Statement())
             ->select('Integer', 'Text', 'Date and Time')
             ->where(fn (array $record): bool => (float) $record['Float'] < 1.3)
-            ->orderBy(fn (array $record1, array $record2): int => (int) $record2['Integer'] <=> (int) $record1['Integer'])
+            ->orderBy(fn (array $record1, array $record2): int => (int) $record2['Integer'] <=> (int) $record1['Integer']) /* @phpstan-ignore-line */
             ->limit(5)
             ->offset(2);
 

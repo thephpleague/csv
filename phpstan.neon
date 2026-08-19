@@ -8,7 +8,7 @@ parameters:
         - identifier: missingType.generics
         - identifier: missingType.iterableValue
         - '#implements deprecated interface League\\Csv\\ByteSequence#'
-    level: 8
+    level: 9
     paths:
         - src
     reportUnmatchedIgnoredErrors: true

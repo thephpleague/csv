@@ -141,9 +141,15 @@ final class SwapDelimiter extends php_user_filter
         }
 
         $mode = $this->params['mode'] ?? '';
+        $mb_separator = $this->params['mb_separator'] ?? '';
+        $separator = $this->params['separator'] ?? '';
+        if (!is_string($mb_separator) || !is_string($separator)) {
+            return false;
+        }
+
         [$this->search, $this->replace] = match ($mode) {
-            self::MODE_READ => [trim($this->params['mb_separator'] ?? ''), trim($this->params['separator'] ?? '')],
-            self::MODE_WRITE => [trim($this->params['separator'] ?? ''), trim($this->params['mb_separator'] ?? '')],
+            self::MODE_READ => [trim($mb_separator), trim($separator)],
+            self::MODE_WRITE => [trim($separator), trim($mb_separator)],
             default => ['', ''],
         };
 

@@ -240,6 +240,8 @@ abstract class AbstractCsv implements ByteSequence, Stringable
      * Returns the CSV document as a Generator of string chunk.
      *
      * @throws Exception if the number of bytes is less than 1
+     *
+     * @return Generator<int, string>
      */
     public function chunk(int $length): Generator
     {

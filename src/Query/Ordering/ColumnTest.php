@@ -68,7 +68,7 @@ final class ColumnTest extends QueryTestCase
             Column::sortOn(
                 'Country',
                 SortDirection::Descending,
-                fn (string $first, string $second): int => strlen($first) <=> strlen($second)
+                fn (string $a, string $b): int => strlen($a) <=> strlen($b)  /* @phpstan-ignore-line */
             )
         );
 

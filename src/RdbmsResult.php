@@ -54,7 +54,9 @@ final class RdbmsResult
     {
         if ($result instanceof PDOStatement) {
             while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
-                yield $row;
+                if (is_array($row)) {
+                    yield $row;
+                }
             }
 
             return;

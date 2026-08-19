@@ -221,6 +221,7 @@ TEXT;
         $newText = '';
         $file = Stream::fromString($text);
         $file->setMaxLineLen(20);
+        /** @var string $line */
         foreach ($file as $line) {
             $newText .= $line."\n";
         }
