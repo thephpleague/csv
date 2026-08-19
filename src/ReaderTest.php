@@ -653,7 +653,7 @@ CSV;
         fclose($fp);
     }
 
-    public function test_handline_bom_expression_issue_586(): void
+    public function test_handline_bom_expression_in_records_issue_586(): void
     {
         $bom = Bom::Utf8->value;
         $contents = [
@@ -665,5 +665,13 @@ CSV;
             self::assertSame($expected, Reader::fromString($content)->first());
             self::assertSame($expected, Reader::fromString($bom.$content)->first());
         }
+    }
+
+    public function test_handline_bom_expression_in_heasders_issue_586(): void
+    {
+        $csv = Reader::fromString(Bom::Utf8->value.'"a,b",c'."\n".'1,2');
+        $csv->setHeaderOffset(0);
+
+        self::assertSame(["a,b","c"], $csv->getHeader());
     }
 }
