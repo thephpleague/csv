@@ -144,6 +144,31 @@ with the `getRecords` method.
 <p class="message-info">You can get more info on how to configure your class to enable this feature by
 visiting the <a href="/9.0/reader/record-mapping">record mapping documentation</a> page</p>
 
+### inferRecords
+
+<p class="message-notice"><code>inferRecords</code> Added in version <code>9.29.0</code> for <code>Reader</code> and <code>ResultSet</code>.</p>
+
+If you want to read your CSV records using types inferred from the document, you can use the `inferRecords` method.
+
+```php
+$csv = Reader::fromString($document);
+$csv->setHeaderOffset(0);
+
+foreach ($csv->inferRecords() as $record) {
+// $record contains values parsed according to the inferred schema
+}
+```
+
+The `inferRecords` method uses schema inference to determine the type of each column and parses each record accordingly.
+
+An optional `Inspector` instance can be provided to customize how the schema is inferred:
+
+```php
+$records = $csv->inferRecords($inspector);
+```
+
+<p class="message-info">You can get more information about schema inference and how to customize the inference process by visiting the <a href="/9.0/reader/record-type-inference">record type inference documentation</a> page.</p>
+
 ### value, first, last, nth, firstAsObject, lastAsObject and nthAsObject
 
 <p class="message-notice"><code>firstAsObject and nthAsObject</code> were added in version <code>9.14.0</code> for <code>Reader</code> and <code>ResultSet</code>.</p>

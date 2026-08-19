@@ -8,7 +8,7 @@ description: Converts your CSV records into PHP objects using PHP's powerful Ref
 
 <p class="message-notice">New in version <code>9.12.0</code></p>
 
-If you are working with a class which implements the `TabularDataReader` interface you can now deserialize
+If you are working with a class which implements the `TabularData` interface you can now deserialize
 your data using the `TabularDataReader::getRecordsAsObject` method. The method will convert your document records
 into objects using PHP's powerful Reflection API.
 
