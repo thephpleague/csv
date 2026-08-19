@@ -242,7 +242,7 @@ $document->setHeaderOffset(0); //the Reader header will be imported alongside it
 $buffer = Buffer::from($document);  
 $buffer->isEmpty(); // returns false
 $buffer->hasHeader(); // return true
-$buffer->truncrate();
+$buffer->truncate();
 $buffer->isEmpty(); // returns true
 $buffer->hasHeader(); // return true
 ```
