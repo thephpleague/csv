@@ -110,7 +110,6 @@ final class JsonConverter
     public readonly ?Closure $formatter;
     /** @var int<1, max> */
     public readonly int $chunkSize;
-    public readonly JsonFormat $format;
     private readonly string $start;
     private readonly string $end;
     private readonly string $separator;
@@ -136,7 +135,7 @@ final class JsonConverter
         int $indentSize = 4,
         ?callable $formatter = null,
         int $chunkSize = 500,
-        JsonFormat $jsonFormat = JsonFormat::Standard,
+        public readonly JsonFormat $format = JsonFormat::Standard,
     ) {
         json_encode([], $flags & ~JSON_THROW_ON_ERROR, $depth);
 
@@ -148,7 +147,6 @@ final class JsonConverter
         $this->depth = $depth;
         $this->indentSize = $indentSize;
         $this->formatter = ($formatter instanceof Closure || null === $formatter) ? $formatter : $formatter(...);
-        $this->format = $jsonFormat;
 
         // Initialize settings and closure to use for conversion.
         // To speed up the process, we pre-calculate them
@@ -247,7 +245,7 @@ final class JsonConverter
     public function withPrettyPrint(?int $indentSize = null): self
     {
         $flags = $this->flags | JSON_PRETTY_PRINT;
-        $indentSize = $indentSize ?? $this->indentSize;
+        $indentSize ??= $this->indentSize;
 
         return match (true) {
             $flags === $this->flags && $indentSize === $this->indentSize => $this,
@@ -602,7 +600,7 @@ final class JsonConverter
             indentSize: 4,
             formatter: null,
             chunkSize: 500,
-            jsonFormat: JsonFormat::Standard
+            format: JsonFormat::Standard
         );
     }
 }

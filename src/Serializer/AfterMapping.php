@@ -24,18 +24,16 @@ use ReflectionClass;
  * @see MapRecord
  */
 #[Attribute(Attribute::TARGET_CLASS)]
-final class AfterMapping
+final readonly class AfterMapping
 {
-    public readonly MapRecord $mapRecord;
-    public readonly array $methods;
-
+    public MapRecord $mapRecord;
+    public array $methods;
     #[Deprecated(message: 'use League\Csv\Serializer\MapRecord instead', since: 'league/csv:9.17.0')]
     public function __construct(string ...$methods)
     {
         $this->mapRecord = new MapRecord($methods);
         $this->methods = $this->mapRecord->afterMapping;
     }
-
     public static function from(ReflectionClass $class): ?self
     {
         $attributes = $class->getAttributes(self::class, ReflectionAttribute::IS_INSTANCEOF);

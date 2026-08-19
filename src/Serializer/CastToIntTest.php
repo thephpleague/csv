@@ -49,9 +49,9 @@ final class CastToIntTest extends TestCase
     public static function providesValidStringForInt(): iterable
     {
         $class = new class () {
-            public ?float $nullableFloat;
-            public ?int $nullableInt;
-            public DateTimeInterface|int|null $unionType;
+            public ?float $nullableFloat = null;
+            public ?int $nullableInt = null;
+            public DateTimeInterface|int|null $unionType = null;
         };
 
         yield 'positive integer' => [
@@ -135,7 +135,7 @@ final class CastToIntTest extends TestCase
     public function testItFailsToConvertNonIntegerString(): void
     {
         $object = new class () {
-            public ?int $nullableInt;
+            public ?int $nullableInt = null;
         };
 
         $this->expectException(TypeCastingFailed::class);
@@ -150,7 +150,7 @@ final class CastToIntTest extends TestCase
         $this->expectException(MappingFailed::class);
 
         $class = new class () {
-            public ?bool $nullableBool;
+            public ?bool $nullableBool = null;
             public DateTimeInterface|string $invalidUnionType;
             public Countable&Traversable $intersectionType;
         };

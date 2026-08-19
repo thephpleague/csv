@@ -59,10 +59,14 @@ class Writer extends AbstractCsv implements TabularDataWriter
     {
         parent::resetProperties();
 
-        $this->enclosure_replace = [
-            [$this->enclosure, $this->escape.$this->enclosure.$this->enclosure],
-            [$this->enclosure.$this->enclosure, $this->escape.$this->enclosure],
-        ];
+        // With an empty escape the two-step replacement cancels itself, so
+        // fall back to plain RFC-4180 enclosure doubling as fputcsv does.
+        $this->enclosure_replace = '' === $this->escape
+            ? [[$this->enclosure], [$this->enclosure.$this->enclosure]]
+            : [
+                [$this->enclosure, $this->escape.$this->enclosure.$this->enclosure],
+                [$this->enclosure.$this->enclosure, $this->escape.$this->enclosure],
+            ];
     }
 
     protected function insertRecord(array $record): int|false
@@ -71,8 +75,11 @@ class Writer extends AbstractCsv implements TabularDataWriter
             self::ENCLOSE_ALL => $this->document->fwrite(implode(
                 $this->delimiter,
                 array_map(
-                    fn ($content) => $this->enclosure.$content.$this->enclosure,
-                    str_replace($this->enclosure_replace[0], $this->enclosure_replace[1], $record)
+                    fn ($content): string =>
+                         $this->enclosure
+                         .str_replace($this->enclosure, $this->enclosure.$this->enclosure, (string) $content)
+                         .$this->enclosure,
+                    $record
                 )
             ).$this->newline),
             self::ENCLOSE_NONE => $this->document->fwrite(implode($this->delimiter, $record).$this->newline),

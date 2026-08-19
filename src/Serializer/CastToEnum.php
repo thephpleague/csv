@@ -57,7 +57,7 @@ class CastToEnum implements TypeCasting
         bool $emptyStringAsNull = false,
     ): void {
         if (Type::Mixed->equals($this->type) || in_array($this->class, [BackedEnum::class , UnitEnum::class], true)) {
-            (null !== $className && enum_exists($className)) || throw new MappingFailed('`'.$this->info->targetName.'` type is `'.($this->class ?? 'mixed').'` but the specified class via the `$className` argument is invalid or could not be found.');
+            (null !== $className && enum_exists($className)) || throw new MappingFailed('`'.$this->info->targetName.'` type is `'.($this->class).'` but the specified class via the `$className` argument is invalid or could not be found.');
             $this->class = $className;
         }
 

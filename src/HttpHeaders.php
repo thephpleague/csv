@@ -50,9 +50,9 @@ final class HttpHeaders
         $disposition = 'attachment;filename="'.str_replace('"', '\\"', $fallbackName).'"';
         if ($filename !== $fallbackName) {
             $disposition .= ";filename*=UTF-8''".preg_replace_callback(
-                '/[%"\x00-\x1F\x7F-\xFF]/',
-                static fn (array $matches): string => strtolower(rawurlencode($matches[0])),
-                $filename
+                pattern:'/[^A-Za-z0-9!#$&+\-.^_`|~]/',
+                callback: static fn (array $matches): string => strtolower(rawurlencode($matches[0])),
+                subject: $filename
             );
         }
 

@@ -56,13 +56,13 @@ final class Buffer implements TabularData
     public const INCLUDE_HEADER = 1;
     public const EXCLUDE_HEADER = 2;
 
-    /** @var list<string>|array{} */
+    /** @var array<string>|array{} */
     private readonly array $header;
-    /** @var list<string>|array{} */
+    /** @var array<string>|array{} */
     private readonly array $sortedHeader;
     /** @var array<string, null> */
     private readonly array $nullRecord;
-    /** @var array<int, list<mixed>> */
+    /** @var array<int, array<mixed>> */
     private array $rows = [];
     /** @var array<Closure(array): bool> callable collection to validate the record before insertion. */
     private array $validators = [];
@@ -100,11 +100,11 @@ final class Buffer implements TabularData
 
         /** @var Iterator<int, array> $rows */
         $rows = $dataStorage instanceof TabularData ? $dataStorage->getRecords() : RdbmsResult::rows($dataStorage);
-        $instance = new self(match (true) {
+        $instance = new self(array_values(match (true) {
             self::EXCLUDE_HEADER === $options => [],
             $dataStorage instanceof TabularData => $dataStorage->getHeader(),
             default => RdbmsResult::columnNames($dataStorage),
-        });
+        }));
 
         /**
          * @var int $offset
@@ -285,7 +285,13 @@ final class Buffer implements TabularData
      */
     public function firstAsObject(string $className, array $header = []): ?object
     {
-        if ([] === ($row = $this->rows[$this->firstOffset()] ?? [])) {
+        $offset = $this->firstOffset();
+        if (null === $offset) {
+            return null;
+        }
+
+        $row =  $this->rows[$offset] ?? [];
+        if ([] === $row) {
             return null;
         }
 
@@ -310,7 +316,13 @@ final class Buffer implements TabularData
      */
     public function lastAsObject(string $className, array $header = []): ?object
     {
-        if ([] === ($row = $this->rows[$this->lastOffset()] ?? [])) {
+        $offset = $this->lastOffset();
+        if (null === $offset) {
+            return null;
+        }
+
+        $row =  $this->rows[$offset] ?? [];
+        if ([] === $row) {
             return null;
         }
 

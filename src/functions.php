@@ -29,7 +29,7 @@ use Deprecated;
 #[Deprecated(message:'use League\Csv\Bom::tryFromSequence()', since:'league/csv:9.7.0')]
 function bom_match(string $str): string
 {
-    return Bom::tryFromSequence($str)?->value ?? '';
+    return Bom::tryFromSequence($str)->value ?? '';
 }
 
 /**

@@ -107,6 +107,7 @@ class EncloseField extends php_user_filter
     {
         return is_array($this->params)
             && isset($this->params['sequence'])
+            && is_string($this->params['sequence'])
             && self::isValidSequence($this->params['sequence']);
     }
 

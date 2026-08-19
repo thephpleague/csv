@@ -42,7 +42,7 @@ final class CallbackCasting implements TypeCasting
     /** @var Closure(mixed, bool, mixed...): mixed */
     private Closure $callback;
     private array $options = [];
-    private string $message;
+    private readonly string $message;
     private readonly TypeCastingInfo $info;
 
     public function __construct(

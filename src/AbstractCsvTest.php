@@ -108,7 +108,7 @@ EOF;
     {
         $this->expectException(UnavailableStream::class);
 
-        clone $this->csv;
+        $res = clone $this->csv;
     }
 
     public function testOutputSize(): void

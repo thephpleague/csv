@@ -485,7 +485,7 @@ final class DenormalizerTest extends TestCase
     {
         $record = ['foo' => ''];
         $foobar = new class () {
-            public ?string $foo;
+            public ?string $foo = null;
         };
 
         Denormalizer::disallowEmptyStringAsNull(); /* @phpstan-ignore-line */
@@ -500,7 +500,7 @@ final class DenormalizerTest extends TestCase
     public function testResolvesMethodWithUntypedParameterToStringByDefaultUsingCell(): void
     {
         $class = new class () {
-            private ?string $foobar;
+            private ?string $foobar = null;
             #[MapCell] /** @phpstan-ignore-line  */
             public function setFoobar($foobar): void
             {

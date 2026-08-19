@@ -20,7 +20,6 @@ use RuntimeException;
 use Throwable;
 use TypeError;
 
-use function array_map;
 use function array_reduce;
 use function get_resource_type;
 use function gettype;
@@ -284,11 +283,9 @@ class CharsetConverter extends php_user_filter
      */
     public function convert(iterable $records): iterable
     {
-        return match (true) {
-            $this->output_encoding === $this->input_encoding => $records,
-            is_array($records) => array_map($this, $records),
-            default => MapIterator::fromIterable($records, $this),
-        };
+        return $this->output_encoding === $this->input_encoding
+            ? $records
+            : MapIterator::fromIterable($records, $this);
     }
 
     /**

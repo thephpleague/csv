@@ -16,7 +16,10 @@ All Notable changes to `Csv` will be documented in this file
 
 ### Fixed
 
-- None
+- `Writer::forceEnclosure` now doubles embedded enclosures when the escape character is the empty string.
+- `EscapeFormula` round-trip now preserves fields starting with the escape character
+- BOM handling is re-written to fix [#586]([https://github](https://github.com/thephpleague/csv/issues/586))
+- CSV Header during CSV download.
 
 ### Remove
 

@@ -15,8 +15,8 @@ namespace League\Csv;
 
 use Closure;
 use Deprecated;
+use Dom\Element;
 use Dom\HTMLDocument;
-use Dom\HTMLElement;
 use Dom\XMLDocument;
 use DOMDocument;
 use DOMElement;
@@ -69,6 +69,7 @@ class HTMLConverter
         }
 
         $document = self::supportsModernDom() ? HTMLDocument::createEmpty() : new DOMDocument('1.0');
+        /** @var DOMElement|Element $table */
         $table = $document->createElement('table');
         if ('' !== $this->class_name) {
             $table->setAttribute('class', $this->class_name);
@@ -115,7 +116,7 @@ class HTMLConverter
      *
      * @throws DOMException
      */
-    protected function appendHeaderSection(string $node_name, array $record, DOMElement|HTMLElement $table): void
+    protected function appendHeaderSection(string $node_name, array $record, DOMElement|Element $table): void
     {
         if ([] === $record) {
             return;
@@ -123,7 +124,9 @@ class HTMLConverter
 
         /** @var DOMDocument|HTMLDocument $document */
         $document = $table->ownerDocument;
+        /** @var DOMElement|Element $header */
         $header = $document->createElement($node_name);
+        /** @var DOMElement|Element $tr */
         $tr = $document->createElement('tr');
         foreach ($record as $field_value) {
             $th = $document->createElement('th');

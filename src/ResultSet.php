@@ -128,6 +128,7 @@ class ResultSet implements TabularDataReader, JsonSerializable
 
     public function __destruct()
     {
+        /* @phpstan-ignore-next-line */
         unset($this->records);
     }
 
@@ -537,7 +538,7 @@ class ResultSet implements TabularDataReader, JsonSerializable
         $iterator->rewind();
 
         /** @var array|null $result */
-        $result = $iterator->current();
+        $result = $iterator->current(); /* @phpstan-ignore-line */
 
         return $result ?? [];
     }

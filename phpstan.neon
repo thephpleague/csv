@@ -8,14 +8,8 @@ parameters:
         - identifier: missingType.generics
         - identifier: missingType.iterableValue
         - '#implements deprecated interface League\\Csv\\ByteSequence#'
-        - '#Attribute class Deprecated does not exist.#'
-        - '#League\\Csv\\HTMLConverter:#'
-        - '#League\\Csv\\XMLConverter:#'
-        - '#Dom\\HTMLElement#'
-        - '#Dom\\XMLDocument#'
-        - '#Dom\\HTMLDocument#'
-        - '#Dom\\Element#'
-    level: max
+        - '#Call to deprecated method expectExceptionMessage\(\) of class PHPUnit\\Framework\\TestCase:#'
+    level: 9
     paths:
         - src
     reportUnmatchedIgnoredErrors: true

@@ -48,17 +48,17 @@ final class CastToStringTest extends TestCase
     {
         $class = new class () {
             public float $float;
-            public ?float $nullableFloat;
+            public ?float $nullableFloat = null;
             public int $int;
-            public ?int $nullableInt;
+            public ?int $nullableInt = null;
             public string $string;
-            public ?string $nullableString;
-            public ?bool $nullableBool;
+            public ?string $nullableString = null;
+            public ?bool $nullableBool = null;
             public bool $boolean;
             public mixed $mixed;
-            public ?iterable $nullableIterable;
+            public ?iterable $nullableIterable = null;
             public array $array;
-            public DateTimeInterface|string|null $unionType;
+            public DateTimeInterface|string|null $unionType = null;
             public DateTimeInterface|int $invalidUnionType;
             public Countable&Traversable $intersectionType;
         };
@@ -113,17 +113,17 @@ final class CastToStringTest extends TestCase
 
         $class = new class () {
             public float $float;
-            public ?float $nullableFloat;
+            public ?float $nullableFloat = null;
             public int $int;
-            public ?int $nullableInt;
+            public ?int $nullableInt = null;
             public string $string;
-            public ?string $nullableString;
-            public ?bool $nullableBool;
+            public ?string $nullableString = null;
+            public ?bool $nullableBool = null;
             public bool $boolean;
             public mixed $mixed;
-            public ?iterable $nullableIterable;
+            public ?iterable $nullableIterable = null;
             public array $array;
-            public DateTimeInterface|string|null $unionType;
+            public DateTimeInterface|string|null $unionType = null;
             public DateTimeInterface|int $invalidUnionType;
             public Countable&Traversable $intersectionType;
         };
