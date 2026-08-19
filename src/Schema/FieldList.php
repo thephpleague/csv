@@ -25,7 +25,7 @@ use function array_values;
 use function count;
 
 /**
- * @implements IteratorAggregate<Field>
+ * @implements IteratorAggregate<int, Field>
  */
 final class FieldList implements Countable, IteratorAggregate
 {
@@ -57,7 +57,7 @@ final class FieldList implements Countable, IteratorAggregate
     }
 
     /**
-     * @return Iterator<Field>
+     * @return Iterator<int, Field>
      */
     public function getIterator(): Iterator
     {

@@ -16,8 +16,9 @@ version:
             Tabular Data Reader: '/9.0/reader/tabular-data-reader/'
             CSV Reader: '/9.0/reader/'
             Result Set: '/9.0/reader/resultset/'
-            Constraint Builders: '/9.0/reader/statement/'
             Record Mapping: '/9.0/reader/record-mapping/'
+            Record Type Inference: '/9.0/reader/record-type-inference/'
+            Constraint Builders: '/9.0/reader/statement/'
         Inserting Records:
             CSV Writer: '/9.0/writer/'
             Tabular Data Buffer: '/9.0/writer/buffer/'
