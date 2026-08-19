@@ -205,7 +205,7 @@ class Reader extends AbstractCsv implements TabularDataReader, JsonSerializable
      */
     protected function getDocument(): SplFileObject|Stream
     {
-        $this->document->setFlags(SplFileObject::READ_CSV | SplFileObject::READ_AHEAD);
+        $this->document->setFlags(SplFileObject::READ_CSV);
         $this->document->setCsvControl($this->delimiter, $this->enclosure, $this->escape);
         $this->document->rewind();
 
