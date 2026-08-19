@@ -54,7 +54,7 @@ final class EnumField extends FieldEvaluator implements Field
 
         $this->enumClass = $enumClass;
         $this->backedEnumType = !$ref->isBacked() ? null : $ref->getBackingType()->getName();
-        $this->cases = array_map(fn (ReflectionEnumUnitCase $case) => $case->getValue(), $ref->getCases());
+        $this->cases = array_map(fn (ReflectionEnumUnitCase $case) => $case->getValue(), $ref->getCases()); /* @phpstan-ignore-line */
 
         $byNames = [];
         foreach ($this->cases as $case) {
@@ -101,7 +101,7 @@ final class EnumField extends FieldEvaluator implements Field
             }
         }
 
-        /** @var BackedEnum $enumClass */
+        /** @var class-string<BackedEnum> $enumClass */
         $enumClass = $this->enumClass;
 
         return $enumClass::tryFrom($value);

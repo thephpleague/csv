@@ -80,10 +80,14 @@ final readonly class Inspector
                 }
 
                 $counted[$column]++;
+                /**
+                 * @var array-key $offset
+                 * @var Field $field
+                 */
                 foreach ($this->fieldList as $offset => $field) {
                     $score[$column][$offset] ??= 0;
                     if (1 === $field->evaluate($value)) {
-                        $score[$column][$offset]++;
+                        ++$score[$column][$offset];
                     }
                 }
             }

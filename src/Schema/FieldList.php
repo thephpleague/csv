@@ -84,7 +84,9 @@ final class FieldList implements Countable, IteratorAggregate
 
     public function nth(int $offset): ?Field
     {
-        return $this->fields[$this->offset($offset)] ?? null;
+        $index = $this->offset($offset);
+
+        return null === $index ? null : ($this->fields[$index] ?? null);
     }
 
     public function get(int $offset): Field
