@@ -16,6 +16,7 @@ namespace League\Csv;
 use CallbackFilterIterator;
 use Closure;
 use Deprecated;
+use Grpc\Call;
 use Iterator;
 use IteratorIterator;
 use JsonSerializable;
@@ -174,6 +175,8 @@ class Reader extends AbstractCsv implements TabularDataReader, JsonSerializable
 
     /**
      * @throws Exception
+     *
+     * @return CallbackFilterIterator<int, array, SeekableIterator>
      */
     protected function getInnerIterator(): CallbackFilterIterator
     {
@@ -183,11 +186,16 @@ class Reader extends AbstractCsv implements TabularDataReader, JsonSerializable
         );
     }
 
+    /**
+     * @throws Exception
+     *
+     * @return SeekableIterator<int, array>
+     */
     protected function getSeekableIterator(): SeekableIterator
     {
-        return $this->is_input_bom_included
-            ? $this->getDocument()
-            : new SkipBomIterator($this->getDocument());
+        $document = $this->getDocument();
+
+        return $this->is_input_bom_included ? $document : new SkipBomIterator($document);
     }
 
     /**
