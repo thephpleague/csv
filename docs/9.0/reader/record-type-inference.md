@@ -6,6 +6,8 @@ description: Detect your CSV field type using an ergonomic and deterministic typ
 
 # Schema inference
 
+<p class="message-notice">Added in version <code>9.29.0</code>.</p>
+
 CSV files do not contain type information: every value is initially read as text. Schema inference allows you to inspect a CSV and automatically determine the most appropriate type for each column.
 
 The inferred schema can then be used to parse the records into their corresponding PHP values.
@@ -20,10 +22,10 @@ id,name,active,amount
 
 schema inference can determine that:
 
--`id` is numeric;
--`name` is a string;
--`active` is boolean;
--`amount` is numeric.
+- `id` is numeric;
+- `name` is a string;
+- `active` is boolean;
+- `amount` is numeric.
 
 The feature is available through `Reader::inferSchema()` and `Reader::inferRecords()`.
 
@@ -137,7 +139,7 @@ For example, with a sample limit of `100`, the first 100 records are used to det
 
 The default sample size is `10`.
 
-## Controlling the inferred types
+### Controlling the inferred types
 
 The `Inspector` also controls which field types are considered during inference.
 
@@ -168,7 +170,7 @@ The available built-in field types cover common values such as booleans, numbers
 
 Only the fields included in the `FieldList` are considered during schema inference.
 
-## Built-in field types
+#### Built-in field types
 
 The inspection engine provides a field implementation for each supported field type:
 
@@ -210,7 +212,7 @@ $fieldList = FieldList::default()
 
 This distinction is important: **a field being available does not mean that it is automatically used during inference**. Only fields present in the `FieldList` are considered by the `Inspector`.
 
-## Custom field types
+#### Custom field types
 
 If the built-in field types do not cover a particular kind of value, a custom field can be added to the inspector.
 
@@ -240,7 +242,7 @@ $inspector = Inspector::default()
 
 The custom field will then participate in schema inference alongside the built-in fields.
 
-## Choosing between the methods
+### Choosing between the methods
 
 Use `inferSchema()` when you need to **inspect, reuse, or modify the inferred schema**:
 
@@ -262,9 +264,9 @@ In both cases, schema inference is performed from a sample of the CSV and the re
 
 A Tabular data provides three ways to iterate over its records:
 
--`getRecords()` reads the values as they appear in the CSV;
--`getRecordsAsObject()` converts each record into a specific object;
--`inferRecords()` infers the types of the columns and parses the records accordingly.
+- `getRecords()` reads the values as they appear in the CSV;
+- `getRecordsAsObject()` converts each record into a specific object;
+- `inferRecords()` infers the types of the columns and parses the records accordingly.
 
 The differences become clearer when the same data is read using each method.
 
@@ -308,7 +310,7 @@ David;35;Paris;42fe384c-9dab-483c-b8e2-44c73a5e9043;R
 
 This value is useful for illustrating the difference between the three APIs.
 
-### `getRecords()`: read the CSV as-is
+### Read the CSV as-is
 
 `getRecords()` does not interpret the values.
 
@@ -332,7 +334,7 @@ No validation or type conversion takes place.
 
 Use `getRecords()` when you want to handle the CSV values yourself.
 
-### `inferRecords()`: infer the types
+### Infer the types
 
 `inferRecords()` examines the CSV and builds a schema from the values it finds.
 
@@ -356,7 +358,9 @@ The `gender` value remains a string because the default field list does not know
 
 This illustrates an important property of inference:
 
-> `inferRecords()` only applies the types that can be inferred from the configured field list.
+<p class="message-notice">
+<code>inferRecords()</code> only applies the types that can be inferred from the configured field list.
+</p>
 
 #### Inferring the schema
 
@@ -431,7 +435,7 @@ In short:
 - **`inferSchema()`** tells you *what the CSV is understood to contain*.
 - **`inferRecords()`** gives you the records *according to that understanding*.
 
-### `inferRecords()` with a custom inspector
+### Using a custom inspector
 
 The inference can be configured when the CSV contains domain-specific types.
 
@@ -475,7 +479,7 @@ Because `"R"` is not a valid case of `Gender`, the `EnumField` cannot parse it a
 
 This is an important difference from `getRecordsAsObject()`: **inferred parsing is tolerant of values that cannot be parsed by the inferred field**.
 
-### `getRecordsAsObject()`: enforce a known structure
+### Enforce a known structure
 
 When the target object is known, `getRecordsAsObject()` can explicitly define how each column should be converted.
 
@@ -532,14 +536,16 @@ The difference is not simply about type conversion. Each method has a different 
 | `inferRecords()`       | Infer and parse data  | Discovered from CSV | Parsed value or `null` |
 | `getRecordsAsObject()` | Map to a known object | Explicitly defined  | Exception              |
 
-#### Which one should I use?
-
-Use **`getRecords()`** when you want the raw CSV values and will handle conversion yourself.
-
-Use **`inferRecords()`** when you want the library to discover useful types from the CSV without having to define a complete data model.
-
-Use **`getRecordsAsObject()`** when you have a known object model and want the CSV to be converted according to that model, with conversion failures treated as errors.
+<div class="message-notice">
+<ul>
+<li>Use <code>getRecords()</code> when you want the raw CSV values and will handle conversion yourself.</li>
+<li>Use <code>inferRecords()</code> when you want the library to discover useful types from the CSV without having to define a complete data model.</li>
+<li>Use <code>getRecordsAsObject()</code> when you have a known object model and want the CSV to be converted according to that model, with conversion failures treated as errors.</li>
+</ul>
+</div>
 
 In summary:
 
-> **`getRecords()` preserves the input, `inferRecords()` interprets the input, and `getRecordsAsObject()` validates the input against an explicit object model.**
+<p class="message-warning">
+<code>getRecords()</code> preserves the input, <code>inferRecords()</code> interprets the input, and <code>getRecordsAsObject()</code> validates the input against an explicit object model.
+</p>
