@@ -9,6 +9,7 @@ All Notable changes to `Csv` will be documented in this file
 - Support for `Closure` in constant expressions during Record Mapping.
 - `AbstractCsv::fromStream` to instantiate a `Reader` or a `Writer` instance from a stream or a `SplFileObject` object
 - `AbstractCsv::fromPath` to instantiate a `Reader` or a `Writer` instance from a path as a string or a `SplFileInfo` object
+- Utilized SortDirection enum from PHP 8.6+ - [#580](https://github.com/thephpleague/csv/pull/580) by [okorneliuk](https://github.com/okorneliuk)
 
 ### Deprecated
 
@@ -21,6 +22,8 @@ All Notable changes to `Csv` will be documented in this file
 - BOM handling is re-written to fix [#586]([https://github](https://github.com/thephpleague/csv/issues/586))
 - CSV Header during CSV download.
 - Remove `ArrayIterator::uasort` usage because the method is deprecated in PHP8.6.
+- Use `STREAM_FILTER_WRITE` in `prependStreamFilterOnWrite` method - [#577](https://github.com/thephpleague/csv/pull/577) by [zigzagdev](https://github.com/zigzagdev)
+- Initialize `$callback` property to null to prevent uninitialized property - [#576](https://github.com/thephpleague/csv/pull/576) by [zigzagdev](https://github.com/zigzagdev)
 
 ### Remove
 
