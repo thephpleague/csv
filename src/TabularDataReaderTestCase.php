@@ -140,6 +140,7 @@ abstract class TabularDataReaderTestCase extends TestCase
             return;
         }
 
+        self::assertNotNull($result);
         self::assertSame($expected, [...$result]);
     }
 
