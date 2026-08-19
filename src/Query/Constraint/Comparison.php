@@ -87,22 +87,22 @@ enum Comparison: string
         $this->accept($reference);
 
         return match ($this) {
-            self::Equals => self::isSingleValue($subject) ? $subject === $reference : $subject == $reference,
-            self::NotEquals => self::isSingleValue($subject) ? $subject !== $reference : $subject != $reference,
+            self::Equals => self::isSingleValue($subject) ? $subject === $reference : $subject == $reference,  /* @phpstan-ignore-line */
+            self::NotEquals => self::isSingleValue($subject) ? $subject !== $reference : $subject != $reference,  /* @phpstan-ignore-line */
             self::GreaterThan => $subject > $reference,
             self::GreaterThanOrEqual => $subject >= $reference,
             self::LesserThan => $subject < $reference,
             self::LesserThanOrEqual => $subject <= $reference,
-            self::Between => $subject >= $reference[0] && $subject <= $reference[1], /* @phpstan-ignore-line */
-            self::NotBetween => $subject < $reference[0] || $subject > $reference[1], /* @phpstan-ignore-line */
+            self::Between => $subject >= $reference[0] && $subject <= $reference[1],
+            self::NotBetween => $subject < $reference[0] || $subject > $reference[1],
             self::In => in_array($subject, $reference, self::isSingleValue($subject)), /* @phpstan-ignore-line */
             self::NotIn => !in_array($subject, $reference, self::isSingleValue($subject)), /* @phpstan-ignore-line */
-            self::Regexp => is_string($subject) && 1 === preg_match($reference, $subject), /* @phpstan-ignore-line */
-            self::NotRegexp => is_string($subject) && 1 !== preg_match($reference, $subject), /* @phpstan-ignore-line */
-            self::Contains => is_string($subject) && str_contains($subject, $reference), /* @phpstan-ignore-line */
-            self::NotContain => is_string($subject) && !str_contains($subject, $reference), /* @phpstan-ignore-line */
-            self::StartsWith => is_string($subject) && str_starts_with($subject, $reference), /* @phpstan-ignore-line */
-            self::EndsWith => is_string($subject) && str_ends_with($subject, $reference), /* @phpstan-ignore-line */
+            self::Regexp => is_string($subject) && 1 === preg_match($reference, $subject),
+            self::NotRegexp => is_string($subject) && 1 !== preg_match($reference, $subject),
+            self::Contains => is_string($subject) && str_contains($subject, (string) $reference),
+            self::NotContain => is_string($subject) && !str_contains($subject, (string) $reference),
+            self::StartsWith => is_string($subject) && str_starts_with($subject, (string) $reference),
+            self::EndsWith => is_string($subject) && str_ends_with($subject, (string) $reference),
         };
     }
 

@@ -68,7 +68,7 @@ final class CastToEnumTest extends TestCase
     public function testItReturnsNullWhenTheVariableIsNullable(): void
     {
         $class = new class () {
-            public ?Currency $nullableCurrency;
+            public ?Currency $nullableCurrency = null;
         };
 
         $cast = new CastToEnum(new ReflectionProperty($class::class, 'nullableCurrency'));
@@ -79,7 +79,7 @@ final class CastToEnumTest extends TestCase
     public function testItReturnsTheDefaultValueWhenTheVariableIsNullable(): void
     {
         $class = new class () {
-            public ?Currency $nullableCurrency;
+            public ?Currency $nullableCurrency = null;
         };
 
         $cast = new CastToEnum(new ReflectionProperty($class::class, 'nullableCurrency'));
@@ -112,7 +112,7 @@ final class CastToEnumTest extends TestCase
     public function testItReturnsTheDefaultValueWithUnionType(): void
     {
         $class = new class () {
-            public DateTimeInterface|Colour|null $unionType;
+            public DateTimeInterface|Colour|null $unionType = null;
         };
         $cast = new CastToEnum(new ReflectionProperty($class::class, 'unionType'));
         $cast->setOptions('orange');
@@ -148,7 +148,7 @@ final class CastToEnumTest extends TestCase
     {
         $this->expectException(MappingFailed::class);
         $class = new class () {
-            public ?bool $nullableBool;
+            public ?bool $nullableBool = null;
             public DateTimeInterface|int $invalidUnionType;
             public Countable&Traversable $intersectionType;
         };

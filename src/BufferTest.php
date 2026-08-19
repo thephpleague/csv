@@ -763,7 +763,7 @@ SQL;
     {
         $buffer = new Buffer();
         $buffer->addFormatter(fn (array $row): array => array_map(strtoupper(...), $row));
-        $buffer->addValidator(fn (array $row): bool => strtolower($row[1]) === $row[1], 'func1');
+        $buffer->addValidator(fn (array $row): bool => strtolower((string) $row[1]) === $row[1], 'func1');
 
         $this->expectException(CannotInsertRecord::class);
         $buffer->insert(['jane', 'doe']);
@@ -792,15 +792,24 @@ CSV;
 
         self::assertSame($firstRecord, $buffer->first());
         //offset 3 based on the original CSV document
-        self::assertSame($firstRecord, $bufferAsArray[$buffer->firstOffset()]);
+        $index1 = $buffer->firstOffset();
+        self::assertIsInt($index1);
+        self::assertSame($firstRecord, $bufferAsArray[$index1]);
         self::assertSame($lastRecord, $buffer->last());
         //offset 5 based on the original CSV document
-        self::assertSame($lastRecord, $bufferAsArray[$buffer->lastOffset()]);
+        $index2 = $buffer->lastOffset();
+        self::assertIsInt($index2);
+        self::assertSame($lastRecord, $bufferAsArray[$index2]);
 
         //delete all records except the first record!
         $buffer->delete(Column::filterOn('temperature', '<>', '0'));
-        self::assertSame($firstRecord, $bufferAsArray[$buffer->firstOffset()]);
-        self::assertSame($firstRecord, $bufferAsArray[$buffer->lastOffset()]);
+        $index3 = $buffer->firstOffset();
+        self::assertIsInt($index3);
+        self::assertSame($firstRecord, $bufferAsArray[$index3]);
+
+        $index4 = $buffer->lastOffset();
+        self::assertIsInt($index4);
+        self::assertSame($firstRecord, $bufferAsArray[$index4]);
     }
 
     #[Test]

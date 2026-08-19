@@ -140,7 +140,7 @@ abstract class TabularDataReaderTestCase extends TestCase
             return;
         }
 
-        self::assertSame($expected, [...$result]); /* @phpstan-ignore-line */
+        self::assertSame($expected, [...$result]);
     }
 
     #[Test]

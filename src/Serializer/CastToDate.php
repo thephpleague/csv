@@ -64,7 +64,7 @@ final class CastToDate implements TypeCasting
             !interface_exists($this->class) && !Type::Mixed->equals($this->type) => $this->class,
             DateTimeInterface::class === $this->class && null === $className => DateTimeImmutable::class,
             interface_exists($this->class) && null !== $className && class_exists($className) && (new ReflectionClass($className))->implementsInterface($this->class) => $className,
-            default => throw new MappingFailed('`'.$this->info->targetName.'` type is `'.($this->class ?? 'mixed').'` but the specified class via the `$className` argument is invalid or could not be found.'),
+            default => throw new MappingFailed('`'.$this->info->targetName.'` type is `'.($this->class).'` but the specified class via the `$className` argument is invalid or could not be found.'),
         };
 
         try {

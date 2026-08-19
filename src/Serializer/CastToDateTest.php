@@ -64,7 +64,7 @@ final class CastToDateTest extends TestCase
     public function testItCanConvertAnObjectImplementingAnInterfaceThatExtendsDateTimeInterface(): void
     {
         $cast = new CastToDate(new ReflectionProperty((new class () {
-            public ?MyDateInterface $myDateInterface;
+            public ?MyDateInterface $myDateInterface = null;
         })::class, 'myDateInterface'));
         $cast->setOptions(className: MyDate::class);
 
@@ -77,10 +77,10 @@ final class CastToDateTest extends TestCase
     public function testItFailsConversionIfImplementationForTheCustomeInterfaceThatExtendsDateTimeInterfaceIsGiven(): void
     {
         $this->expectException(MappingFailed::class);
-        $this->expectExceptionMessage('`myDateInterface` type is `'.MyDateInterface::class.'` but the specified class via the `$className` argument is invalid or could not be found.');
+        $this->expectExceptionMessageIsOrContains('`myDateInterface` type is `'.MyDateInterface::class.'` but the specified class via the `$className` argument is invalid or could not be found.');
 
         $cast = new CastToDate(new ReflectionProperty((new class () {
-            public ?MyDateInterface $myDateInterface;
+            public ?MyDateInterface $myDateInterface = null;
         })::class, 'myDateInterface'));
         $cast->setOptions();
         $cast->toVariable('2023-10-30');
@@ -89,7 +89,7 @@ final class CastToDateTest extends TestCase
     public function testItCShouldThrowIfNoConversionIsPossible(): void
     {
         $object = new class () {
-            public ?MyDateInterface $dateTimeInterface;
+            public ?MyDateInterface $dateTimeInterface = null;
         };
 
         $this->expectException(TypeCastingFailed::class);
@@ -103,7 +103,7 @@ final class CastToDateTest extends TestCase
         $this->expectException(MappingFailed::class);
 
         $cast = new CastToDate(new ReflectionProperty((new class () {
-            public ?MyDateInterface $dateTimeInterface;
+            public ?MyDateInterface $dateTimeInterface = null;
         })::class, 'dateTimeInterface'));
         $cast->setOptions('2023-11-11', 'Y-m-d', 'Europe\Blan');
     }
@@ -111,7 +111,7 @@ final class CastToDateTest extends TestCase
     public function testItReturnsNullWhenTheVariableIsNullable(): void
     {
         $cast = new CastToDate(new ReflectionProperty((new class () {
-            public ?DateTime $nullableDateTime;
+            public ?DateTime $nullableDateTime = null;
         })::class, 'nullableDateTime'));
 
         self::assertNull($cast->toVariable(null));
@@ -120,7 +120,7 @@ final class CastToDateTest extends TestCase
     public function testItCanConvertADateWithADefaultValue(): void
     {
         $cast = new CastToDate(new ReflectionProperty((new class () {
-            public ?DateTimeInterface $nullableDateTimeInterface;
+            public ?DateTimeInterface $nullableDateTimeInterface = null;
         })::class, 'nullableDateTimeInterface'));
         $cast->setOptions('2023-01-01', '!Y-m-d', 'Africa/Kinshasa');
         $date = $cast->toVariable(null);
@@ -133,7 +133,7 @@ final class CastToDateTest extends TestCase
     public function testItReturnsTheValueWithUnionType(): void
     {
         $cast = new CastToDate(new ReflectionProperty((new class () {
-            public DateTimeInterface|string|null $unionType;
+            public DateTimeInterface|string|null $unionType = null;
         })::class, 'unionType'));
         $cast->setOptions('2023-01-01');
 
@@ -150,14 +150,14 @@ final class CastToDateTest extends TestCase
             public DateTime $dateTime;
             public DateTimeInterface $dateTimeInterface;
             public MyDate $myDate;
-            public ?DateTimeImmutable $nullableDateTimeImmutable;
-            public ?DateTime $nullableDateTime;
-            public ?DateTimeInterface $nullableDateTimeInterface;
-            public ?MyDate $nullableMyDate;
-            public ?MyDateInterface $myDateInterface;
+            public ?DateTimeImmutable $nullableDateTimeImmutable = null;
+            public ?DateTime $nullableDateTime = null;
+            public ?DateTimeInterface $nullableDateTimeInterface = null;
+            public ?MyDate $nullableMyDate = null;
+            public ?MyDateInterface $myDateInterface = null;
             public mixed $mixed;
-            public ?bool $nullableBool;
-            public DateTimeInterface|string|null $unionType;
+            public ?bool $nullableBool = null;
+            public DateTimeInterface|string|null $unionType = null;
             public float|int $invalidUnionType;
             public Countable&DateTimeInterface $intersectionType;
         };

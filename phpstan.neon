@@ -8,14 +8,7 @@ parameters:
         - identifier: missingType.generics
         - identifier: missingType.iterableValue
         - '#implements deprecated interface League\\Csv\\ByteSequence#'
-        - '#Attribute class Deprecated does not exist.#'
-        - '#League\\Csv\\HTMLConverter:#'
-        - '#League\\Csv\\XMLConverter:#'
-        - '#Dom\\HTMLElement#'
-        - '#Dom\\XMLDocument#'
-        - '#Dom\\HTMLDocument#'
-        - '#Dom\\Element#'
-    level: max
+    level: 7
     paths:
         - src
     reportUnmatchedIgnoredErrors: true

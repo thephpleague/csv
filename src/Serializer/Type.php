@@ -112,11 +112,11 @@ enum Type: string
             return $res;
         };
 
-        return match (true) {
+        return array_values(match (true) {
             $reflectionType instanceof ReflectionNamedType => $foundTypes([], $reflectionType),
             $reflectionType instanceof ReflectionUnionType => array_reduce($reflectionType->getTypes(), $foundTypes, []),
             default => [],
-        };
+        });
     }
 
     public static function tryFromName(string $propertyType): ?self

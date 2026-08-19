@@ -174,7 +174,7 @@ class Reader extends AbstractCsv implements TabularDataReader, JsonSerializable
     /**
      * @throws Exception
      *
-     * @return CallbackFilterIterator<int, array, SeekableIterator>
+     * @return CallbackFilterIterator<int, array, SeekableIterator<int, array>>
      */
     protected function getInnerIterator(): CallbackFilterIterator
     {
@@ -240,7 +240,7 @@ class Reader extends AbstractCsv implements TabularDataReader, JsonSerializable
             }
             $document->seek($offset);
             /** @var array|false $row */
-            $row = $document->current();
+            $row = $document->current(); /* @phpstan-ignore-line */
             if ($row !== [null] && false !== $row) {
                 break;
             }
@@ -329,7 +329,7 @@ class Reader extends AbstractCsv implements TabularDataReader, JsonSerializable
      */
     public function count(): int
     {
-        if (-1 === $this->nb_records) {
+        if (0 > $this->nb_records) {
             $this->nb_records = iterator_count($this->getRecords());
         }
 
@@ -564,7 +564,7 @@ class Reader extends AbstractCsv implements TabularDataReader, JsonSerializable
      */
     protected function prepareHeader($header = []): array
     {
-        $header == array_filter($header, is_string(...)) || throw SyntaxError::dueToInvalidHeaderColumnNames();
+        $header === array_filter($header, is_string(...)) || throw SyntaxError::dueToInvalidHeaderColumnNames();
 
         return $this->computeHeader($header);
     }

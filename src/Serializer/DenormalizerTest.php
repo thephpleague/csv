@@ -167,7 +167,7 @@ final class DenormalizerTest extends TestCase
     public function testMappingFailBecauseTheRecordAttributeIsMissing(): void
     {
         $this->expectException(MappingFailed::class);
-        $this->expectExceptionMessage('No property or method from `stdClass` could be used for denormalization.');
+        $this->expectExceptionMessageIsOrContains('No property or method from `stdClass` could be used for denormalization.');
 
         Denormalizer::assign(stdClass::class, ['foo' => 'bar']);
     }
@@ -203,7 +203,7 @@ final class DenormalizerTest extends TestCase
         };
 
         $this->expectException(MappingFailed::class);
-        $this->expectExceptionMessage('offset as string are only supported if the property names list is not empty.');
+        $this->expectExceptionMessageIsOrContains('offset as string are only supported if the property names list is not empty.');
 
         $serializer = new Denormalizer($class::class);
         $serializer->denormalize([
@@ -244,7 +244,7 @@ final class DenormalizerTest extends TestCase
         };
 
         $this->expectException(MappingFailed::class);
-        $this->expectExceptionMessage('The `temperature` property could not be found in the property names list; Please verify your property names list.');
+        $this->expectExceptionMessageIsOrContains('The `temperature` property could not be found in the property names list; Please verify your property names list.');
 
         $serializer = new Denormalizer($class::class, ['date', 'toto', 'foobar']);
         $serializer->denormalize([
@@ -269,7 +269,7 @@ final class DenormalizerTest extends TestCase
         };
 
         $this->expectException(MappingFailed::class);
-        $this->expectExceptionMessage('Using more than one `'.MapCell::class.'` attribute on a class property or method is not supported.');
+        $this->expectExceptionMessageIsOrContains('Using more than one `'.MapCell::class.'` attribute on a class property or method is not supported.');
 
         new Denormalizer($class::class);
     }
@@ -289,7 +289,7 @@ final class DenormalizerTest extends TestCase
         };
 
         $this->expectException(MappingFailed::class);
-        $this->expectExceptionMessage('`stdClass` must be an resolvable class implementing the `League\Csv\Serializer\TypeCasting` interface or a supported alias.');
+        $this->expectExceptionMessageIsOrContains('`stdClass` must be an resolvable class implementing the `League\Csv\Serializer\TypeCasting` interface or a supported alias.');
 
         new Denormalizer($foobar::class);
     }
@@ -330,7 +330,7 @@ final class DenormalizerTest extends TestCase
         };
 
         $this->expectException(MappingFailed::class);
-        $this->expectExceptionMessage('The property type definition for `'.$foobar::class.'::observedOn` is missing; register it using the `'.Denormalizer::class.'` class.');
+        $this->expectExceptionMessageIsOrContains('The property type definition for `'.$foobar::class.'::observedOn` is missing; register it using the `'.Denormalizer::class.'` class.');
 
         new Denormalizer($foobar::class, ['temperature', 'place', 'observedOn']);
     }
@@ -370,7 +370,7 @@ final class DenormalizerTest extends TestCase
         };
 
         $this->expectException(MappingFailed::class);
-        $this->expectExceptionMessage('The method `addTow` is not defined on the `'.$missingMethodAfterMapping::class.'` class.');
+        $this->expectExceptionMessageIsOrContains('The method `addTow` is not defined on the `'.$missingMethodAfterMapping::class.'` class.');
 
         Denormalizer::assign($missingMethodAfterMapping::class, ['addition' => '1']);
     }
@@ -390,7 +390,7 @@ final class DenormalizerTest extends TestCase
         };
 
         $this->expectException(MappingFailed::class);
-        $this->expectExceptionMessage('The method `'.$requiresArgumentAfterMapping::class.'::addOne` has too many required parameters.');
+        $this->expectExceptionMessageIsOrContains('The method `'.$requiresArgumentAfterMapping::class.'::addOne` has too many required parameters.');
 
         Denormalizer::assign($requiresArgumentAfterMapping::class, ['addition' => '1']);
     }
@@ -414,7 +414,7 @@ final class DenormalizerTest extends TestCase
         };
 
         $this->expectException(MappingFailed::class);
-        $this->expectExceptionMessage('The property type definition for `'.$foobar::class.'::annee` is missing; register it using the `'.Denormalizer::class.'` class.');
+        $this->expectExceptionMessageIsOrContains('The property type definition for `'.$foobar::class.'::annee` is missing; register it using the `'.Denormalizer::class.'` class.');
 
         Denormalizer::assign(
             $foobar::class,
@@ -429,7 +429,7 @@ final class DenormalizerTest extends TestCase
         };
 
         $this->expectException(MappingFailed::class);
-        $this->expectExceptionMessage('The property type definition for `'.$foobar::class.'::traversable` is missing; register it using the `'.Denormalizer::class.'` class.');
+        $this->expectExceptionMessageIsOrContains('The property type definition for `'.$foobar::class.'::traversable` is missing; register it using the `'.Denormalizer::class.'` class.');
 
         Denormalizer::assign($foobar::class, ['traversable' => '1']);
     }
@@ -451,7 +451,7 @@ final class DenormalizerTest extends TestCase
         };
 
         $this->expectException(MappingFailed::class);
-        $this->expectExceptionMessage('The type for the method `'.$foobar::class.'::setFirstName` first argument `firstName` is invalid; `DateTimeInterface` or `mixed` type must be used with the `League\Csv\Serializer\CastToDate`.');
+        $this->expectExceptionMessageIsOrContains('The type for the method `'.$foobar::class.'::setFirstName` first argument `firstName` is invalid; `DateTimeInterface` or `mixed` type must be used with the `League\Csv\Serializer\CastToDate`.');
 
         Denormalizer::assign($foobar::class, ['firstName' => 'john']);
     }
@@ -476,7 +476,7 @@ final class DenormalizerTest extends TestCase
     {
         $type = 'UnkownType';
         $this->expectException(MappingFailed::class);
-        $this->expectExceptionMessage('The `'.$type.'` could not be register.');
+        $this->expectExceptionMessageIsOrContains('The `'.$type.'` could not be register.');
 
         Denormalizer::registerType($type, fn (?string $value) => 'yolo!');
     }
@@ -485,7 +485,7 @@ final class DenormalizerTest extends TestCase
     {
         $record = ['foo' => ''];
         $foobar = new class () {
-            public ?string $foo;
+            public ?string $foo = null;
         };
 
         Denormalizer::disallowEmptyStringAsNull(); /* @phpstan-ignore-line */
@@ -500,7 +500,7 @@ final class DenormalizerTest extends TestCase
     public function testResolvesMethodWithUntypedParameterToStringByDefaultUsingCell(): void
     {
         $class = new class () {
-            private ?string $foobar;
+            private ?string $foobar = null;
             #[MapCell] /** @phpstan-ignore-line  */
             public function setFoobar($foobar): void
             {
@@ -561,7 +561,7 @@ final class DenormalizerTest extends TestCase
         };
 
         $this->expectException(MappingFailed::class);
-        $this->expectExceptionMessage('No property or method from `'.$class::class.'` could be used for denormalization.');
+        $this->expectExceptionMessageIsOrContains('No property or method from `'.$class::class.'` could be used for denormalization.');
 
         Denormalizer::assign($class::class, ['date' => 'tomorrow']);
     }
@@ -594,7 +594,7 @@ final class DenormalizerTest extends TestCase
         self::assertFalse(Denormalizer::unregisterAlias('@strtoupper'));
 
         $this->expectException(MappingFailed::class);
-        $this->expectExceptionMessage('`@strtoupper` must be an resolvable class implementing the `'.TypeCasting::class.'` interface or a supported alias.');
+        $this->expectExceptionMessageIsOrContains('`@strtoupper` must be an resolvable class implementing the `'.TypeCasting::class.'` interface or a supported alias.');
         Denormalizer::assign($class::class, ['str' => 'kinshasa']);
     }
 
@@ -604,7 +604,7 @@ final class DenormalizerTest extends TestCase
         $invalidAlias = 'invalidAlias';
 
         $this->expectException(MappingFailed::class);
-        $this->expectExceptionMessage("The alias `$invalidAlias` is invalid. It must start with an `@` character and contain alphanumeric (letters, numbers, regardless of case) plus underscore (_).");
+        $this->expectExceptionMessageIsOrContains("The alias `$invalidAlias` is invalid. It must start with an `@` character and contain alphanumeric (letters, numbers, regardless of case) plus underscore (_).");
 
         Denormalizer::registerAlias($invalidAlias, 'string', fn (?string $str) => null === $str ? '' : strtoupper($str));
     }
@@ -615,7 +615,7 @@ final class DenormalizerTest extends TestCase
         $validAlias = '@alias';
 
         $this->expectException(MappingFailed::class);
-        $this->expectExceptionMessage('The alias `'.$validAlias.'` is already registered. Please choose another name.');
+        $this->expectExceptionMessageIsOrContains('The alias `'.$validAlias.'` is already registered. Please choose another name.');
 
         Denormalizer::registerAlias($validAlias, 'string', fn (?string $str) => null === $str ? '' : strtoupper($str));
         Denormalizer::registerAlias($validAlias, 'int', fn (?string $str) => null === $str ? '' : strtoupper($str));
@@ -701,7 +701,7 @@ final class DenormalizerTest extends TestCase
         };
 
         $this->expectException(DenormalizationFailed::class);
-        $this->expectExceptionMessage('The property '.$class::class.'::bar is not initialized; its value is missing from the source data.');
+        $this->expectExceptionMessageIsOrContains('The property '.$class::class.'::bar is not initialized; its value is missing from the source data.');
 
         Denormalizer::assign($class::class, $data);
     }
