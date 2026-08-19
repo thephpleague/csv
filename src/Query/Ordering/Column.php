@@ -19,7 +19,6 @@ use Iterator;
 use League\Csv\Query\QueryException;
 use League\Csv\Query\Row;
 use League\Csv\Query\Sort;
-use OutOfBoundsException;
 use ReflectionException;
 use SortDirection;
 
@@ -28,6 +27,7 @@ use function is_string;
 use function iterator_to_array;
 use function strtoupper;
 use function trim;
+use function uasort;
 
 /**
  * Enable sorting a record based on the value of a one of its cell.
@@ -111,20 +111,9 @@ final readonly class Column implements Sort
 
     public function sort(iterable $value): Iterator
     {
-        $class = new class () extends ArrayIterator {
-            public function seek(int $offset): void
-            {
-                try {
-                    parent::seek($offset);
-                } catch (OutOfBoundsException) {
-                    return;
-                }
-            }
-        };
+        $arr = !is_array($value) ? iterator_to_array($value) : $value;
+        uasort($arr, $this);
 
-        $it = new $class(!is_array($value) ? iterator_to_array($value) : $value);
-        $it->uasort($this);
-
-        return $it;
+        return new ArrayIterator($arr);
     }
 }

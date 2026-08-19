@@ -21,7 +21,6 @@ use Iterator;
  * The class can be used directly with PHP's
  * <ol>
  * <li>usort and uasort.</li>
- * <li>ArrayIterator::uasort.</li>
  * <li>ArrayObject::uasort.</li>
  * </ol>
  */

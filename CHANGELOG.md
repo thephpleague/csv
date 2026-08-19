@@ -20,6 +20,7 @@ All Notable changes to `Csv` will be documented in this file
 - `EscapeFormula` round-trip now preserves fields starting with the escape character
 - BOM handling is re-written to fix [#586]([https://github](https://github.com/thephpleague/csv/issues/586))
 - CSV Header during CSV download.
+- Remove `ArrayIterator::uasort` usage because the method is deprecated in PHP8.6.
 
 ### Remove
 

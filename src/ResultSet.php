@@ -27,6 +27,7 @@ use League\Csv\Serializer\MappingFailed;
 use League\Csv\Serializer\TypeCastingFailed;
 use LimitIterator;
 use mysqli_result;
+use OutOfBoundsException;
 use PDOStatement;
 use PgSql\Result;
 use ReflectionException;
@@ -534,8 +535,12 @@ class ResultSet implements TabularDataReader, JsonSerializable
     {
         0 <= $nth || throw InvalidArgument::dueToInvalidRecordOffset($nth, __METHOD__);
 
-        $iterator = new LimitIterator($this->getIterator(), $nth, 1);
-        $iterator->rewind();
+        try {
+            $iterator = new LimitIterator($this->getIterator(), $nth, 1);
+            $iterator->rewind();
+        } catch (OutOfBoundsException) {
+            return [];
+        }
 
         /** @var array|null $result */
         $result = $iterator->current(); /* @phpstan-ignore-line */
