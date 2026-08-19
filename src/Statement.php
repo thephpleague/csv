@@ -18,7 +18,6 @@ use CallbackFilterIterator;
 use Closure;
 use Deprecated;
 use Iterator;
-use OutOfBoundsException;
 use ReflectionException;
 use ReflectionFunction;
 use SortDirection;
@@ -464,22 +463,11 @@ class Statement
             return $cmp ?? 0;
         };
 
-        $class = new class () extends ArrayIterator {
-            public function seek(int $offset): void
-            {
-                try {
-                    parent::seek($offset);
-                } catch (OutOfBoundsException) {
-                    return;
-                }
-            }
-        };
+        /** @var array<array-key, array<string|null>> $arr */
+        $arr = [...$iterator];
+        uasort($arr, $compare);
 
-        /** @var ArrayIterator<array-key, array<string|null>> $it */
-        $it = new $class([...$iterator]);
-        $it->uasort($compare);
-
-        return $it;
+        return new ArrayIterator($arr);
     }
 
 
