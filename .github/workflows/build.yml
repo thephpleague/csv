@@ -12,6 +12,12 @@ jobs:
             matrix:
                 php: ['8.2', '8.3', '8.4', '8.5']
                 stability: [prefer-lowest, prefer-stable]
+                include:
+                    - php: '8.6'
+                      stability: prefer-stable
+                      flags: "--ignore-platform-req=php"
+            fail-fast: false
+
         steps:
             - name: Checkout code
               uses: actions/checkout@v4
@@ -22,6 +28,7 @@ jobs:
                   php-version: ${{ matrix.php }}
                   coverage: xdebug
                   tools: composer:v2
+
             - name: Check PHP Version
               run: php -v
 
@@ -40,11 +47,30 @@ jobs:
                       ${{ runner.os }}-composer-${{ matrix.stability }}-${{ matrix.flags }}-
                       ${{ runner.os }}-composer-
 
-            - name: Install dependencies
-              run: composer update --${{ matrix.stability }} --prefer-dist --no-interaction --no-progress ${{ matrix.flags }}
+            # INSTALL logic
+            # 1. STABLE php + STABLE deps → composer install (NO updates)
+            - name: Install dependencies (install)
+              if: ${{ matrix.stability == 'prefer-stable' && matrix.php != '8.6' }}
+              run: composer install --prefer-dist --no-interaction --no-progress
+
+            # 2. prefer-lowest → must use composer update
+            - name: Install dependencies (prefer-lowest)
+              if: ${{ matrix.stability == 'prefer-lowest' }}
+              run: composer update --prefer-lowest --prefer-dist --no-interaction --no-progress
+
+            # 3. PHP 8.6 dev → always update
+            - name: Install dependencies (nightly)
+              if: ${{ matrix.php == '8.6' }}
+              run: composer update --prefer-stable --prefer-dist --no-interaction --no-progress ${{ matrix.flags }}
 
             - name: Run Unit tests with coverage
-              run: composer phpunit -- ${{ matrix.phpunit-flags }}
+              if: ${{ matrix.php != '8.6' }}
+              run: composer phpunit
+
+            - name: Run Unit tests without coverage (nightly)
+              if: ${{ matrix.php == '8.6' }}
+              run: composer phpunit
+              continue-on-error: true
 
             - name: Run static analysis
               run: composer phpstan
