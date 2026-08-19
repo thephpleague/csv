@@ -22,12 +22,14 @@ use League\Csv\Serializer\Denormalizer;
 use League\Csv\Serializer\MappingFailed;
 use League\Csv\Serializer\TypeCastingFailed;
 use ReflectionException;
+use SeekableIterator;
 use SplFileObject;
 
 use function array_filter;
 use function array_reduce;
 use function array_unique;
 use function is_array;
+use function is_string;
 use function iterator_count;
 use function strlen;
 use function substr;
@@ -152,22 +154,19 @@ class Reader extends AbstractCsv implements TabularDataReader, JsonSerializable
      */
     protected function setHeader(int $offset): array
     {
-        $inputBom = null;
-        $header = $this->seekRow($offset);
-        if (0 === $offset) {
-            $inputBom = Bom::tryFrom($this->getInputBOM());
-            $header = $this->removeBOM(
-                $header,
-                !$this->is_input_bom_included ? $inputBom?->length() ?? 0 : 0,
-                $this->enclosure
-            );
+        $header = [];
+        foreach ($this->getInnerIterator() as $key => $record) {
+            if ($key === $offset) {
+                $header = $record;
+                break;
+            }
         }
 
         return match (true) {
             [] === $header,
             [null] === $header,
             [false] === $header,
-            [''] === $header && 0 === $offset && null !== $inputBom => throw SyntaxError::dueToHeaderNotFound($offset),
+            [''] === $header && 0 === $offset => throw SyntaxError::dueToHeaderNotFound($offset),
             default => $header,
         };
     }
@@ -175,17 +174,26 @@ class Reader extends AbstractCsv implements TabularDataReader, JsonSerializable
     /**
      * @throws Exception
      *
-     * Returns the row at a given offset.
+     * @return CallbackFilterIterator<int, array, SeekableIterator>
      */
-    protected function seekRow(int $offset): array
+    protected function getInnerIterator(): CallbackFilterIterator
     {
-        $this->getDocument()->seek($offset);
-        $record = $this->document->current();
+        return new CallbackFilterIterator(
+            $this->getSeekableIterator(),
+            fn ($record): bool => is_array($record) && ($this->is_empty_records_included || $record !== [null])
+        );
+    }
 
-        return match (true) {
-            false === $record => [],
-            default => (array) $record,
-        };
+    /**
+     * @throws Exception
+     *
+     * @return SeekableIterator<int, array>
+     */
+    protected function getSeekableIterator(): SeekableIterator
+    {
+        $document = $this->getDocument();
+
+        return $this->is_input_bom_included ? $document : new SkipBomIterator($document);
     }
 
     /**
@@ -200,29 +208,6 @@ class Reader extends AbstractCsv implements TabularDataReader, JsonSerializable
         $this->document->rewind();
 
         return $this->document;
-    }
-
-    /**
-     * Strips the BOM sequence from a record.
-     *
-     * @param array<string> $record
-     *
-     * @return array<string>
-     */
-    protected function removeBOM(array $record, int $bom_length, string $enclosure): array
-    {
-        if ([] === $record || !is_string($record[0]) || 0 === $bom_length || strlen($record[0]) < $bom_length) {
-            return $record;
-        }
-
-        $record[0] = substr($record[0], $bom_length);
-        if ($enclosure.$enclosure !== substr($record[0].$record[0], strlen($record[0]) - 1, 2)) {
-            return $record;
-        }
-
-        $record[0] = substr($record[0], 1, -1);
-
-        return $record;
     }
 
     public function fetchColumn(string|int $index = 0): Iterator
@@ -245,18 +230,17 @@ class Reader extends AbstractCsv implements TabularDataReader, JsonSerializable
 
     protected function getLastRecord(array $header): array
     {
-        $this->document->setFlags(SplFileObject::READ_CSV);
-        $this->document->setCsvControl($this->delimiter, $this->enclosure, $this->escape);
-        $this->document->seek(PHP_INT_MAX);
-        $offset = $this->document->key();
+        $document = $this->getSeekableIterator();
+        $document->seek(PHP_INT_MAX);
+        $offset = $document->key();
         $row = false;
         for (; $offset >= 0; --$offset) {
             if ($this->header_offset === $offset) {
                 continue;
             }
-            $this->document->seek($offset);
+            $document->seek($offset);
             /** @var array|false $row */
-            $row = $this->document->current();
+            $row = $document->current();
             if ($row !== [null] && false !== $row) {
                 break;
             }
@@ -264,10 +248,6 @@ class Reader extends AbstractCsv implements TabularDataReader, JsonSerializable
 
         if (false === $row || $row === [null]) {
             return [];
-        }
-
-        if (0 === $offset) {
-            $row = $this->removeBOM($row, $this->input_bom?->length() ?? 0, $this->enclosure);
         }
 
         $formatter = fn (array $record): array => array_reduce(
@@ -279,7 +259,6 @@ class Reader extends AbstractCsv implements TabularDataReader, JsonSerializable
         $record = $row;
         if ([] === $header) {
             $header = $this->getHeader();
-            ;
         }
 
         if ([] !== $header) {
@@ -533,10 +512,7 @@ class Reader extends AbstractCsv implements TabularDataReader, JsonSerializable
      */
     public function getRecords(array $header = []): Iterator
     {
-        return $this->combineHeader(
-            $this->prepareRecords(),
-            $this->prepareHeader($header)
-        );
+        return $this->combineHeader($this->prepareRecords(), $this->prepareHeader($header));
     }
 
     /**
@@ -567,13 +543,7 @@ class Reader extends AbstractCsv implements TabularDataReader, JsonSerializable
      */
     protected function prepareRecords(): Iterator
     {
-        $normalized = fn ($record): bool => is_array($record) && ($this->is_empty_records_included || $record !== [null]);
-        $bom = null;
-        if (!$this->is_input_bom_included) {
-            $bom = Bom::tryFrom($this->getInputBOM());
-        }
-
-        $records = $this->stripBOM(new CallbackFilterIterator($this->getDocument(), $normalized), $bom);
+        $records = $this->getInnerIterator();
         if (null !== $this->header_offset) {
             $records = new CallbackFilterIterator($records, fn (array $record, int $offset): bool => $offset !== $this->header_offset);
         }
@@ -583,35 +553,6 @@ class Reader extends AbstractCsv implements TabularDataReader, JsonSerializable
         }
 
         return $records;
-    }
-
-    /**
-     * Strips the BOM sequence from the returned records if necessary.
-     */
-    protected function stripBOM(Iterator $iterator, ?Bom $bom): Iterator
-    {
-        if (null === $bom) {
-            return $iterator;
-        }
-
-        $bomLength = $bom->length();
-        $mapper = function (array $record, int $index) use ($bomLength): array {
-            if (0 !== $index) {
-                return $record;
-            }
-
-            $record = $this->removeBOM($record, $bomLength, $this->enclosure);
-
-            return match ($record) {
-                [''] => [null],
-                default => $record,
-            };
-        };
-
-        return new CallbackFilterIterator(
-            new MapIterator($iterator, $mapper),
-            fn (array $record): bool => $this->is_empty_records_included || $record !== [null]
-        );
     }
 
     /**
@@ -669,6 +610,90 @@ class Reader extends AbstractCsv implements TabularDataReader, JsonSerializable
                 return $formatter($assocRecord);
             }),
         };
+    }
+
+    /**
+     * DEPRECATION WARNING! This method will be removed in the next major point release.
+     *
+     * Returns the row at a given offset.
+     *
+     * @deprecated
+     * @throws Exception
+     *
+     * @deprecated since version 9.29 without any replacement
+     * @codeCoverageIgnore
+     */
+    protected function seekRow(int $offset): array
+    {
+        $this->getDocument()->seek($offset);
+        $record = $this->document->current();
+
+        return match (true) {
+            false === $record => [],
+            default => (array) $record,
+        };
+    }
+
+    /**
+     * Strips the BOM sequence from a record.
+     *
+     * DEPRECATION WARNING! This method will be removed in the next major point release.
+     *
+     * @param array<string> $record
+     *
+     * @return array<string>
+     *
+     * @deprecated since version 9.29 without any replacement
+     * @codeCoverageIgnore
+     */
+    protected function removeBOM(array $record, int $bom_length, string $enclosure): array
+    {
+        if ([] === $record || !is_string($record[0]) || 0 === $bom_length || strlen($record[0]) < $bom_length) {
+            return $record;
+        }
+
+        $record[0] = substr($record[0], $bom_length);
+        if ($enclosure.$enclosure !== substr($record[0].$record[0], strlen($record[0]) - 1, 2)) {
+            return $record;
+        }
+
+        $record[0] = substr($record[0], 1, -1);
+
+        return $record;
+    }
+
+    /**
+     * Strips the BOM sequence from the returned records if necessary.
+     *
+     * DEPRECATION WARNING! This method will be removed in the next major point release.
+     *
+     * @deprecated since version 9.29 without any replacement
+     * @codeCoverageIgnore
+     */
+    protected function stripBOM(Iterator $iterator, ?Bom $bom): Iterator
+    {
+        if (null === $bom) {
+            return $iterator;
+        }
+
+        $bomLength = $bom->length();
+        $mapper = function (array $record, int $index) use ($bomLength): array {
+            if (0 !== $index) {
+                return $record;
+            }
+
+            $record = $this->removeBOM($record, $bomLength, $this->enclosure);
+
+            return match ($record) {
+                [''] => [null],
+                default => $record,
+            };
+        };
+
+        return new CallbackFilterIterator(
+            new MapIterator($iterator, $mapper),
+            fn (array $record): bool => $this->is_empty_records_included || $record !== [null]
+        );
     }
 
     /**
