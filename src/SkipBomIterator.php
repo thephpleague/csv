@@ -16,6 +16,7 @@ namespace League\Csv;
 use Override;
 use SeekableIterator;
 use SplFileObject;
+
 use const SEEK_SET;
 
 /**
