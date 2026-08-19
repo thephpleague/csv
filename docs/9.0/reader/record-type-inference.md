@@ -20,10 +20,10 @@ id,name,active,amount
 
 schema inference can determine that:
 
-* `id` is numeric;
-* `name` is a string;
-* `active` is boolean;
-* `amount` is numeric.
+-`id` is numeric;
+-`name` is a string;
+-`active` is boolean;
+-`amount` is numeric.
 
 The feature is available through `Reader::inferSchema()` and `Reader::inferRecords()`.
 
@@ -262,9 +262,9 @@ In both cases, schema inference is performed from a sample of the CSV and the re
 
 A Tabular data provides three ways to iterate over its records:
 
-* `getRecords()` reads the values as they appear in the CSV;
-* `getRecordsAsObject()` converts each record into a specific object;
-* `inferRecords()` infers the types of the columns and parses the records accordingly.
+-`getRecords()` reads the values as they appear in the CSV;
+-`getRecordsAsObject()` converts each record into a specific object;
+-`inferRecords()` infers the types of the columns and parses the records accordingly.
 
 The differences become clearer when the same data is read using each method.
 
@@ -428,8 +428,8 @@ typed records
 
 In short:
 
-* **`inferSchema()`** tells you *what the CSV is understood to contain*.
-* **`inferRecords()`** gives you the records *according to that understanding*.
+- **`inferSchema()`** tells you *what the CSV is understood to contain*.
+- **`inferRecords()`** gives you the records *according to that understanding*.
 
 ### `inferRecords()` with a custom inspector
 
@@ -543,4 +543,3 @@ Use **`getRecordsAsObject()`** when you have a known object model and want the C
 In summary:
 
 > **`getRecords()` preserves the input, `inferRecords()` interprets the input, and `getRecordsAsObject()` validates the input against an explicit object model.**
-
