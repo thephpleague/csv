@@ -254,7 +254,13 @@ final class Buffer implements TabularData
      */
     public function firstAsObject(string $className, array $header = []): ?object
     {
-        if ([] === ($row = $this->rows[$this->firstOffset()] ?? [])) {
+        $offset = $this->firstOffset();
+        if (null === $offset) {
+            return null;
+        }
+
+        $row =  $this->rows[$offset] ?? [];
+        if ([] === $row) {
             return null;
         }
 
@@ -279,7 +285,13 @@ final class Buffer implements TabularData
      */
     public function lastAsObject(string $className, array $header = []): ?object
     {
-        if ([] === ($row = $this->rows[$this->lastOffset()] ?? [])) {
+        $offset = $this->lastOffset();
+        if (null === $offset) {
+            return null;
+        }
+
+        $row =  $this->rows[$offset] ?? [];
+        if ([] === $row) {
             return null;
         }
 
