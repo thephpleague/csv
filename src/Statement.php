@@ -21,6 +21,7 @@ use Iterator;
 use OutOfBoundsException;
 use ReflectionException;
 use ReflectionFunction;
+use SortDirection;
 
 use function array_key_exists;
 use function array_reduce;
@@ -236,7 +237,7 @@ class Statement
      */
     public function orderByAsc(string|int $column, callable|Closure|null $callback = null): self
     {
-        return $this->orderBy(Query\Ordering\Column::sortOn($column, 'asc', $callback));
+        return $this->orderBy(Query\Ordering\Column::sortOn($column, SortDirection::Ascending, $callback));
     }
 
     /**
@@ -246,7 +247,7 @@ class Statement
      */
     public function orderByDesc(string|int $column, callable|Closure|null $callback = null): self
     {
-        return $this->orderBy(Query\Ordering\Column::sortOn($column, 'desc', $callback));
+        return $this->orderBy(Query\Ordering\Column::sortOn($column, SortDirection::Descending, $callback));
     }
 
     /**

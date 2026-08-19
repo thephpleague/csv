@@ -319,10 +319,11 @@ use the `orderBy` method with the classes defined under the `League\Csv\Query` n
 use League\Csv\Query;
 use League\Csv\Reader;
 use League\Csv\Statement;
+use SortDirection;
 
 $sort = Query\Ordering\MultiSort::all(
-    Query\Ordering\Column::sortBy(1, 'desc'),
-    Query\Ordering\Column::sortBy('foo', 'asc', strcmp(...)),
+    Query\Ordering\Column::sortBy(1, SortDirection::Descending),
+    Query\Ordering\Column::sortBy('foo', SortDirection::Ascending, strcmp(...)),
 );
 
 $reader = Reader::from('/path/to/file.csv');

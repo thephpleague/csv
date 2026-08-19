@@ -468,7 +468,7 @@ abstract class AbstractCsv implements ByteSequence
     {
         $this->document instanceof Stream || throw UnavailableFeature::dueToUnsupportedStreamFilterApi(get_class($this->document));
 
-        $this->document->prependFilter($filtername, STREAM_FILTER_READ, $params);
+        $this->document->prependFilter($filtername, STREAM_FILTER_WRITE, $params);
         $this->stream_filters[$filtername] = true;
         $this->resetProperties();
         $this->input_bom = null;

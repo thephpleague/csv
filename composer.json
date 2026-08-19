@@ -45,7 +45,12 @@
         "psr-4": {
             "League\\Csv\\": "src"
         },
-        "files": ["src/functions_include.php"]
+        "classmap": [
+            "polyfill"
+        ],
+        "files": [
+            "src/functions_include.php"
+        ]
     },
     "scripts": {
         "benchmark": "phpbench run src --report=default",
