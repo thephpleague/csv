@@ -38,7 +38,7 @@
         "phpstan/phpstan-deprecation-rules": "^2.0.5",
         "phpstan/phpstan-phpunit": "^2.0.18",
         "phpstan/phpstan-strict-rules": "^2.0.12",
-        "phpunit/phpunit": "^10.5.16 || ^11.5.22 || ^12.5.4 || ^13.3.1",
+        "phpunit/phpunit": "^11.5.22 || ^12.5.4 || ^13.3.1",
         "rector/rector": "^2.6.3",
         "symfony/var-dumper": "^6.4.8 || ^7.4.0 || ^8.0"
     },
