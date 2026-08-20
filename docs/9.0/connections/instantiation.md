@@ -50,13 +50,19 @@ $reader = Reader::fromPath('/path/to/your/csv/file.csv', 'r');
 $writer = Writer::fromPath(new SplFileInfo('/path/to/your/csv/file.csv'), 'w');
 ```
 
-<p class="message-warning">A <code>SplFileObject</code> does not expose its context. If it was created with one, you must pass it explicitly to the <code>$context</code> argument.
-Alternatively, you can use the <code>fromStream</code> method.</p>
+<p class="message-warning">A <code>SplFileObject</code> does not expose its mode not its context.
+If it was created with one, you must pass explicitly its <code>$mode</code> and/or <code>$context</code>
+arguments. Alternatively, you can use the <code>fromStream</code> method.</p>
 
 ### Loading from stream
 
 <div class="message-info">Since version <code>9.29.0</code></div>
 <div class="message-notice">Since version <code>9.27.0</code> the <code>createFromStream()</code> and <code>createFromFileObject()</code> methods are <strong>deprecated</strong></div>
+<div class="message-warning">
+Starting with <code>PHP8.6</code> Deprecation notices will be trigger if you use the
+package with <code>SplFileObject</code> instances.
+ See <a href="https://wiki.php.net/rfc/deprecations_php_8_6#deprecate_splfileobject_csv_methods">Deprecation for PHP8.6</a>
+</div>
 
 ```php
 public static AbstractCsv::fromStream(SplFileObject|resource $stream): self

@@ -2,7 +2,7 @@
 
 require __DIR__ . '/src/functions_include.php';
 
-if (PHP_VERSION_ID < 80600 && !enum_exists('SortDirection', false)) {
+if (PHP_VERSION_ID < 80600 && !enum_exists('SortDirection')) {
     spl_autoload_register(static function (string $class): void {
         if ('SortDirection' === $class) {
             require __DIR__ . '/polyfill/SortDirection.php';
