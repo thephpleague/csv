@@ -17,8 +17,6 @@ use ArrayIterator;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
-use SplFileObject;
-use SplTempFileObject;
 
 use function array_map;
 use function fclose;
@@ -32,14 +30,14 @@ final class WriterTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->csv = Writer::from(new SplTempFileObject());
+        $this->csv = Writer::from(tmpfile());
     }
 
     protected function tearDown(): void
     {
-        $csv = new SplFileObject(__DIR__.'/../test_files/foo.csv', 'w');
-        $csv->setCsvControl(escape: '');
-        $csv->fputcsv(['john', 'doe', 'john.doe@example.com']);
+        /** @var resource $csv */
+        $csv = fopen(__DIR__.'/../test_files/foo.csv', 'w');
+        fputcsv(stream: $csv, fields: ['john', 'doe', 'john.doe@example.com'], escape:'');
         unset($this->csv);
     }
 

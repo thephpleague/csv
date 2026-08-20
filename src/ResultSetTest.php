@@ -15,12 +15,12 @@ namespace League\Csv;
 
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
-use SplTempFileObject;
 
 use function current;
 use function in_array;
 use function json_encode;
 use function next;
+use function tmpfile;
 
 #[Group('reader')]
 final class ResultSetTest extends TabularDataReaderTestCase
@@ -34,14 +34,13 @@ final class ResultSetTest extends TabularDataReaderTestCase
 
     protected function setUp(): void
     {
-        $tmp = new SplTempFileObject();
-        $tmp->setCsvControl(escape: '\\');
+        $tmp = tmpfile();
         foreach ($this->expected as $row) {
-            $tmp->fputcsv($row, escape: '\\');
+            fputcsv($tmp, $row, escape: '\\');
         }
 
         $this->csv = Reader::from($tmp);
-        $this->stmt = (new Statement());
+        $this->stmt = new Statement();
     }
 
     protected function tearDown(): void
@@ -173,10 +172,9 @@ final class ResultSetTest extends TabularDataReaderTestCase
             [6, 7, 8],
         ];
 
-        $tmp = new SplTempFileObject();
-        $tmp->setCsvControl(escape: '\\');
+        $tmp = tmpfile();
         foreach ($arr as $row) {
-            $tmp->fputcsv($row, escape: '\\');
+            fputcsv($tmp, $row, escape: '\\');
         }
 
         $csv = Reader::from($tmp);
@@ -204,10 +202,9 @@ final class ResultSetTest extends TabularDataReaderTestCase
             ['lara', 'croft', 'lara.croft@example.com'],
         ];
 
-        $file = new SplTempFileObject();
-        $file->setCsvControl(escape: '\\');
+        $file = tmpfile();
         foreach ($raw as $row) {
-            $file->fputcsv($row, escape: '\\');
+            fputcsv($file, $row, escape: '\\');
         }
         $csv = Reader::from($file);
         $res = $this->stmt->process($csv)->fetchColumn(2);
@@ -222,10 +219,9 @@ final class ResultSetTest extends TabularDataReaderTestCase
             ['lara', 'croft'],
         ];
 
-        $file = new SplTempFileObject();
-        $file->setCsvControl(escape: '\\');
+        $file = tmpfile();
         foreach ($raw as $row) {
-            $file->fputcsv($row, escape: '\\');
+            fputcsv($file, $row, escape: '\\');
         }
         $csv = Reader::from($file);
         $res = $this->stmt->process($csv)->fetchColumn(2);
@@ -315,10 +311,9 @@ final class ResultSetTest extends TabularDataReaderTestCase
             ['jane', 'doe', 'jane.doe@example.com'],
         ];
 
-        $tmp = new SplTempFileObject();
-        $tmp->setCsvControl(escape: '\\');
+        $tmp = tmpfile();
         foreach ($expected as $row) {
-            $tmp->fputcsv($row, escape: '\\');
+            fputcsv($tmp, $row, escape: '\\');
         }
 
         $reader = Reader::from($tmp)->setHeaderOffset(0);

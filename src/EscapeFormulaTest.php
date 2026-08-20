@@ -17,7 +17,6 @@ use InvalidArgumentException;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
-use SplTempFileObject;
 use TypeError;
 
 #[Group('filter')]
@@ -63,7 +62,7 @@ final class EscapeFormulaTest extends TestCase
     {
         $record = ['2', '2017-07-25', 'Important Client', '=2+5', 240, "\ttab", "\rcr", null];
         $expected = "2,2017-07-25,\"Important Client\",'=2+5,240,\"'\ttab\",\"'\rcr\",\n";
-        $csv = Writer::from(new SplTempFileObject());
+        $csv = Writer::fromString();
         $csv->addFormatter((new EscapeFormula())->escapeRecord(...));
         $csv->insertOne($record);
         self::assertStringContainsString($expected, $csv->toString());

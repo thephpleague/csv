@@ -45,9 +45,9 @@ final class AbstractCsvTest extends TestCase
 
     protected function setUp(): void
     {
-        $tmp = new SplTempFileObject();
+        $tmp = tmpfile();
         foreach ($this->expected as $row) {
-            $tmp->fputcsv($row, escape: '\\');
+            fputcsv(stream: $tmp, fields: $row, escape: '\\');
         }
 
         $this->csv = Reader::from($tmp);

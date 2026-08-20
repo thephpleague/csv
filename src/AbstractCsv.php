@@ -94,6 +94,10 @@ abstract class AbstractCsv implements ByteSequence, Stringable
      */
     public static function fromPath(SplFileInfo|string $path, string $mode = 'r', $context = null): static
     {
+        if ($path instanceof SplFileObject) {
+            $path = $path->getPathname();
+        }
+
         return static::from(filename: $path, mode: $mode, context: $context);
     }
 

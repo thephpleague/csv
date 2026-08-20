@@ -15,16 +15,19 @@ namespace League\Csv;
 
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
-use SplTempFileObject;
 use TypeError;
+
+use function fputcsv;
+use function fwrite;
+use function tmpfile;
 
 #[Group('csv')]
 final class InfoTest extends TestCase
 {
     public function testDetectDelimiterListWithInvalidRowLimit(): void
     {
-        $file = new SplTempFileObject();
-        $file->fwrite("How are you today ?\nI'm doing fine thanks!");
+        $file = tmpfile();
+        fwrite($file, "How are you today ?\nI'm doing fine thanks!");
         $csv = Reader::from($file);
 
         $this->expectException(Exception::class);
@@ -36,8 +39,8 @@ final class InfoTest extends TestCase
     {
         $this->expectException(TypeError::class);
 
-        $file = new SplTempFileObject();
-        $file->fwrite("How are you today ?\nI'm doing fine thanks!");
+        $file = tmpfile();
+        fwrite($file, "How are you today ?\nI'm doing fine thanks!");
         $csv = Reader::from($file);
 
         Info::getDelimiterStats($csv, [',', []]); /* @phpstan-ignore-line */
@@ -45,8 +48,8 @@ final class InfoTest extends TestCase
 
     public function testDetectDelimiterListWithNoCSV(): void
     {
-        $file = new SplTempFileObject();
-        $file->fwrite("How are you today ?\nI'm doing fine thanks!");
+        $file = tmpfile();
+        fwrite($file, "How are you today ?\nI'm doing fine thanks!");
         $csv = Reader::from($file);
 
         self::assertSame(['toto' => 0, '|' => 0], Info::getDelimiterStats($csv, ['toto', '|'], 5));
@@ -54,8 +57,8 @@ final class InfoTest extends TestCase
 
     public function testDetectDelimiterWithNoValidDelimiter(): void
     {
-        $file = new SplTempFileObject();
-        $file->fwrite("How are you today ?\nI'm doing fine thanks!");
+        $file = tmpfile();
+        fwrite($file, "How are you today ?\nI'm doing fine thanks!");
         $csv = Reader::from($file);
 
         self::assertSame(['toto' => 0], Info::getDelimiterStats($csv, ['toto'], 5));
@@ -63,13 +66,11 @@ final class InfoTest extends TestCase
 
     public function testDetectDelimiterListWithInconsistentCSV(): void
     {
-        $data = new SplTempFileObject();
-        $data->setCsvControl(separator: ';', escape: '\\');
-        $data->fputcsv(['toto', 'tata', 'tutu']);
-        $data->setCsvControl('|', escape: '\\');
-        $data->fputcsv(['toto', 'tata', 'tutu']);
-        $data->fputcsv(['toto', 'tata', 'tutu']);
-        $data->fputcsv(['toto', 'tata', 'tutu']);
+        $data = tmpfile();
+        fputcsv($data, ['toto', 'tata', 'tutu'], separator: ';', escape: '\\');
+        fputcsv($data, ['toto', 'tata', 'tutu'], separator: '|', escape: '\\');
+        fputcsv($data, ['toto', 'tata', 'tutu'], separator: '|', escape: '\\');
+        fputcsv($data, ['toto', 'tata', 'tutu'], separator: '|', escape: '\\');
 
         self::assertSame(
             ['|' => 12, ';' => 4],
@@ -79,8 +80,8 @@ final class InfoTest extends TestCase
 
     public function testDetectDelimiterKeepOriginalDelimiter(): void
     {
-        $file = new SplTempFileObject();
-        $file->fwrite("How are you today ?\nI'm doing fine thanks!");
+        $file = tmpfile();
+        fwrite($file, "How are you today ?\nI'm doing fine thanks!");
         $csv = Reader::from($file);
         $csv->setDelimiter('@');
 

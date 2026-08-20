@@ -17,7 +17,6 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\DoesNotPerformAssertions;
 use PHPUnit\Framework\Attributes\Group;
 use SplFileObject;
-use SplTempFileObject;
 
 use function array_keys;
 use function count;
@@ -25,6 +24,7 @@ use function fclose;
 use function fopen;
 use function fputcsv;
 use function json_encode;
+use function tmpfile;
 use function unlink;
 
 #[Group('reader')]
@@ -38,10 +38,9 @@ final class ReaderTest extends TabularDataReaderTestCase
 
     protected function setUp(): void
     {
-        $tmp = new SplTempFileObject();
-        $tmp->setCsvControl(escape: '\\');
+        $tmp = tmpfile();
         foreach ($this->expected as $row) {
-            $tmp->fputcsv($row, escape: '\\');
+            fputcsv(stream: $tmp, fields: $row, escape: '\\');
         }
 
         $this->csv = Reader::from($tmp);
@@ -157,10 +156,9 @@ EOF;
             ['clarck', 'kent'],
         ];
 
-        $file = new SplTempFileObject();
-        $file->setCsvControl(escape: '\\');
+        $file = tmpfile();
         foreach ($raw as $row) {
-            $file->fputcsv($row, escape: '\\');
+            fputcsv($file, $row, escape: '\\');
         }
         $csv = Reader::from($file);
         $csv->setHeaderOffset(0);
@@ -365,10 +363,9 @@ EOF;
             ['jane', 'doe', 'jane.doe@example.com'],
         ];
 
-        $tmp = new SplTempFileObject();
-        $tmp->setCsvControl(escape: '\\');
+        $tmp = tmpfile();
         foreach ($expected as $row) {
-            $tmp->fputcsv($row, escape: '\\');
+            fputcsv($tmp, $row, escape: '\\');
         }
 
         $reader = Reader::from($tmp)->setHeaderOffset(0);
@@ -450,8 +447,8 @@ EOF;
             3 => ['parent name' => 'parentA', 'child name' => 'childA', 'title' => 'titleA'],
         ];
 
-        $rsrc = new SplTempFileObject();
-        $rsrc->fwrite($source);
+        $rsrc = tmpfile();
+        fwrite($rsrc, $source);
 
         return [
             'FileObject' => [

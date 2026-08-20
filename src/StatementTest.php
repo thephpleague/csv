@@ -19,7 +19,6 @@ use OutOfBoundsException;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
-use SplTempFileObject;
 
 use function array_reverse;
 use function in_array;
@@ -38,14 +37,13 @@ final class StatementTest extends TestCase
 
     protected function setUp(): void
     {
-        $tmp = new SplTempFileObject();
-        $tmp->setCsvControl(escape: '\\');
+        $tmp = tmpfile();
         foreach ($this->expected as $row) {
-            $tmp->fputcsv($row, escape: '\\');
+            fputcsv(stream: $tmp, fields: $row, escape: '\\');
         }
 
         $this->csv = Reader::from($tmp);
-        $this->stmt = (new Statement());
+        $this->stmt = new Statement();
     }
 
     protected function tearDown(): void
