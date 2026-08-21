@@ -79,7 +79,7 @@ final class StringField extends FieldEvaluator implements Field
         return new self(StructuredStringConstraint::sha1(), $confidenceThreshold);
     }
 
-    public static function cases(float $confidenceThreshold = 0.8): FieldList
+    public static function builtIns(float $confidenceThreshold = 0.8): FieldList
     {
         return new FieldList(
             self::uuid($confidenceThreshold),

@@ -74,9 +74,6 @@ if (!ini_get('auto_detect_line_endings')) {
 }
 ```
 
-> [!WARNING]
-> **The ini setting is deprecated since PHP version 8.1 and will be removed in PHP 9.0**
-
 ## Testing
 
 The library has:

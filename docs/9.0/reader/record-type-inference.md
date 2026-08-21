@@ -443,7 +443,7 @@ For example:
 
 ```php
 $fields = FieldList::default()->append(
-    StringField::cases(confidenceThreshold: .8),
+    StringField::builtIns(confidenceThreshold: .8),
     new EnumField(
         enumClass: Gender::class,
         confidenceThreshold: .5,
