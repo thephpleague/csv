@@ -191,7 +191,8 @@ final class DateTimeField extends FieldEvaluator implements Field
         }
 
         try {
-            $value = $this->outputClass::createFromFormat($this->format, $value, $this->timezone);
+            // `|` resets the fields the format does not parse, which createFromFormat otherwise fills from the current time.
+            $value = $this->outputClass::createFromFormat($this->format.'|', $value, $this->timezone);
             if (false === $value) {
                 return null;
             }

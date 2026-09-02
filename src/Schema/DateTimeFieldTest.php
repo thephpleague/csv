@@ -82,6 +82,14 @@ final class DateTimeFieldTest extends TestCase
     {
         self::assertSame('datetime(format=timestamp,timezone=UTC)', DateTimeField::timestamp()->name());
     }
+
+    public function testParseDoesNotTakeUnparsedFieldsFromTheCurrentTime(): void
+    {
+        $result = (new DateTimeField('Y-m-d'))->parse('2024-01-01');
+
+        self::assertInstanceOf(DateTimeImmutable::class, $result);
+        self::assertSame('2024-01-01 00:00:00.000000', $result->format('Y-m-d H:i:s.u'));
+    }
 }
 
 interface MyDateInterface extends DateTimeInterface
