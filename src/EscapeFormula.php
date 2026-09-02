@@ -110,6 +110,7 @@ class EscapeFormula
 
         return match (true) {
             null === $strOrNull,
+            '' === $strOrNull,
             !isset($this->special_chars[$strOrNull[0]]) && !str_starts_with($strOrNull, $this->escape) => $cell,
             default => $this->escape.$strOrNull,
         };

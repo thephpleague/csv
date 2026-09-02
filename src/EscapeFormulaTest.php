@@ -173,4 +173,9 @@ final class EscapeFormulaTest extends TestCase
         $formatter = new EscapeFormula('xy');
         self::assertSame(['xy=2+5', 'xy'], $formatter->unescapeRecord(['xyxy=2+5', 'xyxy']));
     }
+
+    public function testEscapeRecordLeavesAnEmptyFieldUntouched(): void
+    {
+        self::assertSame([''], (new EscapeFormula())->escapeRecord(['']));
+    }
 }
