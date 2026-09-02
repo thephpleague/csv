@@ -122,4 +122,10 @@ final class TimeFieldTest extends TestCase
             TimeField::hours()->name()
         );
     }
+
+    public function test_separator_is_matched_literally(): void
+    {
+        self::assertNull(TimeField::minutes(separator: '.')->parse('10x30'));
+        self::assertSame('10/30/00', TimeField::minutes(separator: '/')->parse('10/30'));
+    }
 }

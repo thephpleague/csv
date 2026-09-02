@@ -21,6 +21,7 @@ use function ctype_digit;
 use function implode;
 use function is_string;
 use function preg_match;
+use function preg_quote;
 use function strlen;
 use function trim;
 
@@ -132,6 +133,6 @@ final class TimeField extends FieldEvaluator implements Field
             }
         );
 
-        return '/^'.implode($this->separator, $patternParts).'$/';
+        return '/^'.implode(preg_quote($this->separator, '/'), $patternParts).'$/';
     }
 }
