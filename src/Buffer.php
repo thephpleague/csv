@@ -335,16 +335,11 @@ final class Buffer implements TabularData
     private function nthRow(int $nth, string $method): array
     {
         -1 < $nth || throw InvalidArgument::dueToInvalidRecordOffset($nth, $method);
-        if (null === ($first = $this->firstOffset())) {
-            return [];
-        }
 
-        $offset = $first + $nth;
-        if (!array_key_exists($offset, $this->rows)) {
-            return [];
-        }
-
-        return $this->rows[$nth + $first];
+        // $nth is a positional index (like ResultSet::nth), so it must be
+        // resolved against the record order rather than the row keys, which
+        // may contain gaps after records have been deleted.
+        return array_values($this->rows)[$nth] ?? [];
     }
 
     public function fetchColumn(int|string $index = 0): Iterator
