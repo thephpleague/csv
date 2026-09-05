@@ -241,11 +241,9 @@ final class Buffer implements TabularData
      */
     public function nth(int $nth): array
     {
-        if ([] === ($row = $this->nthRow($nth, __METHOD__))) {
-            return [];
-        }
+        $row = $this->nthRow($nth, __METHOD__);
 
-        return $this->rowToRecord($row, $this->header);
+        return [] !== $row ? $this->rowToRecord($row, $this->header) : [];
     }
 
     /**
@@ -260,11 +258,12 @@ final class Buffer implements TabularData
      */
     public function nthAsObject(int $nth, string $className, array $header = []): ?object
     {
-        if ([] === ($row = $this->nthRow($nth, __METHOD__))) {
-            return null;
-        }
+        $row = $this->nthRow($nth, __METHOD__);
 
-        return Denormalizer::assign($className, $this->rowToRecord($row, [] !== $header ? $header : $this->header));
+        return [] !== $row
+            ? Denormalizer::assign($className, $this->rowToRecord($row, [] !== $header ? $header : $this->header))
+            : null;
+
     }
 
     public function firstOffset(): ?int
@@ -336,9 +335,6 @@ final class Buffer implements TabularData
     {
         -1 < $nth || throw InvalidArgument::dueToInvalidRecordOffset($nth, $method);
 
-        // $nth is a positional index (like ResultSet::nth), so it must be
-        // resolved against the record order rather than the row keys, which
-        // may contain gaps after records have been deleted.
         return array_values($this->rows)[$nth] ?? [];
     }
 

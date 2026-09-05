@@ -292,7 +292,7 @@ final class BufferTest extends TestCase
         $buffer->insert(['1', 'a'], ['2', 'b'], ['3', 'c'], ['4', 'd'], ['5', 'e']);
 
         // Delete the second record (id = 2), which leaves a gap in the row keys.
-        self::assertSame(1, $buffer->delete(fn (array $row): bool => $row['id'] === '2'));
+        self::assertSame(1, $buffer->delete(fn (array $row): bool => '2' === $row['id']));
         self::assertSame(4, $buffer->recordCount());
 
         // nth() is positional and must stay consistent with getRecords().

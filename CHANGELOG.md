@@ -24,6 +24,10 @@ All Notable changes to `Csv` will be documented in this file
 - Remove `ArrayIterator::uasort` usage because the method is deprecated in PHP8.6.
 - Use `STREAM_FILTER_WRITE` in `prependStreamFilterOnWrite` method - [#577](https://github.com/thephpleague/csv/pull/577) by [zigzagdev](https://github.com/zigzagdev)
 - Initialize `$callback` property to null to prevent uninitialized property - [#576](https://github.com/thephpleague/csv/pull/576) by [zigzagdev](https://github.com/zigzagdev)
+- Fix EscapeFormula round-trip - [#583](https://github.com/thephpleague/csv/pull/583) by [binggao1230](https://github.com/binggao1230)
+- Leave an empty field untouched in EscapeFormula::escapeField - [#593](https://github.com/thephpleague/csv/pull/593) by [lenamonj](https://github.com/lenamonj)
+- Fix `TimeField` separator - [#592](https://github.com/thephpleague/csv/pull/592) by [lenamonj](https://github.com/lenamonj)
+- Fix `Buffer::nth` and `Buffer::nthASObject` [#594](https://github.com/thephpleague/csv/pull/594) by [dualfroz](https://github.com/dualfroz)
 
 ### Remove
 
