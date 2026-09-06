@@ -335,7 +335,14 @@ final class Buffer implements TabularData
     {
         -1 < $nth || throw InvalidArgument::dueToInvalidRecordOffset($nth, $method);
 
-        return array_values($this->rows)[$nth] ?? [];
+        $i = 0;
+        foreach ($this->rows as $row) {
+            if ($nth === $i++) {
+                return $row;
+            }
+        }
+
+        return [];
     }
 
     public function fetchColumn(int|string $index = 0): Iterator
