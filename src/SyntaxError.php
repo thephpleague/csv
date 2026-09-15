@@ -41,7 +41,7 @@ class SyntaxError extends Exception
 
     public static function dueToInvalidHeaderColumnNames(): self
     {
-        return new self('The header record contains non string colum names.');
+        return new self('The header record contains non string column names.');
     }
 
     public static function dueToDuplicateHeaderColumnNames(array $header): self
