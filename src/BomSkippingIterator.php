@@ -22,13 +22,13 @@ use const SEEK_SET;
 /**
  * @internal
  */
-final readonly class SkipBomIterator implements SeekableIterator
+final readonly class BomSkippingIterator implements SeekableIterator
 {
-    private int $offset;
+    private int $bomLength;
 
     public function __construct(private SplFileObject|Stream $document)
     {
-        $this->offset = Bom::tryFromSequence($document)?->length() ?? 0;
+        $this->bomLength = Bom::tryFromSequence($document)?->length() ?? 0;
         $this->document->setFlags(SplFileObject::READ_CSV);
     }
 
@@ -71,8 +71,8 @@ final readonly class SkipBomIterator implements SeekableIterator
     public function rewind(): void
     {
         $this->document->rewind();
-        if (0 !== $this->offset) {
-            $this->fseek($this->offset, SEEK_SET);
+        if (0 !== $this->bomLength) {
+            $this->fseek($this->bomLength, SEEK_SET);
         }
     }
 

@@ -195,7 +195,7 @@ class Reader extends AbstractCsv implements TabularDataReader, JsonSerializable
     {
         $document = $this->getDocument();
 
-        return $this->is_input_bom_included ? $document : new SkipBomIterator($document);
+        return $this->is_input_bom_included ? $document : new BomSkippingIterator($document);
     }
 
     /**
