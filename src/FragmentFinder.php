@@ -16,6 +16,7 @@ namespace League\Csv;
 use Deprecated;
 
 use function array_filter;
+use function array_key_first;
 use function array_map;
 use function array_reduce;
 use function count;
@@ -80,12 +81,15 @@ class FragmentFinder
     public function findFirst(string $expression, TabularData|TabularDataProvider $tabularData): ?TabularDataReader
     {
         $tabularData = self::tabularData($tabularData);
-        $fragment = $this->find($this->parseExpression($expression, $tabularData), $tabularData)[0];
+        $fragment = $this->find($this->parseExpression($expression, $tabularData), $tabularData);
+        $offset = array_key_first($fragment);
+        if (null === $offset) {
+            return null;
+        }
 
-        return match ([]) {
-            $fragment->first() => null,
-            default => $fragment,
-        };
+        $data = $fragment[$offset];
+
+        return [] === $data->first() ? null : $data;
     }
 
     /**
@@ -106,12 +110,14 @@ class FragmentFinder
             throw new FragmentNotFound('The expression `'.$expression.'` contains an invalid or an unsupported selection for the tabular data.');
         }
 
-        $fragment = $this->find($parsedExpression, $tabularData)[0];
+        $fragment = $this->find($parsedExpression, $tabularData);
+        $offset = array_key_first($fragment);
+        null !== $offset || throw new FragmentNotFound('No fragment found in the tabular data with the expression `'.$expression.'`.');
 
-        return match ([]) {
-            $fragment->first() => throw new FragmentNotFound('No fragment found in the tabular data with the expression `'.$expression.'`.'),
-            default => $fragment,
-        };
+        $data = $fragment[$offset];
+        return [] !== $data->first()
+            ? $data
+            : throw new FragmentNotFound('No fragment found in the tabular data with the expression `'.$expression.'`.');
     }
 
     /**

@@ -28,6 +28,7 @@ All Notable changes to `Csv` will be documented in this file
 - Leave an empty field untouched in EscapeFormula::escapeField - [#593](https://github.com/thephpleague/csv/pull/593) by [lenamonj](https://github.com/lenamonj)
 - Fix `TimeField` separator - [#592](https://github.com/thephpleague/csv/pull/592) by [lenamonj](https://github.com/lenamonj)
 - Fix `Buffer::nth` and `Buffer::nthASObject` [#594](https://github.com/thephpleague/csv/pull/594) by [dualfroz](https://github.com/dualfroz)
+- Fix `FragmentFinder::findFirst` crashing see issue [#596](https://github.com/thephpleague/csv/issues/596)
 
 ### Remove
 
