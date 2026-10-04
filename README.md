@@ -64,6 +64,18 @@ package with `SplFileObject` or `SplTempFileObject` instances.**
 explicitly set the escape parameter.**
 > See [Deprecation for PHP8.4](https://wiki.php.net/rfc/deprecations_php_8_4#deprecate_proprietary_csv_escaping_mechanism) and [CSV and PHP8.4](https://nyamsprod.com/blog/csv-and-php8-4/)
 
+> [!IMPORTANT]
+> **Starting with version 9.29** if your application also uses `symfony/polyfill-php86`,
+> Composer may report an `Ambiguous class resolution`warning for `SortDirection`.
+>
+> This is expected and harmless. Both packages include the same `SortDirection`
+> polyfill so that **`league/csv` can also be used without Composer.**
+> On PHP 8.6 and later, `SortDirection` is provided by PHP itself and the League
+> CSV polyfill does not declare the enum. On older PHP versions, the polyfill
+> provides the enum when it is not already available.
+>
+> No action is required when this warning is reported.
+
 > [!TIP]
 > If your CSV document was created or is read on a **Legacy Macintosh computer**, add the following lines before 
 using the library to help [PHP detect line ending](http://php.net/manual/en/function.fgetcsv.php#refsect1-function.fgetcsv-returnvalues).

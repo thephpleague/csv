@@ -32,6 +32,36 @@ longer required but it is still recommended if you are using or plan to use any 
 composer require league/csv:^{{ site.data.project.version }}
 ```
 
+### `SortDirection` and Composer
+
+`league/csv` includes a small `SortDirection` polyfill because the library is designed to work both with and without Composer.
+
+When `league/csv` is installed through Composer alongside `symfony/polyfill-php86`, Composer may report:
+
+```text
+Warning: Ambiguous class resolution, "SortDirection" was found in both
+".../symfony/polyfill-php86/Resources/stubs/SortDirection.php" and
+".../league/csv/polyfill/SortDirection.php", the first will be used.
+```
+
+This warning is harmless.
+
+The two files contain the same `SortDirection` implementation. Furthermore, the League CSV polyfill only declares the enum when running on PHP versions where it is not provided by PHP:
+
+```php
+if (PHP_VERSION_ID < 80600 && !enum_exists('SortDirection', false)) {
+    enum SortDirection
+    {
+        case Ascending;
+        case Descending;
+    }
+}
+```
+
+Therefore, on PHP 8.6 and later, there is no conflict between two active declarations. The League CSV polyfill is simply a no-op.
+
+No configuration or action is required.
+
 ## Manual Install
 
 You can also use `League\Csv` without using Composer by downloading the library on Github.
