@@ -26,6 +26,7 @@ use function stream_bucket_append;
 use function stream_bucket_make_writeable;
 use function stream_bucket_new;
 use function stream_filter_append;
+use function stream_filter_prepend;
 use function stream_filter_register;
 use function stream_get_filters;
 use function stream_get_meta_data;
@@ -120,7 +121,7 @@ final class SwapDelimiter extends php_user_filter
 
         $filtername = self::getFiltername();
         /** @var resource|false $filter */
-        $filter = Warning::cloak(fn () => stream_filter_append($stream, $filtername, params: [
+        $filter = Warning::cloak(fn () => stream_filter_prepend($stream, $filtername, params: [
             'mb_separator' => $inputDelimiter,
             'separator' => $delimiter,
             'mode' => str_contains(stream_get_meta_data($stream)['mode'], 'r') ? self::MODE_READ : self::MODE_WRITE,

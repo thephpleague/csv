@@ -52,4 +52,34 @@ CSV;
         $writer->insertOne(['observeedOn' => '2023-10-01', 'temperature' => '18', 'place' => 'Yamoussokro']);
         self::assertSame('2023-10-01💩18💩Yamoussokro'."\n", $writer->toString());
     }
+
+    #[Test]
+    public function it_prepends_the_filter_before_existing_filters(): void
+    {
+        $stream = fopen('php://temp', 'w+');
+        self::assertIsResource($stream);
+        stream_filter_append($stream, 'string.rot13', STREAM_FILTER_WRITE);
+        SwapDelimiter::prependTo($stream, 'a', ',');
+        fwrite($stream, "x,y\n");
+        rewind($stream);
+        $contents = stream_get_contents($stream);
+        fclose($stream);
+
+        self::assertSame("knl\n", $contents);
+    }
+
+    #[Test]
+    public function it_appends_the_filter_after_existing_filters(): void
+    {
+        $stream = fopen('php://temp', 'w+');
+        self::assertIsResource($stream);
+        stream_filter_append($stream, 'string.rot13', STREAM_FILTER_WRITE);
+        SwapDelimiter::appendTo($stream, 'a', ',');
+        fwrite($stream, "x,y\n");
+        rewind($stream);
+        $contents = stream_get_contents($stream);
+        fclose($stream);
+
+        self::assertSame("kal\n", $contents);
+    }
 }
