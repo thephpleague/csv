@@ -4,14 +4,25 @@ includes:
     - vendor/phpstan/phpstan-phpunit/extension.neon
     - vendor/phpstan/phpstan-phpunit/rules.neon
 parameters:
-    ignoreErrors:
-        - identifier: missingType.generics
-        - identifier: missingType.iterableValue
-        - '#implements deprecated interface League\\Csv\\ByteSequence#'
-        - '#Call to deprecated method expectExceptionMessage\(\) of class PHPUnit\\Framework\\TestCase:#'
     level: 9
     paths:
         - src
+    ignoreErrors:
+        -
+           message: '#Call to deprecated method expectExceptionMessage\(\) of class PHPUnit\\Framework\\TestCase:#'
+        -
+           identifiers:
+             - missingType.generics
+             - missingType.iterableValue
+        -
+          identifier: binaryOp.invalid
+          paths:
+            - src/RFC4180Field.php
+        -
+          identifier: class.implementsDeprecatedInterface
+          paths:
+            - src/AbstractCsv.php
+            - src/Info.php
     reportUnmatchedIgnoredErrors: true
     treatPhpDocTypesAsCertain: false
     parallel:
