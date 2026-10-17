@@ -193,6 +193,13 @@ abstract class TabularDataReaderTestCase extends TestCase
             ],
         ];
 
+        yield 'row range with the same start and end' =>  [
+            'expression' => 'row=4-4',
+            'expected' => [
+                0 => ['2011-01-03', '0', 'Galway'],
+            ],
+        ];
+
         yield 'single column' => [
             'expression' => 'col=2',
             'expected' => [
@@ -216,6 +223,19 @@ abstract class TabularDataReaderTestCase extends TestCase
                 4 => ['2011-01-01', '6'],
                 5 => ['2011-01-02', '8'],
                 6 => ['2011-01-03', '5'],
+            ],
+        ];
+
+        yield 'column range with the same start and end' =>  [
+            'expression' => 'col=2-2',
+            'expected' => [
+                0 => [1 => 'temperature'],
+                1 => [1 => '1'],
+                2 => [1 => '-1'],
+                3 => [1 => '0'],
+                4 => [1 => '6'],
+                5 => [1 => '8'],
+                6 => [1 => '5'],
             ],
         ];
 
