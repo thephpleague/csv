@@ -319,7 +319,7 @@ class FragmentFinder
         }
         --$end;
 
-        if ($end <= $start) {
+        if ($end < $start) {
             return [-1, 0];
         }
 
