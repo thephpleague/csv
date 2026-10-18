@@ -13,18 +13,18 @@ declare(strict_types=1);
 
 namespace League\Csv\Schema;
 
-use PHPUnit\Framework\Attributes\CoversClass;
+use BackedEnum;
+use Stringable;
 
 use function filter_var;
-use function in_array;
 use function is_bool;
+use function is_int;
 use function is_string;
 use function trim;
 
 use const FILTER_NULL_ON_FAILURE;
 use const FILTER_VALIDATE_BOOLEAN;
 
-#[CoversClass(BooleanField::class)]
 final class BooleanField extends FieldEvaluator implements Field
 {
     public function type(): FieldType
@@ -43,7 +43,11 @@ final class BooleanField extends FieldEvaluator implements Field
             return $value;
         }
 
-        if (!is_string($value) && !in_array($value, [0, 1], true)) {
+        if ($value instanceof BackedEnum) {
+            $value = $value->value;
+        }
+
+        if (!is_int($value) && !is_string($value) && !$value instanceof Stringable) {
             return null;
         }
 

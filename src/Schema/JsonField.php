@@ -13,6 +13,9 @@ declare(strict_types=1);
 
 namespace League\Csv\Schema;
 
+use BackedEnum;
+use JsonSerializable;
+use Stringable;
 use ValueError;
 
 use function is_string;
@@ -59,6 +62,18 @@ final class JsonField extends FieldEvaluator implements Field
 
     public function parse(mixed $value): mixed
     {
+        if ($value instanceof JsonSerializable) {
+            $value = json_encode($value->jsonSerialize(), flags: JSON_THROW_ON_ERROR);
+        }
+
+        if ($value instanceof BackedEnum) {
+            $value = $value->value;
+        }
+
+        if ($value instanceof Stringable) {
+            $value = (string) $value;
+        }
+
         if (!is_string($value)) {
             return null;
         }

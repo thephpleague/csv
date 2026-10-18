@@ -112,7 +112,6 @@ final class SetFieldTest extends TestCase
                 'limit' => 3,
                 'enum' => [
                     'class' => TestSetEnum::class,
-                    'backedType' => 'string',
                     'cases' => [
                         ['name' => 'Read', 'value' => 'read'],
                         ['name' => 'Write', 'value' => 'write'],

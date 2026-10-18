@@ -132,7 +132,6 @@ final class EnumFieldTest extends TestCase
         $metadata = $field->metadata();
 
         self::assertSame(TestBackedEnum::class, $metadata->get('class'));
-        self::assertSame('string', $metadata->get('backedType'));
         self::assertSame([
             ['name' => 'A', 'value' => 'a'],
             ['name' => 'B', 'value' => 'b'],

@@ -14,53 +14,109 @@ declare(strict_types=1);
 namespace League\Csv\Schema;
 
 use BackedEnum;
+use Closure;
 use ReflectionEnum;
-use ReflectionEnumUnitCase;
-use Throwable;
+use Stringable;
 use UnitEnum;
 use ValueError;
 
 use function array_map;
 use function filter_var;
+use function is_bool;
+use function is_float;
 use function is_int;
+use function is_scalar;
 use function is_string;
 use function trim;
 
 use const FILTER_VALIDATE_INT;
 
+/**
+ * @template T of UnitEnum|BackedEnum
+ */
 final class EnumField extends FieldEvaluator implements Field
 {
-    private readonly ?string $backedEnumType;
-    /** @var list<UnitEnum> */
+    /** @var list<T> */
     private readonly array $cases;
-    /** @var class-string<UnitEnum> */
+    /** @var class-string<T> */
     public readonly string $enumClass;
-    private readonly array $byNames;
+    private Closure $find;
 
     /**
-     * @param class-string<UnitEnum> $enumClass
+     * @param class-string<T> $enumClass
      */
     public function __construct(
         string $enumClass,
         float $confidenceThreshold = 0.8
     ) {
-        try {
-            $ref = new ReflectionEnum($enumClass);
-        } catch (Throwable $exception) {
-            throw new ValueError('Enum "'.$enumClass.'" can not be use: '.$exception->getMessage(), previous: $exception);
-        }
+        enum_exists($enumClass) || throw new ValueError($enumClass.' does not exist or could not be found.');
+        $this->cases = $enumClass::cases();
+        $this->enumClass = $enumClass;
 
         parent::__construct($confidenceThreshold);
 
-        $this->enumClass = $enumClass;
-        $this->backedEnumType = !$ref->isBacked() ? null : $ref->getBackingType()->getName();
-        $this->cases = array_map(fn (ReflectionEnumUnitCase $case) => $case->getValue(), $ref->getCases()); /* @phpstan-ignore-line */
+        $this->find = (new ReflectionEnum($enumClass))->isBacked() /* @phpstan-ignore-line */
+            ? self::findBackedEnum(...)
+            : self::findEnum(...);
+    }
 
-        $byNames = [];
-        foreach ($this->cases as $case) {
-            $byNames[$case->name] = $case;
+    /**
+     * @return ?T
+     */
+    private function findBackedEnum(mixed $value): ?UnitEnum
+    {
+        if ($value instanceof $this->enumClass) {
+            return $value;
         }
-        $this->byNames = $byNames;
+
+        if ($value instanceof UnitEnum || is_float($value) || is_bool($value) || null === $value) {
+            return null;
+        }
+
+        if ($value instanceof Stringable) {
+            $value = (string) $value;
+        }
+
+        if (!is_string($value) && !is_int($value)) {
+            return null;
+        }
+
+        $intValue = is_int($value) ? $value : filter_var($value, FILTER_VALIDATE_INT);
+        $value = (string) $value;
+        foreach ($this->cases as $case) {
+            /* @phpstan-ignore-next-line  */
+            if ($intValue === $case->value || $value === $case->value) {
+                return $case;
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * @return ?T
+     */
+    private function findEnum(mixed $value): ?UnitEnum
+    {
+        if ($value instanceof $this->enumClass) {
+            return $value;
+        }
+
+        if ($value instanceof UnitEnum || (is_scalar($value) && !is_string($value)) || null === $value) {
+            return null;
+        }
+
+        if ($value instanceof Stringable) {
+            $value = (string) $value;
+        }
+
+        foreach ($this->cases as $case) {
+            if ($case->name === $value) {
+                return $case;
+            }
+        }
+
+        return null;
     }
 
     public function type(): FieldType
@@ -75,8 +131,16 @@ final class EnumField extends FieldEvaluator implements Field
 
     public function parse(mixed $value): ?UnitEnum
     {
-        if ($value instanceof UnitEnum && $value::class === $this->enumClass) {
+        if ($value instanceof $this->enumClass) {
             return $value;
+        }
+
+        if ($value instanceof UnitEnum) {
+            return null;
+        }
+
+        if ($value instanceof Stringable) {
+            $value = (string) $value;
         }
 
         if (!is_string($value) && !is_int($value)) {
@@ -90,28 +154,13 @@ final class EnumField extends FieldEvaluator implements Field
             }
         }
 
-        if (null === $this->backedEnumType) {
-            return !is_string($value) ? null : ($this->byNames[$value] ?? null);
-        }
-
-        if ('int' === $this->backedEnumType && is_string($value)) {
-            $value = filter_var($value, FILTER_VALIDATE_INT);
-            if (false === $value) {
-                return null;
-            }
-        }
-
-        /** @var class-string<BackedEnum> $enumClass */
-        $enumClass = $this->enumClass;
-
-        return $enumClass::tryFrom($value);
+        return ($this->find)($value);
     }
 
     public function metadata(): FieldMetadata
     {
         return new FieldMetadata([
             'class' => $this->enumClass,
-            'backedType' => $this->backedEnumType,
             'cases' => array_map(
                 fn (UnitEnum $case): array => [
                     'name' => $case->name,

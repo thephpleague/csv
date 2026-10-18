@@ -13,6 +13,7 @@ declare(strict_types=1);
 
 namespace League\Csv\Schema;
 
+use BackedEnum;
 use DateTimeInterface;
 use ValueError;
 
@@ -88,6 +89,10 @@ final class TimeField extends FieldEvaluator implements Field
     {
         if ($value instanceof DateTimeInterface) {
             return $value->format('H:i:s');
+        }
+
+        if ($value instanceof BackedEnum) {
+            $value = $value->value;
         }
 
         if (!is_string($value)) {

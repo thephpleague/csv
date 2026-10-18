@@ -13,11 +13,13 @@ declare(strict_types=1);
 
 namespace League\Csv\Schema;
 
+use BackedEnum;
 use DateTime;
 use DateTimeImmutable;
 use DateTimeInterface;
 use DateTimeZone;
 use Exception;
+use Stringable;
 use Throwable;
 use ValueError;
 
@@ -62,7 +64,7 @@ final class DateTimeField extends FieldEvaluator implements Field
      */
     public function __construct(
         string $format,
-        DateTimeZone|string|null $timezone = null,
+        DateTimeZone|string $timezone = 'UTC',
         string $outputClass = DateTimeImmutable::class,
         float $confidenceThreshold = 0.8,
     ) {
@@ -81,7 +83,7 @@ final class DateTimeField extends FieldEvaluator implements Field
      * @param class-string<DateTimeImmutable|DateTime> $outputClass
      */
     public static function common(
-        DateTimeZone|string|null $timezone = null,
+        DateTimeZone|string $timezone = 'UTC',
         string $outputClass = DateTimeImmutable::class,
     ): FieldList {
         return self::machine($timezone, $outputClass)->append(self::localized($timezone, $outputClass));
@@ -91,7 +93,7 @@ final class DateTimeField extends FieldEvaluator implements Field
      * @param class-string<DateTimeImmutable|DateTime> $outputClass
      */
     public static function machine(
-        DateTimeZone|string|null $timezone = null,
+        DateTimeZone|string $timezone = 'UTC',
         string $outputClass = DateTimeImmutable::class,
     ): FieldList {
         return self::fromFormat(self::FORMAT_MACHINES, $timezone, $outputClass, .8);
@@ -101,7 +103,7 @@ final class DateTimeField extends FieldEvaluator implements Field
      * @param class-string<DateTimeImmutable|DateTime> $outputClass
      */
     public static function localized(
-        DateTimeZone|string|null $timezone = null,
+        DateTimeZone|string $timezone = 'UTC',
         string $outputClass = DateTimeImmutable::class,
     ): FieldList {
         return self::fromFormat(self::FORMAT_LOCALIZED, $timezone, $outputClass, .7);
@@ -116,7 +118,6 @@ final class DateTimeField extends FieldEvaluator implements Field
     ): self {
         return new self(
             format: 'U',
-            timezone: 'UTC',
             outputClass: $outputClass,
             confidenceThreshold: $confidenceThreshold,
         );
@@ -128,7 +129,7 @@ final class DateTimeField extends FieldEvaluator implements Field
      */
     public static function fromFormat(
         iterable $formats,
-        DateTimeZone|string|null $timezone = null,
+        DateTimeZone|string $timezone = 'UTC',
         string $outputClass = DateTimeImmutable::class,
         float $confidenceThreshold = 0.8,
     ): FieldList {
@@ -146,12 +147,8 @@ final class DateTimeField extends FieldEvaluator implements Field
         || throw new ValueError('The date field class '.$className.' does not implement the DateTimeInterface interface.');
     }
 
-    private static function filterTimezone(DateTimeZone|string|null $timeZone): DateTimeZone
+    private static function filterTimezone(DateTimeZone|string $timeZone): DateTimeZone
     {
-        if (null === $timeZone) {
-            return new DateTimeZone('UTC');
-        }
-
         if ($timeZone instanceof DateTimeZone) {
             return $timeZone;
         }
@@ -179,6 +176,14 @@ final class DateTimeField extends FieldEvaluator implements Field
     {
         if ($value instanceof DateTimeInterface) {
             return $value::class === $this->outputClass ? $value : $this->outputClass::createFromInterface($value);
+        }
+
+        if ($value instanceof BackedEnum) {
+            $value = $value->value;
+        }
+
+        if ($value instanceof Stringable) {
+            $value = (string) $value;
         }
 
         if (!is_string($value)) {

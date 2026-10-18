@@ -13,6 +13,7 @@ declare(strict_types=1);
 
 namespace League\Csv\Schema;
 
+use BackedEnum;
 use ValueError;
 
 use function filter_var;
@@ -88,6 +89,10 @@ final class NumericField extends FieldEvaluator implements Field
 
     public function parse(mixed $value): int|float|null
     {
+        if ($value instanceof BackedEnum) {
+            $value = $value->value;
+        }
+
         if (is_string($value)) {
             $value = trim($value);
             if ('' === $value || !is_numeric($value)) {
