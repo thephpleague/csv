@@ -31,6 +31,7 @@ All Notable changes to `Csv` will be documented in this file
 - Fix `Buffer::nth` and `Buffer::nthASObject` [#594](https://github.com/thephpleague/csv/pull/594) by [dualfroz](https://github.com/dualfroz)
 - Fix `FragmentFinder::findFirst` crashing see issue [#596](https://github.com/thephpleague/csv/issues/596)
 - Fix `FragmentFinder` ignoring row and column ranges whose start and end are the same, like `row=4-4` - [#599](https://github.com/thephpleague/csv/pull/599) by [ybai08](https://github.com/ybai08)
+- Fix `FragmentFinder` ignoring positions written with leading zeros, like `row=05-07`, which RFC 7111 allows - [#600](https://github.com/thephpleague/csv/pull/600) by [ybai08](https://github.com/ybai08)
 
 ### Remove
 
