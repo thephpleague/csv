@@ -200,6 +200,15 @@ abstract class TabularDataReaderTestCase extends TestCase
             ],
         ];
 
+        yield 'row range with leading zeros' =>  [
+            'expression' => 'row=05-007',
+            'expected' => [
+                0 => ['2011-01-01', '6', 'Berkeley'],
+                1 => ['2011-01-02', '8', 'Berkeley'],
+                2 => ['2011-01-03', '5', 'Berkeley'],
+            ],
+        ];
+
         yield 'single column' => [
             'expression' => 'col=2',
             'expected' => [
@@ -239,6 +248,19 @@ abstract class TabularDataReaderTestCase extends TestCase
             ],
         ];
 
+        yield 'column range with leading zeros' =>  [
+            'expression' => 'col=01-02',
+            'expected' => [
+                0 => ['date', 'temperature'],
+                1 => ['2011-01-01', '1'],
+                2 => ['2011-01-02', '-1'],
+                3 => ['2011-01-03', '0'],
+                4 => ['2011-01-01', '6'],
+                5 => ['2011-01-02', '8'],
+                6 => ['2011-01-03', '5'],
+            ],
+        ];
+
         yield 'single cell selection' =>  [
             'expression' => 'cell=4,1',
             'expected' => [
@@ -248,6 +270,15 @@ abstract class TabularDataReaderTestCase extends TestCase
 
         yield 'single range selection' =>  [
             'expression' => 'cell=4,1-6,2',
+            'expected' => [
+                0 => ['2011-01-03', '0'],
+                1 => ['2011-01-01', '6'],
+                2 => ['2011-01-02', '8'],
+            ],
+        ];
+
+        yield 'single range selection with leading zeros' =>  [
+            'expression' => 'cell=04,01-06,002',
             'expected' => [
                 0 => ['2011-01-03', '0'],
                 1 => ['2011-01-01', '6'],
@@ -376,6 +407,8 @@ abstract class TabularDataReaderTestCase extends TestCase
             'expression selection is invalid for row or column 3' => ['row=0-3'],
             'expression selection is invalid for row or column 4' => ['row=3-0'],
             'all single row selections are out of bounds' => ['row=0;0'],
+            'expression selection is invalid for row or column 5' => ['row=00'],
+            'expression selection is invalid for cell 8' => ['cell=00,1'],
         ];
     }
 

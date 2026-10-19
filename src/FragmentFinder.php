@@ -22,6 +22,7 @@ use function array_reduce;
 use function count;
 use function explode;
 use function filter_var;
+use function ltrim;
 use function preg_match;
 use function range;
 
@@ -302,7 +303,7 @@ class FragmentFinder
             return [-1, 0];
         }
 
-        $start = filter_var($found['start'], FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]);
+        $start = self::parsePosition($found['start']);
         if (false === $start) {
             return [-1, 0];
         }
@@ -313,7 +314,7 @@ class FragmentFinder
             return [$start, $end];
         }
 
-        $end = filter_var($end, FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]);
+        $end = self::parsePosition($end);
         if (false === $end) {
             return [-1, 0];
         }
@@ -324,6 +325,18 @@ class FragmentFinder
         }
 
         return [$start, $end];
+    }
+
+    /**
+     * Converts an RFC 7111 position number into an integer.
+     *
+     * The ABNF defines a number as `1*( DIGIT )`, so leading zeros are allowed.
+     *
+     * @return int<1, max>|false
+     */
+    private static function parsePosition(string $position): int|false
+    {
+        return filter_var(ltrim($position, '0'), FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]);
     }
 
     /**
@@ -341,8 +354,8 @@ class FragmentFinder
             ];
         }
 
-        $cellStartRow = filter_var($found['csr'], FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]);
-        $cellStartCol = filter_var($found['csc'], FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]);
+        $cellStartRow = self::parsePosition($found['csr']);
+        $cellStartCol = self::parsePosition($found['csc']);
         if (false === $cellStartRow || false === $cellStartCol) {
             return [
                 'selection' => $selection,
@@ -394,8 +407,8 @@ class FragmentFinder
             ];
         }
 
-        $cellEndRow = filter_var($found['cer'] ?? '', FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]);
-        $cellEndCol = filter_var($found['cec'] ?? '', FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]);
+        $cellEndRow = self::parsePosition($found['cer'] ?? '');
+        $cellEndCol = self::parsePosition($found['cec'] ?? '');
 
         if (false === $cellEndRow || false === $cellEndCol) {
             return [
