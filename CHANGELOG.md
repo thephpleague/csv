@@ -17,6 +17,7 @@ All Notable changes to `Csv` will be documented in this file
 
 ### Fixed
 
+- Reduce the runtime and peak memory usage of `JsonConverter` pretty printing.
 - `SwapDelimiter::prependTo` now prepends the stream filter instead of appending it.
 - `Writer::forceEnclosure` now doubles embedded enclosures when the escape character is the empty string.
 - `EscapeFormula` round-trip now preserves fields starting with the escape character

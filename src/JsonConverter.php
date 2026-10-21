@@ -40,6 +40,7 @@ use function preg_match;
 use function str_repeat;
 use function str_replace;
 use function str_starts_with;
+use function strcspn;
 use function strlen;
 use function strtolower;
 use function substr;
@@ -206,15 +207,27 @@ final class JsonConverter
         $inQuotes = false;
         $escape = false;
         $length = strlen($json);
-        $str = [$this->indentation];
+        $str = $this->indentation;
         for ($i = 0; $i < $length; $i++) {
+            if ($inQuotes && !$escape) {
+                // Copy string contents up to the next quote or escape in one operation.
+                $run = strcspn($json, '"\\', $i);
+                if (0 !== $run) {
+                    $str .= substr($json, $i, $run);
+                    $i += $run;
+                    if ($i === $length) {
+                        break;
+                    }
+                }
+            }
+
             $char = $json[$i];
             if ('"' === $char && !$escape) {
                 $inQuotes = !$inQuotes;
             }
 
             $escape = '\\' === $char && !$escape;
-            $str[] = $inQuotes ? $char : match ($char) {
+            $str .= $inQuotes ? $char : match ($char) {
                 '{', '[' => $char.($this->indentationLevels[++$level] ??= "\n".str_repeat($this->indentation, $level)),
                 '}', ']' =>  ($this->indentationLevels[--$level] ??= "\n".str_repeat($this->indentation, $level)).$char,
                 ',' => $char.($this->indentationLevels[$level] ??= "\n".str_repeat($this->indentation, $level)),
@@ -223,7 +236,7 @@ final class JsonConverter
             };
         }
 
-        return implode('', $str);
+        return $str;
     }
 
     /**

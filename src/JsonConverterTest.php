@@ -15,6 +15,7 @@ namespace League\Csv;
 
 use DateTimeImmutable;
 use InvalidArgumentException;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
@@ -203,6 +204,83 @@ final class JsonConverterTest extends TestCase
         $converter = $converter->withoutPrettyPrint();
         self::assertSame(2, $converter->indentSize);
         self::assertFalse($converter->usePrettyPrint());
+    }
+
+    /**
+     * @param positive-int $chunkSize
+     * @param positive-int $indentSize
+     */
+    #[Test]
+    #[DataProvider('providePrettyPrintStrings')]
+    public function it_preserves_string_contents_when_pretty_printing(string $value, int $chunkSize, int $indentSize, int $flags): void
+    {
+        $records = [
+            ['key"\\{}[],:Ж' => $value, 'nested' => ['list' => [true, null, 1.0, -2.5]]],
+            ['value' => $value],
+            ['last' => 'trailing\\'],
+        ];
+        $expected = json_encode($records, $flags | JSON_PRETTY_PRINT | JSON_THROW_ON_ERROR);
+        self::assertIsString($expected);
+        $expected = preg_replace_callback(
+            '/^ +/m',
+            fn (array $match): string => str_repeat(' ', intdiv(strlen($match[0]), 4) * $indentSize),
+            $expected
+        );
+        $converter = (new JsonConverter($flags))->withPrettyPrint($indentSize)->chunkSize($chunkSize);
+
+        self::assertSame($expected, $converter->encode($records));
+        // Reusing the converter must not retain a quote, escape or nesting state.
+        self::assertSame($expected, $converter->encode($records));
+    }
+
+    /** @return iterable<string, array{string, positive-int, positive-int, int}> */
+    public static function providePrettyPrintStrings(): iterable
+    {
+        $values = [
+            'empty' => '',
+            'punctuation' => '{}[],: ordinary text',
+            'controls' => "\0\x01\x08\x0C\n\r\t",
+            'unicode' => "Привет 😀 \u{2028}\u{2029}",
+            'long' => str_repeat('ordinary text {}[],: Ж ', 8192),
+        ];
+        for ($slashes = 0; $slashes <= 8; ++$slashes) {
+            $values['slashes-'.$slashes] = 'prefix'.str_repeat('\\', $slashes).'"suffix'.str_repeat('\\', $slashes);
+        }
+
+        foreach ($values as $name => $value) {
+            foreach ([1, 2, 500] as $chunkSize) {
+                foreach ([1, 2, 4] as $indentSize) {
+                    foreach ([0, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES, JSON_HEX_QUOT | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS, JSON_FORCE_OBJECT | JSON_PRESERVE_ZERO_FRACTION] as $flags) {
+                        yield $name.'-'.$chunkSize.'-'.$indentSize.'-'.$flags => [$value, $chunkSize, $indentSize, $flags];
+                    }
+                }
+            }
+        }
+    }
+
+    #[Test]
+    public function it_preserves_pretty_print_whitespace_in_empty_containers(): void
+    {
+        $records = [['empty' => [], 'object' => (object) [], 'nested' => [[]]]];
+        $expected = implode("\n", [
+            '[',
+            '  {',
+            '    "empty": [',
+            '      ',
+            '    ],',
+            '    "object": {',
+            '      ',
+            '    },',
+            '    "nested": [',
+            '      [',
+            '        ',
+            '      ]',
+            '    ]',
+            '  }',
+            ']',
+        ]);
+
+        self::assertSame($expected, (new JsonConverter())->withPrettyPrint(2)->encode($records));
     }
 
     #[Test]
