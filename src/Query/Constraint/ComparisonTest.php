@@ -163,6 +163,20 @@ final class ComparisonTest extends TestCase
             'expected' => true,
         ];
 
+        yield 'not between with the NOT BETWEEN operator' => [
+            'needle' => 7,
+            'haystack' => [3, 5],
+            'operator' => 'not between',
+            'expected' => true,
+        ];
+
+        yield 'not between with the NOT_BETWEEN operator' => [
+            'needle' => 4,
+            'haystack' => [3, 5],
+            'operator' => 'not_between',
+            'expected' => false,
+        ];
+
         yield 'regexp' => [
             'needle' => 'fOobar',
             'haystack' => '/oob/i',
