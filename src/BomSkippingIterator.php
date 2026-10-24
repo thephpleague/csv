@@ -29,7 +29,6 @@ final readonly class BomSkippingIterator implements SeekableIterator
     public function __construct(private SplFileObject|Stream $document)
     {
         $this->bomLength = Bom::tryFromSequence($document)?->length() ?? 0;
-        $this->document->setFlags(SplFileObject::READ_CSV);
     }
 
     public function fseek(int $offset, int $whence): int
