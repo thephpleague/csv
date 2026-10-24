@@ -30,6 +30,7 @@ use function mb_convert_encoding;
 use function mb_list_encodings;
 use function preg_match;
 use function sprintf;
+use function str_starts_with;
 use function stream_bucket_append;
 use function stream_bucket_make_writeable;
 use function stream_bucket_new;
@@ -57,6 +58,7 @@ class CharsetConverter extends php_user_filter
     protected string $output_encoding = 'UTF-8';
     protected bool $skipBomSequence =  false;
     protected string $buffer = '';
+    protected ?string $bomEncoding = null;
 
     /**
      * Static method to register the class as a stream filter.
@@ -251,21 +253,28 @@ class CharsetConverter extends php_user_filter
             return PSFS_FEED_ME;
         }
 
-        if ($this->skipBomSequence && null !== ($bom = Bom::tryFromSequence($inputBuffer))) {
+        $bom = Bom::tryFromSequence($inputBuffer);
+        if (null !== $bom && in_array($this->input_encoding, ['UTF-16', 'UTF-32'], true) && str_starts_with($bom->encoding(), $this->input_encoding)) {
+            // the next chunks have no BOM, they are converted with the byte order it declares
+            $this->bomEncoding = $bom->encoding();
+            $inputBuffer = substr($inputBuffer, $bom->length());
+        } elseif ($this->skipBomSequence && null !== $bom) {
             $inputBuffer = substr($inputBuffer, $bom->length());
         }
 
+        $inputEncoding = $this->bomEncoding ?? $this->input_encoding;
+
         // if the stream content is invalid then we store it and
         // ask for more content to try to correctly convert the data
-        if (!mb_check_encoding($inputBuffer, $this->input_encoding) && !$closing) {
+        if (!mb_check_encoding($inputBuffer, $inputEncoding) && !$closing) {
             $this->buffer = $inputBuffer;
 
             return PSFS_FEED_ME;
         }
 
         try {
-            Warning::cloak(function () use ($inputBuffer, $out) {
-                $outputBuffer = (string) mb_convert_encoding($inputBuffer, $this->output_encoding, $this->input_encoding);
+            Warning::cloak(function () use ($inputBuffer, $inputEncoding, $out) {
+                $outputBuffer = (string) mb_convert_encoding($inputBuffer, $this->output_encoding, $inputEncoding);
                 $streamBucket = stream_bucket_new($this->stream, $outputBuffer);
 
                 stream_bucket_append($out, $streamBucket);
