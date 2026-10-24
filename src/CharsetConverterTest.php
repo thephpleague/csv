@@ -219,6 +219,23 @@ end']],
         self::assertSame([[$sequence.'start', $sequence.'end']], [...$reader]);
     }
 
+    #[DataProvider('providesUnicodeEncodingsWithBOM')]
+    public function testItKeepsTheByteOrderOfTheBOMAfterTheFirstChunk(string $encoding, Bom $bom): void
+    {
+        $csv = str_repeat("1,héllo wörld,日本語\n", 1000);
+        $reader = Reader::fromString($bom->value.mb_convert_encoding($csv, $bom->encoding(), 'UTF-8'));
+        CharsetConverter::addTo($reader, $encoding, 'UTF-8');
+
+        self::assertSame($csv, $reader->toString());
+    }
+
+    public static function providesUnicodeEncodingsWithBOM(): iterable
+    {
+        yield 'UTF-16 little endian' => ['encoding' => 'UTF-16', 'bom' => Bom::Utf16Le];
+        yield 'UTF-16 big endian' => ['encoding' => 'UTF-16', 'bom' => Bom::Utf16Be];
+        yield 'UTF-32 little endian' => ['encoding' => 'UTF-32', 'bom' => Bom::Utf32Le];
+    }
+
     public static function providesBOMSequences(): iterable
     {
         yield 'BOM UTF-8' => [
