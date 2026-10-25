@@ -207,10 +207,11 @@ class Reader extends AbstractCsv implements TabularDataReader, JsonSerializable
     {
         // SplFileObject returns an empty record instead of false when it reads past
         // the last line; SKIP_EMPTY drops that read but keeps the empty lines.
-        $this->document->setFlags(match (true) {
-            $this->document instanceof SplFileObject => SplFileObject::READ_CSV | SplFileObject::SKIP_EMPTY,
-            default => SplFileObject::READ_CSV,
-        });
+        $flags = SplFileObject::READ_CSV;
+        if ($this->document instanceof SplFileObject) {
+            $flags |= SplFileObject::SKIP_EMPTY;
+        }
+        $this->document->setFlags($flags);
         $this->document->setCsvControl($this->delimiter, $this->enclosure, $this->escape);
         $this->document->rewind();
 
