@@ -315,6 +315,20 @@ EOF;
         ];
     }
 
+    public function testIncludingEmptyRecordsDoesNotAddARecordAtTheEndOfAFileObject(): void
+    {
+        $path = __DIR__.'/../test_files/tmp.txt';
+        $obj  = new SplFileObject($path, 'w+');
+        $obj->fwrite("1st\n\n2nd\n");
+        $reader = Reader::from($obj)->includeEmptyRecords();
+        self::assertCount(3, $reader);
+        self::assertSame([['1st'], [], ['2nd']], [...$reader]);
+        self::assertSame([['1st'], [], ['2nd']], [...$reader->includeInputBOM()]);
+        $reader = null;
+        $obj = null;
+        unlink($path);
+    }
+
     public function testGetHeaderThrowsExceptionWithNegativeOffset(): void
     {
         $this->expectException(InvalidArgument::class);
