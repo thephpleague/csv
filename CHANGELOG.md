@@ -35,6 +35,7 @@ All Notable changes to `Csv` will be documented in this file
 - Fix `FragmentFinder` ignoring positions written with leading zeros, like `row=05-07`, which RFC 7111 allows - [#600](https://github.com/thephpleague/csv/pull/600) by [ybai08](https://github.com/ybai08)
 - Fix `CharsetConverter` decoding `UTF-16` and `UTF-32` input with the wrong byte order after the first chunk when the stream starts with a little-endian BOM - [#602](https://github.com/thephpleague/csv/pull/602) by [wleeaf](https://github.com/wleeaf)
 - Fix `Reader` returning an extra empty record at the end of an `SplFileObject` document when empty records are included - [#603](https://github.com/thephpleague/csv/pull/603) by [wleeaf](https://github.com/wleeaf)
+- Fix the `NOT BETWEEN` and `NOT_BETWEEN` comparison operators being resolved to `BETWEEN` - [#604](https://github.com/thephpleague/csv/pull/604) by [wleeaf](https://github.com/wleeaf)
 
 ### Remove
 
