@@ -60,7 +60,7 @@ enum Comparison: string
             'NOT_REGEXP', 'NOT REGEXP' => self::NotRegexp,
             'NOT_CONTAIN', 'NOT CONTAIN', 'DOES_NOT_CONTAIN', 'DOES NOT CONTAIN' => self::NotContain,
             'NOT_IN', 'NOT IN' => self::NotIn,
-            'NOT_BETWEEN', 'NOT BETWEEN' => self::Between,
+            'NOT_BETWEEN', 'NOT BETWEEN' => self::NotBetween,
             'STARTS WITH', 'START WITH' => self::StartsWith,
             'ENDS WITH', 'END WITH' => self::EndsWith,
             default => self::tryFrom($operator),
