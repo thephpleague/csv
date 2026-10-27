@@ -169,8 +169,9 @@ $records = $csv->inferRecords($inspector);
 
 <p class="message-info">You can get more information about schema inference and how to customize the inference process by visiting the <a href="/9.0/reader/record-type-inference">record type inference documentation</a> page.</p>
 
-### value, first, last, nth, firstAsObject, lastAsObject and nthAsObject
+### value, first, last, nth, firstAsObject, lastAsObject, nthAsObject, firstInferred, lastInferred, nthInferred
 
+<p class="message-notice"><code>firstInferred and lastInferred and nthInferred</code> were added in version <code>9.29.0</code>.</p>
 <p class="message-notice"><code>firstAsObject and nthAsObject</code> were added in version <code>9.14.0</code> for <code>Reader</code> and <code>ResultSet</code>.</p>
 <p class="message-notice"><code>first and nth</code> were added in version <code>9.9.0</code> for <code>Reader</code> and <code>ResultSet</code>.</p>
 <p class="message-notice"><code>value</code> was added in version <code>9.12.0</code> for <code>Reader</code> and <code>ResultSet</code>.</p>
@@ -252,6 +253,58 @@ $csv->setHeaderOffset(0);
 $csv->nthAsObject(3, ClimaticRecord::class);
 $csv->firstAsObject(OtherClimatRecord::class, [2 => 'observedOn', 1 => 'temparature', 0 => 'place']);
 ```
+
+`firstInferred`, `lastInferred` and `nthInferred` are counterpart of `first`, `last` and `nth` respectively but
+returns typed array. In addition to the record offset, the methods can optionally take an inspector object
+and/or a header mapper just like `inferRecords`.
+
+```php
+use League\Csv\Reader;
+use League\Csv\Schema\DateTimeField;
+use League\Csv\Schema\EnumField;
+use League\Csv\Schema\Inspector;
+
+enum Place: string
+{
+    case Yamoussokro = 'Yamoussokro';
+    case Abidjan = 'Abidjan';
+}
+
+$csv = <<<CSV
+"observed on",temperature,place""
+2023-10-30,-1.5,Abidjan
+2023-10-30,-3,Yamoussokro
+2023-10-30,-3,Abidjan
+2023-10-30,-3,Abidjan
+CSV;
+
+$document = Reader::fromString($csv);
+$document->setHeaderOffset(0);
+
+$document->nthInferred(3);
+// [
+//  "observed on" => "2023-10-30"
+//  "temperature" => -3
+//  "place" => "Abidjan"
+//]
+
+$document->firstInferred(
+    Inspector::default()
+        ->appendFields(
+            DateTimeField::common(timezone: 'Africa/Abidjan'),
+            new EnumField(Place::class),
+        )
+);
+// [
+//  "observed on" => DateTimeImmutable @1698624000 {#60
+//    date: 2023-10-30 00:00:00.0 Africa/Abidjan (+00:00)
+//  }
+//  "temperature" => -1.5
+//  "place""" => Place::Abidjan
+//]
+```
+
+The `League\Csv\Schema\Inspector` class can be used to improve type inference by adding more field definitions.
 
 ### exists
 

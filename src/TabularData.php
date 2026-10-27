@@ -15,17 +15,27 @@ namespace League\Csv;
 
 use Closure;
 use Iterator;
+use League\Csv\Schema\Inspector;
+use League\Csv\Schema\Schema;
 
 /**
- * @method array nth(int $nth) returns the nth record from the tabular data.
- * @method object|null nthAsObject(int $nth, string $className, array $header = []) returns the nth record from the tabular data as an instance of the defined class name.
- * @method array first() returns the first record from the tabular data.
- * @method object|null firstAsObject(string $className, array $header = []) returns the last record from the tabular data as an instance of the defined class name.
- * @method array last() returns the first record from the tabular data.
- * @method object|null lastAsObject(string $className, array $header = []) returns the last record from the tabular data as an instance of the defined class name.
+ * @template T of object
+ * @method array nth(int $nth) Returns the nth record from the tabular data.
+ * @method array nthInferred(int $nth, ?Inspector $inspector = null, array $header = []) Returns the nth record as a typed array.
+ * @method T|null nthAsObject(int $nth, class-string<T> $className, array $header = []) Returns the nth record as an instance of the specified class, or null if no record exists.
+ * @method array first() Returns the first record from the tabular data.
+ * @method array firstInferred(?Inspector $inspector = null, array $header = []) Returns the first record as a typed array.
+ * @method T|null firstAsObject(class-string<T> $className, array $header = []) Returns the first record as an instance of the specified class, or null if no record exists.
+ * @method array last() Returns the last record from the tabular data.
+ * @method array lastInferred(?Inspector $inspector = null, array $header = []) Returns the last record as a typed array.
+ * @method T|null lastAsObject(class-string<T> $className, array $header = []) Returns the last record as an instance of the specified class, or null if no record exists.
+ * @method mixed value(int|string $column = 0) Returns a value from the first record of the tabular data.
+ * @method mixed valueInferred(int|string $column = 0, ?Inspector $inspector = null, array $header = []) Returns a type-inferred value from the first record, or null if its type cannot be inferred.
+ * @method Iterator<array> inferRecords(?Inspector $inspector = null, array $header = []) Returns an iterator over the tabular data records as typed arrays.
+ * @method Iterator<T> getRecordsAsObject(class-string<T> $className, array $header = []) Returns an iterator over the tabular data records converted to instances of the specified class.
+ * @method Schema inferSchema(?Inspector $inspector = null, array $header = []) Returns the inferred schema of the tabular data.
  * @method Iterator map(callable $callback) Run a map over each container record.
- * @method Iterator getRecordsAsObject(string $className, array $header = []) Returns the tabular data records as an iterator object containing instance of the defined class name.
- * @method mixed reduce(Closure $callback, mixed $initial = null) reduces the collection to a single value, passing the result of each iteration into the subsequent iteration
+ * @method mixed reduce(Closure $callback, mixed $initial = null) reduces the collection to a single value, passing the result of each iteration into the subsequent iteration.
  */
 interface TabularData
 {

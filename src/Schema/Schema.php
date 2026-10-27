@@ -146,7 +146,9 @@ final class Schema implements Countable, IteratorAggregate
      */
     public function parse(TabularData $tabularData): Iterator
     {
-        return MapIterator::fromIterable($tabularData->getRecords($this->names()), $this->format(...));
+        $header = array_map(fn (int|string $field) => (string) $field, $this->names());
+
+        return MapIterator::fromIterable($tabularData->getRecords($header), $this->format(...));
     }
 
     public function format(array $row): array

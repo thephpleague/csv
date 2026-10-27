@@ -50,6 +50,13 @@ final readonly class Inspector
         return new self($this->sampleLimit, $fieldList);
     }
 
+    public function appendFields(Field|FieldList ...$fields): self
+    {
+        $fieldList = $this->fieldList->append(...$fields);
+
+        return $fieldList === $this->fieldList ? $this : $this->withFields($fieldList);
+    }
+
     /**
      * @param positive-int $sampleLimit
      */

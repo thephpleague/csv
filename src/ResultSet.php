@@ -38,12 +38,17 @@ use Throwable;
 use function array_filter;
 use function array_flip;
 use function array_key_exists;
+use function array_keys;
 use function array_reduce;
 use function array_search;
+use function array_unique;
 use function array_values;
+use function count;
 use function is_int;
 use function is_string;
 use function iterator_count;
+
+use const ARRAY_FILTER_USE_KEY;
 
 /**
  * Represents the result set of a {@link Reader} processed by a {@link Statement}.
@@ -218,6 +223,49 @@ class ResultSet implements TabularDataReader, JsonSerializable
     public function inferRecords(?Inspector $inspector = null, array $header = []): Iterator
     {
         return $this->inferSchema($inspector, $header)->parse($this);
+    }
+
+    public function firstInferred(?Inspector $inspector = null, array $header = []): array
+    {
+        return $this->inferSchema($inspector, $header)->format($this->first());
+    }
+
+    public function lastInferred(?Inspector $inspector = null, array $header = []): array
+    {
+        return $this->inferSchema($inspector, $header)->format($this->last());
+    }
+
+    /**
+     * @param int<0, max> $nth
+     *
+     * @throws Exception
+     */
+    public function nthInferred(int $nth, ?Inspector $inspector = null, array $header = []): array
+    {
+        return $this->inferSchema($inspector, $header)->format($this->nth($nth));
+    }
+
+    public function valueInferred(int|string $column = 0, ?Inspector $inspector = null, array $header = []): mixed
+    {
+        return $this->selectedColumnValue($this->firstInferred($inspector, $header), $column);
+    }
+
+    private function selectedColumnValue(array $record, int|string $column = 0): mixed
+    {
+        if ([] === $record) {
+            return null;
+        }
+
+        if (is_string($column)) {
+            return $record[$column] ?? null;
+        }
+
+        $record = array_values($record);
+        if ($column < 0) {
+            $column += count($record);
+        }
+
+        return $record[$column] ?? null;
     }
 
     /**
@@ -525,10 +573,7 @@ class ResultSet implements TabularDataReader, JsonSerializable
 
     public function value(int|string $column = 0): mixed
     {
-        return match (true) {
-            is_string($column) => $this->first()[$column] ?? null,
-            default => array_values($this->first())[$column] ?? null,
-        };
+        return $this->selectedColumnValue($this->first(), $column);
     }
 
     public function nth(int $nth): array

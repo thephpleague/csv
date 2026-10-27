@@ -37,9 +37,9 @@ final class DateTimeField extends FieldEvaluator implements Field
 
     /** @var list<non-empty-string> */
     private const FORMAT_MACHINES = [
-        'Y-m-d',
-        'Y-m-d H:i:s',
-        'Y-m-d\TH:i:s',
+        '!Y-m-d',
+        '!Y-m-d H:i:s',
+        '!Y-m-d\TH:i:s',
         DateTimeInterface::RFC3339,
         DateTimeInterface::RFC3339_EXTENDED,
         DateTimeInterface::ISO8601_EXPANDED,
@@ -49,13 +49,13 @@ final class DateTimeField extends FieldEvaluator implements Field
     /** @var list<non-empty-string> */
     private const FORMAT_LOCALIZED = [
         // Europe Dates
-        'd/m/Y',
-        'd-m-Y',
-        'd.m.Y',
+        '!d/m/Y',
+        '!d-m-Y',
+        '!d.m.Y',
         // American Dates
-        'm/d/Y',
-        'm-d-Y',
-        'm.d.Y',
+        '!m/d/Y',
+        '!m-d-Y',
+        '!m.d.Y',
     ];
 
     /**

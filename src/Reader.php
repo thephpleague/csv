@@ -30,7 +30,10 @@ use SplFileObject;
 use function array_filter;
 use function array_reduce;
 use function array_unique;
+use function array_values;
+use function count;
 use function is_array;
+use function is_int;
 use function is_string;
 use function iterator_count;
 use function strlen;
@@ -225,7 +228,7 @@ class Reader extends AbstractCsv implements TabularDataReader, JsonSerializable
 
     public function value(int|string $column = 0): mixed
     {
-        return ResultSet::from($this)->value($column);
+        return $this->selectedColumnValue($this->first(), $column);
     }
 
     /**
@@ -413,10 +416,53 @@ class Reader extends AbstractCsv implements TabularDataReader, JsonSerializable
         return $this->inferSchema($inspector, $header)->parse($this);
     }
 
+    public function firstInferred(?Inspector $inspector = null, array $header = []): array
+    {
+        return $this->inferSchema($inspector, $header)->format($this->first());
+    }
+
+    public function lastInferred(?Inspector $inspector = null, array $header = []): array
+    {
+        return $this->inferSchema($inspector, $header)->format($this->last());
+    }
+
+    /**
+     * @param int<0, max> $nth
+     *
+     * @throws Exception
+     */
+    public function nthInferred(int $nth, ?Inspector $inspector = null, array $header = []): array
+    {
+        return $this->inferSchema($inspector, $header)->format($this->nth($nth));
+    }
+
+    public function valueInferred(int|string $column = 0, ?Inspector $inspector = null, array $header = []): mixed
+    {
+        return $this->selectedColumnValue($this->firstInferred($inspector, $header), $column);
+    }
+
+    private function selectedColumnValue(array $record, int|string $column = 0): mixed
+    {
+        if ([] === $record) {
+            return null;
+        }
+
+        if (is_string($column)) {
+            return $record[$column] ?? null;
+        }
+
+        $record = array_values($record);
+        if ($column < 0) {
+            $column += count($record);
+        }
+
+        return $record[$column] ?? null;
+    }
+
     /**
      * @param positive-int $recordsCount
      *
-     * @throws InvalidArgument
+     * @throws InvalidArgument|SyntaxError
      *
      * @return iterable<TabularDataReader>
      */
@@ -436,8 +482,7 @@ class Reader extends AbstractCsv implements TabularDataReader, JsonSerializable
     /**
      * @param \League\Csv\Query\Predicate|Closure(array, array-key): bool $predicate
      *
-     * @throws Exception
-     * @throws SyntaxError
+     * @throws Exception|SyntaxError|ReflectionException
      */
     public function filter(Query\Predicate|Closure $predicate): TabularDataReader
     {
@@ -448,8 +493,7 @@ class Reader extends AbstractCsv implements TabularDataReader, JsonSerializable
      * @param int<0, max> $offset
      * @param int<-1, max> $length
      *
-     * @throws Exception
-     * @throws SyntaxError
+     * @throws Exception|SyntaxError
      */
     public function slice(int $offset, int $length = -1): TabularDataReader
     {
@@ -459,8 +503,7 @@ class Reader extends AbstractCsv implements TabularDataReader, JsonSerializable
     /**
      * @param Closure(mixed, mixed): int $orderBy
      *
-     * @throws Exception
-     * @throws SyntaxError
+     * @throws Exception|SyntaxError
      */
     public function sorted(Query\Sort|Closure $orderBy): TabularDataReader
     {
@@ -475,6 +518,7 @@ class Reader extends AbstractCsv implements TabularDataReader, JsonSerializable
      * @experimental since version 9.12.0
      *
      * @throws SyntaxError
+     *
      * @return iterable<int, TabularDataReader>
      */
     public function matching(string $expression): iterable

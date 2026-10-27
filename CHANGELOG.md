@@ -10,6 +10,8 @@ All Notable changes to `Csv` will be documented in this file
 - `AbstractCsv::fromStream` to instantiate a `Reader` or a `Writer` instance from a stream or a `SplFileObject` object
 - `AbstractCsv::fromPath` to instantiate a `Reader` or a `Writer` instance from a path as a string or a `SplFileInfo` object
 - Support for `SortDirection` enum from PHP 8.6+ - [#580](https://github.com/thephpleague/csv/pull/580) by [okorneliuk](https://github.com/okorneliuk)
+- Record inference feature
+- Added missing `Buffer::value` method
 
 ### Deprecated
 
@@ -37,6 +39,7 @@ All Notable changes to `Csv` will be documented in this file
 - Fix `Reader` returning an extra empty record at the end of an `SplFileObject` document when empty records are included - [#603](https://github.com/thephpleague/csv/pull/603) by [wleeaf](https://github.com/wleeaf)
 - Fix the `NOT BETWEEN` and `NOT_BETWEEN` comparison operators being resolved to `BETWEEN` - [#604](https://github.com/thephpleague/csv/pull/604) by [wleeaf](https://github.com/wleeaf)
 - Fix query constraints and orderings throwing an `ArgumentCountError` when the column value is resolved through an object `__call` method - [#605](https://github.com/thephpleague/csv/pull/605) by [youdie006](https://github.com/youdie006)
+- `TabularData::value` now supports negative column offset. Before `null` was always returned; now `null` is only returned if the column offset does not exist.
 
 ### Remove
 

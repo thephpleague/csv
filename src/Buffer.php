@@ -47,6 +47,7 @@ use function array_values;
 use function count;
 use function in_array;
 use function is_int;
+use function is_string;
 use function sort;
 
 use const ARRAY_FILTER_USE_KEY;
@@ -234,6 +235,49 @@ final class Buffer implements TabularData
         return $this->inferSchema($inspector, $header)->parse($this);
     }
 
+    public function firstInferred(?Inspector $inspector = null, array $header = []): array
+    {
+        return $this->inferSchema($inspector, $header)->format($this->first());
+    }
+
+    public function lastInferred(?Inspector $inspector = null, array $header = []): array
+    {
+        return $this->inferSchema($inspector, $header)->format($this->last());
+    }
+
+    /**
+     * @param int<0, max> $nth
+     *
+     * @throws InvalidArgument
+     */
+    public function nthInferred(int $nth, ?Inspector $inspector = null, array $header = []): array
+    {
+        return $this->inferSchema($inspector, $header)->format($this->nth($nth));
+    }
+
+    public function valueInferred(int|string $column = 0, ?Inspector $inspector = null, array $header = []): mixed
+    {
+        return $this->selectedColumnValue($this->firstInferred($inspector, $header), $column);
+    }
+
+    private function selectedColumnValue(array $record, int|string $column = 0): mixed
+    {
+        if ([] === $record) {
+            return null;
+        }
+
+        if (is_string($column)) {
+            return $record[$column] ?? null;
+        }
+
+        $record = array_values($record);
+        if ($column < 0) {
+            $column += count($record);
+        }
+
+        return $record[$column] ?? null;
+    }
+
     /**
      * @param non-negative-int $nth
      *
@@ -274,6 +318,11 @@ final class Buffer implements TabularData
     public function first(): array
     {
         return null === ($offset = $this->firstOffset()) ? [] : $this->rowToRecord($this->rows[$offset], $this->header);
+    }
+
+    public function value(int|string $column = 0): mixed
+    {
+        return $this->selectedColumnValue($this->first(), $column);
     }
 
     /**

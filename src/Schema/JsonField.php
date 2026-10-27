@@ -63,7 +63,7 @@ final class JsonField extends FieldEvaluator implements Field
     public function parse(mixed $value): mixed
     {
         if ($value instanceof JsonSerializable) {
-            $value = json_encode($value->jsonSerialize(), flags: JSON_THROW_ON_ERROR);
+            $value = json_encode($value, flags: JSON_THROW_ON_ERROR);
         }
 
         if ($value instanceof BackedEnum) {
