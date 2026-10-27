@@ -147,7 +147,7 @@ final readonly class Row
             }
 
             if (method_exists($row, '__call')) {
-                $res[$key] = $object->getMethod('__call')->invoke($row, $methodNameList[1]);
+                $res[$key] = $object->getMethod('__call')->invoke($row, $methodNameList[1], []);
                 continue;
             }
 

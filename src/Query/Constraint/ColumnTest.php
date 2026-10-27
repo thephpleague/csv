@@ -63,4 +63,19 @@ final class ColumnTest extends QueryTestCase
 
         self::assertCount(1, $result);
     }
+
+    #[Test]
+    public function it_can_filter_objects_resolving_the_column_through_call(): void
+    {
+        $row = new class () {
+            public function __call(string $name, array $arguments): mixed
+            {
+                return 'getCountry' === $name ? 'UK' : null;
+            }
+        };
+
+        $result = iterator_to_array(Column::filterOn('country', '=', 'UK')->filter([$row]));
+
+        self::assertSame([$row], $result);
+    }
 }
