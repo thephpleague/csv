@@ -88,8 +88,8 @@ final class JsonFieldTest extends TestCase
     public function testParseRejectsNonStringValues(): void
     {
         self::assertNull($this->field->parse(null));
-        self::assertNull($this->field->parse(123));
-        self::assertNull($this->field->parse([]));
+        self::assertSame(123, $this->field->parse(123));
+        self::assertSame([], $this->field->parse([]));
         self::assertNull($this->field->parse(new stdClass()));
     }
 

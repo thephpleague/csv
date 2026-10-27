@@ -18,6 +18,7 @@ use JsonSerializable;
 use Stringable;
 use ValueError;
 
+use function is_scalar;
 use function is_string;
 use function json_decode;
 use function json_encode;
@@ -62,20 +63,27 @@ final class JsonField extends FieldEvaluator implements Field
 
     public function parse(mixed $value): mixed
     {
-        if ($value instanceof JsonSerializable) {
-            $value = json_encode($value, flags: JSON_THROW_ON_ERROR);
-        }
-
-        if ($value instanceof BackedEnum) {
-            $value = $value->value;
+        if ($value instanceof JsonSerializable || is_array($value)) {
+            return $value;
         }
 
         if ($value instanceof Stringable) {
             $value = (string) $value;
         }
 
-        if (!is_string($value)) {
+        if ($value instanceof BackedEnum) {
+            $value = $value->value;
+            if (!is_string($value)) {
+                return $value;
+            }
+        }
+
+        if (!is_scalar($value)) {
             return null;
+        }
+
+        if (!is_string($value)) {
+            return $value;
         }
 
         $value = trim($value);

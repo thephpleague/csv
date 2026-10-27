@@ -33,16 +33,10 @@ final class CustomField extends FieldEvaluator implements Field
         float $confidenceThreshold = 0.8
     ) {
         ('' !== $fieldTypeName && 1 === preg_match('/^[a-z]+(?:_[a-z0-9]+)*$/', $fieldTypeName)) || throw new ValueError('The name "'.$fieldTypeName.'" is not a valid snake case variable name.');
-        $fieldParser = self::resolveFieldParser($fieldParser);
         parent::__construct($confidenceThreshold);
 
-        $this->fieldParser = $fieldParser;
+        $this->fieldParser = $fieldParser instanceof FieldParser ? $fieldParser : new CallbackFieldParser($fieldParser);
         $this->fieldTypeName = $fieldTypeName;
-    }
-
-    private static function resolveFieldParser(FieldParser|Closure|callable $parser): FieldParser
-    {
-        return $parser instanceof FieldParser ? $parser : new CallbackFieldParser($parser);
     }
 
     public function type(): FieldType
