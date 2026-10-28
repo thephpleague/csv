@@ -2,6 +2,24 @@
 
 All Notable changes to `Csv` will be documented in this file
 
+## [Next](https://github.com/thephpleague/csv/compare/9.29.0..master) - TBD
+
+### Added
+
+- None
+
+### Deprecated
+
+- None
+
+### Fixed
+
+- None
+
+### Remove
+
+- None
+
 ## [9.29.0](https://github.com/thephpleague/csv/compare/9.28.0..9.29.0) - 2026-10-28
 
 ### Added
