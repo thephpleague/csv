@@ -92,9 +92,7 @@ final class WriterTest extends TestCase
         $csv = Writer::from(__DIR__.'/../test_files/foo.csv', 'a+');
         $csv->insertOne(['jane', 'doe', 'jane.doe@example.com']);
 
-        self::assertFalse($csv->encloseAll());
-        self::assertFalse($csv->encloseNone());
-        self::assertTrue($csv->encloseNecessary());
+        self::assertSame(Quoting::Minimal, $csv->getQuoting());
         self::assertStringContainsString('jane,doe,jane.doe@example.com', $csv->toString());
     }
 
@@ -177,10 +175,10 @@ final class WriterTest extends TestCase
         ];
 
         $writer = Writer::fromString();
-        self::assertFalse($writer->encloseAll());
+        self::assertSame(Quoting::Minimal, $writer->getQuoting());
 
-        $writer->forceEnclosure();
-        self::assertTrue($writer->encloseAll());
+        $writer->setQuoting(Quoting::All);
+        self::assertSame(Quoting::All, $writer->getQuoting());
 
         $writer->insertAll($collection);
         $csv = $writer->toString();
@@ -189,8 +187,8 @@ final class WriterTest extends TestCase
         self::assertStringContainsString('"value 2-0","value 2-1"'."\n", $csv);
         self::assertStringContainsString('"to""to","foo\""bar"'."\n", $csv);
 
-        $writer->necessaryEnclosure();
-        self::assertFalse($writer->encloseAll());
+        $writer->setQuoting(Quoting::Minimal);
+        self::assertSame(Quoting::Minimal, $writer->getQuoting());
     }
 
     /**
@@ -203,7 +201,7 @@ final class WriterTest extends TestCase
     {
         $writer = Writer::fromString();
         $writer->setEscape('');
-        $writer->forceEnclosure();
+        $writer->setQuoting(Quoting::All);
         $writer->insertOne($record);
 
         $csv = $writer->toString();
@@ -252,7 +250,7 @@ final class WriterTest extends TestCase
     public function testForceEnclosureWithLegacyEscapeIsUnchanged(): void
     {
         $writer = Writer::fromString();
-        $writer->forceEnclosure();
+        $writer->setQuoting(Quoting::All);
         $writer->insertOne(['to"to', 'foo\"bar']);
 
         // the legacy non-empty escape path must keep doubling once, never twice
@@ -262,8 +260,7 @@ final class WriterTest extends TestCase
     public function test_security_fix_force_enclosure(): void
     {
         $record = ['a"b,INJECTED', 'col2'];
-        $writer = Writer::fromString()
-            ->forceEnclosure();
+        $writer = Writer::fromString()->setQuoting(Quoting::All);
 
         $writer->insertOne($record);
         self::assertSame('"a""b,INJECTED","col2"'."\n", $writer->toString());
@@ -272,6 +269,92 @@ final class WriterTest extends TestCase
             ->setEscape('');
 
         self::assertSame($record, $reader->first());
+    }
+
+    public function test_non_numeric_enclosure(): void
+    {
+        $writer = Writer::fromString();
+
+        self::assertSame(Quoting::Minimal, $writer->getQuoting());
+        self::assertSame($writer, $writer->setQuoting(Quoting::NonNumeric));
+        self::assertSame(Quoting::NonNumeric, $writer->getQuoting());
+    }
+
+    #[DataProvider('recordProvider')]
+    public function test_insert_record_with_non_numeric_enclosure(
+        array $record,
+        string $expected,
+    ): void {
+        $writer = Writer::fromString();
+        $writer->setQuoting(Quoting::NonNumeric);
+        $writer->insertOne($record);
+
+        self::assertSame($expected, $writer->toString());
+    }
+
+    public static function recordProvider(): iterable
+    {
+        yield 'integers' => [
+            [123, 0, -456],
+            "123,0,-456\n",
+        ];
+
+        yield 'floats' => [
+            [12.34, -0.5, 1.0],
+            "12.34,-0.5,1\n",
+        ];
+
+        yield 'numeric strings' => [
+            ['123', '-456', '1.23', '1e3'],
+            "123,-456,1.23,1e3\n",
+        ];
+
+        yield 'numeric strings with leading zeros' => [
+            ['00001234', '0123'],
+            "00001234,0123\n",
+        ];
+
+        yield 'non-numeric strings' => [
+            ['hello', 'world'],
+            "\"hello\",\"world\"\n",
+        ];
+
+        yield 'mixed values' => [
+            [123, 'hello', 45.67, 'world'],
+            "123,\"hello\",45.67,\"world\"\n",
+        ];
+
+        yield 'enclosure escaping' => [
+            ['say "hello"'],
+            "\"say \"\"hello\"\"\"\n",
+        ];
+
+        yield 'delimiter escaping' => [
+            ['hello, world'],
+            "\"hello, world\"\n",
+        ];
+
+        yield 'empty strings' => [
+            [''],
+            "\"\"\n",
+        ];
+
+        yield 'empty and numeric values' => [
+            ['', 0, 'hello', ''],
+            "\"\",0,\"hello\",\"\"\n",
+        ];
+    }
+
+    public function test_insert_record_with_custom_delimiter_and_enclosure(): void
+    {
+        $writer = Writer::fromString();
+        $writer->setDelimiter(';');
+        $writer->setEnclosure("'");
+        $writer->setQuoting(Quoting::NonNumeric);
+
+        $writer->insertOne([123, 'hello', 'it\'s me']);
+
+        self::assertSame("123;'hello';'it''s me'\n", $writer->toString());
     }
 
     public function testAddValidationRules(): void
@@ -375,7 +458,7 @@ final class WriterTest extends TestCase
 
         $csv = Writer::fromString();
         $csv->setDelimiter('|');
-        $csv->forceEnclosure();
+        $csv->setQuoting(Quoting::All);
         $csv->insertAll($records);
 
         $expected = <<<CSV
@@ -387,9 +470,7 @@ final class WriterTest extends TestCase
             air, moon roof, loaded"|"4799.00"
 CSV;
 
-        self::assertTrue($csv->encloseAll());
-        self::assertFalse($csv->encloseNone());
-        self::assertFalse($csv->encloseNecessary());
+        self::assertSame(Quoting::All, $csv->getQuoting());
         self::assertStringContainsString($expected, $csv->toString());
     }
 
@@ -409,7 +490,7 @@ CSV;
 
         $csv = Writer::fromString();
         $csv->setDelimiter('|');
-        $csv->noEnclosure();
+        $csv->setQuoting(Quoting::None);
         $csv->insertAll($records);
 
         $expected = <<<CSV
@@ -421,9 +502,7 @@ Year|Make|Model|Description|Price
             air, moon roof, loaded|4799.00
 CSV;
 
-        self::assertFalse($csv->encloseAll());
-        self::assertTrue($csv->encloseNone());
-        self::assertFalse($csv->encloseNecessary());
+        self::assertSame(Quoting::None, $csv->getQuoting());
         self::assertStringContainsString($expected, $csv->toString());
     }
 }
