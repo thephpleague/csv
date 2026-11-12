@@ -72,7 +72,12 @@ final readonly class EnumFormatter
      */
     public function __invoke(array $record): array
     {
-        return array_map(fn (mixed $value) => !$value instanceof UnitEnum ? $value : $this->encode($value), $record);
+        $encoded = [];
+        foreach ($record as $key => $value) {
+            $encoded[$key] = !$value instanceof UnitEnum ? $value : $this->encode($value, $key);
+        }
+
+        return $encoded;
     }
 
     /**
@@ -81,14 +86,18 @@ final readonly class EnumFormatter
      *
      * @throws TypeError If the encoding does not work
      */
-    public function encode(UnitEnum $value): mixed
+    public function encode(UnitEnum $value, string|int|null $name = null): mixed
     {
         return match (true) {
             self::NAME_FORMAT === $this->format => $value->name,
             self::VALUE_FORMAT === $this->format && $value instanceof BackedEnum => $value->value,
             self::JSON_FORMAT === $this->format && $value instanceof JsonSerializable => $value->jsonSerialize(),
             self::CALLBACK_FORMAT === $this->format && null !== $this->callback => ($this->callback)($value),
-            default => throw new TypeError('The Enum `'.$value::class.'` cannot be encoded using the "'.$this->format.'" strategy.'),
+            default => throw new TypeError(
+                null === $name
+                    ? 'The Enum `'.$value::class.'` cannot be encoded using the "'.$this->format.'" strategy.'
+                    : 'The Enum `'.$value::class.'` cannot be encoded using the "'.$this->format.'" strategy for the "'.$name.'" field.'
+            ),
         };
     }
 }
