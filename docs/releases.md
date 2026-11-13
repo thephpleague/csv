@@ -15,7 +15,7 @@ These are the release notes from `Csv`. We've tried to cover all changes, includ
 
 ## {{ release.name }}
 
-**Date released: {{ release.published_at | date: "%Y-%m-%d" }}**
+**Date released:** {{ release.published_at | date: "%Y-%m-%d" }}
 
 {{ release.body | replace:'```':'~~~' | markdownify }}
 {% endfor %}
