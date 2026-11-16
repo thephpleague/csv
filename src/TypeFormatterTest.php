@@ -19,28 +19,12 @@ use PHPUnit\Framework\TestCase;
 use stdClass;
 use TypeError;
 
-use function fclose;
 use function fopen;
 
 use const INF;
 use const NAN;
 use const PHP_FLOAT_MAX;
 use const PHP_FLOAT_MIN;
-
-enum StringBackedValue: string
-{
-    case Value = 'example';
-}
-
-enum IntBackedValue: int
-{
-    case Value = 42;
-}
-
-enum UnitValue
-{
-    case Value;
-}
 
 final class TypeFormatterTest extends TestCase
 {
@@ -100,19 +84,16 @@ final class TypeFormatterTest extends TestCase
     }
 
     #[DataProvider('provide_non_finite_float_values')]
-    public function test_encode_non_finite_float_values(float $value): void
+    public function test_encode_non_finite_float_values(float $value, string $expected): void
     {
-        self::assertSame(
-            (string) $value,
-            (new TypeFormatter())->encode($value)
-        );
+        self::assertSame($expected, (new TypeFormatter())->encode($value));
     }
 
     public static function provide_non_finite_float_values(): iterable
     {
-        yield 'NAN' => [NAN];
-        yield 'INF' => [INF];
-        yield '-INF' => [-INF];
+        yield 'NAN' => [NAN, 'NAN'];
+        yield 'INF' => [INF, 'INF'];
+        yield '-INF' => [-INF, '-INF'];
     }
 
     #[DataProvider('provide_backed_enum_values')]
@@ -158,26 +139,18 @@ final class TypeFormatterTest extends TestCase
     {
         $formatter = new TypeFormatter();
 
-        self::assertSame([
-            0 => 'hello',
-            2 => '42',
-        ], $formatter([
-            0 => 'hello',
-            2 => 42,
-        ]));
+        self::assertSame([0 => 'hello', 2 => '42'], $formatter([0 => 'hello', 2 => 42]));
     }
 
     #[DataProvider('provide_unsupported_values')]
-    public function test_encode_rejects_unsupported_values(
-        mixed $value,
-        string $type,
-    ): void {
-        $this->expectException(TypeError::class);
-        $this->expectExceptionMessage(
-            'Value must be of type null|bool|int|float|string|BackedEnum; '.$type.' given'
-        );
-
-        (new TypeFormatter())->encode($value);
+    public function test_encode_rejects_unsupported_values(mixed $value, string $type): void
+    {
+        try {
+            (new TypeFormatter())->encode($value);
+            self::fail('Expected TypeError was not thrown.');
+        } catch (TypeError $exception) {
+            self::assertStringContainsString($type, $exception->getMessage());
+        }
     }
 
     public static function provide_unsupported_values(): iterable
@@ -185,36 +158,28 @@ final class TypeFormatterTest extends TestCase
         yield 'unit enum' => [UnitValue::Value, UnitValue::class];
         yield 'array' => [[], 'array'];
         yield 'object' => [new stdClass(), 'stdClass'];
-    }
 
-    public function test_encode_rejects_resource(): void
-    {
         $resource = fopen('php://memory', 'r');
-
         self::assertIsResource($resource);
 
-        try {
-            $this->expectException(TypeError::class);
-            $this->expectExceptionMessage('resource');
-
-            (new TypeFormatter())->encode($resource);
-        } finally {
-            fclose($resource);
-        }
+        yield 'resource' => [$resource, 'resource (stream)'];
     }
 
-    public function test_encode_includes_field_name_in_exception(): void
+    public function test_encode_invalid_data_with_field_name_displays_the_field_name_in_exception(): void
     {
         try {
             (new TypeFormatter())->encode([], 'amount');
 
             self::fail('Expected TypeError was not thrown.');
         } catch (TypeError $exception) {
-            self::assertSame('Field “amount” value must be of type null|bool|int|float|string|BackedEnum; array given.', $exception->getMessage());
+            self::assertSame(
+                'Field “amount” value must be of type null|bool|int|float|string|BackedEnum; array given.',
+                $exception->getMessage(),
+            );
         }
     }
 
-    public function test_encode_without_field_name_uses_generic_exception(): void
+    public function test_encode_invalid_data_without_field_name_displays_no_field_name_in_exception(): void
     {
         try {
             (new TypeFormatter())->encode(new stdClass());
@@ -234,4 +199,19 @@ final class TypeFormatterTest extends TestCase
 
         self::assertSame('example,7000000'."\n", $doc->toString());
     }
+}
+
+enum StringBackedValue: string
+{
+    case Value = 'example';
+}
+
+enum IntBackedValue: int
+{
+    case Value = 42;
+}
+
+enum UnitValue
+{
+    case Value;
 }

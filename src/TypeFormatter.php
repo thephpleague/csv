@@ -44,19 +44,19 @@ final readonly class TypeFormatter
      */
     public function __invoke(array $record): array
     {
-        $encoded = [];
+        $formatted = [];
         foreach ($record as $key => $value) {
-            $encoded[$key] = $this->encode($value, $key);
+            $formatted[$key] = $this->encode($value, $key);
         }
 
-        return $encoded;
+        return $formatted;
     }
 
     /**
      * Convert a single value.
      *
      * @throws TypeError if type encoding is not supported
-     * @throws ValueError if encoding is not possible for valid type
+     * @throws ValueError if encoding is not possible for a valid type
      */
     public function encode(mixed $value, string|int|null $name = null): string
     {
@@ -64,29 +64,21 @@ final readonly class TypeFormatter
             $value instanceof BackedEnum => (string) $value->value,
             null === $value => $this->nullValue,
             is_bool($value) => $value ? $this->trueValue : $this->falseValue,
-            is_float($value) => self::floatToString($value, $name),
+            is_float($value) => match (true) {
+                is_nan($value) => 'NAN',
+                is_infinite($value) => $value > 0 ? 'INF' : '-INF',
+                false !== ($encoded = json_encode($value)) => $encoded,
+                default => throw new ValueError(
+                    null === $name
+                        ? 'Unable to encode the float value.'
+                        : 'Unable to encode the float value from Field “'.$name.'”'
+                ),
+            },
             is_scalar($value) => (string) $value,
             default => throw new TypeError(
                 null === $name
                     ? 'Value must be of type null|bool|int|float|string|BackedEnum; '.get_debug_type($value).' given.'
                     : 'Field “'.$name.'” value must be of type null|bool|int|float|string|BackedEnum; '.get_debug_type($value).' given.'
-            ),
-        };
-    }
-
-    /**
-     * @throws ValueError if encoding is not possible
-     */
-    private static function floatToString(float $value, string|int|null $name = null): string
-    {
-        return match (true) {
-            is_nan($value) => 'NAN',
-            is_infinite($value) => $value > 0 ? 'INF' : '-INF',
-            false !== ($encoded = json_encode($value)) => $encoded,
-            default => throw new ValueError(
-                null === $name
-                    ? 'Unable to encode the float value.'
-                    : 'Unable to encode the float value from Field “'.$name.'”'
             ),
         };
     }

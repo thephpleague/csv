@@ -72,12 +72,12 @@ final readonly class EnumFormatter
      */
     public function __invoke(array $record): array
     {
-        $encoded = [];
+        $formatted = [];
         foreach ($record as $key => $value) {
-            $encoded[$key] = !$value instanceof UnitEnum ? $value : $this->encode($value, $key);
+            $formatted[$key] = !$value instanceof UnitEnum ? $value : $this->encode($value, $key);
         }
 
-        return $encoded;
+        return $formatted;
     }
 
     /**
