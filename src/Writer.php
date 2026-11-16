@@ -16,6 +16,7 @@ namespace League\Csv;
 use Closure;
 use Deprecated;
 use SplFileInfo;
+use Throwable;
 use TypeError;
 
 use function array_map;
@@ -38,8 +39,6 @@ class Writer extends AbstractCsv implements TabularDataWriter
     protected int $flush_counter = 0;
     protected ?int $flush_threshold = null;
     protected Quoting $quoting = Quoting::Minimal;
-    /** @var array{0:array<string>,1:array<string>} */
-    protected array $enclosure_replace = [[], []];
 
     /**
      * @param SplFileInfo|string $path an SPL file object, a file path or a stream URI
@@ -53,72 +52,15 @@ class Writer extends AbstractCsv implements TabularDataWriter
         return parent::fromPath($path, $mode, $context);
     }
 
+    /**
+     * @throws InvalidArgument
+     */
     protected function resetProperties(): void
     {
         parent::resetProperties();
 
-        Quoting::EscapeOnly !== $this->quoting || '' !== $this->escape || throw new InvalidArgument($this->quoting->name.' cannot be used with an empty escape character.');
-
-        // With an empty escape the two-step replacement cancels itself, so
-        // fall back to plain RFC-4180 enclosure doubling as fputcsv does.
-        $this->enclosure_replace = '' === $this->escape
-            ? [[$this->enclosure], [$this->enclosure.$this->enclosure]]
-            : [
-                [$this->enclosure, $this->escape.$this->enclosure.$this->enclosure],
-                [$this->enclosure.$this->enclosure, $this->escape.$this->enclosure],
-            ];
-    }
-
-    protected function insertRecord(array $record): int|false
-    {
-        return match ($this->quoting) {
-            Quoting::None => $this->document->fwrite(implode($this->delimiter, $record).$this->newline),
-            Quoting::EscapeOnly => $this->document->fwrite(implode($this->delimiter, array_map($this->escapeOnlyField(...), $record)).$this->newline),
-            Quoting::All => $this->document->fwrite(implode($this->delimiter, array_map($this->quoteAll(...), $record)).$this->newline),
-            Quoting::NonNumeric => $this->document->fwrite(implode($this->delimiter, array_map($this->quoteNonNumeric(...), $record)).$this->newline),
-            Quoting::Minimal => $this->document->fputcsv($record, $this->delimiter, $this->enclosure, $this->escape, $this->newline),
-        };
-    }
-
-    /**
-     * @throws TypeError if casting to string is not possible
-     */
-    final protected function escapeOnlyField(mixed $content): string
-    {
-        $content = (string) $content; /* @phpstan-ignore-line */
-        $escaped = '';
-
-        for ($i = 0, $length = strlen($content); $i < $length; $i++) {
-            $char = $content[$i];
-
-            $escaped .= match ($char) {
-                $this->escape => $this->escape.$this->escape,
-                $this->delimiter => $this->escape.$this->delimiter,
-                "\r" => $this->escape.'r',
-                "\n" => $this->escape.'n',
-                default => $char,
-            };
-        }
-
-        return $escaped;
-    }
-
-    /**
-     * @throws TypeError if casting to string is not possible
-     */
-    final protected function quoteAll(mixed $content): string
-    {
-        return $this->enclosure
-            .str_replace($this->enclosure, $this->enclosure.$this->enclosure, (string) $content)  /* @phpstan-ignore-line */
-            .$this->enclosure;
-    }
-
-    /**
-     * @throws TypeError if casting to string is not possible
-     */
-    final protected function quoteNonNumeric(mixed $content): string
-    {
-        return is_numeric($content) ? (string) $content : $this->quoteAll($content);
+        Quoting::EscapeOnly !== $this->quoting || '' !== $this->escape || throw new InvalidArgument(Quoting::class.'::'.Quoting::EscapeOnly->name.' cannot be used with an empty escape character.');
+        Quoting::NonNumeric !== $this->quoting || ('.' !== $this->enclosure && '.' !== $this->delimiter) || throw new InvalidArgument(Quoting::class.'::'.Quoting::NonNumeric->name.' cannot be used with "." as delimiter or enclosure.');
     }
 
     /**
@@ -137,6 +79,9 @@ class Writer extends AbstractCsv implements TabularDataWriter
         return $this->flush_threshold;
     }
 
+    /**
+     * Returns the quoting mechanism.
+     */
     public function getQuoting(): Quoting
     {
         return $this->quoting;
@@ -146,8 +91,7 @@ class Writer extends AbstractCsv implements TabularDataWriter
      * Adds multiple records to the CSV document.
      * @see Writer::insertOne
      *
-     * @throws CannotInsertRecord
-     * @throws Exception
+     * @throws CannotInsertRecord|Exception|Throwable
      */
     public function insertAll(TabularDataProvider|TabularData|iterable $records): int
     {
@@ -173,7 +117,7 @@ class Writer extends AbstractCsv implements TabularDataWriter
      * or objects implementing the __toString method.
      *
      * @throws CannotInsertRecord If the record can not be inserted
-     * @throws Exception If the record can not be inserted
+     * @throws Exception|Throwable If the record can not be inserted
      */
     public function insertOne(array $record): int
     {
@@ -181,9 +125,7 @@ class Writer extends AbstractCsv implements TabularDataWriter
         $this->validateRecord($record);
         /** @var int|false $bytes */
         $bytes = Warning::cloak($this->insertRecord(...), $record);
-        if (false === $bytes) {
-            throw CannotInsertRecord::triggerOnInsertion($record);
-        }
+        false !== $bytes || throw CannotInsertRecord::triggerOnInsertion($record);
 
         if (null === $this->flush_threshold) {
             return $bytes;
@@ -211,6 +153,58 @@ class Writer extends AbstractCsv implements TabularDataWriter
     }
 
     /**
+     * @throws InvalidArgument
+     */
+    protected function insertRecord(array $record): int|false
+    {
+        return match ($this->quoting) {
+            Quoting::Minimal => $this->document->fputcsv($record, $this->delimiter, $this->enclosure, $this->escape, $this->newline),
+            Quoting::All => $this->document->fwrite(implode($this->delimiter, $this->quoteAll($record)).$this->newline),
+            Quoting::None => $this->document->fwrite(implode($this->delimiter, $record).$this->newline),
+            Quoting::NonNumeric => $this->document->fwrite(implode($this->delimiter, $this->quoteNonNumeric($record)).$this->newline),
+            Quoting::EscapeOnly => $this->document->fwrite(implode($this->delimiter, $this->escapeOnlyField($record)).$this->newline),
+        };
+    }
+
+    final protected function quoteAll(array $record): array
+    {
+        return array_map(
+            fn ($item): string =>
+                $this->enclosure
+                .str_replace($this->enclosure, $this->enclosure.$this->enclosure, (string) $item)
+                .$this->enclosure,
+            $record
+        );
+    }
+
+    /**
+     * @throws TypeError if casting to string is not possible
+     */
+    final protected function quoteNonNumeric(array $record): array
+    {
+        return array_map(
+            fn ($item): string => is_numeric($item)
+                ? (string) $item
+                : $this->enclosure
+                    .str_replace($this->enclosure, $this->enclosure.$this->enclosure, (string) $item)
+                    .$this->enclosure,
+            $record
+        );
+    }
+
+    final protected function escapeOnlyField(array $record): array
+    {
+        return array_map(
+            fn ($item): string => str_replace(
+                [$this->delimiter, $this->escape, "\r", "\n"],
+                [$this->escape.$this->delimiter, $this->escape.$this->escape, $this->escape.'r', $this->escape.'n'],
+                (string) $item
+            ),
+            $record
+        );
+    }
+
+    /**
      * Adds a record validator.
      *
      * @param callable(array): bool $validator
@@ -227,6 +221,10 @@ class Writer extends AbstractCsv implements TabularDataWriter
      */
     public function setEndOfLine(string $endOfLine): self
     {
+        if ($endOfLine === $this->newline) {
+            return $this;
+        }
+
         $this->newline = $endOfLine;
 
         return $this;
@@ -253,10 +251,16 @@ class Writer extends AbstractCsv implements TabularDataWriter
     }
 
     /**
-     * Controls when quotes should be generated by the writer.
+     * Controls quoting and escaping during record insertion.
+     *
+     * @throws InvalidArgument
      */
     public function setQuoting(Quoting $quoting): self
     {
+        if ($quoting === $this->quoting) {
+            return $this;
+        }
+
         $this->quoting = $quoting;
         $this->resetProperties();
 

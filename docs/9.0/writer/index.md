@@ -141,9 +141,11 @@ public Writer::getQuoting(): Quoting
 
 <p class="message-info"><code>Quoting::Minimal</code> is used by default.</p>
 <p class="message-info">Numeric fields are identified using PHP's <code>is_numeric()</code> function.</p>
-<p class="message-warning">The <code>$escape</code> character is only used when <code>Quoting::Minimal</code> or <code>Quoting::EscapeOnly</code> is selected. For all other quoting modes, it is ignored, as if it were set to an empty string.</p>
+<p class="message-warning">The <code>$escape</code> character is only used when <code>Quoting::Minimal</code> or <code>Quoting::EscapeOnly</code> is selected. For all other quoting modes, it is ignored, as though it were set to an empty string.</p>
 <p class="message-warning">When enclosure is disabled, the library does not validate or escape field contents. Fields containing line breaks, delimiters, or other CSV control characters may therefore produce malformed or ambiguous CSV data.</p>
 <p class="message-warning"><code>Quoting::EscapeOnly</code> may produce CSV that cannot be read by the <code>Reader</code> class or PHP's <code>fgetcsv()</code> function. This quoting mode is intended for interoperability with CSV formats such as those supported by Apache Commons CSV.</p>
+<p class="message-warning"><code>Quoting::EscapeOnly</code> cannot be used with an empty escape character.</p>
+<p class="message-warning"><code>Quoting::NonNumeric</code> cannot be used when either the delimiter or enclosure character is <code>.</code>.</p>
 
 ```php
 <?php

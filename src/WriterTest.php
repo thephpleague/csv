@@ -546,13 +546,53 @@ CSV;
         self::assertSame("foo\\\\bar\n", $csv->toString());
     }
 
-    public function test_escape_only_requires_a_non_empty_escape_character(): void
+    public function test_quoting_escape_only_requires_a_non_empty_escape_character(): void
     {
         $this->expectException(InvalidArgument::class);
-        $this->expectExceptionMessage('EscapeOnly cannot be used with an empty escape character.');
+        $this->expectExceptionMessage('League\Csv\Quoting::EscapeOnly cannot be used with an empty escape character.');
 
-        $csv = Writer::fromString();
-        $csv->setQuoting(Quoting::EscapeOnly);
-        $csv->setEscape('');
+        Writer::fromString()
+            ->setQuoting(Quoting::EscapeOnly)
+            ->setEscape('');
+    }
+
+    public function test_quoting_escape_only_requires_a_non_empty_escape_character_regardless_of_setter_order(): void
+    {
+        $this->expectException(InvalidArgument::class);
+        $this->expectExceptionMessage('League\Csv\Quoting::EscapeOnly cannot be used with an empty escape character.');
+
+        Writer::fromString()
+            ->setEscape('')
+            ->setQuoting(Quoting::EscapeOnly);
+    }
+
+    public function test_quoting_non_numeric_rejects_the_use_of_the_dot_character_as_delimiter(): void
+    {
+        $this->expectException(InvalidArgument::class);
+        $this->expectExceptionMessage('League\Csv\Quoting::NonNumeric cannot be used with "." as delimiter or enclosure.');
+
+        Writer::fromString()
+            ->setDelimiter('.')
+            ->setQuoting(Quoting::NonNumeric);
+    }
+
+    public function test_quoting_non_numeric_rejects_the_use_of_the_dot_character_as_enclosure(): void
+    {
+        $this->expectException(InvalidArgument::class);
+        $this->expectExceptionMessage('League\Csv\Quoting::NonNumeric cannot be used with "." as delimiter or enclosure.');
+
+        Writer::fromString()
+            ->setQuoting(Quoting::NonNumeric)
+            ->setEnclosure('.');
+    }
+
+    public function test_quoting_non_numeric_rejects_the_use_of_the_dot_character_as_delimiter_regardless_of_setter_order(): void
+    {
+        $this->expectException(InvalidArgument::class);
+        $this->expectExceptionMessage('League\Csv\Quoting::NonNumeric cannot be used with "." as delimiter or enclosure.');
+
+        Writer::fromString()
+            ->setQuoting(Quoting::NonNumeric)
+            ->setDelimiter('.');
     }
 }
