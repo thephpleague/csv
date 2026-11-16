@@ -130,3 +130,101 @@ $doc->toString();
 When using the `usingCallback()` named constructor the callback takes a single argument
 a `UnitEnum` and is expected to return a value suitable for CSV encoding or any encoding
 you want to use.
+
+## Type Formatter
+
+<p class="message-notice">Available since version <code>9.30</code></p>
+
+The `League\Csv\TypeFormatter` class is an **immutable formatter** designed to convert PHP values
+into strings suitable for CSV export and other flat data formats.
+
+It follows conversion rules similar to those used for URI query parameters.
+
+| Type     | Conversion                                         | Example |
+|--------------|-----------------------------------------------------|--------------------|
+| **string**     | as is          | "foo" → foo       |
+| **null**    | configurable, default to empty field            | `null → empty field (in default configuration)`|
+| **bool**     | configurable, default to  “1” / “0”| false → 0 (in default configuration)`        |
+| **int** | decimal representation  | -42 → -42   |
+| **float** | Serialized using serialize_precision, as with `json_encode()`| 0.1 + 0.2 → 0.30000000000000004   |
+| **backed enum** | Backing value, converted according to its type | Suit::Hearts → H   |
+| **other types** | Not supported; throws a `TypeError`| TypeError thrown|
+
+<p class="message-notice">The float values <code>INF</code>, <code>-INF</code>, and <code>NAN</code> are serialized as strings.</p>
+<p class="message-notice">Objects implementing <code>Stringable</code> are not supported and will cause a <code>TypeError</code> to be thrown.</p>
+
+### Encoding a Single Value
+
+You can encode a single value manually using the `encode()` method:
+
+```php
+use League\Csv\TypeFormatter;
+
+$value = new TypeFormatter()->encode(Pure::Foo);
+// returns "foo"
+```
+
+### Boolean and Null Values
+
+You can customize how boolean and `null` values are converted by providing the corresponding values when instantiating the formatter.
+By default, the following rules are applied:
+
+- `true` is converted to `1`
+- `false` is converted to `0`
+- `null` is converted to the empty string
+
+```php
+use League\Csv\TypeFormatter;
+$formatter = new TypeFormatter(nullValue: 'NONE', trueValue: "t", falseValue: "f");
+$formatter->encode(null);
+// returns "NONE"
+$formatter->encode(true);
+// returns "t"
+$formatter->encode(false);
+// returns "f"
+```
+
+### Usage with a Record and the Writer class
+
+The class can be used as a callable to convert records fields.
+
+```php
+use League\Csv\TypeFormatter;
+
+enum Status: int
+{
+    case Active = 1;
+    case Inactive = 0;
+}
+
+$record = [
+    'id' => 1,
+    'is_connected' => true,
+    'status' => Status::Active,
+];
+
+$formatter = new TypeFormatter(trueValue: 'yes');
+$result = $formatter($record);
+// ['id' => 1, 'is_connected' => 'yes', 'status' => 1]
+```
+
+The class can also be used as a Formatter by the `Writer` as follows:
+
+```php
+use League\Csv\Writer;
+use League\Csv\TypeFormatter;
+
+enum City: string
+{
+    case Brussels = 'bruxelles';
+    case Berlin = 'berlin';
+}
+
+$arr = ['city' => City::Brussels, 'habitants' => 2_000_000];
+$doc = Writer::fromString();
+$doc->addFormatter(new TypeFormatter());
+$doc->insertOne($arr);
+
+$doc->toString();
+// returns "bruxelles,2000000\n",
+```
