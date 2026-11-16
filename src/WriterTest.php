@@ -505,4 +505,54 @@ CSV;
         self::assertSame(Quoting::None, $csv->getQuoting());
         self::assertStringContainsString($expected, $csv->toString());
     }
+
+    public function testEscapeOnly(): void
+    {
+        /**
+         * @see https://en.wikipedia.org/wiki/Comma-separated_values#Example
+         */
+        $records = [
+            ['Year', 'Make', 'Model', 'Description', 'Price'],
+            [1997, 'Ford', 'E350', 'ac,abs,moon', '3000.00'],
+            [1999, 'Chevy', 'Venture "Extended Edition"', null, '4900.00'],
+            [1999, 'Chevy', 'Venture "Extended Edition, Very Large"', null, '5000.00'],
+            [1996, 'Jeep', 'Grand Cherokee', "MUST SELL!\nair, moon roof, loaded", '4799.00'],
+        ];
+
+        $csv = Writer::fromString();
+        $csv->setDelimiter('|');
+        $csv->setEscape('\\');
+        $csv->setQuoting(Quoting::EscapeOnly);
+        $csv->insertAll($records);
+
+        $expected = <<<'CSV'
+Year|Make|Model|Description|Price
+1997|Ford|E350|ac,abs,moon|3000.00
+1999|Chevy|Venture "Extended Edition"||4900.00
+1999|Chevy|Venture "Extended Edition, Very Large"||5000.00
+1996|Jeep|Grand Cherokee|MUST SELL!\nair, moon roof, loaded|4799.00
+CSV;
+
+        self::assertSame(Quoting::EscapeOnly, $csv->getQuoting());
+        self::assertStringContainsString($expected, $csv->toString());
+    }
+
+    public function test_escape_only_escapes_the_escape_character(): void
+    {
+        $csv = Writer::fromString();
+        $csv->setQuoting(Quoting::EscapeOnly);
+        $csv->insertOne(['foo\\bar']);
+
+        self::assertSame("foo\\\\bar\n", $csv->toString());
+    }
+
+    public function test_escape_only_requires_a_non_empty_escape_character(): void
+    {
+        $this->expectException(InvalidArgument::class);
+        $this->expectExceptionMessage('EscapeOnly cannot be used with an empty escape character.');
+
+        $csv = Writer::fromString();
+        $csv->setQuoting(Quoting::EscapeOnly);
+        $csv->setEscape('');
+    }
 }

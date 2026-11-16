@@ -18,5 +18,6 @@ enum Quoting
     case All;
     case NonNumeric;
     case Minimal;
+    case EscapeOnly;
     case None;
 }

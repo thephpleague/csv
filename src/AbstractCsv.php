@@ -369,9 +369,7 @@ abstract class AbstractCsv implements ByteSequence, Stringable
             return $this;
         }
 
-        if ('' !== $escape && 1 !== strlen($escape)) {
-            throw InvalidArgument::dueToInvalidEscapeCharacter($escape, __METHOD__);
-        }
+        '' === $escape || 1 === strlen($escape) || throw InvalidArgument::dueToInvalidEscapeCharacter($escape, __METHOD__);
 
         $this->escape = $escape;
         $this->resetProperties();
