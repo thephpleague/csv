@@ -93,18 +93,21 @@ class Writer extends AbstractCsv implements TabularDataWriter
     public function insertAll(TabularDataProvider|TabularData|iterable $records): int
     {
         $bytes = 0;
-        foreach (match (true) {
-            $records instanceof TabularDataProvider => $records->getTabularData()->getRecords(),
-            $records instanceof TabularData => $records->getRecords(),
-            default => $records,
-        } as $record) {
-            $bytes += $this->insertOne($record);
+
+        try {
+            foreach (match (true) {
+                $records instanceof TabularDataProvider => $records->getTabularData()->getRecords(),
+                $records instanceof TabularData => $records->getRecords(),
+                default => $records,
+            } as $record) {
+                $bytes += $this->insertOne($record);
+            }
+
+            return $bytes;
+        } finally {
+            $this->flush_counter = 0;
+            $this->document->fflush();
         }
-
-        $this->flush_counter = 0;
-        $this->document->fflush();
-
-        return $bytes;
     }
 
     /**
@@ -205,11 +208,9 @@ class Writer extends AbstractCsv implements TabularDataWriter
      */
     public function setEndOfLine(string $endOfLine): self
     {
-        if ($endOfLine === $this->newline) {
-            return $this;
+        if ($endOfLine !== $this->newline) {
+            $this->newline = $endOfLine;
         }
-
-        $this->newline = $endOfLine;
 
         return $this;
     }
