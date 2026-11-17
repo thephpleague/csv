@@ -17,10 +17,8 @@ use Closure;
 use Deprecated;
 use SplFileInfo;
 use Throwable;
-use TypeError;
 
 use function array_map;
-use function array_reduce;
 use function implode;
 use function is_numeric;
 use function str_replace;
@@ -41,7 +39,6 @@ class Writer extends AbstractCsv implements TabularDataWriter
     protected Quoting $quoting = Quoting::Minimal;
 
     /**
-     * @param SplFileInfo|string $path an SPL file object, a file path or a stream URI
      * @param non-empty-string $mode the file path open mode
      * @param resource|null $context the resource context used with a file path or a SplFileInfo object
      *
@@ -91,7 +88,7 @@ class Writer extends AbstractCsv implements TabularDataWriter
      * Adds multiple records to the CSV document.
      * @see Writer::insertOne
      *
-     * @throws CannotInsertRecord|Exception|Throwable
+     * @throws CannotInsertRecord|Exception|Throwable If the record can not be inserted
      */
     public function insertAll(TabularDataProvider|TabularData|iterable $records): int
     {
@@ -113,16 +110,18 @@ class Writer extends AbstractCsv implements TabularDataWriter
     /**
      * Adds a single record to a CSV document.
      *
-     * A record is an array that can contain scalar type values, NULL values
-     * or objects implementing the __toString method.
-     *
-     * @throws CannotInsertRecord If the record can not be inserted
-     * @throws Exception|Throwable If the record can not be inserted
+     * @throws CannotInsertRecord|Exception|Throwable If the record can not be inserted
      */
     public function insertOne(array $record): int
     {
-        $record = array_reduce($this->formatters, fn (array $record, callable $formatter): array => $formatter($record), $record);
-        $this->validateRecord($record);
+        foreach ($this->formatters as $formatter) {
+            $record = $formatter($record);
+        }
+
+        foreach ($this->validators as $name => $validator) {
+            true === $validator($record) || throw CannotInsertRecord::triggerOnValidation($name, $record);
+        }
+
         /** @var int|false $bytes */
         $bytes = Warning::cloak($this->insertRecord(...), $record);
         false !== $bytes || throw CannotInsertRecord::triggerOnInsertion($record);
@@ -138,18 +137,6 @@ class Writer extends AbstractCsv implements TabularDataWriter
         }
 
         return $bytes;
-    }
-
-    /**
-     * Validates a record.
-     *
-     * @throws CannotInsertRecord If the validation failed
-     */
-    protected function validateRecord(array $record): void
-    {
-        foreach ($this->validators as $name => $validator) {
-            true === $validator($record) || throw CannotInsertRecord::triggerOnValidation($name, $record);
-        }
     }
 
     /**
@@ -177,17 +164,14 @@ class Writer extends AbstractCsv implements TabularDataWriter
         );
     }
 
-    /**
-     * @throws TypeError if casting to string is not possible
-     */
     final protected function quoteNonNumeric(array $record): array
     {
         return array_map(
             fn ($item): string => is_numeric($item)
                 ? (string) $item
                 : $this->enclosure
-                    .str_replace($this->enclosure, $this->enclosure.$this->enclosure, (string) $item)
-                    .$this->enclosure,
+                .str_replace($this->enclosure, $this->enclosure.$this->enclosure, (string) $item)
+                .$this->enclosure,
             $record
         );
     }
@@ -265,6 +249,24 @@ class Writer extends AbstractCsv implements TabularDataWriter
         $this->resetProperties();
 
         return $this;
+    }
+
+    /**
+     * DEPRECATION WARNING! This method will be removed in the next major point release.
+     *
+     * @deprecated since version 9.8.0, no longer affecting the class behaviour
+     * @codeCoverageIgnore
+     *
+     * Validates a record.
+     *
+     * @throws CannotInsertRecord If the validation failed
+     */
+    #[Deprecated(message:'no longer affecting the class behaviour', since:'league/csv:9.30.0')]
+    protected function validateRecord(array $record): void
+    {
+        foreach ($this->validators as $name => $validator) {
+            true === $validator($record) || throw CannotInsertRecord::triggerOnValidation($name, $record);
+        }
     }
 
     /**

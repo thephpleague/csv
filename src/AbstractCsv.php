@@ -58,7 +58,7 @@ abstract class AbstractCsv implements ByteSequence, Stringable
     protected string $enclosure = '"';
     protected string $escape = '\\';
     protected bool $is_input_bom_included = false;
-    /** @var array<Closure(array): array> collection of Closure to format the record before reading. */
+    /** @var array<Closure(array): array> collection of Closure to format the record before processing. */
     protected array $formatters = [];
 
     /**
