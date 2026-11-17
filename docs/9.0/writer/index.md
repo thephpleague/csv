@@ -120,32 +120,36 @@ By default, `getFlushTreshold` returns `null`.
 <p class="message-info"><code>Writer::insertAll</code> always flushes its buffer when all records are inserted, regardless of the threshold value.</p>
 <p class="message-info">If set to <code>null</code> the inner flush mechanism of PHP's <code>fputcsv</code> will be used.</p>
 
-## Enclosure
+## Quoting
 
-<p class="message-info">Since version <code>9.10.0</code> you can provide control the presence of enclosure around all records.</p>
+<p class="message-info">Since version <code>9.30.0</code> you can control the presence of enclosure around non-numeric and numeric fields.</p>
 <p class="message-info">Since version <code>9.20.0</code> generating CSV without enclosure is allowed.</p>
+<p class="message-info">Since version <code>9.10.0</code> you can control the presence of enclosure around all fields.</p>
+
+This feature controls how the Writer encloses fields when generating CSV records. It accepts any of the following `League\Csv\Quoting` enum cases:
+
+- `Quoting::All`: All fields are enclosed;
+- `Quoting::NonNumeric`: Only fields containing non-numeric data are enclosed;
+- `Quoting::Minimal`: Fields are enclosed according to PHP's `fputcsv()` enclosure rules;
+- `Quoting::EscapeOnly`: No fields are enclosed; the escape character is used to escape itself, the delimiter, carriage returns, and line feeds;
+- `Quoting::None`: No fields are enclosed and no escaping is performed;
 
 ```php
-public Writer::forceEnclosure(): self
-public Writer::necessaryEnclosure(): self
-public Writer::noEnclosure(): self
-public Writer::encloseAll(): bool
-public Writer::encloseNecessary(): bool
-public Writer::encloseNone(): bool
+public Writer::setQuoting(Quoting $quoting): self
+public Writer::getQuoting(): Quoting
 ```
 
-By default, the `Writer` adds enclosures only around records that requires them. For all other records no enclosure character is present,
-With this feature, you can:
-
-- force the enclosure to be present on every record entry or CSV cell;
-- completely remove the presence of enclosure;
-
-<p class="message-warning">When this feature is activated the <code>$escape</code> character is completely ignored (it is the same as setting it to the empty string.)</p>
-<p class="message-warning">When no enclosure is used, the library <strong>DO NOT CHECK</strong> for multiline fields.</p>
-<p class="message-notice"><code>relaxEnclosure</code> is deprecated since version <code>9.22.0</code> and is replaced by <code>necessaryEnclosure</code></p>
+<p class="message-info"><code>Quoting::Minimal</code> is used by default.</p>
+<p class="message-info">Numeric fields are identified using PHP's <code>is_numeric()</code> function.</p>
+<p class="message-warning">The <code>$escape</code> character is only used when <code>Quoting::Minimal</code> or <code>Quoting::EscapeOnly</code> is selected. For all other quoting modes, it is ignored, as though it were set to an empty string.</p>
+<p class="message-warning">When enclosure is disabled, the library does not validate or escape field contents. Fields containing line breaks, delimiters, or other CSV control characters may therefore produce malformed or ambiguous CSV data.</p>
+<p class="message-warning"><code>Quoting::EscapeOnly</code> may produce CSV that cannot be read by the <code>Reader</code> class or PHP's <code>fgetcsv()</code> function. This quoting mode is intended for interoperability with CSV formats such as those supported by Apache Commons CSV.</p>
+<p class="message-warning"><code>Quoting::EscapeOnly</code> cannot be used with an empty escape character.</p>
+<p class="message-warning"><code>Quoting::NonNumeric</code> cannot be used when either the delimiter or enclosure character is <code>.</code>.</p>
 
 ```php
 <?php
+use League\Csv\Quoting;
 use League\Csv\Writer;
 
 $collection = [
@@ -155,19 +159,40 @@ $collection = [
 ];
 
 $writer = Writer::fromString();
-$writer->encloseAll(); //return false;
-$writer->forceEnclosure();
-$writer->encloseAll(); //return true;
+$writer->getQuoting(); // returns Quoting::Minimal
+$writer->setQuoting(Quoting::All);
+$writer->getQuoting(); // returns Quoting::All
 $writer->insertAll($collection);
 echo $writer->toString(), PHP_EOL;
 
-// the CSV file will contain enclosed cell.
-// Double quote are not added in presence of the 
-// escape character as per PHP's CSV writing documentation
+// all fields are enclosed.
 
-// "1","2"
-// "value 2-0","value 2-1"
-// "to""to","foo\"bar"
+//"1","2"
+//"value 2-0","value 2-1"
+//"to""to","foo\""bar"
+
+$writer = Writer::fromString();
+$writer->setQuoting(Quoting::NonNumeric);
+$writer->insertAll($collection);
+echo $writer->toString(), PHP_EOL;
+
+// numeric fields are not enclosed.
+
+//1,2
+//"value 2-0","value 2-1"
+//"to""to","foo\""bar"
+```
+
+The following methods are deprecated and will be removed in a future major release. Use `setQuoting()` and `getQuoting()` instead.
+
+```php
+public Writer::relaxEnclosure(): self
+public Writer::forceEnclosure(): self
+public Writer::necessaryEnclosure(): self
+public Writer::noEnclosure(): self
+public Writer::encloseAll(): bool
+public Writer::encloseNecessary(): bool
+public Writer::encloseNone(): bool
 ```
 
 ## Records filtering

@@ -16,10 +16,11 @@ namespace League\Csv;
 use Closure;
 use Deprecated;
 use SplFileInfo;
+use Throwable;
 
 use function array_map;
-use function array_reduce;
 use function implode;
+use function is_numeric;
 use function str_replace;
 
 use const STREAM_FILTER_WRITE;
@@ -29,22 +30,15 @@ use const STREAM_FILTER_WRITE;
  */
 class Writer extends AbstractCsv implements TabularDataWriter
 {
-    protected const ENCLOSE_ALL = 1;
-    protected const ENCLOSE_NECESSARY = 0;
-    protected const ENCLOSE_NONE = -1;
-
     protected const STREAM_FILTER_MODE = STREAM_FILTER_WRITE;
     /** @var array<Closure(array): bool> callable collection to validate the record before insertion. */
     protected array $validators = [];
     protected string $newline = "\n";
     protected int $flush_counter = 0;
     protected ?int $flush_threshold = null;
-    protected int $enclose_all = self::ENCLOSE_NECESSARY;
-    /** @var array{0:array<string>,1:array<string>} */
-    protected array $enclosure_replace = [[], []];
+    protected Quoting $quoting = Quoting::Minimal;
 
     /**
-     * @param SplFileInfo|string $path an SPL file object, a file path or a stream URI
      * @param non-empty-string $mode the file path open mode
      * @param resource|null $context the resource context used with a file path or a SplFileInfo object
      *
@@ -55,36 +49,15 @@ class Writer extends AbstractCsv implements TabularDataWriter
         return parent::fromPath($path, $mode, $context);
     }
 
+    /**
+     * @throws InvalidArgument
+     */
     protected function resetProperties(): void
     {
         parent::resetProperties();
 
-        // With an empty escape the two-step replacement cancels itself, so
-        // fall back to plain RFC-4180 enclosure doubling as fputcsv does.
-        $this->enclosure_replace = '' === $this->escape
-            ? [[$this->enclosure], [$this->enclosure.$this->enclosure]]
-            : [
-                [$this->enclosure, $this->escape.$this->enclosure.$this->enclosure],
-                [$this->enclosure.$this->enclosure, $this->escape.$this->enclosure],
-            ];
-    }
-
-    protected function insertRecord(array $record): int|false
-    {
-        return match ($this->enclose_all) {
-            self::ENCLOSE_ALL => $this->document->fwrite(implode(
-                $this->delimiter,
-                array_map(
-                    fn ($content): string =>
-                         $this->enclosure
-                         .str_replace($this->enclosure, $this->enclosure.$this->enclosure, (string) $content)
-                         .$this->enclosure,
-                    $record
-                )
-            ).$this->newline),
-            self::ENCLOSE_NONE => $this->document->fwrite(implode($this->delimiter, $record).$this->newline),
-            default => $this->document->fputcsv($record, $this->delimiter, $this->enclosure, $this->escape, $this->newline),
-        };
+        Quoting::EscapeOnly !== $this->quoting || '' !== $this->escape || throw new InvalidArgument(Quoting::class.'::'.Quoting::EscapeOnly->name.' cannot be used with an empty escape character.');
+        Quoting::NonNumeric !== $this->quoting || ('.' !== $this->enclosure && '.' !== $this->delimiter) || throw new InvalidArgument(Quoting::class.'::'.Quoting::NonNumeric->name.' cannot be used with "." as delimiter or enclosure.');
     }
 
     /**
@@ -104,72 +77,56 @@ class Writer extends AbstractCsv implements TabularDataWriter
     }
 
     /**
-     * Tells whether new entries will all be enclosed on writing.
+     * Returns the quoting mechanism.
      */
-    public function encloseAll(): bool
+    public function getQuoting(): Quoting
     {
-        return self::ENCLOSE_ALL === $this->enclose_all;
-    }
-
-    /**
-     * Tells whether new entries will be selectively enclosed on writing
-     * if the field content requires encoding.
-     */
-    public function encloseNecessary(): bool
-    {
-        return self::ENCLOSE_NECESSARY === $this->enclose_all;
-    }
-
-    /**
-     * Tells whether new entries will never be enclosed on writing.
-     */
-    public function encloseNone(): bool
-    {
-        return self::ENCLOSE_NONE === $this->enclose_all;
+        return $this->quoting;
     }
 
     /**
      * Adds multiple records to the CSV document.
      * @see Writer::insertOne
      *
-     * @throws CannotInsertRecord
-     * @throws Exception
+     * @throws CannotInsertRecord|Exception|Throwable If the record can not be inserted
      */
     public function insertAll(TabularDataProvider|TabularData|iterable $records): int
     {
-        $bytes = 0;
-        foreach (match (true) {
-            $records instanceof TabularDataProvider => $records->getTabularData()->getRecords(),
-            $records instanceof TabularData => $records->getRecords(),
-            default => $records,
-        } as $record) {
-            $bytes += $this->insertOne($record);
+        try {
+            $bytes = 0;
+            foreach (match (true) {
+                $records instanceof TabularDataProvider => $records->getTabularData()->getRecords(),
+                $records instanceof TabularData => $records->getRecords(),
+                default => $records,
+            } as $record) {
+                $bytes += $this->insertOne($record);
+            }
+
+            return $bytes;
+        } finally {
+            $this->flush_counter = 0;
+            $this->document->fflush();
         }
-
-        $this->flush_counter = 0;
-        $this->document->fflush();
-
-        return $bytes;
     }
 
     /**
      * Adds a single record to a CSV document.
      *
-     * A record is an array that can contain scalar type values, NULL values
-     * or objects implementing the __toString method.
-     *
-     * @throws CannotInsertRecord If the record can not be inserted
-     * @throws Exception If the record can not be inserted
+     * @throws CannotInsertRecord|Exception|Throwable If the record can not be inserted
      */
     public function insertOne(array $record): int
     {
-        $record = array_reduce($this->formatters, fn (array $record, callable $formatter): array => $formatter($record), $record);
-        $this->validateRecord($record);
+        foreach ($this->formatters as $formatter) {
+            $record = $formatter($record);
+        }
+
+        foreach ($this->validators as $name => $validator) {
+            true === $validator($record) || throw CannotInsertRecord::triggerOnValidation($name, $record);
+        }
+
         /** @var int|false $bytes */
         $bytes = Warning::cloak($this->insertRecord(...), $record);
-        if (false === $bytes) {
-            throw CannotInsertRecord::triggerOnInsertion($record);
-        }
+        false !== $bytes || throw CannotInsertRecord::triggerOnInsertion($record);
 
         if (null === $this->flush_threshold) {
             return $bytes;
@@ -185,15 +142,52 @@ class Writer extends AbstractCsv implements TabularDataWriter
     }
 
     /**
-     * Validates a record.
-     *
-     * @throws CannotInsertRecord If the validation failed
+     * @throws InvalidArgument
      */
-    protected function validateRecord(array $record): void
+    protected function insertRecord(array $record): int|false
     {
-        foreach ($this->validators as $name => $validator) {
-            true === $validator($record) || throw CannotInsertRecord::triggerOnValidation($name, $record);
-        }
+        return match ($this->quoting) {
+            Quoting::Minimal => $this->document->fputcsv($record, $this->delimiter, $this->enclosure, $this->escape, $this->newline),
+            Quoting::All => $this->document->fwrite(implode($this->delimiter, $this->quoteAll($record)).$this->newline),
+            Quoting::None => $this->document->fwrite(implode($this->delimiter, $record).$this->newline),
+            Quoting::NonNumeric => $this->document->fwrite(implode($this->delimiter, $this->quoteNonNumeric($record)).$this->newline),
+            Quoting::EscapeOnly => $this->document->fwrite(implode($this->delimiter, $this->escapeOnlyField($record)).$this->newline),
+        };
+    }
+
+    final protected function quoteAll(array $record): array
+    {
+        return array_map(
+            fn ($item): string =>
+                $this->enclosure
+                .str_replace($this->enclosure, $this->enclosure.$this->enclosure, (string) $item)
+                .$this->enclosure,
+            $record
+        );
+    }
+
+    final protected function quoteNonNumeric(array $record): array
+    {
+        return array_map(
+            fn ($item): string => is_numeric($item)
+                ? (string) $item
+                : $this->enclosure
+                .str_replace($this->enclosure, $this->enclosure.$this->enclosure, (string) $item)
+                .$this->enclosure,
+            $record
+        );
+    }
+
+    final protected function escapeOnlyField(array $record): array
+    {
+        return array_map(
+            fn ($item): string => str_replace(
+                [$this->delimiter, $this->escape, "\r", "\n"],
+                [$this->escape.$this->delimiter, $this->escape.$this->escape, $this->escape.'r', $this->escape.'n'],
+                (string) $item
+            ),
+            $record
+        );
     }
 
     /**
@@ -213,7 +207,9 @@ class Writer extends AbstractCsv implements TabularDataWriter
      */
     public function setEndOfLine(string $endOfLine): self
     {
-        $this->newline = $endOfLine;
+        if ($endOfLine !== $this->newline) {
+            $this->newline = $endOfLine;
+        }
 
         return $this;
     }
@@ -238,28 +234,111 @@ class Writer extends AbstractCsv implements TabularDataWriter
         return $this;
     }
 
+    /**
+     * Controls quoting and escaping during record insertion.
+     *
+     * @throws InvalidArgument
+     */
+    public function setQuoting(Quoting $quoting): self
+    {
+        if ($quoting === $this->quoting) {
+            return $this;
+        }
+
+        $this->quoting = $quoting;
+        $this->resetProperties();
+
+        return $this;
+    }
+
+    /**
+     * DEPRECATION WARNING! This method will be removed in the next major point release.
+     *
+     * @deprecated since version 9.8.0, no longer affecting the class behaviour
+     * @codeCoverageIgnore
+     *
+     * Validates a record.
+     *
+     * @throws CannotInsertRecord If the validation failed
+     */
+    #[Deprecated(message:'no longer affecting the class behaviour', since:'league/csv:9.30.0')]
+    protected function validateRecord(array $record): void
+    {
+        foreach ($this->validators as $name => $validator) {
+            true === $validator($record) || throw CannotInsertRecord::triggerOnValidation($name, $record);
+        }
+    }
+
+    /**
+     * DEPRECATION WARNING! This method will be removed in the next major point release.
+     *
+     * @deprecated since version 9.30.0, use setQuoting instead
+     * @codeCoverageIgnore
+     */
+    #[Deprecated(message:'use League\Csv\Writer::getQuoting()', since:'league/csv:9.30.0')]
+    public function encloseAll(): bool
+    {
+        return Quoting::All === $this->quoting;
+    }
+
+    /**
+     * DEPRECATION WARNING! This method will be removed in the next major point release.
+     *
+     * @deprecated since version 9.30.0, use setQuoting instead
+     * @codeCoverageIgnore
+     */
+    #[Deprecated(message:'use League\Csv\Writer::getQuoting()', since:'league/csv:9.30.0')]
+    public function encloseNecessary(): bool
+    {
+        return Quoting::Minimal === $this->quoting;
+    }
+
+    /**
+     * DEPRECATION WARNING! This method will be removed in the next major point release.
+     *
+     * @deprecated since version 9.30.0, use setQuoting instead
+     * @codeCoverageIgnore
+     */
+    #[Deprecated(message:'use League\Csv\Writer::getQuoting()', since:'league/csv:9.30.0')]
+    public function encloseNone(): bool
+    {
+        return Quoting::None === $this->quoting;
+    }
+
+    /**
+     * DEPRECATION WARNING! This method will be removed in the next major point release.
+     *
+     * @deprecated since version 9.30.0, use setQuoting instead
+     * @codeCoverageIgnore
+     */
+    #[Deprecated(message:'use League\Csv\Writer::setQuoting()', since:'league/csv:9.30.0')]
     public function necessaryEnclosure(): self
     {
-        $this->enclose_all = self::ENCLOSE_NECESSARY;
-        $this->resetProperties();
-
-        return $this;
+        return $this->setQuoting(Quoting::Minimal);
     }
 
+    /**
+     * DEPRECATION WARNING! This method will be removed in the next major point release.
+     *
+     * @deprecated since version 9.30.0, use setQuoting instead
+     * @codeCoverageIgnore
+     */
+    #[Deprecated(message:'use League\Csv\Writer::setQuoting()', since:'league/csv:9.30.0')]
     public function forceEnclosure(): self
     {
-        $this->enclose_all = self::ENCLOSE_ALL;
-        $this->resetProperties();
-
-        return $this;
+        return $this->setQuoting(Quoting::All);
     }
 
+    /**
+     * DEPRECATION WARNING! This method will be removed in the next major point release.
+     *
+     * @deprecated since version 9.30.0, use setQuoting instead
+     * @codeCoverageIgnore
+     */
+    #[Deprecated(message:'use League\Csv\Writer::setQuoting()', since:'league/csv:9.30.0')]
     public function noEnclosure(): self
     {
-        $this->enclose_all = self::ENCLOSE_NONE;
-        $this->resetProperties();
-
-        return $this;
+        return $this->setQuoting(Quoting::None);
     }
 
     /**
