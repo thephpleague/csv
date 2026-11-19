@@ -159,7 +159,7 @@ final class JsonConverterTest extends TestCase
         self::assertStringContainsString('content-type: application/json', strtolower($header));
         self::assertStringContainsString('content-transfer-encoding: binary', strtolower($header));
         self::assertStringContainsString('content-description: File Transfer', $header);
-        self::assertStringContainsString('content-disposition: attachment;filename="foobar.json"', $header);
+        self::assertStringContainsString('content-disposition: attachment; filename="foobar.json"', $header);
         self::assertSame('[{"foo":"bar"}]', $output);
     }
 
