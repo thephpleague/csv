@@ -101,7 +101,7 @@ The method returns the number of bytes read from the document and written to the
 
 The `download()` method accepts two optional arguments:
 
-- `$filename`: The filename to use for the downloaded document. When provided, the appropriate HTTP headers are automatically generated.
+- `$filename`: An optional filename for the downloaded document. When a non-empty filename is provided, the appropriate HTTP headers are automatically generated. When `null` or an empty string is provided, no download headers are generated.
 - `$chunk_size`: The number of bytes read from the document in each iteration when streaming its contents. Defaults to `8192`.
 
 ### Default usage
