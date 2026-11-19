@@ -134,7 +134,6 @@ class ResultSet implements TabularDataReader, JsonSerializable
 
     public function __destruct()
     {
-        /* @phpstan-ignore-next-line */
         unset($this->records);
     }
 

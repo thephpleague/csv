@@ -10,16 +10,18 @@ Once your CSV document is loaded, you can print or enable downloading it using t
 
 The output methods **are affected by** [the output BOM sequence](/9.0/connections/bom/) and/or the supplied [PHP stream filters](/9.0/connections/filters/).
 
-<p class="message-info">Even though you can use the following methods with the <code>League\Csv\Writer</code> object. It is recommended to do so with the <code>League\Csv\Reader</code> class to avoid losing the file cursor position and getting unexpected results when inserting new data.</p>
+<p class="message-info">Even though you can use the following methods with the <code>League\Csv\Writer</code> object.
+It is recommended to do so with the <code>League\Csv\Reader</code> class to avoid losing the file cursor position
+and getting unexpected results when inserting new data.</p>
 
 ## Printing the document
 
 Returns the string representation of the CSV document.
 
 ```php
-public AbstractCsv::toString(void): string
-public AbstractCsv::getContent(void): string
-public AbstractCsv::__toString(void): string
+public AbstractCsv::toString(): string
+public AbstractCsv::getContent(): string
+public AbstractCsv::__toString(): string
 ```
 
 <p class="message-notice">The <code>toString</code> method is added in version <code>9.7.0</code> and replaces the <code>getContent</code> method which is <strong>deprecated</strong>.</p>
@@ -38,7 +40,8 @@ echo $reader->toString();
 
 ### Exceptions and Errors
 
-If the CSV document is not seekable a `Exception` or a `RuntimeException` may be thrown when using `getContent`. A `Fatal Error` will be trigger when using the `__toString` method.
+If the CSV document is not seekable a `Exception` or a `RuntimeException` may be thrown when using `toString`.
+A `Fatal Error` will be trigger when using the `__toString` method.
 
 #### Using the `toString` method
 
@@ -65,19 +68,41 @@ echo $csv->getContent();
 
 <p class="message-warning">The <code>__toString</code> method is deprecated in version <code>9.1.0</code> and will be removed in the next major version.</p>
 
-## Downloading the document
-
-<p class="message-warning">starting with version <code>9.18.0</code>, the <code>download</code> method replaces the <code>output</code> method which is deprecated.</p>
-
-To make your CSV document downloadable use the `output` method to force the use of the output buffer on the CSV content.
+## Outputting the document into chunks
 
 ```php
-public AbstractCsv::download(?string $filename = null): int
+public AbstractCsv::chunk(int $length): Generator
 ```
 
-The method returns the number of characters read from the handle and passed through to the output.
+The `AbstractCsv::chunk` method takes a single `$length` parameter specifying the number of bytes to read from the CSV document and returns a `Generator` to ease outputting large CSV files.
 
-The output method can take an optional argument `$filename`. When present you can even remove more headers.
+<p class="message-warning">If the <code>$length</code> parameter is not a positive integer an <code>OutOfRangeException</code> will be thrown.</p>
+
+```php
+use League\Csv\Reader;
+
+$reader = Reader::fromPath('/path/to/huge/file.csv', 'r');
+foreach ($reader->chunk(1024) as $chunk) {
+    echo $chunk;
+}
+```
+
+## Downloading the document
+
+<p class="message-warning">Starting with version <code>9.18.0</code>, the <code>download()</code> method replaces the deprecated <code>output()</code> method.</p>
+
+To make your CSV document downloadable, use the `download()` method. It sends the document's contents directly to the output buffer, allowing the browser to handle the response as a file download.
+
+```php
+public AbstractCsv::download(?string $filename = null, int $chunk_size = 8192): int
+```
+
+The method returns the number of bytes read from the document and written to the output stream.
+
+The `download()` method accepts two optional arguments:
+
+- `$filename`: An optional filename for the downloaded document. When a non-empty filename is provided, the appropriate HTTP headers are automatically generated. When `null` or an empty string is provided, no download headers are generated.
+- `$chunk_size`: The number of bytes read from the document in each iteration when streaming its contents. Defaults to `8192`.
 
 ### Default usage
 
@@ -93,7 +118,7 @@ $reader->download();
 die;
 ```
 
-### Using the $filename argument
+### Using the `$filename` argument
 
 ```php
 use League\Csv\Reader;
@@ -103,33 +128,19 @@ $reader->download('name-for-your-file.csv');
 die;
 ```
 
-<p class="message-notice">If you just need to make the CSV downloadable, end your script with a call to <code>die</code> just after the <code>output</code> method. You <strong>should not</strong> return the method returned value.</p>
+<p class="message-notice">Since <code>download()</code> writes directly to the output buffer, terminate your script immediately after calling it to prevent additional output from being appended to the downloaded document. Do not return the method's return value as the response body.</p>
 
-## Outputting the document into chunks
-
-```php
-public AbstractCsv::chunk(int $length): Generator
-```
-
-The `AbstractCsv::chunk` method takes a single `$length` parameter specifying the number of bytes to read from the CSV document and returns a `Generator` to ease outputting large CSV files.
-
-<p class="message-warning">If the <code>$length</code> parameter is not a positive integer an <code>OutOfRangeException</code> will be thrown.</p>
+### Using the `$chunk_size` argument
 
 ```php
 use League\Csv\Reader;
 
-header('Transfer-Encoding: chunked');
-header('Content-Encoding: none');
-header('Content-Type: text/csv; charset=UTF-8');
-header('Content-Description: File Transfer');
-header('Content-Disposition: attachment; filename="name-for-your-file.csv"');
-
-$reader = Reader::from('/path/to/huge/file.csv', 'r');
-foreach ($reader->chunk(1024) as $chunk) {
-    echo dechex(strlen($chunk))."\r\n$chunk\r\n";
-}
-echo "0\r\n\r\n";
+$reader = Reader::from('file.csv');
+$reader->download('name-for-your-file.csv', chunk_size: 1024);
+die;
 ```
+
+In this example, the document is streamed in chunks of 1024 bytes.
 
 ## Using a Response object (Symfony, Laravel, PSR-7 etc)
 
