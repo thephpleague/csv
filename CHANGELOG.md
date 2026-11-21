@@ -14,7 +14,7 @@ All Notable changes to `Csv` will be documented in this file
 
 ### Fixed
 
-- None
+- Reject duplicate header names in `Reader::last()` and `Reader::lastAsObject()`.
 
 ### Remove
 
