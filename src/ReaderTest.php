@@ -185,6 +185,15 @@ EOF;
         $res = [...$csv];
     }
 
+    public function testLastRejectsDuplicateHeaderNames(): void
+    {
+        $csv = Reader::fromString("id,id\n1,2")->setHeaderOffset(0);
+
+        $this->expectExceptionObject(SyntaxError::dueToDuplicateHeaderColumnNames(['id']));
+
+        $csv->last();
+    }
+
     public function testHeaderThrowsExceptionOnEmptyLine(): void
     {
         $str = <<<EOF
