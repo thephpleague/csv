@@ -20,7 +20,6 @@ use ValueError;
 use function get_debug_type;
 use function is_bool;
 use function is_float;
-use function is_nan;
 use function is_scalar;
 use function json_encode;
 
@@ -65,15 +64,10 @@ final readonly class TypeFormatter
             is_bool($value) => $value ? $this->trueValue : $this->falseValue,
             is_float($value) => match (true) {
                 false !== ($encoded = json_encode($value)) => $encoded,
-                is_nan($value) => throw new ValueError(
-                    null === $name
-                        ? 'Unable to encode NaN as a CSV value.'
-                        : 'Unable to encode NaN as a CSV value from Field “'.$name.'”.'
-                ),
                 default => throw new ValueError(
                     null === $name
-                        ? 'Unable to encode Inf as a CSV value.'
-                        : 'Unable to encode Inf as a CSV value from Field “'.$name.'”.'
+                        ? 'Unable to encode NaN or Inf as a CSV value.'
+                        : 'Unable to encode NaN or Inf as a CSV value from Field “'.$name.'”.'
                 ),
             },
             is_scalar($value) => (string) $value,
