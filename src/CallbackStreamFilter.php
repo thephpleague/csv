@@ -30,63 +30,94 @@ use function stream_bucket_make_writeable;
 use function stream_bucket_new;
 use function stream_filter_register;
 use function stream_get_filters;
+use function strlen;
+use function trigger_error;
 
+use const E_USER_WARNING;
 use const PSFS_ERR_FATAL;
 use const PSFS_FEED_ME;
 use const PSFS_PASS_ON;
 
 final class CallbackStreamFilter extends php_user_filter
 {
-    /** @var array<string, Closure(string, mixed): string> */
+    /** @var array<string, Closure(string, mixed, bool): ?string> */
     private static array $filters = [];
-
-    /** @var ?Closure(string, mixed): string */
+    private string $buffer = '';
+    /**
+     * The limit on the accumulated input, not necessarily the size of an individual bucket.
+     * @var positive-int
+     */
+    private const MAX_BUFFER_LENGTH = 65_536;
+    /** @var ?Closure(string, mixed, bool): ?string */
     private ?Closure $callback = null;
 
     public function onCreate(): bool
     {
         $this->callback = self::$filters[$this->filtername] ?? null;
+        $this->buffer = '';
 
         return $this->callback instanceof Closure;
     }
 
     public function onClose(): void
     {
+        $this->buffer = '';
         $this->callback = null;
     }
 
     public function filter($in, $out, &$consumed, bool $closing): int
     {
-        $data = '';
-        while (null !== ($bucket = stream_bucket_make_writeable($in))) {
-            $data .= $bucket->data;
-            $consumed += $bucket->datalen;
-        }
-
         if (null === $this->callback) {
             return PSFS_FEED_ME;
         }
 
+        $inputBuffer = $this->buffer;
+
+        while (null !== ($bucket = stream_bucket_make_writeable($in))) {
+            $inputBuffer .= $bucket->data;
+            $consumed += $bucket->datalen;
+        }
+
         try {
-            $data = ($this->callback)($data, $this->params);
+            $result = ($this->callback)($inputBuffer, $this->params, $closing);
+            if (null === $result) {
+                if (!$closing) {
+                    if (strlen($inputBuffer) <= self::MAX_BUFFER_LENGTH) {
+                        $this->buffer = $inputBuffer;
+
+                        return PSFS_FEED_ME;
+                    }
+
+                    $this->onClose();
+                    trigger_error('The stream filter `'.$this->filtername.'` exceeded the maximum buffer length.', E_USER_WARNING);
+
+                    return PSFS_ERR_FATAL;
+                }
+
+                $result = $inputBuffer;
+            }
+
+            $this->buffer = '';
+
+            if ('' !== $result) {
+                stream_bucket_append($out, stream_bucket_new($this->stream, $result));
+            }
+
+            return PSFS_PASS_ON;
         } catch (Throwable $exception) {
             $this->onClose();
             trigger_error('An error occurred while executing the stream filter `'.$this->filtername.'`: '.$exception->getMessage(), E_USER_WARNING);
 
             return PSFS_ERR_FATAL;
         }
-
-        Warning::cloak(function () use ($out, $data) {
-            stream_bucket_append($out, stream_bucket_new($this->stream, $data));
-        });
-
-        return PSFS_PASS_ON;
     }
 
     /**
      * Static method to register the class as a stream filter.
      *
-     * @param callable(string, mixed): string $callback
+     * @param callable(string, mixed, bool): ?string $callback
+     *
+     * @throws ReflectionException
      */
     public static function register(string $filtername, callable $callback): void
     {
@@ -95,19 +126,15 @@ final class CallbackStreamFilter extends php_user_filter
         }
 
         $callback = self::normalizeCallback($callback);
-        if (!stream_filter_register($filtername, self::class)) {
-            throw new RuntimeException('The stream filter "'.$filtername.'" could not be registered.');
-        }
+        stream_filter_register($filtername, self::class) || throw new RuntimeException('The stream filter "'.$filtername.'" could not be registered.');
 
         self::$filters[$filtername] = $callback;
     }
 
     /**
-     * @param callable(string, mixed): string $callback
-     *
      * @throws ReflectionException|ValueError
      *
-     * @return Closure(string, mixed): string
+     * @return Closure(string, mixed, bool): ?string
      */
     private static function normalizeCallback(callable $callback): Closure
     {
@@ -116,15 +143,16 @@ final class CallbackStreamFilter extends php_user_filter
         }
 
         $reflection = new ReflectionFunction($callback);
-        if (!$reflection->isInternal()) {
-            return $callback;
-        }
+        $numberOfParameters = $reflection->getNumberOfParameters();
 
-        if (1 !== $reflection->getNumberOfParameters()) {
-            throw new ValueError('The PHP function "'.$reflection->getName().'" can not be used directly; wrap it in a callback.');
-        }
+        !$reflection->isInternal() || 1 === $numberOfParameters || throw new ValueError('The PHP function "'.$reflection->getName().'" can not be used directly; wrap it in a callback.');
 
-        return fn (string $bucket, mixed $params): string => $callback($bucket);
+        return match (true) {
+            1 === $numberOfParameters => fn (string $bucket, mixed $params, bool $closing): ?string => $callback($bucket),
+            2 === $numberOfParameters => fn (string $bucket, mixed $params, bool $closing): ?string => $callback($bucket, $params),
+            3 === $numberOfParameters => $callback,
+            default => throw new ValueError('The callback must accept between one and three parameters.'),
+        };
     }
 
     /**
@@ -150,7 +178,7 @@ final class CallbackStreamFilter extends php_user_filter
      *
      * @throws OutOfBoundsException if no callback is attached to the filter name
      *
-     * @return Closure(string, mixed): string
+     * @return Closure(string, mixed, bool): ?string
      */
     public static function callback(string $filtername): Closure
     {

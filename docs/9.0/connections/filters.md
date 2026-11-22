@@ -194,7 +194,7 @@ are using a framework.</p>
 The callback signature is the following
 
 ```php
-callable(string $bucket [, mixed $params]): string
+callable(string $bucket [, mixed $params]): ?string
 ```
 
 - the `$bucket` parameter represents the chunk of the stream you will be operating on.
@@ -227,7 +227,7 @@ And also returning a specific registered callback via the `callback` method.
 CallbackStreamFilter::callback($filtername); // returns a Closure
 ```
 
-If no callback associated to `$filtername` exists, an exception will be thrown.
+If no callback is associated to `$filtername` exists, an exception will be thrown.
 
 <p class="message-info">To avoid conflict with already registered stream filters a best
 practice is to namespace your own filters by using a unique prefix. Instead of
@@ -296,7 +296,7 @@ return $document->first();
 ```
 
 The `appendOnReadTo` method will check for the availability of the filter via its
-name `myapp.replace.eol`. If  it is not present a `LogicException` will be
+name `myapp.replace.eol`. If it is not present a `LogicException` will be
 thrown, otherwise it will attach the filter to the CSV document object at the
 bottom of the stream filter chain using the reading mode.
 

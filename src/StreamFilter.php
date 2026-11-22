@@ -21,6 +21,7 @@ use function get_resource_type;
 use function gettype;
 use function in_array;
 use function is_resource;
+use function stream_filter_remove;
 use function stream_get_filters;
 
 use const STREAM_FILTER_READ;
@@ -35,13 +36,8 @@ final class StreamFilter
      */
     public static function remove($stream_filter): bool
     {
-        if (!is_resource($stream_filter)) {
-            throw new TypeError('Argument passed must be a stream resource, '.gettype($stream_filter).' given.');
-        }
-
-        if ('stream filter' !== ($type = get_resource_type($stream_filter))) {
-            throw new TypeError('Argument passed must be a stream filter resource, '.$type.' resource given');
-        }
+        is_resource($stream_filter) || throw new TypeError('Argument passed must be a stream resource, '.gettype($stream_filter).' given.');
+        'stream filter' === ($type = get_resource_type($stream_filter)) || throw new TypeError('Argument passed must be a stream filter resource, '.$type.' resource given');
 
         return stream_filter_remove($stream_filter);
     }
@@ -52,7 +48,7 @@ final class StreamFilter
      * @throws TypeError
      * @throws RuntimeException
      *
-     * @return resource|AbstractCsv
+     * @return ($stream is AbstractCsv ? AbstractCsv : resource)
      */
     public static function appendOnReadTo(mixed $stream, string $filtername, mixed $params = null): mixed
     {
@@ -65,7 +61,7 @@ final class StreamFilter
      * @throws TypeError
      * @throws RuntimeException
      *
-     * @return resource|AbstractCsv
+     * @return ($stream is AbstractCsv ? AbstractCsv : resource)
      */
     public static function appendOnWriteTo(mixed $stream, string $filtername, mixed $params = null): mixed
     {
@@ -78,7 +74,7 @@ final class StreamFilter
      * @throws TypeError
      * @throws RuntimeException
      *
-     * @return resource|AbstractCsv
+     * @return ($stream is AbstractCsv ? AbstractCsv : resource)
      */
     public static function prependOnReadTo(mixed $stream, string $filtername, mixed $params = null): mixed
     {
@@ -91,7 +87,7 @@ final class StreamFilter
      * @throws TypeError
      * @throws RuntimeException
      *
-     * @return resource|AbstractCsv
+     * @return ($stream is AbstractCsv ? AbstractCsv : resource)
      */
     public static function prependOnWriteTo(mixed $stream, string $filtername, mixed $params = null): mixed
     {
@@ -104,7 +100,7 @@ final class StreamFilter
      * @throws TypeError
      * @throws RuntimeException
      *
-     * @return resource|AbstractCsv
+     * @return ($stream is AbstractCsv ? AbstractCsv : resource)
      */
     private static function prependFilter(int $mode, mixed $stream, string $filtername, mixed $params): mixed
     {
@@ -112,17 +108,14 @@ final class StreamFilter
         self::filterStream($stream);
 
         if ($stream instanceof AbstractCsv) {
-            return match ($mode) {
-                STREAM_FILTER_WRITE => $stream->prependStreamFilterOnWrite($filtername, $params),
-                default => $stream->prependStreamFilterOnRead($filtername, $params),
-            };
+            return  STREAM_FILTER_WRITE === $mode
+                ? $stream->prependStreamFilterOnWrite($filtername, $params)
+                : $stream->prependStreamFilterOnRead($filtername, $params);
         }
 
         /** @var resource|false $filter */
         $filter = Warning::cloak(stream_filter_prepend(...), $stream, $filtername, $mode, $params);
-        if (!is_resource($filter)) {
-            throw new RuntimeException('Could not append the registered stream filter: '.$filtername);
-        }
+        is_resource($filter) || throw new RuntimeException('Could not prepend the registered stream filter: '.$filtername);
 
         return $filter;
     }
@@ -133,7 +126,7 @@ final class StreamFilter
      * @throws TypeError
      * @throws RuntimeException
      *
-     * @return resource|AbstractCsv
+     * @return ($stream is AbstractCsv ? AbstractCsv : resource)
      */
     private static function appendFilter(int $mode, mixed $stream, string $filtername, mixed $params): mixed
     {
@@ -141,26 +134,21 @@ final class StreamFilter
         self::filterStream($stream);
 
         if ($stream instanceof AbstractCsv) {
-            return match ($mode) {
-                STREAM_FILTER_WRITE => $stream->appendStreamFilterOnWrite($filtername, $params),
-                default => $stream->appendStreamFilterOnRead($filtername, $params),
-            };
+            return STREAM_FILTER_WRITE === $mode
+                ? $stream->appendStreamFilterOnWrite($filtername, $params)
+                : $stream->appendStreamFilterOnRead($filtername, $params);
         }
 
         /** @var resource|false $filter */
         $filter = Warning::cloak(stream_filter_append(...), $stream, $filtername, $mode, $params);
-        if (!is_resource($filter)) {
-            throw new RuntimeException('Could not append the registered stream filter: '.$filtername);
-        }
+        is_resource($filter) || throw new RuntimeException('Could not append the registered stream filter: '.$filtername);
 
         return $filter;
     }
 
     private static function filterFiltername(string $filtername): void
     {
-        if (!in_array($filtername, stream_get_filters(), true)) {
-            throw new LogicException('The stream filter "'.$filtername.'" is not registered.');
-        }
+        in_array($filtername, stream_get_filters(), true) || throw new LogicException('The stream filter "'.$filtername.'" is not registered.');
     }
 
     /**
@@ -174,12 +162,7 @@ final class StreamFilter
             return;
         }
 
-        if (!is_resource($stream)) {
-            throw new TypeError('Argument passed must be a stream resource, '.gettype($stream).' given.');
-        }
-
-        if ('stream' !== ($type = get_resource_type($stream))) {
-            throw new TypeError('Argument passed must be a stream resource, '.$type.' resource given');
-        }
+        is_resource($stream) || throw new TypeError('Argument passed must be a stream resource, '.gettype($stream).' given.');
+        'stream' === ($type = get_resource_type($stream)) || throw new TypeError('Argument passed must be a stream resource, '.$type.' resource given');
     }
 }

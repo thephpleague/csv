@@ -16,6 +16,9 @@ namespace League\Csv;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
+use function fgetcsv;
+use function stream_set_chunk_size;
+
 final class SwapDelimiterTest extends TestCase
 {
     #[Test]
@@ -81,5 +84,33 @@ CSV;
         fclose($stream);
 
         self::assertSame("kal\n", $contents);
+    }
+
+    #[Test]
+    public function it_can_swap_the_delimiter_on_read_with_stream_and_small_chunk_size(): void
+    {
+        $document = <<<CSV
+observedOn💩temperature💩place
+2023-10-01💩18💩Yamoussokro
+2023-10-02💩21💩Yamoussokro
+2023-10-03💩15💩Yamoussokro
+2023-10-01💩22💩Abidjan
+2023-10-02💩19💩Abidjan
+2023-10-03💩💩Abidjan
+CSV;
+        $stream = tmpfile();
+        stream_set_chunk_size($stream, 1);
+        self::assertIsResource($stream);
+        fwrite($stream, $document);
+        rewind($stream);
+        SwapDelimiter::appendTo($stream, '💩', ',');
+
+        $records = [];
+        while (($fields = fgetcsv($stream, escape: '')) !== false) {
+            $records[] = $fields;
+        }
+
+        self::assertCount(7, $records);
+        self::assertSame(['observedOn', 'temperature', 'place'], $records[0]);
     }
 }

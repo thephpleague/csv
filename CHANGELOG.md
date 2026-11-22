@@ -2,6 +2,27 @@
 
 All Notable changes to `Csv` will be documented in this file
 
+## [Next](https://github.com/thephpleague/csv/compare/9.29.1..master) - TBD
+
+### Added
+
+- `TypeFormatter`
+- Improve `AbstractCsv::download` method takes an optional `$chunk_size` argument
+- Improve `CallbackStreamFilter` implementation, the callback now takes an optional `$closing` argument
+
+### Deprecated
+
+- None
+
+### Fixed
+
+- Improve `CallbackStreamFilter` implementation
+- Improve `SwapDelimiter` implementation and better handling of multybite string
+
+### Remove
+
+- None
+
 ## [9.29.1](https://github.com/thephpleague/csv/compare/9.29.0..9.19.1) - 2026-11-22
 
 ### Added
