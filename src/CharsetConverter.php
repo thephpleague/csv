@@ -21,9 +21,11 @@ use Throwable;
 use TypeError;
 
 use function array_reduce;
+use function ftell;
 use function get_resource_type;
 use function gettype;
 use function in_array;
+use function is_array;
 use function is_numeric;
 use function is_resource;
 use function mb_convert_encoding;
@@ -59,6 +61,7 @@ class CharsetConverter extends php_user_filter
     protected string $input_encoding = 'UTF-8';
     protected string $output_encoding = 'UTF-8';
     protected bool $skipBomSequence =  false;
+    protected bool $bomSequenceParsed = false;
     protected string $buffer = '';
     protected ?string $bomEncoding = null;
     /** Longest incomplete multibyte sequence that can be found at the end of a chunk. */
@@ -240,6 +243,9 @@ class CharsetConverter extends php_user_filter
             $this->skipBomSequence = is_array($this->params)
                 && isset($this->params[self::BOM_SEQUENCE])
                 && self::SKIP_BOM_SEQUENCE === $this->params[self::BOM_SEQUENCE];
+            $this->bomSequenceParsed = false;
+            $this->bomEncoding = null;
+            $this->buffer = '';
         } catch (OutOfRangeException) {
             return false;
         }
@@ -250,6 +256,8 @@ class CharsetConverter extends php_user_filter
     public function filter($in, $out, &$consumed, bool $closing): int
     {
         $inputBuffer = $this->buffer;
+        $this->buffer = '';
+
         while (null !== ($bucket = stream_bucket_make_writeable($in))) {
             $inputBuffer .= $bucket->data;
             $consumed += $bucket->datalen;
@@ -259,13 +267,41 @@ class CharsetConverter extends php_user_filter
             return PSFS_FEED_ME;
         }
 
-        $bom = Bom::tryFromSequence($inputBuffer);
-        if (null !== $bom && in_array($this->input_encoding, ['UTF-16', 'UTF-32'], true) && str_starts_with($bom->encoding(), $this->input_encoding)) {
-            // the next chunks have no BOM, they are converted with the byte order it declares
-            $this->bomEncoding = $bom->encoding();
-            $inputBuffer = substr($inputBuffer, $bom->length());
-        } elseif ($this->skipBomSequence && null !== $bom) {
-            $inputBuffer = substr($inputBuffer, $bom->length());
+        $position = -1;
+        if (is_resource($this->stream)) {
+            $position = ftell($this->stream);
+        }
+
+        if (
+            0 === $position
+            && $this->bomSequenceParsed
+            && null !== Bom::tryFromSequence($inputBuffer)
+        ) {
+            $this->bomSequenceParsed = false;
+            $this->bomEncoding = null;
+        }
+
+        if (!$this->bomSequenceParsed) {
+            if (!$closing && self::isPossibleBomSequence($inputBuffer)) {
+                $this->buffer = $inputBuffer;
+
+                return PSFS_FEED_ME;
+            }
+
+            $bom = Bom::tryFromSequence($inputBuffer);
+            if (null !== $bom) {
+                if (
+                    in_array($this->input_encoding, ['UTF-16', 'UTF-32'], true)
+                    && str_starts_with($bom->encoding(), $this->input_encoding)
+                ) {
+                    $this->bomEncoding = $bom->encoding();
+                    $inputBuffer = substr($inputBuffer, $bom->length());
+                } elseif ($this->skipBomSequence) {
+                    $inputBuffer = substr($inputBuffer, $bom->length());
+                }
+            }
+
+            $this->bomSequenceParsed = true;
         }
 
         $inputEncoding = $this->bomEncoding ?? $this->input_encoding;
@@ -303,6 +339,20 @@ class CharsetConverter extends php_user_filter
         } finally {
             $this->buffer = $tail;
         }
+    }
+
+    private static function isPossibleBomSequence(string $sequence): bool
+    {
+        foreach (Bom::cases() as $bom) {
+            if (
+                strlen($sequence) < $bom->length()
+                && str_starts_with($bom->value, $sequence)
+            ) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**
