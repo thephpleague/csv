@@ -148,30 +148,58 @@ EOF;
         self::assertStringContainsString('content-type: text/csv', strtolower($header));
         self::assertStringContainsString('content-transfer-encoding: binary', strtolower($header));
         self::assertStringContainsString('content-description: File Transfer', $header);
-        self::assertStringContainsString('content-disposition: attachment;filename="tst.csv";filename*=UTF-8\'\'t%c3%a9st.csv', $header);
+        self::assertStringContainsString('content-disposition: attachment; filename="tst.csv"; filename*=UTF-8\'\'t%c3%a9st.csv', $header);
     }
 
-    public function testChunkDoesNotTimeoutAfterReading(): void
+    #[DataProvider('provideChunkSizes')]
+    public function testDownloadWithChunkSize(int $chunkSize): void
     {
-        $raw_csv = "john,doe,john.doe@example.com\njane,doe,jane.doe@example.com\n";
-        $csv = Reader::fromString($raw_csv);
+        $rawCsv = Bom::Utf8->value
+            ."john,doe,john.doe@example.com\n"
+            ."jane,doe,jane.doe@example.com\n";
 
-        self::assertSame($raw_csv, $csv->toString());
+        $csv = Reader::fromString($rawCsv);
+        $csv->includeInputBOM();
+
+        ob_start();
+        $bytes = $csv->download(chunk_size: $chunkSize);
+        $output = ob_get_clean();
+
+        self::assertSame($rawCsv, $output);
+        self::assertSame(strlen($rawCsv), $bytes);
+    }
+
+    /**
+     * @return iterable<non-empty-string, array{int}>
+     */
+    public static function provideChunkSizes(): iterable
+    {
+        yield 'one byte' => [1];
+        yield 'small chunks' => [7];
+        yield 'default chunk size' => [8192];
+        yield 'larger than document' => [16384];
+    }
+
+    public function testDownloadWithChunkSizeSmallerThanBom(): void
+    {
+        $rawCsv = Bom::Utf8->value."john,doe\n";
+        $csv = Reader::fromString($rawCsv);
+        $csv->includeInputBOM();
+
+        ob_start();
+        $bytes = $csv->download(chunk_size: 1);
+        $output = ob_get_clean();
+
+        self::assertSame($rawCsv, $output);
+        self::assertSame(strlen($rawCsv), $bytes);
     }
 
     public function testStringRepresentation(): void
     {
-        $raw_csv = "john,doe,john.doe@example.com\njane,doe,jane.doe@example.com\n";
-        $csv = Reader::fromString($raw_csv);
+        $raw = "john,doe,john.doe@example.com\njane,doe,jane.doe@example.com\n";
+        $csv = Reader::fromString($raw);
 
-        self::assertSame($raw_csv, $csv->toString());
-    }
-
-    public function testToString(): void
-    {
-        $expected = "john,doe,john.doe@example.com\njane,doe,jane.doe@example.com\n";
-
-        self::assertSame($expected, $this->csv->toString());
+        self::assertSame($raw, $csv->toString());
     }
 
     public function testChunkTriggersException(): void
@@ -183,11 +211,13 @@ EOF;
 
     public function testChunk(): void
     {
-        $raw_csv = Bom::Utf8->value."john,doe,john.doe@example.com\njane,doe,jane.doe@example.com\n";
-        $csv = Reader::fromString($raw_csv)->setOutputBOM(Bom::Utf32Be->value);
-        $expected = Bom::Utf32Be->value."john,doe,john.doe@example.com\njane,doe,jane.doe@example.com\n";
+        $content = "john,doe,john.doe@example.com\njane,doe,jane.doe@example.com\n";
+        $input = Bom::Utf8->value.$content;
+        $expected = Bom::Utf32Be->value.$content;
+        $csv = Reader::fromString($input)->setOutputBOM(Bom::Utf32Be->value);
+
         $res = '';
-        foreach ($csv->chunk(32) as $chunk) {
+        foreach ($csv->chunk(1) as $chunk) {
             $res .= $chunk;
         }
 

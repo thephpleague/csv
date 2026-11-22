@@ -27,11 +27,12 @@ use TypeError;
 use function filter_var;
 use function get_resource_type;
 use function gettype;
+use function header;
 use function is_resource;
+use function preg_match;
 use function rawurlencode;
 use function sprintf;
 use function str_replace;
-use function str_split;
 use function strcspn;
 use function strlen;
 
@@ -256,7 +257,9 @@ abstract class AbstractCsv implements ByteSequence, Stringable
         $this->document->setFlags(0);
         $this->is_input_bom_included || -1 < $this->document->fseek($this->input_bom?->length() ?? 0) || throw new RuntimeException('Unable to seek the document.');
 
-        yield from str_split($this->output_bom?->value.$this->document->fread($length), $length);
+        if (null !== $this->output_bom) {
+            yield $this->output_bom->value;
+        }
 
         while (!$this->document->eof()) {
             $chunk = $this->document->fread($length);
@@ -282,37 +285,31 @@ abstract class AbstractCsv implements ByteSequence, Stringable
     }
 
     /**
-     * Outputs all data on the CSV file.
+     * Outputs the CSV document to the output stream.
      *
-     * Returns the number of characters read from the handle and passed through to the output.
+     * The document is read and written incrementally using the specified chunk size.
      *
      * @throws InvalidArgumentException|Exception
+     *
+     * @return int The number of bytes written to the output stream.
      */
-    public function download(?string $filename = null): int
+    public function download(?string $filename = null, int $chunk_size = 8192): int
     {
         if (null !== $filename) {
             HttpHeaders::forFileDownload($filename, 'text/csv');
         }
 
-        $bytes = 0;
         $output = new SplFileObject('php://output', 'wb');
-        if (null !== $this->output_bom) {
-            $newBytes = $output->fwrite($this->output_bom->value);
-            false !== $newBytes || throw new RuntimeException('Unable to read the document.');
-            $bytes += $newBytes;
-        }
-
-        $this->getInputBOM();
-        $this->document->rewind();
-        $this->document->setFlags(0);
-        $this->is_input_bom_included || -1 < $this->document->fseek($this->input_bom?->length() ?? 0) || throw new RuntimeException('Unable to seek the document.');
-
-        while (!$this->document->eof()) {
-            $chunk = $this->document->fread(8192);
-            false !== $chunk || throw new RuntimeException('Unable to read the document.');
-            $newBytes = $output->fwrite($chunk);
-            false !== $newBytes || throw new RuntimeException('Unable to read the document.');
-            $bytes += $newBytes;
+        $bytes = 0;
+        foreach ($this->chunk($chunk_size) as $chunk) {
+            $offset = 0;
+            $length = strlen($chunk);
+            while ($offset < $length) {
+                $newBytes = $output->fwrite($chunk, $length - $offset);
+                (false !== $newBytes && 0 < $newBytes) || throw new RuntimeException('Unable to write to the output.');
+                $offset += $newBytes;
+                $bytes += $newBytes;
+            }
 
             $output->fflush();
         }

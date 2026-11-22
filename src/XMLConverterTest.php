@@ -121,7 +121,7 @@ final class XMLConverterTest extends TestCase
         self::assertStringContainsString('content-type: application/xml', strtolower($header));
         self::assertStringContainsString('content-transfer-encoding: binary', strtolower($header));
         self::assertStringContainsString('content-description: File Transfer', $header);
-        self::assertStringContainsString('content-disposition: attachment;filename="foobar.xml"', $header);
+        self::assertStringContainsString('content-disposition: attachment; filename="foobar.xml"', $header);
         self::assertStringContainsString('<csv><row><cell name="foo">bar</cell></row></csv>', $output);
     }
 
