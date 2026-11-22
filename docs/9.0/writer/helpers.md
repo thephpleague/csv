@@ -150,7 +150,7 @@ It follows conversion rules similar to those used for URI query parameters.
 | **backed enum** | Backing value, converted according to its type | Suit::Hearts → H   |
 | **other types** | Not supported; throws a `TypeError`| TypeError thrown|
 
-<p class="message-notice">The float values <code>INF</code>, <code>-INF</code>, and <code>NAN</code> are serialized as strings.</p>
+<p class="message-notice">The float values <code>INF</code>, <code>-INF</code>, and <code>NAN</code> are not supported and will cause a <code>ValueError</code> to be thrown.</p>
 <p class="message-notice">Objects implementing <code>Stringable</code> are not supported and will cause a <code>TypeError</code> to be thrown.</p>
 
 ### Encoding a Single Value

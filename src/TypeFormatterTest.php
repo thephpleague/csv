@@ -18,6 +18,7 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use stdClass;
 use TypeError;
+use ValueError;
 
 use function fopen;
 
@@ -84,16 +85,18 @@ final class TypeFormatterTest extends TestCase
     }
 
     #[DataProvider('provide_non_finite_float_values')]
-    public function test_encode_non_finite_float_values(float $value, string $expected): void
+    public function test_encode_non_finite_float_values(float $value): void
     {
-        self::assertSame($expected, (new TypeFormatter())->encode($value));
+        $this->expectException(ValueError::class);
+
+        (new TypeFormatter())->encode($value);
     }
 
     public static function provide_non_finite_float_values(): iterable
     {
-        yield 'NAN' => [NAN, 'NAN'];
-        yield 'INF' => [INF, 'INF'];
-        yield '-INF' => [-INF, '-INF'];
+        yield 'NAN' => [NAN];
+        yield 'INF' => [INF];
+        yield '-INF' => [-INF];
     }
 
     #[DataProvider('provide_backed_enum_values')]
