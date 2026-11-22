@@ -14,6 +14,7 @@ All Notable changes to `Csv` will be documented in this file
 
 ### Fixed
 
+- `CharsetConverter` no longer buffers the rest of the stream after an invalid byte sequence, which let a crafted CSV document use excessive CPU time and memory - [GHSA-m9j4-54gj-jvf8](https://github.com/thephpleague/csv/security/advisories/GHSA-m9j4-54gj-jvf8) by [localhost8080](https://github.com/localhost8080) (Jonathan Mitchell)
 - Reject duplicate header names in `Reader::last()` and `Reader::lastAsObject()`.
 
 ### Remove

@@ -28,6 +28,7 @@ use function is_numeric;
 use function is_resource;
 use function mb_convert_encoding;
 use function mb_list_encodings;
+use function min;
 use function preg_match;
 use function sprintf;
 use function str_starts_with;
@@ -36,6 +37,7 @@ use function stream_bucket_make_writeable;
 use function stream_bucket_new;
 use function stream_filter_register;
 use function stream_get_filters;
+use function strlen;
 use function strtolower;
 use function substr;
 
@@ -59,6 +61,10 @@ class CharsetConverter extends php_user_filter
     protected bool $skipBomSequence =  false;
     protected string $buffer = '';
     protected ?string $bomEncoding = null;
+    /** Longest incomplete multibyte sequence that can be found at the end of a chunk. */
+    protected const MAX_INCOMPLETE_SEQUENCE_LENGTH = 4;
+    /** Maximum number of bytes buffered while waiting for the end of a split multibyte sequence. */
+    protected const MAX_BUFFER_LENGTH = 65536;
 
     /**
      * Static method to register the class as a stream filter.
@@ -264,12 +270,24 @@ class CharsetConverter extends php_user_filter
 
         $inputEncoding = $this->bomEncoding ?? $this->input_encoding;
 
-        // if the stream content is invalid then we store it and
-        // ask for more content to try to correctly convert the data
-        if (!mb_check_encoding($inputBuffer, $inputEncoding) && !$closing) {
-            $this->buffer = $inputBuffer;
+        // If the content ends with an incomplete multibyte sequence (a character split
+        // between two chunks) we store it and ask for more content, as long as the
+        // stored content stays small. Any other invalid byte sequence cannot be fixed
+        // by reading more data: it is converted right away instead of buffering (and
+        // re-validating on every chunk) the whole remaining stream.
+        $tail = '';
+        if (!$closing && !mb_check_encoding($inputBuffer, $inputEncoding)) {
+            $validLength = self::validPrefixLength($inputBuffer, $inputEncoding);
+            if (null !== $validLength) {
+                if (strlen($inputBuffer) <= self::MAX_BUFFER_LENGTH) {
+                    $this->buffer = $inputBuffer;
 
-            return PSFS_FEED_ME;
+                    return PSFS_FEED_ME;
+                }
+
+                $tail = substr($inputBuffer, $validLength);
+                $inputBuffer = substr($inputBuffer, 0, $validLength);
+            }
         }
 
         try {
@@ -283,8 +301,25 @@ class CharsetConverter extends php_user_filter
         } catch (Throwable) {
             return PSFS_ERR_FATAL;
         } finally {
-            $this->buffer = '';
+            $this->buffer = $tail;
         }
+    }
+
+    /**
+     * Returns the length of the valid content when the only invalid bytes
+     * are an incomplete multibyte sequence at the end of the buffer, null otherwise.
+     */
+    private static function validPrefixLength(string $buffer, string $encoding): ?int
+    {
+        $maxLength = min(self::MAX_INCOMPLETE_SEQUENCE_LENGTH, strlen($buffer));
+        for ($length = 1; $length <= $maxLength; ++$length) {
+            $head = substr($buffer, 0, -$length);
+            if ('' === $head || mb_check_encoding($head, $encoding)) {
+                return strlen($head);
+            }
+        }
+
+        return null;
     }
 
     /**
