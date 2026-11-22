@@ -8,6 +8,15 @@ description: A feature to reduce Formula Injection in Spreadsheet programs when 
 
 <p class="message-notice">Available since version <code>9.1.0</code></p>
 
+<p class="message-warning">Even though the <code>EscapeFormula</code> formatter is provided it must be stressed that
+this is in no way a bulletproof method. This prevention mechanism only works if <strong>you know how the CSV export
+will be consumed or have been generated</strong>. In any other cases, you are better off leaving the filtering
+to the consuming client and report any found security concerns to their respective security channel.</p>
+
+<p class="message-warning">The limitations of this class cannot, in themselves, be considered security vulnerabilities
+warranting a security release, as its purpose is to provide a mitigation mechanism rather than a strict security
+guarantee.</p>
+
 The `EscapeFormula` Formatter formats CSV records to reduce [CSV Formula Injection](http://georgemauer.net/2017/10/07/csv-injection.html) in imported Spreadsheet programs.
 
 <p class="message-warning">Since version <code>9.7.4</code> the default values from the class constructor were updated to comply with the latest recommendations from OWASP regarding <a href="https://owasp.org/www-community/attacks/CSV_Injection" target="_blank">CSV injection</a>.
@@ -84,8 +93,3 @@ while (($data = fgetcsv($resource)) !== false) {
     $record = $formatter->unescapeRecord($data);
 }
 ```
-
-<p class="message-warning">Even though the <code>EscapeFormula</code> formatter is provided it must be stressed that
-this is in no way a bulletproof method. This prevention mechanism only works if <strong>you know how the CSV export
-will be consumed or have been generated</strong>. In any other cases, you are better off leaving the filtering
-to the consuming client and report any found security concerns to their respective security channel.</p>
