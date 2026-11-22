@@ -241,6 +241,7 @@ class Reader extends AbstractCsv implements TabularDataReader, JsonSerializable
 
     protected function getLastRecord(array $header): array
     {
+        $header = $this->computeHeader($header);
         $document = $this->getSeekableIterator();
         $document->seek(PHP_INT_MAX);
         $offset = $document->key();
@@ -268,10 +269,6 @@ class Reader extends AbstractCsv implements TabularDataReader, JsonSerializable
         );
 
         $record = $row;
-        if ([] === $header) {
-            $header = $this->getHeader();
-        }
-
         if ([] !== $header) {
             $record = [];
             foreach ($header as $index => $headerName) {
