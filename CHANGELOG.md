@@ -2,6 +2,24 @@
 
 All Notable changes to `Csv` will be documented in this file
 
+## [Next](https://github.com/thephpleague/csv/compare/9.28.0...9.28.x) - TBD
+
+### Added
+
+- None
+
+### Deprecated
+
+- None
+
+### Fixed
+
+- `CharsetConverter` no longer buffers the rest of the stream after an invalid byte sequence, which let a crafted CSV document use excessive CPU time and memory - [GHSA-m9j4-54gj-jvf8](https://github.com/thephpleague/csv/security/advisories/GHSA-m9j4-54gj-jvf8) by [localhost8080](https://github.com/localhost8080) (Jonathan Mitchell)
+
+### Remove
+
+- None
+
 ## [9.28.0](https://github.com/thephpleague/csv/compare/9.27.1...9.28.0) - 2025-12-27
 
 ### Added
