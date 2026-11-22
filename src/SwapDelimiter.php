@@ -17,8 +17,10 @@ use php_user_filter;
 use RuntimeException;
 use TypeError;
 
+use function ftell;
 use function in_array;
 use function is_array;
+use function is_resource;
 use function is_string;
 use function min;
 use function stream_bucket_append;
@@ -43,6 +45,9 @@ final class SwapDelimiter extends php_user_filter
     private string $search = '';
     private string $replace = '';
     private string $buffer = '';
+    private ?string $streamStart = null;
+    /** Number of bytes compared to recognize the start of the stream. */
+    private const STREAM_START_LENGTH = 32;
 
     public static function getFiltername(): string
     {
@@ -160,13 +165,19 @@ final class SwapDelimiter extends php_user_filter
 
     public function filter($in, $out, &$consumed, bool $closing): int
     {
-        $data = $this->buffer;
-        $this->buffer = '';
-
+        $chunk = '';
         while (null !== ($bucket = stream_bucket_make_writeable($in))) {
-            $data .= $bucket->data;
+            $chunk .= $bucket->data;
             $consumed += $bucket->datalen;
         }
+
+        // the stream was rewound: a partial delimiter held back belongs to the previous read
+        if ($this->isStartOfStream($chunk)) {
+            $this->buffer = '';
+        }
+
+        $data = $this->buffer.$chunk;
+        $this->buffer = '';
 
         $output = '';
         $searchLength = strlen($this->search);
@@ -200,5 +211,24 @@ final class SwapDelimiter extends php_user_filter
         });
 
         return PSFS_PASS_ON;
+    }
+
+    /**
+     * Tells whether the chunk is the start of the stream.
+     *
+     * The filter is not told when the stream is rewound, so the stream position is used.
+     * A single read larger than a chunk stays at position 0 until it returns, so a chunk
+     * at position 0 must also start with the same bytes as the stream.
+     */
+    private function isStartOfStream(string $chunk): bool
+    {
+        if ('' === $chunk || !is_resource($this->stream) || 0 !== ftell($this->stream)) {
+            return false;
+        }
+
+        $head = substr($chunk, 0, self::STREAM_START_LENGTH);
+        $this->streamStart ??= $head;
+
+        return $head === $this->streamStart;
     }
 }
