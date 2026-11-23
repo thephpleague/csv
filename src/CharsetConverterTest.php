@@ -22,12 +22,15 @@ use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
 use function explode;
+use function fclose;
 use function fflush;
+use function fopen;
 use function fwrite;
 use function implode;
 use function intdiv;
 use function mb_convert_encoding;
 use function rewind;
+use function str_pad;
 use function str_repeat;
 use function str_starts_with;
 use function stream_filter_register;
@@ -336,7 +339,7 @@ end']],
     {
         /** @var resource $file */
         $file = tmpfile();
-        CharsetConverter::appendOnWriteTo($file, 'UTF-16', 'UTF-8');
+        CharsetConverter::appendOnReadTo($file, 'UTF-16', 'UTF-8');
 
         fwrite($file, Bom::Utf16Be->value.mb_convert_encoding("a\n", 'UTF-16BE', 'UTF-8'));
         fwrite($file, (string) mb_convert_encoding("\u{FEFF}b\n", 'UTF-16BE', 'UTF-8'));
@@ -362,5 +365,23 @@ end']],
 
         rewind($file);
         self::assertSame($csv, stream_get_contents($file));
+    }
+
+    public function test_it_does_not_skip_the_bom_when_writing(): void
+    {
+        $content = 'hello world';
+        $input = Bom::Utf16Le->value.mb_convert_encoding($content, 'UTF-16LE', 'UTF-8');
+        $stream = fopen('php://temp', 'w+b');
+        self::assertIsResource($stream);
+
+        CharsetConverter::appendOnWriteTo($stream, 'UTF-16LE');
+
+        fwrite($stream, $input);
+        fflush($stream);
+        rewind($stream);
+
+        self::assertSame("\u{FEFF}".$content, stream_get_contents($stream));
+
+        fclose($stream);
     }
 }
