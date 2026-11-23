@@ -18,6 +18,7 @@ All Notable changes to `Csv` will be documented in this file
 
 - Improve `CallbackStreamFilter` implementation
 - Improve `SwapDelimiter` implementation and better handling of multybite string
+- Avoid the deprecated `SplFileObject` CSV methods on PHP 8.6+; CSV controls are no longer inherited from an `SplFileObject` on PHP 8.6+
 
 ### Remove
 

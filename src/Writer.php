@@ -19,10 +19,15 @@ use SplFileInfo;
 use Throwable;
 
 use function array_map;
+use function fopen;
+use function fputcsv;
+use function fseek;
 use function implode;
 use function is_numeric;
 use function str_replace;
+use function stream_get_contents;
 
+use const PHP_VERSION_ID;
 use const STREAM_FILTER_WRITE;
 
 /**
@@ -37,6 +42,8 @@ class Writer extends AbstractCsv implements TabularDataWriter
     protected int $flush_counter = 0;
     protected ?int $flush_threshold = null;
     protected Quoting $quoting = Quoting::Minimal;
+    /** @var resource|false|null in-memory buffer used to format records written to an SplFileObject document */
+    private mixed $csvBuffer = null;
 
     /**
      * @param non-empty-string $mode the file path open mode
@@ -147,12 +154,44 @@ class Writer extends AbstractCsv implements TabularDataWriter
     protected function insertRecord(array $record): int|false
     {
         return match ($this->quoting) {
-            Quoting::Minimal => $this->document->fputcsv($record, $this->delimiter, $this->enclosure, $this->escape, $this->newline),
+            Quoting::Minimal => $this->putCsv($record),
             Quoting::All => $this->document->fwrite(implode($this->delimiter, $this->quoteAll($record)).$this->newline),
             Quoting::None => $this->document->fwrite(implode($this->delimiter, $record).$this->newline),
             Quoting::NonNumeric => $this->document->fwrite(implode($this->delimiter, $this->quoteNonNumeric($record)).$this->newline),
             Quoting::EscapeOnly => $this->document->fwrite(implode($this->delimiter, $this->escapeOnlyField($record)).$this->newline),
         };
+    }
+
+    /**
+     * Adds a single record to the document using the PHP CSV algorithm.
+     *
+     * The SplFileObject::fputcsv() method is deprecated since PHP 8.6, so on PHP 8.6+
+     * the record of an SplFileObject document is formatted with the fputcsv() function
+     * into a reused in-memory buffer and then written to the document.
+     */
+    private function putCsv(array $record): int|false
+    {
+        if ($this->document instanceof Stream || PHP_VERSION_ID < 80600) {
+            return $this->document->fputcsv($record, $this->delimiter, $this->enclosure, $this->escape, $this->newline);
+        }
+
+        $this->csvBuffer ??= fopen('php://memory', 'w+b');
+        if (false === $this->csvBuffer || 0 !== fseek($this->csvBuffer, 0)) {
+            return false;
+        }
+
+        // The buffer is overwritten from its start, only the bytes written by fputcsv() are read back.
+        $length = fputcsv($this->csvBuffer, $record, $this->delimiter, $this->enclosure, $this->escape, $this->newline);
+        if (false === $length) {
+            return false;
+        }
+
+        $line = stream_get_contents($this->csvBuffer, $length, 0);
+        if (false === $line) {
+            return false;
+        }
+
+        return $this->document->fwrite($line);
     }
 
     final protected function quoteAll(array $record): array
@@ -373,7 +412,7 @@ class Writer extends AbstractCsv implements TabularDataWriter
     #[Deprecated(message:'no longer affecting the class behaviour', since:'league/csv:9.9.0')]
     protected function addRecord(array $record): int|false
     {
-        return $this->document->fputcsv($record, $this->delimiter, $this->enclosure, $this->escape, $this->newline);
+        return $this->putCsv($record);
     }
 
     /**

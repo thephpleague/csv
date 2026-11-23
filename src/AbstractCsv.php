@@ -39,6 +39,7 @@ use function strlen;
 use const FILTER_FLAG_STRIP_HIGH;
 use const FILTER_FLAG_STRIP_LOW;
 use const FILTER_UNSAFE_RAW;
+use const PHP_VERSION_ID;
 use const STREAM_FILTER_READ;
 use const STREAM_FILTER_WRITE;
 
@@ -67,7 +68,11 @@ abstract class AbstractCsv implements ByteSequence, Stringable
      */
     protected function __construct(protected readonly SplFileObject|Stream $document)
     {
-        [$this->delimiter, $this->enclosure, $this->escape] = $this->document->getCsvControl();
+        // The SplFileObject CSV methods are deprecated since PHP 8.6,
+        // the default CSV controls are used for SplFileObject documents instead.
+        if (!$this->document instanceof SplFileObject || PHP_VERSION_ID < 80600) {
+            [$this->delimiter, $this->enclosure, $this->escape] = $this->document->getCsvControl();
+        }
         $this->resetProperties();
     }
 

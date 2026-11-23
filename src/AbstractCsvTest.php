@@ -16,6 +16,7 @@ namespace League\Csv;
 use InvalidArgumentException;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\Attributes\RequiresPhp;
 use PHPUnit\Framework\TestCase;
 use SplFileObject;
 use SplTempFileObject;
@@ -59,6 +60,7 @@ final class AbstractCsvTest extends TestCase
         @unlink(__DIR__.'/../test_files/newline.csv');
     }
 
+    #[RequiresPhp('< 8.6.0')]
     public function testCreateFromFileObjectPreserveFileObjectCsvControls(): void
     {
         $delimiter = "\t";
@@ -72,6 +74,34 @@ final class AbstractCsvTest extends TestCase
         if (3 === count($file->getCsvControl())) {
             self::assertSame($escape, $obj->getEscape());
         }
+    }
+
+    #[RequiresPhp('>= 8.6.0')]
+    public function testCreateFromFileObjectUsesDefaultCsvControls(): void
+    {
+        $obj = Reader::from(new SplTempFileObject());
+        self::assertSame(',', $obj->getDelimiter());
+        self::assertSame('"', $obj->getEnclosure());
+        self::assertSame('\\', $obj->getEscape());
+    }
+
+    public function testReadingAndWritingFileObjectWithCustomCsvControls(): void
+    {
+        $file = new SplTempFileObject();
+        $writer = Writer::from($file);
+        $writer->setDelimiter(';');
+        $writer->setEnclosure('|');
+        $writer->insertAll([['john', "multi\nline"], ['jane', 'semi;colon']]);
+
+        self::assertSame("john;|multi\nline|\njane;|semi;colon|\n", $writer->toString());
+
+        $reader = Reader::from($file);
+        $reader->setDelimiter(';');
+        $reader->setEnclosure('|');
+
+        self::assertSame([['john', "multi\nline"], ['jane', 'semi;colon']], [...$reader]);
+        self::assertSame(['jane', 'semi;colon'], $reader->nth(1));
+        self::assertCount(2, $reader);
     }
 
     public function testCreateFromPathThrowsRuntimeException(): void

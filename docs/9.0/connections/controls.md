@@ -93,6 +93,8 @@ echo $csv->getEnclosure(); //display "'"
 echo $csv->getEscape();    //display '\'
 ```
 
+<p class="message-warning">The <code>SplFileObject</code> CSV methods are deprecated since <code>PHP 8.6</code>. Starting with <code>PHP 8.6</code>, the CSV controls are no longer inherited from the <code>SplFileObject</code> instance and the default ones are used instead. Use the <code>setDelimiter</code>, <code>setEnclosure</code> and <code>setEscape</code> methods to change them.</p>
+
 ## Detecting the delimiter character
 
 ```php

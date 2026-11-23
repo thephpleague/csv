@@ -40,6 +40,7 @@ use function strlen;
 use function substr;
 
 use const PHP_INT_MAX;
+use const PHP_VERSION_ID;
 use const STREAM_FILTER_READ;
 
 /**
@@ -208,17 +209,25 @@ class Reader extends AbstractCsv implements TabularDataReader, JsonSerializable
      */
     protected function getDocument(): SplFileObject|Stream
     {
-        // SplFileObject returns an empty record instead of false when it reads past
-        // the last line; SKIP_EMPTY drops that read but keeps the empty lines.
+        $document = $this->document;
         $flags = SplFileObject::READ_CSV;
-        if ($this->document instanceof SplFileObject) {
-            $flags |= SplFileObject::SKIP_EMPTY;
+        if ($document instanceof SplFileObject) {
+            if (PHP_VERSION_ID >= 80600) {
+                // The SplFileObject CSV methods are deprecated since PHP 8.6,
+                // the SplFileObject is parsed through a Stream instance instead.
+                $document = Stream::from(SplFileObjectStreamWrapper::open($document));
+            } else {
+                // SplFileObject returns an empty record instead of false when it reads past
+                // the last line; SKIP_EMPTY drops that read but keeps the empty lines.
+                $flags |= SplFileObject::SKIP_EMPTY;
+            }
         }
-        $this->document->setFlags($flags);
-        $this->document->setCsvControl($this->delimiter, $this->enclosure, $this->escape);
-        $this->document->rewind();
 
-        return $this->document;
+        $document->setFlags($flags);
+        $document->setCsvControl($this->delimiter, $this->enclosure, $this->escape);
+        $document->rewind();
+
+        return $document;
     }
 
     public function fetchColumn(string|int $index = 0): Iterator
@@ -684,8 +693,9 @@ class Reader extends AbstractCsv implements TabularDataReader, JsonSerializable
      */
     protected function seekRow(int $offset): array
     {
-        $this->getDocument()->seek($offset);
-        $record = $this->document->current();
+        $document = $this->getDocument();
+        $document->seek($offset);
+        $record = $document->current();
 
         return match (true) {
             false === $record => [],
