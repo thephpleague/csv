@@ -25,8 +25,11 @@ use function explode;
 use function fflush;
 use function fwrite;
 use function implode;
+use function intdiv;
 use function mb_convert_encoding;
 use function rewind;
+use function str_repeat;
+use function str_starts_with;
 use function stream_filter_register;
 use function stream_get_contents;
 use function stream_get_filters;
@@ -279,5 +282,85 @@ end']],
 
         rewind($file);
         self::assertSame('💩', stream_get_contents($file));
+    }
+
+    #[Test]
+    public function it_only_skips_the_bom_at_the_start_of_the_stream(): void
+    {
+        // the second record starts the second chunk of 8192 bytes
+        $padding = str_repeat('a', 8192 - 3 - 1);
+        $reader = Reader::fromString(Bom::Utf8->value.$padding."\n".Bom::Utf8->value."b,c\n");
+        $reader->includeInputBOM();
+        CharsetConverter::addBOMSkippingTo($reader);
+
+        self::assertSame([[$padding], [Bom::Utf8->value.'b', 'c']], [...$reader]);
+    }
+
+    #[Test]
+    public function it_does_not_skip_bom_like_bytes_in_the_middle_of_the_stream(): void
+    {
+        $reader = Reader::fromString(str_repeat('a', 8191)."\n\xFF\xFEz\n");
+        CharsetConverter::addTo($reader, 'ISO-8859-1', 'UTF-8', [CharsetConverter::BOM_SEQUENCE => CharsetConverter::SKIP_BOM_SEQUENCE]);
+
+        self::assertSame(['ÿþz'], [...$reader][1]);
+    }
+
+    #[Test]
+    public function it_does_not_skip_a_bom_of_another_encoding_in_the_middle_of_the_stream(): void
+    {
+        // U+BBEF U+00BF is encoded as EF BB BF 00 in UTF-16LE, which starts like the UTF-8 BOM
+        $csv = str_repeat('a', 4096 - 1 - 1)."\n\u{BBEF}\u{00BF}b,c\n";
+        $reader = Reader::fromString(Bom::Utf16Le->value.mb_convert_encoding($csv, 'UTF-16LE', 'UTF-8'));
+        $reader->includeInputBOM();
+        CharsetConverter::addBOMSkippingTo($reader);
+
+        self::assertSame(["\u{BBEF}\u{00BF}b", 'c'], [...$reader][1]);
+    }
+
+    #[Test]
+    #[DataProvider('providesUnicodeEncodingsWithBOM')]
+    public function it_keeps_a_zero_width_no_break_space_found_at_the_start_of_a_later_chunk(string $encoding, Bom $bom): void
+    {
+        $unitLength = str_starts_with($bom->encoding(), 'UTF-16') ? 2 : 4;
+        $padding = str_repeat('a', intdiv(8192, $unitLength) - 2);
+        $csv = $padding."\n\u{FEFF}b,c\n";
+        $reader = Reader::fromString($bom->value.mb_convert_encoding($csv, $bom->encoding(), 'UTF-8'));
+        $reader->includeInputBOM();
+        CharsetConverter::addTo($reader, $encoding, 'UTF-8');
+
+        self::assertSame([[$padding], ["\u{FEFF}b", 'c']], [...$reader]);
+    }
+
+    #[Test]
+    public function it_only_reads_the_bom_from_the_first_write(): void
+    {
+        /** @var resource $file */
+        $file = tmpfile();
+        CharsetConverter::appendOnWriteTo($file, 'UTF-16', 'UTF-8');
+
+        fwrite($file, Bom::Utf16Be->value.mb_convert_encoding("a\n", 'UTF-16BE', 'UTF-8'));
+        fwrite($file, (string) mb_convert_encoding("\u{FEFF}b\n", 'UTF-16BE', 'UTF-8'));
+        fflush($file);
+        rewind($file);
+
+        self::assertSame("a\n\u{FEFF}b\n", stream_get_contents($file));
+    }
+
+    #[Test]
+    public function it_only_reads_the_bom_from_the_start_of_the_stream_during_a_read_larger_than_a_chunk(): void
+    {
+        $csv = str_repeat('a', 4096 - 1 - 1)."\n\u{FEFF}b\n";
+
+        /** @var resource $file */
+        $file = tmpfile();
+        fwrite($file, Bom::Utf16Le->value.mb_convert_encoding($csv, 'UTF-16LE', 'UTF-8'));
+        fflush($file);
+        CharsetConverter::appendOnReadTo($file, 'UTF-16', 'UTF-8');
+
+        rewind($file);
+        self::assertSame($csv, stream_get_contents($file));
+
+        rewind($file);
+        self::assertSame($csv, stream_get_contents($file));
     }
 }
