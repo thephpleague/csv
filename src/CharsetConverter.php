@@ -64,6 +64,10 @@ class CharsetConverter extends php_user_filter
     protected bool $bomSequenceParsed = false;
     protected string $buffer = '';
     protected ?Bom $bom = null;
+    /** First bytes of the stream, used to recognize its start once the stream is rewound. */
+    protected ?string $streamStart = null;
+    /** Number of bytes compared to recognize the start of the stream. */
+    protected const STREAM_START_LENGTH = 32;
     /** Longest incomplete multibyte sequence that can be found at the end of a chunk. */
     protected const MAX_INCOMPLETE_SEQUENCE_LENGTH = 4;
     /** Maximum number of bytes buffered while waiting for the end of a split multibyte sequence. */
@@ -246,6 +250,7 @@ class CharsetConverter extends php_user_filter
             $this->bomSequenceParsed = false;
             $this->buffer = '';
             $this->bom = null;
+            $this->streamStart = null;
         } catch (OutOfRangeException) {
             return false;
         }
@@ -256,6 +261,7 @@ class CharsetConverter extends php_user_filter
     public function filter($in, $out, &$consumed, bool $closing): int
     {
         $inputBuffer = $this->buffer;
+        $heldLength = strlen($inputBuffer);
         $this->buffer = '';
 
         while (null !== ($bucket = stream_bucket_make_writeable($in))) {
@@ -267,14 +273,8 @@ class CharsetConverter extends php_user_filter
             return PSFS_FEED_ME;
         }
 
-        //we detect the position in the stream
-        $position = -1;
-        if (is_resource($this->stream)) {
-            $position = ftell($this->stream);
-        }
-
-        // we reset the BOM parsing to allow skipping the BOM if needed
-        if (0 === $position && $this->bomSequenceParsed && null !== $this->bom) {
+        // we reset the BOM parsing to allow skipping the BOM if needed once the stream is rewound
+        if ($this->bomSequenceParsed && null !== $this->bom && $this->isStartOfStream(substr($inputBuffer, $heldLength))) {
             $this->bomSequenceParsed = false;
         }
 
@@ -286,6 +286,7 @@ class CharsetConverter extends php_user_filter
                 return PSFS_FEED_ME;
             }
 
+            $this->streamStart ??= substr($inputBuffer, 0, self::STREAM_START_LENGTH);
             $this->bom ??= Bom::tryFromSequence($inputBuffer);
             if ($this->skipBomSequence || $this->hasBomForGenericEncoding()) {
                 $inputBuffer = substr($inputBuffer, $this->bom?->length() ?? 0);
@@ -330,6 +331,22 @@ class CharsetConverter extends php_user_filter
         } finally {
             $this->buffer = $tail;
         }
+    }
+
+    /**
+     * Tells whether the chunk is the start of the stream.
+     *
+     * The filter is not told when the stream is rewound, so the stream position is used.
+     * A single read larger than a chunk stays at position 0 until it returns, so a chunk
+     * at position 0 must also start with the same bytes as the stream.
+     */
+    private function isStartOfStream(string $chunk): bool
+    {
+        if ('' === $chunk || null === $this->streamStart || !is_resource($this->stream) || 0 !== ftell($this->stream)) {
+            return false;
+        }
+
+        return substr($chunk, 0, self::STREAM_START_LENGTH) === $this->streamStart;
     }
 
     private static function isPossibleBomSequence(string $sequence): bool
