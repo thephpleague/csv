@@ -44,7 +44,7 @@ enum Bom: string
             default => $sequence,
         };
 
-        if (!is_string($str) || '' === rtrim($str)) {
+        if (!is_string($str) || '' === $str) {
             return null;
         }
 

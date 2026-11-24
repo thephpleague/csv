@@ -21,11 +21,15 @@ use Throwable;
 use TypeError;
 
 use function array_reduce;
+use function ftell;
 use function get_resource_type;
 use function gettype;
 use function in_array;
+use function is_array;
 use function is_numeric;
 use function is_resource;
+use function is_string;
+use function mb_check_encoding;
 use function mb_convert_encoding;
 use function mb_list_encodings;
 use function min;
@@ -40,7 +44,9 @@ use function stream_get_filters;
 use function strlen;
 use function strtolower;
 use function substr;
+use function trigger_error;
 
+use const E_USER_WARNING;
 use const PSFS_ERR_FATAL;
 use const PSFS_FEED_ME;
 use const PSFS_PASS_ON;
@@ -55,16 +61,27 @@ class CharsetConverter extends php_user_filter
     public const FILTERNAME = 'convert.league.csv';
     public const BOM_SEQUENCE = 'bom_sequence';
     public const SKIP_BOM_SEQUENCE = 'skip_bom_sequence';
+    protected const MODE = 'mode';
+    protected const MODE_READ = 'read';
+    protected const MODE_WRITE = 'write';
 
     protected string $input_encoding = 'UTF-8';
     protected string $output_encoding = 'UTF-8';
     protected bool $skipBomSequence =  false;
+    protected bool $bomSequenceParsed = false;
     protected string $buffer = '';
-    protected ?string $bomEncoding = null;
+    protected ?Bom $bom = null;
+    protected string $mode = self::MODE_READ;
+    /** First bytes of the stream, used to recognize its start once the stream is rewound. */
+    protected ?string $streamStart = null;
+    /** Number of bytes compared to recognize the start of the stream. */
+    protected const STREAM_START_LENGTH = 32;
     /** Longest incomplete multibyte sequence that can be found at the end of a chunk. */
     protected const MAX_INCOMPLETE_SEQUENCE_LENGTH = 4;
     /** Maximum number of bytes buffered while waiting for the end of a split multibyte sequence. */
     protected const MAX_BUFFER_LENGTH = 65536;
+    /** Whether the buffer holds an incomplete multibyte sequence left over from the previous chunk. */
+    protected bool $hasTail = false;
 
     /**
      * Static method to register the class as a stream filter.
@@ -83,18 +100,60 @@ class CharsetConverter extends php_user_filter
     {
         self::register();
 
+        if (null === $params) {
+            $params = [];
+        }
+
         if ($csv instanceof Reader) {
+            if (!isset($params[self::MODE])) {
+                $params[self::MODE] = self::MODE_READ;
+            }
+
             return $csv->appendStreamFilterOnRead(self::getFiltername($input_encoding, $output_encoding), $params);
+        }
+
+        if (!isset($params[self::MODE])) {
+            $params[self::MODE] = self::MODE_WRITE;
         }
 
         return $csv->appendStreamFilterOnWrite(self::getFiltername($input_encoding, $output_encoding), $params);
     }
 
     /**
+     * Static method to add the stream filter to a {@link Reader} object to handle BOM skipping.
+     *
+     * @param Reader|resource $document
+     *
+     * @throws InvalidArgument|UnavailableFeature
+     *
+     * @return ($document is Reader ? Reader : resource)
+     */
+    public static function addBOMSkippingTo(mixed $document, string $output_encoding = 'UTF-8'): mixed
+    {
+        self::register();
+
+        if ($document instanceof Reader) {
+            $document->appendStreamFilterOnRead(
+                self::getFiltername((Bom::tryFrom($document->getInputBOM()) ?? Bom::Utf8)->encoding(), $output_encoding),
+                [self::BOM_SEQUENCE => self::SKIP_BOM_SEQUENCE, self::MODE => self::MODE_READ]
+            );
+
+            return $document;
+        }
+
+        return self::appendFilter(
+            $document,
+            STREAM_FILTER_READ,
+            (Bom::tryFromSequence($document) ?? Bom::Utf8)->encoding(),
+            $output_encoding,
+            [self::BOM_SEQUENCE => self::SKIP_BOM_SEQUENCE, self::MODE => self::MODE_READ]
+        );
+    }
+
+    /**
      * @param resource $stream
      *
-     * @throws TypeError
-     * @throws RuntimeException
+     * @throws TypeError|RuntimeException
      *
      * @return resource
      */
@@ -106,8 +165,7 @@ class CharsetConverter extends php_user_filter
     /**
      * @param resource $stream
      *
-     * @throws TypeError
-     * @throws RuntimeException
+     * @throws TypeError|RuntimeException
      *
      * @return resource
      */
@@ -119,8 +177,7 @@ class CharsetConverter extends php_user_filter
     /**
      * @param resource $stream
      *
-     * @throws TypeError
-     * @throws RuntimeException
+     * @throws TypeError|RuntimeException
      *
      * @return resource
      */
@@ -132,8 +189,7 @@ class CharsetConverter extends php_user_filter
     /**
      * @param resource $stream
      *
-     * @throws TypeError
-     * @throws RuntimeException
+     * @throws TypeError|RuntimeException
      *
      * @return resource
      */
@@ -145,17 +201,18 @@ class CharsetConverter extends php_user_filter
     /**
      * @param resource $stream
      *
-     * @throws RuntimeException|TypeError
+     * @throws TypeError|RuntimeException|Throwable
      *
      * @return resource
      */
-    final protected static function appendFilter(mixed $stream, int $mode, string $input_encoding = 'UTF-8', string $output_encoding = 'UTF-8'): mixed
+    final protected static function appendFilter(mixed $stream, int $mode, string $input_encoding = 'UTF-8', string $output_encoding = 'UTF-8', array $params = []): mixed
     {
         self::register();
         $filtername = self::getFiltername($input_encoding, $output_encoding);
+        $params[self::MODE] = STREAM_FILTER_WRITE === $mode ? self::MODE_WRITE : self::MODE_READ;
 
         /** @var resource|false $filter */
-        $filter = Warning::cloak(stream_filter_append(...), self::filterStream($stream), $filtername, $mode);
+        $filter = Warning::cloak(stream_filter_append(...), self::filterStream($stream), $filtername, $mode, $params);
         is_resource($filter) || throw new RuntimeException('Could not append the registered stream filter: '.$filtername);
 
         return $filter;
@@ -164,17 +221,18 @@ class CharsetConverter extends php_user_filter
     /**
      * @param resource $stream
      *
-     * @throws RuntimeException|TypeError
+     * @throws TypeError|RuntimeException|Throwable
      *
      * @return resource
      */
-    final protected static function prependFilter(mixed $stream, int $mode, string $input_encoding = 'UTF-8', string $output_encoding = 'UTF-8'): mixed
+    final protected static function prependFilter(mixed $stream, int $mode, string $input_encoding = 'UTF-8', string $output_encoding = 'UTF-8', array $params = []): mixed
     {
         self::register();
         $filtername = self::getFiltername($input_encoding, $output_encoding);
+        $params[self::MODE] = STREAM_FILTER_WRITE === $mode ? self::MODE_WRITE : self::MODE_READ;
 
         /** @var resource|false $filter */
-        $filter = Warning::cloak(stream_filter_prepend(...), self::filterStream($stream), $filtername, $mode);
+        $filter = Warning::cloak(stream_filter_prepend(...), self::filterStream($stream), $filtername, $mode, $params);
         is_resource($filter) || throw new RuntimeException('Could not append the registered stream filter: '.$filtername);
 
         return $filter;
@@ -183,7 +241,7 @@ class CharsetConverter extends php_user_filter
     /**
      * @param resource $stream
      *
-     * @throws TypeError
+     * @throws TypeError|RuntimeException|Throwable
      *
      * @return resource
      */
@@ -234,12 +292,27 @@ class CharsetConverter extends php_user_filter
             return false;
         }
 
+        $skipBomSequence = false;
+        $mode = self::MODE_READ;
+        if (is_array($this->params)) {
+            $skipBomSequence = isset($this->params[self::BOM_SEQUENCE])
+                && self::SKIP_BOM_SEQUENCE === $this->params[self::BOM_SEQUENCE];
+            $mode = $this->params[self::MODE] ?? self::MODE_READ;
+            if (!in_array($mode, [self::MODE_READ, self::MODE_WRITE], true)) {
+                return false;
+            }
+        }
+
         try {
             $this->input_encoding = self::filterEncoding($matches['input']);
             $this->output_encoding = self::filterEncoding($matches['output']);
-            $this->skipBomSequence = is_array($this->params)
-                && isset($this->params[self::BOM_SEQUENCE])
-                && self::SKIP_BOM_SEQUENCE === $this->params[self::BOM_SEQUENCE];
+            $this->skipBomSequence = $skipBomSequence;
+            $this->mode = $mode;
+            $this->bomSequenceParsed = false;
+            $this->buffer = '';
+            $this->bom = null;
+            $this->streamStart = null;
+            $this->hasTail = false;
         } catch (OutOfRangeException) {
             return false;
         }
@@ -247,28 +320,64 @@ class CharsetConverter extends php_user_filter
         return true;
     }
 
+    public function onClose(): void
+    {
+        $this->buffer = '';
+        $this->hasTail = false;
+        $this->streamStart = null;
+        $this->bom = null;
+        $this->bomSequenceParsed = false;
+        $this->mode = self::MODE_READ;
+    }
+
     public function filter($in, $out, &$consumed, bool $closing): int
     {
         $inputBuffer = $this->buffer;
+        $heldLength = strlen($inputBuffer);
+        $this->buffer = '';
+
         while (null !== ($bucket = stream_bucket_make_writeable($in))) {
             $inputBuffer .= $bucket->data;
             $consumed += $bucket->datalen;
+        }
+
+        // The filter is not told when the stream is rewound: what was held back
+        // belongs to the previous read and must not end up in front of the first record.
+        if ($this->hasTail && $this->isStartOfStream(substr($inputBuffer, $heldLength))) {
+            $inputBuffer = substr($inputBuffer, $heldLength);
+            $heldLength = 0;
         }
 
         if ('' === $inputBuffer && !$closing) {
             return PSFS_FEED_ME;
         }
 
-        $bom = Bom::tryFromSequence($inputBuffer);
-        if (null !== $bom && in_array($this->input_encoding, ['UTF-16', 'UTF-32'], true) && str_starts_with($bom->encoding(), $this->input_encoding)) {
-            // the next chunks have no BOM, they are converted with the byte order it declares
-            $this->bomEncoding = $bom->encoding();
-            $inputBuffer = substr($inputBuffer, $bom->length());
-        } elseif ($this->skipBomSequence && null !== $bom) {
-            $inputBuffer = substr($inputBuffer, $bom->length());
+        if (self::MODE_READ === $this->mode) {
+            // we reset the BOM parsing to allow skipping the BOM if needed once the stream is rewound
+            if ($this->bomSequenceParsed && null !== $this->bom && $this->isStartOfStream(substr($inputBuffer, $heldLength))) {
+                $this->bomSequenceParsed = false;
+            }
+
+            // parsing and optionally removing the BOM sequence
+            if (!$this->bomSequenceParsed) {
+                if (!$closing && self::isPossibleBomSequence($inputBuffer)) {
+                    $this->buffer = $inputBuffer;
+
+                    return PSFS_FEED_ME;
+                }
+
+                $this->streamStart ??= substr($inputBuffer, 0, self::STREAM_START_LENGTH);
+                $this->bom ??= Bom::tryFromSequence($inputBuffer);
+                if (null !== $this->bom && ($this->skipBomSequence || $this->hasBomForGenericEncoding())) {
+                    $inputBuffer = substr($inputBuffer, $this->bom->length());
+                }
+
+                $this->bomSequenceParsed = true;
+            }
         }
 
-        $inputEncoding = $this->bomEncoding ?? $this->input_encoding;
+        // detecting the correct input BOM
+        $inputEncoding = null !== $this->bom && $this->hasBomForGenericEncoding() ? $this->bom->encoding() : $this->input_encoding;
 
         // If the content ends with an incomplete multibyte sequence (a character split
         // between two chunks) we store it and ask for more content, as long as the
@@ -287,22 +396,70 @@ class CharsetConverter extends php_user_filter
 
                 $tail = substr($inputBuffer, $validLength);
                 $inputBuffer = substr($inputBuffer, 0, $validLength);
+            } else {
+                // invalid bytes that cannot be fixed must not take a split character down with them
+                $length = strlen($inputBuffer) - self::incompleteTailLength($inputBuffer, $inputEncoding);
+                $tail = substr($inputBuffer, $length);
+                $inputBuffer = substr($inputBuffer, 0, $length);
             }
         }
 
         try {
-            Warning::cloak(function () use ($inputBuffer, $inputEncoding, $out) {
-                $outputBuffer = (string) mb_convert_encoding($inputBuffer, $this->output_encoding, $inputEncoding);
-                $streamBucket = stream_bucket_new($this->stream, $outputBuffer);
+            Warning::cloak(function () use ($inputBuffer, $inputEncoding, $out, $closing) {
+                if (!$closing || is_resource($this->stream)) {
+                    $outputBuffer = (string) mb_convert_encoding($inputBuffer, $this->output_encoding, $inputEncoding);
+                    $streamBucket = stream_bucket_new($this->stream, $outputBuffer);
 
-                stream_bucket_append($out, $streamBucket);
+                    stream_bucket_append($out, $streamBucket);
+                }
             });
+
             return PSFS_PASS_ON;
-        } catch (Throwable) {
+        } catch (Throwable $exception) {
+            trigger_error('An error occurred while executing the stream filter `'.self::FILTERNAME.'`: '.$exception->getMessage(), E_USER_WARNING);
+
             return PSFS_ERR_FATAL;
         } finally {
             $this->buffer = $tail;
+            $this->hasTail = '' !== $tail;
         }
+    }
+
+    /**
+     * Tells whether the chunk is the start of the stream.
+     *
+     * The filter is not told when the stream is rewound, so the stream position is used.
+     * A single read larger than a chunk stays at position 0 until it returns, so a chunk
+     * at position 0 must also start with the same bytes as the stream.
+     */
+    private function isStartOfStream(string $chunk): bool
+    {
+        if ('' === $chunk || null === $this->streamStart || !is_resource($this->stream) || 0 !== ftell($this->stream)) {
+            return false;
+        }
+
+        return substr($chunk, 0, self::STREAM_START_LENGTH) === $this->streamStart;
+    }
+
+    private static function isPossibleBomSequence(string $sequence): bool
+    {
+        foreach (Bom::cases() as $bom) {
+            if (
+                strlen($sequence) < $bom->length()
+                && str_starts_with($bom->value, $sequence)
+            ) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private function hasBomForGenericEncoding(): bool
+    {
+        return null !== $this->bom
+            && in_array($this->input_encoding, ['UTF-16', 'UTF-32'], true)
+            && str_starts_with($this->bom->encoding(), $this->input_encoding);
     }
 
     /**
@@ -320,6 +477,31 @@ class CharsetConverter extends php_user_filter
         }
 
         return null;
+    }
+
+    /**
+     * Returns the length of the incomplete multibyte sequence found at the end of a
+     * buffer which also contains invalid bytes: removing it only removes what the
+     * conversion replaces, whereas cutting a complete character changes the output.
+     */
+    private static function incompleteTailLength(string $buffer, string $encoding): int
+    {
+        $convert = static function (string $content) use ($encoding): string {
+            $converted = Warning::cloak(mb_convert_encoding(...), $content, 'UTF-8', $encoding);
+
+            return is_string($converted) ? $converted : '';
+        };
+
+        // the longest match wins: mbstring may replace an incomplete sequence with a single
+        // "?", so cutting only its last byte would also look like a safe cut.
+        $converted = $convert($buffer);
+        for ($length = min(self::MAX_INCOMPLETE_SEQUENCE_LENGTH - 1, strlen($buffer)); $length > 0; --$length) {
+            if (!mb_check_encoding(substr($buffer, -$length), $encoding) && str_starts_with($converted, $convert(substr($buffer, 0, -$length)))) {
+                return $length;
+            }
+        }
+
+        return 0;
     }
 
     /**
@@ -410,7 +592,7 @@ class CharsetConverter extends php_user_filter
      * @return resource
      */
     #[Deprecated(message:'use League\Csv\CharserConverter::appendOnReadTo() or League\Csv\CharserConverter::appendOnWriteTo() instead', since:'league/csv:9.22.0')]
-    public static function appendTo(mixed $stream, string $input_encoding = 'UTF-8', string $output_encoding = 'UTF-8'): mixed
+    public static function appendTo($stream, string $input_encoding = 'UTF-8', string $output_encoding = 'UTF-8')
     {
         return self::appendFilter($stream, 0, $input_encoding, $output_encoding);
     }
@@ -434,20 +616,5 @@ class CharsetConverter extends php_user_filter
     public static function prependTo(mixed $stream, string $input_encoding = 'UTF-8', string $output_encoding = 'UTF-8'): mixed
     {
         return self::prependFilter($stream, 0, $input_encoding, $output_encoding);
-    }
-
-    /**
-     * Static method to add the stream filter to a {@link Reader} object to handle BOM skipping.
-     */
-    public static function addBOMSkippingTo(Reader $document, string $output_encoding = 'UTF-8'): Reader
-    {
-        self::register();
-
-        $document->appendStreamFilterOnRead(
-            self::getFiltername((Bom::tryFrom($document->getInputBOM()) ?? Bom::Utf8)->encoding(), $output_encoding),
-            [self::BOM_SEQUENCE => self::SKIP_BOM_SEQUENCE]
-        );
-
-        return $document;
     }
 }

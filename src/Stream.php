@@ -337,10 +337,9 @@ final class Stream implements SeekableIterator
             return $this->value;
         }
 
-        $this->value = match (true) {
-            SplFileObject::READ_CSV === ($this->flags & SplFileObject::READ_CSV) => $this->getCurrentRecord(),
-            default => $this->getCurrentLine(),
-        };
+        $this->value = SplFileObject::READ_CSV === ($this->flags & SplFileObject::READ_CSV)
+            ? $this->getCurrentRecord()
+            : $this->getCurrentLine();
 
         return $this->value;
     }
