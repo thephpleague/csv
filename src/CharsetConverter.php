@@ -34,7 +34,6 @@ use function mb_convert_encoding;
 use function mb_list_encodings;
 use function min;
 use function preg_match;
-use function sprintf;
 use function str_starts_with;
 use function stream_bucket_append;
 use function stream_bucket_make_writeable;
@@ -258,12 +257,7 @@ class CharsetConverter extends php_user_filter
      */
     public static function getFiltername(string $input_encoding, string $output_encoding): string
     {
-        return sprintf(
-            '%s.%s/%s',
-            self::FILTERNAME,
-            self::filterEncoding($input_encoding),
-            self::filterEncoding($output_encoding)
-        );
+        return self::FILTERNAME.'.'.self::filterEncoding($input_encoding).'/'.self::filterEncoding($output_encoding);
     }
 
     /**
@@ -434,11 +428,8 @@ class CharsetConverter extends php_user_filter
      */
     private function isStartOfStream(string $chunk): bool
     {
-        if ('' === $chunk || null === $this->streamStart || !is_resource($this->stream) || 0 !== ftell($this->stream)) {
-            return false;
-        }
-
-        return substr($chunk, 0, self::STREAM_START_LENGTH) === $this->streamStart;
+        return !('' === $chunk || null === $this->streamStart || !is_resource($this->stream) || 0 !== ftell($this->stream))
+            && substr($chunk, 0, self::STREAM_START_LENGTH) === $this->streamStart;
     }
 
     private static function isPossibleBomSequence(string $sequence): bool
@@ -592,7 +583,7 @@ class CharsetConverter extends php_user_filter
      * @return resource
      */
     #[Deprecated(message:'use League\Csv\CharserConverter::appendOnReadTo() or League\Csv\CharserConverter::appendOnWriteTo() instead', since:'league/csv:9.22.0')]
-    public static function appendTo($stream, string $input_encoding = 'UTF-8', string $output_encoding = 'UTF-8')
+    public static function appendTo($stream, string $input_encoding = 'UTF-8', string $output_encoding = 'UTF-8'): mixed
     {
         return self::appendFilter($stream, 0, $input_encoding, $output_encoding);
     }
