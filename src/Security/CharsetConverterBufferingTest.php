@@ -15,6 +15,7 @@ namespace League\Csv\Security;
 
 use League\Csv\CharsetConverter;
 use League\Csv\Reader;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
@@ -111,5 +112,41 @@ final class CharsetConverterBufferingTest extends TestCase
         CharsetConverter::addTo($reader, 'UTF-8', 'ISO-8859-1');
 
         self::assertSame(str_repeat('a', 8191)."\xE9", $reader->first()[0]);
+    }
+
+    #[Test]
+    #[DataProvider('providesCharactersSplitAtTheEndOfTheFirstChunk')]
+    public function it_keeps_a_split_character_when_the_chunk_contains_an_invalid_byte(string $character, int $bytesInFirstChunk): void
+    {
+        $padding = str_repeat('a', 8192 - 1 - $bytesInFirstChunk);
+        $path = $this->tmpFile("\xFF".$padding.$character.",b\n");
+        $reader = Reader::from($path, 'r');
+        CharsetConverter::addTo($reader, 'UTF-8', 'UTF-8');
+
+        self::assertSame(['?'.$padding.$character, 'b'], $reader->first());
+    }
+
+    /**
+     * @return iterable<string, array{character: string, bytesInFirstChunk: int}>
+     */
+    public static function providesCharactersSplitAtTheEndOfTheFirstChunk(): iterable
+    {
+        yield 'two-byte character split 1+1' => ['character' => 'é', 'bytesInFirstChunk' => 1];
+        yield 'three-byte character split 1+2' => ['character' => '日', 'bytesInFirstChunk' => 1];
+        yield 'three-byte character split 2+1' => ['character' => '日', 'bytesInFirstChunk' => 2];
+        yield 'four-byte character split 1+3' => ['character' => '💩', 'bytesInFirstChunk' => 1];
+        yield 'four-byte character split 2+2' => ['character' => '💩', 'bytesInFirstChunk' => 2];
+        yield 'four-byte character split 3+1' => ['character' => '💩', 'bytesInFirstChunk' => 3];
+    }
+
+    #[Test]
+    public function it_does_not_prepend_a_split_character_to_the_stream_once_rewound(): void
+    {
+        $path = $this->tmpFile("\xFFa,b\n".str_repeat('a', 8186)."é\nc,d\n");
+        $reader = Reader::from($path, 'r');
+        CharsetConverter::addTo($reader, 'UTF-8', 'UTF-8');
+
+        self::assertSame(['?a', 'b'], $reader->first());
+        self::assertSame(['?a', 'b'], [...$reader][0]);
     }
 }

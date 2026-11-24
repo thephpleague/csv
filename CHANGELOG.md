@@ -18,6 +18,7 @@ All Notable changes to `Csv` will be documented in this file
 
 - Improve `CallbackStreamFilter` implementation
 - Improve `SwapDelimiter` implementation and better handling of multybite string
+- `CharsetConverter` no longer turns a multibyte character split between two chunks into `?` when the first chunk also contains an invalid byte sequence
 
 ### Remove
 
