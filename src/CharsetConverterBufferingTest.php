@@ -11,10 +11,8 @@
 
 declare(strict_types=1);
 
-namespace League\Csv\Security;
+namespace League\Csv;
 
-use League\Csv\CharsetConverter;
-use League\Csv\Reader;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\Attributes\Test;
