@@ -320,6 +320,16 @@ class CharsetConverter extends php_user_filter
         return true;
     }
 
+    public function onClose(): void
+    {
+        $this->buffer = '';
+        $this->hasTail = false;
+        $this->streamStart = null;
+        $this->bom = null;
+        $this->bomSequenceParsed = false;
+        $this->mode = self::MODE_READ;
+    }
+
     public function filter($in, $out, &$consumed, bool $closing): int
     {
         $inputBuffer = $this->buffer;
@@ -369,7 +379,7 @@ class CharsetConverter extends php_user_filter
         // detecting the correct input BOM
         $inputEncoding = null !== $this->bom && $this->hasBomForGenericEncoding() ? $this->bom->encoding() : $this->input_encoding;
 
-        // If the content ends with an incomplete multibyte s/equence (a character split
+        // If the content ends with an incomplete multibyte sequence (a character split
         // between two chunks) we store it and ask for more content, as long as the
         // stored content stays small. Any other invalid byte sequence cannot be fixed
         // by reading more data: it is converted right away instead of buffering (and
@@ -395,12 +405,15 @@ class CharsetConverter extends php_user_filter
         }
 
         try {
-            Warning::cloak(function () use ($inputBuffer, $inputEncoding, $out) {
-                $outputBuffer = (string) mb_convert_encoding($inputBuffer, $this->output_encoding, $inputEncoding);
-                $streamBucket = stream_bucket_new($this->stream, $outputBuffer);
+            Warning::cloak(function () use ($inputBuffer, $inputEncoding, $out, $closing) {
+                if (!$closing || is_resource($this->stream)) {
+                    $outputBuffer = (string) mb_convert_encoding($inputBuffer, $this->output_encoding, $inputEncoding);
+                    $streamBucket = stream_bucket_new($this->stream, $outputBuffer);
 
-                stream_bucket_append($out, $streamBucket);
+                    stream_bucket_append($out, $streamBucket);
+                }
             });
+
             return PSFS_PASS_ON;
         } catch (Throwable $exception) {
             trigger_error('An error occurred while executing the stream filter `'.self::FILTERNAME.'`: '.$exception->getMessage(), E_USER_WARNING);
