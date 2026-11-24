@@ -42,7 +42,9 @@ use function stream_get_filters;
 use function strlen;
 use function strtolower;
 use function substr;
+use function trigger_error;
 
+use const E_USER_WARNING;
 use const PSFS_ERR_FATAL;
 use const PSFS_FEED_ME;
 use const PSFS_PASS_ON;
@@ -355,7 +357,7 @@ class CharsetConverter extends php_user_filter
         // detecting the correct input BOM
         $inputEncoding = null !== $this->bom && $this->hasBomForGenericEncoding() ? $this->bom->encoding() : $this->input_encoding;
 
-        // If the content ends with an incomplete multibyte sequence (a character split
+        // If the content ends with an incomplete multibyte s/equence (a character split
         // between two chunks) we store it and ask for more content, as long as the
         // stored content stays small. Any other invalid byte sequence cannot be fixed
         // by reading more data: it is converted right away instead of buffering (and
@@ -383,7 +385,9 @@ class CharsetConverter extends php_user_filter
                 stream_bucket_append($out, $streamBucket);
             });
             return PSFS_PASS_ON;
-        } catch (Throwable) {
+        } catch (Throwable $exception) {
+            trigger_error('An error occurred while executing the stream filter `'.self::FILTERNAME.'`: '.$exception->getMessage(), E_USER_WARNING);
+
             return PSFS_ERR_FATAL;
         } finally {
             $this->buffer = $tail;
