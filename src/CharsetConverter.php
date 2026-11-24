@@ -28,6 +28,8 @@ use function in_array;
 use function is_array;
 use function is_numeric;
 use function is_resource;
+use function is_string;
+use function mb_check_encoding;
 use function mb_convert_encoding;
 use function mb_list_encodings;
 use function min;
@@ -78,6 +80,8 @@ class CharsetConverter extends php_user_filter
     protected const MAX_INCOMPLETE_SEQUENCE_LENGTH = 4;
     /** Maximum number of bytes buffered while waiting for the end of a split multibyte sequence. */
     protected const MAX_BUFFER_LENGTH = 65536;
+    /** Whether the buffer holds an incomplete multibyte sequence left over from the previous chunk. */
+    protected bool $hasTail = false;
 
     /**
      * Static method to register the class as a stream filter.
@@ -308,6 +312,7 @@ class CharsetConverter extends php_user_filter
             $this->buffer = '';
             $this->bom = null;
             $this->streamStart = null;
+            $this->hasTail = false;
         } catch (OutOfRangeException) {
             return false;
         }
@@ -324,6 +329,13 @@ class CharsetConverter extends php_user_filter
         while (null !== ($bucket = stream_bucket_make_writeable($in))) {
             $inputBuffer .= $bucket->data;
             $consumed += $bucket->datalen;
+        }
+
+        // The filter is not told when the stream is rewound: what was held back
+        // belongs to the previous read and must not end up in front of the first record.
+        if ($this->hasTail && $this->isStartOfStream(substr($inputBuffer, $heldLength))) {
+            $inputBuffer = substr($inputBuffer, $heldLength);
+            $heldLength = 0;
         }
 
         if ('' === $inputBuffer && !$closing) {
@@ -374,6 +386,11 @@ class CharsetConverter extends php_user_filter
 
                 $tail = substr($inputBuffer, $validLength);
                 $inputBuffer = substr($inputBuffer, 0, $validLength);
+            } else {
+                // invalid bytes that cannot be fixed must not take a split character down with them
+                $length = strlen($inputBuffer) - self::incompleteTailLength($inputBuffer, $inputEncoding);
+                $tail = substr($inputBuffer, $length);
+                $inputBuffer = substr($inputBuffer, 0, $length);
             }
         }
 
@@ -391,6 +408,7 @@ class CharsetConverter extends php_user_filter
             return PSFS_ERR_FATAL;
         } finally {
             $this->buffer = $tail;
+            $this->hasTail = '' !== $tail;
         }
     }
 
@@ -446,6 +464,31 @@ class CharsetConverter extends php_user_filter
         }
 
         return null;
+    }
+
+    /**
+     * Returns the length of the incomplete multibyte sequence found at the end of a
+     * buffer which also contains invalid bytes: removing it only removes what the
+     * conversion replaces, whereas cutting a complete character changes the output.
+     */
+    private static function incompleteTailLength(string $buffer, string $encoding): int
+    {
+        $convert = static function (string $content) use ($encoding): string {
+            $converted = Warning::cloak(mb_convert_encoding(...), $content, 'UTF-8', $encoding);
+
+            return is_string($converted) ? $converted : '';
+        };
+
+        // the longest match wins: mbstring may replace an incomplete sequence with a single
+        // "?", so cutting only its last byte would also look like a safe cut.
+        $converted = $convert($buffer);
+        for ($length = min(self::MAX_INCOMPLETE_SEQUENCE_LENGTH - 1, strlen($buffer)); $length > 0; --$length) {
+            if (!mb_check_encoding(substr($buffer, -$length), $encoding) && str_starts_with($converted, $convert(substr($buffer, 0, -$length)))) {
+                return $length;
+            }
+        }
+
+        return 0;
     }
 
     /**
