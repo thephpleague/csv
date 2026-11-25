@@ -22,9 +22,9 @@ use function array_key_exists;
 use function array_keys;
 use function count;
 
-final class FieldMetadata implements Countable, IteratorAggregate
+final readonly class FieldMetadata implements Countable, IteratorAggregate
 {
-    private readonly array $data;
+    private array $data;
 
     public function __construct(iterable $data = [])
     {

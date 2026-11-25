@@ -30,10 +30,10 @@ use function count;
 /**
  * @implements IteratorAggregate<array-key, Field>
  */
-final class Schema implements Countable, IteratorAggregate
+final readonly class Schema implements Countable, IteratorAggregate
 {
     /** @var array<array-key, Field> */
-    private readonly array $fields;
+    private array $fields;
 
     public function __construct(iterable $fields = [])
     {

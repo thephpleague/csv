@@ -18,7 +18,7 @@ use Closure;
 /**
  * @template T
  */
-final class CallbackFieldParser implements FieldParser
+final readonly class CallbackFieldParser implements FieldParser
 {
     /** @var Closure(mixed): ?T */
     private Closure $callback;

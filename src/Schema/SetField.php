@@ -26,13 +26,12 @@ final class SetField extends FieldEvaluator implements Field
 {
     /** @var non-empty-string */
     public readonly string $separator;
-    public readonly int $limit;
     public readonly EnumField $enumField;
 
     /**
      * @param non-empty-string $separator
      */
-    public function __construct(EnumField $enumField, string $separator = ',', int $limit = PHP_INT_MAX)
+    public function __construct(EnumField $enumField, string $separator = ',', public readonly int $limit = PHP_INT_MAX)
     {
         $separator = trim($separator);
         '' !== $separator || throw new ValueError('The set field separator can not be an empty string.');
@@ -40,7 +39,6 @@ final class SetField extends FieldEvaluator implements Field
         parent::__construct($enumField->confidenceThreshold());
         $this->enumField = $enumField;
         $this->separator = $separator;
-        $this->limit = $limit;
     }
 
     /**

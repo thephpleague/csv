@@ -37,9 +37,7 @@ final class CustomFieldTest extends TestCase
 
     public function testParseUsesCallable(): void
     {
-        $callable = function ($value) {
-            return is_int($value) ? $value * 2 : null;
-        };
+        $callable = (fn ($value) => is_int($value) ? $value * 2 : null);
 
         $field = new CustomField($callable, 'custom');
 

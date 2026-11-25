@@ -40,7 +40,7 @@ final class EnumField extends FieldEvaluator implements Field
     private readonly array $cases;
     /** @var class-string<T> */
     public readonly string $enumClass;
-    private Closure $find;
+    private readonly Closure $find;
 
     /**
      * @param class-string<T> $enumClass

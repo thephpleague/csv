@@ -19,7 +19,6 @@ use ValueError;
 
 use function array_map;
 use function implode;
-use function rand;
 use function random_int;
 use function str_repeat;
 use function str_shuffle;
@@ -170,7 +169,7 @@ CSV);
 
     private function randomValue(): mixed
     {
-        return match (rand(0, 5)) {
+        return match (random_int(0, 5)) {
             0 => random_int(0, 1000),            // int
             1 => random_int(0, 1000) / 10,       // float
             2 => (string) random_int(0, 1000),   // numeric string
@@ -186,7 +185,7 @@ CSV);
         $columns = ['col1', 'col2', 'col3'];
         $rows = [$columns];
         for ($i = 0; $i < 50; $i++) {
-            for ($r = 0; $r < rand(1, 20); $r++) {
+            for ($r = 0; $r < random_int(1, 20); $r++) {
                 $rows[] = [
                     $this->randomValue(),
                     $this->randomValue(),
@@ -210,7 +209,7 @@ CSV);
 
             $rows = [$columns];
 
-            for ($r = 0; $r < rand(1, 20); $r++) {
+            for ($r = 0; $r < random_int(1, 20); $r++) {
                 $rows[] = [
                     $this->randomValue(),
                     $this->randomValue(),
@@ -249,8 +248,8 @@ CSV);
                 ['num'],
             ];
 
-            for ($r = 0; $r < rand(5, 20); $r++) {
-                $rows[] = [rand(0, 1000)];
+            for ($r = 0; $r < random_int(5, 20); $r++) {
+                $rows[] = [random_int(0, 1000)];
             }
 
             $schema = $inspector->schema($this->csvFromRows($rows));
@@ -270,8 +269,8 @@ CSV);
 
             for ($r = 0; $r < 20; $r++) {
                 $rows[] = [
-                    1 === rand(0, 1)
-                        ? rand(0, 100)
+                    1 === random_int(0, 1)
+                        ? random_int(0, 100)
                         : $this->randomString(),
                 ];
             }

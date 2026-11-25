@@ -99,21 +99,15 @@ class CharsetConverter extends php_user_filter
     {
         self::register();
 
-        if (null === $params) {
-            $params = [];
-        }
+        $params ??= [];
 
         if ($csv instanceof Reader) {
-            if (!isset($params[self::MODE])) {
-                $params[self::MODE] = self::MODE_READ;
-            }
+            $params[self::MODE] ??= self::MODE_READ;
 
             return $csv->appendStreamFilterOnRead(self::getFiltername($input_encoding, $output_encoding), $params);
         }
 
-        if (!isset($params[self::MODE])) {
-            $params[self::MODE] = self::MODE_WRITE;
-        }
+        $params[self::MODE] ??= self::MODE_WRITE;
 
         return $csv->appendStreamFilterOnWrite(self::getFiltername($input_encoding, $output_encoding), $params);
     }
