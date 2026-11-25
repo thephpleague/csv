@@ -552,15 +552,15 @@ abstract class TabularDataReaderTestCase extends TestCase
 
     public function testGetObjectWithHeader(): void
     {
-        $class = new class (5, Place::Galway, new DateTimeImmutable()) {
+        $class = new readonly class (5, Place::Galway, new DateTimeImmutable()) {
             public function __construct(
-                public readonly float $temperature,
-                public readonly Place $place,
+                public float $temperature,
+                public Place $place,
                 #[MapCell(
                     column: 'date',
                     options: ['format' => '!Y-m-d', 'timezone' => 'Africa/Kinshasa'],
                 )]
-                public readonly DateTimeInterface $observedOn
+                public DateTimeInterface $observedOn
             ) {
             }
         };
@@ -572,14 +572,14 @@ abstract class TabularDataReaderTestCase extends TestCase
 
     public function testGetObjectWithoutHeader(): void
     {
-        $class = new class (5, Place::Galway, new DateTimeImmutable()) {
+        $class = new readonly class (5, Place::Galway, new DateTimeImmutable()) {
             public function __construct(
                 #[MapCell(column: 1)]
-                public readonly float $temperature,
+                public float $temperature,
                 #[MapCell(column: 2)]
-                public readonly Place $place,
+                public Place $place,
                 #[MapCell(column: 0)]
-                public readonly DateTimeInterface $observedOn
+                public DateTimeInterface $observedOn
             ) {
             }
         };
@@ -591,15 +591,15 @@ abstract class TabularDataReaderTestCase extends TestCase
 
     public function testGetNthObjectWithHeader(): void
     {
-        $class = new class (5, Place::Galway, new DateTimeImmutable()) {
+        $class = new readonly class (5, Place::Galway, new DateTimeImmutable()) {
             public function __construct(
-                public readonly float $temperature,
-                public readonly Place $place,
+                public float $temperature,
+                public Place $place,
                 #[MapCell(
                     column: 'date',
                     options: ['format' => '!Y-m-d', 'timezone' => 'Africa/Kinshasa'],
                 )]
-                public readonly DateTimeInterface $observedOn
+                public DateTimeInterface $observedOn
             ) {
             }
         };
@@ -611,11 +611,11 @@ abstract class TabularDataReaderTestCase extends TestCase
 
     public function testGetNthObjectWithCustomHeader(): void
     {
-        $class = new class (5, Place::Galway, new DateTimeImmutable()) {
+        $class = new readonly class (5, Place::Galway, new DateTimeImmutable()) {
             public function __construct(
-                public readonly float $temperature,
-                public readonly Place $place,
-                public readonly DateTimeInterface $observedOn
+                public float $temperature,
+                public Place $place,
+                public DateTimeInterface $observedOn
             ) {
             }
         };
@@ -635,11 +635,11 @@ abstract class TabularDataReaderTestCase extends TestCase
     #[Test]
     public function it_will_create_a_datable_with_a_header(): void
     {
-        $weather = new class (new DateTimeImmutable(), 6, 'Brussels') {
+        $weather = new readonly class (new DateTimeImmutable(), 6, 'Brussels') {
             public function __construct(
-                public readonly DateTimeImmutable $date,
-                public readonly int $temperature,
-                public readonly string $place,
+                public DateTimeImmutable $date,
+                public int $temperature,
+                public string $place,
             ) {
             }
         };

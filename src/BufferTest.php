@@ -48,11 +48,11 @@ final class BufferTest extends TestCase
         self::assertTrue($buffer->hasHeader());
         self::assertFalse($buffer->isEmpty());
 
-        $weather = new class (new DateTimeImmutable(), 6, 'Brussels') {
+        $weather = new readonly class (new DateTimeImmutable(), 6, 'Brussels') {
             public function __construct(
-                public readonly DateTimeImmutable $date,
-                public readonly int $temperature,
-                public readonly string $place,
+                public DateTimeImmutable $date,
+                public int $temperature,
+                public string $place,
             ) {
             }
         };
@@ -94,11 +94,11 @@ final class BufferTest extends TestCase
         self::assertSame([], $buffer->nth(42));
         self::assertSame(6, $buffer->recordCount());
 
-        $weather = new class (new DateTimeImmutable(), 6, 'Brussels') {
+        $weather = new readonly class (new DateTimeImmutable(), 6, 'Brussels') {
             public function __construct(
-                public readonly DateTimeImmutable $date,
-                public readonly int $temperature,
-                public readonly string $place,
+                public DateTimeImmutable $date,
+                public int $temperature,
+                public string $place,
             ) {
             }
         };

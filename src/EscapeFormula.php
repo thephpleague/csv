@@ -31,7 +31,7 @@ use function str_starts_with;
 class EscapeFormula
 {
     /** Spreadsheet formula starting character. */
-    public const FORMULA_STARTING_CHARS = ['=', '-', '+', '@', "\t", "\r"];
+    public const array FORMULA_STARTING_CHARS = ['=', '-', '+', '@', "\t", "\r"];
 
     /** Effective Spreadsheet formula starting characters. */
     protected array $special_chars = [];

@@ -28,10 +28,10 @@ use UnitEnum;
  */
 final readonly class EnumFormatter
 {
-    private const NAME_FORMAT = 'name';
-    private const VALUE_FORMAT = 'value';
-    private const JSON_FORMAT = 'json';
-    private const CALLBACK_FORMAT = 'callback';
+    private const string NAME_FORMAT = 'name';
+    private const string VALUE_FORMAT = 'value';
+    private const string JSON_FORMAT = 'json';
+    private const string CALLBACK_FORMAT = 'callback';
 
     private function __construct(
         private string $format,

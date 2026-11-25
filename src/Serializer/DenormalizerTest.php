@@ -43,15 +43,15 @@ final class DenormalizerTest extends TestCase
             ],
         ];
 
-        $class = new class (5, Place::Yamoussokro, new DateTimeImmutable()) {
+        $class = new readonly class (5, Place::Yamoussokro, new DateTimeImmutable()) {
             public function __construct(
-                public readonly float $temperature,
-                public readonly Place $place,
+                public float $temperature,
+                public Place $place,
                 #[MapCell(
                     column: 'date',
                     options: ['format' => '!Y-m-d', 'timezone' => 'Africa/Kinshasa'],
                 )]
-                public readonly DateTimeInterface $observedOn
+                public DateTimeInterface $observedOn
             ) {
             }
         };
@@ -71,15 +71,15 @@ final class DenormalizerTest extends TestCase
             'place' => 'Abidjan',
         ];
 
-        $class = new class (5, Place::Yamoussokro, new DateTimeImmutable()) {
+        $class = new readonly class (5, Place::Yamoussokro, new DateTimeImmutable()) {
             public function __construct(
-                public readonly float $temperature,
-                public readonly Place $place,
+                public float $temperature,
+                public Place $place,
                 #[MapCell(
                     column: 'date',
                     options: ['format' => '!Y-m-d', 'timezone' => 'Africa/Kinshasa'],
                 )]
-                public readonly DateTimeInterface $observedOn
+                public DateTimeInterface $observedOn
             ) {
             }
         };
@@ -100,14 +100,14 @@ final class DenormalizerTest extends TestCase
             'place' => 'Abidjan',
         ];
 
-        $foobar = new class (3, Place::Yamoussokro, new DateTimeImmutable()) {
+        $foobar = new readonly class (3, Place::Yamoussokro, new DateTimeImmutable()) {
             public function __construct(
                 #[MapCell(column:'temperature')]
-                public readonly float $temperature,
+                public float $temperature,
                 #[MapCell(column:2)]
-                public readonly Place $place,
+                public Place $place,
                 #[MapCell(column:'date', options: ['format' => '!Y-m-d', 'timezone' => 'Africa/Kinshasa'])]
-                public readonly DateTimeInterface $observedOn
+                public DateTimeInterface $observedOn
             ) {
             }
         };
@@ -256,14 +256,14 @@ final class DenormalizerTest extends TestCase
 
     public function testItWillThrowIfTheColumnAttributesIsUsedMultipleTimeForTheSameAccessor(): void
     {
-        $class = new class (5, Place::Abidjan, new DateTimeImmutable()) {
+        $class = new readonly class (5, Place::Abidjan, new DateTimeImmutable()) {
             public function __construct(
                 #[MapCell(column:'temperature'), MapCell(column:'date')] /* @phpstan-ignore-line */
-                public readonly float $temperature,
+                public float $temperature,
                 #[MapCell(column:2)]
-                public readonly Place $place,
+                public Place $place,
                 #[MapCell(column: 'date', options: ['format' => '!Y-m-d', 'timezone' => 'Africa/Kinshasa'])]
-                public readonly DateTimeInterface $observedOn
+                public DateTimeInterface $observedOn
             ) {
             }
         };
@@ -276,14 +276,14 @@ final class DenormalizerTest extends TestCase
 
     public function testItWillThrowIfTheColumnAttributesCasterIsInvalid(): void
     {
-        $foobar = new class (5, Place::Yamoussokro, new DateTimeImmutable()) {
+        $foobar = new readonly class (5, Place::Yamoussokro, new DateTimeImmutable()) {
             public function __construct(
                 #[MapCell(column:'temperature', cast: stdClass::class)]
-                public readonly float $temperature,
+                public float $temperature,
                 #[MapCell(column:2)]
-                public readonly Place $place,
+                public Place $place,
                 #[MapCell(column: 'date', options: ['format' => '!Y-m-d', 'timezone' => 'Africa/Kinshasa'])]
-                public readonly DateTimeInterface $observedOn
+                public DateTimeInterface $observedOn
             ) {
             }
         };
@@ -577,10 +577,10 @@ final class DenormalizerTest extends TestCase
         self::assertSame(['@strtoupper' => 'string'], Denormalizer::aliases());
         self::assertTrue(Denormalizer::supportsAlias('@strtoupper'));
 
-        $class = new class ('toto') {
+        $class = new readonly class ('toto') {
             public function __construct(
                 #[MapCell(cast: '@strtoupper')]
-                public readonly string $str
+                public string $str
             ) {
             }
         };

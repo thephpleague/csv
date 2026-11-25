@@ -36,7 +36,7 @@ final class DateTimeField extends FieldEvaluator implements Field
     public readonly string $outputClass;
 
     /** @var list<non-empty-string> */
-    private const FORMAT_MACHINES = [
+    private const array FORMAT_MACHINES = [
         '!Y-m-d',
         '!Y-m-d H:i:s',
         '!Y-m-d\TH:i:s',
@@ -47,7 +47,7 @@ final class DateTimeField extends FieldEvaluator implements Field
     ];
 
     /** @var list<non-empty-string> */
-    private const FORMAT_LOCALIZED = [
+    private const array FORMAT_LOCALIZED = [
         // Europe Dates
         '!d/m/Y',
         '!d-m-Y',

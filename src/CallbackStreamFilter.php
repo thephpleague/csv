@@ -47,7 +47,7 @@ final class CallbackStreamFilter extends php_user_filter
      * The limit on the accumulated input, not necessarily the size of an individual bucket.
      * @var positive-int
      */
-    private const MAX_BUFFER_LENGTH = 65_536;
+    private const int MAX_BUFFER_LENGTH = 65_536;
     /** @var ?Closure(string, mixed, bool): ?string */
     private ?Closure $callback = null;
 

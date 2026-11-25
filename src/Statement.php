@@ -36,9 +36,9 @@ use function is_string;
  */
 class Statement
 {
-    final protected const COLUMN_ALL = 0;
-    final protected const COLUMN_INCLUDE = 1;
-    final protected const COLUMN_EXCLUDE = 2;
+    final protected const int COLUMN_ALL = 0;
+    final protected const int COLUMN_INCLUDE = 1;
+    final protected const int COLUMN_EXCLUDE = 2;
 
     /** @var array<ConditionExtended> Callables to filter the iterator. */
     protected array $where = [];

@@ -47,7 +47,7 @@ use const STREAM_FILTER_WRITE;
  */
 abstract class AbstractCsv implements ByteSequence, Stringable
 {
-    protected const STREAM_FILTER_MODE = STREAM_FILTER_READ;
+    protected const int STREAM_FILTER_MODE = STREAM_FILTER_READ;
 
     /** @var array<string, bool> collection of stream filters. */
     protected array $stream_filters = [];

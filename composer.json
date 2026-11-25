@@ -26,7 +26,7 @@
         }
     ],
     "require": {
-        "php": "^8.2.0",
+        "php": "^8.3.0",
         "ext-filter": "*"
     },
     "require-dev": {
@@ -38,9 +38,9 @@
         "phpstan/phpstan-deprecation-rules": "^2.0.5",
         "phpstan/phpstan-phpunit": "^2.1.2",
         "phpstan/phpstan-strict-rules": "^2.1.1",
-        "phpunit/phpunit": "^11.5.22 || ^12.5.4 || ^13.4.7",
+        "phpunit/phpunit": "^12.5.4 || ^13.4.7",
         "rector/rector": "^2.8.5",
-        "symfony/var-dumper": "^6.4.8 || ^7.4.0 || ^8.1.10"
+        "symfony/var-dumper": "^7.4.0 || ^8.1.10"
     },
     "autoload": {
         "psr-4": {

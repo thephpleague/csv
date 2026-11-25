@@ -39,15 +39,15 @@ use const PSFS_PASS_ON;
 
 final class SwapDelimiter extends php_user_filter
 {
-    private const FILTER_NAME = 'string.league.csv.delimiter';
-    public const MODE_READ = 'read';
-    public const MODE_WRITE = 'write';
+    private const string FILTER_NAME = 'string.league.csv.delimiter';
+    public const string MODE_READ = 'read';
+    public const string MODE_WRITE = 'write';
     private string $search = '';
     private string $replace = '';
     private string $buffer = '';
     private ?string $streamStart = null;
     /** Number of bytes compared to recognize the start of the stream. */
-    private const STREAM_START_LENGTH = 32;
+    private const int STREAM_START_LENGTH = 32;
 
     public static function getFiltername(): string
     {

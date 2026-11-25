@@ -37,12 +37,12 @@ use const FILTER_VALIDATE_INT;
  */
 class FragmentFinder
 {
-    private const REGEXP_URI_FRAGMENT = ',^(?<type>row|cell|col)=(?<selections>.*)$,i';
-    private const REGEXP_ROWS_COLUMNS_SELECTION = '/^(?<start>\d+)(-(?<end>\d+|\*))?$/';
-    private const REGEXP_CELLS_SELECTION = '/^(?<csr>\d+),(?<csc>\d+)(-(?<end>((?<cer>\d+),(?<cec>\d+))|\*))?$/';
-    private const TYPE_ROW = 'row';
-    private const TYPE_COLUMN = 'col';
-    private const TYPE_UNKNOWN = 'unknown';
+    private const string REGEXP_URI_FRAGMENT = ',^(?<type>row|cell|col)=(?<selections>.*)$,i';
+    private const string REGEXP_ROWS_COLUMNS_SELECTION = '/^(?<start>\d+)(-(?<end>\d+|\*))?$/';
+    private const string REGEXP_CELLS_SELECTION = '/^(?<csr>\d+),(?<csc>\d+)(-(?<end>((?<cer>\d+),(?<cec>\d+))|\*))?$/';
+    private const string TYPE_ROW = 'row';
+    private const string TYPE_COLUMN = 'col';
+    private const string TYPE_UNKNOWN = 'unknown';
 
     /**
      * EXPERIMENTAL WARNING! This method implementation will change in the next major point release.

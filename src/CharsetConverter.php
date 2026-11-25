@@ -57,12 +57,12 @@ use const STREAM_FILTER_WRITE;
  */
 class CharsetConverter extends php_user_filter
 {
-    public const FILTERNAME = 'convert.league.csv';
-    public const BOM_SEQUENCE = 'bom_sequence';
-    public const SKIP_BOM_SEQUENCE = 'skip_bom_sequence';
-    protected const MODE = 'mode';
-    protected const MODE_READ = 'read';
-    protected const MODE_WRITE = 'write';
+    public const string FILTERNAME = 'convert.league.csv';
+    public const string BOM_SEQUENCE = 'bom_sequence';
+    public const string SKIP_BOM_SEQUENCE = 'skip_bom_sequence';
+    protected const string MODE = 'mode';
+    protected const string MODE_READ = 'read';
+    protected const string MODE_WRITE = 'write';
 
     protected string $input_encoding = 'UTF-8';
     protected string $output_encoding = 'UTF-8';

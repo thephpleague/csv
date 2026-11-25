@@ -33,8 +33,8 @@ final class FieldListTest extends TestCase
 
     private function createField(FieldType $type): Field
     {
-        return new class ($type) implements Field {
-            public function __construct(private readonly FieldType $type)
+        return new readonly class ($type) implements Field {
+            public function __construct(private FieldType $type)
             {
             }
 

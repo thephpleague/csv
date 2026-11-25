@@ -49,7 +49,7 @@ use const STREAM_FILTER_READ;
  */
 class Reader extends AbstractCsv implements TabularDataReader, JsonSerializable
 {
-    protected const STREAM_FILTER_MODE = STREAM_FILTER_READ;
+    protected const int STREAM_FILTER_MODE = STREAM_FILTER_READ;
 
     protected ?int $header_offset = null;
     protected int $nb_records = -1;

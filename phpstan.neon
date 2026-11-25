@@ -8,8 +8,8 @@ parameters:
     paths:
         - src
     ignoreErrors:
-        -
-           message: '#Call to deprecated method expectExceptionMessage\(\) of class PHPUnit\\Framework\\TestCase:#'
+        - '#Call to deprecated method expectExceptionMessage\(\) of class PHPUnit\\Framework\\TestCase:#'
+        - '#Call to deprecated method (getCsvControl|fputcsv|setCsvControl)\(\) of class SplFileObject\.#'
         -
            identifiers:
              - missingType.generics

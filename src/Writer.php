@@ -30,7 +30,7 @@ use const STREAM_FILTER_WRITE;
  */
 class Writer extends AbstractCsv implements TabularDataWriter
 {
-    protected const STREAM_FILTER_MODE = STREAM_FILTER_WRITE;
+    protected const int STREAM_FILTER_MODE = STREAM_FILTER_WRITE;
     /** @var array<Closure(array): bool> callable collection to validate the record before insertion. */
     protected array $validators = [];
     protected string $newline = "\n";

@@ -232,7 +232,7 @@ TEXT;
 
 final class StreamWrapper
 {
-    public const PROTOCOL = 'leaguetest';
+    public const string PROTOCOL = 'leaguetest';
 
     /**
      * @var resource

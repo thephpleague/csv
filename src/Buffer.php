@@ -54,8 +54,8 @@ use const ARRAY_FILTER_USE_KEY;
 
 final class Buffer implements TabularData
 {
-    public const INCLUDE_HEADER = 1;
-    public const EXCLUDE_HEADER = 2;
+    public const int INCLUDE_HEADER = 1;
+    public const int EXCLUDE_HEADER = 2;
 
     /** @var array<string>|array{} */
     private readonly array $header;
