@@ -6,7 +6,7 @@ All Notable changes to `Csv` will be documented in this file
 
 ### Added
 
-- `TypeFormatter`
+- `TypeFormatter` to improve and normalize PHP type to CSV field conversion
 - Improve `AbstractCsv::download` method takes an optional `$chunk_size` argument
 - Improve `CallbackStreamFilter` implementation, the callback now takes an optional `$closing` argument
 
@@ -16,13 +16,13 @@ All Notable changes to `Csv` will be documented in this file
 
 ### Fixed
 
-- Improve `CallbackStreamFilter` implementation
-- Improve `SwapDelimiter` implementation and better handling of multybite string
-- `CharsetConverter` no longer turns a multibyte character split between two chunks into `?` when the first chunk also contains an invalid byte sequence
+- Improve `CallbackStreamFilter` implementation by [nyamsprod](https://github.com/nyamsprod) (Ignace Nyamagana Butera) and [localhost8080](https://github.com/localhost8080) (Jonathan Mitchell)
+- Improve `SwapDelimiter` implementation by [nyamsprod](https://github.com/nyamsprod) (Ignace Nyamagana Butera) and [localhost8080](https://github.com/localhost8080) (Jonathan Mitchell)
+- Improve `CharsetConverter` implementation by [nyamsprod](https://github.com/nyamsprod) (Ignace Nyamagana Butera) and [localhost8080](https://github.com/localhost8080) (Jonathan Mitchell)
 
 ### Remove
 
-- None
+- Support for PHP8.2
 
 ## [9.29.1](https://github.com/thephpleague/csv/compare/9.29.0..9.19.1) - 2026-11-22
 
