@@ -12,7 +12,7 @@ layout: homepage
 use League\Csv\Reader;
 
 //load the CSV document from a file path
-$csv = Reader::from('/path/to/your/csv/file.csv', 'r');
+$csv = Reader::fromPath('/path/to/your/csv/file.csv', 'r');
 $csv->setHeaderOffset(0);
 
 $header = $csv->getHeader(); //returns the CSV header record
@@ -60,7 +60,7 @@ use League\Csv\Statement;
 
 //load the CSV document from a stream
 $stream = fopen('/path/to/your/csv/file.csv', 'r');
-$csv = Reader::from($stream);
+$csv = Reader::fromStream($stream);
 $csv->setDelimiter(';');
 $csv->setHeaderOffset(0);
 
@@ -84,19 +84,26 @@ foreach ($records as $record) {
 Different converters objects ease transforming your CSV documents into other popular formats
 
 ```php
+use Dom\XMLDocument;
 use League\Csv\Reader;
 use League\Csv\XMLConverter;
 
 //load the CSV document from a SplFileObject
 $file = new SplFileObject('/path/to/your/csv/file.csv', 'r');
-$csv = Reader::from($file);
+$csv = Reader::fromStream($file);
+$csv->setHeaderOffset(0);
 
 $converter = new XMLConverter()
     ->rootElement('csv')
     ->recordElement('record', 'offset')
-    ->fieldElement(null);
+    ->fieldElement('field', 'name')
+;
 
-$dom = $converter->convert($csv);
+$dom = XMLDocument::createEmpty();
+$dom->loadXML('<root><header><name>My CSV Document</name></header></root>');
+$data = $converter->import($csv, $dom);
+
+$dom->appendChild($data);
 $dom->formatOutput = true;
 $dom->encoding = 'iso-8859-15';
 
@@ -127,14 +134,11 @@ PHP stream filters can directly be used to ease manipulating CSV document
 
 ```php
 use League\Csv\Reader;
-use League\Csv\Bom;
+use League\Csv\CharsetConverter;
 
-$csv = Reader::from('/path/to/your/csv/file.csv', 'r');
+$csv = Reader::fromPath('/path/to/your/csv/file.csv', 'r');
 $csv->setHeaderOffset(0);
-
-if (Bom::tryFromSequence($csv)?->isUtf16() ?? false) {
-    $csv->appendStreamFilterOnRead('convert.iconv.UTF-16/UTF-8');
-}
+CharsetConverter::addTo($csv, 'utf-16', 'utf-8');
 
 foreach ($csv as $record) {
     //all fields from the record are converted from UTF-16 into UTF-8 charset

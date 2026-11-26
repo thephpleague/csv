@@ -36,49 +36,55 @@ if (!ini_get('auto_detect_line_endings')) {
 
 ## Deprecation Notice
 
-Starting with PHP8.4+, because the library is built using the native CSV features of PHP
-your code may start emitting deprecation notices. To avoid those deprecations you
-must explicitly set the escape control character to be the empty string as
-shown in the example below:
+`League\Csv` relies on PHP's native CSV handling capabilities. As PHP evolves, some of these native features are being
+deprecated, which may cause your application to emit deprecation notices when using the library.
 
-```php
-use League\Csv\Reader;
-use League\Csv\Writer;
+To avoid these notices and prepare your application for future PHP versions, review the following recommendations.
 
-$csv = Reader::from('/path/to/file.csv', 'r');
-$csv->setEscape(''); //required in PHP8.4+
+### SplFileObject usage
 
-$writer = Writer::fromString();
-$writer->setEscape(''); //required in PHP8.4+
+Starting with PHP8.6+, avoid passing `SplFileObject` or `SplTempFileObject` instances to the library.
+
+PHP has deprecated the CSV-related functionality exposed by `SplFileObject`, with its removal planned for `PHP 9`.
+The library temporarily retains support for these objects to give users time to migrate their applications.
+
+Instead, use PHP streams directly.
+
+**For temporary files:**
+
+```diff
+- $csv = Writer::fromStream(new SplTempFileObject());
++ $csv = Writer::fromStream(tmpfile());
 ```
 
-Doing so will prevent any deprecation notice. Of course, you are required to review on a
-case-by-case basis these changes as they may introduce some parsing bugs while reading
-existing CSV documents. A way to mitigate these issues is to re-encode your CSV
-documents and strip away the deprecated escape mechanism all together. This can
-be done using the script below:
+**For files on disk:**
 
-```php
-use League\Csv\Reader;
-use League\Csv\Writer;
-
-$csv = Reader::from('/path/to/file_with_escape_character.csv', 'r');
-$writer = Writer::from('/path/to/file_without_escape_character.csv', 'w');
-$writer->setEscape('');
-$writer->setDelimiter($csv->getDelimiter()); //we re-use the old document character controls
-$writer->setEnclosure($csv->getEnclosure()); //we re-use the old document character controls
-
-$writer->insertAll($csv); // deprecation notice from reading the old file will be emitted!
+```diff
+- $csv = Reader::fromStream(new SplFileObject('path/to/file.csv', 'r'));
++ $csv = Writer::fromPath('path/to/file.csv', 'r');
 ```
 
-This straightforward strategy using the package will re-encode your old CSV documents.
-After that, you can use the new document by setting the escape character to the
-empty string, and you will never get any deprecation notice again. And since
-you created a new document it is easy to validate that your new document
-still contains the same data.
+The recommended migration path is to replace `SplFileObject` usage with native PHP stream resources or the library's
+path-based constructors.
 
-Of course, it is highly recommended to adapt this script so that it can fit in
-your application lifecycle.
+If you do not control how a `SplFileObject` instance is obtained, you can still use `fromPath()` as an intermediate
+migration step:
+
+```diff
+- $csv = Reader::fromStream(new SplFileObject('path/to/file.csv', 'r'));
++ $csv = Writer::fromPath(new SplFileObject('path/to/file.csv', 'r'));
+```
+
+When given a `SplFileObject`, `fromPath()` resolves its underlying pathname using `SplFileObject::getPathname()` and opens
+a new stream to access the file. The original object is therefore not used for CSV processing.
+
+### Escape character usage
+
+Starting with `PHP 8.4`, PHP deprecates calls to its native CSV functions that do not explicitly declare an escape character.
+An escape character must now be provided, even when you intend to disable escaping by passing an empty string ('').
+
+`League\Csv` explicitly configures the escape character when interacting with PHP's native CSV functions,
+so using the library does not trigger these deprecation notices.
 
 ## Exceptions
 
@@ -89,7 +95,7 @@ use League\Csv\Exception;
 use League\Csv\Reader;
 
 try {
-    $csv = Reader::from('/path/to/file.csv', 'r');
+    $csv = Reader::fromPath('/path/to/file.csv');
     $csv->setDelimiter('toto');
 } catch (Exception $e) {
     echo $e->getMessage(), PHP_EOL;
@@ -105,7 +111,7 @@ use League\Csv\Exception;
 use League\Csv\Writer;
 
 try {
-    $csv = Writer::from(new SplFileObject('php://output', 'w'));
+    $csv = Writer::fromStream(new SplFileObject('php://output', 'w'));
     $csv->setEndOfLine("\r\n");
     $csv->insertOne(["foo", "bar"]);
 } catch (Exception | RuntimeException $e) {

@@ -146,3 +146,44 @@ echo stream_get_contents($resource); // the return string is converted from 'utf
 <p class="message-info">Even if the resource is writable, the stream filter will only be used when the file is read</p>
 <p class="message-warning">The <code>appendTo</code> and <code>prependTo</code> static methods that were introduced in
 version <code>9.17</code> are therefore deprecated as of version <code>9.22</code></p>
+
+### Error Handling with stream filter usage
+
+Due to the way PHP's stream API handles errors, `CharsetConverter` cannot throw exceptions when a filtering
+operation fails. Instead, it emits an `E_USER_WARNING`.
+
+You can intercept this warning and handle filtering errors using a custom PHP error handler. For example, you can
+convert the warning into an exception, allowing your application to handle the failure through its usual
+exception-handling mechanisms.
+
+```php
+use League\Csv\CharsetConverter;
+
+$resource = fopen('/path/to/my/file', 'r+');
+$filter = CharsetConverter::appendOnReadTo($resource, 'utf-8', 'iso-8859-15');
+
+set_error_handler(
+    static function (int $severity, string $message, string $file, int $line): bool {
+        if (E_USER_WARNING !== $severity) {
+            return false;
+        }
+
+        throw new RuntimeException($message);
+    },
+    E_USER_WARNING
+);
+
+try {
+    echo stream_get_contents($resource); // the return string is converted from 'utf-8' to 'iso-8859-15'
+} catch (RuntimeException $exception) {
+    // handle the exception triggered
+    // by the stream filter
+} finally {
+    restore_error_handler();
+}
+```
+
+The error handler is installed before reading the stream because filtering errors may only become apparent when
+the stream is consumed.
+
+The `finally` block ensures that the previous error handler is restored, even if an exception is thrown.

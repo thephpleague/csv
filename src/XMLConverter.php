@@ -300,7 +300,7 @@ class XMLConverter
      *
      * Converts a Record collection into a DOMDocument.
      */
-    #[Deprecated(message:'use League\Csv\XMLConverter::impoprt()', since:'league/csv:9.22.0')]
+    #[Deprecated(message:'use League\Csv\XMLConverter::import()', since:'league/csv:9.22.0')]
     public function convert(TabularDataProvider|TabularData|iterable $records): DOMDocument
     {
         $document = new DOMDocument(encoding: 'UTF-8');

@@ -70,10 +70,10 @@ $writer->getStreamFilterMode(); //returns STREAM_FILTER_WRITE
 Here's a table to quickly determine if PHP stream filters works depending on how the CSV object was instantiated.
 
 | Named constructor      |   supports stream      |
-|------------------------|------------------------|
+|------------------------|--------------------------------------------------------|
 | `createFromString`     |         true           |
 | `createFromPath`       |         true           |
-| `createFromStream`     |         true           |
+| `createFromStream`     |         true for stream; **false** for `SplFileObject` |
 | `createFromFileObject` |       **false**        |
 
 ## Adding a stream filter
@@ -163,9 +163,10 @@ $reader = null;
 
 The library comes bundled with the following stream filters:
 
-- [EncloseField](/9.0/interoperability/enclose-field/) stream filter to force field enclosure on write;
-- [RFC4180Field](/9.0/interoperability/rfc4180-field/) stream filter to read or write RFC4180 compliant CSV field;
+- [EncloseField](/9.0/interoperability/enclose-field/) stream filter to force field enclosure on write **deprecated**;
+- [RFC4180Field](/9.0/interoperability/rfc4180-field/) stream filter to read or write RFC4180 compliant CSV field **deprecated**;
 - [CharsetConverter](/9.0/converter/charset/) stream filter to convert your CSV document content using the `mbstring` extension;
+- [SwapDelimiter](/9.0/interoperability/swap-delimiter/) stream filter to convert your CSV document delimiter from multibyte to single byte character using the `mbstring` extension;
 
 ## Custom Stream Filter
 
@@ -194,11 +195,12 @@ are using a framework.</p>
 The callback signature is the following
 
 ```php
-callable(string $bucket [, mixed $params]): ?string
+callable(string $bucket [, mixed $params, bool $closing]): ?string
 ```
 
 - the `$bucket` parameter represents the chunk of the stream you will be operating on.
 - the `$params` represents an additional, **optional**, parameter you may pass onto the callback when it is being attached.
+- the `$closing` represents an additional, **optional**, parameter you may pass onto the callback when it is being used inside the `php_user_filter::filter()` method.
 
 Once registered you can apply the filter via its `$filtername`. It is possible to register multiple times the same callback
 but each registration needs to be done with a unique name otherwise an exception will be triggered.

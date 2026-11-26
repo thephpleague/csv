@@ -23,7 +23,7 @@ Access and filter records from a CSV document saved on the local filesystem.
 use League\Csv\Reader;
 use League\Csv\Statement;
 
-$csv = Reader::from('/path/to/your/csv/file.csv', 'r');
+$csv = Reader::fromPath('/path/to/your/csv/file.csv', 'r');
 $csv->setHeaderOffset(0); //set the CSV header offset
 $csv->setEscape(''); //required in PHP8.4+ to avoid deprecation notices
 
@@ -57,7 +57,7 @@ $sth->setFetchMode(PDO::FETCH_ASSOC);
 $sth->execute();
 
 // We create the CSV into memory
-$csv = Writer::from(new SplTempFileObject());
+$csv = Writer::fromStream(new SplTempFileObject());
 $csv->setEscape(''); //required in PHP8.4+ to avoid deprecation notices
 
 // We insert the CSV header
@@ -90,7 +90,7 @@ $sth = $dbh->prepare(
 
 // By setting the header offset we index all records
 // with the header record and remove it from the iteration
-$csv = Reader::from('/path/to/your/csv/file.csv')
+$csv = Reader::fromPath('/path/to/your/csv/file.csv')
     ->setHeaderOffset(0)
     ->setEscape('') //required in PHP8.4+ to avoid deprecation notices
 ;
@@ -115,13 +115,7 @@ use League\Csv\CharsetConverter;
 
 $csv = Reader::from('/path/to/your/csv/file.csv', 'r');
 $csv->setHeaderOffset(0);
-$csv->setEscape(''); //required in PHP8.4+ to avoid deprecation notices
-
-$inputBom = Bom::tryFrom($csv->getInputBOM());
-if ($inputBom instanceof Bom && !$inputBom->isUtf8()) {
-    CharsetConverter::addTo($csv, $inputBom->encoding(), Bom::Utf8->encoding());
-}
-
+CharsetConverter::addBOMSkippingTo($csv, Bom::Utf8->encoding());
 foreach ($csv as $record) {
     //all fields from the record are converted into UTF-8 charset
 }
@@ -132,6 +126,7 @@ foreach ($csv as $record) {
 The `XMLConverter` object provided by this package can easily convert a CSV document into a `DOMDocument` object.
 
 ```php
+use Dom\XMLDocument;
 use League\Csv\XMLConverter;
 use League\Csv\Reader;
 
@@ -146,7 +141,11 @@ $converter = new XMLConverter()
     ->fieldElement('field', 'name')
 ;
 
-$dom = $converter->convert($records);
+$dom = XMLDocument::createEmpty();
+$dom->loadXML('<root><header><name>My CSV Document</name></header></root>');
+$data = $converter->import($csv, $dom);
+
+$dom->appendChild($data);
 $dom->formatOutput = true;
 $dom->encoding = 'iso-8859-15';
 
