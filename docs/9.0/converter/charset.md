@@ -147,7 +147,7 @@ echo stream_get_contents($resource); // the return string is converted from 'utf
 <p class="message-warning">The <code>appendTo</code> and <code>prependTo</code> static methods that were introduced in
 version <code>9.17</code> are therefore deprecated as of version <code>9.22</code></p>
 
-### Error Handling with stream filter usage
+### Error Handling
 
 Due to the way PHP's stream API handles errors, `CharsetConverter` cannot throw exceptions when a filtering
 operation fails. Instead, it emits an `E_USER_WARNING`.

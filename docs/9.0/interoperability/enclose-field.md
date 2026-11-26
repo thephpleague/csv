@@ -15,7 +15,7 @@ The `EncloseField` is a PHP stream filter which forces the `Writer` class to enc
 
 <p class="message-warning">Deprecated since version <code>9.10.0</code>. You should instead use the
 <code>Writer::forceEnclosure</code> method for better results and improved DX. Please refer to
-<a href="/9.0/writer/#force-enclosure">its documentation</a> for more informations.</p>
+<a href="/9.0/writer/#quoting">its documentation</a> for more information.</p>
 
 ## With Writer objects
 

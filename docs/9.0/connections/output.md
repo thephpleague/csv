@@ -140,9 +140,12 @@ die;
 
 In this example, the document is streamed in chunks of 1024 bytes.
 
-## Using a Response object (Symfony, Laravel, PSR-7 etc)
+## Using a Response object
 
-To avoid breaking the flow of your application, you should create a Response object when applicable in your framework. The actual implementation will differ per framework, but you should generally not output headers directly.
+To avoid breaking the flow of your application (Symfony, Laravel, PSR-7, etc),
+you should create a Response object when applicable in your framework.
+The actual implementation will differ per framework, but you should
+generally not output headers directly.
 
 ```php
 use League\Csv\Reader;
