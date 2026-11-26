@@ -29,8 +29,6 @@ public AbstractCsv::__toString(): string
 
 Use the `toString` method to return the full CSV content.
 
-### Example
-
 ```php
 use League\Csv\Reader;
 
@@ -68,7 +66,7 @@ echo $csv->getContent();
 
 <p class="message-warning">The <code>__toString</code> method is deprecated in version <code>9.1.0</code> and will be removed in the next major version.</p>
 
-## Outputting the document into chunks
+## Outputting the document
 
 ```php
 public AbstractCsv::chunk(int $length): Generator
@@ -118,19 +116,19 @@ $reader->download();
 die;
 ```
 
-### Using the `$filename` argument
+### Adding the filename
 
 ```php
 use League\Csv\Reader;
 
 $reader = Reader::from('file.csv');
-$reader->download('name-for-your-file.csv');
+$reader->download(filename: 'name-for-your-file.csv');
 die;
 ```
 
 <p class="message-notice">Since <code>download()</code> writes directly to the output buffer, terminate your script immediately after calling it to prevent additional output from being appended to the downloaded document. Do not return the method's return value as the response body.</p>
 
-### Using the `$chunk_size` argument
+### Downloading in chunk
 
 ```php
 use League\Csv\Reader;

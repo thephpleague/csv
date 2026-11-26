@@ -214,7 +214,7 @@ A formatter is a `callable` which accepts a single CSV record as an `array` on i
 function(array $record): array
 ```
 
-#### Adding a Formatter to a Writer object
+#### Adding a Formatter
 
 You can attach as many formatters as you want to the `Writer` class using the `Writer::addFormatter` method. Formatters are applied following the *First In First Out* rule.
 
@@ -246,7 +246,7 @@ The validator **must** return `true` to validate the submitted record.
 
 Any other expression, including truthy ones like `yes`, `1`,... will make the `insertOne` method throw an `League\Csv\CannotInsertRecord` exception.
 
-#### Adding a Validator to a Writer object
+#### Adding a Validator
 
 As with the formatter capabilities, you can attach as many validators as you want using the `Writer::addValidator` method. Validators are applied following the *First In First Out* rule.
 
