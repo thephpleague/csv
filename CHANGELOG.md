@@ -2,6 +2,24 @@
 
 All Notable changes to `Csv` will be documented in this file
 
+## [Next](https://github.com/thephpleague/csv/compare/9.30.1..master) - TBD
+
+### Added
+
+- None
+
+### Deprecated
+
+- None
+
+### Fixed
+
+- None
+
+### Remove
+
+- None
+
 ## [9.30.0](https://github.com/thephpleague/csv/compare/9.29.1..9.30.0) - 2026-11-28
 
 ### Added
@@ -9,6 +27,7 @@ All Notable changes to `Csv` will be documented in this file
 - `TypeFormatter` to improve and normalize PHP type to CSV field conversion
 - Improve `AbstractCsv::download` method takes an optional `$chunk_size` argument
 - Improve `CallbackStreamFilter` implementation, the callback now takes an optional `$closing` argument
+- Improve `Writer enclosure` usage/quoting feature
 
 ### Deprecated
 
