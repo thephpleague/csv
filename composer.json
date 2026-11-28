@@ -61,6 +61,8 @@
         "phpstan-build": "phpstan analyse -c phpstan-build.neon --ansi --memory-limit=256M",
         "phpunit": "XDEBUG_MODE=coverage phpunit --coverage-text",
         "phpunit:min": "phpunit --no-coverage",
+        "docs:lint": "npx --yes markdownlint-cli2 --config docs/.markdownlint.yml \"docs/**/*.md\"",
+        "docs:fix": "npx --yes markdownlint-cli2 --fix --config docs/.markdownlint.yml \"docs/**/*.md\"",
         "test": [
             "@phpunit",
             "@phpstan",

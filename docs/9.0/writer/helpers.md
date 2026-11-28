@@ -45,12 +45,12 @@ suitable for CSV export (or similar flat formats).
 It can be used directly as a callable and supports multiple exclusive formatting strategies.
 Those strategies are exclusive and are chosen via named constructors.
 
-| Strategy     | Description                                         | Named constructors |
-|--------------|-----------------------------------------------------|--------------------|
-| **Name**     | Uses the enum case name (`UnitEnum::name`)          | `usingName`        |
-| **Value**    | Uses the backed value of a `BackedEnum`             | `usingValue`       |
-| **JSON**     | Uses `jsonSerialize()` for `JsonSerializable` enums | `usingJson`        |
-| **Callback** | Uses a user-defined callable                        | `usingCallback`    |
+| Strategy | Description | Named constructors |
+| -------------- | ----------------------------------------------------- | -------------------- |
+| **Name** | Uses the enum case name (`UnitEnum::name`) | `usingName` |
+| **Value** | Uses the backed value of a `BackedEnum` | `usingValue` |
+| **JSON** | Uses `jsonSerialize()` for `JsonSerializable` enums | `usingJson` |
+| **Callback** | Uses a user-defined callable | `usingCallback` |
 
 ### Encoding a Single Enum
 
@@ -140,15 +140,15 @@ into strings suitable for CSV export and other flat data formats.
 
 It follows conversion rules similar to those used for URI query parameters.
 
-| Type     | Conversion                                         | Example |
-|--------------|-----------------------------------------------------|--------------------|
-| **string**     | as is          | "foo" → foo       |
-| **null**    | configurable, default to empty field            | `null → empty field (in default configuration)`|
-| **bool**     | configurable, default to  “1” / “0”| false → 0 (in default configuration)`        |
-| **int** | decimal representation  | -42 → -42   |
-| **float** | Serialized using serialize_precision, as with `json_encode()`| 0.1 + 0.2 → 0.30000000000000004   |
-| **backed enum** | Backing value, converted according to its type | Suit::Hearts → H   |
-| **other types** | Not supported; throws a `TypeError`| TypeError thrown|
+| Type | Conversion | Example |
+| -------------- | ----------------------------------------------------- | -------------------- |
+| **string** | as is | "foo" → foo |
+| **null** | configurable, default to empty field | `null → empty field (in default configuration)` |
+| **bool** | configurable, default to  “1” / “0” | false → 0 (in default configuration)` |
+| **int** | decimal representation | -42 → -42 |
+| **float** | Serialized using serialize_precision, as with `json_encode()` | 0.1 + 0.2 → 0.30000000000000004 |
+| **backed enum** | Backing value, converted according to its type | Suit::Hearts → H |
+| **other types** | Not supported; throws a `TypeError` | TypeError thrown |
 
 <p class="message-notice">The float values <code>INF</code>, <code>-INF</code>, and <code>NAN</code> are not supported and will cause a <code>ValueError</code> to be thrown.</p>
 <p class="message-notice">Objects implementing <code>Stringable</code> are not supported and will cause a <code>TypeError</code> to be thrown.</p>

@@ -174,17 +174,17 @@ Only the fields included in the `FieldList` are considered during schema inferen
 
 The inspection engine provides a field implementation for each supported field type:
 
-| Field           | Description                                                             |
+| Field | Description |
 | --------------- | ----------------------------------------------------------------------- |
-| `BooleanField`  | Detects and parses boolean values.                                      |
-| `NumericField`  | Detects and parses numeric values.                                      |
-| `DatetimeField` | Detects and parses date and time values.                                |
-| `TimeField`     | Detects and parses time values.                                         |
-| `JsonField`     | Detects and parses JSON values.                                         |
-| `EnumField`     | Detects and parses values belonging to an enumeration.                  |
-| `SetField`      | Detects and parses values representing a set.                           |
-| `StringField`   | Handles values as strings.                                              |
-| `CustomField`   | Allows application-specific types to be added to the inference process. |
+| `BooleanField` | Detects and parses boolean values. |
+| `NumericField` | Detects and parses numeric values. |
+| `DatetimeField` | Detects and parses date and time values. |
+| `TimeField` | Detects and parses time values. |
+| `JsonField` | Detects and parses JSON values. |
+| `EnumField` | Detects and parses values belonging to an enumeration. |
+| `SetField` | Detects and parses values representing a set. |
+| `StringField` | Handles values as strings. |
+| `CustomField` | Allows application-specific types to be added to the inference process. |
 
 The default `FieldList` currently includes:
 
@@ -521,20 +521,20 @@ This makes `getRecordsAsObject()` appropriate when the input is expected to conf
 
 The same `"R"` value therefore produces different results:
 
-| Method                           |  `age` | `gender = "R"` |
+| Method | `age` | `gender = "R"` |
 | -------------------------------- | -----: | -------------- |
-| `getRecords()`                   | `"35"` | `"R"`          |
-| `inferRecords()`                 |   `35` | `"R"`          |
-| `inferRecords($inspector)`       |   `35` | `null`         |
-| `getRecordsAsObject(Poi::class)` |   `35` | **Exception**  |
+| `getRecords()` | `"35"` | `"R"` |
+| `inferRecords()` | `35` | `"R"` |
+| `inferRecords($inspector)` | `35` | `null` |
+| `getRecordsAsObject(Poi::class)` | `35` | **Exception** |
 
 The difference is not simply about type conversion. Each method has a different relationship with the input data:
 
-| Method                 | Purpose               | Type knowledge      | Invalid value          |
+| Method | Purpose | Type knowledge | Invalid value |
 | ---------------------- | --------------------- | ------------------- | ---------------------- |
-| `getRecords()`         | Read raw CSV data     | None                | Returned as-is         |
-| `inferRecords()`       | Infer and parse data  | Discovered from CSV | Parsed value or `null` |
-| `getRecordsAsObject()` | Map to a known object | Explicitly defined  | Exception              |
+| `getRecords()` | Read raw CSV data | None | Returned as-is |
+| `inferRecords()` | Infer and parse data | Discovered from CSV | Parsed value or `null` |
+| `getRecordsAsObject()` | Map to a known object | Explicitly defined | Exception |
 
 <div class="message-notice">
 <ul>

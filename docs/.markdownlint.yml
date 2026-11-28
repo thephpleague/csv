@@ -20,3 +20,9 @@ no-hard-tabs:
 
 no-duplicate-header:
   allow_different_nesting: true
+
+MD024:
+  siblings_only: true
+
+MD060:
+  style: compact

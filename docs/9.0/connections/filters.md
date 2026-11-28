@@ -69,12 +69,12 @@ $writer->getStreamFilterMode(); //returns STREAM_FILTER_WRITE
 
 Here's a table to quickly determine if PHP stream filters works depending on how the CSV object was instantiated.
 
-| Named constructor      |   supports stream      |
-|------------------------|--------------------------------------------------------|
-| `createFromString`     |         true           |
-| `createFromPath`       |         true           |
-| `createFromStream`     |         true for stream; **false** for `SplFileObject` |
-| `createFromFileObject` |       **false**        |
+| Named constructor | supports stream |
+| ------------------------ | -------------------------------------------------------- |
+| `createFromString` | true |
+| `createFromPath` | true |
+| `createFromStream` | true for stream; **false** for `SplFileObject` |
+| `createFromFileObject` | **false** |
 
 ## Adding a stream filter
 
