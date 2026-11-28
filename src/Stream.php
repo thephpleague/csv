@@ -27,19 +27,24 @@ use function fclose;
 use function feof;
 use function fflush;
 use function fgetcsv;
+use function fgets;
 use function fopen;
 use function fpassthru;
 use function fputcsv;
 use function fread;
 use function fseek;
+use function fstat;
+use function ftell;
 use function fwrite;
+use function get_debug_type;
 use function get_resource_type;
-use function gettype;
 use function is_array;
 use function is_resource;
 use function is_string;
 use function rewind;
+use function rtrim;
 use function stream_filter_remove;
+use function stream_get_contents;
 use function stream_get_meta_data;
 use function strlen;
 
@@ -102,11 +107,11 @@ final class Stream implements SeekableIterator
     public function __debugInfo(): array
     {
         return stream_get_meta_data($this->stream) + [
-            'delimiter' => $this->delimiter,
-            'enclosure' => $this->enclosure,
-            'escape' => $this->escape,
-            'stream_filters' => array_keys($this->filters),
-        ];
+                'delimiter' => $this->delimiter,
+                'enclosure' => $this->enclosure,
+                'escape' => $this->escape,
+                'stream_filters' => array_keys($this->filters),
+            ];
     }
 
     /**
@@ -146,7 +151,7 @@ final class Stream implements SeekableIterator
             $filename = $resource;
         }
 
-        is_resource($filename) || throw new TypeError('Argument passed must be a stream resource or a string, '.gettype($filename).' given.');
+        is_resource($filename) || throw new TypeError('Argument passed must be a stream resource or a string, '.get_debug_type($filename).' given.');
         'stream' === ($type = get_resource_type($filename)) || throw new TypeError('Argument passed must be a stream resource, '.$type.' resource given');
 
         return new self($filename, stream_get_meta_data($filename)['seekable'], $should_close_stream);
@@ -538,7 +543,7 @@ final class Stream implements SeekableIterator
     #[Deprecated(message:'use League\Csv\Stream::from() instead', since:'league/csv:9.27.0')]
     public static function createFromResource(mixed $stream): self
     {
-        is_resource($stream) || throw new TypeError('Argument passed must be a stream resource or a string, '.gettype($stream).' given.');
+        is_resource($stream) || throw new TypeError('Argument passed must be a stream resource or a string, '.get_debug_type($stream).' given.');
 
         return self::from($stream);
     }

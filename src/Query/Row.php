@@ -24,6 +24,7 @@ use function array_map;
 use function array_values;
 use function count;
 use function explode;
+use function get_debug_type;
 use function implode;
 use function is_array;
 use function is_int;
@@ -38,7 +39,7 @@ final readonly class Row
         return new self(match (true) {
             is_object($value),
             is_array($value) => $value,
-            default => throw new TypeError('The value must be an array or an object; received '.gettype($value).'.'),
+            default => throw new TypeError('The value must be an array or an object; received '.get_debug_type($value).'.'),
         });
     }
 

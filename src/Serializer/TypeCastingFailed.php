@@ -16,6 +16,7 @@ namespace League\Csv\Serializer;
 use RuntimeException;
 use Throwable;
 
+use function get_debug_type;
 use function is_int;
 
 final class TypeCastingFailed extends RuntimeException implements SerializationFailed
@@ -61,7 +62,7 @@ final class TypeCastingFailed extends RuntimeException implements SerializationF
     public static function dueToInvalidValue(mixed $value, string $type, ?Throwable $previous = null, ?TypeCastingInfo $info = null): self
     {
         if (!is_scalar($value)) {
-            $value = gettype($value);
+            $value = get_debug_type($value);
         }
 
         return new self('Unable to cast the given data `'.$value.'` to a `'.$type.'`.', 0, $previous, $info);

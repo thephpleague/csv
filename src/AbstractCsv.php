@@ -25,13 +25,12 @@ use Throwable;
 use TypeError;
 
 use function filter_var;
+use function get_debug_type;
 use function get_resource_type;
-use function gettype;
 use function header;
 use function is_resource;
 use function preg_match;
 use function rawurlencode;
-use function sprintf;
 use function str_replace;
 use function strcspn;
 use function strlen;
@@ -112,7 +111,7 @@ abstract class AbstractCsv implements ByteSequence, Stringable
     public static function fromStream($stream): static
     {
         if (!$stream instanceof SplFileObject) {
-            is_resource($stream) || throw new TypeError('Argument passed must be a stream resource or an SplFileObject instance, '.gettype($stream).' given.');
+            is_resource($stream) || throw new TypeError('Argument passed must be a stream resource or an SplFileObject instance, '.get_debug_type($stream).' given.');
             'stream' === ($type = get_resource_type($stream)) || throw new TypeError('Argument passed must be a stream resource or an SplFileObject instance, '.$type.' resource given');
         }
 
@@ -591,10 +590,9 @@ abstract class AbstractCsv implements ByteSequence, Stringable
         /** @var string $filtered_name */
         $filtered_name = filter_var($filename, FILTER_UNSAFE_RAW, $flag);
         $filename_fallback = str_replace('%', '', $filtered_name);
-
-        $disposition = sprintf('attachment; filename="%s"', str_replace('"', '\\"', $filename_fallback));
+        $disposition = 'attachment; filename="'.str_replace('"', '\\"', $filename_fallback).'"';
         if ($filename !== $filename_fallback) {
-            $disposition .= sprintf("; filename*=utf-8''%s", rawurlencode($filename));
+            $disposition .= "; filename*=utf-8''".rawurlencode($filename);
         }
 
         header('Content-Type: text/csv');
@@ -673,7 +671,7 @@ abstract class AbstractCsv implements ByteSequence, Stringable
     #[Deprecated(message:'use League\Csv\AbstractCsv::from() or League\Csv\AbstractCsv::fromStream() instead', since:'league/csv:9.27.0')]
     public static function createFromStream($stream): static
     {
-        is_resource($stream) || throw new TypeError('Argument passed must be a stream resource or a string, '.gettype($stream).' given.');
+        is_resource($stream) || throw new TypeError('Argument passed must be a stream resource or a string, '.get_debug_type($stream).' given.');
 
         return new static(Stream::from($stream));
     }

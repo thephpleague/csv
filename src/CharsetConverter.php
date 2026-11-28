@@ -22,8 +22,8 @@ use TypeError;
 
 use function array_reduce;
 use function ftell;
+use function get_debug_type;
 use function get_resource_type;
-use function gettype;
 use function in_array;
 use function is_array;
 use function is_numeric;
@@ -240,7 +240,7 @@ class CharsetConverter extends php_user_filter
      */
     final protected static function filterStream(mixed $stream): mixed
     {
-        is_resource($stream) || throw new TypeError('Argument passed must be a stream resource, '.gettype($stream).' given.');
+        is_resource($stream) || throw new TypeError('Argument passed must be a stream resource, '.get_debug_type($stream).' given.');
         'stream' === ($type = get_resource_type($stream)) || throw new TypeError('Argument passed must be a stream resource, '.$type.' resource given');
 
         return $stream;

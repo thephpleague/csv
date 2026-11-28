@@ -17,8 +17,8 @@ use LogicException;
 use RuntimeException;
 use TypeError;
 
+use function get_debug_type;
 use function get_resource_type;
-use function gettype;
 use function in_array;
 use function is_resource;
 use function stream_filter_remove;
@@ -36,7 +36,7 @@ final class StreamFilter
      */
     public static function remove($stream_filter): bool
     {
-        is_resource($stream_filter) || throw new TypeError('Argument passed must be a stream resource, '.gettype($stream_filter).' given.');
+        is_resource($stream_filter) || throw new TypeError('Argument passed must be a stream resource, '.get_debug_type($stream_filter).' given.');
         'stream filter' === ($type = get_resource_type($stream_filter)) || throw new TypeError('Argument passed must be a stream filter resource, '.$type.' resource given');
 
         return stream_filter_remove($stream_filter);
@@ -162,7 +162,7 @@ final class StreamFilter
             return;
         }
 
-        is_resource($stream) || throw new TypeError('Argument passed must be a stream resource, '.gettype($stream).' given.');
+        is_resource($stream) || throw new TypeError('Argument passed must be a stream resource, '.get_debug_type($stream).' given.');
         'stream' === ($type = get_resource_type($stream)) || throw new TypeError('Argument passed must be a stream resource, '.$type.' resource given');
     }
 }
